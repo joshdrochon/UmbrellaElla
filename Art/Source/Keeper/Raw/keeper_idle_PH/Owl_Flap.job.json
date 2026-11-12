@@ -1,0 +1,131 @@
+{
+ "character": "owl",
+ "anim": "Flap",
+ "builder": "owl",
+ "asset": "Owl",
+ "frame_size": [
+  640,
+  512
+ ],
+ "pivot_px": [
+  296.0,
+  280.0
+ ],
+ "faces": "left",
+ "px_per_unit": 62.0,
+ "fps": 10,
+ "loop": true,
+ "layout": "CHR_Owl_Flap_Damage.png",
+ "poses": [
+  {
+   "index": 0,
+   "rot": {
+    "head": 0.0,
+    "tail": 0.0,
+    "wing_far": 30.0,
+    "wing_near": 38.0
+   },
+   "lift": 0.0
+  },
+  {
+   "index": 1,
+   "rot": {
+    "head": -1.3333,
+    "tail": 2.0,
+    "wing_far": 11.3333,
+    "wing_near": 14.0
+   },
+   "lift": -2.0
+  },
+  {
+   "index": 2,
+   "rot": {
+    "head": -2.6667,
+    "tail": 4.0,
+    "wing_far": -7.3333,
+    "wing_near": -10.0
+   },
+   "lift": -4.0
+  },
+  {
+   "index": 3,
+   "rot": {
+    "head": -4.0,
+    "tail": 6.0,
+    "wing_far": -26.0,
+    "wing_near": -34.0
+   },
+   "lift": -6.0
+  },
+  {
+   "index": 4,
+   "rot": {
+    "head": -2.6667,
+    "tail": 4.0,
+    "wing_far": -7.3333,
+    "wing_near": -10.0
+   },
+   "lift": -4.0
+  },
+  {
+   "index": 5,
+   "rot": {
+    "head": -1.3333,
+    "tail": 2.0,
+    "wing_far": 11.3333,
+    "wing_near": 14.0
+   },
+   "lift": -2.0
+  }
+ ],
+ "colours": {
+  "paper-light": "#aa8f7f",
+  "paper-mid": "#93786b",
+  "paper-stain": "#7b6157",
+  "etch-line": "#c4a999",
+  "owl-umber": "#3a2c25",
+  "owl-feather": "#5c473e",
+  "silhouette": "#1d1713",
+  "spark-white": "#fff3d6",
+  "gold": "#e9b04a",
+  "amber-eye": "#c8862a",
+  "rust-red": "#743422",
+  "ink": "#171614",
+  "wind-ash-blue": "#555e60",
+  "rust": "#723929",
+  "rust shadow": "#5b2519",
+  "rust high": "#79331f",
+  "yellow": "#ffd84a",
+  "amber": "#f5aa28",
+  "yellow shadow": "#94611e",
+  "core": "#fff5dc"
+ },
+ "look": {
+  "shades": [
+   "ink",
+   "silhouette",
+   "owl-umber"
+  ],
+  "ink": "ink",
+  "line_px": 1.6,
+  "grain": 0.06,
+  "grain_scale": 180.0,
+  "seed": 11,
+  "light_deg": [
+   62,
+   0,
+   18
+  ],
+  "samples": 16
+ },
+ "out_dir": "Art/Source/Keeper/Raw/keeper_idle_PH",
+ "frames": [
+  "Art/Source/Keeper/Raw/keeper_idle_PH/Owl_Flap_00.png",
+  "Art/Source/Keeper/Raw/keeper_idle_PH/Owl_Flap_01.png",
+  "Art/Source/Keeper/Raw/keeper_idle_PH/Owl_Flap_02.png",
+  "Art/Source/Keeper/Raw/keeper_idle_PH/Owl_Flap_03.png",
+  "Art/Source/Keeper/Raw/keeper_idle_PH/Owl_Flap_04.png",
+  "Art/Source/Keeper/Raw/keeper_idle_PH/Owl_Flap_05.png"
+ ],
+ "blend": "Art/Source/Keeper/Raw/keeper_idle_PH/Owl_Flap.blend"
+}

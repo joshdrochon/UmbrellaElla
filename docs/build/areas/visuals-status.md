@@ -16,3 +16,10 @@
 - Art verdicts: none shipped. Generation needs API keys that only the arena shell may source (worker rules), so the
   art_loop could not run. Every piece stays a stand-in/_PH; no art_loop pass record exists for any piece (not attempted).
 - Still open: enemy and shot presenters, BG-02..04/06 art, VFX-06..11 (layers, lighting, performance), ANIM/ART coverage items.
+
+## Nov 12 update (after main merge)
+- Art generation works without keys: `tools/assetgen.py image --character owl` renders with Blender 5.2.1. One Keeper still
+  (`Art/Source/Keeper/keeper_idle_PH.png`, provenance row added) stays a tracked `_PH` placeholder: no art_loop pass record,
+  no blind critic session run, `art_ref_check` has no references assigned to card ANIM-06 in references.json. Nothing shipped under Art/ outside Source/.
+- Shots already have a Visual mesh (AUmbrellaProjectile), so a shot stand-in presenter adds nothing.
+- Still open: enemy presenter, BG-02..04/06 looping art, VFX-06..11, ANIM/ART coverage, art_loop passes (needs a separate critic session).
