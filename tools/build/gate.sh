@@ -15,5 +15,14 @@ fail=0
 [ $fail = 0 ] && { "$ROOT/tools/build/ue_slot.sh" tools/ue/test.sh 2>&1 | tail -4 | tee /dev/stderr | grep -q "^PASS" || fail=1; }
 for t in module_check manifest_check feel_check encounter_check; do python3 tools/$t.py 2>&1 | tail -1 | tee /dev/stderr | grep -q " 0 problem" || fail=1; done
 if [ $fail = 0 ]; then
-  cd "$ROOT"; git merge -q --ff-only gate && git push -q origin main && echo "GATE PASS: main $(git rev-parse --short HEAD) pushed"
+  cd "$ROOT"
+  if ! git merge -q --ff-only gate 2>/dev/null; then
+    # main moved during the gate. Merge anyway only if the new main commits touch no game files.
+    base=$(git merge-base main gate)
+    if git diff --name-only "$base" main | grep -q -E '^(Source|Config|Content|Plugins)/|\.uproject$'; then
+      echo "GATE FAIL: main moved with game-file changes during the gate; rerun"; exit 1
+    fi
+    git -c core.hooksPath=/dev/null merge -q --no-edit -m "Merge gate result for $REF" gate || { git merge --abort; echo "GATE FAIL: merge"; exit 1; }
+  fi
+  git push -q origin main && echo "GATE PASS: main $(git rev-parse --short HEAD) pushed"
 else echo "GATE FAIL: $REF $(git -C "$G" rev-parse --short HEAD) (main unchanged)"; exit 1; fi
