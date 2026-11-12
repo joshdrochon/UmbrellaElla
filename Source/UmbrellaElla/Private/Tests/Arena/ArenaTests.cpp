@@ -1,5 +1,7 @@
 #include "Arena/UmbrellaArena.h"
 #include "Camera/CameraComponent.h"
+#include "Components/BoxComponent.h"
+#include "Core/UmbrellaCollision.h"
 #include "Core/UmbrellaEventBus.h"
 #include "Core/UmbrellaTuning.h"
 #include "Engine/World.h"
@@ -46,6 +48,22 @@ bool FArenaWorldCamera::RunTest(const FString& Parameters)
 			TestTrue(TEXT("aspect constrained"), Camera->bConstrainAspectRatio);
 			TestEqual(TEXT("orthographic"), static_cast<int32>(Camera->ProjectionMode), static_cast<int32>(ECameraProjectionMode::Orthographic));
 		}
+		TArray<UBoxComponent*> Boxes;
+		Arena->GetComponents<UBoxComponent>(Boxes);
+		int32 Blocking = 0;
+		for (const UBoxComponent* Box : Boxes)
+		{
+			if (!Box->ComponentHasTag(TEXT("LethalBottom")))
+			{
+				++Blocking;
+				TestEqual(TEXT("wall blocks player shot"), static_cast<int32>(Box->GetCollisionResponseToChannel(UmbrellaCollision::PlayerShot)), static_cast<int32>(ECR_Block));
+				TestEqual(TEXT("wall blocks enemy shot"), static_cast<int32>(Box->GetCollisionResponseToChannel(UmbrellaCollision::EnemyShot)), static_cast<int32>(ECR_Block));
+			}
+		}
+		TestEqual(TEXT("two walls and a ceiling"), Blocking, 3);
+		Arena->BuildPlaceholders();
+		TestNotNull(TEXT("keeper stand-in"), Arena->GetKeeperStandIn());
+		TestNotNull(TEXT("far background"), Arena->GetBackgroundFar());
 		const FArenaCameraTuning& T = GetDefault<UUmbrellaTuning>()->ArenaCamera;
 		TestNearlyEqual(TEXT("keeper anchor X"), Arena->GetKeeperAnchorLocation().X, static_cast<double>(T.ArenaWidth * T.KeeperAnchorXFraction));
 		TestNearlyEqual(TEXT("keeper anchor Z"), Arena->GetKeeperAnchorLocation().Z, static_cast<double>(T.ArenaHeight * T.KeeperAnchorZFraction));

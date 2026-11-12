@@ -1,13 +1,14 @@
 #include "Arena/UmbrellaArena.h"
 #include "Camera/CameraComponent.h"
 #include "Components/BoxComponent.h"
+#include "Core/UmbrellaCollision.h"
 #include "Core/UmbrellaDrawOrder.h"
 #include "Core/UmbrellaEventBus.h"
 #include "Core/UmbrellaTuning.h"
+#include "Components/StaticMeshComponent.h"
+#include "Engine/StaticMesh.h"
 #include "Engine/World.h"
-#include "GameFramework/PlayerController.h"
 #include "Harness/UmbrellaFeatureFlags.h"
-#include "Kismet/GameplayStatics.h"
 
 namespace
 {
@@ -18,6 +19,13 @@ namespace
 		Box->SetupAttachment(Parent);
 		Box->SetCollisionProfileName(Profile);
 		return Box;
+	}
+
+	/** Walls and ceiling stop shots (lead call B): Block on both shot channels. */
+	void BlockShots(UBoxComponent* Box)
+	{
+		Box->SetCollisionResponseToChannel(UmbrellaCollision::PlayerShot, ECR_Block);
+		Box->SetCollisionResponseToChannel(UmbrellaCollision::EnemyShot, ECR_Block);
 	}
 }
 
@@ -33,6 +41,9 @@ AUmbrellaArena::AUmbrellaArena()
 	LeftWall = MakeBox(this, Root, TEXT("LeftWall"), TEXT("BlockAllDynamic"));
 	RightWall = MakeBox(this, Root, TEXT("RightWall"), TEXT("BlockAllDynamic"));
 	Ceiling = MakeBox(this, Root, TEXT("Ceiling"), TEXT("BlockAllDynamic"));
+	BlockShots(LeftWall);
+	BlockShots(RightWall);
+	BlockShots(Ceiling);
 	LethalBottom = MakeBox(this, Root, TEXT("LethalBottom"), TEXT("OverlapAllDynamic"));
 	LethalBottom->ComponentTags.Add(TEXT("LethalBottom"));
 
@@ -94,18 +105,37 @@ bool AUmbrellaArena::HasWrappedAfterAdvance(float& Offset, float Speed, float De
 	return false;
 }
 
+void AUmbrellaArena::BuildPlaceholders()
+{
+	UStaticMesh* Shape = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cube.Cube"));
+	const FArenaCameraTuning& T = GetDefault<UUmbrellaTuning>()->ArenaCamera;
+	const float HalfW = T.ArenaWidth * 0.5f;
+	const float HalfH = T.ArenaHeight * 0.5f;
+	const auto Make = [this, Shape](const TCHAR* Name, const FVector& Location, const FVector& Scale) -> UStaticMeshComponent*
+	{
+		UStaticMeshComponent* Mesh = NewObject<UStaticMeshComponent>(this, Name);
+		if (IsValid(Shape))
+		{
+			Mesh->SetStaticMesh(Shape);
+		}
+		Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		Mesh->SetupAttachment(RootComponent);
+		Mesh->SetRelativeLocation(Location);
+		Mesh->SetRelativeScale3D(Scale);
+		Mesh->RegisterComponent();
+		return Mesh;
+	};
+	// Cube is 100 units; scale = size / 100.
+	const float Unit = UmbrellaArenaConst::CubeSize;
+	BackgroundFar = Make(TEXT("BackgroundFar"), FVector(HalfW, UmbrellaDrawOrder::BackgroundFarY, HalfH), FVector(T.ArenaWidth / Unit, UmbrellaArenaConst::PlaneThickness, T.ArenaHeight / Unit));
+	BackgroundNear = Make(TEXT("BackgroundNear"), FVector(HalfW, UmbrellaDrawOrder::BackgroundNearY, HalfH * 0.5f), FVector(T.ArenaWidth / Unit, UmbrellaArenaConst::PlaneThickness, T.ArenaHeight * 0.5f / Unit));
+	KeeperStandIn = Make(TEXT("KeeperStandIn"), FVector(T.ArenaWidth * T.KeeperAnchorXFraction, UmbrellaDrawOrder::KeeperY, T.ArenaHeight * T.KeeperAnchorZFraction), FVector(T.KeeperStandInSize / Unit, UmbrellaArenaConst::KeeperDepthScale, T.KeeperStandInSize / Unit));
+}
+
 void AUmbrellaArena::BeginPlay()
 {
 	Super::BeginPlay();
-	if (!IsFeatureEnabled(EFeatureId::CAM_03))
-	{
-		return;
-	}
-	APlayerController* Controller = UGameplayStatics::GetPlayerController(this, 0);
-	if (IsValid(Controller))
-	{
-		Controller->SetViewTarget(this);
-	}
+	BuildPlaceholders();
 }
 
 void AUmbrellaArena::Tick(float DeltaSeconds)

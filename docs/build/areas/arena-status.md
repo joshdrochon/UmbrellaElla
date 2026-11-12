@@ -11,7 +11,6 @@ Checks: build exit 0, 8 tests PASS, module_check 0, manifest_check 0.
 
 ## Left
 - Sound assets (Shot, Hit, Absorb, AbsorbFail, KeeperHit, KeeperAttack, StartMusic, EndMusic) not generated; cues are silent until they exist. Not attempted: needs the ElevenLabs shell.
-- Keeper placeholder visual (AKeeperOfTime is the keeper lane's file): Arena only provides the anchor.
-- Background layers have offsets but no visible placeholder planes yet.
+- Arena now builds placeholder box planes (two backgrounds) and a Keeper stand-in box at the anchor (tested via BuildPlaceholders). Plane scrolling is not applied to the meshes yet.
 - Later list (CAM-04..08, HAZ-*, BG-*, ART-05+, ANIM-*, VFX-*, FLOW-24..29/46/47) not started.
 - Ella flipbook states beyond Idle.
