@@ -62,7 +62,7 @@ public:
 	/** Tests: use this actor as Ella (position and damage target) when the player pawn is absent. */
 	void SetPlayerActor(AActor* Actor);
 
-	/** Tests: stand in for the OWL-35 flag (flags are compile-time defaults). Unset = read the flag. */
+	/** Tests: stand in for the departure flag (flags are compile-time defaults). Unset = read the flag. */
 	void SetDepartureEnabledForTest(bool bEnabled) { DepartureOverride = bEnabled; }
 
 	EEncounterState GetState() const { return State; }
@@ -92,7 +92,8 @@ private:
 	void SetProjectileTicks(bool bEnabled) const;
 	void FinalizeEnding();
 	/** Gust push: the Motor is the only writer of Ella's position, so the push goes out as WindEntered/WindExited (SourceId GUST_Band). */
-	void ApplyGustWind(float SignedSpeed, bool bPushing);
+	void StartGustWind(float SignedSpeed);
+	void StopGustWind();
 	void EnterFailure();
 	void DeliverDamage(FName Source, float Amount) const;
 	FVector2D PlayerPosition() const;

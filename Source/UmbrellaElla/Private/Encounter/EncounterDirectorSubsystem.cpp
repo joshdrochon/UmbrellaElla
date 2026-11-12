@@ -317,7 +317,7 @@ void UEncounterDirectorSubsystem::ResetForRestart()
 	ClearEnemyProjectiles();
 	ThawProjectiles();
 	DestroyKeeper();
-	ApplyGustWind(0.0f, false);
+	StopGustWind();
 	bWinPending = false;
 	bDefeatInWinFrame = false;
 	const bool bRetry = IsFeatureEnabled(EFeatureId::FLOW_09) && IsFeatureEnabled(EFeatureId::OWL_10)
@@ -341,7 +341,7 @@ void UEncounterDirectorSubsystem::SetPaused(bool bPaused)
 	if (bPaused && State == EEncounterState::Active)
 	{
 		StateBeforePause = State;
-		ApplyGustWind(0.0f, false);
+		StopGustWind();
 		State = EEncounterState::Paused;
 		FreezeProjectiles();
 	}
@@ -377,7 +377,14 @@ void UEncounterDirectorSubsystem::AdvanceFight(float DeltaSeconds)
 	bGustPushThisStep = false;
 	Model.Step(DeltaSeconds, Input, Commands);
 	ProcessCommands(Commands);
-	ApplyGustWind(PendingGustSpeed, bGustPushThisStep);
+	if (bGustPushThisStep)
+	{
+		StartGustWind(PendingGustSpeed);
+	}
+	else
+	{
+		StopGustWind();
+	}
 	if (Keeper && State == EEncounterState::Active)
 	{
 		Keeper->Refresh(Model, ElapsedSeconds);
@@ -491,30 +498,29 @@ void UEncounterDirectorSubsystem::HandleDefeated(const FUmbrellaEvent& Event)
 	EnterFailure();
 }
 
-void UEncounterDirectorSubsystem::ApplyGustWind(float SignedSpeed, bool bPushing)
+void UEncounterDirectorSubsystem::StartGustWind(float SignedSpeed)
 {
-	if (bPushing)
+	if (bGustWindActive && FMath::IsNearlyEqual(ActiveGustSpeed, SignedSpeed))
 	{
-		if (bGustWindActive && FMath::IsNearlyEqual(ActiveGustSpeed, SignedSpeed))
-		{
-			return;
-		}
-		// Motor current contract: force (speed, units/s) in Value, direction word in Detail. Up for a positive push.
-		UUmbrellaEventBus* Bus = UUmbrellaEventBus::Get(this);
-		if (Bus)
-		{
-			FUmbrellaEvent Event;
-			Event.Type = EUmbrellaEventType::WindEntered;
-			Event.SourceId = UmbrellaSourceIds::GustBand();
-			Event.TargetId = PlayerTarget;
-			Event.Detail = SignedSpeed >= 0.0f ? FName(TEXT("Up")) : FName(TEXT("Down"));
-			Event.Value = FMath::Abs(SignedSpeed);
-			Bus->Broadcast(Event);
-		}
-		bGustWindActive = true;
-		ActiveGustSpeed = SignedSpeed;
 		return;
 	}
+	// Motor current contract: force (speed, units/s) in Value, direction word in Detail. Up for a positive push.
+	if (UUmbrellaEventBus* Bus = UUmbrellaEventBus::Get(this))
+	{
+		FUmbrellaEvent Event;
+		Event.Type = EUmbrellaEventType::WindEntered;
+		Event.SourceId = UmbrellaSourceIds::GustBand();
+		Event.TargetId = PlayerTarget;
+		Event.Detail = SignedSpeed >= 0.0f ? FName(TEXT("Up")) : FName(TEXT("Down"));
+		Event.Value = FMath::Abs(SignedSpeed);
+		Bus->Broadcast(Event);
+	}
+	bGustWindActive = true;
+	ActiveGustSpeed = SignedSpeed;
+}
+
+void UEncounterDirectorSubsystem::StopGustWind()
+{
 	if (!bGustWindActive)
 	{
 		return;
@@ -536,7 +542,7 @@ void UEncounterDirectorSubsystem::EnterFailure()
 	TArray<FKeeperCommand> Commands;
 	Model.Halt(Commands);
 	ProcessCommands(Commands);
-	ApplyGustWind(0.0f, false);
+	StopGustWind();
 	ThawProjectiles();
 	State = EEncounterState::EndingFailure;
 }
@@ -555,7 +561,7 @@ void UEncounterDirectorSubsystem::FinalizeEnding()
 	bWinPending = false;
 	State = ResolveEnding(false, true);
 	ClearEnemyProjectiles();
-	ApplyGustWind(0.0f, false);
+	StopGustWind();
 	// OWL-35 off: the fight still ends in success, only the departure animation is skipped (never Active with a halted model).
 	const bool bDeparture = DepartureOverride.IsSet() ? DepartureOverride.GetValue() : IsFeatureEnabled(EFeatureId::OWL_35);
 	const float Departure = bDeparture ? GetDefault<UUmbrellaTuning>()->Keeper.DepartureSeconds : 0.0f;
