@@ -1,6 +1,7 @@
 #include "Projectile/UmbrellaProjectile.h"
 #include "Components/StaticMeshComponent.h"
 #include "Core/EllaCharacter.h"
+#include "Core/UmbrellaCollision.h"
 #include "Core/UmbrellaDrawOrder.h"
 #include "Core/UmbrellaEventBus.h"
 #include "Core/UmbrellaTuning.h"
@@ -57,6 +58,16 @@ bool ProjectileRules::CanShotTouch(EUmbrellaShotKind Kind, const AActor* Target)
 	}
 	const bool bIsPlayer = IsPlayerActor(Target);
 	return Kind == EUmbrellaShotKind::PlayerBlast ? !bIsPlayer : bIsPlayer;
+}
+
+ECollisionChannel ProjectileRules::ShotChannel(EUmbrellaShotKind Kind)
+{
+	return Kind == EUmbrellaShotKind::PlayerBlast ? UmbrellaCollision::PlayerShot : UmbrellaCollision::EnemyShot;
+}
+
+bool ProjectileRules::IsSolidStop(EUmbrellaShotKind Kind, const UPrimitiveComponent* Component, bool bHasReceivers)
+{
+	return Component && !bHasReceivers && Component->GetCollisionResponseToChannel(ShotChannel(Kind)) == ECR_Block;
 }
 
 FVector ProjectileRules::Advance(const FVector& Position, const FVector& Velocity, float Dt)
@@ -146,17 +157,20 @@ void AUmbrellaProjectile::ResolveContacts(const FVector& From, const FVector& To
 	FCollisionQueryParams QueryParams(SCENE_QUERY_STAT(UmbrellaShot), false, this);
 	const FCollisionObjectQueryParams AllObjects(FCollisionObjectQueryParams::AllObjects);
 
-	TArray<FVector> Locations;
-	TArray<AActor*> Targets;
+	struct FContact
+	{
+		AActor* Actor = nullptr;
+		UPrimitiveComponent* Component = nullptr;
+		FVector Location = FVector::ZeroVector;
+	};
+	TArray<FContact> Contacts;
 	if (From.Equals(To, UE_KINDA_SMALL_NUMBER))
 	{
 		TArray<FOverlapResult> Overlaps;
 		World->OverlapMultiByObjectType(Overlaps, To, FQuat::Identity, AllObjects, Shape, QueryParams);
 		for (const FOverlapResult& Overlap : Overlaps)
 		{
-			Targets.AddUnique(Overlap.GetActor());
-			Locations.SetNum(Targets.Num());
-			Locations[Targets.Num() - 1] = To;
+			Contacts.Add({Overlap.GetActor(), Overlap.GetComponent(), To});
 		}
 	}
 	else
@@ -165,27 +179,36 @@ void AUmbrellaProjectile::ResolveContacts(const FVector& From, const FVector& To
 		World->SweepMultiByObjectType(Hits, From, To, FQuat::Identity, AllObjects, Shape, QueryParams);
 		for (const FHitResult& Hit : Hits)
 		{
-			if (Targets.Contains(Hit.GetActor()))
-			{
-				continue;
-			}
-			Targets.Add(Hit.GetActor());
-			Locations.Add(Hit.bStartPenetrating ? To : FVector(Hit.ImpactPoint));
+			Contacts.Add({Hit.GetActor(), Hit.GetComponent(), Hit.bStartPenetrating ? To : FVector(Hit.ImpactPoint)});
 		}
 	}
 
 	UUmbrellaEventBus* Bus = UUmbrellaEventBus::Get(World);
-	for (int32 Index = 0; Index < Targets.Num(); ++Index)
+	TSet<AActor*> Routed;
+	for (const FContact& Contact : Contacts)
 	{
-		AActor* Target = Targets[Index];
-		if (!Target || !ProjectileRules::CanShotTouch(Spec.Kind, Target))
+		AActor* Target = Contact.Actor;
+		if (!Target)
 		{
 			continue;
 		}
-		bool bConsumed = false;
-		for (IUmbrellaShotReceiver* Receiver : GatherReceivers(Target))
+		// A solid wall or ceiling that blocks this shot channel ends the shot (Ella is never a wall).
+		const TArray<IUmbrellaShotReceiver*> Receivers = GatherReceivers(Target);
+		if (!IsPlayerActor(Target) && ProjectileRules::IsSolidStop(Spec.Kind, Contact.Component, Receivers.Num() > 0))
 		{
-			if (Receiver->ReceiveShot(Spec, Locations[Index]) == EUmbrellaShotResult::Consumed)
+			Destroy();
+			return;
+		}
+		if (!ProjectileRules::CanShotTouch(Spec.Kind, Target) || Routed.Contains(Target))
+		{
+			continue;
+		}
+		Routed.Add(Target);
+		const FVector Location = Contact.Location;
+		bool bConsumed = false;
+		for (IUmbrellaShotReceiver* Receiver : Receivers)
+		{
+			if (Receiver->ReceiveShot(Spec, Location) == EUmbrellaShotResult::Consumed)
 			{
 				bConsumed = true;
 				break;

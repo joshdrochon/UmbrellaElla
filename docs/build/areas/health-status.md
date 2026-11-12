@@ -16,6 +16,12 @@ Also: absorb component (yellow only during absorb-fall, red CatchFailed), `Reset
 - No HUD screenshot / PIE: the HUD drawing is untested visually (layout math is tested).
 - Package: build lead.
 
-## Left (G3 later list)
-SURV-06, FLOW-05..FLOW-23 (except FLOW-09), FLOW-42, FLOW-48: progression (XP, level-62 curve, tracks, checkpoints,
-persistence, run scaling, Final Hour, XP ring). Oracle `tools/progression_model.py`.
+## Nov 12 update
+- Projectile Service: a shot is destroyed on any blocking hit. A component that blocks the shot's channel (PlayerShot for
+  player blasts, EnemyShot for enemy shots) and whose actor has no shot receiver stops the shot (`ProjectileRules::IsSolidStop`).
+  Proved by `Projectile.World.BlockingWallDestroysShot` (blocks for both kinds; an Ignore wall lets the shot through).
+- Clock HUD (SURV-05, FLOW-30, FLOW-32): unchanged tests above still pass.
+- Result: build exit 0, test PASS tests=35 failed=0, module_check 0 problems, manifest_check 0 problems.
+
+## Left
+Nothing in this lane. Progression moved to the progression area. Open design item: life-hand angles (see requests/health.md).

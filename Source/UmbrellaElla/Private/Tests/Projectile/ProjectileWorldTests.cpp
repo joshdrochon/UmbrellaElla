@@ -2,6 +2,8 @@
 #include "Misc/AutomationTest.h"
 #include "Core/UmbrellaDrawOrder.h"
 #include "Projectile/UmbrellaProjectile.h"
+#include "Components/BoxComponent.h"
+#include "Core/UmbrellaCollision.h"
 
 #if WITH_AUTOMATION_TESTS
 
@@ -86,6 +88,63 @@ bool FProjectileWorldRouting::RunTest(const FString& Parameters)
 	TestTrue(TEXT("enemy shot reaches Ella"), ProjectileRules::CanShotTouch(EUmbrellaShotKind::EnemyRed, Test.Ella));
 	TestFalse(TEXT("enemy shot never reaches the Keeper or any other actor"), ProjectileRules::CanShotTouch(EUmbrellaShotKind::EnemyRed, Other));
 	TestFalse(TEXT("null target"), ProjectileRules::CanShotTouch(EUmbrellaShotKind::EnemyYellow, nullptr));
+	return true;
+}
+
+namespace
+{
+	/** A wall box at X=2300 whose response to the given shot channel is set by the test. */
+	AActor* SpawnWall(UWorld* World, ECollisionChannel Channel, ECollisionResponse Response)
+	{
+		AActor* Wall = World->SpawnActor<AActor>();
+		UBoxComponent* Box = NewObject<UBoxComponent>(Wall);
+		Box->SetBoxExtent(FVector(20.0, 200.0, 400.0));
+		Box->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		Box->SetCollisionObjectType(ECC_WorldStatic);
+		Box->SetCollisionResponseToAllChannels(ECR_Ignore);
+		Box->SetCollisionResponseToChannel(Channel, Response);
+		Wall->SetRootComponent(Box);
+		Box->RegisterComponent();
+		Wall->SetActorLocation(FVector(2300.0, 0.0, 2000.0));
+		return Wall;
+	}
+
+	bool ShotHitsWall(UWorld* World, EUmbrellaShotKind Kind, ECollisionResponse Response)
+	{
+		SpawnWall(World, ProjectileRules::ShotChannel(Kind), Response);
+		FUmbrellaShotSpec Spec;
+		Spec.Kind = Kind;
+		Spec.Origin = FVector(2000.0, 0.0, 2000.0);
+		Spec.Velocity = FVector(1000.0, 0.0, 0.0);
+		Spec.Radius = 8.0f;
+		Spec.Damage = 1.0f;
+		Spec.LifetimeSeconds = 5.0f;
+		AUmbrellaProjectile* Shot = AUmbrellaProjectile::Fire(World, Spec);
+		if (!Shot)
+		{
+			return false;
+		}
+		Shot->AdvanceShot(0.4f); // 400 units: crosses the wall at X 2280..2320
+		return Shot->IsActorBeingDestroyed();
+	}
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FProjectileWorldWalls, "UmbrellaElla.Projectile.World.BlockingWallDestroysShot",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+bool FProjectileWorldWalls::RunTest(const FString& Parameters)
+{
+	{
+		FHealthTestWorld Test;
+		TestTrue(TEXT("player shot stops at a wall that blocks PlayerShot"), ShotHitsWall(Test.World, EUmbrellaShotKind::PlayerBlast, ECR_Block));
+	}
+	{
+		FHealthTestWorld Test;
+		TestTrue(TEXT("enemy shot stops at a wall that blocks EnemyShot"), ShotHitsWall(Test.World, EUmbrellaShotKind::EnemyRed, ECR_Block));
+	}
+	{
+		FHealthTestWorld Test;
+		TestFalse(TEXT("shot flies through a wall that ignores its channel"), ShotHitsWall(Test.World, EUmbrellaShotKind::EnemyRed, ECR_Ignore));
+	}
 	return true;
 }
 

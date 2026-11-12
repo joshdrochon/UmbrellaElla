@@ -6,12 +6,19 @@
 #include "UmbrellaProjectile.generated.h"
 
 class UStaticMeshComponent;
+class UPrimitiveComponent;
 
 /** Where a shot may land: player shots skip Ella, enemy shots only touch Ella (never the Keeper). Plain rule, tests call it. */
 namespace ProjectileRules
 {
 	/** True when a shot of this kind may touch this actor. */
 	UMBRELLAELLA_API bool CanShotTouch(EUmbrellaShotKind Kind, const AActor* Target);
+
+	/** Collision channel a shot of this kind is traced as (PlayerShot or EnemyShot). */
+	UMBRELLAELLA_API ECollisionChannel ShotChannel(EUmbrellaShotKind Kind);
+
+	/** True when this component is a solid stop for the shot: it blocks the shot channel and its actor has no shot receiver. */
+	UMBRELLAELLA_API bool IsSolidStop(EUmbrellaShotKind Kind, const UPrimitiveComponent* Component, bool bHasReceivers);
 
 	/** Position after Dt seconds. Motion is in X/Z; Y stays on the projectile depth. */
 	UMBRELLAELLA_API FVector Advance(const FVector& Position, const FVector& Velocity, float Dt);
