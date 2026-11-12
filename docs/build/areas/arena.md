@@ -5,9 +5,12 @@ Branch `area/arena`. Read `docs/build/worker-rules.md` first.
 ## Rule IDs
 G1 first: CAM-03, WIND-03, CORE-06, ART-03, plus the Keeper arena itself, Ella's and the Keeper's placeholder visuals,
 and placeholder sounds for shots, hits, absorb, Keeper attacks, menu and Start/End music.
-Later (G2/G3): CAM-04 .. CAM-08, HAZ-02 .. HAZ-41, BG-02 .. BG-06, ART-05 .. ART-10, ANIM-02 .. ANIM-10, VFX-02 ..
-VFX-11, FLOW-24 .. FLOW-29, FLOW-46, FLOW-47 (the Director's Cut nine-chunk level, refuges, traps, camera, Broken Mill
-room, procedural placement, final art/anim/VFX/audio). This list is large; the build lead may split it later.
+Later (G2/G3): CAM-04 .. CAM-08, HAZ-24 .. HAZ-41, FLOW-24 .. FLOW-28, FLOW-47 (the Director's Cut nine-chunk route
+and chunk catalogue, refuges, checkpoints and boss arrival, the scrolling camera, procedural acceptance). Moved out Nov 12:
+Broken Mill and traps HAZ-02..23, FLOW-46 -> `enemies`; FLOW-29 -> `progression`; at 14:25 all final presentation
+(BG-02..06, ART-05..10, ANIM-02..10, VFX-02..11) and `Feedback/**` except `Feedback/Audio/**` -> `visuals`. You keep
+sounds (`Feedback/Audio/**`, `Content/UmbrellaElla/Audio/**`, `Audio/Source/**`, `pipeline/audio/**`). The enemies area
+places its traps and enemies through your chunk/level API.
 
 ## GDD sections
 5 "Director's Cut full level" and its subsections (traversal/camera contract, traps, chunks, refuges), 8 (Art,
@@ -15,11 +18,10 @@ animation, VFX and audio: every subsection), 9. Art bar: `pipeline/art/art-bible
 `python3 tools/art_ref_check.py --help`, `tools/art_loop.py`, `tools/audio_check.py`, `tools/audio_loop.py`.
 
 ## File lane (only these)
-- `Source/UmbrellaElla/{Public,Private}/Arena/**`, `Field/**`, `Hazard/**`, `Level/**`, `Feedback/**`
+- `Source/UmbrellaElla/{Public,Private}/Arena/**`, `Field/**`, `Hazard/**`, `Level/**`, `Feedback/Audio/**`
 - `Source/UmbrellaElla/Private/Tests/Arena/**`, `Private/Tests/Field/**`, `Private/Tests/Level/**`,
-  `Private/Tests/Feedback/**`
-- `Content/UmbrellaElla/Maps/**`, `Content/UmbrellaElla/Art/**`, `Content/UmbrellaElla/Audio/**`, `Audio/Source/**`,
-  `Art/Source/**`, `pipeline/art/**`, `pipeline/audio/**`, `tools/build/assets/arena_*.py`,
+  `Private/Tests/Feedback/Audio*`
+- `Content/UmbrellaElla/Maps/**`, `Content/UmbrellaElla/Audio/**`, `Audio/Source/**`, `pipeline/audio/**`, `tools/build/assets/arena_*.py`,
   `docs/build/areas/arena-status.md`, `docs/build/requests/arena.md`
 
 ## What to build

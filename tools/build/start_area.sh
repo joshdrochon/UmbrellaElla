@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Start (or restart) one area worker on Mac with Claude Code, in that area's worktree.
-# Usage: tools/build/start_area.sh <move|keeper|health|flow|arena> [extra instruction]
+# Usage: tools/build/start_area.sh <move|keeper|health|flow|arena|enemies|progression|story> [extra instruction]
 # Worktree: ../UmbrellaElla-areas/<area> on branch area/<area> (created from origin if missing). Log: ../UmbrellaElla-areas/logs/<area>.log
 set -eu
 A="$1"; EXTRA="${2:-}"; ROOT="$(cd "$(dirname "$0")/../.." && pwd)"; BASE="$(dirname "$ROOT")/UmbrellaElla-areas"
@@ -11,6 +11,8 @@ if [ ! -d "$WT" ]; then
     git -C "$ROOT" worktree add "$WT" -B "area/$A" "origin/area/$A"
   else git -C "$ROOT" worktree add "$WT" -b "area/$A" main; fi
 fi
+# First editor launch writes this file and test.sh fails once on the change; seed it from the main checkout.
+mkdir -p "$WT/Saved/Config/MacEditor"; cp -n "$ROOT/Saved/Config/MacEditor/GameUserSettings.ini" "$WT/Saved/Config/MacEditor/" 2>/dev/null || true
 PROMPT="You are the '$A' area worker for Umbrella Ella (UE 5.8.4). Your worktree is $WT on branch area/$A.
 Read docs/build/worker-rules.md, then docs/build/areas/$A.md, and docs/build/areas/$A-status.md if it exists (it says
 what is already done). Build your area to its definition of done: G1 Rule IDs first, then the later list.

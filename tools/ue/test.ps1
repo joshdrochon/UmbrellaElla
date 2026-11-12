@@ -15,7 +15,7 @@ $State = Join-Path $LogDir "test-$Stamp-$PID-state-before.txt"
 & $Py @UERun state-list --out $State   # [VERIFY the editor itself leaves GameUserSettings.ini alone on 5.8.4]
 & $Py @UERun run --timeout $UETimeout --log $Log -- `
   "$UERoot\Engine\Binaries\Win64\UnrealEditor-Cmd.exe" $Project "-ExecCmds=Automation RunTests $Filter;Quit" `
-  "-TestExit=Automation Test Queue Empty" "-ReportExportPath=$Report" -unattended -nopause -nosplash -NullRHI -log | Out-Null
+  "-TestExit=Automation Test Queue Empty" "-ReportExportPath=$Report" -unattended -nopause -nosplash -NullRHI -nocrashreports -log | Out-Null
 if ($LASTEXITCODE -eq 124) { Write-Host "FAIL: editor timed out after $UETimeout s; log: $Log"; exit 124 }
 $args2 = @("$Report\index.json")
 if ($Bootstrap) { $args2 += "--bootstrap" } else { $args2 += @("--baseline", "$Baseline") }   # card 0.3 only

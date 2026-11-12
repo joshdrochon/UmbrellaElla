@@ -1,6 +1,6 @@
 # Start (or continue) one area worker on Windows with Claude Code, in that area's worktree.
 # Usage: powershell -File tools\build\start_area.ps1 -Area move [-Extra "..."]
-param([Parameter(Mandatory=$true)][ValidateSet("move","keeper","health","flow","arena")][string]$Area, [string]$Extra = "")
+param([Parameter(Mandatory=$true)][ValidateSet("move","keeper","health","flow","arena","enemies","progression","story")][string]$Area, [string]$Extra = "")
 $ErrorActionPreference = "Stop"
 $Root = (Resolve-Path "$PSScriptRoot\..\..").Path
 $Base = Join-Path (Split-Path $Root -Parent) "UmbrellaElla-areas"
