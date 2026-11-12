@@ -99,15 +99,21 @@ float AUmbrellaTrap::ApplyContact(AActor* Victim)
 	Spec.Origin = GetActorLocation();
 	Spec.Damage = Dealt;
 	Spec.SourceId = GetFName();
+	// Stop at the first receiver that consumes the hit, as the projectile service does.
+	bool bConsumed = false;
 	if (IUmbrellaShotReceiver* Receiver = Cast<IUmbrellaShotReceiver>(Victim))
 	{
-		Receiver->ReceiveShot(Spec, Victim->GetActorLocation());
+		bConsumed = Receiver->ReceiveShot(Spec, Victim->GetActorLocation()) == EUmbrellaShotResult::Consumed;
 	}
 	for (UActorComponent* Component : Victim->GetComponents())
 	{
+		if (bConsumed)
+		{
+			break;
+		}
 		if (IUmbrellaShotReceiver* OnComponent = Cast<IUmbrellaShotReceiver>(Component))
 		{
-			OnComponent->ReceiveShot(Spec, Victim->GetActorLocation());
+			bConsumed = OnComponent->ReceiveShot(Spec, Victim->GetActorLocation()) == EUmbrellaShotResult::Consumed;
 		}
 	}
 	if (UUmbrellaEventBus* Bus = UUmbrellaEventBus::Get(this))
