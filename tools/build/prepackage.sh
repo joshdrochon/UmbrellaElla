@@ -22,7 +22,7 @@ done
 t; NONUNITY=1 "$S" tools/ue/build.sh 2>&1 | tail -1 | tee "$L/prepackage-nonunity.txt"; grep -q "build exit: 0" "$L/prepackage-nonunity.txt" && s "non-unity build PASS" || { s "non-unity build WARN (missing includes; the package uses the unity build)"; warn=1; }
 [ $fail = 0 ] || { echo "PREPACKAGE FAIL before packaging"; exit 1; }
 t; UE_SLOT_EXCLUSIVE=1 "$S" tools/ue/package.sh 2>&1 | tail -3 | tee "$L/prepackage-package.txt"; s package
-EXE=$(find "$ROOT/Packaged" -maxdepth 4 -name "UmbrellaElla*.app" -type d | head -1)
+APP=$(find "$ROOT/Packaged" -maxdepth 4 -name "UmbrellaElla*.app" -type d | head -1); EXE="$APP/Contents/MacOS/$(basename "$APP" .app)"; [ -x "$EXE" ] || EXE=""
 [ -n "$EXE" ] || { echo "PREPACKAGE FAIL: no packaged app"; exit 1; }
 t; "$S" tools/ue/smoke.sh "$EXE" 2>&1 | tee "$L/prepackage-smoke.txt" | tail -4; grep -q "SMOKE_OK" "$L/prepackage-smoke.txt" || fail=1; s "smoke (input, gamepad, 16:9)"
 SLOG=$(ls -t "$L"/smoke*.log 2>/dev/null | head -1)
