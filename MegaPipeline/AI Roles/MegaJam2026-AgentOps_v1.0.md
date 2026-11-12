@@ -1,4 +1,4 @@
-> Generated from `pipeline/roles/agent-ops.md` at `f8c8edc` — edit the sources, not this file.
+> Generated from `pipeline/roles/agent-ops.md` at `a11903f` — edit the sources, not this file.
 > Rebuild: `python3 tools/export_package.py`. Check: `python3 tools/export_package.py --check`.
 
 # Role: Agent Ops

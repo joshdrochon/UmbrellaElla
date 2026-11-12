@@ -1,0 +1,13 @@
+# D26: the Technical Director, human (joshdrochon) holds the code-owner seat; card 0.0 wrote this from CODEOWNERS.example.
+# Agents cannot be code owners; these must be real GitHub accounts.
+*.uproject                      @joshdrochon
+/Source/*.Target.cs             @joshdrochon
+/Source/**/*.Build.cs           @joshdrochon
+/Source/UmbrellaElla/Public/Core/ @joshdrochon
+# Component lanes (Public/Umbrella/, Public/Attack/, ...) are not listed: the Dev Lead reviews them, not the TD.
+/Config/DefaultEngine.ini       @joshdrochon
+/pipeline/                      @RickTheBuilder
+/AGENTS.md                      @RickTheBuilder
+/tools/                         @joshdrochon
+/.github/                       @RickTheBuilder
+/docs/decisions.md              @RickTheBuilder

@@ -23,15 +23,17 @@ Theme in game: TBD
 
 ## Clock (card 0.0 sets it; times ISO 8601 with UTC offset, Hard stop a daily `HH:MM-HH:MM` window; time zone D-new-clock)
 Submission deadline: 2026-11-15T17:59-08:00
-Hard stop: TBD
-Card 0.9 cutoff: TBD
+Hard stop: 02:00-08:00
+Card 0.9 cutoff: 2026-11-12T18:00-08:00
 
 | Gate | Due |
 |---|---|
-| G1 | TBD |
-| G2 | TBD |
-| G3 | TBD |
-| G4 | TBD |
+| G1 | 2026-11-12T22:00-08:00 |
+| G2 | 2026-11-13T22:00-08:00 |
+| G3 | 2026-11-14T20:00-08:00 |
+| G4 | 2026-11-15T14:00-08:00 |
+
+Set by card 0.0 (agent default; D-new-clock).
 
 Checked by `python3 tools/check_card.py --clock` (D-new-tune-day: G3 at least 20 h before the deadline).
 
@@ -86,23 +88,26 @@ Trigger: a gate over 2 hours late cuts the next item, without debate. GDD SH1.0 
 Rows marked **BLOCKER** stop Day 1.
 | Role | Person | Confirmed? | Day-1 blocker |
 |---|---|---|---|
-| Scope decision-maker (final call on cuts) | Rick (proposed) | no | BLOCKER |
-| Creative director (tie-breaker on look, feel and theme; D34) | Rick (proposed; GDD SH1.0: "Rick's creative approval") | no | before Nov 11 |
-| Producer / time keeper, human (D-new-producer) | Richard (proposed; GDD SH1.0 credits: Producer) | no | BLOCKER |
-| Integration owner (merges to main, keeps it building; one integrator owns cross-lane edits) | TBD | no | BLOCKER |
-| Packaging and submission owner | TBD | no | BLOCKER |
-| Windows packaging machine (owner, machine name, OS) | TBD | no | BLOCKER |
-| Game design owner (GDD revisions, feature statuses, P0; D-new-sh10-design-owner) | Rick (GDD SH1.0 revision note: "Rick approves all filled requirements") | no | BLOCKER |
-| Technical Director, human (code-owner seat, D26) | Josh (GDD SH1.0 credits: Technical Lead) | no | BLOCKER |
-| GDD author (GDD SH1.0 document owner: Team Glass Umbrella) | Rick | no | |
-| Human testers (GDD SH1.0 HAZ-16, QA-29..QA-42 human checks) | TBD | no | before G2 |
-| Audio owner (approves the mix by ear) | TBD | no | before card 0.4c |
-| Playtest lead | TBD | no | before G1 |
+| Scope decision-maker (final call on cuts) | RickTheBuilder (Rick Rispoli) | default (agent) | BLOCKER |
+| Creative director (tie-breaker on look, feel and theme; D34) | RickTheBuilder (Rick Rispoli; GDD SH1.0: "Rick's creative approval") | default (agent) | before Nov 11 |
+| Producer / time keeper, human (D-new-producer) | Richard (GDD SH1.0 credits: Producer; GitHub login GetEmEtoG by elimination, the person edits the row) | default (agent) | BLOCKER |
+| Integration owner (merges to main, keeps it building; one integrator owns cross-lane edits) | joshdrochon (Josh Rochon; GDD SH1.0 credits: Technical Lead) | default (agent) | BLOCKER |
+| Packaging and submission owner | joshdrochon (Josh Rochon; the Mac G1 package and the zip, D-new-g1-mac-path; a human entrant submits, Official Rules §17) | default (agent) | BLOCKER |
+| Windows packaging machine (owner, machine name, OS) | RickTheBuilder (owner; machine name and OS unset until the owner edits this row; no Windows machine is confirmed yet) | default (agent) | BLOCKER |
+| Game design owner (GDD revisions, feature statuses, P0; D-new-sh10-design-owner) | RickTheBuilder (GDD SH1.0 revision note: "Rick approves all filled requirements") | default (agent) | BLOCKER |
+| Technical Director, human (code-owner seat, D26) | joshdrochon (Josh Rochon; GDD SH1.0 credits: Technical Lead) | default (agent) | BLOCKER |
+| GDD author (GDD SH1.0 document owner: Team Glass Umbrella) | RickTheBuilder | default (agent) | |
+| Human testers (GDD SH1.0 HAZ-16, QA-29..QA-42 human checks) | Richard, RickTheBuilder | default (agent) | before G2 |
+| Audio owner (approves the mix by ear) | Richard | default (agent) | before card 0.4c |
+| Playtest lead | Richard | default (agent) | before G1 |
 
 ## Team hours (card 0.0: one row per teammate)
 | Person | Hours D1/D2/D3/D4 | Away windows | Built UE C++ before (y/n) | Confirmed? |
 |---|---|---|---|---|
-| TBD | TBD | TBD | TBD | no |
+| RickTheBuilder (Rick Rispoli) | 18/18/18/10 | none | n | default (agent) |
+| Richard | 18/18/18/10 | none | n | default (agent) |
+| joshdrochon (Josh Rochon) | 18/18/18/10 | none | y | default (agent) |
+
 
 ## Hard limits
 - Main opens in the editor and packages at every merge. A broken main stops feature work until fixed.

@@ -1,4 +1,4 @@
-> Generated from `AGENTS.md`, `CLAUDE.md` at `f8c8edc` — edit the sources, not this file.
+> Generated from `AGENTS.md`, `CLAUDE.md` at `a11903f` — edit the sources, not this file.
 > Rebuild: `python3 tools/export_package.py`. Check: `python3 tools/export_package.py --check`.
 
 Agents load `AGENTS.md` and `CLAUDE.md` from the repo root; this copy is for reading and sharing.
