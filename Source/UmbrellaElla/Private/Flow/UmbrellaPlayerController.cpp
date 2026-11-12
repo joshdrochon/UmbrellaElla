@@ -596,9 +596,9 @@ void AUmbrellaPlayerController::ShowScreenWidget()
 			return;
 		}
 		TArray<FFlowMenuItem> Items;
-		Items.Add({ FText::FromString(TEXT("Back")), Back });
-		Menu = SNew(SFlowMenu).WasdNavigation(IsFeatureEnabled(EFeatureId::MOVE_09)).Backdrop(EFlowBackdrop::Clocks).Tuning(Tuning).Heading(FText::FromString(TEXT("Settings")))
-			.Body(FText::FromString(TEXT("Sound, Controller and Credits arrive in the next slice."))).Items(Items).OnBack(Back);
+		Items.Add({ FFlowMenuText::BackLabel(), Back });
+		Menu = SNew(SFlowMenu).WasdNavigation(IsFeatureEnabled(EFeatureId::MOVE_09)).Backdrop(EFlowBackdrop::Clocks).Tuning(Tuning).Heading(FFlowMenuText::SettingsHeading())
+			.Body(FFlowMenuText::SettingsStubBody()).Items(Items).OnBack(Back);
 		break;
 	}
 	case EFlowScreen::Tutorial:
@@ -800,7 +800,7 @@ void AUmbrellaPlayerController::QuitGame()
 void AUmbrellaPlayerController::HandleLevelGained(const FUmbrellaEvent& Event)
 {
 	// Director's Cut only; a level reached while another screen holds the game is not shown late.
-	if (IsFeatureEnabled(EFeatureId::FLOW_42) && PlayMode == EUmbrellaPlayMode::DirectorsCut && Screen == EFlowScreen::Playing)
+	if (IsFeatureEnabled(EFeatureId::FLOW_48) && PlayMode == EUmbrellaPlayMode::DirectorsCut && Screen == EFlowScreen::Playing)
 	{
 		LevelUpShown = Event.Amount;
 		ApplyCommand(EFlowCommand::OpenLevelUp);
