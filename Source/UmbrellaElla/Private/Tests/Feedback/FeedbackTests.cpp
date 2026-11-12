@@ -10,6 +10,7 @@
 #include "GameFramework/Actor.h"
 #include "Core/UmbrellaEventBus.h"
 #include "Core/UmbrellaDrawOrder.h"
+#include "Components/PointLightComponent.h"
 #include "Misc/AutomationTest.h"
 
 #if WITH_AUTOMATION_TESTS
@@ -183,6 +184,94 @@ bool FFeedbackBackdrop::RunTest(const FString& Parameters)
 			const float ExpectedX = UUmbrellaBackdropSubsystem::LayerXForCamera(3000.0f, Backdrop->GetBuiltSpecs()[Index].Parallax);
 			TestEqual(TEXT("layer follows camera"), static_cast<float>(Backdrop->GetLayers()[Index]->GetActorLocation().X), ExpectedX);
 		}
+	}
+	GEngine->DestroyWorldContext(World);
+	World->DestroyWorld(false);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFeedbackVfxRules, "UmbrellaElla.Feedback.VfxRules",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+
+bool FFeedbackVfxRules::RunTest(const FString& Parameters)
+{
+	// Acceptance: every effect has a spec on a layer that is in front of the arena and behind the foreground.
+	for (const FName Effect : UUmbrellaVfxSubsystem::AllEffects())
+	{
+		const FVfxEffectSpec Spec = UUmbrellaVfxSubsystem::SpecForEffect(Effect);
+		TestEqual(TEXT("spec is named"), Spec.Name, Effect);
+		TestTrue(TEXT("effect layer is in front of the arena"), Spec.LayerY > UmbrellaDrawOrder::ArenaY);
+		TestTrue(TEXT("effect layer is behind the foreground"), Spec.LayerY < UmbrellaDrawOrder::ForegroundY);
+		TestTrue(TEXT("effect life is readable"), Spec.LifeSeconds >= UmbrellaVfxConst::MinReadableSeconds);
+	}
+	TestEqual(TEXT("telegraph is on the hazard layer"), UUmbrellaVfxSubsystem::SpecForEffect(TEXT("KeeperTelegraph")).LayerY, UmbrellaDrawOrder::HazardY);
+	TestEqual(TEXT("impact is on the vfx layer"), UUmbrellaVfxSubsystem::SpecForEffect(TEXT("ShotImpact")).LayerY, UmbrellaDrawOrder::VfxY);
+	// Readability sync: a telegraph lasts as long as its warning, clamped.
+	FUmbrellaEvent Telegraph;
+	Telegraph.Type = EUmbrellaEventType::BossAttackTelegraphed;
+	const FVfxEffectSpec TelegraphSpec = UUmbrellaVfxSubsystem::SpecForEffect(TEXT("KeeperTelegraph"));
+	Telegraph.Value = 1.2f;
+	TestEqual(TEXT("telegraph life follows the warning"), UUmbrellaVfxSubsystem::LifeFor(TelegraphSpec, Telegraph), 1.2f);
+	Telegraph.Value = 99.0f;
+	TestEqual(TEXT("long warning is capped"), UUmbrellaVfxSubsystem::LifeFor(TelegraphSpec, Telegraph), UmbrellaVfxConst::MaxLifeSeconds);
+	Telegraph.Value = 0.01f;
+	TestEqual(TEXT("short warning stays readable"), UUmbrellaVfxSubsystem::LifeFor(TelegraphSpec, Telegraph), UmbrellaVfxConst::MinReadableSeconds);
+	// Performance and flash limits.
+	TestFalse(TEXT("under the cap is shown"), UUmbrellaVfxSubsystem::ShouldSuppress(0, false, 0.0f));
+	TestTrue(TEXT("over the cap is dropped"), UUmbrellaVfxSubsystem::ShouldSuppress(UmbrellaVfxConst::MaxActiveEffects, false, 99.0f));
+	TestTrue(TEXT("a flash too soon is dropped"), UUmbrellaVfxSubsystem::ShouldSuppress(0, true, 0.05f));
+	TestFalse(TEXT("a non-flashing effect ignores the flash gap"), UUmbrellaVfxSubsystem::ShouldSuppress(0, false, 0.05f));
+	TestFalse(TEXT("a flash after the gap is shown"), UUmbrellaVfxSubsystem::ShouldSuppress(0, true, UmbrellaVfxConst::MinFlashGapSeconds + 0.01f));
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFeedbackVfxLayersWorld, "UmbrellaElla.Feedback.World.VfxLayersLightLimits",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+
+bool FFeedbackVfxLayersWorld::RunTest(const FString& Parameters)
+{
+	UWorld* World = UWorld::CreateWorld(EWorldType::Game, false);
+	if (!TestNotNull(TEXT("world"), World))
+	{
+		return false;
+	}
+	FWorldContext& Context = GEngine->CreateNewWorldContext(EWorldType::Game);
+	Context.SetCurrentWorld(World);
+	UUmbrellaVfxSubsystem* Vfx = World->GetSubsystem<UUmbrellaVfxSubsystem>();
+	if (TestNotNull(TEXT("vfx subsystem"), Vfx))
+	{
+		FUmbrellaEvent Event;
+		Event.Type = EUmbrellaEventType::BossAttackTelegraphed;
+		Event.Frame = 42;
+		Vfx->PlayForEvent(Event);
+		AActor* Telegraph = Vfx->GetLastActor();
+		if (TestNotNull(TEXT("telegraph actor"), Telegraph))
+		{
+			TestEqual(TEXT("telegraph on its own layer"), static_cast<float>(Telegraph->GetActorLocation().Y), UmbrellaDrawOrder::HazardY);
+			TestNotNull(TEXT("lit effect lights nearby surfaces"), Telegraph->FindComponentByClass<UPointLightComponent>());
+			const UPrimitiveComponent* Mesh = Cast<UPrimitiveComponent>(Telegraph->GetRootComponent());
+			TestTrue(TEXT("effect has no collision"), Mesh && Mesh->GetCollisionEnabled() == ECollisionEnabled::NoCollision);
+		}
+		TestEqual(TEXT("effect is synced to the event frame"), Vfx->GetLastEventFrame(), static_cast<int64>(42));
+		// A fizzle is unlit: no light.
+		Event.Type = EUmbrellaEventType::CatchFailed;
+		Vfx->PlayForEvent(Event);
+		if (AActor* Fizzle = Vfx->GetLastActor())
+		{
+			TestNull(TEXT("unlit effect has no light"), Fizzle->FindComponentByClass<UPointLightComponent>());
+		}
+		// Two flashing effects in the same instant: the second is dropped.
+		Event.Type = EUmbrellaEventType::CatchSucceeded;
+		Vfx->PlayForEvent(Event);
+		const int32 Shown = Vfx->GetEffectCount();
+		Vfx->PlayForEvent(Event);
+		TestEqual(TEXT("second flash inside the gap is dropped"), Vfx->GetEffectCount(), Shown);
+		TestEqual(TEXT("and counted as suppressed"), Vfx->GetSuppressedCount(), 1);
+		// Reduced flash shrinks a flashing effect.
+		UUmbrellaVfxSubsystem* Other = NewObject<UUmbrellaVfxSubsystem>(World);
+		TestFalse(TEXT("reduced flash defaults off"), Other->IsReducedFlash());
+		Other->SetReducedFlash(true);
+		TestTrue(TEXT("reduced flash can be set"), Other->IsReducedFlash());
 	}
 	GEngine->DestroyWorldContext(World);
 	World->DestroyWorld(false);
