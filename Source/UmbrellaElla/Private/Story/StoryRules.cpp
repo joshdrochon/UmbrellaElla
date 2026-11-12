@@ -1,4 +1,5 @@
 #include "Story/StoryRules.h"
+#include "Core/UmbrellaTuning.h"
 #include "Core/UmbrellaEvent.h"
 #include "Harness/UmbrellaFeatureFlags.h"
 
@@ -15,7 +16,7 @@ namespace
 		{
 			return Cue.DurationSeconds;
 		}
-		const FStoryTuning& Tuning = FStoryTuning::Get();
+		const FStoryTuning& Tuning = GetDefault<UUmbrellaTuning>()->Story;
 		return Cue.Id == OpeningId ? Tuning.OpeningCaptionSeconds : Tuning.EndingLineSeconds;
 	}
 
@@ -27,7 +28,7 @@ namespace
 
 TArray<TPair<FString, FString>> StoryStatsRows(const FStoryRunStats& Stats)
 {
-	const float UnitsPerMetre = FStoryTuning::Get().UnitsPerMetre;
+	const float UnitsPerMetre = GetDefault<UUmbrellaTuning>()->Story.UnitsPerMetre;
 	TArray<TPair<FString, FString>> Rows;
 	Rows.Emplace(TEXT("Enemies defeated"), FString::FromInt(Stats.EnemiesDefeated));
 	Rows.Emplace(TEXT("XP earned"), FString::FromInt(Stats.XpEarned));
@@ -290,7 +291,7 @@ void FStoryModel::SampleLocation(const FVector& Location)
 	if (bHaveLocation)
 	{
 		const float Step = static_cast<float>(FVector::Dist(Location, LastLocation));
-		if (Step <= FStoryTuning::Get().MaxFlownStepUnits)
+		if (Step <= GetDefault<UUmbrellaTuning>()->Story.MaxFlownStepUnits)
 		{
 			Stats.DistanceFlownUnits += Step;
 		}
@@ -301,7 +302,7 @@ void FStoryModel::SampleLocation(const FVector& Location)
 
 void FStoryModel::EnterStage(EStoryEndingStage Next)
 {
-	const FStoryTuning& Tuning = FStoryTuning::Get();
+	const FStoryTuning& Tuning = GetDefault<UUmbrellaTuning>()->Story;
 	Stage = Next;
 	switch (Next)
 	{
