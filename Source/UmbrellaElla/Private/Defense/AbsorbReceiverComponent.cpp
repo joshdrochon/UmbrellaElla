@@ -5,6 +5,8 @@
 #include "Health/HealthModel.h"
 #include "Health/UmbrellaHealthComponent.h"
 #include "Projectile/UmbrellaShotSpec.h"
+#include "Umbrella/UmbrellaPlayerIds.h"
+#include "Umbrella/UmbrellaStateComponent.h"
 
 namespace
 {
@@ -43,9 +45,16 @@ void UAbsorbReceiverComponent::EndPlay(const EEndPlayReason::Type Reason)
 
 void UAbsorbReceiverComponent::OnConfigChanged(const FUmbrellaEvent& Event)
 {
-	if (Event.Detail == AbsorbFallDetail)
+	// UmbrellaConfigChanged also carries spell equips (Detail = spell name), so read the action itself, never the Detail.
+	if (Event.SourceId != UmbrellaPlayerIds::Ella)
 	{
-		SetPose(Event.Amount != 0 ? EAbsorbPose::AbsorbFall : EAbsorbPose::Closed);
+		return;
+	}
+	const AActor* Owner = GetOwner();
+	const UUmbrellaStateComponent* State = Owner ? Owner->FindComponentByClass<UUmbrellaStateComponent>() : nullptr;
+	if (State)
+	{
+		SetPose(State->GetAction() == EUmbrellaAction::AbsorbFall ? EAbsorbPose::AbsorbFall : EAbsorbPose::Closed);
 	}
 }
 

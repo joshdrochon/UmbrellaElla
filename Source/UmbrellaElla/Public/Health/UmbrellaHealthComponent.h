@@ -42,6 +42,9 @@ public:
 	/** Same, with the clock given (tests). */
 	EHitResult TakeHitAt(float RawDamage, FName SourceId, double NowSeconds);
 
+	/** Sources that ignore post-hit protection and do not start or renew it (keeper gust damage). */
+	static bool ShouldBypassProtection(FName SourceId);
+
 	/** Heal one absorbed yellow at the current recovery rank. Returns what changed. */
 	FHealthHealOutcome HealFromYellow(FName SourceId);
 
@@ -64,8 +67,11 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type Reason) override;
 
 private:
+	void OnCheckpointRetried(const FUmbrellaEvent& Event);
+
 	void Broadcast(EUmbrellaEventType Type, FName Source, FName Detail, float Value, int32 Amount) const;
 	void BroadcastHealth(FName Source, FName Detail) const;
 
@@ -73,4 +79,5 @@ private:
 	int32 DefenseRank = 0;
 	int32 RecoveryRank = 0;
 	double ProtectedUntil = -1.0;
+	FDelegateHandle RetryHandle;
 };
