@@ -41,7 +41,8 @@ exactly one area, lanes disjoint).
 - All gameplay rules in C++ with plain rule functions tests can call. Blueprints/UMG only as thin data/layout,
   ideally none: build UI in C++ (UUserWidget/Slate) and placeholders from engine primitives or Paper2D sprites made in code.
 - Assets (`.uasset`/`.umap`) only if you must; make them with a committed editor Python script
-  (`UnrealEditor-Cmd <uproject> -run=pythonscript -script=<file>`), so they can be rebuilt. They go through Git LFS.
+  (`UnrealEditor-Cmd <uproject> -run=pythonscript -script=<file> -unattended -nullrhi -nosplash -nocrashreports`), so they
+  can be rebuilt. Every headless editor launch passes those four flags (no crash-reporter dialogs on the shared Mac). They go through Git LFS.
 - Every number in your tuning struct, with the GDD/manifest value and `// bake: <ID>.<param>` where the manifest has
   a parameter. No magic numbers in `.cpp` (rule G).
 - Tests: `Private/Tests/<YourArea>/`, names `UmbrellaElla.<Area>.<Behavior>` (rule tests, under 1 s) and
