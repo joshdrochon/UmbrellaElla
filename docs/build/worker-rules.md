@@ -35,13 +35,16 @@ exactly one area, lanes disjoint).
      (flow), `UI/UmbrellaHUD` (health). Fill in your own; call others only through their public functions and events.
 
 ## Hard rules
+- Unity builds merge many `.cpp` files into one: never put generic names (`Step`, `Count`, `Tolerance`) at file scope
+  or in an anonymous namespace; prefix them with your area (`KeeperTestStep`), or `-Wshadow` breaks another area's build.
 - Stay in your file lane (your area file lists it). Never edit another lane's files, `Core/`, `Harness/`, the
   `.uproject`, `Config/*.ini` or `Source/*.Target.cs`. If you truly need a change there, write it in
   `docs/build/requests/<area>.md` (create it) with the exact diff, and work around it with a stub in your lane.
 - All gameplay rules in C++ with plain rule functions tests can call. Blueprints/UMG only as thin data/layout,
   ideally none: build UI in C++ (UUserWidget/Slate) and placeholders from engine primitives or Paper2D sprites made in code.
 - Assets (`.uasset`/`.umap`) only if you must; make them with a committed editor Python script
-  (`UnrealEditor-Cmd <uproject> -run=pythonscript -script=<file>`), so they can be rebuilt. They go through Git LFS.
+  (`UnrealEditor-Cmd <uproject> -run=pythonscript -script=<file> -unattended -nullrhi -nosplash -nocrashreports`), so they
+  can be rebuilt. Every headless editor launch passes those four flags (no crash-reporter dialogs on the shared Mac). They go through Git LFS.
 - Every number in your tuning struct, with the GDD/manifest value and `// bake: <ID>.<param>` where the manifest has
   a parameter. No magic numbers in `.cpp` (rule G).
 - Tests: `Private/Tests/<YourArea>/`, names `UmbrellaElla.<Area>.<Behavior>` (rule tests, under 1 s) and
@@ -70,6 +73,28 @@ Do not run package.sh; the build lead packages after merges.
 5. Append to `docs/build/areas/<area>-status.md` (your lane): Rule IDs done, tests that prove them, what is left.
 Work G1 Rule IDs first, then the "later" list. Keep going until both are done or you are blocked; when blocked,
 write why in the status file, commit, and stop.
+
+## Quality bars (Josh, Nov 12; enforced by tools/build/gate.sh on every merge)
+- Art ships only on a pass: every image under `Art/` (outside `Art/Source/`) or art asset under `Content/*/Art` that is
+  not a tracked `_PH` placeholder needs its art loop pass record (`tools/art_loop.py`: calibrated blind critic panel
+  against the references and the quality bar, plus art_check, screen_check and art_ref_check on those bytes). Art below
+  the bar stays a tracked `_PH` placeholder (put `_PH` in the file name); the merge goes ahead without it.
+- Audio ships only on a pass: every WAV under `Audio/Source/` passes `tools/audio_check.py --scan Audio/Source` and
+  `tools/audio_style_check.py check Audio/Source`, or is a tracked placeholder take (provenance origin
+  `placeholder: <reason>`).
+- UI (`tools/ui_check.py ci`) and story (`tools/story_check.py`) may not get worse than main. Story merges also need the
+  blind story critic (`tools/build/critic.sh story`); Keeper and enemy merges need the encounter critic once the game
+  writes a run log.
+- Jam rules: `tools/submission_check.py prejam`, and `assets` when content changes (provenance, no pre-jam content).
+- Every merge gets an independent review session (`tools/build/review.sh`, the role card for your domain). One round:
+  "changes" comes back to you once; after that the items become follow-ups.
+
+## Tests per merge vs before a package
+Per merge the gate runs only what relates to the change (`tools/build/gate_plan.py`): your area's automation test
+prefix (`UmbrellaElla.<Area>.*`) plus the prefixes of any other folder the merge touched (all tests if Core/Harness or
+a Build.cs changed), and only the Python checks that apply to the changed files. The full Unreal and Python suites run
+once before each packaged build (`tools/build/prepackage.sh`). So: name your tests `UmbrellaElla.<YourArea>...` and
+run `TEST_FILTER=UmbrellaElla.<YourArea> tools/build/ue_slot.sh tools/ue/test.sh` while you work.
 
 ## Contract changes
 If a Core contract blocks you, do not edit it. Write the request (file, exact change, why) in

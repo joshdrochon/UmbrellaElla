@@ -29,6 +29,11 @@ float AWindCurrent::GetForce() const
 	return FMath::Max(0.0f, Used);
 }
 
+void AWindCurrent::SetHalfExtent(float HalfX, float HalfZ)
+{
+	Volume->SetBoxExtent(FVector(HalfX, Volume->GetUnscaledBoxExtent().Y, HalfZ));
+}
+
 void AWindCurrent::SetCurrent(const FVector& NewDirection, float NewForce)
 {
 	Direction = NewDirection.GetSafeNormal();
