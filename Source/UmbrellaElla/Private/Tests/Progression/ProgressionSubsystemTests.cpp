@@ -1,4 +1,6 @@
+#include "BrokenMill/BrokenMillRoom.h"
 #include "Core/UmbrellaEventBus.h"
+#include "Enemy/UmbrellaEnemy.h"
 #include "Engine/Engine.h"
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
@@ -273,6 +275,81 @@ bool FProgWorldShadow::RunTest(const FString& Parameters)
 	TestEqual(TEXT("real xp restored"), Rig.Progression->GetXp(), 100);
 	TestEqual(TEXT("the saved copy never saw the shadow"), FProgressionStore::Load(Slot).Profile.Xp, 100);
 	FProgressionStore::Delete(Slot);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FProgWorldRealEnemies, "UmbrellaElla.Progression.World.RealEnemyAndMillKillsPayXp", EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+bool FProgWorldRealEnemies::RunTest(const FString& Parameters)
+{
+	FProgressionRig Rig;
+	if (!TestNotNull(TEXT("bus"), Rig.Bus))
+	{
+		return false;
+	}
+	Rig.StartDirectorsCut();
+	FUmbrellaShotSpec Blast;
+	Blast.Kind = EUmbrellaShotKind::PlayerBlast;
+	Blast.Damage = 1000.0f;
+	const struct { EEnemyType Type; int32 Xp; } Cases[] = {
+		{ EEnemyType::Roadwarden, 10 }, { EEnemyType::Floodstrider, 20 }, { EEnemyType::SkyCourier, 10 } };
+	int32 Expected = 0;
+	for (const auto& Case : Cases)
+	{
+		AUmbrellaEnemy* Enemy = Rig.World->SpawnActor<AUmbrellaEnemy>();
+		if (!TestNotNull(TEXT("enemy"), Enemy))
+		{
+			return false;
+		}
+		Enemy->Configure(Case.Type, EEnemyGender::Male, EUmbrellaShotKind::EnemyRed);
+		Enemy->ReceiveShot(Blast, FVector::ZeroVector);
+		Expected += Case.Xp;
+		TestEqual(*FString::Printf(TEXT("xp after %s"), *Enemy->GetName()), Rig.Progression->GetXp(), Expected);
+		Enemy->ReceiveShot(Blast, FVector::ZeroVector);
+		TestEqual(TEXT("a defeated enemy pays once"), Rig.Progression->GetXp(), Expected);
+	}
+	ABrokenMillRoom* Room = Rig.World->SpawnActor<ABrokenMillRoom>();
+	if (TestNotNull(TEXT("room"), Room))
+	{
+		Room->ReceiveShot(Blast, FVector::ZeroVector);
+		TestEqual(TEXT("mill guard pays Roadwarden xp"), Rig.Progression->GetXp(), Expected + 10);
+	}
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FProgWorldKeeperEvents, "UmbrellaElla.Progression.World.KeeperEventStringsDriveXpAndCheckpoints", EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+bool FProgWorldKeeperEvents::RunTest(const FString& Parameters)
+{
+	FProgressionRig Rig;
+	if (!TestNotNull(TEXT("bus"), Rig.Bus))
+	{
+		return false;
+	}
+	Rig.StartDirectorsCut();
+	auto Keeper = [&Rig](EUmbrellaEventType Type, const TCHAR* Detail, const TCHAR* Target)
+	{
+		FUmbrellaEvent Event;
+		Event.Type = Type;
+		Event.SourceId = FName(TEXT("KeeperOfTime"));
+		Event.TargetId = FName(Target);
+		Event.Detail = FName(Detail);
+		Rig.Bus->Broadcast(Event);
+	};
+	Keeper(EUmbrellaEventType::PhaseStarted, TEXT("wings"), TEXT("KeeperOfTime"));
+	Keeper(EUmbrellaEventType::CheckpointReached, TEXT("wings"), TEXT("KeeperOfTime"));
+	Keeper(EUmbrellaEventType::BossPartDestroyed, TEXT("wings"), TEXT("WINGS"));
+	TestEqual(TEXT("wings"), Rig.Progression->GetXp(), 60);
+	Keeper(EUmbrellaEventType::BossPartDestroyed, TEXT("mechanisms"), TEXT("MECH_FRONT"));
+	Keeper(EUmbrellaEventType::BossPartDestroyed, TEXT("mechanisms"), TEXT("MECH_MIDDLE"));
+	Keeper(EUmbrellaEventType::BossPartDestroyed, TEXT("mechanisms"), TEXT("MECH_REAR"));
+	TestEqual(TEXT("mechanisms 60+80+100"), Rig.Progression->GetXp(), 300);
+	Keeper(EUmbrellaEventType::BossPartDestroyed, TEXT("clock"), TEXT("EYE"));
+	TestEqual(TEXT("the eye pays nothing"), Rig.Progression->GetXp(), 300);
+	Keeper(EUmbrellaEventType::CheckpointRetried, TEXT("mechanisms"), TEXT("Player"));
+	TestEqual(TEXT("keeper phase checkpoint is a boss checkpoint: retry rolls xp back to it"), Rig.Progression->GetXp(), 0);
+	Keeper(EUmbrellaEventType::BossPartDestroyed, TEXT("clock"), TEXT("CLOCK"));
+	TestEqual(TEXT("clock"), Rig.Progression->GetXp(), 150);
+	Keeper(EUmbrellaEventType::EncounterCompleted, TEXT("success"), TEXT("KeeperOfTime"));
+	TestEqual(TEXT("win keeps xp"), Rig.Progression->GetXp(), 150);
 	return true;
 }
 

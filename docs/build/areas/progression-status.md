@@ -42,3 +42,12 @@ Event contract is in `docs/build/requests/progression.md`.
 - Not wired by me (other lanes): who calls `SetPurchaseContext`, `UXpRingWidget::Show`, `UProgressionPurchaseWidget::Show`; health reading ranks; audio on `LevelGained`.
 - Widgets are not visually checked (no PIE here); the ring is placed at tuning `RingViewportPosition`, not measured against the clock.
 - Partial-reserve persistence and refund remapping are OPEN in the GDD; not invented.
+
+## Review round 1 fixes
+- Kill XP now reads the events main actually broadcasts (strings in `docs/build/requests/progression.md` section 2): enemies by actor
+  lookup, Broken Mill guard paid as Roadwarden (default, yours to change), keeper by TargetId part, keeper phase names = boss checkpoint.
+  Tests: `World.RealEnemyAndMillKillsPayXp` (real AUmbrellaEnemy x3 + ABrokenMillRoom), `World.KeeperEventStringsDriveXpAndCheckpoints`.
+  Test count is 26 Progression+Persistence in the last filtered run (earlier "36" was wrong).
+- No emitters on main for the run events were a flow/keeper gap; both now broadcast the listed strings (not re-verified on main).
+- `GetTuning()` stays the single switch point; lead adds the `Progression` member to `UUmbrellaTuning`.
+- Open (minor): checkpoint written at run start precedes the run-2 reallocation, so a boss retry reverts it. Not changed.

@@ -1,8 +1,11 @@
 #include "Progression/ProgressionSubsystem.h"
+#include "BrokenMill/BrokenMillRoom.h"
 #include "Core/UmbrellaEventBus.h"
 #include "Core/UmbrellaLog.h"
 #include "Engine/GameInstance.h"
+#include "Enemy/UmbrellaEnemy.h"
 #include "Engine/World.h"
+#include "EngineUtils.h"
 #include "Harness/UmbrellaFeatureFlags.h"
 
 namespace
@@ -10,6 +13,42 @@ namespace
 	bool NameHas(FName Name, const TCHAR* Needle)
 	{
 		return !Name.IsNone() && Name.ToString().Contains(Needle, ESearchCase::IgnoreCase);
+	}
+
+	// Exact strings other lanes broadcast (docs/build/requests/progression.md section 2).
+	const FName ProgressionEnemyDetail(TEXT("Enemy"));
+	const FName ProgressionKeeperSource(TEXT("KeeperOfTime"));
+	const TCHAR* const ProgressionKeeperPhases[] = { TEXT("wings"), TEXT("mechanisms"), TEXT("clock") };
+
+	/** The XP label of an enemy that broadcast BossPartDestroyed(Detail=Enemy), found by its actor name. */
+	FName ProgressionEnemyLabel(UWorld* World, FName ActorName)
+	{
+		if (World == nullptr || ActorName.IsNone())
+		{
+			return NAME_None;
+		}
+		for (TActorIterator<AUmbrellaEnemy> It(World); It; ++It)
+		{
+			if (It->GetFName() == ActorName)
+			{
+				switch (It->GetEnemyType())
+				{
+				case EEnemyType::Roadwarden: return FName(TEXT("Roadwarden"));
+				case EEnemyType::Floodstrider: return FName(TEXT("Floodstrider"));
+				case EEnemyType::SkyCourier: return FName(TEXT("Courier"));
+				default: return NAME_None;
+				}
+			}
+		}
+		// The Broken Mill guard is the introductory stationary Roadwarden (GDD HAZ-03).
+		for (TActorIterator<ABrokenMillRoom> It(World); It; ++It)
+		{
+			if (It->GetFName() == ActorName)
+			{
+				return FName(TEXT("Roadwarden"));
+			}
+		}
+		return NAME_None;
 	}
 }
 
@@ -139,19 +178,36 @@ void UProgressionSubsystem::HandleEvent(const FUmbrellaEvent& Event)
 		break;
 	case EUmbrellaEventType::BossPartDestroyed:
 	{
-		const FName Labels[] = { Event.Detail, Event.TargetId, Event.SourceId };
-		for (const FName Label : Labels)
+		if (Event.SourceId == ProgressionKeeperSource)
 		{
-			if (AwardKill(Label) > 0)
+			// Keeper: TargetId is the part (WINGS, MECH_FRONT, MECH_MIDDLE, MECH_REAR, CLOCK, EYE); Detail is only the phase.
+			AwardKill(Event.TargetId);
+		}
+		else if (Event.Detail == ProgressionEnemyDetail)
+		{
+			AwardKill(ProgressionEnemyLabel(BoundBus.IsValid() ? BoundBus->GetWorld() : nullptr, Event.SourceId));
+		}
+		else
+		{
+			const FName Labels[] = { Event.Detail, Event.TargetId };
+			for (const FName Label : Labels)
 			{
-				break;
+				if (AwardKill(Label) > 0)
+				{
+					break;
+				}
 			}
 		}
 		break;
 	}
 	case EUmbrellaEventType::CheckpointReached:
 	{
-		const bool bBoss = NameHas(Event.Detail, TEXT("Phase")) || NameHas(Event.Detail, TEXT("Boss")) || NameHas(Event.Detail, TEXT("Keeper"));
+		bool bBoss = Event.SourceId == ProgressionKeeperSource;
+		for (const TCHAR* Phase : ProgressionKeeperPhases)
+		{
+			bBoss = bBoss || Event.Detail.ToString().Equals(Phase, ESearchCase::IgnoreCase);
+		}
+		bBoss = bBoss || NameHas(Event.Detail, TEXT("Phase")) || NameHas(Event.Detail, TEXT("Boss")) || NameHas(Event.Detail, TEXT("Keeper"));
 		ReachCheckpoint(bBoss ? EProgressionCheckpointKind::Boss : EProgressionCheckpointKind::Level);
 		break;
 	}
