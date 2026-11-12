@@ -355,14 +355,14 @@ bool FSettingsReducedFlashTest::RunTest(const FString& Parameters)
 	TestFalse(TEXT("draft change does not reach Vfx before Save"), Vfx->IsReducedFlash());
 	Subsystem->SaveSettings(ESettingsPage::Sound);
 	TestTrue(TEXT("saved copy has reduced flash"), Subsystem->GetSession().GetSaved().bReducedFlash);
-	TestTrue(TEXT("the saved value applies to a world"), USettingsMenuSubsystem::ApplyReducedFlashToWorld(World, Subsystem->GetSession().GetSaved().bReducedFlash));
+	USettingsMenuSubsystem::ApplyReducedFlashToWorld(World, Subsystem->GetSession().GetSaved());
 	TestTrue(TEXT("Vfx is reduced after apply"), Vfx->IsReducedFlash());
 
 	// Startup: a fresh subsystem reading the file gets the saved value.
 	USettingsMenuSubsystem* Fresh = MakeSubsystem(Path, Master, Sfx, Music);
 	TestTrue(TEXT("saved value survives a reload"), Fresh->GetSession().GetSaved().bReducedFlash);
 	Vfx->SetReducedFlash(false);
-	USettingsMenuSubsystem::ApplyReducedFlashToWorld(World, Fresh->GetSession().GetSaved().bReducedFlash);
+	USettingsMenuSubsystem::ApplyReducedFlashToWorld(World, Fresh->GetSession().GetSaved());
 	TestTrue(TEXT("startup applies the saved value"), Vfx->IsReducedFlash());
 	SettingsStore::Delete(Path);
 	return true;

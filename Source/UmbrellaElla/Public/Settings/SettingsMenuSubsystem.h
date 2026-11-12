@@ -49,10 +49,10 @@ public:
 	void DiscardChanges(ESettingsPage Page);
 
 	/** Push reduced flash to the Vfx subsystem of this game instance's world (and any world that starts later). */
-	void ApplyReducedFlash(bool bReduced);
+	void ApplyReducedFlash();
 
-	/** Set reduced flash on one world's Vfx subsystem. Returns false when the world has none. */
-	static bool ApplyReducedFlashToWorld(UWorld* World, bool bReduced);
+	/** Set reduced flash on one world's Vfx subsystem. Does nothing when the world has none. */
+	static void ApplyReducedFlashToWorld(UWorld* World, const FUmbrellaSettingsData& Data);
 
 	/** Set the volumes of the three sound classes from data. */
 	void ApplyVolumes(const FUmbrellaSettingsData& Data);

@@ -44,7 +44,7 @@ struct UMBRELLAELLA_API FUmbrellaSettingsData
 	int32 MusicVolume = 0;
 	int32 TextScalePercent = 0;
 	bool bReducedMotion = false;
-	/** Accessibility: shrink flashing effects (VFX-10). */
+	/** Accessibility: shrink flashing effects . */
 	bool bReducedFlash = false;
 	TArray<FUmbrellaDefaultBinding> Bindings;
 

@@ -37,28 +37,26 @@ void USettingsMenuSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 		{
 			if (World && World->GetGameInstance() == GetGameInstance())
 			{
-				ApplyReducedFlashToWorld(World, Session.GetSaved().bReducedFlash);
+				ApplyReducedFlashToWorld(World, Session.GetSaved());
 			}
 		});
-		ApplyReducedFlash(Session.GetSaved().bReducedFlash);
+		ApplyReducedFlash();
 	}
 }
 
-void USettingsMenuSubsystem::ApplyReducedFlash(bool bReduced)
+void USettingsMenuSubsystem::ApplyReducedFlash()
 {
 	const UGameInstance* GameInstance = GetGameInstance();
-	ApplyReducedFlashToWorld(GameInstance ? GameInstance->GetWorld() : nullptr, bReduced);
+	ApplyReducedFlashToWorld(GameInstance ? GameInstance->GetWorld() : nullptr, Session.GetSaved());
 }
 
-bool USettingsMenuSubsystem::ApplyReducedFlashToWorld(UWorld* World, bool bReduced)
+void USettingsMenuSubsystem::ApplyReducedFlashToWorld(UWorld* World, const FUmbrellaSettingsData& Data)
 {
 	UUmbrellaVfxSubsystem* Vfx = World ? World->GetSubsystem<UUmbrellaVfxSubsystem>() : nullptr;
-	if (!Vfx)
+	if (Vfx && IsFeatureEnabled(EFeatureId::VFX_10))
 	{
-		return false;
+		Vfx->SetReducedFlash(Data.bReducedFlash);
 	}
-	Vfx->SetReducedFlash(bReduced);
-	return true;
 }
 
 void USettingsMenuSubsystem::Deinitialize()
@@ -176,7 +174,7 @@ ESettingsResult USettingsMenuSubsystem::SaveSettings(ESettingsPage Page)
 	}
 	Session.SavePage(Page);
 	ApplyVolumes(Session.GetSaved());
-	ApplyReducedFlash(Session.GetSaved().bReducedFlash);
+	ApplyReducedFlash();
 	return SettingsStore::Write(StorePath, Session.GetSaved());
 }
 
