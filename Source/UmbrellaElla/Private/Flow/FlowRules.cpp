@@ -98,6 +98,35 @@ bool FFlowRules::ShouldShowTutorial(bool bFeatureOn, bool bAlreadySeen)
 	return bFeatureOn && !bAlreadySeen;
 }
 
+EFlowMenuIntent FFlowRules::MenuIntentForKey(const FKey& Key)
+{
+	if (Key == EKeys::Up || Key == EKeys::W || Key == EKeys::Gamepad_DPad_Up || Key == EKeys::Gamepad_LeftStick_Up)
+	{
+		return EFlowMenuIntent::Up;
+	}
+	if (Key == EKeys::Down || Key == EKeys::S || Key == EKeys::Gamepad_DPad_Down || Key == EKeys::Gamepad_LeftStick_Down)
+	{
+		return EFlowMenuIntent::Down;
+	}
+	if (Key == EKeys::Left || Key == EKeys::A || Key == EKeys::Gamepad_DPad_Left || Key == EKeys::Gamepad_LeftStick_Left)
+	{
+		return EFlowMenuIntent::Left;
+	}
+	if (Key == EKeys::Right || Key == EKeys::D || Key == EKeys::Gamepad_DPad_Right || Key == EKeys::Gamepad_LeftStick_Right)
+	{
+		return EFlowMenuIntent::Right;
+	}
+	if (Key == EKeys::Enter || Key == EKeys::SpaceBar || Key == EKeys::Gamepad_FaceButton_Bottom)
+	{
+		return EFlowMenuIntent::Confirm;
+	}
+	if (Key == EKeys::Escape || Key == EKeys::F1 || Key == EKeys::Gamepad_FaceButton_Right || Key == EKeys::Gamepad_Special_Right)
+	{
+		return EFlowMenuIntent::Back;
+	}
+	return EFlowMenuIntent::None;
+}
+
 bool FFlowRules::IsBackgroundShownOn(EFlowScreen Screen)
 {
 	return Screen != EFlowScreen::Playing && Screen != EFlowScreen::Resuming;

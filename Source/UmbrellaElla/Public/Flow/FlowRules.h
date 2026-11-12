@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "InputCoreTypes.h"
 #include "FlowRules.generated.h"
 
 /** Which screen the player is on. */
@@ -38,6 +39,19 @@ enum class EFlowCommand : uint8
 	TimelineDone
 };
 
+/** What a key means inside a menu. */
+UENUM()
+enum class EFlowMenuIntent : uint8
+{
+	None,
+	Up,
+	Down,
+	Left,
+	Right,
+	Confirm,
+	Back
+};
+
 /** Plain rule functions of the mode flow: no world, no widgets, so tests call them directly. */
 struct UMBRELLAELLA_API FFlowRules
 {
@@ -49,6 +63,9 @@ struct UMBRELLAELLA_API FFlowRules
 
 	/** True where the simulation stands still (pause, settings, resume wait, defeat). */
 	static bool IsWorldPausedOn(EFlowScreen Screen);
+
+	/** Menu meaning of a key: D-pad, arrows, WASD navigate; Cross, A, Enter, Space select; Circle, B, Escape, F1, Menu back out. */
+	static EFlowMenuIntent MenuIntentForKey(const FKey& Key);
 
 	/** True when another tutorial page follows Page (zero based). */
 	static bool HasTutorialPageAfter(int32 Page, int32 PageCount);

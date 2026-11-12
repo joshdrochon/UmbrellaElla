@@ -14,6 +14,7 @@
 #include "InputTriggers.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Flow/FlowMenuText.h"
 #include "Flow/FlowTutorialText.h"
 #include "Misc/ConfigCacheIni.h"
 #include "Story/FlowStoryText.h"
@@ -22,7 +23,8 @@
 #include "Widgets/Text/STextBlock.h"
 
 // Rule IDs built here: FLOW-02 (two routes), FLOW-04 (win: story, credits), FLOW-34 (Start screen), FLOW-35 (Pause),
-// ART-04 (same moving background on Start and End), FLOW-03 (first-start tutorial, Pause then Skip). Each is checked through IsFeatureEnabled below.
+// ART-04 (same moving background on Start and End), FLOW-03 (first-start tutorial, Pause then Skip), FLOW-41 (Start and
+// Pause design retained), MOVE-08 (pause keys: Escape, F1, Menu), MOVE-09 (menu navigation, WASD included). Each is checked through IsFeatureEnabled below.
 
 namespace
 {
@@ -62,8 +64,11 @@ void AUmbrellaPlayerController::SetupInputComponent()
 
 	MenuContext = NewObject<UInputMappingContext>(this, TEXT("IMC_Menu"));
 	MenuContext->MapKey(PauseAction, EKeys::Escape);
-	MenuContext->MapKey(PauseAction, EKeys::F1);
-	MenuContext->MapKey(PauseAction, EKeys::Gamepad_Special_Right);
+	if (IsFeatureEnabled(EFeatureId::MOVE_08))
+	{
+		MenuContext->MapKey(PauseAction, EKeys::F1);
+		MenuContext->MapKey(PauseAction, EKeys::Gamepad_Special_Right);
+	}
 
 	if (UEnhancedInputComponent* Input = Cast<UEnhancedInputComponent>(InputComponent))
 	{
@@ -386,25 +391,28 @@ void AUmbrellaPlayerController::ShowScreenWidget()
 	case EFlowScreen::Title:
 	{
 		TArray<FFlowMenuItem> Items;
-		Items.Add({ FText::FromString(TEXT("Start Game")), FSimpleDelegate::CreateUObject(this, &AUmbrellaPlayerController::StartGame) });
-		Items.Add({ FText::FromString(TEXT("Start Director's Cut")), FSimpleDelegate::CreateUObject(this, &AUmbrellaPlayerController::StartDirectorsCut) });
-		Menu = SNew(SFlowMenu).Tuning(Tuning).Heading(FText::FromString(TEXT("Umbrella Ella"))).Items(Items);
+		Items.Add({ FFlowMenuText::StartGameLabel(), FSimpleDelegate::CreateUObject(this, &AUmbrellaPlayerController::StartGame) });
+		Items.Add({ FFlowMenuText::DirectorsCutLabel(), FSimpleDelegate::CreateUObject(this, &AUmbrellaPlayerController::StartDirectorsCut) });
+		Menu = SNew(SFlowMenu).WasdNavigation(IsFeatureEnabled(EFeatureId::MOVE_09)).Tuning(Tuning).Heading(FFlowMenuText::TitleHeading()).Items(Items);
 		break;
 	}
 	case EFlowScreen::Paused:
 	{
 		TArray<FFlowMenuItem> Items;
-		Items.Add({ FText::FromString(TEXT("Continue")), Resume });
-		Items.Add({ FText::FromString(TEXT("Settings")), FSimpleDelegate::CreateWeakLambda(this, [this]() { ApplyCommand(EFlowCommand::OpenSettings); }) });
-		Items.Add({ FText::FromString(TEXT("Quit")), FSimpleDelegate::CreateUObject(this, &AUmbrellaPlayerController::QuitGame) });
-		Menu = SNew(SFlowMenu).Backdrop(EFlowBackdrop::Clocks).Tuning(Tuning).Heading(FText::FromString(TEXT("Paused"))).Items(Items).OnBack(Resume);
+		Items.Add({ FFlowMenuText::ContinueLabel(), Resume });
+		if (IsFeatureEnabled(EFeatureId::FLOW_41))
+		{
+			Items.Add({ FFlowMenuText::SettingsLabel(), FSimpleDelegate::CreateWeakLambda(this, [this]() { ApplyCommand(EFlowCommand::OpenSettings); }) });
+		}
+		Items.Add({ FFlowMenuText::QuitLabel(), FSimpleDelegate::CreateUObject(this, &AUmbrellaPlayerController::QuitGame) });
+		Menu = SNew(SFlowMenu).WasdNavigation(IsFeatureEnabled(EFeatureId::MOVE_09)).Backdrop(EFlowBackdrop::Clocks).Tuning(Tuning).Heading(FFlowMenuText::PausedHeading()).Items(Items).OnBack(Resume);
 		break;
 	}
 	case EFlowScreen::Settings:
 	{
 		TArray<FFlowMenuItem> Items;
 		Items.Add({ FText::FromString(TEXT("Back")), Back });
-		Menu = SNew(SFlowMenu).Backdrop(EFlowBackdrop::Clocks).Tuning(Tuning).Heading(FText::FromString(TEXT("Settings")))
+		Menu = SNew(SFlowMenu).WasdNavigation(IsFeatureEnabled(EFeatureId::MOVE_09)).Backdrop(EFlowBackdrop::Clocks).Tuning(Tuning).Heading(FText::FromString(TEXT("Settings")))
 			.Body(FText::FromString(TEXT("Sound, Controller and Credits arrive in the next slice."))).Items(Items).OnBack(Back);
 		break;
 	}
@@ -414,7 +422,7 @@ void AUmbrellaPlayerController::ShowScreenWidget()
 		TArray<FFlowMenuItem> Items;
 		Items.Add({ FText::FromString(FFlowRules::HasTutorialPageAfter(TutorialPage, Pages.Num()) ? TEXT("Next") : TEXT("Begin")),
 			FSimpleDelegate::CreateUObject(this, &AUmbrellaPlayerController::AdvanceTutorial) });
-		Menu = SNew(SFlowMenu).Tuning(Tuning).Heading(FFlowTutorialText::GetHeading(PlayMode))
+		Menu = SNew(SFlowMenu).WasdNavigation(IsFeatureEnabled(EFeatureId::MOVE_09)).Tuning(Tuning).Heading(FFlowTutorialText::GetHeading(PlayMode))
 			.Body(Pages.IsValidIndex(TutorialPage) ? Pages[TutorialPage] : FText::GetEmpty()).Items(Items);
 		break;
 	}
@@ -422,17 +430,17 @@ void AUmbrellaPlayerController::ShowScreenWidget()
 	{
 		TArray<FFlowMenuItem> Items;
 		const FSimpleDelegate Skip = FSimpleDelegate::CreateWeakLambda(this, [this]() { ApplyCommand(EFlowCommand::SkipTutorial); });
-		Items.Add({ FText::FromString(TEXT("Continue")), Resume });
-		Items.Add({ FText::FromString(TEXT("Skip")), Skip });
-		Menu = SNew(SFlowMenu).Backdrop(EFlowBackdrop::Clocks).Tuning(Tuning).Heading(FText::FromString(TEXT("Paused"))).Items(Items).OnBack(Resume);
+		Items.Add({ FFlowMenuText::ContinueLabel(), Resume });
+		Items.Add({ FFlowMenuText::SkipLabel(), Skip });
+		Menu = SNew(SFlowMenu).WasdNavigation(IsFeatureEnabled(EFeatureId::MOVE_09)).Backdrop(EFlowBackdrop::Clocks).Tuning(Tuning).Heading(FFlowMenuText::PausedHeading()).Items(Items).OnBack(Resume);
 		break;
 	}
 	case EFlowScreen::Defeat:
 	{
 		TArray<FFlowMenuItem> Items;
-		Items.Add({ FText::FromString(TEXT("Retry")), FSimpleDelegate::CreateWeakLambda(this, [this]() { ApplyCommand(EFlowCommand::Retry); }) });
-		Items.Add({ FText::FromString(TEXT("Quit to Title")), FSimpleDelegate::CreateUObject(this, &AUmbrellaPlayerController::ReturnToTitle) });
-		Menu = SNew(SFlowMenu).Tuning(Tuning).Heading(FText::FromString(TEXT("Defeated"))).Items(Items);
+		Items.Add({ FFlowMenuText::RetryLabel(), FSimpleDelegate::CreateWeakLambda(this, [this]() { ApplyCommand(EFlowCommand::Retry); }) });
+		Items.Add({ FFlowMenuText::QuitToTitleLabel(), FSimpleDelegate::CreateUObject(this, &AUmbrellaPlayerController::ReturnToTitle) });
+		Menu = SNew(SFlowMenu).WasdNavigation(IsFeatureEnabled(EFeatureId::MOVE_09)).Tuning(Tuning).Heading(FFlowMenuText::DefeatHeading()).Items(Items);
 		break;
 	}
 	case EFlowScreen::Story:

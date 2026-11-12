@@ -61,6 +61,7 @@ public:
 	SLATE_ARGUMENT(FText, Body)
 	SLATE_ARGUMENT(TArray<FFlowMenuItem>, Items)
 	SLATE_EVENT(FSimpleDelegate, OnBack)
+	SLATE_ARGUMENT_DEFAULT(bool, WasdNavigation) = true;
 	SLATE_END_ARGS()
 
 	void Construct(const FArguments& InArgs);
@@ -73,6 +74,7 @@ public:
 
 private:
 	FSimpleDelegate BackDelegate;
+	bool bWasdNavigation = true;
 	TSharedPtr<SWidget> FirstButton;
 	TSharedPtr<FSlateRoundedBoxBrush> NormalBrush;
 	TSharedPtr<FSlateRoundedBoxBrush> HoverBrush;

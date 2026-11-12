@@ -1,4 +1,5 @@
 #include "UI/Menus/FlowMenuWidgets.h"
+#include "Flow/FlowRules.h"
 #include "Brushes/SlateColorBrush.h"
 #include "Brushes/SlateRoundedBoxBrush.h"
 #include "Fonts/SlateFontInfo.h"
@@ -95,6 +96,7 @@ void SFlowMenu::Construct(const FArguments& InArgs)
 {
 	const FFlowTuning& Tuning = InArgs._Tuning;
 	BackDelegate = InArgs._OnBack;
+	bWasdNavigation = InArgs._WasdNavigation;
 
 	NormalBrush = MakeShared<FSlateRoundedBoxBrush>(Tuning.ButtonColor, Tuning.ButtonCornerRadius);
 	HoverBrush = MakeShared<FSlateRoundedBoxBrush>(Tuning.ButtonHoverColor, Tuning.ButtonCornerRadius);
@@ -166,9 +168,19 @@ bool SFlowMenu::SupportsKeyboardFocus() const
 FReply SFlowMenu::OnKeyDown(const FGeometry& MyGeometry, const FKeyEvent& InKeyEvent)
 {
 	const FKey Key = InKeyEvent.GetKey();
-	if (Key == EKeys::Escape || Key == EKeys::F1 || Key == EKeys::Gamepad_FaceButton_Right || Key == EKeys::Gamepad_Special_Right)
+	const EFlowMenuIntent Intent = FFlowRules::MenuIntentForKey(Key);
+	if (Intent == EFlowMenuIntent::Back)
 	{
 		return BackDelegate.ExecuteIfBound() ? FReply::Handled() : FReply::Unhandled();
+	}
+	// WASD walks the buttons like the arrow keys (arrows and the D-pad navigate through Slate already).
+	const bool bWasdKey = Key == EKeys::W || Key == EKeys::A || Key == EKeys::S || Key == EKeys::D;
+	if (bWasdNavigation && bWasdKey && FSlateApplication::IsInitialized())
+	{
+		const FKey Arrow = Intent == EFlowMenuIntent::Up ? EKeys::Up : Intent == EFlowMenuIntent::Down ? EKeys::Down
+			: Intent == EFlowMenuIntent::Left ? EKeys::Left : EKeys::Right;
+		FSlateApplication::Get().ProcessKeyDownEvent(FKeyEvent(Arrow, InKeyEvent.GetModifierKeys(), InKeyEvent.GetUserIndex(), InKeyEvent.IsRepeat(), 0, 0));
+		return FReply::Handled();
 	}
 	return SCompoundWidget::OnKeyDown(MyGeometry, InKeyEvent);
 }
