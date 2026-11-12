@@ -79,5 +79,6 @@ private:
 	float QuitAfterSeconds = 0.0f;
 	float LoadMs = 0.0f;
 	bool bShotTaken = false;
+	FDelegateHandle ShotHandle;
 	bool bSelectedStart = false;
 };

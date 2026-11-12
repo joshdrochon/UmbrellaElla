@@ -4,7 +4,10 @@
 #include "Core/EllaCharacter.h"
 #include "Engine/Engine.h"
 #include "GameFramework/PlayerController.h"
+#include "HAL/FileManager.h"
+#include "ImageUtils.h"
 #include "InputKeyEventArgs.h"
+#include "Misc/FileHelper.h"
 #include "Motor/EllaMotorComponent.h"
 #include "Engine/GameInstance.h"
 #include "Engine/GameViewportClient.h"
@@ -102,6 +105,24 @@ void USmokeHookSubsystem::Tick(float DeltaTime)
 	if (!bShotTaken && !ShotPath.IsEmpty() && Elapsed >= Tuning.SmokeShotDelaySeconds)
 	{
 		bShotTaken = true;
+		// The packaged Mac build does not write the file RequestScreenshot names, so the hook takes the pixels from the
+		// capture delegate and writes the PNG itself (whole window, UI and bars included).
+		ShotHandle = UGameViewportClient::OnScreenshotCaptured().AddWeakLambda(this, [this](int32 Width, int32 Height, const TArray<FColor>& Colors)
+		{
+			TArray<FColor> Opaque = Colors;
+			for (FColor& Pixel : Opaque)
+			{
+				Pixel.A = 255;
+			}
+			TArray64<uint8> Png;
+			FImageView Image(Opaque.GetData(), Width, Height, ERawImageFormat::BGRA8);
+			if (FImageUtils::CompressImage(Png, TEXT("png"), Image))
+			{
+				IFileManager::Get().MakeDirectory(*FPaths::GetPath(ShotPath), true);
+				FFileHelper::SaveArrayToFile(Png, *ShotPath);
+			}
+			UGameViewportClient::OnScreenshotCaptured().Remove(ShotHandle);
+		});
 		FScreenshotRequest::RequestScreenshot(ShotPath, true, false);
 		const FVector2D Size = GEngine && GEngine->GameViewport ? FVector2D(GEngine->GameViewport->Viewport->GetSizeXY()) : FVector2D::ZeroVector;
 		UE_LOG(LogUmbrellaElla, Log, TEXT("SMOKE_SHOT at_s=%.1f w=%d h=%d"), Elapsed, static_cast<int32>(Size.X), static_cast<int32>(Size.Y));
