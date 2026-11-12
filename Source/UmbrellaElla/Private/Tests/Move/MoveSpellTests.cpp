@@ -5,6 +5,8 @@
 #include "Attack/AttackEmitterComponent.h"
 #include "Attack/AttackTuning.h"
 #include "Attack/SpellRules.h"
+#include "Attack/StreamBeamActor.h"
+#include "Enemy/UmbrellaEnemy.h"
 #include "Core/EllaCharacter.h"
 #include "Core/UmbrellaTuning.h"
 #include "EngineUtils.h"
@@ -275,6 +277,124 @@ bool FMoveWorldModeControlsTest::RunTest(const FString& Parameters)
 		Heights[Index] = static_cast<float>(Ella->GetActorLocation().Z) + static_cast<float>(Ella->GetActorLocation().X);
 	}
 	TestEqual(TEXT("same movement in both modes"), Heights[0], Heights[1], 0.001f);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMoveSpellBurstRulesTest, "UmbrellaElla.Move.SpellBurstRules", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FMoveSpellBurstRulesTest::RunTest(const FString& Parameters)
+{
+	FAttackTuning T = Attack();
+	TestEqual(TEXT("default burst is one shot"), SpellRules::BurstShots(EUmbrellaSpell::SmallBlasts, T), 1);
+	TestEqual(TEXT("spacing 0.08 s"), T.SmallBurstSpacing, 0.08f);
+	T.SmallBurstCount = 3;
+	TestEqual(TEXT("burst of three"), SpellRules::BurstShots(EUmbrellaSpell::SmallBlasts, T), 3);
+	T.SmallBurstCount = 9;
+	TestEqual(TEXT("burst clamps to five"), SpellRules::BurstShots(EUmbrellaSpell::SmallBlasts, T), 5);
+	T.SmallBurstCount = 0;
+	TestEqual(TEXT("burst clamps to one"), SpellRules::BurstShots(EUmbrellaSpell::SmallBlasts, T), 1);
+	T.SmallBurstCount = 5;
+	TestEqual(TEXT("other spells never burst"), SpellRules::BurstShots(EUmbrellaSpell::TwinStars, T), 1);
+	TestEqual(TEXT("first shot immediate"), SpellRules::BurstDelay(0, T), 0.0f);
+	TestEqual(TEXT("shot 4 at 0.32 s"), SpellRules::BurstDelay(4, T), 0.32f, 0.0001f);
+	TestEqual(TEXT("beam unclipped"), SpellRules::BeamClippedLength(900.0f, -1.0f), 900.0f);
+	TestEqual(TEXT("beam clipped by a wall"), SpellRules::BeamClippedLength(900.0f, 300.0f), 300.0f);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMoveWorldBurstTest, "UmbrellaElla.Move.World.SmallBlastBurst", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FMoveWorldBurstTest::RunTest(const FString& Parameters)
+{
+	UUmbrellaTuning* Tuning = GetMutableDefault<UUmbrellaTuning>();
+	const int32 SavedCount = Tuning->Attack.SmallBurstCount;
+	for (const int32 Count : {1, 3, 5})
+	{
+		Tuning->Attack.SmallBurstCount = Count;
+		FUmbrellaTestWorld Test;
+		AEllaCharacter* Ella = Test.SpawnElla();
+		if (!TestNotNull(TEXT("Ella spawned"), Ella))
+		{
+			Tuning->Attack.SmallBurstCount = SavedCount;
+			return false;
+		}
+		UAttackEmitterComponent* Emitter = Ella->GetAttack();
+		Ella->GetInputAdapter()->ApplyPress(EUmbrellaInputAction::Shoot);
+		// 0.05 s: only the first shot of the first burst has left.
+		Test.TickSeconds(0.05f, 1.0f / 120.0f);
+		TestEqual(FString::Printf(TEXT("burst %d: one shot at once"), Count), Emitter->GetShotsFired(), 1);
+		TestEqual(TEXT("rest waits"), Emitter->GetPendingBurstShots(), Count - 1);
+		// 0.15 s: spacing 0.08 puts shot 2 out, shot 3 at 0.16 is not out yet.
+		Test.TickSeconds(0.10f, 1.0f / 120.0f);
+		TestEqual(FString::Printf(TEXT("burst %d at 0.15 s"), Count), Emitter->GetShotsFired(), FMath::Min(Count, 2));
+		// Burst of 1 or 2 shots completes inside one 0.2 s interval; the spacing never exceeds the next trigger.
+		Ella->GetInputAdapter()->ApplyRelease(EUmbrellaInputAction::Shoot);
+		Test.TickSeconds(0.02f, 1.0f / 120.0f);
+		TestEqual(TEXT("release cancels the queued rest"), Emitter->GetPendingBurstShots(), 0);
+		const int32 AfterRelease = Emitter->GetShotsFired();
+		Test.TickSeconds(1.0f, 1.0f / 60.0f);
+		TestEqual(TEXT("nothing fires after release"), Emitter->GetShotsFired(), AfterRelease);
+	}
+	Tuning->Attack.SmallBurstCount = SavedCount;
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMoveWorldBeamTest, "UmbrellaElla.Move.World.StreamBeamActor", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FMoveWorldBeamTest::RunTest(const FString& Parameters)
+{
+	FUmbrellaTestWorld Test;
+	AEllaCharacter* Ella = Test.SpawnElla();
+	if (!TestNotNull(TEXT("Ella spawned"), Ella))
+	{
+		return false;
+	}
+	UWorld* World = Test.GetWorld();
+	UAttackEmitterComponent* Emitter = Ella->GetAttack();
+	Emitter->SetPlayMode(EUmbrellaPlayMode::DirectorsCut);
+	Emitter->SetDirectorLevel(10);
+	Emitter->SelectSpell(EUmbrellaSpell::StreamedBlast);
+	TestNull(TEXT("no beam before firing"), Emitter->GetBeam());
+
+	AUmbrellaEnemy* Near = World->SpawnActor<AUmbrellaEnemy>(AUmbrellaEnemy::StaticClass(), FTransform(FVector(560.0, 0.0, 0.0)));
+	AUmbrellaEnemy* Far = World->SpawnActor<AUmbrellaEnemy>(AUmbrellaEnemy::StaticClass(), FTransform(FVector(2200.0, 0.0, 0.0)));
+	if (!TestNotNull(TEXT("enemies"), Near) || !TestNotNull(TEXT("far enemy"), Far))
+	{
+		return false;
+	}
+	Near->Configure(EEnemyType::Roadwarden, EEnemyGender::Male, EUmbrellaShotKind::EnemyRed);
+	Far->Configure(EEnemyType::Roadwarden, EEnemyGender::Male, EUmbrellaShotKind::EnemyRed);
+	const float NearStart = Near->GetHp();
+	const float FarStart = Far->GetHp();
+
+	// Ella drops while shooting and the enemies hover at their home height: hold her at that height so the test reads the beam, not the fall.
+	const auto TickLevel = [&](int32 Frames)
+	{
+		for (int32 Frame = 0; Frame < Frames; ++Frame)
+		{
+			Ella->SetActorLocation(FVector(0.0, 0.0, 0.0));
+			Test.TickFrames(1, 1.0f / 60.0f);
+		}
+	};
+	Ella->GetInputAdapter()->ApplyPress(EUmbrellaInputAction::Shoot);
+	TickLevel(12);
+	AStreamBeamActor* Beam = Emitter->GetBeam();
+	if (!TestNotNull(TEXT("a beam actor exists while streaming"), Beam))
+	{
+		return false;
+	}
+	TestEqual(TEXT("beam grows 1200/s: 240 at 0.2 s"), Beam->GetEffectiveLength(), 240.0f, 25.0f);
+	TestEqual(TEXT("beam width 14"), Beam->GetWidth(), 14.0f);
+	TestEqual(TEXT("enemy beyond the beam is untouched"), Near->GetHp(), NearStart);
+
+	TickLevel(48);
+	TestEqual(TEXT("beam at 1.0 s is 1200"), Beam->GetEffectiveLength(), 1200.0f, 25.0f);
+	TickLevel(30);
+	TestEqual(TEXT("beam capped at 1400"), Beam->GetEffectiveLength(), 1400.0f, 0.01f);
+	const float Lost = NearStart - Near->GetHp();
+	TestTrue(FString::Printf(TEXT("near enemy took damage in whole 4-damage ticks, lost %.1f"), Lost), Lost >= 4.0f && FMath::Fmod(Lost, 4.0f) < 0.001f);
+	TestEqual(TEXT("enemy past max range is untouched"), Far->GetHp(), FarStart);
+
+	Ella->GetInputAdapter()->ApplyRelease(EUmbrellaInputAction::Shoot);
+	Test.TickSeconds(0.05f, 1.0f / 60.0f);
+	TestNull(TEXT("beam ends on release"), Emitter->GetBeam());
 	return true;
 }
 

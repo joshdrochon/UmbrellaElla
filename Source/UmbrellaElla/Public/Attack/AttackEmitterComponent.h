@@ -9,6 +9,8 @@
 
 class UEnhancedInputComponent;
 class UUmbrellaStateComponent;
+class AStreamBeamActor;
+struct FAttackTuning;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnEquippedSpellChanged, EUmbrellaSpell);
 
@@ -59,6 +61,12 @@ public:
 	/** Current Streamed Blast beam length (0 unless streaming). */
 	float GetStreamLength() const;
 
+	/** The live Streamed Blast beam actor, or null when not streaming. */
+	AStreamBeamActor* GetBeam() const { return Beam; }
+
+	/** Burst shots still waiting to leave . */
+	int32 GetPendingBurstShots() const { return PendingBurstDelays.Num(); }
+
 	int32 GetShotsFired() const { return ShotsFired; }
 	const FUmbrellaShotSpec& GetLastShot() const { return LastShot; }
 
@@ -67,9 +75,12 @@ public:
 
 protected:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	virtual void EndPlay(const EEndPlayReason::Type Reason) override;
 
 private:
 	void FireVolley();
+	void ShowBeam(const FAttackTuning& Tuning);
+	void HideBeam();
 	void Equip(EUmbrellaSpell Spell);
 	void OpenWheel();
 	void CloseWheel();
@@ -77,6 +88,10 @@ private:
 	UPROPERTY(Transient)
 	TObjectPtr<UUmbrellaStateComponent> UmbrellaState;
 
+	UPROPERTY(Transient)
+	TObjectPtr<AStreamBeamActor> Beam;
+
+	TArray<float> PendingBurstDelays;
 	FOnEquippedSpellChanged EquippedChanged;
 	FUmbrellaShotSpec LastShot;
 	EUmbrellaSpell Equipped = EUmbrellaSpell::SmallBlasts;

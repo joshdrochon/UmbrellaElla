@@ -53,5 +53,14 @@ namespace SpellRules
 	/** Streamed Blast beam length after being held HeldSeconds: grows at the growth speed up to the maximum range. */
 	UMBRELLAELLA_API float StreamLength(float HeldSeconds, const FAttackTuning& Tuning);
 
+	/** Burst option of Small Blasts: shots per trigger, clamped to 1..5. Other spells never burst (1). */
+	UMBRELLAELLA_API int32 BurstShots(EUmbrellaSpell Spell, const FAttackTuning& Tuning);
+
+	/** Delay of burst shot Index after the trigger: Index * spacing (shot 0 is immediate). */
+	UMBRELLAELLA_API float BurstDelay(int32 Index, const FAttackTuning& Tuning);
+
+	/** Beam end X from the muzzle once solid blockers/targets are known: min(length, distance to the nearest solid stop). */
+	UMBRELLAELLA_API float BeamClippedLength(float Length, float SolidStopDistance);
+
 	UMBRELLAELLA_API FName SpellName(EUmbrellaSpell Spell);
 }

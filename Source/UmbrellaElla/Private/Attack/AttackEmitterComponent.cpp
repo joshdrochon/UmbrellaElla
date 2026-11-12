@@ -1,6 +1,7 @@
 #include "Attack/AttackEmitterComponent.h"
 #include "Attack/AttackCadence.h"
 #include "Attack/AttackTuning.h"
+#include "Attack/StreamBeamActor.h"
 #include "Core/UmbrellaDrawOrder.h"
 #include "Core/UmbrellaEventBus.h"
 #include "Core/UmbrellaTuning.h"
@@ -62,10 +63,67 @@ void UAttackEmitterComponent::StepEmitter(float DeltaSeconds)
 		StreamHeldSeconds = 0.0f;
 	}
 	const FSpellProfile Profile = SpellRules::GetProfile(Equipped, Tuning);
+
+	// Burst shots already queued (COM-06): they leave only while the fall is still shooting.
+	if (!bWantsFire)
+	{
+		PendingBurstDelays.Reset();
+	}
+	for (int32 Index = PendingBurstDelays.Num() - 1; Index >= 0; --Index)
+	{
+		PendingBurstDelays[Index] -= DeltaSeconds;
+		if (PendingBurstDelays[Index] <= UE_KINDA_SMALL_NUMBER)
+		{
+			PendingBurstDelays.RemoveAtSwap(Index);
+			FireVolley();
+		}
+	}
+
 	const int32 Due = AttackCadence::Step(Countdown, DeltaSeconds, Profile.ShotsPerSecond, bWantsFire);
+	const int32 Burst = SpellRules::BurstShots(Equipped, Tuning);
 	for (int32 Index = 0; Index < Due; ++Index)
 	{
 		FireVolley();
+		for (int32 Extra = 1; Extra < Burst; ++Extra)
+		{
+			PendingBurstDelays.Add(SpellRules::BurstDelay(Extra, Tuning));
+		}
+	}
+	if (bWantsFire && Equipped == EUmbrellaSpell::StreamedBlast)
+	{
+		ShowBeam(Tuning);
+	}
+	else
+	{
+		HideBeam();
+	}
+}
+
+void UAttackEmitterComponent::HideBeam()
+{
+	if (Beam)
+	{
+		Beam->Destroy();
+		Beam = nullptr;
+	}
+}
+
+void UAttackEmitterComponent::ShowBeam(const FAttackTuning& Tuning)
+{
+	if (!IsFeatureEnabled(EFeatureId::COM_07))
+	{
+		return;
+	}
+	if (!Beam && GetWorld())
+	{
+		FActorSpawnParameters Params;
+		Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		Beam = GetWorld()->SpawnActor<AStreamBeamActor>(AStreamBeamActor::StaticClass(), FTransform(GetOwner()->GetActorLocation()), Params);
+	}
+	if (Beam)
+	{
+		FVector Muzzle = GetOwner()->GetActorLocation() + Tuning.MuzzleOffset;
+		Beam->SetBeam(Muzzle, SpellRules::StreamLength(StreamHeldSeconds, Tuning), Tuning.StreamWidth);
 	}
 }
 
@@ -78,6 +136,16 @@ void UAttackEmitterComponent::FireVolley()
 	{
 		LastShot = Spec;
 		++ShotsFired;
+		if (Equipped == EUmbrellaSpell::StreamedBlast)
+		{
+			// A damage tick on the beam, not a traveling shot. The beam is placed first so its length is current.
+			ShowBeam(Tuning);
+			if (Beam)
+			{
+				Beam->ApplyTick(Spec);
+			}
+			continue;
+		}
 		AUmbrellaProjectile::Fire(GetWorld(), Spec);
 	}
 }
@@ -128,6 +196,8 @@ void UAttackEmitterComponent::Equip(EUmbrellaSpell Spell)
 	Equipped = Spell;
 	Countdown = 0.0f;
 	StreamHeldSeconds = 0.0f;
+	PendingBurstDelays.Reset();
+	HideBeam();
 	EquippedChanged.Broadcast(Equipped);
 	if (UUmbrellaEventBus* Bus = UUmbrellaEventBus::Get(this))
 	{
@@ -193,6 +263,12 @@ void UAttackEmitterComponent::CloseWheel()
 		UmbrellaState->SetLocked(false);
 	}
 	bWheelLockedState = false;
+}
+
+void UAttackEmitterComponent::EndPlay(const EEndPlayReason::Type Reason)
+{
+	HideBeam();
+	Super::EndPlay(Reason);
 }
 
 float UAttackEmitterComponent::GetStreamLength() const
