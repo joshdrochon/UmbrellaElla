@@ -9,8 +9,15 @@
 
 Checks: build exit 0, 8 tests PASS, module_check 0, manifest_check 0.
 
+## Done (slice 2, Nov 12 14:15): level API
+- `Level/LevelCatalogue` (FLOW-24, FLOW-27, FLOW-47, HAZ-24..41): 12 chunks x A/B, nine-slot grammar (`LevelGrammar.h`), seeded layout stream, 32-attempt budget, verified named fallback, avoid-previous, `ValidateRoute` gate, refuge positions, patrol footprint clamp. The enemies area places traps through `FChunkVariant`.
+- `Level/LevelRules` (CAM-05, CAM-06, CAM-08, HAZ-04, HAZ-09 rule functions): margins, openings, vestibule, reveal, ray clearance, activation region.
+- `AUmbrellaArena::FollowEllaX` (CAM-08 scroll with lead, clamped to route), behind the CAM_08 flag.
+- Tests: `UmbrellaElla.Level.*` (catalogue, same seed same route, nine-slot grammar, rules), `UmbrellaElla.Arena.World.CameraAndAnchors` (scroll lead and clamp).
+Checks: build exit 0, 37 tests PASS, module_check 0, manifest_check 0.
+
 ## Left
-- Sound assets (Shot, Hit, Absorb, AbsorbFail, KeeperHit, KeeperAttack, StartMusic, EndMusic) not generated; cues are silent until they exist. Not attempted: needs the ElevenLabs shell.
-- Arena now builds placeholder box planes (two backgrounds) and a Keeper stand-in box at the anchor (tested via BuildPlaceholders). Plane scrolling is not applied to the meshes yet.
-- Later list (CAM-04..08, HAZ-*, BG-*, ART-05+, ANIM-*, VFX-*, FLOW-24..29/46/47) not started.
-- Ella flipbook states beyond Idle.
+- Sounds: all 8 cue assets and the source clips exist (WandBolt, HitOwl, ShieldCatch, PlayerHurt, OwlBoltLaunch, KeeperHoot, EndEvent, MusicTitle, stings). No new generation done this slice.
+- Nothing calls `FollowEllaX` yet; Flow/player controller must feed it Ella's X (not my lane). Chunk geometry is data only; no per-chunk level actors.
+- CAM-04, CAM-07, FLOW-25, FLOW-26, FLOW-28: QA-36 measurement items with no parameters. Not built; need playtest.
+- Presentation (BG, ART-05+, ANIM, VFX) moved to the visuals area.
