@@ -9,6 +9,7 @@ merges to `main`. **Teammates continue with Claude Code** (not Codex).
 - Core contracts every area builds against (Ella shell + components, `UUmbrellaTuning`, event bus, collision channels,
   draw order, play mode, projectile seam, feature flags, lane-owned stubs). See `docs/build/worker-rules.md`.
 - Merged: area/arena G1 slice c7d8c67 (CAM-03, WIND-03, CORE-06, ART-03) as ec0b8a3, all gates PASS.
+- Merged with the full gate: arena, move (all), health (G1 + review fixes), flow G1 + FLOW-03 tutorials, enemies.
 - Build docs: `docs/build/worker-rules.md`, `docs/build/areas/<area>.md` (the worker prompt for each area),
   `docs/build/areas.py` (Rule ID split; `python3 docs/build/areas.py` proves all 204 IDs are covered once).
 
@@ -42,8 +43,9 @@ Josh: no PR/CI ceremony, every quality check kept, per-merge checks only for wha
 | automation tests for the touched prefixes (`tools/build/gate_plan.py`) | Source changed | yes |
 | `module_check`, `manifest_check`, `feel_check`, `encounter_check` | when their files changed | yes |
 | `tools/build/quality_gate.py`: art (art loop pass record), audio (audio_check + audio_style_check) | art/audio changed | ship only on pass: below-bar pieces stay tracked placeholders |
-| `quality_gate.py`: `ui_check ci`, `story_check` | always | no new FAIL vs main |
+| `quality_gate.py`: `ui_check ci`, `story_check`, `bake_preset defaults` (tuning bakes) | always | no new FAIL vs main |
 | `submission_check prejam` / `assets` | always / content changed | yes |
+| audio critic (`tools/build/critic.sh audio`, blind session per sound id, `tools/audio_loop.py` packet) | sounds changed | no: a failed piece becomes a tracked placeholder (gate commit sets provenance origin `placeholder: audio critic fail`) |
 | story critic (`tools/build/critic.sh story`) | story changed | yes |
 | encounter critic (`critic.sh encounter`) | keeper/enemy changed | yes once the game writes a run log (DEFERRED before) |
 | independent review (`tools/build/review.sh`, area role card, fresh session, not the build lead) | always | one round: changes go back once (exit 3), then follow-ups |
@@ -51,11 +53,12 @@ Before each packaged build: `tools/build/prepackage.sh` (full Unreal + Python su
 with input/gamepad/16:9, `ui_check flow-check`, encounter playthrough + critic). Windows: `docs/build/windows-check.md`.
 
 ## Continue on Mac (Claude Code)
-    cd ~/Desktop/Developer/UmbrellaElla && git pull
+    cd <your UmbrellaElla clone> && git pull     # area worktrees live in the sibling folder ../UmbrellaElla-areas/
     tools/build/start_area.sh <area>            # starts/continues a worker in ../UmbrellaElla-areas/<area>, log ../UmbrellaElla-areas/logs/<area>.log
     tools/build/push_areas.sh --loop &          # pushes area/* branches every 2 min
     # merge loop, per finished slice (merges in ../UmbrellaElla-areas/gate, pushes main only on PASS):
-    tools/build/gate.sh <area> [commit]     # exit 0 merged, 1 failed, 3 held for review changes
+    tools/build/gate_runner.sh add <area>...; tools/build/gate_runner.sh run   # one gate at a time; logs ../UmbrellaElla-areas/logs/gate-<area>.log
+    # gate.sh exit: 0 merged, 1 failed, 3 held for review changes (send review-<area>.txt to the worker once, then re-add)
 Workers on one Mac share the engine through `tools/build/ue_slot.sh` (memory-adaptive: 4 at once under 36 GB used, 3 under 44 GB, else 2, none started at 56 GB+).
 
 ## Continue on Windows (PowerShell, Claude Code)
@@ -69,6 +72,9 @@ If git hooks block a commit, use `git -c core.hooksPath=NUL commit` (the gate-gu
 Never commit `~/.umbrella-ella.env` or any key.
 
 ## Follow-up list (minor review findings)
+- Keeper (review): with OWL-35 off a final hit leaves the fight Active with the model halted; LivesLostThisPhase written, never read; StartTransition zeroes stun without StunEnded; stun does not freeze queued shots; gust push uses unscaled delta.
+- Progression: the run-start checkpoint is written before the run-2 reallocation, so a boss retry reverts it.
+- Settings must call visuals' SetReducedFlash.
 - Core: add a shared source-id header (e.g. `Core/UmbrellaSourceIds.h`, `GUST_Band`, `TALON_Rake`, `MECH_Front_Cast`) and switch health and keeper to it (health request, review of health).
 - Keeper: the gust push moves Ella with `AddActorWorldOffset` from the Encounter Director; the motor should own it (one writer of position/velocity).
 - DECIDED: flow owns the view target; arena removes its SetViewTarget (sent to arena worker).
