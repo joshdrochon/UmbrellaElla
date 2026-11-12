@@ -55,7 +55,8 @@ with input/gamepad/16:9, `ui_check flow-check`, encounter playthrough + critic).
     tools/build/start_area.sh <area>            # starts/continues a worker in ../UmbrellaElla-areas/<area>, log ../UmbrellaElla-areas/logs/<area>.log
     tools/build/push_areas.sh --loop &          # pushes area/* branches every 2 min
     # merge loop, per finished slice (merges in ../UmbrellaElla-areas/gate, pushes main only on PASS):
-    tools/build/gate.sh <area> [commit]     # exit 0 merged, 1 failed, 3 held for review changes
+    tools/build/gate_runner.sh add <area>...; tools/build/gate_runner.sh run   # one gate at a time; logs ../UmbrellaElla-areas/logs/gate-<area>.log
+    # gate.sh exit: 0 merged, 1 failed, 3 held for review changes (send review-<area>.txt to the worker once, then re-add)
 Workers on one Mac share the engine through `tools/build/ue_slot.sh` (memory-adaptive: 4 at once under 36 GB used, 3 under 44 GB, else 2, none started at 56 GB+).
 
 ## Continue on Windows (PowerShell, Claude Code)
