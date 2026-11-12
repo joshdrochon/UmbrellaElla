@@ -65,3 +65,9 @@ Minor, from review: freeze or protect Ella during Story/Credits; menu strings mo
   at run start (the level-up display). Test: Flow.PurchaseScreenReturnsToTitle (rules only).
 - NOT verified: layout of Done over the purchase widget (no visual run), Purchase screen in a world test.
 - NOT done: (b) story `BeginNewRun` ('Merge area/story' not in main yet).
+
+## Review round 1 fixes (FLOW-42)
+- Purchase screen is offered with unspent points or, from run 2 in Director's Cut, when any rank is refundable (`FFlowRules::ShouldOfferPurchase`; test `UmbrellaElla.Flow.PurchaseScreenReturnsToTitle`).
+- Purchase: Pause/Back/Escape/F1/B/Menu return to the title; Done takes focus and the Done holder handles Back keys. Layout still not checked by eye.
+- Leaving Purchase calls the widget's `Cancel()` (discards the draft); test `UmbrellaElla.Flow.World.LeavingPurchaseDiscardsDraft`.
+- Done label moved to `FFlowMenuText::DoneLabel`. The level-up widget is not wired by Flow; only the XP ring is.

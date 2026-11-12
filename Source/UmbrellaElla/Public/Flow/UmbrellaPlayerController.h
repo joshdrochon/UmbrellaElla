@@ -69,6 +69,9 @@ public:
 	/** True when a Director's Cut start should first offer the purchase screen (unspent points to spend). */
 	bool ShouldOfferPurchase() const;
 
+	/** The purchase screen while it is open (null otherwise); tests read its draft. */
+	UProgressionPurchaseWidget* GetPurchaseWidget() const { return PurchaseWidget; }
+
 	/** Advance the screen timers by real seconds; runs while the world is paused. */
 	void TickFlow(float DeltaSeconds);
 

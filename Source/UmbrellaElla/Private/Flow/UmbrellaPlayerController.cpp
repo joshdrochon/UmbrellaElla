@@ -27,10 +27,44 @@
 #include "UI/Menus/FlowMenuWidgets.h"
 #include "Widgets/Layout/SBox.h"
 #include "Widgets/Text/STextBlock.h"
+#include "Widgets/SCompoundWidget.h"
+#include "Framework/Application/SlateApplication.h"
 
 // Rule IDs built here: FLOW-02 (two routes), FLOW-04 (win: story, credits), FLOW-34 (Start screen), FLOW-35 (Pause),
 // ART-04 (same moving background on Start and End), FLOW-03 (first-start tutorial, Pause then Skip), FLOW-41 (Start and
 // Pause design retained), MOVE-08 (pause keys: Escape, F1, Menu), MOVE-09 (menu navigation, WASD included). Each is checked through IsFeatureEnabled below.
+
+/** Bottom-centred holder of the purchase screen's Done button. Back keys (Escape, F1, B, Menu) pressed while it has focus call OnBack. */
+class SFlowPurchaseDoneBox final : public SCompoundWidget
+{
+public:
+	SLATE_BEGIN_ARGS(SFlowPurchaseDoneBox) {}
+		SLATE_EVENT(FSimpleDelegate, OnBack)
+		SLATE_ARGUMENT(FMargin, Padding)
+		SLATE_DEFAULT_SLOT(FArguments, Content)
+	SLATE_END_ARGS()
+
+	void Construct(const FArguments& InArgs)
+	{
+		BackDelegate = InArgs._OnBack;
+		ChildSlot.HAlign(HAlign_Center).VAlign(VAlign_Bottom).Padding(InArgs._Padding)
+		[
+			InArgs._Content.Widget
+		];
+	}
+
+	virtual FReply OnKeyDown(const FGeometry& MyGeometry, const FKeyEvent& InKeyEvent) override
+	{
+		if (FFlowRules::MenuIntentForKey(InKeyEvent.GetKey()) == EFlowMenuIntent::Back)
+		{
+			return BackDelegate.ExecuteIfBound() ? FReply::Handled() : FReply::Unhandled();
+		}
+		return SCompoundWidget::OnKeyDown(MyGeometry, InKeyEvent);
+	}
+
+private:
+	FSimpleDelegate BackDelegate;
+};
 
 namespace
 {
@@ -186,7 +220,20 @@ void AUmbrellaPlayerController::StartMode(EUmbrellaPlayMode Mode)
 bool AUmbrellaPlayerController::ShouldOfferPurchase() const
 {
 	const UProgressionSubsystem* Progression = UProgressionSubsystem::Get(this);
-	return Progression && IsFeatureEnabled(EFeatureId::FLOW_42) && Progression->GetUnspentPoints() > 0;
+	if (!Progression)
+	{
+		return false;
+	}
+	FPurchaseContext Context;
+	Context.Kind = EPurchaseContextKind::RunStart;
+	const FProgressionProfile Profile = Progression->GetEffectiveProfile();
+	bool bAnythingRefundable = false;
+	for (const int32 Rank : Profile.Ranks)
+	{
+		bAnythingRefundable |= Rank > 0;
+	}
+	return FFlowRules::ShouldOfferPurchase(IsFeatureEnabled(EFeatureId::FLOW_42), Progression->GetUnspentPoints(),
+		Progression->GetPlayMode() == EUmbrellaPlayMode::DirectorsCut && FProgressionRules::CanReallocate(Context, Profile), bAnythingRefundable);
 }
 
 void AUmbrellaPlayerController::SyncProgressionMode(EUmbrellaPlayMode Mode)
@@ -220,17 +267,23 @@ void AUmbrellaPlayerController::ShowPurchaseScreen()
 		PurchaseWidget->RemoveFromParent();
 		PurchaseWidget->AddToViewport(Z);
 	}
-	// Done sits above the purchase screen; Confirm and Cancel are the widget's own.
-	PurchaseDoneButton = SNew(SBox).HAlign(HAlign_Center).VAlign(VAlign_Bottom).Padding(FMargin(0.0f, 0.0f, 0.0f, GetDefault<UUmbrellaTuning>()->Flow.PurchaseDoneBottomMargin))
+	// Done sits above the purchase screen; Confirm and Cancel are the widget's own. Escape, F1, B and Menu go back too.
+	TSharedPtr<SButton> DoneButton;
+	PurchaseDoneButton = SNew(SFlowPurchaseDoneBox).OnBack(FSimpleDelegate::CreateWeakLambda(this, [this]() { ApplyCommand(EFlowCommand::Back); }))
+		.Padding(FMargin(0.0f, 0.0f, 0.0f, GetDefault<UUmbrellaTuning>()->Flow.PurchaseDoneBottomMargin))
 	[
-		SNew(SButton).OnClicked_Lambda([this]() { ApplyCommand(EFlowCommand::Continue); return FReply::Handled(); })
+		SAssignNew(DoneButton, SButton).OnClicked_Lambda([this]() { ApplyCommand(EFlowCommand::Continue); return FReply::Handled(); })
 		[
-			SNew(STextBlock).Text(FText::FromString(TEXT("Done")))
+			SNew(STextBlock).Text(FFlowMenuText::DoneLabel())
 		]
 	];
 	if (UGameViewportClient* Viewport = GetWorld() ? GetWorld()->GetGameViewport() : nullptr)
 	{
 		Viewport->AddViewportWidgetContent(PurchaseDoneButton.ToSharedRef(), Z + 1);
+		if (DoneButton.IsValid() && FSlateApplication::IsInitialized())
+		{
+			FSlateApplication::Get().SetAllUserFocus(DoneButton, EFocusCause::SetDirectly);
+		}
 	}
 }
 
@@ -238,6 +291,8 @@ void AUmbrellaPlayerController::ClearPurchaseScreen()
 {
 	if (PurchaseWidget)
 	{
+		// FLOW-42: closing or a context change discards an unconfirmed draft.
+		PurchaseWidget->Cancel();
 		PurchaseWidget->RemoveFromParent();
 		PurchaseWidget = nullptr;
 	}

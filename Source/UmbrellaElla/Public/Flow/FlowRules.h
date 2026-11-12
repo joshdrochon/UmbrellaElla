@@ -72,6 +72,9 @@ struct UMBRELLAELLA_API FFlowRules
 	/** True when another tutorial page follows Page (zero based). */
 	static bool HasTutorialPageAfter(int32 Page, int32 PageCount);
 
+	/** The Director's Cut start offers the purchase screen when there is something to buy or (from run 2) to refund. */
+	static bool ShouldOfferPurchase(bool bFeatureOn, int32 UnspentPoints, bool bCanRefund, bool bAnythingRefundable);
+
 	/** The tutorial runs on first start only (tracking and replay rules stay OPEN). */
 	static bool ShouldShowTutorial(bool bFeatureOn, bool bAlreadySeen);
 

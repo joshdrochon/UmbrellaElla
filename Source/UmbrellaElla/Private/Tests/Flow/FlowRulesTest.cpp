@@ -174,7 +174,13 @@ bool FFlowPurchaseRulesTest::RunTest(const FString& Parameters)
 	EFlowScreen Screen = FFlowRules::Next(EFlowScreen::Title, EFlowCommand::OpenPurchase);
 	TestEqual(TEXT("title opens the purchase screen"), Screen, EFlowScreen::Purchase);
 	TestTrue(TEXT("purchase blocks gameplay input"), FFlowRules::IsInputBlockedOn(Screen));
-	TestEqual(TEXT("pause does nothing there"), FFlowRules::Next(Screen, EFlowCommand::Pause), EFlowScreen::Purchase);
+	TestEqual(TEXT("pause (Escape, F1, Menu, B) leaves it"), FFlowRules::Next(Screen, EFlowCommand::Pause), EFlowScreen::Title);
+	TestEqual(TEXT("back leaves it"), FFlowRules::Next(Screen, EFlowCommand::Back), EFlowScreen::Title);
+	TestTrue(TEXT("offered with unspent points"), FFlowRules::ShouldOfferPurchase(true, 2, false, false));
+	TestTrue(TEXT("offered for a refund from run 2"), FFlowRules::ShouldOfferPurchase(true, 0, true, true));
+	TestFalse(TEXT("not offered with nothing spent"), FFlowRules::ShouldOfferPurchase(true, 0, true, false));
+	TestFalse(TEXT("not offered before refunds open"), FFlowRules::ShouldOfferPurchase(true, 0, false, true));
+	TestFalse(TEXT("not offered with the flag off"), FFlowRules::ShouldOfferPurchase(false, 3, true, true));
 	TestEqual(TEXT("done returns to the title"), FFlowRules::Next(Screen, EFlowCommand::Continue), EFlowScreen::Title);
 	return true;
 }

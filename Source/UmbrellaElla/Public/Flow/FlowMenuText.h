@@ -13,6 +13,7 @@ struct UMBRELLAELLA_API FFlowMenuText
 	static FText SettingsLabel();
 	static FText QuitLabel();
 	static FText SkipLabel();
+	static FText DoneLabel();
 	static FText DefeatHeading();
 	static FText RetryLabel();
 	static FText QuitToTitleLabel();

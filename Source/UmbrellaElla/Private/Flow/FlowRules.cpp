@@ -15,8 +15,8 @@ EFlowScreen FFlowRules::Next(EFlowScreen From, EFlowCommand Command)
 		}
 		return Command == EFlowCommand::StartMode ? EFlowScreen::Playing : From;
 	case EFlowScreen::Purchase:
-		// Done (Continue or Back) returns to the title; the Start press that opened it is then repeated.
-		return (Command == EFlowCommand::Continue || Command == EFlowCommand::Back) ? EFlowScreen::Title : From;
+		// Done, Back and Pause (Escape, F1, Menu, B) all return to the title; the Start press that opened it is then repeated.
+		return (Command == EFlowCommand::Continue || Command == EFlowCommand::Back || Command == EFlowCommand::Pause) ? EFlowScreen::Title : From;
 	case EFlowScreen::Tutorial:
 		// Pause then Skip works on every page; finishing the last page ends the tutorial the same way as Skip.
 		switch (Command)
@@ -98,6 +98,12 @@ bool FFlowRules::IsWorldPausedOn(EFlowScreen Screen)
 bool FFlowRules::HasTutorialPageAfter(int32 Page, int32 PageCount)
 {
 	return Page + 1 < PageCount;
+}
+
+bool FFlowRules::ShouldOfferPurchase(bool bFeatureOn, int32 UnspentPoints, bool bCanRefund, bool bAnythingRefundable)
+{
+	// Refunds are open from run 2, so a player with spent points and none unspent still gets the screen.
+	return bFeatureOn && (UnspentPoints > 0 || (bCanRefund && bAnythingRefundable));
 }
 
 bool FFlowRules::ShouldShowTutorial(bool bFeatureOn, bool bAlreadySeen)
