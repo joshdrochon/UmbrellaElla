@@ -10,6 +10,8 @@
 #include "GameFramework/Actor.h"
 #include "Owl/KeeperOfTime.h"
 #include "Owl/KeeperPartComponent.h"
+#include "Core/UmbrellaSourceIds.h"
+#include "Core/UmbrellaTuning.h"
 #include "Projectile/UmbrellaShotSpec.h"
 
 namespace
@@ -296,6 +298,48 @@ bool FKeeperWorldHeadShootable::RunTest(const FString& Parameters)
 	TestTrue(TEXT("front cast extended"), W.Director->GetModel().GetPhysical() == EKeeperPhysical::FrontCast);
 	TestTrue(TEXT("head hittable"), Keeper->GetHeadComponent(EKeeperPart::Front)->GetCollisionEnabled() != ECollisionEnabled::NoCollision);
 	TestTrue(TEXT("no second hittable head at home"), Keeper->GetPartComponent(EKeeperPart::Front)->GetCollisionEnabled() == ECollisionEnabled::NoCollision);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FKeeperWorldNoDepartureEnds, "UmbrellaElla.Keeper.World.FinalHitWithDepartureOffStillEndsInSuccess", WorldFlags)
+bool FKeeperWorldNoDepartureEnds::RunTest(const FString& Parameters)
+{
+	FKeeperWorld W;
+	AddExpectedError(TEXT("no arena in the world"), EAutomationExpectedErrorFlags::Contains, 0);
+	W.Director->SetDepartureEnabledForTest(false);
+	W.Director->BeginKeeperFightAtPhase(EKeeperPhase::Clock);
+	W.Advance(2.2f);
+	W.Shoot(EKeeperPart::Clock, 100000.0f);
+	W.Advance(0.05f);
+	TestTrue(TEXT("ENDING_SUCCESS, not ACTIVE with a halted model"), W.Director->GetState() == EEncounterState::EndingSuccess);
+	TestEqual(TEXT("EncounterCompleted once"), W.CountEvents(EUmbrellaEventType::EncounterCompleted), 1);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FKeeperWorldGustViaMotor, "UmbrellaElla.Keeper.World.GustPushGoesThroughWindEventsNotPosition", WorldFlags)
+bool FKeeperWorldGustViaMotor::RunTest(const FString& Parameters)
+{
+	FKeeperWorld W;
+	AddExpectedError(TEXT("no arena in the world"), EAutomationExpectedErrorFlags::Contains, 0);
+	W.Director->BeginKeeperFight();
+	const FVector Start = W.Ella->GetActorLocation();
+	// Keep Ella in the band the gust locks to (it locks to her height) and let the front sweep through her.
+	for (float T = 0.0f; T < 20.0f && W.CountEvents(EUmbrellaEventType::WindEntered) == 0; T += 0.05f)
+	{
+		W.Director->AdvanceFight(0.05f);
+	}
+	TestTrue(TEXT("Gust WindEntered was sent"), W.CountEvents(EUmbrellaEventType::WindEntered) > 0);
+	for (const FUmbrellaEvent& Event : *W.Shared)
+	{
+		if (Event.Type == EUmbrellaEventType::WindEntered)
+		{
+			TestEqual(TEXT("source is GUST_Band"), Event.SourceId, UmbrellaSourceIds::GustBand());
+			TestEqual(TEXT("force is the tuned push at world scale 1"), Event.Value, GetDefault<UUmbrellaTuning>()->Keeper.GustPush);
+		}
+	}
+	TestEqual(TEXT("the director never moved Ella"), W.Ella->GetActorLocation().Z, Start.Z);
+	W.Director->SetPaused(true);
+	TestTrue(TEXT("wind ends when the push stops"), W.CountEvents(EUmbrellaEventType::WindExited) > 0);
 	return true;
 }
 
