@@ -1,6 +1,6 @@
 # Area: story (Director's Cut story and run flow screens)
 
-Branch `area/story`. Read `docs/build/worker-rules.md` first. Added Nov 12 14:10 (Josh: 8 workers).
+Branch `area/story`. Read `docs/build/worker-rules.md` first. Added Nov 12 14:02 (Josh: 8 workers).
 
 ## Rule IDs (Director's Cut, G2/G3)
 NAR-02 .. NAR-08 (text narration, single story delivery, opening mother caption, light and umbra, the Keeper clock-hand

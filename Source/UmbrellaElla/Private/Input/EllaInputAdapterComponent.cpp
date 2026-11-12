@@ -4,6 +4,7 @@
 #include "Engine/LocalPlayer.h"
 #include "GameFramework/Pawn.h"
 #include "GameFramework/PlayerController.h"
+#include "Attack/AttackEmitterComponent.h"
 #include "Harness/UmbrellaFeatureFlags.h"
 #include "InputAction.h"
 #include "InputActionValue.h"
@@ -16,6 +17,24 @@ namespace
 {
 	/** IMC_Default priority (lowest; menus and the like sit above it). */
 	constexpr int32 DefaultContextPriority = 0;
+
+	/** Spell key actions map to their spell; everything else is Count. */
+	EUmbrellaSpell SpellForAction(EUmbrellaInputAction Action)
+	{
+		switch (Action)
+		{
+		case EUmbrellaInputAction::Spell1:
+			return EUmbrellaSpell::SmallBlasts;
+		case EUmbrellaInputAction::Spell2:
+			return EUmbrellaSpell::StreamedBlast;
+		case EUmbrellaInputAction::Spell3:
+			return EUmbrellaSpell::TwinStars;
+		case EUmbrellaInputAction::Spell4:
+			return EUmbrellaSpell::Needle;
+		default:
+			return EUmbrellaSpell::Count;
+		}
+	}
 }
 
 UEllaInputAdapterComponent::UEllaInputAdapterComponent()
@@ -127,6 +146,23 @@ void UEllaInputAdapterComponent::ApplyPress(EUmbrellaInputAction Action)
 	AActor* Owner = GetOwner();
 	UUmbrellaStateComponent* State = Owner ? Owner->FindComponentByClass<UUmbrellaStateComponent>() : nullptr;
 	UEllaMotorComponent* Motor = Owner ? Owner->FindComponentByClass<UEllaMotorComponent>() : nullptr;
+	UAttackEmitterComponent* Attack = Owner ? Owner->FindComponentByClass<UAttackEmitterComponent>() : nullptr;
+	if (Attack)
+	{
+		const EUmbrellaSpell Spell = SpellForAction(Action);
+		if (Spell != EUmbrellaSpell::Count)
+		{
+			Attack->PressSpellKey(Spell);
+		}
+		else if (Action == EUmbrellaInputAction::SpellNext)
+		{
+			Attack->CycleSpell(1);
+		}
+		else if (Action == EUmbrellaInputAction::SpellPrevious)
+		{
+			Attack->CycleSpell(-1);
+		}
+	}
 	switch (Action)
 	{
 	case EUmbrellaInputAction::Shoot:
@@ -174,6 +210,14 @@ void UEllaInputAdapterComponent::ApplyRelease(EUmbrellaInputAction Action)
 {
 	AActor* Owner = GetOwner();
 	UUmbrellaStateComponent* State = Owner ? Owner->FindComponentByClass<UUmbrellaStateComponent>() : nullptr;
+	if (UAttackEmitterComponent* Attack = Owner ? Owner->FindComponentByClass<UAttackEmitterComponent>() : nullptr)
+	{
+		const EUmbrellaSpell Spell = SpellForAction(Action);
+		if (Spell != EUmbrellaSpell::Count)
+		{
+			Attack->ReleaseSpellKey(Spell);
+		}
+	}
 	if (!State)
 	{
 		return;
