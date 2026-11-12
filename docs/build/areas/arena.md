@@ -12,6 +12,9 @@ Broken Mill and traps HAZ-02..23, FLOW-46 -> `enemies`; FLOW-29 -> `progression`
 sounds (`Feedback/Audio/**`, `Content/UmbrellaElla/Audio/**`, `Audio/Source/**`, `pipeline/audio/**`). The enemies area
 places its traps and enemies through your chunk/level API.
 
+Also yours (lead call Nov 12): the level-up sound, played on the `LevelGained` bus event (progression broadcasts it),
+through the cue subsystem, held to the same audio bar.
+
 ## GDD sections
 5 "Director's Cut full level" and its subsections (traversal/camera contract, traps, chunks, refuges), 8 (Art,
 animation, VFX and audio: every subsection), 9. Art bar: `pipeline/art/art-bible.md` and the key art; checks
