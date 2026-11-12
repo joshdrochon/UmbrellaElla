@@ -1,7 +1,11 @@
 #include "Smoke/SmokeHookSubsystem.h"
 #include "Core/UmbrellaLog.h"
 #include "Core/UmbrellaTuning.h"
+#include "Core/EllaCharacter.h"
 #include "Engine/Engine.h"
+#include "GameFramework/PlayerController.h"
+#include "InputKeyEventArgs.h"
+#include "Motor/EllaMotorComponent.h"
 #include "Engine/GameInstance.h"
 #include "Engine/GameViewportClient.h"
 #include "Engine/LocalPlayer.h"
@@ -103,6 +107,8 @@ void USmokeHookSubsystem::Tick(float DeltaTime)
 		UE_LOG(LogUmbrellaElla, Log, TEXT("SMOKE_SHOT at_s=%.1f w=%d h=%d"), Elapsed, static_cast<int32>(Size.X), static_cast<int32>(Size.Y));
 	}
 
+	TickInputCheck(Flow);
+
 	if (Flow && Flow->GetScreen() == EFlowScreen::Defeat)
 	{
 		LogEnd(TEXT("fail"));
@@ -111,7 +117,7 @@ void USmokeHookSubsystem::Tick(float DeltaTime)
 	{
 		LogEnd(TEXT("survived"));
 	}
-	else if (Elapsed >= QuitAfterSeconds)
+	else if (Elapsed >= QuitAfterSeconds && (InputStep == EInputStep::Done || Elapsed >= QuitAfterSeconds + InputGraceSeconds))
 	{
 		LogEnd(TEXT("quit"));
 	}
@@ -146,11 +152,10 @@ void USmokeHookSubsystem::LogEnd(const TCHAR* Outcome)
 	}
 	const float Aspect = View.Y > 0 ? static_cast<float>(View.X) / View.Y : 0.0f;
 
-	// input= and gamepad= need the Motor and Attack actions of other lanes; reported as none until they exist.
 	UE_LOG(LogUmbrellaElla, Log,
-		TEXT("SMOKE_OK map=%s fps=%.1f worst_ms=%.1f commit=%s input=none input_vz=0 gamepad=none gp_vx=0 gp_attack_vz=0 res=%dx%d win=%s textpx=%d load_ms=%.0f workbench=%d view=%dx%d aspect=%.3f debugdraw=0"),
+		TEXT("SMOKE_OK map=%s fps=%.1f worst_ms=%.1f commit=%s input=%s input_vz=%.1f gamepad=%s gp_vx=%.1f gp_attack_vz=%.1f res=%dx%d win=%s textpx=%d load_ms=%.0f workbench=%d view=%dx%d aspect=%.3f debugdraw=0"),
 		*UGameplayStatics::GetCurrentLevelName(this), ComputeLowFps(FrameSeconds, Tuning.SmokeLowShare), WorstSeconds * MillisecondsPerSecond,
-		ANSI_TO_TCHAR(UMBRELLAELLA_BUILD_COMMIT), Window.X, Window.Y, bFullscreen ? TEXT("fullscreen") : TEXT("windowed"),
+		ANSI_TO_TCHAR(UMBRELLAELLA_BUILD_COMMIT), bInputOk ? TEXT("ok") : TEXT("none"), InputVz, bGamepadOk ? TEXT("ok") : TEXT("none"), PadPeakVx, PadAttackVz, Window.X, Window.Y, bFullscreen ? TEXT("fullscreen") : TEXT("windowed"),
 		Tuning.MenuFontSize, LoadMs, UMBRELLAELLA_WORKBENCH, View.X, View.Y, Aspect);
 
 	if (QuitAfterSeconds > 0.0f)
@@ -187,4 +192,111 @@ FString USmokeHookSubsystem::BuildEffectiveLine(const TCHAR* At, const TCHAR* Ou
 		Line += FString::Printf(TEXT(" %s.enabled=%d"), GetFeatureRuleId(Id), IsFeatureEnabled(Id) ? 1 : 0);
 	}
 	return Line;
+}
+
+bool USmokeHookSubsystem::ReadMotor(FVector& OutVelocity) const
+{
+	UWorld* World = GetGameInstance() ? GetGameInstance()->GetWorld() : nullptr;
+	const AEllaCharacter* Ella = World ? Cast<AEllaCharacter>(UGameplayStatics::GetPlayerPawn(World, 0)) : nullptr;
+	if (!Ella || !Ella->GetMotor())
+	{
+		return false;
+	}
+	OutVelocity = Ella->GetMotor()->GetVelocity();
+	return true;
+}
+
+bool USmokeHookSubsystem::SendKey(APlayerController* Controller, const FKey& Key, EInputEvent Event, float Amount) const
+{
+	if (!Controller)
+	{
+		return false;
+	}
+	FViewport* Viewport = GEngine && GEngine->GameViewport ? GEngine->GameViewport->Viewport : nullptr;
+	const FInputDeviceId Device = FInputDeviceId::CreateFromInternalId(0);
+	if (Event == IE_Axis)
+	{
+		return Controller->InputKey(FInputKeyEventArgs(Viewport, Device, Key, Amount, 0.0f, 1, 0));
+	}
+	return Controller->InputKey(FInputKeyEventArgs(Viewport, Device, Key, Event, 0));
+}
+
+void USmokeHookSubsystem::TickInputCheck(AUmbrellaPlayerController* Flow)
+{
+	const FFlowTuning& Tuning = GetDefault<UUmbrellaTuning>()->Flow;
+	const double Now = FApp::GetCurrentTime();
+	const double InStep = Now - InputStepStart;
+	FVector Velocity = FVector::ZeroVector;
+	const bool bHasMotor = ReadMotor(Velocity);
+	APlayerController* Controller = Flow;
+
+	switch (InputStep)
+	{
+	case EInputStep::Idle:
+		if (FApp::GetCurrentTime() - StartTime < Tuning.SmokeShotDelaySeconds + InputGapSeconds || !Controller)
+		{
+			break;
+		}
+		if (!bHasMotor)
+		{
+			// No player on this map: input=none (the smoke accepts it only on a no-player map).
+			InputStep = EInputStep::Done;
+			break;
+		}
+		SendKey(Controller, EKeys::J, IE_Pressed, 1.0f);
+		InputStep = EInputStep::KeyHold;
+		InputStepStart = Now;
+		break;
+	case EInputStep::KeyHold:
+		if (InStep >= InputHoldSeconds)
+		{
+			InputVz = static_cast<float>(Velocity.Z);
+			bInputOk = InputVz < 0.0f;
+			SendKey(Controller, EKeys::J, IE_Released, 0.0f);
+			InputStep = EInputStep::KeyGap;
+			InputStepStart = Now;
+			UE_LOG(LogUmbrellaElla, Log, TEXT("SMOKE_INPUT key=J action=Shoot vz=%.1f"), InputVz);
+		}
+		break;
+	case EInputStep::KeyGap:
+		if (InStep >= InputGapSeconds)
+		{
+			SendKey(Controller, EKeys::Gamepad_RightTrigger, IE_Pressed, 1.0f);
+			SendKey(Controller, EKeys::Gamepad_LeftX, IE_Axis, 1.0f);
+			InputStep = EInputStep::PadHold;
+			InputStepStart = Now;
+		}
+		break;
+	case EInputStep::PadHold:
+		if (InStep >= InputHoldSeconds)
+		{
+			PadAttackVz = static_cast<float>(Velocity.Z);
+			// Falling, stick right: Hop is a dash by input direction (MOVE-06), so it must move her right.
+			SendKey(Controller, EKeys::Gamepad_FaceButton_Bottom, IE_Pressed, 1.0f);
+			SendKey(Controller, EKeys::Gamepad_FaceButton_Bottom, IE_Released, 0.0f);
+			InputStep = EInputStep::PadDash;
+			InputStepStart = Now;
+		}
+		break;
+	case EInputStep::PadDash:
+		PadPeakVx = FMath::Max(PadPeakVx, static_cast<float>(Velocity.X));
+		if (InStep >= InputHoldSeconds)
+		{
+			SendKey(Controller, EKeys::Gamepad_LeftX, IE_Axis, 0.0f);
+			SendKey(Controller, EKeys::Gamepad_RightTrigger, IE_Released, 0.0f);
+			bGamepadOk = PadAttackVz < 0.0f && PadPeakVx > 0.0f;
+			InputStep = EInputStep::PadGap;
+			InputStepStart = Now;
+			UE_LOG(LogUmbrellaElla, Log, TEXT("SMOKE_GAMEPAD attack_vz=%.1f peak_vx=%.1f"), PadAttackVz, PadPeakVx);
+		}
+		break;
+	case EInputStep::PadGap:
+		if (InStep >= InputGapSeconds)
+		{
+			InputStep = EInputStep::Done;
+		}
+		break;
+	case EInputStep::Done:
+		break;
+	}
 }
