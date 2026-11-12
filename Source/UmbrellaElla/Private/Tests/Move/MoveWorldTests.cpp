@@ -10,6 +10,9 @@
 #include "InputMappingContext.h"
 #include "Motor/EllaMotorComponent.h"
 #include "Projectile/UmbrellaProjectile.h"
+#include "Settings/SettingsMenuSubsystem.h"
+#include "Settings/SettingsModel.h"
+#include "Engine/GameInstance.h"
 #include "Tests/Shared/UmbrellaTestWorld.h"
 #include "Umbrella/UmbrellaStateComponent.h"
 
@@ -296,6 +299,38 @@ bool FMoveWorldAssetsTest::RunTest(const FString& Parameters)
 	Adapter->ApplyAxis(EUmbrellaInputAction::Trim, 1.0f);
 	Test.TickSeconds(1.0f, 1.0f / 60.0f);
 	TestEqual(TEXT("trim up rises faster"), static_cast<float>(Ella->GetActorLocation().Z), 144.0f, 0.5f);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMoveWorldSavedRemapTest, "UmbrellaElla.Move.World.SavedRemapReachesLiveContext", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FMoveWorldSavedRemapTest::RunTest(const FString& Parameters)
+{
+	FUmbrellaTestWorld Test;
+	AEllaCharacter* Ella = Test.SpawnElla();
+	if (!TestNotNull(TEXT("Ella spawned"), Ella))
+	{
+		return false;
+	}
+	UEllaInputAdapterComponent* Adapter = Ella->GetInputAdapter();
+	Adapter->BuildInputAssets();
+	TestEqual(TEXT("no settings leaves the context alone"), Adapter->ApplySavedBindings(nullptr), 0);
+
+	const FString Path = FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("UmbrellaEllaTests"), TEXT("Move"), TEXT("remap.ini"));
+	USettingsMenuSubsystem* Settings = NewObject<USettingsMenuSubsystem>(NewObject<UGameInstance>(GEngine));
+	Settings->SetStorePath(Path);
+	Settings->ReloadFromStore();
+	Settings->EditSession().Remap(EUmbrellaInputAction::Shoot, 0, EKeys::F);
+	Settings->SaveSettings(ESettingsPage::Controller);
+
+	TestTrue(TEXT("mappings made"), Adapter->ApplySavedBindings(Settings) > 0);
+	const UInputAction* Shoot = Adapter->GetInputAction(EUmbrellaInputAction::Shoot);
+	bool bHasF = false;
+	for (const FEnhancedActionKeyMapping& Mapping : Adapter->GetMappingContext()->GetMappings())
+	{
+		bHasF |= Mapping.Action == Shoot && Mapping.Key == EKeys::F;
+	}
+	TestTrue(TEXT("live IMC_Default maps Shoot to the saved F"), bHasF);
+	IFileManager::Get().Delete(*Path);
 	return true;
 }
 
