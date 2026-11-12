@@ -1,4 +1,4 @@
-> Generated from `README.md` at `fbcd307` — edit the sources, not this file.
+> Generated from `README.md` at `f8c8edc` — edit the sources, not this file.
 > Rebuild: `python3 tools/export_package.py`. Check: `python3 tools/export_package.py --check`.
 
 # MegaPipeline: what's where
@@ -39,7 +39,7 @@ MegaPipeline/
     MegaJam2026-Story_v1.0.md  (933 words)
     MegaJam2026-TechnicalDirector_v1.0.md  (1108 words)
     MegaJam2026-UIUX_v1.0.md  (746 words)
-  Pipelines/  (156908 words)
+  Pipelines/  (156929 words)
     Production Pipeline.md  (24087 words)
     Design Pipeline.md  (8502 words)
     Development Pipeline.md  (14792 words)
@@ -51,7 +51,7 @@ MegaPipeline/
     Level Pipeline.md  (9664 words)
     UI UX Pipeline.md  (5511 words)
     Game Feel Pipeline.md  (7086 words)
-    Agent Ops Pipeline.md  (16923 words)
+    Agent Ops Pipeline.md  (16944 words)
     Submission Pipeline.md  (6212 words)
   Reference/  (130023 words)
     GDD Snapshot.md  (32487 words)

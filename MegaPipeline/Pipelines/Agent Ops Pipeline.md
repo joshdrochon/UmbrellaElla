@@ -1,4 +1,4 @@
-> Generated from `pipeline/agent-ops/README.md`, `pipeline/agent-ops/gates.json`, `pipeline/agent-ops/settings.json`, `pipeline/agent-ops/agent-tools.json`, `pipeline/agent-ops/components.csv`, `pipeline/agent-ops/model-tiers.md`, `pipeline/agent-ops/model-prices.json`, `pipeline/agent-ops/asset-tools.json`, `pipeline/agent-ops/editor-mcp.md`, `pipeline/agent-ops/mcp.template.json`, `tools/editor_mcp.py`, `pipeline/agent-ops/mcp.tools.template.json`, `tools/mcp_config.py`, `tools/kickoff.sh`, `tools/kickoff.ps1`, `tools/kickoff.py`, `tools/connections.py`, `tools/keys.py`, `tools/practice.py`, `tools/git_gate.py`, `tools/assetgen.py`, `prompts/README.md`, `evals/README.md`, `docs/references.md`, `docs/repo-map.md`, `tools/repo_map.py`, `pipeline/agent-ops/hook.py`, `pipeline/agent-ops/journal_hook.py`, `tools/journal.py`, `tools/install_git_hooks.py`, `tools/agent.sh`, `tools/agent.ps1`, `tools/start_session.sh`, `tools/start_session.ps1`, `tools/start_session.py`, `tools/spend_log.py`, `tools/prompt_log.py`, `tools/secrets_check.py` at `fbcd307` — edit the sources, not this file.
+> Generated from `pipeline/agent-ops/README.md`, `pipeline/agent-ops/gates.json`, `pipeline/agent-ops/settings.json`, `pipeline/agent-ops/agent-tools.json`, `pipeline/agent-ops/components.csv`, `pipeline/agent-ops/model-tiers.md`, `pipeline/agent-ops/model-prices.json`, `pipeline/agent-ops/asset-tools.json`, `pipeline/agent-ops/editor-mcp.md`, `pipeline/agent-ops/mcp.template.json`, `tools/editor_mcp.py`, `pipeline/agent-ops/mcp.tools.template.json`, `tools/mcp_config.py`, `tools/kickoff.sh`, `tools/kickoff.ps1`, `tools/kickoff.py`, `tools/connections.py`, `tools/keys.py`, `tools/practice.py`, `tools/git_gate.py`, `tools/assetgen.py`, `prompts/README.md`, `evals/README.md`, `docs/references.md`, `docs/repo-map.md`, `tools/repo_map.py`, `pipeline/agent-ops/hook.py`, `pipeline/agent-ops/journal_hook.py`, `tools/journal.py`, `tools/install_git_hooks.py`, `tools/agent.sh`, `tools/agent.ps1`, `tools/start_session.sh`, `tools/start_session.ps1`, `tools/start_session.py`, `tools/spend_log.py`, `tools/prompt_log.py`, `tools/secrets_check.py` at `f8c8edc` — edit the sources, not this file.
 > Rebuild: `python3 tools/export_package.py`. Check: `python3 tools/export_package.py --check`.
 
 # Agent Ops Pipeline
@@ -996,14 +996,15 @@ Agent contract (AGENTS.md "Kickoff sessions"): env JAM_ROLE, JAM_CARD, JAM_ISSUE
 agent writes $JAM_OUTBOX/pr.md, review.md (VERDICT: approve|changes), cards/<UE-id>.json (Producer),
 needs-human.txt, comment.md, gate.patch (its gate-path changes as a git patch), and commits but never pushes.
 Agent commands (every Codex flag below is in `codex exec --help`, Codex CLI 0.167.0):
-  claude -p <prompt> --model <id> --permission-mode acceptEdits [--effort high] [--mcp-config F --strict-mcp-config]
+  claude -p <prompt> --model <id> --permission-mode bypassPermissions --disallowedTools <push/merge> [--effort high] [--mcp-config F --strict-mcp-config]
   codex exec -s workspace-write -C <worktree> --add-dir <git dir> --add-dir <outbox> -o <outbox>/last-message.md
         -c shell_environment_policy.inherit=all [-m <model>] [-c model_reasoning_effort="high"] <prompt>
   [VERIFY on Codex CLI] the config keys shell_environment_policy.inherit (shown as an example in the help) and
   model_reasoning_effort, and the GPT model IDs in model-tiers.md (an empty cell: Codex uses its default model).
 Test seams: KICKOFF_AGENT_CMD replaces the agent program (a stub), KICKOFF_GH the gh program, KICKOFF_NOW the clock,
 KICKOFF_SKIP_CHECK=1 skips the connection check (tests only), KICKOFF_PACKAGING_MACHINE=1 plays the Windows packaging
-machine (it builds `Runs on:` cards).
+machine (it builds `Runs on:` cards), KICKOFF_MAC_MACHINE=1 plays the Mac build machine (the sandbox plays both, so a sim
+runs the same on every OS).
 Exit 0 = ran (or only humans can move now), 2 = usage or refused (inside an agent session, real repo --practice,
 a --gdd file that fails its import check), 3 = before the jam start without practice mode: only the pre-jam cards ran
 (PRE-JAM mode), 4 = a required connection is missing.

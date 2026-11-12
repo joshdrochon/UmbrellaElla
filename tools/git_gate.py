@@ -336,7 +336,8 @@ def apply_patch(card, by, yes=False, no_pr=False, root=ROOT, env=None, ask=None,
     if not wt or not os.path.isdir(wt):
         return 2, [f"git_gate: the card's worktree for {cid} is gone ({wt}); run tools/kickoff.sh once to recreate it"]
     rc, stat = git("apply", "--stat", patch, cwd=wt)
-    rc, out = git("apply", "--check", patch, cwd=wt)
+    chk = subprocess.run(["git", "apply", "--check", patch], cwd=wt, capture_output=True, text=True)
+    rc, out = chk.returncode, chk.stdout + chk.stderr   # git apply says why on stderr
     if rc != 0:
         return 1, [f"git_gate: the {cid} gate patch does not apply on {branch}; the card goes back to its agent "
                    f"(comment on the card). git said: {out.strip()[-200:]}"]

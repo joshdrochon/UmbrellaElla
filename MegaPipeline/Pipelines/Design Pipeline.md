@@ -1,4 +1,4 @@
-> Generated from `docs/gdd/README.md`, `docs/gdd/questions-1.3.md`, `docs/gdd/questions-B1.0.md`, `docs/game-spec.md`, `docs/balance.md`, `pipeline/checklists/design-review.md`, `pipeline/checklists/tuning.md`, `tools/manifest_check.py`, `tools/gdd_impact.py`, `tools/gdd_select.py`, `tools/bake_preset.py`, `tools/tuning.py`, `tools/progression_model.py` at `fbcd307` — edit the sources, not this file.
+> Generated from `docs/gdd/README.md`, `docs/gdd/questions-1.3.md`, `docs/gdd/questions-B1.0.md`, `docs/game-spec.md`, `docs/balance.md`, `pipeline/checklists/design-review.md`, `pipeline/checklists/tuning.md`, `tools/manifest_check.py`, `tools/gdd_impact.py`, `tools/gdd_select.py`, `tools/bake_preset.py`, `tools/tuning.py`, `tools/progression_model.py` at `f8c8edc` — edit the sources, not this file.
 > Rebuild: `python3 tools/export_package.py`. Check: `python3 tools/export_package.py --check`.
 
 # Design Pipeline

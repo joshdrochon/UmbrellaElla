@@ -1,4 +1,4 @@
-> Generated from `pipeline/unreal-rules.md`, `pipeline/unreal/cpp-rules.md`, `pipeline/unreal/gameplay-code.md`, `docs/unreal-sources.md`, `pipeline/checklists/file-hygiene.md`, `.github/PULL_REQUEST_TEMPLATE.md`, `evals/reviewer/results.md`, `tools/run_reviewer_eval.py`, `tools/score_review.py`, `tools/check_pr.py` at `fbcd307` — edit the sources, not this file.
+> Generated from `pipeline/unreal-rules.md`, `pipeline/unreal/cpp-rules.md`, `pipeline/unreal/gameplay-code.md`, `docs/unreal-sources.md`, `pipeline/checklists/file-hygiene.md`, `.github/PULL_REQUEST_TEMPLATE.md`, `evals/reviewer/results.md`, `tools/run_reviewer_eval.py`, `tools/score_review.py`, `tools/check_pr.py` at `f8c8edc` — edit the sources, not this file.
 > Rebuild: `python3 tools/export_package.py`. Check: `python3 tools/export_package.py --check`.
 
 # Development Pipeline

@@ -1,4 +1,4 @@
-> Generated from `docs/coverage-map.md` at `fbcd307` — edit the sources, not this file.
+> Generated from `docs/coverage-map.md` at `f8c8edc` — edit the sources, not this file.
 > Rebuild: `python3 tools/export_package.py`. Check: `python3 tools/export_package.py --check`.
 
 # Coverage map: the inherited pipeline → Umbrella Ella pipeline

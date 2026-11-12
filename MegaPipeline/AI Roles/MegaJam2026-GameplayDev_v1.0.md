@@ -1,4 +1,4 @@
-> Generated from `pipeline/roles/gameplay-dev.md`, `.claude/agents/gameplay-dev.md` at `fbcd307` — edit the sources, not this file.
+> Generated from `pipeline/roles/gameplay-dev.md`, `.claude/agents/gameplay-dev.md` at `f8c8edc` — edit the sources, not this file.
 > Rebuild: `python3 tools/export_package.py`. Check: `python3 tools/export_package.py --check`.
 
 # Role: Gameplay Developer

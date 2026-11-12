@@ -1,4 +1,4 @@
-> Generated from `pipeline/checklists/submission.md`, `docs/pre-jam-declaration.md`, `pipeline/submission/LICENSE.txt`, `pipeline/submission/README.txt`, `pipeline/submission/credits.md`, `pipeline/submission/devlog.md`, `pipeline/submission/footage.md`, `pipeline/submission/itch-page.md`, `pipeline/submission/video-plan.md`, `tools/submission_check.py` at `fbcd307` — edit the sources, not this file.
+> Generated from `pipeline/checklists/submission.md`, `docs/pre-jam-declaration.md`, `pipeline/submission/LICENSE.txt`, `pipeline/submission/README.txt`, `pipeline/submission/credits.md`, `pipeline/submission/devlog.md`, `pipeline/submission/footage.md`, `pipeline/submission/itch-page.md`, `pipeline/submission/video-plan.md`, `tools/submission_check.py` at `f8c8edc` — edit the sources, not this file.
 > Rebuild: `python3 tools/export_package.py`. Check: `python3 tools/export_package.py --check`.
 
 # Submission Pipeline

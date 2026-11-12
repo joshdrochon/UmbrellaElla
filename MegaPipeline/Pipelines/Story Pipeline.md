@@ -1,4 +1,4 @@
-> Generated from `pipeline/story/story-bible.md`, `pipeline/story/lines.csv`, `pipeline/story/story.json`, `tools/story_critic_prompt.md`, `evals/story-critic/README.md`, `evals/story-critic/calibration.csv`, `tools/story_check.py` at `fbcd307` — edit the sources, not this file.
+> Generated from `pipeline/story/story-bible.md`, `pipeline/story/lines.csv`, `pipeline/story/story.json`, `tools/story_critic_prompt.md`, `evals/story-critic/README.md`, `evals/story-critic/calibration.csv`, `tools/story_check.py` at `f8c8edc` — edit the sources, not this file.
 > Rebuild: `python3 tools/export_package.py`. Check: `python3 tools/export_package.py --check`.
 
 # Story Pipeline

@@ -1,4 +1,4 @@
-> Generated from `pipeline/audio/style-target.md`, `pipeline/audio/style.json`, `pipeline/audio/sound-events.json`, `pipeline/audio/audio-rules.md`, `pipeline/audio/audio-rules.json`, `pipeline/audio/sound-list.csv`, `tools/audio_loop.py`, `tools/audio_critic_prompt.md`, `tools/audio_check.py`, `tools/audio_style_check.py`, `tools/audio_import.py`, `tools/ue/audio_dump.py`, `pipeline/audio/ue/audio_dump.py` at `fbcd307` — edit the sources, not this file.
+> Generated from `pipeline/audio/style-target.md`, `pipeline/audio/style.json`, `pipeline/audio/sound-events.json`, `pipeline/audio/audio-rules.md`, `pipeline/audio/audio-rules.json`, `pipeline/audio/sound-list.csv`, `tools/audio_loop.py`, `tools/audio_critic_prompt.md`, `tools/audio_check.py`, `tools/audio_style_check.py`, `tools/audio_import.py`, `tools/ue/audio_dump.py`, `pipeline/audio/ue/audio_dump.py` at `f8c8edc` — edit the sources, not this file.
 > Rebuild: `python3 tools/export_package.py`. Check: `python3 tools/export_package.py --check`.
 
 # Audio Pipeline

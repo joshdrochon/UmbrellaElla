@@ -105,14 +105,15 @@ Agent contract (AGENTS.md "Kickoff sessions"): env JAM_ROLE, JAM_CARD, JAM_ISSUE
 agent writes $JAM_OUTBOX/pr.md, review.md (VERDICT: approve|changes), cards/<UE-id>.json (Producer),
 needs-human.txt, comment.md, gate.patch (its gate-path changes as a git patch), and commits but never pushes.
 Agent commands (every Codex flag below is in `codex exec --help`, Codex CLI 0.167.0):
-  claude -p <prompt> --model <id> --permission-mode acceptEdits [--effort high] [--mcp-config F --strict-mcp-config]
+  claude -p <prompt> --model <id> --permission-mode bypassPermissions --disallowedTools <push/merge> [--effort high] [--mcp-config F --strict-mcp-config]
   codex exec -s workspace-write -C <worktree> --add-dir <git dir> --add-dir <outbox> -o <outbox>/last-message.md
         -c shell_environment_policy.inherit=all [-m <model>] [-c model_reasoning_effort="high"] <prompt>
   [VERIFY on Codex CLI] the config keys shell_environment_policy.inherit (shown as an example in the help) and
   model_reasoning_effort, and the GPT model IDs in model-tiers.md (an empty cell: Codex uses its default model).
 Test seams: KICKOFF_AGENT_CMD replaces the agent program (a stub), KICKOFF_GH the gh program, KICKOFF_NOW the clock,
 KICKOFF_SKIP_CHECK=1 skips the connection check (tests only), KICKOFF_PACKAGING_MACHINE=1 plays the Windows packaging
-machine (it builds `Runs on:` cards).
+machine (it builds `Runs on:` cards), KICKOFF_MAC_MACHINE=1 plays the Mac build machine (the sandbox plays both, so a sim
+runs the same on every OS).
 Exit 0 = ran (or only humans can move now), 2 = usage or refused (inside an agent session, real repo --practice,
 a --gdd file that fails its import check), 3 = before the jam start without practice mode: only the pre-jam cards ran
 (PRE-JAM mode), 4 = a required connection is missing.
@@ -220,6 +221,8 @@ SPLIT_KINDS = ("build", "review", "critic", "producer")
 SPLIT_DEFAULT = "build=codex,review=claude,critic=claude,producer=claude"
 STUCK_ROUNDS = 3        # D-new-no-round-cap: loops have no round cap; needs-human only after 3 rounds in a row with
                         # no improvement (the same gap and no better score)
+CLAUDE_DENY = ["Bash(git push:*)", "Bash(gh pr merge:*)", "Bash(gh pr close:*)", "Bash(gh issue close:*)",
+               "Bash(gh repo:*)", "Bash(gh api -X DELETE:*)", "Bash(git_gate.py apply:*)"]   # kickoff's own steps
 MAX_FAILS = 2           # AGENTS.md section 6: same failure twice -> blocked
 AGENT_ENV = ("CLAUDECODE", "JAM_ROLE", "CODEX_SANDBOX", "CODEX_THREAD_ID")
 KICK = "KICKOFF"
@@ -230,6 +233,16 @@ SESSION_TIMEOUT = int(os.environ.get("KICKOFF_SESSION_TIMEOUT", "10800"))
 GIT_TIMEOUT = int(os.environ.get("KICKOFF_GIT_TIMEOUT", "1800"))   # a fetch or push that hangs never stalls the run
 CI_POLL = int(os.environ.get("KICKOFF_CI_POLL", "60"))       # seconds between checks of a PR whose CI is still running
 CI_WAIT = int(os.environ.get("KICKOFF_CI_WAIT", "21600"))    # CI still pending after this many seconds: a failed merge
+# gh retries a transient GitHub failure (a 401 the keyring login answers right after, a secondary rate limit, 429,
+# 5xx, a timeout, a network error) after each of these waits: 5 tries over about 2 minutes. KICKOFF_GH_RETRY_DELAYS
+# ("5,15,30,60") overrides it (the tests use 0s).
+GH_RETRY_DELAYS = tuple(float(x) for x in os.environ.get("KICKOFF_GH_RETRY_DELAYS", "5,15,30,60").split(",") if x.strip())
+GH_TRANSIENT = re.compile(r"HTTP 401|Bad credentials|HTTP 429|rate limit|HTTP 5\d\d|Bad Gateway|"
+                          r"Service Unavailable|Gateway Time-?out|timed out|timeout|connection (?:reset|refused)|"
+                          r"could not resolve|no such host|network is unreachable|dial tcp|\bEOF\b|TLS handshake|"
+                          r"temporary failure|something went wrong", re.I)
+GH_REJECTED = re.compile(r"HTTP 401|Bad credentials|HTTP 429|rate limit", re.I)   # GitHub refused it: nothing was done
+GH_CYCLE_FAILS = 5   # scheduler cycles in a row whose gh reads still fail after the retries: then the run ends failed
 GREEN = ("pass", "skipping")   # gh pr checks buckets that let a PR merge; fail, cancel and pending do not
 LOCK = threading.Lock()            # the console only: say() takes it, so nothing that can block may hold it
 JOURNAL_LOCK = threading.Lock()    # one journal write at a time (SQLite); never held while printing
@@ -310,12 +323,47 @@ def git(*args, cwd=ROOT, check=False, env=None):
 
 
 # ---------- GitHub (gh) ----------
+class GHError(RuntimeError):
+    """A gh call that still failed after its retries (a RuntimeError, so every existing handler still catches it)."""
+
+
 class GH:
     def __init__(self):
         exe = os.environ.get("KICKOFF_GH") or "gh"
         self.argv = [sys.executable, exe] if exe.endswith(".py") else [exe]
+        self.on_retry = say   # one line per retry; Kickoff also writes it to the journal
 
-    def run(self, *args, body=None):
+    def _attempt(self, args, ok, probe=None, retry=True):
+        """Run gh with the retries: (CompletedProcess or None on a timeout, last error text). ok(p) = the answer to
+        keep. A transient failure (GH_TRANSIENT) is tried again after each GH_RETRY_DELAYS wait; any other failure
+        returns at once. probe() is asked before a retry when GitHub may have done the call anyway (5xx, timeout,
+        network): a create that went through is never made twice."""
+        tries = len(GH_RETRY_DELAYS) + 1 if retry else 1
+        what = f"gh {' '.join(args[:3])}"
+        for n in range(1, tries + 1):
+            try:
+                p = subprocess.run(self.argv + args, cwd=ROOT, capture_output=True, text=True, timeout=120,
+                                   stdin=subprocess.DEVNULL)
+                err = " ".join((p.stderr or p.stdout).split())[-300:]   # one line: stdout, journal, the ask
+                if ok(p) or not GH_TRANSIENT.search(err):
+                    return p, err
+            except subprocess.TimeoutExpired:
+                p, err = None, "no answer in 120 s"
+            if n == tries:
+                return p, err
+            if probe and not GH_REJECTED.search(err):
+                try:
+                    done = probe()
+                except (RuntimeError, OSError, ValueError, TypeError, KeyError):
+                    done = None
+                if done is not None:
+                    self.on_retry(f"GH RETRY {what}: GitHub did it after all ({err[:120]}); not sent again")
+                    return subprocess.CompletedProcess(args, 0, done, ""), ""
+            delay = GH_RETRY_DELAYS[n - 1]
+            self.on_retry(f"GH RETRY {what}: try {n} of {tries} failed ({err[:160]}); next try in {delay:g} s")
+            time.sleep(delay)
+
+    def run(self, *args, body=None, probe=None, retry=True):
         tmp = None
         args = list(args)
         if body is not None:
@@ -324,14 +372,14 @@ class GH:
                 fh.write(body)
             args += ["--body-file", tmp]
         try:
-            p = subprocess.run(self.argv + args, cwd=ROOT, capture_output=True, text=True, timeout=120)
-        except subprocess.TimeoutExpired:
-            raise RuntimeError(f"gh {' '.join(args[:3])}: no answer in 120 s")
+            p, err = self._attempt(args, lambda p: p.returncode == 0, probe, retry)
         finally:
             if tmp:
                 os.remove(tmp)
+        if p is None:
+            raise GHError(f"gh {' '.join(args[:3])}: no answer in 120 s")
         if p.returncode != 0:
-            raise RuntimeError(f"gh {' '.join(args[:3])}: {(p.stderr or p.stdout).strip()[-300:]}")
+            raise GHError(f"gh {' '.join(args[:3])}: {err}")
         return p.stdout
 
     def issues(self):
@@ -350,7 +398,13 @@ class GH:
         args = ["issue", "create", "--title", title]
         for lb in labels:
             args += ["--label", lb]
-        return int(re.search(r"(\d+)\s*$", self.run(*args, body=body).strip()).group(1))
+
+        def filed():   # the failed try made the issue anyway (kickoff only creates a title no issue has yet)
+            rows = json.loads(self.run("issue", "list", "--state", "all", "--limit", "500", "--json", "number,title",
+                                       retry=False) or "[]")
+            it = next((i for i in rows if i.get("title") == title), None)
+            return f"#{it['number']}" if it else None
+        return int(re.search(r"(\d+)\s*$", self.run(*args, body=body, probe=filed).strip()).group(1))
 
     def edit_body(self, n, body):
         self.run("issue", "edit", str(n), body=body)
@@ -371,7 +425,12 @@ class GH:
         self.run("issue", "close", str(n))
 
     def create_pr(self, head, base, title, body):
-        out = self.run("pr", "create", "--head", head, "--base", base, "--title", title, body=body)
+        def opened():   # the failed try opened the PR anyway
+            rows = json.loads(self.run("pr", "list", "--state", "open", "--limit", "500", "--json",
+                                       "number,headRefName,state", retry=False) or "[]")
+            pr = next((p for p in rows if p.get("headRefName") == head), None)
+            return f"#{pr['number']}" if pr else None
+        out = self.run("pr", "create", "--head", head, "--base", base, "--title", title, body=body, probe=opened)
         return int(re.search(r"(\d+)\s*$", out.strip()).group(1))
 
     def pr_comment(self, n, body):
@@ -389,10 +448,9 @@ class GH:
         JSON still printed, so the exit code alone is not an error."""
         for required in (True, False):
             args = ["pr", "checks", str(n), "--json", "name,bucket"] + (["--required"] if required else [])
-            try:
-                p = subprocess.run(self.argv + args, cwd=ROOT, capture_output=True, text=True, timeout=120)
-            except subprocess.TimeoutExpired:
-                raise RuntimeError(f"gh pr checks {n}: no answer in 120 s")
+            p, _ = self._attempt(args, lambda p: p.returncode in (0, 8) or bool(p.stdout.strip()))
+            if p is None:
+                raise GHError(f"gh pr checks {n}: no answer in 120 s")
             try:
                 rows = json.loads(p.stdout) if p.stdout.strip() else None
             except ValueError:
@@ -400,7 +458,7 @@ class GH:
             if rows:
                 return [(r.get("name") or "?", (r.get("bucket") or "").lower()) for r in rows]
             if p.returncode not in (0, 1, 8) or (p.returncode == 1 and "no " not in (p.stderr or "").lower()):
-                raise RuntimeError(f"gh pr checks {n}: {(p.stderr or p.stdout).strip()[-300:]}")
+                raise GHError(f"gh pr checks {n}: {(p.stderr or p.stdout).strip()[-300:]}")
         return None
 
     def pr_merge(self, n, sha):
@@ -408,11 +466,12 @@ class GH:
         self.run("pr", "merge", str(n), "--squash", "--match-head-commit", sha)
 
     def ensure_labels(self):
+        failed = False
         for lb in LABELS:
-            try:
-                self.run("label", "create", lb, "--force")
+            try:   # after one failure the rest get one try each: an outage costs one label's retries, not all
+                self.run("label", "create", lb, "--force", retry=not failed)
             except RuntimeError:
-                pass
+                failed = True
 
 
 # ---------- cards ----------
@@ -434,8 +493,10 @@ def packaging_machine():
 
 def mac_machine():
     """This kickoff may build `Runs on: the Mac build machine` cards: macOS (AGENT_OPS_PLATFORM overrides sys.platform
-    for the tests, as in native_windows)."""
-    return (os.environ.get("AGENT_OPS_PLATFORM") or sys.platform) == "darwin"
+    for the tests, as in native_windows), or KICKOFF_MAC_MACHINE=1 (a test seam, the twin of KICKOFF_PACKAGING_MACHINE:
+    the sandboxed sims play that machine on any host)."""
+    return ((os.environ.get("AGENT_OPS_PLATFORM") or sys.platform) == "darwin"
+            or os.environ.get("KICKOFF_MAC_MACHINE") == "1")
 
 
 def windows_daily():
@@ -546,6 +607,7 @@ class Kickoff:
         self.tester_prompt = (tester_prompt or "").strip() or None
         self.run_id = None
         self.gh = GH()
+        self.gh.on_retry = self.gh_retry
         self.practice = practice.is_practice(ROOT)
         self.jdb = journal.db_path()
         self.seen = set()            # (kind, card, PR state) started this run: never twice in one run
@@ -684,6 +746,40 @@ class Kickoff:
         self.j(cid, "step", command=what, exit_code=0, note=f"kickoff: {what} failures asked (count starts again)")
         return None
 
+    # ----- GitHub outages -----
+    def gh_retry(self, line):
+        """One line per gh retry, on stdout and in the journal."""
+        say(line)
+        self.j(KICK, "step", command="gh retry", exit_code=1, note=f"kickoff: {line}"[:300])
+
+    def gh_cycle_failed(self, e, n):
+        """A scheduler cycle whose gh calls still failed after their retries: skip it, wait, plan again. True (the
+        run ends failed, with the reason) after GH_CYCLE_FAILS such cycles in a row."""
+        why = str(e)[:200]
+        self.j(KICK, "step", command="gh", exit_code=1, note=f"kickoff: gh cycle {n} of {GH_CYCLE_FAILS} failed: {why}"[:300])
+        if n >= GH_CYCLE_FAILS:
+            say(f"ERROR GitHub: {n} cycles in a row failed after their retries; the run stops. Last: {why}")
+            self.run_failures.append(f"GitHub did not answer for {n} cycles in a row (last: {why[:160]}); check "
+                                     "`gh auth status` and https://www.githubstatus.com")
+            return True
+        wait = GH_RETRY_DELAYS[-1] if GH_RETRY_DELAYS else 0
+        say(f"SKIP cycle: GitHub failed after the retries ({why}); planning again in {wait:g} s "
+            f"({n} of {GH_CYCLE_FAILS})")
+        time.sleep(wait)
+        return False
+
+    def gh_job_failed(self, sig, kind, key, err):
+        """A job stopped by a gh call that still failed after its retries (its own failure path could not reach
+        GitHub either): True = run it again next cycle, up to MAX_FAILS times; then it is a run failure."""
+        n = self.__dict__.setdefault("gh_job_fails", {}).get(sig, 0) + 1
+        self.gh_job_fails[sig] = n
+        if n > MAX_FAILS:
+            return False
+        say(f"RETRY {kind} UE-{key}: GitHub failed under it ({str(err)[:160]}); it runs again next cycle "
+            f"({n} of {MAX_FAILS})")
+        self.j(f"UE-{key}", "step", command="gh", exit_code=1, note=f"kickoff: gh failed under {kind}: {err}"[:300])
+        return True
+
     # ----- asks -----
     def raise_ask(self, number, who, what, link=None, role="Producer"):
         link = link or f"#{number}"
@@ -761,7 +857,9 @@ class Kickoff:
         mcp = mcp_config.session_args(agent, role, os.path.join(ROOT, ".pipeline", "mcp"))
         high = tier in HIGH_EFFORT
         if agent == "claude":
-            argv = base + ["-p", prompt, "--permission-mode", "acceptEdits"]
+            # acceptEdits cannot run git commit / python3 / gh in -p mode (a card's builder must commit and run its
+            # checks), so sessions run unprompted; only kickoff pushes, merges or closes (Josh, 12 Nov)
+            argv = base + ["-p", prompt, "--permission-mode", "bypassPermissions", "--disallowedTools"] + CLAUDE_DENY
             argv += ["--model", model] if model else []
             argv += ["--effort", "high"] if high else []
             return argv + mcp
@@ -1927,76 +2025,87 @@ class Kickoff:
                     f"(compare runs: python3 tools/journal.py compare <a> <b>)")
         if self.dry:
             return self.dry_plan()
-        self.producer_until_clean()
-        self.last_done = {c.key for c in self.cards() if c.done}
         pool = concurrent.futures.ThreadPoolExecutor(max_workers=self.parallel)
         futures = {}
+        primed, gh_down = False, 0
         while True:
-            jobs, waiting, cards = self.plan()
-            jobs = [j for j in jobs if self.sig(j) not in self.seen]
-            if self.bounded():   # in-flight cards finish (fix rounds, review, merge); no new card starts
-                jobs = [j for j in jobs if j[0] != "build" or j[1].key in self.started]
-            for kind, c, pr, fb in jobs:
-                if len(futures) >= self.parallel:
-                    break
-                self.seen.add(self.sig((kind, c, pr, fb)))
-                if kind in ("build", "fix"):
-                    self.started.add(c.key)
-                if kind == "build" and c.key == "0.3":
-                    try:
-                        self.ensure_jam_start()
-                    except Exception as e:   # the tag is a record: ask, and the card still runs
-                        self.raise_ask(c.number, seat_person("producer / time keeper") or "Producer",
-                                       f"tag jam-start on main: kickoff could not ({str(e)[:160]})")
-                self.running[c.key] = (kind, [] if kind == "daily" else c.lanes)
-                if kind == "daily":
-                    self.daily_q = [q for q in self.daily_q if q[0].key != c.key]
-                fn = (lambda c=c, pr=pr: self.reviewer(c, pr)) if kind == "review" else \
-                    (lambda c=c, pr=pr: self.daily_run(c, pr)) if kind == "daily" else \
-                    (lambda c=c, pr=pr: self.merger(c, pr)) if kind == "merge" else \
-                    (lambda c=c, fb=fb: self.builder(c, fb))
-                say(f"START {kind} UE-{c.key} #{c.number} " + (f"PR #{pr['number']} (kickoff, no agent session)"
-                                                               if kind == "merge" else "role=" +
-                    (c.reviewer_key if kind == "review" else "qa-build" if kind == "daily" else c.owner_key)))
-                futures[pool.submit(fn)] = (c.key, self.sig((kind, c, pr, fb)), kind)
-            if futures:
-                done, _ = concurrent.futures.wait(futures, return_when=concurrent.futures.FIRST_COMPLETED)
-                for f in done:
-                    key, sig, kind = futures.pop(f)
-                    self.running.pop(key, None)
-                    err = f.exception()
-                    if err is not None:   # a job that crashed kickoff's own code: never a silent idle
-                        say(f"ERROR {kind} UE-{key}: {type(err).__name__}: {err}")
-                        self.run_failures.append(f"{kind} UE-{key} stopped on {type(err).__name__}: {str(err)[:160]}")
-                    elif f.result() == "retry":
-                        self.seen.discard(sig)   # the failed session runs again in this run (bounded: MAX_FAILS)
-                    elif f.result() == "pending":
-                        self.ci_pending.add(sig)
-                continue
-            if self.ci_pending:   # nothing else to run: wait for CI, then plan again (bounded: CI_WAIT)
-                say(f"WAITING on CI for {len(self.ci_pending)} PR(s); checking again in {CI_POLL} s")
-                time.sleep(CI_POLL)
-                self.seen -= self.ci_pending
-                self.ci_pending.clear()
-                continue
-            done_now = {c.key for c in cards if c.done}
-            if done_now != self.last_done:
-                self.last_done = done_now
-                if self.producer_until_clean():
+            try:   # a gh call that still fails after its retries skips this cycle; it never crashes the run
+                if not primed:
+                    self.producer_until_clean()
+                    self.last_done = {c.key for c in self.cards() if c.done}
+                    primed = True
+                jobs, waiting, cards = self.plan()
+                gh_down = 0
+                jobs = [j for j in jobs if self.sig(j) not in self.seen]
+                if self.bounded():   # in-flight cards finish (fix rounds, review, merge); no new card starts
+                    jobs = [j for j in jobs if j[0] != "build" or j[1].key in self.started]
+                for kind, c, pr, fb in jobs:
+                    if len(futures) >= self.parallel:
+                        break
+                    self.seen.add(self.sig((kind, c, pr, fb)))
+                    if kind in ("build", "fix"):
+                        self.started.add(c.key)
+                    if kind == "build" and c.key == "0.3":
+                        try:
+                            self.ensure_jam_start()
+                        except Exception as e:   # the tag is a record: ask, and the card still runs
+                            self.raise_ask(c.number, seat_person("producer / time keeper") or "Producer",
+                                           f"tag jam-start on main: kickoff could not ({str(e)[:160]})")
+                    self.running[c.key] = (kind, [] if kind == "daily" else c.lanes)
+                    if kind == "daily":
+                        self.daily_q = [q for q in self.daily_q if q[0].key != c.key]
+                    fn = (lambda c=c, pr=pr: self.reviewer(c, pr)) if kind == "review" else \
+                        (lambda c=c, pr=pr: self.daily_run(c, pr)) if kind == "daily" else \
+                        (lambda c=c, pr=pr: self.merger(c, pr)) if kind == "merge" else \
+                        (lambda c=c, fb=fb: self.builder(c, fb))
+                    say(f"START {kind} UE-{c.key} #{c.number} " + (f"PR #{pr['number']} (kickoff, no agent session)"
+                                                                   if kind == "merge" else "role=" +
+                        (c.reviewer_key if kind == "review" else "qa-build" if kind == "daily" else c.owner_key)))
+                    futures[pool.submit(fn)] = (c.key, self.sig((kind, c, pr, fb)), kind)
+                if futures:
+                    done, _ = concurrent.futures.wait(futures, return_when=concurrent.futures.FIRST_COMPLETED)
+                    for f in done:
+                        key, sig, kind = futures.pop(f)
+                        self.running.pop(key, None)
+                        err = f.exception()
+                        if isinstance(err, GHError) and self.gh_job_failed(sig, kind, key, err):
+                            self.seen.discard(sig)   # GitHub failed under the job: it runs again next cycle
+                        elif err is not None:   # a job that crashed kickoff's own code: never a silent idle
+                            say(f"ERROR {kind} UE-{key}: {type(err).__name__}: {err}")
+                            self.run_failures.append(f"{kind} UE-{key} stopped on {type(err).__name__}: {str(err)[:160]}")
+                        elif f.result() == "retry":
+                            self.seen.discard(sig)   # the failed session runs again in this run (bounded: MAX_FAILS)
+                        elif f.result() == "pending":
+                            self.ci_pending.add(sig)
                     continue
-            if self.until:   # --until: the gate's Mac package once its path is merged; kickoff never closes a gate
-                step = self.milestone(cards)
-                if step == "again":
+                if self.ci_pending:   # nothing else to run: wait for CI, then plan again (bounded: CI_WAIT)
+                    say(f"WAITING on CI for {len(self.ci_pending)} PR(s); checking again in {CI_POLL} s")
+                    time.sleep(CI_POLL)
+                    self.seen -= self.ci_pending
+                    self.ci_pending.clear()
                     continue
-                if step == "stop":
+                done_now = {c.key for c in cards if c.done}
+                if done_now != self.last_done:
+                    self.last_done = done_now
+                    if self.producer_until_clean():
+                        continue
+                if self.until:   # --until: the gate's Mac package once its path is merged; kickoff never closes a gate
+                    step = self.milestone(cards)
+                    if step == "again":
+                        continue
+                    if step == "stop":
+                        break
+                else:
+                    self.gate_check(cards)
+                if self.watch and not self.bounded():
+                    say(f"WAITING on humans ({len(waiting)}); polling again in {self.watch} min")
+                    time.sleep(self.watch * 60)
+                    continue
+                break
+            except GHError as e:
+                gh_down += 1
+                if self.gh_cycle_failed(e, gh_down):
                     break
-            else:
-                self.gate_check(cards)
-            if self.watch and not self.bounded():
-                say(f"WAITING on humans ({len(waiting)}); polling again in {self.watch} min")
-                time.sleep(self.watch * 60)
-                continue
-            break
         pool.shutdown()
         lost = f", {self.journal_lost} journal write(s) lost" if self.journal_lost else ""
         if self.run_failures:
@@ -2030,6 +2139,7 @@ class Kickoff:
             self.j(KICK, "checkpoint", note=f"kickoff: {line}", next_step=f"run {me()} again to continue")
             say(f"{line} ({self.sessions} session(s), {self.raised} new needs-human ask(s){lost})")
             return 0
+        self.say_machine_waits(waiting)
         self.runlog(journal.add_run_outcome, self.run_id, "end", outcome="idle",
                     note=f"{self.sessions} session(s), {self.raised} ask(s)")
         self.j(KICK, "checkpoint", note=f"kickoff: idle after {self.sessions} session(s), {self.raised} ask(s)",
@@ -2039,6 +2149,16 @@ class Kickoff:
             + (f" PRE-JAM: every other card waits for the jam start; in a test repo `{me()} --practice` runs them."
                if self.prejam is not None else ""))
         return 0
+
+    @staticmethod
+    def say_machine_waits(waiting):
+        """The cards this machine leaves to the other one, by name, so an idle run says what it waits for (the cards
+        that list them in After wait with them; every other ready card runs here)."""
+        for what, there in (("the Mac build machine", "tools/kickoff.sh on the Mac"),
+                            ("the Windows packaging machine", "tools\\kickoff.ps1 there")):
+            cards = [w.split(": ", 1)[0] for w in waiting if w.endswith(f"runs on {what} (kickoff there picks it)")]
+            if cards:
+                say(f"WAITING on {what}: {', '.join(cards)}; run {there} (the cards after them wait with them)")
 
     def dry_plan(self):
         say(f"DRY RUN agent={self.agent_label()} practice={'yes' if self.practice else 'no'} parallel={self.parallel}; "

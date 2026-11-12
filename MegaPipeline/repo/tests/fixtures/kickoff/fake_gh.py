@@ -3,7 +3,10 @@
 argument shapes tools/kickoff.py and tools/connections.py use. No network.
 PRs: `pr view --json headRefOid` reads the head from the bare origin ($FAKE_GH_ORIGIN); `pr checks` answers
 $FAKE_GH_CHECKS (pass, the default; fail; pending; none) the way gh does (exit 1 failed, 8 pending); `pr merge
---squash --match-head-commit <sha>` squash-merges the head into origin main, or fails with $FAKE_GH_MERGE_FAIL."""
+--squash --match-head-commit <sha>` squash-merges the head into origin main, or fails with $FAKE_GH_MERGE_FAIL.
+GitHub outages: $FAKE_GH_FAIL (a count, or `always`) calls whose argv contains $FAKE_GH_FAIL_ON (default `issue list`)
+fail the way gh does on a transient error ($FAKE_GH_FAIL_TEXT, default the HTTP 401 a live run saw). With
+FAKE_GH_FAIL_AFTER=1 the call is done first, then reported failed (a 502 after GitHub wrote it)."""
 import argparse
 import json
 import os
@@ -118,6 +121,34 @@ def main(argv):
         lock.seek(0)
         msvcrt.locking(lock.fileno(), msvcrt.LK_LOCK, 1)   # retries for 10 s, then raises
     s = load()
+    if outage(argv):
+        return 1
+    rc = handle(s, argv)
+    if rc == 0 and outage(argv, after=True):
+        return 1
+    return rc
+
+
+def outage(argv, after=False):
+    """True (and the gh error printed) when this call is one $FAKE_GH_FAIL fails; counted in $FAKE_GH_STATE.fails."""
+    n = os.environ.get("FAKE_GH_FAIL")
+    if not n or bool(os.environ.get("FAKE_GH_FAIL_AFTER")) != after:
+        return False
+    if os.environ.get("FAKE_GH_FAIL_ON", "issue list") not in " ".join(argv):
+        return False
+    f = STATE + ".fails"
+    done = int(open(f).read()) if os.path.exists(f) else 0
+    if n != "always" and done >= int(n):
+        return False
+    with open(f, "w") as fh:
+        fh.write(str(done + 1))
+    print(os.environ.get("FAKE_GH_FAIL_TEXT", "HTTP 401: Bad credentials (https://api.github.com/graphql)\n"
+                                              "Try authenticating with:  gh auth refresh -h github.com"),
+          file=sys.stderr)
+    return True
+
+
+def handle(s, argv):
     if argv[:2] == ["auth", "status"]:
         print("Logged in to github.com (fake)")
         return 0

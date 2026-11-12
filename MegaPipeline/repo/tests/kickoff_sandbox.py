@@ -75,7 +75,7 @@ class KickoffSandbox:
                           "CODEX_THREAD_ID", "OPENAI_API_KEY", "ELEVENLABS_API_KEY", "STABILITY_API_KEY")}
         e.update(FAKE_GH_STATE=self.state, FAKE_GH_ORIGIN=self.origin, KICKOFF_GH=os.path.join(FIX, "fake_gh.py"),
                  KICKOFF_AGENT_CMD=shlex.join([PY, os.path.join(FIX, "stub_agent.py")]), KICKOFF_NOW="2026-11-09T12:00Z",
-                 KICKOFF_SKIP_CHECK="1", KICKOFF_PACKAGING_MACHINE="1", JOURNAL_DB=os.path.join(self.base, "journal.db"), STUB_LOG=self.log,
+                 KICKOFF_SKIP_CHECK="1", KICKOFF_PACKAGING_MACHINE="1", KICKOFF_MAC_MACHINE="1", JOURNAL_DB=os.path.join(self.base, "journal.db"), STUB_LOG=self.log,
                  STUB_STATE=self.stub_state, KEYS_NO_KEYCHAIN="1", PYTHONDONTWRITEBYTECODE="1")
         e.update(extra)
         return e

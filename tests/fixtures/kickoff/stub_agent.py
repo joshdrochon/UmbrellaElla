@@ -56,8 +56,10 @@ def parse_argv(argv):
 
 
 def write(name, text):
+    """An outbox file, LF as git writes (Python's text mode would write CRLF on Windows: a CRLF gate.patch does not
+    apply to an LF file)."""
     os.makedirs(os.path.dirname(os.path.join(OUT, name)) or OUT, exist_ok=True)
-    with open(os.path.join(OUT, name), "w", encoding="utf-8") as fh:
+    with open(os.path.join(OUT, name), "w", encoding="utf-8", newline="\n") as fh:
         fh.write(text)
 
 
@@ -263,12 +265,12 @@ def gate_patch(path, extra=None):
         data["_stub_" + CARD] = "stub gate work"
         if "gate_paths" in data:
             data["gate_paths"] = data["gate_paths"][1:]
-        with open(path, "w", encoding="utf-8") as fh:
+        with open(path, "w", encoding="utf-8", newline="\n") as fh:   # keep the file's LF endings on Windows
             json.dump(data, fh, indent=1)
             fh.write("\n")
     else:
         os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
-        with open(path, "a", encoding="utf-8") as fh:
+        with open(path, "a", encoding="utf-8", newline="\n") as fh:
             fh.write(f"\n# {CARD} stub gate work\n" if path.endswith((".yml", ".yaml", ".py", "ignore", "CODEOWNERS"))
                      else f"\n<!-- {CARD} stub gate work -->\n")
     if not existed:

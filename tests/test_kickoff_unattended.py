@@ -9,6 +9,7 @@ import shutil
 import sys
 import threading
 import unittest
+import unittest.mock
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -347,7 +348,7 @@ class WindowsCardsWaitForThePackagingMachine(unittest.TestCase):
         card = filed("0.6w")
         self.assertTrue(card.windows)
         jobs, waiting = plan_of([card], {"KICKOFF_PACKAGING_MACHINE": "1" if packaging else "0",
-                                         "AGENT_OPS_PLATFORM": "darwin"})
+                                         "KICKOFF_MAC_MACHINE": "0", "AGENT_OPS_PLATFORM": "darwin"})
         return [j[0] for j in jobs], waiting
 
     def test_waits_off_the_packaging_machine_and_runs_on_it(self):
@@ -361,11 +362,76 @@ class WindowsCardsWaitForThePackagingMachine(unittest.TestCase):
         card = filed("0.6e")
         self.assertTrue(card.mac)
         self.assertFalse(card.windows)
-        jobs, waiting = plan_of([card], {"KICKOFF_PACKAGING_MACHINE": "0", "AGENT_OPS_PLATFORM": "darwin"})
+        jobs, waiting = plan_of([card], {"KICKOFF_PACKAGING_MACHINE": "0", "KICKOFF_MAC_MACHINE": "0",
+                                         "AGENT_OPS_PLATFORM": "darwin"})
         self.assertEqual(jobs, [("build", "0.6e")], waiting)
-        jobs, waiting = plan_of([card], {"KICKOFF_PACKAGING_MACHINE": "1", "AGENT_OPS_PLATFORM": "win32"})
+        jobs, waiting = plan_of([card], {"KICKOFF_PACKAGING_MACHINE": "1", "KICKOFF_MAC_MACHINE": "0",
+                                         "AGENT_OPS_PLATFORM": "win32"})
         self.assertEqual(jobs, [])
         self.assertTrue(any("runs on the Mac build machine" in w for w in waiting), waiting)
+        jobs, waiting = plan_of([card], {"KICKOFF_PACKAGING_MACHINE": "1", "KICKOFF_MAC_MACHINE": "1",
+                                         "AGENT_OPS_PLATFORM": "win32"})
+        self.assertEqual(jobs, [("build", "0.6e")], "the sandbox seam plays the Mac on a Windows host")
+
+
+@unittest.skipIf(shutil.which("git") is None, "needs git")
+class TwoMachinesHandOff(unittest.TestCase):
+    """The jam has two kickoff machines: the Mac build machine and the Windows packaging machine. Each builds its own
+    `Runs on:` cards and every card with no `Runs on:` line; the other machine's cards wait, named on the idle line,
+    and only the cards that list them in After wait with them. Same result on every OS: AGENT_OPS_PLATFORM names the
+    machine each run plays (win32 on a Windows host is the host itself) and KICKOFF_MAC_MACHINE=0 turns off the
+    sandbox's Mac seam. Cards: 0.0 and 0.2 (any machine), 0.3 (Mac, After 0.0), 0.3w (Windows, After 0.3)."""
+
+    ONLY = "0.0,0.2,0.3,0.3w"
+    WINDOWS = dict(AGENT_OPS_PLATFORM="win32", KICKOFF_MAC_MACHINE="0", KICKOFF_PACKAGING_MACHINE="1")
+    MAC = dict(AGENT_OPS_PLATFORM="darwin", KICKOFF_MAC_MACHINE="0", KICKOFF_PACKAGING_MACHINE="0")
+
+    def setUp(self):
+        self.sb = ks.KickoffSandbox(thj.PEOPLE)
+        self.addCleanup(self.sb.close)
+
+    def run_on(self, machine, *args):
+        """One kickoff on that machine, then the test plays the humans until nothing is asked."""
+        outs = []
+        for _ in range(6):
+            rc, out = self.sb.kickoff("--agent", "codex", "--parallel", "2", *args, STUB_DAY0_ONLY=self.ONLY, **machine)
+            self.assertEqual(rc, 0, out)
+            self.assertNotIn("ERROR", out, out[-3000:])
+            outs.append(out)
+            args = ()
+            answered, _ = self.sb.human_round()
+            if not answered:
+                break
+        return "".join(outs)
+
+    def built(self):
+        return {s["card"] for s in self.sb.sessions() if s["event"] == "start" and not s.get("review")
+                and s["card"].startswith("UE-")}
+
+    def card(self, cid):
+        return next((i for i in self.sb.gh()["issues"] if i["title"].startswith(f"[{cid}]")), None)
+
+    def test_each_machine_builds_its_cards_and_the_rest_and_hands_off(self):
+        out = self.run_on(self.WINDOWS, "--practice")
+        self.assertEqual(self.built(), {"UE-0.0", "UE-0.2"}, out)
+        self.assertEqual(self.card("UE-0.0")["state"], "CLOSED", out)
+        self.assertEqual(self.card("UE-0.2")["state"], "CLOSED", out)
+        mac = self.card("UE-0.3")
+        self.assertEqual(mac["state"], "OPEN", "the Windows machine never builds the Mac skeleton")
+        self.assertRegex(out, rf"(?m)^WAITING on the Mac build machine: #{mac['number']} UE-0\.3; run tools/kickoff.sh")
+        self.assertIsNone(self.card("UE-0.3w"), "0.3w waits on 0.3 (After), so it is not filed yet")
+
+        out = self.run_on(self.MAC)
+        self.assertEqual(self.built(), {"UE-0.0", "UE-0.2", "UE-0.3"}, out)
+        self.assertEqual(self.card("UE-0.3")["state"], "CLOSED", out)
+        win = self.card("UE-0.3w")
+        self.assertEqual(win["state"], "OPEN", "the Mac never builds the Windows skeleton")
+        self.assertRegex(out, rf"(?m)^WAITING on the Windows packaging machine: #{win['number']} UE-0\.3w; ")
+
+        out = self.run_on(self.WINDOWS)
+        self.assertEqual(self.built(), {"UE-0.0", "UE-0.2", "UE-0.3", "UE-0.3w"}, out)
+        self.assertEqual(self.card("UE-0.3w")["state"], "CLOSED", out)
+        self.assertNotIn("WAITING on the", out, "nothing is left for the other machine")
 
 
 class UntilG1BuildsOnlyItsPath(unittest.TestCase):
@@ -481,6 +547,69 @@ class RuleKSwitchesOnFromTheMeasurement(unittest.TestCase):
         with open(os.path.join(root, "pipeline", "unreal", "cpp-rules.md"), "w", encoding="utf-8") as fh:
             fh.write(proven)
         self.assertTrue(module_check.k_proven(root))
+
+
+@unittest.skipIf(shutil.which("git") is None, "needs git")
+class GitHubOutageNeverCrashesTheRun(unittest.TestCase):
+    """A live unattended run died on one `gh issue list` HTTP 401 (Bad credentials) while the keyring login worked
+    seconds before and after. Every gh call retries a transient failure; one that still fails skips the cycle."""
+    NO_WAIT = dict(KICKOFF_GH_RETRY_DELAYS="0,0,0,0")
+
+    def setUp(self):
+        self.sb = ks.KickoffSandbox(thj.PEOPLE)
+        self.addCleanup(self.sb.close)
+
+    def journal_notes(self):
+        con = journal.connect(os.path.join(self.sb.base, "journal.db"))
+        try:
+            return [e["note"] or "" for e in journal.events(con, kickoff.KICK)]
+        finally:
+            con.close()
+
+    def test_two_401s_then_success_the_run_goes_on(self):
+        rc, out = self.sb.kickoff("--agent", "codex", STUB_DAY0_ONLY="0.25", FAKE_GH_FAIL="2", **self.NO_WAIT)
+        self.assertNotIn("unexpected error", out)
+        self.assertEqual(rc, 3, out)   # pre-jam mode ends 3 when nothing failed
+        retries = [ln for ln in out.splitlines() if ln.startswith("GH RETRY gh issue list --state")]
+        self.assertEqual(len(retries), 2, out)
+        self.assertIn("HTTP 401: Bad credentials", retries[0])
+        self.assertEqual(len([n for n in self.journal_notes() if n.startswith("kickoff: GH RETRY")]), 2,
+                         "each retry is one journal line")
+        self.assertTrue(any(p["headRefName"].startswith("ue-0.25-") for p in self.sb.gh()["prs"]),
+                        "the card still ran to its PR\n" + out)
+
+    def test_always_401_ends_the_run_failed_with_the_reason_not_a_traceback(self):
+        rc, out = self.sb.kickoff("--agent", "codex", STUB_DAY0_ONLY="0.25", FAKE_GH_FAIL="always", **self.NO_WAIT)
+        self.assertNotIn("Traceback", out)
+        self.assertNotIn("unexpected error", out)
+        self.assertEqual(rc, 1, out)
+        self.assertEqual(out.count("SKIP cycle: GitHub failed after the retries"), kickoff.GH_CYCLE_FAILS - 1, out)
+        last = out.strip().splitlines()[-1]
+        self.assertIn(f"KICKOFF FAILED: GitHub did not answer for {kickoff.GH_CYCLE_FAILS} cycles in a row", last)
+        self.assertIn("HTTP 401: Bad credentials", last)
+        self.assertTrue(any(n.startswith("kickoff: failed: GitHub did not answer") for n in self.journal_notes()))
+
+    def test_a_create_github_did_before_a_502_is_not_filed_twice(self):
+        env = self.sb.env(FAKE_GH_FAIL="1", FAKE_GH_FAIL_ON="issue create", FAKE_GH_FAIL_AFTER="1",
+                          FAKE_GH_FAIL_TEXT="HTTP 502: Bad Gateway (https://api.github.com/graphql)", **self.NO_WAIT)
+        lines = []
+        with unittest.mock.patch.dict(os.environ, env), unittest.mock.patch.object(kickoff, "GH_RETRY_DELAYS", (0,) * 4):
+            gh = kickoff.GH()
+            gh.on_retry = lines.append
+            n = gh.create_issue("[UE-9.9] a card", "body", ["task"])
+        self.assertEqual([i["number"] for i in self.sb.gh()["issues"]], [n])
+        self.assertEqual(len(lines), 1, lines)
+        self.assertIn("GitHub did it after all", lines[0])
+
+    def test_a_permanent_error_is_not_retried(self):
+        env = self.sb.env(FAKE_GH_FAIL="always", FAKE_GH_FAIL_TEXT="HTTP 404: Not Found", **self.NO_WAIT)
+        lines = []
+        with unittest.mock.patch.dict(os.environ, env):
+            gh = kickoff.GH()
+            gh.on_retry = lines.append
+            with self.assertRaises(kickoff.GHError):
+                gh.issues()
+        self.assertEqual(lines, [])
 
 
 if __name__ == "__main__":

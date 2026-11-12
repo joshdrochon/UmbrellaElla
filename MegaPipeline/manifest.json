@@ -556,9 +556,9 @@
   "tests/fixtures/honest_jam/game/s21/Source/UmbrellaElla/Private/Tests/UI/TitleToPlayToSurvivedTest.cpp": "b3391fa01eb5fb6113e0228b6102c78b81d79e0044a8a7377e8bdb0826aaf3d8",
   "tests/fixtures/honest_jam/game/s21/Source/UmbrellaElla/Private/UI/UmbrellaTitleScreen.cpp": "32bed9a9bf187afcca215786a4ec3c3f5313270e3b40f0fa993a88aa155e5631",
   "tests/fixtures/honest_jam/gates/record.md": "17de6b4ee25c339fb4d464b2804853f09d97447c720b022725dd97732aa5509e",
-  "tests/fixtures/kickoff/fake_gh.py": "c180c2ba14e7b3dc5285fc6ff9b88fa42cbef0485b2c7caf903490ac64ea6aab",
+  "tests/fixtures/kickoff/fake_gh.py": "109ca5cf0af7d818c845ebf0c618adfcbab2b892971420e3497d01becc6b7ecf",
   "tests/fixtures/kickoff/http_stub.py": "ab1fa2074bfe38edbe3aa01c5dda476a840039823c29b3d8b33142719cdb0a6f",
-  "tests/fixtures/kickoff/stub_agent.py": "0ef86c31d443a73023f8e4b222a4781ec1239ffbe107ea6103d67ce715b4c8ae",
+  "tests/fixtures/kickoff/stub_agent.py": "b0160ddc6ee24e6dc5de64e42844a9483512d0aca8268943bb5744471b7e93e8",
   "tests/fixtures/kickoff/stub_daily.py": "7bf828a0eeb81b5f88be7fe90c057de3f46797d910660e7a5b6806543cfb8d18",
   "tests/fixtures/kickoff/stubbins.py": "55756dedc1b423719f6c81f8c763f8a39fb4c9e478b2817ba4f11f4766b9220f",
   "tests/fixtures/level/multi_pattern.json": "ff020db20da1ff11f15253d1f3a8a600ce9f5e506732b3c2af068aa4603758f2",
@@ -682,7 +682,7 @@
   "tests/fixtures/ui/widgets_fail/HudWidget.h": "789cedfec545b0aa87eae82be12bc02ab015b77d5b536974e78228196311be7a",
   "tests/fixtures/ui/widgets_pass/HudWidget.h": "822c7a4be373a3d79ddcbd11b245cdc480cf274abd1eb9d3a48348b9de826669",
   "tests/hermetic.py": "c29703923dbab176127e3f30b6e5749a040bfccbc678b1e6f1feacf66c0e2439",
-  "tests/kickoff_sandbox.py": "61116c66c2f4c96d4ac280695089c80f1b9ad2125d24430c5e43346d6faa4ab7",
+  "tests/kickoff_sandbox.py": "08a91316cd6e985dccec55a074c085a9e235a404fd8b6b99b33e32a3aa3c06d9",
   "tests/test_agent_ops_hook.py": "85235a678130a10617e749b109c5e959cbe789b3a21f17a7c98c528d1cb497e5",
   "tests/test_art_calibration.py": "c260e7cca1bfbdecb62284d9ef34a7e30e320afc7da8160717c3306ccc0d8731",
   "tests/test_art_check.py": "ab054a55cf53a21d1644826f52cebbb937043a4a1bd3497739636b3520ce08d3",
@@ -718,13 +718,13 @@
   "tests/test_final9_fixes.py": "998e2625dc6263913a6a62401d8c4fe050adf720089f20546f4bf77cec52cb63",
   "tests/test_gdd_impact.py": "a99e0f83386b4953f225dda9884482fbabe73c56b51b7ee9919e65eadf918bf7",
   "tests/test_gdd_select.py": "acfefe1c7c5bc8196bbc61084f824aede8013310ee3ad61709566fc8dc81cdb5",
-  "tests/test_git_gate.py": "fcfb86909cfbdb62d11ba019a49cf097ed7c8eda7e1a091a38ff82ca0f983fc8",
+  "tests/test_git_gate.py": "c733f5de136228884c2679ea3fd77e8e3217f3ed5dc85c71395c591f94857239",
   "tests/test_hitbox_check.py": "66b00d5fd8b83b02b11cff780c3474fe286aceae3f7ae41f57d3d5909ea891d1",
-  "tests/test_honest_jam.py": "c69caff80f9308cc2c2e3705760e94d0bc1af482500a06987112fc35a0c594f3",
+  "tests/test_honest_jam.py": "f2919a35627386afb019986e065da11410152554fe1160c44f1d82f64d107a74",
   "tests/test_journal.py": "2d7451948f9287836dd3a92476714368858f12ef1272fad321baae86ea1ff339",
-  "tests/test_kickoff.py": "90de37d5e1a43394e8dc921d3822e33360ba6d6ccee537cd5dd9abcbf4416c22",
+  "tests/test_kickoff.py": "6cafa1476eacab260e838ff58e29078d977a45906bc85174ce81820bbf84e1b3",
   "tests/test_kickoff_simple.py": "5a8d2e4e52b4aa6374860bab526ab119dc506087e1aea36b33ef039a3b831383",
-  "tests/test_kickoff_unattended.py": "82bcf556d73aff1624aac61ccd83cfe73756e8dc4b0062202dbe3f9769e31c2b",
+  "tests/test_kickoff_unattended.py": "5aede706cb69a1bf4bb457dba602ac327c9f2e28ff6a5c20302dbc1e194a4868",
   "tests/test_kickoff_windows_daily.py": "90e6d4cf9cb1a8fddf5346e6bc5955f24a806c5e4fcc4e47f635213afe3a3a9a",
   "tests/test_lane_guard.py": "e392cbbdd9aec7fa071e03ebd3bb0a4ab487d33bc07542ae314f03fbf7dbfd04",
   "tests/test_manifest_check.py": "f8d1eab714d90666ecdec29d204cfc5b492c10ca9e5b211191515c980ebe3ff0",
@@ -776,13 +776,13 @@
   "tools/feel_check.py": "645f770dc5f6cc5de3f3106c83243e2b7e59497e7a056188180fcb8c74a2277e",
   "tools/gdd_impact.py": "45576afb8b51a33c1abab1b2bc8e054ba464a3677b04ee3bf87587009207783a",
   "tools/gdd_select.py": "6806abaef23c2ecc3b79288e90e8eaf8408c9e4d42c699beea3c754f9af5659e",
-  "tools/git_gate.py": "c1b51ab1584cec17a6183d0f02d6517b838b04ecddd03c6a61ffbb66532efeee",
+  "tools/git_gate.py": "b24cac36e2cb432361b1c15a85ffcab77856ebe8796485d5c568cc7c224a5d07",
   "tools/hitbox_check.py": "671da22790ce0f61f858f34d39a7e4b241820425dffa6e1df03d3a8fd3cdf77b",
   "tools/install_git_hooks.py": "1b22b42b7b761692531584754a0df02bed488fa6068a35ea7ea67bc68c946ae6",
   "tools/journal.py": "9ccb92b1ab1342f560d516ad9bf3ccf2661ade30296e6859d3ae0dc19ea61aa2",
   "tools/keys.py": "eff0067088fcd49258983685aa56e7dd08979fe2334d386d703915ebfec19c26",
   "tools/kickoff.ps1": "f8c87a469fb66145215227f5bb2c4e62a759be43795a44f5189db6a3ef095074",
-  "tools/kickoff.py": "22d04b39e95ed627de8d3122d75971e54985b9bf2463fa3ee4a40eaf9daea628",
+  "tools/kickoff.py": "8e72caee0ff4a91cbc0df7a4bdc9e921e6dba6bfe9db6bf15ff1c75c1177ee4e",
   "tools/kickoff.sh": "579a8e564ad461519d8a2c720149561887ed57e147f608605154a8acfaa1dedb",
   "tools/lane_guard.py": "ee0009560d864cec8cc72f7fcd66bb5337692cfd052158e42bba1c4568f07d88",
   "tools/make_art_calibration.py": "029f6a2e1deb7b178f76bf6ed70e8684e32e24aeeba5f1a883e038649760592e",
@@ -2783,6 +2783,7 @@
    "17de6b4ee25c339fb4d464b2804853f09d97447c720b022725dd97732aa5509e"
   ],
   "tests/fixtures/kickoff/fake_gh.py": [
+   "109ca5cf0af7d818c845ebf0c618adfcbab2b892971420e3497d01becc6b7ecf",
    "7d21498a66ef46a769576e278350eb4ec46e6aff58bac3340345bf25c2f48e7e",
    "c180c2ba14e7b3dc5285fc6ff9b88fa42cbef0485b2c7caf903490ac64ea6aab",
    "eefda60034951b077e885b3b3d1a4555906891212b8c313d1a31108277226e86"
@@ -2797,6 +2798,7 @@
    "0ef86c31d443a73023f8e4b222a4781ec1239ffbe107ea6103d67ce715b4c8ae",
    "2fc9e0402f3ce9ecf24a01f5ae59730d6631fd7e70bf915f3d6bc653800c8f01",
    "52de0f87c203152cf8a506b844cb6b0b94fdf1afdd6facee8570253f6e0c38fc",
+   "b0160ddc6ee24e6dc5de64e42844a9483512d0aca8268943bb5744471b7e93e8",
    "b509a2f750e9881a5b70568b2da41496101bd6b24d5843a931201056f1ad2da6"
   ],
   "tests/fixtures/kickoff/stub_daily.py": [
@@ -3180,6 +3182,7 @@
    "f719f13065ded22c12dc3eeea4450e4edc6e4c396eedbe47b5ae75ac9cf729a6"
   ],
   "tests/kickoff_sandbox.py": [
+   "08a91316cd6e985dccec55a074c085a9e235a404fd8b6b99b33e32a3aa3c06d9",
    "29e1e4833321f73f832c69ca17be85bfb48250e4991755ef2009bcd35fc2a41f",
    "61116c66c2f4c96d4ac280695089c80f1b9ad2125d24430c5e43346d6faa4ab7",
    "923e5aa8e5dd2ee80834b65a1cdea40badeb81971b999c7cbb806cbb9d2cf176",
@@ -3344,6 +3347,7 @@
   "tests/test_git_gate.py": [
    "7ef189012528f4f862b26c23a8df8fac2c1e199a95a8ee79713f002997ca5f2f",
    "a509e4c6e407f5d2cceddf2c9d612fda42cdd2cf35e8d2e18f4cd92de4f64fa2",
+   "c733f5de136228884c2679ea3fd77e8e3217f3ed5dc85c71395c591f94857239",
    "fcfb86909cfbdb62d11ba019a49cf097ed7c8eda7e1a091a38ff82ca0f983fc8"
   ],
   "tests/test_hitbox_check.py": [
@@ -3358,7 +3362,8 @@
    "5f6812e44ff8297a6bd08ea3be6a5cba58b5774c45d282725d6e87ff09e89452",
    "c1144d6e75114e3ba12c2d2a57a9f50a187da7eae1edae05960b65fab512440e",
    "c69caff80f9308cc2c2e3705760e94d0bc1af482500a06987112fc35a0c594f3",
-   "e744f84ccfd09e06f0772ee0185c14918cab0c573442e0a0388a9f427b6b21a2"
+   "e744f84ccfd09e06f0772ee0185c14918cab0c573442e0a0388a9f427b6b21a2",
+   "f2919a35627386afb019986e065da11410152554fe1160c44f1d82f64d107a74"
   ],
   "tests/test_journal.py": [
    "2d7451948f9287836dd3a92476714368858f12ef1272fad321baae86ea1ff339",
@@ -3368,6 +3373,7 @@
   "tests/test_kickoff.py": [
    "54fa9a71e792ddd037eab87cd5ce9ea2c4dfc221b66b85057ecf571c86413996",
    "604c9c7ea2beace4d6c6588f6cda8c791f81ed336bffa7a4f1e0a5e18ad6ce38",
+   "6cafa1476eacab260e838ff58e29078d977a45906bc85174ce81820bbf84e1b3",
    "90de37d5e1a43394e8dc921d3822e33360ba6d6ccee537cd5dd9abcbf4416c22",
    "b1577e033463da172b69d21a163a4a4be4a0cd423c47b40fe3c381a723e58f2a",
    "b167b7388e34acc789d7f7dbe330d3dc07c7b8d6d381c67eb44f7786cc4d56cd",
@@ -3382,8 +3388,10 @@
    "fd862dfd7ed8185037709edaf50412850e8788dbfcbb2281a51a3b9437db4dd0"
   ],
   "tests/test_kickoff_unattended.py": [
+   "5aede706cb69a1bf4bb457dba602ac327c9f2e28ff6a5c20302dbc1e194a4868",
    "82bcf556d73aff1624aac61ccd83cfe73756e8dc4b0062202dbe3f9769e31c2b",
-   "e04c223f08316319ab80e068e81018e147dc442094a01c0d26d94ab454abe7e3"
+   "e04c223f08316319ab80e068e81018e147dc442094a01c0d26d94ab454abe7e3",
+   "ec524c15af9b719207d1fbcca5c03a34403e75c9924e80a75188a6e79c3798a6"
   ],
   "tests/test_kickoff_windows_daily.py": [
    "90e6d4cf9cb1a8fddf5346e6bc5955f24a806c5e4fcc4e47f635213afe3a3a9a"
@@ -3618,6 +3626,7 @@
   "tools/git_gate.py": [
    "2200cd09d670691ff381fa5c2416c3a922de733491f4dbbd54c5b1e26b30428b",
    "39e1ec7a8635ea0b6946933e819cc6f9724f1d1c3a13e9480218c1955d8dc709",
+   "b24cac36e2cb432361b1c15a85ffcab77856ebe8796485d5c568cc7c224a5d07",
    "c1b51ab1584cec17a6183d0f02d6517b838b04ecddd03c6a61ffbb66532efeee",
    "f35e7620892ecf194872da86f3ec227dd1b09c8dddf31d4152f77640de5d282d"
   ],
@@ -3651,6 +3660,8 @@
    "8137579f410adbdd2a3b3b86034c1d978d6bff6ca291b8a8c11b2e25c5ee0610",
    "823cf4daa30483aff522f3536287f484cb6d679ca95bca6fd9cbecf451f2e8e5",
    "885f86dd72ddaccceee31bf11588e91c5e1f9e870fc8af1ddbee0073942d4cca",
+   "8e72caee0ff4a91cbc0df7a4bdc9e921e6dba6bfe9db6bf15ff1c75c1177ee4e",
+   "cfa1e16c3bbbd51524c352b82a318cb088787a2c218d34ae536fbcd71bacbec0",
    "f3f31ace12252c93f61624ef0874b450071a922b2276587f3799571a9e02104f"
   ],
   "tools/kickoff.sh": [
@@ -3829,5 +3840,5 @@
    "e72a29799c26f1ac59f0d66acb4e66a4a9776284564342c5dbf07496146b68d2"
   ]
  },
- "version": "1.1.0+bcab61d"
+ "version": "1.1.0+87f9762"
 }

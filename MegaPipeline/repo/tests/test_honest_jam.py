@@ -1502,7 +1502,11 @@ class HonestKickoff(unittest.TestCase):
     (tests/fixtures/kickoff/stub_agent.py) runs from the Day-0 cards through G1 in practice mode. kickoff stops only at
     needs-human items, kickoff merges each approved PR itself once CI and check_pr pass and applies each gate patch
     through the tool checks, the test plays the humans (answer an ask), and each new run resumes from the journal and GitHub. Before the jam without the marker it stops in one
-    line; a session that crashes is re-run; a review that asks for changes goes back to the builder."""
+    line; a session that crashes is re-run; a review that asks for changes goes back to the builder.
+    Every OS (Mac, Linux, Windows): the same result. The sandbox plays the team's two machines from one host
+    (KICKOFF_MAC_MACHINE=1 and KICKOFF_PACKAGING_MACHINE=1), so the Mac cards (0.3, 0.6, 0.6e) and the Windows cards
+    (0.3w, 0.6w, ...) are all built and every Day-0 card closes. One machine alone leaves the other's cards and the
+    cards after them waiting: test_kickoff_unattended.TwoMachinesHandOff."""
 
     @classmethod
     def setUpClass(cls):
@@ -1643,7 +1647,9 @@ class HonestAgentAssets(unittest.TestCase):
     card (capture the packaged build -> ffmpeg cut -> submission_check video) are made by agents through
     tools/assetgen.py. Every API, app and critic is a stub (the stub Blender draws the frames from a finished team
     sheet, so the deterministic checks pass for real). The only human steps are the checkpoints: merging each
-    approved PR. Card 101 is an art card: references.json assigns it the Ella rising sheet."""
+    approved PR. Card 101 is an art card: references.json assigns it the Ella rising sheet.
+    Every OS: the same result (no card here says `Runs on:`). The stand-in game the video card captures is a #! script
+    on Mac and Linux and a .cmd on Windows (stubbins.script), so the capture starts it on each."""
 
     CRITIC = "pass"
     CARDS = (("101", "Ella idle flipbook", "Asset Specialist", "Art Director", "Rich",
@@ -1678,8 +1684,8 @@ class HonestAgentAssets(unittest.TestCase):
         sb.git("commit", "-q", "-am", "Card 101 is an Ella art card")
         sb.git("push", "-q", "origin", "main")
         b = stubbins.make(os.path.join(sb.base, "bin"), skip=("git-lfs",))   # the real git-lfs filters the PNGs
-        game = os.path.join(b, "UmbrellaElla.exe")
-        write(game, f"#!{PY}\nimport time\ntime.sleep(3)\n", exe=True)
+        # the stand-in game: a #! file on Mac and Linux, UmbrellaElla.cmd on Windows (it cannot start a #! file)
+        game = stubbins.script(os.path.join(b, "UmbrellaElla"), "import time\ntime.sleep(3)", python=PY)
         issues = []
         for n, (cid, title, owner, reviewer, human, lane, done) in enumerate(cls.CARDS, 1):
             body = stub.FORM.format(owner=owner, reviewer=reviewer, human=human, lane=lane, after="none",

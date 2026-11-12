@@ -1,4 +1,4 @@
-> Generated from `docs/gdd/GDD-1.3.md`, `docs/gdd/GDD-B1.0.md`, `docs/gdd/archive/gdd-umbrella-ella-draft1.0.md` at `fbcd307` — edit the sources, not this file.
+> Generated from `docs/gdd/GDD-1.3.md`, `docs/gdd/GDD-B1.0.md`, `docs/gdd/archive/gdd-umbrella-ella-draft1.0.md` at `f8c8edc` — edit the sources, not this file.
 > Rebuild: `python3 tools/export_package.py`. Check: `python3 tools/export_package.py --check`.
 
 ---

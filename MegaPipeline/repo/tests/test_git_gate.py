@@ -295,6 +295,7 @@ class ApplyGatePatch(unittest.TestCase):
         rc, lines = self.apply(yes=True, no_pr=True)
         self.assertEqual(rc, 1)
         self.assertIn("does not apply", lines[-1])
+        self.assertIn("tools/x.py", lines[-1].split("git said:")[1], "git's reason (stderr) is on the line")
 
     def test_kickoff_applies_it_through_the_tool_checks(self):
         meta = os.path.join(self.r.dir, ".pipeline", "gate-patches", "UE-0.4d", "meta.json")

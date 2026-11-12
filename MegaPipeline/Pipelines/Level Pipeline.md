@@ -1,4 +1,4 @@
-> Generated from `pipeline/level/encounter.md`, `pipeline/level/encounter.json`, `pipeline/checklists/level-sections.md`, `pipeline/level/reference/owl-fight-ricky.md`, `pipeline/level/fixtures/card_ok.md`, `pipeline/level/fixtures/logger_output.csv`, `tools/encounter_check.py`, `tools/encounter_spec.py` at `fbcd307` — edit the sources, not this file.
+> Generated from `pipeline/level/encounter.md`, `pipeline/level/encounter.json`, `pipeline/checklists/level-sections.md`, `pipeline/level/reference/owl-fight-ricky.md`, `pipeline/level/fixtures/card_ok.md`, `pipeline/level/fixtures/logger_output.csv`, `tools/encounter_check.py`, `tools/encounter_spec.py` at `f8c8edc` — edit the sources, not this file.
 > Rebuild: `python3 tools/export_package.py`. Check: `python3 tools/export_package.py --check`.
 
 # Level Pipeline

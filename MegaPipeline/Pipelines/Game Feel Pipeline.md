@@ -1,4 +1,4 @@
-> Generated from `docs/feel-spec.md`, `pipeline/feel/feel.json`, `pipeline/feel/hitboxes.json`, `pipeline/feel/ab-log.csv`, `pipeline/feel/arena-log.csv`, `pipeline/feel/latency-log.csv`, `tools/feel_check.py`, `tools/hitbox_check.py` at `fbcd307` — edit the sources, not this file.
+> Generated from `docs/feel-spec.md`, `pipeline/feel/feel.json`, `pipeline/feel/hitboxes.json`, `pipeline/feel/ab-log.csv`, `pipeline/feel/arena-log.csv`, `pipeline/feel/latency-log.csv`, `tools/feel_check.py`, `tools/hitbox_check.py` at `f8c8edc` — edit the sources, not this file.
 > Rebuild: `python3 tools/export_package.py`. Check: `python3 tools/export_package.py --check`.
 
 # Game Feel Pipeline

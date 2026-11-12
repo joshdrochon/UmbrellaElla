@@ -208,7 +208,8 @@ class KickoffUnit(unittest.TestCase):
     def test_a_gate_patch_outside_the_lane_is_refused_back_to_the_builder(self):
         """Broken on purpose: the session's gate.patch also loosens gates.json (drops a gate path) and leaves the lane.
         kickoff refuses it (tool route), the builder gets the reasons, and after MAX_FAILS the card is blocked; nothing
-        reaches origin."""
+        reaches origin. Every OS: the same refusal. The stub writes gate.patch with LF as `git diff` does; a CRLF patch
+        (Python's text mode on Windows) does not apply to an LF file and would be refused for that instead."""
         rc, out = self.sb.kickoff("--agent", "codex", "--practice", STUB_DAY0_ONLY="0.16",
                                   STUB_GATE_EXTRA="pipeline/agent-ops/gates.json")
         self.assertEqual(rc, 0, out)
