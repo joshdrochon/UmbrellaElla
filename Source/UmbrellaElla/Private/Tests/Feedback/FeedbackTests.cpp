@@ -170,9 +170,47 @@ bool FFeedbackBackdrop::RunTest(const FString& Parameters)
 			TestTrue(TEXT("panel has no collision"), Panel && Panel->GetCollisionEnabled() == ECollisionEnabled::NoCollision);
 			TestTrue(TEXT("panel is behind Ella"), Layer->GetActorLocation().Y < UmbrellaDrawOrder::EllaY);
 		}
+		// BG-02..04, BG-06: every layer has its own depth, scrolls with parallax and loops.
+		TArray<float> Seen;
+		for (const FBackdropLayerSpec& Spec : Backdrop->GetBuiltSpecs())
+		{
+			TestFalse(TEXT("layer depth is unique"), Seen.Contains(Spec.Depth));
+			Seen.Add(Spec.Depth);
+		}
+		Backdrop->ScrollTo(3000.0f);
+		for (int32 Index = 0; Index < Backdrop->GetLayers().Num(); ++Index)
+		{
+			const float ExpectedX = UUmbrellaBackdropSubsystem::LayerXForCamera(3000.0f, Backdrop->GetBuiltSpecs()[Index].Parallax);
+			TestEqual(TEXT("layer follows camera"), static_cast<float>(Backdrop->GetLayers()[Index]->GetActorLocation().X), ExpectedX);
+		}
 	}
 	GEngine->DestroyWorldContext(World);
 	World->DestroyWorld(false);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFeedbackBackdropLoop, "UmbrellaElla.Feedback.BackdropLoop",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+
+bool FFeedbackBackdropLoop::RunTest(const FString& Parameters)
+{
+	const float Period = UmbrellaBackdropConst::LoopPeriod;
+	for (const FBackdropLayerSpec& Spec : UUmbrellaBackdropSubsystem::LayerSpecs())
+	{
+		for (const float Camera : { -5000.0f, -1.0f, 0.0f, 777.0f, 1.0e6f })
+		{
+			const float Offset = UUmbrellaBackdropSubsystem::LoopOffset(Camera, Spec.Parallax);
+			TestTrue(TEXT("offset stays inside one period (never runs out)"), Offset >= 0.0f && Offset < Period);
+		}
+		TestEqual(TEXT("camera at origin leaves layer at origin"), UUmbrellaBackdropSubsystem::LayerXForCamera(0.0f, Spec.Parallax), 0.0f);
+		TestTrue(TEXT("layer stays within a period of the camera"), FMath::Abs(UUmbrellaBackdropSubsystem::LayerXForCamera(9000.0f, Spec.Parallax) - 9000.0f) < Period);
+	}
+	TestTrue(TEXT("all layers sit behind the arena"), [] {
+		for (const FBackdropLayerSpec& Spec : UUmbrellaBackdropSubsystem::LayerSpecs())
+		{
+			if (Spec.Depth >= UmbrellaDrawOrder::ArenaY) { return false; }
+		}
+		return true; }());
 	return true;
 }
 
