@@ -45,6 +45,29 @@ fi
 chk quality_gate python3 tools/build/quality_gate.py check "$MAIN" "$L/quality-base.txt"
 chk prejam python3 tools/submission_check.py prejam
 [ "$ASSETS" = 1 ] && chk assets python3 tools/submission_check.py assets
+if [ $fail = 0 ] && [ "$AUDIO" = 1 ]; then
+  # Audio critic (Josh, Nov 12): a piece the blind critic fails ships as a tracked placeholder (provenance origin
+  # "placeholder: ..."), recorded in a gate commit; it never blocks the merge.
+  T1=$(date +%s)
+  ids=$(git diff --name-only "$MAIN" HEAD -- Audio/Source | sed -n 's#^Audio/Source/\([^/]*\)/.*\.wav$#\1#p' | sort -u | paste -sd, -)
+  if [ -n "$ids" ]; then
+    "$ROOT/tools/build/critic.sh" audio "$L/audio-critic-$A.txt" "$ids" "GATE-$A-$(git rev-parse --short HEAD)" >/dev/null
+    failed=$(sed -n 's/^AUDIO_CRITIC: FAIL piece=\([^ ]*\) gap=\(.*\)/\1\t\2/p' "$L/audio-critic-$A.txt")
+    if [ -n "$failed" ]; then
+      python3 - "$failed" <<'P'
+import csv, sys
+fails = dict(l.split("\t", 1) for l in sys.argv[1].splitlines() if "\t" in l)
+rows = list(csv.reader(open("pipeline/art/provenance.csv")))
+for r in rows[1:]:
+    if r and r[0].startswith("Audio/Source/") and r[0].split("/")[2] in fails and not r[2].startswith("placeholder:"):
+        r[2] = "placeholder: audio critic fail (" + fails[r[0].split("/")[2]][:120] + ")"
+csv.writer(open("pipeline/art/provenance.csv", "w", newline=""), lineterminator="\n").writerows(rows)
+P
+      git add pipeline/art/provenance.csv && git -c core.hooksPath=/dev/null commit -q -m "Gate: audio critic failed $(echo "$failed" | cut -f1 | paste -sd, -); tracked as placeholders"
+    fi
+    step "audio critic: $(grep -c PASS "$L/audio-critic-$A.txt") pass, $(grep -c FAIL "$L/audio-critic-$A.txt") placeholder"
+  fi
+fi
 if [ $fail = 0 ] && [ "$STORY" = 1 ]; then chk story_critic "$ROOT/tools/build/critic.sh" story "$L/critic-$A.txt"; fi
 if [ $fail = 0 ] && [ "$ENCOUNTER" = 1 ]; then chk encounter_critic "$ROOT/tools/build/critic.sh" encounter "$L/critic-$A.txt"; fi
 if [ $fail = 1 ]; then echo "GATE FAIL: area/$A $(git rev-parse --short HEAD) (main unchanged, $(( $(date +%s) - T0 )) s)"; exit 1; fi

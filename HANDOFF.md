@@ -45,6 +45,7 @@ Josh: no PR/CI ceremony, every quality check kept, per-merge checks only for wha
 | `tools/build/quality_gate.py`: art (art loop pass record), audio (audio_check + audio_style_check) | art/audio changed | ship only on pass: below-bar pieces stay tracked placeholders |
 | `quality_gate.py`: `ui_check ci`, `story_check` | always | no new FAIL vs main |
 | `submission_check prejam` / `assets` | always / content changed | yes |
+| audio critic (`tools/build/critic.sh audio`, blind session per sound id, `tools/audio_loop.py` packet) | sounds changed | no: a failed piece becomes a tracked placeholder (gate commit sets provenance origin `placeholder: audio critic fail`) |
 | story critic (`tools/build/critic.sh story`) | story changed | yes |
 | encounter critic (`critic.sh encounter`) | keeper/enemy changed | yes once the game writes a run log (DEFERRED before) |
 | independent review (`tools/build/review.sh`, area role card, fresh session, not the build lead) | always | one round: changes go back once (exit 3), then follow-ups |
