@@ -38,11 +38,12 @@ void UKeeperPresenterSubsystem::ShowStandIn(AActor* Keeper)
 	{
 		return;
 	}
-	if (Keeper->FindComponentByClass<UStaticMeshComponent>())
+	static const FName StandInName(TEXT("KeeperStandIn"));
+	if (FindObjectFast<UStaticMeshComponent>(Keeper, StandInName))
 	{
 		return;
 	}
-	UStaticMeshComponent* Mesh = NewObject<UStaticMeshComponent>(Keeper, TEXT("KeeperStandIn"));
+	UStaticMeshComponent* Mesh = NewObject<UStaticMeshComponent>(Keeper, StandInName);
 	if (UStaticMesh* Shape = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cube.Cube")))
 	{
 		Mesh->SetStaticMesh(Shape);
