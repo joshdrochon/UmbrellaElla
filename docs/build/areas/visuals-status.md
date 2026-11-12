@@ -23,3 +23,23 @@
   no blind critic session run, `art_ref_check` has no references assigned to card ANIM-06 in references.json. Nothing shipped under Art/ outside Source/.
 - Shots already have a Visual mesh (AUmbrellaProjectile), so a shot stand-in presenter adds nothing.
 - Still open: enemy presenter, BG-02..04/06 looping art, VFX-06..11, ANIM/ART coverage, art_loop passes (needs a separate critic session).
+
+## Nov 12 slice 2 (after enemies merge)
+Done (full suite PASS 108/108, module_check 0, manifest_check 0):
+- BG-02, BG-03, BG-04, BG-06 (+BG-05): `UUmbrellaBackdropSubsystem` now builds five non-colliding looping parallax stand-in layers
+  (Sky, FarLand, Base, NearArchitecture, ClockWaterWind), each behind its own flag, scrolled to the camera X (`LoopOffset` wraps
+  inside `LoopPeriod`, so it never runs out). Tests: `UmbrellaElla.Feedback.BackdropLoop`, `.World.BackdropLayers`.
+- VFX-02, VFX-06..11: effect specs (render layer per effect, readable life, telegraph life follows the event's warning time),
+  point-light stand-in for lit effects, concurrent cap + flash gap + `SetReducedFlash` (the settings lane wires the toggle),
+  event-frame sync. Tests: `UmbrellaElla.Feedback.VfxRules`, `.World.VfxLayersLightLimits`, `.World.VfxStandIn`.
+- ANIM-08, ART-10 (stand-in): `UEnemyPresenterSubsystem` shows a no-collision stand-in on each `AUmbrellaEnemy`, follows its state
+  through getters, hides it when defeated/withdrawn, and names the flipbook key per (type, gender, state). Tests:
+  `UmbrellaElla.Feedback.EnemyPresenterCoverage`, `.World.EnemyStandIn` (hitbox untouched).
+- ANIM-03/ART coverage: `UmbrellaElla.Feedback.PresenterStateCoverage` (every Ella state has a distinct shape and is reachable
+  from an event), `.World.ArtSwapKeepsCollision` (state/art changes never move or resize the owner).
+
+Left (nothing more I can do from this lane):
+- Real art for every layer, effect and presenter state. All of it is stand-ins. No art_loop pass exists: it needs a separate
+  critic session, and the Blender-made stills are far below the key-art bar, so everything stays a tracked `_PH` placeholder.
+- Niagara/flipbook swap for VFX and per-state flipbooks (needs passing art).
+- Reduced-flash toggle: needs the settings lane to call `UUmbrellaVfxSubsystem::SetReducedFlash`.

@@ -3,6 +3,9 @@
 #include "Feedback/Anim/EllaAnimPresenterComponent.h"
 #include "Feedback/Anim/KeeperPresenterSubsystem.h"
 #include "Owl/KeeperOfTime.h"
+#include "Enemy/UmbrellaEnemy.h"
+#include "Feedback/Anim/EnemyPresenterSubsystem.h"
+#include "Components/BoxComponent.h"
 #include "Feedback/Audio/UmbrellaCueSubsystem.h"
 #include "Feedback/Build/BuildIdentity.h"
 #include "Feedback/Vfx/UmbrellaVfxSubsystem.h"
@@ -272,6 +275,141 @@ bool FFeedbackVfxLayersWorld::RunTest(const FString& Parameters)
 		TestFalse(TEXT("reduced flash defaults off"), Other->IsReducedFlash());
 		Other->SetReducedFlash(true);
 		TestTrue(TEXT("reduced flash can be set"), Other->IsReducedFlash());
+	}
+	GEngine->DestroyWorldContext(World);
+	World->DestroyWorld(false);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFeedbackStateCoverage, "UmbrellaElla.Feedback.PresenterStateCoverage",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+
+bool FFeedbackStateCoverage::RunTest(const FString& Parameters)
+{
+	// Every Ella visual state has a distinct, non-empty stand-in shape and is reachable from a bus event.
+	const FName Ella(TEXT("Ella"));
+	TSet<FString> Shapes;
+	for (const EEllaVisualState State : { EEllaVisualState::Idle, EEllaVisualState::Shoot, EEllaVisualState::Absorb, EEllaVisualState::Hurt, EEllaVisualState::Down })
+	{
+		const FVector Scale = UEllaAnimPresenterComponent::StandInScaleFor(State);
+		TestTrue(TEXT("state has a visible shape"), Scale.X > 0.0 && Scale.Z > 0.0);
+		TestTrue(TEXT("state shape is distinct"), !Shapes.Contains(Scale.ToString()));
+		Shapes.Add(Scale.ToString());
+	}
+	TSet<int32> Reached;
+	for (int32 Index = 0; Index < static_cast<int32>(EUmbrellaEventType::Count); ++Index)
+	{
+		FUmbrellaEvent Event;
+		Event.Type = static_cast<EUmbrellaEventType>(Index);
+		Event.SourceId = Ella;
+		Reached.Add(static_cast<int32>(UEllaAnimPresenterComponent::StateForEvent(Event, Ella)));
+	}
+	for (const EEllaVisualState State : { EEllaVisualState::Shoot, EEllaVisualState::Absorb, EEllaVisualState::Hurt, EEllaVisualState::Down })
+	{
+		TestTrue(TEXT("state is reachable from an event"), Reached.Contains(static_cast<int32>(State)));
+	}
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFeedbackArtSwapCollision, "UmbrellaElla.Feedback.World.ArtSwapKeepsCollision",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+
+bool FFeedbackArtSwapCollision::RunTest(const FString& Parameters)
+{
+	UWorld* World = UWorld::CreateWorld(EWorldType::Game, false);
+	if (!TestNotNull(TEXT("world"), World))
+	{
+		return false;
+	}
+	FWorldContext& Context = GEngine->CreateNewWorldContext(EWorldType::Game);
+	Context.SetCurrentWorld(World);
+	AActor* Owner = World->SpawnActor<AActor>();
+	USceneComponent* Root = NewObject<USceneComponent>(Owner, TEXT("Root"));
+	Owner->SetRootComponent(Root);
+	Root->RegisterComponent();
+	UEllaAnimPresenterComponent* Presenter = NewObject<UEllaAnimPresenterComponent>(Owner);
+	Presenter->RegisterComponent();
+	Presenter->BuildVisual();
+	const FVector RootScale = Root->GetComponentScale();
+	const FVector RootLocation = Root->GetComponentLocation();
+	for (const EEllaVisualState State : { EEllaVisualState::Shoot, EEllaVisualState::Absorb, EEllaVisualState::Hurt, EEllaVisualState::Down, EEllaVisualState::Idle })
+	{
+		Presenter->SetVisualState(State);
+		TestTrue(TEXT("stand-in never collides"), Presenter->GetStandIn() && Presenter->GetStandIn()->GetCollisionEnabled() == ECollisionEnabled::NoCollision);
+		TestEqual(TEXT("owner scale (collision size) is unchanged by art state"), Root->GetComponentScale(), RootScale);
+		TestEqual(TEXT("owner location is unchanged by art state"), Root->GetComponentLocation(), RootLocation);
+	}
+	GEngine->DestroyWorldContext(World);
+	World->DestroyWorld(false);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFeedbackEnemyArtKeys, "UmbrellaElla.Feedback.EnemyPresenterCoverage",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+
+bool FFeedbackEnemyArtKeys::RunTest(const FString& Parameters)
+{
+	// Production state coverage: every (type, gender, state) has its own art key, and gender never changes height.
+	TSet<FName> Keys;
+	for (const EEnemyType Type : { EEnemyType::Roadwarden, EEnemyType::Floodstrider, EEnemyType::SkyCourier })
+	{
+		for (const EEnemyGender Gender : { EEnemyGender::Male, EEnemyGender::Female })
+		{
+			for (const EEnemyState State : { EEnemyState::Patrol, EEnemyState::Aim, EEnemyState::Recovery, EEnemyState::Defeated, EEnemyState::Withdrawn })
+			{
+				Keys.Add(UEnemyPresenterSubsystem::ArtKeyFor(Type, Gender, State));
+			}
+		}
+	}
+	TestEqual(TEXT("30 distinct art keys"), Keys.Num(), 30);
+	TestEqual(TEXT("key format"), UEnemyPresenterSubsystem::ArtKeyFor(EEnemyType::Roadwarden, EEnemyGender::Female, EEnemyState::Aim), FName(TEXT("Roadwarden_Female_Aim")));
+	TestEqual(TEXT("gender keeps height"), UEnemyPresenterSubsystem::StandInScaleFor(EEnemyState::Patrol, EEnemyGender::Male).Z, UEnemyPresenterSubsystem::StandInScaleFor(EEnemyState::Patrol, EEnemyGender::Female).Z);
+	TestTrue(TEXT("patrol visible"), UEnemyPresenterSubsystem::IsVisibleIn(EEnemyState::Patrol));
+	TestFalse(TEXT("defeated hidden"), UEnemyPresenterSubsystem::IsVisibleIn(EEnemyState::Defeated));
+	TestFalse(TEXT("withdrawn hidden"), UEnemyPresenterSubsystem::IsVisibleIn(EEnemyState::Withdrawn));
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFeedbackEnemyStandIn, "UmbrellaElla.Feedback.World.EnemyStandIn",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+
+bool FFeedbackEnemyStandIn::RunTest(const FString& Parameters)
+{
+	UWorld* World = UWorld::CreateWorld(EWorldType::Game, false);
+	if (!TestNotNull(TEXT("world"), World))
+	{
+		return false;
+	}
+	FWorldContext& Context = GEngine->CreateNewWorldContext(EWorldType::Game);
+	Context.SetCurrentWorld(World);
+	UEnemyPresenterSubsystem* Presenter = World->GetSubsystem<UEnemyPresenterSubsystem>();
+	if (TestNotNull(TEXT("enemy presenter"), Presenter))
+	{
+		AUmbrellaEnemy* Enemy = World->SpawnActor<AUmbrellaEnemy>();
+		if (TestNotNull(TEXT("enemy"), Enemy))
+		{
+			TestEqual(TEXT("one stand-in on spawn"), Presenter->GetPresentedCount(), 1);
+			Presenter->ShowStandIn(Enemy);
+			TestEqual(TEXT("second show adds none"), Presenter->GetPresentedCount(), 1);
+			const UBoxComponent* Hitbox = Enemy->FindComponentByClass<UBoxComponent>();
+			const FVector HitboxExtent = Hitbox ? Hitbox->GetScaledBoxExtent() : FVector::ZeroVector;
+			const ECollisionEnabled::Type HitboxCollision = Hitbox ? Hitbox->GetCollisionEnabled() : ECollisionEnabled::NoCollision;
+			bool bFound = false;
+			TInlineComponentArray<UStaticMeshComponent*> Meshes(Enemy);
+			for (UStaticMeshComponent* Mesh : Meshes)
+			{
+				if (Mesh->GetFName() == FName(TEXT("EnemyStandIn")))
+				{
+					bFound = true;
+					TestEqual(TEXT("stand-in never collides"), static_cast<int32>(Mesh->GetCollisionEnabled()), static_cast<int32>(ECollisionEnabled::NoCollision));
+					TestEqual(TEXT("stand-in is on the character layer"), static_cast<float>(Mesh->GetComponentLocation().Y), UmbrellaDrawOrder::KeeperY);
+					TestEqual(TEXT("patrol shape"), Mesh->GetComponentScale(), UEnemyPresenterSubsystem::StandInScaleFor(EEnemyState::Patrol, Enemy->GetGender()));
+				}
+			}
+			TestTrue(TEXT("stand-in exists"), bFound);
+			TestEqual(TEXT("hitbox size untouched"), Hitbox ? Hitbox->GetScaledBoxExtent() : FVector::ZeroVector, HitboxExtent);
+			TestEqual(TEXT("hitbox collision untouched"), static_cast<int32>(Hitbox ? Hitbox->GetCollisionEnabled() : ECollisionEnabled::NoCollision), static_cast<int32>(HitboxCollision));
+		}
 	}
 	GEngine->DestroyWorldContext(World);
 	World->DestroyWorld(false);
