@@ -1,4 +1,5 @@
 #include "Progression/ProgressionSubsystem.h"
+#include "Progression/ProgressionTuning.h"
 #include "BrokenMill/BrokenMillRoom.h"
 #include "Core/UmbrellaEventBus.h"
 #include "Core/UmbrellaTuning.h"

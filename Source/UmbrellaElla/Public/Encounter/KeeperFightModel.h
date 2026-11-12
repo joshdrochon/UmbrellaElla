@@ -2,8 +2,9 @@
 
 #include "CoreMinimal.h"
 #include "Projectile/UmbrellaShotSpec.h"
-#include "Owl/KeeperTuning.h"
 #include "Encounter/EncounterTuning.h"
+
+struct FKeeperTuning;
 
 /** The three acts of the Keeper fight. */
 enum class EKeeperPhase : uint8
@@ -195,8 +196,8 @@ public:
 	bool IsTalonArmed() const { return bTalonArmed; }
 	float GetTalonCooldown() const { return TalonCooldown; }
 	FVector2D GetMechanismHome(EKeeperPart Part) const;
-	FVector2D GetMuzzle() const { return Anchor + FVector2D(Tuning().MuzzleOffset); }
-	FVector2D GetClaw() const { return Anchor + FVector2D(Tuning().ClawOffset); }
+	FVector2D GetMuzzle() const;
+	FVector2D GetClaw() const;
 	float GetStageRemaining() const { return StageRemaining; }
 
 	/** The shared rule for parity: the sign of the middle curve for a global physical-attack serial. */

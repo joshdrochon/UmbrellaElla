@@ -1,4 +1,5 @@
 #include "Encounter/KeeperFightModel.h"
+#include "Owl/KeeperTuning.h"
 
 namespace
 {
@@ -1138,3 +1139,6 @@ void FKeeperFightModel::BreakPart(EKeeperPart Part, TArray<FKeeperCommand>& Out,
 		Result.bPhaseAdvanced = true;
 	}
 }
+
+FVector2D FKeeperFightModel::GetMuzzle() const { return Anchor + FVector2D(Tuning().MuzzleOffset); }
+FVector2D FKeeperFightModel::GetClaw() const { return Anchor + FVector2D(Tuning().ClawOffset); }

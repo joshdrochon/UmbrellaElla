@@ -3,9 +3,10 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Trap/TrapRules.h"
-#include "Trap/TrapTuning.h"
 #include "Core/UmbrellaTuning.h"
 #include "UmbrellaTrap.generated.h"
+
+struct FTrapTuning;
 
 class UBoxComponent;
 class UStaticMeshComponent;

@@ -5,10 +5,11 @@
 #include "Core/UmbrellaPlayMode.h"
 #include "Persistence/ProgressionSaveGame.h"
 #include "Progression/ProgressionRules.h"
-#include "Progression/ProgressionTuning.h"
 #include "Progression/ProgressionTypes.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "ProgressionSubsystem.generated.h"
+
+struct FProgressionTuning;
 
 class UUmbrellaEventBus;
 class UWorld;

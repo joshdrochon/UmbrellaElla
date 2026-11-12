@@ -1,4 +1,5 @@
 #include "Enemy/UmbrellaEnemy.h"
+#include "Enemy/EnemyTuning.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Core/UmbrellaCollision.h"

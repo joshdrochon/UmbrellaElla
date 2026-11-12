@@ -2,11 +2,12 @@
 
 #include "CoreMinimal.h"
 #include "BrokenMill/BrokenMillRules.h"
-#include "BrokenMill/BrokenMillTuning.h"
 #include "Core/UmbrellaTuning.h"
 #include "GameFramework/Actor.h"
 #include "Projectile/UmbrellaShotReceiver.h"
 #include "BrokenMillRoom.generated.h"
+
+struct FBrokenMillTuning;
 
 class AUmbrellaProjectile;
 class AUmbrellaTrap;

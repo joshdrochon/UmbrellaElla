@@ -1,4 +1,5 @@
 #include "Trap/UmbrellaTrap.h"
+#include "Trap/TrapTuning.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Core/UmbrellaCollision.h"
