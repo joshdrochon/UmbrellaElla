@@ -69,5 +69,7 @@ If git hooks block a commit, use `git -c core.hooksPath=NUL commit` (the gate-gu
 Never commit `~/.umbrella-ella.env` or any key.
 
 ## Follow-up list (minor review findings)
+- Core: add a shared source-id header (e.g. `Core/UmbrellaSourceIds.h`, `GUST_Band`, `TALON_Rake`, `MECH_Front_Cast`) and switch health and keeper to it (health request, review of health).
+- Keeper: the gust push moves Ella with `AddActorWorldOffset` from the Encounter Director; the motor should own it (one writer of position/velocity).
 - DECIDED: flow owns the view target; arena removes its SetViewTarget (sent to arena worker).
 - DECIDED: walls and ceiling stop shots (GDD silent). Arena blocks PlayerShot/EnemyShot; health's projectile service must destroy a shot on a blocking hit (tell the health worker on restart).
