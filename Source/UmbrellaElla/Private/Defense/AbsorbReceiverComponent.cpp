@@ -5,6 +5,7 @@
 #include "Health/HealthModel.h"
 #include "Health/UmbrellaHealthComponent.h"
 #include "Projectile/UmbrellaShotSpec.h"
+#include "Umbrella/UmbrellaPlayerIds.h"
 
 namespace
 {
@@ -43,9 +44,10 @@ void UAbsorbReceiverComponent::EndPlay(const EEndPlayReason::Type Reason)
 
 void UAbsorbReceiverComponent::OnConfigChanged(const FUmbrellaEvent& Event)
 {
-	if (Event.Detail == AbsorbFallDetail)
+	// The umbrella state lane broadcasts every action change (Detail = new action name); absorb is open only in AbsorbFall.
+	if (Event.SourceId == UmbrellaPlayerIds::Ella)
 	{
-		SetPose(Event.Amount != 0 ? EAbsorbPose::AbsorbFall : EAbsorbPose::Closed);
+		SetPose(Event.Detail == AbsorbFallDetail ? EAbsorbPose::AbsorbFall : EAbsorbPose::Closed);
 	}
 }
 

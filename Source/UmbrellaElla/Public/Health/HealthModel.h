@@ -6,6 +6,9 @@ struct FHealthTuning;
 
 namespace HealthConstants
 {
+	/** CheckpointRetried carries the lives restored in Amount (keeper request). */
+	static constexpr int32 RetryLivesAmount = 3;
+
 	/** Health numerics: below this a life counts as empty (float noise from fractional damage). */
 	static constexpr float EmptyTolerance = 1.0e-4f;
 

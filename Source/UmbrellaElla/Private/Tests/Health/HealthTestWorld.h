@@ -5,6 +5,8 @@
 #include "Core/UmbrellaEventBus.h"
 #include "Engine/Engine.h"
 #include "Engine/World.h"
+#include "EngineUtils.h"
+#include "GameFramework/WorldSettings.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Health/UmbrellaHealthComponent.h"
 
@@ -22,6 +24,12 @@ public:
 		const FURL Url;
 		World->InitializeActorsForPlay(Url);
 		World->BeginPlay();
+		if (!World->HasBegunPlay())
+		{
+			// No game mode in a bare test world: start play so spawned actors and their components run BeginPlay.
+			World->GetWorldSettings()->NotifyBeginPlay();
+			World->GetWorldSettings()->NotifyMatchStarted();
+		}
 
 		FActorSpawnParameters Params;
 		Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
@@ -51,6 +59,10 @@ public:
 			{
 				Bus->On(static_cast<EUmbrellaEventType>(Index)).Remove(Handles[Index]);
 			}
+		}
+		for (TActorIterator<AActor> It(World); It; ++It)
+		{
+			It->RouteEndPlay(EEndPlayReason::Quit);
 		}
 		GEngine->DestroyWorldContext(World);
 		World->DestroyWorld(false);
