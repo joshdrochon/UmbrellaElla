@@ -19,8 +19,8 @@ enum class EAbsorbPose : uint8
 /**
  * Defense Receiver: absorbs yellow shots during absorb-fall. Lane c.
  * INV-1: only a yellow shot during absorb-fall is absorbed; red is never absorbed; outside absorb-fall nothing is.
- * The pose comes from SetPose (the umbrella state lane calls it) or from an UmbrellaConfigChanged event with Detail
- * "AbsorbFall" and Amount 1 (on) or 0 (off).
+ * The pose comes from SetPose (the umbrella state lane calls it) or from every UmbrellaConfigChanged event from Ella:
+ * AbsorbFall exactly when Detail is "AbsorbFall" (the umbrella state broadcasts the new action name).
  */
 UCLASS(ClassGroup = (UmbrellaElla), meta = (BlueprintSpawnableComponent))
 class UMBRELLAELLA_API UAbsorbReceiverComponent : public UActorComponent, public IUmbrellaShotReceiver
