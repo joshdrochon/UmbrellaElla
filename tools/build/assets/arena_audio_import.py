@@ -13,6 +13,7 @@ CUES = {
     "KeeperAttack": ("OwlBoltLaunch", False),
     "StartMusic": ("MusicTitle", True),
     "EndMusic": ("EndEvent", False),
+    "LevelUp": ("LevelUpClock", False),
 }
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 DEST = "/Game/UmbrellaElla/Audio"

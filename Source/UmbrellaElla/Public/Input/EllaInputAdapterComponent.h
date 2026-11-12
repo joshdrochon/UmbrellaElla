@@ -8,6 +8,7 @@
 class UEnhancedInputComponent;
 class UInputAction;
 class UInputMappingContext;
+class USettingsMenuSubsystem;
 struct FInputActionValue;
 
 /**
@@ -28,6 +29,9 @@ public:
 
 	/** Build the IA_* actions and IMC_Default once. Safe to call again. */
 	void BuildInputAssets();
+
+	/** Rebuild IMC_Default's keys from the settings subsystem's saved bindings. Returns mappings made; 0 when Settings is null. */
+	int32 ApplySavedBindings(const USettingsMenuSubsystem* Settings);
 
 	UInputMappingContext* GetMappingContext() const { return MappingContext; }
 	UInputAction* GetInputAction(EUmbrellaInputAction Action) const;

@@ -21,3 +21,10 @@ Checks: build exit 0, 37 tests PASS, module_check 0, manifest_check 0.
 - Nothing calls `FollowEllaX` yet; Flow/player controller must feed it Ella's X (not my lane). Chunk geometry is data only; no per-chunk level actors.
 - CAM-04, CAM-07, FLOW-25, FLOW-26, FLOW-28: QA-36 measurement items with no parameters. Not built; need playtest.
 - Presentation (BG, ART-05+, ANIM, VFX) moved to the visuals area.
+
+## Slice 3 (Nov 12 14:50): audio bar, level-up cue, contract rules
+- Audio: every take in `Audio/Source` now passes `audio_check --scan` and `audio_style_check check` (the only remaining `--scan` errors are P0 sounds nobody has made yet, outside this lane's cues). Takes regenerated with ElevenLabs where the spectrum or onset was off (WandBolt, HitOwl, OwlBoltLaunch, PlayerHurt, ShieldCatch, KeeperHoot 3 s, EndEvent 4 s, stings), then processed by `tools/build/assets/arena_audio_fix.py` (trim lead silence, EQ chosen by search against the family ranges, loudness to the family, -1.5 dBFS limiter, 50-80 ms end fade, stereo where listed, common RMS per group). No tracked placeholders left. The recorded prompt in provenance is the generation prompt; the post-processing is this script.
+- Stings: both pass the numbers; the audio_loop critic round was not run (no separate critic session available to this worker). The lead's gate may want one.
+- LevelUp: `LevelGained` -> cue `LevelUp` (`UUmbrellaCueSubsystem`), source `LevelUpClock` take passes. The `.uasset` is not made yet: run `tools/build/assets/arena_audio_import.py` in the editor (LevelUp added).
+- CAM-04, CAM-07, FLOW-25, FLOW-28 rule functions in `Level/LevelContracts` (no GDD numbers, QA-36 measures): wind drawn width, lead both ways, background coverage, qualified envelope, reopen height, required current persists, carried health (no free heal), boss arrival ready. Test: `UmbrellaElla.Level.ContractsReadabilityCatchCheckpoint`. FLOW-26 is authored design only (GDD says do not claim it implemented); nothing built.
+Checks: build exit 0, 72 tests PASS, module_check 0, manifest_check 0.
