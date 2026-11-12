@@ -63,6 +63,7 @@ void ABrokenMillRoom::BuildRoom()
 			Rotor->ConfigureKind(ETrapKind::AirMill);
 		}
 	}
+	BuildWinds();
 }
 
 void ABrokenMillRoom::BuildWinds()

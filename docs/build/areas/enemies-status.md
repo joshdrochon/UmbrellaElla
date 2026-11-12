@@ -1,6 +1,6 @@
 # Enemies status
 
-Build 0 errors; full suite PASS (209 tests on the fixenemies branch); `module_check` 0 problems; `manifest_check` 0 problems.
+Build 0 errors; `TEST_FILTER=UmbrellaElla.BrokenMill` PASS (11 tests, including the two World tests); full-suite count not re-measured here; `module_check` 0 problems; `manifest_check` 0 problems.
 All code is in `Source/UmbrellaElla/{Public,Private}/{Enemy,Trap,BrokenMill}` with tests in `Private/Tests/{Enemy,Trap,BrokenMill}`.
 
 ## Done (rule -> test)
@@ -21,12 +21,12 @@ All code is in `Source/UmbrellaElla/{Public,Private}/{Enemy,Trap,BrokenMill}` wi
 
 ## Open / limits
 - Core request log: `docs/build/requests/enemies.md`. Enemies broadcast `BossPartDestroyed` Detail=Enemy.
-- Bellows push is a rule value (`FTrapRules::BellowsPush`); the Motor does not read it yet. `ABrokenMillRoom::BuildWinds` now spawns the real `AWindCurrent` bands (upper reset left, lower onward right, `FBrokenMillTuning::WindSpeed` 300 prototype).
+- Bellows push is a rule value (`FTrapRules::BellowsPush`); the Motor does not read it yet. `ABrokenMillRoom::BuildRoom` now calls `BuildWinds`, which spawns the real `AWindCurrent` bands (upper reset left, lower onward right, `FBrokenMillTuning::WindSpeed` 300 prototype).
 - Gust length/speed, blade count, tooth size are not in the GDD; prototype starts in `FTrapTuning`.
 
 ## Fixenemies pass (HAZ-14, HAZ-15 integrated checks)
 - Real `AEllaCharacter` + Motor + room + real `AWindCurrent` in a transient world:
-  `BrokenMill.World.GuardChecksWithRealElla` (pause freezes the clock then one shot; passing behind cancels, no bullet; leaving range at release aborts, no bullet),
+  `BrokenMill.World.GuardChecksWithRealElla` (pause freezes the clock then one shot; passing behind cancels, no bullet; pass-behind cancel is position-driven (SetActorLocation; no dash chain reaches the muzzle inside the 1.1 s warning); the abort is driven by real Motor dashes back out of range, no bullet),
   `BrokenMill.World.WindCarriesEllaPastOneShotPerPass` (current carries Ella right, one warning and one shot, no warning while passing behind, rearm and second warning on a fresh pass).
 - Room fixes: pause is read from the world (`bPaused` was never set), assist/exit now set the no-warning phase, guard events are counted (`GetEventCount`).
 - Found, not fixable in this lane: `AWindCurrent` overlap events carry the pawn's actor name as `TargetId`; the Motor only accepts `Ella`. In play no wind moves Ella. Request with the exact diff: `docs/build/requests/enemies.md`. The test broadcasts the event with `TargetId = Ella` as a workaround.

@@ -4,11 +4,13 @@
 #include "BrokenMill/BrokenMillTuning.h"
 #include "Core/EllaCharacter.h"
 #include "Core/UmbrellaEventBus.h"
+#include "Core/UmbrellaTuning.h"
 #include "Field/WindCurrent.h"
 #include "Input/EllaInputAdapterComponent.h"
 #include "Motor/EllaMotorComponent.h"
 #include "Tests/Shared/UmbrellaTestWorld.h"
 #include "Umbrella/UmbrellaPlayerIds.h"
+#include "Umbrella/UmbrellaStateComponent.h"
 #include "Engine/StaticMeshActor.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
@@ -62,7 +64,6 @@ namespace
 				return false;
 			}
 			Room->BuildRoom();
-			Room->BuildWinds();
 			Ella = Test.SpawnElla(Room->RoomToWorld(EllaRoomPoint));
 			if (Ella)
 			{
@@ -308,7 +309,6 @@ bool FMillRoomWorld::RunTest(const FString& Parameters)
 	return true;
 }
 
-
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMillWorldCancelAbortPause, "UmbrellaElla.BrokenMill.World.GuardChecksWithRealElla", UMBRELLAELLA_MILL_FLAGS)
 bool FMillWorldCancelAbortPause::RunTest(const FString& Parameters)
 {
@@ -333,7 +333,9 @@ bool FMillWorldCancelAbortPause::RunTest(const FString& Parameters)
 		TestEqual(TEXT("one live enemy bullet"), F.CountShots(), 1);
 	}
 	{
-		// Cancel: Ella passes behind the guard during the warning (real Motor moves her via the dash request).
+		// Cancel: Ella passes behind the guard during the warning. POSITION-DRIVEN: this proves the room reacts to Ella's
+		// X crossing the muzzle, not that the Motor can carry her there (dashes reach ~85 units per 0.3 s, so no dash chain
+		// covers the ~700 units from the activation region to the muzzle inside the 1.1 s warning).
 		FMillIntegratedFixture F;
 		if (!TestTrue(TEXT("fixture"), F.Setup(FVector2D(600.0, 650.0))))
 		{
@@ -348,14 +350,23 @@ bool FMillWorldCancelAbortPause::RunTest(const FString& Parameters)
 		TestEqual(TEXT("no bullet exists"), F.CountShots(), 0);
 	}
 	{
-		// Abort: Ella leaves the engagement (out of range) before the release; quiet recovery, no shot.
+		// Abort: the real Motor dashes Ella back (RequestDash) out of shot range before the release; quiet recovery, no shot.
 		FMillIntegratedFixture F;
 		if (!TestTrue(TEXT("fixture"), F.Setup(FVector2D(600.0, 650.0))))
 		{
 			return false;
 		}
 		F.Test.TickFrames(6, Dt);
-		F.Ella->SetActorLocation(F.Room->RoomToWorld(FVector2D(-2000.0, 650.0)));
+		TestEqual(TEXT("warning started"), F.Room->GetEventCount(EMillGuardEvent::WarningStarted), 1);
+		const float StartX = F.EllaRoom().X;
+		const float DashGap = GetDefault<UUmbrellaTuning>()->Motor.DashCooldownSeconds + 0.02f;
+		F.Ella->GetUmbrellaState()->SetAbsorbHeld(true); // a dash needs a falling action; height is pinned below
+		for (int32 DashIndex = 0; DashIndex < 3; ++DashIndex)
+		{
+			F.Ella->GetMotor()->RequestDash(EUmbrellaDashDirection::Back);
+			F.TickPinnedZ(DashGap, Dt);
+		}
+		TestTrue(TEXT("the Motor moved her back"), F.EllaRoom().X < StartX - 200.0f);
 		F.Test.TickSeconds(1.5f, Dt);
 		TestEqual(TEXT("aborted"), F.Room->GetEventCount(EMillGuardEvent::WarningAborted), 1);
 		TestEqual(TEXT("no shot"), F.Room->GetEventCount(EMillGuardEvent::ShotReleased), 0);
