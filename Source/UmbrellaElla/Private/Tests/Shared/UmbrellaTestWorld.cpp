@@ -36,6 +36,7 @@ FUmbrellaTestWorld::~FUmbrellaTestWorld()
 		{
 			It->RouteEndPlay(EEndPlayReason::Quit);
 		}
+		World->SetBegunPlay(false);
 		GEngine->DestroyWorldContext(World);
 		World->DestroyWorld(false);
 	}
