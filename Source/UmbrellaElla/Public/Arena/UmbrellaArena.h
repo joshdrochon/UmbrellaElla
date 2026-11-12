@@ -46,6 +46,9 @@ public:
 
 	virtual void Tick(float DeltaSeconds) override;
 
+	/** Director's Cut scroll: lead the camera toward the travel direction (-1, 0, +1) along the route. No-op when the camera flag is off. */
+	void FollowEllaX(float EllaX, int32 TravelDirection);
+
 protected:
 	virtual void BeginPlay() override;
 
