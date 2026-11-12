@@ -49,6 +49,21 @@ public:
 	/** Apply a flow command (Escape, buttons, events, timers all end here). */
 	void ApplyCommand(EFlowCommand Command);
 
+	/** True once the first-start tutorial was finished or skipped. */
+	bool IsTutorialSeen() const { return bTutorialSeen; }
+
+	/** The tutorial page showing now (zero based). */
+	int32 GetTutorialPage() const { return TutorialPage; }
+
+	/** Mark the tutorial seen (kept in the player's settings file unless KeepTutorialInMemoryOnly was called). */
+	void MarkTutorialSeen();
+
+	/** Forget that the tutorial was seen, in memory only (the next Start shows it again). */
+	void ClearTutorialSeen();
+
+	/** Never read or write the settings file for the tutorial flag (tests and the smoke hook use this). */
+	void KeepTutorialInMemoryOnly();
+
 	/** Advance the screen timers by real seconds; runs while the world is paused. */
 	void TickFlow(float DeltaSeconds);
 
@@ -61,6 +76,8 @@ protected:
 
 private:
 	void StartMode(EUmbrellaPlayMode Mode);
+	void BeginRun();
+	void AdvanceTutorial();
 	void EnterScreen(EFlowScreen To, EFlowCommand Cause);
 	void ShowScreenWidget();
 	void ClearScreenWidget();
@@ -92,6 +109,10 @@ private:
 	float CreditsElapsed = 0.0f;
 	float NeutralSeconds = 0.0f;
 	int32 RetryCount = 0;
+	int32 TutorialPage = 0;
+	bool bTutorialSeen = false;
+	bool bTutorialInMemoryOnly = false;
+	bool bRunBegun = false;
 	bool bInputBlocked = false;
 	bool bTitleReturnRequested = false;
 };

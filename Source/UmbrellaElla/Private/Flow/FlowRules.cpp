@@ -5,7 +5,35 @@ EFlowScreen FFlowRules::Next(EFlowScreen From, EFlowCommand Command)
 	switch (From)
 	{
 	case EFlowScreen::Title:
+		if (Command == EFlowCommand::StartTutorial)
+		{
+			return EFlowScreen::Tutorial;
+		}
 		return Command == EFlowCommand::StartMode ? EFlowScreen::Playing : From;
+	case EFlowScreen::Tutorial:
+		// Pause then Skip works on every page; finishing the last page ends the tutorial the same way as Skip.
+		switch (Command)
+		{
+		case EFlowCommand::Pause:
+			return EFlowScreen::TutorialPaused;
+		case EFlowCommand::SkipTutorial:
+		case EFlowCommand::TimelineDone:
+			return EFlowScreen::Resuming;
+		default:
+			return From;
+		}
+	case EFlowScreen::TutorialPaused:
+		switch (Command)
+		{
+		case EFlowCommand::Pause:
+		case EFlowCommand::Back:
+		case EFlowCommand::Continue:
+			return EFlowScreen::Tutorial;
+		case EFlowCommand::SkipTutorial:
+			return EFlowScreen::Resuming;
+		default:
+			return From;
+		}
 	case EFlowScreen::Playing:
 		switch (Command)
 		{
@@ -58,6 +86,16 @@ bool FFlowRules::IsWorldPausedOn(EFlowScreen Screen)
 {
 	return Screen == EFlowScreen::Paused || Screen == EFlowScreen::Settings || Screen == EFlowScreen::Resuming
 		|| Screen == EFlowScreen::Defeat;
+}
+
+bool FFlowRules::HasTutorialPageAfter(int32 Page, int32 PageCount)
+{
+	return Page + 1 < PageCount;
+}
+
+bool FFlowRules::ShouldShowTutorial(bool bFeatureOn, bool bAlreadySeen)
+{
+	return bFeatureOn && !bAlreadySeen;
 }
 
 bool FFlowRules::IsBackgroundShownOn(EFlowScreen Screen)

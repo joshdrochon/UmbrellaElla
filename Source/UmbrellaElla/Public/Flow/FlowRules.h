@@ -14,7 +14,9 @@ enum class EFlowScreen : uint8
 	Resuming,
 	Defeat,
 	Story,
-	Credits
+	Credits,
+	Tutorial,
+	TutorialPaused
 };
 
 /** What happens to the flow. */
@@ -22,6 +24,9 @@ UENUM()
 enum class EFlowCommand : uint8
 {
 	StartMode,
+	StartTutorial,
+	SkipTutorial,
+	NextPage,
 	Pause,
 	Back,
 	Continue,
@@ -44,6 +49,12 @@ struct UMBRELLAELLA_API FFlowRules
 
 	/** True where the simulation stands still (pause, settings, resume wait, defeat). */
 	static bool IsWorldPausedOn(EFlowScreen Screen);
+
+	/** True when another tutorial page follows Page (zero based). */
+	static bool HasTutorialPageAfter(int32 Page, int32 PageCount);
+
+	/** The tutorial runs on first start only (tracking and replay rules stay OPEN). */
+	static bool ShouldShowTutorial(bool bFeatureOn, bool bAlreadySeen);
 
 	/** True on the screens that draw the slowly moving character-free background. */
 	static bool IsBackgroundShownOn(EFlowScreen Screen);

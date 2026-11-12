@@ -3,6 +3,7 @@
 #if WITH_AUTOMATION_TESTS
 
 #include "Flow/FlowRules.h"
+#include "Flow/FlowTutorialText.h"
 #include "Smoke/SmokeHookSubsystem.h"
 #include "Story/FlowStoryText.h"
 
@@ -13,6 +14,30 @@ bool FFlowStartTest::RunTest(const FString& Parameters)
 	TestEqual(TEXT("start from title"), FFlowRules::Next(EFlowScreen::Title, EFlowCommand::StartMode), EFlowScreen::Playing);
 	TestEqual(TEXT("pause is ignored on the title"), FFlowRules::Next(EFlowScreen::Title, EFlowCommand::Pause), EFlowScreen::Title);
 	TestFalse(TEXT("title blocks gameplay input"), !FFlowRules::IsInputBlockedOn(EFlowScreen::Title));
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFlowTutorialRulesTest, "UmbrellaElla.Flow.TutorialPauseSkip",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FFlowTutorialRulesTest::RunTest(const FString& Parameters)
+{
+	TestTrue(TEXT("first start shows it"), FFlowRules::ShouldShowTutorial(true, false));
+	TestFalse(TEXT("later starts do not"), FFlowRules::ShouldShowTutorial(true, true));
+	TestFalse(TEXT("flag off hides it"), FFlowRules::ShouldShowTutorial(false, false));
+	EFlowScreen Screen = FFlowRules::Next(EFlowScreen::Title, EFlowCommand::StartTutorial);
+	TestEqual(TEXT("title opens the tutorial"), Screen, EFlowScreen::Tutorial);
+	TestTrue(TEXT("tutorial blocks gameplay input"), FFlowRules::IsInputBlockedOn(Screen));
+	Screen = FFlowRules::Next(Screen, EFlowCommand::Pause);
+	TestEqual(TEXT("pause inside the tutorial"), Screen, EFlowScreen::TutorialPaused);
+	TestEqual(TEXT("continue returns to the tutorial"), FFlowRules::Next(Screen, EFlowCommand::Continue), EFlowScreen::Tutorial);
+	TestEqual(TEXT("skip leaves through the neutral wait"), FFlowRules::Next(Screen, EFlowCommand::SkipTutorial), EFlowScreen::Resuming);
+	TestEqual(TEXT("skip works from the page too"), FFlowRules::Next(EFlowScreen::Tutorial, EFlowCommand::SkipTutorial), EFlowScreen::Resuming);
+	TestTrue(TEXT("pages follow"), FFlowRules::HasTutorialPageAfter(0, 3));
+	TestFalse(TEXT("last page has none after"), FFlowRules::HasTutorialPageAfter(2, 3));
+	TestEqual(TEXT("both modes teach the same number of pages"),
+		FFlowTutorialText::GetPages(EUmbrellaPlayMode::StartGame).Num(), FFlowTutorialText::GetPages(EUmbrellaPlayMode::DirectorsCut).Num());
+	TestTrue(TEXT("the presentations differ"),
+		!FFlowTutorialText::GetPages(EUmbrellaPlayMode::StartGame)[0].EqualTo(FFlowTutorialText::GetPages(EUmbrellaPlayMode::DirectorsCut)[0]));
 	return true;
 }
 

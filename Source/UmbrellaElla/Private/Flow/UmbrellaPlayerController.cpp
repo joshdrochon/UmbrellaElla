@@ -14,16 +14,21 @@
 #include "InputTriggers.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Flow/FlowTutorialText.h"
+#include "Misc/ConfigCacheIni.h"
 #include "Story/FlowStoryText.h"
 #include "UI/Menus/FlowMenuWidgets.h"
 #include "Widgets/Layout/SBox.h"
 #include "Widgets/Text/STextBlock.h"
 
 // Rule IDs built here: FLOW-02 (two routes), FLOW-04 (win: story, credits), FLOW-34 (Start screen), FLOW-35 (Pause),
-// ART-04 (same moving background on Start and End). Each is checked through IsFeatureEnabled below.
+// ART-04 (same moving background on Start and End), FLOW-03 (first-start tutorial, Pause then Skip). Each is checked through IsFeatureEnabled below.
 
 namespace
 {
+	const TCHAR* const FlowSaveSection = TEXT("/Script/UmbrellaElla.FlowSave");
+	const TCHAR* const FlowTutorialSeenKey = TEXT("TutorialSeen");
+
 	/** Keys that must be released before control returns after Continue or Retry (neutral input). */
 	TArray<FKey> GetNeutralKeys()
 	{
@@ -86,6 +91,11 @@ void AUmbrellaPlayerController::BeginPlay()
 		}
 	}
 
+	if (GConfig && !bTutorialInMemoryOnly)
+	{
+		GConfig->GetBool(FlowSaveSection, FlowTutorialSeenKey, bTutorialSeen, GGameUserSettingsIni);
+	}
+
 	if (!IsFeatureEnabled(EFeatureId::FLOW_34))
 	{
 		StartGame();
@@ -130,6 +140,8 @@ void AUmbrellaPlayerController::StartDirectorsCut()
 
 void AUmbrellaPlayerController::RequestSmokeStart()
 {
+	KeepTutorialInMemoryOnly();
+	MarkTutorialSeen();
 	StartGame();
 }
 
@@ -140,20 +152,75 @@ void AUmbrellaPlayerController::StartMode(EUmbrellaPlayMode Mode)
 		return;
 	}
 	PlayMode = Mode;
-	ApplyCommand(EFlowCommand::StartMode);
-
-	if (UUmbrellaEventBus* Bus = UUmbrellaEventBus::Get(this))
+	TutorialPage = 0;
+	bRunBegun = false;
+	if (FFlowRules::ShouldShowTutorial(IsFeatureEnabled(EFeatureId::FLOW_03), bTutorialSeen))
 	{
-		FUmbrellaEvent Event;
-		Event.Type = EUmbrellaEventType::ModeSelected;
-		Event.Detail = Mode == EUmbrellaPlayMode::StartGame ? FName(TEXT("StartGame")) : FName(TEXT("DirectorsCut"));
-		Event.Amount = static_cast<int32>(Mode);
-		Bus->Broadcast(Event);
+		// The fight (or Director's Cut level) starts when the tutorial ends or is skipped.
+		ApplyCommand(EFlowCommand::StartTutorial);
+		return;
 	}
+	ApplyCommand(EFlowCommand::StartMode);
+	BeginRun();
+}
+
+void AUmbrellaPlayerController::BeginRun()
+{
+	if (bRunBegun)
+	{
+		return;
+	}
+	bRunBegun = true;
 	if (AUmbrellaGameMode* Fight = GetWorld()->GetAuthGameMode<AUmbrellaGameMode>())
 	{
 		Fight->BeginFight(this);
 	}
+	// Broadcast once the world is up, so listeners can rely on the arena and Ella.
+	if (UUmbrellaEventBus* Bus = UUmbrellaEventBus::Get(this))
+	{
+		FUmbrellaEvent Event;
+		Event.Type = EUmbrellaEventType::ModeSelected;
+		Event.Detail = PlayMode == EUmbrellaPlayMode::StartGame ? FName(TEXT("StartGame")) : FName(TEXT("DirectorsCut"));
+		Event.Amount = static_cast<int32>(PlayMode);
+		Bus->Broadcast(Event);
+	}
+}
+
+void AUmbrellaPlayerController::MarkTutorialSeen()
+{
+	bTutorialSeen = true;
+	if (!bTutorialInMemoryOnly && GConfig)
+	{
+		GConfig->SetBool(FlowSaveSection, FlowTutorialSeenKey, true, GGameUserSettingsIni);
+		GConfig->Flush(false, GGameUserSettingsIni);
+	}
+}
+
+void AUmbrellaPlayerController::ClearTutorialSeen()
+{
+	bTutorialSeen = false;
+}
+
+void AUmbrellaPlayerController::KeepTutorialInMemoryOnly()
+{
+	bTutorialInMemoryOnly = true;
+}
+
+void AUmbrellaPlayerController::AdvanceTutorial()
+{
+	if (Screen != EFlowScreen::Tutorial)
+	{
+		return;
+	}
+	const int32 PageCount = FFlowTutorialText::GetPages(PlayMode).Num();
+	if (FFlowRules::HasTutorialPageAfter(TutorialPage, PageCount))
+	{
+		++TutorialPage;
+		ShowScreenWidget();
+		SetInputModeFor(Screen);
+		return;
+	}
+	ApplyCommand(EFlowCommand::TimelineDone);
 }
 
 void AUmbrellaPlayerController::ApplyCommand(EFlowCommand Command)
@@ -162,10 +229,17 @@ void AUmbrellaPlayerController::ApplyCommand(EFlowCommand Command)
 	{
 		return;
 	}
+	const EFlowScreen From = Screen;
 	const EFlowScreen To = FFlowRules::Next(Screen, Command);
 	if (To != Screen)
 	{
 		EnterScreen(To, Command);
+		if ((From == EFlowScreen::Tutorial || From == EFlowScreen::TutorialPaused) && To == EFlowScreen::Resuming)
+		{
+			// Finished or skipped: remember it, then start the run; the neutral wait consumes the confirm press.
+			MarkTutorialSeen();
+			BeginRun();
+		}
 	}
 }
 
@@ -332,6 +406,25 @@ void AUmbrellaPlayerController::ShowScreenWidget()
 		Items.Add({ FText::FromString(TEXT("Back")), Back });
 		Menu = SNew(SFlowMenu).Backdrop(EFlowBackdrop::Clocks).Tuning(Tuning).Heading(FText::FromString(TEXT("Settings")))
 			.Body(FText::FromString(TEXT("Sound, Controller and Credits arrive in the next slice."))).Items(Items).OnBack(Back);
+		break;
+	}
+	case EFlowScreen::Tutorial:
+	{
+		const TArray<FText> Pages = FFlowTutorialText::GetPages(PlayMode);
+		TArray<FFlowMenuItem> Items;
+		Items.Add({ FText::FromString(FFlowRules::HasTutorialPageAfter(TutorialPage, Pages.Num()) ? TEXT("Next") : TEXT("Begin")),
+			FSimpleDelegate::CreateUObject(this, &AUmbrellaPlayerController::AdvanceTutorial) });
+		Menu = SNew(SFlowMenu).Tuning(Tuning).Heading(FFlowTutorialText::GetHeading(PlayMode))
+			.Body(Pages.IsValidIndex(TutorialPage) ? Pages[TutorialPage] : FText::GetEmpty()).Items(Items);
+		break;
+	}
+	case EFlowScreen::TutorialPaused:
+	{
+		TArray<FFlowMenuItem> Items;
+		const FSimpleDelegate Skip = FSimpleDelegate::CreateWeakLambda(this, [this]() { ApplyCommand(EFlowCommand::SkipTutorial); });
+		Items.Add({ FText::FromString(TEXT("Continue")), Resume });
+		Items.Add({ FText::FromString(TEXT("Skip")), Skip });
+		Menu = SNew(SFlowMenu).Backdrop(EFlowBackdrop::Clocks).Tuning(Tuning).Heading(FText::FromString(TEXT("Paused"))).Items(Items).OnBack(Resume);
 		break;
 	}
 	case EFlowScreen::Defeat:

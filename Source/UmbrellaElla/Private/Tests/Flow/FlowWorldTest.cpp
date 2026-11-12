@@ -39,6 +39,9 @@ namespace
 			Controller = World->SpawnActor<AUmbrellaPlayerController>();
 			// Pausing is owned by a player state, as for a real player.
 			Controller->PlayerState = World->SpawnActor<APlayerState>();
+			// Most tests start a run directly; the tutorial tests clear this.
+			Controller->KeepTutorialInMemoryOnly();
+			Controller->MarkTutorialSeen();
 		}
 
 		~FFlowTestWorld()
@@ -66,19 +69,58 @@ bool FFlowWorldStartTest::RunTest(const FString& Parameters)
 	TestNull(TEXT("no Ella on the title"), Test.Controller->GetPawn());
 
 	const TSharedRef<int32> ModeEvents = MakeShared<int32>(0);
+	const TSharedRef<FName> ModeDetail = MakeShared<FName>();
+	const TSharedRef<bool> ModeWorldUp = MakeShared<bool>(false);
 	const FDelegateHandle Handle = UUmbrellaEventBus::Get(Test.World)->On(EUmbrellaEventType::ModeSelected).AddLambda(
-		[ModeEvents](const FUmbrellaEvent& Event) { ++(*ModeEvents); });
+		[ModeEvents, ModeDetail, ModeWorldUp, World = Test.World, Controller = Test.Controller](const FUmbrellaEvent& Event)
+		{
+			++(*ModeEvents);
+			*ModeDetail = Event.Detail;
+			AUmbrellaGameMode* Up = World->GetAuthGameMode<AUmbrellaGameMode>();
+			*ModeWorldUp = Up && Up->IsFightStarted() && Controller->GetPawn() != nullptr;
+		});
 	Test.Controller->StartGame();
 	UUmbrellaEventBus::Get(Test.World)->On(EUmbrellaEventType::ModeSelected).Remove(Handle);
 
 	TestEqual(TEXT("playing"), Test.Controller->GetScreen(), EFlowScreen::Playing);
 	TestEqual(TEXT("mode selected once"), *ModeEvents, 1);
+	TestEqual(TEXT("mode event names the mode"), ModeDetail->ToString(), FString(TEXT("StartGame")));
+	TestTrue(TEXT("the world was up when the mode event fired"), *ModeWorldUp);
 	TestTrue(TEXT("Ella is possessed"), Cast<AEllaCharacter>(Test.Controller->GetPawn()) != nullptr);
 	AUmbrellaGameMode* Mode = Test.World->GetAuthGameMode<AUmbrellaGameMode>();
 	TestTrue(TEXT("fight started"), Mode && Mode->IsFightStarted());
 	TestTrue(TEXT("the arena exists"), Mode && Mode->GetArena() != nullptr);
 	TestTrue(TEXT("camera is the arena"), Test.Controller->GetViewTarget() == Mode->GetArena());
 	TestEqual(TEXT("start game mode"), Test.Controller->GetPlayMode(), EUmbrellaPlayMode::StartGame);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFlowWorldTutorialTest, "UmbrellaElla.Flow.World.TutorialFirstStartSkippable",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FFlowWorldTutorialTest::RunTest(const FString& Parameters)
+{
+	{
+		FFlowTestWorld Test;
+		Test.Controller->ClearTutorialSeen();
+		Test.Controller->StartGame();
+		TestEqual(TEXT("first start shows the tutorial"), Test.Controller->GetScreen(), EFlowScreen::Tutorial);
+		TestNull(TEXT("the fight waits for the tutorial"), Test.Controller->GetPawn());
+		Test.Controller->ApplyCommand(EFlowCommand::Pause);
+		TestEqual(TEXT("pause works inside the tutorial"), Test.Controller->GetScreen(), EFlowScreen::TutorialPaused);
+		Test.Controller->ApplyCommand(EFlowCommand::SkipTutorial);
+		TestEqual(TEXT("skip waits for neutral input"), Test.Controller->GetScreen(), EFlowScreen::Resuming);
+		TestTrue(TEXT("skip starts the fight"), Cast<AEllaCharacter>(Test.Controller->GetPawn()) != nullptr);
+		TestTrue(TEXT("skip marks the tutorial seen"), Test.Controller->IsTutorialSeen());
+	}
+	{
+		FFlowTestWorld Test;
+		Test.Controller->ClearTutorialSeen();
+		Test.Controller->StartDirectorsCut();
+		TestEqual(TEXT("Director's Cut also shows it"), Test.Controller->GetScreen(), EFlowScreen::Tutorial);
+		Test.Controller->ApplyCommand(EFlowCommand::NextPage);
+		Test.Controller->ApplyCommand(EFlowCommand::SkipTutorial);
+		TestEqual(TEXT("skip from a page"), Test.Controller->GetScreen(), EFlowScreen::Resuming);
+	}
 	return true;
 }
 
