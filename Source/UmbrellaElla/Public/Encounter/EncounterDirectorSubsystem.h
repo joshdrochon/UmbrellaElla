@@ -9,6 +9,8 @@
 class AKeeperOfTime;
 class AUmbrellaArena;
 
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnKeeperDamageDelivered, FName /*Source attack*/, float /*Health damage*/);
+
 /** Encounter state: READY -> ACTIVE -> ENDING_SUCCESS or ENDING_FAILURE -> RESTARTING -> READY, plus PAUSED. */
 UENUM()
 enum class EEncounterState : uint8
@@ -35,6 +37,12 @@ public:
 
 	/** Flow (lane d) calls this when a mode reaches the Keeper. Spawns the Keeper at the arena anchor. */
 	void BeginKeeperFight();
+
+	/** Workbench and tests: start a fresh fight at a later phase (parts of earlier phases already depleted). */
+	void BeginKeeperFightAtPhase(EKeeperPhase Phase);
+
+	/** Fired when a Keeper physical attack (gust, talon, chain) damages Ella, after the damage was delivered. */
+	FOnKeeperDamageDelivered& OnDamageDelivered() { return DamageDelivered; }
 
 	/** Clears every projectile, timer and module state and returns to READY. Re-enters the checkpoint phase after a defeat. */
 	void ResetForRestart();
@@ -99,6 +107,7 @@ private:
 	EEncounterState StateBeforePause = EEncounterState::Active;
 
 	FKeeperFightModel Model;
+	FOnKeeperDamageDelivered DamageDelivered;
 	FDelegateHandle DefeatedHandle;
 	FDelegateHandle LifeLostHandle;
 	bool bManualStepping = false;

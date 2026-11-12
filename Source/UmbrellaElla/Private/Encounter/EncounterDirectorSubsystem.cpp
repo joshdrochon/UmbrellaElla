@@ -270,6 +270,11 @@ void UEncounterDirectorSubsystem::DeliverDamage(FName Source, float Amount) cons
 
 void UEncounterDirectorSubsystem::BeginKeeperFight()
 {
+	BeginKeeperFightAtPhase(EKeeperPhase::Wings);
+}
+
+void UEncounterDirectorSubsystem::BeginKeeperFightAtPhase(EKeeperPhase Phase)
+{
 	if (!IsFeatureEnabled(EFeatureId::OWL_06))
 	{
 		UE_LOG(LogUmbrellaElla, Warning, TEXT("Encounter Director: the Keeper fight is switched off (OWL-06)."));
@@ -297,7 +302,7 @@ void UEncounterDirectorSubsystem::BeginKeeperFight()
 		Model.Init(Tuning->Keeper, Tuning->Encounter, BuildSwitches());
 		bModelReady = true;
 		Model.SetAnchor(FVector2D(Anchor.X, Anchor.Z));
-		Model.BeginPhase(EKeeperPhase::Wings, Commands);
+		Model.BeginPhase(Phase, Commands);
 	}
 	bResumePending = false;
 	State = EEncounterState::Active;
@@ -423,6 +428,7 @@ void UEncounterDirectorSubsystem::ProcessCommands(TArray<FKeeperCommand>& Comman
 			break;
 		case EKeeperCommandType::DamagePlayer:
 			DeliverDamage(Command.Name, Command.Damage);
+			DamageDelivered.Broadcast(Command.Name, Command.Damage);
 			break;
 		case EKeeperCommandType::PushPlayer:
 			if (AActor* Player = GetPlayerActor())
