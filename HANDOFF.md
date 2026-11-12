@@ -9,6 +9,7 @@ merges to `main`. **Teammates continue with Claude Code** (not Codex).
 - Core contracts every area builds against (Ella shell + components, `UUmbrellaTuning`, event bus, collision channels,
   draw order, play mode, projectile seam, feature flags, lane-owned stubs). See `docs/build/worker-rules.md`.
 - Merged: area/arena G1 slice c7d8c67 (CAM-03, WIND-03, CORE-06, ART-03) as ec0b8a3, all gates PASS.
+- Merged with the full gate: arena, move (all), health (G1 + review fixes), flow G1 + FLOW-03 tutorials, enemies.
 - Build docs: `docs/build/worker-rules.md`, `docs/build/areas/<area>.md` (the worker prompt for each area),
   `docs/build/areas.py` (Rule ID split; `python3 docs/build/areas.py` proves all 204 IDs are covered once).
 
@@ -70,6 +71,9 @@ If git hooks block a commit, use `git -c core.hooksPath=NUL commit` (the gate-gu
 Never commit `~/.umbrella-ella.env` or any key.
 
 ## Follow-up list (minor review findings)
+- Keeper (review): with OWL-35 off a final hit leaves the fight Active with the model halted; LivesLostThisPhase written, never read; StartTransition zeroes stun without StunEnded; stun does not freeze queued shots; gust push uses unscaled delta.
+- Progression: the run-start checkpoint is written before the run-2 reallocation, so a boss retry reverts it.
+- Settings must call visuals' SetReducedFlash.
 - Core: add a shared source-id header (e.g. `Core/UmbrellaSourceIds.h`, `GUST_Band`, `TALON_Rake`, `MECH_Front_Cast`) and switch health and keeper to it (health request, review of health).
 - Keeper: the gust push moves Ella with `AddActorWorldOffset` from the Encounter Director; the motor should own it (one writer of position/velocity).
 - DECIDED: flow owns the view target; arena removes its SetViewTarget (sent to arena worker).
