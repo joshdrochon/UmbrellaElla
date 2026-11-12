@@ -1,6 +1,8 @@
 #include "Components/StaticMeshComponent.h"
 #include "Engine/World.h"
 #include "Feedback/Anim/EllaAnimPresenterComponent.h"
+#include "Feedback/Anim/KeeperPresenterSubsystem.h"
+#include "Owl/KeeperOfTime.h"
 #include "Feedback/Audio/UmbrellaCueSubsystem.h"
 #include "Feedback/Build/BuildIdentity.h"
 #include "Feedback/Vfx/UmbrellaVfxSubsystem.h"
@@ -167,6 +169,36 @@ bool FFeedbackBackdrop::RunTest(const FString& Parameters)
 			const UPrimitiveComponent* Panel = Cast<UPrimitiveComponent>(Layer->GetRootComponent());
 			TestTrue(TEXT("panel has no collision"), Panel && Panel->GetCollisionEnabled() == ECollisionEnabled::NoCollision);
 			TestTrue(TEXT("panel is behind Ella"), Layer->GetActorLocation().Y < UmbrellaDrawOrder::EllaY);
+		}
+	}
+	GEngine->DestroyWorldContext(World);
+	World->DestroyWorld(false);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFeedbackKeeperStandIn, "UmbrellaElla.Feedback.World.KeeperStandIn",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+
+bool FFeedbackKeeperStandIn::RunTest(const FString& Parameters)
+{
+	UWorld* World = UWorld::CreateWorld(EWorldType::Game, false);
+	if (!TestNotNull(TEXT("world"), World))
+	{
+		return false;
+	}
+	FWorldContext& Context = GEngine->CreateNewWorldContext(EWorldType::Game);
+	Context.SetCurrentWorld(World);
+	UKeeperPresenterSubsystem* Presenter = World->GetSubsystem<UKeeperPresenterSubsystem>();
+	if (TestNotNull(TEXT("keeper presenter"), Presenter))
+	{
+		AKeeperOfTime* Keeper = World->SpawnActor<AKeeperOfTime>();
+		if (TestNotNull(TEXT("keeper"), Keeper))
+		{
+			TestEqual(TEXT("one stand-in on spawn"), Presenter->GetPresentedCount(), 1);
+			Presenter->ShowStandIn(Keeper);
+			TestEqual(TEXT("second show adds none"), Presenter->GetPresentedCount(), 1);
+			const UPrimitiveComponent* Mesh = Keeper->FindComponentByClass<UPrimitiveComponent>();
+			TestTrue(TEXT("stand-in has no collision"), Mesh && Mesh->GetCollisionEnabled() == ECollisionEnabled::NoCollision);
 		}
 	}
 	GEngine->DestroyWorldContext(World);
