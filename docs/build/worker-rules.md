@@ -4,6 +4,14 @@ Josh's call, Nov 12 13:40: no GitHub cards, PRs or reviewer ceremony during the 
 game in parallel on `area/<name>` branches; the build lead runs the gates and merges to `main`. The pipeline rules are
 engineering guidance, not ceremony: follow them where they make the code better, skip the card paperwork.
 
+## How many workers (Josh, Nov 12)
+Run as many workers as can usefully work in parallel: one per area that has ready work and a file lane that does not
+overlap another active worker. Bound it by the machine (at most 2 Unreal builds/tests at once through
+`tools/build/ue_slot.sh`; workers spend most of their time writing code) and by Claude usage (workers run Sonnet).
+Re-check whenever a worker finishes, an area merges, or new work unblocks: start workers for newly ready lanes, and
+split a big area when its later list has independent parts (new area file + `docs/build/areas.py`, every Rule ID in
+exactly one area, lanes disjoint).
+
 ## Read first (in this order, only what you need)
 1. Your area file `docs/build/areas/<name>.md` (Rule IDs, GDD sections, file lane, done).
 2. `docs/jam-brief.md` (MVP and gates), the GDD sections your area file names (`docs/gdd/GDD-SH1.0.md`), and your

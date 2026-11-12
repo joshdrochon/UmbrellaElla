@@ -5,9 +5,10 @@ Branch `area/arena`. Read `docs/build/worker-rules.md` first.
 ## Rule IDs
 G1 first: CAM-03, WIND-03, CORE-06, ART-03, plus the Keeper arena itself, Ella's and the Keeper's placeholder visuals,
 and placeholder sounds for shots, hits, absorb, Keeper attacks, menu and Start/End music.
-Later (G2/G3): CAM-04 .. CAM-08, HAZ-02 .. HAZ-41, BG-02 .. BG-06, ART-05 .. ART-10, ANIM-02 .. ANIM-10, VFX-02 ..
-VFX-11, FLOW-24 .. FLOW-29, FLOW-46, FLOW-47 (the Director's Cut nine-chunk level, refuges, traps, camera, Broken Mill
-room, procedural placement, final art/anim/VFX/audio). This list is large; the build lead may split it later.
+Later (G2/G3): CAM-04 .. CAM-08, HAZ-24 .. HAZ-41, BG-02 .. BG-06, ART-05 .. ART-10, ANIM-02 .. ANIM-10, VFX-02 ..
+VFX-11, FLOW-24 .. FLOW-28, FLOW-47 (the Director's Cut nine-chunk route and chunk catalogue, refuges, scrolling camera,
+final art/anim/VFX/audio). Moved out Nov 12 14:10: Broken Mill room and traps HAZ-02..23 and FLOW-46 -> `enemies`;
+FLOW-29 -> `progression`. The enemies area places its traps and enemies through your chunk/level API.
 
 ## GDD sections
 5 "Director's Cut full level" and its subsections (traversal/camera contract, traps, chunks, refuges), 8 (Art,

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Start (or restart) one area worker on Mac with Claude Code, in that area's worktree.
-# Usage: tools/build/start_area.sh <move|keeper|health|flow|arena> [extra instruction]
+# Usage: tools/build/start_area.sh <move|keeper|health|flow|arena|enemies|progression|story> [extra instruction]
 # Worktree: ../UmbrellaElla-areas/<area> on branch area/<area> (created from origin if missing). Log: ../UmbrellaElla-areas/logs/<area>.log
 set -eu
 A="$1"; EXTRA="${2:-}"; ROOT="$(cd "$(dirname "$0")/../.." && pwd)"; BASE="$(dirname "$ROOT")/UmbrellaElla-areas"

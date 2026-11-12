@@ -1,6 +1,6 @@
 # HANDOFF: Umbrella Ella build (read this to pick up the build)
 
-Updated: 2026-11-12 (build lead). Josh's call, Nov 12 13:40: no GitHub cards/PRs/reviewers during the build. Five area
+Updated: 2026-11-12 (build lead). Josh's call, Nov 12 13:40: no GitHub cards/PRs/reviewers during the build. Area
 workers (Claude Code, Sonnet) build in parallel on `area/<name>` branches; the build lead runs the gates below and
 merges to `main`. **Teammates continue with Claude Code** (not Codex).
 
@@ -12,14 +12,23 @@ merges to `main`. **Teammates continue with Claude Code** (not Codex).
 - Build docs: `docs/build/worker-rules.md`, `docs/build/areas/<area>.md` (the worker prompt for each area),
   `docs/build/areas.py` (Rule ID split; `python3 docs/build/areas.py` proves all 204 IDs are covered once).
 
+## How many workers
+Run as many workers as can usefully work in parallel: one per area with ready work and a file lane that does not overlap
+another active worker, bounded by the machine (2 Unreal builds/tests at once, `tools/build/ue_slot.sh`) and Claude
+usage (Sonnet workers). Re-check whenever a worker finishes, an area merges or new work unblocks; split a big area when
+its later list has independent parts (`docs/build/areas.py` must still show every Rule ID in exactly one area).
+
 ## Area branches
 | Area | Branch | G1 Rule IDs | Later | Status / last commit |
 |---|---|---|---|---|
 | move: Ella movement + basic shot | `area/move` | MOVE-04..07, 11, 13..15, 18..22, CORE-04, CORE-05, UMB-05, COM-05, COM-06, COM-10 | MOVE-12, MOVE-16, COM-07..09, COM-11 | see `docs/build/areas/move-status.md` on the branch |
-| keeper: the Keeper fight | `area/keeper` | OWL-06..35, FLOW-09 | COM-12..18 | `docs/build/areas/keeper-status.md` |
-| health: shots, absorb, health, clock HUD | `area/health` | SURV-05, SURV-07, FLOW-30..33 | SURV-06, FLOW-05..23 (not 09), FLOW-42, FLOW-48 | `docs/build/areas/health-status.md` |
-| flow: menus, modes, pause, win/lose, smoke hook | `area/flow` | FLOW-02, FLOW-04, FLOW-34, FLOW-35, ART-04 | FLOW-03, 36..41, 43..45, 49, MOVE-08..10, MOVE-17, NAR-02..08 | `docs/build/areas/flow-status.md` |
-| arena: arena, camera, wind, art, sound | `area/arena` | CAM-03, WIND-03, CORE-06, ART-03 | CAM-04..08, HAZ-02..41, BG-02..06, ART-05..10, ANIM-02..10, VFX-02..11, FLOW-24..29, FLOW-46, FLOW-47 | `docs/build/areas/arena-status.md` |
+| keeper: the Keeper fight | `area/keeper` | OWL-06..35, FLOW-09 | - | `docs/build/areas/keeper-status.md` |
+| health: shots, absorb, health, clock HUD | `area/health` | SURV-05, SURV-07, FLOW-30..33 | - | `docs/build/areas/health-status.md` |
+| flow: menus, modes, pause, win/lose, smoke hook | `area/flow` | FLOW-02, FLOW-04, FLOW-34, FLOW-35, ART-04 | FLOW-03, 36..41, 43..45, MOVE-08..10, MOVE-17 | `docs/build/areas/flow-status.md` |
+| arena: arena, camera, wind, level route, art, sound | `area/arena` | CAM-03, WIND-03, CORE-06, ART-03 | CAM-04..08, HAZ-24..41, BG-02..06, ART-05..10, ANIM-02..10, VFX-02..11, FLOW-24..28, FLOW-47 | `docs/build/areas/arena-status.md` |
+| enemies: Director's Cut enemies, Broken Mill, traps | `area/enemies` | - | COM-12..18, HAZ-02..23, FLOW-46 | `docs/build/areas/enemies-status.md` |
+| progression: XP, levels, unlocks, upgrades, persistence, XP ring | `area/progression` | - | SURV-06, FLOW-05..08, FLOW-10..23, FLOW-29, FLOW-42, FLOW-48 | `docs/build/areas/progression-status.md` |
+| story: Director's Cut story, Journey Complete | `area/story` | - | NAR-02..08, FLOW-49 | `docs/build/areas/story-status.md` |
 Live state: `git fetch && git log --oneline main..origin/area/<name>` and that branch's status file.
 
 ## Gates each merge into main must pass
