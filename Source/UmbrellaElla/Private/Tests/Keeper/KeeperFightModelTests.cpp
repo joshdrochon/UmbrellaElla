@@ -9,7 +9,7 @@
 namespace
 {
 	constexpr EAutomationTestFlags KeeperFlags = EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter;
-	constexpr float Step = 0.05f;
+	constexpr float KeeperTestStep = 0.05f;
 
 	struct FKeeperRig
 	{
@@ -27,15 +27,15 @@ namespace
 
 		void Start(EKeeperPhase Phase = EKeeperPhase::Wings, FKeeperRuleSwitches Switches = FKeeperRuleSwitches())
 		{
-			Model.Init(&Tuning, Encounter, Switches);
+			Model.Init(Tuning, Encounter, Switches);
 			Model.BeginPhase(Phase, Commands);
 		}
 
 		void Run(float Seconds)
 		{
-			for (float T = 0.0f; T < Seconds; T += Step)
+			for (float T = 0.0f; T < Seconds; T += KeeperTestStep)
 			{
-				Model.Step(Step, Input, Commands);
+				Model.Step(KeeperTestStep, Input, Commands);
 			}
 		}
 
@@ -67,7 +67,7 @@ namespace
 
 		void SkipTransition()
 		{
-			Run(Encounter.PhaseTransitionSeconds + Step);
+			Run(Encounter.PhaseTransitionSeconds + KeeperTestStep);
 			Commands.Reset();
 		}
 
@@ -197,7 +197,7 @@ bool FKeeperFinalCycle::RunTest(const FString& Parameters)
 {
 	FKeeperRig R;
 	R.Start(EKeeperPhase::Clock);
-	R.Run(R.Encounter.PhaseTransitionSeconds + Step);
+	R.Run(R.Encounter.PhaseTransitionSeconds + KeeperTestStep);
 	TestTrue(TEXT("exposed at the finale start"), R.Model.IsClockOpen());
 	R.Run(R.Tuning.FinalExposureSeconds + 0.1f);
 	TestFalse(TEXT("closed after 1.9 s"), R.Model.IsClockOpen());
@@ -211,7 +211,7 @@ bool FKeeperFinalHitWins::RunTest(const FString& Parameters)
 {
 	FKeeperRig R;
 	R.Start(EKeeperPhase::Clock);
-	R.Run(R.Encounter.PhaseTransitionSeconds + Step);
+	R.Run(R.Encounter.PhaseTransitionSeconds + KeeperTestStep);
 	R.Commands.Reset();
 	const FKeeperHitResult Result = R.Model.ApplyPlayerHit(EKeeperPart::Clock, 10000.0f, R.Commands);
 	TestTrue(TEXT("lethal"), Result.bFightWon);
@@ -320,10 +320,10 @@ bool FKeeperSchedulerSerial::RunTest(const FString& Parameters)
 	int32 MaxActive = 0;
 	int32 Warnings = 0;
 	int32 Done = 0;
-	for (float T = 0.0f; T < 30.0f; T += Step)
+	for (float T = 0.0f; T < 30.0f; T += KeeperTestStep)
 	{
 		R.Commands.Reset();
-		R.Model.Step(Step, R.Input, R.Commands);
+		R.Model.Step(KeeperTestStep, R.Input, R.Commands);
 		Warnings += R.Count(EKeeperCommandType::PhysicalWarning);
 		Done += R.Count(EKeeperCommandType::PhysicalRecovery);
 		MaxActive = FMath::Max(MaxActive, Warnings - Done);
@@ -357,13 +357,13 @@ bool FKeeperRearPause::RunTest(const FString& Parameters)
 	bool bSawPause = false;
 	bool bSawSecond = false;
 	float PauseSeconds = 0.0f;
-	for (float T = 0.0f; T < 12.0f; T += Step)
+	for (float T = 0.0f; T < 12.0f; T += KeeperTestStep)
 	{
-		R.Model.Step(Step, R.Input, R.Commands);
+		R.Model.Step(KeeperTestStep, R.Input, R.Commands);
 		if (R.Model.GetStage() == EKeeperStage::Pause)
 		{
 			bSawPause = true;
-			PauseSeconds += Step;
+			PauseSeconds += KeeperTestStep;
 			TestFalse(TEXT("the pause is harmless"), R.Model.IsHeadHurting());
 		}
 		if (R.Model.GetStage() == EKeeperStage::SecondStroke)
@@ -374,7 +374,7 @@ bool FKeeperRearPause::RunTest(const FString& Parameters)
 	}
 	TestTrue(TEXT("pause seen"), bSawPause);
 	TestTrue(TEXT("second stroke seen"), bSawSecond);
-	TestTrue(TEXT("pause lasts about 0.65 s"), FMath::Abs(PauseSeconds - R.Tuning.RearPauseSeconds) <= 2.0f * Step);
+	TestTrue(TEXT("pause lasts about 0.65 s"), FMath::Abs(PauseSeconds - R.Tuning.RearPauseSeconds) <= 2.0f * KeeperTestStep);
 	return true;
 }
 
@@ -437,7 +437,7 @@ bool FKeeperTalon::RunTest(const FString& Parameters)
 	R.Run(R.Tuning.TalonCooldownSeconds + 1.0f);
 	TestFalse(TEXT("still not armed inside reach"), R.Model.IsTalonArmed());
 	R.Input.PlayerPos = R.Model.GetClaw() + FVector2D(-(R.Tuning.TalonRearmExit + 20.0f), 0.0f);
-	R.Run(Step * 2.0f);
+	R.Run(KeeperTestStep * 2.0f);
 	TestTrue(TEXT("armed after leaving beyond 370"), R.Model.IsTalonArmed());
 	return true;
 }
@@ -606,7 +606,7 @@ bool FKeeperRetry::RunTest(const FString& Parameters)
 	R.Start();
 	R.SkipTransition();
 	R.BreakWings();
-	R.Run(R.Encounter.PhaseTransitionSeconds + Step);
+	R.Run(R.Encounter.PhaseTransitionSeconds + KeeperTestStep);
 	R.Model.ApplyPlayerHit(EKeeperPart::Front, 50.0f, R.Commands);
 	TestEqual(TEXT("front damaged"), R.Model.GetPartHp(EKeeperPart::Front), 50.0f);
 	R.Commands.Reset();
@@ -634,7 +634,7 @@ bool FKeeperCheckpointCarriesClock::RunTest(const FString& Parameters)
 	TestTrue(TEXT("clock phase"), R.Model.GetPhase() == EKeeperPhase::Clock);
 	const float Carried = R.Model.GetPartHp(EKeeperPart::Clock);
 	TestEqual(TEXT("clock lost 100"), Carried, R.Tuning.ClockHp - 100.0f);
-	R.Run(R.Encounter.PhaseTransitionSeconds + Step);
+	R.Run(R.Encounter.PhaseTransitionSeconds + KeeperTestStep);
 	R.Model.ApplyPlayerHit(EKeeperPart::Clock, 20.0f, R.Commands);
 	R.Model.RetryCheckpoint(R.Commands);
 	TestEqual(TEXT("retry restores the clock to its checkpoint HP"), R.Model.GetPartHp(EKeeperPart::Clock), Carried);

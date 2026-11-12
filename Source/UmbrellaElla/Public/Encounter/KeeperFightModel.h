@@ -2,9 +2,8 @@
 
 #include "CoreMinimal.h"
 #include "Projectile/UmbrellaShotSpec.h"
+#include "Owl/KeeperTuning.h"
 #include "Encounter/EncounterTuning.h"
-
-struct FKeeperTuning;
 
 /** The three acts of the Keeper fight. */
 enum class EKeeperPhase : uint8
@@ -147,7 +146,7 @@ struct UMBRELLAELLA_API FKeeperHitResult
 class UMBRELLAELLA_API FKeeperFightModel
 {
 public:
-	void Init(const FKeeperTuning* InTuning, const FEncounterTuning& InEncounter, const FKeeperRuleSwitches& InSwitches);
+	void Init(const FKeeperTuning& InTuning, const FEncounterTuning& InEncounter, const FKeeperRuleSwitches& InSwitches);
 
 	/** Full reset to the start of StartPhase from the checkpoint (or a fresh fight for Wings). Clears every timer. */
 	void BeginPhase(EKeeperPhase StartPhase, TArray<FKeeperCommand>& Out);
@@ -196,8 +195,8 @@ public:
 	bool IsTalonArmed() const { return bTalonArmed; }
 	float GetTalonCooldown() const { return TalonCooldown; }
 	FVector2D GetMechanismHome(EKeeperPart Part) const;
-	FVector2D GetMuzzle() const;
-	FVector2D GetClaw() const;
+	FVector2D GetMuzzle() const { return Anchor + FVector2D(Tuning.MuzzleOffset); }
+	FVector2D GetClaw() const { return Anchor + FVector2D(Tuning.ClawOffset); }
 	float GetStageRemaining() const { return StageRemaining; }
 
 	/** The shared rule for parity: the sign of the middle curve for a global physical-attack serial. */
@@ -248,8 +247,7 @@ private:
 	float YellowSpeed() const;
 	float SegmentDistance(const FVector2D& P, const FVector2D& A, const FVector2D& B) const;
 
-	/** Points at the class default (or a test rig's copy); the owner keeps it alive. */
-	const FKeeperTuning* TuningRef = nullptr;
+	FKeeperTuning Tuning;
 	FEncounterTuning EncounterTuning;
 	FKeeperRuleSwitches Switches;
 	FVector2D Anchor = FVector2D::ZeroVector;

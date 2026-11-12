@@ -1,7 +1,7 @@
 # keeper status
 
 ## Done (G1): OWL-06 .. OWL-35, FLOW-09
-Build `build exit: 0` (unity and `NONUNITY=1`), `test.sh` PASS 49 tests (25 Keeper rule, 9 Keeper world, 14 Enemy, 1 bootstrap),
+Build `build exit: 0` (unity and `NONUNITY=1`), `test.sh` Keeper filter PASS 34 tests (25 rule, 9 world),
 `module_check` 0, `manifest_check` 0, `encounter_check` 0. Commit on `area/keeper`.
 
 | Rule | Where | Proof (`UmbrellaElla.Keeper.*`) |
@@ -44,22 +44,7 @@ BossTargetHit, BossAttackTelegraphed, EncounterCompleted. Placeholder visuals ar
 - flow: call `SetPaused`, `ResetForRestart`; credits on `EncounterCompleted` (`Value` = departure seconds).
 
 
-## Done (G2): COM-12 .. COM-18
-Files: `Enemy/EnemyModel` (plain rules), `Enemy/UmbrellaEnemy` (actor, hit box, placeholder cube, fires via `AUmbrellaProjectile::Fire`),
-numbers in `FKeeperTuning` (flat fields; HP carry the three manifest bake markers, other numbers are unmarked GDD values).
-
-| Rule | Proof (`UmbrellaElla.Enemy.*`) |
-|---|---|
-| COM-12 types, variants share numbers, zero HP stops fire, contact damage off | BaselineNumbers, RoadwardenVariantsShareEveryNumber, ZeroHpStopsFire, World.PlayerShotsReduceHpAndDefeat |
-| COM-13 both colours on every type; 2:1 allocation helper | BothShotColoursOnEveryType, ColourAllocationIsTwoRedToOneYellow |
-| COM-14 Roadwarden cycle (patrol, 1 s aim, one committed 240 shot, 1 s recovery, 2.5 s cycle) | RoadwardenPatrolAimOneShotRecovery, ShotDirectionIsCommittedAtAimStart, NoFireWhenEllaIsBehind |
-| COM-15 Floodstrider numbers | BaselineNumbers, BothShotColoursOnEveryType |
-| COM-16 Sky Courier air patrol 400 at 100, 1.1 s hover, 180 shot | BaselineNumbers, CourierPatrolsInTheAir |
-| COM-17 eight emissions total, slots 0-7, withdraw without XP, retry rebuilds | CourierEightEmissionsThenWithdraws, KillingACourierDiffersFromWithdrawal, World.DirectorRetryRebuildsEnemies |
-| COM-18 | level layout (arena/level lane); enemy side: no fire at a target that is not ahead |
-| HAZ-41 containment (patrol clamped to support) | PatrolStaysOnItsSupport |
-
-Not done / for other lanes: kill XP award (progression lane reads `IsKilled`, no XP event sent from here), enemy art and
-animation (arena reads `AnimationCue` events `enemy_patrol|aim|recovery|defeated|withdrawn`), placement and the
-descent/return flow of COM-18 (level generator), yellow-lane safety (QA-40..42).
-Open details I picked: enemies fire only when Ella is left of them; the Courier's mounts are one muzzle; `RedPerYellow` rounds to the nearest whole enemy.
+## Enemies removed (Nov 12 14:22)
+COM-12..COM-18 and `Enemy/**` moved to the enemies area. Removed from this branch with the keeper-side code that only served them
+(enemy tuning fields, `ResetEnemies`, tuning-pointer refactor, enemy colours). Test-file `Step` renamed `KeeperTestStep` (unity -Wshadow).
+Build exit 0, `UmbrellaElla.Keeper` PASS 34, module_check, manifest_check, encounter_check 0 problems.
