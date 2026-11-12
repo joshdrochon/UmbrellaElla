@@ -9,7 +9,7 @@
 
 #if WITH_AUTOMATION_TESTS
 
-#define STORY_TEST_FLAGS (EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+#define UMBRELLAELLA_STORY_TEST_FLAGS (EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
 
 namespace
 {
@@ -48,7 +48,7 @@ namespace
 	const TCHAR* DirectorsCut = TEXT("DirectorsCut");
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FStoryCueTableTest, "UmbrellaElla.Story.CueTable", STORY_TEST_FLAGS)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FStoryCueTableTest, "UmbrellaElla.Story.CueTable", UMBRELLAELLA_STORY_TEST_FLAGS)
 
 bool FStoryCueTableTest::RunTest(const FString& Parameters)
 {
@@ -72,7 +72,7 @@ bool FStoryCueTableTest::RunTest(const FString& Parameters)
 	return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FStoryOpeningTest, "UmbrellaElla.Story.OpeningOncePerRun", STORY_TEST_FLAGS)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FStoryOpeningTest, "UmbrellaElla.Story.OpeningOncePerRun", UMBRELLAELLA_STORY_TEST_FLAGS)
 
 bool FStoryOpeningTest::RunTest(const FString& Parameters)
 {
@@ -95,7 +95,7 @@ bool FStoryOpeningTest::RunTest(const FString& Parameters)
 	return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FStoryStartGameTest, "UmbrellaElla.Story.StartGameHasNoStory", STORY_TEST_FLAGS)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FStoryStartGameTest, "UmbrellaElla.Story.StartGameHasNoStory", UMBRELLAELLA_STORY_TEST_FLAGS)
 
 bool FStoryStartGameTest::RunTest(const FString& Parameters)
 {
@@ -110,7 +110,7 @@ bool FStoryStartGameTest::RunTest(const FString& Parameters)
 	return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FStoryInPlayCuesTest, "UmbrellaElla.Story.InPlayCues", STORY_TEST_FLAGS)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FStoryInPlayCuesTest, "UmbrellaElla.Story.InPlayCues", UMBRELLAELLA_STORY_TEST_FLAGS)
 
 bool FStoryInPlayCuesTest::RunTest(const FString& Parameters)
 {
@@ -135,7 +135,7 @@ bool FStoryInPlayCuesTest::RunTest(const FString& Parameters)
 	return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FStoryEndingTest, "UmbrellaElla.Story.EndingSequence", STORY_TEST_FLAGS)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FStoryEndingTest, "UmbrellaElla.Story.EndingSequence", UMBRELLAELLA_STORY_TEST_FLAGS)
 
 bool FStoryEndingTest::RunTest(const FString& Parameters)
 {
@@ -160,7 +160,7 @@ bool FStoryEndingTest::RunTest(const FString& Parameters)
 	return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FStorySkipTest, "UmbrellaElla.Story.SkipRules", STORY_TEST_FLAGS)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FStorySkipTest, "UmbrellaElla.Story.SkipRules", UMBRELLAELLA_STORY_TEST_FLAGS)
 
 bool FStorySkipTest::RunTest(const FString& Parameters)
 {
@@ -198,7 +198,7 @@ bool FStorySkipTest::RunTest(const FString& Parameters)
 	return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FStoryStatsTest, "UmbrellaElla.Story.JourneyStatistics", STORY_TEST_FLAGS)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FStoryStatsTest, "UmbrellaElla.Story.JourneyStatistics", UMBRELLAELLA_STORY_TEST_FLAGS)
 
 bool FStoryStatsTest::RunTest(const FString& Parameters)
 {
@@ -242,7 +242,7 @@ bool FStoryStatsTest::RunTest(const FString& Parameters)
 	return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FStoryProgressTest, "UmbrellaElla.Story.ProgressRoundTrip", STORY_TEST_FLAGS)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FStoryProgressTest, "UmbrellaElla.Story.ProgressRoundTrip", UMBRELLAELLA_STORY_TEST_FLAGS)
 
 bool FStoryProgressTest::RunTest(const FString& Parameters)
 {
@@ -254,7 +254,7 @@ bool FStoryProgressTest::RunTest(const FString& Parameters)
 	return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FStoryWorldTest, "UmbrellaElla.Story.World.ReactsToBus", STORY_TEST_FLAGS)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FStoryWorldTest, "UmbrellaElla.Story.World.ReactsToBus", UMBRELLAELLA_STORY_TEST_FLAGS)
 
 bool FStoryWorldTest::RunTest(const FString& Parameters)
 {
