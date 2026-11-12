@@ -14,6 +14,7 @@ A tracked folder not listed here is team files: read-only unless your card links
 - `docs/`: brief, decisions, game spec, balance, feel spec, feature manifest, audit. Producer: `decisions.md` rows (any role: its own rows); Game Designer: `balance.md`; the rest are shared team docs (AGENTS.md section 7).
 - `docs/gdd/`: GDD snapshots, `CURRENT` names the live one. Read-only; Game Designer adds questions to `questions-*.md`.
 - `docs/rules/`: the Official Rules (PDF and text). Read-only.
+- `docs/build/`: build mode (`MODE`), area briefs and gates for direct mode. The build lead; kickoff saves `MODE`.
 - `evals/`: agent evals. `README.md` is a gate path.
 - `evals/art-judge/`: art-judge calibration set. Gate path; Art Director.
 - `evals/reviewer/`: planted-bug cases and results for the Dev Lead reviewer eval. Gate path (`runs/` is local).

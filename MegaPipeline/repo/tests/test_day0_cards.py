@@ -192,6 +192,19 @@ class AgentsOwnEveryCard(unittest.TestCase):
                                                 "The TD human writes `tools/ue/art_dump.py`", 1))
         self.assertTrue(any(p.startswith("0.4d: a person acts") for p in self.probs(broken)), self.probs(broken))
 
+    def test_second_reviewer_fails(self):
+        """kickoff runs one reviewer session per card (the Reviewer column). Card 0.8b once asked for a separate Art
+        Director review and stalled unattended; broken on purpose: putting a second review back fails, here and in
+        the kickoff --until plan."""
+        r = self.row("0.8b")
+        for line in ("and the Art Director's verdict is a separate review", "the TD reviews it",
+                     "the Audio owner approves the sounds"):
+            broken = self.text.replace(r, r.rstrip(" |") + f"<br>{line} |", 1)
+            self.assertNotEqual(broken, self.text)
+            self.assertTrue(any(p.startswith("0.8b: asks ") for p in self.probs(broken)), (line, self.probs(broken)))
+        self.assertEqual(check_card.second_reviewers("the Game Designer approves", "Game Designer", self.roles), [])
+        self.assertEqual(check_card.second_reviewers("`Dev Lead reviews`", "Game Designer", self.roles), [])
+
     def test_untagged_checkpoint_kind_and_unknown_kind_fail(self):
         r = self.row("0.4b")
         broken = self.text.replace(r, r.replace("(sign-off: submission)", "(sign-off: submission, art direction)", 1))
@@ -341,7 +354,8 @@ class G1RunsOnTheMac(unittest.TestCase):
                            "a Windows step"),
                           (row.replace("Runs on: the Mac build machine", "Runs on: the Windows packaging machine"),
                            "runs on the Windows packaging machine"),
-                          (row[:-2] + "<br>HUMAN design: the game design owner signs it |", "a person acts")):
+                          (row[:-2] + "<br>HUMAN design: the game design owner signs it |", "a person acts"),
+                          (row[:-2] + "<br>the Art Director's verdict is a separate review |", "a second review")):
             self.assertNotEqual(bad, row)
             with open(os.path.join(d, "pipeline", "day0-cards.md"), "w", encoding="utf-8") as fh:
                 fh.write(text.replace(row, bad))

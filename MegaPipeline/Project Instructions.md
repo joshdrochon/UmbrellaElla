@@ -1,9 +1,11 @@
-> Generated from `AGENTS.md`, `CLAUDE.md` at `a11903f` — edit the sources, not this file.
+> Generated from `AGENTS.md`, `CLAUDE.md` at `b201a66` — edit the sources, not this file.
 > Rebuild: `python3 tools/export_package.py`. Check: `python3 tools/export_package.py --check`.
 
 Agents load `AGENTS.md` and `CLAUDE.md` from the repo root; this copy is for reading and sharing.
 
 # AGENTS.md — Umbrella Ella game jam
+
+Build mode: `tools/kickoff.sh` (or `.ps1`) follows `docs/build/MODE`. `direct`: no cards, issues or PRs (section 4); use `HANDOFF.md`.
 
 Every agent loads this first (budget: `tools/pipeline_check.py`).
 
@@ -21,7 +23,7 @@ First output after `ROLE:`, before any edit, pasted as run:
 `git status -sb`, `git rev-parse origin/main`, `git lfs locks` (yours), your engine version,
 and `CAN RUN: build=y/n tests=y/n package=y/n editor=y/n`. Card checks you cannot run go under "Not run" with who runs them.
 A human launches it: `tools/kickoff.sh` (section 12) or `tools/start_session.sh <role> <card>` (`.ps1` on Windows). Before work: `python3 tools/journal.py resume --card <id>`,
-this machine's record; GitHub stays the shared truth. Then re-read the card and PR comments, not your memory; re-run any check a handoff claimed.
+this machine's record; GitHub stays the shared truth. Re-read the card and PR comments; re-run checks a handoff claimed.
 
 Never load the inherited pipeline (`docs/references.md` R3).
 
@@ -55,7 +57,7 @@ build its default, say so in the PR.
 | Agent Ops | Agent settings, hooks, prompt log (D-new-agent-ops) | `pipeline/roles/agent-ops.md` |
 
 File hygiene is a checklist (`pipeline/checklists/file-hygiene.md`), not an agent.
-One session = one role. A second role in the same session is not an independent review.
+One session = one role; a second role in it is not an independent review.
 A change across several lanes (a rename, a shared rule) is one card for the integration owner; `pipeline_check.py` fails on a cited decision, card, path or owner no doc backs.
 Ties: look, feel, theme → Creative director (D34); scope → Scope decision-maker.
 
@@ -68,8 +70,8 @@ Ties: look, feel, theme → Creative director (D34); scope → Scope decision-ma
 4. Prove it (section 5), open the PR with the template, ask the card's reviewer role.
 5. The reviewer is another role in a fresh session. kickoff, never an agent, merges once CI, review and `check_pr.py` pass.
 6. Every agent comment and review on GitHub starts `ROLE: <role> | session <date-time>`. Two reviewer roles give separate verdicts; after a fix only the failed one re-reviews, unless the diff touched the other's area.
-7. Work and handoffs exist only on GitHub: a pushed branch, a PR, an issue comment, each with a link. A chat reply is not a handoff.
-   Agents cannot message each other; humans start sessions. Could not post: say "prepared, not posted", paste the text.
+7. Work and handoffs live only on GitHub, linked (pushed branch, PR, issue comment), never in chat.
+   Agents cannot message each other. Could not post: say "prepared, not posted", paste the text.
 8. At a human checkpoint (`pipeline/human-checkpoints.md`), label the issue `needs-human` and comment
    `NEEDS HUMAN: <who/role> <what> <link> <UTC time>`; then stop that step. Other in-lane work needs no approval.
    No human answer in 2 h: a director session decides by that page's grace default, never on its human-only kinds.
@@ -80,13 +82,13 @@ States: `todo → doing → review → done`, plus `blocked`, `needs-human`, as 
 - "Done" needs pasted output from a command someone else can re-run: build log tail,
   `tools/check_automation_report.py` output, package log, `SMOKE_OK` line, `tools/art_check.py` JSON.
 - Screenshots show looks, not function. PIE is not a build.
-- Say what you did not run and why; never report a command you did not see finish.
+- Say what you did not run and why; never report an unfinished command.
 - Every new engine API exists in the 5.8.4 headers; cite the header.
 - Evidence starts with `commit=<sha> engine=5.8.4 config=Development host=<win|mac> run=<PIE|Standalone|packaged>`. Older than the PR head = stale (missing).
-- Correct a posted wrong claim in a new comment linking the old one; never edit silently.
+- Correct a wrong posted claim in a new comment linking it; never edit silently.
 
 ## 6. Stop rules
-- Same failure twice: stop, set the card `blocked`, write the exact error, what you tried, and who should look next.
+- Same failure twice: stop, set the card `blocked`, write the exact error, what you tried, who should look next.
   Name one cause: `env` (UE_ROOT, SDK) / `code` / `asset or cook` / `config` / `platform` (Win vs Mac) / `card unclear` / `requirements conflict` (→ decision row) / `card too big` (→ split).
 - The card needs a file outside its Outputs, a second component, or behavior not in Done-when: stop, post a split proposal.
 - Session end or handoff: `journal.py checkpoint --card <id> --note "..." --next "..."`, then post `journal.py export --card <id>` on the card. No PR in review: also push the branch and post `git log origin/<branch> -1`, checks not run, LFS locks held, next role.
@@ -99,7 +101,7 @@ States: `todo → doing → review → done`, plus `blocked`, `needs-human`, as 
 ## 7. Never
 - Never approve, accept or merge your own work.
 - Never force-push or rewrite shared history.
-- Never edit `.uasset`/`.umap` with file tools or git, or "Save All" in the editor. Never commit a gate path or use `--no-verify` (`tools/git_gate.py`): write `$JAM_OUTBOX/gate.patch`.
+- Never edit `.uasset`/`.umap` with file tools or git, or "Save All" in the editor. Never commit a gate path or use `--no-verify`: write `$JAM_OUTBOX/gate.patch` (`check_pr.py` and the merge gate catch it; no hook).
 - Never commit `Binaries/`, `Intermediate/`, `Saved/`, `DerivedDataCache/`, generated files or secrets.
 - Never resolve a `docs/decisions.md` row (grace and Day-0 defaults excepted). Never edit a GDD snapshot, change a manifest status, or edit other shared team docs.
 - Never weaken a check or threshold without a measurement that proves it wrong, written in the commit message.
@@ -114,15 +116,14 @@ States: `todo → doing → review → done`, plus `blocked`, `needs-human`, as 
 | Check | Command | Where |
 |---|---|---|
 | Repo guardrails, budgets, cross-doc consistency | `python3 tools/pipeline_check.py` (`--release` for G4: `_PH` fails) | Local + CI |
-| Pipeline unit tests | `python3 -m unittest discover -s tests` | Local + CI (full profile) |
+| Changed files' tests (5 min target) | `python3 tools/affected_tests.py --run` | Card sessions (reviewer: if in doubt) |
+| Full unit suite | `python3 -m unittest discover -s tests` | Pipeline repos' CI; before gate packages |
 | PR body: task, evidence, risks, GDD impact | `python3 tools/check_pr.py` | CI |
-| Card is ready (Producer) | `python3 tools/check_card.py <card>` | Local + CI |
-| Plan (Producer): Clock, people, hours, lanes, status line | `check_card.py --clock`, `--people`, `--hours --day N`, `--lanes`, `--status` | Local, each day start |
+| Card ready; daily plan (Producer) | `python3 tools/check_card.py <card>`; `--clock`, `--people`, `--hours --day N`, `--lanes`, `--status` | Local + CI; each day start |
 | Module boundaries, C++ standard, feature flags (TD) | `python3 tools/module_check.py` (exit 2 = no `Source/` yet) | Local + CI |
 | Manifest vs GDD; what a revision touches | `python3 tools/manifest_check.py`; `tools/gdd_impact.py <old> <new>` | Local + CI; PR |
 | Sprite sheets; art aligns to its collider | `python3 tools/sprite_check.py --scan Art`; `tools/hitbox_check.py check` | Local + CI |
-| Compile | `tools/ue/build.sh` / `tools\ue\build.ps1` | Local |
-| Automation tests | `tools/ue/test.sh` / `test.ps1` | Local |
+| Compile; automation tests | `tools/ue/build.sh`, `test.sh` (Windows `.ps1`; filter: `affected_tests.py`) | Local |
 | Package + smoke | `tools\ue\package.ps1` then `tools\ue\smoke.ps1 -Exe <game.exe>` (Mac: `package.sh`, `smoke.sh`) | Windows packaging machine |
 | Art numbers | `python3 tools/art_check.py <capture.png>` | Local |
 | Owl encounter data | `python3 tools/encounter_check.py` | Local + CI |
@@ -155,4 +156,5 @@ queue for kickoff. A committed `.pipeline-practice` (practice repo) lifts D39; s
 
 Claude Code specifics:
 - Role subagents live in `.claude/agents/`. Each one only points at its card in `pipeline/roles/`; the card is the source of truth.
-- Run `python3 tools/pipeline_check.py` and `python3 -m unittest discover -s tests` before opening a PR.
+- Before a PR: `python3 tools/pipeline_check.py`, the card's Done-when commands and `python3 tools/affected_tests.py --run`
+  (AGENTS.md section 8). The full unit suite runs in the pipeline repos' CI, never in a card session.

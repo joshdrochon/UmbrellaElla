@@ -40,6 +40,10 @@ in-game height in a 1080p capture, beside the style frame) before any asset card
   effect (D-new-sh10-vfx-lighting).
 - **Placeholders:** gameplay may use tracked `_PH` assets; each one is a `coverage` row in
   `pipeline/art/blender/characters.json` naming the card that replaces it. None ships (`pipeline_check.py --release`).
+- **The art gate follows it (12 Nov):** `style.json` shot-red is the GDD crimson family, `gold` and `amber-eye` are the
+  GDD's `#E9C46A` and `#FFC76A`; in `references.json` the `owl`, `owl-bolt` and `bolt-hit` elements judge the metal
+  Keeper and the crimson shot, and the `owl`, `owl-bolt`, `bolt-hit` and Ella elements carry the GDD's words as written
+  targets (`keeper-sh10`, `red-shot-sh10`, `ella-sh10`). Details under Look decisions.
 
 ## References (enforced in code)
 Every reference image is listed in `pipeline/art/references.json` with its role (composition target, character/pose
@@ -62,40 +66,47 @@ reads: flowing ribbons, never a flat box). Every art-loop round also judges our 
 a flat primitive or rough placeholder fails outright. Shot VFX follow `references.json` `vfx_spec`: tell, release,
 travel, fade; bright core, shell, trail, light spill. Their characters, realm and colours are proposals for Richard:
 use them for look and quality, not mechanics. Their colours are in `style.json` as capped accents (Josh, DECIDED
-2026-11-10, D-new-palette-accents; see Palette below), except the shot red: bar-casters sets how a shot is built
-(core, shell, trail, spill), never its colour (D-new-owl-shot-look below).
+2026-11-10, D-new-palette-accents; see Palette below). The shot red is the GDD SH1.0 crimson again, the same values as
+bar-casters (the 11 Nov rust of D-new-owl-shot-look is superseded).
 
 ## Look decisions (Josh, DECIDED 2026-11-11)
 GDD SH1.0 wins over this section (D-new-sh10-art-conflicts): the Keeper, Ella and Shots lines at the top of this page
-replace the owl row, the owl-shots row and the "no mask" part of the face row below. The umbrella stripes, the hidden face
-and the hair and hat stay. Until the Art Director re-points them, `style.json` shot-red and the `references.json` owl
-refs still follow the old rows. The key art (`keyart`, `original-picture`) is the bar for mood, palette, values and finish:
-- Owl (D-new-owl-look): the key-art organic owl: tattered feathers, gothic spire crown, a glowing gold gear clock with
-  no numerals, amber eyes. The riveted metal-owl images (the `study-keeper-*` studies, Ricky's owl sheets `d-*`, the
-  v1.4 `gameplay-01/02` concepts) are motion and mechanism references for attacks only, never the owl's look: they
-  left the `owl` element (role `motion`, judge false); `gameplay-01/02` stay in the scene for composition and scale.
-- Owl shots (D-new-owl-shot-look): a rust-red needle with a crosshair ring, as in the key art and `owl-missile`
-  (`#743422` family; `style.json` shot-red re-measured from the key art's bolts). The pink `#ff3658` chevrons are not
-  the look; `bar-casters` is kept for build quality only.
+replace the owl row, the owl-shots row and the "no mask" part of the face row below, and the art gate files follow them
+(12 Nov). The umbrella stripes, the hidden face and the hair and hat stay. The key art (`keyart`, `original-picture`) is
+the bar for mood, palette, values and finish, never for the Keeper's form or the shot colour:
+- Owl (D-new-owl-look, SUPERSEDED): was the key-art organic owl (tattered feathers, gothic spire crown, amber eyes).
+  Now the GDD's crownless metal Keeper. The `owl` element judges `discord-crop-keeper` (the Keeper cut from Ricky's
+  toss-and-kick sheet), Ricky's metal-owl sheets (`d-wing-damage`, `d-talon-rake`, `d-gear-break`, `d-flip-throw`,
+  `d-toss-kick`, `d-arc-chain`, `d-clock-damage`) and the `study-keeper-*` studies, with the written target
+  `keeper-sh10`. `owl-flap` (the organic owl sheet) left it: frame grid only. `gameplay-01/02` stay in the scene for
+  composition and scale.
+- Owl shots (D-new-owl-shot-look, SUPERSEDED): was the key art's rust-red needle with a crosshair ring. Now the GDD's
+  shared red projectile: `style.json` shot-red RED `#ff3658`, CORAL `#ff7848`, RED SHADOW `#8f173c`. The `owl-bolt`
+  element judges `discord-crop-red-shot`, `d-red-shots`, `d-clock-double-beat`, `study-keeper-red-shots` and
+  `bar-casters` (written target `red-shot-sh10`); `bolt-hit` judges `discord-crop-red-release`, `d-red-shots` and
+  `bar-casters`. `keyart-bolt` and `owl-missile-hit` (the rust crosshair burst) left them: kept, judge false.
 - Umbrella (D-new-umbrella-look): black with light stripes, as in the key art. `study-umbrella-prop` is the build
   and damage-stage reference only.
-- Ella's face (D-new-ella-face): hidden, as in `study-ella-character`. No mask, no glowing eyes: `d-ella-eyes` (and
-  its copy in Assets/Conceptual Art/) left Ella's look references.
+- Ella's face (D-new-ella-face, mask part SUPERSEDED): hidden, under the GDD's cloth / mesh mask with separate scarf
+  and eye glints. The four Ella elements carry it as the written target `ella-sh10` (also: no wand). `d-ella-eyes`
+  draws that mask but is a head-and-shoulders close-up, so it stays out of the elements (judge false, reason updated);
+  `study-ella-character` stays for hair, hat, costume and silhouette.
 - Ella's look (D-new-ella-look, Claude's call, Josh delegated): designed from `study-ella-character` (dark brown hair,
   hat, hidden face) at the key art's silhouette and scale. The rehearsal Ella sheets (`ella-*`) are pose and
   frame-grid references only, not hair or skin colour. The witch sheets (`witch-cast`, `witch-guard`: another
   character, no umbrella) are frame-grid and layout data only.
 - Key-art crops (11 Nov): the owl bolt, the umbrella, the etched wind lines and the rock band are cut out of the key
   art as their own references (`pipeline/art/reference/keyart-crops/`, alpha-keyed, reference only), because a sprite
-  cannot be scored against the full frame. `keyart-bolt` is the `owl-bolt` look, `keyart-umbrella` the `umbrella`
-  look, `keyart-wind-lines` the only `wind-lines` reference; the gameplay zone (`wind-zone`) is judged against
+  cannot be scored against the full frame. `keyart-umbrella` is the `umbrella` look, `keyart-wind-lines` the only
+  `wind-lines` reference (`keyart-bolt` is no longer a look: GDD SH1.0); the same reason gives the Discord crops
+  (`pipeline/art/reference/discord-crops/`, 12 Nov: the Keeper, the red shot, its release burst); the gameplay zone (`wind-zone`) is judged against
   `bar-other-realm`'s ribbons only, and the two wind elements share no reference. `keyart-skyline` is on hold: the
   key art's band is flat black inside, and as a skyline reference it drops the skyline's detail floor so far that the
   rough Blender skyline passes; the skyline keeps `keyart` and `gothic-skyline` until the team decides.
   `study-environment` is for parallax layering only.
 - Out of judging (judge false, no judge element, files kept): `wind-curl` and `umbrella-repair` (teal),
   `owl-missile` and `owl-missile-travel` (blurry), `umbrella-stance` (crude), `d-yellow-crop` (blurry), `d-wing-gust`
-  (off-palette blue). The same picture is never listed twice: `tools/art_check.py` load_spec drops a listed entry
+  (off-palette blue), and since 12 Nov `owl-flap`, `keyart-bolt`, `owl-missile-hit` (old look) and `d-ella-eyes` (a bust). The same picture is never listed twice: `tools/art_check.py` load_spec drops a listed entry
   whose bytes equal an earlier one, and `team_art.same_as` names the re-encoded copies.
 
 ## Target frame (measured from the key art, 10 Nov)
@@ -107,7 +118,7 @@ refs still follow the old rows. The key art (`keyart`, `original-picture`) is th
 | Ella | small on the left under the striped umbrella, centre x 0.16, body about 11% of the height | centre x 0.04-0.35, height 0.04-0.30 |
 | Scale | owl about 7x Ella's height | owl:Ella height ≥ 3 |
 | Skyline | black jagged band along the bottom, median 10% of the height, full width | median 0.03-0.25, across ≥ 90% of the width |
-| Owl bolts | rust-red needles with a crosshair ring flying left | rust share ≥ 0.0008 |
+| Owl shots | the key art draws rust-red needles flying left; the game's are the GDD SH1.0 crimson shots | red share ≥ 0.0008 (the scene's `rust` class also catches the crimson shots: 0.0194 on `gameplay-02`) |
 | Look | paper texture, etched wind lines, gold star wand shots, sparkle dots | art_check PASS; layout and edge similarity to the key art ≥ 0.65 |
 The key art and its earlier cut pass at 1.0; a flat teal box with a small owl and no skyline fails. The ranges are
 provisional until card 0.10 scores the first in-engine rebuild.
@@ -123,7 +134,7 @@ rock silhouette along the bottom. Faint white sparkle dots.
 ## Pillars
 1. **Aged paper ground.** Stained, mottled sepia field. Never flat, never white.
 2. **Near-black silhouettes.** Ella, the owl and its projectiles read by shape. Interior detail is dark-on-dark only.
-3. **Brand accents first, capped extras second.** Gold/amber = the player's magic and the owl's eyes and clock. Rust red = danger. The quality-bar colours (ash-blue wind flow, shot reds and yellows) appear only in their role and under their cap (Palette). No other saturated hue: no teal, green, purple, pink, no saturated blue.
+3. **Brand accents first, capped extras second.** Gold/amber = the player's magic and the owl's eyes and clock. Red = danger (the GDD SH1.0 crimson shots, a capped accent; the key art's rust stays a palette colour). The quality-bar colours (ash-blue wind flow, shot reds and yellows) appear only in their role and under their cap (Palette). No other saturated hue: no teal, green, purple, pink, no saturated blue.
 4. **Etched atmosphere.** Wind lines and sparkles are decoration. They must never look like gameplay.
 5. **Ella small, owl huge.** The scale contrast is the drama, but never at the cost of reading Ella and her umbrella state.
 
@@ -180,7 +191,7 @@ the frame; all of them together stay at or under 10% of the pixels, so the brand
 | Role | Colours | Hue band (CIELAB, deg) | Chroma | Max share |
 |---|---|---|---|---|
 | wind (WIND-01 flow ribbons) | ash blue `#555e60` (measured on the Other Realm ribbons; its label `#7P9698` is not a hex) | 190-260 | 2-12 | 6% |
-| shot-red (owl shots; re-measured from the key art's bolts, D-new-owl-shot-look) | RUST `#723929`, RUST SHADOW `#5b2519`, RUST HIGH `#79331f` | 25-55 | 20-50 | 4% |
+| shot-red (red shots: GDD SH1.0 shared red projectile; band measured on Ricky's red-shot sheets, 12 Nov) | RED `#ff3658`, CORAL `#ff7848`, RED SHADOW `#8f173c` | 5-50 | 30-85 | 4% |
 | shot-yellow (yellow shots, shot cores) | YELLOW `#ffd84a`, AMBER `#f5aa28`, YELLOW SHADOW `#94611e`, CORE `#fff5dc` | 55-100 | 8+ | 4% |
 
 Brand hue gate: gold/amber ~55-95 and rust ~20-50 (`hue_gate`). An accent pixel outside its band, a teal or saturated
@@ -195,7 +206,7 @@ replace the palette with measured values, and set `palette_status` to `measured`
 | Ella + open umbrella | 80–100 px tall | Bottom center |
 | Ella, closed umbrella | same body height; umbrella width ≤ 0.55× open | Bottom center |
 | Wand bolt | 10–14 px core, ≤ 8 px glow | Center |
-| Owl clockwork bolt (rust needle with a crosshair ring) | 28–36 px | Center (rotate with transform, not frames) |
+| Owl red shot (GDD SH1.0 shared red projectile: pointed angular head, short tail) | 28–36 px | Center (rotate with transform, not frames) |
 | Owl returning arc (P2) | same core as the bolt, red trail | Center |
 | WIND-01 wind zone (P0): etched upward strokes, engraved border, paper tint | the zone rectangle in `pipeline/level/encounter.json` | Bottom left |
 | Owl (MVP, the one boss) | 55–70% of screen height, split into parts (body, wings, chest clock) | Per-part pivots |

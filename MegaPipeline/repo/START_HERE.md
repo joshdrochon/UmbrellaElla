@@ -1,5 +1,7 @@
 # Start here: run the pipeline
 
+Build mode: run `tools/kickoff.sh` (or `.ps1`); it follows `docs/build/MODE`. `direct`: no cards, issues or PRs (section 4); use `HANDOFF.md`.
+
 > GDD SH1.0 note (D-new-gdd-sh10): lines on this page that still describe the GDD 1.3 encounter (one owl bolt, the front shield, the 90 s survival timer, wear stages, the 1.3 QA-01..QA-28 tests) are history. The current design is `docs/gdd/GDD-SH1.0.md` and `docs/feature-manifest.json`, which win; the owning role re-files this page against the SH1.0 Rule IDs on its next card.
 
 
@@ -12,6 +14,17 @@ Words on this page:
 - **main**: the shared version of the repo. **Pull** = copy the newest `main` from GitHub to your computer.
 - **Agent**: the AI that writes the work (Codex or Claude Code). **Kickoff**: the one command that runs the agents.
 - **Card**: one task, filed as a GitHub issue. **NEEDS HUMAN**: the pipeline is waiting for a person.
+
+## Build modes
+`tools/kickoff.sh` (Windows: `tools\kickoff.ps1`) follows `docs/build/MODE`:
+- `direct`: no GitHub cards, PRs or reviews. Kickoff reads `HANDOFF.md`, resumes every unfinished area from its
+  `area/<name>` branch with a Claude Code worker (brief: `docs/build/areas/<name>.md`), runs the local gates, merges
+  each passing area into `main` and pushes. Use it to build fast, or to pick up the build where someone stopped.
+- `cards`: the GitHub card flow (task cards, PRs, reviewers, CI). Use it when every change should be reviewed on GitHub.
+No MODE file: kickoff asks once (Enter = `direct`) and saves the answer. Change it by editing the file, or pass
+`--mode cards|direct` for one run. Both modes start every ready job whose files overlap no running job's (at most one
+per CPU; `--parallel N` caps it); Unreal builds and tests share `UE_SLOTS` (default 2) engine slots. One area by hand:
+`tools/area.sh <name>` (Windows: `tools\area.ps1 <name>`). Lead's handoff file shape: `docs/build/HANDOFF-template.md`.
 
 ## 1. One-time setup (skip any step you already did)
 
@@ -96,7 +109,7 @@ tools\kickoff.ps1 --check --agent codex
 Then one line per tool: `CONNECTED`, `SKIPPED` or `NOT CONNECTED <name> -> <what to do>`.
 - Only lines that end in `(required)` stop you. Do what each says after `->`, then run the check again.
 - `NOT CONNECTED git hooks ... (required)` is normal the first time. Type `py tools\install_git_hooks.py`; it prints
-  three `installed` lines.
+  two `installed` lines.
 - Many other `NOT CONNECTED` lines (Unreal, GIMP, Aseprite, sox, OBS, butler, API keys) are fine for a test run.
 - When a line says `python3`, type `py` instead.
 

@@ -139,15 +139,15 @@ def hexa(h):
 
 
 ACC = STYLE["accents"]
-WIND, RUST, YEL = hexa("#555e60"), hexa("#4e2017"), hexa("#ffd84a")   # RUST: a key-art rust variant outside the palette
-PINK = hexa("#ff3658")   # bar-casters' shot red: not our look (D-new-owl-shot-look)
+WIND, RED, YEL = hexa("#555e60"), hexa("#ff3658"), hexa("#ffd84a")   # RED: GDD SH1.0's shared red projectile
+RUST = hexa("#4e2017")   # a key-art rust variant outside the palette: the 11 Nov shot red (D-new-owl-shot-look), now no accent
 SAT_TEAL = (42, 157, 143, 255)   # a flat saturated teal placeholder box
 
 
 class CappedAccents(unittest.TestCase):
     """Josh, DECIDED 2026-11-10 (D-new-palette-accents): the quality-bar colours (wind ash blue, the shot yellows)
-    pass art_check in their roles up to a capped share of the frame; anything else still fails. Josh, DECIDED
-    2026-11-11 (D-new-owl-shot-look): the shot red is the key art's rust family; the bar's pink is no accent."""
+    pass art_check in their roles up to a capped share of the frame; anything else still fails. GDD SH1.0 (12 Nov,
+    D-new-sh10-art-conflicts): the shot red is the GDD's crimson family again; the 11 Nov key-art rust is no accent."""
 
     def setUp(self):
         self.tmp = tempfile.mkdtemp()
@@ -175,13 +175,13 @@ class CappedAccents(unittest.TestCase):
     def test_the_caps(self):
         self.assertEqual(ACC["total_share_max"], 0.10)
         self.assertEqual(ACC["roles"]["wind"]["share_max"], 0.06)
-        self.assertEqual({c["hex"] for c in ACC["roles"]["shot-red"]["colours"]}, {"#723929", "#5b2519", "#79331f"})
+        self.assertEqual({c["hex"] for c in ACC["roles"]["shot-red"]["colours"]}, {"#ff3658", "#ff7848", "#8f173c"})
         self.assertEqual({c["hex"] for c in ACC["roles"]["shot-yellow"]["colours"]},
                          {"#ffd84a", "#f5aa28", "#94611e", "#fff5dc"})
         self.assertIn("#171614", {c["hex"] for c in STYLE["palette"] if c["role"] == "silhouette"}, "INK joins the darks")
 
     def test_accents_in_their_role_pass(self):
-        m, fails = self.measure("ok", [(WIND, 0.05), (RUST, 0.025), (YEL, 0.015)])
+        m, fails = self.measure("ok", [(WIND, 0.05), (RED, 0.025), (YEL, 0.015)])
         self.assertEqual(fails, [], m)
         self.assertEqual((m["accent_wind"], m["accent_shot-red"], m["accent_shot-yellow"]), (0.05, 0.025, 0.015))
         self.assertEqual((m["off_style"], m["off_band"]), (0.0, 0.0))
@@ -189,11 +189,11 @@ class CappedAccents(unittest.TestCase):
     def test_broken_on_purpose(self):
         cases = {
             "over the wind cap": ([(WIND, 0.07)], "accent_wind"),
-            "over a shot cap": ([(RUST, 0.05)], "accent_shot-red"),
-            "over the total cap": ([(WIND, 0.055), (RUST, 0.035), (YEL, 0.035)], "accent_extra"),
-            "pink shots past the off_style cap (D-new-owl-shot-look)": ([(PINK, 0.03)], "off_style"),
+            "over a shot cap": ([(RED, 0.05)], "accent_shot-red"),
+            "over the total cap": ([(WIND, 0.055), (RED, 0.035), (YEL, 0.035)], "accent_extra"),
+            "the 11 Nov rust shots past the off_style cap (GDD SH1.0 wins)": ([(RUST, 0.03)], "off_style"),
             "a teal box": ([(SAT_TEAL, 0.03)], "off_style"),
-            "a flat red fill": ([(RUST, 0.6)], "accent_shot-red"),
+            "a flat red fill": ([(RED, 0.6)], "accent_shot-red"),
         }
         for name, (extra, want) in cases.items():
             with self.subTest(name):
@@ -208,16 +208,17 @@ class CappedAccents(unittest.TestCase):
     def test_without_the_accents_the_shot_colours_fail(self):
         """The rule the accents changed: the same shot colours fail off_style when style.json has no accents."""
         bare = {k: v for k, v in STYLE.items() if k != "accents"}
-        m, fails = self.measure("bare", [(RUST, 0.025), (YEL, 0.015)], bare)
+        m, fails = self.measure("bare", [(RED, 0.025), (YEL, 0.015)], bare)
         self.assertTrue(any(f.startswith("off_style") for f in fails), (fails, m))
 
     def test_quality_bar_images_pass_on_colour(self):
         """bar-casters and bar-other-realm (pipeline/art/references.json quality_bar) pass every colour rule: off_style,
         off_band and the accent caps. (Other numbers, like dark_share on the dark Other Realm scene, are not colour.)
-        Since D-new-owl-shot-look (Josh, 11 Nov) the casters' pink shots are no accent: they pass only as off_style
-        under its 2% cap, like any stray colour."""
+        GDD SH1.0 (12 Nov) prints the casters' crimson for the shared red projectile, so Ricky's red-shot sheet
+        (d-red-shots, the GDD's own source for the Keeper's shots) passes on colour too."""
         for rel in ("discord/20261111-0319_Ricky_roadwarden-sundial-casters.png",
-                    "discord/20261111-0318_Ricky_other-realm.png"):
+                    "discord/20261111-0318_Ricky_other-realm.png",
+                    "discord/20261110-0258_Ricky_1.png"):
             path = os.path.join(ROOT, "pipeline", "art", "reference", rel)
             if not os.path.isfile(path):
                 self.skipTest(f"{rel} is not on disk here ({hermetic.LEFT_OUT})")

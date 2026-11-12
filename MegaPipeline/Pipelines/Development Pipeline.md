@@ -1,4 +1,4 @@
-> Generated from `pipeline/unreal-rules.md`, `pipeline/unreal/cpp-rules.md`, `pipeline/unreal/gameplay-code.md`, `docs/unreal-sources.md`, `pipeline/checklists/file-hygiene.md`, `.github/PULL_REQUEST_TEMPLATE.md`, `evals/reviewer/results.md`, `tools/run_reviewer_eval.py`, `tools/score_review.py`, `tools/check_pr.py` at `a11903f` — edit the sources, not this file.
+> Generated from `pipeline/unreal-rules.md`, `pipeline/unreal/cpp-rules.md`, `pipeline/unreal/gameplay-code.md`, `docs/unreal-sources.md`, `pipeline/checklists/file-hygiene.md`, `.github/PULL_REQUEST_TEMPLATE.md`, `evals/reviewer/results.md`, `tools/run_reviewer_eval.py`, `tools/score_review.py`, `tools/check_pr.py` at `b201a66` — edit the sources, not this file.
 > Rebuild: `python3 tools/export_package.py`. Check: `python3 tools/export_package.py --check`.
 
 # Development Pipeline
@@ -872,11 +872,13 @@ Also checks:
   editor    if a changed path (--changed or "What changed") is a .uasset or .umap (editor MCP work included), Evidence
             has an `EDITOR CHECK: by=<the card's human> opened=<path>[,<path>...] ok` line naming every changed asset:
             the card's human opened each one in the editor and checked it (pipeline/agent-ops/editor-mcp.md)
-  gate      a changed path that is a gate path (pipeline/agent-ops/gates.json gate_paths) is named in a
-            `GATE EDIT: by=<name> <path>[,<path>]` line under Evidence. by=kickoff: kickoff applied the session's
-            gate.patch through the tool checks (tools/git_gate.py apply --auto), and this rule re-runs them with --card
-            and --base (lane, guardrail enforcers, no loosening). Any other by= is the card's Human or the TD human
-            (JAM_HUMAN route). The git hooks stop agent commits for every agent; this is the CI backstop
+  gate      a changed path that is a gate path (pipeline/agent-ops/gates.json gate_paths). On a card PR it came
+            through kickoff's tool route, read from git (base..head), not from the PR body: every commit that changes
+            a gate path has the trailer `GATE EDIT: by=kickoff <path>[,<path>]` (tools/git_gate.py apply --auto)
+            naming it, and this rule re-runs the tool checks with --card, --base and --head (lane, guardrail
+            enforcers, no loosening). A person's `GATE EDIT: by=<name>` line fails on a card PR (no human route an
+            agent cannot forge). A PR with no card: a `GATE EDIT: by=<name> <path>[,<path>]` line under Evidence.
+            No local git hook checks gate paths: this rule and kickoff's merge gate do
   task      the Task section links the card: `Part of #<n>` (D-new-port-1 default) or
             `Closes|Fixes|Resolves #<n>`. Both pass until D-new-port-1 is decided
   links     every line under "Not done / risks" (except "none" and the Next: line) has a link:

@@ -1,4 +1,4 @@
-> Generated from `docs/rules/official-rules.md` at `a11903f` — edit the sources, not this file.
+> Generated from `docs/rules/official-rules.md` at `b201a66` — edit the sources, not this file.
 > Rebuild: `python3 tools/export_package.py`. Check: `python3 tools/export_package.py --check`.
 
 # 2026 Epic AI MegaJam Official Rules (extracted text, read-only)

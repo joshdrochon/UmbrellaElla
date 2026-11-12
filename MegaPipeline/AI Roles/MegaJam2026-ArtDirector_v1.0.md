@@ -1,4 +1,4 @@
-> Generated from `pipeline/roles/art-director.md`, `.claude/agents/art-director.md` at `a11903f` — edit the sources, not this file.
+> Generated from `pipeline/roles/art-director.md`, `.claude/agents/art-director.md` at `b201a66` — edit the sources, not this file.
 > Rebuild: `python3 tools/export_package.py`. Check: `python3 tools/export_package.py --check`.
 
 # Role: Art Director

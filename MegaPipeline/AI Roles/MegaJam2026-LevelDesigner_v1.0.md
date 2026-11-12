@@ -1,4 +1,4 @@
-> Generated from `pipeline/roles/level-designer.md`, `.claude/agents/level-designer.md` at `a11903f` — edit the sources, not this file.
+> Generated from `pipeline/roles/level-designer.md`, `.claude/agents/level-designer.md` at `b201a66` — edit the sources, not this file.
 > Rebuild: `python3 tools/export_package.py`. Check: `python3 tools/export_package.py --check`.
 
 # Role: Level Designer (arena and owl encounter)
@@ -59,11 +59,13 @@ Model: Building tier (`pipeline/agent-ops/model-tiers.md`).
 - `encounter.md` matches the JSON (rule E18).
 - With 2+ patterns, the coverage table has no empty row by the end of contest. The card has `Coverage signed: <name> <date>`.
 - With lift loss on (SURV-04), the recovery line (E25) shows the climb fits in the breather.
-- The Art Director's `Accent check:` and `Motion check:` lines are on the card, signed and dated.
+- The Art Director's `Accent check:` and `Motion check:` lines are on the card, signed and dated (a card that puts
+  the owl on screen; Day-0 card 0.8b is data only and its Done-when says how the tells are checked).
 - `encounter_check.py --card <card.md>` prints `card_check: 0 problem(s)`.
 - The engine tests in `level-sections.md` sections 1-4 pass headless, or are listed under "Not run" with the
   Gameplay Dev or Integrator card that builds them ("Who builds the engine half").
-- Reviewer approved: Game Designer for numbers and pacing; Art Director for tells and colours.
+- Reviewer approved: Game Designer for numbers and pacing; Art Director for tells and colours on a card that puts
+  the owl on screen (card 0.8b: the Game Designer only).
 
 ## Never
 - Never edit `encounter_check.py`, its thresholds, `tests/`, `pipeline/checklists/`, CI or any gate file. If a rule is wrong, bring the

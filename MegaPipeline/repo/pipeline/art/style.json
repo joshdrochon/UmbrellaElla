@@ -59,14 +59,14 @@
     {
       "name": "gold",
       "role": "accent",
-      "hex": "#e9b04a",
-      "source": "by eye: under 0.05% of reference pixels (0.0), so not measurable from the key art; Rick confirms"
+      "hex": "#e9c46a",
+      "source": "GDD SH1.0 prints the magic gold #E9C46A (Small Blasts, Twin Stars and Needle VFX; Ricky's eye study labels it EYE GOLD); was #e9b04a by eye, delta E 13.3. Under 0.05% of the key art, so not measurable there. GDD SH1.0 (12 Nov) wins every discrepancy (Josh; D-new-sh10-art-conflicts)"
     },
     {
       "name": "amber-eye",
       "role": "accent",
-      "hex": "#c8862a",
-      "source": "by eye: under 0.05% of reference pixels (0.0001), so not measurable from the key art; Rick confirms"
+      "hex": "#ffc76a",
+      "source": "GDD SH1.0 'Eye / blackout / restore' prints the Keeper's exposed-eye amber #FFC76A (its eyes are muted otherwise); was #c8862a by eye, the glowing amber eyes of the key art's organic owl. Under 0.05% of the key art. GDD SH1.0 (12 Nov) wins every discrepancy (Josh; D-new-sh10-art-conflicts)"
     },
     {
       "name": "rust-red",
@@ -82,7 +82,7 @@
     }
   ],
   "accents": {
-    "_about": "Capped accents (Josh, DECIDED 2026-11-10, D-new-palette-accents; shot-red re-measured from the key art's rust bolts, Josh, DECIDED 2026-11-11, D-new-owl-shot-look): the quality-bar colours from Ricky's latest images, allowed only in their role and only up to a share of the frame, so the brand palette above still dominates. A pixel that is not near a palette colour counts as an accent of a role when it is within that role's delta_e_max of one of its colours AND its CIELAB hue and chroma fall in the role's band; it then counts as on-palette and never as off_style or off_band. Anything else (teal, saturated blue, a flat fill) is judged by the rules above as before. art_check fails a frame whose accents together pass total_share_max, or one role past its share_max.",
+    "_about": "Capped accents (Josh, DECIDED 2026-11-10, D-new-palette-accents; shot-red is GDD SH1.0's shared red projectile, D-new-sh10-art-conflicts, 12 Nov: the 11 Nov key-art rust of D-new-owl-shot-look is superseded): the quality-bar colours from Ricky's latest images, allowed only in their role and only up to a share of the frame, so the brand palette above still dominates. A pixel that is not near a palette colour counts as an accent of a role when it is within that role's delta_e_max of one of its colours AND its CIELAB hue and chroma fall in the role's band; it then counts as on-palette and never as off_style or off_band. Anything else (teal, saturated blue, a flat fill) is judged by the rules above as before. art_check fails a frame whose accents together pass total_share_max, or one role past its share_max.",
     "total_share_max": 0.1,
     "roles": {
       "wind": {
@@ -108,40 +108,40 @@
         ]
       },
       "shot-red": {
-        "what": "the owl's shots: the key art's rust-red needle with a crosshair ring, its core, shell, trail and spill (Josh, DECIDED 2026-11-11, D-new-owl-shot-look; vfx_spec: tell, release, travel, fade). The pink chevrons of bar-casters and Ricky's red-shot sheets are not the look",
+        "what": "the red shots: GDD SH1.0 'Shared red projectile' (sharply pointed angular head, pale core, layered crimson/coral shell, magenta-red shadow edge, short geometric tail; tell, release, travel, fade) for the Keeper and every enemy red shot. The key art's rust-red needle with a crosshair ring is not the look (D-new-sh10-art-conflicts)",
         "share_max": 0.04,
         "delta_e_max": 12,
         "chroma": [
-          20,
-          50
+          30,
+          85
         ],
         "hue_bands_deg": [
           [
-            25,
-            55
+            5,
+            50
           ]
         ],
         "colours": [
           {
-            "name": "RUST",
-            "hex": "#723929",
-            "source": "measured on pipeline/art/reference/target-keyart.png, the five bolts (8065 pixels with CIELAB chroma >= 20 and hue <= 55 in x 408-928, y 222-650; chroma 20-44, hue 29-55): mean (L* 30.9, C* 31.8, hue 42)"
+            "name": "RED",
+            "hex": "#ff3658",
+            "source": "GDD SH1.0 'Shared red projectile': crimson #FF3658 (the same value as bar-casters and Ricky's red-shot sheet d-red-shots)"
           },
           {
-            "name": "RUST SHADOW",
-            "hex": "#5b2519",
-            "source": "measured on pipeline/art/reference/target-keyart.png, the five bolts (8065 pixels with CIELAB chroma >= 20 and hue <= 55 in x 408-928, y 222-650; chroma 20-44, hue 29-55): mean of the darkest 10% (L* 22.3)"
+            "name": "CORAL",
+            "hex": "#ff7848",
+            "source": "GDD SH1.0 'Shared red projectile': coral #FF7848"
           },
           {
-            "name": "RUST HIGH",
-            "hex": "#79331f",
-            "source": "measured on pipeline/art/reference/target-keyart.png, the five bolts (8065 pixels with CIELAB chroma >= 20 and hue <= 55 in x 408-928, y 222-650; chroma 20-44, hue 29-55): mean of the most saturated 10% (C* 39.9)"
+            "name": "RED SHADOW",
+            "hex": "#8f173c",
+            "source": "GDD SH1.0 'Shared red projectile': magenta-red shadow edge #8F173C"
           }
         ],
-        "note": "All three are within delta_e_tolerance of the palette's rust-red (#743422), so the key-art shot pixels count as the brand rust (accent_area cap); this role catches rust variants just outside the palette, capped at share_max. Pink #ff3658 now fails off_style (D-new-owl-shot-look)"
+        "note": "Hue and chroma band measured 12 Nov on the rendered red shots of the GDD's source sheets under pipeline/art/reference/ (pixels with CIELAB chroma >= 20, hue 330-60, within delta E 24 of a GDD red; 2nd to 98th percentile): d-red-shots hue 8.0-44.1 chroma 34.9-78.0, d-clock-double-beat hue 17.4-35.9 chroma 34.3-80.2, bar-casters hue 9.9-44.5 chroma 34.3-78.7; rounded out to hue 5-50, chroma 30-85. The GDD colours sit inside it (hue 11.6-45.9, chroma 51-80). The pale core #FFF5DC is in shot-yellow. The 11 Nov rust family (#723929, #5b2519, #79331f) is gone; rust pixels near the palette's rust-red still count as that palette colour"
       },
       "shot-yellow": {
-        "what": "yellow shots (absorbable shots in Ricky's proposal) and every shot core",
+        "what": "yellow shots (GDD SH1.0 'Shared yellow / capture': harmful on contact, healing only on eligible absorption, OWL-13) and every shot core",
         "share_max": 0.04,
         "delta_e_max": 12,
         "chroma": [
@@ -158,22 +158,22 @@
           {
             "name": "YELLOW",
             "hex": "#ffd84a",
-            "source": "bar-casters (Roadwarden / Sundial Casters sheet), references.json vfx_spec"
+            "source": "GDD SH1.0 'Shared yellow / capture' (the same values as bar-casters, references.json vfx_spec)"
           },
           {
             "name": "AMBER",
             "hex": "#f5aa28",
-            "source": "bar-casters (Roadwarden / Sundial Casters sheet), references.json vfx_spec"
+            "source": "GDD SH1.0 'Shared yellow / capture' (the same values as bar-casters, references.json vfx_spec)"
           },
           {
             "name": "YELLOW SHADOW",
             "hex": "#94611e",
-            "source": "bar-casters (Roadwarden / Sundial Casters sheet), references.json vfx_spec"
+            "source": "GDD SH1.0 'Shared yellow / capture' (the same values as bar-casters, references.json vfx_spec)"
           },
           {
             "name": "CORE",
             "hex": "#fff5dc",
-            "source": "bar-casters (Roadwarden / Sundial Casters sheet), references.json vfx_spec"
+            "source": "GDD SH1.0 'Shared yellow / capture' (the same values as bar-casters, references.json vfx_spec)"
           }
         ]
       }
@@ -212,7 +212,7 @@
         95
       ]
     ],
-    "note": "CIELAB hue angle. Gold/amber ~55-95, rust ~20-50 (art/design review C2 M2). Re-centre on measured reference means +/-15 deg once the palette is measured."
+    "note": "CIELAB hue angle. Gold/amber ~55-95, rust ~20-50 (art/design review C2 M2). The GDD SH1.0 crimson shots (hue 5-50) pass as the shot-red accent, not through this gate. Re-centre on measured reference means +/-15 deg once the palette is measured."
   },
   "sprite": {
     "status": "provisional",

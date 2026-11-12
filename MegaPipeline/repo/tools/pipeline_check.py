@@ -23,7 +23,8 @@ Checks (each one exists because of a finding in docs/audit.md):
   repomap     docs/repo-map.md (tools/repo_map.py): a pipeline folder the installer ships is missing from it, or its
               "Pipeline folders" section names a path that does not exist. Team folders never fail it; skipped while
               the map is absent
-  package     MegaPipeline/ is stale, hand-edited, or a repo doc lands in no package file (tools/export_package.py --check;
+  package     MegaPipeline/ is stale, hand-edited, or a repo doc lands in no package file (pipeline repos only, not an
+              installed game repo; tools/export_package.py --check;
               skipped while MegaPipeline/ is absent)
 Also prints the total size of LFS-tracked files (from the pointers; nothing is downloaded).
 
@@ -98,6 +99,9 @@ LEAK_ALLOW = {
     "MegaPipeline/Reference/Pipeline Audit.md",  # generated copy of docs/audit.md
 }
 LEAK_ALLOW_PREFIXES = ("evals/reviewer/cases/", "tests/fixtures/")
+# Terms that are the game's own names in its C++ code (EUmbrellaPlayMode, a PlayMode member): checked everywhere else.
+LEAK_CODE_OK = {r"\bplaymode\b"}
+LEAK_CODE_DIRS = ("Source/",)
 TEXT_EXT = {".md", ".txt", ".h", ".hpp", ".cpp", ".cs", ".ini", ".json", ".yml", ".yaml", ".py", ".sh", ".ps1", ".bat", ".uproject", ".uplugin"}
 
 FORBIDDEN_DIRS = ("Binaries/", "Intermediate/", "Saved/", "DerivedDataCache/", ".vs/", ".idea/", "Build/Windows/", "Build/Mac/")
@@ -261,6 +265,9 @@ CARD_LETTER = re.compile(r"(?<![\w.])(0\.\d{1,2}[a-e])\b")  # 0.4c, 0.6b: never 
 PATH_REF = re.compile(r"(?<![\w./-])((?:docs|pipeline|tools|tests|evals|prompts|\.github)/[\w./-]*[\w/])")
 PATH_SKIP = re.compile(r"[*<>{}]|NAME|\.\.\.|/$")
 PATH_TEMPLATE_TAIL = re.compile(r"[\w.-]*[*<{]")  # `tools/ue/test.*`, `prompts/log/D-<host>.md`
+# Files only a game repo has: the build mode kickoff saves on its first run and the build lead's gate list
+# (README "Build modes"). Docs may name them before they exist.
+GAME_REPO_PATHS = {"docs/build/MODE", "docs/build/gates.txt"}
 
 
 def table_cells(line):
@@ -376,6 +383,14 @@ def consistency(root, files):
                              "a `|` inside a cell splits it; write the command without one"))
     for _, lane in day0.values():
         planned.update(m.group(1) for m in PATH_REF.finditer(lane))
+    # direct local build: a path in an area card's "File lane" (docs/build/areas/<area>.md) is a planned output of that
+    # area branch; it reaches main when the build lead merges the area
+    for f in files:
+        if re.fullmatch(r"docs/build/areas/[\w-]+\.md", f) and not f.endswith("-status.md"):
+            lane = re.search(r"(?ms)^## File lane[^\n]*\n(.*?)(?=^## |\Z)", rd(f))
+            if lane:
+                planned.update(m.group(1).rstrip(".") for m in PATH_REF.finditer(lane.group(1)))
+    planned |= GAME_REPO_PATHS
     owners = owner_names(rd(BRIEF), rd("AGENTS.md"))
     for did, owner in sorted(decisions.items()):
         if owner and norm_owner(owner) not in owners and norm_owner(owner) not in ("none", "–", "-"):
@@ -450,6 +465,7 @@ def check(root, release=False, notes=None):
     if notes is not None:
         notes += hn
     leak_re = re.compile("|".join(LEAK_TERMS), re.IGNORECASE)
+    leak_code_re = re.compile("|".join(t for t in LEAK_TERMS if t not in LEAK_CODE_OK), re.IGNORECASE)
 
     binaries = [f for f in files if os.path.splitext(f)[1].lower() in LFS_EXT]
     lfs = lfs_tracked(root, binaries)
@@ -489,8 +505,9 @@ def check(root, release=False, notes=None):
                     text = read_text(full)
                 except OSError:
                     continue
+                term_re = leak_code_re if f.startswith(LEAK_CODE_DIRS) and ext in (".h", ".hpp", ".cpp") else leak_re
                 for n, line in enumerate(text.splitlines(), 1):
-                    m = leak_re.search(line)
+                    m = term_re.search(line)
                     if m:
                         problems.append(("leak", f"{f}:{n}", f"'{m.group(0)}' belongs to another project or engine"))
             if f in BUDGETS:
@@ -545,6 +562,10 @@ def package(root):
     """MegaPipeline/ must match a fresh tools/export_package.py build (skipped while either is absent)."""
     tool = os.path.join(root, "tools", "export_package.py")
     if not (os.path.isdir(os.path.join(root, "MegaPipeline")) and os.path.exists(tool)):
+        return []
+    if os.path.exists(os.path.join(root, ".pipeline-installed.json")):
+        # an installed game repo: MegaPipeline/ is the update bundle, refreshed only by a pipeline update. Card PRs
+        # never regenerate it (the export stamps the commit into ~38 files, so parallel PRs would all conflict).
         return []
     import importlib.util
     spec = importlib.util.spec_from_file_location("export_package", tool)

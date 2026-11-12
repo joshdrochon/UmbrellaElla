@@ -6,6 +6,8 @@
 # required `checks` job would never report on the revert PR. Workaround: add a REVERT_TOKEN secret (a fine-grained
 # PAT or GitHub App token: contents and pull-requests write); the step below uses it. Without it, the integration
 # owner closes and reopens the revert PR (a human event starts pipeline-checks).
+# Direct local build (docs/build/MODE says `direct`, or no MODE file and HANDOFF.md exists): skipped. The build lead
+# pushes main only after the local gate passes, and pipeline-checks still reports a red main.
 name: main-red
 on:
   push:
@@ -18,8 +20,27 @@ concurrency:
   group: main-red
   cancel-in-progress: false
 jobs:
-  revert-first:
+  mode:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      direct: ${{ steps.mode.outputs.direct }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: false
+      - name: Build mode from docs/build/MODE (direct = local build lead merges, no cards or PRs)
+        id: mode
+        run: |
+          if [ -f docs/build/MODE ]; then mode=$(tr -d '[:space:]' < docs/build/MODE); elif [ -f HANDOFF.md ]; then mode=direct; else mode=cards; fi
+          if [ "$mode" = direct ]; then direct=true; else direct=false; fi
+          echo "build mode: $mode (direct=$direct)"
+          echo "direct=$direct" >> "${GITHUB_OUTPUT:-/dev/null}"
+  revert-first:
+    needs: mode
+    if: needs.mode.outputs.direct != 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
     env:
       GH_TOKEN: ${{ secrets.REVERT_TOKEN || github.token }}
       GH_REPO: ${{ github.repository }}
