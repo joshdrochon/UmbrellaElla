@@ -102,7 +102,7 @@ void USmokeHookSubsystem::Tick(float DeltaTime)
 	if (!bShotTaken && !ShotPath.IsEmpty() && Elapsed >= Tuning.SmokeShotDelaySeconds)
 	{
 		bShotTaken = true;
-		FScreenshotRequest::RequestScreenshot(ShotPath, false, false);
+		FScreenshotRequest::RequestScreenshot(ShotPath, true, false);
 		const FVector2D Size = GEngine && GEngine->GameViewport ? FVector2D(GEngine->GameViewport->Viewport->GetSizeXY()) : FVector2D::ZeroVector;
 		UE_LOG(LogUmbrellaElla, Log, TEXT("SMOKE_SHOT at_s=%.1f w=%d h=%d"), Elapsed, static_cast<int32>(Size.X), static_cast<int32>(Size.Y));
 	}
