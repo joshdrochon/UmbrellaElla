@@ -1,0 +1,69 @@
+# Area worker rules (every area reads this first)
+
+Josh's call, Nov 12 13:40: no GitHub cards, PRs or reviewer ceremony during the build. Five area workers build the
+game in parallel on `area/<name>` branches; the build lead runs the gates and merges to `main`. The pipeline rules are
+engineering guidance, not ceremony: follow them where they make the code better, skip the card paperwork.
+
+## Read first (in this order, only what you need)
+1. Your area file `docs/build/areas/<name>.md` (Rule IDs, GDD sections, file lane, done).
+2. `docs/jam-brief.md` (MVP and gates), the GDD sections your area file names (`docs/gdd/GDD-SH1.0.md`), and your
+   Rule IDs' records in `docs/feature-manifest.json` (parameters, tests, approved_parameters).
+3. `pipeline/unreal/cpp-rules.md` and `pipeline/unreal/gameplay-code.md` (component layout, C++ rules, tests).
+   Lines there about GDD 1.3 (owl bolt, front shield, 90 s timer) are history; the GDD SH1.0 wins.
+4. The Core contracts already on main (do not edit them; ask in your log if one is wrong, see "Contract changes"):
+   - `Source/UmbrellaElla/Public/Core/EllaCharacter.h` shell: creates InputAdapter, Motor, UmbrellaState, Attack,
+     Absorb, Health, AnimPresenter components and calls each `BindInput`. Nothing else goes in the shell (rule L).
+   - `Core/UmbrellaTuning.h`: one member per module struct. Add your numbers to YOUR struct header
+     (e.g. `Public/Motor/MotorTuning.h`), read them with `GetDefault<UUmbrellaTuning>()->Motor.X`.
+   - `Core/UmbrellaEventBus.h` + `Core/UmbrellaEvent.h`: the manifest events. Modules talk through it; no hard
+     references between Motor, Health and the Keeper.
+   - `Core/UmbrellaCollision.h` (PlayerShot, EnemyShot, Hazard channels), `Core/UmbrellaDrawOrder.h` (all Y depths),
+     `Core/UmbrellaPlayMode.h` (StartGame / DirectorsCut).
+   - `Projectile/UmbrellaShotSpec.h`, `Projectile/UmbrellaShotReceiver.h` (interface every hittable thing implements),
+     `Projectile/UmbrellaProjectile.h` (`AUmbrellaProjectile::Fire(World, Spec)`, the one way to fire a shot).
+   - `Harness/UmbrellaFeatureFlags.h`: `IsFeatureEnabled(EFeatureId::OWL_06)`. Every file that names a Rule ID must
+     check its flag (module_check rule M). All are on by default.
+   - Seams owned by a lane, already stubbed: `Encounter/EncounterDirectorSubsystem` (keeper: `BeginKeeperFight`,
+     `ResetForRestart`), `Owl/KeeperOfTime` (keeper), `Arena/UmbrellaArena` (arena), `Flow/UmbrellaPlayerController`
+     (flow), `UI/UmbrellaHUD` (health). Fill in your own; call others only through their public functions and events.
+
+## Hard rules
+- Stay in your file lane (your area file lists it). Never edit another lane's files, `Core/`, `Harness/`, the
+  `.uproject`, `Config/*.ini` or `Source/*.Target.cs`. If you truly need a change there, write it in
+  `docs/build/requests/<area>.md` (create it) with the exact diff, and work around it with a stub in your lane.
+- All gameplay rules in C++ with plain rule functions tests can call. Blueprints/UMG only as thin data/layout,
+  ideally none: build UI in C++ (UUserWidget/Slate) and placeholders from engine primitives or Paper2D sprites made in code.
+- Assets (`.uasset`/`.umap`) only if you must; make them with a committed editor Python script
+  (`UnrealEditor-Cmd <uproject> -run=pythonscript -script=<file>`), so they can be rebuilt. They go through Git LFS.
+- Every number in your tuning struct, with the GDD/manifest value and `// bake: <ID>.<param>` where the manifest has
+  a parameter. No magic numbers in `.cpp` (rule G).
+- Tests: `Private/Tests/<YourArea>/`, names `UmbrellaElla.<Area>.<Behavior>` (rule tests, under 1 s) and
+  `UmbrellaElla.<Area>.World.<Behavior>` (transient world tests). Every behavior you claim has a test that reads a value.
+  Leave `Private/Tests/Bootstrap/PlaceholderTest.cpp` alone (plain `test.sh` passes once your real tests exist).
+- Never push, never merge, never touch `main` or another worktree. Never `git commit --amend` or rebase after a commit.
+  Commit on your branch with `git -c core.hooksPath=/dev/null commit` after each working slice (the build lead pushes
+  your branch to origin every 2 minutes, so a teammate can take over from any commit).
+- Never read or print `~/.umbrella-ella.env` or any key. Only the arena area may source it, in the one shell that
+  runs audio generation.
+
+## Unreal commands (Mac; this machine runs 5 workers, so always through the slot lock)
+    tools/build/ue_slot.sh tools/ue/build.sh                 # compile (editor target); must end "build exit: 0"
+    tools/build/ue_slot.sh tools/ue/test.sh                  # all automation tests; must PASS
+    TEST_FILTER=UmbrellaElla.<Area> tools/build/ue_slot.sh tools/ue/test.sh   # just yours while iterating
+    python3 tools/module_check.py                            # must be 0 problems
+Windows (PowerShell, no lock needed): `tools\ue\build.ps1`, `tools\ue\test.ps1`.
+Do not run package.sh; the build lead packages after merges.
+
+## Definition of done (per slice and for the area)
+1. `tools/build/ue_slot.sh tools/ue/build.sh` -> `build exit: 0`.
+2. `tools/build/ue_slot.sh tools/ue/test.sh` -> PASS, your new tests included.
+3. `python3 tools/module_check.py` -> 0 problems; `python3 tools/manifest_check.py` clean; feel/encounter checks
+   if your area file names them.
+4. Committed on your branch with a message naming the Rule IDs done.
+5. Append to `docs/build/areas/<area>-status.md` (your lane): Rule IDs done, tests that prove them, what is left.
+Work G1 Rule IDs first, then the "later" list. Keep going until both are done or you are blocked; when blocked,
+write why in the status file, commit, and stop.
+
+## Contract changes
+If a Core contract blocks you, do not edit it. Write the request (file, exact change, why) in
+`docs/build/requests/<area>.md`, commit, and continue with a local workaround. The build lead applies it on main.

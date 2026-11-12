@@ -6,5 +6,6 @@ public class UmbrellaEllaEditor : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 		PrivateDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "UnrealEd", "UmbrellaElla" });
+		IWYUSupport = IWYUSupport.Full;
 	}
 }
