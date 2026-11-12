@@ -36,6 +36,12 @@ public:
 	UCameraComponent* GetPlayCamera() const { return PlayCamera; }
 
 	/** Advance a looping background offset; returns true when it wrapped (BackgroundLooped). */
+	/** World-relative X of a scrolling plane's center for a loop offset. */
+	static float PlaneCenterX(float Offset, float ArenaWidth, float WidthScale);
+
+	/** Move both background planes to their current offsets. */
+	void ApplyScroll();
+
 	static bool HasWrappedAfterAdvance(float& Offset, float Speed, float DeltaTime, float Period);
 
 	virtual void Tick(float DeltaSeconds) override;
@@ -78,6 +84,7 @@ private:
 public:
 	UStaticMeshComponent* GetKeeperStandIn() const { return KeeperStandIn; }
 	UStaticMeshComponent* GetBackgroundFar() const { return BackgroundFar; }
+	UStaticMeshComponent* GetBackgroundNear() const { return BackgroundNear; }
 
 	/** Create the placeholder visuals (also called from BeginPlay). */
 	void BuildPlaceholders();
