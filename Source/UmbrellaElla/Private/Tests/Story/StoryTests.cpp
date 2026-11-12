@@ -54,7 +54,7 @@ bool FStoryCueTableTest::RunTest(const FString& Parameters)
 {
 	const TArray<FStoryCue> Cues = StoryCueTable::Parse(StoryCueTable::DefaultText());
 	TestEqual(TEXT("seven cues"), Cues.Num(), 7);
-	TestEqual(TEXT("opening text"), Cues[0].Text, FString(TEXT("Mother: Keep it open, Ella. It'll protect you from the owl.")));
+	TestEqual(TEXT("opening text"), Cues[0].Text, FString(TEXT("Keep it open. It will protect you from the owl.")));
 	FString OnDisk;
 	const FString Path = FPaths::Combine(FPaths::ProjectContentDir(), TEXT("UmbrellaElla/UI/Story/StoryCues.tsv"));
 	if (FFileHelper::LoadFileToString(OnDisk, *Path))
@@ -79,7 +79,7 @@ bool FStoryOpeningTest::RunTest(const FString& Parameters)
 	FStoryModel Model = NewModel();
 	Model.OnEvent(Make(EUmbrellaEventType::ModeSelected, DirectorsCut));
 	Model.Advance(0.1f);
-	TestTrue(TEXT("mother caption shows"), ActiveText(Model).StartsWith(TEXT("Mother: Keep it open")));
+	TestTrue(TEXT("mother caption shows"), ActiveText(Model).StartsWith(TEXT("Keep it open")));
 	Run(Model, 3.0f);
 	TestTrue(TEXT("still showing at 3 s"), Model.GetActiveCue() != nullptr);
 	Run(Model, 1.5f);
@@ -91,7 +91,7 @@ bool FStoryOpeningTest::RunTest(const FString& Parameters)
 	Model.OnEvent(Make(EUmbrellaEventType::ModeSelected, DirectorsCut));
 	Run(Model, 0.2f);
 	TestEqual(TEXT("a new run shows it once"), Model.CountShown(FName(TEXT("OpeningMother"))), 1);
-	TestTrue(TEXT("and it is on screen"), ActiveText(Model).StartsWith(TEXT("Mother:")));
+	TestTrue(TEXT("and it is on screen"), ActiveText(Model).StartsWith(TEXT("Keep it open")));
 	return true;
 }
 
@@ -158,7 +158,7 @@ bool FStoryInPlayCuesTest::RunTest(const FString& Parameters)
 	Model.OnEvent(Make(EUmbrellaEventType::PhaseStarted, TEXT("wings")));
 	Model.OnEvent(Make(EUmbrellaEventType::CheckpointReached, TEXT("wings")));
 	Run(Model, 0.2f);
-	TestEqual(TEXT("clock hand clue on arrival"), ActiveText(Model), FString(TEXT("One clock hand is left. Its mounting is empty.")));
+	TestEqual(TEXT("clock hand clue on arrival"), ActiveText(Model), FString(TEXT("The owl is huge, and made of clockwork.")));
 	Run(Model, 6.0f);
 	Model.OnEvent(Make(EUmbrellaEventType::PhaseStarted, TEXT("wings")));
 	Run(Model, 6.0f);
@@ -308,7 +308,7 @@ bool FStoryWorldTest::RunTest(const FString& Parameters)
 		Bus->Broadcast(Make(EUmbrellaEventType::ModeSelected, DirectorsCut));
 		Story->Tick(0.1f);
 		const FStoryCue* Cue = Story->GetModel().GetActiveCue();
-		TestTrue(TEXT("opening shown from the bus"), Cue && Cue->Text.StartsWith(TEXT("Mother:")));
+		TestTrue(TEXT("opening shown from the bus"), Cue && Cue->Text.StartsWith(TEXT("Keep it open")));
 		Bus->Broadcast(Make(EUmbrellaEventType::EncounterCompleted));
 		TestTrue(TEXT("ending started from the bus"), Story->GetModel().GetEndingStage() == EStoryEndingStage::Hold);
 	}
