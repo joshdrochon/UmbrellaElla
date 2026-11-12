@@ -192,16 +192,39 @@ WORKBENCH_DEFINE = "UMBRELLAELLA_WORKBENCH"
 SUBMIT_TARGET = "UmbrellaElla"
 
 
+# Seconds run() keeps reading after the command exits. The Mac editor forks UnrealTraceServer (TraceAuxiliary.cpp,
+# `fork --sponsor=<pid>`), which keeps the inherited stdout open and only exits once its sponsor is reaped; reading to
+# EOF before wait() deadlocked every editor run (card 0.3 dry run, UE 5.8.4 on macOS 15). RUN_DRAIN_S overrides.
+DRAIN_S = 5.0
+
+
 def run(cmd, timeout, log, env=None):
     os.makedirs(os.path.dirname(os.path.abspath(log)), exist_ok=True)
+    drain = float(os.environ.get("RUN_DRAIN_S", DRAIN_S))
     with open(log, "ab") as fh:
         # Own process group, so a timeout also kills the children UBT/UAT start.
         extra = {"creationflags": subprocess.CREATE_NEW_PROCESS_GROUP} if os.name == "nt" else {"start_new_session": True}
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, env=env, **extra)
-        timed_out = threading.Event()
+        lock, closed = threading.Lock(), []
+
+        def pump():
+            # Reads until EOF; a daemon thread, so a pipe held open by a forked background server never blocks run().
+            out = getattr(sys.stdout, "buffer", None)
+            for chunk in iter(proc.stdout.readline, b""):
+                with lock:
+                    if closed:
+                        return
+                    if out is not None:
+                        out.write(chunk)
+                    else:
+                        sys.stdout.write(chunk.decode("utf-8", "replace"))
+                    sys.stdout.flush()
+                    fh.write(chunk)
+
+        reader = threading.Thread(target=pump, daemon=True)
+        reader.start()
 
         def kill():
-            timed_out.set()
             if os.name == "nt":
                 subprocess.run(["taskkill", "/T", "/F", "/PID", str(proc.pid)], capture_output=True)
             else:
@@ -210,29 +233,32 @@ def run(cmd, timeout, log, env=None):
                 except OSError:
                     proc.kill()
 
-        timer = threading.Timer(timeout, kill) if timeout > 0 else None
-        if timer:
-            timer.start()
+        timed_out = False
         try:
-            out = getattr(sys.stdout, "buffer", None)
-            for chunk in iter(proc.stdout.readline, b""):
-                if out is not None:
-                    out.write(chunk)
-                else:
-                    sys.stdout.write(chunk.decode("utf-8", "replace"))
-                sys.stdout.flush()
-                fh.write(chunk)
+            rc = proc.wait(timeout if timeout > 0 else None)
+        except subprocess.TimeoutExpired:
+            timed_out = True
+            kill()
             rc = proc.wait()
-        finally:
-            if timer:
-                timer.cancel()
+        # The command has exited and is reaped; read what is left, but stop once only a background process that
+        # inherited the pipe still holds it open.
+        reader.join(drain)
+        with lock:
+            closed.append(True)
+            held = reader.is_alive()
+            if held:
+                msg = (f"note: output pipe still held open {drain:g}s after the command exited (a background "
+                       "process it started, e.g. UnrealTraceServer); stopped reading\n")
+                fh.write(msg.encode())
+                print(msg, end="")
+            if timed_out:
+                msg = f"TIMEOUT: killed after {timeout}s: {' '.join(cmd)}\n"
+                fh.write(msg.encode())
+                print(msg, end="")
+            fh.flush()
+        if not held:
             proc.stdout.close()
-        if timed_out.is_set():
-            msg = f"TIMEOUT: killed after {timeout}s: {' '.join(cmd)}\n"
-            fh.write(msg.encode())
-            print(msg, end="")
-            return TIMEOUT_RC
-        return rc
+        return TIMEOUT_RC if timed_out else rc
 
 
 def git(root, *args):
