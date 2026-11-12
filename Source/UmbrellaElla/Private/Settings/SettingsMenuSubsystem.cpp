@@ -1,7 +1,9 @@
 #include "Settings/SettingsMenuSubsystem.h"
 #include "EnhancedInputSubsystems.h"
+#include "Engine/GameInstance.h"
 #include "Engine/LocalPlayer.h"
-#include "GameFramework/Pawn.h"
+#include "Engine/World.h"
+#include "Feedback/Vfx/UmbrellaVfxSubsystem.h"
 #include "GameFramework/Pawn.h"
 #include "GameFramework/PlayerController.h"
 #include "Harness/UmbrellaFeatureFlags.h"
@@ -29,11 +31,41 @@ void USettingsMenuSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	{
 		ReloadFromStore();
 		ApplyVolumes(Session.GetSaved());
+		// Reduced flash follows the saved value in every world that starts, and in the one already running.
+		WorldInitHandle = FWorldDelegates::OnPostWorldInitialization.AddWeakLambda(this, [this](UWorld* World, const UWorld::InitializationValues)
+		{
+			HandleWorldInit(World);
+		});
+		ApplyReducedFlash();
+	}
+}
+
+void USettingsMenuSubsystem::HandleWorldInit(UWorld* World)
+{
+	if (World && World->GetGameInstance() == GetGameInstance())
+	{
+		ApplyReducedFlashToWorld(World, Session.GetSaved());
+	}
+}
+
+void USettingsMenuSubsystem::ApplyReducedFlash()
+{
+	const UGameInstance* GameInstance = GetGameInstance();
+	ApplyReducedFlashToWorld(GameInstance ? GameInstance->GetWorld() : nullptr, Session.GetSaved());
+}
+
+void USettingsMenuSubsystem::ApplyReducedFlashToWorld(UWorld* World, const FUmbrellaSettingsData& Data)
+{
+	UUmbrellaVfxSubsystem* Vfx = World ? World->GetSubsystem<UUmbrellaVfxSubsystem>() : nullptr;
+	if (Vfx && IsFeatureEnabled(EFeatureId::VFX_10))
+	{
+		Vfx->SetReducedFlash(Data.bReducedFlash);
 	}
 }
 
 void USettingsMenuSubsystem::Deinitialize()
 {
+	FWorldDelegates::OnPostWorldInitialization.Remove(WorldInitHandle);
 	CloseSettings();
 	Super::Deinitialize();
 }
@@ -146,6 +178,7 @@ ESettingsResult USettingsMenuSubsystem::SaveSettings(ESettingsPage Page)
 	}
 	Session.SavePage(Page);
 	ApplyVolumes(Session.GetSaved());
+	ApplyReducedFlash();
 	return SettingsStore::Write(StorePath, Session.GetSaved());
 }
 

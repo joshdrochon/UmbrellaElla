@@ -67,6 +67,7 @@ ESettingsResult SettingsStore::Write(const FString& Path, const FUmbrellaSetting
 	File.SetInt64(SoundSection, TEXT("Music"), Data.MusicVolume);
 	File.SetInt64(AccessSection, TEXT("TextScale"), Data.TextScalePercent);
 	File.SetInt64(AccessSection, TEXT("ReducedMotion"), Data.bReducedMotion ? 1 : 0);
+	File.SetInt64(AccessSection, TEXT("ReducedFlash"), Data.bReducedFlash ? 1 : 0);
 	FConfigSection& Section = File.Add(BindingSection, FConfigSection());
 	for (const FUmbrellaDefaultBinding& Binding : Data.Bindings)
 	{
@@ -90,6 +91,7 @@ ESettingsResult SettingsStore::Read(const FString& Path, FUmbrellaSettingsData& 
 	Data.MusicVolume = SettingsRules::ClampVolume(ReadInt(File, SoundSection, TEXT("Music"), Data.MusicVolume));
 	Data.TextScalePercent = SettingsRules::ClampTextScale(ReadInt(File, AccessSection, TEXT("TextScale"), Data.TextScalePercent));
 	Data.bReducedMotion = ReadInt(File, AccessSection, TEXT("ReducedMotion"), 0) != 0;
+	Data.bReducedFlash = ReadInt(File, AccessSection, TEXT("ReducedFlash"), 0) != 0;
 
 	TArray<FString> Encoded;
 	File.GetArray(BindingSection, TEXT("Binding"), Encoded);

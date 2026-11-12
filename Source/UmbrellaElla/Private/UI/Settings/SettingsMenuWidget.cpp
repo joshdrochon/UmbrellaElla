@@ -223,6 +223,13 @@ void USettingsMenuWidget::RebuildBody()
 
 	const int32 Size = ScaledFont(SettingsLayout::BodyFontSize);
 	TSharedRef<SHorizontalBox> Buttons = SNew(SHorizontalBox);
+	if (bSaveFailed && IsFeatureEnabled(EFeatureId::FLOW_43))
+	{
+		Buttons->AddSlot().AutoWidth().Padding(SettingsLayout::RowPadding)
+		[
+			Label(LOCTEXT("SaveFailed", "Could not save your settings."), Size, Warn())
+		];
+	}
 	if (bBackPrompt)
 	{
 		Buttons->AddSlot().AutoWidth().Padding(SettingsLayout::RowPadding)
@@ -360,6 +367,25 @@ void USettingsMenuWidget::AddSoundBody()
 			}))
 			[
 				Label(LOCTEXT("ReducedMotion", "Reduced motion"), Size, Sepia())
+			]
+		];
+		BodyBox->AddSlot().AutoHeight().Padding(SettingsLayout::RowPadding)
+		[
+			SNew(SCheckBox)
+			.IsChecked(TAttribute<ECheckBoxState>::Create(TAttribute<ECheckBoxState>::FGetter::CreateWeakLambda(this, [this]()
+			{
+				const USettingsMenuSubsystem* Subsystem = Owner.Get();
+				return Subsystem && Subsystem->GetSession().GetDraft().bReducedFlash ? ECheckBoxState::Checked : ECheckBoxState::Unchecked;
+			})))
+			.OnCheckStateChanged(FOnCheckStateChanged::CreateWeakLambda(this, [this](ECheckBoxState State)
+			{
+				if (USettingsMenuSubsystem* Subsystem = Owner.Get())
+				{
+					Subsystem->EditSession().SetReducedFlash(State == ECheckBoxState::Checked);
+				}
+			}))
+			[
+				Label(LOCTEXT("ReducedFlash", "Reduced flash"), Size, Sepia())
 			]
 		];
 	}
@@ -501,7 +527,7 @@ void USettingsMenuWidget::PressSave()
 	{
 		return;
 	}
-	Subsystem->SaveSettings(Page);
+	bSaveFailed = Subsystem->SaveSettings(Page) == ESettingsResult::Failed;
 	Subsystem->ApplySavedBindings(GetOwningPlayer());
 	RebuildBody();
 }
@@ -517,8 +543,14 @@ void USettingsMenuWidget::ChooseBack(ESettingsBackChoice Choice)
 	switch (Choice)
 	{
 	case ESettingsBackChoice::Save:
-		Subsystem->SaveSettings(Page);
+		bSaveFailed = Subsystem->SaveSettings(Page) == ESettingsResult::Failed;
 		Subsystem->ApplySavedBindings(GetOwningPlayer());
+		if (bSaveFailed)
+		{
+			// The file could not be written: stay open and say so.
+			RebuildBody();
+			break;
+		}
 		CloseMenu();
 		break;
 	case ESettingsBackChoice::Discard:
