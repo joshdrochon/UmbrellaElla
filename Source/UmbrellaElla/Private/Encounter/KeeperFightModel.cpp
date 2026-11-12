@@ -1,4 +1,5 @@
 #include "Encounter/KeeperFightModel.h"
+#include "Owl/KeeperTuning.h"
 
 namespace
 {
@@ -67,7 +68,7 @@ bool FKeeperFightModel::ShouldDefeatWin(bool bPlayerDefeated, bool bFightWon)
 
 void FKeeperFightModel::Init(const FKeeperTuning& InTuning, const FEncounterTuning& InEncounter, const FKeeperRuleSwitches& InSwitches)
 {
-	Tuning = InTuning;
+	TuningRef = &InTuning;
 	EncounterTuning = InEncounter;
 	Switches = InSwitches;
 	const int32 Count = static_cast<int32>(EKeeperPart::Count);
@@ -81,11 +82,11 @@ float FKeeperFightModel::PartMaxHp(EKeeperPart Part) const
 {
 	switch (Part)
 	{
-	case EKeeperPart::Wings: return Tuning.WingsHp;
-	case EKeeperPart::Front: return Tuning.FrontHp;
-	case EKeeperPart::Middle: return Tuning.MiddleHp;
-	case EKeeperPart::Rear: return Tuning.RearHp;
-	case EKeeperPart::Clock: return Tuning.ClockHp;
+	case EKeeperPart::Wings: return Tuning().WingsHp;
+	case EKeeperPart::Front: return Tuning().FrontHp;
+	case EKeeperPart::Middle: return Tuning().MiddleHp;
+	case EKeeperPart::Rear: return Tuning().RearHp;
+	case EKeeperPart::Clock: return Tuning().ClockHp;
 	default: return 0.0f;
 	}
 }
@@ -164,9 +165,9 @@ void FKeeperFightModel::FinishTransition(TArray<FKeeperCommand>& Out)
 {
 	TransitionRemaining = 0.0f;
 	PhaseTime = 0.0f;
-	RedCountdown = (Phase == EKeeperPhase::Clock) ? Tuning.BeatFirstAtSeconds : Tuning.RedFirstAtSeconds;
-	YellowCountdown = Tuning.YellowFirstAtSeconds;
-	PhysicalCountdown = (Phase == EKeeperPhase::Wings) ? Tuning.GustFirstAtSeconds : Tuning.CastFirstAtSeconds;
+	RedCountdown = (Phase == EKeeperPhase::Clock) ? Tuning().BeatFirstAtSeconds : Tuning().RedFirstAtSeconds;
+	YellowCountdown = Tuning().YellowFirstAtSeconds;
+	PhysicalCountdown = (Phase == EKeeperPhase::Wings) ? Tuning().GustFirstAtSeconds : Tuning().CastFirstAtSeconds;
 	FinalCycleTime = 0.0f;
 	if (Phase == EKeeperPhase::Clock)
 	{
@@ -223,7 +224,7 @@ bool FKeeperFightModel::IsPartBroken(EKeeperPart Part) const
 
 float FKeeperFightModel::GetWorldScale() const
 {
-	return (SlowRemaining > 0.0f && BlackoutRemaining <= 0.0f) ? Tuning.SlowWorldScale : 1.0f;
+	return (SlowRemaining > 0.0f && BlackoutRemaining <= 0.0f) ? Tuning().SlowWorldScale : 1.0f;
 }
 
 bool FKeeperFightModel::IsPartEligible(EKeeperPart Part) const
@@ -248,7 +249,7 @@ bool FKeeperFightModel::IsPartEligible(EKeeperPart Part) const
 		{
 			return false;
 		}
-		const float Floor = (Phase == EKeeperPhase::Clock) ? 0.0f : Tuning.ClockReserveHp;
+		const float Floor = (Phase == EKeeperPhase::Clock) ? 0.0f : Tuning().ClockReserveHp;
 		return GetPartHp(Part) > Floor;
 	}
 	case EKeeperPart::Eye:
@@ -262,9 +263,9 @@ FVector2D FKeeperFightModel::GetMechanismHome(EKeeperPart Part) const
 {
 	switch (Part)
 	{
-	case EKeeperPart::Front: return Anchor + FVector2D(Tuning.FrontOffset);
-	case EKeeperPart::Middle: return Anchor + FVector2D(Tuning.MiddleOffsetPos);
-	case EKeeperPart::Rear: return Anchor + FVector2D(Tuning.RearOffset);
+	case EKeeperPart::Front: return Anchor + FVector2D(Tuning().FrontOffset);
+	case EKeeperPart::Middle: return Anchor + FVector2D(Tuning().MiddleOffsetPos);
+	case EKeeperPart::Rear: return Anchor + FVector2D(Tuning().RearOffset);
 	default: return Anchor;
 	}
 }
@@ -312,9 +313,9 @@ float FKeeperFightModel::RedSpeed() const
 {
 	switch (Phase)
 	{
-	case EKeeperPhase::Wings: return Tuning.RedSpeedWings;
-	case EKeeperPhase::Mechanisms: return Tuning.RedSpeedMechanisms;
-	default: return Tuning.RedSpeedClock;
+	case EKeeperPhase::Wings: return Tuning().RedSpeedWings;
+	case EKeeperPhase::Mechanisms: return Tuning().RedSpeedMechanisms;
+	default: return Tuning().RedSpeedClock;
 	}
 }
 
@@ -322,9 +323,9 @@ float FKeeperFightModel::RedSpread() const
 {
 	switch (Phase)
 	{
-	case EKeeperPhase::Wings: return Tuning.RedSpreadWingsDeg;
-	case EKeeperPhase::Mechanisms: return Tuning.RedSpreadMechanismsDeg;
-	default: return Tuning.RedSpreadClockDeg;
+	case EKeeperPhase::Wings: return Tuning().RedSpreadWingsDeg;
+	case EKeeperPhase::Mechanisms: return Tuning().RedSpreadMechanismsDeg;
+	default: return Tuning().RedSpreadClockDeg;
 	}
 }
 
@@ -332,9 +333,9 @@ float FKeeperFightModel::RedSize() const
 {
 	switch (Phase)
 	{
-	case EKeeperPhase::Wings: return Tuning.RedSizeWings;
-	case EKeeperPhase::Mechanisms: return Tuning.RedSizeMechanisms;
-	default: return Tuning.RedSizeClock;
+	case EKeeperPhase::Wings: return Tuning().RedSizeWings;
+	case EKeeperPhase::Mechanisms: return Tuning().RedSizeMechanisms;
+	default: return Tuning().RedSizeClock;
 	}
 }
 
@@ -342,9 +343,9 @@ float FKeeperFightModel::YellowSpeed() const
 {
 	switch (Phase)
 	{
-	case EKeeperPhase::Wings: return Tuning.YellowSpeedWings;
-	case EKeeperPhase::Mechanisms: return Tuning.YellowSpeedMechanisms;
-	default: return Tuning.YellowSpeedClock;
+	case EKeeperPhase::Wings: return Tuning().YellowSpeedWings;
+	case EKeeperPhase::Mechanisms: return Tuning().YellowSpeedMechanisms;
+	default: return Tuning().YellowSpeedClock;
 	}
 }
 
@@ -420,9 +421,9 @@ void FKeeperFightModel::TickUnscaled(float Dt, TArray<FKeeperCommand>& Out)
 		if (BlackoutRemaining <= 0.0f)
 		{
 			BlackoutRemaining = 0.0f;
-			RedCountdown = Tuning.RedIntervalSeconds;
-			YellowCountdown = Tuning.YellowIntervalSeconds;
-			PhysicalCountdown = Tuning.PhysicalIntervalSeconds;
+			RedCountdown = Tuning().RedIntervalSeconds;
+			YellowCountdown = Tuning().YellowIntervalSeconds;
+			PhysicalCountdown = Tuning().PhysicalIntervalSeconds;
 			Emit(EKeeperCommandType::BlackoutEnded);
 		}
 	}
@@ -466,9 +467,9 @@ void FKeeperFightModel::TickUnscaled(float Dt, TArray<FKeeperCommand>& Out)
 	if (Phase == EKeeperPhase::Clock)
 	{
 		FinalCycleTime += Dt;
-		if (FinalCycleTime >= Tuning.FinalExposureCycleSeconds)
+		if (FinalCycleTime >= Tuning().FinalExposureCycleSeconds)
 		{
-			FinalCycleTime -= Tuning.FinalExposureCycleSeconds;
+			FinalCycleTime -= Tuning().FinalExposureCycleSeconds;
 			OpenClock(Out, true);
 		}
 	}
@@ -501,7 +502,7 @@ void FKeeperFightModel::QueueShot(float Delay, EUmbrellaShotKind Kind, FName Nam
 	Shot.Command.A = Origin;
 	Shot.Command.B = Direction(AngleDeg) * Speed;
 	Shot.Command.Value = Radius;
-	Shot.Command.Damage = Tuning.ProjectileDamage;
+	Shot.Command.Damage = Tuning().ProjectileDamage;
 	Shot.Command.Phase = Phase;
 	Pending.Add(Shot);
 }
@@ -520,7 +521,7 @@ void FKeeperFightModel::TickAttacks(float WorldDt, const FKeeperTickInput& Input
 			}
 			else
 			{
-				RedCountdown = Tuning.RedIntervalSeconds;
+				RedCountdown = Tuning().RedIntervalSeconds;
 			}
 		}
 		else if (Switches.bRed)
@@ -529,7 +530,7 @@ void FKeeperFightModel::TickAttacks(float WorldDt, const FKeeperTickInput& Input
 		}
 		else
 		{
-			RedCountdown = Tuning.RedIntervalSeconds;
+			RedCountdown = Tuning().RedIntervalSeconds;
 		}
 	}
 	if (YellowCountdown <= 0.0f)
@@ -540,7 +541,7 @@ void FKeeperFightModel::TickAttacks(float WorldDt, const FKeeperTickInput& Input
 		}
 		else
 		{
-			YellowCountdown = Tuning.YellowIntervalSeconds;
+			YellowCountdown = Tuning().YellowIntervalSeconds;
 		}
 	}
 }
@@ -548,51 +549,51 @@ void FKeeperFightModel::TickAttacks(float WorldDt, const FKeeperTickInput& Input
 void FKeeperFightModel::StartRedVolley(const FKeeperTickInput& Input)
 {
 	const bool bReduced = IsPhysicalThreatening();
-	const int32 Count = bReduced ? 1 : Tuning.RedShotCount;
+	const int32 Count = bReduced ? 1 : Tuning().RedShotCount;
 	const FVector2D Origin = GetMuzzle();
 	const float Center = (Phase == EKeeperPhase::Wings)
 		? FMath::RadiansToDegrees(FMath::Atan2(Input.PlayerPos.Y - Origin.Y, Input.PlayerPos.X - Origin.X))
-		: Tuning.FixedLeftAngleDeg;
+		: Tuning().FixedLeftAngleDeg;
 	for (int32 Index = 0; Index < Count; ++Index)
 	{
-		QueueShot(static_cast<float>(Index) * Tuning.RedSpacingSeconds, EUmbrellaShotKind::EnemyRed, RedFanName, Origin,
-			FanAngleDeg(Center, RedSpread(), Index, Count), RedSpeed(), Tuning.RedBaseRadius * RedSize());
+		QueueShot(static_cast<float>(Index) * Tuning().RedSpacingSeconds, EUmbrellaShotKind::EnemyRed, RedFanName, Origin,
+			FanAngleDeg(Center, RedSpread(), Index, Count), RedSpeed(), Tuning().RedBaseRadius * RedSize());
 	}
-	RedCountdown = bReduced ? Tuning.ReducedIntervalSeconds : Tuning.RedIntervalSeconds;
+	RedCountdown = bReduced ? Tuning().ReducedIntervalSeconds : Tuning().RedIntervalSeconds;
 }
 
 void FKeeperFightModel::StartDoubleBeat(const FKeeperTickInput& Input)
 {
 	const bool bReduced = IsPhysicalThreatening();
-	const int32 Count = bReduced ? 1 : Tuning.RedShotCount;
+	const int32 Count = bReduced ? 1 : Tuning().RedShotCount;
 	const FVector2D Origin = GetMuzzle();
 	const float Center = FMath::RadiansToDegrees(FMath::Atan2(Input.PlayerPos.Y - Origin.Y, Input.PlayerPos.X - Origin.X));
-	const float GroupSpan = static_cast<float>(Count - 1) * Tuning.RedSpacingSeconds;
-	const float RepeatStart = GroupSpan + Tuning.BeatRepeatWaitSeconds;
+	const float GroupSpan = static_cast<float>(Count - 1) * Tuning().RedSpacingSeconds;
+	const float RepeatStart = GroupSpan + Tuning().BeatRepeatWaitSeconds;
 	for (int32 Repeat = 0; Repeat < 2; ++Repeat)
 	{
 		for (int32 Index = 0; Index < Count; ++Index)
 		{
 			// The repeat flies the same captured paths: same origin, same angles, never re-aimed.
-			QueueShot(static_cast<float>(Repeat) * RepeatStart + static_cast<float>(Index) * Tuning.RedSpacingSeconds,
+			QueueShot(static_cast<float>(Repeat) * RepeatStart + static_cast<float>(Index) * Tuning().RedSpacingSeconds,
 				EUmbrellaShotKind::EnemyRed, BeatName, Origin, FanAngleDeg(Center, RedSpread(), Index, Count), RedSpeed(),
-				Tuning.RedBaseRadius * RedSize());
+				Tuning().RedBaseRadius * RedSize());
 		}
 	}
-	const float Natural = RepeatStart + GroupSpan + Tuning.BeatRecoverySeconds;
-	RedCountdown = bReduced ? FMath::Max(Natural, Tuning.ReducedIntervalSeconds) : Natural;
+	const float Natural = RepeatStart + GroupSpan + Tuning().BeatRecoverySeconds;
+	RedCountdown = bReduced ? FMath::Max(Natural, Tuning().ReducedIntervalSeconds) : Natural;
 }
 
 void FKeeperFightModel::StartYellow(const FKeeperTickInput& Input)
 {
 	const FVector2D Origin = GetMuzzle();
 	const float Angle = FMath::RadiansToDegrees(FMath::Atan2(Input.PlayerPos.Y - Origin.Y, Input.PlayerPos.X - Origin.X));
-	for (int32 Index = 0; Index < Tuning.YellowShotCount; ++Index)
+	for (int32 Index = 0; Index < Tuning().YellowShotCount; ++Index)
 	{
-		QueueShot(static_cast<float>(Index) * Tuning.RedSpacingSeconds, EUmbrellaShotKind::EnemyYellow, YellowName, Origin, Angle,
-			YellowSpeed(), Tuning.RedBaseRadius * Tuning.YellowSize);
+		QueueShot(static_cast<float>(Index) * Tuning().RedSpacingSeconds, EUmbrellaShotKind::EnemyYellow, YellowName, Origin, Angle,
+			YellowSpeed(), Tuning().RedBaseRadius * Tuning().YellowSize);
 	}
-	YellowCountdown = Tuning.YellowIntervalSeconds;
+	YellowCountdown = Tuning().YellowIntervalSeconds;
 }
 
 // ---------------------------------------------------------------- physical moves
@@ -623,14 +624,14 @@ void FKeeperFightModel::TickPhysical(float WorldDt, const FKeeperTickInput& Inpu
 	PhysicalCountdown -= WorldDt;
 	TalonCooldown = FMath::Max(0.0f, TalonCooldown - WorldDt);
 	const float TalonDistance = FVector2D::Distance(GetClaw(), Input.PlayerPos);
-	if (TalonDistance > Tuning.TalonRearmExit)
+	if (TalonDistance > Tuning().TalonRearmExit)
 	{
 		bTalonArmed = true;
 	}
 	if (Stage == EKeeperStage::Idle)
 	{
-		if (Switches.bTalon && bTalonArmed && TalonCooldown <= 0.0f && PhaseTime >= Tuning.TalonFirstAtSeconds
-			&& TalonDistance <= Tuning.TalonReach)
+		if (Switches.bTalon && bTalonArmed && TalonCooldown <= 0.0f && PhaseTime >= Tuning().TalonFirstAtSeconds
+			&& TalonDistance <= Tuning().TalonReach)
 		{
 			StartPhysical(EKeeperPhysical::Talon, Input, Out);
 		}
@@ -662,21 +663,21 @@ void FKeeperFightModel::TickPhysical(float WorldDt, const FKeeperTickInput& Inpu
 	case EKeeperPhysical::Gust:
 		if (Stage == EKeeperStage::Stroke)
 		{
-			GustTravelled += Tuning.GustSpeed * WorldDt;
+			GustTravelled += Tuning().GustSpeed * WorldDt;
 			GustFront.X = LockStart.X - GustTravelled;
-			const bool bInBand = FMath::Abs(Input.PlayerPos.Y - GustBandZ) <= Tuning.GustBandWidth * 0.5f + Input.PlayerRadius;
-			const bool bInFront = FMath::Abs(Input.PlayerPos.X - GustFront.X) <= Tuning.GustFrontThickness * 0.5f + Input.PlayerRadius;
+			const bool bInBand = FMath::Abs(Input.PlayerPos.Y - GustBandZ) <= Tuning().GustBandWidth * 0.5f + Input.PlayerRadius;
+			const bool bInFront = FMath::Abs(Input.PlayerPos.X - GustFront.X) <= Tuning().GustFrontThickness * 0.5f + Input.PlayerRadius;
 			if (bInBand && bInFront)
 			{
 				if (!bDamagedThisCast)
 				{
 					bDamagedThisCast = true;
-					EmitDamage(GustName, Tuning.GustDamage, Out);
+					EmitDamage(GustName, Tuning().GustDamage, Out);
 				}
 				FKeeperCommand Push;
 				Push.Type = EKeeperCommandType::PushPlayer;
 				Push.Physical = EKeeperPhysical::Gust;
-				Push.Value = (Input.PlayerPos.Y >= GustBandZ) ? Tuning.GustPush : -Tuning.GustPush;
+				Push.Value = (Input.PlayerPos.Y >= GustBandZ) ? Tuning().GustPush : -Tuning().GustPush;
 				Push.Serial = CastSerial;
 				Out.Add(Push);
 			}
@@ -687,10 +688,10 @@ void FKeeperFightModel::TickPhysical(float WorldDt, const FKeeperTickInput& Inpu
 		{
 			HeadPos = FMath::Lerp(LockStart, LockEnd, Progress);
 			if (!bDamagedThisCast
-				&& SegmentDistance(Input.PlayerPos, LockStart, HeadPos) <= Tuning.TalonTipWidth * 0.5f + Input.PlayerRadius)
+				&& SegmentDistance(Input.PlayerPos, LockStart, HeadPos) <= Tuning().TalonTipWidth * 0.5f + Input.PlayerRadius)
 			{
 				bDamagedThisCast = true;
-				EmitDamage(TalonName, Tuning.TalonDamage, Out);
+				EmitDamage(TalonName, Tuning().TalonDamage, Out);
 			}
 		}
 		break;
@@ -706,13 +707,13 @@ void FKeeperFightModel::TickPhysical(float WorldDt, const FKeeperTickInput& Inpu
 			const FVector2D Line = FMath::Lerp(LockStart, LockEnd, PathT);
 			const FVector2D Axis = (LockEnd - LockStart).GetSafeNormal();
 			const FVector2D Normal(-Axis.Y, Axis.X);
-			const float Curve = (Physical == EKeeperPhysical::MiddleCurve) ? MiddleSign * Tuning.MiddleOffset * FMath::Sin(PI * PathT) : 0.0f;
+			const float Curve = (Physical == EKeeperPhysical::MiddleCurve) ? MiddleSign * Tuning().MiddleOffset * FMath::Sin(PI * PathT) : 0.0f;
 			HeadPos = Line + Normal * Curve;
 			if (!bDamagedThisCast
-				&& SegmentDistance(Input.PlayerPos, PrevHeadPos, HeadPos) <= Tuning.ChainHeadWidth * 0.5f + Input.PlayerRadius)
+				&& SegmentDistance(Input.PlayerPos, PrevHeadPos, HeadPos) <= Tuning().ChainHeadWidth * 0.5f + Input.PlayerRadius)
 			{
 				bDamagedThisCast = true;
-				EmitDamage(PhysicalName(Physical), Tuning.ChainDamage, Out);
+				EmitDamage(PhysicalName(Physical), Tuning().ChainDamage, Out);
 			}
 		}
 		else if (Stage == EKeeperStage::Recovery)
@@ -735,34 +736,34 @@ void FKeeperFightModel::TickPhysical(float WorldDt, const FKeeperTickInput& Inpu
 			GustTravelled = 0.0f;
 		}
 		EnterStage(EKeeperStage::Stroke,
-			Physical == EKeeperPhysical::Gust ? Tuning.GustLifetimeSeconds
-			: Physical == EKeeperPhysical::Talon ? Tuning.TalonStrikeSeconds
-			: (Physical == EKeeperPhysical::RearTwoStage ? 0.5f : 1.0f) * Tuning.ChainReach / Tuning.ChainSpeed,
+			Physical == EKeeperPhysical::Gust ? Tuning().GustLifetimeSeconds
+			: Physical == EKeeperPhysical::Talon ? Tuning().TalonStrikeSeconds
+			: (Physical == EKeeperPhysical::RearTwoStage ? 0.5f : 1.0f) * Tuning().ChainReach / Tuning().ChainSpeed,
 			Out);
 		break;
 	case EKeeperStage::Stroke:
 		if (Physical == EKeeperPhysical::RearTwoStage)
 		{
-			EnterStage(EKeeperStage::Pause, Tuning.RearPauseSeconds, Out);
+			EnterStage(EKeeperStage::Pause, Tuning().RearPauseSeconds, Out);
 		}
 		else if (Physical == EKeeperPhysical::Gust)
 		{
-			EnterRecovery(Tuning.GustRecoverySeconds, Out);
+			EnterRecovery(Tuning().GustRecoverySeconds, Out);
 		}
 		else if (Physical == EKeeperPhysical::Talon)
 		{
-			EnterRecovery(Tuning.TalonRecoverySeconds, Out);
+			EnterRecovery(Tuning().TalonRecoverySeconds, Out);
 		}
 		else
 		{
-			EnterRecovery(Tuning.ChainReturnSeconds, Out);
+			EnterRecovery(Tuning().ChainReturnSeconds, Out);
 		}
 		break;
 	case EKeeperStage::Pause:
-		EnterStage(EKeeperStage::SecondStroke, 0.5f * Tuning.ChainReach / Tuning.ChainSpeed, Out);
+		EnterStage(EKeeperStage::SecondStroke, 0.5f * Tuning().ChainReach / Tuning().ChainSpeed, Out);
 		break;
 	case EKeeperStage::SecondStroke:
-		EnterRecovery(Tuning.ChainReturnSeconds, Out);
+		EnterRecovery(Tuning().ChainReturnSeconds, Out);
 		break;
 	case EKeeperStage::Recovery:
 		Physical = EKeeperPhysical::None;
@@ -779,29 +780,29 @@ void FKeeperFightModel::StartPhysical(EKeeperPhysical Kind, const FKeeperTickInp
 	Physical = Kind;
 	++CastSerial;
 	bDamagedThisCast = false;
-	PhysicalCountdown = Tuning.PhysicalIntervalSeconds;
+	PhysicalCountdown = Tuning().PhysicalIntervalSeconds;
 	FKeeperCommand Cmd;
 	Cmd.Type = EKeeperCommandType::PhysicalWarning;
 	Cmd.Physical = Kind;
 	Cmd.Name = PhysicalName(Kind);
 	Cmd.Serial = CastSerial;
-	float Warning = Tuning.CastWarningSeconds;
+	float Warning = Tuning().CastWarningSeconds;
 	if (Kind == EKeeperPhysical::Gust)
 	{
-		Warning = Tuning.GustWarningSeconds;
+		Warning = Tuning().GustWarningSeconds;
 		GustBandZ = Input.PlayerPos.Y;
 		LockStart = GetMuzzle();
-		LockEnd = FVector2D(LockStart.X - Tuning.GustSpeed * Tuning.GustLifetimeSeconds, GustBandZ);
+		LockEnd = FVector2D(LockStart.X - Tuning().GustSpeed * Tuning().GustLifetimeSeconds, GustBandZ);
 		Cmd.A = FVector2D(LockStart.X, GustBandZ);
 	}
 	else if (Kind == EKeeperPhysical::Talon)
 	{
-		Warning = Tuning.TalonWarningSeconds;
+		Warning = Tuning().TalonWarningSeconds;
 		bTalonArmed = false;
-		TalonCooldown = Tuning.TalonCooldownSeconds;
+		TalonCooldown = Tuning().TalonCooldownSeconds;
 		LockStart = GetClaw();
 		const FVector2D Dir = (Input.PlayerPos - LockStart).GetSafeNormal();
-		LockEnd = LockStart + Dir * Tuning.TalonReach;
+		LockEnd = LockStart + Dir * Tuning().TalonReach;
 		HeadPos = LockStart;
 		Cmd.A = LockStart;
 		Cmd.B = LockEnd;
@@ -812,7 +813,7 @@ void FKeeperFightModel::StartPhysical(EKeeperPhysical Kind, const FKeeperTickInp
 		NextCastIndex = (CycleIndex + 1) % CastCycleNum;
 		LockStart = GetMechanismHome(CastPart(Kind));
 		const FVector2D Dir = (Input.PlayerPos - LockStart).GetSafeNormal();
-		LockEnd = LockStart + (Dir.IsNearlyZero() ? FVector2D(-1.0f, 0.0f) : Dir) * Tuning.ChainReach;
+		LockEnd = LockStart + (Dir.IsNearlyZero() ? FVector2D(-1.0f, 0.0f) : Dir) * Tuning().ChainReach;
 		MiddleSign = MiddleSignForSerial(CastSerial);
 		HeadPos = LockStart;
 		Cmd.A = LockStart;
@@ -847,8 +848,8 @@ void FKeeperFightModel::EnterRecovery(float Duration, TArray<FKeeperCommand>& Ou
 	StageDuration = Duration;
 	StageRemaining = Duration;
 	// Recovery shortens the next yellow and keeps red from firing at once; a longer red delay is preserved.
-	YellowCountdown = FMath::Min(YellowCountdown, Tuning.YellowRecoveryMaxSeconds);
-	RedCountdown = FMath::Max(RedCountdown, Tuning.RedRecoveryMinSeconds);
+	YellowCountdown = FMath::Min(YellowCountdown, Tuning().YellowRecoveryMaxSeconds);
+	RedCountdown = FMath::Max(RedCountdown, Tuning().RedRecoveryMinSeconds);
 	FKeeperCommand Cmd;
 	Cmd.Type = EKeeperCommandType::PhysicalRecovery;
 	Cmd.Physical = Physical;
@@ -898,7 +899,7 @@ void FKeeperFightModel::OpenClock(TArray<FKeeperCommand>& Out, bool bFinalCycle)
 	{
 		return;
 	}
-	ClockOpenRemaining = bFinalCycle ? Tuning.FinalExposureSeconds : Tuning.ClockOpenSeconds;
+	ClockOpenRemaining = bFinalCycle ? Tuning().FinalExposureSeconds : Tuning().ClockOpenSeconds;
 	ClockProtectRemaining = 0.0f;
 	// A genuinely new opening resets the per-opening slow and eye flags and clears any earlier eye window.
 	bSlowUsedThisOpening = false;
@@ -910,7 +911,7 @@ void FKeeperFightModel::OpenClock(TArray<FKeeperCommand>& Out, bool bFinalCycle)
 		Hide.Type = EKeeperCommandType::EyeHidden;
 		Out.Add(Hide);
 	}
-	FirePauseRemaining = Tuning.FirePauseSeconds; // capped: a new opening never stacks pauses
+	FirePauseRemaining = Tuning().FirePauseSeconds; // capped: a new opening never stacks pauses
 	FKeeperCommand Cmd;
 	Cmd.Type = EKeeperCommandType::ClockOpened;
 	Cmd.Value = ClockOpenRemaining;
@@ -922,7 +923,7 @@ void FKeeperFightModel::CloseClock(TArray<FKeeperCommand>& Out)
 	ClockOpenRemaining = 0.0f;
 	if (Phase != EKeeperPhase::Clock)
 	{
-		ClockProtectRemaining = Tuning.ClockProtectRecoverySeconds;
+		ClockProtectRemaining = Tuning().ClockProtectRecoverySeconds;
 	}
 	FKeeperCommand Cmd;
 	Cmd.Type = EKeeperCommandType::ClockClosed;
@@ -932,7 +933,7 @@ void FKeeperFightModel::CloseClock(TArray<FKeeperCommand>& Out)
 void FKeeperFightModel::StartEyeBlackout(TArray<FKeeperCommand>& Out)
 {
 	EyeWindowRemaining = 0.0f;
-	EyeCooldownRemaining = Tuning.EyeCooldownSeconds;
+	EyeCooldownRemaining = Tuning().EyeCooldownSeconds;
 	if (SlowRemaining > 0.0f)
 	{
 		SlowRemaining = 0.0f;
@@ -940,7 +941,7 @@ void FKeeperFightModel::StartEyeBlackout(TArray<FKeeperCommand>& Out)
 		End.Type = EKeeperCommandType::SlowEnded;
 		Out.Add(End);
 	}
-	BlackoutRemaining = Tuning.BlackoutSeconds;
+	BlackoutRemaining = Tuning().BlackoutSeconds;
 	// Blackout clears missiles, queued repeats, the physical move and gusts.
 	Pending.Reset();
 	CancelPhysical(Out);
@@ -1027,7 +1028,7 @@ FKeeperHitResult FKeeperFightModel::ApplyPlayerHit(EKeeperPart Part, float Damag
 	const float Before = PartHp[PartIndex(Part)];
 	if (Part == EKeeperPart::Clock)
 	{
-		const float Floor = (Phase == EKeeperPhase::Clock) ? 0.0f : Tuning.ClockReserveHp;
+		const float Floor = (Phase == EKeeperPhase::Clock) ? 0.0f : Tuning().ClockReserveHp;
 		PartHp[PartIndex(Part)] = FMath::Max(Floor, Before - Damage);
 		Result.Outcome = EKeeperHitOutcome::Damaged;
 		Result.bClockHpReduced = PartHp[PartIndex(Part)] < Before;
@@ -1045,30 +1046,30 @@ FKeeperHitResult FKeeperFightModel::ApplyPlayerHit(EKeeperPart Part, float Damag
 				Halt(Out);
 				FKeeperCommand Win;
 				Win.Type = EKeeperCommandType::FightWon;
-				Win.Value = Tuning.DepartureSeconds;
+				Win.Value = Tuning().DepartureSeconds;
 				Out.Add(Win);
 				return Result;
 			}
 			// The qualifying hit: slow and eye, each at most once per opening.
-			const bool bSlowReady = Switches.bSlow && Tuning.bSlowEnabled && !bSlowUsedThisOpening && SlowCooldownRemaining <= 0.0f;
+			const bool bSlowReady = Switches.bSlow && Tuning().bSlowEnabled && !bSlowUsedThisOpening && SlowCooldownRemaining <= 0.0f;
 			if (bSlowReady)
 			{
 				bSlowUsedThisOpening = true;
-				SlowRemaining = Tuning.SlowSeconds;
-				SlowCooldownRemaining = Tuning.SlowSeconds + Tuning.SlowCooldownSeconds;
+				SlowRemaining = Tuning().SlowSeconds;
+				SlowCooldownRemaining = Tuning().SlowSeconds + Tuning().SlowCooldownSeconds;
 				FKeeperCommand Cmd;
 				Cmd.Type = EKeeperCommandType::SlowStarted;
-				Cmd.Value = Tuning.SlowSeconds;
+				Cmd.Value = Tuning().SlowSeconds;
 				Out.Add(Cmd);
 			}
-			const bool bEyeAllowed = Switches.bEye && ((Switches.bSlow && Tuning.bSlowEnabled) || Tuning.bEyeWhenSlowOff);
+			const bool bEyeAllowed = Switches.bEye && ((Switches.bSlow && Tuning().bSlowEnabled) || Tuning().bEyeWhenSlowOff);
 			if (bEyeAllowed && !bEyeUsedThisOpening && EyeCooldownRemaining <= 0.0f)
 			{
 				bEyeUsedThisOpening = true;
-				EyeWindowRemaining = Tuning.EyeWindowSeconds;
+				EyeWindowRemaining = Tuning().EyeWindowSeconds;
 				FKeeperCommand Cmd;
 				Cmd.Type = EKeeperCommandType::EyeShown;
-				Cmd.Value = Tuning.EyeWindowSeconds;
+				Cmd.Value = Tuning().EyeWindowSeconds;
 				Out.Add(Cmd);
 			}
 		}
@@ -1122,7 +1123,7 @@ void FKeeperFightModel::BreakPart(EKeeperPart Part, TArray<FKeeperCommand>& Out,
 	OpenClock(Out, false);
 	if (Switches.bBreakStun)
 	{
-		StunRemaining = Tuning.BreakStunSeconds;
+		StunRemaining = Tuning().BreakStunSeconds;
 		FKeeperCommand Stun;
 		Stun.Type = EKeeperCommandType::StunStarted;
 		Stun.Value = StunRemaining;
@@ -1138,3 +1139,6 @@ void FKeeperFightModel::BreakPart(EKeeperPart Part, TArray<FKeeperCommand>& Out,
 		Result.bPhaseAdvanced = true;
 	}
 }
+
+FVector2D FKeeperFightModel::GetMuzzle() const { return Anchor + FVector2D(Tuning().MuzzleOffset); }
+FVector2D FKeeperFightModel::GetClaw() const { return Anchor + FVector2D(Tuning().ClawOffset); }

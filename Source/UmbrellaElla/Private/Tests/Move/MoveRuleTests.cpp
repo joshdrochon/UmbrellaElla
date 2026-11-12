@@ -55,12 +55,10 @@ bool FMoveBaselineTest::RunTest(const FString& Parameters)
 	TestEqual(TEXT("wind open decay"), M.WindOpenDecay, 1.5f);
 	TestEqual(TEXT("wind falling decay"), M.WindFallingDecay, 12.0f);
 	const FUmbrellaFlightTuning& U = GetDefault<UUmbrellaTuning>()->UmbrellaFlight;
-	TestEqual(TEXT("min lift"), U.MinLift, 0.3f);
 	TestEqual(TEXT("absorb range"), U.AbsorbRange, 240.0f);
 	TestEqual(TEXT("absorb cone"), U.AbsorbConeDegrees, 60.0f);
 	TestEqual(TEXT("pull speed"), U.PullSpeed, 700.0f);
 	TestEqual(TEXT("capture distance"), U.CaptureDistance, 24.0f);
-	TestEqual(TEXT("heal per yellow"), U.HealPerYellow, 0.5f);
 	return true;
 }
 

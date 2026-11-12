@@ -34,16 +34,16 @@ struct UMBRELLAELLA_API FProgressionTuning
 	int32 MaxHitsPerLife = 11; // bake: FLOW-15.max_hits_per_life
 
 	UPROPERTY(EditAnywhere, Category = "Health tracks")
-	int32 MaxLives = 11; // bake: FLOW-15.max_lives
+	int32 MaxLivesCap = 11; // bake: FLOW-15.max_lives
 
 	UPROPERTY(EditAnywhere, Category = "Health tracks")
 	int32 RecoveryRanks = 3; // three successive one-point ranks
 
 	UPROPERTY(EditAnywhere, Category = "Health tracks")
-	float HealPerYellow = 0.5f; // bake: UMB-05.heal_per_yellow
+	float HealPerYellow = 0.5f; // base value; the Health tuning owns the bake key for this number
 
 	UPROPERTY(EditAnywhere, Category = "Health tracks")
-	float HealPerRecoveryRank = 0.3f; // bake: UMB-05.heal_per_recovery_rank
+	float HealPerRecoveryRank = 0.3f; // base value; the Health tuning owns the bake key for this number
 
 	/** Unlock levels (Small Blasts is level 1, always). */
 	UPROPERTY(EditAnywhere, Category = "Unlocks")
@@ -142,13 +142,13 @@ struct UMBRELLAELLA_API FProgressionTuning
 	float DamageReductionRankIII = 0.30f;
 
 	UPROPERTY(EditAnywhere, Category = "Rank values")
-	float SuctionRangeBase = 240.0f; // bake: UMB-05.absorb_range
+	float SuctionRangeBase = 240.0f; // base value; the UmbrellaFlight tuning owns the bake key for this number
 
 	UPROPERTY(EditAnywhere, Category = "Rank values")
 	float SuctionRangePerRank = 30.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Rank values")
-	float SuctionConeBaseDegrees = 60.0f; // bake: UMB-05.absorb_cone_deg
+	float SuctionConeBaseDegrees = 60.0f; // base value; the UmbrellaFlight tuning owns the bake key for this number
 
 	UPROPERTY(EditAnywhere, Category = "Rank values")
 	float SuctionConePerRankDegrees = 10.0f;

@@ -196,7 +196,7 @@ void UEllaMotorComponent::OnHealthChanged(const FUmbrellaEvent& Event)
 	// Lift contract: Value = active health in hits, Amount = per-life capacity in hits (0 = tuning default).
 	const FUmbrellaFlightTuning& Flight = GetDefault<UUmbrellaTuning>()->UmbrellaFlight;
 	const float Capacity = Event.Amount > 0 ? static_cast<float>(Event.Amount) : Flight.DefaultLifeCapacityHits;
-	const float NewLift = UmbrellaActionRules::LiftMultiplier(Event.Value, Capacity, Flight.MinLift);
+	const float NewLift = UmbrellaActionRules::LiftMultiplier(Event.Value, Capacity, GetDefault<UUmbrellaTuning>()->Health.MinLift);
 	if (FMath::IsNearlyEqual(NewLift, LiftMultiplier))
 	{
 		return;

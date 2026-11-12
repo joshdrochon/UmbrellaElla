@@ -2,6 +2,7 @@
 #include "Core/UmbrellaPlayMode.h"
 #include "GameFramework/PlayerController.h"
 #include "Harness/UmbrellaFeatureFlags.h"
+#include "Progression/ProgressionTuning.h"
 #include "Progression/ProgressionSubsystem.h"
 #include "Rendering/DrawElements.h"
 #include "Widgets/SBoxPanel.h"
