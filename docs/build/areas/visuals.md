@@ -1,6 +1,6 @@
 # Area: visuals (final art, animation, VFX and backgrounds)
 
-Branch `area/visuals`. Read `docs/build/worker-rules.md` first. Split from `arena` Nov 12 14:25 (memory allows more workers).
+Branch `area/visuals`. Read `docs/build/worker-rules.md` first. Split from `arena` Nov 12 14:05 (memory allows more workers).
 
 ## Rule IDs (G3, but placeholders that read well help every gate)
 BG-02 .. BG-06, ART-05 .. ART-10, ANIM-02 .. ANIM-10, VFX-02 .. VFX-11.

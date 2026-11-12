@@ -14,7 +14,7 @@ merges to `main`. **Teammates continue with Claude Code** (not Codex).
 
 ## How many workers
 Run as many workers as can usefully work in parallel: one per area with ready work and a file lane that does not overlap
-another active worker, bounded by the machine (2 Unreal builds/tests at once, `tools/build/ue_slot.sh`) and Claude
+another active worker, bounded by the machine (memory-adaptive Unreal slots, `tools/build/ue_slot.sh`) and Claude
 usage (Sonnet workers). Re-check whenever a worker finishes, an area merges or new work unblocks; split a big area when
 its later list has independent parts (`docs/build/areas.py` must still show every Rule ID in exactly one area).
 
@@ -24,10 +24,12 @@ its later list has independent parts (`docs/build/areas.py` must still show ever
 | move: Ella movement + basic shot | `area/move` | MOVE-04..07, 11, 13..15, 18..22, CORE-04, CORE-05, UMB-05, COM-05, COM-06, COM-10 | MOVE-12, MOVE-16, COM-07..09, COM-11 | see `docs/build/areas/move-status.md` on the branch |
 | keeper: the Keeper fight | `area/keeper` | OWL-06..35, FLOW-09 | - | `docs/build/areas/keeper-status.md` |
 | health: shots, absorb, health, clock HUD | `area/health` | SURV-05, SURV-07, FLOW-30..33 | - | `docs/build/areas/health-status.md` |
-| flow: menus, modes, pause, win/lose, smoke hook | `area/flow` | FLOW-02, FLOW-04, FLOW-34, FLOW-35, ART-04 | FLOW-03, 36..41, 43..45, MOVE-08..10, MOVE-17 | `docs/build/areas/flow-status.md` |
-| arena: arena, camera, wind, level route, art, sound | `area/arena` | CAM-03, WIND-03, CORE-06, ART-03 | CAM-04..08, HAZ-24..41, BG-02..06, ART-05..10, ANIM-02..10, VFX-02..11, FLOW-24..28, FLOW-47 | `docs/build/areas/arena-status.md` |
+| flow: menus, modes, pause, win/lose, smoke hook | `area/flow` | FLOW-02, FLOW-04, FLOW-34, FLOW-35, ART-04 | FLOW-03, FLOW-41, MOVE-08, MOVE-09 | `docs/build/areas/flow-status.md` |
+| arena: arena, camera, wind, level route, art, sound | `area/arena` | CAM-03, WIND-03, CORE-06, ART-03 | CAM-04..08, HAZ-24..41, FLOW-24..28, FLOW-47 (and sound) | `docs/build/areas/arena-status.md` |
 | enemies: Director's Cut enemies, Broken Mill, traps | `area/enemies` | - | COM-12..18, HAZ-02..23, FLOW-46 | `docs/build/areas/enemies-status.md` |
 | progression: XP, levels, unlocks, upgrades, persistence, XP ring | `area/progression` | - | SURV-06, FLOW-05..08, FLOW-10..23, FLOW-29, FLOW-42, FLOW-48 | `docs/build/areas/progression-status.md` |
+| visuals: final art, animation, VFX, backgrounds | `area/visuals` | - | BG-02..06, ART-05..10, ANIM-02..10, VFX-02..11 | `docs/build/areas/visuals-status.md` |
+| settings: settings, remap, credits, dev options | `area/settings` | - | FLOW-36..40, FLOW-43..45, MOVE-10, MOVE-17 | `docs/build/areas/settings-status.md` |
 | story: Director's Cut story, Journey Complete | `area/story` | - | NAR-02..08, FLOW-49 | `docs/build/areas/story-status.md` |
 Live state: `git fetch && git log --oneline main..origin/area/<name>` and that branch's status file.
 
@@ -49,7 +51,7 @@ After G1 features are merged: `tools/ue/package.sh` + `tools/ue/smoke.sh` (Mac D
     tools/build/push_areas.sh --loop &          # pushes area/* branches every 2 min
     # merge loop, per finished slice (merges in ../UmbrellaElla-areas/gate, pushes main only on PASS):
     tools/build/gate.sh area/<area> [commit]
-Workers on one Mac share the engine through `tools/build/ue_slot.sh` (max 2 Unreal builds/tests at once).
+Workers on one Mac share the engine through `tools/build/ue_slot.sh` (memory-adaptive: 4 at once under 36 GB used, 3 under 44 GB, else 2, none started at 56 GB+).
 
 ## Continue on Windows (PowerShell, Claude Code)
     cd $HOME\Desktop\UmbrellaElla   # your clone

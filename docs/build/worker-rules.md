@@ -6,8 +6,7 @@ engineering guidance, not ceremony: follow them where they make the code better,
 
 ## How many workers (Josh, Nov 12)
 Run as many workers as can usefully work in parallel: one per area that has ready work and a file lane that does not
-overlap another active worker. Bound it by the machine (at most 2 Unreal builds/tests at once through
-`tools/build/ue_slot.sh`; workers spend most of their time writing code) and by Claude usage (workers run Sonnet).
+overlap another active worker. Bound it by the machine (Unreal builds/tests go through `tools/build/ue_slot.sh`, 2 to 4 at once by free memory; workers spend most of their time writing code) and by Claude usage (workers run Sonnet).
 Re-check whenever a worker finishes, an area merges, or new work unblocks: start workers for newly ready lanes, and
 split a big area when its later list has independent parts (new area file + `docs/build/areas.py`, every Rule ID in
 exactly one area, lanes disjoint).
@@ -54,7 +53,7 @@ exactly one area, lanes disjoint).
 - Never read or print `~/.umbrella-ella.env` or any key. Only the arena area may source it, in the one shell that
   runs audio generation.
 
-## Unreal commands (Mac; this machine runs 5 workers, so always through the slot lock)
+## Unreal commands (Mac; many workers share this machine, so always through the slot lock)
     tools/build/ue_slot.sh tools/ue/build.sh                 # compile (editor target); must end "build exit: 0"
     tools/build/ue_slot.sh tools/ue/test.sh                  # all automation tests; must PASS
     TEST_FILTER=UmbrellaElla.<Area> tools/build/ue_slot.sh tools/ue/test.sh   # just yours while iterating

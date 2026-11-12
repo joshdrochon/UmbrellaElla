@@ -8,13 +8,15 @@ AREAS = {
     "keeper": {"g1": r("OWL", 6, 35) + ["FLOW-09"], "later": []},
     "health": {"g1": ["SURV-05", "SURV-07"] + r("FLOW", 30, 33), "later": []},
     "flow": {"g1": ["FLOW-02", "FLOW-04", "FLOW-34", "FLOW-35", "ART-04"],
-             "later": ["FLOW-03"] + r("FLOW", 36, 41) + ["FLOW-43", "FLOW-44", "FLOW-45"] + r("MOVE", 8, 10) + ["MOVE-17"]},
+             "later": ["FLOW-03", "FLOW-41", "MOVE-08", "MOVE-09"]},
+    # Added 14:08: settings split from flow's later list.
+    "settings": {"g1": [], "later": r("FLOW", 36, 40) + r("FLOW", 43, 45) + ["MOVE-10", "MOVE-17"]},
     "arena": {"g1": ["CAM-03", "WIND-03", "CORE-06", "ART-03"],
               "later": r("CAM", 4, 8) + r("HAZ", 24, 41) + r("FLOW", 24, 28) + ["FLOW-47"]},
-    # Added 14:10 (Josh: 8 workers). Director's Cut areas.
+    # Added 14:02 (Josh: 8 workers). Director's Cut areas.
     "enemies": {"g1": [], "later": r("COM", 12, 18) + r("HAZ", 2, 23) + ["FLOW-46"]},
     "progression": {"g1": [], "later": ["SURV-06"] + r("FLOW", 5, 23, skip=(9,)) + ["FLOW-29", "FLOW-42", "FLOW-48"]},
-    # Added 14:25 (memory allows more workers): arena's presentation half.
+    # Added 14:05 (memory allows more workers): arena's presentation half.
     "visuals": {"g1": [], "later": r("BG", 2, 6) + r("ART", 5, 10) + r("ANIM", 2, 10) + r("VFX", 2, 11)},
     "story": {"g1": [], "later": r("NAR", 2, 8) + ["FLOW-49"]},
 }
