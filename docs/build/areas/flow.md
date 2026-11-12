@@ -6,9 +6,9 @@ Branch `area/flow`. Read `docs/build/worker-rules.md` first.
 G1 first: FLOW-02, FLOW-04, FLOW-34, FLOW-35, ART-04 (start screen with Start Game and Start Director's Cut; Start Game
 goes straight to the Keeper with one basic shot; pause with Continue, Settings, Quit; defeat retry screen; the win:
 story text over the background, then credits), plus the smoke hook (below).
-Later (G2/G3): FLOW-03 (first-start tutorials, Pause then Skip), FLOW-36 .. FLOW-41, FLOW-43, FLOW-44, FLOW-45, FLOW-49
-(settings: Sound, Controller remap, Credits, Back, Save; Director's Cut win statistics; Director-only Game Options),
-MOVE-08, MOVE-09, MOVE-10, MOVE-17 (menu navigation, remapping UI), NAR-02 .. NAR-08 (Director's Cut story).
+Later (G2/G3): FLOW-03 (first-start tutorials, Pause then Skip), FLOW-36 .. FLOW-41, FLOW-43, FLOW-44, FLOW-45
+(settings: Sound, Controller remap, Credits, Back, Save; Director-only Game Options),
+MOVE-08, MOVE-09, MOVE-10, MOVE-17 (menu navigation, remapping UI). NAR-* and FLOW-49 moved to the `story` area (Nov 12 14:10).
 
 ## GDD sections
 2 (Player journey and modes), 6 (Story and dialogue), 7 (Menus, settings and accessibility, win results, settings and
@@ -16,7 +16,7 @@ earned-character interactions), 8 "Start screen and menu visual direction" and t
 
 ## File lane (only these)
 - `Source/UmbrellaElla/Public/Core/UmbrellaGameMode.h` and `Private/Core/UmbrellaGameMode.cpp` (you own the GameMode),
-  `{Public,Private}/Flow/**`, `UI/Menus/**`, `Story/**`, `Settings/**`, `Smoke/**`
+  `{Public,Private}/Flow/**`, `UI/Menus/**`, `Settings/**`, `Smoke/**`
 - `Source/UmbrellaElla/Private/Tests/Flow/**`
 - `Content/UmbrellaElla/Input/Menu/**`, `Content/UmbrellaElla/UI/Menus/**`, `docs/build/areas/flow-status.md`,
   `docs/build/requests/flow.md`
