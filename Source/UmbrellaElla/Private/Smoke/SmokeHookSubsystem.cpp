@@ -11,6 +11,8 @@
 #include "Misc/App.h"
 #include "Misc/CommandLine.h"
 #include "UnrealClient.h"
+#include "SceneView.h"
+#include "SceneView.h"
 #include "UObject/UnrealType.h"
 
 #ifndef UMBRELLAELLA_BUILD_COMMIT

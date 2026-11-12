@@ -7,6 +7,7 @@
 #include "Progression/ProgressionRules.h"
 #include "Progression/ProgressionTypes.h"
 #include "Subsystems/GameInstanceSubsystem.h"
+#include "Engine/World.h"
 #include "ProgressionSubsystem.generated.h"
 
 struct FProgressionTuning;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "UObject/ObjectMacros.h"
 
 /** Director's Cut chunk catalogue and nine-slot route. Plain data and rule functions; the
  *  enemies area places traps/enemies through FChunkVariant elements. Lane e. */

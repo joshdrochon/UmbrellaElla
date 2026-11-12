@@ -6,6 +6,8 @@
 #include "Core/UmbrellaEventBus.h"
 #include "Enemy/EnemyRules.h"
 #include "Engine/World.h"
+#include "GameFramework/Pawn.h"
+#include "GameFramework/Pawn.h"
 #include "Harness/UmbrellaFeatureFlags.h"
 #include "Kismet/GameplayStatics.h"
 #include "Projectile/UmbrellaProjectile.h"

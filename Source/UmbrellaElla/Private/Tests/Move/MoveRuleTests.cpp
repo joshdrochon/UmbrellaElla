@@ -4,6 +4,7 @@
 
 #include "Attack/AttackCadence.h"
 #include "Core/UmbrellaTuning.h"
+#include "UObject/Package.h"
 #include "Input/UmbrellaInputBindings.h"
 #include "Motor/MotorModel.h"
 #include "Motor/MotorTuning.h"
