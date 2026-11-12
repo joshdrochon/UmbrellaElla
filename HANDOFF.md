@@ -53,5 +53,5 @@ If git hooks block a commit, use `git -c core.hooksPath=NUL commit` (the gate-gu
 Never commit `~/.umbrella-ella.env` or any key.
 
 ## Follow-up list (minor review findings)
-- arena and flow both set the view target; keep one owner (flow).
-- Shots pass through arena walls (custom channels ignore BlockAllDynamic); decide if walls should eat shots.
+- DECIDED: flow owns the view target; arena removes its SetViewTarget (sent to arena worker).
+- DECIDED: walls and ceiling stop shots (GDD silent). Arena blocks PlayerShot/EnemyShot; health's projectile service must destroy a shot on a blocking hit (tell the health worker on restart).
