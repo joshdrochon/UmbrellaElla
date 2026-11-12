@@ -1,6 +1,6 @@
 # Area: enemies (Director's Cut regular enemies, the Broken Mill room and traps)
 
-Branch `area/enemies`. Read `docs/build/worker-rules.md` first. Added Nov 12 14:10 (Josh: 8 workers).
+Branch `area/enemies`. Read `docs/build/worker-rules.md` first. Added Nov 12 14:02 (Josh: 8 workers).
 
 ## Rule IDs (all Director's Cut, G2)
 COM-12 .. COM-18 (male/female variants, dual-colour red/yellow shots, Roadwarden three types, Floodstrider, Sky Courier,

@@ -27,6 +27,9 @@ public:
 
 	FVector GetDirection() const { return Direction; }
 
+	/** Half-extent of the volume in X/Z (Y keeps a thin depth). */
+	void SetHalfExtent(float HalfX, float HalfZ);
+
 	void SetCurrent(const FVector& NewDirection, float NewForce);
 
 	/** Broadcast the enter/exit event for a pawn; separate so tests can call it without physics. */

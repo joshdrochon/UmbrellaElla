@@ -4,7 +4,7 @@ Branch `area/keeper`. Read `docs/build/worker-rules.md` first.
 
 ## Rule IDs
 G1 first: OWL-06 .. OWL-35 (all 30), FLOW-09 (retry at the current phase checkpoint, 3 lives, full health).
-Later: none (regular enemies moved to the `enemies` area, Nov 12 14:10). After G1, harden the fight: every
+Later: none (regular enemies moved to the `enemies` area, Nov 12 14:02). After G1, harden the fight: every
 attack and effect from the contract, tuning from encounter data, and the QA scenarios for the Keeper.
 
 ## GDD sections

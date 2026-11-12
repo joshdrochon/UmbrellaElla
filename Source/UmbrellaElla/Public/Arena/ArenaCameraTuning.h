@@ -56,4 +56,12 @@ struct UMBRELLAELLA_API FArenaCameraTuning
 	/** Near background scroll speed, units per second. */
 	UPROPERTY(EditAnywhere, meta = (ClampMin = "0"))
 	float BackgroundNearSpeed = 60.0f;
+
+	/** Seconds a transient Ella visual state (shoot, absorb, hurt) shows before returning to idle. */
+	UPROPERTY(EditAnywhere, meta = (ClampMin = "0"))
+	float EllaStateHoldSeconds = 0.25f;
+
+	/** Background plane width as a multiple of the arena width, so a scrolled plane always covers the view. */
+	UPROPERTY(EditAnywhere, meta = (ClampMin = "2"))
+	float BackgroundWidthScale = 2.0f;
 };
