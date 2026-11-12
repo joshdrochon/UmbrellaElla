@@ -4,6 +4,7 @@
 #   used < 36 GB -> 4 at once, < 44 GB -> 3, otherwise 2; at or above 56 GB no new Unreal command starts.
 # Memory source: the line in ${UE_MEMWATCH:-~/.umbrella-ella-memwatch} ("used=31.9GB/64.0GB ..."), if it is fresh
 # (under 3 min old), else vm_stat. UE_SLOTS=<n> forces a fixed count. A slot whose holder PID died is reclaimed.
+# UE_SLOT_EXCLUSIVE=1 waits for every slot to be free and holds them all (packaging).
 # Usage: tools/build/ue_slot.sh tools/ue/build.sh      (Windows: run the .ps1 scripts directly, no slots)
 set -u
 DIR="${UE_SLOT_DIR:-/tmp/umbrellaella-ue-slots}"; MW="${UE_MEMWATCH:-$HOME/.umbrella-ella-memwatch}"; mkdir -p "$DIR"
@@ -30,7 +31,16 @@ held() {
 while :; do
   if mkdir "$DIR/.mutex" 2>/dev/null; then
     max=$(allowed); have=$(held)
-    if [ "$have" -lt "$max" ]; then
+    if [ -n "${UE_SLOT_EXCLUSIVE:-}" ]; then
+      # Packaging: UAT's own UBT calls fail on UBT's machine-wide mutex while any other build runs, so wait until no
+      # slot is held, then hold enough slots that nobody else starts.
+      if [ "$have" = 0 ]; then
+        for i in 1 2 3 4 5 6; do mkdir "$DIR/slot$$-x$i"; echo "$$ $(pwd)" > "$DIR/slot$$-x$i/owner"; done
+        rmdir "$DIR/.mutex"; trap 'rm -rf "$DIR"/slot$$-x*' EXIT INT TERM
+        echo "ue_slot: exclusive for $$: $*" >&2
+        "$@"; exit $?
+      fi
+    elif [ "$have" -lt "$max" ]; then
       s="$DIR/slot$$"; mkdir "$s"; echo "$$ $(pwd)" > "$s/owner"; rmdir "$DIR/.mutex"
       trap 'rm -rf "$s"' EXIT INT TERM
       echo "ue_slot: slot taken by $$ ($((have + 1))/$max, used $(used_gb) GB) for: $*" >&2
