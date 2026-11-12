@@ -16,9 +16,6 @@
 #ifndef UMBRELLAELLA_BUILD_COMMIT
 #define UMBRELLAELLA_BUILD_COMMIT "unknown"
 #endif
-#ifndef UMBRELLAELLA_WORKBENCH
-#define UMBRELLAELLA_WORKBENCH 0
-#endif
 
 namespace
 {
