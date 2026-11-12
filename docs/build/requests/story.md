@@ -17,3 +17,10 @@
    Story still listens to `ModeSelected`; a late one for the same untouched run is ignored, so the opening shows once.
 9. Keeper/flow: `PhaseStarted` Detail must be exactly `wings`, `mechanisms`, `clock` (EncounterDirectorSubsystem PhaseName).
    The NAR-06 clue keys on `PhaseStarted.wings` (`StoryCues.tsv`); any other spelling means the clue never shows.
+
+## PROPOSED facts avoided (design owner: confirm to let lines use them)
+Lines now use only GDD facts F1-F7. Not used, pending confirmation:
+- P3 (her mother gave her the umbrella to keep her safe) and any "protects you": opening-mother says only "Keep it open." (F4: umbrella tears).
+- P4 / P8 (edge of reality, still between worlds): ending-2 says only "She is alive."
+- P8 / P1 (owl only postponed his judgment): ending-3 says only "The owl has gone." (F3).
+- Owl damage (any wing falling away): shaft-clue shows gears only; F3 says the owl is not worn down.
