@@ -5,9 +5,8 @@ Branch `area/health`. Read `docs/build/worker-rules.md` first.
 ## Rule IDs
 G1 first: SURV-05, SURV-07, FLOW-30, FLOW-31, FLOW-32, FLOW-33, plus the Projectile Service (all shots in the game) and
 the clock HUD with health and life hands (MVP item 4: 3 hits x 3 lives, damage 1 / 1.25 / 1.5, yellow heals).
-Later (G3): SURV-06, FLOW-05 .. FLOW-23 except FLOW-09, FLOW-42, FLOW-48 (Director's Cut progression: kills-only XP,
-level-62 curve, stat tracks, checkpoints, persistence, run scaling, Final Hour, the XP ring). Oracle:
-`tools/progression_model.py` (read its --help; your C++ must match it).
+Later: none (progression moved to the `progression` area, Nov 12 14:02). Lead call: arena walls and ceiling block
+PlayerShot/EnemyShot; the Projectile Service destroys a shot on any blocking hit.
 
 ## GDD sections
 3 (Health, absorption and weapons; Shared player contract), 4 (Gameplay systems, Progression system card, Director's
@@ -15,8 +14,8 @@ Cut progression baseline), 7 (HUD/clock parts of Menus, settings and accessibili
 
 ## File lane (only these)
 - `Source/UmbrellaElla/{Public,Private}/Projectile/**` (the Core seam headers there are yours to extend, not rename),
-  `Health/**`, `Defense/**`, `UI/**` (except `UI/Menus/**`), `Progression/**`
-- `Source/UmbrellaElla/Private/Tests/Health/**`, `Private/Tests/Projectile/**`, `Private/Tests/Progression/**`
+  `Health/**`, `Defense/**`, `UI/**` (except `UI/Menus/**`, `UI/Progression/**`, `UI/Story/**`)
+- `Source/UmbrellaElla/Private/Tests/Health/**`, `Private/Tests/Projectile/**`
 - `Content/UmbrellaElla/UI/HUD/**`, `docs/build/areas/health-status.md`, `docs/build/requests/health.md`
 
 ## What to build
