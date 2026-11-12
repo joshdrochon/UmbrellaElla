@@ -9,6 +9,7 @@
 #include "Engine/StaticMesh.h"
 #include "Engine/World.h"
 #include "Harness/UmbrellaFeatureFlags.h"
+#include "Level/LevelCatalogue.h"
 
 namespace
 {
@@ -186,4 +187,17 @@ void AUmbrellaArena::ApplyScroll()
 	};
 	Move(BackgroundFar, FarOffset);
 	Move(BackgroundNear, NearOffset);
+}
+
+void AUmbrellaArena::FollowEllaX(float EllaX, int32 TravelDirection)
+{
+	if (!IsFeatureEnabled(EFeatureId::CAM_08))
+	{
+		return;
+	}
+	const float ViewWidth = GetDefault<UUmbrellaTuning>()->ArenaCamera.ArenaWidth;
+	const float Centre = CameraRules::ScrollCentreX(EllaX, TravelDirection, ViewWidth, 0.0f, LevelCatalogue::RouteLength());
+	FVector Location = PlayCamera->GetComponentLocation();
+	Location.X = Centre;
+	PlayCamera->SetWorldLocation(Location);
 }

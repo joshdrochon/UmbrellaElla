@@ -66,6 +66,10 @@ bool FArenaWorldCamera::RunTest(const FString& Parameters)
 			TestTrue(TEXT("aspect constrained"), Camera->bConstrainAspectRatio);
 			TestEqual(TEXT("orthographic"), static_cast<int32>(Camera->ProjectionMode), static_cast<int32>(ECameraProjectionMode::Orthographic));
 		}
+		Arena->FollowEllaX(5000.0f, 1);
+		TestTrue(TEXT("camera leads Ella to the right"), Arena->GetPlayCamera()->GetComponentLocation().X > 5000.0f);
+		Arena->FollowEllaX(-100.0f, -1);
+		TestEqual(TEXT("camera clamps to route start"), Arena->GetPlayCamera()->GetComponentLocation().X, static_cast<double>(GetDefault<UUmbrellaTuning>()->ArenaCamera.ArenaWidth * 0.5f));
 		TArray<UBoxComponent*> Boxes;
 		Arena->GetComponents<UBoxComponent>(Boxes);
 		int32 Blocking = 0;
