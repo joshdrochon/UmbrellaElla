@@ -10,7 +10,7 @@ PREFIX = {"Motor": "Move", "Umbrella": "Move", "Attack": "Move", "Input": "Move"
           "Health": "Health", "Defense": "Health", "UI": "Health", "Projectile": "Projectile",
           "Owl": "Keeper", "Encounter": "Keeper", "Keeper": "Keeper", "Flow": "Flow", "Smoke": "Flow",
           "Arena": "Arena", "Field": "Field", "Feedback": "Feedback", "Level": "Level", "Hazard": "Level",
-          "Enemy": "Enemy", "Trap": "Trap", "BrokenMill": "Trap", "Progression": "Progression",
+          "Enemy": "Enemy", "Trap": "Trap", "BrokenMill": "BrokenMill", "Progression": "Progression",
           "Persistence": "Persistence", "Story": "Story", "DirectorsCut": "Story", "Settings": "Settings"}
 SUB = {"UI/Menus": "Flow", "UI/Progression": "Progression", "UI/Story": "Story", "UI/Settings": "Settings"}
 prefixes, full = set(), False
@@ -25,6 +25,8 @@ for f in files:
         full = True; continue          # shared contracts: everything depends on them
     sub = "/".join(parts[3:5])
     p = SUB.get(sub) or PREFIX.get(d)
+    if parts[3] == "Tests":
+        prefixes.add(d)               # a test folder's own name is its test prefix (UmbrellaElla.<Folder>.*)
     if p:
         prefixes.add(p)
     else:
