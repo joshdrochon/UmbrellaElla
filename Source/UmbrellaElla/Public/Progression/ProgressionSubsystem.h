@@ -8,6 +8,7 @@
 #include "Progression/ProgressionTuning.h"
 #include "Progression/ProgressionTypes.h"
 #include "Subsystems/GameInstanceSubsystem.h"
+#include "Engine/World.h"
 #include "ProgressionSubsystem.generated.h"
 
 class UUmbrellaEventBus;

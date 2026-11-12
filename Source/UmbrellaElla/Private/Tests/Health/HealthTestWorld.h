@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Misc/AutomationTest.h"
 #include "Core/EllaCharacter.h"
 #include "Core/UmbrellaEventBus.h"
 #include "Engine/Engine.h"

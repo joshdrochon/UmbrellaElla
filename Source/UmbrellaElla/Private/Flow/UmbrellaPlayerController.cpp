@@ -4,6 +4,8 @@
 #include "Core/UmbrellaGameMode.h"
 #include "Core/UmbrellaTuning.h"
 #include "Encounter/EncounterDirectorSubsystem.h"
+#include "Engine/World.h"
+#include "Engine/World.h"
 #include "Engine/GameViewportClient.h"
 #include "Engine/LocalPlayer.h"
 #include "EnhancedInputComponent.h"

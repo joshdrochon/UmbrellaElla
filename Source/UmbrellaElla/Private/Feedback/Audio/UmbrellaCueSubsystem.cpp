@@ -1,5 +1,7 @@
 #include "Feedback/Audio/UmbrellaCueSubsystem.h"
 #include "Core/UmbrellaEvent.h"
+#include "Subsystems/SubsystemCollection.h"
+#include "Subsystems/SubsystemCollection.h"
 #include "Core/UmbrellaEventBus.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundBase.h"

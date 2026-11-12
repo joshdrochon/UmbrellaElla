@@ -1,3 +1,4 @@
+#include "Engine/Engine.h"
 #include "Core/UmbrellaEventBus.h"
 #include "Engine/StaticMeshActor.h"
 #include "Engine/World.h"

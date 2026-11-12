@@ -1,3 +1,4 @@
+#include "Engine/Engine.h"
 #include "Misc/AutomationTest.h"
 
 #if WITH_AUTOMATION_TESTS
@@ -13,6 +14,7 @@
 #include "Settings/SettingsMenuSubsystem.h"
 #include "Settings/SettingsModel.h"
 #include "Engine/GameInstance.h"
+#include "HAL/FileManager.h"
 #include "Tests/Shared/UmbrellaTestWorld.h"
 #include "Umbrella/UmbrellaStateComponent.h"
 
