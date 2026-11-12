@@ -46,6 +46,9 @@ bool FArenaWorldCamera::RunTest(const FString& Parameters)
 			TestTrue(TEXT("aspect constrained"), Camera->bConstrainAspectRatio);
 			TestEqual(TEXT("orthographic"), static_cast<int32>(Camera->ProjectionMode), static_cast<int32>(ECameraProjectionMode::Orthographic));
 		}
+		Arena->BuildPlaceholders();
+		TestNotNull(TEXT("keeper stand-in"), Arena->GetKeeperStandIn());
+		TestNotNull(TEXT("far background"), Arena->GetBackgroundFar());
 		const FArenaCameraTuning& T = GetDefault<UUmbrellaTuning>()->ArenaCamera;
 		TestNearlyEqual(TEXT("keeper anchor X"), Arena->GetKeeperAnchorLocation().X, static_cast<double>(T.ArenaWidth * T.KeeperAnchorXFraction));
 		TestNearlyEqual(TEXT("keeper anchor Z"), Arena->GetKeeperAnchorLocation().Z, static_cast<double>(T.ArenaHeight * T.KeeperAnchorZFraction));

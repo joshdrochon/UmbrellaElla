@@ -45,6 +45,10 @@ struct UMBRELLAELLA_API FArenaCameraTuning
 	UPROPERTY(EditAnywhere, meta = (ClampMin = "0", ClampMax = "1"))
 	float KeeperAnchorZFraction = 0.6f;
 
+	/** Side of the Keeper placeholder box, world units. */
+	UPROPERTY(EditAnywhere, meta = (ClampMin = "1"))
+	float KeeperStandInSize = 400.0f;
+
 	/** Far background scroll speed, units per second. */
 	UPROPERTY(EditAnywhere, meta = (ClampMin = "0"))
 	float BackgroundFarSpeed = 20.0f;

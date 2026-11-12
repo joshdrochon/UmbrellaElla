@@ -4,6 +4,8 @@
 #include "Core/UmbrellaDrawOrder.h"
 #include "Core/UmbrellaEventBus.h"
 #include "Core/UmbrellaTuning.h"
+#include "Components/StaticMeshComponent.h"
+#include "Engine/StaticMesh.h"
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
 #include "Harness/UmbrellaFeatureFlags.h"
@@ -94,9 +96,37 @@ bool AUmbrellaArena::HasWrappedAfterAdvance(float& Offset, float Speed, float De
 	return false;
 }
 
+void AUmbrellaArena::BuildPlaceholders()
+{
+	UStaticMesh* Shape = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cube.Cube"));
+	const FArenaCameraTuning& T = GetDefault<UUmbrellaTuning>()->ArenaCamera;
+	const float HalfW = T.ArenaWidth * 0.5f;
+	const float HalfH = T.ArenaHeight * 0.5f;
+	const auto Make = [this, Shape](const TCHAR* Name, const FVector& Location, const FVector& Scale) -> UStaticMeshComponent*
+	{
+		UStaticMeshComponent* Mesh = NewObject<UStaticMeshComponent>(this, Name);
+		if (IsValid(Shape))
+		{
+			Mesh->SetStaticMesh(Shape);
+		}
+		Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		Mesh->SetupAttachment(RootComponent);
+		Mesh->SetRelativeLocation(Location);
+		Mesh->SetRelativeScale3D(Scale);
+		Mesh->RegisterComponent();
+		return Mesh;
+	};
+	// Cube is 100 units; scale = size / 100.
+	const float Unit = UmbrellaArenaConst::CubeSize;
+	BackgroundFar = Make(TEXT("BackgroundFar"), FVector(HalfW, UmbrellaDrawOrder::BackgroundFarY, HalfH), FVector(T.ArenaWidth / Unit, UmbrellaArenaConst::PlaneThickness, T.ArenaHeight / Unit));
+	BackgroundNear = Make(TEXT("BackgroundNear"), FVector(HalfW, UmbrellaDrawOrder::BackgroundNearY, HalfH * 0.5f), FVector(T.ArenaWidth / Unit, UmbrellaArenaConst::PlaneThickness, T.ArenaHeight * 0.5f / Unit));
+	KeeperStandIn = Make(TEXT("KeeperStandIn"), FVector(T.ArenaWidth * T.KeeperAnchorXFraction, UmbrellaDrawOrder::KeeperY, T.ArenaHeight * T.KeeperAnchorZFraction), FVector(T.KeeperStandInSize / Unit, UmbrellaArenaConst::KeeperDepthScale, T.KeeperStandInSize / Unit));
+}
+
 void AUmbrellaArena::BeginPlay()
 {
 	Super::BeginPlay();
+	BuildPlaceholders();
 	if (!IsFeatureEnabled(EFeatureId::CAM_03))
 	{
 		return;
