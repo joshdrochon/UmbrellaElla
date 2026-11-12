@@ -19,6 +19,8 @@ bool FFeedbackCueMap::RunTest(const FString& Parameters)
 	TestEqual(TEXT("absorb cue"), UUmbrellaCueSubsystem::CueForEvent(Event), FName(TEXT("Absorb")));
 	Event.Type = EUmbrellaEventType::ProjectileSpawned;
 	TestEqual(TEXT("shot cue"), UUmbrellaCueSubsystem::CueForEvent(Event), FName(TEXT("Shot")));
+	Event.Type = EUmbrellaEventType::LevelGained;
+	TestEqual(TEXT("level up cue"), UUmbrellaCueSubsystem::CueForEvent(Event), FName(TEXT("LevelUp")));
 	Event.Type = EUmbrellaEventType::WindEntered;
 	TestTrue(TEXT("wind has no cue"), UUmbrellaCueSubsystem::CueForEvent(Event).IsNone());
 	return true;

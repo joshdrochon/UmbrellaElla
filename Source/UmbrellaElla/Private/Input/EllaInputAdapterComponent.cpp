@@ -10,7 +10,10 @@
 #include "InputActionValue.h"
 #include "InputMappingContext.h"
 #include "InputModifiers.h"
+#include "Engine/GameInstance.h"
+#include "Engine/World.h"
 #include "Motor/EllaMotorComponent.h"
+#include "Settings/SettingsMenuSubsystem.h"
 #include "Umbrella/UmbrellaStateComponent.h"
 
 namespace
@@ -75,6 +78,15 @@ UInputAction* UEllaInputAdapterComponent::GetInputAction(EUmbrellaInputAction Ac
 	return InputActions.IsValidIndex(Index) ? InputActions[Index].Get() : nullptr;
 }
 
+int32 UEllaInputAdapterComponent::ApplySavedBindings(const USettingsMenuSubsystem* Settings)
+{
+	if (!Settings || !MappingContext)
+	{
+		return 0;
+	}
+	return USettingsMenuSubsystem::ApplyBindingsToContext(MappingContext, Settings->GetSession().GetSaved());
+}
+
 void UEllaInputAdapterComponent::BindInput(UEnhancedInputComponent* Input)
 {
 	if (!Input || !IsFeatureEnabled(EFeatureId::MOVE_04))
@@ -82,6 +94,11 @@ void UEllaInputAdapterComponent::BindInput(UEnhancedInputComponent* Input)
 		return;
 	}
 	BuildInputAssets();
+	// Saved player remaps apply to the fresh context (soft: no subsystem, defaults stay).
+	if (const UGameInstance* GameInstance = GetWorld() ? GetWorld()->GetGameInstance() : nullptr)
+	{
+		ApplySavedBindings(GameInstance->GetSubsystem<USettingsMenuSubsystem>());
+	}
 
 	// IMC_Default goes on the local player at priority 0.
 	const APawn* Pawn = Cast<APawn>(GetOwner());
