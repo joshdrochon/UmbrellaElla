@@ -9,6 +9,7 @@
 #include "Engine/Engine.h"
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
+#include "Encounter/EncounterDirectorSubsystem.h"
 #include "Flow/UmbrellaPlayerController.h"
 #include "GameFramework/PlayerState.h"
 #include "GameFramework/WorldSettings.h"
@@ -92,6 +93,8 @@ bool FFlowWorldStartTest::RunTest(const FString& Parameters)
 	TestTrue(TEXT("the arena exists"), Mode && Mode->GetArena() != nullptr);
 	TestTrue(TEXT("camera is the arena"), Test.Controller->GetViewTarget() == Mode->GetArena());
 	TestEqual(TEXT("start game mode"), Test.Controller->GetPlayMode(), EUmbrellaPlayMode::StartGame);
+	const UEncounterDirectorSubsystem* Director = Test.World->GetSubsystem<UEncounterDirectorSubsystem>();
+	TestTrue(TEXT("the director is Active"), Director && Director->GetState() == EEncounterState::Active);
 	return true;
 }
 
@@ -177,6 +180,9 @@ bool FFlowWorldDefeatTest::RunTest(const FString& Parameters)
 	Test.Controller->TickFlow(1.0f);
 	TestEqual(TEXT("fight again"), Test.Controller->GetScreen(), EFlowScreen::Playing);
 	TestTrue(TEXT("Ella is back"), Test.Controller->GetPawn() != nullptr);
+	const UEncounterDirectorSubsystem* Director = Test.World->GetSubsystem<UEncounterDirectorSubsystem>();
+	TestTrue(TEXT("the director is Ready or Active again after the reset"),
+		Director && (Director->GetState() == EEncounterState::Ready || Director->GetState() == EEncounterState::Active));
 	return true;
 }
 

@@ -166,3 +166,15 @@ bool FFlowSmokeFpsTest::RunTest(const FString& Parameters)
 }
 
 #endif
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFlowPurchaseRulesTest, "UmbrellaElla.Flow.PurchaseScreenReturnsToTitle",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FFlowPurchaseRulesTest::RunTest(const FString& Parameters)
+{
+	EFlowScreen Screen = FFlowRules::Next(EFlowScreen::Title, EFlowCommand::OpenPurchase);
+	TestEqual(TEXT("title opens the purchase screen"), Screen, EFlowScreen::Purchase);
+	TestTrue(TEXT("purchase blocks gameplay input"), FFlowRules::IsInputBlockedOn(Screen));
+	TestEqual(TEXT("pause does nothing there"), FFlowRules::Next(Screen, EFlowCommand::Pause), EFlowScreen::Purchase);
+	TestEqual(TEXT("done returns to the title"), FFlowRules::Next(Screen, EFlowCommand::Continue), EFlowScreen::Title);
+	return true;
+}

@@ -133,4 +133,8 @@ struct UMBRELLAELLA_API FFlowTuning
 	/** Share of the slowest frames the smoke fps reads (0.01 = the 1% low). */
 	UPROPERTY(Config, EditAnywhere, meta = (ClampMin = "0.001", ClampMax = "1.0"))
 	float SmokeLowShare = 0.01f;
+
+	/** Gap under the purchase screen's Done button (pixels; no GDD value, layout only). */
+	UPROPERTY(Config, EditAnywhere, meta = (ClampMin = "0.0"))
+	float PurchaseDoneBottomMargin = 32.0f;
 };

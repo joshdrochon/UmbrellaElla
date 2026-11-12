@@ -17,6 +17,12 @@
 #include "Flow/FlowMenuText.h"
 #include "Flow/FlowTutorialText.h"
 #include "Misc/ConfigCacheIni.h"
+#include "Engine/GameInstance.h"
+#include "Progression/ProgressionSubsystem.h"
+#include "Settings/SettingsMenuSubsystem.h"
+#include "UI/Progression/ProgressionPurchaseWidget.h"
+#include "UI/Progression/XpRingWidget.h"
+#include "Widgets/Input/SButton.h"
 #include "Story/FlowStoryText.h"
 #include "UI/Menus/FlowMenuWidgets.h"
 #include "Widgets/Layout/SBox.h"
@@ -157,6 +163,14 @@ void AUmbrellaPlayerController::StartMode(EUmbrellaPlayMode Mode)
 		return;
 	}
 	PlayMode = Mode;
+	SyncProgressionMode(Mode);
+	if (Mode == EUmbrellaPlayMode::DirectorsCut && !bPurchaseDone && ShouldOfferPurchase())
+	{
+		// Spend earned points first; Done returns to the title and repeats this Start press.
+		ApplyCommand(EFlowCommand::OpenPurchase);
+		return;
+	}
+	bPurchaseDone = false;
 	TutorialPage = 0;
 	bRunBegun = false;
 	if (FFlowRules::ShouldShowTutorial(IsFeatureEnabled(EFeatureId::FLOW_03), bTutorialSeen))
@@ -169,6 +183,72 @@ void AUmbrellaPlayerController::StartMode(EUmbrellaPlayMode Mode)
 	BeginRun();
 }
 
+bool AUmbrellaPlayerController::ShouldOfferPurchase() const
+{
+	const UProgressionSubsystem* Progression = UProgressionSubsystem::Get(this);
+	return Progression && IsFeatureEnabled(EFeatureId::FLOW_42) && Progression->GetUnspentPoints() > 0;
+}
+
+void AUmbrellaPlayerController::SyncProgressionMode(EUmbrellaPlayMode Mode)
+{
+	if (UProgressionSubsystem* Progression = UProgressionSubsystem::Get(this))
+	{
+		Progression->SetPlayMode(Mode);
+	}
+	if (UGameInstance* Instance = GetGameInstance())
+	{
+		if (USettingsMenuSubsystem* Settings = Instance->GetSubsystem<USettingsMenuSubsystem>())
+		{
+			Settings->SetPlayMode(Mode);
+		}
+	}
+}
+
+void AUmbrellaPlayerController::ShowPurchaseScreen()
+{
+	FPurchaseContext Context;
+	Context.Kind = EPurchaseContextKind::RunStart;
+	if (UProgressionSubsystem* Progression = UProgressionSubsystem::Get(this))
+	{
+		Progression->SetPurchaseContext(Context);
+	}
+	ClearPurchaseScreen();
+	const int32 Z = GetDefault<UUmbrellaTuning>()->Flow.MenuContextPriority;
+	PurchaseWidget = UProgressionPurchaseWidget::Show(this);
+	if (PurchaseWidget)
+	{
+		PurchaseWidget->RemoveFromParent();
+		PurchaseWidget->AddToViewport(Z);
+	}
+	// Done sits above the purchase screen; Confirm and Cancel are the widget's own.
+	PurchaseDoneButton = SNew(SBox).HAlign(HAlign_Center).VAlign(VAlign_Bottom).Padding(FMargin(0.0f, 0.0f, 0.0f, GetDefault<UUmbrellaTuning>()->Flow.PurchaseDoneBottomMargin))
+	[
+		SNew(SButton).OnClicked_Lambda([this]() { ApplyCommand(EFlowCommand::Continue); return FReply::Handled(); })
+		[
+			SNew(STextBlock).Text(FText::FromString(TEXT("Done")))
+		]
+	];
+	if (UGameViewportClient* Viewport = GetWorld() ? GetWorld()->GetGameViewport() : nullptr)
+	{
+		Viewport->AddViewportWidgetContent(PurchaseDoneButton.ToSharedRef(), Z + 1);
+	}
+}
+
+void AUmbrellaPlayerController::ClearPurchaseScreen()
+{
+	if (PurchaseWidget)
+	{
+		PurchaseWidget->RemoveFromParent();
+		PurchaseWidget = nullptr;
+	}
+	UGameViewportClient* Viewport = GetWorld() ? GetWorld()->GetGameViewport() : nullptr;
+	if (Viewport && PurchaseDoneButton.IsValid())
+	{
+		Viewport->RemoveViewportWidgetContent(PurchaseDoneButton.ToSharedRef());
+	}
+	PurchaseDoneButton.Reset();
+}
+
 void AUmbrellaPlayerController::BeginRun()
 {
 	if (bRunBegun)
@@ -176,6 +256,11 @@ void AUmbrellaPlayerController::BeginRun()
 		return;
 	}
 	bRunBegun = true;
+	if (UProgressionSubsystem* Progression = UProgressionSubsystem::Get(this))
+	{
+		// Nothing is bought during the fight; the next window is a refuge or the next start.
+		Progression->SetPurchaseContext(FPurchaseContext());
+	}
 	if (AUmbrellaGameMode* Fight = GetWorld()->GetAuthGameMode<AUmbrellaGameMode>())
 	{
 		Fight->BeginFight(this);
@@ -188,6 +273,10 @@ void AUmbrellaPlayerController::BeginRun()
 		Event.Detail = PlayMode == EUmbrellaPlayMode::StartGame ? FName(TEXT("StartGame")) : FName(TEXT("DirectorsCut"));
 		Event.Amount = static_cast<int32>(PlayMode);
 		Bus->Broadcast(Event);
+	}
+	if (PlayMode == EUmbrellaPlayMode::DirectorsCut && !XpRing)
+	{
+		XpRing = UXpRingWidget::Show(this);
 	}
 }
 
@@ -256,6 +345,25 @@ void AUmbrellaPlayerController::EnterScreen(EFlowScreen To, EFlowCommand Cause)
 	SetPause(FFlowRules::IsWorldPausedOn(To));
 	SetInputBlocked(FFlowRules::IsInputBlockedOn(To));
 
+	if (From == EFlowScreen::Settings)
+	{
+		CloseSettingsMenu();
+	}
+	if (From == EFlowScreen::Purchase)
+	{
+		ClearPurchaseScreen();
+		bPurchaseDone = true;
+	}
+	if (To == EFlowScreen::Credits && PlayMode == EUmbrellaPlayMode::DirectorsCut)
+	{
+		FPurchaseContext Context;
+		Context.Kind = EPurchaseContextKind::BetweenRuns;
+		if (UProgressionSubsystem* Progression = UProgressionSubsystem::Get(this))
+		{
+			Progression->SetPurchaseContext(Context);
+		}
+	}
+
 	NeutralSeconds = 0.0f;
 	StoryElapsed = To == EFlowScreen::Story ? 0.0f : StoryElapsed;
 	CreditsElapsed = To == EFlowScreen::Credits ? 0.0f : CreditsElapsed;
@@ -275,7 +383,10 @@ void AUmbrellaPlayerController::EnterScreen(EFlowScreen To, EFlowCommand Cause)
 
 	ApplyPawnInputBlock();
 	ShowScreenWidget();
-	SetInputModeFor(To);
+	if (!(To == EFlowScreen::Settings && bSettingsOpened))
+	{
+		SetInputModeFor(To);
+	}
 
 	if (From == EFlowScreen::Credits && To == EFlowScreen::Title)
 	{
@@ -288,6 +399,13 @@ void AUmbrellaPlayerController::TickFlow(float DeltaSeconds)
 	const UUmbrellaTuning* Tuning = GetDefault<UUmbrellaTuning>();
 	switch (Screen)
 	{
+	case EFlowScreen::Settings:
+		// The settings area's menu owns this screen; it closes itself on Back and Save.
+		if (bSettingsOpened && !IsSettingsMenuOpen())
+		{
+			ApplyCommand(EFlowCommand::Back);
+		}
+		break;
 	case EFlowScreen::Resuming:
 		NeutralSeconds = FFlowRules::AdvanceNeutral(NeutralSeconds, DeltaSeconds, IsAnyNeutralKeyHeld());
 		if (NeutralSeconds >= Tuning->Flow.ResumeNeutralSeconds)
@@ -408,8 +526,16 @@ void AUmbrellaPlayerController::ShowScreenWidget()
 		Menu = SNew(SFlowMenu).WasdNavigation(IsFeatureEnabled(EFeatureId::MOVE_09)).Backdrop(EFlowBackdrop::Clocks).Tuning(Tuning).Heading(FFlowMenuText::PausedHeading()).Items(Items).OnBack(Resume);
 		break;
 	}
+	case EFlowScreen::Purchase:
+		ShowPurchaseScreen();
+		return;
 	case EFlowScreen::Settings:
 	{
+		OpenSettingsMenu();
+		if (bSettingsOpened)
+		{
+			return;
+		}
 		TArray<FFlowMenuItem> Items;
 		Items.Add({ FText::FromString(TEXT("Back")), Back });
 		Menu = SNew(SFlowMenu).WasdNavigation(IsFeatureEnabled(EFeatureId::MOVE_09)).Backdrop(EFlowBackdrop::Clocks).Tuning(Tuning).Heading(FText::FromString(TEXT("Settings")))
@@ -555,6 +681,38 @@ void AUmbrellaPlayerController::HandleEncounterCompleted(const FUmbrellaEvent& E
 	{
 		ApplyCommand(EFlowCommand::EncounterCompleted);
 	}
+}
+
+void AUmbrellaPlayerController::OpenSettingsMenu()
+{
+	bSettingsOpened = false;
+	if (UGameInstance* Instance = GetGameInstance())
+	{
+		if (USettingsMenuSubsystem* Settings = Instance->GetSubsystem<USettingsMenuSubsystem>())
+		{
+			Settings->OpenSettings(this);
+			bSettingsOpened = Settings->IsSettingsOpen();
+		}
+	}
+}
+
+void AUmbrellaPlayerController::CloseSettingsMenu()
+{
+	if (UGameInstance* Instance = GetGameInstance())
+	{
+		if (USettingsMenuSubsystem* Settings = Instance->GetSubsystem<USettingsMenuSubsystem>())
+		{
+			Settings->CloseSettings();
+		}
+	}
+	bSettingsOpened = false;
+}
+
+bool AUmbrellaPlayerController::IsSettingsMenuOpen() const
+{
+	const UGameInstance* Instance = GetGameInstance();
+	const USettingsMenuSubsystem* Settings = Instance ? Instance->GetSubsystem<USettingsMenuSubsystem>() : nullptr;
+	return Settings && Settings->IsSettingsOpen();
 }
 
 void AUmbrellaPlayerController::ReturnToTitle()

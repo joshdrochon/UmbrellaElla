@@ -54,3 +54,14 @@ Minor, from review: freeze or protect Ella during Story/Credits; menu strings mo
 ## Waiting on other areas (not on main yet)
 - Director ACTIVE assert (keeper). Settings page (settings: OpenSettings, SetPlayMode). Director's Cut BeginNewRun (story).
   SetPurchaseContext and purchase/level-up screens (progression).
+
+## Slice 3: integration with keeper, settings, progression (after merging main)
+- StartGameReachesFight now asserts director `Active` (`GetState()`); retry test asserts Ready/Active after `ResetForRestart`.
+- Settings: pause Settings entry calls `USettingsMenuSubsystem::OpenSettings`; flow returns to Paused when the menu closes (polled in
+  TickFlow); stub page remains if the subsystem refuses (flag off). `SetPlayMode` is called on every Start (also progression's).
+  Title keeps exactly two Start buttons (FLOW-41 design retained), so no Settings entry there.
+- Progression: new `Purchase` screen. Director's Cut Start with unspent points shows `UProgressionPurchaseWidget` (context RunStart)
+  plus a Done button, then repeats the Start. Context is cleared at BeginRun and set to BetweenRuns at Credits. `UXpRingWidget::Show`
+  at run start (the level-up display). Test: Flow.PurchaseScreenReturnsToTitle (rules only).
+- NOT verified: layout of Done over the purchase widget (no visual run), Purchase screen in a world test.
+- NOT done: (b) story `BeginNewRun` ('Merge area/story' not in main yet).

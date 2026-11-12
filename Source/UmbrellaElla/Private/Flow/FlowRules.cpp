@@ -9,7 +9,14 @@ EFlowScreen FFlowRules::Next(EFlowScreen From, EFlowCommand Command)
 		{
 			return EFlowScreen::Tutorial;
 		}
+		if (Command == EFlowCommand::OpenPurchase)
+		{
+			return EFlowScreen::Purchase;
+		}
 		return Command == EFlowCommand::StartMode ? EFlowScreen::Playing : From;
+	case EFlowScreen::Purchase:
+		// Done (Continue or Back) returns to the title; the Start press that opened it is then repeated.
+		return (Command == EFlowCommand::Continue || Command == EFlowCommand::Back) ? EFlowScreen::Title : From;
 	case EFlowScreen::Tutorial:
 		// Pause then Skip works on every page; finishing the last page ends the tutorial the same way as Skip.
 		switch (Command)

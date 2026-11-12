@@ -17,7 +17,8 @@ enum class EFlowScreen : uint8
 	Story,
 	Credits,
 	Tutorial,
-	TutorialPaused
+	TutorialPaused,
+	Purchase
 };
 
 /** What happens to the flow. */
@@ -32,6 +33,7 @@ enum class EFlowCommand : uint8
 	Back,
 	Continue,
 	OpenSettings,
+	OpenPurchase,
 	PlayerDefeated,
 	EncounterCompleted,
 	Retry,
