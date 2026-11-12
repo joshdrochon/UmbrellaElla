@@ -33,6 +33,10 @@ any_ = lambda *pre: any(f.startswith(pre) for f in files)
 ext = lambda *e: any(f.lower().endswith(e) for f in files)
 src = any_("Source/")
 print(f"SRC={int(src)}")
+# The Flow world tests drive Start Game, defeat, retry and the win end to end, so every Source merge runs them too:
+# areas talk through bus events, and a listener in one area can break another's path (story widgets broke Flow, Nov 12).
+if prefixes:
+    prefixes.add("Flow.World")
 print(f"TESTS={'UmbrellaElla' if full else '+'.join('UmbrellaElla.' + p for p in sorted(prefixes))}")
 print(f"MODULE={int(src)}")
 print(f"MANIFEST={int(any_('docs/feature-manifest.json', 'docs/gdd/', 'Source/'))}")
