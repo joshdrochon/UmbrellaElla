@@ -6,6 +6,7 @@
 #include "Core/UmbrellaLog.h"
 #include "Core/UmbrellaTuning.h"
 #include "Engine/World.h"
+#include "Enemy/UmbrellaEnemy.h"
 #include "EngineUtils.h"
 #include "GameFramework/Pawn.h"
 #include "Harness/UmbrellaFeatureFlags.h"
@@ -210,6 +211,20 @@ void UEncounterDirectorSubsystem::ClearEnemyProjectiles() const
 	}
 }
 
+void UEncounterDirectorSubsystem::ResetEnemies() const
+{
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		return;
+	}
+	// Retry rebuilds every regular enemy: full HP, full emission slots, home position.
+	for (TActorIterator<AUmbrellaEnemy> It(World); It; ++It)
+	{
+		It->ResetForRestart();
+	}
+}
+
 void UEncounterDirectorSubsystem::FreezeProjectiles() const
 {
 	SetProjectileTicks(false);
@@ -299,7 +314,7 @@ void UEncounterDirectorSubsystem::BeginKeeperFightAtPhase(EKeeperPhase Phase)
 	}
 	else
 	{
-		Model.Init(Tuning->Keeper, Tuning->Encounter, BuildSwitches());
+		Model.Init(&Tuning->Keeper, Tuning->Encounter, BuildSwitches());
 		bModelReady = true;
 		Model.SetAnchor(FVector2D(Anchor.X, Anchor.Z));
 		Model.BeginPhase(Phase, Commands);
@@ -316,6 +331,7 @@ void UEncounterDirectorSubsystem::ResetForRestart()
 	ClearEnemyProjectiles();
 	ThawProjectiles();
 	DestroyKeeper();
+	ResetEnemies();
 	bWinPending = false;
 	bDefeatInWinFrame = false;
 	const bool bRetry = IsFeatureEnabled(EFeatureId::FLOW_09) && IsFeatureEnabled(EFeatureId::OWL_10)

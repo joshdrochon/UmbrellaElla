@@ -23,5 +23,7 @@ namespace KeeperLook
 	static constexpr FLinearColor SafeHead = FLinearColor(0.4f, 0.6f, 0.9f);
 	static constexpr FLinearColor Talon = FLinearColor(0.9f, 0.9f, 0.9f);
 	static constexpr FLinearColor Gust = FLinearColor(0.7f, 0.85f, 1.0f);
+	static constexpr FLinearColor EnemyRed = FLinearColor(0.9f, 0.15f, 0.1f);
+	static constexpr FLinearColor EnemyYellow = FLinearColor(1.0f, 0.85f, 0.1f);
 	static constexpr FLinearColor Telegraph = FLinearColor(1.0f, 0.2f, 0.2f);
 }

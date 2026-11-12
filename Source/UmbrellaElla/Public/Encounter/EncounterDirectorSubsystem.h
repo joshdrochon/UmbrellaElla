@@ -84,6 +84,7 @@ private:
 	void SpawnKeeper();
 	void DestroyKeeper();
 	void ClearEnemyProjectiles() const;
+	void ResetEnemies() const;
 	void FreezeProjectiles() const;
 	void ThawProjectiles() const;
 	void SetProjectileTicks(bool bEnabled) const;

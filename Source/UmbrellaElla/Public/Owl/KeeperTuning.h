@@ -120,7 +120,7 @@ struct UMBRELLAELLA_API FKeeperTuning
 	UPROPERTY(EditAnywhere, Category = "Gust")
 	float GustFrontThickness = 60.0f;
 	UPROPERTY(EditAnywhere, Category = "Gust")
-	float GustDamage = 1.0f; // bake: FLOW-33.projectile_damage
+	float GustDamage = 1.0f;
 	/** Recovery after the gust leaves the arena or expires (wing recovery follows the flap). */
 	UPROPERTY(EditAnywhere, Category = "Gust")
 	float GustRecoverySeconds = 1.0f;
@@ -235,4 +235,79 @@ struct UMBRELLAELLA_API FKeeperTuning
 	float HoverAmplitude = 12.0f;
 	UPROPERTY(EditAnywhere, Category = "Layout")
 	float HoverHz = 0.35f;
+
+	// ======== Regular enemies (G2): GDD section 5 "Enemy roles and proposed combat baselines" ========
+	// ---- Roadwarden (all three equipment variants share these) ----
+	UPROPERTY(EditAnywhere, Category = "Roadwarden")
+	float RoadwardenHp = 40.0f; // bake: COM-14.roadwarden_hp
+	UPROPERTY(EditAnywhere, Category = "Roadwarden")
+	float RoadwardenPatrolSpan = 300.0f;
+	UPROPERTY(EditAnywhere, Category = "Roadwarden")
+	float RoadwardenPatrolSpeed = 90.0f;
+	UPROPERTY(EditAnywhere, Category = "Roadwarden")
+	float RoadwardenAimSeconds = 1.0f;
+	UPROPERTY(EditAnywhere, Category = "Roadwarden")
+	float RoadwardenShotSpeed = 240.0f;
+	UPROPERTY(EditAnywhere, Category = "Roadwarden")
+	float RoadwardenRecoverySeconds = 1.0f;
+	UPROPERTY(EditAnywhere, Category = "Roadwarden")
+	float RoadwardenCycleSeconds = 2.5f;
+	UPROPERTY(EditAnywhere, Category = "Roadwarden")
+	FVector2D RoadwardenTorso = FVector2D(40.0f, 80.0f);
+
+	// ---- Floodstrider ----
+	UPROPERTY(EditAnywhere, Category = "Floodstrider")
+	float FloodstriderHp = 60.0f; // bake: COM-15.floodstrider_hp
+	UPROPERTY(EditAnywhere, Category = "Floodstrider")
+	float FloodstriderPatrolSpan = 300.0f;
+	UPROPERTY(EditAnywhere, Category = "Floodstrider")
+	float FloodstriderPatrolSpeed = 60.0f;
+	UPROPERTY(EditAnywhere, Category = "Floodstrider")
+	float FloodstriderAimSeconds = 1.1f;
+	UPROPERTY(EditAnywhere, Category = "Floodstrider")
+	float FloodstriderShotSpeed = 220.0f;
+	UPROPERTY(EditAnywhere, Category = "Floodstrider")
+	float FloodstriderRecoverySeconds = 1.0f;
+	UPROPERTY(EditAnywhere, Category = "Floodstrider")
+	float FloodstriderCycleSeconds = 3.0f;
+	UPROPERTY(EditAnywhere, Category = "Floodstrider")
+	FVector2D FloodstriderTorso = FVector2D(40.0f, 80.0f);
+	/** Stilt height (short or long); the underbody passage stays open under the body. */
+	UPROPERTY(EditAnywhere, Category = "Floodstrider")
+	float FloodstriderStiltHeight = 160.0f;
+
+	// ---- Sky Courier ----
+	UPROPERTY(EditAnywhere, Category = "SkyCourier")
+	float CourierHp = 40.0f; // bake: COM-16.courier_hp
+	UPROPERTY(EditAnywhere, Category = "SkyCourier")
+	float CourierPatrolSpan = 400.0f;
+	UPROPERTY(EditAnywhere, Category = "SkyCourier")
+	float CourierPatrolSpeed = 100.0f;
+	UPROPERTY(EditAnywhere, Category = "SkyCourier")
+	float CourierAimSeconds = 1.1f;
+	UPROPERTY(EditAnywhere, Category = "SkyCourier")
+	float CourierShotSpeed = 180.0f;
+	UPROPERTY(EditAnywhere, Category = "SkyCourier")
+	float CourierRecoverySeconds = 1.0f;
+	UPROPERTY(EditAnywhere, Category = "SkyCourier")
+	float CourierCycleSeconds = 2.3f;
+	UPROPERTY(EditAnywhere, Category = "SkyCourier")
+	FVector2D CourierBody = FVector2D(48.0f, 88.0f);
+	/** At most this many single emissions in total, red and yellow together (stable slots 0 to 7). */
+	UPROPERTY(EditAnywhere, Category = "SkyCourier", meta = (ClampMin = "1"))
+	int32 CourierMaxEmissions = 8;
+
+	// ---- Shared ----
+	UPROPERTY(EditAnywhere, Category = "Enemy")
+	float EnemyShotDamage = 1.0f;
+	UPROPERTY(EditAnywhere, Category = "Enemy")
+	float EnemyShotRadius = 14.0f;
+	UPROPERTY(EditAnywhere, Category = "Enemy")
+	float EnemyShotLifetimeSeconds = 10.0f;
+	/** Muzzle height above the enemy centre. */
+	UPROPERTY(EditAnywhere, Category = "Enemy")
+	float EnemyMuzzleLift = 10.0f;
+	/** Two red-shooting enemies to one yellow-shooting enemy across a level (red : yellow). */
+	UPROPERTY(EditAnywhere, Category = "Enemy", meta = (ClampMin = "1"))
+	int32 RedPerYellow = 2;
 };

@@ -27,7 +27,7 @@ namespace
 
 		void Start(EKeeperPhase Phase = EKeeperPhase::Wings, FKeeperRuleSwitches Switches = FKeeperRuleSwitches())
 		{
-			Model.Init(Tuning, Encounter, Switches);
+			Model.Init(&Tuning, Encounter, Switches);
 			Model.BeginPhase(Phase, Commands);
 		}
 
