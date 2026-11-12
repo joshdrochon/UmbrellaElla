@@ -1,1 +1,8 @@
 id,surface,text,facts,ship,note
+story-opening-mother,clue,"Mother: Keep it open, Ella. It'll protect you from the owl.",F2,no,NAR-04 exact GDD line; Ella is DEFERRED in the bible until Richard confirms
+story-light-shadow,narration,Thin light falls into the abyss. The open umbrella's shadow follows her.,F2,no,NAR-05 narration; wording is the story lane's draft
+story-keeper-arrival,clue,One clock hand is left. Its mounting is empty.,P1,no,NAR-06 draft
+story-shaft-clue,clue,The hand's bronze shaft matches the umbrella's.,P2,no,NAR-06 draft
+story-ending-1,end_card,The owl's pursuit ends. He goes back into the darkness.,F3,no,NAR-07 draft from the team story
+story-ending-2,end_card,"Ella is alive, but still suspended between worlds.",P8,no,NAR-07 draft
+story-ending-3,end_card,Perhaps the owl has only postponed his judgment.,P8,no,NAR-07 draft

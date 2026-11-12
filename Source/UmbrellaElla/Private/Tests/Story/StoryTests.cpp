@@ -1,0 +1,285 @@
+#include "Core/UmbrellaEvent.h"
+#include "Core/UmbrellaEventBus.h"
+#include "Engine/World.h"
+#include "Misc/AutomationTest.h"
+#include "Misc/FileHelper.h"
+#include "Misc/Paths.h"
+#include "Story/StoryRules.h"
+#include "Story/StorySubsystem.h"
+
+#if WITH_AUTOMATION_TESTS
+
+#define STORY_TEST_FLAGS (EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+
+namespace
+{
+	FUmbrellaEvent Make(EUmbrellaEventType Type, const TCHAR* Detail = TEXT(""), int32 Amount = 0, float Value = 0.0f)
+	{
+		FUmbrellaEvent Event;
+		Event.Type = Type;
+		Event.Detail = FName(Detail);
+		Event.Amount = Amount;
+		Event.Value = Value;
+		return Event;
+	}
+
+	FStoryModel NewModel()
+	{
+		FStoryModel Model;
+		Model.SetCues(StoryCueTable::Parse(StoryCueTable::DefaultText()));
+		return Model;
+	}
+
+	void Run(FStoryModel& Model, float Seconds)
+	{
+		const float Step = 0.1f;
+		for (float Elapsed = 0.0f; Elapsed < Seconds; Elapsed += Step)
+		{
+			Model.Advance(Step);
+		}
+	}
+
+	FString ActiveText(const FStoryModel& Model)
+	{
+		const FStoryCue* Cue = Model.GetActiveCue();
+		return Cue ? Cue->Text : FString();
+	}
+
+	const TCHAR* DirectorsCut = TEXT("DirectorsCut");
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FStoryCueTableTest, "UmbrellaElla.Story.CueTable", STORY_TEST_FLAGS)
+
+bool FStoryCueTableTest::RunTest(const FString& Parameters)
+{
+	const TArray<FStoryCue> Cues = StoryCueTable::Parse(StoryCueTable::DefaultText());
+	TestEqual(TEXT("seven cues"), Cues.Num(), 7);
+	TestEqual(TEXT("opening text"), Cues[0].Text, FString(TEXT("Mother: Keep it open, Ella. It'll protect you from the owl.")));
+	FString OnDisk;
+	const FString Path = FPaths::Combine(FPaths::ProjectContentDir(), TEXT("UmbrellaElla/UI/Story/StoryCues.tsv"));
+	if (FFileHelper::LoadFileToString(OnDisk, *Path))
+	{
+		const TArray<FStoryCue> FromFile = StoryCueTable::Parse(OnDisk);
+		bool bSame = FromFile.Num() == Cues.Num();
+		for (int32 Index = 0; bSame && Index < Cues.Num(); ++Index)
+		{
+			bSame = FromFile[Index].Id == Cues[Index].Id && FromFile[Index].Text == Cues[Index].Text
+				&& FromFile[Index].Trigger == Cues[Index].Trigger;
+		}
+		TestTrue(TEXT("file and compiled copy agree"), bSame);
+	}
+	TestEqual(TEXT("bad row skipped"), StoryCueTable::Parse(TEXT("only\ttwo")).Num(), 0);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FStoryOpeningTest, "UmbrellaElla.Story.OpeningOncePerRun", STORY_TEST_FLAGS)
+
+bool FStoryOpeningTest::RunTest(const FString& Parameters)
+{
+	FStoryModel Model = NewModel();
+	Model.OnEvent(Make(EUmbrellaEventType::ModeSelected, DirectorsCut));
+	Model.Advance(0.1f);
+	TestTrue(TEXT("mother caption shows"), ActiveText(Model).StartsWith(TEXT("Mother: Keep it open")));
+	Run(Model, 3.0f);
+	TestTrue(TEXT("still showing at 3 s"), Model.GetActiveCue() != nullptr);
+	Run(Model, 1.5f);
+	TestEqual(TEXT("cleared after about four seconds"), ActiveText(Model), FString());
+	TestEqual(TEXT("shown once"), Model.CountShown(FName(TEXT("OpeningMother"))), 1);
+	Model.OnEvent(Make(EUmbrellaEventType::CheckpointRetried, TEXT("wings")));
+	Run(Model, 10.0f);
+	TestEqual(TEXT("retry does not replay it"), Model.CountShown(FName(TEXT("OpeningMother"))), 1);
+	Model.OnEvent(Make(EUmbrellaEventType::ModeSelected, DirectorsCut));
+	Run(Model, 0.2f);
+	TestEqual(TEXT("a new run shows it once"), Model.CountShown(FName(TEXT("OpeningMother"))), 1);
+	TestTrue(TEXT("and it is on screen"), ActiveText(Model).StartsWith(TEXT("Mother:")));
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FStoryStartGameTest, "UmbrellaElla.Story.StartGameHasNoStory", STORY_TEST_FLAGS)
+
+bool FStoryStartGameTest::RunTest(const FString& Parameters)
+{
+	FStoryModel Model = NewModel();
+	Model.OnEvent(Make(EUmbrellaEventType::ModeSelected, TEXT("StartGame")));
+	Model.OnEvent(Make(EUmbrellaEventType::PhaseStarted, TEXT("wings")));
+	Model.OnEvent(Make(EUmbrellaEventType::EncounterCompleted));
+	Run(Model, 20.0f);
+	TestTrue(TEXT("no cue"), Model.GetActiveCue() == nullptr);
+	TestEqual(TEXT("nothing shown"), Model.GetShownIds().Num(), 0);
+	TestTrue(TEXT("no ending"), Model.GetEndingStage() == EStoryEndingStage::None);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FStoryInPlayCuesTest, "UmbrellaElla.Story.InPlayCues", STORY_TEST_FLAGS)
+
+bool FStoryInPlayCuesTest::RunTest(const FString& Parameters)
+{
+	FStoryModel Model = NewModel();
+	Model.OnEvent(Make(EUmbrellaEventType::ModeSelected, DirectorsCut));
+	Run(Model, 4.5f);
+	Run(Model, 1.5f);
+	TestEqual(TEXT("light and umbra line shown once"), Model.CountShown(FName(TEXT("LightShadow"))), 1);
+	Run(Model, 6.0f);
+	Model.OnEvent(Make(EUmbrellaEventType::PhaseStarted, TEXT("wings")));
+	Model.OnEvent(Make(EUmbrellaEventType::CheckpointReached, TEXT("wings")));
+	Run(Model, 0.2f);
+	TestEqual(TEXT("clock hand clue on arrival"), ActiveText(Model), FString(TEXT("One clock hand is left. Its mounting is empty.")));
+	Run(Model, 6.0f);
+	Model.OnEvent(Make(EUmbrellaEventType::PhaseStarted, TEXT("wings")));
+	Run(Model, 6.0f);
+	TestEqual(TEXT("arrival clue once"), Model.CountShown(FName(TEXT("KeeperArrival"))), 1);
+	Model.OnEvent(Make(EUmbrellaEventType::BossPartDestroyed, TEXT("wings")));
+	Model.OnEvent(Make(EUmbrellaEventType::BossPartDestroyed, TEXT("wings")));
+	Run(Model, 12.0f);
+	TestEqual(TEXT("shaft clue once"), Model.CountShown(FName(TEXT("ShaftClue"))), 1);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FStoryEndingTest, "UmbrellaElla.Story.EndingSequence", STORY_TEST_FLAGS)
+
+bool FStoryEndingTest::RunTest(const FString& Parameters)
+{
+	FStoryModel Model = NewModel();
+	Model.OnEvent(Make(EUmbrellaEventType::ModeSelected, DirectorsCut));
+	Run(Model, 1.0f);
+	Model.OnEvent(Make(EUmbrellaEventType::EncounterCompleted));
+	TestTrue(TEXT("hold first"), Model.GetEndingStage() == EStoryEndingStage::Hold);
+	Run(Model, 2.0f);
+	TestTrue(TEXT("still holding at 2 s"), Model.GetEndingStage() == EStoryEndingStage::Hold);
+	TestTrue(TEXT("no statistics yet"), !Model.ShouldShowStatistics());
+	Run(Model, 1.0f);
+	TestTrue(TEXT("story text after the hold"), Model.GetEndingStage() == EStoryEndingStage::StoryText);
+	Run(Model, 0.2f);
+	TestTrue(TEXT("ending line on screen"), ActiveText(Model).Contains(TEXT("pursuit ends")));
+	Run(Model, 20.0f);
+	TestTrue(TEXT("credits after the story"), Model.GetEndingStage() == EStoryEndingStage::Credits);
+	Run(Model, 10.0f);
+	TestTrue(TEXT("statistics after the credits"), Model.ShouldShowStatistics());
+	TestTrue(TEXT("first win saved"), Model.GetProgress().bFirstWinSeen);
+	TestTrue(TEXT("first win flag is a save request"), Model.HasProgressToSave());
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FStorySkipTest, "UmbrellaElla.Story.SkipRules", STORY_TEST_FLAGS)
+
+bool FStorySkipTest::RunTest(const FString& Parameters)
+{
+	FStoryModel Model = NewModel();
+	Model.OnEvent(Make(EUmbrellaEventType::ModeSelected, DirectorsCut));
+	Model.Advance(0.1f);
+	TestTrue(TEXT("opening press belongs to the story"), Model.IsOpeningShowing());
+	Model.SkipOpening();
+	TestTrue(TEXT("first viewing cannot be skipped"), Model.IsOpeningShowing());
+	Run(Model, 5.0f);
+	TestTrue(TEXT("opening seen is saved"), Model.GetProgress().bOpeningSeen);
+	TestFalse(TEXT("ending skip flag untouched"), Model.GetProgress().bFirstWinSeen);
+
+	Model.OnEvent(Make(EUmbrellaEventType::ModeSelected, DirectorsCut));
+	Model.Advance(0.1f);
+	Model.SkipOpening();
+	TestFalse(TEXT("later start can skip"), Model.IsOpeningShowing());
+
+	Model.OnEvent(Make(EUmbrellaEventType::EncounterCompleted));
+	Run(Model, 3.0f);
+	TestFalse(TEXT("first win cannot skip"), Model.CanSkipEnding());
+	Model.SkipEnding();
+	TestFalse(TEXT("still no statistics"), Model.ShouldShowStatistics());
+
+	FStoryProgress Prior;
+	Prior.bFirstWinSeen = true;
+	FStoryModel Second = NewModel();
+	Second.SetProgress(Prior);
+	Second.OnEvent(Make(EUmbrellaEventType::ModeSelected, DirectorsCut));
+	Second.OnEvent(Make(EUmbrellaEventType::EncounterCompleted));
+	Run(Second, 3.0f);
+	TestTrue(TEXT("prior win allows skip"), Second.CanSkipEnding());
+	Second.SkipEnding();
+	TestTrue(TEXT("skip goes to statistics"), Second.ShouldShowStatistics());
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FStoryStatsTest, "UmbrellaElla.Story.JourneyStatistics", STORY_TEST_FLAGS)
+
+bool FStoryStatsTest::RunTest(const FString& Parameters)
+{
+	FStoryModel Model = NewModel();
+	Model.OnEvent(Make(EUmbrellaEventType::ModeSelected, DirectorsCut));
+	Model.OnEvent(Make(EUmbrellaEventType::XPAwarded, TEXT(""), 10));
+	Model.OnEvent(Make(EUmbrellaEventType::XPAwarded, TEXT(""), 15));
+	Model.OnEvent(Make(EUmbrellaEventType::CheckpointRetried, TEXT("wings")));
+	Model.SetHealthBaseline(3.0f, 3);
+	for (int32 Shot = 0; Shot < 4; ++Shot)
+	{
+		Model.OnEvent(Make(EUmbrellaEventType::ProjectileSpawned, TEXT("PlayerBlast")));
+	}
+	Model.OnEvent(Make(EUmbrellaEventType::ProjectileSpawned, TEXT("EnemyRed")));
+	Model.OnEvent(Make(EUmbrellaEventType::ProjectileSpawned, TEXT("EnemyYellow")));
+	Model.OnEvent(Make(EUmbrellaEventType::PlayerHealthChanged, TEXT(""), 3, 2.0f));
+	Model.OnEvent(Make(EUmbrellaEventType::PlayerHealthChanged, TEXT(""), 3, 2.5f));
+	Model.SampleLocation(FVector(0.0, 0.0, 0.0));
+	Model.SampleLocation(FVector(300.0, 0.0, 0.0));
+	Model.SampleLocation(FVector(300.0, 0.0, 400.0));
+	Model.SampleLocation(FVector(90000.0, 0.0, 400.0));
+	const FStoryRunStats& Stats = Model.GetStats();
+	TestEqual(TEXT("enemies"), Stats.EnemiesDefeated, 2);
+	TestEqual(TEXT("xp"), Stats.XpEarned, 25);
+	TestEqual(TEXT("deaths"), Stats.Deaths, 1);
+	TestEqual(TEXT("shots"), Stats.ShotsFired, 4);
+	TestEqual(TEXT("shots at you"), Stats.ShotsFiredAtYou, 2);
+	TestEqual(TEXT("damage"), Stats.DamageTaken, 1.0f);
+	TestEqual(TEXT("restored"), Stats.HealthRestored, 0.5f);
+	TestEqual(TEXT("distance, teleport ignored"), Stats.DistanceFlownUnits, 700.0f);
+
+	const TArray<TPair<FString, FString>> Rows = StoryStatsRows(Stats);
+	TestEqual(TEXT("eight rows"), Rows.Num(), 8);
+	TestEqual(TEXT("row 1 label"), Rows[0].Key, FString(TEXT("Enemies defeated")));
+	TestEqual(TEXT("row 2 value"), Rows[1].Value, FString(TEXT("25")));
+	TestEqual(TEXT("row 4 metres"), Rows[3].Value, FString(TEXT("7 m")));
+	TestEqual(TEXT("row 8 label"), Rows[7].Key, FString(TEXT("Health restored")));
+
+	Model.OnEvent(Make(EUmbrellaEventType::ModeSelected, DirectorsCut));
+	TestEqual(TEXT("a new run starts from zero"), Model.GetStats().XpEarned, 0);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FStoryProgressTest, "UmbrellaElla.Story.ProgressRoundTrip", STORY_TEST_FLAGS)
+
+bool FStoryProgressTest::RunTest(const FString& Parameters)
+{
+	FStoryProgress Progress;
+	Progress.bOpeningSeen = true;
+	const FStoryProgress Back = FStoryProgress::FromText(Progress.ToText());
+	TestTrue(TEXT("opening kept"), Back.bOpeningSeen);
+	TestFalse(TEXT("first win separate"), Back.bFirstWinSeen);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FStoryWorldTest, "UmbrellaElla.Story.World.ReactsToBus", STORY_TEST_FLAGS)
+
+bool FStoryWorldTest::RunTest(const FString& Parameters)
+{
+	UWorld* World = UWorld::CreateWorld(EWorldType::Game, false);
+	if (!TestNotNull(TEXT("world"), World))
+	{
+		return false;
+	}
+	FWorldContext& Context = GEngine->CreateNewWorldContext(EWorldType::Game);
+	Context.SetCurrentWorld(World);
+	UUmbrellaEventBus* Bus = UUmbrellaEventBus::Get(World);
+	UStorySubsystem* Story = World->GetSubsystem<UStorySubsystem>();
+	const bool bOk = TestNotNull(TEXT("bus"), Bus) && TestNotNull(TEXT("story subsystem"), Story);
+	if (bOk)
+	{
+		Bus->Broadcast(Make(EUmbrellaEventType::ModeSelected, DirectorsCut));
+		Story->Tick(0.1f);
+		const FStoryCue* Cue = Story->GetModel().GetActiveCue();
+		TestTrue(TEXT("opening shown from the bus"), Cue && Cue->Text.StartsWith(TEXT("Mother:")));
+		Bus->Broadcast(Make(EUmbrellaEventType::EncounterCompleted));
+		TestTrue(TEXT("ending started from the bus"), Story->GetModel().GetEndingStage() == EStoryEndingStage::Hold);
+	}
+	GEngine->DestroyWorldContext(World);
+	World->DestroyWorld(false);
+	return bOk;
+}
+
+#endif
