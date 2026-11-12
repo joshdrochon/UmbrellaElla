@@ -8,6 +8,7 @@ merges to `main`. **Teammates continue with Claude Code** (not Codex).
 - Unreal 5.8.4 project skeleton: `UmbrellaElla.uproject`, `Source/`, `Config/`, `Content/UmbrellaElla/Maps/L_Graybox.umap`.
 - Core contracts every area builds against (Ella shell + components, `UUmbrellaTuning`, event bus, collision channels,
   draw order, play mode, projectile seam, feature flags, lane-owned stubs). See `docs/build/worker-rules.md`.
+- Merged: area/arena G1 slice c7d8c67 (CAM-03, WIND-03, CORE-06, ART-03) as ec0b8a3, all gates PASS.
 - Build docs: `docs/build/worker-rules.md`, `docs/build/areas/<area>.md` (the worker prompt for each area),
   `docs/build/areas.py` (Rule ID split; `python3 docs/build/areas.py` proves all 204 IDs are covered once).
 
@@ -37,8 +38,8 @@ After G1 features are merged: `tools/ue/package.sh` + `tools/ue/smoke.sh` (Mac D
     cd ~/Desktop/Developer/UmbrellaElla && git pull
     tools/build/start_area.sh <area>            # starts/continues a worker in ../UmbrellaElla-areas/<area>, log ../UmbrellaElla-areas/logs/<area>.log
     tools/build/push_areas.sh --loop &          # pushes area/* branches every 2 min
-    # merge loop, per finished area:
-    git merge --no-ff area/<area> && tools/ue/build.sh && tools/ue/test.sh && python3 tools/module_check.py && git push origin main
+    # merge loop, per finished slice (merges in ../UmbrellaElla-areas/gate, pushes main only on PASS):
+    tools/build/gate.sh area/<area> [commit]
 Workers on one Mac share the engine through `tools/build/ue_slot.sh` (max 2 Unreal builds/tests at once).
 
 ## Continue on Windows (PowerShell, Claude Code)
@@ -52,4 +53,5 @@ If git hooks block a commit, use `git -c core.hooksPath=NUL commit` (the gate-gu
 Never commit `~/.umbrella-ella.env` or any key.
 
 ## Follow-up list (minor review findings)
-- none yet
+- arena and flow both set the view target; keep one owner (flow).
+- Shots pass through arena walls (custom channels ignore BlockAllDynamic); decide if walls should eat shots.
