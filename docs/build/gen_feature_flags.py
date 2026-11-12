@@ -25,13 +25,19 @@ UMBRELLAELLA_API const TCHAR* GetFeatureManifestVersion();
 /** Manifest Rule ID for a flag, e.g. TEXT("OWL-06"). */
 UMBRELLAELLA_API const TCHAR* GetFeatureRuleId(EFeatureId Id);
 """)
-vals="\n".join(f"\t\t{'true' if f['default_enabled'] else 'false'}, // bake: {f['feature_id']}.enabled" for f in fs)
+vals="\n".join(f"\t\t{{ EFeatureId::{f['feature_id'].replace('-', '_')}, {'true' if f['default_enabled'] else 'false'} }}, // bake: {f['feature_id']}.enabled" for f in fs)
 names=",\n".join(f"\t\tTEXT(\"{f['feature_id']}\")" for f in fs)
 open('Private/Harness/UmbrellaFeatureFlags.cpp','w').write(f"""#include "Harness/UmbrellaFeatureFlags.h"
 
 namespace
 {{
-	constexpr bool bFeatureDefaults[] = {{
+	struct FFeatureDefault
+	{{
+		EFeatureId Id;
+		bool bEnabled;
+	}};
+
+	constexpr FFeatureDefault FeatureDefaults[] = {{
 {vals}
 	}};
 
@@ -39,13 +45,13 @@ namespace
 {names}
 	}};
 
-	static_assert(UE_ARRAY_COUNT(bFeatureDefaults) == static_cast<int32>(EFeatureId::Count), "flag table out of sync with the manifest");
+	static_assert(UE_ARRAY_COUNT(FeatureDefaults) == static_cast<int32>(EFeatureId::Count), "flag table out of sync with the manifest");
 }}
 
 bool IsFeatureEnabled(EFeatureId Id)
 {{
 	const int32 Index = static_cast<int32>(Id);
-	return Index >= 0 && Index < static_cast<int32>(EFeatureId::Count) && bFeatureDefaults[Index];
+	return Index >= 0 && Index < static_cast<int32>(EFeatureId::Count) && FeatureDefaults[Index].bEnabled;
 }}
 
 const TCHAR* GetFeatureManifestVersion()
