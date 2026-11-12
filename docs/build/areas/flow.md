@@ -12,6 +12,12 @@ Moved out Nov 12: NAR-* and FLOW-49 -> `story`; at 14:08 the settings pages (FLO
 and `Settings/**` -> `settings`. Your pause menu's Settings entry calls the settings area's public
 `USettingsMenuSubsystem::OpenSettings(APlayerController*)` when it exists; until then show a stub page.
 
+Also yours (lead call Nov 12): the progression area's purchase and level-up screens. Flow calls
+`SetPurchaseContext` (progression's API; see docs/build/requests/progression.md) at refuges and between runs, and
+shows the two progression widgets (purchase screen, level-up) inside the 16:9 view with IMC_Menu active.
+Credits: keep the executive producer's name and Rick's role as clearly marked placeholders
+(`[EXECUTIVE PRODUCER NAME - Josh to supply]`, `[ROLE - Josh to supply]`); Josh will supply them.
+
 ## GDD sections
 2 (Player journey and modes), 6 (Story and dialogue), 7 (Menus, settings and accessibility, win results, settings and
 earned-character interactions), 8 "Start screen and menu visual direction" and typography, 3 "Menus and remapping".
