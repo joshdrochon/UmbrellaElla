@@ -1,6 +1,7 @@
 # Daily: for every open card with the `blocked` label, post on the tracker the cards that wait on it
 # (tools/check_card.py --blocked-by). Every other card keeps working. Does nothing until the repo variable
 # TRACKER_ISSUE is set. The logic lives in tools/lane_guard.py (tests/test_lane_guard.py).
+# Direct local build (docs/build/MODE says `direct`, or no MODE file and HANDOFF.md exists): skipped, there are no cards.
 name: blocked-report
 on:
   schedule:
@@ -10,9 +11,28 @@ permissions:
   contents: read
   issues: write
 jobs:
-  blocked:
+  mode:
     if: vars.TRACKER_ISSUE != ''
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      direct: ${{ steps.mode.outputs.direct }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: false
+      - name: Build mode from docs/build/MODE (direct = local build lead merges, no cards or PRs)
+        id: mode
+        run: |
+          if [ -f docs/build/MODE ]; then mode=$(tr -d '[:space:]' < docs/build/MODE); elif [ -f HANDOFF.md ]; then mode=direct; else mode=cards; fi
+          if [ "$mode" = direct ]; then direct=true; else direct=false; fi
+          echo "build mode: $mode (direct=$direct)"
+          echo "direct=$direct" >> "${GITHUB_OUTPUT:-/dev/null}"
+  blocked:
+    needs: mode
+    if: vars.TRACKER_ISSUE != '' && needs.mode.outputs.direct != 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
     env:
       GH_TOKEN: ${{ github.token }}
       GH_REPO: ${{ github.repository }}
