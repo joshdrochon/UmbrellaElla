@@ -72,6 +72,7 @@ If git hooks block a commit, use `git -c core.hooksPath=NUL commit` (the gate-gu
 Never commit `~/.umbrella-ella.env` or any key.
 
 ## Follow-up list (minor review findings)
+- Flow: queue a level-up that arrives while another screen is open and show it when that screen closes (D-new-levelup-queue); today it is dropped. Next flow pass after flowroute.
 - Keeper (review): with OWL-35 off a final hit leaves the fight Active with the model halted; LivesLostThisPhase written, never read; StartTransition zeroes stun without StunEnded; stun does not freeze queued shots; gust push uses unscaled delta.
 - Progression: the run-start checkpoint is written before the run-2 reallocation, so a boss retry reverts it.
 - Settings must call visuals' SetReducedFlash.
