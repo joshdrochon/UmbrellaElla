@@ -26,7 +26,8 @@ def run(args):
 
 
 def fails(lines):
-    return {l.strip() for l in lines if re.match(r"\s*(FAIL|\[FAIL\]|ERROR)", l)}
+    # Line numbers are dropped so a fail that only moved (an include added above it) is not "new".
+    return {re.sub(r":\d+(:\d+)?\b", "", l.strip()) for l in lines if re.match(r"\s*(FAIL|\[FAIL\]|ERROR)", l)}
 
 
 def blocking_lines():
