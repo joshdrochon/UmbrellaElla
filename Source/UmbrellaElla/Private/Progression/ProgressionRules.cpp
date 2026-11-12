@@ -135,7 +135,7 @@ int32 FProgressionRules::TrackMaxRank(const FProgressionTuning& Tuning, EProgres
 	case EProgressionTrack::HitCapacity:
 		return Tuning.MaxHitsPerLife - Tuning.StartHitsPerLife;
 	case EProgressionTrack::Lives:
-		return Tuning.MaxLives - Tuning.StartLives;
+		return Tuning.MaxLivesCap - Tuning.StartLives;
 	case EProgressionTrack::Recovery:
 		return Tuning.RecoveryRanks;
 	default:

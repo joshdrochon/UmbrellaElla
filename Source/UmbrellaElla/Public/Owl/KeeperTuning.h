@@ -120,7 +120,7 @@ struct UMBRELLAELLA_API FKeeperTuning
 	UPROPERTY(EditAnywhere, Category = "Gust")
 	float GustFrontThickness = 60.0f;
 	UPROPERTY(EditAnywhere, Category = "Gust")
-	float GustDamage = 1.0f; // bake: FLOW-33.projectile_damage
+	float GustDamage = 1.0f; // GDD: gust incoming damage 1 health (own value, not the projectile key)
 	/** Recovery after the gust leaves the arena or expires (wing recovery follows the flap). */
 	UPROPERTY(EditAnywhere, Category = "Gust")
 	float GustRecoverySeconds = 1.0f;
