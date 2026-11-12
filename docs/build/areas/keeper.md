@@ -4,18 +4,17 @@ Branch `area/keeper`. Read `docs/build/worker-rules.md` first.
 
 ## Rule IDs
 G1 first: OWL-06 .. OWL-35 (all 30), FLOW-09 (retry at the current phase checkpoint, 3 lives, full health).
-Later (G2): COM-12 .. COM-18 (regular enemies: Roadwarden three types, Floodstrider, Sky Courier, red and yellow shots).
-Enemy art/animation hooks (ART-10, ANIM-08) belong to `arena`; you expose state for them.
+Later: none (regular enemies moved to the `enemies` area, Nov 12 14:10). After G1, harden the fight: every
+attack and effect from the contract, tuning from encounter data, and the QA scenarios for the Keeper.
 
 ## GDD sections
 5 (Levels and encounters: Attack allocation by phase, Encounter record, Keeper numerical baseline, Attack and effect
-tuning, Uncertainties and acceptance, Complete Keeper attack contract and every subsection), 5 "Enemy roles and proposed
-combat baselines" for the later list. Data: `pipeline/level/encounter.json` + `encounter.md`; gate
+tuning, Uncertainties and acceptance, Complete Keeper attack contract and every subsection). Data: `pipeline/level/encounter.json` + `encounter.md`; gate
 `python3 tools/encounter_check.py` (0 problems; `--wiring` once your code reads the data, see `--help`).
 
 ## File lane (only these)
-- `Source/UmbrellaElla/{Public,Private}/Owl/**`, `Encounter/**`, `Enemy/**`
-- `Source/UmbrellaElla/Private/Tests/Keeper/**`, `Private/Tests/Enemy/**`
+- `Source/UmbrellaElla/{Public,Private}/Owl/**`, `Encounter/**`
+- `Source/UmbrellaElla/Private/Tests/Keeper/**`
 - `pipeline/level/**`, `Content/UmbrellaElla/Keeper/**`, `docs/build/areas/keeper-status.md`, `docs/build/requests/keeper.md`
 
 ## What to build
