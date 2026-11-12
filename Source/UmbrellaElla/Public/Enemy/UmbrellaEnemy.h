@@ -3,10 +3,12 @@
 #include "CoreMinimal.h"
 #include "Core/UmbrellaEvent.h"
 #include "Enemy/EnemyRules.h"
-#include "Enemy/EnemyTuning.h"
+#include "Core/UmbrellaTuning.h"
 #include "GameFramework/Actor.h"
 #include "Projectile/UmbrellaShotReceiver.h"
 #include "UmbrellaEnemy.generated.h"
+
+struct FEnemyTuning;
 
 class UBoxComponent;
 class UStaticMeshComponent;
@@ -78,7 +80,7 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Enemy")
 	EUmbrellaShotKind ShotKind = EUmbrellaShotKind::EnemyRed;
 
-	FEnemyTuning Tuning;
+	const FEnemyTuning& Tuning() const { return GetDefault<UUmbrellaTuning>()->Enemy; }
 	FEnemyProfile Profile;
 	FEnemyBrain Brain;
 	FCourierPackets Packets;

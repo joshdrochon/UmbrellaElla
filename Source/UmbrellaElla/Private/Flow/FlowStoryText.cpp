@@ -1,4 +1,4 @@
-#include "Story/FlowStoryText.h"
+#include "Flow/FlowStoryText.h"
 
 TArray<FText> FFlowStoryText::GetEndingPages()
 {

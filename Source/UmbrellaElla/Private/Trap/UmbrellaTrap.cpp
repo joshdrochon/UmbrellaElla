@@ -1,4 +1,5 @@
 #include "Trap/UmbrellaTrap.h"
+#include "Trap/TrapTuning.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Core/UmbrellaCollision.h"
@@ -17,24 +18,24 @@ AUmbrellaTrap::AUmbrellaTrap()
 	Hazard->SetCollisionObjectType(UmbrellaCollision::Hazard);
 	Hazard->SetGenerateOverlapEvents(true);
 	RootComponent = Hazard;
-	Cycle = FTrapRules::MakeCycle(Kind, Tuning);
+	Cycle = FTrapRules::MakeCycle(Kind, Tuning());
 }
 
 void AUmbrellaTrap::ConfigureKind(ETrapKind NewKind)
 {
 	Kind = NewKind;
-	Cycle = FTrapRules::MakeCycle(Kind, Tuning);
+	Cycle = FTrapRules::MakeCycle(Kind, Tuning());
 	CycleTime = 0.0f;
-	FVector2D Size = FVector2D(Tuning.RotorSweptRadius * 2.0f, Tuning.RotorSweptRadius * 2.0f);
+	FVector2D Size = FVector2D(Tuning().RotorSweptRadius * 2.0f, Tuning().RotorSweptRadius * 2.0f);
 	if (Kind == ETrapKind::RoofTeeth)
 	{
-		Size = Tuning.TeethSize;
+		Size = Tuning().TeethSize;
 	}
 	else if (Kind != ETrapKind::AirMill)
 	{
-		Size = FVector2D(Tuning.TeethSize.X, Tuning.RotorSweptRadius * 2.0f);
+		Size = FVector2D(Tuning().TeethSize.X, Tuning().RotorSweptRadius * 2.0f);
 	}
-	Hazard->SetBoxExtent(FVector(Size.X * 0.5, Tuning.DepthHalfExtent, Size.Y * 0.5));
+	Hazard->SetBoxExtent(FVector(Size.X * 0.5, Tuning().DepthHalfExtent, Size.Y * 0.5));
 }
 
 ETrapPhase AUmbrellaTrap::GetPhase() const
@@ -54,7 +55,7 @@ void AUmbrellaTrap::BeginPlay()
 	Placeholder->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Placeholder->SetupAttachment(RootComponent);
 	const FVector Extent = Hazard->GetUnscaledBoxExtent();
-	Placeholder->SetRelativeScale3D(FVector(Extent.X * 2.0 / TrapConst::CubeSize, Tuning.PlaceholderDepthScale, Extent.Z * 2.0 / TrapConst::CubeSize));
+	Placeholder->SetRelativeScale3D(FVector(Extent.X * 2.0 / TrapConst::CubeSize, Tuning().PlaceholderDepthScale, Extent.Z * 2.0 / TrapConst::CubeSize));
 	Placeholder->SetRelativeLocation(FVector(0.0, UmbrellaDrawOrder::HazardY, 0.0));
 	Placeholder->RegisterComponent();
 }
@@ -84,11 +85,11 @@ float AUmbrellaTrap::ApplyContact(AActor* Victim)
 		return 0.0f;
 	}
 	// The air mill blocks its whole swept disk, not the box corners.
-	if (Kind == ETrapKind::AirMill && !FTrapRules::IsInsideSweptDisk(Victim->GetActorLocation(), GetActorLocation(), Tuning.RotorSweptRadius))
+	if (Kind == ETrapKind::AirMill && !FTrapRules::IsInsideSweptDisk(Victim->GetActorLocation(), GetActorLocation(), Tuning().RotorSweptRadius))
 	{
 		return 0.0f;
 	}
-	const float Dealt = Gate.ConsumeHit(Victim->GetFName(), Tuning.ContactDamage, Tuning.PostHitProtectionSeconds);
+	const float Dealt = Gate.ConsumeHit(Victim->GetFName(), Tuning().ContactDamage, Tuning().PostHitProtectionSeconds);
 	if (Dealt <= 0.0f)
 	{
 		return 0.0f;

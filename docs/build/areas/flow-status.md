@@ -37,3 +37,37 @@ refuges and between runs (waits for area/progression on main; docs/build/request
 waiting on other areas: pause/title menus -> `USettingsMenuSubsystem::OpenSettings` and `SetPlayMode` (settings),
 `UStorySubsystem::BeginNewRun` for Director's Cut (story), ModeSelected Detail 'DirectorsCut'/'StartGame'.
 Minor, from review: freeze or protect Ella during Story/Credits; menu strings move to FlowStoryText later.
+
+## Slice 2: FLOW-03, FLOW-41, MOVE-08, MOVE-09 (flow part), ModeSelected after the world is up
+- FLOW-03: Tutorial and TutorialPaused screens. First start only (flag kept in GameUserSettings.ini under FlowSave;
+  tracking/replay stay OPEN). Same pages count in both modes, different wording. Pause then Skip on every page; finish or
+  Skip starts the fight through the neutral-input wait (confirm press consumed). Tests: Flow.TutorialPauseSkip,
+  Flow.World.TutorialFirstStartSkippable. Smoke start bypasses it.
+- FLOW-41: Start/Pause wording in `Flow/FlowMenuText` (also moves menu strings out of the controller). Test:
+  Flow.StartAndPauseDesignRetained.
+- MOVE-08 (flow part): pause keys Escape, F1, gamepad Menu; Retry on Enter / Cross / A (focused first button). Test:
+  Flow.MenuInputs. Spell cycling/selection is Motor/Input and progression, not flow.
+- MOVE-09: WASD, arrows, D-pad, left stick navigate; Enter/Space/Cross/A select; B/Circle/Escape back; resume waits for
+  neutral (Resuming). Test: Flow.MenuInputs.
+- ModeSelected now fires after BeginFight (arena and Ella exist); Detail StartGame or DirectorsCut. World test checks it.
+
+## Waiting on other areas (not on main yet)
+- Director ACTIVE assert (keeper). Settings page (settings: OpenSettings, SetPlayMode). Director's Cut BeginNewRun (story).
+  SetPurchaseContext and purchase/level-up screens (progression).
+
+## Slice 3: integration with keeper, settings, progression (after merging main)
+- StartGameReachesFight now asserts director `Active` (`GetState()`); retry test asserts Ready/Active after `ResetForRestart`.
+- Settings: pause Settings entry calls `USettingsMenuSubsystem::OpenSettings`; flow returns to Paused when the menu closes (polled in
+  TickFlow); stub page remains if the subsystem refuses (flag off). `SetPlayMode` is called on every Start (also progression's).
+  Title keeps exactly two Start buttons (FLOW-41 design retained), so no Settings entry there.
+- Progression: new `Purchase` screen. Director's Cut Start with unspent points shows `UProgressionPurchaseWidget` (context RunStart)
+  plus a Done button, then repeats the Start. Context is cleared at BeginRun and set to BetweenRuns at Credits. `UXpRingWidget::Show`
+  at run start (the level-up display). Test: Flow.PurchaseScreenReturnsToTitle (rules only).
+- NOT verified: layout of Done over the purchase widget (no visual run), Purchase screen in a world test.
+- NOT done: (b) story `BeginNewRun` ('Merge area/story' not in main yet).
+
+## Review round 1 fixes (FLOW-42)
+- Purchase screen is offered with unspent points or, from run 2 in Director's Cut, when any rank is refundable (`FFlowRules::ShouldOfferPurchase`; test `UmbrellaElla.Flow.PurchaseScreenReturnsToTitle`).
+- Purchase: Pause/Back/Escape/F1/B/Menu return to the title; Done takes focus and the Done holder handles Back keys. Layout still not checked by eye.
+- Leaving Purchase calls the widget's `Cancel()` (discards the draft); test `UmbrellaElla.Flow.World.LeavingPurchaseDiscardsDraft`.
+- Done label moved to `FFlowMenuText::DoneLabel`. The level-up widget is not wired by Flow; only the XP ring is.

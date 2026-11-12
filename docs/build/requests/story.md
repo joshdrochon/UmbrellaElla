@@ -24,3 +24,7 @@ Lines now use only GDD facts F1-F7. Not used, pending confirmation:
 - P4 / P8 (edge of reality, still between worlds): ending-2 says only "She is alive."
 - P8 / P1 (owl only postponed his judgment): ending-3 says only "The owl has gone." (F3).
 - Owl damage (any wing falling away): shaft-clue shows gears only; F3 says the owl is not worn down.
+
+## Rows needed by a held line (design owner: confirm to ship)
+- story-light-shadow ("Its shadow follows.") needs P2/P5 (umbra, shade motif; PROPOSED). Kept as ship=no, not rewritten. Q5 in the bible is the open decision.
+- All other lines checked word by word against GDD rows F1-F3; they use no PROPOSED row. They stay ship=no because the narrative surfaces wait on NAR-01 (DEFERRED).

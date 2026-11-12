@@ -14,7 +14,7 @@ Cut progression baseline), 7 (HUD/clock parts of Menus, settings and accessibili
 
 ## File lane (only these)
 - `Source/UmbrellaElla/{Public,Private}/Projectile/**` (the Core seam headers there are yours to extend, not rename),
-  `Health/**`, `Defense/**`, `UI/**` (except `UI/Menus/**`, `UI/Progression/**`, `UI/Story/**`)
+  `Health/**`, `Defense/**`, `UI/**` (except `UI/Menus/**`, `UI/Progression/**`, `UI/Story/**`, `UI/Settings/**`)
 - `Source/UmbrellaElla/Private/Tests/Health/**`, `Private/Tests/Projectile/**`
 - `Content/UmbrellaElla/UI/HUD/**`, `docs/build/areas/health-status.md`, `docs/build/requests/health.md`
 

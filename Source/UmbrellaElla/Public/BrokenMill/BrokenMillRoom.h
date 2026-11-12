@@ -2,10 +2,12 @@
 
 #include "CoreMinimal.h"
 #include "BrokenMill/BrokenMillRules.h"
-#include "BrokenMill/BrokenMillTuning.h"
+#include "Core/UmbrellaTuning.h"
 #include "GameFramework/Actor.h"
 #include "Projectile/UmbrellaShotReceiver.h"
 #include "BrokenMillRoom.generated.h"
+
+struct FBrokenMillTuning;
 
 class AUmbrellaProjectile;
 class AUmbrellaTrap;
@@ -49,7 +51,7 @@ public:
 	float GetGuardHp() const { return GuardHp; }
 	const FMillGuard& GetGuard() const { return Guard; }
 	const FMillShotLog& GetShotLog() const { return ShotLog; }
-	const FBrokenMillTuning& GetMillTuning() const { return Tuning; }
+	const FBrokenMillTuning& GetMillTuning() const { return Tuning(); }
 	AUmbrellaTrap* GetRotor() const { return Rotor; }
 	int32 GetShotsFired() const { return ShotsFired; }
 
@@ -74,7 +76,7 @@ private:
 	UPROPERTY()
 	TWeakObjectPtr<AUmbrellaProjectile> ActiveShot;
 
-	FBrokenMillTuning Tuning;
+	const FBrokenMillTuning& Tuning() const { return GetDefault<UUmbrellaTuning>()->BrokenMill; }
 	FMillGuard Guard;
 	FMillShotLog ShotLog;
 	float GuardHp = 0.0f;

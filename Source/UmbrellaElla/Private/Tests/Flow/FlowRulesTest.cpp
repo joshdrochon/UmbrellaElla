@@ -2,10 +2,11 @@
 
 #if WITH_AUTOMATION_TESTS
 
+#include "Flow/FlowMenuText.h"
 #include "Flow/FlowRules.h"
 #include "Flow/FlowTutorialText.h"
 #include "Smoke/SmokeHookSubsystem.h"
-#include "Story/FlowStoryText.h"
+#include "Flow/FlowStoryText.h"
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFlowStartTest, "UmbrellaElla.Flow.TitleStartsPlaying",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
@@ -38,6 +39,44 @@ bool FFlowTutorialRulesTest::RunTest(const FString& Parameters)
 		FFlowTutorialText::GetPages(EUmbrellaPlayMode::StartGame).Num(), FFlowTutorialText::GetPages(EUmbrellaPlayMode::DirectorsCut).Num());
 	TestTrue(TEXT("the presentations differ"),
 		!FFlowTutorialText::GetPages(EUmbrellaPlayMode::StartGame)[0].EqualTo(FFlowTutorialText::GetPages(EUmbrellaPlayMode::DirectorsCut)[0]));
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFlowMenuInputTest, "UmbrellaElla.Flow.MenuInputs",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FFlowMenuInputTest::RunTest(const FString& Parameters)
+{
+	TestEqual(TEXT("W navigates up"), FFlowRules::MenuIntentForKey(EKeys::W), EFlowMenuIntent::Up);
+	TestEqual(TEXT("S navigates down"), FFlowRules::MenuIntentForKey(EKeys::S), EFlowMenuIntent::Down);
+	TestEqual(TEXT("arrow left"), FFlowRules::MenuIntentForKey(EKeys::Left), EFlowMenuIntent::Left);
+	TestEqual(TEXT("D-pad down"), FFlowRules::MenuIntentForKey(EKeys::Gamepad_DPad_Down), EFlowMenuIntent::Down);
+	TestEqual(TEXT("left stick up"), FFlowRules::MenuIntentForKey(EKeys::Gamepad_LeftStick_Up), EFlowMenuIntent::Up);
+	TestEqual(TEXT("Enter selects (retry too)"), FFlowRules::MenuIntentForKey(EKeys::Enter), EFlowMenuIntent::Confirm);
+	TestEqual(TEXT("Space selects"), FFlowRules::MenuIntentForKey(EKeys::SpaceBar), EFlowMenuIntent::Confirm);
+	TestEqual(TEXT("Cross or A selects (retry too)"), FFlowRules::MenuIntentForKey(EKeys::Gamepad_FaceButton_Bottom), EFlowMenuIntent::Confirm);
+	TestEqual(TEXT("Escape backs out"), FFlowRules::MenuIntentForKey(EKeys::Escape), EFlowMenuIntent::Back);
+	TestEqual(TEXT("F1 recovery"), FFlowRules::MenuIntentForKey(EKeys::F1), EFlowMenuIntent::Back);
+	TestEqual(TEXT("Circle or B backs out"), FFlowRules::MenuIntentForKey(EKeys::Gamepad_FaceButton_Right), EFlowMenuIntent::Back);
+	TestEqual(TEXT("Menu button backs out"), FFlowRules::MenuIntentForKey(EKeys::Gamepad_Special_Right), EFlowMenuIntent::Back);
+	TestEqual(TEXT("other keys do nothing"), FFlowRules::MenuIntentForKey(EKeys::Q), EFlowMenuIntent::None);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFlowRetainedDesignTest, "UmbrellaElla.Flow.StartAndPauseDesignRetained",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FFlowRetainedDesignTest::RunTest(const FString& Parameters)
+{
+	const TArray<FText> Title = FFlowMenuText::TitleLabels();
+	TestEqual(TEXT("two Start buttons"), Title.Num(), 2);
+	TestEqual(TEXT("first Start Game"), Title[0].ToString(), FString(TEXT("Start Game")));
+	TestEqual(TEXT("then Director's Cut"), Title[1].ToString(), FString(TEXT("Start Director's Cut")));
+	const TArray<FText> Pause = FFlowMenuText::PauseLabels();
+	TestEqual(TEXT("three pause entries"), Pause.Num(), 3);
+	TestEqual(TEXT("Continue"), Pause[0].ToString(), FString(TEXT("Continue")));
+	TestEqual(TEXT("Settings"), Pause[1].ToString(), FString(TEXT("Settings")));
+	TestEqual(TEXT("Quit"), Pause[2].ToString(), FString(TEXT("Quit")));
+	TestTrue(TEXT("the moving background stays on Start and pause"),
+		FFlowRules::IsBackgroundShownOn(EFlowScreen::Title) && FFlowRules::IsBackgroundShownOn(EFlowScreen::Paused));
 	return true;
 }
 
@@ -127,3 +166,21 @@ bool FFlowSmokeFpsTest::RunTest(const FString& Parameters)
 }
 
 #endif
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFlowPurchaseRulesTest, "UmbrellaElla.Flow.PurchaseScreenReturnsToTitle",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FFlowPurchaseRulesTest::RunTest(const FString& Parameters)
+{
+	EFlowScreen Screen = FFlowRules::Next(EFlowScreen::Title, EFlowCommand::OpenPurchase);
+	TestEqual(TEXT("title opens the purchase screen"), Screen, EFlowScreen::Purchase);
+	TestTrue(TEXT("purchase blocks gameplay input"), FFlowRules::IsInputBlockedOn(Screen));
+	TestEqual(TEXT("pause (Escape, F1, Menu, B) leaves it"), FFlowRules::Next(Screen, EFlowCommand::Pause), EFlowScreen::Title);
+	TestEqual(TEXT("back leaves it"), FFlowRules::Next(Screen, EFlowCommand::Back), EFlowScreen::Title);
+	TestTrue(TEXT("offered with unspent points"), FFlowRules::ShouldOfferPurchase(true, 2, false, false));
+	TestTrue(TEXT("offered for a refund from run 2"), FFlowRules::ShouldOfferPurchase(true, 0, true, true));
+	TestFalse(TEXT("not offered with nothing spent"), FFlowRules::ShouldOfferPurchase(true, 0, true, false));
+	TestFalse(TEXT("not offered before refunds open"), FFlowRules::ShouldOfferPurchase(true, 0, false, true));
+	TestFalse(TEXT("not offered with the flag off"), FFlowRules::ShouldOfferPurchase(false, 3, true, true));
+	TestEqual(TEXT("done returns to the title"), FFlowRules::Next(Screen, EFlowCommand::Continue), EFlowScreen::Title);
+	return true;
+}

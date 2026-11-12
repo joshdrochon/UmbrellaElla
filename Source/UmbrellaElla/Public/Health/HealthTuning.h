@@ -25,21 +25,9 @@ struct UMBRELLAELLA_API FHealthTuning
 	UPROPERTY(Config, EditAnywhere, meta = (ClampMin = "0.0", ClampMax = "5.0"))
 	float PostHitProtectionSeconds = 0.65f; // bake: SURV-05.post_hit_protection_s
 
-	/** Incoming ordinary red/yellow projectile and hostile gust damage (units: health). */
-	UPROPERTY(Config, EditAnywhere, meta = (ClampMin = "0.0"))
-	float ProjectileDamage = 1.0f; // bake: FLOW-33.projectile_damage
-
 	/** Physical trap hit damage (units: health). */
 	UPROPERTY(Config, EditAnywhere, meta = (ClampMin = "0.0"))
 	float TrapDamage = 1.0f; // bake: FLOW-33.trap_damage
-
-	/** Chain-head damage (units: health). */
-	UPROPERTY(Config, EditAnywhere, meta = (ClampMin = "0.0"))
-	float ChainDamage = 1.25f; // bake: FLOW-33.chain_damage
-
-	/** Talon damage (units: health). */
-	UPROPERTY(Config, EditAnywhere, meta = (ClampMin = "0.0"))
-	float TalonDamage = 1.5f; // bake: FLOW-33.talon_damage
 
 	/** Former incoming values were divided by this (documentation of the migration; outgoing damage is untouched). */
 	UPROPERTY(Config, EditAnywhere, meta = (ClampMin = "1.0"))
