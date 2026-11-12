@@ -77,7 +77,7 @@ In-jam inputs (G4 depends on them; run during the jam, not at G4):
                     end=logo+CTA music=yes sfx-beats=yes by=<name>.
 
 Exit 0 = pass, 1 = problems, 2 = not run (a tool is missing, or git failed).
-Tests: python3 -m unittest tests.test_submission_check (all suites: python3 -m unittest discover tests).
+Tests: python3 -m unittest tests.test_submission_check (all suites: the pipeline repos' CI).
 """
 import argparse
 import csv

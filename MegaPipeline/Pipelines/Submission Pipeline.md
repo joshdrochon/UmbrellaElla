@@ -1,4 +1,4 @@
-> Generated from `pipeline/checklists/submission.md`, `docs/pre-jam-declaration.md`, `pipeline/submission/LICENSE.txt`, `pipeline/submission/README.txt`, `pipeline/submission/credits.md`, `pipeline/submission/devlog.md`, `pipeline/submission/footage.md`, `pipeline/submission/itch-page.md`, `pipeline/submission/video-plan.md`, `tools/submission_check.py` at `a11903f` — edit the sources, not this file.
+> Generated from `pipeline/checklists/submission.md`, `docs/pre-jam-declaration.md`, `pipeline/submission/LICENSE.txt`, `pipeline/submission/README.txt`, `pipeline/submission/credits.md`, `pipeline/submission/devlog.md`, `pipeline/submission/footage.md`, `pipeline/submission/itch-page.md`, `pipeline/submission/video-plan.md`, `tools/submission_check.py` at `b201a66` — edit the sources, not this file.
 > Rebuild: `python3 tools/export_package.py`. Check: `python3 tools/export_package.py --check`.
 
 # Submission Pipeline
@@ -29,7 +29,7 @@ A readable copy for people. Agents load these rules from the repo paths listed b
 
 
 Jam rules and their quotes: `docs/jam-rules.md`. QA and Build runs it. The packaging owner ticks it.
-Tests for the checks: `python3 -m unittest tests.test_submission_check` (pytest is not installed; `python3 -m unittest discover tests` runs every suite).
+Tests for the checks: `python3 -m unittest tests.test_submission_check` (pytest is not installed; every suite runs in the pipeline repos' CI).
 Each line needs pasted output or a link. A line that was not run says "not run" and why. Not run is never a pass.
 The submitted build is a **Windows Development package** (jam rule). A Shipping package is optional and never submitted.
 
@@ -51,6 +51,8 @@ Once `check_card.py --status` calls `submission_check.status_hook()` (requested;
 
 ##### The build
 - [ ] `main` is tagged `submit-<sha>`. The working tree was clean (`git status --short` empty) when it was packaged.
+- [ ] The packaging owner (a person, not a card session) runs the full unit suite on that tag:
+      `python3 -m unittest discover -s tests` exits 0 before packaging (the `Ran N tests` line pasted). Card sessions and game-repo CI never run it.
 - [ ] Development package from a fresh clone of that tag: empty folder, `git clone`, `git lfs pull`, then `tools\ue\package.ps1`.
       Cook log has no `Error:`. `cook warnings: N` pasted; not above the last `DAILY` line unless a decision row accepts it. A missing file is P0.
 - [ ] Workbench compiled out (D-new-workbench-debug): `package.ps1` ran without `-Workbench` and printed `workbench-check: PASS`; BUILD_INFO.txt says `workbench=0` (the `zip` check fails otherwise); the smoke's `SMOKE_OK` line says `workbench=0` and the log has no `WORKBENCH_ON`, `LogWorkbench` or `TestPresetLoaded` line (`smoke.ps1` checks both from BUILD_INFO).
@@ -484,12 +486,13 @@ In-jam inputs (G4 depends on them; run during the jam, not at G4):
                     end=logo+CTA music=yes sfx-beats=yes by=<name>.
 
 Exit 0 = pass, 1 = problems, 2 = not run (a tool is missing, or git failed).
-Tests: python3 -m unittest tests.test_submission_check (all suites: python3 -m unittest discover tests).
+Tests: python3 -m unittest tests.test_submission_check (all suites: the pipeline repos' CI).
 ```
 
 Run in CI by:
 
 - `.github/workflows/pipeline-checks.yml`: Submission duties and the deadline guard stay wired (Producer; dry run B M2)
+- `.github/workflows/pipeline-checks.yml`: No undeclared game commits before the jam start (direct build; tools/build/gate.sh runs it on every merge)
 - `.github/workflows/pipeline-checks.yml`: Official Rules (docs/rules) - jam rules cite them, deadline = section 4, pre-jam assets (7(h)), English (7(i))
 
 Tests: `tests/fixtures/kickoff/stub_agent.py`, `tests/test_art_ship.py`, `tests/test_assetgen.py`, `tests/test_audio_import.py`, `tests/test_final9_fixes.py`, `tests/test_honest_jam.py`, `tests/test_pipeline_check.py`, `tests/test_plan_checks.py`, `tests/test_practice.py`, `tests/test_submission_check.py`

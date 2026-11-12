@@ -265,6 +265,9 @@ CARD_LETTER = re.compile(r"(?<![\w.])(0\.\d{1,2}[a-e])\b")  # 0.4c, 0.6b: never 
 PATH_REF = re.compile(r"(?<![\w./-])((?:docs|pipeline|tools|tests|evals|prompts|\.github)/[\w./-]*[\w/])")
 PATH_SKIP = re.compile(r"[*<>{}]|NAME|\.\.\.|/$")
 PATH_TEMPLATE_TAIL = re.compile(r"[\w.-]*[*<{]")  # `tools/ue/test.*`, `prompts/log/D-<host>.md`
+# Files only a game repo has: the build mode kickoff saves on its first run and the build lead's gate list
+# (README "Build modes"). Docs may name them before they exist.
+GAME_REPO_PATHS = {"docs/build/MODE", "docs/build/gates.txt"}
 
 
 def table_cells(line):
@@ -387,6 +390,7 @@ def consistency(root, files):
             lane = re.search(r"(?ms)^## File lane[^\n]*\n(.*?)(?=^## |\Z)", rd(f))
             if lane:
                 planned.update(m.group(1).rstrip(".") for m in PATH_REF.finditer(lane.group(1)))
+    planned |= GAME_REPO_PATHS
     owners = owner_names(rd(BRIEF), rd("AGENTS.md"))
     for did, owner in sorted(decisions.items()):
         if owner and norm_owner(owner) not in owners and norm_owner(owner) not in ("none", "–", "-"):

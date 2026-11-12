@@ -1,22 +1,13 @@
 #!/usr/bin/env python3
-"""Gate-path guard in git itself, so every agent hits it: Claude Code, Codex or anything else. Stdlib only.
+"""Gate-path library and the gate-patch tool route. Stdlib only.
 
-The git pre-commit and pre-push hooks from tools/install_git_hooks.py run it. It rejects a commit (pre-commit) or a
-push (pre-push) that changes a gate path (pipeline/agent-ops/gates.json `gate_paths`) unless a human makes it by the
-human route:
+No git hook runs this (Josh, 12 Nov: the local pre-commit / pre-push gate guard is gone). An agent's gate-path
+change (pipeline/agent-ops/gates.json `gate_paths`) is caught on the PR: tools/check_pr.py rule gate fails a PR that
+changes a gate path unless the commit came through kickoff's tool route: on a card PR it reads the commits of the PR
+head for the `GATE EDIT: by=kickoff` trailer apply --auto writes (never the PR body) and re-checks them, and kickoff's
+merge gate runs the base branch's rule gate too. tools/kickoff.py, tools/check_pr.py and the lane
+checks import gate_hits, auto_problems, apply_patch and with_gate_line from here.
 
-    JAM_HUMAN=<your name> git commit ...          (PowerShell: $env:JAM_HUMAN="<name>"; git commit ...)
-
-from a plain terminal: none of gates.json `agent_env` may be set (JAM_ROLE, JAM_KICKOFF, CLAUDECODE, the Codex
-sandbox variables). An agent session always has JAM_ROLE (tools/kickoff.py, tools/agent.sh), so an agent is
-blocked even if it sets JAM_HUMAN. The gate list is read from the commit being built on (HEAD), never the working
-tree, so editing gates.json in the same commit does not unlock it. gates.json `kickoff_only_paths` (the art-loop
-pass records) are refused to any commit or push made with JAM_ROLE set: only kickoff's own art loop commits them. `git commit --no-verify` skips git hooks: the
-Claude hook blocks that flag, and for every agent CI is the backstop (tools/check_pr.py rule gate: a PR that changes
-a gate path needs a `GATE EDIT:` line, by the card's human or by kickoff's tool route, which CI re-checks).
-
-  python3 tools/git_gate.py pre-commit
-  python3 tools/git_gate.py pre-push <remote> [<url>] --refs FILE    (FILE = the hook's stdin)
   python3 tools/git_gate.py check PATH...                            (prints the gate paths among PATHs)
   python3 tools/git_gate.py apply UE-<id> [--by NAME] [--yes] [--no-pr] [--auto]
       Applies an agent's gate patch. Agents own the work: a session writes its gate-path change as
@@ -24,14 +15,15 @@ a gate path needs a `GATE EDIT:` line, by the card's human or by kickoff's tool 
       asks once (y/N; --yes skips), applies it in the card's worktree, commits it through the human route (JAM_HUMAN),
       pushes the branch, writes `GATE EDIT: by=<name> <paths>` under Evidence in the card's PR (opening the PR from
       the session's pr.md if the card had none), and takes the needs-human label off the card. --no-pr: commit and
-      push only, and print the GATE EDIT line to paste. An agent session (JAM_ROLE set) is always refused.
+      push only, and print the GATE EDIT line to paste. An agent session (JAM_ROLE set) is always refused. check_pr
+      fails a person's `by=<name>` commit on a card PR (an agent could forge it); it serves only a PR with no card.
       --auto (what kickoff runs; by=kickoff): no question, and the tools decide instead of a person. auto_problems
       refuses the patch unless every path is in the card's File lane, no path is a guardrail enforcer (GUARD_CORE),
       and no guardrail file is loosened (gates.json and .claude/settings*.json: nothing removed from a deny-type
       list, nothing added to an allow-type list, mcp_enabled and native_windows_shell never opened). check_pr.py rule
-      gate re-runs the same check in CI on a `GATE EDIT: by=kickoff` line, and kickoff's merge gate runs the base
+      gate re-runs the same check in CI on each commit with the `GATE EDIT: by=kickoff` trailer, and kickoff's merge gate runs the base
       branch's check_pr too, so a patch cannot weaken the checker that judges it.
-Exit 0 = allowed (apply: applied), 1 = blocked (apply: refused, or the patch does not apply), 2 = usage error.
+Exit 0 = done (apply: applied), 1 = apply refused, or the patch does not apply, 2 = usage error.
 """
 import json
 import os
@@ -42,7 +34,6 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 GATES_REL = "pipeline/agent-ops/gates.json"
-ZERO = re.compile(r"^0+$")
 DEFAULT_AGENT_ENV = ("JAM_ROLE", "JAM_KICKOFF", "CLAUDECODE", "CODEX_SANDBOX", "CODEX_SANDBOX_NETWORK_DISABLED",
                      "CODEX_THREAD_ID")
 
@@ -93,59 +84,6 @@ def actor(env, gates):
         return "agent", hit
     who = (env.get("JAM_HUMAN") or "").strip()
     return ("human", who) if who else ("unmarked", None)
-
-
-def refusal(kind, hits, who):
-    head = {"agent": f"an agent session is committing ({who} is set)",
-            "unmarked": "no human mark (JAM_HUMAN is not set)"}[kind]
-    shown = ", ".join(hits[:8]) + (f" and {len(hits) - 8} more" if len(hits) > 8 else "")
-    return (f"git_gate: BLOCKED {head}: the change touches gate path(s) {shown} ({GATES_REL} gate_paths). "
-            "Agents never commit gates (AGENTS.md section 7): write the change as $JAM_OUTBOX/gate.patch and kickoff "
-            "applies it through the tool checks (tools/git_gate.py apply --auto). "
-            "Human route, from a plain terminal: `JAM_HUMAN=<your name> git commit ...` "
-            "(PowerShell: `$env:JAM_HUMAN=\"<name>\"`), then a `GATE EDIT: by=<name> <paths>` line in the PR.")
-
-
-def decide(paths, env, gates):
-    """(allowed, message)."""
-    own = gate_hits(paths, gates.get("kickoff_only_paths") or [])
-    if own and (env.get("JAM_ROLE") or "").strip():
-        return False, (f"git_gate: BLOCKED an agent session is committing art-loop pass record(s) {', '.join(own[:4])} "
-                       "(gates.json kickoff_only_paths): only kickoff's art loop writes and commits them")
-    hits = gate_hits(paths, gates.get("gate_paths") or [])
-    if not hits:
-        return True, ""
-    kind, who = actor(env, gates)
-    if kind == "human":
-        return True, f"git_gate: gate path(s) changed by human {who}: {', '.join(hits[:8])}"
-    return False, refusal(kind, hits, who)
-
-
-def staged(cwd=None):
-    rc, out = git("diff", "--cached", "--name-only", "--no-renames", "-z", cwd=cwd)
-    return [p for p in out.split("\0") if p] if rc == 0 else []
-
-
-def pushed_paths(remote, refs_text, cwd=None):
-    """Files changed by the commits a push sends that the remote does not have yet (merges skipped)."""
-    paths = set()
-    for ln in refs_text.splitlines():
-        parts = ln.split()
-        if len(parts) != 4 or ZERO.match(parts[1]):
-            continue   # a delete; the Claude hook asks for those
-        local, remote_sha = parts[1], parts[3]
-        args = ["rev-list", "--no-merges", local]
-        if not ZERO.match(remote_sha):
-            args.append("^" + remote_sha)
-        if remote:
-            args.append(f"--not")
-            args.append(f"--remotes={remote}")
-        rc, out = git(*args, cwd=cwd)
-        for c in out.split() if rc == 0 else []:
-            rc2, files = git("diff-tree", "--no-commit-id", "--name-only", "--no-renames", "-r", "-z", "--root", c,
-                             cwd=cwd)
-            paths.update(p for p in files.split("\0") if p)
-    return sorted(paths)
 
 
 GATE_PATCHES = os.path.join(".pipeline", "gate-patches")
@@ -418,7 +356,7 @@ def main(argv=None, env=None):
         rc, lines = apply_patch(a.card, a.by, a.yes, a.no_pr, env=env, auto=a.auto)
         print("\n".join(x for x in lines if x))
         return rc
-    if not argv or argv[0] not in ("pre-commit", "pre-push", "check"):
+    if not argv or argv[0] != "check":
         print(__doc__, file=sys.stderr)
         return 2
     try:
@@ -426,25 +364,9 @@ def main(argv=None, env=None):
     except (OSError, ValueError) as e:
         print(f"git_gate: cannot read {GATES_REL}: {e}; blocked (fails closed)", file=sys.stderr)
         return 1
-    if argv[0] == "check":
-        for p in gate_hits(argv[1:], gates.get("gate_paths") or []):
-            print(p)
-        return 0
-    if argv[0] == "pre-commit":
-        paths = staged()
-    else:
-        rest = argv[1:]
-        refs = ""
-        if "--refs" in rest:
-            i = rest.index("--refs")
-            with open(rest[i + 1], encoding="utf-8") as fh:
-                refs = fh.read()
-            rest = rest[:i] + rest[i + 2:]
-        paths = pushed_paths(rest[0] if rest else "", refs)
-    ok, msg = decide(paths, env, gates)
-    if msg:
-        print(msg, file=sys.stderr)
-    return 0 if ok else 1
+    for p in gate_hits(argv[1:], gates.get("gate_paths") or []):
+        print(p)
+    return 0
 
 
 if __name__ == "__main__":

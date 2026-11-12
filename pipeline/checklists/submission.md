@@ -4,7 +4,7 @@
 
 
 Jam rules and their quotes: `docs/jam-rules.md`. QA and Build runs it. The packaging owner ticks it.
-Tests for the checks: `python3 -m unittest tests.test_submission_check` (pytest is not installed; `python3 -m unittest discover tests` runs every suite).
+Tests for the checks: `python3 -m unittest tests.test_submission_check` (pytest is not installed; every suite runs in the pipeline repos' CI).
 Each line needs pasted output or a link. A line that was not run says "not run" and why. Not run is never a pass.
 The submitted build is a **Windows Development package** (jam rule). A Shipping package is optional and never submitted.
 
@@ -26,6 +26,8 @@ Once `check_card.py --status` calls `submission_check.status_hook()` (requested;
 
 ## The build
 - [ ] `main` is tagged `submit-<sha>`. The working tree was clean (`git status --short` empty) when it was packaged.
+- [ ] The packaging owner (a person, not a card session) runs the full unit suite on that tag:
+      `python3 -m unittest discover -s tests` exits 0 before packaging (the `Ran N tests` line pasted). Card sessions and game-repo CI never run it.
 - [ ] Development package from a fresh clone of that tag: empty folder, `git clone`, `git lfs pull`, then `tools\ue\package.ps1`.
       Cook log has no `Error:`. `cook warnings: N` pasted; not above the last `DAILY` line unless a decision row accepts it. A missing file is P0.
 - [ ] Workbench compiled out (D-new-workbench-debug): `package.ps1` ran without `-Workbench` and printed `workbench-check: PASS`; BUILD_INFO.txt says `workbench=0` (the `zip` check fails otherwise); the smoke's `SMOKE_OK` line says `workbench=0` and the log has no `WORKBENCH_ON`, `LogWorkbench` or `TestPresetLoaded` line (`smoke.ps1` checks both from BUILD_INFO).

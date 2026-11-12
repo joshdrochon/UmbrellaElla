@@ -75,7 +75,7 @@ body:
     validations: {required: true}
   - type: textarea
     id: done
-    attributes: {label: "Done when (each line checkable)"}
+    attributes: {label: "Done when (each line checkable)", description: "The builder runs these lines; the reviewer re-runs only what it doubts. A Python test line names its modules (python3 -m unittest tests.test_x); the full suite is CI's."}
     validations: {required: true}
   - type: input
     id: budget

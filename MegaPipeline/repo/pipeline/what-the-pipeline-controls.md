@@ -26,7 +26,7 @@ If it is not on the first list, no tool will catch it. Say so on the card.
 | Audio list and source files | `tools/audio_check.py` |
 | A card is complete before work starts; gate records are filled and true | `tools/check_card.py` |
 | A PR has its evidence, and the evidence is for this commit | `tools/check_pr.py` |
-| Agents stay in their lane and off gate files | `pipeline/agent-ops/hook.py`, `tools/git_gate.py`, `tools/check_card.py --lanes` |
+| Agents stay in their lane and off gate files | `pipeline/agent-ops/hook.py`, `tools/check_pr.py` rule gate and kickoff's merge gate (no local git hook), `tools/check_card.py --lanes` |
 | No secrets in the repo | `tools/secrets_check.py` |
 | Docs agree with each other; no dead links | `tools/pipeline_check.py` |
 | Submission zip, page, credits, rules | `tools/submission_check.py` |

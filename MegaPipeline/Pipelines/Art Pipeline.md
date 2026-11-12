@@ -1,4 +1,4 @@
-> Generated from `pipeline/art/art-bible.md`, `pipeline/art/style.json`, `pipeline/art/references.json`, `pipeline/art/reference/discord/index.json`, `pipeline/art/reference/Test_Assets/SpriteLayout.json`, `pipeline/art/reference/Test_Assets/Asset Notes.md`, `pipeline/art/blender/characters.json`, `pipeline/art/blender/plan.py`, `pipeline/art/blender/stand_ins.py`, `pipeline/art/blender/render_sprite.py`, `pipeline/art/import-rules.md`, `pipeline/art/provenance.csv`, `pipeline/checklists/animation-review.md`, `pipeline/templates/asset-brief.md`, `evals/art-judge/README.md`, `evals/art-judge/blind_pairwise.md`, `evals/art-judge/agreement.csv`, `evals/art-judge/critic-calibration.json`, `tools/art_judge_prompt.md`, `tools/art_check.py`, `tools/screen_check.py`, `tools/art_judge.py`, `tools/art_ref_check.py`, `tools/art_loop.py`, `tools/sprite_check.py`, `tools/make_art_calibration.py`, `tools/png.py` at `a11903f` — edit the sources, not this file.
+> Generated from `pipeline/art/art-bible.md`, `pipeline/art/style.json`, `pipeline/art/references.json`, `pipeline/art/reference/discord/index.json`, `pipeline/art/reference/Test_Assets/SpriteLayout.json`, `pipeline/art/reference/Test_Assets/Asset Notes.md`, `pipeline/art/blender/characters.json`, `pipeline/art/blender/plan.py`, `pipeline/art/blender/stand_ins.py`, `pipeline/art/blender/render_sprite.py`, `pipeline/art/import-rules.md`, `pipeline/art/provenance.csv`, `pipeline/checklists/animation-review.md`, `pipeline/templates/asset-brief.md`, `evals/art-judge/README.md`, `evals/art-judge/blind_pairwise.md`, `evals/art-judge/agreement.csv`, `evals/art-judge/critic-calibration.json`, `tools/art_judge_prompt.md`, `tools/art_check.py`, `tools/screen_check.py`, `tools/art_judge.py`, `tools/art_ref_check.py`, `tools/art_loop.py`, `tools/sprite_check.py`, `tools/make_art_calibration.py`, `tools/png.py` at `b201a66` — edit the sources, not this file.
 > Rebuild: `python3 tools/export_package.py`. Check: `python3 tools/export_package.py --check`.
 
 # Art Pipeline
@@ -68,6 +68,10 @@ in-game height in a 1080p capture, beside the style frame) before any asset card
   effect (D-new-sh10-vfx-lighting).
 - **Placeholders:** gameplay may use tracked `_PH` assets; each one is a `coverage` row in
   `pipeline/art/blender/characters.json` naming the card that replaces it. None ships (`pipeline_check.py --release`).
+- **The art gate follows it (12 Nov):** `style.json` shot-red is the GDD crimson family, `gold` and `amber-eye` are the
+  GDD's `#E9C46A` and `#FFC76A`; in `references.json` the `owl`, `owl-bolt` and `bolt-hit` elements judge the metal
+  Keeper and the crimson shot, and the `owl`, `owl-bolt`, `bolt-hit` and Ella elements carry the GDD's words as written
+  targets (`keeper-sh10`, `red-shot-sh10`, `ella-sh10`). Details under Look decisions.
 
 ##### References (enforced in code)
 Every reference image is listed in `pipeline/art/references.json` with its role (composition target, character/pose
@@ -90,40 +94,47 @@ reads: flowing ribbons, never a flat box). Every art-loop round also judges our 
 a flat primitive or rough placeholder fails outright. Shot VFX follow `references.json` `vfx_spec`: tell, release,
 travel, fade; bright core, shell, trail, light spill. Their characters, realm and colours are proposals for Richard:
 use them for look and quality, not mechanics. Their colours are in `style.json` as capped accents (Josh, DECIDED
-2026-11-10, D-new-palette-accents; see Palette below), except the shot red: bar-casters sets how a shot is built
-(core, shell, trail, spill), never its colour (D-new-owl-shot-look below).
+2026-11-10, D-new-palette-accents; see Palette below). The shot red is the GDD SH1.0 crimson again, the same values as
+bar-casters (the 11 Nov rust of D-new-owl-shot-look is superseded).
 
 ##### Look decisions (Josh, DECIDED 2026-11-11)
 GDD SH1.0 wins over this section (D-new-sh10-art-conflicts): the Keeper, Ella and Shots lines at the top of this page
-replace the owl row, the owl-shots row and the "no mask" part of the face row below. The umbrella stripes, the hidden face
-and the hair and hat stay. Until the Art Director re-points them, `style.json` shot-red and the `references.json` owl
-refs still follow the old rows. The key art (`keyart`, `original-picture`) is the bar for mood, palette, values and finish:
-- Owl (D-new-owl-look): the key-art organic owl: tattered feathers, gothic spire crown, a glowing gold gear clock with
-  no numerals, amber eyes. The riveted metal-owl images (the `study-keeper-*` studies, Ricky's owl sheets `d-*`, the
-  v1.4 `gameplay-01/02` concepts) are motion and mechanism references for attacks only, never the owl's look: they
-  left the `owl` element (role `motion`, judge false); `gameplay-01/02` stay in the scene for composition and scale.
-- Owl shots (D-new-owl-shot-look): a rust-red needle with a crosshair ring, as in the key art and `owl-missile`
-  (`#743422` family; `style.json` shot-red re-measured from the key art's bolts). The pink `#ff3658` chevrons are not
-  the look; `bar-casters` is kept for build quality only.
+replace the owl row, the owl-shots row and the "no mask" part of the face row below, and the art gate files follow them
+(12 Nov). The umbrella stripes, the hidden face and the hair and hat stay. The key art (`keyart`, `original-picture`) is
+the bar for mood, palette, values and finish, never for the Keeper's form or the shot colour:
+- Owl (D-new-owl-look, SUPERSEDED): was the key-art organic owl (tattered feathers, gothic spire crown, amber eyes).
+  Now the GDD's crownless metal Keeper. The `owl` element judges `discord-crop-keeper` (the Keeper cut from Ricky's
+  toss-and-kick sheet), Ricky's metal-owl sheets (`d-wing-damage`, `d-talon-rake`, `d-gear-break`, `d-flip-throw`,
+  `d-toss-kick`, `d-arc-chain`, `d-clock-damage`) and the `study-keeper-*` studies, with the written target
+  `keeper-sh10`. `owl-flap` (the organic owl sheet) left it: frame grid only. `gameplay-01/02` stay in the scene for
+  composition and scale.
+- Owl shots (D-new-owl-shot-look, SUPERSEDED): was the key art's rust-red needle with a crosshair ring. Now the GDD's
+  shared red projectile: `style.json` shot-red RED `#ff3658`, CORAL `#ff7848`, RED SHADOW `#8f173c`. The `owl-bolt`
+  element judges `discord-crop-red-shot`, `d-red-shots`, `d-clock-double-beat`, `study-keeper-red-shots` and
+  `bar-casters` (written target `red-shot-sh10`); `bolt-hit` judges `discord-crop-red-release`, `d-red-shots` and
+  `bar-casters`. `keyart-bolt` and `owl-missile-hit` (the rust crosshair burst) left them: kept, judge false.
 - Umbrella (D-new-umbrella-look): black with light stripes, as in the key art. `study-umbrella-prop` is the build
   and damage-stage reference only.
-- Ella's face (D-new-ella-face): hidden, as in `study-ella-character`. No mask, no glowing eyes: `d-ella-eyes` (and
-  its copy in Assets/Conceptual Art/) left Ella's look references.
+- Ella's face (D-new-ella-face, mask part SUPERSEDED): hidden, under the GDD's cloth / mesh mask with separate scarf
+  and eye glints. The four Ella elements carry it as the written target `ella-sh10` (also: no wand). `d-ella-eyes`
+  draws that mask but is a head-and-shoulders close-up, so it stays out of the elements (judge false, reason updated);
+  `study-ella-character` stays for hair, hat, costume and silhouette.
 - Ella's look (D-new-ella-look, Claude's call, Josh delegated): designed from `study-ella-character` (dark brown hair,
   hat, hidden face) at the key art's silhouette and scale. The rehearsal Ella sheets (`ella-*`) are pose and
   frame-grid references only, not hair or skin colour. The witch sheets (`witch-cast`, `witch-guard`: another
   character, no umbrella) are frame-grid and layout data only.
 - Key-art crops (11 Nov): the owl bolt, the umbrella, the etched wind lines and the rock band are cut out of the key
   art as their own references (`pipeline/art/reference/keyart-crops/`, alpha-keyed, reference only), because a sprite
-  cannot be scored against the full frame. `keyart-bolt` is the `owl-bolt` look, `keyart-umbrella` the `umbrella`
-  look, `keyart-wind-lines` the only `wind-lines` reference; the gameplay zone (`wind-zone`) is judged against
+  cannot be scored against the full frame. `keyart-umbrella` is the `umbrella` look, `keyart-wind-lines` the only
+  `wind-lines` reference (`keyart-bolt` is no longer a look: GDD SH1.0); the same reason gives the Discord crops
+  (`pipeline/art/reference/discord-crops/`, 12 Nov: the Keeper, the red shot, its release burst); the gameplay zone (`wind-zone`) is judged against
   `bar-other-realm`'s ribbons only, and the two wind elements share no reference. `keyart-skyline` is on hold: the
   key art's band is flat black inside, and as a skyline reference it drops the skyline's detail floor so far that the
   rough Blender skyline passes; the skyline keeps `keyart` and `gothic-skyline` until the team decides.
   `study-environment` is for parallax layering only.
 - Out of judging (judge false, no judge element, files kept): `wind-curl` and `umbrella-repair` (teal),
   `owl-missile` and `owl-missile-travel` (blurry), `umbrella-stance` (crude), `d-yellow-crop` (blurry), `d-wing-gust`
-  (off-palette blue). The same picture is never listed twice: `tools/art_check.py` load_spec drops a listed entry
+  (off-palette blue), and since 12 Nov `owl-flap`, `keyart-bolt`, `owl-missile-hit` (old look) and `d-ella-eyes` (a bust). The same picture is never listed twice: `tools/art_check.py` load_spec drops a listed entry
   whose bytes equal an earlier one, and `team_art.same_as` names the re-encoded copies.
 
 ##### Target frame (measured from the key art, 10 Nov)
@@ -135,7 +146,7 @@ refs still follow the old rows. The key art (`keyart`, `original-picture`) is th
 | Ella | small on the left under the striped umbrella, centre x 0.16, body about 11% of the height | centre x 0.04-0.35, height 0.04-0.30 |
 | Scale | owl about 7x Ella's height | owl:Ella height ≥ 3 |
 | Skyline | black jagged band along the bottom, median 10% of the height, full width | median 0.03-0.25, across ≥ 90% of the width |
-| Owl bolts | rust-red needles with a crosshair ring flying left | rust share ≥ 0.0008 |
+| Owl shots | the key art draws rust-red needles flying left; the game's are the GDD SH1.0 crimson shots | red share ≥ 0.0008 (the scene's `rust` class also catches the crimson shots: 0.0194 on `gameplay-02`) |
 | Look | paper texture, etched wind lines, gold star wand shots, sparkle dots | art_check PASS; layout and edge similarity to the key art ≥ 0.65 |
 The key art and its earlier cut pass at 1.0; a flat teal box with a small owl and no skyline fails. The ranges are
 provisional until card 0.10 scores the first in-engine rebuild.
@@ -151,7 +162,7 @@ rock silhouette along the bottom. Faint white sparkle dots.
 ##### Pillars
 1. **Aged paper ground.** Stained, mottled sepia field. Never flat, never white.
 2. **Near-black silhouettes.** Ella, the owl and its projectiles read by shape. Interior detail is dark-on-dark only.
-3. **Brand accents first, capped extras second.** Gold/amber = the player's magic and the owl's eyes and clock. Rust red = danger. The quality-bar colours (ash-blue wind flow, shot reds and yellows) appear only in their role and under their cap (Palette). No other saturated hue: no teal, green, purple, pink, no saturated blue.
+3. **Brand accents first, capped extras second.** Gold/amber = the player's magic and the owl's eyes and clock. Red = danger (the GDD SH1.0 crimson shots, a capped accent; the key art's rust stays a palette colour). The quality-bar colours (ash-blue wind flow, shot reds and yellows) appear only in their role and under their cap (Palette). No other saturated hue: no teal, green, purple, pink, no saturated blue.
 4. **Etched atmosphere.** Wind lines and sparkles are decoration. They must never look like gameplay.
 5. **Ella small, owl huge.** The scale contrast is the drama, but never at the cost of reading Ella and her umbrella state.
 
@@ -208,7 +219,7 @@ the frame; all of them together stay at or under 10% of the pixels, so the brand
 | Role | Colours | Hue band (CIELAB, deg) | Chroma | Max share |
 |---|---|---|---|---|
 | wind (WIND-01 flow ribbons) | ash blue `#555e60` (measured on the Other Realm ribbons; its label `#7P9698` is not a hex) | 190-260 | 2-12 | 6% |
-| shot-red (owl shots; re-measured from the key art's bolts, D-new-owl-shot-look) | RUST `#723929`, RUST SHADOW `#5b2519`, RUST HIGH `#79331f` | 25-55 | 20-50 | 4% |
+| shot-red (red shots: GDD SH1.0 shared red projectile; band measured on Ricky's red-shot sheets, 12 Nov) | RED `#ff3658`, CORAL `#ff7848`, RED SHADOW `#8f173c` | 5-50 | 30-85 | 4% |
 | shot-yellow (yellow shots, shot cores) | YELLOW `#ffd84a`, AMBER `#f5aa28`, YELLOW SHADOW `#94611e`, CORE `#fff5dc` | 55-100 | 8+ | 4% |
 
 Brand hue gate: gold/amber ~55-95 and rust ~20-50 (`hue_gate`). An accent pixel outside its band, a teal or saturated
@@ -223,7 +234,7 @@ replace the palette with measured values, and set `palette_status` to `measured`
 | Ella + open umbrella | 80–100 px tall | Bottom center |
 | Ella, closed umbrella | same body height; umbrella width ≤ 0.55× open | Bottom center |
 | Wand bolt | 10–14 px core, ≤ 8 px glow | Center |
-| Owl clockwork bolt (rust needle with a crosshair ring) | 28–36 px | Center (rotate with transform, not frames) |
+| Owl red shot (GDD SH1.0 shared red projectile: pointed angular head, short tail) | 28–36 px | Center (rotate with transform, not frames) |
 | Owl returning arc (P2) | same core as the bolt, red trail | Center |
 | WIND-01 wind zone (P0): etched upward strokes, engraved border, paper tint | the zone rectangle in `pipeline/level/encounter.json` | Bottom left |
 | Owl (MVP, the one boss) | 55–70% of screen height, split into parts (body, wings, chest clock) | Per-part pivots |
@@ -326,14 +337,14 @@ tool + model + version, prompt, seed, input images, date, licence, attribution.
     {
       "name": "gold",
       "role": "accent",
-      "hex": "#e9b04a",
-      "source": "by eye: under 0.05% of reference pixels (0.0), so not measurable from the key art; Rick confirms"
+      "hex": "#e9c46a",
+      "source": "GDD SH1.0 prints the magic gold #E9C46A (Small Blasts, Twin Stars and Needle VFX; Ricky's eye study labels it EYE GOLD); was #e9b04a by eye, delta E 13.3. Under 0.05% of the key art, so not measurable there. GDD SH1.0 (12 Nov) wins every discrepancy (Josh; D-new-sh10-art-conflicts)"
     },
     {
       "name": "amber-eye",
       "role": "accent",
-      "hex": "#c8862a",
-      "source": "by eye: under 0.05% of reference pixels (0.0001), so not measurable from the key art; Rick confirms"
+      "hex": "#ffc76a",
+      "source": "GDD SH1.0 'Eye / blackout / restore' prints the Keeper's exposed-eye amber #FFC76A (its eyes are muted otherwise); was #c8862a by eye, the glowing amber eyes of the key art's organic owl. Under 0.05% of the key art. GDD SH1.0 (12 Nov) wins every discrepancy (Josh; D-new-sh10-art-conflicts)"
     },
     {
       "name": "rust-red",
@@ -349,7 +360,7 @@ tool + model + version, prompt, seed, input images, date, licence, attribution.
     }
   ],
   "accents": {
-    "_about": "Capped accents (Josh, DECIDED 2026-11-10, D-new-palette-accents; shot-red re-measured from the key art's rust bolts, Josh, DECIDED 2026-11-11, D-new-owl-shot-look): the quality-bar colours from Ricky's latest images, allowed only in their role and only up to a share of the frame, so the brand palette above still dominates. A pixel that is not near a palette colour counts as an accent of a role when it is within that role's delta_e_max of one of its colours AND its CIELAB hue and chroma fall in the role's band; it then counts as on-palette and never as off_style or off_band. Anything else (teal, saturated blue, a flat fill) is judged by the rules above as before. art_check fails a frame whose accents together pass total_share_max, or one role past its share_max.",
+    "_about": "Capped accents (Josh, DECIDED 2026-11-10, D-new-palette-accents; shot-red is GDD SH1.0's shared red projectile, D-new-sh10-art-conflicts, 12 Nov: the 11 Nov key-art rust of D-new-owl-shot-look is superseded): the quality-bar colours from Ricky's latest images, allowed only in their role and only up to a share of the frame, so the brand palette above still dominates. A pixel that is not near a palette colour counts as an accent of a role when it is within that role's delta_e_max of one of its colours AND its CIELAB hue and chroma fall in the role's band; it then counts as on-palette and never as off_style or off_band. Anything else (teal, saturated blue, a flat fill) is judged by the rules above as before. art_check fails a frame whose accents together pass total_share_max, or one role past its share_max.",
     "total_share_max": 0.1,
     "roles": {
       "wind": {
@@ -375,40 +386,40 @@ tool + model + version, prompt, seed, input images, date, licence, attribution.
         ]
       },
       "shot-red": {
-        "what": "the owl's shots: the key art's rust-red needle with a crosshair ring, its core, shell, trail and spill (Josh, DECIDED 2026-11-11, D-new-owl-shot-look; vfx_spec: tell, release, travel, fade). The pink chevrons of bar-casters and Ricky's red-shot sheets are not the look",
+        "what": "the red shots: GDD SH1.0 'Shared red projectile' (sharply pointed angular head, pale core, layered crimson/coral shell, magenta-red shadow edge, short geometric tail; tell, release, travel, fade) for the Keeper and every enemy red shot. The key art's rust-red needle with a crosshair ring is not the look (D-new-sh10-art-conflicts)",
         "share_max": 0.04,
         "delta_e_max": 12,
         "chroma": [
-          20,
-          50
+          30,
+          85
         ],
         "hue_bands_deg": [
           [
-            25,
-            55
+            5,
+            50
           ]
         ],
         "colours": [
           {
-            "name": "RUST",
-            "hex": "#723929",
-            "source": "measured on pipeline/art/reference/target-keyart.png, the five bolts (8065 pixels with CIELAB chroma >= 20 and hue <= 55 in x 408-928, y 222-650; chroma 20-44, hue 29-55): mean (L* 30.9, C* 31.8, hue 42)"
+            "name": "RED",
+            "hex": "#ff3658",
+            "source": "GDD SH1.0 'Shared red projectile': crimson #FF3658 (the same value as bar-casters and Ricky's red-shot sheet d-red-shots)"
           },
           {
-            "name": "RUST SHADOW",
-            "hex": "#5b2519",
-            "source": "measured on pipeline/art/reference/target-keyart.png, the five bolts (8065 pixels with CIELAB chroma >= 20 and hue <= 55 in x 408-928, y 222-650; chroma 20-44, hue 29-55): mean of the darkest 10% (L* 22.3)"
+            "name": "CORAL",
+            "hex": "#ff7848",
+            "source": "GDD SH1.0 'Shared red projectile': coral #FF7848"
           },
           {
-            "name": "RUST HIGH",
-            "hex": "#79331f",
-            "source": "measured on pipeline/art/reference/target-keyart.png, the five bolts (8065 pixels with CIELAB chroma >= 20 and hue <= 55 in x 408-928, y 222-650; chroma 20-44, hue 29-55): mean of the most saturated 10% (C* 39.9)"
+            "name": "RED SHADOW",
+            "hex": "#8f173c",
+            "source": "GDD SH1.0 'Shared red projectile': magenta-red shadow edge #8F173C"
           }
         ],
-        "note": "All three are within delta_e_tolerance of the palette's rust-red (#743422), so the key-art shot pixels count as the brand rust (accent_area cap); this role catches rust variants just outside the palette, capped at share_max. Pink #ff3658 now fails off_style (D-new-owl-shot-look)"
+        "note": "Hue and chroma band measured 12 Nov on the rendered red shots of the GDD's source sheets under pipeline/art/reference/ (pixels with CIELAB chroma >= 20, hue 330-60, within delta E 24 of a GDD red; 2nd to 98th percentile): d-red-shots hue 8.0-44.1 chroma 34.9-78.0, d-clock-double-beat hue 17.4-35.9 chroma 34.3-80.2, bar-casters hue 9.9-44.5 chroma 34.3-78.7; rounded out to hue 5-50, chroma 30-85. The GDD colours sit inside it (hue 11.6-45.9, chroma 51-80). The pale core #FFF5DC is in shot-yellow. The 11 Nov rust family (#723929, #5b2519, #79331f) is gone; rust pixels near the palette's rust-red still count as that palette colour"
       },
       "shot-yellow": {
-        "what": "yellow shots (absorbable shots in Ricky's proposal) and every shot core",
+        "what": "yellow shots (GDD SH1.0 'Shared yellow / capture': harmful on contact, healing only on eligible absorption, OWL-13) and every shot core",
         "share_max": 0.04,
         "delta_e_max": 12,
         "chroma": [
@@ -425,22 +436,22 @@ tool + model + version, prompt, seed, input images, date, licence, attribution.
           {
             "name": "YELLOW",
             "hex": "#ffd84a",
-            "source": "bar-casters (Roadwarden / Sundial Casters sheet), references.json vfx_spec"
+            "source": "GDD SH1.0 'Shared yellow / capture' (the same values as bar-casters, references.json vfx_spec)"
           },
           {
             "name": "AMBER",
             "hex": "#f5aa28",
-            "source": "bar-casters (Roadwarden / Sundial Casters sheet), references.json vfx_spec"
+            "source": "GDD SH1.0 'Shared yellow / capture' (the same values as bar-casters, references.json vfx_spec)"
           },
           {
             "name": "YELLOW SHADOW",
             "hex": "#94611e",
-            "source": "bar-casters (Roadwarden / Sundial Casters sheet), references.json vfx_spec"
+            "source": "GDD SH1.0 'Shared yellow / capture' (the same values as bar-casters, references.json vfx_spec)"
           },
           {
             "name": "CORE",
             "hex": "#fff5dc",
-            "source": "bar-casters (Roadwarden / Sundial Casters sheet), references.json vfx_spec"
+            "source": "GDD SH1.0 'Shared yellow / capture' (the same values as bar-casters, references.json vfx_spec)"
           }
         ]
       }
@@ -479,7 +490,7 @@ tool + model + version, prompt, seed, input images, date, licence, attribution.
         95
       ]
     ],
-    "note": "CIELAB hue angle. Gold/amber ~55-95, rust ~20-50 (art/design review C2 M2). Re-centre on measured reference means +/-15 deg once the palette is measured."
+    "note": "CIELAB hue angle. Gold/amber ~55-95, rust ~20-50 (art/design review C2 M2). The GDD SH1.0 crimson shots (hue 5-50) pass as the shot-red accent, not through this gate. Re-centre on measured reference means +/-15 deg once the palette is measured."
   },
   "sprite": {
     "status": "provisional",
@@ -751,7 +762,7 @@ tool + model + version, prompt, seed, input images, date, licence, attribution.
   "menu style bar": "a written target for menu screens and transitions (no image)",
   "team art": "a picture the team added to its art folders (Assets/, Mockups/; team_art): look only, gameplay comes from the GDD",
   "menu screen": "the title or another menu screen a menu card builds to (layout, title lockup, menu placement, mood)",
-  "motion": "how an attack or a mechanism moves (poses, timing, parts): never the look (D-new-owl-look)"
+  "motion": "how an attack or a mechanism moves (poses, timing, parts)"
  },
  "references": [
   {
@@ -791,14 +802,15 @@ tool + model + version, prompt, seed, input images, date, licence, attribution.
    "role": [
     "effects"
    ],
-   "what": "The owl's shot as the key art draws it: a rust-red needle with a crosshair ring, faces left (D-new-owl-shot-look). Key-art box x576-752 y407-446; opaque where CIELAB chroma >= 18, hue 20-65, L* < 55, grown 1 px",
+   "what": "The key art's owl shot: a rust-red needle with a crosshair ring, faces left. Key-art box x576-752 y407-446; opaque where CIELAB chroma >= 18, hue 20-65, L* < 55, grown 1 px. No longer the shot's look: GDD SH1.0 'Shared red projectile' prints a pointed angular crimson shot",
    "cards": [
     "0.10b",
     "MVP 7"
    ],
-   "judge": true,
+   "judge": false,
    "required": true,
-   "origin": "crop of the team key art (pipeline/art/reference/target-keyart.png, 11 Nov), keyed to an alpha mask; reference only"
+   "origin": "crop of the team key art (pipeline/art/reference/target-keyart.png, 11 Nov), keyed to an alpha mask; reference only",
+   "judge_exempt": "the key art's rust-red needle with a crosshair ring (the 11 Nov look of D-new-owl-shot-look); GDD SH1.0 prints a pointed angular head with a crimson #FF3658 / coral #FF7848 shell (GDD SH1.0 wins (Josh; D-new-sh10-art-conflicts)). The key art itself (keyart) stays the target for paper, ink, values and finish"
   },
   {
    "id": "keyart-umbrella",
@@ -877,7 +889,7 @@ tool + model + version, prompt, seed, input images, date, licence, attribution.
     "composition target",
     "scale"
    ],
-   "what": "Gameplay mood: Ella rises on the left while the clockwork owl hangs a mechanism above a lakeside town. Composition and scale only: its riveted metal owl is not the owl's look (D-new-owl-look)",
+   "what": "Gameplay mood: Ella rises on the left while the clockwork owl hangs a mechanism above a lakeside town. Composition and scale here; its metal owl is GDD SH1.0's Keeper (the owl element judges the form)",
    "cards": [
     "0.10",
     "MVP 15"
@@ -899,7 +911,7 @@ tool + model + version, prompt, seed, input images, date, licence, attribution.
     "owl",
     "scale"
    ],
-   "what": "Gameplay scale: the owl with its chest clock fires a red volley toward Ella. Composition and scale only: its riveted metal owl is not the owl's look (D-new-owl-look)",
+   "what": "Gameplay scale: the owl with its chest clock fires a red volley toward Ella. Composition and scale here; its metal owl is GDD SH1.0's Keeper (the owl element judges the form)",
    "cards": [
     "0.10",
     "MVP 5"
@@ -1128,7 +1140,7 @@ tool + model + version, prompt, seed, input images, date, licence, attribution.
     "owl",
     "scale"
    ],
-   "what": "Owl flap loop, 6 x 5 cells of 640 x 512, 10 fps, faces left; row 0 full, rows 1-4 torn. The owl's look (D-new-owl-look): the key-art organic owl",
+   "what": "Owl flap loop, 6 x 5 cells of 640 x 512, 10 fps, faces left; row 0 full, rows 1-4 torn. Frame grid only: its organic, feathered, spire-crowned owl is not the Keeper (GDD SH1.0 OWL-08, ART-06, Keeper identity master: crownless fabricated metal, no organic plumage)",
    "cards": [
     "0.10b",
     "MVP 5",
@@ -1137,14 +1149,15 @@ tool + model + version, prompt, seed, input images, date, licence, attribution.
    "consulted_by": [
     "0.28"
    ],
-   "judge": true,
+   "judge": false,
    "required": true,
    "cell": [
     640,
     512
    ],
    "note": "Owl flap loop: 6 x 5 cells of 640 x 512, 10 fps, faces left; row 0 full health, rows 1-4 tear wings and tail.",
-   "origin": "Test_Assets/CHR_Owl_Flap_Damage.png (GameJam2026 main)"
+   "origin": "Test_Assets/CHR_Owl_Flap_Damage.png (GameJam2026 main)",
+   "judge_exempt": "the key art's organic, feathered, crowned owl (the 11 Nov look of D-new-owl-look); GDD SH1.0 prints a crownless fabricated metal owl (GDD SH1.0 wins (Josh; D-new-sh10-art-conflicts)). Kept for its frame grid only"
   },
   {
    "id": "owl-missile",
@@ -1166,7 +1179,7 @@ tool + model + version, prompt, seed, input images, date, licence, attribution.
    "required": true,
    "note": "Static owl missile, one 160 x 80 frame, faces left.",
    "origin": "Test_Assets/FX_Owl_Missile.png (GameJam2026 main)",
-   "judge_exempt": "blurry; the shot's look is keyart-bolt (D-new-owl-shot-look); kept for its frame size only"
+   "judge_exempt": "blurry; a rust needle, not the GDD SH1.0 crimson shot (the shot's look is discord-crop-red-shot); kept for its frame size only"
   },
   {
    "id": "owl-missile-travel",
@@ -1187,7 +1200,7 @@ tool + model + version, prompt, seed, input images, date, licence, attribution.
    ],
    "note": "Owl missile in flight: 6 x 1 cells of 160 x 80, 16 fps loop, faces left.",
    "origin": "Test_Assets/FX_Owl_Missile_Travel.png (GameJam2026 main)",
-   "judge_exempt": "blurry; the shot's look is keyart-bolt (D-new-owl-shot-look); kept for its frame grid only"
+   "judge_exempt": "blurry; a rust needle, not the GDD SH1.0 crimson shot (the shot's look is discord-crop-red-shot); kept for its frame grid only"
   },
   {
    "id": "owl-missile-hit",
@@ -1196,21 +1209,22 @@ tool + model + version, prompt, seed, input images, date, licence, attribution.
    "role": [
     "effects"
    ],
-   "what": "Missile impact, 7 x 1 cells of 128 x 128, 20 fps, once",
+   "what": "Missile impact, 7 x 1 cells of 128 x 128, 20 fps, once. Frame grid only: its rust-orange crosshair burst is the old shot colour (GDD SH1.0: the red shot's impact is in the crimson family)",
    "cards": [
     "MVP 5"
    ],
    "consulted_by": [
     "MVP 10"
    ],
-   "judge": true,
+   "judge": false,
    "required": true,
    "cell": [
     128,
     128
    ],
    "note": "Missile impact: 7 x 1 cells of 128 x 128, 20 fps, plays once.",
-   "origin": "Test_Assets/FX_Owl_Missile_Hit.png (GameJam2026 main)"
+   "origin": "Test_Assets/FX_Owl_Missile_Hit.png (GameJam2026 main)",
+   "judge_exempt": "rust-orange crosshair burst, the old shot colour and motif; GDD SH1.0 'Shared red projectile' sets the crimson family (GDD SH1.0 wins (Josh; D-new-sh10-art-conflicts)). Kept for its frame grid only"
   },
   {
    "id": "wand-star",
@@ -1220,7 +1234,7 @@ tool + model + version, prompt, seed, input images, date, licence, attribution.
     "effects",
     "scale"
    ],
-   "what": "Wand shot, 6 x 1 cells of 128 x 64, 16 fps loop, faces right (gold star)",
+   "what": "Wand shot, 6 x 1 cells of 128 x 64, 16 fps loop, faces right (gold star; GDD SH1.0 has no wand: the gold star head of Twin Stars from the canopy rim)",
    "cards": [
     "0.10c",
     "MVP 3"
@@ -1370,18 +1384,19 @@ tool + model + version, prompt, seed, input images, date, licence, attribution.
    "path": "pipeline/art/reference/discord/20261110-0258_Ricky_1.png",
    "kind": "image",
    "role": [
+    "owl",
     "effects",
     "motion"
    ],
-   "what": "Look only: Keeper of Time: red (damaging) shots concept sheet",
+   "what": "Keeper of Time: red (damaging) shots concept sheet. The shot look: GDD SH1.0 'Shared red projectile' prints these same colours (crimson #FF3658, coral #FF7848, shadow #8F173C, core #FFF5DC). Look and motion: this metal Keeper is GDD SH1.0's Keeper (crownless, metal vane wings, two feet, the chest clock, three hanging mechanisms; GDD SH1.0 wins (Josh; D-new-sh10-art-conflicts))",
    "cards": [
     "0.10b",
+    "MVP 10",
     "MVP 5"
    ],
-   "judge": false,
+   "judge": true,
    "required": true,
-   "origin": "Discord #art-direction, Ricky, 10 Nov",
-   "judge_exempt": "the riveted metal owl (Josh, DECIDED 2026-11-11, D-new-owl-look): kept for how the attacks and mechanisms move, never for the owl's look; its pink chevron shots are not the shot look either (D-new-owl-shot-look: the key art's rust-red needle with a crosshair ring)"
+   "origin": "Discord #art-direction, Ricky, 10 Nov"
   },
   {
    "id": "d-yellow-shots",
@@ -1441,31 +1456,30 @@ tool + model + version, prompt, seed, input images, date, licence, attribution.
     "owl",
     "motion"
    ],
-   "what": "Look only: Talon rake with a sliding mechanical leg extension: an attack not in GDD 1.3 (proposal); look of the owl only",
+   "what": "Talon rake with a sliding mechanical leg extension: GDD SH1.0 OWL-18..OWL-20 (the extension art is a visual candidate only). Look and motion: this metal Keeper is GDD SH1.0's Keeper (crownless, metal vane wings, two feet, the chest clock, three hanging mechanisms; GDD SH1.0 wins (Josh; D-new-sh10-art-conflicts))",
    "cards": [
     "MVP 5"
    ],
-   "judge": false,
+   "judge": true,
    "required": true,
-   "origin": "Discord #art-direction, Ricky, 10 Nov",
-   "judge_exempt": "the riveted metal owl (Josh, DECIDED 2026-11-11, D-new-owl-look): kept for how the attacks and mechanisms move, never for the owl's look"
+   "origin": "Discord #art-direction, Ricky, 10 Nov"
   },
   {
    "id": "d-clock-double-beat",
    "path": "pipeline/art/reference/discord/20261110-0800_Ricky_1.png",
    "kind": "image",
    "role": [
+    "owl",
     "effects",
     "motion"
    ],
-   "what": "Look only: Clock double-beat attack: clock-hand cycle, repeated red shot paths (proposal); look of the bolts and clock only",
+   "what": "Clock double-beat attack: clock-hand cycle, repeated red shot paths (GDD SH1.0 OWL-28). The shot look: GDD SH1.0 'Shared red projectile' prints these same colours (crimson #FF3658, coral #FF7848, shadow #8F173C, core #FFF5DC). Look and motion: this metal Keeper is GDD SH1.0's Keeper (crownless, metal vane wings, two feet, the chest clock, three hanging mechanisms; GDD SH1.0 wins (Josh; D-new-sh10-art-conflicts))",
    "cards": [
     "MVP 5"
    ],
-   "judge": false,
+   "judge": true,
    "required": true,
-   "origin": "Discord #art-direction, Ricky, 10 Nov",
-   "judge_exempt": "the riveted metal owl (Josh, DECIDED 2026-11-11, D-new-owl-look): kept for how the attacks and mechanisms move, never for the owl's look; its pink chevron shots are not the shot look either (D-new-owl-shot-look: the key art's rust-red needle with a crosshair ring)"
+   "origin": "Discord #art-direction, Ricky, 10 Nov"
   },
   {
    "id": "d-gear-break",
@@ -1475,15 +1489,14 @@ tool + model + version, prompt, seed, input images, date, licence, attribution.
     "owl",
     "motion"
    ],
-   "what": "Look only: Owl state study 01: rear gear mechanism hit and break. The owl has no HP in GDD 1.3 (§7A): damage states are a proposal; look only",
+   "what": "Owl state study 01: rear gear mechanism hit and break. GDD SH1.0 ANIM-06 asks for the break states. Look and motion: this metal Keeper is GDD SH1.0's Keeper (crownless, metal vane wings, two feet, the chest clock, three hanging mechanisms; GDD SH1.0 wins (Josh; D-new-sh10-art-conflicts))",
    "cards": [
     "MVP 5",
     "MVP 15"
    ],
-   "judge": false,
+   "judge": true,
    "required": true,
-   "origin": "Discord #art-direction, Ricky, 10 Nov",
-   "judge_exempt": "the riveted metal owl (Josh, DECIDED 2026-11-11, D-new-owl-look): kept for how the attacks and mechanisms move, never for the owl's look"
+   "origin": "Discord #art-direction, Ricky, 10 Nov"
   },
   {
    "id": "d-wing-damage",
@@ -1493,14 +1506,13 @@ tool + model + version, prompt, seed, input images, date, licence, attribution.
     "owl",
     "motion"
    ],
-   "what": "Look only: Owl state study 02: wing damage and disable (proposal; look only)",
+   "what": "Owl state study 02: wing damage and disable (GDD SH1.0 ANIM-06: wing wear and the disabled-gust state). Look and motion: this metal Keeper is GDD SH1.0's Keeper (crownless, metal vane wings, two feet, the chest clock, three hanging mechanisms; GDD SH1.0 wins (Josh; D-new-sh10-art-conflicts))",
    "cards": [
     "MVP 15"
    ],
-   "judge": false,
+   "judge": true,
    "required": true,
-   "origin": "Discord #art-direction, Ricky, 10 Nov",
-   "judge_exempt": "the riveted metal owl (Josh, DECIDED 2026-11-11, D-new-owl-look): kept for how the attacks and mechanisms move, never for the owl's look"
+   "origin": "Discord #art-direction, Ricky, 10 Nov"
   },
   {
    "id": "d-flip-throw",
@@ -1510,14 +1522,13 @@ tool + model + version, prompt, seed, input images, date, licence, attribution.
     "owl",
     "motion"
    ],
-   "what": "Look only: Rear mechanism over-back flip throw, gear on chain (proposal; look only)",
+   "what": "Rear mechanism over-back flip throw, gear on chain. Look and motion: this metal Keeper is GDD SH1.0's Keeper (crownless, metal vane wings, two feet, the chest clock, three hanging mechanisms; GDD SH1.0 wins (Josh; D-new-sh10-art-conflicts))",
    "cards": [
     "MVP 5"
    ],
-   "judge": false,
+   "judge": true,
    "required": true,
-   "origin": "Discord #art-direction, Ricky, 10 Nov",
-   "judge_exempt": "the riveted metal owl (Josh, DECIDED 2026-11-11, D-new-owl-look): kept for how the attacks and mechanisms move, never for the owl's look"
+   "origin": "Discord #art-direction, Ricky, 10 Nov"
   },
   {
    "id": "d-toss-kick",
@@ -1527,14 +1538,13 @@ tool + model + version, prompt, seed, input images, date, licence, attribution.
     "owl",
     "motion"
    ],
-   "what": "Look only: Middle mechanism toss and kick, lantern cage (proposal; look only)",
+   "what": "Middle mechanism toss and kick, lantern cage. Look and motion: this metal Keeper is GDD SH1.0's Keeper (crownless, metal vane wings, two feet, the chest clock, three hanging mechanisms; GDD SH1.0 wins (Josh; D-new-sh10-art-conflicts))",
    "cards": [
     "MVP 5"
    ],
-   "judge": false,
+   "judge": true,
    "required": true,
-   "origin": "Discord #art-direction, Ricky, 10 Nov",
-   "judge_exempt": "the riveted metal owl (Josh, DECIDED 2026-11-11, D-new-owl-look): kept for how the attacks and mechanisms move, never for the owl's look"
+   "origin": "Discord #art-direction, Ricky, 10 Nov"
   },
   {
    "id": "d-arc-chain",
@@ -1544,14 +1554,13 @@ tool + model + version, prompt, seed, input images, date, licence, attribution.
     "owl",
     "motion"
    ],
-   "what": "Look only: Middle mechanism arc chain cast; the returning arc is an Experiment in GDD SH1.0 OWL-07 (proposal; look only)",
+   "what": "Middle mechanism arc chain cast; the returning arc is an Experiment in GDD SH1.0 OWL-07. Look and motion: this metal Keeper is GDD SH1.0's Keeper (crownless, metal vane wings, two feet, the chest clock, three hanging mechanisms; GDD SH1.0 wins (Josh; D-new-sh10-art-conflicts))",
    "cards": [
     "MVP 5"
    ],
-   "judge": false,
+   "judge": true,
    "required": true,
-   "origin": "Discord #art-direction, Ricky, 10 Nov",
-   "judge_exempt": "the riveted metal owl (Josh, DECIDED 2026-11-11, D-new-owl-look): kept for how the attacks and mechanisms move, never for the owl's look"
+   "origin": "Discord #art-direction, Ricky, 10 Nov"
   },
   {
    "id": "d-ella-eyes",
@@ -1561,7 +1570,7 @@ tool + model + version, prompt, seed, input images, date, licence, attribution.
     "character poses",
     "motion"
    ],
-   "what": "Look only: Ella eye study: cloth mask, yellow glowing eyes with motion traces, hat on and off ('I didn't understand her dark face so I gave her a mask and yellow glowing eyes')",
+   "what": "Ella eye study: cloth and mesh mask, separate scarf, gold eye glints (EYE GOLD #E9C46A) with motion traces, hat on and off. GDD SH1.0 ART-06 and 'Ella shared identity' print this mask and the separate scarf and eye glints (GDD SH1.0 wins (Josh; D-new-sh10-art-conflicts))",
    "cards": [
     "0.10b",
     "MVP 15"
@@ -1569,7 +1578,7 @@ tool + model + version, prompt, seed, input images, date, licence, attribution.
    "judge": false,
    "required": true,
    "origin": "Discord #art-direction, Ricky, 10 Nov",
-   "judge_exempt": "Josh, DECIDED 2026-11-11, D-new-ella-face: Ella's face stays hidden, no mask and no glowing eyes; kept for the eye-trace motion only"
+   "judge_exempt": "a head-and-shoulders close-up: a full-body Ella sprite cannot be scored against a bust. Its mask, scarf and eye glints are Ella's look under GDD SH1.0 and reach every Ella element through the written target ella-sh10 (the 11 Nov no-mask row D-new-ella-face is superseded there)"
   },
   {
    "id": "d-clock-damage",
@@ -1579,14 +1588,13 @@ tool + model + version, prompt, seed, input images, date, licence, attribution.
     "owl",
     "motion"
    ],
-   "what": "Look only: Clock damage and failure: glass cracks, hand stops, keeper alive. GDD 1.3 keeps the clock-hit cue only (attack interruption OFF): look only",
+   "what": "Clock damage and failure: glass cracks, hand stops, keeper alive. GDD SH1.0 ANIM-06: glass, cracks, hands. Look and motion: this metal Keeper is GDD SH1.0's Keeper (crownless, metal vane wings, two feet, the chest clock, three hanging mechanisms; GDD SH1.0 wins (Josh; D-new-sh10-art-conflicts))",
    "cards": [
     "MVP 5"
    ],
-   "judge": false,
+   "judge": true,
    "required": true,
-   "origin": "Discord #art-direction, Ricky, 10 Nov",
-   "judge_exempt": "the riveted metal owl (Josh, DECIDED 2026-11-11, D-new-owl-look): kept for how the attacks and mechanisms move, never for the owl's look"
+   "origin": "Discord #art-direction, Ricky, 10 Nov"
   },
   {
    "id": "bar-casters",
@@ -1685,7 +1693,7 @@ tool + model + version, prompt, seed, input images, date, licence, attribution.
     "character poses",
     "palette"
    ],
-   "what": "Ella hero sheet: front, 3/4, side and back turnaround with the umbrella stowed on her back, hidden face, silhouette and etched-texture versions, materials and the INK-to-PAPER palette. Ella's look (D-new-ella-look): dark brown hair, hat, hidden face, at the key art's silhouette and scale",
+   "what": "Ella hero sheet: front, 3/4, side and back turnaround with the umbrella stowed on her back, hidden face, silhouette and etched-texture versions, materials and the INK-to-PAPER palette. Ella's look (D-new-ella-look): dark brown hair, hat, hidden face, at the key art's silhouette and scale. GDD SH1.0 adds the cloth / mesh mask this sheet does not draw (written target ella-sh10)",
    "cards": [
     "0.10b",
     "MVP 15"
@@ -1952,15 +1960,14 @@ tool + model + version, prompt, seed, input images, date, licence, attribution.
     "owl",
     "motion"
    ],
-   "what": "Keeper of Time front mechanism: a talon grips a ring on a chain, loads it under the body and releases it (grip, load, release); a mechanical handling study",
+   "what": "Keeper of Time front mechanism: a talon grips a ring on a chain, loads it under the body and releases it (grip, load, release); a mechanical handling study. Look and motion: this metal Keeper is GDD SH1.0's Keeper (crownless, metal vane wings, two feet, the chest clock, three hanging mechanisms; GDD SH1.0 wins (Josh; D-new-sh10-art-conflicts))",
    "cards": [
     "MVP 5"
    ],
-   "judge": false,
+   "judge": true,
    "required": false,
    "note": "Look only: any gameplay in it that is not in the current GDD is a proposal, never a new mechanic. Optional: a repo without this file leaves the entry out.",
-   "origin": "Assets/Art/ in the practice repo (Ricky, 10 Nov)",
-   "judge_exempt": "the riveted metal owl (Josh, DECIDED 2026-11-11, D-new-owl-look): kept for how the attacks and mechanisms move, never for the owl's look"
+   "origin": "Assets/Art/ in the practice repo (Ricky, 10 Nov)"
   },
   {
    "id": "study-keeper-red-shots",
@@ -1972,16 +1979,15 @@ tool + model + version, prompt, seed, input images, date, licence, attribution.
     "owl",
     "motion"
    ],
-   "what": "Keeper red shots: the firing tell at the chest, a volley of red bolts at Ella, each shot's tell, release, travel and fade, bright core, red shell and short trail, and the temporary light spill",
+   "what": "Keeper red shots: the firing tell at the chest, a volley of red bolts at Ella, each shot's tell, release, travel and fade, bright core, red shell and short trail, and the temporary light spill. The shot look: GDD SH1.0 'Shared red projectile' prints these same colours (crimson #FF3658, coral #FF7848, shadow #8F173C, core #FFF5DC). Look and motion: this metal Keeper is GDD SH1.0's Keeper (crownless, metal vane wings, two feet, the chest clock, three hanging mechanisms; GDD SH1.0 wins (Josh; D-new-sh10-art-conflicts))",
    "cards": [
     "0.10b",
     "MVP 5"
    ],
-   "judge": false,
+   "judge": true,
    "required": false,
    "note": "Look only: any gameplay in it that is not in the current GDD is a proposal, never a new mechanic. Optional: a repo without this file leaves the entry out.",
-   "origin": "Assets/Art/ in the practice repo (Ricky, 10 Nov)",
-   "judge_exempt": "the riveted metal owl (Josh, DECIDED 2026-11-11, D-new-owl-look): kept for how the attacks and mechanisms move, never for the owl's look; its pink chevron shots are not the shot look either (D-new-owl-shot-look: the key art's rust-red needle with a crosshair ring)"
+   "origin": "Assets/Art/ in the practice repo (Ricky, 10 Nov)"
   },
   {
    "id": "study-keeper-character",
@@ -1993,7 +1999,7 @@ tool + model + version, prompt, seed, input images, date, licence, attribution.
     "palette",
     "motion"
    ],
-   "what": "The Clockkeeper: the mechanical owl with wings spread, chest clock and three hanging mechanisms; 3/4, side and back views, silhouette, close-ups and materials",
+   "what": "The Clockkeeper: the mechanical owl with wings spread, chest clock and three hanging mechanisms; 3/4, side and back views, silhouette, close-ups and materials. Look and motion: this metal Keeper is GDD SH1.0's Keeper (crownless, metal vane wings, two feet, the chest clock, three hanging mechanisms; GDD SH1.0 wins (Josh; D-new-sh10-art-conflicts))",
    "cards": [
     "0.10b",
     "MVP 5",
@@ -2002,11 +2008,10 @@ tool + model + version, prompt, seed, input images, date, licence, attribution.
    "consulted_by": [
     "0.28"
    ],
-   "judge": false,
+   "judge": true,
    "required": false,
    "note": "Look only: any gameplay in it that is not in the current GDD is a proposal, never a new mechanic. Optional: a repo without this file leaves the entry out.",
-   "origin": "Assets/Art/ in the practice repo (Ricky, 10 Nov)",
-   "judge_exempt": "the riveted metal owl (Josh, DECIDED 2026-11-11, D-new-owl-look): kept for how the attacks and mechanisms move, never for the owl's look"
+   "origin": "Assets/Art/ in the practice repo (Ricky, 10 Nov)"
   },
   {
    "id": "study-umbrella-prop",
@@ -2029,6 +2034,137 @@ tool + model + version, prompt, seed, input images, date, licence, attribution.
    "required": false,
    "note": "Look only: any gameplay in it that is not in the current GDD is a proposal, never a new mechanic. Optional: a repo without this file leaves the entry out.",
    "origin": "Assets/Art/ in the practice repo (Ricky, 10 Nov)"
+  },
+  {
+   "id": "discord-crop-keeper",
+   "path": "pipeline/art/reference/discord-crops/keeper-side.png",
+   "kind": "image",
+   "role": [
+    "owl",
+    "scale"
+   ],
+   "what": "The Keeper as GDD SH1.0 prints it (OWL-08, Keeper identity master): crownless fabricated metal owl, left-facing side view, rigid vane wings, two feet, the chest clock with one hand, three hanging mechanisms (front armillary, middle cage out on its chain, rear gear). d-toss-kick panel 5, box x976-1495 y508-862; opaque where L* < 64 (largest piece, closed 2 px, enclosed holes up to 8000 px filled)",
+   "cards": [
+    "0.10b",
+    "MVP 5",
+    "MVP 15"
+   ],
+   "consulted_by": [
+    "0.28"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of Ricky's #art-direction sheet (pipeline/art/reference/discord/20261110-1048_Ricky_2.png, 10 Nov), keyed to an alpha mask (12 Nov); reference only"
+  },
+  {
+   "id": "discord-crop-red-shot",
+   "path": "pipeline/art/reference/discord-crops/red-shot.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "The red shot as GDD SH1.0 prints it ('Shared red projectile'): pointed angular head, pale core, crimson / coral shell, magenta-red edge, short tail with square flecks, faces left. d-red-shots 'Red / damaging' panel, box x1055-1405 y280-410; opaque where CIELAB chroma >= 25 and hue 330-60, or the pale core (L* > 90, chroma < 22), closed 2 px, largest piece",
+   "cards": [
+    "0.10b",
+    "MVP 5",
+    "MVP 10"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of Ricky's #art-direction sheet (pipeline/art/reference/discord/20261110-0258_Ricky_1.png, 10 Nov), keyed to an alpha mask (12 Nov); reference only"
+  },
+  {
+   "id": "discord-crop-red-release",
+   "path": "pipeline/art/reference/discord-crops/red-release.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "The red shot's compact release flash (GDD SH1.0 'Shared red projectile'): a crimson starburst with the head leaving it, the burst form for the impact candidate (the GDD draws no impact). d-red-shots shot sequence '2 / Release', box x217-374 y731-827; opaque where CIELAB chroma >= 25 and hue 330-60, or the pale core (L* > 90, chroma < 22), closed 2 px, every piece",
+   "cards": [
+    "MVP 5",
+    "MVP 10"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of Ricky's #art-direction sheet (pipeline/art/reference/discord/20261110-0258_Ricky_1.png, 10 Nov), keyed to an alpha mask (12 Nov); reference only"
+  },
+  {
+   "id": "keeper-sh10",
+   "path": null,
+   "kind": "described",
+   "role": [
+    "owl"
+   ],
+   "what": "Written target for the Keeper: GDD SH1.0 OWL-08, ART-06, ANIM-06 and the 'Keeper identity master' prompt, in short. The GDD's text is the authority; these lines quote it",
+   "description": [
+    "the crownless KEEPER OF TIME: a large fabricated mechanical owl in side profile (left-facing side or shallow three-quarter), mysterious, not monstrous horror",
+    "compact circular clock-centred torso; small angular owl brow, head and beak; muted eyes (the amber #FFC76A ring only on the exposed-eye event)",
+    "very broad articulated rigid metal-vane wings on connected shoulder roots and spars, perforated vanes, bevelled riveted plates and hinges, plated tail",
+    "exactly two wings and exactly two feet on two short mechanical legs; no organic plumage, no crown, no flesh, no extra limbs",
+    "chest clock: aged face, glass, Roman markers, one stable long hand on one pivot",
+    "exactly three distinct hanging mechanisms, each on its own chain from its own underside body eye: front armillary sphere (solid rim, intersecting hoops, central ball), middle ribbed cage cylinder, rear gear ring",
+    "quiet iron, steel, dull bronze and glass (ink #171614, soot #292622, umber #463C32, bronze #695640, taupe #918173); smoke on its own layer; clock and eyes not permanently lit",
+    "damage keeps the original shoulder roots and spars: jammed, drooping perforated vanes and missing plates; broken mechanisms stay gone"
+   ],
+   "cards": [
+    "0.10b",
+    "MVP 5",
+    "MVP 15"
+   ],
+   "judge": false,
+   "required": false,
+   "origin": "GDD SH1.0 (docs/gdd/GDD-SH1.0.md, 12 Nov), written; no image"
+  },
+  {
+   "id": "red-shot-sh10",
+   "path": null,
+   "kind": "described",
+   "role": [
+    "effects"
+   ],
+   "what": "Written target for the red shot and its impact: GDD SH1.0 'Shared red projectile', 'Shared yellow / capture', 'Shot light', OWL-14 and VFX-09, in short. The GDD's text is the authority",
+   "description": [
+    "one isolated directional projectile: sharply pointed angular head in the travel direction, narrow short geometric tail about one head long; never a rounded comet or a long beam",
+    "red: pale triangular core #FFF5DC, layered crimson #FF3658 / coral #FF7848 shell, magenta-red shadow edge #8F173C, sparse tiny square or clockwork flecks",
+    "red and yellow share this geometry (OWL-14); yellow is #FFD84A / amber #F5AA28 / shadow #94611E with the same pale core",
+    "stages: tell gathering, compact release flash, detached travel head and tail, local fade, a proposed impact",
+    "light is a separate bounded glow or light mask (quiet, brief active light, quiet), never baked into a character",
+    "red and yellow also differ by travel rhythm, trail, icon or sound, never by colour alone (OWL-14, VFX-09)"
+   ],
+   "cards": [
+    "0.10b",
+    "MVP 5",
+    "MVP 10"
+   ],
+   "judge": false,
+   "required": false,
+   "origin": "GDD SH1.0 (docs/gdd/GDD-SH1.0.md, 12 Nov), written; no image"
+  },
+  {
+   "id": "ella-sh10",
+   "path": null,
+   "kind": "described",
+   "role": [
+    "character poses"
+   ],
+   "what": "Written target for Ella: GDD SH1.0 ART-06, ANIM-03, ANIM-04 and the 'Ella shared identity' prompt, in short. The GDD's text is the authority",
+   "description": [
+    "adult Ella faces right in airborne and falling poses; never grounded",
+    "bent pointed hat, long dark hair, scarf, layered worn dark dress, stockings and boots",
+    "a concealed natural face under a cloth / mesh mask, the same in every pose; separate eye glints and scarf",
+    "one slender umbrella, two hands on the one shaft: canopy to her left and shaft to the right while firing; a small pointed crown finial and a separate narrow pierced diamond clock-hand terminal at the free forward end",
+    "no wand: spells leave the canopy or the terminal as separate gold #E9C46A magic",
+    "body, hands, cloth and metal stay dark; only the separate magic emits light"
+   ],
+   "cards": [
+    "0.10b",
+    "MVP 2",
+    "MVP 15"
+   ],
+   "judge": false,
+   "required": false,
+   "origin": "GDD SH1.0 (docs/gdd/GDD-SH1.0.md, 12 Nov), written; no image"
   }
  ],
  "elements": {
@@ -2039,21 +2175,23 @@ tool + model + version, prompt, seed, input images, date, licence, attribution.
     "study-ella-character",
     "study-ella-rising-1",
     "study-ella-rising-2",
-    "bar-casters"
+    "bar-casters",
+    "ella-sh10"
    ],
    "score_min": 0.398,
    "detail_min": 0.448,
    "calibration": {
     "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
     "margin": 0.02,
-    "measured": "2026-11-11",
+    "measured": "2026-11-12",
     "loo": {
      "ella-rising": 0.418
     },
     "detail": {
      "ella-rising": 0.468
     }
-   }
+   },
+   "described": "ella-sh10"
   },
   "ella-closed": {
    "what": "Ella with the umbrella closed (the anchor 'Ella closed', falling states)",
@@ -2062,14 +2200,15 @@ tool + model + version, prompt, seed, input images, date, licence, attribution.
     "ella-shooting",
     "study-ella-character",
     "study-ella-freefall",
-    "bar-casters"
+    "bar-casters",
+    "ella-sh10"
    ],
    "score_min": 0.749,
    "detail_min": 0.617,
    "calibration": {
     "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
     "margin": 0.02,
-    "measured": "2026-11-11",
+    "measured": "2026-11-12",
     "loo": {
      "ella-freefall": 0.769,
      "ella-shooting": 0.769
@@ -2078,10 +2217,11 @@ tool + model + version, prompt, seed, input images, date, licence, attribution.
      "ella-freefall": 0.682,
      "ella-shooting": 0.637
     }
-   }
+   },
+   "described": "ella-sh10"
   },
   "ella-attack": {
-   "what": "ATTACK_DESCENT: umbrella level like a lance, wand firing",
+   "what": "ATTACK_DESCENT: umbrella level like a lance, the spell leaving the canopy (no wand, GDD SH1.0 ART-06)",
    "refs": [
     "ella-shooting",
     "study-ella-character",
@@ -2091,21 +2231,23 @@ tool + model + version, prompt, seed, input images, date, licence, attribution.
     "study-ella-stored-thunder",
     "study-ella-streamed-blast",
     "study-ella-twin-stars",
-    "bar-casters"
+    "bar-casters",
+    "ella-sh10"
    ],
    "score_min": 0.448,
    "detail_min": 0.617,
    "calibration": {
     "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
     "margin": 0.02,
-    "measured": "2026-11-11",
+    "measured": "2026-11-12",
     "loo": {
      "ella-shooting": 0.468
     },
     "detail": {
      "ella-shooting": 0.637
     }
-   }
+   },
+   "described": "ella-sh10"
   },
   "ella-shield": {
    "what": "SHIELD_DESCENT: canopy turned forward",
@@ -2113,14 +2255,15 @@ tool + model + version, prompt, seed, input images, date, licence, attribution.
     "ella-absorbing",
     "study-ella-character",
     "d-yellow-shots",
-    "bar-casters"
+    "bar-casters",
+    "ella-sh10"
    ],
    "score_min": 0.586,
    "detail_min": 0.364,
    "calibration": {
     "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
     "margin": 0.02,
-    "measured": "2026-11-11",
+    "measured": "2026-11-12",
     "loo": {
      "ella-absorbing": 0.606,
      "d-yellow-shots": 0.753
@@ -2129,7 +2272,8 @@ tool + model + version, prompt, seed, input images, date, licence, attribution.
      "ella-absorbing": 0.684,
      "d-yellow-shots": 0.384
     }
-   }
+   },
+   "described": "ella-sh10"
   },
   "umbrella": {
    "what": "the umbrella prop and its wear stages: the key art's black umbrella with light stripes (keyart-umbrella, D-new-umbrella-look); study-umbrella-prop for build and damage stages only",
@@ -2142,7 +2286,7 @@ tool + model + version, prompt, seed, input images, date, licence, attribution.
    "calibration": {
     "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
     "margin": 0.02,
-    "measured": "2026-11-11",
+    "measured": "2026-11-12",
     "loo": {},
     "detail": {
      "keyart-umbrella": 0.458
@@ -2151,65 +2295,105 @@ tool + model + version, prompt, seed, input images, date, licence, attribution.
    }
   },
   "owl": {
-   "what": "the owl (body, wings, chest clock): the key-art organic owl, tattered feathers, gothic spire crown, glowing gold gear clock with no numerals, amber eyes (D-new-owl-look)",
+   "what": "the Keeper (body, wings, chest clock, mechanisms): GDD SH1.0's crownless fabricated metal owl, exactly two feet, two wings and three hanging mechanisms (keeper-sh10; GDD SH1.0 wins (Josh; D-new-sh10-art-conflicts)). The key art's organic crowned owl (owl-flap) is not the form",
    "refs": [
-    "owl-flap"
+    "discord-crop-keeper",
+    "d-wing-damage",
+    "d-talon-rake",
+    "d-gear-break",
+    "d-flip-throw",
+    "d-toss-kick",
+    "d-arc-chain",
+    "d-clock-damage",
+    "study-keeper-character",
+    "study-keeper-front-grip",
+    "keeper-sh10"
    ],
-   "score_min": 0.525,
-   "detail_min": 0.635,
+   "score_min": 0.698,
+   "detail_min": 0.301,
    "calibration": {
     "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
     "margin": 0.02,
-    "measured": "2026-11-11",
-    "loo": {},
-    "detail": {
-     "owl-flap": 0.655
+    "measured": "2026-11-12",
+    "loo": {
+     "discord-crop-keeper": 0.718,
+     "d-wing-damage": 0.979,
+     "d-talon-rake": 0.969,
+     "d-gear-break": 0.993,
+     "d-flip-throw": 0.992,
+     "d-toss-kick": 0.992,
+     "d-arc-chain": 0.992,
+     "d-clock-damage": 0.993
     },
-    "note": "one team image and nothing to compare it with: score_min not measurable"
-   }
+    "detail": {
+     "discord-crop-keeper": 0.588,
+     "d-wing-damage": 0.45,
+     "d-talon-rake": 0.456,
+     "d-gear-break": 0.464,
+     "d-flip-throw": 0.321,
+     "d-toss-kick": 0.322,
+     "d-arc-chain": 0.394,
+     "d-clock-damage": 0.491
+    }
+   },
+   "described": "keeper-sh10"
   },
   "owl-bolt": {
-   "what": "the owl's shot: the key art's rust-red needle with a crosshair ring (keyart-bolt, D-new-owl-shot-look); bar-casters for the build quality only (core, shell, trail, spill), not its colour",
+   "what": "the red shot: GDD SH1.0's pointed angular crimson projectile (red-shot-sh10; GDD SH1.0 wins (Josh; D-new-sh10-art-conflicts)); bar-casters for the build quality (core, shell, trail, spill). The key art's rust needle (keyart-bolt) is not the form or colour",
    "refs": [
-    "keyart-bolt",
-    "bar-casters"
+    "discord-crop-red-shot",
+    "d-red-shots",
+    "d-clock-double-beat",
+    "study-keeper-red-shots",
+    "bar-casters",
+    "red-shot-sh10"
    ],
-   "score_min": 0.473,
-   "detail_min": 0.391,
+   "score_min": 0.729,
+   "detail_min": 0.281,
    "calibration": {
     "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
     "margin": 0.02,
-    "measured": "2026-11-11",
+    "measured": "2026-11-12",
     "loo": {
-     "keyart-bolt": 0.493
+     "discord-crop-red-shot": 0.749,
+     "d-red-shots": 0.965,
+     "d-clock-double-beat": 0.965
     },
     "detail": {
-     "keyart-bolt": 0.411
+     "discord-crop-red-shot": 0.301,
+     "d-red-shots": 0.445,
+     "d-clock-double-beat": 0.398
     }
-   }
+   },
+   "described": "red-shot-sh10"
   },
   "bolt-hit": {
-   "what": "the bolt impact",
+   "what": "the red shot's impact: the GDD SH1.0 crimson family (red-shot-sh10); the release burst is its form, since the GDD draws no impact. The rust crosshair burst (owl-missile-hit) is not the look",
    "refs": [
-    "owl-missile-hit",
-    "bar-casters"
+    "discord-crop-red-release",
+    "d-red-shots",
+    "bar-casters",
+    "red-shot-sh10"
    ],
-   "score_min": 0.53,
-   "detail_min": 0.25,
+   "score_min": 0.666,
+   "detail_min": 0.362,
    "calibration": {
     "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
     "margin": 0.02,
-    "measured": "2026-11-11",
+    "measured": "2026-11-12",
     "loo": {
-     "owl-missile-hit": 0.55
+     "discord-crop-red-release": 0.686,
+     "d-red-shots": 0.793
     },
     "detail": {
-     "owl-missile-hit": 0.27
+     "discord-crop-red-release": 0.382,
+     "d-red-shots": 0.445
     }
-   }
+   },
+   "described": "red-shot-sh10"
   },
   "wand-shot": {
-   "what": "Ella's gold star wand shot",
+   "what": "Ella's gold magic shot: GDD SH1.0 has no wand; the gold #E9C46A Small Blasts pulse and Twin Stars heads leave the canopy",
    "refs": [
     "wand-star",
     "bar-casters"
@@ -2219,7 +2403,7 @@ tool + model + version, prompt, seed, input images, date, licence, attribution.
    "calibration": {
     "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
     "margin": 0.02,
-    "measured": "2026-11-11",
+    "measured": "2026-11-12",
     "loo": {
      "wand-star": 0.354
     },
@@ -2239,7 +2423,7 @@ tool + model + version, prompt, seed, input images, date, licence, attribution.
    "calibration": {
     "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
     "margin": 0.02,
-    "measured": "2026-11-11",
+    "measured": "2026-11-12",
     "loo": {
      "d-yellow-shots": 0.753
     },
@@ -2258,7 +2442,7 @@ tool + model + version, prompt, seed, input images, date, licence, attribution.
    "calibration": {
     "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
     "margin": 0.02,
-    "measured": "2026-11-11",
+    "measured": "2026-11-12",
     "loo": {},
     "detail": {
      "keyart-wind-lines": 0.428
@@ -2276,7 +2460,7 @@ tool + model + version, prompt, seed, input images, date, licence, attribution.
    "calibration": {
     "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
     "margin": 0.02,
-    "measured": "2026-11-11",
+    "measured": "2026-11-12",
     "loo": {},
     "detail": {},
     "note": "one team image and nothing to compare it with: score_min not measurable"
@@ -2294,7 +2478,7 @@ tool + model + version, prompt, seed, input images, date, licence, attribution.
    "calibration": {
     "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
     "margin": 0.02,
-    "measured": "2026-11-11",
+    "measured": "2026-11-12",
     "loo": {
      "gothic-skyline": 0.547,
      "keyart": 0.547
@@ -2316,7 +2500,7 @@ tool + model + version, prompt, seed, input images, date, licence, attribution.
    "calibration": {
     "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
     "margin": 0.02,
-    "measured": "2026-11-11",
+    "measured": "2026-11-12",
     "loo": {},
     "detail": {
      "star-paper": 0.105
@@ -2338,7 +2522,7 @@ tool + model + version, prompt, seed, input images, date, licence, attribution.
    "calibration": {
     "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
     "margin": 0.02,
-    "measured": "2026-11-11",
+    "measured": "2026-11-12",
     "loo": {
      "keyart": 0.993,
      "original-picture": 0.993,
@@ -2414,7 +2598,7 @@ tool + model + version, prompt, seed, input images, date, licence, attribution.
   "calibration": {
    "method": "leave-one-out on the scene references",
    "margin": 0.02,
-   "measured": "2026-11-11",
+   "measured": "2026-11-12",
    "loo": {
     "keyart": 0.986,
     "original-picture": 0.986,
@@ -2445,7 +2629,7 @@ tool + model + version, prompt, seed, input images, date, licence, attribution.
    "menu-screen": "bar-other-realm"
   },
   "default": "bar-casters",
-  "palette_note": "The quality-bar colours (ash-blue flow, the yellows) and the key art's shot rust (D-new-owl-shot-look; the bar's hot red #FF3658 and coral are not our look) are in style.json as capped accents (Josh, DECIDED 2026-11-10, D-new-palette-accents): art_check.py accepts them only in their role, hue band and share cap."
+  "palette_note": "The quality-bar colours (ash-blue flow, the yellows) and the GDD SH1.0 shot reds (crimson #FF3658, coral #FF7848, shadow #8F173C: the same values as bar-casters; the key art's rust of D-new-owl-shot-look is superseded, D-new-sh10-art-conflicts) are in style.json as capped accents (Josh, DECIDED 2026-11-10, D-new-palette-accents): art_check.py accepts them only in their role, hue band and share cap."
  },
  "vfx_spec": {
   "source": "bar-casters",
@@ -2458,15 +2642,15 @@ tool + model + version, prompt, seed, input images, date, licence, attribution.
   "construction": "bright core, shell, trail, light spill on nearby surfaces",
   "palette": {
    "INK": "#171614",
-   "RUST": "#723929",
-   "RUST SHADOW": "#5b2519",
-   "RUST HIGH": "#79331f",
+   "RED": "#FF3658",
+   "CORAL": "#FF7848",
+   "RED SHADOW": "#8F173C",
    "YELLOW": "#FFD84A",
    "AMBER": "#F5AA28",
    "YELLOW SHADOW": "#94611E",
    "CORE": "#FFF5DC"
   },
-  "rule": "The spec for every shot VFX (owl bolts, wand shots, impacts): each one has the four stages and the core/shell/trail build, taken from bar-casters for build quality only. The owl's shot colour is the key art's rust-red needle with a crosshair ring (Josh, DECIDED 2026-11-11, D-new-owl-shot-look: RUST, RUST SHADOW, RUST HIGH measured from the key art); the pink chevrons (#FF3658) are not the look. style.json carries them as the shot-red and shot-yellow capped accents, INK with the darks (see quality_bar.palette_note)."
+  "rule": "The spec for every shot VFX (owl and enemy shots, Ella's spells, impacts): each one has the four stages and the core/shell/trail build of bar-casters. Colours are GDD SH1.0's: red shots crimson #FF3658 / coral #FF7848 / shadow #8F173C, yellow shots #FFD84A / #F5AA28 / #94611E, pale core #FFF5DC, one pointed angular geometry for both (OWL-14); Ella's magic gold #E9C46A (GDD SH1.0 wins (Josh; D-new-sh10-art-conflicts); the 11 Nov rust needle of D-new-owl-shot-look is superseded). style.json carries them as the shot-red and shot-yellow capped accents, INK with the darks (see quality_bar.palette_note)."
  },
  "gdd_embedded": {
   "_about": "Images the current GDD embeds (markdown ![..](path) or <img src=..>, relative to the GDD file) join the list each run: the GDD a run picked with kickoff --gdd ($JAM_GDD, tools/gdd_select.py, which prints the images it brings) is read, else the one docs/gdd/CURRENT names. An entry above with the same path keeps its role and cards. Not required: a GDD without images adds none.",
@@ -3967,6 +4151,9 @@ pipeline/art/reference/keyart-crops/owl-bolt.png,same as the key art (Josh to co
 pipeline/art/reference/keyart-crops/umbrella.png,same as the key art (Josh to confirm),"crop of the team key art pipeline/art/reference/target-keyart.png, keyed to an alpha mask (11 Nov); reference only",none,none,none,none,pipeline/art/reference/target-keyart.png,2026-11-11,same as the key art; reference only and never shipped,none
 pipeline/art/reference/keyart-crops/wind-lines.png,same as the key art (Josh to confirm),"crop of the team key art pipeline/art/reference/target-keyart.png, keyed to an alpha mask (11 Nov); reference only",none,none,none,none,pipeline/art/reference/target-keyart.png,2026-11-11,same as the key art; reference only and never shipped,none
 pipeline/art/reference/keyart-crops/skyline.png,same as the key art (Josh to confirm),"crop of the team key art pipeline/art/reference/target-keyart.png, keyed to an alpha mask (11 Nov); reference only",none,none,none,none,pipeline/art/reference/target-keyart.png,2026-11-11,same as the key art; reference only and never shipped,none
+pipeline/art/reference/discord-crops/keeper-side.png,Ricky (team),"crop of Ricky's #art-direction sheet pipeline/art/reference/discord/20261110-1048_Ricky_2.png, keyed to an alpha mask (12 Nov); reference only",none,none,none,none,pipeline/art/reference/discord/20261110-1048_Ricky_2.png,2026-11-12,same as the sheet (team to confirm); reference only and never shipped,none
+pipeline/art/reference/discord-crops/red-shot.png,Ricky (team),"crop of Ricky's #art-direction sheet pipeline/art/reference/discord/20261110-0258_Ricky_1.png, keyed to an alpha mask (12 Nov); reference only",none,none,none,none,pipeline/art/reference/discord/20261110-0258_Ricky_1.png,2026-11-12,same as the sheet (team to confirm); reference only and never shipped,none
+pipeline/art/reference/discord-crops/red-release.png,Ricky (team),"crop of Ricky's #art-direction sheet pipeline/art/reference/discord/20261110-0258_Ricky_1.png, keyed to an alpha mask (12 Nov); reference only",none,none,none,none,pipeline/art/reference/discord/20261110-0258_Ricky_1.png,2026-11-12,same as the sheet (team to confirm); reference only and never shipped,none
 pipeline/art/reference/Rehearsal/Ella/Ella-Absorbing-04.png,team (GameJam2026 main),Rehearsal/Art/Sprites/Ella/Absorbing/Ella-Absorbing-04.png (GameJam2026 main),unknown,unknown,unknown,unknown,unknown,2026-11-10,unknown (team to confirm); reference only and never shipped,none
 pipeline/art/reference/Rehearsal/Ella/Ella-FreeFall-03.png,team (GameJam2026 main),Rehearsal/Art/Sprites/Ella/FreeFall/Ella-FreeFall-03.png (GameJam2026 main),unknown,unknown,unknown,unknown,unknown,2026-11-10,unknown (team to confirm); reference only and never shipped,none
 pipeline/art/reference/Rehearsal/Ella/Ella-Rising-02.png,team (GameJam2026 main),Rehearsal/Art/Sprites/Ella/Rising/Ella-Rising-02.png (GameJam2026 main),unknown,unknown,unknown,unknown,unknown,2026-11-10,unknown (team to confirm); reference only and never shipped,none
@@ -4377,7 +4564,7 @@ debug draws, 16:9) run first and cannot be overridden; this judge adds what they
 
   scene SHOT [--refs-root DIR ...]     a build screenshot against the key-art composition (references.json "scene"):
         owl large on the right, chest clock glowing gold inside it, Ella small on the left, a black jagged skyline
-        band along the bottom, rust-red bolts, paper texture; plus a perceptual similarity to the scene references
+        band along the bottom, red owl shots, paper texture; plus a perceptual similarity to the scene references
         (16x9 luminance layout correlation and edge-orientation histogram on a downscaled frame). Prints
         `art_judge: scene PASS|FAIL score=<s> ...`, one line per miss and a FIX: line. The smoke runs it on every
         gameplay map's screenshot (tools/ue_run.py shot_checks), so the daily and kickoff do too.
