@@ -52,7 +52,7 @@ void UUmbrellaHealthComponent::EndPlay(const EEndPlayReason::Type Reason)
 
 void UUmbrellaHealthComponent::OnCheckpointRetried(const FUmbrellaEvent& Event)
 {
-	if (Event.TargetId == UmbrellaPlayerIds::Ella && Event.Amount == HealthConstants::RetryLivesAmount)
+	if (Event.TargetId == UmbrellaPlayerIds::Ella && Event.Amount == State.MaxLives)
 	{
 		ResetForRetry();
 	}

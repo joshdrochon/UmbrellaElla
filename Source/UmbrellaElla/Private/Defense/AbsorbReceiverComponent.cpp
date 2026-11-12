@@ -6,6 +6,7 @@
 #include "Health/UmbrellaHealthComponent.h"
 #include "Projectile/UmbrellaShotSpec.h"
 #include "Umbrella/UmbrellaPlayerIds.h"
+#include "Umbrella/UmbrellaStateComponent.h"
 
 namespace
 {
@@ -44,10 +45,16 @@ void UAbsorbReceiverComponent::EndPlay(const EEndPlayReason::Type Reason)
 
 void UAbsorbReceiverComponent::OnConfigChanged(const FUmbrellaEvent& Event)
 {
-	// The umbrella state lane broadcasts every action change (Detail = new action name); absorb is open only in AbsorbFall.
-	if (Event.SourceId == UmbrellaPlayerIds::Ella)
+	// UmbrellaConfigChanged also carries spell equips (Detail = spell name), so read the action itself, never the Detail.
+	if (Event.SourceId != UmbrellaPlayerIds::Ella)
 	{
-		SetPose(Event.Detail == AbsorbFallDetail ? EAbsorbPose::AbsorbFall : EAbsorbPose::Closed);
+		return;
+	}
+	const AActor* Owner = GetOwner();
+	const UUmbrellaStateComponent* State = Owner ? Owner->FindComponentByClass<UUmbrellaStateComponent>() : nullptr;
+	if (State)
+	{
+		SetPose(State->GetAction() == EUmbrellaAction::AbsorbFall ? EAbsorbPose::AbsorbFall : EAbsorbPose::Closed);
 	}
 }
 

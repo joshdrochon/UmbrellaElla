@@ -3,7 +3,9 @@
 #include "Misc/AutomationTest.h"
 #include "Projectile/UmbrellaProjectile.h"
 #include "Umbrella/UmbrellaStateComponent.h"
+#include "Core/UmbrellaPlayMode.h"
 #include "Umbrella/UmbrellaPlayerIds.h"
+#include "Attack/AttackEmitterComponent.h"
 
 #if WITH_AUTOMATION_TESTS
 
@@ -236,6 +238,26 @@ bool FHealthWorldAbsorbFollowsState::RunTest(const FString& Parameters)
 	TestTrue(TEXT("absorb alone again opens it"), Absorb->GetPose() == EAbsorbPose::AbsorbFall);
 	State->SetAbsorbHeld(false);
 	TestTrue(TEXT("release closes it"), Absorb->GetPose() == EAbsorbPose::Closed);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FHealthWorldSpellEquipKeepsAbsorb, "UmbrellaElla.Health.World.SpellEquipMidAbsorbKeepsAbsorbOpen",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+bool FHealthWorldSpellEquipKeepsAbsorb::RunTest(const FString& Parameters)
+{
+	FHealthTestWorld Test;
+	if (!TestNotNull(TEXT("Ella"), Test.Ella))
+	{
+		return false;
+	}
+	UAbsorbReceiverComponent* Absorb = Test.Ella->GetAbsorb();
+	Test.Ella->GetUmbrellaState()->SetAbsorbHeld(true);
+	TestTrue(TEXT("absorb open"), Absorb->GetPose() == EAbsorbPose::AbsorbFall);
+	Test.Ella->GetAttack()->SetPlayMode(EUmbrellaPlayMode::DirectorsCut);
+	Test.Ella->GetAttack()->SetDirectorLevel(11);
+	Test.Ella->GetAttack()->CycleSpell(1);
+	TestTrue(TEXT("a spell was actually equipped"), Test.Ella->GetAttack()->GetEquippedSpell() != EUmbrellaSpell::SmallBlasts);
+	TestTrue(TEXT("spell equip mid-absorb keeps it open"), Absorb->GetPose() == EAbsorbPose::AbsorbFall);
 	return true;
 }
 
