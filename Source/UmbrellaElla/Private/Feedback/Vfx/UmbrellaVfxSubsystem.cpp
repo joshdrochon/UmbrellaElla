@@ -122,5 +122,6 @@ void UUmbrellaVfxSubsystem::PlayForEvent(const FUmbrellaEvent& Event)
 	Mesh->SetRelativeScale3D(FVector(UmbrellaVfxConst::StandInScale));
 	Flash->SetRootComponent(Mesh);
 	Mesh->RegisterComponent();
+	Flash->SetActorLocation(Location);
 	Flash->SetLifeSpan(UmbrellaVfxConst::StandInLifeSeconds);
 }

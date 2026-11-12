@@ -4,8 +4,10 @@
 #include "Feedback/Audio/UmbrellaCueSubsystem.h"
 #include "Feedback/Build/BuildIdentity.h"
 #include "Feedback/Vfx/UmbrellaVfxSubsystem.h"
+#include "Feedback/Background/UmbrellaBackdropSubsystem.h"
 #include "GameFramework/Actor.h"
 #include "Core/UmbrellaEventBus.h"
+#include "Core/UmbrellaDrawOrder.h"
 #include "Misc/AutomationTest.h"
 
 #if WITH_AUTOMATION_TESTS
@@ -136,6 +138,36 @@ bool FFeedbackVfxWorld::RunTest(const FString& Parameters)
 		Event.Type = EUmbrellaEventType::WindEntered;
 		Vfx->PlayForEvent(Event);
 		TestEqual(TEXT("still one effect"), Vfx->GetEffectCount(), 1);
+	}
+	GEngine->DestroyWorldContext(World);
+	World->DestroyWorld(false);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFeedbackBackdrop, "UmbrellaElla.Feedback.World.BackdropLayers",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+
+bool FFeedbackBackdrop::RunTest(const FString& Parameters)
+{
+	UWorld* World = UWorld::CreateWorld(EWorldType::Game, false);
+	if (!TestNotNull(TEXT("world"), World))
+	{
+		return false;
+	}
+	FWorldContext& Context = GEngine->CreateNewWorldContext(EWorldType::Game);
+	Context.SetCurrentWorld(World);
+	UUmbrellaBackdropSubsystem* Backdrop = World->GetSubsystem<UUmbrellaBackdropSubsystem>();
+	if (TestNotNull(TEXT("backdrop subsystem"), Backdrop))
+	{
+		const int32 Expected = UUmbrellaBackdropSubsystem::LayerDepths().Num();
+		TestEqual(TEXT("layers built"), Backdrop->BuildLayers(), Expected);
+		TestEqual(TEXT("second build adds none"), Backdrop->BuildLayers(), Expected);
+		for (const AActor* Layer : Backdrop->GetLayers())
+		{
+			const UPrimitiveComponent* Panel = Cast<UPrimitiveComponent>(Layer->GetRootComponent());
+			TestTrue(TEXT("panel has no collision"), Panel && Panel->GetCollisionEnabled() == ECollisionEnabled::NoCollision);
+			TestTrue(TEXT("panel is behind Ella"), Layer->GetActorLocation().Y < UmbrellaDrawOrder::EllaY);
+		}
 	}
 	GEngine->DestroyWorldContext(World);
 	World->DestroyWorld(false);
