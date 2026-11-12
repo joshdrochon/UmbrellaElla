@@ -1,6 +1,6 @@
 id,surface,text,facts,ship,note
 story-opening-mother,clue,Keep it open.,F2,no,NAR-04 only F2 (GDD). Dropped P3 (mother gave the umbrella) and any promise of protection (F4: it tears)
-story-light-shadow,narration,The open umbrella lifts her. Its shadow follows.,F2,no,NAR-05 needs P2/P5 (umbra/shade motif, PROPOSED): shadow is not in GDD. Only F2 (umbrella lifts her) is GDD; ship=no until P2/P5 confirmed
+story-light-shadow,narration,The open umbrella lifts her. Its shadow follows.,F2,no,"NAR-05 needs P2/P5 (umbra/shade motif, PROPOSED): shadow is not in GDD. Only F2 (umbrella lifts her) is GDD; ship=no until P2/P5 confirmed"
 story-keeper-arrival,clue,"The owl is huge, and made of clockwork.",F1,no,NAR-06 draft
 story-shaft-clue,clue,Gears turn inside the owl's wing.,F1,no,NAR-06 only F1 (clockwork owl). No damage to the owl (F3)
 story-ending-1,end_card,The owl departs.,F3,no,NAR-07 owl departs (F3) only. Dropped pronoun and darkness and pursuit (P6/P8 PROPOSED)
