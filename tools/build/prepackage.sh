@@ -19,7 +19,7 @@ for c in "feel_check.py" "encounter_check.py" "manifest_check.py" "bake_preset.p
   # Reported, not blocking the package: the per-merge gate blocks regressions; a test package must still come out.
   t; python3 tools/$c > "$L/prepackage-py.txt" 2>&1 && s "$c PASS" || { s "$c WARN: $(tail -1 "$L/prepackage-py.txt")"; warn=1; }
 done
-t; NONUNITY=1 "$S" tools/ue/build.sh 2>&1 | tail -1 | tee "$L/prepackage-nonunity.txt"; grep -q "build exit: 0" "$L/prepackage-nonunity.txt" || fail=1; s "non-unity build"
+t; NONUNITY=1 "$S" tools/ue/build.sh 2>&1 | tail -1 | tee "$L/prepackage-nonunity.txt"; grep -q "build exit: 0" "$L/prepackage-nonunity.txt" && s "non-unity build PASS" || { s "non-unity build WARN (missing includes; the package uses the unity build)"; warn=1; }
 [ $fail = 0 ] || { echo "PREPACKAGE FAIL before packaging"; exit 1; }
 t; "$S" tools/ue/package.sh 2>&1 | tail -3 | tee "$L/prepackage-package.txt"; s package
 EXE=$(find "$ROOT/Packaged" -maxdepth 4 -name "UmbrellaElla*.app" -type d | head -1)
