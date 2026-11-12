@@ -1,0 +1,10 @@
+# Engine, engine plugins and MCP servers only. Art, audio and font provenance lives in pipeline/art/provenance.csv (one inventory per kind, never both).
+# vetted_by = the human who checked source, version and licence. TBD or [VERIFY] fails secrets_check.py rule components (closed on card 0.4a).
+name,kind,source,version,licence,vetted_by
+Unreal Engine,engine,Epic Games Launcher,5.8.4,Unreal Engine EULA,TBD
+Paper2D,engine-plugin,built into Unreal Engine,5.8.4,Unreal Engine EULA,TBD
+ModelContextProtocol,engine-plugin,built into Unreal Engine (Experimental) [VERIFY on 0.4a: plugin name],5.8.4,Unreal Engine EULA,TBD
+unreal-mcp,mcp-server,http://127.0.0.1:8000/mcp from the editor plugin [VERIFY on 0.4a: server name in the generated .mcp.json],5.8.4,Unreal Engine EULA,TBD
+gimp-mcp,mcp-server,GIMP MCP server (issue #13) [VERIFY: chosen server and version],[VERIFY],[VERIFY] server licence,TBD
+aseprite-mcp,mcp-server,Rick's Aseprite MCP (pre-existing; docs/pre-jam-declaration.md),[VERIFY],author's own tool [VERIFY: written terms],TBD
+blender-mcp,mcp-server,Blender MCP server (optional) [VERIFY: chosen server and version],[VERIFY],[VERIFY] server licence,TBD

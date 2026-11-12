@@ -1,0 +1,23 @@
+# Codex format of the jam's MCP servers: the same servers as mcp.template.json (Unreal editor) and
+# mcp.tools.template.json (GIMP, Aseprite, Blender), as ~/.codex/config.toml [mcp_servers.<name>] tables.
+# OFF until the kickoff record (gates.json mcp_enabled). tools/kickoff.py never writes ~/.codex/config.toml: it passes
+# only the servers a session's role may use as `codex exec -c mcp_servers.<name>.<key>=<value>` overrides (`-c` is in
+# `codex exec --help`), so role scoping holds for Codex too. tools/mcp_config.py check keeps this file equal to the
+# Claude templates.
+# [VERIFY on Codex CLI] the table keys url (streamable HTTP; `codex mcp add --url`), command and args (stdio;
+# `codex mcp add <name> -- <command>`): the help shows the flags, not the config.toml key names.
+
+[mcp_servers.unreal-mcp]
+url = "http://127.0.0.1:8000/mcp"
+
+[mcp_servers.gimp-mcp]
+command = "gimp-mcp"
+args = []
+
+[mcp_servers.aseprite-mcp]
+command = "aseprite-mcp"
+args = []
+
+[mcp_servers.blender-mcp]
+command = "blender-mcp"
+args = []

@@ -1,0 +1,48 @@
+--- a/Source/UmbrellaElla/Public/Umbrella/UmbrellaStateComponent.h
++++ b/Source/UmbrellaElla/Public/Umbrella/UmbrellaStateComponent.h
+@@ -6,6 +6,8 @@
+ #include "Umbrella/UmbrellaConfig.h"
+ #include "UmbrellaStateComponent.generated.h"
+ 
++class UGameEventsSubsystem;
++
+ UCLASS(ClassGroup = (UmbrellaElla), meta = (BlueprintSpawnableComponent))
+ class UMBRELLAELLA_API UUmbrellaStateComponent final : public UActorComponent
+ {
+@@ -28,4 +30,7 @@
+ private:
+ 	UPROPERTY()
+ 	EUmbrellaConfig Config = EUmbrellaConfig::UpOpen;
++
++	UPROPERTY()
++	TWeakObjectPtr<UGameEventsSubsystem> Events;
+ };
+--- a/Source/UmbrellaElla/Private/Umbrella/UmbrellaStateComponent.cpp
++++ b/Source/UmbrellaElla/Private/Umbrella/UmbrellaStateComponent.cpp
+@@ -1,5 +1,6 @@
+ #include "Umbrella/UmbrellaStateComponent.h"
+ #include "Core/UmbrellaLog.h"
++#include "Core/GameEventsSubsystem.h"
+ 
+ UUmbrellaStateComponent::UUmbrellaStateComponent()
+ {
+@@ -9,9 +10,19 @@
+ void UUmbrellaStateComponent::BeginPlay()
+ {
+ 	Super::BeginPlay();
++	Events = GetWorld()->GetSubsystem<UGameEventsSubsystem>();
++	if (!Events.IsValid())
++	{
++		UE_LOG(LogUmbrellaElla, Error, TEXT("UUmbrellaStateComponent %s: UGameEventsSubsystem not found"), *GetName());
++	}
+ }
+ 
+ void UUmbrellaStateComponent::SetConfig(EUmbrellaConfig NewConfig)
+ {
++	if (Config == NewConfig) { return; }
+ 	Config = NewConfig;
++	if (UGameEventsSubsystem* EventBus = Events.Get())
++	{
++		EventBus->OnUmbrellaConfigChanged().Broadcast(EventBus->MakeEventInfo(GetOwner(), GetOwner()), Config);
++	}
+ }

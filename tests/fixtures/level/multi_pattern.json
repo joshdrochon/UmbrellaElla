@@ -1,0 +1,339 @@
+{
+ "version": 1,
+ "duration_sec": 150,
+ "seed": 20261112,
+ "duration_status": "proposed starting value; GDD §2 says playtests set it",
+ "phase_change_cue": "SFX_PhaseChime",
+ "arena": {
+  "units": "Unreal units; x right, y up from the bottom edge of the fixed camera view",
+  "width": 1920,
+  "height": 1080,
+  "hero_zone": {
+   "x0": 80,
+   "x1": 1100,
+   "y0": 60,
+   "y1": 1020
+  },
+  "owl_zone": {
+   "x0": 1300,
+   "x1": 1800
+  },
+  "owl_fire_x": 1350,
+  "owl_drift_y": [
+   420,
+   700
+  ],
+  "tuning_source": "pipeline/feel/feel.json",
+  "tuning_note": "Hero speeds, hurtbox and bolt hitbox ratio come from the tuning file (Game Designer). Never copy them here (E22).",
+  "bolt_core_radius": 17.5,
+  "owl_sprite": {
+   "w": 360,
+   "h": 420
+  },
+  "owl_hitbox": {
+   "w": 330,
+   "h": 400
+  },
+  "sim_cell": 10
+ },
+ "patterns": {
+  "BOLT_Single": {
+   "feature": "OWL-01",
+   "kind": "bolt",
+   "color": "amber",
+   "tell": {
+    "pose": "Owl_Attack_Windup",
+    "sound": "SFX_OwlBoltWindup",
+    "vfx": "VFX_ClockFlash_Amber"
+   },
+   "telegraph_sec": 0.8,
+   "active_sec": 0.1,
+   "recovery_sec": 1.0,
+   "angles_deg": [
+    0
+   ],
+   "aimed": true,
+   "speed": 450,
+   "spawn_offset_sec": 0,
+   "volleys": 1,
+   "volley_gap_sec": 0,
+   "seed_offset_deg": 0,
+   "seed_angle_step_deg": 0,
+   "interruptible_sec": 0.5,
+   "interrupt_replays_telegraph": true,
+   "origin_locked_during_telegraph": true,
+   "draw_on_top": true,
+   "directional_sprite": true,
+   "covers": [
+    "pos_high",
+    "pos_low",
+    "ctl_rise",
+    "ctl_fall"
+   ]
+  },
+  "BOLT_Fan3": {
+   "feature": "OWL-90",
+   "kind": "bolt",
+   "color": "amber",
+   "tell": {
+    "pose": "Owl_Attack_Windup",
+    "sound": "SFX_OwlBoltWindup",
+    "vfx": "VFX_ClockFlash_Amber"
+   },
+   "telegraph_sec": 0.7,
+   "active_sec": 0.7,
+   "recovery_sec": 1.0,
+   "angles_deg": [
+    -12,
+    0,
+    12
+   ],
+   "aimed": false,
+   "base_angle_deg": 180,
+   "speed": 400,
+   "spawn_offset_sec": 0.05,
+   "volleys": 2,
+   "volley_gap_sec": 0.6,
+   "seed_offset_deg": 0,
+   "seed_angle_step_deg": 6,
+   "interruptible_sec": 0.5,
+   "interrupt_replays_telegraph": true,
+   "origin_locked_during_telegraph": true,
+   "draw_on_top": true,
+   "directional_sprite": true,
+   "covers": [
+    "pos_far",
+    "ctl_horizontal",
+    "ctl_fall"
+   ]
+  },
+  "BOLT_Aimed2": {
+   "feature": "OWL-90",
+   "kind": "bolt",
+   "color": "amber",
+   "tell": {
+    "pose": "Owl_Attack_Windup",
+    "sound": "SFX_OwlBoltWindup",
+    "vfx": "VFX_ClockFlash_Amber"
+   },
+   "telegraph_sec": 0.6,
+   "active_sec": 1.1,
+   "recovery_sec": 1.0,
+   "angles_deg": [
+    -8,
+    8
+   ],
+   "aimed": true,
+   "speed": 480,
+   "spawn_offset_sec": 0.04,
+   "volleys": 3,
+   "volley_gap_sec": 0.5,
+   "seed_offset_deg": 0,
+   "seed_angle_step_deg": 4,
+   "interruptible_sec": 0.5,
+   "interrupt_replays_telegraph": true,
+   "origin_locked_during_telegraph": true,
+   "draw_on_top": true,
+   "directional_sprite": true,
+   "covers": [
+    "pos_high",
+    "pos_low",
+    "pos_far",
+    "ctl_horizontal"
+   ]
+  },
+  "GUST_Wing": {
+   "feature": "OWL-02",
+   "kind": "gust",
+   "color": null,
+   "tell": {
+    "pose": "Owl_WingRaise",
+    "sound": "SFX_GustWindup",
+    "vfx": "VFX_FlowLines"
+   },
+   "telegraph_sec": 1.0,
+   "active_sec": 2.0,
+   "recovery_sec": 1.0,
+   "zone": {
+    "x0": 300,
+    "x1": 900,
+    "y0": 200,
+    "y1": 600
+   },
+   "interruptible_sec": 0.5,
+   "interrupt_replays_telegraph": true,
+   "gust_strength_by_wing_tier": [
+    1.0,
+    0.8,
+    0.6
+   ],
+   "wing_tear_overlays": [
+    "T_Owl_WingTear_1",
+    "T_Owl_WingTear_2"
+   ],
+   "origin_locked_during_telegraph": true,
+   "covers": [
+    "ctl_gust",
+    "ctl_rise"
+   ]
+  },
+  "ARC_Return": {
+   "feature": "OWL-04",
+   "kind": "arc",
+   "color": "red",
+   "tell": {
+    "pose": "Owl_Attack_Windup",
+    "sound": "SFX_ArcWindup",
+    "vfx": "VFX_ArcTrail_Red"
+   },
+   "telegraph_sec": 0.9,
+   "active_sec": 2.5,
+   "recovery_sec": 1.0,
+   "aimed": true,
+   "reach": 1000,
+   "side": 150,
+   "flight_sec": 2.4,
+   "core_radius": 22,
+   "interruptible_sec": 0,
+   "origin_locked_during_telegraph": true,
+   "draw_on_top": true,
+   "directional_sprite": true,
+   "priority": "P2 (GDD §10); cut = delete this row and its schedule entries",
+   "covers": [
+    "pos_far",
+    "ctl_horizontal"
+   ]
+  }
+ },
+ "phases": [
+  {
+   "id": "intro",
+   "start_pct": 0,
+   "end_pct": 25,
+   "space_rules": [],
+   "altitude_cap_y": null,
+   "schedule": [
+    {
+     "at": 3,
+     "pattern": "BOLT_Single"
+    },
+    {
+     "at": 9,
+     "pattern": "BOLT_Single"
+    },
+    {
+     "at": 15,
+     "pattern": "BOLT_Single"
+    },
+    {
+     "at": 21,
+     "pattern": "GUST_Wing"
+    },
+    {
+     "at": 30,
+     "pattern": "BOLT_Single"
+    }
+   ]
+  },
+  {
+   "id": "contest",
+   "start_pct": 25,
+   "end_pct": 70,
+   "space_rules": [],
+   "altitude_cap_y": null,
+   "schedule": [
+    {
+     "at": 2,
+     "pattern": "BOLT_Fan3"
+    },
+    {
+     "at": 10,
+     "pattern": "BOLT_Single"
+    },
+    {
+     "at": 16,
+     "pattern": "GUST_Wing"
+    },
+    {
+     "at": 24,
+     "pattern": "BOLT_Single"
+    },
+    {
+     "at": 30,
+     "pattern": "BOLT_Fan3"
+    },
+    {
+     "at": 30,
+     "pattern": "GUST_Wing"
+    },
+    {
+     "at": 38,
+     "pattern": "BOLT_Aimed2"
+    },
+    {
+     "at": 47,
+     "pattern": "BOLT_Fan3"
+    },
+    {
+     "at": 48,
+     "pattern": "BOLT_Single"
+    },
+    {
+     "at": 58,
+     "pattern": "GUST_Wing"
+    }
+   ]
+  },
+  {
+   "id": "desperation",
+   "start_pct": 70,
+   "end_pct": 100,
+   "space_rules": [
+    "altitude_cap"
+   ],
+   "altitude_cap_y": 800,
+   "schedule": [
+    {
+     "at": 2,
+     "pattern": "ARC_Return"
+    },
+    {
+     "at": 10,
+     "pattern": "BOLT_Fan3"
+    },
+    {
+     "at": 11,
+     "pattern": "BOLT_Aimed2"
+    },
+    {
+     "at": 19,
+     "pattern": "GUST_Wing"
+    },
+    {
+     "at": 19,
+     "pattern": "BOLT_Single"
+    },
+    {
+     "at": 31,
+     "pattern": "BOLT_Fan3"
+    },
+    {
+     "at": 36,
+     "pattern": "ARC_Return"
+    },
+    {
+     "at": 37,
+     "pattern": "BOLT_Aimed2"
+    }
+   ]
+  }
+ ],
+ "end_event": {
+  "stop_threats": true,
+  "owl_departs": true,
+  "survived_card": "WBP_Survived",
+  "quiet_sec": 5,
+  "clue": "proposed: the owl's clock is missing one hand and stays on screen (GDD §12 open; game design owner picks)"
+ },
+ "test_note": "Test fixture only (tests/test_encounter_check.py): the pre-GDD-1.3 five-pattern, three-phase encounter, kept to prove the rules that apply when 2+ patterns are on. Old 1920 x 1080 arena units. OWL-90 is a test-only feature ID for extra bolt patterns; the tests pass a manifest with these features on."
+}

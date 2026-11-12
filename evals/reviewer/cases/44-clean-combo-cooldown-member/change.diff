@@ -1,0 +1,10 @@
+--- a/Source/UmbrellaElla/Private/Owl/ClockworkOwl.cpp
++++ b/Source/UmbrellaElla/Private/Owl/ClockworkOwl.cpp
+@@ -60,3 +60,7 @@
+ void AClockworkOwl::ResetForRestart()
+ {
++	GetWorldTimerManager().ClearTimer(TelegraphTimer);
++	GetWorldTimerManager().ClearTimer(VolleyGapTimer);
++	SetActorLocation(SpawnLocation);
++	SetState(EOwlState::Idle);
+ }

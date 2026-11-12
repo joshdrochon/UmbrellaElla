@@ -1,0 +1,9 @@
+session,event,phase,pattern_id,explained,t_run_s,build
+s01,hit,intro,BOLT_Single,y,9.8,abc1234
+s01,hit,contest,BOLT_Fan3,n,40.2,abc1234
+s01,hit,contest,GUST_Wing,y,55.0,abc1234
+s01,death,desperation,BOLT_Aimed2,y,118.6,abc1234
+s02,hit,contest,BOLT_Aimed2,y,77.1,abc1234
+s02,death,desperation,BOTTOM_EXIT,n,131.0,abc1234
+s03,hit,desperation,ARC_Return,y,107.4,abc1234
+s03,survive,desperation,,,150.0,abc1234

@@ -1,0 +1,26 @@
+{
+  "clean": false,
+  "defects": [
+    {
+      "id": "nonconst",
+      "severity": "med",
+      "file": "Source/UmbrellaElla/Public/Motor/PlayerMotorComponent.h",
+      "lines": [
+        33,
+        33
+      ],
+      "keywords": [
+        "const"
+      ],
+      "also": [
+        {
+          "file": "Source/UmbrellaElla/Private/Motor/PlayerMotorComponent.cpp",
+          "lines": [
+            63,
+            63
+          ]
+        }
+      ]
+    }
+  ]
+}

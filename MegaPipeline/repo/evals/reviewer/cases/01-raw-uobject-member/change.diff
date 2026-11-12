@@ -1,0 +1,61 @@
+--- /dev/null
++++ b/Source/UmbrellaElla/Public/Owl/ClockworkOwl.h
+@@ -0,0 +1,58 @@
++#pragma once
++#include "CoreMinimal.h"
++#include "GameFramework/Actor.h"
++#include "ClockworkOwl.generated.h"
++
++// INV-1: after EncounterCompleted the owl never moves and never goes back to Drifting, until ResetForRestart.
++
++class UBoxComponent;
++class UGameEventsSubsystem;
++struct FGameEventInfo;
++
++UENUM()
++enum class EOwlState : uint8
++{
++	Drifting,
++	Stopped
++};
++
++// Why a state change was asked for: out of Stopped only a Restart is allowed (INV-1).
++enum class EOwlStateChange : uint8
++{
++	Complete,
++	Restart
++};
++
++// The clockwork owl (Boss Director): drifts between its drift points on the right half of the arena until EncounterCompleted.
++UCLASS()
++class UMBRELLAELLA_API AClockworkOwl : public AActor
++{
++	GENERATED_BODY()
++public:
++	AClockworkOwl();
++	virtual void Tick(float DeltaSeconds) override;
++	EOwlState GetState() const;
++	// Called from BeginPlay and by the Encounter Director in RESTARTING: back to the first drift point, Drifting.
++	// With fewer than 2 drift points it logs a Warning and changes nothing.
++	void ResetForRestart();
++
++protected:
++	virtual void BeginPlay() override;
++	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
++
++	UPROPERTY(EditInstanceOnly, Category = "Owl")
++	TArray<TObjectPtr<AActor>> DriftPoints;
++
++private:
++	void HandleEncounterCompleted(const FGameEventInfo& Info);
++	void SetState(EOwlState NewState, EOwlStateChange Why);
++
++	UPROPERTY(VisibleAnywhere, Category = "Owl")
++	TObjectPtr<UBoxComponent> Hitbox;
++	UPROPERTY()
++	EOwlState State = EOwlState::Drifting;
++	AActor* CurrentDriftPoint;  // next drift point to move toward: set on arrival and by ResetForRestart, read every frame
++	UPROPERTY()
++	TWeakObjectPtr<UGameEventsSubsystem> GameEvents;
++	FDelegateHandle EncounterCompletedHandle;
++};

@@ -1,0 +1,10 @@
+{
+ "_about": "The blind calibration set every art-loop critic session is checked on (tools/art_loop.py blind/judge). Each session folder holds the pair being judged among two calibration pairs it cannot tell apart: a crude render below against a team image of the same element (the team image must win) and a crude render against a one-pixel-shifted copy of itself (SAME). A session that misses either does not count; three counted sessions per pair, unanimous, are a panel. Answers are logged in the evals/art-judge/agreement.csv columns to Saved/Logs/pipeline/critic-calibration.csv. The crude renders are the first Blender stand-ins (11 Nov), which every element they target fails on the numeric judge (tests/test_art_calibration.py).",
+ "crude": [
+  {"file": "tests/fixtures/art/crude/ella_idle_crude.png", "elements": ["ella-up-open", "ella-shield", "umbrella"]},
+  {"file": "tests/fixtures/art/crude/ella_attack_crude.png", "elements": ["ella-attack", "ella-closed"]},
+  {"file": "tests/fixtures/art/crude/owl_flap_crude.png", "elements": ["owl"]},
+  {"file": "tests/fixtures/art/crude/bolt_crude.png", "elements": ["owl-bolt", "bolt-hit", "wand-shot", "umbrella-repair"]},
+  {"file": "tests/fixtures/art/crude/skyline_crude.png", "elements": ["skyline", "paper", "wind-lines", "wind-zone", "menu-screen", "scene"]}
+ ]
+}

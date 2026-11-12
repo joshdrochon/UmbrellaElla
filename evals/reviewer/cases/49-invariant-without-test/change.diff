@@ -1,0 +1,14 @@
+--- a/Source/UmbrellaElla/Public/Health/HealthComponent.h
++++ b/Source/UmbrellaElla/Public/Health/HealthComponent.h
+@@ -1,3 +1,4 @@
+ #pragma once
+ // INV-1: Health stays between 0 and Health.MaxHealth.
++// INV-2: PlayerDefeated (reason Health) is broadcast at most once per run (between two ResetForRestart calls).
+ #include "CoreMinimal.h"
+--- a/Source/UmbrellaElla/Private/Health/HealthComponent.cpp
++++ b/Source/UmbrellaElla/Private/Health/HealthComponent.cpp
+@@ -40,3 +40,4 @@
+ void UHealthComponent::ResetForRestart()
+ {
++	Health = GetDefault<UUmbrellaTuning>()->Health.MaxHealth;
+ }

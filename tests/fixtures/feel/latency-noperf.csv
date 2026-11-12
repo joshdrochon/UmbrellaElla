@@ -1,0 +1,2 @@
+date,gate,build_sha,host,method,presses,median_ms,worst_ms,measured_by,peak_bolts,peak_frame_ms
+2026-11-13,G2,1a2b3c4d,win,240 fps phone,12,62,83,QA and Build,,

@@ -1,0 +1,33 @@
+--- a/Source/UmbrellaElla/Public/Feedback/FeedbackAdapterComponent.h
++++ b/Source/UmbrellaElla/Public/Feedback/FeedbackAdapterComponent.h
+@@ -23,9 +23,9 @@
+ 	UPROPERTY(EditDefaultsOnly, Category = "Ella|Animation")
+ 	TObjectPtr<UPaperFlipbook> IdleFlipbook;
+ 	UPROPERTY(EditDefaultsOnly, Category = "Ella|Animation")
+-	TObjectPtr<UPaperFlipbook> FloatFlipbook;
++	TObjectPtr<UPaperFlipbook> OpenFlipbook;
+ 	UPROPERTY(EditDefaultsOnly, Category = "Ella|Animation")
+-	TObjectPtr<UPaperFlipbook> FallFlipbook;
++	TObjectPtr<UPaperFlipbook> ClosedFlipbook;
+ 	UPROPERTY(EditDefaultsOnly, Category = "Ella|Animation")
+ 	TObjectPtr<UPaperFlipbook> HurtFlipbook;
+ 
+--- a/Source/UmbrellaElla/Private/Feedback/FeedbackAdapterComponent.cpp
++++ b/Source/UmbrellaElla/Private/Feedback/FeedbackAdapterComponent.cpp
+@@ -48,7 +48,7 @@
+ {
+ 	const APaperCharacter* Ella = Cast<APaperCharacter>(GetOwner());
+ 	if (!IsValid(Ella)) { return; }
+-	UPaperFlipbook* Desired = Config == EUmbrellaConfig::UpOpen ? FloatFlipbook : FallFlipbook;
++	UPaperFlipbook* Desired = Config == EUmbrellaConfig::UpOpen ? OpenFlipbook : ClosedFlipbook;
+ 	if (Ella->GetSprite()->GetFlipbook() != Desired)
+ 	{
+ 		Ella->GetSprite()->SetFlipbook(Desired);
+--- a/Config/DefaultEngine.ini
++++ b/Config/DefaultEngine.ini
+@@ -8,3 +8,5 @@
+ 
+ [CoreRedirects]
+ +ClassRedirects=(OldName="/Script/UmbrellaElla.UmbrellaPawn",NewName="/Script/UmbrellaElla.EllaCharacter")
+++PropertyRedirects=(OldName="/Script/UmbrellaElla.FeedbackAdapterComponent.FloatFlipbook",NewName="/Script/UmbrellaElla.FeedbackAdapterComponent.OpenFlipbook")
+++PropertyRedirects=(OldName="/Script/UmbrellaElla.FeedbackAdapterComponent.FallFlipbook",NewName="/Script/UmbrellaElla.FeedbackAdapterComponent.ClosedFlipbook")

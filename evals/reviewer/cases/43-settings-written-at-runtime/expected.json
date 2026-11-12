@@ -1,0 +1,32 @@
+{
+  "clean": false,
+  "defects": [
+    {
+      "id": "mutable-default",
+      "severity": "high",
+      "file": "Source/UmbrellaElla/Private/Owl/ClockworkOwl.cpp",
+      "lines": [
+        65,
+        65
+      ],
+      "keywords": [
+        "getmutabledefault",
+        "settings",
+        "class default",
+        "cdo",
+        "writes",
+        "tuning",
+        "persist"
+      ],
+      "also": [
+        {
+          "file": "Source/UmbrellaElla/Private/Owl/ClockworkOwl.cpp",
+          "lines": [
+            64,
+            64
+          ]
+        }
+      ]
+    }
+  ]
+}

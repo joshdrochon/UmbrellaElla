@@ -1,0 +1,31 @@
+{
+  "clean": false,
+  "defects": [
+    {
+      "id": "loop-timer",
+      "severity": "high",
+      "file": "Source/UmbrellaElla/Private/Feedback/FeedbackAdapterComponent.cpp",
+      "lines": [
+        35,
+        35
+      ],
+      "keywords": [
+        "cleartimer",
+        "endplay",
+        "loop",
+        "timer",
+        "cleared",
+        "windlooptimer"
+      ],
+      "also": [
+        {
+          "file": "Source/UmbrellaElla/Private/Feedback/FeedbackAdapterComponent.cpp",
+          "lines": [
+            38,
+            42
+          ]
+        }
+      ]
+    }
+  ]
+}

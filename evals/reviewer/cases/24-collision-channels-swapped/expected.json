@@ -1,0 +1,31 @@
+{
+  "clean": false,
+  "defects": [
+    {
+      "id": "channel-mismatch",
+      "severity": "high",
+      "file": "Source/UmbrellaElla/Public/Core/UmbrellaCollision.h",
+      "lines": [
+        8,
+        9
+      ],
+      "keywords": [
+        "channel",
+        "mismatch",
+        "swap",
+        "ini",
+        "gametracechannel",
+        "match"
+      ],
+      "also": [
+        {
+          "file": "Config/DefaultEngine.ini",
+          "lines": [
+            10,
+            10
+          ]
+        }
+      ]
+    }
+  ]
+}

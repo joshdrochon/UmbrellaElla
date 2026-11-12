@@ -1,0 +1,40 @@
+# Unreal generated output (never commit; tools/pipeline_check.py enforces this)
+Binaries/
+Intermediate/
+Saved/
+DerivedDataCache/
+Build/Windows/
+Build/Mac/
+Packaged/
+Packaged-Workbench/
+Plugins/**/Binaries/
+Plugins/**/Intermediate/
+
+# IDE / OS
+.vs/
+.idea/
+.vscode/
+*.sln
+*.xcworkspace
+*.VC.db
+*.opensdf
+*.sdf
+*.suo
+.DS_Store
+Thumbs.db
+
+# Python
+__pycache__/
+*.pyc
+
+# Local agent scratch (keep agent notes out of the repo)
+.claude/settings.local.json
+.agent-scratch/
+evals/**/runs/
+
+# Local agent journal (tools/journal.py): one machine's exact record; GitHub is the shared one
+.pipeline/
+.claude/worktrees/
+
+# Shareable package zips (tools/export_package.py --zip)
+dist/

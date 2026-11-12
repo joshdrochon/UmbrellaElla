@@ -1,0 +1,28 @@
+{
+  "clean": false,
+  "defects": [
+    {
+      "id": "vacuous-test",
+      "severity": "high",
+      "file": "Source/UmbrellaElla/Private/Tests/Motor/MotorRulesTest.cpp",
+      "lines": [
+        18,
+        18
+      ],
+      "keywords": [
+        "assert",
+        "alwayspass",
+        "finite",
+        "trivial",
+        "vacuous",
+        "doesnotcheck",
+        "doesn't check",
+        "never check",
+        "nothing",
+        "meaningless",
+        "reverse",
+        "slow"
+      ]
+    }
+  ]
+}

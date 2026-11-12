@@ -1,0 +1,23 @@
+id,surface,text,facts,ship,note,kind,machine,rubric
+good-button,button,Play,,no,menu verb,none,yes,none
+good-tooltip,tooltip,"Hold the button to keep the umbrella shut, or press once to switch.",,no,says what the setting does,none,yes,none
+good-intro,intro_card,"Her mother gave her an umbrella and one warning: never let the owl take it.",P2;P3,no,quiet and plain,none,yes,none
+good-end,end_card,"The owl folds its wings and turns back into the dark. Ella is still between worlds, and her hour has not come.",F3;P8,no,unresolved ending,none,yes,none
+bad-deny,narration,"Strixon, keeper of the hours, comes for Ella.",P6,no,deny-listed owl name,deny,yes,S7
+bad-trademark,store_short,"Like Mary Poppins, but darker.",,no,third-party character,deny,yes,S7
+bad-kill,end_card,Ella kills the owl and the night is over.,F3,no,owl cannot be killed,contradiction,yes,S1
+bad-closed-rise,tooltip,Close the umbrella to rise faster.,,no,only the open umbrella lifts,contradiction,yes,S8
+bad-learns,end_card,Ella learns the truth and forgives her mother.,P3;P9,no,settles what the bible leaves open,contradiction,yes,S1
+bad-evil,narration,The evil owl hunts the innocent girl.,P6,no,the owl is not evil,contradiction,yes,S1
+bad-banned,screen,"Awesome run, you survived.",,no,slang,banned,yes,S3
+bad-exclaim,screen,You survived!,,no,exclamation mark,exclaim,yes,S3
+bad-caps,button,RETRY NOW,,no,shouting,caps,yes,S3
+bad-name,intro_card,Ella's brother Tomas waits far below.,P1,no,a name the bible does not have,name,yes,S2
+bad-length,tooltip,"This setting changes how quickly every single projectile in the whole encounter travels across the screen toward you.",,no,too long for a tooltip,length,yes,S4
+bad-nofact,clue,The hand is missing.,,no,narrative line citing nothing,fact,yes,S1
+bad-ship-proposed,intro_card,Her mother stole the hand of the clock.,P1,yes,PROPOSED fact marked to ship,ship,yes,S1
+bad-nar,end_card,The owl departs. Ella is still in the air.,F3,yes,narrative surface while NAR-01 is DEFERRED,nar,yes,S1
+critic-pun,screen,"Owl be back for you, little one.",,no,a pun breaks the quiet tone,tone,no,S3
+critic-unclear,tooltip,Adjusts the thing for the other thing.,,no,does not say what the setting does,clarity,no,S6
+critic-promise,store_short,Collect feathers and upgrade your umbrella across twelve levels.,,no,promises mechanics the GDD does not have,mechanics,no,S8
+critic-new-lore,intro_card,"Ella's father built the owl, long ago.",P1,no,invents lore the bible does not hold and states it as settled,lore,no,S1

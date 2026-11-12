@@ -1,0 +1,39 @@
+--- a/Source/UmbrellaElla/Private/Attack/AttackEmitterComponent.cpp
++++ b/Source/UmbrellaElla/Private/Attack/AttackEmitterComponent.cpp
+@@ -7,5 +7,5 @@
+ 
+ bool FAttackRules::CanEmit(bool bFeatureEnabled, float CooldownRemaining)
+ {
+-	return false;
++	return bFeatureEnabled && CooldownRemaining <= UE_KINDA_SMALL_NUMBER;
+ }
+@@ -45,7 +45,29 @@
+ void UAttackEmitterComponent::RequestEmit(const FVector& AimDirection)
+ {
++	const UWorld* World = GetWorld();
++	const AActor* OwnerActor = GetOwner();
++	const UTestHarnessSubsystem* HarnessSubsystem = Harness.Get();
++	UProjectileServiceSubsystem* Service = Projectiles.Get();
++	if (!IsValid(World) || !IsValid(OwnerActor) || !IsValid(Service) || AimDirection.IsNearlyZero())
++	{
++		return;
++	}
++	const bool bFeatureEnabled = IsValid(HarnessSubsystem) && HarnessSubsystem->IsFeatureEnabled(EFeatureId::COM_01);
++	const double Now = World->GetTimeSeconds();
++	if (!FAttackRules::CanEmit(bFeatureEnabled, static_cast<float>(NextEmitTime - Now)))
++	{
++		return;
++	}
++	const FAttackTuning& Tuning = GetDefault<UUmbrellaTuning>()->Attack;
++	FProjectileSpawn Spawn;
++	Spawn.Kind = EProjectileKind::PlayerShot;
++	Spawn.Origin = OwnerActor->GetActorLocation();
++	Spawn.Velocity = AimDirection.GetSafeNormal() * Tuning.ShotSpeed;
++	Service->SpawnProjectile(Spawn);
++	NextEmitTime = Now + Tuning.CooldownSeconds;
+ }
+ 
+ void UAttackEmitterComponent::ResetForRestart()
+ {
++	NextEmitTime = 0.0;
+ }

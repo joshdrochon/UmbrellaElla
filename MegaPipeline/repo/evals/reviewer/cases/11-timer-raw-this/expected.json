@@ -1,0 +1,22 @@
+{
+  "clean": false,
+  "defects": [
+    {
+      "id": "timer-this",
+      "severity": "blocker",
+      "file": "Source/UmbrellaElla/Private/Projectile/OwlBolt.cpp",
+      "lines": [
+        54,
+        54
+      ],
+      "keywords": [
+        "this",
+        "lambda",
+        "weak",
+        "createuobject",
+        "destroy",
+        "dangling"
+      ]
+    }
+  ]
+}

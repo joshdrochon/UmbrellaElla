@@ -1,0 +1,22 @@
+{
+  "clean": false,
+  "defects": [
+    {
+      "id": "no-ufunction",
+      "severity": "blocker",
+      "file": "Source/UmbrellaElla/Public/Owl/ClockworkOwl.h",
+      "lines": [
+        50,
+        50
+      ],
+      "keywords": [
+        "ufunction",
+        "adddynamic",
+        "bind",
+        "onhitboxbeginoverlap",
+        "overlap",
+        "dynamic"
+      ]
+    }
+  ]
+}

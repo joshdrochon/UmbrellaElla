@@ -1,0 +1,17 @@
+{
+  "clean": false,
+  "defects": [
+    {
+      "id": "no-super",
+      "severity": "high",
+      "file": "Source/UmbrellaElla/Private/Feedback/FeedbackAdapterComponent.cpp",
+      "lines": [
+        14,
+        26
+      ],
+      "keywords": [
+        "super"
+      ]
+    }
+  ]
+}

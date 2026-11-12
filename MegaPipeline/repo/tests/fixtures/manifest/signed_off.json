@@ -1,0 +1,5840 @@
+{
+ "manifest_version": "B1.0-m1",
+ "gdd_revision": "SH1.0",
+ "gdd_snapshot": "docs/gdd/GDD-B1.0.md",
+ "note": "Test fixture for tools/check_card.py: the real GDD SH1.0 manifest (every Rule ID APPROVED_P0) plus a few records with other statuses from the B1.0 pretend sign-off (UMB-03 PROPOSED, HAZ-01 experiment ticket #7, ...), so the Hook only, Stretch and experiment rules still have something to check. Not a real manifest.",
+ "statuses": [
+  "CONFIRMED",
+  "APPROVED_P0",
+  "APPROVED_P1",
+  "PROPOSED",
+  "EXPERIMENT",
+  "DEFERRED",
+  "OPEN",
+  "REJECTED"
+ ],
+ "priorities": [
+  "P0_recommended",
+  "P1_candidate",
+  "experiment",
+  "unstated",
+  "none"
+ ],
+ "modules": {
+  "input_adapter": "Input Adapter",
+  "player_motor": "Player Motor",
+  "umbrella_state": "Umbrella State",
+  "attack_emitter": "Attack Emitter",
+  "defense_receiver": "Defense Receiver",
+  "health_condition": "Health/Condition",
+  "projectile_service": "Projectile Service",
+  "boss_director": "Boss Director",
+  "wind_hazard_field": "Wind/Hazard Field",
+  "encounter_director": "Encounter Director",
+  "feedback_adapter": "Feedback Adapter",
+  "test_harness": "Test Harness"
+ },
+ "events": [
+  "UmbrellaConfigChanged",
+  "LiftAvailabilityChanged",
+  "PlayerHealthChanged",
+  "ProjectileSpawned",
+  "ProjectileContact",
+  "CatchAttempt",
+  "CatchSucceeded",
+  "CatchFailed",
+  "BossTargetHit",
+  "BossAttackTelegraphed",
+  "WindEntered",
+  "WindExited",
+  "PlayerDefeated",
+  "EncounterCompleted",
+  "TestPresetLoaded"
+ ],
+ "event_fields": [
+  "timestamp_or_frame",
+  "source_id",
+  "target_id",
+  "run_config_id"
+ ],
+ "rejected_without_id": [
+  {
+   "name": "fast_fall (any extra downward acceleration, or closed = faster fall)",
+   "status": "REJECTED",
+   "gdd_ref": "section 3 critical invariant; section 1 core input rule"
+  }
+ ],
+ "features": [
+  {
+   "feature_id": "FLOW-02",
+   "name": "two_mode_routes",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "menu_flow"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-38"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "FLOW_02",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 2. Player journey and modes."
+   ]
+  },
+  {
+   "feature_id": "FLOW-03",
+   "name": "first_start_tutorials_skippable",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "menu_flow"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-38"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "FLOW_03",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 2. Player journey and modes.",
+    "The row keeps explicit OPEN details; they stay OPEN (docs/decisions.md D-new-sh10-open-details), never a reason to drop the row."
+   ]
+  },
+  {
+   "feature_id": "FLOW-04",
+   "name": "win_ending_story_credits",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "menu_flow"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-38"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "FLOW_04",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 2. Player journey and modes.",
+    "The row keeps explicit OPEN details; they stay OPEN (docs/decisions.md D-new-sh10-open-details), never a reason to drop the row."
+   ]
+  },
+  {
+   "feature_id": "MOVE-04",
+   "name": "shared_default_controls",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "input_adapter",
+    "player_motor"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-29"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "MOVE_04",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 3. Controls and player abilities / Controls at a glance."
+   ]
+  },
+  {
+   "feature_id": "MOVE-05",
+   "name": "rise_shoot_absorb_freefall_inputs",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "input_adapter",
+    "player_motor"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-29"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "MOVE_05",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 3. Controls and player abilities / Controls at a glance."
+   ]
+  },
+  {
+   "feature_id": "MOVE-06",
+   "name": "hop_dash_ride_inputs",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "input_adapter",
+    "player_motor"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-29"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "MOVE_06",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 3. Controls and player abilities / Controls at a glance."
+   ]
+  },
+  {
+   "feature_id": "MOVE-07",
+   "name": "trim_fixed_right_fire_no_steering",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "input_adapter",
+    "player_motor"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-29"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "MOVE_07",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 3. Controls and player abilities / Controls at a glance."
+   ]
+  },
+  {
+   "feature_id": "MOVE-08",
+   "name": "directors_cut_spell_select_pause_retry",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "input_adapter",
+    "player_motor"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-29"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "MOVE_08",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 3. Controls and player abilities / Controls at a glance."
+   ]
+  },
+  {
+   "feature_id": "MOVE-09",
+   "name": "menu_navigation_inputs",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "input_adapter",
+    "player_motor"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-29"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "MOVE_09",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 3. Controls and player abilities / Controls at a glance."
+   ]
+  },
+  {
+   "feature_id": "MOVE-10",
+   "name": "controller_menu_remaps_keyboard_mouse",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "input_adapter",
+    "player_motor"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-29"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "MOVE_10",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 3. Controls and player abilities / Controls at a glance."
+   ]
+  },
+  {
+   "feature_id": "MOVE-11",
+   "name": "global_player_rules",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "input_adapter",
+    "player_motor"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-32"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "MOVE_11",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 3. Controls and player abilities / Controls at a glance."
+   ]
+  },
+  {
+   "feature_id": "MOVE-12",
+   "name": "no_ammo_four_weapons_cap",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "input_adapter",
+    "player_motor"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-31"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "MOVE_12",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 3. Controls and player abilities / Controls at a glance."
+   ]
+  },
+  {
+   "feature_id": "MOVE-13",
+   "name": "four_state_movement_contract",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "input_adapter",
+    "player_motor"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-32"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "MOVE_13",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 3. Controls and player abilities / Controls at a glance."
+   ]
+  },
+  {
+   "feature_id": "MOVE-14",
+   "name": "fire_and_heal_only_while_dropping",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "input_adapter",
+    "player_motor"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-30"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "MOVE_14",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 3. Controls and player abilities / Controls at a glance."
+   ]
+  },
+  {
+   "feature_id": "MOVE-15",
+   "name": "protection_baseline",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "input_adapter",
+    "player_motor"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-33"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "MOVE_15",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 3. Controls and player abilities / Controls at a glance."
+   ]
+  },
+  {
+   "feature_id": "MOVE-16",
+   "name": "tutorial_redesign_controls_unchanged",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "input_adapter",
+    "player_motor"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-38"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "MOVE_16",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 3. Controls and player abilities / Controls at a glance."
+   ]
+  },
+  {
+   "feature_id": "MOVE-17",
+   "name": "controller_menu_remap",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "input_adapter",
+    "player_motor"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-29"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "MOVE_17",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 3. Controls and player abilities / Controls at a glance."
+   ]
+  },
+  {
+   "feature_id": "MOVE-18",
+   "name": "shared_mechanics_both_modes",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "input_adapter",
+    "player_motor"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-33"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "MOVE_18",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 3. Controls and player abilities / Shared player contract."
+   ]
+  },
+  {
+   "feature_id": "MOVE-19",
+   "name": "movement_input_priority",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "input_adapter",
+    "player_motor"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-29"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "MOVE_19",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 3. Controls and player abilities / Shared player contract."
+   ]
+  },
+  {
+   "feature_id": "MOVE-20",
+   "name": "action_eligibility_interruption",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "input_adapter",
+    "player_motor"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-29"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "MOVE_20",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 3. Controls and player abilities / Shared player contract."
+   ]
+  },
+  {
+   "feature_id": "MOVE-21",
+   "name": "movement_baseline_numbers",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "input_adapter",
+    "player_motor"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "dash_cooldown_s",
+    "dash_distance",
+    "dash_duration_s",
+    "fall_speed",
+    "free_fall_dash_multiplier",
+    "free_fall_speed",
+    "hop_cooldown_s",
+    "hop_distance",
+    "hop_duration_s",
+    "hop_protection_s",
+    "horizontal_max_speed",
+    "rise_speed",
+    "vertical_trim_pct"
+   ],
+   "emits": [],
+   "tests": [
+    "QA-32"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "MOVE_21",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 3. Controls and player abilities / Shared player contract."
+   ]
+  },
+  {
+   "feature_id": "SURV-05",
+   "name": "clock_hud_health_lives_lift",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "health_condition"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "min_lift",
+    "post_hit_protection_s"
+   ],
+   "emits": [],
+   "tests": [
+    "QA-30"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "SURV_05",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 3. Controls and player abilities / Shared player contract.",
+    "The row keeps explicit OPEN details; they stay OPEN (docs/decisions.md D-new-sh10-open-details), never a reason to drop the row."
+   ]
+  },
+  {
+   "feature_id": "UMB-05",
+   "name": "absorption_baseline",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "umbrella_state",
+    "defense_receiver"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "absorb_cone_deg",
+    "absorb_range",
+    "capture_distance",
+    "heal_per_recovery_rank",
+    "heal_per_yellow",
+    "pull_speed"
+   ],
+   "emits": [],
+   "tests": [
+    "QA-30"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "UMB_05",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 3. Controls and player abilities / Shared player contract."
+   ]
+  },
+  {
+   "feature_id": "WIND-03",
+   "name": "harmless_currents_and_boundaries",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "wind_hazard_field",
+    "player_motor"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-36"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "WIND_03",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 3. Controls and player abilities / Shared player contract."
+   ]
+  },
+  {
+   "feature_id": "MOVE-22",
+   "name": "profile_ownership_wind_response",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "input_adapter",
+    "player_motor"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "wind_acceleration",
+    "wind_falling_decay",
+    "wind_open_decay"
+   ],
+   "emits": [],
+   "tests": [
+    "QA-32"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "MOVE_22",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 3. Controls and player abilities / Shared player contract."
+   ]
+  },
+  {
+   "feature_id": "COM-05",
+   "name": "spell_set_by_mode",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "attack_emitter",
+    "projectile_service"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-31"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "COM_05",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 3. Controls and player abilities / Four spell mechanics."
+   ]
+  },
+  {
+   "feature_id": "COM-06",
+   "name": "small_blasts",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "attack_emitter",
+    "projectile_service"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "damage",
+    "range",
+    "shots_per_s",
+    "speed"
+   ],
+   "emits": [],
+   "tests": [
+    "QA-31"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "COM_06",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 3. Controls and player abilities / Small Blasts."
+   ]
+  },
+  {
+   "feature_id": "COM-07",
+   "name": "streamed_blast",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "attack_emitter",
+    "projectile_service"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "growth_speed",
+    "max_range",
+    "tick_damage",
+    "ticks_per_s",
+    "width"
+   ],
+   "emits": [],
+   "tests": [
+    "QA-31"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "COM_07",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 3. Controls and player abilities / Streamed Blast."
+   ]
+  },
+  {
+   "feature_id": "COM-08",
+   "name": "twin_stars",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "attack_emitter",
+    "projectile_service"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "damage",
+    "range",
+    "separation",
+    "speed",
+    "volleys_per_s"
+   ],
+   "emits": [],
+   "tests": [
+    "QA-31"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "COM_08",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 3. Controls and player abilities / Twin Stars."
+   ]
+  },
+  {
+   "feature_id": "COM-09",
+   "name": "needle_spell",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "attack_emitter",
+    "projectile_service"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "damage",
+    "range",
+    "shots_per_s",
+    "size_multiplier",
+    "speed"
+   ],
+   "emits": [],
+   "tests": [
+    "QA-31"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "COM_09",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 3. Controls and player abilities / Needle Spell."
+   ]
+  },
+  {
+   "feature_id": "COM-10",
+   "name": "exactly_four_weapon_families",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "attack_emitter",
+    "projectile_service"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-31"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "COM_10",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 3. Controls and player abilities / Weapon scope and equipment."
+   ]
+  },
+  {
+   "feature_id": "COM-11",
+   "name": "spell_equip_unlock_rules",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "attack_emitter",
+    "projectile_service"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-29"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "COM_11",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 3. Controls and player abilities / Weapon scope and equipment."
+   ]
+  },
+  {
+   "feature_id": "FLOW-05",
+   "name": "completed_run_difficulty_scaling",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "progression"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "cadence_multiplier_cap",
+    "cadence_multiplier_step",
+    "count_multiplier_cap",
+    "count_multiplier_step",
+    "hp_multiplier_cap",
+    "hp_multiplier_step"
+   ],
+   "emits": [],
+   "tests": [
+    "QA-35"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "FLOW_05",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 4. Gameplay systems / Progression system card."
+   ]
+  },
+  {
+   "feature_id": "FLOW-06",
+   "name": "final_hour_extreme_run",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "progression"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "final_hour_cadence_multiplier",
+    "final_hour_count_multiplier",
+    "final_hour_hp_multiplier"
+   ],
+   "emits": [],
+   "tests": [
+    "QA-35"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "FLOW_06",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 4. Gameplay systems / Progression system card.",
+    "The row keeps explicit OPEN details; they stay OPEN (docs/decisions.md D-new-sh10-open-details), never a reason to drop the row."
+   ]
+  },
+  {
+   "feature_id": "FLOW-07",
+   "name": "checkpoint_retry_xp_policy",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "progression",
+    "persistence"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-35"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "FLOW_07",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 4. Gameplay systems / Progression system card."
+   ]
+  },
+  {
+   "feature_id": "FLOW-08",
+   "name": "quit_reload_checkpoint_progress",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "progression",
+    "persistence"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-35"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "FLOW_08",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 4. Gameplay systems / Progression system card."
+   ]
+  },
+  {
+   "feature_id": "FLOW-09",
+   "name": "checkpoint_retry_three_lives_full_heal",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "progression",
+    "persistence"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-34"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "FLOW_09",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 4. Gameplay systems / Progression system card.",
+    "The row keeps explicit OPEN details; they stay OPEN (docs/decisions.md D-new-sh10-open-details), never a reason to drop the row."
+   ]
+  },
+  {
+   "feature_id": "FLOW-10",
+   "name": "win_carries_progression",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "progression",
+    "persistence"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-35"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "FLOW_10",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 4. Gameplay systems / Progression system card."
+   ]
+  },
+  {
+   "feature_id": "FLOW-11",
+   "name": "reallocation_run2_onward",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "progression"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-35"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "FLOW_11",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 4. Gameplay systems / Progression system card.",
+    "The row keeps explicit OPEN details; they stay OPEN (docs/decisions.md D-new-sh10-open-details), never a reason to drop the row."
+   ]
+  },
+  {
+   "feature_id": "FLOW-12",
+   "name": "retry_enemy_xp_again",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "progression"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-35"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "FLOW_12",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 4. Gameplay systems / Progression system card."
+   ]
+  },
+  {
+   "feature_id": "FLOW-13",
+   "name": "boss_part_xp_and_rollback",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "progression",
+    "persistence"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-35"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "FLOW_13",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 4. Gameplay systems / Progression system card."
+   ]
+  },
+  {
+   "feature_id": "FLOW-14",
+   "name": "progression_baseline",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "progression"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-35"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "FLOW_14",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 4. Gameplay systems / Director’s Cut progression baseline."
+   ]
+  },
+  {
+   "feature_id": "FLOW-15",
+   "name": "levels_points_xp_curve",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "progression"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "cumulative_xp_level_10",
+    "cumulative_xp_level_20",
+    "cumulative_xp_level_30",
+    "cumulative_xp_level_62",
+    "earned_points_at_cap",
+    "level_cap",
+    "max_hits_per_life",
+    "max_lives",
+    "start_hits_per_life",
+    "start_lives",
+    "target_completed_runs",
+    "target_xp_per_run",
+    "xp_curve_base"
+   ],
+   "emits": [],
+   "tests": [
+    "QA-30"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "FLOW_15",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 4. Gameplay systems / Director’s Cut progression baseline."
+   ]
+  },
+  {
+   "feature_id": "FLOW-16",
+   "name": "spell_unlock_schedule",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "progression"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "unlock_level_needle",
+    "unlock_level_streamed",
+    "unlock_level_twin"
+   ],
+   "emits": [],
+   "tests": [
+    "QA-31"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "FLOW_16",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 4. Gameplay systems / Director’s Cut progression baseline."
+   ]
+  },
+  {
+   "feature_id": "SURV-06",
+   "name": "health_upgrade_tracks",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "health_condition",
+    "progression"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-30"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "SURV_06",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 4. Gameplay systems / Director’s Cut progression baseline.",
+    "The row keeps explicit OPEN details; they stay OPEN (docs/decisions.md D-new-sh10-open-details), never a reason to drop the row."
+   ]
+  },
+  {
+   "feature_id": "SURV-07",
+   "name": "health_baseline_and_ranks",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "health_condition",
+    "progression"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-30"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "SURV_07",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 4. Gameplay systems / Director’s Cut progression baseline."
+   ]
+  },
+  {
+   "feature_id": "FLOW-17",
+   "name": "upgrade_application_safety",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "progression"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-30"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "FLOW_17",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 4. Gameplay systems / Director’s Cut progression baseline.",
+    "The row keeps explicit OPEN details; they stay OPEN (docs/decisions.md D-new-sh10-open-details), never a reason to drop the row."
+   ]
+  },
+  {
+   "feature_id": "FLOW-18",
+   "name": "purchase_vs_reallocation",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "progression"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-35"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "FLOW_18",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 4. Gameplay systems / Director’s Cut progression baseline."
+   ]
+  },
+  {
+   "feature_id": "FLOW-19",
+   "name": "kill_xp_rewards",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "progression"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "xp_clock",
+    "xp_courier",
+    "xp_floodstrider",
+    "xp_front",
+    "xp_middle",
+    "xp_rear",
+    "xp_roadwarden",
+    "xp_wings"
+   ],
+   "emits": [],
+   "tests": [
+    "QA-35"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "FLOW_19",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 4. Gameplay systems / Director’s Cut progression baseline."
+   ]
+  },
+  {
+   "feature_id": "FLOW-20",
+   "name": "reward_reconciliation",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "progression",
+    "persistence"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-35"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "FLOW_20",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 4. Gameplay systems / Director’s Cut progression baseline."
+   ]
+  },
+  {
+   "feature_id": "FLOW-21",
+   "name": "difficulty_runs_contract",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "progression"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-35"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "FLOW_21",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 4. Gameplay systems / Director’s Cut progression baseline."
+   ]
+  },
+  {
+   "feature_id": "FLOW-22",
+   "name": "persistence_contract",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "progression",
+    "persistence"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-35"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "FLOW_22",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 4. Gameplay systems / Director’s Cut progression baseline."
+   ]
+  },
+  {
+   "feature_id": "FLOW-23",
+   "name": "developer_level_fixture",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "progression"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-31"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "FLOW_23",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 4. Gameplay systems / Director’s Cut progression baseline.",
+    "The row keeps explicit OPEN details; they stay OPEN (docs/decisions.md D-new-sh10-open-details), never a reason to drop the row."
+   ]
+  },
+  {
+   "feature_id": "OWL-06",
+   "name": "keeper_three_phase_checkpoints",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "boss_director",
+    "hit_region_router"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-34"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "OWL_06",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Attack allocation by phase."
+   ]
+  },
+  {
+   "feature_id": "OWL-07",
+   "name": "keeper_complete_contract",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "boss_director",
+    "hit_region_router"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-32"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "OWL_07",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Complete Keeper attack contract."
+   ]
+  },
+  {
+   "feature_id": "OWL-08",
+   "name": "keeper_body_and_hp",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "boss_director",
+    "hit_region_router"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "clock_hp",
+    "clock_reserve_hp",
+    "front_hp",
+    "middle_hp",
+    "rear_hp",
+    "wings_hp"
+   ],
+   "emits": [],
+   "tests": [
+    "QA-32"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "OWL_08",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Body, eligibility and phase changes."
+   ]
+  },
+  {
+   "feature_id": "OWL-09",
+   "name": "wing_first_gating",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "boss_director",
+    "hit_region_router"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-32"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "OWL_09",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Body, eligibility and phase changes."
+   ]
+  },
+  {
+   "feature_id": "OWL-10",
+   "name": "phase_checkpoint_retry",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "boss_director",
+    "hit_region_router"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-32",
+    "QA-34"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "OWL_10",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Body, eligibility and phase changes."
+   ]
+  },
+  {
+   "feature_id": "OWL-11",
+   "name": "red_pressure",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "boss_director",
+    "projectile_service"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "red_interval_s",
+    "red_spacing_s",
+    "red_speed_clock",
+    "red_speed_mechanisms",
+    "red_speed_wings",
+    "red_spread_clock_deg",
+    "red_spread_mechanisms_deg",
+    "red_spread_wings_deg",
+    "reduced_interval_s"
+   ],
+   "emits": [],
+   "tests": [
+    "QA-32"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "OWL_11",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Red pressure and yellow recovery."
+   ]
+  },
+  {
+   "feature_id": "OWL-12",
+   "name": "red_cue_response",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "boss_director",
+    "projectile_service"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-32",
+    "QA-33"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "OWL_12",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Red pressure and yellow recovery."
+   ]
+  },
+  {
+   "feature_id": "OWL-13",
+   "name": "yellow_contract",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "boss_director",
+    "projectile_service"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "yellow_interval_s",
+    "yellow_size",
+    "yellow_speed_clock",
+    "yellow_speed_mechanisms",
+    "yellow_speed_wings"
+   ],
+   "emits": [],
+   "tests": [
+    "QA-32"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "OWL_13",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Red pressure and yellow recovery."
+   ]
+  },
+  {
+   "feature_id": "OWL-14",
+   "name": "yellow_presentation",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "boss_director",
+    "projectile_service"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-32"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "OWL_14",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Red pressure and yellow recovery."
+   ]
+  },
+  {
+   "feature_id": "OWL-15",
+   "name": "wing_gust_warning",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "boss_director",
+    "hit_region_router"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "gust_warning_s",
+    "physical_interval_s"
+   ],
+   "emits": [],
+   "tests": [
+    "QA-32"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "OWL_15",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Wing gust."
+   ]
+  },
+  {
+   "feature_id": "OWL-16",
+   "name": "wing_gust_action",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "boss_director",
+    "hit_region_router"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "gust_band_width",
+    "gust_lifetime_s",
+    "gust_push",
+    "gust_speed"
+   ],
+   "emits": [],
+   "tests": [
+    "QA-32"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "OWL_16",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Wing gust."
+   ]
+  },
+  {
+   "feature_id": "OWL-17",
+   "name": "wing_gust_cleanup",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "boss_director",
+    "hit_region_router"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-32"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "OWL_17",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Wing gust."
+   ]
+  },
+  {
+   "feature_id": "OWL-18",
+   "name": "talon_trigger",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "boss_director",
+    "hit_region_router"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "talon_reach",
+    "talon_warning_s"
+   ],
+   "emits": [],
+   "tests": [
+    "QA-32"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "OWL_18",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Close talon rake."
+   ]
+  },
+  {
+   "feature_id": "OWL-19",
+   "name": "talon_active",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "boss_director",
+    "hit_region_router"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "talon_strike_s",
+    "talon_tip_width"
+   ],
+   "emits": [],
+   "tests": [
+    "QA-32",
+    "QA-33"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "OWL_19",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Close talon rake."
+   ]
+  },
+  {
+   "feature_id": "OWL-20",
+   "name": "talon_recovery_rearm",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "boss_director",
+    "hit_region_router"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "talon_cooldown_s",
+    "talon_rearm_exit",
+    "talon_recovery_s"
+   ],
+   "emits": [],
+   "tests": [
+    "QA-32"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "OWL_20",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Close talon rake."
+   ]
+  },
+  {
+   "feature_id": "OWL-21",
+   "name": "front_cast_warning",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "boss_director",
+    "hit_region_router"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "cast_warning_s"
+   ],
+   "emits": [],
+   "tests": [
+    "QA-32"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "OWL_21",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Front mechanism cast."
+   ]
+  },
+  {
+   "feature_id": "OWL-22",
+   "name": "front_cast_active",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "boss_director",
+    "hit_region_router"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "chain_head_width",
+    "chain_reach",
+    "chain_speed"
+   ],
+   "emits": [],
+   "tests": [
+    "QA-32"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "OWL_22",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Front mechanism cast."
+   ]
+  },
+  {
+   "feature_id": "OWL-23",
+   "name": "front_cast_recovery",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "boss_director",
+    "hit_region_router"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "chain_return_s"
+   ],
+   "emits": [],
+   "tests": [
+    "QA-32"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "OWL_23",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Front mechanism cast."
+   ]
+  },
+  {
+   "feature_id": "OWL-24",
+   "name": "middle_cast_parity",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "boss_director",
+    "hit_region_router"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "middle_offset"
+   ],
+   "emits": [],
+   "tests": [
+    "QA-32"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "OWL_24",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Middle mechanism cast."
+   ]
+  },
+  {
+   "feature_id": "OWL-25",
+   "name": "middle_cast_curved_path",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "boss_director",
+    "hit_region_router"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-32"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "OWL_25",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Middle mechanism cast."
+   ]
+  },
+  {
+   "feature_id": "OWL-26",
+   "name": "rear_cast_two_stage",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "boss_director",
+    "hit_region_router"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "rear_pause_s"
+   ],
+   "emits": [],
+   "tests": [
+    "QA-32"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "OWL_26",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Rear two-stage cast."
+   ]
+  },
+  {
+   "feature_id": "OWL-27",
+   "name": "rear_cast_readability",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "boss_director",
+    "hit_region_router"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-32"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "OWL_27",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Rear two-stage cast."
+   ]
+  },
+  {
+   "feature_id": "OWL-28",
+   "name": "clock_double_beat",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "boss_director",
+    "hit_region_router"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "repeat_recovery_s",
+    "repeat_wait_s"
+   ],
+   "emits": [],
+   "tests": [
+    "QA-32"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "OWL_28",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Clock double beat, cover and effects."
+   ]
+  },
+  {
+   "feature_id": "OWL-29",
+   "name": "clock_protection",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "boss_director",
+    "hit_region_router"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "clock_open_s",
+    "clock_protect_recovery_s",
+    "final_exposure_cycle_s",
+    "final_exposure_s"
+   ],
+   "emits": [],
+   "tests": [
+    "QA-32"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "OWL_29",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Clock double beat, cover and effects."
+   ]
+  },
+  {
+   "feature_id": "OWL-30",
+   "name": "mechanism_break_stun",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "boss_director",
+    "hit_region_router"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "break_stun_s",
+    "fire_pause_s"
+   ],
+   "emits": [],
+   "tests": [
+    "QA-32"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "OWL_30",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Clock double beat, cover and effects."
+   ]
+  },
+  {
+   "feature_id": "OWL-31",
+   "name": "clock_hit_slow",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "boss_director",
+    "hit_region_router"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "slow_cooldown_s",
+    "slow_s",
+    "slow_world_scale"
+   ],
+   "emits": [],
+   "tests": [
+    "QA-32"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "OWL_31",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Clock double beat, cover and effects."
+   ]
+  },
+  {
+   "feature_id": "OWL-32",
+   "name": "eye_blackout",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "boss_director",
+    "hit_region_router"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "blackout_s",
+    "eye_cooldown_s",
+    "eye_window_s"
+   ],
+   "emits": [],
+   "tests": [
+    "QA-32"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "OWL_32",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Clock double beat, cover and effects."
+   ]
+  },
+  {
+   "feature_id": "OWL-33",
+   "name": "time_domains",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "boss_director",
+    "hit_region_router"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-32"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "OWL_33",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Clock double beat, cover and effects."
+   ]
+  },
+  {
+   "feature_id": "OWL-34",
+   "name": "physical_move_scheduler",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "boss_director",
+    "hit_region_router"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-32",
+    "QA-33"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "OWL_34",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Scheduler, success and reset."
+   ]
+  },
+  {
+   "feature_id": "OWL-35",
+   "name": "success_and_reset",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "boss_director",
+    "hit_region_router"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "departure_s"
+   ],
+   "emits": [],
+   "tests": [
+    "QA-34"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "OWL_35",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Scheduler, success and reset.",
+    "The row keeps explicit OPEN details; they stay OPEN (docs/decisions.md D-new-sh10-open-details), never a reason to drop the row."
+   ]
+  },
+  {
+   "feature_id": "FLOW-24",
+   "name": "directors_cut_nine_chunk_route",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "level_director"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "chunk_length"
+   ],
+   "emits": [],
+   "tests": [
+    "QA-36"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "FLOW_24",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Director’s Cut full level."
+   ]
+  },
+  {
+   "feature_id": "FLOW-25",
+   "name": "route_readability",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "level_director"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-36"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "FLOW_25",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Director’s Cut full level."
+   ]
+  },
+  {
+   "feature_id": "FLOW-26",
+   "name": "broken_mill_direction",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "level_director"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-36"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "FLOW_26",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Director’s Cut full level."
+   ]
+  },
+  {
+   "feature_id": "HAZ-02",
+   "name": "broken_mill_scope",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "level_director",
+    "wind_hazard_field"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-36"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "HAZ_02",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Broken Mill Roadwarden: proposed one-room test."
+   ]
+  },
+  {
+   "feature_id": "HAZ-03",
+   "name": "broken_mill_room_guard",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "level_director",
+    "wind_hazard_field"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-36"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "HAZ_03",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Broken Mill Roadwarden: proposed one-room test."
+   ]
+  },
+  {
+   "feature_id": "HAZ-04",
+   "name": "broken_mill_activation",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "level_director",
+    "wind_hazard_field"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-36"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "HAZ_04",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Broken Mill Roadwarden: proposed one-room test."
+   ]
+  },
+  {
+   "feature_id": "HAZ-05",
+   "name": "broken_mill_one_shot_per_pass",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "level_director",
+    "wind_hazard_field"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-36"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "HAZ_05",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Broken Mill Roadwarden: proposed one-room test."
+   ]
+  },
+  {
+   "feature_id": "HAZ-06",
+   "name": "broken_mill_two_choice_winds",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "level_director",
+    "wind_hazard_field"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-36"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "HAZ_06",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Broken Mill Roadwarden: proposed one-room test."
+   ]
+  },
+  {
+   "feature_id": "HAZ-07",
+   "name": "broken_mill_field_ownership",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "level_director",
+    "wind_hazard_field"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-36"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "HAZ_07",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Broken Mill Roadwarden: proposed one-room test."
+   ]
+  },
+  {
+   "feature_id": "HAZ-08",
+   "name": "broken_mill_underpass_estimates",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "level_director",
+    "wind_hazard_field"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-36"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "HAZ_08",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Broken Mill Roadwarden: proposed one-room test."
+   ]
+  },
+  {
+   "feature_id": "HAZ-09",
+   "name": "broken_mill_ray_estimates",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "level_director",
+    "wind_hazard_field"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-36"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "HAZ_09",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Broken Mill Roadwarden: proposed one-room test."
+   ]
+  },
+  {
+   "feature_id": "HAZ-10",
+   "name": "broken_mill_firing_fixture",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "level_director",
+    "wind_hazard_field"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-36"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "HAZ_10",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Broken Mill Roadwarden: proposed one-room test."
+   ]
+  },
+  {
+   "feature_id": "HAZ-11",
+   "name": "broken_mill_firing_window",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "level_director",
+    "wind_hazard_field"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-36"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "HAZ_11",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Broken Mill Roadwarden: proposed one-room test."
+   ]
+  },
+  {
+   "feature_id": "HAZ-12",
+   "name": "broken_mill_emission_checks",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "level_director",
+    "wind_hazard_field"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-36"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "HAZ_12",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Broken Mill Roadwarden: proposed one-room test."
+   ]
+  },
+  {
+   "feature_id": "HAZ-13",
+   "name": "broken_mill_delayed_impact",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "level_director",
+    "wind_hazard_field"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-36"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "HAZ_13",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Broken Mill Roadwarden: proposed one-room test."
+   ]
+  },
+  {
+   "feature_id": "HAZ-14",
+   "name": "broken_mill_prototype_checks",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "level_director",
+    "wind_hazard_field"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-36"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "HAZ_14",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Broken Mill Roadwarden: proposed one-room test."
+   ]
+  },
+  {
+   "feature_id": "HAZ-15",
+   "name": "broken_mill_recovery_checks",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "level_director",
+    "wind_hazard_field"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-36"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "HAZ_15",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Broken Mill Roadwarden: proposed one-room test."
+   ]
+  },
+  {
+   "feature_id": "HAZ-16",
+   "name": "broken_mill_human_acceptance",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "level_director",
+    "wind_hazard_field"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-36"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "HAZ_16",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Broken Mill Roadwarden: proposed one-room test."
+   ]
+  },
+  {
+   "feature_id": "HAZ-17",
+   "name": "broken_mill_pool_gate",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "level_director",
+    "wind_hazard_field"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-36"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "HAZ_17",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Broken Mill Roadwarden: proposed one-room test."
+   ]
+  },
+  {
+   "feature_id": "HAZ-18",
+   "name": "broken_mill_art_evidence",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "level_director",
+    "wind_hazard_field"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-36"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "HAZ_18",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Broken Mill Roadwarden: proposed one-room test."
+   ]
+  },
+  {
+   "feature_id": "CAM-03",
+   "name": "required_paths_basic_kit",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "level_director"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-36"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "CAM_03",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Traversal, geometry and camera contract."
+   ]
+  },
+  {
+   "feature_id": "CAM-04",
+   "name": "calibrate_before_multiplying",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "level_director"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-36"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "CAM_04",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Traversal, geometry and camera contract."
+   ]
+  },
+  {
+   "feature_id": "CAM-05",
+   "name": "interface_n",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "level_director"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-36"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "CAM_05",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Traversal, geometry and camera contract."
+   ]
+  },
+  {
+   "feature_id": "CAM-06",
+   "name": "clearance_rules",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "level_director"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-36"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "CAM_06",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Traversal, geometry and camera contract."
+   ]
+  },
+  {
+   "feature_id": "CAM-07",
+   "name": "descent_catch_flow",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "level_director"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-36"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "CAM_07",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Traversal, geometry and camera contract."
+   ]
+  },
+  {
+   "feature_id": "CAM-08",
+   "name": "camera_reveal",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "level_director"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-33"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "CAM_08",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Traversal, geometry and camera contract."
+   ]
+  },
+  {
+   "feature_id": "HAZ-19",
+   "name": "trap_baseline_air_mill",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "level_director",
+    "wind_hazard_field"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-36"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "HAZ_19",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Trap catalogue and pressure budget (proposed adjustable design)."
+   ]
+  },
+  {
+   "feature_id": "HAZ-20",
+   "name": "timed_shutter",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "level_director",
+    "wind_hazard_field"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-36"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "HAZ_20",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Trap catalogue and pressure budget (proposed adjustable design)."
+   ]
+  },
+  {
+   "feature_id": "HAZ-21",
+   "name": "hostile_bellows",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "level_director",
+    "wind_hazard_field"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-36"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "HAZ_21",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Trap catalogue and pressure budget (proposed adjustable design)."
+   ]
+  },
+  {
+   "feature_id": "HAZ-22",
+   "name": "roof_bridge_teeth",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "level_director",
+    "wind_hazard_field"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-36"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "HAZ_22",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Trap catalogue and pressure budget (proposed adjustable design)."
+   ]
+  },
+  {
+   "feature_id": "HAZ-23",
+   "name": "pressure_contract",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "level_director",
+    "wind_hazard_field"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-36"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "HAZ_23",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Trap catalogue and pressure budget (proposed adjustable design)."
+   ]
+  },
+  {
+   "feature_id": "COM-12",
+   "name": "enemy_gender_variants",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "enemy_director",
+    "projectile_service"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-37"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "COM_12",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Enemy roles and proposed combat baselines.",
+    "The row keeps explicit OPEN details; they stay OPEN (docs/decisions.md D-new-sh10-open-details), never a reason to drop the row."
+   ]
+  },
+  {
+   "feature_id": "COM-13",
+   "name": "enemy_dual_color_shots",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "enemy_director",
+    "projectile_service"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-37"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "COM_13",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Enemy roles and proposed combat baselines.",
+    "The row keeps explicit OPEN details; they stay OPEN (docs/decisions.md D-new-sh10-open-details), never a reason to drop the row."
+   ]
+  },
+  {
+   "feature_id": "FLOW-46",
+   "name": "procedural_placement_shot_color",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "level_director"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-40",
+    "QA-42"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "FLOW_46",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Enemy roles and proposed combat baselines.",
+    "The row keeps explicit OPEN details; they stay OPEN (docs/decisions.md D-new-sh10-open-details), never a reason to drop the row."
+   ]
+  },
+  {
+   "feature_id": "HAZ-41",
+   "name": "floating_ground_containment",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "enemy_director",
+    "level_director"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-41"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "HAZ_41",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Enemy roles and proposed combat baselines."
+   ]
+  },
+  {
+   "feature_id": "FLOW-47",
+   "name": "procedural_acceptance_gate",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "level_director"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-40",
+    "QA-42"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "FLOW_47",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Enemy roles and proposed combat baselines."
+   ]
+  },
+  {
+   "feature_id": "COM-14",
+   "name": "roadwarden",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "enemy_director",
+    "projectile_service"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "roadwarden_hp"
+   ],
+   "emits": [],
+   "tests": [
+    "QA-37"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "COM_14",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Enemy roles and proposed combat baselines.",
+    "The row keeps explicit OPEN details; they stay OPEN (docs/decisions.md D-new-sh10-open-details), never a reason to drop the row."
+   ]
+  },
+  {
+   "feature_id": "COM-15",
+   "name": "floodstrider",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "enemy_director",
+    "projectile_service"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "floodstrider_hp"
+   ],
+   "emits": [],
+   "tests": [
+    "QA-37"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "COM_15",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Enemy roles and proposed combat baselines.",
+    "The row keeps explicit OPEN details; they stay OPEN (docs/decisions.md D-new-sh10-open-details), never a reason to drop the row."
+   ]
+  },
+  {
+   "feature_id": "COM-16",
+   "name": "sky_courier",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "enemy_director",
+    "projectile_service"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "courier_hp"
+   ],
+   "emits": [],
+   "tests": [
+    "QA-37"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "COM_16",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Enemy roles and proposed combat baselines.",
+    "The row keeps explicit OPEN details; they stay OPEN (docs/decisions.md D-new-sh10-open-details), never a reason to drop the row."
+   ]
+  },
+  {
+   "feature_id": "COM-17",
+   "name": "courier_packet_lifecycle",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "enemy_director",
+    "projectile_service"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-37"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "COM_17",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Enemy roles and proposed combat baselines.",
+    "The row keeps explicit OPEN details; they stay OPEN (docs/decisions.md D-new-sh10-open-details), never a reason to drop the row."
+   ]
+  },
+  {
+   "feature_id": "COM-18",
+   "name": "kills_optional_firing_windows",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "enemy_director",
+    "projectile_service"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-37"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "COM_18",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Enemy roles and proposed combat baselines."
+   ]
+  },
+  {
+   "feature_id": "HAZ-24",
+   "name": "chunk_catalogue_rules",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "level_director",
+    "wind_hazard_field"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-36"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "HAZ_24",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Authored 12-chunk / 24-variant catalogue."
+   ]
+  },
+  {
+   "feature_id": "HAZ-25",
+   "name": "ch01_drop_and_catch",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "level_director",
+    "wind_hazard_field"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-36"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "HAZ_25",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Authored 12-chunk / 24-variant catalogue."
+   ]
+  },
+  {
+   "feature_id": "HAZ-26",
+   "name": "ch02_rooftop_line",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "level_director",
+    "wind_hazard_field"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-36"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "HAZ_26",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Authored 12-chunk / 24-variant catalogue."
+   ]
+  },
+  {
+   "feature_id": "HAZ-27",
+   "name": "ch03_yellow_crossing",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "level_director",
+    "wind_hazard_field"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-36"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "HAZ_27",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Authored 12-chunk / 24-variant catalogue."
+   ]
+  },
+  {
+   "feature_id": "HAZ-28",
+   "name": "ch04_underbridge",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "level_director",
+    "wind_hazard_field"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-36"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "HAZ_28",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Authored 12-chunk / 24-variant catalogue."
+   ]
+  },
+  {
+   "feature_id": "HAZ-29",
+   "name": "ch05_over_and_under",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "level_director",
+    "wind_hazard_field"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-36"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "HAZ_29",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Authored 12-chunk / 24-variant catalogue."
+   ]
+  },
+  {
+   "feature_id": "HAZ-30",
+   "name": "ch06_countercurrent_mill",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "level_director",
+    "wind_hazard_field"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-36"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "HAZ_30",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Authored 12-chunk / 24-variant catalogue."
+   ]
+  },
+  {
+   "feature_id": "HAZ-31",
+   "name": "ch07_shutter_pocket",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "level_director",
+    "wind_hazard_field"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-36"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "HAZ_31",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Authored 12-chunk / 24-variant catalogue."
+   ]
+  },
+  {
+   "feature_id": "HAZ-32",
+   "name": "ch08_bellows_lane",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "level_director",
+    "wind_hazard_field"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-36"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "HAZ_32",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Authored 12-chunk / 24-variant catalogue."
+   ]
+  },
+  {
+   "feature_id": "HAZ-33",
+   "name": "ch09_eave_transfer",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "level_director",
+    "wind_hazard_field"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-36"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "HAZ_33",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Authored 12-chunk / 24-variant catalogue."
+   ]
+  },
+  {
+   "feature_id": "HAZ-34",
+   "name": "ch10_switchback",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "level_director",
+    "wind_hazard_field"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-36"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "HAZ_34",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Authored 12-chunk / 24-variant catalogue."
+   ]
+  },
+  {
+   "feature_id": "HAZ-35",
+   "name": "ch11_warden_and_mill",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "level_director",
+    "wind_hazard_field"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-36"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "HAZ_35",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Authored 12-chunk / 24-variant catalogue."
+   ]
+  },
+  {
+   "feature_id": "HAZ-36",
+   "name": "ch12_stilt_and_courier",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "level_director",
+    "wind_hazard_field"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-36"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "HAZ_36",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Authored 12-chunk / 24-variant catalogue."
+   ]
+  },
+  {
+   "feature_id": "HAZ-37",
+   "name": "nine_slot_grammar",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "level_director",
+    "wind_hazard_field"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-36"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "HAZ_37",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Authored 12-chunk / 24-variant catalogue."
+   ]
+  },
+  {
+   "feature_id": "HAZ-38",
+   "name": "safer_bypass",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "level_director",
+    "wind_hazard_field"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-36"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "HAZ_38",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Authored 12-chunk / 24-variant catalogue."
+   ]
+  },
+  {
+   "feature_id": "HAZ-39",
+   "name": "seed_fixture_proposals",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "level_director",
+    "wind_hazard_field"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-36"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "HAZ_39",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Authored 12-chunk / 24-variant catalogue."
+   ]
+  },
+  {
+   "feature_id": "HAZ-40",
+   "name": "determinism_fallback",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "level_director",
+    "wind_hazard_field"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-36"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "HAZ_40",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Authored 12-chunk / 24-variant catalogue."
+   ]
+  },
+  {
+   "feature_id": "FLOW-27",
+   "name": "refuge_core",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "level_director"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-36"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "FLOW_27",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Refuges and Keeper handoff."
+   ]
+  },
+  {
+   "feature_id": "FLOW-28",
+   "name": "checkpoint_passage_boss_arrival",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "level_director"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-36"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "FLOW_28",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Refuges and Keeper handoff."
+   ]
+  },
+  {
+   "feature_id": "FLOW-29",
+   "name": "purchase_context",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "level_director"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-36"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "FLOW_29",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 5. Levels and encounters / Refuges and Keeper handoff."
+   ]
+  },
+  {
+   "feature_id": "NAR-02",
+   "name": "text_narration",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "story_presenter"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-38"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "NAR_02",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 6. Story and dialogue / Story presentation requirements (Director’s Cut).",
+    "The row keeps explicit OPEN details; they stay OPEN (docs/decisions.md D-new-sh10-open-details), never a reason to drop the row."
+   ]
+  },
+  {
+   "feature_id": "NAR-03",
+   "name": "single_story_delivery",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "story_presenter"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-38"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "NAR_03",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 6. Story and dialogue / Director’s Cut in-play story delivery."
+   ]
+  },
+  {
+   "feature_id": "NAR-04",
+   "name": "opening_mother_caption",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "story_presenter"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-38"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "NAR_04",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 6. Story and dialogue / Director’s Cut in-play story delivery.",
+    "The row keeps explicit OPEN details; they stay OPEN (docs/decisions.md D-new-sh10-open-details), never a reason to drop the row."
+   ]
+  },
+  {
+   "feature_id": "NAR-05",
+   "name": "light_and_umbra",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "story_presenter"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-38"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "NAR_05",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 6. Story and dialogue / Director’s Cut in-play story delivery."
+   ]
+  },
+  {
+   "feature_id": "NAR-06",
+   "name": "keeper_clock_hand_clue",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "story_presenter"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-38"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "NAR_06",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 6. Story and dialogue / Director’s Cut in-play story delivery."
+   ]
+  },
+  {
+   "feature_id": "NAR-07",
+   "name": "living_departure_ending",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "story_presenter"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-38"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "NAR_07",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 6. Story and dialogue / Director’s Cut in-play story delivery."
+   ]
+  },
+  {
+   "feature_id": "NAR-08",
+   "name": "retry_and_new_run_story",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "story_presenter"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-38"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "NAR_08",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 6. Story and dialogue / Director’s Cut in-play story delivery.",
+    "The row keeps explicit OPEN details; they stay OPEN (docs/decisions.md D-new-sh10-open-details), never a reason to drop the row."
+   ]
+  },
+  {
+   "feature_id": "FLOW-30",
+   "name": "clock_health_hud",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "hud",
+    "health_condition"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-30"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "FLOW_30",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 7. Menus, settings and accessibility.",
+    "The row keeps explicit OPEN details; they stay OPEN (docs/decisions.md D-new-sh10-open-details), never a reason to drop the row."
+   ]
+  },
+  {
+   "feature_id": "FLOW-48",
+   "name": "xp_ring_hud",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "hud",
+    "health_condition"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-35"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "FLOW_48",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 7. Menus, settings and accessibility."
+   ]
+  },
+  {
+   "feature_id": "FLOW-31",
+   "name": "life_hand_depletion",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "hud",
+    "health_condition"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-30"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "FLOW_31",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 7. Menus, settings and accessibility.",
+    "The row keeps explicit OPEN details; they stay OPEN (docs/decisions.md D-new-sh10-open-details), never a reason to drop the row."
+   ]
+  },
+  {
+   "feature_id": "FLOW-32",
+   "name": "damage_healing_feedback",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "hud",
+    "health_condition"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-30"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "FLOW_32",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 7. Menus, settings and accessibility.",
+    "The row keeps explicit OPEN details; they stay OPEN (docs/decisions.md D-new-sh10-open-details), never a reason to drop the row."
+   ]
+  },
+  {
+   "feature_id": "FLOW-33",
+   "name": "prototype_health_model",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "hud",
+    "health_condition"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "chain_damage",
+    "old_damage_divisor",
+    "projectile_damage",
+    "talon_damage",
+    "trap_damage"
+   ],
+   "emits": [],
+   "tests": [
+    "QA-30"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "FLOW_33",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 7. Menus, settings and accessibility.",
+    "The row keeps explicit OPEN details; they stay OPEN (docs/decisions.md D-new-sh10-open-details), never a reason to drop the row."
+   ]
+  },
+  {
+   "feature_id": "FLOW-34",
+   "name": "start_screen",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "menu_flow"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-38"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "FLOW_34",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 7. Menus, settings and accessibility."
+   ]
+  },
+  {
+   "feature_id": "FLOW-35",
+   "name": "pause_menu_living_background",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "menu_flow"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-38"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "FLOW_35",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 7. Menus, settings and accessibility."
+   ]
+  },
+  {
+   "feature_id": "FLOW-36",
+   "name": "player_settings_both_modes",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "menu_flow"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-38"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "FLOW_36",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 7. Menus, settings and accessibility."
+   ]
+  },
+  {
+   "feature_id": "FLOW-37",
+   "name": "sound_sliders",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "menu_flow"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "slider_max"
+   ],
+   "emits": [],
+   "tests": [
+    "QA-38"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "FLOW_37",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 7. Menus, settings and accessibility."
+   ]
+  },
+  {
+   "feature_id": "FLOW-38",
+   "name": "developer_game_options",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "menu_flow"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-38"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "FLOW_38",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 7. Menus, settings and accessibility.",
+    "The row keeps explicit OPEN details; they stay OPEN (docs/decisions.md D-new-sh10-open-details), never a reason to drop the row."
+   ]
+  },
+  {
+   "feature_id": "FLOW-39",
+   "name": "credits",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "menu_flow"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-38"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "FLOW_39",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 7. Menus, settings and accessibility.",
+    "The row keeps explicit OPEN details; they stay OPEN (docs/decisions.md D-new-sh10-open-details), never a reason to drop the row."
+   ]
+  },
+  {
+   "feature_id": "FLOW-40",
+   "name": "submenu_back_save",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "menu_flow"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-38"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "FLOW_40",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 7. Menus, settings and accessibility."
+   ]
+  },
+  {
+   "feature_id": "FLOW-49",
+   "name": "journey_complete_statistics",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "menu_flow"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-38"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "FLOW_49",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 7. Menus, settings and accessibility / Director’s Cut win results."
+   ]
+  },
+  {
+   "feature_id": "FLOW-41",
+   "name": "pause_and_start_design_retained",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "menu_flow"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-38"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "FLOW_41",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 7. Menus, settings and accessibility / Settings and earned-character interactions."
+   ]
+  },
+  {
+   "feature_id": "FLOW-42",
+   "name": "ella_and_spells_purchase_flow",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "menu_flow"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-38"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "FLOW_42",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 7. Menus, settings and accessibility / Settings and earned-character interactions.",
+    "The row keeps explicit OPEN details; they stay OPEN (docs/decisions.md D-new-sh10-open-details), never a reason to drop the row."
+   ]
+  },
+  {
+   "feature_id": "FLOW-43",
+   "name": "settings_save_reset_scope",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "menu_flow"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-38"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "FLOW_43",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 7. Menus, settings and accessibility / Settings and earned-character interactions."
+   ]
+  },
+  {
+   "feature_id": "FLOW-44",
+   "name": "developer_menu_candidates",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "menu_flow"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-38"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "FLOW_44",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 7. Menus, settings and accessibility / Settings and earned-character interactions.",
+    "The row keeps explicit OPEN details; they stay OPEN (docs/decisions.md D-new-sh10-open-details), never a reason to drop the row."
+   ]
+  },
+  {
+   "feature_id": "FLOW-45",
+   "name": "accessibility_help_candidates",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "menu_flow"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-38"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "FLOW_45",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 7. Menus, settings and accessibility / Settings and earned-character interactions."
+   ]
+  },
+  {
+   "feature_id": "ART-03",
+   "name": "new_art_text_only_after_kickoff",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "feedback_adapter"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-39"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "ART_03",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 8. Art, animation, VFX and audio / Exact text-only creation prompt (provisional)."
+   ]
+  },
+  {
+   "feature_id": "ART-04",
+   "name": "shared_start_end_background",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "feedback_adapter"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-38"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "ART_04",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 8. Art, animation, VFX and audio / Exact text-only creation prompt (provisional)."
+   ]
+  },
+  {
+   "feature_id": "ART-05",
+   "name": "player_experience_brief",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "feedback_adapter"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-39"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "ART_05",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 8. Art, animation, VFX and audio / Art-director brief."
+   ]
+  },
+  {
+   "feature_id": "ART-06",
+   "name": "visual_direction",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "feedback_adapter"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-39"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "ART_06",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 8. Art, animation, VFX and audio / Art-director brief."
+   ]
+  },
+  {
+   "feature_id": "ART-07",
+   "name": "gameplay_view_context",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "feedback_adapter"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-39"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "ART_07",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 8. Art, animation, VFX and audio / Art-director brief.",
+    "The row keeps explicit OPEN details; they stay OPEN (docs/decisions.md D-new-sh10-open-details), never a reason to drop the row."
+   ]
+  },
+  {
+   "feature_id": "ANIM-02",
+   "name": "animation_family_contract",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "animation_presenter"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-39"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "ANIM_02",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 8. Art, animation, VFX and audio / Production state coverage and replaceable art contracts."
+   ]
+  },
+  {
+   "feature_id": "ANIM-03",
+   "name": "ella_animation_coverage",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "animation_presenter"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-39"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "ANIM_03",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 8. Art, animation, VFX and audio / Production state coverage and replaceable art contracts."
+   ]
+  },
+  {
+   "feature_id": "ANIM-04",
+   "name": "whole_character_condition",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "animation_presenter"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-39"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "ANIM_04",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 8. Art, animation, VFX and audio / Production state coverage and replaceable art contracts.",
+    "The row keeps explicit OPEN details; they stay OPEN (docs/decisions.md D-new-sh10-open-details), never a reason to drop the row."
+   ]
+  },
+  {
+   "feature_id": "ANIM-05",
+   "name": "spell_asset_families",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "animation_presenter"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-39"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "ANIM_05",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 8. Art, animation, VFX and audio / Production state coverage and replaceable art contracts."
+   ]
+  },
+  {
+   "feature_id": "ANIM-06",
+   "name": "keeper_animation_coverage",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "animation_presenter"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-39"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "ANIM_06",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 8. Art, animation, VFX and audio / Production state coverage and replaceable art contracts."
+   ]
+  },
+  {
+   "feature_id": "ANIM-07",
+   "name": "keeper_animation_invariants",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "animation_presenter"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-39"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "ANIM_07",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 8. Art, animation, VFX and audio / Production state coverage and replaceable art contracts."
+   ]
+  },
+  {
+   "feature_id": "ANIM-08",
+   "name": "world_enemy_animation_coverage",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "animation_presenter"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-37"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "ANIM_08",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 8. Art, animation, VFX and audio / Production state coverage and replaceable art contracts."
+   ]
+  },
+  {
+   "feature_id": "ART-08",
+   "name": "ui_art_coverage",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "feedback_adapter"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-39"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "ART_08",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 8. Art, animation, VFX and audio / Production state coverage and replaceable art contracts."
+   ]
+  },
+  {
+   "feature_id": "ART-09",
+   "name": "clock_hud_production",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "feedback_adapter"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-39"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "ART_09",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 8. Art, animation, VFX and audio / Production state coverage and replaceable art contracts."
+   ]
+  },
+  {
+   "feature_id": "ANIM-09",
+   "name": "audio_coverage",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "animation_presenter"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-39"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "ANIM_09",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 8. Art, animation, VFX and audio / Production state coverage and replaceable art contracts."
+   ]
+  },
+  {
+   "feature_id": "ANIM-10",
+   "name": "asset_family_acceptance",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "animation_presenter"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-39"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "ANIM_10",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 8. Art, animation, VFX and audio / Production state coverage and replaceable art contracts."
+   ]
+  },
+  {
+   "feature_id": "ART-10",
+   "name": "enemy_dual_color_art",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "feedback_adapter"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-37"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "ART_10",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 8. Art, animation, VFX and audio / Production state coverage and replaceable art contracts.",
+    "The row keeps explicit OPEN details; they stay OPEN (docs/decisions.md D-new-sh10-open-details), never a reason to drop the row."
+   ]
+  },
+  {
+   "feature_id": "BG-02",
+   "name": "environment_components",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "background_presenter"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-39"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "BG_02",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 8. Art, animation, VFX and audio / Environment component recreation inventory."
+   ]
+  },
+  {
+   "feature_id": "BG-03",
+   "name": "atmosphere_set",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "background_presenter"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-39"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "BG_03",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 8. Art, animation, VFX and audio / Environment component recreation inventory."
+   ]
+  },
+  {
+   "feature_id": "BG-04",
+   "name": "architecture_and_land",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "background_presenter"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-39"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "BG_04",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 8. Art, animation, VFX and audio / Environment component recreation inventory."
+   ]
+  },
+  {
+   "feature_id": "BG-05",
+   "name": "visual_assembly_layers",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "background_presenter"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-39"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "BG_05",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 8. Art, animation, VFX and audio / Environment component recreation inventory."
+   ]
+  },
+  {
+   "feature_id": "BG-06",
+   "name": "clock_water_wind_assembly",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "background_presenter"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-39"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "BG_06",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 8. Art, animation, VFX and audio / Environment component recreation inventory."
+   ]
+  },
+  {
+   "feature_id": "VFX-02",
+   "name": "unreal_vfx_delivery",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "feedback_adapter"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-39"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "VFX_02",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 8. Art, animation, VFX and audio / Unreal VFX creation and integration."
+   ]
+  },
+  {
+   "feature_id": "VFX-03",
+   "name": "weapon_vfx_wiring",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "feedback_adapter"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-31"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "VFX_03",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 8. Art, animation, VFX and audio / Unreal VFX creation and integration."
+   ]
+  },
+  {
+   "feature_id": "VFX-04",
+   "name": "shared_combat_vfx_wiring",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "feedback_adapter"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-39"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "VFX_04",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 8. Art, animation, VFX and audio / Unreal VFX creation and integration."
+   ]
+  },
+  {
+   "feature_id": "VFX-05",
+   "name": "keeper_vfx_wiring",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "feedback_adapter"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-39"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "VFX_05",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 8. Art, animation, VFX and audio / Unreal VFX creation and integration."
+   ]
+  },
+  {
+   "feature_id": "VFX-06",
+   "name": "separate_render_layers",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "feedback_adapter"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-39"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "VFX_06",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 8. Art, animation, VFX and audio / Unreal VFX creation and integration."
+   ]
+  },
+  {
+   "feature_id": "VFX-07",
+   "name": "nearby_surface_illumination",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "feedback_adapter"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-39"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "VFX_07",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 8. Art, animation, VFX and audio / Unreal VFX creation and integration."
+   ]
+  },
+  {
+   "feature_id": "VFX-08",
+   "name": "lit_material_dependency",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "feedback_adapter"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-39"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "VFX_08",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 8. Art, animation, VFX and audio / Unreal VFX creation and integration.",
+    "The row keeps explicit OPEN details; they stay OPEN (docs/decisions.md D-new-sh10-open-details), never a reason to drop the row."
+   ]
+  },
+  {
+   "feature_id": "VFX-09",
+   "name": "vfx_readability_sync",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "feedback_adapter"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-39"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "VFX_09",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 8. Art, animation, VFX and audio / Unreal VFX creation and integration."
+   ]
+  },
+  {
+   "feature_id": "VFX-10",
+   "name": "vfx_performance_accessibility",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "feedback_adapter"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-39"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "VFX_10",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 8. Art, animation, VFX and audio / Unreal VFX creation and integration.",
+    "The row keeps explicit OPEN details; they stay OPEN (docs/decisions.md D-new-sh10-open-details), never a reason to drop the row."
+   ]
+  },
+  {
+   "feature_id": "VFX-11",
+   "name": "vfx_acceptance",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "feedback_adapter"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-39"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "VFX_11",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 8. Art, animation, VFX and audio / Unreal VFX creation and integration."
+   ]
+  },
+  {
+   "feature_id": "CORE-04",
+   "name": "system_boundaries",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "test_harness"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-32"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "CORE_04",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 9. Technical and build requirements / System ownership and reproducible build identity."
+   ]
+  },
+  {
+   "feature_id": "CORE-05",
+   "name": "stable_anchors_input_consumption",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "test_harness"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-32"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "CORE_05",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 9. Technical and build requirements / System ownership and reproducible build identity."
+   ]
+  },
+  {
+   "feature_id": "CORE-06",
+   "name": "build_identity_record",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "test_harness"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-39"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "CORE_06",
+   "gdd_revision": "SH1.0",
+   "known_limitations": [
+    "APPROVED_P0 in GDD SH1.0 (Rick's approval of all filled requirements, revision note 2026-11-12). GDD section: 9. Technical and build requirements / System ownership and reproducible build identity."
+   ]
+  },
+  {
+   "feature_id": "UMB-03",
+   "name": "sideways_projectile_catch",
+   "status": "PROPOSED",
+   "status_text": "PROPOSED",
+   "owner": "unassigned",
+   "priority": "P1_candidate",
+   "default_enabled": false,
+   "requires": [
+    "umbrella_state",
+    "defense_receiver",
+    "projectile_service"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "catch_arc",
+    "catch_window",
+    "catch_cooldown"
+   ],
+   "emits": [
+    "CatchAttempt",
+    "CatchSucceeded",
+    "CatchFailed"
+   ],
+   "tests": [
+    "QA-02",
+    "QA-04",
+    "QA-12"
+   ],
+   "implementation_authorized": false,
+   "ticket": null,
+   "flag": "UMB_03",
+   "gdd_revision": "B1.0",
+   "known_limitations": [
+    "Appendix B lists projectile_contact in requires; that is the ProjectileContact event of the Projectile Service, recorded here as projectile_service.",
+    "Toggle at reset. A side-facing catch state never gives lift (section 3 step 9)."
+   ]
+  },
+  {
+   "feature_id": "UMB-04",
+   "name": "umbrella_inversion",
+   "status": "EXPERIMENT",
+   "status_text": "EXPERIMENT",
+   "owner": "unassigned",
+   "priority": "unstated",
+   "default_enabled": false,
+   "requires": [
+    "WIND-01",
+    "umbrella_state"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "recovery_time"
+   ],
+   "emits": [
+    "UmbrellaConfigChanged"
+   ],
+   "tests": [
+    "QA-02"
+   ],
+   "implementation_authorized": false,
+   "ticket": null,
+   "flag": "UMB_04",
+   "gdd_revision": "B1.0",
+   "known_limitations": [
+    "Needs a contained ticket, scenario and acceptance measure before any code (Interpretation contract). Toggle at reset."
+   ]
+  },
+  {
+   "feature_id": "WIND-02",
+   "name": "wind_wear",
+   "status": "PROPOSED",
+   "status_text": "PROPOSED",
+   "owner": "unassigned",
+   "priority": "unstated",
+   "default_enabled": false,
+   "requires": [
+    "WIND-01",
+    "health_condition"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "wind_wear"
+   ],
+   "emits": [
+    "PlayerHealthChanged"
+   ],
+   "tests": [
+    "QA-07",
+    "QA-10"
+   ],
+   "implementation_authorized": false,
+   "ticket": null,
+   "flag": "WIND_02",
+   "gdd_revision": "B1.0",
+   "known_limitations": [
+    "DEC-07 interim: visible force only; wear after isolated review."
+   ]
+  },
+  {
+   "feature_id": "OWL-02",
+   "name": "wing_gust_attack",
+   "status": "PROPOSED",
+   "status_text": "PROPOSED",
+   "owner": "unassigned",
+   "priority": "P1_candidate",
+   "default_enabled": false,
+   "requires": [
+    "boss_director",
+    "wind_hazard_field"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "gust_force",
+    "warning_s",
+    "active_s",
+    "recovery_s"
+   ],
+   "emits": [
+    "BossAttackTelegraphed",
+    "WindEntered",
+    "WindExited"
+   ],
+   "tests": [
+    "QA-07"
+   ],
+   "implementation_authorized": false,
+   "ticket": null,
+   "flag": "OWL_02",
+   "gdd_revision": "B1.0",
+   "known_limitations": [
+    "Toggle + scenario."
+   ]
+  },
+  {
+   "feature_id": "OWL-04",
+   "name": "returning_projectile",
+   "status": "EXPERIMENT",
+   "status_text": "EXPERIMENT",
+   "owner": "unassigned",
+   "priority": "experiment",
+   "default_enabled": false,
+   "requires": [
+    "projectile_service"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "reach",
+    "flight_s"
+   ],
+   "emits": [
+    "ProjectileSpawned",
+    "ProjectileContact"
+   ],
+   "tests": [
+    "QA-03"
+   ],
+   "implementation_authorized": false,
+   "ticket": null,
+   "flag": "OWL_04",
+   "gdd_revision": "B1.0",
+   "known_limitations": [
+    "Needs a reviewed diagram and trajectory spec before building (section 7). Dedicated scenario."
+   ]
+  },
+  {
+   "feature_id": "HAZ-01",
+   "name": "steam_vent_hazard",
+   "status": "EXPERIMENT",
+   "status_text": "EXPERIMENT",
+   "owner": "unassigned",
+   "priority": "experiment",
+   "default_enabled": false,
+   "requires": [
+    "wind_hazard_field"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "warning_s",
+    "active_s",
+    "recovery_s"
+   ],
+   "emits": [],
+   "tests": [
+    "QA-10"
+   ],
+   "implementation_authorized": true,
+   "ticket": "#7",
+   "flag": "HAZ_01",
+   "gdd_revision": "B1.0",
+   "known_limitations": [
+    "Independent of owl AI (section 7). Dedicated scenario."
+   ]
+  },
+  {
+   "feature_id": "NAR-01",
+   "name": "narrative",
+   "status": "DEFERRED",
+   "status_text": "DEFERRED",
+   "owner": "unassigned",
+   "priority": "none",
+   "default_enabled": false,
+   "requires": [],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [],
+   "implementation_authorized": false,
+   "ticket": null,
+   "flag": "NAR_01",
+   "gdd_revision": "B1.0",
+   "known_limitations": [
+    "Do not implement. No story in win logic, clock logic, boss AI, asset names or state ownership (section 1)."
+   ]
+  },
+  {
+   "feature_id": "COM-02",
+   "name": "clock_interrupt",
+   "status": "EXPERIMENT",
+   "status_text": "not in section 2; section 7 'Clock target': Experiment",
+   "owner": "unassigned",
+   "priority": "experiment",
+   "default_enabled": false,
+   "requires": [
+    "OWL-03",
+    "attack_emitter",
+    "boss_director"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "interrupt_s"
+   ],
+   "emits": [
+    "BossTargetHit"
+   ],
+   "tests": [
+    "QA-12"
+   ],
+   "implementation_authorized": false,
+   "ticket": null,
+   "flag": "COM_02",
+   "gdd_revision": "B1.0",
+   "known_limitations": [
+    "GDD B1.0 gives no status in section 2 for this ID; the status is read from the section 7 Priority column ('Experiment'). Question Q9 in docs/gdd/questions-B1.0.md."
+   ]
+  },
+  {
+   "feature_id": "COM-03",
+   "name": "wing_hit_changes_wind",
+   "status": "EXPERIMENT",
+   "status_text": "not in section 2; section 7 'Wing target': Experiment",
+   "owner": "unassigned",
+   "priority": "experiment",
+   "default_enabled": false,
+   "requires": [
+    "OWL-03",
+    "attack_emitter",
+    "wind_hazard_field"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "gust_scale_by_hits"
+   ],
+   "emits": [
+    "BossTargetHit"
+   ],
+   "tests": [
+    "QA-10"
+   ],
+   "implementation_authorized": false,
+   "ticket": null,
+   "flag": "COM_03",
+   "gdd_revision": "B1.0",
+   "known_limitations": [
+    "GDD B1.0 gives no status in section 2 for this ID; the status is read from the section 7 Priority column ('Experiment'). Question Q9 in docs/gdd/questions-B1.0.md."
+   ]
+  },
+  {
+   "feature_id": "COM-04",
+   "name": "body_hit_response",
+   "status": "PROPOSED",
+   "status_text": "not in section 2; section 7 'Body target': P1 candidate",
+   "owner": "unassigned",
+   "priority": "P1_candidate",
+   "default_enabled": false,
+   "requires": [
+    "OWL-03",
+    "attack_emitter",
+    "feedback_adapter"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [
+    "BossTargetHit"
+   ],
+   "tests": [
+    "QA-08"
+   ],
+   "implementation_authorized": false,
+   "ticket": null,
+   "flag": "COM_04",
+   "gdd_revision": "B1.0",
+   "known_limitations": [
+    "GDD B1.0 gives no status in section 2 for this ID; recorded as PROPOSED, like OWL-02, the other 'P1 candidate'. Question Q9 in docs/gdd/questions-B1.0.md."
+   ]
+  },
+  {
+   "feature_id": "VFX-01",
+   "name": "background_pressure_motif",
+   "status": "PROPOSED",
+   "status_text": "not in section 2; section 5: OFF",
+   "owner": "unassigned",
+   "priority": "unstated",
+   "default_enabled": false,
+   "requires": [
+    "feedback_adapter",
+    "encounter_director"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "motif_steps"
+   ],
+   "emits": [],
+   "tests": [
+    "QA-11"
+   ],
+   "implementation_authorized": false,
+   "ticket": null,
+   "flag": "VFX_01",
+   "gdd_revision": "B1.0",
+   "known_limitations": [
+    "GDD B1.0 gives no status in section 2 for this ID; recorded as PROPOSED, the lowest status with standing; DEC-09 says motif later. Question Q9 in docs/gdd/questions-B1.0.md."
+   ]
+  }
+ ]
+}

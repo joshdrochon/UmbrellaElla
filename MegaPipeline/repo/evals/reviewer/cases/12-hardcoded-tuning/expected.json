@@ -1,0 +1,32 @@
+{
+  "clean": false,
+  "defects": [
+    {
+      "id": "hardcoded",
+      "severity": "med",
+      "file": "Source/UmbrellaElla/Private/Motor/PlayerMotorComponent.cpp",
+      "lines": [
+        43,
+        43
+      ],
+      "keywords": [
+        "hard-coded",
+        "hardcoded",
+        "tuning",
+        "magic",
+        "settings",
+        "literal",
+        "2.5"
+      ],
+      "also": [
+        {
+          "file": "Source/UmbrellaElla/Private/Motor/PlayerMotorComponent.cpp",
+          "lines": [
+            34,
+            34
+          ]
+        }
+      ]
+    }
+  ]
+}

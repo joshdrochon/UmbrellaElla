@@ -1,0 +1,35 @@
+# Copy to .github/workflows/clock.yml (D-new-schedule). It does nothing until the human Producer sets the
+# repo variable PIPELINE_CLOCK=on and TRACKER_ISSUE=<tracker issue number> (Settings > Variables).
+# Each run fails red when a time check fails. tests/test_plan_checks.py keeps this file and clock.yml in step.
+name: clock
+on:
+  schedule:
+    - cron: "0 */3 * * *"
+  workflow_dispatch:
+permissions:
+  contents: read
+  issues: read
+jobs:
+  clock:
+    if: vars.PIPELINE_CLOCK == 'on'
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      TRACKER: ${{ vars.TRACKER_ISSUE }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: false
+          fetch-depth: 0   # gate-G<n> tags for --clock
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Clock, gate lateness and cuts
+        run: python3 tools/check_card.py --clock
+      - name: Status line, tracker table and retro questions
+        if: always()
+        run: gh issue view "$TRACKER" --json body,comments | python3 tools/check_card.py --status
+      - name: Cards over budget
+        if: always()
+        run: gh issue list --label doing --state open --json number,title,body | python3 tools/check_card.py --overrun

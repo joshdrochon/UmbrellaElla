@@ -1,0 +1,253 @@
+name: pipeline-checks
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+  issues:
+    types: [opened, edited, labeled]
+  push:
+    branches: [main]
+permissions:
+  contents: read
+  issues: read   # check_card.py reads the task card the PR closes
+# CI profile (pipeline/agent-ops/README.md "CI profile"): a committed .pipeline-ci-full at the root turns on the long
+# pipeline suites (the Linux unit tests, the windows job). The installer never ships it, so a game repo runs the fast
+# game checks only; the pipeline source repo and the pipeline test repo keep it.
+jobs:
+  profile:
+    if: github.event_name != 'issues'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      full: ${{ steps.marker.outputs.full }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: false
+      - name: CI profile from the .pipeline-ci-full marker (full = the pipeline suites run too)
+        id: marker
+        run: |
+          if [ -f .pipeline-ci-full ]; then full=true; else full=false; fi
+          echo "CI profile: full=$full"
+          echo "full=$full" >> "${GITHUB_OUTPUT:-/dev/null}"
+  card:
+    # Card readiness when a card is filed or edited, not only when its PR opens (AGENTS.md section 8).
+    if: github.event_name == 'issues' && contains(github.event.issue.labels.*.name, 'task')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Task card is ready (Producer)
+        run: python3 tools/check_card.py --event
+  checks:
+    # Runs even when the profile job fails (then the timeout is the fast one); the game checks below always run.
+    needs: profile
+    if: ${{ !cancelled() && github.event_name != 'issues' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ needs.profile.outputs.full == 'true' && 180 || 20 }}   # full: the unit tests take about 100 min
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: false   # pointers are enough for these checks; saves LFS bandwidth
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Repo guardrails and the cross-doc consistency gate (decision IDs, card IDs, paths, owners, Day-0 cycles)
+        run: python3 tools/pipeline_check.py
+      - name: List the LFS art the ship gate re-measures (references, team art, the GDD's images)
+        id: lfsart
+        run: |
+          git lfs ls-files -l -I 'pipeline/art/reference/**,Assets/**,Mockups/**,docs/gdd/**' | sort > "$RUNNER_TEMP/lfs-art.txt"
+          echo "key=$(python3 -c 'import hashlib,sys; print(hashlib.sha256(open(sys.argv[1],"rb").read()).hexdigest()[:16])' "$RUNNER_TEMP/lfs-art.txt")" >> "${GITHUB_OUTPUT:-/dev/null}"
+      - name: Restore the LFS art cache (bandwidth is spent only when the art set changes)
+        uses: actions/cache@v4
+        with:
+          path: .git/lfs/objects
+          key: lfs-art-${{ runner.os }}-${{ steps.lfsart.outputs.key }}
+          restore-keys: lfs-art-${{ runner.os }}-
+      - name: Pull the art the ship gate re-measures (check_pr artship re-runs the art checks on every shipped image against these; the art calibration and ship-gate unit tests read them too)
+        run: git lfs pull --include='pipeline/art/reference/**,Assets/**,Mockups/**,docs/gdd/**'
+      - name: Pull the key art from LFS so the art calibration test runs (it skips on a pointer; full CI profile only)
+        if: hashFiles('.pipeline-ci-full') != ''
+        run: git lfs pull --include='pipeline/art/reference/*.png'
+      - name: Pull the LFS files the unit tests copy (test fixtures and the pinned rules PDF; a pointer there fails the sandboxes' checkouts; full CI profile only)
+        if: hashFiles('.pipeline-ci-full') != ''
+        run: git lfs pull --include='tests/fixtures/**,docs/rules/*.pdf'
+      - name: Feature manifest matches the current GDD snapshot (statuses, IDs, QA tests, presets, snapshot pins)
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+        run: |
+          if [ -n "$BASE" ]; then
+            git fetch --no-tags --depth=1 origin "$BASE"
+            # merged GDD snapshots never change: every pin on the base branch is still the same (dry run B H9)
+            git show "$BASE:docs/feature-manifest.json" > "$RUNNER_TEMP/base-manifest.json"
+            python3 tools/manifest_check.py --pins-from "$RUNNER_TEMP/base-manifest.json"
+          else
+            python3 tools/manifest_check.py
+          fi
+      - name: Pipeline unit tests (includes the module, card and art gate calibration suites; full CI profile only, about 100 min)
+        if: hashFiles('.pipeline-ci-full') != ''
+        run: python3 -m unittest discover -s tests -v
+      - name: Module boundaries and C++ standard (Technical Director; skips while there is no Source/)
+        run: python3 tools/module_check.py || [ $? -eq 2 ]
+      - name: Pull only the Art PNGs this PR changed from LFS (D-new-ci-lfs), so sprite_check sees real images
+        if: github.event_name == 'pull_request'
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+        run: |
+          git fetch --no-tags --depth=1 origin "$BASE"
+          inc=$(git diff --name-only "$BASE" HEAD -- 'Art/**/*.png' | paste -sd, -)
+          if [ -n "$inc" ]; then git lfs pull --include="$inc"; fi
+      - name: Sprite sheets with a .sprite.json sidecar (skips LFS pointers and a missing Art/; the TD human adds --require-dir on card 0.10b)
+        run: python3 tools/sprite_check.py --scan Art
+      - name: Hitboxes fit the art (Gameplay Dev; required). Pulls every sprite named in pipeline/feel/hitboxes.json, so a stale shape or an art swap without a re-fit fails
+        run: |
+          inc=$(python3 tools/hitbox_check.py lfs-include)
+          if [ -n "$inc" ]; then git lfs pull --include="$inc"; fi
+          python3 tools/hitbox_check.py check --fail-lfs-pointer
+      - name: Owl encounter data (Level Designer)
+        run: python3 tools/encounter_check.py
+      - name: UI inputs that exist yet (UI and UX; skips inputs not created)
+        run: python3 tools/ui_check.py ci
+      - name: Feel data limits (Game Designer)
+        run: python3 tools/feel_check.py
+      - name: Shipped defaults equal the baked preset; before the G4 bake, every C++ default follows the tuning rules
+        run: |
+          if [ -f pipeline/qa/baked.json ]; then python3 tools/bake_preset.py check; else python3 tools/bake_preset.py defaults; fi
+      - name: Submission duties and the deadline guard stay wired (Producer; dry run B M2)
+        run: python3 tools/submission_check.py wiring
+      - name: Official Rules (docs/rules) - jam rules cite them, deadline = section 4, pre-jam assets (7(h)), English (7(i))
+        run: |
+          python3 tools/submission_check.py rules
+          python3 tools/submission_check.py assets
+          python3 tools/submission_check.py english
+      - name: Editor MCP config is valid and off until the kickoff record (Agent Ops)
+        run: python3 tools/editor_mcp.py check
+      - name: No committed secrets (Agent Ops; the settings, agents, mcp and components rules join after card 0.17)
+        run: python3 tools/secrets_check.py --rules secret,secretfile
+      - name: Audio sound list and sound names in docs and data (Audio)
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            git fetch --no-tags --depth=1 origin "${{ github.event.pull_request.base.sha }}"
+            # a P0 feature's sound never drops a tier against the base branch (dry run B H8)
+            git show "${{ github.event.pull_request.base.sha }}:pipeline/audio/sound-list.csv" > "$RUNNER_TEMP/base-sounds.csv"
+            python3 tools/audio_check.py --list --tiers-from "$RUNNER_TEMP/base-sounds.csv"
+          else
+            python3 tools/audio_check.py --list
+          fi
+          python3 tools/audio_check.py --docs AGENTS.md pipeline/*.md pipeline/*/*.md pipeline/level/encounter.json pipeline/feel/feel.json
+          # every event, state, attack, feature, screen and menu action has a sound row with a style family
+          python3 tools/audio_check.py --events
+      - name: "Story text (Story role): bible, names, tone, deny list; the critic calibration set still fails where it should"
+        run: |
+          python3 tools/story_check.py
+          python3 tools/story_check.py --calibrate
+          if [ -f Content/UmbrellaElla/UI/ST_UI.csv ]; then python3 tools/story_check.py --scan Content/UmbrellaElla/UI/ST_UI.csv pipeline/submission/itch-page.md; else python3 tools/story_check.py --scan pipeline/submission/itch-page.md; fi
+      - name: Audio source WAVs (skips LFS pointers and a missing Audio/Source; add --require-dir once card 0.15 or the first audio card merges)
+        run: python3 tools/audio_check.py --scan Audio/Source
+      - name: Audio quality bar, measured (pipeline/audio/style-target.md; skips LFS pointers and a missing Audio/Source)
+        run: python3 tools/audio_style_check.py check Audio/Source
+      - name: PR body has task, evidence header, package evidence where paths or the linked card need it, linked risks
+        if: github.event_name == 'pull_request'
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git fetch --no-tags --depth=1 origin "$BASE"
+          git diff --name-only "$BASE" HEAD > "$RUNNER_TEMP/changed.txt"
+          n=$(python3 -c "import json,os,re; b=json.load(open(os.environ['GITHUB_EVENT_PATH']))['pull_request'].get('body') or ''; m=re.search(r'(?i)\b(?:Closes|Fixes|Resolves|Part of)\s+#(\d+)', b); print(m.group(1) if m else '')")
+          # a lane_guard revert PR names the commit it reverts; check_pr compares the diff with its inverse (final-10 A H3)
+          rv=$(python3 -c "import json,os,re; b=json.load(open(os.environ['GITHUB_EVENT_PATH']))['pull_request'].get('body') or ''; m=re.search(r'(?m)^[ \t]*Revert of: ([0-9a-f]{40})', b); print(m.group(1) if m else '')")
+          if [ -n "$rv" ]; then git fetch --no-tags --depth=2 origin "$rv"; fi
+          if [ -n "$n" ]; then
+            # the card's own Done-when decides package evidence too, not only the PR's copy (dry run A H4)
+            gh issue view "$n" --repo "$GITHUB_REPOSITORY" --json title,body > "$RUNNER_TEMP/card.json"
+            python3 tools/check_pr.py --changed "$RUNNER_TEMP/changed.txt" --card "$RUNNER_TEMP/card.json" --base "$BASE"
+          else
+            python3 tools/check_pr.py --changed "$RUNNER_TEMP/changed.txt" --base "$BASE"
+          fi
+      - name: Linked task card is ready (Producer)
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          n=$(python3 -c "import json,os,re; b=json.load(open(os.environ['GITHUB_EVENT_PATH']))['pull_request'].get('body') or ''; m=re.search(r'(?i)\b(?:Closes|Fixes|Resolves|Part of)\s+#(\d+)', b); print(m.group(1) if m else '')")
+          if [ -z "$n" ]; then echo "check_card: PR links no card; check_pr.py fails this PR for that"; exit 0; fi
+          gh issue view "$n" --repo "$GITHUB_REPOSITORY" --json title,body | python3 tools/check_card.py --json-stdin
+  windows:
+    # Teammates run the pipeline on Windows (PowerShell, Codex or Claude Code). Same unit tests and repo gate as the
+    # Linux job, plus one headless Blender render. Suites that drive the Mac tools/ue/*.sh scripts skip on Windows.
+    # Full CI profile only (.pipeline-ci-full): Windows minutes count double on the game repo's plan.
+    needs: profile
+    if: github.event_name != 'issues' && needs.profile.outputs.full == 'true'
+    runs-on: windows-latest
+    timeout-minutes: 300   # the Linux suite takes about 100 min; Windows starts processes and git more slowly
+    env:
+      PYTHONUTF8: "1"   # as tools/kickoff.ps1, start_session.ps1 and agent.ps1 set it for every agent session
+      BLENDER_VERSION: "5.2.1"   # the Mac runs 5.2.1; checksum from download.blender.org/release/Blender5.2/blender-5.2.1.sha256
+      BLENDER_SHA256: "0e631dad7d0cad6d5d18abdd2e2550f6c0213215334eda00ddbd3d22b96ecb2c"
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: false   # pointers are enough for most checks; the next step pulls what the tests copy
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: List the LFS art the unit tests read (references, team art, the GDD's images)
+        id: lfsart
+        run: |
+          $list = Join-Path $env:RUNNER_TEMP "lfs-art.txt"
+          git lfs ls-files -l -I 'pipeline/art/reference/**,Assets/**,Mockups/**,docs/gdd/**' | Sort-Object | Set-Content -Path $list -Encoding utf8
+          $key = (Get-FileHash $list -Algorithm SHA256).Hash.ToLower().Substring(0, 16)
+          "key=$key" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+      - name: Restore the LFS art cache (bandwidth is spent only when the art set changes)
+        uses: actions/cache@v4
+        with:
+          path: .git/lfs/objects
+          key: lfs-art-${{ runner.os }}-${{ steps.lfsart.outputs.key }}
+          restore-keys: lfs-art-${{ runner.os }}-
+      - name: Pull the LFS files the unit tests need (the art the calibration and ship-gate tests read, fixtures, the pinned rules PDF)
+        run: git lfs pull --include='pipeline/art/reference/**,Assets/**,Mockups/**,docs/gdd/**,tests/fixtures/**,docs/rules/*.pdf'
+      - name: Repo guardrails and the cross-doc consistency gate
+        run: python tools/pipeline_check.py
+      - name: Pipeline unit tests, fast modules (everything but the long sandbox suites)
+        working-directory: tests
+        run: |
+          $slow = @('test_honest_jam', 'test_ue_scripts', 'test_kickoff', 'test_kickoff_simple', 'test_plan_checks')
+          $fast = Get-ChildItem test_*.py | ForEach-Object { $_.BaseName } | Where-Object { $slow -notcontains $_ }
+          python -m unittest @fast
+      - name: Pipeline unit tests, the long sandbox suites (runs even when the fast ones fail)
+        if: success() || failure()
+        working-directory: tests
+        run: python -m unittest test_honest_jam test_ue_scripts test_kickoff test_kickoff_simple test_plan_checks
+      - name: Install Blender (official zip, version and checksum pinned)
+        if: success() || failure()
+        run: |
+          $minor = ($env:BLENDER_VERSION -split '\.')[0..1] -join '.'
+          $zip = Join-Path $env:RUNNER_TEMP "blender.zip"
+          Invoke-WebRequest "https://download.blender.org/release/Blender$minor/blender-$env:BLENDER_VERSION-windows-x64.zip" -OutFile $zip
+          $got = (Get-FileHash $zip -Algorithm SHA256).Hash.ToLower()
+          if ($got -ne $env:BLENDER_SHA256) { Write-Error "blender zip sha256 $got, want $env:BLENDER_SHA256"; exit 1 }
+          Expand-Archive $zip -DestinationPath $env:RUNNER_TEMP
+          $exe = Join-Path $env:RUNNER_TEMP "blender-$env:BLENDER_VERSION-windows-x64\blender.exe"
+          if (-not (Test-Path $exe)) { Write-Error "no $exe in the zip"; exit 1 }
+          "BLENDER=$exe" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+      - name: Blender headless render smoke (Cycles on the CPU; the runner has no GPU)
+        if: success() || failure()
+        run: |
+          $png = Join-Path $env:RUNNER_TEMP "blender-smoke.png"
+          $expr = "import bpy; s = bpy.context.scene; s.render.engine = 'CYCLES'; s.cycles.device = 'CPU'; " +
+                  "s.cycles.samples = 1; s.render.resolution_x = 32; s.render.resolution_y = 32; " +
+                  "s.render.image_settings.file_format = 'PNG'; s.render.filepath = r'$png'; " +
+                  "bpy.ops.render.render(write_still=True)"
+          & $env:BLENDER -b --factory-startup --python-exit-code 1 --python-expr $expr
+          if ($LASTEXITCODE -ne 0) { Write-Error "blender exited $LASTEXITCODE"; exit 1 }
+          if (-not (Test-Path $png) -or (Get-Item $png).Length -eq 0) { Write-Error "no render at $png"; exit 1 }
+          Write-Host "BLENDER_SMOKE_OK $png $((Get-Item $png).Length) bytes"

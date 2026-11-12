@@ -1,0 +1,22 @@
+{
+  "clean": false,
+  "defects": [
+    {
+      "id": "tick-lookup",
+      "severity": "high",
+      "file": "Source/UmbrellaElla/Private/Arena/ArenaBottomExit.cpp",
+      "lines": [
+        36,
+        36
+      ],
+      "keywords": [
+        "getactorofclass",
+        "tick",
+        "every frame",
+        "per-frame",
+        "cache",
+        "beginplay"
+      ]
+    }
+  ]
+}

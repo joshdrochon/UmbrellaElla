@@ -1,0 +1,7 @@
+{
+  "clean": false,
+  "defects": [],
+  "checks": {
+    "tests": "missing"
+  }
+}

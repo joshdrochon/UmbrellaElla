@@ -1,0 +1,54 @@
+--- a/Source/UmbrellaElla/Public/Owl/ClockworkOwl.h
++++ b/Source/UmbrellaElla/Public/Owl/ClockworkOwl.h
+@@ -36,10 +36,15 @@
+ 	virtual void BeginPlay() override;
+ 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+ 
+ private:
+ 	void SetState(EOwlState NewState);
++	void HandleEncounterCompleted(const FGameEventInfo& Info);
++	void StopThreats();
+ 
+ 	UPROPERTY(VisibleAnywhere, Category = "Owl")
+ 	TObjectPtr<UBoxComponent> Hitbox;
+ 	UPROPERTY()
+ 	EOwlState State = EOwlState::Drifting;
++	UPROPERTY()
++	TWeakObjectPtr<UGameEventsSubsystem> GameEvents;
++	FDelegateHandle EncounterCompletedHandle;
+--- a/Source/UmbrellaElla/Private/Owl/ClockworkOwl.cpp
++++ b/Source/UmbrellaElla/Private/Owl/ClockworkOwl.cpp
+@@ -1,4 +1,5 @@
+ #include "Owl/ClockworkOwl.h"
+ #include "Components/BoxComponent.h"
++#include "Core/GameEventsSubsystem.h"
+ #include "Core/UmbrellaTuning.h"
+ #include "Core/UmbrellaLog.h"
+@@ -24,10 +25,27 @@
+ void AClockworkOwl::BeginPlay()
+ {
+ 	Super::BeginPlay();
++	UGameEventsSubsystem* Events = GetWorld()->GetSubsystem<UGameEventsSubsystem>();
++	if (!IsValid(Events))
++	{
++		UE_LOG(LogUmbrellaElla, Error, TEXT("AClockworkOwl %s: UGameEventsSubsystem not found"), *GetName());
++		return;
++	}
++	GameEvents = Events;
++	EncounterCompletedHandle = Events->OnEncounterCompleted().AddUObject(this, &AClockworkOwl::HandleEncounterCompleted);
+ }
+ 
+ void AClockworkOwl::EndPlay(const EEndPlayReason::Type EndPlayReason)
+ {
++	if (UGameEventsSubsystem* Events = GameEvents.Get())
++	{
++		Events->OnEncounterCompleted().Remove(EncounterCompletedHandle);
++	}
+ 	Super::EndPlay(EndPlayReason);
+ }
+ 
++void AClockworkOwl::HandleEncounterCompleted(const FGameEventInfo& Info)
++{
++	StopThreats();
++}
++

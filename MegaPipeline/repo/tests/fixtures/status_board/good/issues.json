@@ -1,0 +1,14 @@
+[
+ {"number": 1, "title": "Jam tracker", "state": "OPEN", "labels": [{"name": "tracker"}], "assignees": [], "url": "https://github.com/o/r/issues/1", "body": "",
+  "comments": [{"createdAt": "2026-11-12T20:00:00Z", "body": "Gate: G1 | due 2026-11-12T12:00-08:00 | closed 2026-11-12T12:30-08:00 | late by 0.5 h\nProposed outcome: Pass"}]},
+ {"number": 12, "title": "[UE-12] Umbrella open/close changes vertical velocity", "state": "OPEN", "labels": [{"name": "task"}, {"name": "doing"}], "assignees": [], "url": "https://github.com/o/r/issues/12",
+  "body": "### Owner role\n\nGameplay Dev\n\n### Human\n\nJosh\n",
+  "comments": [{"createdAt": "2026-11-12T19:00:00Z", "body": "ROLE: gameplay-dev | session 2026-11-12T19:00Z\nstarted"}]},
+ {"number": 13, "title": "[UE-13] Owl arena layout", "state": "OPEN", "labels": [{"name": "task"}, {"name": "blocked"}, {"name": "needs-human"}], "assignees": [], "url": "https://github.com/o/r/issues/13",
+  "body": "### Owner role\n\nLevel Designer\n\n### Human\n\nRichard\n",
+  "comments": [{"createdAt": "2026-11-12T19:30:00Z", "body": "ROLE: level-designer | session 2026-11-12T19:30Z\nNEEDS HUMAN: Richard approve the arena width outside the 5A range #13"}]},
+ {"number": 14, "title": "[UE-14] Title screen", "state": "CLOSED", "labels": [{"name": "task"}], "assignees": [], "url": "https://github.com/o/r/issues/14",
+  "body": "### Owner role\n\nUI and UX\n\n### Human\n\nRick\n", "comments": []},
+ {"number": 15, "title": "[UE-15] Rain sounds", "state": "OPEN", "labels": [{"name": "task"}, {"name": "todo"}], "assignees": [], "url": "https://github.com/o/r/issues/15",
+  "body": "### Owner role\n\nAudio\n\n### Human\n\nJosh\n", "comments": []}
+]

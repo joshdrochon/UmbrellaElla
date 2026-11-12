@@ -1,0 +1,14 @@
+--- a/Source/UmbrellaElla/Private/Motor/PlayerMotorComponent.cpp
++++ b/Source/UmbrellaElla/Private/Motor/PlayerMotorComponent.cpp
+@@ -38,4 +38,11 @@
+ void UPlayerMotorComponent::TickComponent(float DeltaSeconds, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+ {
+ 	Super::TickComponent(DeltaSeconds, TickType, ThisTickFunction);
++	UCharacterMovementComponent* Move = Movement.Get();
++	const UUmbrellaStateComponent* Umbrella = UmbrellaState.Get();
++	if (!IsValid(Move) || !IsValid(Umbrella)) { return; }
++	const EUmbrellaConfig Config = Umbrella->GetConfig();
++	Move->GravityScale = Config == EUmbrellaConfig::UpOpen ? 0.f : GetDefault<UUmbrellaTuning>()->Motor.GravityScale;
++	if (!Move->IsAirborne()) { return; }
++	Move->Velocity.Z = FMotorRules::NextVerticalVelocity(Move->Velocity.Z, Config, DeltaSeconds);
+ }

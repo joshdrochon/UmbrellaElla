@@ -1,0 +1,18 @@
+--- a/Source/UmbrellaElla/Private/Encounter/EncounterDirectorSubsystem.cpp
++++ b/Source/UmbrellaElla/Private/Encounter/EncounterDirectorSubsystem.cpp
+@@ -60,7 +60,15 @@
+ void UEncounterDirectorSubsystem::HandlePlayerDefeated(const FGameEventInfo& Info, EDefeatReason Reason)
+ {
++	if (State != EEncounterState::Active) { return; }
++	StopThreats();
++	SetState(EEncounterState::EndingFailure);
++	ShowFailScreen(Reason);
+ }
+ 
+ void UEncounterDirectorSubsystem::CompleteEncounter()
+ {
++	if (State != EEncounterState::Active) { return; }
++	StopThreats();
++	SetState(EEncounterState::EndingSuccess);
++	BroadcastEncounterCompleted();
+ }

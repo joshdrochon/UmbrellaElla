@@ -1,0 +1,14 @@
+# Rename to CODEOWNERS once D26 names the human Technical Director, then turn on
+# branch protection "Require review from Code Owners" for main.
+# Agents cannot be code owners; these must be real GitHub accounts.
+*.uproject                      @TD_GITHUB_HANDLE
+/Source/*.Target.cs             @TD_GITHUB_HANDLE
+/Source/**/*.Build.cs           @TD_GITHUB_HANDLE
+/Source/UmbrellaElla/Public/Core/ @TD_GITHUB_HANDLE
+# Component lanes (Public/Umbrella/, Public/Attack/, ...) are not listed: the Dev Lead reviews them, not the TD.
+/Config/DefaultEngine.ini       @TD_GITHUB_HANDLE
+/pipeline/                      @RickTheBuilder
+/AGENTS.md                      @RickTheBuilder
+/tools/                         @TD_GITHUB_HANDLE
+/.github/                       @RickTheBuilder
+/docs/decisions.md              @RickTheBuilder

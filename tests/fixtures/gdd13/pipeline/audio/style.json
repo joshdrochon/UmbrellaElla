@@ -1,0 +1,814 @@
+{
+  "version": "audio-style/1",
+  "status": "proposed",
+  "note": "Machine copy of pipeline/audio/style-target.md. Gate file (pipeline/agent-ops/gates.json): a human changes it by PR. tools/audio_style_check.py measures every take against its family's ranges; tools/assetgen.py builds every audio prompt from it; tools/audio_loop.py runs the builder and critic rounds. Ranges are proposals set by ear from the written bar, not measured from any reference recording. The first takes the audio owner approves recalibrate them (style-target.md section 6); then status becomes measured. A metric missing from a family is not checked for it. attack_ms and decay_s apply to one-shots only; tempo_bpm, lra_db and stem length apply to music stems only.",
+  "bar": "Gothic orchestral horror at the level of a top-tier boss-fight score and sound design: low strings and brass, choir, church bells and clockwork, large stone reverb, heavy impacts, dread that builds by phase. Described here, never sampled: no reference recording is stored, linked or fed to a generator.",
+  "brand": {
+    "world": "Umbrella Ella: an etched gothic storybook. A small girl under an umbrella against a huge clockwork owl, the Keeper of Time, in wind over a belfry. Ink on aged paper (pipeline/art/art-bible.md).",
+    "always": [
+      "clockwork and time: ticks, escapements, ratchets, gears, chimes, bells",
+      "wind and air: every space has moving air",
+      "paper, canvas and wood: the umbrella is cloth on ribs, the world is a storybook",
+      "one palette: low strings, low brass, choir, bells, music box, clock; nothing outside it",
+      "Ella's magic is small, warm and bright (gold-white); the owl is huge, dark and metallic"
+    ],
+    "never": [
+      "electronic or synth timbres, EDM, dubstep, trap or rock drums, electric guitar",
+      "modern UI blips, sci-fi lasers, video-game coin or power-up sounds",
+      "gore, screams, human pain voices, words or intelligible lyrics",
+      "cartoon boings, comedy slide whistles",
+      "a real person's voice or a named performer's style"
+    ],
+    "prompt_banned": [
+      "bloodborne",
+      "fromsoftware",
+      "from software",
+      "dark souls",
+      "elden ring",
+      "sekiro",
+      "souls-like",
+      "soulslike",
+      "in the style of",
+      "yharnam",
+      "soundtrack from",
+      "ost"
+    ],
+    "prompt_suffix": "Original sound for an etched gothic storybook game. No vocals with words, no electronic sounds, no modern UI tones."
+  },
+  "metrics": {
+    "lufs": "integrated loudness, ITU-R BS.1770 K-weighting with gating (files under 0.4 s: ungated), LUFS",
+    "centroid_hz": "mean spectral centroid of the active part, Hz (brightness)",
+    "low_share": "share of spectral energy below 250 Hz, 0-1 (weight)",
+    "high_share": "share of spectral energy above 4 kHz, 0-1 (air and edge)",
+    "crest_db": "peak to RMS of the active part, dB (punch; low = dense or squashed)",
+    "attack_ms": "10% to 90% rise of the 5 ms envelope at the first onset, ms (transient sharpness)",
+    "decay_s": "reverb tail estimate: twice the time the smoothed envelope takes to fall from -5 dB to -35 dB under its peak (an RT60 estimate), s",
+    "seconds": "file length, s",
+    "tempo_bpm": "autocorrelation tempo of the onset envelope, 50-200 BPM search, BPM",
+    "lra_db": "loudness range: 95th minus 10th percentile of 3 s short-term loudness, dB (dynamic range)"
+  },
+  "music": {
+    "stems": [
+      "MusicIntro",
+      "MusicContest",
+      "MusicDesperation"
+    ],
+    "tempo_bpm": [
+      66,
+      84
+    ],
+    "stem_tempo_tol_bpm": 1.5,
+    "stem_length_tol_s": 0.02,
+    "why": "The stems are vertical layers that start on the bar (audio-rules.md section 2), so all three share one tempo and one length. Dread builds by adding layers, register and density, never by changing tempo."
+  },
+  "families": {
+    "music_intro": {
+      "members": [
+        "MusicIntro"
+      ],
+      "character": "Phase 1 layer (0-25%). Unease, not yet danger. Low string drone and sul ponticello swells, one distant church bell every few bars, the chest-clock tick as a pulse, a hushed wordless choir far back. Minor key, sparse, lots of air.",
+      "instruments": "cellos and basses, violas sul ponticello, distant church bell, clock tick, wordless choir (ah/oo)",
+      "register": "low and low-mid; nothing bright above the bell partials",
+      "reverb": "cathedral, RT60 about 3-5 s, the choir and bell far back",
+      "prompt": "slow gothic orchestral horror underscore, low string drone with sul ponticello swells, a distant church bell, steady clockwork tick pulse, hushed wordless choir far away, minor key, sparse and uneasy, large cathedral reverb, seamless loop",
+      "seconds": 32,
+      "ranges": {
+        "lufs": [
+          -28,
+          -19
+        ],
+        "centroid_hz": [
+          250,
+          1800
+        ],
+        "low_share": [
+          0.25,
+          0.8
+        ],
+        "crest_db": [
+          10,
+          26
+        ],
+        "lra_db": [
+          3,
+          16
+        ],
+        "seconds": [
+          16,
+          180
+        ]
+      }
+    },
+    "music_contest": {
+      "members": [
+        "MusicContest"
+      ],
+      "character": "Phase 2 layer (25-70%), plays on top of the intro. The fight is on. Low brass ostinato, string spiccato on the pulse, choir rises to mid register, timpani and low tom on the downbeats, a bell on each phrase.",
+      "instruments": "horns and trombones, string spiccato, mixed choir, timpani, low tom, church bell",
+      "register": "low to mid, brass punch around 200-800 Hz",
+      "reverb": "large hall, RT60 about 2.5-4 s",
+      "prompt": "gothic orchestral battle layer, driving low brass ostinato, spiccato strings on the pulse, rising wordless choir, timpani hits on the downbeat, church bell on each phrase, minor key, dark and urgent, large hall reverb, seamless loop",
+      "seconds": 32,
+      "ranges": {
+        "lufs": [
+          -25,
+          -16
+        ],
+        "centroid_hz": [
+          350,
+          2500
+        ],
+        "low_share": [
+          0.2,
+          0.75
+        ],
+        "crest_db": [
+          10,
+          24
+        ],
+        "lra_db": [
+          3,
+          14
+        ],
+        "seconds": [
+          16,
+          180
+        ]
+      }
+    },
+    "music_desperation": {
+      "members": [
+        "MusicDesperation"
+      ],
+      "character": "Phase 3 layer (70-100%), plays on top of both. Dread at its height. High string tremolo, full choir, bell clusters, clockwork ratchet and anvil-like metal on the off-beats, brass stabs. Same tempo; more layers, higher register.",
+      "instruments": "violin tremolo, full choir, bell cluster, clock ratchet, metal hits, brass stabs, timpani rolls",
+      "register": "full range; the top end opens up",
+      "reverb": "cathedral, RT60 about 3-5 s",
+      "prompt": "climactic gothic orchestral horror layer, high string tremolo, full wordless choir, clustered church bells, clockwork ratchet and metal hits on the off-beats, brass stabs, timpani rolls, minor key, frantic dread, cathedral reverb, seamless loop",
+      "seconds": 32,
+      "ranges": {
+        "lufs": [
+          -23,
+          -14
+        ],
+        "centroid_hz": [
+          500,
+          3500
+        ],
+        "low_share": [
+          0.12,
+          0.65
+        ],
+        "crest_db": [
+          9,
+          22
+        ],
+        "lra_db": [
+          2,
+          12
+        ],
+        "seconds": [
+          16,
+          180
+        ]
+      }
+    },
+    "music_title": {
+      "members": [
+        "MusicTitle"
+      ],
+      "character": "Title screen. A storybook opening: a music-box melody over low strings, one slow bell, wind. Melancholy and mysterious, not yet threatening.",
+      "instruments": "music box, cellos, celesta, slow church bell, soft wind",
+      "register": "music box high, strings low; no mids crowding",
+      "reverb": "large room, RT60 about 2-3 s",
+      "prompt": "melancholy gothic music box lullaby over low cellos, slow church bell, soft wind, mysterious storybook mood, large room reverb, seamless loop",
+      "seconds": 40,
+      "ranges": {
+        "lufs": [
+          -28,
+          -18
+        ],
+        "centroid_hz": [
+          300,
+          3000
+        ],
+        "crest_db": [
+          10,
+          26
+        ],
+        "lra_db": [
+          2,
+          16
+        ],
+        "seconds": [
+          16,
+          180
+        ]
+      }
+    },
+    "stinger": {
+      "members": [
+        "SurvivedSting",
+        "FailSting"
+      ],
+      "character": "End cards. Survived: the bell tolls, the choir resolves to a major chord, wind settles. Fail: a low brass fall and one dull bell, the choir drops away, the clock stops.",
+      "instruments": "church bell, choir, low brass, strings, clock stop",
+      "register": "full; Survived ends bright, Fail ends low",
+      "reverb": "cathedral, RT60 about 3-6 s; the tail rings out",
+      "prompt": "short gothic orchestral sting, church bell toll with choir and low strings, cathedral reverb tail",
+      "prompts": {
+        "SurvivedSting": "triumphant but solemn gothic sting, church bell toll, wordless choir resolving to a major chord, wind settling, cathedral reverb tail",
+        "FailSting": "grim gothic sting, low brass falling, one dull church bell, choir dropping away, a clock mechanism stopping, cathedral reverb tail"
+      },
+      "seconds": 5,
+      "ranges": {
+        "lufs": [
+          -22,
+          -13
+        ],
+        "centroid_hz": [
+          250,
+          2500
+        ],
+        "crest_db": [
+          10,
+          26
+        ],
+        "attack_ms": [
+          0,
+          60
+        ],
+        "decay_s": [
+          1.5,
+          8.0
+        ],
+        "seconds": [
+          2,
+          9
+        ]
+      }
+    },
+    "owl_telegraph": {
+      "members": [
+        "OwlBoltWindup",
+        "GustWindup",
+        "ArcWindup"
+      ],
+      "character": "The tells. Each one must cut through the full desperation mix and name its attack blind. Bolt: clockwork ratchet winding up into a metal click at the release point. Gust: a wing heave, air drawn in. Arc: a lower swinging pendulum swoop. Crescendo shape: the loudest moment is the end, where danger starts.",
+      "instruments": "ratchet and escapement, wound spring, wing air, pendulum swoosh, metal click",
+      "register": "upper mid, 1-5 kHz, above the music",
+      "reverb": "medium hall, RT60 about 0.6-1.5 s, shorter than the music so the tell stays sharp",
+      "prompt": "ominous clockwork ratchet winding up fast into a sharp metal click, crescendo, dark and mechanical, medium stone hall reverb",
+      "prompts": {
+        "GustWindup": "a huge owl drawing its wings back, heavy air sucked in, rising whoosh with a creak of brass joints, ominous crescendo, medium stone hall reverb",
+        "ArcWindup": "a heavy iron pendulum swinging up, low metallic swoop rising, ominous crescendo, medium stone hall reverb"
+      },
+      "seconds": 0.8,
+      "ranges": {
+        "lufs": [
+          -20,
+          -11
+        ],
+        "centroid_hz": [
+          900,
+          5000
+        ],
+        "high_share": [
+          0.03,
+          0.45
+        ],
+        "crest_db": [
+          8,
+          22
+        ],
+        "attack_ms": [
+          5,
+          700
+        ],
+        "decay_s": [
+          0.2,
+          2.0
+        ],
+        "seconds": [
+          0.4,
+          1.4
+        ]
+      }
+    },
+    "owl_attack": {
+      "members": [
+        "OwlBoltLaunch",
+        "OwlBoltTravelLoop",
+        "OwlBoltFade",
+        "ArcLaunch",
+        "ArcTravelLoop",
+        "ArcFade"
+      ],
+      "character": "The owl's projectiles. Launch: a heavy spring release with a gear clank, lower and heavier than Ella's shot. Travel: a low spinning-gear whirr. Fade: the gear winds down and ticks out. Rust-red danger in sound: dark, metallic, mid-low.",
+      "instruments": "spring release, gear clank, spinning gear whirr, wind-down tick",
+      "register": "low-mid, 150-1500 Hz body",
+      "reverb": "large stone hall, RT60 about 0.6-2 s",
+      "prompt": "heavy clockwork spring release with a gear clank, dark metallic, weighty, large stone hall reverb",
+      "prompts": {
+        "OwlBoltTravelLoop": "low spinning clockwork gear whirr, dark metallic hum, seamless loop",
+        "OwlBoltFade": "clockwork gear winding down and ticking out, dark metallic, fading",
+        "ArcLaunch": "heavy iron pendulum release with a swooping gear clank, dark and weighty, large stone hall reverb",
+        "ArcTravelLoop": "low swinging metallic whoosh with a turning gear, seamless loop",
+        "ArcFade": "metallic swoop winding down into a last tick, fading"
+      },
+      "seconds": 0.8,
+      "ranges": {
+        "lufs": [
+          -26,
+          -13
+        ],
+        "centroid_hz": [
+          300,
+          3500
+        ],
+        "low_share": [
+          0.1,
+          0.7
+        ],
+        "crest_db": [
+          8,
+          24
+        ],
+        "attack_ms": [
+          0,
+          25
+        ],
+        "decay_s": [
+          0.2,
+          2.5
+        ],
+        "seconds": [
+          0.2,
+          4
+        ]
+      }
+    },
+    "owl_body": {
+      "members": [
+        "OwlWingLoop"
+      ],
+      "character": "The owl itself: huge slow wingbeats, feathers and old leather, a creak of brass joints on each stroke. Felt more than heard.",
+      "instruments": "wing whoosh, feather rustle, brass joint creak",
+      "register": "low, below 500 Hz mostly",
+      "reverb": "large hall, RT60 about 1-2 s",
+      "prompt": "huge slow owl wingbeats, heavy feather whoosh with a creak of old brass joints, low and ominous, large hall reverb, seamless loop",
+      "seconds": 6,
+      "ranges": {
+        "lufs": [
+          -32,
+          -20
+        ],
+        "centroid_hz": [
+          120,
+          1500
+        ],
+        "low_share": [
+          0.25,
+          0.9
+        ],
+        "crest_db": [
+          6,
+          22
+        ],
+        "seconds": [
+          2,
+          30
+        ]
+      }
+    },
+    "clockwork": {
+      "members": [
+        "ClockTickLoop",
+        "OwlGearSlip"
+      ],
+      "character": "The Keeper of Time's mechanism. Tick: a dry, exact, heavy escapement tick at a steady rate (lock it to the music tempo). Gear slip: teeth skipping, a spring lurch, a broken tick.",
+      "instruments": "escapement tick, pendulum, gear train, spring",
+      "register": "mid to high transient, low body",
+      "reverb": "medium room, RT60 about 0.4-1.2 s",
+      "prompt": "large antique clock escapement ticking steadily, heavy brass mechanism, close and exact, medium stone room reverb, seamless loop",
+      "prompts": {
+        "OwlGearSlip": "clockwork gear teeth skipping, a spring lurching, a broken irregular tick, heavy brass"
+      },
+      "seconds": 4,
+      "ranges": {
+        "lufs": [
+          -34,
+          -18
+        ],
+        "centroid_hz": [
+          700,
+          6000
+        ],
+        "crest_db": [
+          12,
+          32
+        ],
+        "attack_ms": [
+          0,
+          8
+        ],
+        "decay_s": [
+          0.1,
+          1.5
+        ],
+        "seconds": [
+          0.3,
+          16
+        ]
+      }
+    },
+    "bell": {
+      "members": [
+        "PhaseChime",
+        "EndEvent",
+        "EncounterStart",
+        "Restart"
+      ],
+      "character": "Church and clock-tower bells. Phase chime: one toll with a low hum partial. End event: the clock strikes, threats stop, a long ring-out. Start: one deep toll. Restart: the bell rings backwards and a clock rewinds.",
+      "instruments": "church bell, tower clock strike, hum partials",
+      "register": "low fundamental with bright partials",
+      "reverb": "cathedral, RT60 about 2-6 s",
+      "prompt": "single deep church bell toll with long ringing partials, gothic belfry, cathedral reverb",
+      "prompts": {
+        "PhaseChime": "one church bell toll with a low hum partial, solemn, cathedral reverb",
+        "EndEvent": "a tower clock striking with a deep bell, long ring-out, cathedral reverb",
+        "EncounterStart": "single deep church bell toll that starts a fight, ominous, cathedral reverb",
+        "Restart": "a church bell ringing backwards and a clock mechanism rewinding fast, cathedral reverb"
+      },
+      "seconds": 4,
+      "ranges": {
+        "lufs": [
+          -24,
+          -13
+        ],
+        "centroid_hz": [
+          250,
+          3000
+        ],
+        "crest_db": [
+          10,
+          26
+        ],
+        "attack_ms": [
+          0,
+          40
+        ],
+        "decay_s": [
+          1.2,
+          8.0
+        ],
+        "seconds": [
+          1,
+          9
+        ]
+      }
+    },
+    "wind": {
+      "members": [
+        "WindBed",
+        "WindZoneLoop",
+        "GustCatch",
+        "WindExit",
+        "GustLoop",
+        "GustEnd"
+      ],
+      "character": "Air over a belfry. Bed: a low moaning wind with slow swells, always there. Safe current: a rising, lifting airflow, brighter and kinder than the gust. Gust: a hard buffeting wall of wind with flapping. Enter and exit: a short whoosh in, a falling whoosh out.",
+      "instruments": "wind, air through stone arches, canvas flap in gusts",
+      "register": "broad noise, weight below 1 kHz, no harsh hiss",
+      "reverb": "open air with stone reflections, RT60 about 0.5-2 s",
+      "prompt": "cold wind moaning through gothic stone arches, slow swells, no voices, seamless loop",
+      "prompts": {
+        "WindZoneLoop": "a rising, lifting current of air, gentle and buoyant, brighter than a storm, seamless loop",
+        "GustCatch": "short soft whoosh of air lifting an umbrella upward",
+        "WindExit": "short falling whoosh as air lets go",
+        "GustLoop": "hard buffeting wall of wind with canvas flapping, forceful, seamless loop",
+        "GustEnd": "a strong gust dying away, flapping cloth settling"
+      },
+      "seconds": 10,
+      "ranges": {
+        "lufs": [
+          -34,
+          -16
+        ],
+        "centroid_hz": [
+          150,
+          2800
+        ],
+        "high_share": [
+          0.0,
+          0.3
+        ],
+        "crest_db": [
+          5,
+          20
+        ],
+        "attack_ms": [
+          10,
+          900
+        ],
+        "decay_s": [
+          0.2,
+          3.0
+        ],
+        "seconds": [
+          0.3,
+          60
+        ]
+      }
+    },
+    "umbrella": {
+      "members": [
+        "UmbrellaOpen",
+        "UmbrellaClose",
+        "UmbrellaFlap",
+        "ShieldRaise",
+        "ShieldCatch",
+        "ShieldHeal",
+        "UmbrellaTear",
+        "UmbrellaCreak",
+        "UmbrellaRepair"
+      ],
+      "character": "Cloth on wooden and brass ribs, close to the listener. Open: a canvas whump and rib snap. Close: a soft fold and click. Shield: ribs lock forward. Catch: a deep canvas thump that swallows the bolt (never the hurt sound). Heal: a warm music-box mend after the catch. Tear: fabric rip. Creak: strained ribs.",
+      "instruments": "canvas, waxed cloth, wooden and brass ribs, catch spring, music box for the mend",
+      "register": "mid, 300-3000 Hz; catch has low weight",
+      "reverb": "small, RT60 about 0.1-0.8 s; the umbrella is near, the world is far",
+      "prompt": "old cloth umbrella snapping open, canvas whump and wooden rib click, close and tactile, short small-room reverb",
+      "prompts": {
+        "UmbrellaClose": "old cloth umbrella folding shut, soft canvas fold and a wooden catch click, close and tactile",
+        "UmbrellaFlap": "cloth umbrella canopy fluttering in steady air, soft and continuous, seamless loop",
+        "ShieldRaise": "umbrella ribs locking forward with a firm wooden and brass click, canvas tightening",
+        "ShieldCatch": "a projectile swallowed by a taut canvas umbrella, deep soft thump with weight, no metal",
+        "ShieldHeal": "warm music box phrase rising after a soft thump, mending, gentle and bright",
+        "UmbrellaTear": "old canvas ripping, sharp fabric tear with a rib strain",
+        "UmbrellaCreak": "strained wooden umbrella ribs creaking under wind, worn canvas, seamless loop",
+        "UmbrellaRepair": "cloth being stitched and a rib clicking back into place, gentle"
+      },
+      "seconds": 0.6,
+      "ranges": {
+        "lufs": [
+          -28,
+          -14
+        ],
+        "centroid_hz": [
+          300,
+          4000
+        ],
+        "crest_db": [
+          8,
+          24
+        ],
+        "attack_ms": [
+          0,
+          40
+        ],
+        "decay_s": [
+          0.05,
+          1.2
+        ],
+        "seconds": [
+          0.1,
+          8
+        ]
+      }
+    },
+    "ella": {
+      "members": [
+        "EllaFallLoop",
+        "EllaBump",
+        "LowHealthLoop"
+      ],
+      "character": "Ella herself: small and light against the huge owl. Fall: air rushing past a small body and a fluttering coat. Bump: a soft knock on stone. Low health: a slow heartbeat with a faltering clock tick under the music.",
+      "instruments": "air rush, cloth flutter, soft knock, heartbeat, faltering tick",
+      "register": "fall is broad air; bump and heartbeat low",
+      "reverb": "small to medium, RT60 about 0.1-1 s",
+      "prompt": "air rushing past a small falling figure, fluttering cloth, soft, seamless loop",
+      "prompts": {
+        "EllaBump": "a soft knock of a small body against old stone, light, no voice",
+        "LowHealthLoop": "slow heartbeat with a faltering clock tick, muffled, tense, seamless loop"
+      },
+      "seconds": 3,
+      "ranges": {
+        "lufs": [
+          -34,
+          -16
+        ],
+        "centroid_hz": [
+          100,
+          3000
+        ],
+        "crest_db": [
+          5,
+          24
+        ],
+        "attack_ms": [
+          0,
+          300
+        ],
+        "decay_s": [
+          0.05,
+          1.5
+        ],
+        "seconds": [
+          0.1,
+          20
+        ]
+      }
+    },
+    "wand": {
+      "members": [
+        "WandBolt",
+        "WandBoltTravelLoop",
+        "WandBoltFade",
+        "ChargeWindup",
+        "ChargeRelease"
+      ],
+      "character": "Ella's gold-white magic. Small, warm, bright: a plucked celesta or music-box note with a soft spark, fired every 0.65 s, so it must never tire the ear. Higher and lighter than any owl sound.",
+      "instruments": "celesta or music-box pluck, soft spark, tiny chime",
+      "register": "high, 2-8 kHz; little low end",
+      "reverb": "small hall, RT60 about 0.2-0.8 s",
+      "prompt": "small warm magical spark shot, plucked celesta note with a soft glittering tail, gentle and bright, small hall reverb",
+      "prompts": {
+        "WandBoltTravelLoop": "tiny glittering magical shimmer, soft and bright, seamless loop",
+        "WandBoltFade": "tiny magical spark fading out with a soft glitter",
+        "ChargeWindup": "small magical energy gathering, rising celesta shimmer, seamless loop",
+        "ChargeRelease": "bright magical burst with a plucked celesta chord and spark"
+      },
+      "seconds": 0.4,
+      "ranges": {
+        "lufs": [
+          -30,
+          -16
+        ],
+        "centroid_hz": [
+          1500,
+          8000
+        ],
+        "low_share": [
+          0.0,
+          0.25
+        ],
+        "crest_db": [
+          10,
+          28
+        ],
+        "attack_ms": [
+          0,
+          12
+        ],
+        "decay_s": [
+          0.05,
+          1.2
+        ],
+        "seconds": [
+          0.05,
+          4
+        ]
+      }
+    },
+    "hit": {
+      "members": [
+        "HitOwl",
+        "HitClock",
+        "HitWing",
+        "PlayerHurt",
+        "EllaDown"
+      ],
+      "character": "Visceral and weighty. Owl body: a heavy thud into feathers and leather over iron. Clock: a bright brass clank with a bell partial. Wing: a leathery slap and feather burst. Player hurt: a sharp crack of the canopy ribs and a breathless jolt, never a scream. Defeat: the umbrella crumples, a long fall into dark.",
+      "instruments": "low thud, metal clank, leather slap, rib crack, sub drop",
+      "register": "low weight (below 250 Hz) plus a mid crack",
+      "reverb": "large stone hall, RT60 about 0.5-2 s",
+      "prompt": "heavy visceral impact, deep thud with a metallic clank, weighty and dark, large stone hall reverb",
+      "prompts": {
+        "HitClock": "bright brass clank on an old clock face with a bell partial, weighty, stone hall reverb",
+        "HitWing": "leathery slap into a huge wing with a burst of feathers, weighty, stone hall reverb",
+        "PlayerHurt": "sharp crack of umbrella ribs and a breathless jolt, no scream, no voice, weighty",
+        "EllaDown": "an umbrella crumpling and a long fall into darkness, low sub drop, no voice"
+      },
+      "seconds": 0.8,
+      "ranges": {
+        "lufs": [
+          -24,
+          -12
+        ],
+        "centroid_hz": [
+          150,
+          3500
+        ],
+        "low_share": [
+          0.12,
+          0.8
+        ],
+        "crest_db": [
+          10,
+          28
+        ],
+        "attack_ms": [
+          0,
+          10
+        ],
+        "decay_s": [
+          0.2,
+          3.0
+        ],
+        "seconds": [
+          0.15,
+          5
+        ]
+      }
+    },
+    "ui": {
+      "members": [
+        "UiSelect",
+        "UiMove",
+        "UiBack",
+        "UiOpen",
+        "UiClose",
+        "UiSliderTick",
+        "UiTransition",
+        "PauseIn",
+        "PauseOut"
+      ],
+      "character": "A storybook and a clock, never a computer. Move: a soft escapement tick. Select: a small bell or music-box note. Back: a lower tick-tock. Open and close: a page turn. Slider: a fine gear-tooth click per step. Transition: a page turn with a wind breath. Pause in: the clock stops and the room goes muffled; pause out: it starts again.",
+      "instruments": "escapement tick, small bell, music box, paper page turn, gear tooth",
+      "register": "mid-high, 800-5000 Hz, never harsh",
+      "reverb": "small, RT60 about 0.05-0.6 s",
+      "prompt": "soft antique clock escapement tick, single and close, warm wood and brass, tiny room",
+      "prompts": {
+        "UiSelect": "single small bright bell note, warm, like a music box, tiny room",
+        "UiBack": "a lower soft tick-tock of an antique clock, tiny room",
+        "UiOpen": "an old paper book page turning open, soft, tiny room",
+        "UiClose": "an old paper book page turning closed, soft, tiny room",
+        "UiSliderTick": "one fine brass gear tooth click, very short",
+        "UiTransition": "a page turn with a soft breath of wind, storybook",
+        "PauseIn": "an antique clock stopping, the room going muffled",
+        "PauseOut": "an antique clock starting to tick again, the room opening up"
+      },
+      "seconds": 0.2,
+      "ranges": {
+        "lufs": [
+          -34,
+          -18
+        ],
+        "centroid_hz": [
+          500,
+          6000
+        ],
+        "crest_db": [
+          8,
+          28
+        ],
+        "attack_ms": [
+          0,
+          15
+        ],
+        "decay_s": [
+          0.02,
+          1.0
+        ],
+        "seconds": [
+          0.03,
+          2.5
+        ]
+      }
+    },
+    "ambience": {
+      "members": [
+        "BelfryAmbience"
+      ],
+      "character": "The arena's room: a high stone belfry at night. Far bells now and then, old clockwork turning in the walls, wind in the louvres. Quiet, wide, always moving.",
+      "instruments": "distant bells, clockwork room tone, wind",
+      "register": "low and wide; nothing that masks the tells",
+      "reverb": "cathedral, RT60 about 3-6 s",
+      "prompt": "ambience of a high gothic stone belfry at night, distant church bells, old clockwork turning in the walls, wind through wooden louvres, quiet and wide, no voices, seamless loop",
+      "seconds": 30,
+      "ranges": {
+        "lufs": [
+          -40,
+          -24
+        ],
+        "centroid_hz": [
+          100,
+          2500
+        ],
+        "crest_db": [
+          5,
+          26
+        ],
+        "seconds": [
+          8,
+          180
+        ]
+      }
+    }
+  },
+  "loop": {
+    "stuck_rounds": 3,
+    "critic_packet_neighbours": 3,
+    "why": "Each sound id (each stem) is one piece. A builder agent makes or revises it; a separate critic with fresh context hears it blind against this file and the approved sounds. The piece closes only when the latest critic verdict is pass and the measured check passes on the same files. No round cap; after stuck_rounds rounds with no improvement the piece goes to needs-human with its files."
+  }
+}

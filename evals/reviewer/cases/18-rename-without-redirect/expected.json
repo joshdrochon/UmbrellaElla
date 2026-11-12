@@ -1,0 +1,21 @@
+{
+  "clean": false,
+  "defects": [
+    {
+      "id": "no-coreredirect",
+      "severity": "high",
+      "file": "Source/UmbrellaElla/Public/Feedback/FeedbackAdapterComponent.h",
+      "lines": [
+        26,
+        28
+      ],
+      "keywords": [
+        "redirect",
+        "rename",
+        "serializ",
+        "bp_ella",
+        "blueprint"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+Key,SourceString
+Title.Play,Play
+Title.Quit,Quit
+Pause.Header,Paused
+Pause.QuitToTitle,Quit to title
+Hint.Umbrella,Hold the umbrella open to rise. Let go to fall.
+Prompt.Umbrella,{Key} Open umbrella
+Prompt.Pause,{Key} Pause
+Settings.GameSpeed,Game speed
+Settings.UmbrellaMode,Umbrella: hold or toggle
+End.Survived,Survived. The owl has gone.
+End.Fail,Hit by a bolt. Try again?
+Hint.Gust,Open the umbrella in a gust to rise fast. Close it to drop.
+Settings.Accessibility,Accessibility

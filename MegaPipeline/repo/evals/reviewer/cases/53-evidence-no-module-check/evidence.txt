@@ -1,0 +1,3 @@
+build: NONUNITY=1 tools/ue/build.sh exit 0 (UBT command line shows -DisableUnity -NoPCH -NoSharedPCH), 0 new warnings (log attached)
+tests: check_automation_report.py Saved/Automation/index.json --baseline main-index.json --require <each test named in the task card> -> PASS tests=24 failed=0 notrun=0, every required test found and passed (output attached)
+package: n/a for this card

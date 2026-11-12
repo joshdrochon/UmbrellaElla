@@ -1,0 +1,4 @@
+build: NONUNITY=1 tools/ue/build.sh exit 0 (UBT command line shows -DisableUnity -NoPCH -NoSharedPCH), 0 new warnings (log attached)
+module_check: python3 tools/module_check.py -> module_check: 0 problem(s), exit 0 (output attached)
+tests: ran UmbrellaElla.* from the Session Frontend in the editor, all green (screenshot attached)
+package: n/a for this card

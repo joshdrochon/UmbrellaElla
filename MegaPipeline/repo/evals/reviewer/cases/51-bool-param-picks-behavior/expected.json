@@ -1,0 +1,32 @@
+{
+  "clean": false,
+  "defects": [
+    {
+      "id": "bool-param",
+      "severity": "med",
+      "file": "Source/UmbrellaElla/Public/Encounter/EncounterDirectorSubsystem.h",
+      "lines": [
+        41,
+        41
+      ],
+      "keywords": [
+        "bool",
+        "parameter",
+        "param",
+        "enum",
+        "two functions",
+        "bsurvived",
+        "rule j"
+      ],
+      "also": [
+        {
+          "file": "Source/UmbrellaElla/Private/Encounter/EncounterDirectorSubsystem.cpp",
+          "lines": [
+            63,
+            74
+          ]
+        }
+      ]
+    }
+  ]
+}

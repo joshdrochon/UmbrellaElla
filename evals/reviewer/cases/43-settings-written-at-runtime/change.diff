@@ -1,0 +1,9 @@
+--- a/Source/UmbrellaElla/Private/Owl/ClockworkOwl.cpp
++++ b/Source/UmbrellaElla/Private/Owl/ClockworkOwl.cpp
+@@ -61,3 +61,6 @@
+ void AClockworkOwl::HandlePacingStepChanged(EPacingStep NewStep)
+ {
++	if (NewStep != EPacingStep::Contest) { return; }
++	UUmbrellaTuning* Tuning = GetMutableDefault<UUmbrellaTuning>();
++	Tuning->Owl.VolleyGapSeconds = Tuning->Owl.ContestVolleyGapSeconds;
+ }

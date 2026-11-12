@@ -1,0 +1,39 @@
+{
+  "clean": false,
+  "defects": [
+    {
+      "id": "playanimation",
+      "severity": "blocker",
+      "file": "Source/UmbrellaElla/Private/Feedback/FeedbackAdapterComponent.cpp",
+      "lines": [
+        46,
+        46
+      ],
+      "keywords": [
+        "playanimation",
+        "setflipbook",
+        "does not exist",
+        "not exist",
+        "hallucinat",
+        "no such"
+      ]
+    },
+    {
+      "id": "playoneshot",
+      "severity": "blocker",
+      "file": "Source/UmbrellaElla/Private/Feedback/FeedbackAdapterComponent.cpp",
+      "lines": [
+        47,
+        47
+      ],
+      "keywords": [
+        "playoneshot",
+        "playsound2d",
+        "does not exist",
+        "not exist",
+        "hallucinat",
+        "no such"
+      ]
+    }
+  ]
+}

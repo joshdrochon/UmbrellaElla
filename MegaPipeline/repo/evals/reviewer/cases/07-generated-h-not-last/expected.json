@@ -1,0 +1,19 @@
+{
+  "clean": false,
+  "defects": [
+    {
+      "id": "generated-last",
+      "severity": "high",
+      "file": "Source/UmbrellaElla/Public/Core/EllaCharacter.h",
+      "lines": [
+        3,
+        4
+      ],
+      "keywords": [
+        "generated.h",
+        "last include",
+        "include order"
+      ]
+    }
+  ]
+}

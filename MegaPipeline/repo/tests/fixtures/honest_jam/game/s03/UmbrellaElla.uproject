@@ -1,0 +1,13 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "5.8",
+	"Category": "",
+	"Description": "",
+	"Modules": [
+		{ "Name": "UmbrellaElla", "Type": "Runtime", "LoadingPhase": "Default" },
+		{ "Name": "UmbrellaEllaEditor", "Type": "Editor", "LoadingPhase": "Default" }
+	],
+	"Plugins": [
+		{ "Name": "Paper2D", "Enabled": true }
+	]
+}

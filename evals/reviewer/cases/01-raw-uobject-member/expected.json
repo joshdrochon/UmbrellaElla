@@ -1,0 +1,23 @@
+{
+  "clean": false,
+  "defects": [
+    {
+      "id": "raw-uobject",
+      "severity": "blocker",
+      "file": "Source/UmbrellaElla/Public/Owl/ClockworkOwl.h",
+      "lines": [
+        54,
+        54
+      ],
+      "keywords": [
+        "uproperty",
+        "garbage",
+        "gc",
+        "dangling",
+        "tobjectptr",
+        "weak",
+        "raw"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+Copyright 2026 TBD (team name). All rights reserved.
+
+You may download and play this game for free. You may not sell it or redistribute changed copies.
+
+Third-party assets in this game keep their own licences. Each one is listed under Credits in README.txt.

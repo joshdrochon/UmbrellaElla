@@ -1,0 +1,2 @@
+date,gate,build_sha,host,method,presses,median_ms,worst_ms,measured_by,peak_bolts,peak_frame_ms
+2026-11-13,G2,1a2b3c4d,win,60 fps screen recording,4,117,150,,0,34

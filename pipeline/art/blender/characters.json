@@ -1,0 +1,764 @@
+{
+  "_about": "Blender stand-in recipes: one entry per character or prop, one row per animation. tools/assetgen.py blender --character <id> --anim <Anim> turns a row into a render job (pipeline/art/blender/plan.py): frame size, pivot and facing come from the references.json `layout` entry named in `layout` (pipeline/art/reference/Test_Assets/SpriteLayout.json), fps and the allowed frame count from pipeline/art/style.json `anims` (the art-bible flipbook table), colours from style.json `palette` and `accents`. `piece` is the art-loop judge element (references.json elements) a row is judged as. A row's `keys` are poses at times 0..1 (bone angles in degrees in the picture plane, `canopy` 0 closed .. 1 open, `lift` in pixels); the planner spreads them over the row's frames (a loop wraps to its first key). The Blender scene is built by pipeline/art/blender/stand_ins.py and rendered by render_sprite.py (`blender -b -P render_sprite.py -- --job <job.json>`). An art-loop revision changes this file, stand_ins.py or `look` (model detail, materials, lines, light), never the checks.",
+  "look": {
+    "_about": "Ink-and-paper NPR for every recipe: toon shading in `shades` (darks from style.json, light from the front, slightly above: art bible R11), Freestyle ink lines of line_px in the ink colour, paper grain in the material and, when the compositor supports it, a grain pass there too. Transparent film, orthographic camera, Standard view transform (no filmic tone change to the palette).",
+    "shades": [
+      "ink",
+      "silhouette",
+      "owl-umber"
+    ],
+    "ink": "ink",
+    "line_px": 1.6,
+    "grain": 0.06,
+    "grain_scale": 180.0,
+    "seed": 11,
+    "light_deg": [
+      62,
+      0,
+      18
+    ],
+    "samples": 16
+  },
+  "characters": {
+    "ella": {
+      "what": "Ella (GDD SH1.0 ART-06): an adult in a bent pointed hat, face hidden by a cloth / mesh mask, long dark hair and scarf, one slender striped umbrella with a crown finial and a diamond clock-hand terminal; no wand. Stand-in rig: body, skirt, umbrella arm, canopy, free arm (the old wand arm; the wand mesh is gone). Two-hand grip, legs, scarf and mask need the card 0.38 rig",
+      "asset": "Ella",
+      "builder": "ella",
+      "layout": "CHR_Witch_Cast.png",
+      "px_per_unit": 70.0,
+      "element": "character",
+      "anims": {
+        "IdleFloat": {
+          "piece": "ella-up-open",
+          "frames": 6,
+          "loop": true,
+          "keys": [
+            {
+              "t": 0.0,
+              "canopy": 1.0,
+              "lift": 0,
+              "rot": {
+                "umbrella_arm": 0,
+                "wand_arm": 10,
+                "skirt": 0
+              }
+            },
+            {
+              "t": 0.5,
+              "canopy": 1.0,
+              "lift": 4,
+              "rot": {
+                "umbrella_arm": 4,
+                "wand_arm": 16,
+                "skirt": 6
+              }
+            }
+          ]
+        },
+        "Fall": {
+          "piece": "ella-closed",
+          "frames": 4,
+          "loop": true,
+          "keys": [
+            {
+              "t": 0.0,
+              "canopy": 0.0,
+              "lift": 0,
+              "rot": {
+                "umbrella_arm": -150,
+                "wand_arm": -30,
+                "skirt": -12
+              }
+            },
+            {
+              "t": 0.5,
+              "canopy": 0.0,
+              "lift": -2,
+              "rot": {
+                "umbrella_arm": -140,
+                "wand_arm": -40,
+                "skirt": -20
+              }
+            }
+          ]
+        },
+        "Open": {
+          "piece": "ella-up-open",
+          "frames": 4,
+          "loop": false,
+          "keys": [
+            {
+              "t": 0.0,
+              "canopy": 0.0,
+              "lift": 0,
+              "rot": {
+                "umbrella_arm": -90,
+                "wand_arm": 0,
+                "skirt": -6
+              }
+            },
+            {
+              "t": 1.0,
+              "canopy": 1.0,
+              "lift": 2,
+              "rot": {
+                "umbrella_arm": 0,
+                "wand_arm": 10,
+                "skirt": 0
+              }
+            }
+          ]
+        },
+        "Close": {
+          "piece": "ella-closed",
+          "frames": 4,
+          "loop": false,
+          "keys": [
+            {
+              "t": 0.0,
+              "canopy": 1.0,
+              "lift": 2,
+              "rot": {
+                "umbrella_arm": 0,
+                "wand_arm": 10,
+                "skirt": 0
+              }
+            },
+            {
+              "t": 1.0,
+              "canopy": 0.0,
+              "lift": 0,
+              "rot": {
+                "umbrella_arm": -90,
+                "wand_arm": 0,
+                "skirt": -6
+              }
+            }
+          ]
+        },
+        "Attack": {
+          "piece": "ella-attack",
+          "frames": 4,
+          "loop": false,
+          "keys": [
+            {
+              "t": 0.0,
+              "canopy": 0.0,
+              "lift": 0,
+              "rot": {
+                "umbrella_arm": -90,
+                "wand_arm": 80,
+                "skirt": -8
+              }
+            },
+            {
+              "t": 0.4,
+              "canopy": 0.0,
+              "lift": 0,
+              "rot": {
+                "umbrella_arm": -92,
+                "wand_arm": 95,
+                "skirt": -10
+              },
+              "flash": 1.0
+            },
+            {
+              "t": 1.0,
+              "canopy": 0.0,
+              "lift": 0,
+              "rot": {
+                "umbrella_arm": -90,
+                "wand_arm": 82,
+                "skirt": -8
+              }
+            }
+          ]
+        }
+      }
+    },
+    "owl": {
+      "what": "the Keeper of Time (GDD SH1.0 OWL-08, ART-06): a crownless fabricated metal owl. Stand-in rig: front view body, head, tail and two wings (no crown since GDD SH1.0). The side profile, two feet, rigid vane wings, chest clock hand and the three hanging mechanisms need the card 0.37 rig",
+      "asset": "Owl",
+      "builder": "owl",
+      "layout": "CHR_Owl_Flap_Damage.png",
+      "px_per_unit": 62.0,
+      "element": "owl",
+      "piece": "owl",
+      "anims": {
+        "Flap": {
+          "frames": 6,
+          "loop": true,
+          "keys": [
+            {
+              "t": 0.0,
+              "lift": 0,
+              "rot": {
+                "wing_near": 38,
+                "wing_far": 30,
+                "head": 0,
+                "tail": 0
+              }
+            },
+            {
+              "t": 0.5,
+              "lift": -6,
+              "rot": {
+                "wing_near": -34,
+                "wing_far": -26,
+                "head": -4,
+                "tail": 6
+              }
+            }
+          ]
+        }
+      }
+    },
+    "bolt": {
+      "what": "the shared red / yellow shot (GDD SH1.0 OWL-14: one pointed angular geometry, colour by material; rotated in engine, not by frames). Stand-in: the four-point cross until card 0.41",
+      "asset": "Bolt",
+      "builder": "bolt",
+      "layout": "FX_Owl_Missile.png",
+      "px_per_unit": 30.0,
+      "element": "effects",
+      "piece": "owl-bolt",
+      "anims": {
+        "Still": {
+          "frames": 1,
+          "loop": false,
+          "keys": [
+            {
+              "t": 0.0,
+              "rot": {}
+            }
+          ]
+        }
+      }
+    },
+    "skyline": {
+      "what": "the black jagged skyline layer (spires, gears, rock) along the bottom of the frame",
+      "asset": "Skyline",
+      "builder": "skyline",
+      "frame_size": [
+        1920,
+        360
+      ],
+      "pivot_px": [
+        0,
+        360
+      ],
+      "faces": "right",
+      "px_per_unit": 24.0,
+      "element": "background",
+      "piece": "skyline",
+      "anims": {
+        "Still": {
+          "frames": 1,
+          "loop": false,
+          "keys": [
+            {
+              "t": 0.0,
+              "rot": {}
+            }
+          ]
+        }
+      }
+    }
+  },
+  "coverage_about": "GDD SH1.0 required animation and state coverage (ANIM-02..ANIM-08, ART-08, BG-03, BG-04, VFX-03..VFX-05) against what these recipes can render today. status `recipe`: a row above renders it now with the stand-in rig (gameplay placeholder quality, judged by the art loop). status `_PH`: the stand-in rigs cannot make it; gameplay uses the tracked placeholder named in `placeholder` (a still or a silhouette flipbook ending _PH) until the `replaced_by` card lands. `tool`: blender = a Blender recipe once the rig exists; unreal = an Unreal material / Niagara effect, not a Blender render. `pipeline_check.py --release` fails any _PH asset left in Content/ at G4; placeholders never ship. tests/test_art_coverage.py checks this list.",
+  "coverage": [
+    {
+      "gdd": "ANIM-03",
+      "family": "ella",
+      "action": "overhead rise (legs together, V-split, together)",
+      "status": "recipe",
+      "tool": "blender",
+      "recipe": "ella.IdleFloat",
+      "why": "canopy open and lift bob render now; the leg V-split needs leg bones (card 0.38)"
+    },
+    {
+      "gdd": "ANIM-03",
+      "family": "ella",
+      "action": "RegularFall for Small / Twin / Needle",
+      "status": "recipe",
+      "tool": "blender",
+      "recipe": "ella.Fall"
+    },
+    {
+      "gdd": "ANIM-03",
+      "family": "ella",
+      "action": "mode transitions (open, close)",
+      "status": "recipe",
+      "tool": "blender",
+      "recipe": "ella.Open"
+    },
+    {
+      "gdd": "ANIM-03",
+      "family": "ella",
+      "action": "mode transitions (close)",
+      "status": "recipe",
+      "tool": "blender",
+      "recipe": "ella.Close"
+    },
+    {
+      "gdd": "ANIM-05",
+      "family": "ella",
+      "action": "Small Blasts body: folded-ready, snap open, pulse, close, cock",
+      "status": "recipe",
+      "tool": "blender",
+      "recipe": "ella.Attack",
+      "why": "a low-hip pose today; the collar slide needs the second arm (card 0.38)"
+    },
+    {
+      "gdd": "ANIM-05",
+      "family": "ella",
+      "action": "shoulder-braced Streamed Blast",
+      "status": "_PH",
+      "tool": "blender",
+      "placeholder": "FB_Ella_StreamBrace_PH",
+      "replaced_by": "0.38",
+      "why": "needs legs, a second arm on the shaft, scarf and mask in the Ella rig and an art-bible anims row"
+    },
+    {
+      "gdd": "ANIM-03",
+      "family": "ella",
+      "action": "absorbing fall",
+      "status": "_PH",
+      "tool": "blender",
+      "placeholder": "FB_Ella_AbsorbFall_PH",
+      "replaced_by": "0.38",
+      "why": "needs legs, a second arm on the shaft, scarf and mask in the Ella rig and an art-bible anims row"
+    },
+    {
+      "gdd": "ANIM-03",
+      "family": "ella",
+      "action": "compact closed-umbrella free fall",
+      "status": "_PH",
+      "tool": "blender",
+      "placeholder": "FB_Ella_FreeFall_PH",
+      "replaced_by": "0.38",
+      "why": "needs legs, a second arm on the shaft, scarf and mask in the Ella rig and an art-bible anims row"
+    },
+    {
+      "gdd": "ANIM-03",
+      "family": "ella",
+      "action": "overhead hop",
+      "status": "_PH",
+      "tool": "blender",
+      "placeholder": "FB_Ella_Hop_PH",
+      "replaced_by": "0.38",
+      "why": "needs legs, a second arm on the shaft, scarf and mask in the Ella rig and an art-bible anims row"
+    },
+    {
+      "gdd": "ANIM-03",
+      "family": "ella",
+      "action": "forward and back falling cartwheels, free-fall dash",
+      "status": "_PH",
+      "tool": "blender",
+      "placeholder": "FB_Ella_Dash_PH",
+      "replaced_by": "0.38",
+      "why": "needs legs, a second arm on the shaft, scarf and mask in the Ella rig and an art-bible anims row"
+    },
+    {
+      "gdd": "ANIM-03",
+      "family": "ella",
+      "action": "hit and recovery",
+      "status": "_PH",
+      "tool": "blender",
+      "placeholder": "FB_Ella_Hit_PH",
+      "replaced_by": "0.38",
+      "why": "needs legs, a second arm on the shaft, scarf and mask in the Ella rig and an art-bible anims row"
+    },
+    {
+      "gdd": "ANIM-03",
+      "family": "ella",
+      "action": "repair",
+      "status": "_PH",
+      "tool": "blender",
+      "placeholder": "FB_Ella_Repair_PH",
+      "replaced_by": "0.38",
+      "why": "needs legs, a second arm on the shaft, scarf and mask in the Ella rig and an art-bible anims row"
+    },
+    {
+      "gdd": "ANIM-03",
+      "family": "ella",
+      "action": "living critical state",
+      "status": "_PH",
+      "tool": "blender",
+      "placeholder": "FB_Ella_Critical_PH",
+      "replaced_by": "0.38",
+      "why": "needs legs, a second arm on the shaft, scarf and mask in the Ella rig and an art-bible anims row"
+    },
+    {
+      "gdd": "ANIM-03",
+      "family": "ella",
+      "action": "bounded zero-health dissolve",
+      "status": "_PH",
+      "tool": "blender",
+      "placeholder": "FB_Ella_Dissolve_PH",
+      "replaced_by": "0.38",
+      "why": "needs legs, a second arm on the shaft, scarf and mask in the Ella rig and an art-bible anims row"
+    },
+    {
+      "gdd": "ANIM-05",
+      "family": "ella",
+      "action": "Twin Stars low-hip paired release",
+      "status": "_PH",
+      "tool": "blender",
+      "placeholder": "FB_Ella_TwinStars_PH",
+      "replaced_by": "0.38",
+      "why": "needs legs, a second arm on the shaft, scarf and mask in the Ella rig and an art-bible anims row"
+    },
+    {
+      "gdd": "ANIM-05",
+      "family": "ella",
+      "action": "Needle low-hip steady pulse",
+      "status": "_PH",
+      "tool": "blender",
+      "placeholder": "FB_Ella_Needle_PH",
+      "replaced_by": "0.38",
+      "why": "needs legs, a second arm on the shaft, scarf and mask in the Ella rig and an art-bible anims row"
+    },
+    {
+      "gdd": "ANIM-04",
+      "family": "ella",
+      "action": "whole-character condition states (boots fade by 75, hat by 50, living mask and scarf)",
+      "status": "_PH",
+      "tool": "blender",
+      "placeholder": "T_Ella_Condition_PH",
+      "replaced_by": "0.38"
+    },
+    {
+      "gdd": "ANIM-06",
+      "family": "keeper",
+      "action": "identity hover / wingbeat",
+      "status": "recipe",
+      "tool": "blender",
+      "recipe": "owl.Flap",
+      "why": "front-view stand-in; the side profile with vane wings is card 0.37"
+    },
+    {
+      "gdd": "ANIM-06",
+      "family": "keeper",
+      "action": "wing wear and disabled-gust state",
+      "status": "_PH",
+      "tool": "blender",
+      "placeholder": "FB_Keeper_WingsDamaged_PH",
+      "replaced_by": "0.37",
+      "why": "the stand-in owl has no feet, chains, mechanisms, clock hand or side profile"
+    },
+    {
+      "gdd": "ANIM-06",
+      "family": "keeper",
+      "action": "clock cover open / close",
+      "status": "_PH",
+      "tool": "blender",
+      "placeholder": "FB_Keeper_ClockCover_PH",
+      "replaced_by": "0.37",
+      "why": "the stand-in owl has no feet, chains, mechanisms, clock hand or side profile"
+    },
+    {
+      "gdd": "ANIM-06",
+      "family": "keeper",
+      "action": "clock glass, cracks and the long hand (double beat XII to III)",
+      "status": "_PH",
+      "tool": "blender",
+      "placeholder": "FB_Keeper_ClockHand_PH",
+      "replaced_by": "0.37",
+      "why": "the stand-in owl has no feet, chains, mechanisms, clock hand or side profile"
+    },
+    {
+      "gdd": "ANIM-06",
+      "family": "keeper",
+      "action": "wing gather, flap, front and recovery (gust)",
+      "status": "_PH",
+      "tool": "blender",
+      "placeholder": "FB_Keeper_Gust_PH",
+      "replaced_by": "0.37",
+      "why": "the stand-in owl has no feet, chains, mechanisms, clock hand or side profile"
+    },
+    {
+      "gdd": "ANIM-06",
+      "family": "keeper",
+      "action": "EMPTY-claw talon warning, rake, recovery",
+      "status": "_PH",
+      "tool": "blender",
+      "placeholder": "FB_Keeper_Talon_PH",
+      "replaced_by": "0.37",
+      "why": "the stand-in owl has no feet, chains, mechanisms, clock hand or side profile"
+    },
+    {
+      "gdd": "ANIM-06",
+      "family": "keeper",
+      "action": "CLOSED-claw front armillary grasp and release",
+      "status": "_PH",
+      "tool": "blender",
+      "placeholder": "FB_Keeper_FrontCast_PH",
+      "replaced_by": "0.37",
+      "why": "the stand-in owl has no feet, chains, mechanisms, clock hand or side profile"
+    },
+    {
+      "gdd": "ANIM-06",
+      "family": "keeper",
+      "action": "middle cage curved cast",
+      "status": "_PH",
+      "tool": "blender",
+      "placeholder": "FB_Keeper_MiddleCast_PH",
+      "replaced_by": "0.37",
+      "why": "the stand-in owl has no feet, chains, mechanisms, clock hand or side profile"
+    },
+    {
+      "gdd": "ANIM-06",
+      "family": "keeper",
+      "action": "rear gear first stroke, safe pause, second stroke",
+      "status": "_PH",
+      "tool": "blender",
+      "placeholder": "FB_Keeper_RearCast_PH",
+      "replaced_by": "0.37",
+      "why": "the stand-in owl has no feet, chains, mechanisms, clock hand or side profile"
+    },
+    {
+      "gdd": "ANIM-06",
+      "family": "keeper",
+      "action": "harmless returns and settle",
+      "status": "_PH",
+      "tool": "blender",
+      "placeholder": "FB_Keeper_CastReturn_PH",
+      "replaced_by": "0.37",
+      "why": "the stand-in owl has no feet, chains, mechanisms, clock hand or side profile"
+    },
+    {
+      "gdd": "ANIM-06",
+      "family": "keeper",
+      "action": "surviving-mechanism sets 7 to 6 to 4 to 0",
+      "status": "_PH",
+      "tool": "blender",
+      "placeholder": "FB_Keeper_Mechanisms_PH",
+      "replaced_by": "0.37",
+      "why": "the stand-in owl has no feet, chains, mechanisms, clock hand or side profile"
+    },
+    {
+      "gdd": "ANIM-06",
+      "family": "keeper",
+      "action": "break stun and recovery",
+      "status": "_PH",
+      "tool": "blender",
+      "placeholder": "FB_Keeper_Stun_PH",
+      "replaced_by": "0.37",
+      "why": "the stand-in owl has no feet, chains, mechanisms, clock hand or side profile"
+    },
+    {
+      "gdd": "ANIM-06",
+      "family": "keeper",
+      "action": "exposed eye, eye hit",
+      "status": "_PH",
+      "tool": "blender",
+      "placeholder": "FB_Keeper_Eye_PH",
+      "replaced_by": "0.37",
+      "why": "the stand-in owl has no feet, chains, mechanisms, clock hand or side profile"
+    },
+    {
+      "gdd": "ANIM-06",
+      "family": "keeper",
+      "action": "blackout body hide and restore",
+      "status": "_PH",
+      "tool": "blender",
+      "placeholder": "FB_Keeper_Blackout_PH",
+      "replaced_by": "0.37",
+      "why": "the stand-in owl has no feet, chains, mechanisms, clock hand or side profile"
+    },
+    {
+      "gdd": "ANIM-06",
+      "family": "keeper",
+      "action": "phase and retry initialization",
+      "status": "_PH",
+      "tool": "blender",
+      "placeholder": "FB_Keeper_PhaseReset_PH",
+      "replaced_by": "0.37",
+      "why": "the stand-in owl has no feet, chains, mechanisms, clock hand or side profile"
+    },
+    {
+      "gdd": "ANIM-06",
+      "family": "keeper",
+      "action": "living departure into darkness",
+      "status": "_PH",
+      "tool": "blender",
+      "placeholder": "FB_Keeper_Departure_PH",
+      "replaced_by": "0.37",
+      "why": "the stand-in owl has no feet, chains, mechanisms, clock hand or side profile"
+    },
+    {
+      "gdd": "ANIM-08",
+      "family": "enemy",
+      "action": "WardenSundial F: idle, locomotion, turn, tell, aim, fire (red and yellow), recoil, recovery, hit, wear, defeat",
+      "status": "_PH",
+      "tool": "blender",
+      "placeholder": "FB_WardenSundialF_Actions_PH",
+      "replaced_by": "0.39",
+      "why": "no enemy builder in stand_ins.py yet"
+    },
+    {
+      "gdd": "ANIM-08",
+      "family": "enemy",
+      "action": "WardenSundial M: idle, locomotion, turn, tell, aim, fire (red and yellow), recoil, recovery, hit, wear, defeat",
+      "status": "_PH",
+      "tool": "blender",
+      "placeholder": "FB_WardenSundialM_Actions_PH",
+      "replaced_by": "0.39",
+      "why": "no enemy builder in stand_ins.py yet"
+    },
+    {
+      "gdd": "ANIM-08",
+      "family": "enemy",
+      "action": "WardenArmillary F: idle, locomotion, turn, tell, aim, fire (red and yellow), recoil, recovery, hit, wear, defeat",
+      "status": "_PH",
+      "tool": "blender",
+      "placeholder": "FB_WardenArmillaryF_Actions_PH",
+      "replaced_by": "0.39",
+      "why": "no enemy builder in stand_ins.py yet"
+    },
+    {
+      "gdd": "ANIM-08",
+      "family": "enemy",
+      "action": "WardenArmillary M: idle, locomotion, turn, tell, aim, fire (red and yellow), recoil, recovery, hit, wear, defeat",
+      "status": "_PH",
+      "tool": "blender",
+      "placeholder": "FB_WardenArmillaryM_Actions_PH",
+      "replaced_by": "0.39",
+      "why": "no enemy builder in stand_ins.py yet"
+    },
+    {
+      "gdd": "ANIM-08",
+      "family": "enemy",
+      "action": "WardenEscapement F: idle, locomotion, turn, tell, aim, fire (red and yellow), recoil, recovery, hit, wear, defeat",
+      "status": "_PH",
+      "tool": "blender",
+      "placeholder": "FB_WardenEscapementF_Actions_PH",
+      "replaced_by": "0.39",
+      "why": "no enemy builder in stand_ins.py yet"
+    },
+    {
+      "gdd": "ANIM-08",
+      "family": "enemy",
+      "action": "WardenEscapement M: idle, locomotion, turn, tell, aim, fire (red and yellow), recoil, recovery, hit, wear, defeat",
+      "status": "_PH",
+      "tool": "blender",
+      "placeholder": "FB_WardenEscapementM_Actions_PH",
+      "replaced_by": "0.39",
+      "why": "no enemy builder in stand_ins.py yet"
+    },
+    {
+      "gdd": "ANIM-08",
+      "family": "enemy",
+      "action": "Floodstrider F: idle, locomotion, turn, tell, aim, fire (red and yellow), recoil, recovery, hit, wear, defeat, stilt stepping and height changes",
+      "status": "_PH",
+      "tool": "blender",
+      "placeholder": "FB_FloodstriderF_Actions_PH",
+      "replaced_by": "0.39",
+      "why": "no enemy builder in stand_ins.py yet"
+    },
+    {
+      "gdd": "ANIM-08",
+      "family": "enemy",
+      "action": "Floodstrider M: idle, locomotion, turn, tell, aim, fire (red and yellow), recoil, recovery, hit, wear, defeat, stilt stepping and height changes",
+      "status": "_PH",
+      "tool": "blender",
+      "placeholder": "FB_FloodstriderM_Actions_PH",
+      "replaced_by": "0.39",
+      "why": "no enemy builder in stand_ins.py yet"
+    },
+    {
+      "gdd": "ANIM-08",
+      "family": "enemy",
+      "action": "Courier F: idle, locomotion, turn, tell, aim, fire (red and yellow), recoil, recovery, hit, wear, defeat, hover and flight",
+      "status": "_PH",
+      "tool": "blender",
+      "placeholder": "FB_CourierF_Actions_PH",
+      "replaced_by": "0.39",
+      "why": "no enemy builder in stand_ins.py yet"
+    },
+    {
+      "gdd": "ANIM-08",
+      "family": "enemy",
+      "action": "Courier M: idle, locomotion, turn, tell, aim, fire (red and yellow), recoil, recovery, hit, wear, defeat, hover and flight",
+      "status": "_PH",
+      "tool": "blender",
+      "placeholder": "FB_CourierM_Actions_PH",
+      "replaced_by": "0.39",
+      "why": "no enemy builder in stand_ins.py yet"
+    },
+    {
+      "gdd": "ANIM-08",
+      "family": "world",
+      "action": "broad current / catch / return fields, refuge, yellow bay, mill sweep, shutter, bellows front",
+      "status": "_PH",
+      "tool": "blender",
+      "placeholder": "T_Env_Fields_PH",
+      "replaced_by": "0.41"
+    },
+    {
+      "gdd": "BG-03",
+      "family": "background",
+      "action": "atmosphere set (cloud, mist, water, wind, clock face and hands, sky, clock ridges)",
+      "status": "_PH",
+      "tool": "blender",
+      "placeholder": "T_Env_Atmosphere_PH",
+      "replaced_by": "0.41"
+    },
+    {
+      "gdd": "BG-04",
+      "family": "background",
+      "action": "architecture (barn, factory, school, chapel; upright and inverted) and land",
+      "status": "recipe",
+      "tool": "blender",
+      "recipe": "skyline.Still",
+      "why": "the skyline stand-in covers the far layer; the authored buildings are card 0.41"
+    },
+    {
+      "gdd": "ART-08",
+      "family": "ui",
+      "action": "clock HUD: face, health hand, life hand, lit arc; XP ring",
+      "asset_ids": ["UI-XP-01"],
+      "status": "_PH",
+      "tool": "blender",
+      "placeholder": "T_HUD_Clock_PH",
+      "replaced_by": "0.40"
+    },
+    {
+      "gdd": "ART-08",
+      "family": "ui",
+      "action": "menu environments, animated Pause backdrop, Journey Complete art",
+      "asset_ids": ["UI-WIN-01"],
+      "status": "_PH",
+      "tool": "blender",
+      "placeholder": "T_Menu_Backdrop_PH",
+      "replaced_by": "0.40"
+    },
+    {
+      "gdd": "VFX-03",
+      "family": "vfx",
+      "action": "four spell families: release, travel or sustain, impact, end, cancel",
+      "status": "_PH",
+      "tool": "unreal",
+      "placeholder": "NS_Spell_Families_PH",
+      "replaced_by": "0.41"
+    },
+    {
+      "gdd": "VFX-04",
+      "family": "vfx",
+      "action": "red and yellow launch, travel, impact, yellow pull-in and capture, heal confirmation",
+      "status": "recipe",
+      "tool": "blender",
+      "recipe": "bolt.Still",
+      "why": "the shot head renders now; trails and capture are Unreal effects (card 0.41)"
+    },
+    {
+      "gdd": "VFX-05",
+      "family": "vfx",
+      "action": "Keeper effects: warnings, gust front, clock beat, stun, slow ring, eye, blackout, departure",
+      "status": "_PH",
+      "tool": "unreal",
+      "placeholder": "NS_Keeper_Effects_PH",
+      "replaced_by": "0.41"
+    }
+  ]
+}

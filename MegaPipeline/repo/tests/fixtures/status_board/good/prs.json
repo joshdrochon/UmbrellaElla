@@ -1,0 +1,8 @@
+[
+ {"number": 40, "title": "UE-12: umbrella lift", "headRefName": "ue-12-umbrella-lift", "url": "https://github.com/o/r/pull/40", "isDraft": false, "body": "Closes #12",
+  "statusCheckRollup": [{"__typename": "CheckRun", "name": "checks", "status": "COMPLETED", "conclusion": "SUCCESS"}]},
+ {"number": 41, "title": "UE-13: arena", "headRefName": "ue-13-arena", "url": "https://github.com/o/r/pull/41", "isDraft": true, "body": "Closes #13",
+  "statusCheckRollup": [{"__typename": "CheckRun", "name": "checks", "status": "COMPLETED", "conclusion": "FAILURE"}]},
+ {"number": 42, "title": "docs tweak", "headRefName": "docs-tweak", "url": "https://github.com/o/r/pull/42", "isDraft": false, "body": "Part of #15",
+  "statusCheckRollup": [{"__typename": "CheckRun", "name": "checks", "status": "IN_PROGRESS", "conclusion": ""}]}
+]

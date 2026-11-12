@@ -1,0 +1,35 @@
+--- a/Source/UmbrellaElla/Public/Owl/ClockworkOwl.h
++++ b/Source/UmbrellaElla/Public/Owl/ClockworkOwl.h
+@@ -2,6 +2,8 @@
+ #include "CoreMinimal.h"
+ #include "GameFramework/Actor.h"
+ #include "ClockworkOwl.generated.h"
++
++class UPaperFlipbookComponent;
+ 
+ UENUM()
+ enum class EOwlState : uint8
+@@ -38,6 +40,8 @@
+ 
+ 	UPROPERTY(VisibleAnywhere, Category = "Owl")
+ 	TObjectPtr<UBoxComponent> Hitbox;
++	UPROPERTY(VisibleAnywhere, Category = "Owl")
++	TObjectPtr<UPaperFlipbookComponent> Sprite;
+ 	UPROPERTY()
+ 	EOwlState State = EOwlState::Drifting;
+ };
+--- a/Source/UmbrellaElla/Private/Owl/ClockworkOwl.cpp
++++ b/Source/UmbrellaElla/Private/Owl/ClockworkOwl.cpp
+@@ -1,4 +1,5 @@
+ #include "Owl/ClockworkOwl.h"
++#include "PaperFlipbookComponent.h"
+ #include "Core/UmbrellaTuning.h"
+ 
+ FVector FOwlRules::NextDriftPosition(const FVector& Current, const FVector& Target, float Speed, float DeltaSeconds)
+@@ -17,4 +18,6 @@
+ {
+ 	Super::BeginPlay();
+ 	ResetForRestart();
++	Sprite = CreateDefaultSubobject<UPaperFlipbookComponent>(TEXT("Sprite"));
++	Sprite->SetupAttachment(RootComponent);
+ }

@@ -1,0 +1,25 @@
+{
+  "clean": false,
+  "defects": [
+    {
+      "id": "attack-gating-inverted",
+      "severity": "blocker",
+      "file": "Source/UmbrellaElla/Private/Attack/AttackEmitterComponent.cpp",
+      "lines": [
+        49,
+        49
+      ],
+      "keywords": [
+        "invert",
+        "negat",
+        "flag",
+        "off",
+        "com_01",
+        "com-01",
+        "isfeatureenabled",
+        "inv-1",
+        "!"
+      ]
+    }
+  ]
+}

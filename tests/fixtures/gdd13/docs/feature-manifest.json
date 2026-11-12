@@ -1,0 +1,1486 @@
+{
+ "manifest_version": "1.3-m1",
+ "gdd_revision": "1.3",
+ "gdd_snapshot": "docs/gdd/GDD-1.3.md",
+ "rules_pdf": {
+  "docs/rules/2026_Epic_AI_MegaJam_Official_Rules_EN.pdf": "71457d4dc8bea132e2a45dbffcffddcd6b9c69330706595b1e5fe32e9f042603"
+ },
+ "gdd_snapshots": {
+  "docs/gdd/GDD-B1.0.md": "d49509cb448446d27e933ce38cd3ea0b3ed2150ea5cc1fa9bdb9f4aca942858d",
+  "docs/gdd/GDD-1.3.md": "4d7e985b07e547b70d673f8feeea3451ecbbac8c2a1745d5246e4deb7c6bf6c8"
+ },
+ "note": "One record per feature/rule ID in the current GDD snapshot. Statuses are copied from the GDD, never promoted. Only the design owner (Richard, GDD 1.3 section 14) and the technical lead (Josh) change status or implementation_authorized, and every status change is a manifest PR with the gdd_impact.py list. GDD 1.3 marks the P0 baseline APPROVED_P0 (Richard, 8 Nov 2026), so those records are implementation_authorized; APPROVED_P0 still means build only after the official jam start (Interpretation contract). Checked by tools/manifest_check.py. The tests mapping (feature -> QA ids) is the pipeline's reading, kept in step with pipeline/qa/test-map.md; the GDD gives it only for UMB-03 (Appendix B) (D-new-qa-mapping). default_enabled is also the shipped flag default: tools/bake_preset.py writes it from the approved workbench preset (D-new-workbench-debug), and only for implementation_authorized records when it differs. Numbers: approved_parameters (GDD 1.3 section 5A).",
+ "statuses": [
+  "CONFIRMED",
+  "APPROVED_P0",
+  "APPROVED_P1",
+  "PROPOSED",
+  "EXPERIMENT",
+  "DEFERRED",
+  "OPEN",
+  "REJECTED"
+ ],
+ "priorities": [
+  "P0",
+  "P0_recommended",
+  "P1_candidate",
+  "experiment",
+  "unstated",
+  "none"
+ ],
+ "modules": {
+  "input_adapter": "Input Adapter",
+  "player_motor": "Player Motor",
+  "umbrella_state": "Umbrella State",
+  "attack_emitter": "Attack Emitter",
+  "defense_receiver": "Defense Receiver",
+  "health_condition": "Health/Condition",
+  "projectile_service": "Projectile Service",
+  "boss_director": "Boss Director",
+  "wind_hazard_field": "Wind/Hazard Field",
+  "encounter_director": "Encounter Director",
+  "feedback_adapter": "Feedback Adapter",
+  "test_harness": "Test Harness",
+  "hit_region_router": "Hit Region Router",
+  "animation_presenter": "Animation Presenter",
+  "background_presenter": "Background Presenter"
+ },
+ "events": [
+  "UmbrellaConfigChanged",
+  "LiftAvailabilityChanged",
+  "PlayerHealthChanged",
+  "ProjectileSpawned",
+  "ProjectileContact",
+  "CatchAttempt",
+  "CatchSucceeded",
+  "CatchFailed",
+  "BossTargetHit",
+  "BossAttackTelegraphed",
+  "WindEntered",
+  "WindExited",
+  "PlayerDefeated",
+  "EncounterCompleted",
+  "TestPresetLoaded",
+  "AnimationCue",
+  "BackgroundLooped"
+ ],
+ "event_fields": [
+  "timestamp_or_frame",
+  "source_id",
+  "target_id",
+  "run_config_id",
+  "relevant_feature_ids"
+ ],
+ "rejected_without_id": [
+  {
+   "name": "automatic fast fall from umbrella state (closed/lowered = faster fall; any per-state gravity multiplier)",
+   "status": "REJECTED",
+   "gdd_ref": "GDD 1.3 section 3 critical invariant; section 5A ('No per-state gravity multiplier exists'). A separate optional fast-fall modifier is MOVE-02, EXPERIMENT and off."
+  }
+ ],
+ "build_parameters": {
+  "camera_mode": {
+   "default": "fixed_single_screen",
+   "allowed": [
+    "fixed_single_screen",
+    "scrolling"
+   ],
+   "status": "APPROVED_P0",
+   "gdd_ref": "GDD 1.3 section 1 World (fixed-camera single-screen arena); section 7 Encounter space (fixed 16:9 gameplay camera); Appendix A Arena (fixed camera REQUIRED). Scrolling is CAM-02, EXPERIMENT, off.",
+   "known_limitations": [
+    "GDD 1.3 answers Q11: fixed 16:9 single screen is P0. 'scrolling' stays an allowed value only for the CAM-02 experiment (off). Background layers slide (BG-01) but never move the camera or hitboxes."
+   ]
+  }
+ },
+ "team_baseline": {
+  "source": "11/8 team meeting (Drive Meeting Notes, 11/8); decision row D-new-team-baseline",
+  "standing": "Pipeline default only. Not a GDD approval: no status, priority or implementation_authorized changes until Richard (GDD approver) confirms, with the design reviewer from the 11/8 notes reviewing.",
+  "agreed": [
+   "Open umbrella = ascent, closed = descent.",
+   "Attack-descent mode fires automatic straight-ahead shots that stop when the umbrella opens (COM-01, DEC-02).",
+   "A separate shield-descent mode absorbs shots and heals the umbrella. GDD B1.0 has no feature ID for it yet (DEC-03).",
+   "Controller in scope for PC; mobile and swipe out (DEC-01).",
+   "Ascent causes no wear; certain wind currents damage the umbrella (WIND-02, DEC-07).",
+   "The umbrella's visual condition is the health (DEC-04); healing only via shield mode.",
+   "Screens: title/start, defeat, survived (the owl leaves).",
+   "Pipeline frozen before the Nov 12 kickoff. Feature-complete Nov 13, Nov 14 test and polish (planning target)."
+  ],
+  "defaulted_2026_11_09": {
+   "standing": "DEFAULTED 2026-11-09 00:00 PST, changeable; design items need Richard (GDD approver) to confirm. Source: Josh's default to the team, 9:08 PM 8 Nov.",
+   "p0": "Recommended baseline approved for Nov 12 builds, pending Richard (D-new-p0-signoff). Records stay unsigned here.",
+   "keys": "A/D move, Space hold for umbrella, Esc pause, remappable; attack-descent and shield-descent bindings. All PROPOSED (DEC-01).",
+   "completion": "A timer as a test-only placeholder; DEC-06 stays open.",
+   "two_part_status": "Treated as OPEN, behind the feature flag (D-new-two-part-status).",
+   "unstated_status": "COM-02, COM-03 EXPERIMENT; COM-04, VFX-01 PROPOSED; all off (D-new-unstated-status).",
+   "qa_mapping": "The current tests mapping; Rick and Richard check it at sign-off (D-new-qa-mapping)."
+  },
+  "superseded_by_gdd_1_3": "GDD 1.3 (Richard-approved, commit 73b6a93) answers the 11/8 baseline and the 2026-11-09 midnight defaults. Where they differ the GDD wins: default is UP_OPEN, hold ATTACK (left mouse / R2) or SHIELD (right mouse / L2) to descend, shield wins; P0 is approved; completion is 90 s ACTIVE time; shield heals 20 HP with a 2 s cooldown; wind wear and owl gust off. 'Space hold for umbrella' and 'timer as a test-only placeholder' no longer apply. Source: GDD v1.3."
+ },
+ "features": [
+  {
+   "feature_id": "CORE-01",
+   "name": "horizontal_movement",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "player_motor",
+    "input_adapter"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "move_speed",
+    "move_accel",
+    "open_steer_multiplier"
+   ],
+   "emits": [],
+   "tests": [
+    "QA-02"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "CORE_01",
+   "gdd_revision": "1.3",
+   "known_limitations": [
+    "APPROVED_P0 in GDD 1.3 (Richard, 8 Nov 2026). Build only after the official jam start (Nov 11 21:00 PST, D39). Answers D-new-p0-signoff (source: GDD v1.3).",
+    "Section 3 step 5: steering is read independently of umbrella configuration, in every state.",
+    "Wind/dash-only steering variants are MOVE-03 (EXPERIMENT, off)."
+   ]
+  },
+  {
+   "feature_id": "CORE-02",
+   "name": "gravity_fall",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "player_motor"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "gravity",
+    "max_fall_speed"
+   ],
+   "emits": [],
+   "tests": [
+    "QA-01"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "CORE_02",
+   "gdd_revision": "1.3",
+   "known_limitations": [
+    "APPROVED_P0 in GDD 1.3 (Richard, 8 Nov 2026). Build only after the official jam start (Nov 11 21:00 PST, D39). Answers D-new-p0-signoff (source: GDD v1.3).",
+    "One gravity rule whenever upright-open lift is unavailable; attack and shield descent fall naturally. No per-state gravity multiplier (section 5A). Extra fast fall is MOVE-02 (off).",
+    "Fall speed is fixed in the shipped build; sliders exist in debug builds only (D-new-workbench-debug)."
+   ]
+  },
+  {
+   "feature_id": "UMB-01",
+   "name": "upright_open_lift",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "umbrella_state",
+    "player_motor"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "ascent_speed",
+    "ascent_accel"
+   ],
+   "emits": [
+    "UmbrellaConfigChanged",
+    "LiftAvailabilityChanged"
+   ],
+   "sounds": [
+    "UmbrellaOpen"
+   ],
+   "tests": [
+    "QA-01",
+    "QA-02",
+    "QA-13"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "UMB_01",
+   "gdd_revision": "1.3",
+   "known_limitations": [
+    "APPROVED_P0 in GDD 1.3 (Richard, 8 Nov 2026). Build only after the official jam start (Nov 11 21:00 PST, D39). Answers D-new-p0-signoff (source: GDD v1.3).",
+    "UP_OPEN is the default when ATTACK and SHIELD are released; only UP_OPEN lifts (section 3 steps 6-7)."
+   ]
+  },
+  {
+   "feature_id": "CORE-03",
+   "name": "limited_health_and_bottom_defeat",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "health_condition",
+    "player_motor"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "max_health",
+    "bolt_damage",
+    "invulnerability_s"
+   ],
+   "emits": [
+    "PlayerHealthChanged",
+    "PlayerDefeated"
+   ],
+   "sounds": [
+    "PlayerHurt"
+   ],
+   "tests": [
+    "QA-06"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "CORE_03",
+   "gdd_revision": "1.3",
+   "known_limitations": [
+    "APPROVED_P0 in GDD 1.3 (Richard, 8 Nov 2026). Build only after the official jam start (Nov 11 21:00 PST, D39). Answers D-new-p0-signoff (source: GDD v1.3).",
+    "One HP resource (100 HP, 34 per bolt, 0.8 s invulnerability). Three hits is a consequence of the numbers, not a hit counter (section 6). Answers DEC-04 (source: GDD v1.3)."
+   ]
+  },
+  {
+   "feature_id": "END-01",
+   "name": "survive_until_owl_departs",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "encounter_director"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "survival_s"
+   ],
+   "emits": [
+    "EncounterCompleted"
+   ],
+   "sounds": [
+    "EndEvent"
+   ],
+   "tests": [
+    "QA-09",
+    "QA-17"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "END_01",
+   "gdd_revision": "1.3",
+   "known_limitations": [
+    "APPROVED_P0 in GDD 1.3 (Richard, 8 Nov 2026). Build only after the official jam start (Nov 11 21:00 PST, D39). Answers D-new-p0-signoff (source: GDD v1.3).",
+    "Completion: 90 s of accumulated unpaused ACTIVE time; the rule stays replaceable (section 8). Answers DEC-06 (source: GDD v1.3). The owl cannot be killed.",
+    "Defeat and completion in the same update: defeat wins; exactly one terminal event (section 7B)."
+   ]
+  },
+  {
+   "feature_id": "COM-01",
+   "name": "automatic_attack",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "attack_emitter",
+    "UMB-02"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "cadence",
+    "bolt_speed"
+   ],
+   "emits": [
+    "ProjectileSpawned"
+   ],
+   "sounds": [
+    "WandBolt"
+   ],
+   "tests": [
+    "QA-02",
+    "QA-13",
+    "QA-21"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "COM_01",
+   "gdd_revision": "1.3",
+   "known_limitations": [
+    "APPROVED_P0 in GDD 1.3 (Richard, 8 Nov 2026). Build only after the official jam start (Nov 11 21:00 PST, D39). Answers D-new-p0-signoff (source: GDD v1.3).",
+    "Hold ATTACK -> ATTACK_DESCENT -> fixed +X shots, first one on entry, then every 0.65 active s; shield or release stops new shots at once (section 7B). Answers DEC-02 (source: GDD v1.3).",
+    "Shots spawn from a stable named muzzle socket; animation frames never change cadence or direction (section 7A)."
+   ]
+  },
+  {
+   "feature_id": "UMB-02",
+   "name": "fixed_forward_attack_descent",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0 for fixed-forward configuration",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "umbrella_state",
+    "attack_emitter"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [
+    "UmbrellaConfigChanged"
+   ],
+   "sounds": [
+    "UmbrellaClose"
+   ],
+   "tests": [
+    "QA-02",
+    "QA-12",
+    "QA-13"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "UMB_02",
+   "gdd_revision": "1.3",
+   "known_limitations": [
+    "APPROVED_P0 in GDD 1.3 (Richard, 8 Nov 2026). Build only after the official jam start (Nov 11 21:00 PST, D39). Answers D-new-p0-signoff (source: GDD v1.3).",
+    "Only the fixed-forward (+X) configuration is approved. Variable aim angles and charged aim stay optional and unauthorized (Appendix D: 'player aim angle' not authorized). The old aim_arc parameter is removed."
+   ]
+  },
+  {
+   "feature_id": "UMB-03",
+   "name": "sideways_projectile_catch",
+   "status": "PROPOSED",
+   "status_text": "PROPOSED / OFF",
+   "owner": "unassigned",
+   "priority": "P1_candidate",
+   "default_enabled": false,
+   "requires": [
+    "UMB-01",
+    "DEF-01",
+    "projectile_service"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "catch_arc",
+    "catch_window",
+    "catch_cooldown"
+   ],
+   "emits": [
+    "CatchAttempt",
+    "CatchSucceeded",
+    "CatchFailed"
+   ],
+   "tests": [
+    "QA-02",
+    "QA-04",
+    "QA-10",
+    "QA-12"
+   ],
+   "implementation_authorized": false,
+   "ticket": null,
+   "flag": "UMB_03",
+   "gdd_revision": "1.3",
+   "known_limitations": [
+    "Appendix B lists projectile_contact in requires; that is the ProjectileContact event of the Projectile Service, recorded here as projectile_service. Appendix B acceptance_tests: QA-04, QA-10.",
+    "Toggle at reset. OPEN_LEFT / OPEN_RIGHT never give lift (section 3 steps 7, 9). Front shield is DEF-01."
+   ]
+  },
+  {
+   "feature_id": "UMB-04",
+   "name": "umbrella_inversion",
+   "status": "EXPERIMENT",
+   "status_text": "EXPERIMENT / OFF",
+   "owner": "unassigned",
+   "priority": "experiment",
+   "default_enabled": false,
+   "requires": [
+    "WIND-01",
+    "umbrella_state"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "recovery_time"
+   ],
+   "emits": [
+    "UmbrellaConfigChanged"
+   ],
+   "tests": [
+    "QA-02"
+   ],
+   "implementation_authorized": false,
+   "ticket": null,
+   "flag": "UMB_04",
+   "gdd_revision": "1.3",
+   "known_limitations": [
+    "Needs a contained ticket, scenario and acceptance measure before any code (Interpretation contract). Toggle at reset."
+   ]
+  },
+  {
+   "feature_id": "SURV-02",
+   "name": "visible_umbrella_wear",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "health_condition",
+    "feedback_adapter"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [
+    "PlayerHealthChanged"
+   ],
+   "tests": [
+    "QA-01"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "SURV_02",
+   "gdd_revision": "1.3",
+   "known_limitations": [
+    "APPROVED_P0 in GDD 1.3 (Richard, 8 Nov 2026). Build only after the official jam start (Nov 11 21:00 PST, D39). Answers D-new-p0-signoff (source: GDD v1.3).",
+    "Umbrella wear shows the one HP value in four stages (intact 67-100, damaged 34-66, critical 1-33, defeated 0). Damage never reduces lift in baseline; that is SURV-04 (off). Answers DEC-04 and DEC-05 (source: GDD v1.3).",
+    "Renamed from condition_affects_lift: in GDD 1.3 the lift effect has its own ID (SURV-04)."
+   ]
+  },
+  {
+   "feature_id": "SURV-03",
+   "name": "shield_absorption_heal",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "DEF-01",
+    "health_condition"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "restore_amount",
+    "heal_cooldown_s"
+   ],
+   "emits": [
+    "PlayerHealthChanged"
+   ],
+   "sounds": [
+    "ShieldHeal"
+   ],
+   "tests": [
+    "QA-05",
+    "QA-10",
+    "QA-12"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "SURV_03",
+   "gdd_revision": "1.3",
+   "known_limitations": [
+    "APPROVED_P0 in GDD 1.3 (Richard, 8 Nov 2026). Build only after the official jam start (Nov 11 21:00 PST, D39). Answers D-new-p0-signoff (source: GDD v1.3).",
+    "A successful front catch heals 20 HP if the 2 s cooldown is ready; inside the cooldown the bolt is still blocked but heals 0. Never above max (section 6). Health/Condition owns the heal. Answers DEC-03 (source: GDD v1.3).",
+    "Was catch_restores_condition, requiring UMB-03; GDD 1.3 ties it to the front shield (DEF-01)."
+   ]
+  },
+  {
+   "feature_id": "WIND-01",
+   "name": "wind_force",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "wind_hazard_field",
+    "player_motor"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "gust_force",
+    "active_s"
+   ],
+   "emits": [
+    "WindEntered",
+    "WindExited"
+   ],
+   "sounds": [
+    "GustCatch"
+   ],
+   "tests": [
+    "QA-07",
+    "QA-12",
+    "QA-23"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "WIND_01",
+   "gdd_revision": "1.3",
+   "known_limitations": [
+    "APPROVED_P0 in GDD 1.3 (Richard, 8 Nov 2026). Build only after the official jam start (Nov 11 21:00 PST, D39). Answers D-new-p0-signoff (source: GDD v1.3).",
+    "One safe environmental upward current, +180 cm/s while inside, no wear; off only in the T-02 movement test. Distinct from owl gusts (OWL-02). Answers DEC-07 (source: GDD v1.3)."
+   ]
+  },
+  {
+   "feature_id": "WIND-02",
+   "name": "wind_wear",
+   "status": "EXPERIMENT",
+   "status_text": "EXPERIMENT / OFF",
+   "owner": "unassigned",
+   "priority": "experiment",
+   "default_enabled": false,
+   "requires": [
+    "WIND-01",
+    "health_condition"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "wind_wear"
+   ],
+   "emits": [
+    "PlayerHealthChanged"
+   ],
+   "tests": [
+    "QA-07",
+    "QA-10"
+   ],
+   "implementation_authorized": false,
+   "ticket": null,
+   "flag": "WIND_02",
+   "gdd_revision": "1.3",
+   "known_limitations": [
+    "Needs a visible danger cue and approval (section 2). DEC-07: wear off in baseline (source: GDD v1.3)."
+   ]
+  },
+  {
+   "feature_id": "OWL-01",
+   "name": "telegraphed_owl_bolt",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "boss_director",
+    "projectile_service"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "telegraph_delay",
+    "projectile_speed",
+    "cadence",
+    "initial_grace_s",
+    "seed",
+    "collision_radius"
+   ],
+   "emits": [
+    "BossAttackTelegraphed",
+    "ProjectileSpawned",
+    "ProjectileContact"
+   ],
+   "sounds": [
+    "OwlBoltWindup",
+    "OwlBoltLaunch"
+   ],
+   "tests": [
+    "QA-03",
+    "QA-08",
+    "QA-17",
+    "QA-20"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "OWL_01",
+   "gdd_revision": "1.3",
+   "known_limitations": [
+    "APPROVED_P0 in GDD 1.3 (Richard, 8 Nov 2026). Build only after the official jam start (Nov 11 21:00 PST, D39). Answers D-new-p0-signoff (source: GDD v1.3).",
+    "Section 7B: 2.0 s grace, telegraph every 3.0 active s, aim snapshot at windup (no homing), 0.75 s warning, 350 cm/s straight bolt, seed 20261112. collision_radius is per-asset data, ENGINEERING_PROVISIONAL."
+   ]
+  },
+  {
+   "feature_id": "OWL-02",
+   "name": "wing_gust_attack",
+   "status": "PROPOSED",
+   "status_text": "PROPOSED / OFF",
+   "owner": "unassigned",
+   "priority": "P1_candidate",
+   "default_enabled": false,
+   "requires": [
+    "boss_director",
+    "wind_hazard_field"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "gust_force",
+    "warning_s",
+    "active_s",
+    "recovery_s"
+   ],
+   "emits": [
+    "BossAttackTelegraphed",
+    "WindEntered",
+    "WindExited"
+   ],
+   "tests": [
+    "QA-07",
+    "QA-23"
+   ],
+   "implementation_authorized": false,
+   "ticket": null,
+   "flag": "OWL_02",
+   "gdd_revision": "1.3",
+   "known_limitations": [
+    "Section 7 'Wing gust': P1 candidate. Owns its own spawn, warnings, damage and lifetime, separate from WIND-01."
+   ]
+  },
+  {
+   "feature_id": "OWL-03",
+   "name": "target_zone_consequences",
+   "status": "EXPERIMENT",
+   "status_text": "EXPERIMENT / OFF for special effects",
+   "owner": "unassigned",
+   "priority": "experiment",
+   "default_enabled": false,
+   "requires": [
+    "OWL-05",
+    "boss_director"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [
+    "BossTargetHit"
+   ],
+   "tests": [
+    "QA-08"
+   ],
+   "implementation_authorized": false,
+   "ticket": null,
+   "flag": "OWL_03",
+   "gdd_revision": "1.3",
+   "known_limitations": [
+    "Only the special effects are EXPERIMENT. The CLOCK/BODY hitboxes themselves are OWL-05 (APPROVED_P0).",
+    "Was PROPOSED in B1.0."
+   ]
+  },
+  {
+   "feature_id": "OWL-04",
+   "name": "returning_projectile",
+   "status": "EXPERIMENT",
+   "status_text": "EXPERIMENT / OFF",
+   "owner": "unassigned",
+   "priority": "experiment",
+   "default_enabled": false,
+   "requires": [
+    "projectile_service"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "reach",
+    "flight_s"
+   ],
+   "emits": [
+    "ProjectileSpawned",
+    "ProjectileContact"
+   ],
+   "tests": [
+    "QA-03"
+   ],
+   "implementation_authorized": false,
+   "ticket": null,
+   "flag": "OWL_04",
+   "gdd_revision": "1.3",
+   "known_limitations": [
+    "Needs a reviewed diagram and trajectory spec before building (section 7). Dedicated scenario."
+   ]
+  },
+  {
+   "feature_id": "HAZ-01",
+   "name": "steam_vent_hazard",
+   "status": "EXPERIMENT",
+   "status_text": "EXPERIMENT / OFF",
+   "owner": "unassigned",
+   "priority": "experiment",
+   "default_enabled": false,
+   "requires": [
+    "wind_hazard_field"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "warning_s",
+    "active_s",
+    "recovery_s"
+   ],
+   "emits": [],
+   "tests": [
+    "QA-10"
+   ],
+   "implementation_authorized": false,
+   "ticket": null,
+   "flag": "HAZ_01",
+   "gdd_revision": "1.3",
+   "known_limitations": [
+    "Independent of owl AI (section 7). Dedicated scenario."
+   ]
+  },
+  {
+   "feature_id": "FLOW-01",
+   "name": "pacing_restart_and_end_feedback",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "encounter_director",
+    "feedback_adapter"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "restart_delay_s",
+    "master_volume"
+   ],
+   "emits": [
+    "EncounterCompleted",
+    "PlayerDefeated"
+   ],
+   "sounds": [
+    "FailSting"
+   ],
+   "tests": [
+    "QA-06",
+    "QA-09",
+    "QA-11",
+    "QA-18",
+    "QA-19",
+    "QA-20"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "FLOW_01",
+   "gdd_revision": "1.3",
+   "known_limitations": [
+    "APPROVED_P0 in GDD 1.3 (Richard, 8 Nov 2026). Build only after the official jam start (Nov 11 21:00 PST, D39). Answers D-new-p0-signoff (source: GDD v1.3).",
+    "Title, pause, defeat, survived, restart and a deterministic lifecycle (section 2). Reset restores everything listed in section 7B. Pause freezes timer, projectiles, animation, background and attack scheduling."
+   ]
+  },
+  {
+   "feature_id": "NAR-01",
+   "name": "narrative",
+   "status": "DEFERRED",
+   "status_text": "DEFERRED / no implementation authority",
+   "owner": "unassigned",
+   "priority": "none",
+   "default_enabled": false,
+   "requires": [],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [],
+   "implementation_authorized": false,
+   "ticket": null,
+   "flag": "NAR_01",
+   "gdd_revision": "1.3",
+   "known_limitations": [
+    "Do not implement. No story in win logic, clock logic, boss AI, asset names or state ownership (section 1)."
+   ]
+  },
+  {
+   "feature_id": "DEF-01",
+   "name": "front_shield_descent",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "umbrella_state",
+    "defense_receiver",
+    "projectile_service",
+    "health_condition"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "shield_arc_deg"
+   ],
+   "emits": [
+    "CatchSucceeded",
+    "CatchFailed",
+    "UmbrellaConfigChanged"
+   ],
+   "sounds": [
+    "ShieldCatch"
+   ],
+   "tests": [
+    "QA-02",
+    "QA-05",
+    "QA-13",
+    "QA-20"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "DEF_01",
+   "gdd_revision": "1.3",
+   "known_limitations": [
+    "APPROVED_P0 in GDD 1.3 (Richard, 8 Nov 2026). Build only after the official jam start (Nov 11 21:00 PST, D39). Answers D-new-p0-signoff (source: GDD v1.3).",
+    "Hold SHIELD -> SHIELD_DESCENT: natural fall, no new shots, catches frontal (+X, 90 degree arc) owl bolts. SHIELD wins over ATTACK. New in GDD 1.3; this is the 11/8 shield-descent mode (DEC-01, DEC-03; source: GDD v1.3).",
+    "Defense Receiver consumes the shot and emits CatchSucceeded; it never changes health."
+   ]
+  },
+  {
+   "feature_id": "OWL-05",
+   "name": "clock_body_hit_regions",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "hit_region_router",
+    "boss_director"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "clock_extent",
+    "body_extent"
+   ],
+   "emits": [
+    "BossTargetHit"
+   ],
+   "sounds": [
+    "HitOwl",
+    "HitClock"
+   ],
+   "tests": [
+    "QA-14",
+    "QA-25"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "OWL_05",
+   "gdd_revision": "1.3",
+   "known_limitations": [
+    "APPROVED_P0 in GDD 1.3 (Richard, 8 Nov 2026). Build only after the official jam start (Nov 11 21:00 PST, D39). Answers D-new-p0-signoff (source: GDD v1.3).",
+    "CLOCK and BODY colliders with stable region IDs; CLOCK wins on overlap; one BossTargetHit per projectile. Clock-hit visual cue on, no clock effect. Owl has no HP and cannot die (section 7). Answers DEC-08 (source: GDD v1.3).",
+    "Collision sizes live in a gameplay collision config, never derived from art; changing them needs Richard's approval (section 7C)."
+   ]
+  },
+  {
+   "feature_id": "ANIM-01",
+   "name": "state_driven_character_animation",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "animation_presenter",
+    "umbrella_state"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "fps"
+   ],
+   "emits": [
+    "AnimationCue"
+   ],
+   "tests": [
+    "QA-15",
+    "QA-21",
+    "QA-25",
+    "QA-26",
+    "QA-27"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "ANIM_01",
+   "gdd_revision": "1.3",
+   "known_limitations": [
+    "APPROVED_P0 in GDD 1.3 (Richard, 8 Nov 2026). Build only after the official jam start (Nov 11 21:00 PST, D39). Answers D-new-p0-signoff (source: GDD v1.3).",
+    "Paper 2D flipbooks for UP_OPEN, ATTACK_DESCENT, SHIELD_DESCENT (2+ frames each, aim 4-6), 8 FPS. Provisional sheets or visible placeholders accepted until approved art; any art swap must not change physics or collision (sections 5, 7A, 7C). Static fallback only during integration."
+   ]
+  },
+  {
+   "feature_id": "BG-01",
+   "name": "parallax_background_layers",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0 (visual, safe static fallback)",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "background_presenter"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "far_speed",
+    "near_speed"
+   ],
+   "emits": [
+    "BackgroundLooped"
+   ],
+   "tests": [
+    "QA-16",
+    "QA-24"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "BG_01",
+   "gdd_revision": "1.3",
+   "known_limitations": [
+    "APPROVED_P0 in GDD 1.3 (Richard, 8 Nov 2026). Build only after the official jam start (Nov 11 21:00 PST, D39). Answers D-new-p0-signoff (source: GDD v1.3).",
+    "Two seamless layers slide left under the fixed camera, far slower than near; presentation only, no colliders, no wind. Missing art: neutral tiling or static fallback, logged. Textures are provisional (section 7A)."
+   ]
+  },
+  {
+   "feature_id": "QA-BASE",
+   "name": "dev_only_test_workbench",
+   "status": "APPROVED_P0",
+   "status_text": "APPROVED_P0 pipeline contract",
+   "owner": "unassigned",
+   "priority": "P0",
+   "default_enabled": true,
+   "requires": [
+    "test_harness"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [
+    "TestPresetLoaded"
+   ],
+   "tests": [
+    "QA-17",
+    "QA-18",
+    "QA-22",
+    "QA-28"
+   ],
+   "implementation_authorized": true,
+   "ticket": null,
+   "flag": "QA_BASE",
+   "gdd_revision": "1.3",
+   "known_limitations": [
+    "APPROVED_P0 in GDD 1.3 (Richard, 8 Nov 2026). Build only after the official jam start (Nov 11 21:00 PST, D39). Answers D-new-p0-signoff (source: GDD v1.3).",
+    "Development-only toggles, parameters, presets, reset, export and validation; no workbench in the submitted build (sections 2, 9, 10; D-new-workbench-debug). A pipeline contract, not a game mechanic.",
+    "Pre-jam, only the generic workbench on stand-in objects (D-new-workbench-prejam)."
+   ]
+  },
+  {
+   "feature_id": "COM-02",
+   "name": "clock_interrupt",
+   "status": "EXPERIMENT",
+   "status_text": "Experiment; reset (section 5)",
+   "owner": "unassigned",
+   "priority": "experiment",
+   "default_enabled": false,
+   "requires": [
+    "OWL-05",
+    "attack_emitter",
+    "boss_director"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "interrupt_s"
+   ],
+   "emits": [
+    "BossTargetHit"
+   ],
+   "tests": [
+    "QA-12"
+   ],
+   "implementation_authorized": false,
+   "ticket": null,
+   "flag": "COM_02",
+   "gdd_revision": "1.3",
+   "known_limitations": [
+    "GDD 1.3 gives no status in section 2; read from the section 5 Isolation column ('Experiment; reset') and section 7 ('effect experiment'). Was DEFAULTED the same way (D-new-unstated-status)."
+   ]
+  },
+  {
+   "feature_id": "COM-03",
+   "name": "wing_hit_changes_wind",
+   "status": "EXPERIMENT",
+   "status_text": "Experiment; reset (section 5)",
+   "owner": "unassigned",
+   "priority": "experiment",
+   "default_enabled": false,
+   "requires": [
+    "OWL-03",
+    "wind_hazard_field"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "gust_scale_by_hits"
+   ],
+   "emits": [
+    "BossTargetHit"
+   ],
+   "tests": [
+    "QA-10"
+   ],
+   "implementation_authorized": false,
+   "ticket": null,
+   "flag": "COM_03",
+   "gdd_revision": "1.3",
+   "known_limitations": [
+    "GDD 1.3 gives no status in section 2; read from the section 5 Isolation column. Needs an optional wing hitbox (section 7 'Wing target', Experiment / OFF)."
+   ]
+  },
+  {
+   "feature_id": "COM-04",
+   "name": "body_hit_response",
+   "status": "EXPERIMENT",
+   "status_text": "Experiment; reset (section 5)",
+   "owner": "unassigned",
+   "priority": "experiment",
+   "default_enabled": false,
+   "requires": [
+    "OWL-05",
+    "feedback_adapter"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [
+    "BossTargetHit"
+   ],
+   "tests": [
+    "QA-08",
+    "QA-14"
+   ],
+   "implementation_authorized": false,
+   "ticket": null,
+   "flag": "COM_04",
+   "gdd_revision": "1.3",
+   "known_limitations": [
+    "GDD 1.3 gives no status in section 2; read from the section 5 Isolation column ('Experiment; reset'). Normal body-hit feedback is part of OWL-05 and stays on; only special consequences are this experiment.",
+    "Was PROPOSED by default (D-new-unstated-status); GDD 1.3 now prints Experiment."
+   ]
+  },
+  {
+   "feature_id": "SURV-04",
+   "name": "wear_reduces_lift",
+   "status": "EXPERIMENT",
+   "status_text": "Experiment; reset (section 5)",
+   "owner": "unassigned",
+   "priority": "experiment",
+   "default_enabled": false,
+   "requires": [
+    "health_condition",
+    "player_motor"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "lift_by_condition"
+   ],
+   "emits": [],
+   "tests": [
+    "QA-10"
+   ],
+   "implementation_authorized": false,
+   "ticket": null,
+   "flag": "SURV_04",
+   "gdd_revision": "1.3",
+   "known_limitations": [
+    "GDD 1.3 gives no status in section 2; status read from the section 5 Isolation column ('Experiment; reset'). DEC-05: no lift reduction in baseline. If ever on, a test must show recovery stays possible (section 6)."
+   ]
+  },
+  {
+   "feature_id": "VFX-01",
+   "name": "background_pressure_motif",
+   "status": "PROPOSED",
+   "status_text": "Optional; reset (section 5); no section 2 status",
+   "owner": "unassigned",
+   "priority": "unstated",
+   "default_enabled": false,
+   "requires": [
+    "background_presenter",
+    "encounter_director"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "motif_steps"
+   ],
+   "emits": [],
+   "tests": [
+    "QA-11"
+   ],
+   "implementation_authorized": false,
+   "ticket": null,
+   "flag": "VFX_01",
+   "gdd_revision": "1.3",
+   "known_limitations": [
+    "GDD 1.3 still gives no status word (section 5: 'Optional; reset'). Kept PROPOSED, off (D-new-unstated-status). DEC-09: optional dynamic background intensity OFF (source: GDD v1.3). Question Q3 in docs/gdd/questions-1.3.md."
+   ]
+  },
+  {
+   "feature_id": "CAM-02",
+   "name": "scrolling_camera",
+   "status": "EXPERIMENT",
+   "status_text": "Experiment; reset (section 5)",
+   "owner": "unassigned",
+   "priority": "experiment",
+   "default_enabled": false,
+   "requires": [
+    "player_motor"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-24"
+   ],
+   "implementation_authorized": false,
+   "ticket": null,
+   "flag": "CAM_02",
+   "gdd_revision": "1.3",
+   "known_limitations": [
+    "Actual camera/world scrolling, off. The camera_mode build parameter's 'scrolling' value is this experiment."
+   ]
+  },
+  {
+   "feature_id": "MOVE-02",
+   "name": "extra_fast_fall",
+   "status": "EXPERIMENT",
+   "status_text": "Experiment; reset (section 5)",
+   "owner": "unassigned",
+   "priority": "experiment",
+   "default_enabled": false,
+   "requires": [
+    "player_motor"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-01"
+   ],
+   "implementation_authorized": false,
+   "ticket": null,
+   "flag": "MOVE_02",
+   "gdd_revision": "1.3",
+   "known_limitations": [
+    "An isolated optional acceleration modifier; never tied to umbrella state (section 3 critical invariant). Appendix D: 'extra fast fall' not authorized."
+   ]
+  },
+  {
+   "feature_id": "MOVE-03",
+   "name": "wind_only_steering_and_dash",
+   "status": "EXPERIMENT",
+   "status_text": "Experiment; reset (section 5)",
+   "owner": "unassigned",
+   "priority": "experiment",
+   "default_enabled": false,
+   "requires": [
+    "input_adapter",
+    "player_motor"
+   ],
+   "conflicts": [],
+   "parameters": [
+    "dash_speed",
+    "dash_duration"
+   ],
+   "emits": [],
+   "tests": [
+    "QA-02"
+   ],
+   "implementation_authorized": false,
+   "ticket": null,
+   "flag": "MOVE_03",
+   "gdd_revision": "1.3",
+   "known_limitations": [
+    "Replaces direct steering when on; CORE-01 direct steering is the approved default."
+   ]
+  },
+  {
+   "feature_id": "ART-02",
+   "name": "dev_art_set_selector",
+   "status": "PROPOSED",
+   "status_text": "Optional debug capability / OFF (section 5); no section 2 status",
+   "owner": "unassigned",
+   "priority": "unstated",
+   "default_enabled": false,
+   "requires": [
+    "feedback_adapter",
+    "animation_presenter",
+    "ANIM-01"
+   ],
+   "conflicts": [],
+   "parameters": [],
+   "emits": [],
+   "tests": [
+    "QA-26",
+    "QA-27",
+    "QA-28"
+   ],
+   "implementation_authorized": false,
+   "ticket": null,
+   "flag": "ART_02",
+   "gdd_revision": "1.3",
+   "known_limitations": [
+    "GDD 1.3 gives no status word. Recorded PROPOSED (no implementation authority), off, like VFX-01. Question Q2 in docs/gdd/questions-1.3.md.",
+    "Developer builds only; never changes hitboxes, physics, projectile spawn or rules. Not in the shipping UI (QA-28). Art mappings stay replaceable without it (section 7C)."
+   ]
+  }
+ ],
+ "approved_parameters": {
+  "source": "GDD 1.3 section 5A, approved by Richard as provisional tuning (not balanced values). Units: Unreal cm and s. Sliders show unit and value, stay in range, use the step, apply on scenario reset unless live-safe. Omitted values: an explicit per-module safe value marked ENGINEERING_PROVISIONAL here. No AI tunes these.",
+  "values": {
+   "CORE-01.move_speed": {
+    "start": 350,
+    "step": 25,
+    "min": 150,
+    "max": 650,
+    "unit": "cm/s"
+   },
+   "CORE-01.move_accel": {
+    "start": 1800,
+    "step": 100,
+    "min": 400,
+    "max": 3500,
+    "unit": "cm/s^2"
+   },
+   "CORE-01.open_steer_multiplier": {
+    "start": 100,
+    "step": 5,
+    "min": 50,
+    "max": 125,
+    "unit": "%"
+   },
+   "CORE-02.gravity": {
+    "start": 980,
+    "step": 20,
+    "min": 400,
+    "max": 1600,
+    "unit": "cm/s^2"
+   },
+   "CORE-02.max_fall_speed": {
+    "start": 650,
+    "step": 25,
+    "min": 250,
+    "max": 1000,
+    "unit": "cm/s"
+   },
+   "UMB-01.ascent_speed": {
+    "start": 300,
+    "step": 25,
+    "min": 120,
+    "max": 550,
+    "unit": "cm/s"
+   },
+   "UMB-01.ascent_accel": {
+    "start": 1200,
+    "step": 100,
+    "min": 400,
+    "max": 2600,
+    "unit": "cm/s^2"
+   },
+   "MOVE-03.dash_speed": {
+    "start": 750,
+    "step": 25,
+    "min": 350,
+    "max": 1200,
+    "unit": "cm/s",
+    "note": "OFF"
+   },
+   "MOVE-03.dash_duration": {
+    "start": 0.15,
+    "step": 0.01,
+    "min": 0.08,
+    "max": 0.35,
+    "unit": "s",
+    "note": "OFF"
+   },
+   "COM-01.cadence": {
+    "start": 0.65,
+    "step": 0.05,
+    "min": 0.2,
+    "max": 1.5,
+    "unit": "s"
+   },
+   "COM-01.bolt_speed": {
+    "start": 700,
+    "step": 50,
+    "min": 300,
+    "max": 1400,
+    "unit": "cm/s"
+   },
+   "OWL-01.projectile_speed": {
+    "start": 350,
+    "step": 25,
+    "min": 150,
+    "max": 900,
+    "unit": "cm/s"
+   },
+   "OWL-01.telegraph_delay": {
+    "start": 0.75,
+    "step": 0.05,
+    "min": 0.3,
+    "max": 1.5,
+    "unit": "s"
+   },
+   "OWL-01.cadence": {
+    "start": 3.0,
+    "step": 0.25,
+    "min": 1.2,
+    "max": 6.0,
+    "unit": "s"
+   },
+   "OWL-01.initial_grace_s": {
+    "start": 2.0,
+    "unit": "s",
+    "note": "configurable; GDD 1.3 7B gives no range"
+   },
+   "OWL-01.seed": {
+    "start": 20261112,
+    "unit": "integer",
+    "note": "fixed, no slider; logged and exported"
+   },
+   "CORE-03.max_health": {
+    "start": 100,
+    "step": 5,
+    "min": 50,
+    "max": 200,
+    "unit": "HP"
+   },
+   "CORE-03.bolt_damage": {
+    "start": 34,
+    "step": 1,
+    "min": 5,
+    "max": 60,
+    "unit": "HP"
+   },
+   "CORE-03.invulnerability_s": {
+    "start": 0.8,
+    "step": 0.05,
+    "min": 0,
+    "max": 2,
+    "unit": "s"
+   },
+   "SURV-03.restore_amount": {
+    "start": 20,
+    "step": 5,
+    "min": 0,
+    "max": 50,
+    "unit": "HP"
+   },
+   "SURV-03.heal_cooldown_s": {
+    "start": 2.0,
+    "step": 0.25,
+    "min": 0,
+    "max": 8,
+    "unit": "s"
+   },
+   "DEF-01.shield_arc_deg": {
+    "start": 90,
+    "step": 5,
+    "min": 45,
+    "max": 180,
+    "unit": "degrees"
+   },
+   "WIND-01.gust_force": {
+    "start": 180,
+    "step": 20,
+    "min": 0,
+    "max": 500,
+    "unit": "cm/s",
+    "note": "upward velocity contribution while inside; bounded, not added per frame"
+   },
+   "WIND-01.active_s": {
+    "start": 2.0,
+    "step": 0.25,
+    "min": 0.5,
+    "max": 6.0,
+    "unit": "s",
+    "note": "pulsed test preset only; the first deterministic test uses an always-present zone"
+   },
+   "WIND-02.wind_wear": {
+    "start": 10,
+    "step": 1,
+    "min": 0,
+    "max": 30,
+    "unit": "HP/s",
+    "note": "only when enabled"
+   },
+   "END-01.survival_s": {
+    "start": 90,
+    "step": 5,
+    "min": 30,
+    "max": 240,
+    "unit": "s",
+    "note": "accumulated unpaused ACTIVE time"
+   },
+   "FLOW-01.master_volume": {
+    "start": 80,
+    "step": 5,
+    "min": 0,
+    "max": 100,
+    "unit": "%"
+   },
+   "ANIM-01.fps": {
+    "start": 8,
+    "step": 1,
+    "min": 4,
+    "max": 16,
+    "unit": "frames/s"
+   },
+   "BG-01.far_speed": {
+    "start": 0.25,
+    "step": 0.05,
+    "min": 0,
+    "max": 2.0,
+    "unit": "% viewport width/s"
+   },
+   "BG-01.near_speed": {
+    "start": 1.0,
+    "step": 0.1,
+    "min": 0,
+    "max": 4.0,
+    "unit": "% viewport width/s"
+   }
+  },
+  "fixtures": {
+   "arena_cm": [
+    1600,
+    900
+   ],
+   "owl_x_cm": 560,
+   "player_spawn_cm": {
+    "x": -350,
+    "z": 0
+   },
+   "projectile_lifetime_s": 5,
+   "health_stages_hp": {
+    "intact": [
+     67,
+     100
+    ],
+    "damaged": [
+     34,
+     66
+    ],
+    "critical": [
+     1,
+     33
+    ],
+    "defeated": [
+     0,
+     0
+    ]
+   },
+   "note": "GDD 1.3 sections 5A, 6, 7B. Test fixtures, tunable by a named preset; not level geometry."
+  }
+ }
+}

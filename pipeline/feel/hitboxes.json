@@ -1,0 +1,28 @@
+{
+  "_about": "Collider data, one shape per gameplay sprite, in sprite pixels (origin top-left of the frame, y down). Owner: Gameplay Dev. GDD 1.3 7C: colliders are independently defined gameplay data and the art aligns to them; no tool writes this file. A change here is a separate feature/config change with adjacent regressions and Richard's approval (a human-only needs-human). The player hurtbox and the bolt collider name their tuning value (\"fixed\": pipeline/feel/feel.json forgiveness) and must equal it. tools/hitbox_check.py check fails when the art (after its visual-only scale and offset in pipeline/art/visual-align.json) misses a collider, or the art changed since it was aligned; `hitbox_check.py fit <id>` moves only the art. UmbrellaElla.Feel.Hitboxes (pipeline/qa/test-map.md) checks the engine's collision equals this file. Limits are [proposed] starting values, set from the feel.json forgiveness ratios (collider / visible art box: player 0.6, projectile 0.8); change one only with a playtest note or a measurement, written in the commit message.",
+  "alpha_solid": 128,
+  "roles": {
+    "player": {
+      "coverage_min": 0.3,
+      "coverage_max": 0.8,
+      "spill_max": 0.1,
+      "inset_px": 3,
+      "_why": "Fairness: Ella's hurtbox (player_hurtbox_ratio 0.6 of her art box) sits inside her art, so a graze on the edge never hurts. Never bigger than the art."
+    },
+    "hazard": {
+      "coverage_min": 0.45,
+      "coverage_max": 0.95,
+      "spill_max": 0.1,
+      "inset_px": 1,
+      "_why": "A bolt (projectile_hitbox_ratio 0.8) hurts only where you can see it. A little smaller than the art is fair."
+    },
+    "target": {
+      "coverage_min": 0.7,
+      "coverage_max": 1.0,
+      "spill_max": 0.2,
+      "inset_px": 0,
+      "_why": "The owl BODY and CLOCK targets (OWL-05): the art sits on its collider, so a shot that looks like a hit is one."
+    }
+  },
+  "entities": []
+}

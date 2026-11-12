@@ -1,0 +1,26 @@
+{
+  "clean": false,
+  "defects": [
+    {
+      "id": "no-reverse-at-zero",
+      "severity": "blocker",
+      "file": "Source/UmbrellaElla/Private/Motor/PlayerMotorComponent.cpp",
+      "lines": [
+        15,
+        22
+      ],
+      "keywords": [
+        "zero",
+        "reverse",
+        "stuck",
+        "hover",
+        "standstill",
+        "stall",
+        ">=",
+        "apex",
+        "exactly",
+        "neverrise"
+      ]
+    }
+  ]
+}

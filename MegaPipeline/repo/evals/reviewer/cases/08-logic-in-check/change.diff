@@ -1,0 +1,22 @@
+--- a/Source/UmbrellaElla/Private/Health/HealthComponent.cpp
++++ b/Source/UmbrellaElla/Private/Health/HealthComponent.cpp
+@@ -3,7 +3,8 @@
+ 
+ int32 FHealthRules::HealthAfterHit(int32 Current, int32 Damage)
+ {
+-	return Current;
++	if (Damage <= 0) { return Current; }
++	return FMath::Max(0, Current - Damage);
+ }
+ 
+ UHealthComponent::UHealthComponent()
+@@ -24,4 +25,9 @@
+ 
+ void UHealthComponent::ApplyDamage(int32 Damage)
+ {
++	const int32 Before = Health;
++	check((Health = FHealthRules::HealthAfterHit(Health, Damage)) >= 0);
++	if (Health == Before) { return; }
++	BroadcastHealthChanged(Health - Before);
++	if (Health == 0) { BroadcastDefeated(EDefeatReason::Health); }
+ }

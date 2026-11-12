@@ -1,0 +1,4 @@
+# Maps with no player pawn: the smoke accepts input=none on them (tools/ue_run.py no_player_maps, tools/check_pr.py).
+# One row per map: <map short name> | <card that adds it> | <why there is no player>. The card that adds a cooked map
+# with no player adds its row in the same PR (card 0.10a: L_StyleFrame). GameDefaultMap is never exempt.
+L_Title | default | a separate title map, if a card adds one (the title screen normally runs on L_Graybox)

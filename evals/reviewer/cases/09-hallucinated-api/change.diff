@@ -1,0 +1,70 @@
+--- a/Source/UmbrellaElla/Public/Feedback/FeedbackAdapterComponent.h
++++ b/Source/UmbrellaElla/Public/Feedback/FeedbackAdapterComponent.h
+@@ -6,8 +6,9 @@
+ 
+ class UGameEventsSubsystem;
+ class UPaperFlipbook;
++class USoundBase;
+ struct FGameEventInfo;
+ 
+ // Shows Ella's state. Reads other modules through getters and events; never writes gameplay state.
+ UCLASS(ClassGroup = (UmbrellaElla), meta = (BlueprintSpawnableComponent))
+ class UMBRELLAELLA_API UFeedbackAdapterComponent final : public UActorComponent
+@@ -24,12 +25,18 @@
+ 	TObjectPtr<UPaperFlipbook> OpenFlipbook;
+ 	UPROPERTY(EditDefaultsOnly, Category = "Ella|Animation")
+ 	TObjectPtr<UPaperFlipbook> ClosedFlipbook;
++	UPROPERTY(EditDefaultsOnly, Category = "Ella|Animation")
++	TObjectPtr<UPaperFlipbook> HurtFlipbook;
++	UPROPERTY(EditDefaultsOnly, Category = "Ella|Audio")
++	TObjectPtr<USoundBase> HurtSound;
+ 
+ private:
+ 	void HandleUmbrellaConfigChanged(const FGameEventInfo& Info, EUmbrellaConfig NewConfig) const;
++	void HandleHealthChanged(const FGameEventInfo& Info, int32 OldHealth, int32 NewHealth) const;
+ 	void ShowConfig(EUmbrellaConfig Config) const;
+ 
+ 	UPROPERTY()
+ 	TWeakObjectPtr<UGameEventsSubsystem> Events;
+ 	FDelegateHandle ConfigChangedHandle;
++	FDelegateHandle HealthChangedHandle;
+ };
+--- a/Source/UmbrellaElla/Private/Feedback/FeedbackAdapterComponent.cpp
++++ b/Source/UmbrellaElla/Private/Feedback/FeedbackAdapterComponent.cpp
+@@ -3,6 +3,7 @@
+ #include "Core/GameEventsSubsystem.h"
+ #include "Core/UmbrellaLog.h"
+ #include "Umbrella/UmbrellaStateComponent.h"
++#include "Kismet/GameplayStatics.h"
+ #include "PaperCharacter.h"
+ #include "PaperFlipbookComponent.h"
+ 
+@@ -23,6 +24,7 @@
+ 	}
+ 	Events = EventsSubsystem;
+ 	ConfigChangedHandle = EventsSubsystem->OnUmbrellaConfigChanged().AddUObject(this, &UFeedbackAdapterComponent::HandleUmbrellaConfigChanged);
++	HealthChangedHandle = EventsSubsystem->OnPlayerHealthChanged().AddUObject(this, &UFeedbackAdapterComponent::HandleHealthChanged);
+ 	ShowConfig(Umbrella->GetConfig());
+ }
+ 
+@@ -31,10 +33,20 @@
+ 	if (UGameEventsSubsystem* EventsSubsystem = Events.Get())
+ 	{
+ 		EventsSubsystem->OnUmbrellaConfigChanged().Remove(ConfigChangedHandle);
++		EventsSubsystem->OnPlayerHealthChanged().Remove(HealthChangedHandle);
+ 	}
+ 	Super::EndPlay(EndPlayReason);
+ }
+ 
++void UFeedbackAdapterComponent::HandleHealthChanged(const FGameEventInfo& Info, int32 OldHealth, int32 NewHealth) const
++{
++	if (NewHealth >= OldHealth) { return; }
++	const APaperCharacter* Ella = Cast<APaperCharacter>(GetOwner());
++	if (!IsValid(Ella)) { return; }
++	Ella->GetSprite()->PlayAnimation(HurtFlipbook, false);
++	UGameplayStatics::PlayOneShot2D(this, HurtSound);
++}
++
+ void UFeedbackAdapterComponent::HandleUmbrellaConfigChanged(const FGameEventInfo& Info, EUmbrellaConfig NewConfig) const
+ {
+ 	ShowConfig(NewConfig);

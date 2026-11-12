@@ -1,0 +1,78 @@
+{
+  "_about": "Blender stand-in recipes: one entry per character or prop, one row per animation. tools/assetgen.py blender --character <id> --anim <Anim> turns a row into a render job (pipeline/art/blender/plan.py): frame size, pivot and facing come from the references.json `layout` entry named in `layout` (pipeline/art/reference/Test_Assets/SpriteLayout.json), fps and the allowed frame count from pipeline/art/style.json `anims` (the art-bible flipbook table), colours from style.json `palette` and `accents`. `piece` is the art-loop judge element (references.json elements) a row is judged as. A row's `keys` are poses at times 0..1 (bone angles in degrees in the picture plane, `canopy` 0 closed .. 1 open, `lift` in pixels); the planner spreads them over the row's frames (a loop wraps to its first key). The Blender scene is built by pipeline/art/blender/stand_ins.py and rendered by render_sprite.py (`blender -b -P render_sprite.py -- --job <job.json>`). An art-loop revision changes this file, stand_ins.py or `look` (model detail, materials, lines, light), never the checks.",
+  "look": {
+    "_about": "Ink-and-paper NPR for every recipe: toon shading in `shades` (darks from style.json, light from the front, slightly above: art bible R11), Freestyle ink lines of line_px in the ink colour, paper grain in the material and, when the compositor supports it, a grain pass there too. Transparent film, orthographic camera, Standard view transform (no filmic tone change to the palette).",
+    "shades": ["ink", "silhouette", "owl-umber"],
+    "ink": "ink",
+    "line_px": 1.6,
+    "grain": 0.06,
+    "grain_scale": 180.0,
+    "seed": 11,
+    "light_deg": [62, 0, 18],
+    "samples": 16
+  },
+  "characters": {
+    "ella": {
+      "what": "Ella, a small witch under a striped umbrella, wand in the other hand (art bible: near-black silhouette, umbrella state readable in silhouette)",
+      "asset": "Ella",
+      "builder": "ella",
+      "layout": "CHR_Witch_Cast.png",
+      "px_per_unit": 70.0,
+      "element": "character",
+      "anims": {
+        "IdleFloat": {"piece": "ella-up-open", "frames": 6, "loop": true, "keys": [
+          {"t": 0.0, "canopy": 1.0, "lift": 0, "rot": {"umbrella_arm": 0, "wand_arm": 10, "skirt": 0}},
+          {"t": 0.5, "canopy": 1.0, "lift": 4, "rot": {"umbrella_arm": 4, "wand_arm": 16, "skirt": 6}}]},
+        "Fall": {"piece": "ella-closed", "frames": 4, "loop": true, "keys": [
+          {"t": 0.0, "canopy": 0.0, "lift": 0, "rot": {"umbrella_arm": -150, "wand_arm": -30, "skirt": -12}},
+          {"t": 0.5, "canopy": 0.0, "lift": -2, "rot": {"umbrella_arm": -140, "wand_arm": -40, "skirt": -20}}]},
+        "Open": {"piece": "ella-up-open", "frames": 4, "loop": false, "keys": [
+          {"t": 0.0, "canopy": 0.0, "lift": 0, "rot": {"umbrella_arm": -90, "wand_arm": 0, "skirt": -6}},
+          {"t": 1.0, "canopy": 1.0, "lift": 2, "rot": {"umbrella_arm": 0, "wand_arm": 10, "skirt": 0}}]},
+        "Close": {"piece": "ella-closed", "frames": 4, "loop": false, "keys": [
+          {"t": 0.0, "canopy": 1.0, "lift": 2, "rot": {"umbrella_arm": 0, "wand_arm": 10, "skirt": 0}},
+          {"t": 1.0, "canopy": 0.0, "lift": 0, "rot": {"umbrella_arm": -90, "wand_arm": 0, "skirt": -6}}]},
+        "Attack": {"piece": "ella-attack", "frames": 4, "loop": false, "keys": [
+          {"t": 0.0, "canopy": 0.0, "lift": 0, "rot": {"umbrella_arm": -90, "wand_arm": 80, "skirt": -8}},
+          {"t": 0.4, "canopy": 0.0, "lift": 0, "rot": {"umbrella_arm": -92, "wand_arm": 95, "skirt": -10}, "flash": 1.0},
+          {"t": 1.0, "canopy": 0.0, "lift": 0, "rot": {"umbrella_arm": -90, "wand_arm": 82, "skirt": -8}}]}
+      }
+    },
+    "owl": {
+      "what": "the clockwork owl: ragged spread wings, amber eyes, gold chest clock, gear crown",
+      "asset": "Owl",
+      "builder": "owl",
+      "layout": "CHR_Owl_Flap_Damage.png",
+      "px_per_unit": 62.0,
+      "element": "owl",
+      "piece": "owl",
+      "anims": {
+        "Flap": {"frames": 6, "loop": true, "keys": [
+          {"t": 0.0, "lift": 0, "rot": {"wing_near": 38, "wing_far": 30, "head": 0, "tail": 0}},
+          {"t": 0.5, "lift": -6, "rot": {"wing_near": -34, "wing_far": -26, "head": -4, "tail": 6}}]}
+      }
+    },
+    "bolt": {
+      "what": "the owl's rust-red four-point cross bolt (rotated in engine, not by frames)",
+      "asset": "Bolt",
+      "builder": "bolt",
+      "layout": "FX_Owl_Missile.png",
+      "px_per_unit": 30.0,
+      "element": "effects",
+      "piece": "owl-bolt",
+      "anims": {"Still": {"frames": 1, "loop": false, "keys": [{"t": 0.0, "rot": {}}]}}
+    },
+    "skyline": {
+      "what": "the black jagged skyline layer (spires, gears, rock) along the bottom of the frame",
+      "asset": "Skyline",
+      "builder": "skyline",
+      "frame_size": [1920, 360],
+      "pivot_px": [0, 360],
+      "faces": "right",
+      "px_per_unit": 24.0,
+      "element": "background",
+      "piece": "skyline",
+      "anims": {"Still": {"frames": 1, "loop": false, "keys": [{"t": 0.0, "rot": {}}]}}
+    }
+  }
+}

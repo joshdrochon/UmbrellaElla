@@ -1,0 +1,21 @@
+{
+  "clean": false,
+  "defects": [
+    {
+      "id": "logic-in-check",
+      "severity": "blocker",
+      "file": "Source/UmbrellaElla/Private/Health/HealthComponent.cpp",
+      "lines": [
+        29,
+        29
+      ],
+      "keywords": [
+        "check",
+        "shipping",
+        "stripped",
+        "side effect",
+        "side-effect"
+      ]
+    }
+  ]
+}

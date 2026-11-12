@@ -1,0 +1,23 @@
+{
+  "clean": false,
+  "defects": [
+    {
+      "id": "comment",
+      "severity": "med",
+      "file": "Source/UmbrellaElla/Private/Feedback/FeedbackAdapterComponent.cpp",
+      "lines": [
+        15,
+        15
+      ],
+      "keywords": [
+        "comment",
+        "clamp",
+        "0",
+        "1",
+        "contradict",
+        "stale",
+        "wrong"
+      ]
+    }
+  ]
+}

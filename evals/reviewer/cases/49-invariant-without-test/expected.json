@@ -1,0 +1,21 @@
+{
+  "clean": false,
+  "defects": [
+    {
+      "id": "inv-untested",
+      "severity": "med",
+      "file": "Source/UmbrellaElla/Public/Health/HealthComponent.h",
+      "lines": [
+        3,
+        3
+      ],
+      "keywords": [
+        "inv-2",
+        "invariant",
+        "test",
+        "cite",
+        "once"
+      ]
+    }
+  ]
+}

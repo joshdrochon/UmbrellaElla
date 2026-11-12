@@ -1,0 +1,1072 @@
+#!/usr/bin/env python3
+"""The art loop: art work does not stop until it reaches the bar the references set (stdlib only).
+
+Every art card is split into its smallest judgeable pieces: one per judge element its references cover (an owl pose,
+an Ella pose, each projectile, the wind zone, the skyline, the paper) plus `scene` (the full frame) when it has a
+composition reference (pipeline/art/references.json). For each piece:
+  1. a BUILDER session makes or revises the piece (its card's owner role);
+  2. the deterministic checks run: art_check.py, screen_check.py, art_ref_check.py (the card's own references) and,
+     for gameplay sprites, hitbox_check.py. A FAIL goes straight back to the builder;
+  3. a separate CRITIC session with fresh context judges BLIND: our output and one of the piece's references, renamed
+     X.png and Y.png in a random order, in an empty folder with a fixed prompt (critic_prompt). The critic never sees
+     the builder's notes, the round number, file names, or which image is ours. It answers binary: WINNER: X, Y or
+     SAME (indistinguishable in style and quality), and GAP: the single biggest thing the loser lacks. A number score
+     is a refused verdict;
+     Each round has two blind pairs: ours against one of the piece's references, and ours against the piece's
+     quality-bar image (references.json quality_bar: the top tier, for detail and finish);
+  4. the loop passes when the critic picks neither the reference nor the quality bar over ours (it picks ours, or
+     SAME, in both pairs) AND every deterministic check passes. There is no round cap: the exit is reaching the bar.
+Stuck rule instead of a cap (D-new-no-round-cap): when STUCK_ROUNDS (3) rounds in a row bring no improvement on both
+the critic (the reference still wins, with the same gap) and the deterministic score (no new best), the piece raises
+NEEDS HUMAN with the first and the
+latest image and the critic's gap list. Any improvement resets the count, so a piece that keeps getting better keeps
+going. Every round is logged (piece, round, verdict, gap, scores) to Saved/Logs/pipeline/art-loop.jsonl and the
+SQLite journal (tools/journal.py), so progress is visible.
+Evidence (tools/check_pr.py rule artloop, kickoff's art gate): a card closes only with an
+`art_loop: PASS card=<id> piece=<p> verdict=<ours|same> rounds=<n> refs=<hash12> commit=<sha>` line for each of its
+pieces on the current commit and references.json.
+
+Blender art (pipeline/art/blender/; Josh, 11 Nov): the builder's revision each round is a change to the Blender
+scene (the recipe, stand_ins.py or the look: model detail, materials, lines, light), rendered again with
+tools/assetgen.py blender. A sprite sheet (a .sprite.json sidecar with more than one frame) is judged three ways each
+round: one frame (picked by the seed) against a piece reference, one frame against the quality bar, and the whole
+sheet in motion against a reference sheet (`motion` pair: identity, line weight, palette and pivot hold frame to
+frame). The deterministic checks are measured here, never declared: art_ref_check.py for the piece, and for a sprite
+screen_check.py's flat/grey/outline rules and art_check.py's colour rules (on_palette, off_style, off_band; the
+share rules belong to the full frame, the `scene` piece). A labelled placeholder or a practice stand-in never passes.
+Ship gate: a passing round writes `<file stem>.artloop.json` next to the file (sha256 of its bytes, every pair's
+outcome, every check, refs=, the commit judged). tools/check_pr.py (rule artship) fails a PR that adds or changes
+shipped art (an image under Art/ outside Art/Source/, or Content/*/Art|UI|VFX) without that record and a pasted
+`art_loop: PASS ... file=<path> sha=<sha12> ...` line for the header commit; tools/submission_check.py art (and
+assets) fails the package on any shipped image without it. No label, sign-off or human approval passes a piece:
+the stuck rule asks for help, it never lowers the bar.
+
+Stricter bar (Josh, 11 Nov): every round is judged by a PANEL of 3 fresh blind critic sessions per pair, and all
+must answer ours or SAME, against EVERY reference image of the element (the scene's for `scene`), the quality-bar
+image, every reference sheet in motion (a sheet) and, for an element piece, its in-engine context: the newest
+capture made after the piece (the smoke's screenshot), against the key art. Each session folder hides the pair
+among calibration pairs (evals/art-judge/critic-calibration.json: a crude render against team art, which must win;
+a near-identical pair, SAME); a session that misses one does not count. Answers are logged in the
+evals/art-judge/agreement.csv columns (Saved/Logs/pipeline/critic-calibration.csv). The numeric element judge's
+score_min and detail_min, and the scene's similarity_min, are calibrated from the team's own art
+(tools/art_judge.py calibrate, leave-one-out).
+
+  pieces --card ID                          the card's pieces
+  blind --card ID --piece P --ours FILE --out DIR [--seed N] [--kind reference|quality_bar|motion|context]
+                                            one calibrated critic folder (lettered pairs, prompt.md); the key goes
+                                            to DIR + ".key.json", outside the critic's folder
+  panel --card ID --piece P --ours FILE --out DIR [--round N]   every critic folder of one round (PANEL per pair);
+                                            each session's answer goes to <folder>.answer.md
+  verdict --panel DIR --card ID --piece P [--checks fail]   read every answer, check calibration, unseal the keys,
+                                            measure the checks, log the round, print pass|continue|stuck; a pass
+                                            writes the record
+  evidence --card ID                        print the art_loop PASS lines of this commit (exit 1 if a piece has none)
+Exit 0 = ok / pass, 1 = not passed (continue or stuck), 2 = usage.
+"""
+import argparse
+import csv
+import datetime
+import hashlib
+import json
+import os
+import random
+import re
+import shutil
+import subprocess
+import sys
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(HERE)
+sys.path.insert(0, HERE)
+import art_judge  # noqa: E402
+
+STUCK_ROUNDS = 3
+LOG = os.path.join("Saved", "Logs", "pipeline", "art-loop.jsonl")
+VERDICT = re.compile(r"^\s*WINNER:\s*(X|Y|SAME)\s*$", re.M | re.I)
+GAP = re.compile(r"^\s*GAP:\s*(.+)$", re.M)
+NUMBER_SCORE = re.compile(r"\b\d+(?:\.\d+)?\s*/\s*10\b|\bscore\s*[:=]\s*\d", re.I)
+# Words that would leak the builder's side into the critic's prompt
+LEAKS = re.compile(r"\bround\b|\battempt\b|\biteration\b|\bours\b|\breference\b|\bbuilder\b|\bprevious\b|"
+                   r"\bimproved?\b|\bour\b|\bgenerated\b|\bcandidate\b", re.I)
+
+CRITIC_PROMPT = """You are a harsh art critic. Two images are in this folder: X.png and Y.png. They show the same kind of
+game art piece ({what}). The style standard is ink on aged paper: near-black silhouettes, two accent families only
+(gold/amber and rust red), etched lines, textured paper, never flat fills.
+
+Compare X and Y on style and craft only. Be strict: small differences in line quality, texture, value structure,
+silhouette and finish count.
+
+Answer with exactly two lines and nothing else:
+WINNER: X        (X is clearly better)
+WINNER: Y        (Y is clearly better)
+WINNER: SAME     (you cannot tell which is better; they are indistinguishable in style and quality)
+GAP: <the single biggest thing the losing image lacks; for SAME, the one thing both still lack>
+
+Never give a number, a score or a rating. Do not explain beyond the GAP line.
+"""
+
+# A critic session's folder (blind, calibrate=True): lettered folders A, B, C, each with X.png and Y.png. One is the
+# pair being judged; the others are calibration pairs from evals/art-judge/critic-calibration.json (a crude render
+# against team art: the team art must win; a crude render against a near-identical copy of itself: SAME). The
+# critic cannot tell
+# them apart. A session that misses any calibration pair does not count (judge(): refused, the round fails).
+PANEL_PROMPT = """You are a harsh art critic. This folder holds lettered folders ({letters}). Each one holds two
+images, X.png and Y.png, of game art ({what}). An image may be one frame or an animation sheet (frames left to
+right, then top to bottom): judge a sheet as motion too, playing it frame after frame in a loop; the figure must keep
+the same identity, proportions, line weight and colours in every frame, its anchor point must hold still, and no
+frame may pop. The style standard is ink on aged paper: near-black silhouettes, two accent families only (gold/amber
+and rust red), etched lines, textured paper, never flat fills.
+
+Judge every lettered folder on its own, on style and craft only. Be strict: small differences in line quality,
+texture, value structure, silhouette, finish and motion count. When you cannot tell X and Y apart in style and
+quality, answer SAME.
+
+Answer with exactly one line per lettered folder and nothing else, in this form:
+A: WINNER: X | GAP: <the single biggest thing the losing image lacks; for SAME, the one thing both still lack>
+(WINNER is X, Y or SAME.)
+
+Never give a number, a score or a rating.
+"""
+KINDS = ("reference", "quality_bar", "motion", "context")
+PANEL = 3   # fresh blind critic sessions per pair per round; every one must answer ours or SAME
+CALIBRATION = os.path.join("evals", "art-judge", "critic-calibration.json")
+CAL_LOG = os.path.join("Saved", "Logs", "pipeline", "critic-calibration.csv")
+AGREEMENT_COLS = ["date", "pair_id", "seed", "model", "prompt_version", "rubric_version", "judge_closer",
+                  "judge_rows_x", "judge_rows_y", "order_stable", "expected_closer", "note"]
+PANEL_LINE = re.compile(r"^\s*([A-H])\s*[:.)]\s*WINNER:\s*(X|Y|SAME)\b\s*(?:\|?\s*GAP:\s*(.*))?$", re.M | re.I)
+SHIPPED_EXT = (".png", ".jpg", ".jpeg", ".webp", ".tga")
+RECORD = ".artloop.json"   # the pass record next to a shipped file: <stem>.artloop.json
+NOT_ART = ("placeholder", "source=reference (practice)")   # provenance origins that never pass
+CHECKS = ("art_check", "screen_check", "art_ref_check")
+LFS_OID = re.compile(rb"^version https://git-lfs\.github\.com/spec/v1\s*\noid sha256:([0-9a-f]{64})")
+
+
+def refs_and_hash(root=ROOT):
+    path = os.path.join(root, "pipeline", "art", "references.json")
+    return art_judge.load_refs(path), art_judge.refs_hash(path)
+
+
+def _bar_only(refs, el):
+    """The element's look reference is a quality-bar image alone (wind-zone: bar-other-realm's ribbons, 11 Nov)."""
+    bar = set((refs.get("quality_bar") or {}).get("refs") or [])
+    return bool(el["refs"]) and set(el["refs"]) <= bar
+
+
+def pieces(refs, card):
+    """The card's judgeable pieces: each element its references cover, plus `scene` with a composition reference.
+    The quality-bar images judge every piece but make none, except an element whose only reference is a quality-bar
+    image: the cards that image lists make it."""
+    bar = set((refs.get("quality_bar") or {}).get("refs") or [])
+    allmine = art_judge.card_refs(refs, card)
+    mine = allmine - bar
+    out = [e for e, el in sorted(refs["elements"].items())
+           if mine & set(el["refs"]) or (_bar_only(refs, el) and allmine & set(el["refs"]))]
+    if mine & set(refs["scene"]["refs"]):
+        out.append("scene")
+    return out
+
+
+def piece_refs(refs, card, piece):
+    allmine = art_judge.card_refs(refs, card)
+    mine = allmine - set((refs.get("quality_bar") or {}).get("refs") or [])
+    el = refs["scene"] if piece == "scene" else refs["elements"][piece]
+    if piece != "scene" and _bar_only(refs, el):
+        mine = allmine
+    byid = art_judge.refs_by_id(refs)
+    return [byid[r]["path"] for r in el["refs"] if r in mine and byid[r].get("kind") == "image"]
+
+
+def quality_ref(refs, piece):
+    qb = refs.get("quality_bar") or {}
+    rid = (qb.get("by_piece") or {}).get(piece, qb.get("default"))
+    byid = art_judge.refs_by_id(refs)
+    if rid not in byid:
+        raise ValueError(f"piece {piece} has no quality-bar image in references.json")
+    return byid[rid]["path"]
+
+
+def critic_prompt(what, target=None):
+    """The critic's whole prompt. It takes only the piece description and, for a piece with a written style target
+    (references.json kind "described"), that target: no builder text, round or file names."""
+    text = CRITIC_PROMPT.format(what=what)
+    if target:
+        text += "\nThe style target for this piece, in words (judge both images against it too):\n" + \
+            "\n".join(f"- {t}" for t in target) + "\n"
+    return text
+
+
+def critic_prompt_problems(prompt, builder_text=""):
+    """Why a prompt may not go to the critic: it leaks the builder's side."""
+    out = []
+    body = prompt.replace(CRITIC_PROMPT.split("{what}")[0], "").replace(CRITIC_PROMPT.split("{what}")[1], "")
+    m = LEAKS.search(body)
+    if m:
+        out.append(f"the critic prompt leaks the builder's side ('{m.group(0)}')")
+    for ln in (builder_text or "").splitlines():
+        if len(ln.strip()) > 12 and ln.strip() in prompt:
+            out.append("the critic prompt contains the builder's own text")
+            break
+    if re.search(r"\.png\b", prompt.replace("X.png", "").replace("Y.png", "")):
+        out.append("the critic prompt names a file other than X.png and Y.png")
+    return out
+
+
+def sheet_info(path):
+    """(frames, frame w, frame h) from the file's .sprite.json sidecar when it is a sheet of 2+ frames, else None."""
+    side = os.path.splitext(path)[0] + ".sprite.json"
+    try:
+        with open(side, encoding="utf-8") as fh:
+            s = json.load(fh)
+        n = int(s.get("frames") or 0)
+        fw, fh_ = (s.get("grid") or s.get("size") or [0, 0])[:2]
+        return (n, int(fw), int(fh_)) if n > 1 and fw and fh_ else None
+    except (OSError, ValueError, TypeError):
+        return None
+
+
+def frame_of(sheet, index, out):
+    """Cut frame `index` of a sheet (row-major cells of its sidecar grid) to out."""
+    from png import read_png, write_png
+    n, fw, fh_ = sheet_info(sheet)
+    w, _, rows = read_png(sheet)
+    cols = max(1, w // fw)
+    x, y = (index % n) % cols * fw, (index % n) // cols * fh_
+    write_png(out, fw, fh_, [r[x:x + fw] for r in rows[y:y + fh_]])
+    return out
+
+
+def sheet_refs(refs, card, piece, root=ROOT):
+    """The piece's reference sheets (entries with a `cell`), else all its references: the motion pair's other side."""
+    byid = art_judge.refs_by_id(refs)
+    paths = piece_refs(refs, card, piece)
+    cells = [byid[r]["path"] for r in (refs["elements"].get(piece) or {}).get("refs", [])
+             if r in byid and byid[r].get("cell") and byid[r].get("path") in paths]
+    return cells or paths
+
+
+def element_refs(refs, piece, root=ROOT):
+    """Every team image the piece is judged against (the panel's `reference` pairs): the element's (or the scene's)
+    image references present in this checkout, the quality bar excluded (it has its own pair)."""
+    byid = art_judge.refs_by_id(refs)
+    bar = set((refs.get("quality_bar") or {}).get("refs") or [])
+    el = refs["scene"] if piece == "scene" else refs["elements"][piece]
+    return [byid[r]["path"] for r in el["refs"] if r in byid and r not in bar and byid[r].get("kind") == "image"
+            and byid[r].get("path") and any(os.path.exists(os.path.join(b, byid[r]["path"])) for b in (root, ROOT))]
+
+
+def context_ref(refs, root=ROOT):
+    """The composition target an in-engine capture is judged against: the key art, else the first scene reference."""
+    byid = art_judge.refs_by_id(refs)
+    ids = refs["scene"]["refs"]
+    rid = "keyart" if "keyart" in ids else ids[0]
+    return byid[rid]["path"]
+
+
+def find_capture(root, ours):
+    """The newest in-engine capture (the smoke's Saved/Logs/pipeline/*-shot.png or a Saved/Screenshots/ PNG) made after
+    the piece's file: the piece at gameplay size in the game. None when there is none."""
+    import glob
+    shots = glob.glob(os.path.join(root, "Saved", "Logs", "pipeline", "*-shot.png")) + \
+        glob.glob(os.path.join(root, "Saved", "Screenshots", "**", "*.png"), recursive=True)
+    try:
+        since = os.path.getmtime(ours)
+    except OSError:
+        return None
+    shots = [s for s in shots if os.path.getmtime(s) >= since]
+    return max(shots, key=os.path.getmtime) if shots else None
+
+
+def calibration_set(root=ROOT):
+    """[(crude file, elements)] from evals/art-judge/critic-calibration.json (this checkout, else the pipeline's)."""
+    for base in (root, ROOT):
+        p = os.path.join(base, CALIBRATION)
+        if os.path.isfile(p):
+            with open(p, encoding="utf-8") as fh:
+                data = json.load(fh)
+            out = [(os.path.join(base, c["file"]), c.get("elements", [])) for c in data.get("crude", [])]
+            out = [(f, e) for f, e in out if os.path.isfile(f) and art_judge_readable(f)]
+            if out:
+                return out
+    return []
+
+
+def art_judge_readable(path):
+    with open(path, "rb") as fh:
+        return fh.read(8) == b"\x89PNG\r\n\x1a\n"
+
+
+def near_copy(src, root):
+    """A near-identical copy of an image (shifted one pixel), cached in the temp folder: a calibration pair's SAME.
+    The calibration set's small renders are used, so no large team image is decoded per session."""
+    import tempfile
+    from png import read_png, write_png
+    cache = os.path.join(tempfile.gettempdir(), "art-loop-cache")
+    os.makedirs(cache, exist_ok=True)
+    out = os.path.join(cache, "near-" + content_sha(src)[:16] + ".png")
+    if not os.path.isfile(out):
+        w, h, rows = read_png(src)
+        write_png(out, w, h, [r[:1] + r[:-1] for r in rows])
+    return out
+
+
+def _pair(folder, mine, other, rnd, frame_src=None, frame=None):
+    os.makedirs(folder)
+    mine_x = rnd.random() < 0.5
+    a, b = (os.path.join(folder, "X.png"), os.path.join(folder, "Y.png"))
+    if frame_src is not None:
+        frame_of(frame_src, frame, a if mine_x else b)
+    else:
+        shutil.copy(mine, a if mine_x else b)
+    shutil.copy(other, b if mine_x else a)
+    return "X" if mine_x else "Y"
+
+
+def blind(refs, card, piece, ours, out_dir, seed=None, root=ROOT, quality=False, kind=None, ref=None,
+          calibrate=True):
+    """Make one critic session's folder. Returns the key path (outside the folder).
+    kind: reference (one of the piece's references; `ref` names which, else the seed picks), quality_bar (the piece's
+    quality-bar image; quality=True is the same), motion (the whole sheet against a reference sheet) or context (ours
+    is an in-engine capture with the piece in it, against the key art). A sheet in a reference or quality_bar pair is
+    judged by one frame the seed picks. calibrate=True (the loop): the pair sits among calibration pairs in lettered
+    folders, and the session counts only when it gets every calibration pair right (judge())."""
+    kind = kind or ("quality_bar" if quality else "reference")
+    if kind not in KINDS:
+        raise ValueError(f"unknown pair kind {kind!r} ({', '.join(KINDS)})")
+    info = sheet_info(ours) if kind != "context" else None
+    if kind == "motion" and not sheet_info(ours):
+        raise ValueError(f"{ours} is not a sheet (no .sprite.json with 2+ frames): a motion pair needs one")
+    if ref:
+        cands = [ref]
+    elif kind == "quality_bar":
+        cands = [quality_ref(refs, piece)]
+    elif kind == "context":
+        cands = [context_ref(refs, root)]
+    elif kind == "motion":
+        cands = sheet_refs(refs, card, piece, root)
+    else:
+        cands = piece_refs(refs, card, piece)
+    if not cands:
+        raise ValueError(f"card {card} has no reference image for piece {piece}")
+    rnd = random.Random(seed)
+    other = os.path.join(root, rnd.choice(cands))
+    if os.path.isdir(out_dir):
+        shutil.rmtree(out_dir)
+    frame = rnd.randrange(info[0]) if info and kind != "motion" else None
+    what = refs["scene"]["what"].split(".")[0] if piece == "scene" or kind == "context" \
+        else refs["elements"][piece]["what"]
+    did = None if piece == "scene" else refs["elements"][piece].get("described")
+    target = art_judge.refs_by_id(refs)[did]["description"] if did else None
+    key = {"ours_file": os.path.abspath(ours), "reference": rel_to(other, root), "seed": seed, "kind": kind,
+           "frame": frame, "card": card, "piece": piece, "root": os.path.abspath(root)}
+    if not calibrate:
+        os.makedirs(out_dir)
+        key["ours"] = _pair(os.path.join(out_dir, "tmp"), ours, other, rnd, ours if frame is not None else None, frame)
+        for f in ("X.png", "Y.png"):
+            os.replace(os.path.join(out_dir, "tmp", f), os.path.join(out_dir, f))
+        os.rmdir(os.path.join(out_dir, "tmp"))
+        prompt = critic_prompt(what, target)
+        probs = critic_prompt_problems(prompt.split("\nThe style target for this piece")[0])
+    else:
+        crude = calibration_set(root)
+        if not crude:
+            raise ValueError(f"no critic calibration set ({CALIBRATION}): a critic session never runs uncalibrated")
+        mine_el = [f for f, els in crude if piece in els]
+        team = rnd.choice(element_refs(refs, piece, root) or cands)
+        team = os.path.join(root, team) if not os.path.isabs(team) else team
+        letters = ["A", "B", "C"]
+        rnd.shuffle(letters)
+        real, bad, same = letters
+        os.makedirs(out_dir)
+        key["ours"] = _pair(os.path.join(out_dir, real), ours, other, rnd, ours if frame is not None else None, frame)
+        key["folder"] = real
+        rough = rnd.choice(mine_el or [f for f, _ in crude])
+        crude_side = _pair(os.path.join(out_dir, bad), rough, team, rnd)
+        _pair(os.path.join(out_dir, same), rough, near_copy(rough, root), rnd)   # two equal images: SAME
+        key["calibration"] = {bad: "Y" if crude_side == "X" else "X", same: "SAME"}
+        prompt = PANEL_PROMPT.format(letters=", ".join(sorted(letters)), what=what)
+        if target:
+            prompt += "\nThe style target for this piece, in words (judge every folder against it too):\n" + \
+                "\n".join(f"- {t}" for t in target) + "\n"
+        probs = critic_prompt_problems(prompt.split("\nThe style target for this piece")[0])
+    if probs:
+        raise ValueError("; ".join(probs))
+    with open(os.path.join(out_dir, "prompt.md"), "w", encoding="utf-8") as fh:
+        fh.write(prompt)
+    kp = out_dir.rstrip("/\\") + ".key.json"
+    with open(kp, "w", encoding="utf-8") as fh:
+        json.dump(key, fh)
+    return kp
+
+
+def judge(text, key, root=None, session=""):
+    """(winner X|Y|SAME of the judged pair, gap). A calibrated folder: one `<letter>: WINNER: ...` line per folder,
+    and every calibration folder must be right, or the session is refused (ValueError). Each calibration answer is
+    logged in the evals/art-judge/agreement.csv format (Saved/Logs/pipeline/critic-calibration.csv)."""
+    if "calibration" not in key:
+        return read_verdict(text)
+    if NUMBER_SCORE.search(text or ""):
+        raise ValueError("the critic gave a number score; the verdict is binary (WINNER: X|Y|SAME)")
+    got = {}
+    for m in PANEL_LINE.finditer(text or ""):
+        got.setdefault(m.group(1).upper(), []).append((m.group(2).upper(), (m.group(3) or "").strip()))
+    need = sorted(list(key["calibration"]) + [key["folder"]])
+    if sorted(got) != need or any(len(v) != 1 for v in got.values()):
+        raise ValueError(f"the critic must answer exactly one line for each folder {', '.join(need)}")
+    wrong = [f for f, want in key["calibration"].items() if got[f][0][0] != want]
+    if root:
+        path = os.path.join(root, CAL_LOG)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        new = not os.path.isfile(path)
+        with open(path, "a", encoding="utf-8", newline="") as fh:
+            w = csv.DictWriter(fh, AGREEMENT_COLS, lineterminator="\n")
+            if new:
+                w.writeheader()
+            for f, want in sorted(key["calibration"].items()):
+                w.writerow({"date": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%MZ"),
+                            "pair_id": f"{session or 'session'}:{f}", "seed": key.get("seed"),
+                            "model": "art-loop critic session", "prompt_version": "art_loop PANEL_PROMPT",
+                            "rubric_version": "", "judge_closer": got[f][0][0], "judge_rows_x": "",
+                            "judge_rows_y": "", "order_stable": "", "expected_closer": want,
+                            "note": "correct" if got[f][0][0] == want else "WRONG: session does not count"})
+    if wrong:
+        raise ValueError(f"the critic missed calibration folder(s) {', '.join(wrong)}: this session does not count")
+    return got[key["folder"]][0]
+
+
+# ---------- the deterministic checks, measured (never declared) ----------
+def content_sha(path):
+    """sha256 of the file's bytes; an LFS pointer gives the object id (the same number)."""
+    with open(path, "rb") as fh:
+        raw = fh.read()
+    m = LFS_OID.match(raw)
+    return m.group(1).decode() if m and len(raw) < 1024 else hashlib.sha256(raw).hexdigest()
+
+
+def rel_to(path, root):
+    return os.path.relpath(os.path.abspath(path), os.path.abspath(root)).replace(os.sep, "/")
+
+
+def provenance_row(root, path):
+    p = os.path.join(root, "pipeline", "art", "provenance.csv")
+    try:
+        with open(p, encoding="utf-8", newline="") as fh:
+            for r in csv.DictReader(fh):
+                if r.get("asset_path") == rel_to(path, root):
+                    return r
+    except OSError:
+        pass
+    return None
+
+
+def not_art(root, path):
+    """Why the file can never pass (a labelled placeholder or a practice stand-in), else None."""
+    row = provenance_row(root, path) or {}
+    origin = (row.get("origin") or "").lower()
+    hit = [w for w in NOT_ART if w in origin]
+    return f"{rel_to(path, root)} is a {hit[0]} (provenance origin: {row.get('origin')})" if hit else None
+
+
+def sprite_checks(path, root=ROOT):
+    """(screen_check ok, art_check ok, lines) on a sprite or sheet: screen_check's flat/grey/outline rules (its own
+    aspect) and art_check's colour rules. The frame-share rules (dark share, accent caps, paper texture) belong to the
+    full frame: the `scene` piece's art_ref_check runs them on a capture."""
+    import art_check
+    import screen_check
+    style = os.path.join(root if os.path.isfile(os.path.join(root, "pipeline", "art", "style.json")) else ROOT,
+                         "pipeline", "art", "style.json")
+    t = screen_check.thresholds(style)
+    t["aspect_tol"] = 1e9   # a sprite is not a 16:9 view; the flat, grey and outline rules still apply
+    res = screen_check.check(path, t)
+    with open(style, encoding="utf-8") as fh:
+        st = json.load(fh)
+    try:
+        fails = [f for f in art_check.evaluate(art_check.measure(path, st), st)
+                 if f.startswith(("on_palette", "off_style", "off_band"))]
+    except ValueError as e:
+        fails = [str(e)]
+    lines = ["  " + screen_check.summary(dict(res, image=os.path.basename(path))),
+             f"  art_check (sprite colour rules): {'PASS' if not fails else 'FAIL'}" +
+             ("" if not fails else " (" + "; ".join(fails[:3]) + ")")]
+    return res["pass"], not fails, lines
+
+
+def measure(root, card, piece, path):
+    """(ok, score, lines, results) of the deterministic checks on our file. results: {check: pass|fail}."""
+    import art_ref_check
+    if not os.path.isfile(path):
+        return False, 0.0, [f"no file {path}"], {c: "fail" for c in CHECKS}
+    why = not_art(root, path)
+    if why:
+        return False, 0.0, [f"{why}: a placeholder is never art"], {c: "fail" for c in CHECKS}
+    commit = head(root)
+    rp = os.path.join(root, "pipeline", "art", "references.json")
+    rp = rp if os.path.isfile(rp) else art_judge.REFS   # this checkout's references, not the tool's own copy
+    if piece == "scene":
+        rc, lines = art_ref_check.run(card, scene_shot=path, refs_path=rp, root=root, commit=commit)
+        ac = any(ln.strip().startswith("art_check: PASS") for ln in lines)
+        sc = any(ln.strip().startswith("screen_check: PASS") for ln in lines)
+    else:
+        rc, lines = art_ref_check.run(card, element_id=piece, files=[path], refs_path=rp, root=root, commit=commit)
+        sc, ac, more = sprite_checks(path, root)
+        lines = lines + more
+    m = re.search(r"score=([\d.]+)", lines[-1] if piece == "scene" else
+                  next((ln for ln in lines if ln.startswith("art_ref_check:")), ""))
+    results = {"art_check": "pass" if ac else "fail", "screen_check": "pass" if sc else "fail",
+               "art_ref_check": "pass" if rc == 0 else "fail"}
+    return all(v == "pass" for v in results.values()), float(m.group(1)) if m else 0.0, lines, results
+
+
+def read_verdict(text):
+    """(winner X|Y|SAME, gap) or raises ValueError for a refused answer (none, two, or a number score)."""
+    if NUMBER_SCORE.search(text or ""):
+        raise ValueError("the critic gave a number score; the verdict is binary (WINNER: X|Y|SAME)")
+    w = VERDICT.findall(text or "")
+    if len(w) != 1:
+        raise ValueError("the critic must answer exactly one `WINNER: X|Y|SAME` line")
+    g = GAP.search(text)
+    return w[0].upper(), (g.group(1).strip() if g else "")
+
+
+def combine(verdicts):
+    """One round's verdict over its pairs: reference if any pair prefers the other image, else same if any, else ours."""
+    return "reference" if "reference" in verdicts else "same" if "same" in verdicts else "ours"
+
+
+def outcome(winner, key):
+    """ours | same | reference."""
+    if winner == "SAME":
+        return "same"
+    return "ours" if winner == key["ours"] else "reference"
+
+
+def decide(history, stuck_rounds=STUCK_ROUNDS):
+    """pass | continue | stuck from the round history (oldest first). Each round: verdict (ours|same|reference),
+    checks (True when every deterministic check passed), score (the deterministic score, higher is better).
+    No round cap: only the bar ends the loop, and only a run of rounds with no improvement escalates."""
+    if not history:
+        return "continue"
+    last = history[-1]
+    if last["verdict"] in ("ours", "same") and last["checks"] and not missing_pairs(last):
+        return "pass"
+    flat = 0
+    best = prev = None
+    for r in history:
+        improved = best is None or r["score"] > best["score"] + 1e-9 or \
+            (r["verdict"] != "reference" and best["verdict"] == "reference") or (r["checks"] and not best["checks"])
+        if improved:
+            best, flat = r, 0
+        elif prev is not None and gap_key(r.get("gap")) != gap_key(prev.get("gap")):
+            flat = 0   # a new biggest gap is a change, not a stall (D-new-no-round-cap: the same gap, no better score)
+        else:
+            flat += 1
+        prev = r
+    return "stuck" if flat >= stuck_rounds else "continue"
+
+
+def missing_pairs(rec):
+    """What a round still lacks before it may pass. A panel round (`combos`): every required pair (each reference of
+    the element, the quality bar, the motion pair for a sheet, the in-engine context for an element piece) answered
+    ours or SAME by PANEL calibrated critic sessions, unanimously. A round with typed pairs only: reference and
+    quality_bar, motion for a sheet. A round without typed pairs (a test's bare pair) is judged by its verdict alone."""
+    if "combos" in rec:
+        return list(rec.get("missing") or [])
+    if "pairs" not in rec:
+        return []
+    need = ["reference", "quality_bar"] + (["motion"] if rec.get("sheet") else [])
+    return [k for k in need if rec["pairs"].get(k) not in ("ours", "same")]
+
+
+def gap_key(g):
+    return re.sub(r"\s+", " ", (g or "").strip().lower().rstrip("."))
+
+
+def required_pairs(refs, piece, ours, root=ROOT):
+    """[(kind, other image or None, ours-side file)] a round must judge: every reference of the element (the scene for
+    `scene`), the quality bar, every reference sheet in motion when ours is a sheet, and for an element piece its
+    in-engine context (the newest capture after the piece, against the key art; None when there is no capture)."""
+    out = [("reference", r, ours) for r in element_refs(refs, piece, root)]
+    out.append(("quality_bar", quality_ref(refs, piece), ours))
+    if sheet_info(ours):
+        byid = art_judge.refs_by_id(refs)
+        el = refs["elements"].get(piece) or {}
+        sheets = [byid[r]["path"] for r in el.get("refs", []) if r in byid and byid[r].get("cell")
+                  and byid[r]["path"] in [p for _, p, _ in out]]
+        out += [("motion", r, ours) for r in (sheets or [p for k, p, _ in out if k == "reference"])]
+    if piece != "scene":
+        out.append(("context", context_ref(refs, root), find_capture(root, ours)))
+    return out
+
+
+def panel_folders(refs, card, piece, ours, base, rnd_round, root=ROOT):
+    """Every critic folder of one round: PANEL calibrated folders per required pair (fresh order and calibration
+    pairs each). Returns ([(folder, key)], [missing descriptions])."""
+    out, missing = [], []
+    for i, (kind, other, mine) in enumerate(required_pairs(refs, piece, ours, root)):
+        if mine is None:
+            missing.append("context (no in-engine capture made after the piece: import it and run the smoke, whose "
+                           "screenshot is the capture)")
+            continue
+        for m in range(PANEL):
+            d = os.path.join(base, f"{piece}-r{rnd_round}-{i:02d}-{kind}-c{m + 1}")
+            seed = (rnd_round * 1000 + i * 10 + m)
+            with open(blind(refs, card, piece, mine, d, seed=seed, root=root, kind=kind, ref=other),
+                      encoding="utf-8") as fh:
+                key = json.load(fh)
+            key["combo"] = f"{kind}:{other}"
+            out.append((d, key))
+    return out, missing
+
+
+def summarise(answers, required, missing=()):
+    """One round's verdict from [(key, outcome or None, gap)] over the required combos. Returns the record fields:
+    pairs (each kind's combined outcome), combos, panel (fewest counted sessions on a combo), calibration, missing."""
+    by = {}
+    for key, out, g in answers:
+        by.setdefault(key.get("combo") or key.get("kind") or "pair", []).append((key.get("kind"), out, g))
+    kinds, miss, gaps, cal = {}, list(missing), [], {"sessions": 0, "passed": 0}
+    for key, out, g in answers:
+        if "calibration" in key:
+            cal["sessions"] += 1
+            cal["passed"] += out is not None
+    counted = []
+    for combo in required:
+        votes = by.get(combo, [])
+        good = [o for _, o, _ in votes if o is not None]
+        counted.append(len(good))
+        kind = combo.split(":", 1)[0]
+        res = "reference" if len(good) < PANEL or any(o == "reference" for o in good) else \
+            ("same" if "same" in good else "ours")
+        kinds[kind] = combine([kinds[kind], res]) if kind in kinds else res
+        if res == "reference":
+            miss.append(combo + (f" ({len(good)}/{PANEL} calibrated sessions)" if len(good) < PANEL else ""))
+        gaps += [g for _, o, g in votes if g and o not in ("ours", None)]   # a refused session is no art gap
+    for k in ("reference", "quality_bar"):
+        kinds.setdefault(k, "reference")
+    refused = sorted({g for _, o, g in answers if o is None})
+    gap = "; ".join(dict.fromkeys(gaps))
+    if refused and not gap:
+        gap = "critic sessions refused (calibration missed or no answer): judge again"
+    return {"pairs": kinds, "combos": sorted(required), "panel": min(counted) if counted else 0,
+            "calibration": cal, "missing": miss, "gap": gap, "refused": refused[:5]}
+
+
+def run_piece(build, critic, checks, make_pair, log, stuck_rounds=STUCK_ROUNDS):
+    """Drive one piece to the bar. build(gap) -> our file; checks(file) -> (passed, score, lines);
+    make_pair(file) -> a list of (pair_dir, key) (one tuple is taken as a list of one); critic(pair_dir) -> the
+    critic's text (it gets the folder only, one fresh session per call); log(record).
+    With blind()'s keys the loop builds the whole panel itself: PANEL calibrated sessions per pair, against every
+    reference of the element, the quality bar, the sheet in motion and the in-engine context, and it measures the
+    deterministic checks itself. Returns ("pass"|"stuck", history)."""
+    history, gap = [], ""
+    while True:
+        ours = build(gap)
+        ok, score, _ = checks(ours)
+        pairs = make_pair(ours)
+        if isinstance(pairs, tuple):
+            pairs = [pairs]
+        pairs = list(pairs)
+        ctx = next((k for _, k in pairs if isinstance(k, dict) and k.get("card") and k.get("root")), None)
+        rec = {"round": len(history) + 1, "checks": ok, "score": score, "file": ours}
+        if ctx:   # blind()'s keys: the full calibrated panel, the measured checks
+            root, card, piece = ctx["root"], ctx["card"], ctx["piece"]
+            refs, _ = refs_and_hash(root)
+            base = os.path.dirname(pairs[0][0].rstrip("/\\"))
+            folders, missing = panel_folders(refs, card, piece, ours, base, len(history) + 1, root)
+            answers = []
+            sessions = []
+            for d, key in folders:
+                got = critic(d)
+                text, sid = got if isinstance(got, tuple) else (got, os.path.basename(d))
+                sessions.append(str(sid))
+                try:
+                    winner, g = judge(text, key, root, os.path.basename(d))
+                    answers.append((key, outcome(winner, key), g))
+                except ValueError as e:
+                    answers.append((key, None, f"refused critic session: {e}"))
+            req = sorted({f"{k}:{o}" for k, o, m in required_pairs(refs, piece, ours, root) if m is not None})
+            summ = summarise(answers, req, missing)
+            mok, mscore, _, results = measure(root, card, piece, ours)
+            rec.update(summ, checks=ok and mok, score=mscore or score, results=results, sheet=bool(sheet_info(ours)),
+                       sessions=sessions,
+                       verdict="reference" if summ["missing"] else combine(list(summ["pairs"].values())),
+                       refs_judged=[c.split(":", 1)[1] for c in req if c.startswith("reference:")])
+            if os.path.isfile(ours):
+                rec["sha"] = content_sha(ours)
+            cap = [k for k in folders if k[1].get("kind") == "context"]
+            if cap:
+                rec["context"] = cap[0][1]["ours_file"]
+        else:
+            verdicts, gaps = [], []
+            for pair, key in pairs:
+                try:
+                    winner, g = judge(critic(pair), key)
+                    verdicts.append(outcome(winner, key))
+                except ValueError as e:
+                    verdicts.append("reference")
+                    g = f"refused critic answer: {e}"
+                if g and verdicts[-1] != "ours":
+                    gaps.append(g)
+            rec.update(verdict=combine(verdicts), gap="; ".join(gaps))
+        history.append(rec)
+        log(rec)
+        state = decide(history, stuck_rounds)
+        if state != "continue":
+            return state, history
+        gap = rec["gap"] if rec["checks"] else rec["gap"] + " (and the deterministic checks failed)"
+
+
+def head(root=ROOT):
+    try:
+        return subprocess.run(["git", "-C", root, "rev-parse", "HEAD"], capture_output=True, text=True,
+                              check=True).stdout.strip()[:12]
+    except (OSError, subprocess.CalledProcessError):
+        return "none"
+
+
+def log_round(root, card, piece, rec, refs_hash, commit):
+    rec = dict(rec, card=card, piece=piece, refs=refs_hash, commit=commit,
+               at=datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"))
+    path = os.path.join(root, LOG)
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "a", encoding="utf-8") as fh:
+        fh.write(json.dumps(rec) + "\n")
+    try:
+        import journal
+        con = journal.connect()
+        try:
+            journal.add(con, f"UE-{card}", "step", role="art-critic", command=f"art loop {piece} round {rec['round']}",
+                        exit_code=0 if rec["verdict"] != "reference" and rec["checks"] else 1,
+                        note=f"art loop: piece={piece} round={rec['round']} verdict={rec['verdict']} "
+                             f"checks={'pass' if rec['checks'] else 'fail'} score={rec['score']} gap={rec['gap']}"[:300])
+        finally:
+            con.close()
+    except Exception:   # the jsonl record is the evidence; the journal is the view
+        pass
+    write_record(root, card, piece, rec, refs_hash, commit)
+
+
+# ---------- the ship gate's record ----------
+def record_path(path):
+    return os.path.splitext(path)[0] + RECORD
+
+
+def shipped(rel):
+    """A file that reaches the game as art: an image under Art/ outside Art/Source/ (raw renders, layered sources)."""
+    rel = rel.replace(os.sep, "/").lstrip("./")
+    return rel.startswith("Art/") and not rel.startswith("Art/Source/") and rel.lower().endswith(SHIPPED_EXT)
+
+
+def write_record(root, card, piece, rec, refs_hash, commit):
+    """On a passing panel round (every required pair unanimous ours or SAME from PANEL calibrated sessions, every
+    check measured PASS), write <stem>.artloop.json next to the file. Returns its path or None. Never for a
+    placeholder, a stand-in, a file outside the repo or a round without the full panel."""
+    if (os.environ.get("JAM_ROLE") or "").strip():
+        print("art_loop: an agent session never writes a pass record (JAM_ROLE is set): kickoff's art loop does",
+              file=sys.stderr)
+        return None
+    f = rec.get("file") or ""
+    full = f if os.path.isabs(f) else os.path.join(root, f)
+    cal = rec.get("calibration") or {}
+    if not (rec.get("verdict") in ("ours", "same") and rec.get("checks") and "combos" in rec
+            and not missing_pairs(rec) and rec.get("panel", 0) >= PANEL
+            and cal.get("sessions", 0) > 0 and cal.get("passed") == cal.get("sessions")
+            and all((rec.get("results") or {}).get(c) == "pass" for c in CHECKS)
+            and os.path.isfile(full) and not rel_to(full, root).startswith("..") and not not_art(root, full)):
+        return None
+    need = ["reference", "quality_bar"] + (["motion"] if sheet_info(full) else []) + \
+        (["context"] if piece != "scene" else [])
+    if any(rec["pairs"].get(k) not in ("ours", "same") for k in need):
+        return None
+    sha = content_sha(full)
+    if rec.get("sha") and rec["sha"] != sha:
+        return None   # the file changed after it was judged
+    out = record_path(full)
+    ctxf = rec.get("context")
+    data = {"file": rel_to(full, root), "sha256": sha, "card": card, "piece": piece, "verdict": rec["verdict"],
+            "pairs": rec["pairs"], "panel": rec["panel"], "calibration": cal,
+            "critic_sessions": list(rec.get("sessions") or []),
+            "refs_judged": rec.get("refs_judged", []),
+            "context": rel_to(ctxf, root) if ctxf else None,
+            "checks": {c: rec["results"][c] for c in CHECKS}, "rounds": rec.get("round"),
+            "refs": refs_hash, "judged_commit": commit,
+            "at": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}
+    with open(out, "w", encoding="utf-8") as fh:
+        json.dump(data, fh, indent=1)
+        fh.write("\n")
+    return out
+
+
+def record_problems(root, rel, refs_hash=None):
+    """Why the shipped file `rel` has no valid art-loop pass (empty = it has one). The record next to it must match
+    the file's bytes and the current references.json and show: ours or SAME from a unanimous panel of PANEL calibrated
+    blind critic sessions (each one right on every calibration pair) against every reference of its element, the
+    quality bar, the sheet in motion (a sheet) and the piece in an in-engine capture (an element piece); art_check,
+    screen_check and art_ref_check PASS. A placeholder or practice stand-in never has one. Nothing overrides it."""
+    full = os.path.join(root, rel)
+    if not os.path.isfile(full):
+        return []
+    why = not_art(root, full)
+    if why:
+        return [f"{why}: a placeholder or stand-in never ships; render it in Blender and loop it to the bar"]
+    rp = record_path(full)
+    try:
+        with open(rp, encoding="utf-8") as fh:
+            r = json.load(fh)
+    except (OSError, ValueError):
+        return [f"{rel} has no art-loop pass record ({rel_to(rp, root)}): run tools/art_loop.py until a panel of "
+                f"{PANEL} calibrated blind critics picks ours or SAME against every reference, the quality bar, "
+                "the motion and the in-engine context, and every check passes"]
+    out = []
+    if r.get("sha256") != content_sha(full):
+        out.append(f"{rel} changed after its art-loop pass (sha256 differs from {rel_to(rp, root)}): loop it again")
+    if r.get("verdict") not in ("ours", "same"):
+        out.append(f"{rel}: its art-loop record has verdict {r.get('verdict')!r}")
+    piece = r.get("piece") or ""
+    need = ["reference", "quality_bar"] + (["motion"] if sheet_info(full) else []) + \
+        (["context"] if piece != "scene" else [])
+    lost = [k for k in need if (r.get("pairs") or {}).get(k) not in ("ours", "same")]
+    if lost:
+        out.append(f"{rel}: the art-loop record has no ours/SAME verdict for {', '.join(lost)}")
+    if int(r.get("panel") or 0) < PANEL:
+        out.append(f"{rel}: its art-loop pass had {r.get('panel') or 0} critic session(s) per pair, not a panel of "
+                   f"{PANEL}")
+    cal = r.get("calibration") or {}
+    if not cal.get("sessions") or cal.get("passed") != cal.get("sessions"):
+        out.append(f"{rel}: its art-loop critics were not all calibrated ({cal.get('passed', 0)}/"
+                   f"{cal.get('sessions', 0)} sessions right on every calibration pair)")
+    bad = [c for c in CHECKS if (r.get("checks") or {}).get(c) != "pass"]
+    if bad:
+        out.append(f"{rel}: the art-loop record has no PASS for {', '.join(bad)}")
+    rh = refs_hash or refs_and_hash(root)[1]
+    if r.get("refs") != rh:
+        out.append(f"{rel}: its art-loop pass was against references {r.get('refs')}, not the current {rh}")
+    try:
+        refs, _ = refs_and_hash(root)
+        want = element_refs(refs, piece, root) if piece == "scene" or piece in refs["elements"] else []
+    except (OSError, ValueError, KeyError):
+        want = []
+    if len(set(r.get("critic_sessions") or [])) < PANEL:
+        out.append(f"{rel}: its art-loop record names {len(set(r.get('critic_sessions') or []))} critic session(s); "
+                   f"a pass needs a panel of {PANEL} per pair, each session named")
+    out += recheck(root, rel, r)
+    skipped = [p for p in want if p not in (r.get("refs_judged") or [])]
+    if skipped:
+        out.append(f"{rel}: its art-loop panel did not judge every reference of {piece} (missing {skipped[0]}"
+                   + (f" and {len(skipped) - 1} more" if len(skipped) > 1 else "") + ")")
+    return out
+
+
+PIECE_NOTE = re.compile(r"for piece ([\w-]+)")
+
+
+def provenance_piece(root, rel, depth=3):
+    """The judge element a shipped file was made as: the `style targets for piece <id>` note on its provenance row
+    or, for a sheet, on the rows of the frames it was assembled from (tools/assetgen.py writes both)."""
+    r = provenance_row(root, os.path.join(root, rel)) or {}
+    m = PIECE_NOTE.search(r.get("origin") or "")
+    if m:
+        return m.group(1)
+    if depth:
+        for inp in (r.get("input_images") or "").split(";"):
+            if inp.strip():
+                got = provenance_piece(root, inp.strip(), depth - 1)
+                if got:
+                    return got
+    return None
+
+
+def recheck(root, rel, r):
+    """The ship gate's own measurement, never the record's word: the piece the provenance names must be the record's
+    piece, and the deterministic checks run again on the shipped bytes (art_ref_check: the calibrated element judge
+    with its detail floor; screen_check's flat/grey/outline rules; art_check's colour rules)."""
+    full = os.path.join(root, rel)
+    piece, card = r.get("piece") or "", r.get("card") or ""
+    out = []
+    made_as = provenance_piece(root, rel)
+    if made_as is None:
+        out.append(f"{rel}: its provenance names no judge piece (tools/assetgen.py writes `for piece <id>`): the "
+                   "gate cannot tell which bar it must clear")
+    elif made_as != piece:
+        out.append(f"{rel}: its art-loop record says piece {piece!r}, its provenance says {made_as!r}")
+    try:
+        ok, _, lines, results = measure(root, card, piece, full)
+    except (OSError, ValueError, KeyError) as e:
+        return out + [f"{rel}: the ship gate could not re-run the checks ({e}); fails closed"]
+    bad = [c for c in CHECKS if results.get(c) != "pass"]
+    if bad:
+        why = next((ln.strip() for ln in lines if "FAIL" in ln), "")
+        out.append(f"{rel}: re-run on the shipped file, {', '.join(bad)} FAIL{(': ' + why) if why else ''} "
+                   "(the record's word is not taken)")
+    return out
+
+
+def pass_line(card, piece, verdict, rounds, refs_hash, commit, file=None, sha=None, pairs=None):
+    line = (f"art_loop: PASS card={card} piece={piece} verdict={verdict} rounds={rounds} refs={refs_hash} "
+            f"commit={commit}")
+    if file and sha:
+        line += f" file={file} sha={sha[:12]}"
+        if pairs:
+            line += " pairs=" + ",".join(f"{k}:{pairs[k]}" for k in KINDS if k in pairs) + " checks=pass"
+    return line
+
+
+def unchanged_since_head(root, rel):
+    """True when the file at HEAD is the file on disk (committed, no local change)."""
+    try:
+        p = subprocess.run(["git", "-C", root, "status", "--porcelain", "--", rel], capture_output=True, text=True,
+                           check=True)
+        return p.stdout.strip() == ""
+    except (OSError, subprocess.CalledProcessError):
+        return False
+
+
+def evidence(root, card):
+    """(lines, missing pieces) for the current commit and references.json. A round that judged a file is current
+    while that file's bytes are the judged bytes and committed at HEAD (its line names HEAD, the file and its sha);
+    a round without a file sha must have run on HEAD itself."""
+    refs, rh = refs_and_hash(root)
+    commit = head(root)
+    recs = []
+    try:
+        with open(os.path.join(root, LOG), encoding="utf-8") as fh:
+            recs = [json.loads(ln) for ln in fh if ln.strip()]
+    except (OSError, ValueError):
+        pass
+    lines, missing = [], []
+    for p in pieces(refs, card):
+        mine = [r for r in recs if r.get("card") == card and r.get("piece") == p]
+        last = mine[-1] if mine else None
+        ok = bool(last) and last["verdict"] in ("ours", "same") and last["checks"] and last.get("refs") == rh \
+            and not missing_pairs(last)
+        f = (last or {}).get("file") or ""
+        full = f if os.path.isabs(f) else os.path.join(root, f)
+        if ok and last.get("sha") and os.path.isfile(full):
+            rel = rel_to(full, root)
+            if content_sha(full) == last["sha"] and unchanged_since_head(root, rel):
+                lines.append(pass_line(card, p, last["verdict"], len(mine), rh, commit, rel, last["sha"],
+                                       last.get("pairs")))
+                continue
+        elif ok and last.get("commit") == commit:
+            lines.append(pass_line(card, p, last["verdict"], len(mine), rh, commit))
+            continue
+        missing.append(p)
+    return lines, missing
+
+
+def main(argv=None):
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--root", default=ROOT)
+    sub = ap.add_subparsers(dest="cmd", required=True)
+    p = sub.add_parser("pieces")
+    p.add_argument("--card", required=True)
+    b = sub.add_parser("blind")
+    for k in ("--card", "--piece", "--ours", "--out"):
+        b.add_argument(k, required=True)
+    b.add_argument("--seed", type=int)
+    b.add_argument("--kind", choices=KINDS, default="reference")
+    pn = sub.add_parser("panel")
+    for k in ("--card", "--piece", "--ours", "--out"):
+        pn.add_argument(k, required=True)
+    pn.add_argument("--round", type=int, default=1)
+    v = sub.add_parser("verdict")
+    for k in ("--panel", "--card", "--piece"):
+        v.add_argument(k, required=True)
+    v.add_argument("--checks", choices=["pass", "fail"], default="pass",
+                   help="fail forces a failed round; pass is never taken on trust (the checks are measured)")
+    e = sub.add_parser("evidence")
+    e.add_argument("--card", required=True)
+    a = ap.parse_args(argv)
+    try:
+        refs, rh = refs_and_hash(a.root)
+        if a.cmd == "pieces":
+            ps = pieces(refs, a.card)
+            print(f"art_loop: card {a.card} pieces: " + (", ".join(ps) or "none"))
+            return 0 if ps else 2
+        if a.cmd == "blind":
+            key = blind(refs, a.card, a.piece, a.ours, a.out, a.seed, a.root, kind=a.kind)
+            print(f"art_loop: critic folder {a.out} (lettered pairs, prompt.md, kind={a.kind}); key {key}")
+            return 0
+        if a.cmd == "panel":
+            folders, missing = panel_folders(refs, a.card, a.piece, a.ours, a.out, a.round, a.root)
+            os.makedirs(a.out, exist_ok=True)
+            with open(os.path.join(a.out, "panel.json"), "w", encoding="utf-8") as fh:
+                json.dump({"card": a.card, "piece": a.piece, "ours": os.path.abspath(a.ours), "round": a.round,
+                           "folders": [d for d, _ in folders], "missing": missing}, fh, indent=1)
+            for d, _ in folders:
+                print(f"art_loop: critic session folder {d} (one fresh blind session each; its answer goes to "
+                      f"{d}.answer.md)")
+            for m in missing:
+                print(f"art_loop: cannot judge yet: {m}")
+            return 0 if not missing else 1
+        if a.cmd == "verdict":
+            with open(os.path.join(a.panel, "panel.json"), encoding="utf-8") as fh:
+                pj = json.load(fh)
+            if (pj["card"], pj["piece"]) != (a.card, a.piece):
+                print(f"art_loop: panel {a.panel} is for {pj['card']}/{pj['piece']}", file=sys.stderr)
+                return 2
+            ours_file = pj["ours"]
+            answers = []
+            for d in pj["folders"]:
+                with open(d.rstrip("/\\") + ".key.json", encoding="utf-8") as fh:
+                    key = json.load(fh)
+                if key.get("ours_file") not in (ours_file, None) and key.get("kind") != "context":
+                    print("art_loop: every folder of one panel judges the same file", file=sys.stderr)
+                    return 2
+                key["combo"] = f"{key['kind']}:{key['reference']}"
+                try:
+                    with open(d.rstrip("/\\") + ".answer.md", encoding="utf-8") as fh:
+                        text = fh.read()
+                    winner, gap = judge(text, key, a.root, os.path.basename(d))
+                    answers.append((key, outcome(winner, key), gap))
+                except (OSError, ValueError) as ex:
+                    answers.append((key, None, f"refused critic session: {ex}"))
+            req = sorted({f"{k}:{o}" for k, o, m in required_pairs(refs, a.piece, ours_file, a.root) if m is not None})
+            summ = summarise(answers, req, pj.get("missing") or [])
+            ok, score, lines, results = measure(a.root, a.card, a.piece, ours_file)
+            ok = ok and a.checks == "pass"
+            commit = head(a.root)
+            prior = []
+            try:
+                with open(os.path.join(a.root, LOG), encoding="utf-8") as fh:
+                    prior = [json.loads(ln) for ln in fh if ln.strip()]
+            except (OSError, ValueError):
+                pass
+            hist = [r for r in prior if r.get("card") == a.card and r.get("piece") == a.piece]
+            verdict = "reference" if summ["missing"] else combine(list(summ["pairs"].values()))
+            rec = dict(summ, round=len(hist) + 1, verdict=verdict, checks=ok, score=score, file=ours_file,
+                       results=results, sheet=bool(sheet_info(ours_file)),
+                       refs_judged=[c.split(":", 1)[1] for c in req if c.startswith("reference:")])
+            ctxk = [k for k, _, _ in answers if k.get("kind") == "context"]
+            if ctxk:
+                rec["context"] = ctxk[0]["ours_file"]
+            if os.path.isfile(ours_file):
+                rec["sha"] = content_sha(ours_file)
+            for ln in lines:
+                print(ln)
+            log_round(a.root, a.card, a.piece, rec, rh, commit)
+            state = decide(hist + [rec])
+            print(f"art_loop: round {rec['round']} piece={a.piece} verdict={verdict} pairs="
+                  + ",".join(f"{k}:{v}" for k, v in summ["pairs"].items())
+                  + f" panel={summ['panel']} calibration={summ['calibration']['passed']}/"
+                  f"{summ['calibration']['sessions']} checks={'pass' if ok else 'fail'} score={score} -> {state}"
+                  + (f" | GAP: {summ['gap']}" if summ["gap"] else "")
+                  + (f" | missing: {'; '.join(summ['missing'][:4])}" if summ["missing"] else ""))
+            if state == "pass":
+                rel = rel_to(ours_file, a.root)
+                print(pass_line(a.card, a.piece, verdict, rec["round"], rh, commit, rel, rec.get("sha"),
+                                summ["pairs"]))
+                if shipped(rel):
+                    print(f"art_loop: record {rel_to(record_path(ours_file), a.root)} written: commit it with the file")
+            return 0 if state == "pass" else 1
+        lines, missing = evidence(a.root, a.card)
+        print("\n".join(lines))
+        for m in missing:
+            print(f"art_loop: piece {m} of card {a.card} has not reached the bar on this commit")
+        return 1 if missing else 0
+    except (OSError, ValueError, KeyError) as ex:
+        print(f"art_loop: {ex}", file=sys.stderr)
+        return 2
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -1,0 +1,25 @@
+{
+  "_about": "The exact `tools:` line each .claude/agents/<name>.md must carry. tools/secrets_check.py (rule agents) checks it. No agent gets WebFetch or WebSearch: agents cite installed headers, not web pages. Editor MCP tools (mcp__<server>__<tool>) are added only to the gates.json mcp_roles lines (Level Designer, Integrator, Art Director, Asset Specialist, UI and UX), and to gates.json mcp_allow, once card 0.4a lists the real names [VERIFY on 0.4a]; tools/editor_mcp.py check fails on any other role (pipeline/agent-ops/editor-mcp.md).",
+  "web_tools": [
+    "WebFetch",
+    "WebSearch"
+  ],
+  "research_agents": [],
+  "agents": {
+    "producer": "Read, Grep, Glob, Bash, Edit, Write",
+    "dev-lead": "Read, Grep, Glob, Bash, Edit, Write",
+    "gameplay-dev": "Read, Grep, Glob, Bash, Edit, Write",
+    "technical-director": "Read, Grep, Glob, Bash, Edit, Write",
+    "integrator": "Read, Grep, Glob, Bash, Edit, Write",
+    "art-director": "Read, Grep, Glob, Bash, Edit, Write",
+    "asset-specialist": "Read, Grep, Glob, Bash, Edit, Write",
+    "qa-build": "Read, Grep, Glob, Bash, Edit, Write",
+    "game-designer": "Read, Grep, Glob, Bash, Edit, Write",
+    "level-designer": "Read, Grep, Glob, Bash, Edit, Write",
+    "encounter-designer": "Read, Grep, Glob, Bash, Edit, Write",
+    "audio": "Read, Grep, Glob, Bash, Edit, Write",
+    "ui-ux": "Read, Grep, Glob, Bash, Edit, Write",
+    "story": "Read, Grep, Glob, Bash, Edit, Write",
+    "agent-ops": "Read, Grep, Glob, Bash"
+  }
+}

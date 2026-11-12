@@ -1,0 +1,154 @@
+id,family,kind,class,channels,takes,pitch_jitter,gdd,tier,event,owner,done_when,fallback
+UmbrellaOpen,state,oneshot,SFX,1,3,0.05,GDD SH1.0 MOVE-05 rise,P0,Shoot and Absorb released: the canopy opens (fabric and mechanism),Audio owner,SW_UmbrellaOpen_00..02 pass --scan,pipeline/art/fallback/audio/SW_UmbrellaOpen_00.wav
+UmbrellaClose,state,oneshot,SFX,1,3,0.05,GDD SH1.0 MOVE-05 drop,P0,Shoot or Absorb held: the canopy closes,Audio owner,SW_UmbrellaClose_00..02 pass --scan,pipeline/art/fallback/audio/SW_UmbrellaClose_00.wav
+UmbrellaFlap,motion,loop,SFX,1,1,0,GDD SH1.0 MOVE-21 rise,P0,rising under the open umbrella,Audio owner,SW_UmbrellaFlap_00 passes --scan,TBD
+EllaFallLoop,motion,loop,SFX,1,1,0,GDD SH1.0 MOVE-21 fall,P0,ordinary fall (shooting or absorbing),Audio owner,SW_EllaFallLoop_00 passes --scan,TBD
+FreeFallRush,motion,loop,SFX,1,1,0,GDD SH1.0 MOVE-05 fast free fall,P0,"both held: fast free fall, rush of air",Audio owner,SW_FreeFallRush_00 passes --scan,TBD
+HopWhoosh,state,oneshot,SFX,1,3,0.05,GDD SH1.0 MOVE-06 hop,P0,overhead hop,Audio owner,SW_HopWhoosh_00..02 pass --scan,TBD
+DashWhoosh,state,oneshot,SFX,1,3,0.05,GDD SH1.0 MOVE-06 falling dash,P0,falling dash forward or back,Audio owner,SW_DashWhoosh_00..02 pass --scan,TBD
+GustCatch,state,oneshot,SFX,1,3,0.05,GDD SH1.0 WIND-03 safe current,P0,WindEntered: entering a harmless current (Ride held),Audio owner,SW_GustCatch_00..02 pass --scan,pipeline/art/fallback/audio/SW_GustCatch_00.wav
+WindZoneLoop,ambience,loop,SFX,2,1,0,GDD SH1.0 WIND-03 ride,P0,riding a harmless current; never the hostile gust sound,Audio owner,SW_WindZoneLoop_00 passes --scan,TBD
+WindExit,state,oneshot,SFX,1,3,0.05,GDD SH1.0 MOVE-20 leave current,P0,leaving a current,Audio owner,SW_WindExit_00..02 pass --scan,TBD
+AbsorbStart,state,oneshot,SFX,1,3,0.05,GDD SH1.0 UMB-05,P0,Absorb held while dropping: suction starts,Audio owner,SW_AbsorbStart_00..02 pass --scan,TBD
+AbsorbLoop,state,loop,SFX,1,1,0,GDD SH1.0 UMB-05,P0,suction continues,Audio owner,SW_AbsorbLoop_00 passes --scan,TBD
+AbsorbStop,state,oneshot,SFX,1,3,0.05,GDD SH1.0 UMB-05,P0,Absorb released,Audio owner,SW_AbsorbStop_00..02 pass --scan,TBD
+ShieldCatch,state,oneshot,SFX,1,3,0.05,GDD SH1.0 UMB-05 yellow catch,P0,"a yellow shot is caught (also at full health, FLOW-32)",Audio owner,SW_ShieldCatch_00..02 pass --scan,pipeline/art/fallback/audio/SW_ShieldCatch_00.wav
+ShieldHeal,state,oneshot,SFX,1,3,0.05,GDD SH1.0 FLOW-32 repair,P0,the catch heals the umbrella (health hand moves toward III),Audio owner,SW_ShieldHeal_00..02 pass --scan,pipeline/art/fallback/audio/SW_ShieldHeal_00.wav
+UmbrellaRepair,state,oneshot,SFX,1,3,0.05,GDD SH1.0 FLOW-32 reserve rebuilt,P1,healing restores a spent reserve life,Audio owner,SW_UmbrellaRepair_00..02 pass --scan,none
+PlayerHurt,hit,oneshot,SFX,1,3,0.05,GDD SH1.0 FLOW-33 hit,P0,Ella or her umbrella takes damage,Audio owner,SW_PlayerHurt_00..02 pass --scan,pipeline/art/fallback/audio/SW_PlayerHurt_00.wav
+UmbrellaCreak,state,oneshot,SFX,1,3,0.05,GDD SH1.0 ANIM-04 damaged umbrella,P1,damaged-umbrella feedback (secondary cosmetic),Audio owner,SW_UmbrellaCreak_00..02 pass --scan,none
+LowHealthLoop,state,loop,SFX,1,1,0,GDD SH1.0 ANIM-04 living critical state,P1,the last life is low,Audio owner,SW_LowHealthLoop_00 passes --scan,none
+LifeLost,state,oneshot,SFX,1,3,0.05,GDD SH1.0 FLOW-31 reserve consumed,P0,a life is used: the life hand advances,Audio owner,SW_LifeLost_00..02 pass --scan,TBD
+EllaDown,hit,oneshot,SFX,1,3,0.05,GDD SH1.0 FLOW-31 defeat,P0,defeat: both hands at XII,Audio owner,SW_EllaDown_00..02 pass --scan,TBD
+OutOfBounds,hit,oneshot,SFX,1,3,0.05,GDD SH1.0 WIND-03 lethal bottom,P0,falling out of bounds,Audio owner,SW_OutOfBounds_00..02 pass --scan,TBD
+Restart,state,oneshot,SFX,1,3,0.05,GDD SH1.0 FLOW-09 retry,P0,checkpoint or phase retry,Audio owner,SW_Restart_00..02 pass --scan,TBD
+SafeLanding,state,oneshot,SFX,1,3,0.05,GDD SH1.0 FLOW-26 harmless land,P1,touching down on solid harmless land,Audio owner,SW_SafeLanding_00..02 pass --scan,none
+EllaBump,state,oneshot,SFX,1,3,0.05,GDD SH1.0 HAZ-19 collision,P1,collision with a structure,Audio owner,SW_EllaBump_00..02 pass --scan,none
+WandBolt,launch,oneshot,SFX,1,3,0.05,GDD SH1.0 COM-06 Small Blasts,P0,each Small Blasts emission,Audio owner,SW_WandBolt_00..02 pass --scan,pipeline/art/fallback/audio/SW_WandBolt_00.wav
+SmallBlastImpact,hit,oneshot,SFX,1,3,0.05,GDD SH1.0 COM-06 impact,P0,a Small Blasts pulse hits,Audio owner,SW_SmallBlastImpact_00..02 pass --scan,TBD
+WandBoltFade,trail,oneshot,SFX,1,3,0.05,GDD SH1.0 COM-06 range expiry,P1,a player shot expires: the miss,Audio owner,SW_WandBoltFade_00..02 pass --scan,none
+StreamStart,launch,oneshot,SFX,1,3,0.05,GDD SH1.0 COM-07 Streamed Blast,P1,beam startup,Audio owner,SW_StreamStart_00..02 pass --scan,none
+StreamLoop,launch,loop,SFX,1,1,0,GDD SH1.0 COM-07,P1,sustained beam,Audio owner,SW_StreamLoop_00 passes --scan,none
+StreamRelease,launch,oneshot,SFX,1,3,0.05,GDD SH1.0 COM-07,P1,beam release,Audio owner,SW_StreamRelease_00..02 pass --scan,none
+TwinStarsFire,launch,oneshot,SFX,1,3,0.05,GDD SH1.0 COM-08 Twin Stars,P1,paired emission,Audio owner,SW_TwinStarsFire_00..02 pass --scan,none
+TwinStarsImpact,hit,oneshot,SFX,1,3,0.05,GDD SH1.0 COM-08,P1,a star hits,Audio owner,SW_TwinStarsImpact_00..02 pass --scan,none
+NeedleFire,launch,oneshot,SFX,1,3,0.05,GDD SH1.0 COM-09 Needle Spell,P1,needle emission,Audio owner,SW_NeedleFire_00..02 pass --scan,none
+NeedlePierce,hit,oneshot,SFX,1,3,0.05,GDD SH1.0 COM-09 penetration,P1,a valid piercing hit,Audio owner,SW_NeedlePierce_00..02 pass --scan,none
+SpellSelect,ui,oneshot,UI,1,1,0,GDD SH1.0 MOVE-08 spell select,P1,a spell is selected,Audio owner,SW_SpellSelect_00 passes --scan,none
+SpellUnavailable,ui,oneshot,UI,1,1,0,GDD SH1.0 COM-11 locked spell,P1,a locked spell is chosen,Audio owner,SW_SpellUnavailable_00 passes --scan,none
+HitOwl,hit,oneshot,SFX,1,3,0.05,GDD SH1.0 OWL-09 hit metal,P0,a shot damages a wing or mechanism (metal),Audio owner,SW_HitOwl_00..02 pass --scan,pipeline/art/fallback/audio/SW_HitOwl_00.wav
+HitWing,hit,oneshot,SFX,1,3,0.05,GDD SH1.0 OWL-09 wing,P0,a shot hits a living wing,Audio owner,SW_HitWing_00..02 pass --scan,TBD
+HitClock,hit,oneshot,SFX,1,3,0.05,GDD SH1.0 OWL-29 clock hit,P0,a shot damages the open clock (glass),Audio owner,SW_HitClock_00..02 pass --scan,TBD
+HitProtected,hit,oneshot,SFX,1,3,0.05,GDD SH1.0 OWL-29 protected target,P0,a shot is consumed by protection,Audio owner,SW_HitProtected_00..02 pass --scan,TBD
+HitEnemy,hit,oneshot,SFX,1,3,0.05,GDD SH1.0 COM-14 enemy equipment,P1,a shot hits an enemy's equipment,Audio owner,SW_HitEnemy_00..02 pass --scan,none
+KeeperHoot,state,oneshot,SFX,1,3,0.05,GDD SH1.0 OWL-08 Keeper voice,P1,"arrival, reaction and distress hoots (deep, otherworldly)",Audio owner,SW_KeeperHoot_00..02 pass --scan,none
+OwlWingLoop,motion,loop,SFX,1,1,0,GDD SH1.0 ANIM-06 hover,P0,quiet mechanical hovering and wing movement,Audio owner,SW_OwlWingLoop_00 passes --scan,TBD
+OwlBoltLaunch,launch,oneshot,SFX,1,3,0.05,GDD SH1.0 OWL-11 red,P0,a red fan is launched (distinct from yellow),Audio owner,SW_OwlBoltLaunch_00..02 pass --scan,pipeline/art/fallback/audio/SW_OwlBoltLaunch_00.wav
+OwlBoltTravelLoop,motion,loop,SFX,1,1,0,GDD SH1.0 OWL-11 red travel,P1,red shots in flight,Audio owner,SW_OwlBoltTravelLoop_00 passes --scan,none
+KeeperYellowLaunch,launch,oneshot,SFX,1,3,0.05,GDD SH1.0 OWL-13 yellow,P0,"yellow packets are launched (catchable, different sound from red, OWL-14)",Audio owner,SW_KeeperYellowLaunch_00..02 pass --scan,TBD
+GustWindup,telegraph,oneshot,Telegraph,1,1,0,GDD SH1.0 OWL-15 gust warning,P0,wing gather and load,Audio owner,SW_GustWindup_00 passes --scan; --log telegraph line with lead >= 0.2 s,pipeline/art/fallback/audio/SW_GustWindup_00.wav
+GustRelease,launch,oneshot,SFX,1,3,0.05,GDD SH1.0 OWL-16 gust release,P0,the wing flap releases the front,Audio owner,SW_GustRelease_00..02 pass --scan,TBD
+GustLoop,ambience,loop,SFX,2,1,0,GDD SH1.0 OWL-16 moving gust,P0,the hostile front moves left (never the safe-current sound),Audio owner,SW_GustLoop_00 passes --scan,TBD
+GustEnd,state,oneshot,SFX,1,3,0.05,GDD SH1.0 OWL-17 gust cleared,P1,the gust expires or is cleared,Audio owner,SW_GustEnd_00..02 pass --scan,none
+TalonWarning,telegraph,oneshot,Telegraph,1,1,0,GDD SH1.0 OWL-18 talon warning,P0,the empty claw draws back,Audio owner,SW_TalonWarning_00 passes --scan; --log telegraph line with lead >= 0.2 s,TBD
+TalonSlash,launch,oneshot,SFX,1,3,0.05,GDD SH1.0 OWL-19 talon strike,P0,the committed rake,Audio owner,SW_TalonSlash_00..02 pass --scan,TBD
+TalonRecovery,state,oneshot,SFX,1,3,0.05,GDD SH1.0 OWL-20 talon recovery,P0,harmless retraction,Audio owner,SW_TalonRecovery_00..02 pass --scan,TBD
+CastWarning,telegraph,oneshot,Telegraph,1,1,0,GDD SH1.0 OWL-21 cast warning,P0,a mechanism cast locks its destination,Audio owner,SW_CastWarning_00 passes --scan; --log telegraph line with lead >= 0.2 s,TBD
+FrontCastLaunch,launch,oneshot,SFX,1,3,0.05,GDD SH1.0 OWL-22 front cast,P0,the front armillary head launches,Audio owner,SW_FrontCastLaunch_00..02 pass --scan,TBD
+MiddleCastLaunch,launch,oneshot,SFX,1,3,0.05,GDD SH1.0 OWL-24 middle cast,P0,the middle cage launches on its curve,Audio owner,SW_MiddleCastLaunch_00..02 pass --scan,TBD
+RearCastLaunch,launch,oneshot,SFX,1,3,0.05,GDD SH1.0 OWL-26 rear cast,P0,the rear gear's first and second strokes,Audio owner,SW_RearCastLaunch_00..02 pass --scan,TBD
+RearMidpointClack,telegraph,oneshot,Telegraph,1,1,0,GDD SH1.0 OWL-27 midpoint clack,P0,the safe pause; must not sound finished,Audio owner,SW_RearMidpointClack_00 passes --scan; --log telegraph line with lead >= 0.2 s,TBD
+ChainTravel,motion,loop,SFX,1,1,0,GDD SH1.0 OWL-22 chain,P0,the chain pays out,Audio owner,SW_ChainTravel_00 passes --scan,TBD
+CastReturn,state,oneshot,SFX,1,3,0.05,GDD SH1.0 OWL-23 return and settle,P0,harmless return home and settling,Audio owner,SW_CastReturn_00..02 pass --scan,TBD
+ClockBeat,telegraph,oneshot,Telegraph,1,1,0,GDD SH1.0 OWL-28 double beat,P0,the first volley of the double beat (hand XII to III),Audio owner,SW_ClockBeat_00 passes --scan; --log telegraph line with lead >= 0.2 s,TBD
+ClockBeatRepeat,launch,oneshot,SFX,1,3,0.05,GDD SH1.0 OWL-28 repeat,P0,the repeating beat on the same paths,Audio owner,SW_ClockBeatRepeat_00..02 pass --scan,TBD
+WingsBreak,hit,oneshot,SFX,1,3,0.05,GDD SH1.0 OWL-09 wings depleted,P0,the wings break,Audio owner,SW_WingsBreak_00..02 pass --scan,TBD
+MechanismBreak,hit,oneshot,SFX,1,3,0.05,GDD SH1.0 OWL-30 mechanism break,P0,a hanging mechanism breaks and falls,Audio owner,SW_MechanismBreak_00..02 pass --scan,TBD
+StunZap,state,oneshot,SFX,1,3,0.05,GDD SH1.0 OWL-30 stun,P0,electrical stun,Audio owner,SW_StunZap_00..02 pass --scan,TBD
+StunRecover,state,oneshot,SFX,1,3,0.05,GDD SH1.0 OWL-30 recovery,P0,stun ends,Audio owner,SW_StunRecover_00..02 pass --scan,TBD
+ClockOpen,state,oneshot,SFX,1,3,0.05,GDD SH1.0 OWL-29 opening,P0,clock protection opens,Audio owner,SW_ClockOpen_00..02 pass --scan,TBD
+ClockClose,state,oneshot,SFX,1,3,0.05,GDD SH1.0 OWL-29 closing,P0,clock protection closes,Audio owner,SW_ClockClose_00..02 pass --scan,TBD
+GlassCrack,hit,oneshot,SFX,1,3,0.05,GDD SH1.0 ANIM-06 glass stages,P0,the clock glass cracks,Audio owner,SW_GlassCrack_00..02 pass --scan,TBD
+TimeSlowStart,state,oneshot,SFX,1,3,0.05,GDD SH1.0 OWL-31 slow,P0,time slows (x0.35),Audio owner,SW_TimeSlowStart_00..02 pass --scan,TBD
+TimeSlowEnd,state,oneshot,SFX,1,3,0.05,GDD SH1.0 OWL-31 slow ends,P0,time returns to normal,Audio owner,SW_TimeSlowEnd_00..02 pass --scan,TBD
+EyeExpose,state,oneshot,SFX,1,3,0.05,GDD SH1.0 OWL-32 eye,P0,the eye is exposed,Audio owner,SW_EyeExpose_00..02 pass --scan,TBD
+EyeHit,hit,oneshot,SFX,1,3,0.05,GDD SH1.0 OWL-32 eye hit,P0,a hit on the exposed eye,Audio owner,SW_EyeHit_00..02 pass --scan,TBD
+BlackoutStart,state,oneshot,SFX,1,3,0.05,GDD SH1.0 OWL-32 blackout,P0,blackout starts,Audio owner,SW_BlackoutStart_00..02 pass --scan,TBD
+BlackoutEnd,state,oneshot,SFX,1,3,0.05,GDD SH1.0 OWL-32 restore,P0,"blackout ends, the damaged body returns",Audio owner,SW_BlackoutEnd_00..02 pass --scan,TBD
+ClockTickLoop,ambience,loop,SFX,2,1,0,GDD SH1.0 OWL-08 chest clock,P1,the Keeper's chest clock runs,Audio owner,SW_ClockTickLoop_00 passes --scan,none
+EncounterStart,state,oneshot,SFX,1,3,0.05,GDD SH1.0 FLOW-28 boss arrival,P0,the Keeper arrives,Audio owner,SW_EncounterStart_00..02 pass --scan,TBD
+PhaseChime,state,oneshot,SFX,1,3,0.05,GDD SH1.0 OWL-10 phase change,P0,a new phase and its checkpoint,Audio owner,SW_PhaseChime_00..02 pass --scan,pipeline/art/fallback/audio/SW_PhaseChime_00.wav
+EndEvent,state,oneshot,SFX,1,3,0.05,GDD SH1.0 OWL-35 completion,P0,final clock completion; the Keeper leaves alive (never a death sound),Audio owner,SW_EndEvent_00..02 pass --scan,pipeline/art/fallback/audio/SW_EndEvent_00.wav
+WardenWarning,telegraph,oneshot,Telegraph,1,1,0,GDD SH1.0 COM-14 Roadwarden warning,P1,Roadwarden brace / aim warning,Audio owner,SW_WardenWarning_00 passes --scan; --log telegraph line with lead >= 0.2 s,TBD
+WardenShot,launch,oneshot,SFX,1,3,0.05,GDD SH1.0 COM-14 Roadwarden shot,P1,Roadwarden red or yellow shot,Audio owner,SW_WardenShot_00..02 pass --scan,none
+WardenMove,motion,loop,SFX,1,1,0,GDD SH1.0 COM-14 Roadwarden movement,P1,Roadwarden movement and equipment,Audio owner,SW_WardenMove_00 passes --scan,none
+WardenDisable,hit,oneshot,SFX,1,3,0.05,GDD SH1.0 COM-14 Roadwarden disable,P1,Roadwarden non-graphic defeat,Audio owner,SW_WardenDisable_00..02 pass --scan,none
+FloodWarning,telegraph,oneshot,Telegraph,1,1,0,GDD SH1.0 COM-15 Floodstrider warning,P1,Floodstrider brace / aim warning,Audio owner,SW_FloodWarning_00 passes --scan; --log telegraph line with lead >= 0.2 s,TBD
+FloodShot,launch,oneshot,SFX,1,3,0.05,GDD SH1.0 COM-15 Floodstrider shot,P1,Floodstrider red or yellow shot,Audio owner,SW_FloodShot_00..02 pass --scan,none
+FloodStiltMove,motion,loop,SFX,1,1,0,GDD SH1.0 COM-15 Floodstrider movement,P1,Floodstrider movement and equipment,Audio owner,SW_FloodStiltMove_00 passes --scan,none
+FloodDisable,hit,oneshot,SFX,1,3,0.05,GDD SH1.0 COM-15 Floodstrider disable,P1,Floodstrider non-graphic defeat,Audio owner,SW_FloodDisable_00..02 pass --scan,none
+CourierFlightLoop,motion,loop,SFX,1,1,0,GDD SH1.0 COM-16 flight,P1,Sky Courier propellers,Audio owner,SW_CourierFlightLoop_00 passes --scan,none
+CourierWarning,telegraph,oneshot,Telegraph,1,1,0,GDD SH1.0 COM-16 warning,P1,Courier hover / aim warning,Audio owner,SW_CourierWarning_00 passes --scan; --log telegraph line with lead >= 0.2 s,TBD
+CourierShot,launch,oneshot,SFX,1,3,0.05,GDD SH1.0 COM-17 packet,P1,Courier red or yellow packet,Audio owner,SW_CourierShot_00..02 pass --scan,none
+CourierDisable,hit,oneshot,SFX,1,3,0.05,GDD SH1.0 COM-16 disable,P1,Courier non-graphic defeat,Audio owner,SW_CourierDisable_00..02 pass --scan,none
+CourierWithdraw,state,oneshot,SFX,1,3,0.05,GDD SH1.0 COM-17 withdrawal,P1,Courier withdraws after eight packets,Audio owner,SW_CourierWithdraw_00..02 pass --scan,none
+AirMillLoop,ambience,loop,SFX,2,1,0,GDD SH1.0 HAZ-19 air mill,P1,rotating machinery and blades,Audio owner,SW_AirMillLoop_00 passes --scan,none
+ShutterWarning,telegraph,oneshot,Telegraph,1,1,0,GDD SH1.0 HAZ-20 shutter warning,P1,crank / tension warning,Audio owner,SW_ShutterWarning_00 passes --scan; --log telegraph line with lead >= 0.2 s,TBD
+ShutterClose,hit,oneshot,SFX,1,3,0.05,GDD SH1.0 HAZ-20 strike,P1,the shutter closes,Audio owner,SW_ShutterClose_00..02 pass --scan,none
+ShutterOpen,state,oneshot,SFX,1,3,0.05,GDD SH1.0 HAZ-20 recovery,P1,the shutter reopens,Audio owner,SW_ShutterOpen_00..02 pass --scan,none
+BellowsWarning,telegraph,oneshot,Telegraph,1,1,0,GDD SH1.0 HAZ-21 pressure warning,P1,nozzle pressure warning,Audio owner,SW_BellowsWarning_00 passes --scan; --log telegraph line with lead >= 0.2 s,TBD
+BellowsGust,launch,oneshot,SFX,1,3,0.05,GDD SH1.0 HAZ-21 gust,P1,the hostile bellows gust,Audio owner,SW_BellowsGust_00..02 pass --scan,none
+BellowsRecover,state,oneshot,SFX,1,3,0.05,GDD SH1.0 HAZ-21 recovery,P1,no-fire recovery,Audio owner,SW_BellowsRecover_00..02 pass --scan,none
+CheckpointReached,state,oneshot,SFX,1,3,0.05,GDD SH1.0 FLOW-09 checkpoint,P1,a refuge checkpoint is reached,Audio owner,SW_CheckpointReached_00..02 pass --scan,none
+RefugeLoop,ambience,loop,SFX,2,1,0,GDD SH1.0 FLOW-27 refuge,P1,the quiet refuge / recovery source,Audio owner,SW_RefugeLoop_00 passes --scan,none
+UiMove,ui,oneshot,UI,1,1,0,GDD SH1.0 MOVE-09 navigate,P0,menu navigation,Audio owner,SW_UiMove_00 passes --scan,TBD
+UiSelect,ui,oneshot,UI,1,1,0,GDD SH1.0 MOVE-09 select,P0,select / confirm,Audio owner,SW_UiSelect_00 passes --scan,TBD
+UiBack,ui,oneshot,UI,1,1,0,GDD SH1.0 MOVE-09 back,P0,back,Audio owner,SW_UiBack_00 passes --scan,TBD
+PauseIn,ui,oneshot,UI,1,1,0,GDD SH1.0 FLOW-35 pause,P0,pause opens,Audio owner,SW_PauseIn_00 passes --scan,TBD
+PauseOut,ui,oneshot,UI,1,1,0,GDD SH1.0 FLOW-35 continue,P0,resume,Audio owner,SW_PauseOut_00 passes --scan,TBD
+UiOpen,ui,oneshot,UI,1,1,0,GDD SH1.0 FLOW-36 settings,P0,a menu screen opens,Audio owner,SW_UiOpen_00 passes --scan,TBD
+UiClose,ui,oneshot,UI,1,1,0,GDD SH1.0 FLOW-40 back,P0,a menu screen closes,Audio owner,SW_UiClose_00 passes --scan,TBD
+UiSliderTick,ui,oneshot,UI,1,1,0,GDD SH1.0 FLOW-37 sliders,P0,a slider step,Audio owner,SW_UiSliderTick_00 passes --scan,TBD
+UiTransition,ui,oneshot,UI,1,1,0,GDD SH1.0 FLOW-34 start,P0,Start to play,Audio owner,SW_UiTransition_00 passes --scan,TBD
+UiBlocked,ui,oneshot,UI,1,1,0,GDD SH1.0 MOVE-09 blocked,P1,a blocked action,Audio owner,SW_UiBlocked_00 passes --scan,none
+SettingsSaved,ui,oneshot,UI,1,1,0,GDD SH1.0 FLOW-43 save,P1,settings saved,Audio owner,SW_SettingsSaved_00 passes --scan,none
+BindingCaptured,ui,oneshot,UI,1,1,0,GDD SH1.0 MOVE-17 remap,P1,a binding is captured,Audio owner,SW_BindingCaptured_00 passes --scan,none
+BindingConflict,ui,oneshot,UI,1,1,0,GDD SH1.0 FLOW-45 duplicate binding,P1,a binding conflict warning,Audio owner,SW_BindingConflict_00 passes --scan,none
+TutorialPrompt,ui,oneshot,UI,1,1,0,GDD SH1.0 FLOW-03 tutorial,P1,a tutorial prompt,Audio owner,SW_TutorialPrompt_00 passes --scan,none
+TutorialStep,ui,oneshot,UI,1,1,0,GDD SH1.0 FLOW-03 step,P1,a tutorial step completed,Audio owner,SW_TutorialStep_00 passes --scan,none
+TutorialDone,ui,oneshot,UI,1,1,0,GDD SH1.0 FLOW-03 graduation,P1,tutorial graduation,Audio owner,SW_TutorialDone_00 passes --scan,none
+TutorialSkip,ui,oneshot,UI,1,1,0,GDD SH1.0 FLOW-03 skip,P1,tutorial skipped from Pause,Audio owner,SW_TutorialSkip_00 passes --scan,none
+XpGain,ui,oneshot,UI,1,1,0,GDD SH1.0 FLOW-48 XP ring,P1,XP earned,Audio owner,SW_XpGain_00 passes --scan,none
+LevelUpClock,ui,oneshot,UI,1,1,0,GDD SH1.0 FLOW-48 level-up clock sound,P1,level gained: the clock pulse sound,Audio owner,SW_LevelUpClock_00 passes --scan,none
+WeaponUnlock,ui,oneshot,UI,1,1,0,GDD SH1.0 FLOW-16 unlock,P1,a spell unlocks,Audio owner,SW_WeaponUnlock_00 passes --scan,none
+UpgradePurchase,ui,oneshot,UI,1,1,0,GDD SH1.0 FLOW-42 purchase,P1,an upgrade is bought,Audio owner,SW_UpgradePurchase_00 passes --scan,none
+UpgradeRefund,ui,oneshot,UI,1,1,0,GDD SH1.0 FLOW-18 refund,P1,an upgrade is refunded (run 2 onward),Audio owner,SW_UpgradeRefund_00 passes --scan,none
+RunStart,ui,oneshot,UI,1,1,0,GDD SH1.0 FLOW-10 new run,P1,a Director's Cut run starts,Audio owner,SW_RunStart_00 passes --scan,none
+RunComplete,ui,oneshot,UI,1,1,0,GDD SH1.0 FLOW-49 Journey Complete,P1,a run completes,Audio owner,SW_RunComplete_00 passes --scan,none
+StoryTextAppear,ui,oneshot,UI,1,1,0,GDD SH1.0 NAR-02 text narration,P2,story text appears,Audio owner,SW_StoryTextAppear_00 passes --scan,none
+StoryPageReveal,ui,oneshot,UI,1,1,0,GDD SH1.0 NAR-02,P2,the rest of a page appears,Audio owner,SW_StoryPageReveal_00 passes --scan,none
+StoryAdvance,ui,oneshot,UI,1,1,0,GDD SH1.0 NAR-02,P2,story advances,Audio owner,SW_StoryAdvance_00 passes --scan,none
+SceneTransition,ui,oneshot,UI,1,1,0,GDD SH1.0 NAR-07,P2,scene transition (optional),Audio owner,SW_SceneTransition_00 passes --scan,none
+MusicTitle,music,loop,Music,2,1,0,GDD SH1.0 FLOW-34 / FLOW-04 Start and End music,P0,Start screen and the credits roll (ART-04 same background),Audio owner,SW_MusicTitle_00 passes --scan,TBD
+MusicIntro,music,loop,Music,2,1,0,GDD SH1.0 OWL-06 wings phase music,P2,"Keeper fight music, wings (scope to confirm)",Audio owner,SW_MusicIntro_00 passes --scan,none
+MusicContest,music,loop,Music,2,1,0,GDD SH1.0 OWL-06 mechanisms phase music,P2,"Keeper fight music, mechanisms (scope to confirm)",Audio owner,SW_MusicContest_00 passes --scan,none
+MusicDesperation,music,loop,Music,2,1,0,GDD SH1.0 OWL-06 clock phase music,P2,"Keeper fight music, clock (scope to confirm)",Audio owner,SW_MusicDesperation_00 passes --scan,none
+SurvivedSting,ui,oneshot,Music,2,1,0,GDD SH1.0 FLOW-04 win ending,P1,the win ending begins (not Ella's death),Audio owner,SW_SurvivedSting_00 passes --scan,none
+FailSting,ui,oneshot,Music,2,1,0,GDD SH1.0 FLOW-31 defeat,P1,defeat,Audio owner,SW_FailSting_00 passes --scan,none
+WindBed,ambience,loop,SFX,2,1,0,GDD SH1.0 ART-06 cliff and open air,P1,open air and wind bed,Audio owner,SW_WindBed_00 passes --scan,none
+MillAmbience,ambience,loop,SFX,2,1,0,GDD SH1.0 FLOW-26 mill and rooftops,P2,rooftops and mill machinery (to discuss),Audio owner,SW_MillAmbience_00 passes --scan,none
+BossApproach,ambience,loop,SFX,2,1,0,GDD SH1.0 FLOW-28 quiet arrival,P2,boss-approach ambience (to discuss),Audio owner,SW_BossApproach_00 passes --scan,none
+RealmClocks,ambience,loop,SFX,2,1,0,GDD SH1.0 BG-06 distant clocks,P2,optional distant clock sounds in the Other Realm,Audio owner,SW_RealmClocks_00 passes --scan,none
+OwlBoltWindup,telegraph,oneshot,Telegraph,1,1,0,GDD 1.3 §7B OWL-01 warning (GDD 1.3 history; not in GDD SH1.0) (GDD 1.3 history; not in GDD SH1.0) (GDD 1.3 history; not in GDD SH1.0) (GDD 1.3 history; not in GDD SH1.0),cut,amber clock flash starts,Audio owner,--log telegraph line for OwlBolt with lead >= 0.2 s,pipeline/art/fallback/audio/SW_OwlBoltWindup_00.wav
+OwlBoltFade,trail,oneshot,SFX,1,1,0,GDD 1.3 §7B despawn OWL-01 (GDD 1.3 history; not in GDD SH1.0) (GDD 1.3 history; not in GDD SH1.0) (GDD 1.3 history; not in GDD SH1.0) (GDD 1.3 history; not in GDD SH1.0),cut,an owl bolt despawns without a contact (lifetime or bounds),Audio owner,SC_OwlBoltFade in the dump with SCON_Launch; audio_loop close PASS for OwlBoltFade,none
+ArcWindup,telegraph,oneshot,Telegraph,1,1,0,§6 returning arc (GDD 1.3 history; not in GDD SH1.0) (GDD 1.3 history; not in GDD SH1.0) (GDD 1.3 history; not in GDD SH1.0) (GDD 1.3 history; not in GDD SH1.0),cut,red arc trail starts,Audio owner,--log telegraph line for Arc with lead >= 0.2 s,pipeline/art/fallback/audio/SW_ArcWindup_00.wav
+ArcLaunch,launch,oneshot,SFX,1,1,0,§6 returning arc (OWL-04) (GDD 1.3 history; not in GDD SH1.0) (GDD 1.3 history; not in GDD SH1.0) (GDD 1.3 history; not in GDD SH1.0) (GDD 1.3 history; not in GDD SH1.0),cut,the returning arc spawns,Audio owner,SC_ArcLaunch in the dump with SCON_Launch; audio_loop close PASS for ArcLaunch,none
+ArcTravelLoop,motion,loop,SFX,1,1,0,§6 returning arc (OWL-04) (GDD 1.3 history; not in GDD SH1.0) (GDD 1.3 history; not in GDD SH1.0) (GDD 1.3 history; not in GDD SH1.0) (GDD 1.3 history; not in GDD SH1.0),cut,the returning arc is in flight,Audio owner,loop wrap passes --scan; audio_loop close PASS for ArcTravelLoop,none
+ArcFade,trail,oneshot,SFX,1,1,0,§6 returning arc (OWL-04) (GDD 1.3 history; not in GDD SH1.0) (GDD 1.3 history; not in GDD SH1.0) (GDD 1.3 history; not in GDD SH1.0) (GDD 1.3 history; not in GDD SH1.0),cut,the returning arc despawns without a contact,Audio owner,SC_ArcFade in the dump with SCON_Launch; audio_loop close PASS for ArcFade,none
+ShieldRaise,state,oneshot,SFX,1,1,0,GDD 1.3 §3 SHIELD_DESCENT DEF-01 (GDD 1.3 history; not in GDD SH1.0) (GDD 1.3 history; not in GDD SH1.0) (GDD 1.3 history; not in GDD SH1.0) (GDD 1.3 history; not in GDD SH1.0),cut,umbrella turns to the front shield (SHIELD_DESCENT entered),Audio owner,SC_ShieldRaise in the dump with SCON_State; audio_loop close PASS for ShieldRaise,none
+UmbrellaTear,state,oneshot,SFX,1,1,0,§4 (GDD 1.3 history; not in GDD SH1.0) (GDD 1.3 history; not in GDD SH1.0) (GDD 1.3 history; not in GDD SH1.0) (GDD 1.3 history; not in GDD SH1.0),cut,umbrella moves down a tier (intact damaged critical),Audio owner,named by every player in the blind ID test (--blind-id),none
+ChargeWindup,launch,loop,SFX,1,1,0,§5 open note: PC shooting (GDD 1.3 history; not in GDD SH1.0) (GDD 1.3 history; not in GDD SH1.0) (GDD 1.3 history; not in GDD SH1.0) (GDD 1.3 history; not in GDD SH1.0),cut,fire held to charge a shot (only if the PC shooting scheme is picked),Audio owner,loop wrap passes --scan; looping set only on this asset,none
+ChargeRelease,launch,oneshot,SFX,1,1,0,§5 open note: PC shooting (GDD 1.3 history; not in GDD SH1.0) (GDD 1.3 history; not in GDD SH1.0) (GDD 1.3 history; not in GDD SH1.0) (GDD 1.3 history; not in GDD SH1.0),cut,charged shot fires,Audio owner,SC_ChargeRelease in the dump with SCON_WandBolt,none
+OwlGearSlip,state,oneshot,SFX,1,1,0,§8 owl condition (GDD 1.3 history; not in GDD SH1.0) (GDD 1.3 history; not in GDD SH1.0) (GDD 1.3 history; not in GDD SH1.0) (GDD 1.3 history; not in GDD SH1.0),cut,the owl's condition drops a step,Audio owner,SC_OwlGearSlip in the dump with SCON_State,none
+WandBoltTravelLoop,motion,loop,SFX,1,1,0,GDD 1.3 §7B COM-01 (GDD 1.3 history; not in GDD SH1.0) (GDD 1.3 history; not in GDD SH1.0) (GDD 1.3 history; not in GDD SH1.0) (GDD 1.3 history; not in GDD SH1.0),cut,a wand bolt is in flight,Audio owner,loop wrap passes --scan; audio_loop close PASS for WandBoltTravelLoop,none
+BelfryAmbience,ambience,loop,SFX,2,1,0,GDD 1.3 §7 arena; BG-01 backdrop (GDD 1.3 history; not in GDD SH1.0) (GDD 1.3 history; not in GDD SH1.0) (GDD 1.3 history; not in GDD SH1.0) (GDD 1.3 history; not in GDD SH1.0),cut,always on in the arena: far bells and clockwork room tone,Audio owner,loop wrap passes --scan; audio_loop close PASS for BelfryAmbience,none

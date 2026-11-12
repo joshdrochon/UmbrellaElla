@@ -1,0 +1,43 @@
+{
+  "clean": false,
+  "defects": [
+    {
+      "id": "shell-logic",
+      "severity": "high",
+      "file": "Source/UmbrellaElla/Private/Core/EllaCharacter.cpp",
+      "lines": [
+        44,
+        44
+      ],
+      "keywords": [
+        "bindaction",
+        "bindinput",
+        "character",
+        "component",
+        "input adapter",
+        "logic",
+        "plane",
+        "plane constraint",
+        "setactorlocation",
+        "shell",
+        "tick"
+      ],
+      "also": [
+        {
+          "file": "Source/UmbrellaElla/Private/Core/EllaCharacter.cpp",
+          "lines": [
+            35,
+            35
+          ]
+        },
+        {
+          "file": "Source/UmbrellaElla/Public/Core/EllaCharacter.h",
+          "lines": [
+            17,
+            17
+          ]
+        }
+      ]
+    }
+  ]
+}

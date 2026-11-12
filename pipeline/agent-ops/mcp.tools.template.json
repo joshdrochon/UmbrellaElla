@@ -1,0 +1,11 @@
+{
+  "_about": "Claude Code format (.mcp.json / --mcp-config) of the art-tool MCP servers from issue #13: GIMP, Aseprite (Rick's, pre-existing) and Blender. The Unreal editor server stays in mcp.template.json. OFF until the kickoff record (gates.json mcp_enabled, a needs-human checkpoint): tools/kickoff.py gives a session only the servers its role may use (asset-tools.json mcp roles, all inside gates.json mcp_roles), through --mcp-config --strict-mcp-config, and none while mcp_enabled is false. The Codex format of the same servers is codex-mcp.template.toml; tools/mcp_config.py check keeps the two equal.",
+  "_verify": [
+    "[VERIFY] each server's command name and its stdio transport, on the machine that runs it"
+  ],
+  "mcpServers": {
+    "gimp-mcp": {"type": "stdio", "command": "gimp-mcp", "args": []},
+    "aseprite-mcp": {"type": "stdio", "command": "aseprite-mcp", "args": []},
+    "blender-mcp": {"type": "stdio", "command": "blender-mcp", "args": []}
+  }
+}

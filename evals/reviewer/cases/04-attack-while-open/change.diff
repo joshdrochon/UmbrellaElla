@@ -1,0 +1,36 @@
+--- a/Source/UmbrellaElla/Private/Attack/AttackEmitterComponent.cpp
++++ b/Source/UmbrellaElla/Private/Attack/AttackEmitterComponent.cpp
+@@ -7,5 +7,5 @@
+ 
+ bool FAttackRules::CanEmit(float CooldownRemaining)
+ {
+-	return false;
++	return CooldownRemaining <= 0.f;
+ }
+@@ -40,12 +40,26 @@
+ void UAttackEmitterComponent::TickComponent(float DeltaSeconds, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+ {
+ 	Super::TickComponent(DeltaSeconds, TickType, ThisTickFunction);
++	CooldownRemaining = FMath::Max(CooldownRemaining - DeltaSeconds, 0.f);
+ }
+ 
+ void UAttackEmitterComponent::RequestEmit(const FVector& AimDirection)
+ {
++	UProjectileServiceSubsystem* Service = Projectiles.Get();
++	if (!FAttackRules::CanEmit(CooldownRemaining) || !IsValid(Service) || AimDirection.IsNearlyZero())
++	{
++		return;
++	}
++	const FAttackTuning& Tuning = GetDefault<UUmbrellaTuning>()->Attack;
++	FProjectileSpawn Spawn;
++	Spawn.Kind = EProjectileKind::PlayerShot;
++	Spawn.Origin = GetOwner()->GetActorLocation();
++	Spawn.Velocity = AimDirection.GetSafeNormal() * Tuning.ShotSpeed;
++	Service->SpawnProjectile(Spawn);
++	CooldownRemaining = Tuning.CooldownSeconds;
+ }
+ 
+ void UAttackEmitterComponent::ResetForRestart()
+ {
++	CooldownRemaining = 0.f;
+ }

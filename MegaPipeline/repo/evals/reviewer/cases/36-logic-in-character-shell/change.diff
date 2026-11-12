@@ -1,0 +1,29 @@
+--- a/Source/UmbrellaElla/Public/Core/EllaCharacter.h
++++ b/Source/UmbrellaElla/Public/Core/EllaCharacter.h
+@@ -14,6 +14,7 @@
+ public:
+ 	AEllaCharacter();
+ 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
++	virtual void Tick(float DeltaSeconds) override;
+ 
+ private:
+ 	UPROPERTY(VisibleAnywhere, Category = "Ella", meta = (AllowPrivateAccess = "true"))
+--- a/Source/UmbrellaElla/Private/Core/EllaCharacter.cpp
++++ b/Source/UmbrellaElla/Private/Core/EllaCharacter.cpp
+@@ -30,7 +30,16 @@
+ void AEllaCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+ {
+ 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+ 	AddMappingContext();
+ 	UEnhancedInputComponent* Input = CastChecked<UEnhancedInputComponent>(PlayerInputComponent);
++	Input->BindAction(InputAdapter->GetMoveAction(), ETriggerEvent::Triggered, InputAdapter.Get(), &UInputAdapterComponent::OnMove);
+ 	InputAdapter->BindInput(Input);
++}
++
++void AEllaCharacter::Tick(float DeltaSeconds)
++{
++	Super::Tick(DeltaSeconds);
++	// Keep Ella on the X/Z play plane.
++	const FVector Location = GetActorLocation();
++	SetActorLocation(FVector(Location.X, 0.f, Location.Z));
+ }

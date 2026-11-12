@@ -1,0 +1,86 @@
+--- a/Source/UmbrellaElla/Public/Feedback/FeedbackAdapterComponent.h
++++ b/Source/UmbrellaElla/Public/Feedback/FeedbackAdapterComponent.h
+@@ -1,6 +1,9 @@
+ #pragma once
+ #include "CoreMinimal.h"
+ #include "Components/ActorComponent.h"
++#include "Umbrella/UmbrellaConfig.h"
+ #include "FeedbackAdapterComponent.generated.h"
+ 
++class UGameEventsSubsystem;
+ class UPaperFlipbook;
++struct FGameEventInfo;
+@@ -14,8 +17,19 @@
+ 	UFeedbackAdapterComponent();
+ 
+ protected:
++	virtual void BeginPlay() override;
++	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
++
+ 	UPROPERTY(EditDefaultsOnly, Category = "Ella|Animation")
+ 	TObjectPtr<UPaperFlipbook> OpenFlipbook;
+ 	UPROPERTY(EditDefaultsOnly, Category = "Ella|Animation")
+ 	TObjectPtr<UPaperFlipbook> ClosedFlipbook;
++
++private:
++	void HandleUmbrellaConfigChanged(const FGameEventInfo& Info, EUmbrellaConfig NewConfig) const;
++	void ShowConfig(EUmbrellaConfig Config) const;
++
++	UPROPERTY()
++	TWeakObjectPtr<UGameEventsSubsystem> Events;
++	FDelegateHandle ConfigChangedHandle;
+ };
+--- a/Source/UmbrellaElla/Private/Feedback/FeedbackAdapterComponent.cpp
++++ b/Source/UmbrellaElla/Private/Feedback/FeedbackAdapterComponent.cpp
+@@ -1,6 +1,51 @@
+ #include "Feedback/FeedbackAdapterComponent.h"
++#include "Core/GameEvents.h"
++#include "Core/GameEventsSubsystem.h"
++#include "Core/UmbrellaLog.h"
++#include "Umbrella/UmbrellaStateComponent.h"
++#include "PaperCharacter.h"
++#include "PaperFlipbookComponent.h"
+ 
+ UFeedbackAdapterComponent::UFeedbackAdapterComponent()
+ {
+ 	PrimaryComponentTick.bCanEverTick = false;
+ }
++
++void UFeedbackAdapterComponent::BeginPlay()
++{
++	const UUmbrellaStateComponent* Umbrella = GetOwner()->FindComponentByClass<UUmbrellaStateComponent>();
++	UGameEventsSubsystem* EventsSubsystem = GetWorld()->GetSubsystem<UGameEventsSubsystem>();
++	if (!IsValid(Umbrella) || !IsValid(EventsSubsystem))
++	{
++		UE_LOG(LogUmbrellaElla, Error, TEXT("FeedbackAdapterComponent: no UmbrellaStateComponent or GameEventsSubsystem for %s"), *GetNameSafe(GetOwner()));
++		return;
++	}
++	Events = EventsSubsystem;
++	ConfigChangedHandle = EventsSubsystem->OnUmbrellaConfigChanged().AddUObject(this, &UFeedbackAdapterComponent::HandleUmbrellaConfigChanged);
++	ShowConfig(Umbrella->GetConfig());
++}
++
++void UFeedbackAdapterComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
++{
++	if (UGameEventsSubsystem* EventsSubsystem = Events.Get())
++	{
++		EventsSubsystem->OnUmbrellaConfigChanged().Remove(ConfigChangedHandle);
++	}
++	Super::EndPlay(EndPlayReason);
++}
++
++void UFeedbackAdapterComponent::HandleUmbrellaConfigChanged(const FGameEventInfo& Info, EUmbrellaConfig NewConfig) const
++{
++	ShowConfig(NewConfig);
++}
++
++void UFeedbackAdapterComponent::ShowConfig(EUmbrellaConfig Config) const
++{
++	const APaperCharacter* Ella = Cast<APaperCharacter>(GetOwner());
++	if (!IsValid(Ella)) { return; }
++	UPaperFlipbook* Desired = Config == EUmbrellaConfig::UpOpen ? OpenFlipbook : ClosedFlipbook;
++	if (Ella->GetSprite()->GetFlipbook() != Desired)
++	{
++		Ella->GetSprite()->SetFlipbook(Desired);
++	}
++}

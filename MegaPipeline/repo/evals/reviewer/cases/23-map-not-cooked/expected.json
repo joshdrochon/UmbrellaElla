@@ -1,0 +1,29 @@
+{
+  "clean": false,
+  "defects": [
+    {
+      "id": "results-map-not-cooked",
+      "severity": "blocker",
+      "file": "Config/DefaultGame.ini",
+      "lines": [
+        9,
+        9
+      ],
+      "keywords": [
+        "mapstocook",
+        "cook",
+        "packag",
+        "l_arena"
+      ],
+      "also": [
+        {
+          "file": "Source/UmbrellaElla/Private/Encounter/EncounterDirectorSubsystem.cpp",
+          "lines": [
+            11,
+            11
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+--- a/Source/UmbrellaElla/Public/Umbrella/UmbrellaStateComponent.h
++++ b/Source/UmbrellaElla/Public/Umbrella/UmbrellaStateComponent.h
+@@ -44,3 +44,9 @@
+ private:
++	UPROPERTY()
++	bool bUpOpen = true;
++
++	UPROPERTY()
++	bool bFalling = false;
++
+ 	UPROPERTY()
+ 	TWeakObjectPtr<UGameEventsSubsystem> Events;
+--- a/Source/UmbrellaElla/Private/Umbrella/UmbrellaStateComponent.cpp
++++ b/Source/UmbrellaElla/Private/Umbrella/UmbrellaStateComponent.cpp
+@@ -50,12 +50,20 @@
+ EUmbrellaConfig UUmbrellaStateComponent::GetConfig() const
+ {
+-	return EUmbrellaConfig::UpOpen;
++	return bUpOpen ? EUmbrellaConfig::UpOpen : EUmbrellaConfig::AttackDescent;
+ }
+ 
+ void UUmbrellaStateComponent::RequestOpen()
+ {
++	if (bUpOpen) { return; }
++	bUpOpen = true;
++	bFalling = false;
++	BroadcastConfigChanged();
+ }
+ 
+ void UUmbrellaStateComponent::RequestClose()
+ {
++	if (!bUpOpen) { return; }
++	bUpOpen = false;
++	bFalling = Movement.IsValid() && Movement->IsFalling();
++	BroadcastConfigChanged();
+ }

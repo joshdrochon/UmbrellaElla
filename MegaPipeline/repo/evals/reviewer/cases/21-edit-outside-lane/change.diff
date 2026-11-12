@@ -1,0 +1,54 @@
+--- a/Source/UmbrellaElla/Public/Feedback/FeedbackAdapterComponent.h
++++ b/Source/UmbrellaElla/Public/Feedback/FeedbackAdapterComponent.h
+@@ -27,4 +27,6 @@
+ 	UFeedbackAdapterComponent();
+ 	virtual void TickComponent(float DeltaSeconds, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
++	/** True for Feedback.HurtFlashSeconds after each hit that lowers health. */
++	bool IsHurtFlashing() const;
+ 
+ protected:
+@@ -44,4 +46,6 @@
+ 	UPROPERTY()
+ 	TWeakObjectPtr<UGameEventsSubsystem> Events;
++	UPROPERTY()
++	float HurtFlashRemaining = 0.f;
+ 	FDelegateHandle HealthChangedHandle;
+ };
+--- a/Source/UmbrellaElla/Private/Feedback/FeedbackAdapterComponent.cpp
++++ b/Source/UmbrellaElla/Private/Feedback/FeedbackAdapterComponent.cpp
+@@ -40,4 +40,5 @@
+ {
+ 	Super::TickComponent(DeltaSeconds, TickType, ThisTickFunction);
++	HurtFlashRemaining = FMath::Max(0.f, HurtFlashRemaining - DeltaSeconds);
+ }
+ 
+@@ -52,4 +53,13 @@
+ void UFeedbackAdapterComponent::HandlePlayerHealthChanged(const FPlayerHealthChangedInfo& Event)
+ {
++	if (Event.Delta < 0)
++	{
++		HurtFlashRemaining = GetDefault<UUmbrellaTuning>()->Feedback.HurtFlashSeconds;
++	}
++}
++
++bool UFeedbackAdapterComponent::IsHurtFlashing() const
++{
++	return HurtFlashRemaining > 0.f;
+ }
+--- a/Source/UmbrellaElla/Private/Health/HealthComponent.cpp
++++ b/Source/UmbrellaElla/Private/Health/HealthComponent.cpp
+@@ -1,4 +1,5 @@
+ #include "Health/HealthComponent.h"
++#include "Feedback/FeedbackAdapterComponent.h"
+ #include "Core/UmbrellaTuning.h"
+ 
+ int32 FHealthRules::HealthAfterHit(int32 Current, int32 Damage)
+@@ -26,6 +27,8 @@
+ 
+ void UHealthComponent::ApplyDamage(int32 Damage)
+ {
++	const UFeedbackAdapterComponent* Feedback = GetOwner()->FindComponentByClass<UFeedbackAdapterComponent>();
++	if (IsValid(Feedback) && Feedback->IsHurtFlashing()) { return; }
+ 	const int32 Before = Health;
+ 	Health = FHealthRules::HealthAfterHit(Health, Damage);
+ 	if (Health == Before) { return; }

@@ -1,0 +1,66 @@
+{
+ "gdd_revision": "1.3",
+ "note": "GDD 1.3 section 10 suggested test presets. Not gameplay modes. Each preset changes these features over the manifest defaults; everything else keeps its manifest default. All APPROVED_P0 features are on by default (GDD 1.3 section 5 manifest invariants), so BASE changes nothing. Numbers come from GDD 1.3 section 5A; a preset never changes BASE defaults. The workbench that loads them exists only in debug and dev builds (D-new-workbench-debug); the approved preset ships as plain defaults through tools/bake_preset.py.",
+ "presets": [
+  {
+   "id": "T-01",
+   "name": "BASE",
+   "enable": [],
+   "disable": [],
+   "learning_goal": "Does the complete 90-second encounter work and remain readable?",
+   "note": "All APPROVED_P0 features on: movement, auto attack, front shield/heal, one owl bolt, safe wind, sprite animations, parallax, clock/body hitboxes, screens. Experimental modules off. Loads every section 5A value."
+  },
+  {
+   "id": "T-02",
+   "name": "MOTOR",
+   "enable": [],
+   "disable": [
+    "OWL-01",
+    "SURV-03",
+    "WIND-01"
+   ],
+   "learning_goal": "Do gravity, ascent, steering and state priority work?",
+   "note": "Base movement only: owl attacks, shield healing and wind off for this test only."
+  },
+  {
+   "id": "T-03",
+   "name": "SHIELD",
+   "enable": [],
+   "disable": [],
+   "learning_goal": "Do blocks register once, avoid damage, and only heal when allowed?",
+   "note": "Frontal shield + one bolt; log catches during the heal cooldown separately. Side catching (UMB-03) stays off."
+  },
+  {
+   "id": "T-04",
+   "name": "RECOVER",
+   "enable": [],
+   "disable": [],
+   "learning_goal": "Can a damaged player recover without creating an infinite-health loop?",
+   "note": "Baseline plus a low-health starting scenario and the shield cooldown values."
+  },
+  {
+   "id": "T-05",
+   "name": "WIND",
+   "enable": [],
+   "disable": [],
+   "learning_goal": "Is wind readable; are danger and advantage distinguishable?",
+   "note": "Safe environmental wind (WIND-01) on, as in BASE. Wind wear (WIND-02) only as a separate isolated EXPERIMENT run with its own ticket."
+  },
+  {
+   "id": "T-06",
+   "name": "CLOCK",
+   "enable": [],
+   "disable": [],
+   "learning_goal": "Does CLOCK precedence work, and can effects be attached later?",
+   "note": "Required clock/body hit routing (OWL-05) on, as in BASE. Clock interrupt (COM-02) off until approved."
+  },
+  {
+   "id": "T-07",
+   "name": "VISUAL",
+   "enable": [],
+   "disable": [],
+   "learning_goal": "Are frames anchored and threats legible at gameplay size?",
+   "note": "P0 sprite loops (ANIM-01) and sliding background (BG-01) on; compare with a static background and minimal frames. ART-02 stays off."
+  }
+ ]
+}

@@ -1,0 +1,2 @@
+some other line
+UIFLOW | commit=abc1234 | title-play pass | pause pass | pause-end-event pass | survived-card pass | fail-card pass | restart pass (1.2 s) | quit-title pass | quit-pause pass | keyboard-only pass | menu-nav-keyboard pass | remap pass | release-activate pass | text-scale-2 pass | prompts-consistent pass | mouse-menus pass | mouse-play pass | remap-gamepad pass | tutorial-skip pass | play-presses 1

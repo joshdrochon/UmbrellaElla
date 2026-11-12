@@ -1,0 +1,21 @@
+{
+  "clean": false,
+  "defects": [
+    {
+      "id": "private-include",
+      "severity": "high",
+      "file": "Source/UmbrellaEllaEditor/Private/EllaFlipbookValidator.cpp",
+      "lines": [
+        2,
+        2
+      ],
+      "keywords": [
+        "private",
+        "module",
+        "public",
+        "relative include",
+        "boundary"
+      ]
+    }
+  ]
+}

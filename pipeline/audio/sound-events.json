@@ -1,0 +1,1188 @@
+{
+ "note": "Gate file. Every thing in the game that can make a sound, mapped to its sound-list rows. tools/audio_check.py --events reads the sources below and fails when one of their events, states, attacks, features, screens, settings rows or menu actions has no key here, when a key names a sound that is not a live row, when a row is in no key, and when a row has no style family in pipeline/audio/style.json. At run time the Feedback Adapter prints `AUDIO: event key=<key> sound=<id> t=<s>` for each key it handles; `--log` fails a key that fired with sound=none, an unknown key or a sound that is not mapped to it. `silent` needs a reason and is only for things that never make a noise in the shipped game. `pending` is only for a feature that is not approved yet (EXPERIMENT, PROPOSED, DEFERRED in docs/feature-manifest.json); it fails the moment the feature is approved.",
+ "sources": {
+  "event": "docs/feature-manifest.json `events` and the event list in pipeline/unreal/gameplay-code.md",
+  "state": "GDD SH1.0 MOVE-19: the four Shoot / Absorb modes",
+  "attack": "the pipeline/level/encounter.json baseline preset attacks (GDD SH1.0 section 5)",
+  "feature": "docs/feature-manifest.json `features`",
+  "screen": "pipeline/ui/menus.md `Screens` line",
+  "setting": "pipeline/ui/menus.md item 8 settings rows",
+  "ui": "pipeline/ui/menus.md menu actions: focus, Confirm, Back, Quit",
+  "signal": "pipeline/ui/signals.json: each sound_id must be a live row (ui_check.py signals checks the rest)"
+ },
+ "keys": {
+  "attack:clock-double-beat": {
+   "sounds": [
+    "ClockBeat",
+    "ClockBeatRepeat"
+   ]
+  },
+  "attack:gust-band": {
+   "sounds": [
+    "GustWindup",
+    "GustRelease",
+    "GustLoop",
+    "GustEnd"
+   ]
+  },
+  "attack:mech-front-cast": {
+   "sounds": [
+    "CastWarning",
+    "FrontCastLaunch",
+    "ChainTravel",
+    "CastReturn"
+   ]
+  },
+  "attack:mech-middle-curve": {
+   "sounds": [
+    "CastWarning",
+    "MiddleCastLaunch",
+    "ChainTravel",
+    "CastReturn"
+   ]
+  },
+  "attack:mech-rear-two-stage": {
+   "sounds": [
+    "CastWarning",
+    "RearCastLaunch",
+    "RearMidpointClack",
+    "ChainTravel",
+    "CastReturn"
+   ]
+  },
+  "attack:red-fan": {
+   "sounds": [
+    "OwlBoltLaunch",
+    "OwlBoltTravelLoop"
+   ]
+  },
+  "attack:talon-rake": {
+   "sounds": [
+    "TalonWarning",
+    "TalonSlash",
+    "TalonRecovery"
+   ]
+  },
+  "attack:yellow-packet": {
+   "sounds": [
+    "KeeperYellowLaunch"
+   ]
+  },
+  "event:AnimationCue": {
+   "silent": "carries the sound of the action it cues"
+  },
+  "event:BackgroundLooped": {
+   "silent": "a background layer wraps; no sound"
+  },
+  "event:BossAttackTelegraphed": {
+   "sounds": [
+    "GustWindup",
+    "TalonWarning",
+    "CastWarning",
+    "ClockBeat"
+   ]
+  },
+  "event:BossPartDestroyed": {
+   "sounds": [
+    "WingsBreak",
+    "MechanismBreak"
+   ]
+  },
+  "event:BossTargetHit": {
+   "sounds": [
+    "HitOwl",
+    "HitWing",
+    "HitClock",
+    "GlassCrack",
+    "EyeHit"
+   ]
+  },
+  "event:CatchAttempt": {
+   "silent": "an internal check; its outcome plays CatchSucceeded or nothing"
+  },
+  "event:CatchFailed": {
+   "silent": "a missed catch is silent; the shot keeps flying (its own sounds)"
+  },
+  "event:CatchSucceeded": {
+   "sounds": [
+    "ShieldCatch"
+   ]
+  },
+  "event:CheckpointReached": {
+   "sounds": [
+    "CheckpointReached"
+   ]
+  },
+  "event:CheckpointRetried": {
+   "sounds": [
+    "Restart"
+   ]
+  },
+  "event:EncounterCompleted": {
+   "sounds": [
+    "EndEvent",
+    "SurvivedSting"
+   ]
+  },
+  "event:LevelGained": {
+   "sounds": [
+    "LevelUpClock"
+   ]
+  },
+  "event:LifeLost": {
+   "sounds": [
+    "LifeLost"
+   ]
+  },
+  "event:LiftAvailabilityChanged": {
+   "sounds": [
+    "UmbrellaFlap"
+   ]
+  },
+  "event:ModeSelected": {
+   "sounds": [
+    "UiSelect"
+   ]
+  },
+  "event:PhaseStarted": {
+   "sounds": [
+    "PhaseChime"
+   ]
+  },
+  "event:PlayerDefeated": {
+   "sounds": [
+    "EllaDown",
+    "FailSting"
+   ]
+  },
+  "event:PlayerHealthChanged": {
+   "sounds": [
+    "PlayerHurt",
+    "ShieldHeal",
+    "UmbrellaCreak",
+    "LowHealthLoop"
+   ]
+  },
+  "event:ProjectileContact": {
+   "sounds": [
+    "SmallBlastImpact",
+    "HitOwl",
+    "HitWing",
+    "HitClock",
+    "HitProtected",
+    "PlayerHurt",
+    "ShieldCatch",
+    "WandBoltFade"
+   ]
+  },
+  "event:ProjectileSpawned": {
+   "sounds": [
+    "WandBolt",
+    "OwlBoltLaunch",
+    "KeeperYellowLaunch",
+    "OwlBoltTravelLoop"
+   ]
+  },
+  "event:RunCompleted": {
+   "sounds": [
+    "RunComplete"
+   ]
+  },
+  "event:TestPresetLoaded": {
+   "silent": "workbench only"
+  },
+  "event:UmbrellaConfigChanged": {
+   "sounds": [
+    "UmbrellaOpen",
+    "UmbrellaClose"
+   ]
+  },
+  "event:WindEntered": {
+   "sounds": [
+    "GustCatch"
+   ]
+  },
+  "event:WindExited": {
+   "sounds": [
+    "WindExit"
+   ]
+  },
+  "event:XPAwarded": {
+   "sounds": [
+    "XpGain"
+   ]
+  },
+  "extra:level-and-hazards": {
+   "sounds": [
+    "HitEnemy"
+   ],
+   "why": "Director's Cut level, enemies and hazards (GDD SH1.0 section 5)"
+  },
+  "extra:other": {
+   "sounds": [
+    "UiSelect"
+   ],
+   "why": "spells, story, progression, ambience and music rows not tied to one source key"
+  },
+  "feature:ANIM-02": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:ANIM-03": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:ANIM-04": {
+   "sounds": [
+    "UmbrellaCreak",
+    "LowHealthLoop"
+   ]
+  },
+  "feature:ANIM-05": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:ANIM-06": {
+   "sounds": [
+    "OwlWingLoop",
+    "GlassCrack"
+   ]
+  },
+  "feature:ANIM-07": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:ANIM-08": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:ANIM-09": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:ANIM-10": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:ART-03": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:ART-04": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:ART-05": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:ART-06": {
+   "sounds": [
+    "WindBed"
+   ]
+  },
+  "feature:ART-07": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:ART-08": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:ART-09": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:ART-10": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:BG-02": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:BG-03": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:BG-04": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:BG-05": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:BG-06": {
+   "sounds": [
+    "RealmClocks"
+   ]
+  },
+  "feature:CAM-03": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:CAM-04": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:CAM-05": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:CAM-06": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:CAM-07": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:CAM-08": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:COM-05": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:COM-06": {
+   "sounds": [
+    "WandBolt",
+    "SmallBlastImpact",
+    "WandBoltFade"
+   ]
+  },
+  "feature:COM-07": {
+   "sounds": [
+    "StreamStart",
+    "StreamLoop",
+    "StreamRelease"
+   ]
+  },
+  "feature:COM-08": {
+   "sounds": [
+    "TwinStarsFire",
+    "TwinStarsImpact"
+   ]
+  },
+  "feature:COM-09": {
+   "sounds": [
+    "NeedleFire",
+    "NeedlePierce"
+   ]
+  },
+  "feature:COM-10": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:COM-11": {
+   "sounds": [
+    "SpellUnavailable"
+   ]
+  },
+  "feature:COM-12": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:COM-13": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:COM-14": {
+   "sounds": [
+    "HitEnemy",
+    "WardenWarning",
+    "WardenShot",
+    "WardenMove",
+    "WardenDisable"
+   ]
+  },
+  "feature:COM-15": {
+   "sounds": [
+    "FloodWarning",
+    "FloodShot",
+    "FloodStiltMove",
+    "FloodDisable"
+   ]
+  },
+  "feature:COM-16": {
+   "sounds": [
+    "CourierFlightLoop",
+    "CourierWarning",
+    "CourierDisable"
+   ]
+  },
+  "feature:COM-17": {
+   "sounds": [
+    "CourierShot",
+    "CourierWithdraw"
+   ]
+  },
+  "feature:COM-18": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:CORE-04": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:CORE-05": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:CORE-06": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:FLOW-02": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:FLOW-03": {
+   "sounds": [
+    "TutorialPrompt",
+    "TutorialStep",
+    "TutorialDone",
+    "TutorialSkip"
+   ]
+  },
+  "feature:FLOW-04": {
+   "sounds": [
+    "MusicTitle",
+    "SurvivedSting"
+   ]
+  },
+  "feature:FLOW-05": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:FLOW-06": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:FLOW-07": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:FLOW-08": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:FLOW-09": {
+   "sounds": [
+    "Restart",
+    "CheckpointReached"
+   ]
+  },
+  "feature:FLOW-10": {
+   "sounds": [
+    "RunStart"
+   ]
+  },
+  "feature:FLOW-11": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:FLOW-12": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:FLOW-13": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:FLOW-14": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:FLOW-15": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:FLOW-16": {
+   "sounds": [
+    "WeaponUnlock"
+   ]
+  },
+  "feature:FLOW-17": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:FLOW-18": {
+   "sounds": [
+    "UpgradeRefund"
+   ]
+  },
+  "feature:FLOW-19": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:FLOW-20": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:FLOW-21": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:FLOW-22": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:FLOW-23": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:FLOW-24": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:FLOW-25": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:FLOW-26": {
+   "sounds": [
+    "SafeLanding",
+    "MillAmbience"
+   ]
+  },
+  "feature:FLOW-27": {
+   "sounds": [
+    "RefugeLoop"
+   ]
+  },
+  "feature:FLOW-28": {
+   "sounds": [
+    "EncounterStart",
+    "BossApproach"
+   ]
+  },
+  "feature:FLOW-29": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:FLOW-30": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:FLOW-31": {
+   "sounds": [
+    "LifeLost",
+    "EllaDown",
+    "FailSting"
+   ]
+  },
+  "feature:FLOW-32": {
+   "sounds": [
+    "ShieldHeal",
+    "UmbrellaRepair"
+   ]
+  },
+  "feature:FLOW-33": {
+   "sounds": [
+    "PlayerHurt"
+   ]
+  },
+  "feature:FLOW-34": {
+   "sounds": [
+    "UiTransition",
+    "MusicTitle"
+   ]
+  },
+  "feature:FLOW-35": {
+   "sounds": [
+    "PauseIn",
+    "PauseOut"
+   ]
+  },
+  "feature:FLOW-36": {
+   "sounds": [
+    "UiOpen"
+   ]
+  },
+  "feature:FLOW-37": {
+   "sounds": [
+    "UiSliderTick"
+   ]
+  },
+  "feature:FLOW-38": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:FLOW-39": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:FLOW-40": {
+   "sounds": [
+    "UiClose"
+   ]
+  },
+  "feature:FLOW-41": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:FLOW-42": {
+   "sounds": [
+    "UpgradePurchase"
+   ]
+  },
+  "feature:FLOW-43": {
+   "sounds": [
+    "SettingsSaved"
+   ]
+  },
+  "feature:FLOW-44": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:FLOW-45": {
+   "sounds": [
+    "BindingConflict"
+   ]
+  },
+  "feature:FLOW-46": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:FLOW-47": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:FLOW-48": {
+   "sounds": [
+    "XpGain",
+    "LevelUpClock"
+   ]
+  },
+  "feature:FLOW-49": {
+   "sounds": [
+    "RunComplete"
+   ]
+  },
+  "feature:HAZ-02": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:HAZ-03": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:HAZ-04": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:HAZ-05": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:HAZ-06": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:HAZ-07": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:HAZ-08": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:HAZ-09": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:HAZ-10": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:HAZ-11": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:HAZ-12": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:HAZ-13": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:HAZ-14": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:HAZ-15": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:HAZ-16": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:HAZ-17": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:HAZ-18": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:HAZ-19": {
+   "sounds": [
+    "EllaBump",
+    "AirMillLoop"
+   ]
+  },
+  "feature:HAZ-20": {
+   "sounds": [
+    "ShutterWarning",
+    "ShutterClose",
+    "ShutterOpen"
+   ]
+  },
+  "feature:HAZ-21": {
+   "sounds": [
+    "BellowsWarning",
+    "BellowsGust",
+    "BellowsRecover"
+   ]
+  },
+  "feature:HAZ-22": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:HAZ-23": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:HAZ-24": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:HAZ-25": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:HAZ-26": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:HAZ-27": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:HAZ-28": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:HAZ-29": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:HAZ-30": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:HAZ-31": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:HAZ-32": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:HAZ-33": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:HAZ-34": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:HAZ-35": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:HAZ-36": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:HAZ-37": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:HAZ-38": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:HAZ-39": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:HAZ-40": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:HAZ-41": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:MOVE-04": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:MOVE-05": {
+   "sounds": [
+    "UmbrellaOpen",
+    "UmbrellaClose",
+    "FreeFallRush"
+   ]
+  },
+  "feature:MOVE-06": {
+   "sounds": [
+    "HopWhoosh",
+    "DashWhoosh"
+   ]
+  },
+  "feature:MOVE-07": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:MOVE-08": {
+   "sounds": [
+    "SpellSelect"
+   ]
+  },
+  "feature:MOVE-09": {
+   "sounds": [
+    "UiMove",
+    "UiSelect",
+    "UiBack",
+    "UiBlocked"
+   ]
+  },
+  "feature:MOVE-10": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:MOVE-11": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:MOVE-12": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:MOVE-13": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:MOVE-14": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:MOVE-15": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:MOVE-16": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:MOVE-17": {
+   "sounds": [
+    "BindingCaptured"
+   ]
+  },
+  "feature:MOVE-18": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:MOVE-19": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:MOVE-20": {
+   "sounds": [
+    "WindExit"
+   ]
+  },
+  "feature:MOVE-21": {
+   "sounds": [
+    "UmbrellaFlap",
+    "EllaFallLoop"
+   ]
+  },
+  "feature:MOVE-22": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:NAR-02": {
+   "sounds": [
+    "StoryTextAppear",
+    "StoryPageReveal",
+    "StoryAdvance"
+   ]
+  },
+  "feature:NAR-03": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:NAR-04": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:NAR-05": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:NAR-06": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:NAR-07": {
+   "sounds": [
+    "SceneTransition"
+   ]
+  },
+  "feature:NAR-08": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:OWL-06": {
+   "sounds": [
+    "MusicIntro",
+    "MusicContest",
+    "MusicDesperation"
+   ]
+  },
+  "feature:OWL-07": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:OWL-08": {
+   "sounds": [
+    "KeeperHoot",
+    "ClockTickLoop"
+   ]
+  },
+  "feature:OWL-09": {
+   "sounds": [
+    "HitOwl",
+    "HitWing",
+    "WingsBreak"
+   ]
+  },
+  "feature:OWL-10": {
+   "sounds": [
+    "PhaseChime"
+   ]
+  },
+  "feature:OWL-11": {
+   "sounds": [
+    "OwlBoltLaunch",
+    "OwlBoltTravelLoop"
+   ]
+  },
+  "feature:OWL-12": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:OWL-13": {
+   "sounds": [
+    "KeeperYellowLaunch"
+   ]
+  },
+  "feature:OWL-14": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:OWL-15": {
+   "sounds": [
+    "GustWindup"
+   ]
+  },
+  "feature:OWL-16": {
+   "sounds": [
+    "GustRelease",
+    "GustLoop"
+   ]
+  },
+  "feature:OWL-17": {
+   "sounds": [
+    "GustEnd"
+   ]
+  },
+  "feature:OWL-18": {
+   "sounds": [
+    "TalonWarning"
+   ]
+  },
+  "feature:OWL-19": {
+   "sounds": [
+    "TalonSlash"
+   ]
+  },
+  "feature:OWL-20": {
+   "sounds": [
+    "TalonRecovery"
+   ]
+  },
+  "feature:OWL-21": {
+   "sounds": [
+    "CastWarning"
+   ]
+  },
+  "feature:OWL-22": {
+   "sounds": [
+    "FrontCastLaunch",
+    "ChainTravel"
+   ]
+  },
+  "feature:OWL-23": {
+   "sounds": [
+    "CastReturn"
+   ]
+  },
+  "feature:OWL-24": {
+   "sounds": [
+    "MiddleCastLaunch"
+   ]
+  },
+  "feature:OWL-25": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:OWL-26": {
+   "sounds": [
+    "RearCastLaunch"
+   ]
+  },
+  "feature:OWL-27": {
+   "sounds": [
+    "RearMidpointClack"
+   ]
+  },
+  "feature:OWL-28": {
+   "sounds": [
+    "ClockBeat",
+    "ClockBeatRepeat"
+   ]
+  },
+  "feature:OWL-29": {
+   "sounds": [
+    "HitClock",
+    "HitProtected",
+    "ClockOpen",
+    "ClockClose"
+   ]
+  },
+  "feature:OWL-30": {
+   "sounds": [
+    "MechanismBreak",
+    "StunZap",
+    "StunRecover"
+   ]
+  },
+  "feature:OWL-31": {
+   "sounds": [
+    "TimeSlowStart",
+    "TimeSlowEnd"
+   ]
+  },
+  "feature:OWL-32": {
+   "sounds": [
+    "EyeExpose",
+    "EyeHit",
+    "BlackoutStart",
+    "BlackoutEnd"
+   ]
+  },
+  "feature:OWL-33": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:OWL-34": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:OWL-35": {
+   "sounds": [
+    "EndEvent"
+   ]
+  },
+  "feature:SURV-05": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:SURV-06": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:SURV-07": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:UMB-05": {
+   "sounds": [
+    "AbsorbStart",
+    "AbsorbLoop",
+    "AbsorbStop",
+    "ShieldCatch"
+   ]
+  },
+  "feature:VFX-02": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:VFX-03": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:VFX-04": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:VFX-05": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:VFX-06": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:VFX-07": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:VFX-08": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:VFX-09": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:VFX-10": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:VFX-11": {
+   "silent": "a rule, data or presentation contract; the actions it governs carry their own sounds"
+  },
+  "feature:WIND-03": {
+   "sounds": [
+    "GustCatch",
+    "WindZoneLoop",
+    "OutOfBounds"
+   ]
+  },
+  "screen:fail-card": {
+   "sounds": [
+    "FailSting"
+   ]
+  },
+  "screen:pause": {
+   "sounds": [
+    "PauseIn",
+    "PauseOut"
+   ]
+  },
+  "screen:play": {
+   "sounds": [
+    "EncounterStart"
+   ]
+  },
+  "screen:quit": {
+   "sounds": [
+    "UiBack"
+   ]
+  },
+  "screen:restart": {
+   "sounds": [
+    "Restart"
+   ]
+  },
+  "screen:settings": {
+   "sounds": [
+    "UiOpen",
+    "UiClose",
+    "SettingsSaved"
+   ]
+  },
+  "screen:statistics": {
+   "sounds": [
+    "RunComplete"
+   ]
+  },
+  "screen:title": {
+   "sounds": [
+    "MusicTitle",
+    "UiTransition"
+   ]
+  },
+  "screen:tutorial": {
+   "sounds": [
+    "TutorialPrompt",
+    "TutorialStep",
+    "TutorialDone",
+    "TutorialSkip"
+   ]
+  },
+  "screen:win-ending-and-credits": {
+   "sounds": [
+    "SurvivedSting",
+    "MusicTitle",
+    "StoryTextAppear"
+   ]
+  },
+  "setting:controller": {
+   "sounds": [
+    "BindingCaptured",
+    "BindingConflict"
+   ]
+  },
+  "setting:credits": {
+   "sounds": [
+    "UiOpen"
+   ]
+  },
+  "setting:game-options": {
+   "sounds": [
+    "UiOpen"
+   ]
+  },
+  "setting:reduced-motion": {
+   "sounds": [
+    "UiSelect"
+   ]
+  },
+  "setting:sound": {
+   "sounds": [
+    "UiSliderTick"
+   ]
+  },
+  "setting:text-size": {
+   "sounds": [
+    "UiSliderTick"
+   ]
+  },
+  "state:absorbing-fall": {
+   "sounds": [
+    "AbsorbStart",
+    "AbsorbLoop",
+    "AbsorbStop"
+   ]
+  },
+  "state:fast-free-fall": {
+   "sounds": [
+    "FreeFallRush"
+   ]
+  },
+  "state:overhead-rise": {
+   "sounds": [
+    "UmbrellaOpen",
+    "UmbrellaFlap"
+   ]
+  },
+  "state:shooting-fall": {
+   "sounds": [
+    "UmbrellaClose",
+    "EllaFallLoop"
+   ]
+  },
+  "ui:back": {
+   "sounds": [
+    "UiBack"
+   ]
+  },
+  "ui:confirm": {
+   "sounds": [
+    "UiSelect"
+   ]
+  },
+  "ui:focus": {
+   "sounds": [
+    "UiMove"
+   ]
+  },
+  "ui:quit": {
+   "sounds": [
+    "UiBack"
+   ]
+  }
+ }
+}

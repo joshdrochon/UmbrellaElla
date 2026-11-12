@@ -1,0 +1,26 @@
+--- a/Source/UmbrellaElla/Private/Owl/ClockworkOwl.cpp
++++ b/Source/UmbrellaElla/Private/Owl/ClockworkOwl.cpp
+@@ -2,5 +2,14 @@
+ #include "Core/UmbrellaTuning.h"
+ #include "Components/BoxComponent.h"
++#include "TimerManager.h"
++
++namespace
++{
++	void RunAfter(UWorld* World, FTimerHandle& Handle, float DelaySeconds, TFunction<void()> Fn)
++	{
++		World->GetTimerManager().SetTimer(Handle, FTimerDelegate::CreateLambda(MoveTemp(Fn)), DelaySeconds, false);
++	}
++}
+ 
+ AClockworkOwl::AClockworkOwl()
+ {
+@@ -40,4 +49,8 @@
+ 
+ void AClockworkOwl::StartTelegraph()
+ {
++	if (State != EOwlState::Drifting) { return; }
++	SetState(EOwlState::Telegraph);
++	const FVector Origin = GetActorLocation();
++	RunAfter(GetWorld(), TelegraphTimer, GetDefault<UUmbrellaTuning>()->Owl.TelegraphSeconds, [this, Origin]() { FireVolley(Origin); });
+ }

@@ -1,0 +1,1022 @@
+{
+ "tool": "tools/ue/audio_dump.py",
+ "engine": "5.8.4",
+ "commit": "0000000",
+ "root": "/Game/UmbrellaElla/Audio",
+ "note": "Format contract for audio_check.py --ue-dump. Made only by tools/ue/audio_dump.py in the editor. Field names are [VERIFY] against 5.8.4 (USoundClass, USoundSubmix, USoundConcurrency, USoundCue, USoundBase AttenuationSettings and bAllowSpatialization). spatialize/attenuation are reported for every playable asset. unread lists editor fields the tool could not read; it must be empty.",
+ "sound_classes": [
+  {
+   "name": "SCL_SFX",
+   "parent": null,
+   "default_submix": "SM_Master"
+  },
+  {
+   "name": "SCL_Telegraph",
+   "parent": "SCL_SFX",
+   "default_submix": "SM_Master"
+  },
+  {
+   "name": "SCL_UI",
+   "parent": "SCL_SFX",
+   "default_submix": "SM_Master"
+  },
+  {
+   "name": "SCL_Music",
+   "parent": null,
+   "default_submix": "SM_Master"
+  }
+ ],
+ "submixes": [
+  {
+   "name": "SM_Master",
+   "parent": null,
+   "effects": [
+    "SubmixEffectDynamicsProcessorPreset:Limiter"
+   ]
+  }
+ ],
+ "concurrency": [
+  {
+   "name": "SCON_WandBolt",
+   "max_count": 3,
+   "retrigger_time": 0.05,
+   "resolution_rule": "StopLowestPriority",
+   "voice_steal_release_time": 0.03,
+   "volume_scale": 1.0
+  },
+  {
+   "name": "SCON_Launch",
+   "max_count": 4,
+   "retrigger_time": 0.05,
+   "resolution_rule": "StopLowestPriority",
+   "voice_steal_release_time": 0.03,
+   "volume_scale": 0.8
+  },
+  {
+   "name": "SCON_Hit",
+   "max_count": 4,
+   "retrigger_time": 0.0,
+   "resolution_rule": "StopLowestPriority",
+   "voice_steal_release_time": 0.03,
+   "volume_scale": 0.8
+  },
+  {
+   "name": "SCON_Hurt",
+   "max_count": 1,
+   "retrigger_time": 0.0,
+   "resolution_rule": "StopLowestPriority",
+   "voice_steal_release_time": 0.03,
+   "volume_scale": 1.0
+  },
+  {
+   "name": "SCON_Telegraph",
+   "max_count": 2,
+   "retrigger_time": 0.0,
+   "resolution_rule": "StopLowestPriority",
+   "voice_steal_release_time": 0.03,
+   "volume_scale": 1.0
+  },
+  {
+   "name": "SCON_State",
+   "max_count": 2,
+   "retrigger_time": 0.05,
+   "resolution_rule": "StopLowestPriority",
+   "voice_steal_release_time": 0.03,
+   "volume_scale": 1.0
+  },
+  {
+   "name": "SCON_UI",
+   "max_count": 2,
+   "retrigger_time": 0.05,
+   "resolution_rule": "StopLowestPriority",
+   "voice_steal_release_time": 0.03,
+   "volume_scale": 1.0
+  }
+ ],
+ "assets": [
+  {
+   "class": "SoundCue",
+   "name": "SC_WandBolt",
+   "sound_class": "SCL_SFX",
+   "looping": false,
+   "priority": 1.0,
+   "concurrency": [
+    "SCON_WandBolt"
+   ],
+   "random_takes": 3,
+   "no_repeat": true,
+   "pitch_min": 0.95,
+   "pitch_max": 1.05,
+   "spatialize": false,
+   "attenuation": null
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_WandBolt_00",
+   "sound_class": "SCL_SFX",
+   "looping": false
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_WandBolt_01",
+   "sound_class": "SCL_SFX",
+   "looping": false
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_WandBolt_02",
+   "sound_class": "SCL_SFX",
+   "looping": false
+  },
+  {
+   "class": "SoundCue",
+   "name": "SC_OwlBoltWindup",
+   "sound_class": "SCL_Telegraph",
+   "looping": false,
+   "priority": 3.0,
+   "concurrency": [
+    "SCON_Telegraph"
+   ],
+   "pitch_min": 1.0,
+   "pitch_max": 1.0,
+   "spatialize": false,
+   "attenuation": null
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_OwlBoltWindup_00",
+   "sound_class": "SCL_Telegraph",
+   "looping": false
+  },
+  {
+   "class": "SoundCue",
+   "name": "SC_OwlBoltLaunch",
+   "sound_class": "SCL_SFX",
+   "looping": false,
+   "priority": 1.0,
+   "concurrency": [
+    "SCON_Launch"
+   ],
+   "spatialize": false,
+   "attenuation": null
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_OwlBoltLaunch_00",
+   "sound_class": "SCL_SFX",
+   "looping": false
+  },
+  {
+   "class": "SoundCue",
+   "name": "SC_GustWindup",
+   "sound_class": "SCL_Telegraph",
+   "looping": false,
+   "priority": 3.0,
+   "concurrency": [
+    "SCON_Telegraph"
+   ],
+   "pitch_min": 1.0,
+   "pitch_max": 1.0,
+   "spatialize": false,
+   "attenuation": null
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_GustWindup_00",
+   "sound_class": "SCL_Telegraph",
+   "looping": false
+  },
+  {
+   "class": "SoundCue",
+   "name": "SC_GustLoop",
+   "sound_class": "SCL_SFX",
+   "looping": true,
+   "priority": 1.0,
+   "spatialize": false,
+   "attenuation": null
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_GustLoop_00",
+   "sound_class": "SCL_SFX",
+   "looping": true
+  },
+  {
+   "class": "SoundCue",
+   "name": "SC_ArcWindup",
+   "sound_class": "SCL_Telegraph",
+   "looping": false,
+   "priority": 3.0,
+   "concurrency": [
+    "SCON_Telegraph"
+   ],
+   "pitch_min": 1.0,
+   "pitch_max": 1.0,
+   "spatialize": false,
+   "attenuation": null
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_ArcWindup_00",
+   "sound_class": "SCL_Telegraph",
+   "looping": false
+  },
+  {
+   "class": "SoundCue",
+   "name": "SC_HitOwl",
+   "sound_class": "SCL_SFX",
+   "looping": false,
+   "priority": 1.0,
+   "concurrency": [
+    "SCON_Hit"
+   ],
+   "random_takes": 3,
+   "no_repeat": true,
+   "pitch_min": 0.95,
+   "pitch_max": 1.05,
+   "spatialize": false,
+   "attenuation": null
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_HitOwl_00",
+   "sound_class": "SCL_SFX",
+   "looping": false
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_HitOwl_01",
+   "sound_class": "SCL_SFX",
+   "looping": false
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_HitOwl_02",
+   "sound_class": "SCL_SFX",
+   "looping": false
+  },
+  {
+   "class": "SoundCue",
+   "name": "SC_HitClock",
+   "sound_class": "SCL_SFX",
+   "looping": false,
+   "priority": 1.0,
+   "concurrency": [
+    "SCON_Hit"
+   ],
+   "spatialize": false,
+   "attenuation": null
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_HitClock_00",
+   "sound_class": "SCL_SFX",
+   "looping": false
+  },
+  {
+   "class": "SoundCue",
+   "name": "SC_HitWing",
+   "sound_class": "SCL_SFX",
+   "looping": false,
+   "priority": 1.0,
+   "concurrency": [
+    "SCON_Hit"
+   ],
+   "spatialize": false,
+   "attenuation": null
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_HitWing_00",
+   "sound_class": "SCL_SFX",
+   "looping": false
+  },
+  {
+   "class": "SoundCue",
+   "name": "SC_PlayerHurt",
+   "sound_class": "SCL_SFX",
+   "looping": false,
+   "priority": 1.0,
+   "concurrency": [
+    "SCON_Hurt"
+   ],
+   "spatialize": false,
+   "attenuation": null
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_PlayerHurt_00",
+   "sound_class": "SCL_SFX",
+   "looping": false
+  },
+  {
+   "class": "SoundCue",
+   "name": "SC_UmbrellaTear",
+   "sound_class": "SCL_SFX",
+   "looping": false,
+   "priority": 1.0,
+   "concurrency": [
+    "SCON_State"
+   ],
+   "spatialize": false,
+   "attenuation": null
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_UmbrellaTear_00",
+   "sound_class": "SCL_SFX",
+   "looping": false
+  },
+  {
+   "class": "SoundCue",
+   "name": "SC_UmbrellaOpen",
+   "sound_class": "SCL_SFX",
+   "looping": false,
+   "priority": 1.0,
+   "concurrency": [
+    "SCON_State"
+   ],
+   "spatialize": false,
+   "attenuation": null
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_UmbrellaOpen_00",
+   "sound_class": "SCL_SFX",
+   "looping": false
+  },
+  {
+   "class": "SoundCue",
+   "name": "SC_UmbrellaClose",
+   "sound_class": "SCL_SFX",
+   "looping": false,
+   "priority": 1.0,
+   "concurrency": [
+    "SCON_State"
+   ],
+   "spatialize": false,
+   "attenuation": null
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_UmbrellaClose_00",
+   "sound_class": "SCL_SFX",
+   "looping": false
+  },
+  {
+   "class": "SoundCue",
+   "name": "SC_EndEvent",
+   "sound_class": "SCL_SFX",
+   "looping": false,
+   "priority": 1.0,
+   "concurrency": [
+    "SCON_State"
+   ],
+   "spatialize": false,
+   "attenuation": null
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_EndEvent_00",
+   "sound_class": "SCL_SFX",
+   "looping": false
+  },
+  {
+   "class": "SoundCue",
+   "name": "SC_PhaseChime",
+   "sound_class": "SCL_SFX",
+   "looping": false,
+   "priority": 1.0,
+   "concurrency": [
+    "SCON_State"
+   ],
+   "spatialize": false,
+   "attenuation": null
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_PhaseChime_00",
+   "sound_class": "SCL_SFX",
+   "looping": false
+  },
+  {
+   "class": "SoundCue",
+   "name": "SC_SurvivedSting",
+   "sound_class": "SCL_Music",
+   "looping": false,
+   "priority": 1.0,
+   "spatialize": false,
+   "attenuation": null
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_SurvivedSting_00",
+   "sound_class": "SCL_Music",
+   "looping": false
+  },
+  {
+   "class": "SoundCue",
+   "name": "SC_UiSelect",
+   "sound_class": "SCL_UI",
+   "looping": false,
+   "priority": 1.0,
+   "concurrency": [
+    "SCON_UI"
+   ],
+   "spatialize": false,
+   "attenuation": null
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_UiSelect_00",
+   "sound_class": "SCL_UI",
+   "looping": false
+  },
+  {
+   "class": "SoundCue",
+   "name": "SC_MusicIntro",
+   "sound_class": "SCL_Music",
+   "looping": true,
+   "priority": 1.0,
+   "spatialize": false,
+   "attenuation": null
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_MusicIntro_00",
+   "sound_class": "SCL_Music",
+   "looping": true
+  },
+  {
+   "class": "SoundCue",
+   "name": "SC_MusicContest",
+   "sound_class": "SCL_Music",
+   "looping": true,
+   "priority": 1.0,
+   "spatialize": false,
+   "attenuation": null
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_MusicContest_00",
+   "sound_class": "SCL_Music",
+   "looping": true
+  },
+  {
+   "class": "SoundCue",
+   "name": "SC_MusicDesperation",
+   "sound_class": "SCL_Music",
+   "looping": true,
+   "priority": 1.0,
+   "spatialize": false,
+   "attenuation": null
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_MusicDesperation_00",
+   "sound_class": "SCL_Music",
+   "looping": true
+  },
+  {
+   "class": "SoundCue",
+   "name": "SC_ShieldCatch",
+   "sound_class": "SCL_SFX",
+   "looping": false,
+   "priority": 1.0,
+   "concurrency": [
+    "SCON_State"
+   ],
+   "spatialize": false,
+   "attenuation": null
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_ShieldCatch_00",
+   "sound_class": "SCL_SFX",
+   "looping": false
+  },
+  {
+   "class": "SoundCue",
+   "name": "SC_ShieldHeal",
+   "sound_class": "SCL_SFX",
+   "looping": false,
+   "priority": 1.0,
+   "concurrency": [
+    "SCON_State"
+   ],
+   "spatialize": false,
+   "attenuation": null
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_ShieldHeal_00",
+   "sound_class": "SCL_SFX",
+   "looping": false
+  },
+  {
+   "class": "SoundCue",
+   "name": "SC_GustCatch",
+   "sound_class": "SCL_SFX",
+   "looping": false,
+   "priority": 1.0,
+   "concurrency": [
+    "SCON_State"
+   ],
+   "spatialize": false,
+   "attenuation": null
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_GustCatch_00",
+   "sound_class": "SCL_SFX",
+   "looping": false
+  },
+  {
+   "class": "SoundCue",
+   "name": "SC_FailSting",
+   "sound_class": "SCL_Music",
+   "looping": false,
+   "priority": 1.0,
+   "spatialize": false,
+   "attenuation": null
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_FailSting_00",
+   "sound_class": "SCL_Music",
+   "looping": false
+  },
+  {
+   "class": "SoundCue",
+   "name": "SC_LowHealthLoop",
+   "sound_class": "SCL_SFX",
+   "looping": true,
+   "priority": 1.0,
+   "spatialize": false,
+   "attenuation": null
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_LowHealthLoop_00",
+   "sound_class": "SCL_SFX",
+   "looping": true
+  },
+  {
+   "class": "SoundCue",
+   "name": "SC_UmbrellaCreak",
+   "sound_class": "SCL_SFX",
+   "looping": true,
+   "priority": 1.0,
+   "spatialize": false,
+   "attenuation": null
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_UmbrellaCreak_00",
+   "sound_class": "SCL_SFX",
+   "looping": true
+  },
+  {
+   "class": "SoundCue",
+   "name": "SC_UiMove",
+   "sound_class": "SCL_UI",
+   "looping": false,
+   "priority": 1.0,
+   "concurrency": [
+    "SCON_UI"
+   ],
+   "spatialize": false,
+   "attenuation": null
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_UiMove_00",
+   "sound_class": "SCL_UI",
+   "looping": false
+  },
+  {
+   "class": "SoundCue",
+   "name": "SC_UiBack",
+   "sound_class": "SCL_UI",
+   "looping": false,
+   "priority": 1.0,
+   "concurrency": [
+    "SCON_UI"
+   ],
+   "spatialize": false,
+   "attenuation": null
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_UiBack_00",
+   "sound_class": "SCL_UI",
+   "looping": false
+  },
+  {
+   "class": "SoundCue",
+   "name": "SC_UiOpen",
+   "sound_class": "SCL_UI",
+   "looping": false,
+   "priority": 1.0,
+   "concurrency": [
+    "SCON_UI"
+   ],
+   "spatialize": false,
+   "attenuation": null
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_UiOpen_00",
+   "sound_class": "SCL_UI",
+   "looping": false
+  },
+  {
+   "class": "SoundCue",
+   "name": "SC_UiClose",
+   "sound_class": "SCL_UI",
+   "looping": false,
+   "priority": 1.0,
+   "concurrency": [
+    "SCON_UI"
+   ],
+   "spatialize": false,
+   "attenuation": null
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_UiClose_00",
+   "sound_class": "SCL_UI",
+   "looping": false
+  },
+  {
+   "class": "SoundCue",
+   "name": "SC_UiSliderTick",
+   "sound_class": "SCL_UI",
+   "looping": false,
+   "priority": 1.0,
+   "concurrency": [
+    "SCON_UI"
+   ],
+   "spatialize": false,
+   "attenuation": null
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_UiSliderTick_00",
+   "sound_class": "SCL_UI",
+   "looping": false
+  },
+  {
+   "class": "SoundCue",
+   "name": "SC_UiTransition",
+   "sound_class": "SCL_UI",
+   "looping": false,
+   "priority": 1.0,
+   "concurrency": [
+    "SCON_UI"
+   ],
+   "spatialize": false,
+   "attenuation": null
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_UiTransition_00",
+   "sound_class": "SCL_UI",
+   "looping": false
+  },
+  {
+   "class": "SoundCue",
+   "name": "SC_PauseIn",
+   "sound_class": "SCL_UI",
+   "looping": false,
+   "priority": 1.0,
+   "concurrency": [
+    "SCON_UI"
+   ],
+   "spatialize": false,
+   "attenuation": null
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_PauseIn_00",
+   "sound_class": "SCL_UI",
+   "looping": false
+  },
+  {
+   "class": "SoundCue",
+   "name": "SC_PauseOut",
+   "sound_class": "SCL_UI",
+   "looping": false,
+   "priority": 1.0,
+   "concurrency": [
+    "SCON_UI"
+   ],
+   "spatialize": false,
+   "attenuation": null
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_PauseOut_00",
+   "sound_class": "SCL_UI",
+   "looping": false
+  },
+  {
+   "class": "SoundCue",
+   "name": "SC_MusicTitle",
+   "sound_class": "SCL_Music",
+   "looping": true,
+   "priority": 1.0,
+   "spatialize": false,
+   "attenuation": null
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_MusicTitle_00",
+   "sound_class": "SCL_Music",
+   "looping": true
+  },
+  {
+   "class": "SoundCue",
+   "name": "SC_EncounterStart",
+   "sound_class": "SCL_SFX",
+   "looping": false,
+   "priority": 1.0,
+   "concurrency": [
+    "SCON_State"
+   ],
+   "spatialize": false,
+   "attenuation": null
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_EncounterStart_00",
+   "sound_class": "SCL_SFX",
+   "looping": false
+  },
+  {
+   "class": "SoundCue",
+   "name": "SC_Restart",
+   "sound_class": "SCL_SFX",
+   "looping": false,
+   "priority": 1.0,
+   "concurrency": [
+    "SCON_State"
+   ],
+   "spatialize": false,
+   "attenuation": null
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_Restart_00",
+   "sound_class": "SCL_SFX",
+   "looping": false
+  },
+  {
+   "class": "SoundCue",
+   "name": "SC_EllaDown",
+   "sound_class": "SCL_SFX",
+   "looping": false,
+   "priority": 1.0,
+   "concurrency": [
+    "SCON_Hit"
+   ],
+   "spatialize": false,
+   "attenuation": null
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_EllaDown_00",
+   "sound_class": "SCL_SFX",
+   "looping": false
+  },
+  {
+   "class": "SoundCue",
+   "name": "SC_WindBed",
+   "sound_class": "SCL_SFX",
+   "looping": true,
+   "priority": 1.0,
+   "spatialize": false,
+   "attenuation": null
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_WindBed_00",
+   "sound_class": "SCL_SFX",
+   "looping": true
+  },
+  {
+   "class": "SoundCue",
+   "name": "SC_WindZoneLoop",
+   "sound_class": "SCL_SFX",
+   "looping": true,
+   "priority": 1.0,
+   "spatialize": false,
+   "attenuation": null
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_WindZoneLoop_00",
+   "sound_class": "SCL_SFX",
+   "looping": true
+  },
+  {
+   "class": "SoundCue",
+   "name": "SC_WindExit",
+   "sound_class": "SCL_SFX",
+   "looping": false,
+   "priority": 1.0,
+   "concurrency": [
+    "SCON_State"
+   ],
+   "spatialize": false,
+   "attenuation": null
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_WindExit_00",
+   "sound_class": "SCL_SFX",
+   "looping": false
+  },
+  {
+   "class": "SoundCue",
+   "name": "SC_GustEnd",
+   "sound_class": "SCL_SFX",
+   "looping": false,
+   "priority": 1.0,
+   "concurrency": [
+    "SCON_State"
+   ],
+   "spatialize": false,
+   "attenuation": null
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_GustEnd_00",
+   "sound_class": "SCL_SFX",
+   "looping": false
+  },
+  {
+   "class": "SoundCue",
+   "name": "SC_UmbrellaFlap",
+   "sound_class": "SCL_SFX",
+   "looping": true,
+   "priority": 1.0,
+   "spatialize": false,
+   "attenuation": null
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_UmbrellaFlap_00",
+   "sound_class": "SCL_SFX",
+   "looping": true
+  },
+  {
+   "class": "SoundCue",
+   "name": "SC_ShieldRaise",
+   "sound_class": "SCL_SFX",
+   "looping": false,
+   "priority": 1.0,
+   "concurrency": [
+    "SCON_State"
+   ],
+   "spatialize": false,
+   "attenuation": null
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_ShieldRaise_00",
+   "sound_class": "SCL_SFX",
+   "looping": false
+  },
+  {
+   "class": "SoundCue",
+   "name": "SC_EllaFallLoop",
+   "sound_class": "SCL_SFX",
+   "looping": true,
+   "priority": 1.0,
+   "spatialize": false,
+   "attenuation": null
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_EllaFallLoop_00",
+   "sound_class": "SCL_SFX",
+   "looping": true
+  },
+  {
+   "class": "SoundCue",
+   "name": "SC_EllaBump",
+   "sound_class": "SCL_SFX",
+   "looping": false,
+   "priority": 1.0,
+   "concurrency": [
+    "SCON_State"
+   ],
+   "spatialize": false,
+   "attenuation": null
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_EllaBump_00",
+   "sound_class": "SCL_SFX",
+   "looping": false
+  },
+  {
+   "class": "SoundCue",
+   "name": "SC_OwlWingLoop",
+   "sound_class": "SCL_SFX",
+   "looping": true,
+   "priority": 1.0,
+   "spatialize": false,
+   "attenuation": null
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_OwlWingLoop_00",
+   "sound_class": "SCL_SFX",
+   "looping": true
+  },
+  {
+   "class": "SoundCue",
+   "name": "SC_OwlBoltTravelLoop",
+   "sound_class": "SCL_SFX",
+   "looping": true,
+   "priority": 1.0,
+   "spatialize": false,
+   "attenuation": null
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_OwlBoltTravelLoop_00",
+   "sound_class": "SCL_SFX",
+   "looping": true
+  },
+  {
+   "class": "SoundCue",
+   "name": "SC_OwlBoltFade",
+   "sound_class": "SCL_SFX",
+   "looping": false,
+   "priority": 1.0,
+   "concurrency": [
+    "SCON_Launch"
+   ],
+   "spatialize": false,
+   "attenuation": null
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_OwlBoltFade_00",
+   "sound_class": "SCL_SFX",
+   "looping": false
+  },
+  {
+   "class": "SoundCue",
+   "name": "SC_ClockTickLoop",
+   "sound_class": "SCL_SFX",
+   "looping": true,
+   "priority": 1.0,
+   "spatialize": false,
+   "attenuation": null
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_ClockTickLoop_00",
+   "sound_class": "SCL_SFX",
+   "looping": true
+  },
+  {
+   "class": "SoundCue",
+   "name": "SC_WandBoltFade",
+   "sound_class": "SCL_SFX",
+   "looping": false,
+   "priority": 1.0,
+   "concurrency": [
+    "SCON_WandBolt"
+   ],
+   "spatialize": false,
+   "attenuation": null
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_WandBoltFade_00",
+   "sound_class": "SCL_SFX",
+   "looping": false
+  },
+  {
+   "class": "SoundCue",
+   "name": "SC_BelfryAmbience",
+   "sound_class": "SCL_SFX",
+   "looping": true,
+   "priority": 1.0,
+   "spatialize": false,
+   "attenuation": null
+  },
+  {
+   "class": "SoundWave",
+   "name": "SW_BelfryAmbience_00",
+   "sound_class": "SCL_SFX",
+   "looping": true
+  }
+ ],
+ "unread": []
+}

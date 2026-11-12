@@ -1,0 +1,22 @@
+--- a/Source/UmbrellaElla/Private/Motor/PlayerMotorComponent.cpp
++++ b/Source/UmbrellaElla/Private/Motor/PlayerMotorComponent.cpp
+@@ -9,8 +9,18 @@
+ {
+ 	if (Config != EUmbrellaConfig::UpOpen) { return CurrentZ; }
+ 	const UUmbrellaTuning* Tuning = GetDefault<UUmbrellaTuning>();
++	float Z = CurrentZ;
++	float StepSeconds = DeltaSeconds;
++	if (Z < 0.f)
++	{
++		// Brake the fall. If the brake reaches zero inside this step, rise for the rest of the step.
++		const float SecondsToZero = -Z / Tuning->Motor.LiftBrakeAccel;
++		if (SecondsToZero >= StepSeconds) { return Z + Tuning->Motor.LiftBrakeAccel * StepSeconds; }
++		Z = 0.f;
++		StepSeconds -= SecondsToZero;
++	}
+ 	// Rising never slows an upward move that is already faster than LiftSpeed.
+-	return FMath::Max(CurrentZ, FMath::Min(CurrentZ + Tuning->Motor.LiftAccel * DeltaSeconds, Tuning->Motor.LiftSpeed));
++	return FMath::Max(Z, FMath::Min(Z + Tuning->Motor.LiftAccel * StepSeconds, Tuning->Motor.LiftSpeed));
+ }
+ 
+ UPlayerMotorComponent::UPlayerMotorComponent()

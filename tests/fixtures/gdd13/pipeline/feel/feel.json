@@ -1,0 +1,325 @@
+{
+  "version": 1,
+  "game": "THE LAST HOUR",
+  "spec": "docs/feel-spec.md",
+  "fps": 60,
+  "data_asset": "DA_Feel",
+  "source": "game_feel_research (team research notes, 2026-11-07). [sourced] = read from a shipped game or paper; [proposed] = starting value, change by playtest.",
+  "global": {
+    "ShakePower": 1.0,
+    "shake_off_option": true,
+    "hitstop_stacking": "max",
+    "hitstop_skip_if_slowed": true,
+    "hitstop_input_buffer_s": 0.1,
+    "spring_drag": 0.3,
+    "spring_elasticity": 0.2,
+    "rumble_off_with_shake": true,
+    "runtime_toggle": "cvar feel.<Field> in Development builds"
+  },
+  "latency": {
+    "game_side_input_frames": 0,
+    "first_visible_change_frames": 1,
+    "input_to_photon_target_ms": 67,
+    "input_to_photon_fail_ms": 100,
+    "owner": "QA and Build",
+    "note": "[sourced] Swink ~100 ms lag threshold; NES SMB ~2 frames. Measured with a 240 fps phone capture per gate build."
+  },
+  "movement": {
+    "owner": "Game Designer proposes, game design owner accepts",
+    "asset": "FUmbrellaFlightTuning and FEllaMovementTuning header defaults (copied from docs/feature-manifest.json approved_parameters; card 0.13 envelope proves the match)",
+    "units": "cm and s, as GDD 1.3 section 5A",
+    "gdd_note": "GDD 1.3 section 5A keys start at the manifest approved_parameters start values; feel_check fails a value outside the dev range or off its step, the same rule as the bake (tools/tuning.py). Once pipeline/qa/baked.json exists, these values must equal the baked ones. One gravity rule whenever upright-open lift is off; no per-state gravity multiplier and no fast fall (section 5A, CORE-02). Damage does not reduce lift (SURV-02, DEC-05); lift_by_tier stays 1.0 unless SURV-04 is on.",
+    "move_speed": 350,
+    "move_accel": 1800,
+    "open_steer_multiplier": 100,
+    "gravity": 980,
+    "max_fall_speed": 650,
+    "ascent_speed": 300,
+    "ascent_accel": 1200,
+    "lift_by_tier": {"intact": 1.0, "damaged": 1.0, "critical": 1.0},
+    "engineering_provisional": ["stop_s", "state_blend_s", "sign_change_max_frames", "pose_max_frames"],
+    "stop_s": 0.2,
+    "state_blend_s": 0.2,
+    "sign_change_max_frames": 2,
+    "pose_max_frames": 3
+  },
+  "forgiveness": {
+    "toggle_buffer_s": 0.1,
+    "collision_note": "Gameplay collision is fixed data (the *Tuning.h collider values), never read from sprite size, alpha or atlas (GDD 1.3 sections 7A, 7C). The two ratios are alignment targets: collider / visible art box. When art changes and misses them, fix the art's scale, pivot or offset; a collider change is a separate approved change.",
+    "player_hurtbox_cm": {"w": 52.8, "h": 79.9},
+    "bolt_hitbox_radius_cm": 12,
+    "player_hurtbox_ratio": 0.6,
+    "projectile_hitbox_ratio": 0.8,
+    "iframes_s": 0.8,
+    "bound_nudge_px": 4
+  },
+  "threat_spacing": {
+    "owner": "Game Designer proposes, game design owner accepts",
+    "arena_map": "L_Graybox",
+    "arena_patterns": ["BOLT_Single"],
+    "note": "Percent of the GDD 1.3 fixture arena (manifest approved_parameters.fixtures.arena_cm, 1600 x 900 cm). Bolts fly sideways, so the gap between two bolts is vertical. Hurtbox = forgiveness.player_hurtbox_cm (fixed collider data); the player_body box is art and is only compared with it. gust_w_pct_w is checked only when OWL-02 (owl gust) is on.",
+    "player_body_w_pct_w": 5.5,
+    "player_body_h_pct_h": 14.8,
+    "bolt_gap_min_pct_h": 25,
+    "bolt_dodge_max_pct_h": 25,
+    "gust_w_pct_w": 31
+  },
+  "easing": {
+    "curve_asset": "CF_FeelEase",
+    "curves": ["ease_out_quad", "ease_out_back", "ease_in_out_sine", "spring"],
+    "linear_allowed_for": ["clock_hand_rotation"]
+  },
+  "vfx": {
+    "parent": "NS_HitSpark",
+    "systems": {
+      "NS_HitSpark": {"renderer": "sprite", "fixed_bounds": true, "pooled": true, "effect_type": "gameplay"},
+      "NS_HitSpark_Clock": {"parent": "NS_HitSpark", "renderer": "sprite", "fixed_bounds": true, "pooled": true, "effect_type": "gameplay"},
+      "NS_HitSpark_Wing": {"parent": "NS_HitSpark", "renderer": "sprite", "fixed_bounds": true, "pooled": true, "effect_type": "gameplay"},
+      "NS_HitSpark_Body": {"parent": "NS_HitSpark", "renderer": "sprite", "fixed_bounds": true, "pooled": true, "effect_type": "gameplay"},
+      "NS_Muzzle": {"renderer": "sprite", "fixed_bounds": true, "pooled": true, "effect_type": "cosmetic"},
+      "NS_Puff": {"renderer": "sprite", "fixed_bounds": true, "pooled": true, "effect_type": "cosmetic"},
+      "NS_WindLines": {"renderer": "sprite", "fixed_bounds": true, "pooled": true, "effect_type": "gameplay"},
+      "NS_TearPop": {"renderer": "sprite", "fixed_bounds": true, "pooled": true, "effect_type": "cosmetic"},
+      "NS_HurtBurst": {"renderer": "sprite", "fixed_bounds": true, "pooled": true, "effect_type": "cosmetic"},
+      "NS_Departure": {"renderer": "sprite", "fixed_bounds": true, "pooled": false, "effect_type": "cosmetic"},
+      "NS_OwlCrack": {"renderer": "sprite", "fixed_bounds": true, "pooled": false, "effect_type": "cosmetic"}
+    }
+  },
+  "events": [
+    {
+      "id": "umbrella_open",
+      "kind": "state",
+      "gdd": "§4",
+      "mvp": true,
+      "flag": "bOpenFeel",
+      "cues": [
+        {"rank": 1, "kind": "sound", "flag": "bOpenSound", "power": 1.0, "asset": "SFX_UmbrellaOpen", "pitch_jitter_pct": 5},
+        {"rank": 1, "kind": "squash", "flag": "bOpenSquash", "power": 1.0, "scale": [1.2, 0.85], "recover_s": 0.2, "ease": "ease_out_back", "target": "render_only"},
+        {"rank": 2, "kind": "pose", "flag": "bOpenPose", "power": 1.0, "frames": 2},
+        {"rank": 3, "kind": "particles", "flag": "bOpenPuff", "power": 1.0, "system": "NS_Puff", "count": 4}
+      ]
+    },
+    {
+      "id": "umbrella_close",
+      "kind": "state",
+      "gdd": "§4",
+      "mvp": true,
+      "flag": "bCloseFeel",
+      "cues": [
+        {"rank": 1, "kind": "sound", "flag": "bCloseSound", "power": 1.0, "asset": "SFX_UmbrellaClose", "pitch_jitter_pct": 5},
+        {"rank": 1, "kind": "squash", "flag": "bCloseSquash", "power": 1.0, "scale": [0.8, 1.2], "recover_s": 0.15, "ease": "ease_out_quad", "target": "render_only", "scale_by": "fall_speed"},
+        {"rank": 2, "kind": "pose", "flag": "bClosePose", "power": 1.0, "frames": 2}
+      ]
+    },
+    {
+      "id": "gust_catch",
+      "kind": "state",
+      "gdd": "GDD 1.3 §7 WIND-01 (WindEntered)",
+      "mvp": true,
+      "flag": "bGustFeel",
+      "cues": [
+        {"rank": 1, "kind": "sound", "flag": "bGustSound", "power": 1.0, "asset": "SFX_GustCatch", "pitch_jitter_pct": 5},
+        {"rank": 1, "kind": "particles", "flag": "bGustLines", "power": 1.0, "system": "NS_WindLines", "count": 8},
+        {"rank": 2, "kind": "squash", "flag": "bGustSquash", "power": 1.0, "scale": [0.85, 1.15], "recover_s": 0.2, "ease": "ease_out_quad", "target": "render_only"}
+      ]
+    },
+    {
+      "id": "bolt_fire",
+      "kind": "fire",
+      "gdd": "§5",
+      "mvp": true,
+      "flag": "bBoltFireFeel",
+      "applies_if": "any_fire_mode",
+      "cues": [
+        {"rank": 1, "kind": "sound", "flag": "bBoltFireSound", "power": 1.0, "asset": "SFX_WandBolt", "pitch_jitter_pct": 5},
+        {"rank": 1, "kind": "particles", "flag": "bBoltMuzzle", "power": 1.0, "system": "NS_Muzzle", "count": 3},
+        {"rank": 3, "kind": "nudge", "flag": "bBoltKick", "power": 1.0, "px": 1, "direction": "opposite_fire", "target": "render_only"}
+      ]
+    },
+    {
+      "id": "bolt_fire_manual",
+      "kind": "fire",
+      "gdd": "§5 + open review comment",
+      "mvp": false,
+      "flag": "bManualFireFeel",
+      "applies_if": "manual_fire",
+      "cues": [
+        {"rank": 1, "kind": "sound", "flag": "bManualFireSound", "power": 1.0, "asset": "SFX_ChargeRelease", "pitch_jitter_pct": 5},
+        {"rank": 1, "kind": "particles", "flag": "bManualMuzzle", "power": 1.0, "system": "NS_Muzzle", "count": 6},
+        {"rank": 2, "kind": "nudge", "flag": "bManualKick", "power": 1.0, "px": 2, "direction": "opposite_fire", "target": "render_only"}
+      ]
+    },
+    {
+      "id": "bolt_hit_clock",
+      "kind": "owl_hit",
+      "gdd": "1.3 §7 (clock-hit visual cue ON, P0)",
+      "mvp": true,
+      "flag": "bHitClockFeel",
+      "cues": [
+        {"rank": 1, "kind": "sound", "flag": "bHitClockSound", "power": 1.0, "asset": "SFX_HitClock", "pitch_jitter_pct": 5},
+        {"rank": 1, "kind": "particles", "flag": "bHitClockSpark", "power": 1.0, "system": "NS_HitSpark_Clock", "count": 8},
+        {"rank": 2, "kind": "flash", "flag": "bHitClockFlash", "power": 1.0, "frames": 2, "max_rate_hz": 3, "target": "owl_clock"},
+        {"rank": 2, "kind": "pose", "flag": "bHitClockPose", "power": 1.0, "frames": 3},
+        {"rank": 3, "kind": "hitstop", "flag": "bHitClockStop", "power": 1.0, "frames": 3, "cooldown_s": 0.5}
+      ]
+    },
+    {
+      "id": "bolt_hit_wing",
+      "kind": "owl_hit",
+      "gdd": "§5, §8",
+      "mvp": false,
+      "flag": "bHitWingFeel",
+      "cues": [
+        {"rank": 1, "kind": "sound", "flag": "bHitWingSound", "power": 1.0, "asset": "SFX_HitWing", "pitch_jitter_pct": 5},
+        {"rank": 1, "kind": "particles", "flag": "bHitWingSpark", "power": 1.0, "system": "NS_HitSpark_Wing", "count": 6},
+        {"rank": 2, "kind": "flash", "flag": "bHitWingFlash", "power": 1.0, "frames": 1, "max_rate_hz": 3, "target": "owl_wing"}
+      ]
+    },
+    {
+      "id": "bolt_hit_body",
+      "kind": "owl_hit",
+      "gdd": "§5",
+      "mvp": true,
+      "flag": "bHitBodyFeel",
+      "cues": [
+        {"rank": 1, "kind": "sound", "flag": "bHitBodySound", "power": 1.0, "asset": "SFX_HitOwl", "pitch_jitter_pct": 5},
+        {"rank": 1, "kind": "particles", "flag": "bHitBodySpark", "power": 1.0, "system": "NS_HitSpark_Body", "count": 4},
+        {"rank": 2, "kind": "flash", "flag": "bHitBodyFlash", "power": 1.0, "frames": 1, "max_rate_hz": 3, "target": "owl_body"}
+      ]
+    },
+    {
+      "id": "player_hit",
+      "kind": "player_hit",
+      "gdd": "§7",
+      "mvp": true,
+      "flag": "bPlayerHitFeel",
+      "cues": [
+        {"rank": 1, "kind": "sound", "flag": "bPlayerHitSound", "power": 1.0, "asset": "SFX_PlayerHurt", "pitch_jitter_pct": 0},
+        {"rank": 1, "kind": "flash", "flag": "bPlayerHitFlash", "power": 1.0, "frames": 1, "max_rate_hz": 3, "target": "player"},
+        {"rank": 1, "kind": "hitstop", "flag": "bPlayerHitStop", "power": 1.0, "frames": 5},
+        {"rank": 2, "kind": "shake", "flag": "bPlayerHitShake", "power": 1.0, "duration_s": 0.2, "amp_pct_h": 2.5, "direction": "away_from_source", "decay": "spring"},
+        {"rank": 2, "kind": "rumble", "flag": "bPlayerHitRumble", "power": 0.8, "duration_s": 0.2, "applies_if": "gamepad"},
+        {"rank": 2, "kind": "squash", "flag": "bPlayerHitSquash", "power": 1.0, "scale": [1.3, 0.7], "recover_s": 0.25, "ease": "ease_out_quad", "target": "render_only"},
+        {"rank": 3, "kind": "particles", "flag": "bPlayerHitBurst", "power": 1.0, "system": "NS_HurtBurst", "count": 6}
+      ]
+    },
+    {
+      "id": "tier_damaged",
+      "kind": "state",
+      "gdd": "§4, §8",
+      "mvp": false,
+      "flag": "bTierDamagedFeel",
+      "cues": [
+        {"rank": 1, "kind": "sound", "flag": "bTierDamagedSound", "power": 1.0, "asset": "SFX_UmbrellaTear", "pitch_jitter_pct": 0},
+        {"rank": 1, "kind": "particles", "flag": "bTierDamagedPop", "power": 1.0, "system": "NS_TearPop", "count": 6},
+        {"rank": 2, "kind": "tween", "flag": "bTierDamagedSwap", "power": 1.0, "duration_s": 0.15, "ease": "ease_out_back"}
+      ]
+    },
+    {
+      "id": "tier_critical",
+      "kind": "state",
+      "gdd": "§4, §8",
+      "mvp": false,
+      "flag": "bTierCriticalFeel",
+      "cues": [
+        {"rank": 1, "kind": "sound", "flag": "bTierCriticalSound", "power": 1.0, "asset": "SFX_UmbrellaTear", "pitch_jitter_pct": 0},
+        {"rank": 1, "kind": "particles", "flag": "bTierCriticalPop", "power": 1.0, "system": "NS_TearPop", "count": 10},
+        {"rank": 2, "kind": "hitstop", "flag": "bTierCriticalStop", "power": 1.0, "frames": 6},
+        {"rank": 2, "kind": "shake", "flag": "bTierCriticalShake", "power": 1.0, "duration_s": 0.15, "amp_pct_h": 1.5, "direction": "away_from_source", "decay": "spring"},
+        {"rank": 2, "kind": "rumble", "flag": "bTierCriticalRumble", "power": 1.0, "duration_s": 0.15, "applies_if": "gamepad"},
+        {"rank": 3, "kind": "tween", "flag": "bTierCriticalSwap", "power": 1.0, "duration_s": 0.15, "ease": "ease_out_back"}
+      ]
+    },
+    {
+      "id": "owl_tell_bolts",
+      "kind": "tell",
+      "gdd": "§6",
+      "mvp": true,
+      "flag": "bTellBoltsFeel",
+      "telegraph_s": 0.75,
+      "cues": [
+        {"rank": 1, "kind": "sound", "flag": "bTellBoltsSound", "power": 1.0, "asset": "SFX_OwlBoltWindup", "pitch_jitter_pct": 0},
+        {"rank": 1, "kind": "flash", "flag": "bTellBoltsClock", "power": 1.0, "frames": 6, "max_rate_hz": 2, "target": "owl_clock"},
+        {"rank": 2, "kind": "pose", "flag": "bTellBoltsPose", "power": 1.0, "frames": 3, "hold_s": 0.75}
+      ]
+    },
+    {
+      "id": "owl_tell_gust",
+      "kind": "tell",
+      "gdd": "§6",
+      "mvp": false,
+      "flag": "bTellGustFeel",
+      "telegraph_s": 1.0,
+      "cues": [
+        {"rank": 1, "kind": "sound", "flag": "bTellGustSound", "power": 1.0, "asset": "SFX_GustWindup", "pitch_jitter_pct": 0},
+        {"rank": 1, "kind": "pose", "flag": "bTellGustPose", "power": 1.0, "frames": 3, "hold_s": 1.0},
+        {"rank": 2, "kind": "particles", "flag": "bTellGustLines", "power": 1.0, "system": "NS_WindLines", "count": 12}
+      ]
+    },
+    {
+      "id": "owl_tell_arc",
+      "kind": "tell",
+      "gdd": "§6 (P2)",
+      "mvp": false,
+      "flag": "bTellArcFeel",
+      "telegraph_s": 0.8,
+      "cues": [
+        {"rank": 1, "kind": "sound", "flag": "bTellArcSound", "power": 1.0, "asset": "SFX_ArcWindup", "pitch_jitter_pct": 0},
+        {"rank": 1, "kind": "tween", "flag": "bTellArcPreview", "power": 1.0, "duration_s": 0.8, "ease": "ease_in_out_sine"}
+      ]
+    },
+    {
+      "id": "end_trigger",
+      "kind": "end",
+      "gdd": "§2",
+      "mvp": true,
+      "flag": "bEndFeel",
+      "cues": [
+        {"rank": 1, "kind": "sound", "flag": "bEndSound", "power": 1.0, "asset": "SFX_EndEvent", "pitch_jitter_pct": 0},
+        {"rank": 1, "kind": "pose", "flag": "bEndPose", "power": 1.0, "frames": 3},
+        {"rank": 2, "kind": "hitstop", "flag": "bEndStop", "power": 1.0, "frames": 6},
+        {"rank": 2, "kind": "shake", "flag": "bEndShake", "power": 1.0, "duration_s": 0.2, "amp_pct_h": 1.0, "direction": "toward_owl", "decay": "spring"},
+        {"rank": 3, "kind": "particles", "flag": "bEndDeparture", "power": 1.0, "system": "NS_Departure", "count": 24}
+      ]
+    },
+    {
+      "id": "owl_condition_step",
+      "kind": "owl_state",
+      "gdd": "§5, §8",
+      "mvp": false,
+      "flag": "bOwlConditionFeel",
+      "note": "Clock and wing hits add up. Every hits_per_step hits on a part, that part's overlay steps up once and stays. Shows condition, not a countdown and not owl health. [proposed]",
+      "hits_per_step": {"clock": 4, "wing": 4},
+      "cues": [
+        {"rank": 1, "kind": "sound", "flag": "bOwlConditionSound", "power": 1.0, "asset": "SFX_OwlGearSlip", "pitch_jitter_pct": 0},
+        {"rank": 1, "kind": "overlay", "flag": "bOwlClockCrack", "power": 1.0, "part": "clock", "steps": 3, "persist": true, "ease": "ease_out_back"},
+        {"rank": 1, "kind": "overlay", "flag": "bOwlWingHoles", "power": 1.0, "part": "wing", "steps": 3, "persist": true, "ease": "ease_out_back"},
+        {"rank": 2, "kind": "tween", "flag": "bOwlClockStutter", "power": 1.0, "duration_s": 0.2, "ease": "ease_out_back"},
+        {"rank": 3, "kind": "particles", "flag": "bOwlCrackDust", "power": 1.0, "system": "NS_OwlCrack", "count": 6}
+      ]
+    },
+    {
+      "id": "shield_catch",
+      "kind": "state",
+      "gdd": "GDD 1.3 §6, §7A DEF-01 (CatchSucceeded; plays during the heal cooldown too)",
+      "mvp": true,
+      "flag": "bShieldCatchFeel",
+      "cues": [
+        {"rank": 1, "kind": "sound", "flag": "bShieldCatchSound", "power": 1.0, "asset": "SFX_ShieldCatch", "pitch_jitter_pct": 5},
+        {"rank": 1, "kind": "flash", "flag": "bShieldCatchFlash", "power": 1.0, "frames": 2, "max_rate_hz": 3, "target": "player"},
+        {"rank": 3, "kind": "particles", "flag": "bShieldCatchSpark", "power": 1.0, "system": "NS_Puff", "count": 4}
+      ]
+    },
+    {
+      "id": "shield_heal",
+      "kind": "state",
+      "gdd": "GDD 1.3 §6 SURV-03 (heal 20 HP applied; not during the 2 s cooldown)",
+      "mvp": true,
+      "flag": "bShieldHealFeel",
+      "cues": [
+        {"rank": 1, "kind": "sound", "flag": "bShieldHealSound", "power": 1.0, "asset": "SFX_ShieldHeal", "pitch_jitter_pct": 0},
+        {"rank": 1, "kind": "tween", "flag": "bShieldHealSwap", "power": 1.0, "duration_s": 0.15, "ease": "ease_out_back"}
+      ]
+    }
+  ]
+}

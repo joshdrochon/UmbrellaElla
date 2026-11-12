@@ -1,0 +1,18 @@
+{
+  "clean": false,
+  "defects": [
+    {
+      "id": "allowprivateaccess",
+      "severity": "med",
+      "file": "Source/UmbrellaElla/Public/Feedback/FeedbackAdapterComponent.h",
+      "lines": [
+        27,
+        30
+      ],
+      "keywords": [
+        "allowprivateaccess",
+        "private"
+      ]
+    }
+  ]
+}

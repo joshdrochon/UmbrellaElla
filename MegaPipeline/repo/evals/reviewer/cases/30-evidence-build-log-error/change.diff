@@ -1,0 +1,37 @@
+--- a/Source/UmbrellaElla/Private/Projectile/OwlBolt.cpp
++++ b/Source/UmbrellaElla/Private/Projectile/OwlBolt.cpp
+@@ -1,4 +1,6 @@
+ #include "Projectile/OwlBolt.h"
+ #include "Components/SphereComponent.h"
++#include "Core/GameEventsSubsystem.h"
++#include "Core/UmbrellaLog.h"
+ #include "Core/UmbrellaTuning.h"
+ 
+@@ -18,9 +20,16 @@
+ {
+ 	Super::BeginPlay();
++	Events = GetWorld()->GetSubsystem<UGameEventsSubsystem>();
++	if (!Events.IsValid())
++	{
++		UE_LOG(LogUmbrellaElla, Error, TEXT("AOwlBolt %s: UGameEventsSubsystem not found"), *GetName());
++	}
++	Collision->OnComponentBeginOverlap.AddDynamic(this, &AOwlBolt::OnBoltOverlap);
+ }
+ 
+ void AOwlBolt::EndPlay(const EEndPlayReason::Type EndPlayReason)
+ {
++	Collision->OnComponentBeginOverlap.RemoveDynamic(this, &AOwlBolt::OnBoltOverlap);
+ 	Super::EndPlay(EndPlayReason);
+ }
+ 
+@@ -40,4 +49,10 @@
+ 
+ void AOwlBolt::OnBoltOverlap(UPrimitiveComponent* Comp, AActor* Other, UPrimitiveComponent* OtherComp, int32 Index, bool bSweep, const FHitResult& Hit)
+ {
++	if (State == EBoltState::Spent || !IsValid(Other)) { return; }
++	UGameEventsSubsystem* EventBus = Events.Get();
++	if (!EventBus) { return; }
++	EventBus->OnProjectileContact().Broadcast(EventBus->MakeEventInfo(this, Other));
++	SetState(EBoltState::Spent);
++	SetLifeSpan(GetDefault<UUmbrellaTuning>()->Projectile.BoltFadeSeconds);
+ }

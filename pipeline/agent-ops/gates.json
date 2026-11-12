@@ -1,0 +1,179 @@
+{
+  "_about": "Single source for the agent gates. pipeline/agent-ops/hook.py enforces it; tools/secrets_check.py checks that settings.json denies every gate path. It changes by a gate patch kickoff applies only when it tightens (tools/git_gate.py auto_problems), or by a person's own commit. roles maps the JAM_ROLE value (the launch command, e.g. JAM_ROLE=producer claude) to the role name.",
+  "gate_paths": [
+    "tools/**",
+    "tests/**",
+    ".github/**",
+    "evals/README.md",
+    "evals/reviewer/cases/**",
+    "evals/reviewer/results.md",
+    "evals/art-judge/**",
+    "pipeline/roles/**",
+    "pipeline/agent-ops/**",
+    "pipeline/art/style.json",
+    "pipeline/audio/style.json",
+    "pipeline/audio/sound-events.json",
+    "pipeline/story/story.json",
+    "evals/story-critic/**",
+    ".claude/**",
+    "AGENTS.md",
+    "CLAUDE.md",
+    ".mcp.json",
+    ".gitattributes",
+    ".gitignore"
+  ],
+  "roles": {
+    "producer": "Producer",
+    "dev-lead": "Dev Lead",
+    "gameplay-dev": "Gameplay Dev",
+    "technical-director": "Technical Director",
+    "integrator": "Integrator",
+    "art-director": "Art Director",
+    "asset-specialist": "Asset Specialist",
+    "qa-build": "QA and Build",
+    "game-designer": "Game Designer",
+    "level-designer": "Level Designer",
+    "encounter-designer": "Encounter Designer",
+    "audio": "Audio",
+    "ui-ux": "UI and UX",
+    "story": "Story",
+    "agent-ops": "Agent Ops"
+  },
+  "_kickoff_only_about": "Files only kickoff's own art loop writes and commits (tools/art_loop.py write_record, run by tools/kickoff.py): the art-loop pass records. Every agent session is refused a write (pipeline/agent-ops/hook.py guard) and a commit or push (tools/git_gate.py, JAM_ROLE set); the ship gates re-run the checks anyway (check_pr.py artship, submission_check.py art).",
+  "kickoff_only_paths": ["**/*.artloop.json"],
+  "role_deny": {
+    "asset-specialist": [
+      "Source/**",
+      "Config/**"
+    ],
+    "art-director": [
+      "Source/**",
+      "Config/**"
+    ],
+    "game-designer": [
+      "Source/**",
+      "Config/**"
+    ],
+    "level-designer": [
+      "Source/**",
+      "Config/**"
+    ],
+    "encounter-designer": [
+      "Source/**",
+      "Config/**",
+      "Content/**"
+    ],
+    "audio": [
+      "Source/**",
+      "Config/**"
+    ],
+    "ui-ux": [
+      "Source/**",
+      "Config/**"
+    ],
+    "story": [
+      "Source/**",
+      "Config/**"
+    ],
+    "producer": [
+      "Source/**",
+      "Config/**",
+      "Content/**"
+    ],
+    "agent-ops": [
+      "Source/**",
+      "Config/**",
+      "Content/**"
+    ]
+  },
+  "_mcp_about": "Editor MCP (pipeline/agent-ops/editor-mcp.md; Official Rules 7(h) lets MCP settings be prepared before the jam). mcp_enabled: false = every mcp__ call is blocked; the team turns it on at kickoff (a needs-human checkpoint, pipeline/human-checkpoints.md) by a person's own commit (kickoff's gate-patch route never opens it: tools/git_gate.py CLOSED). mcp_roles: only these JAM_ROLE keys may call an editor MCP tool. Every call also needs a card branch ue-<id>-..., so editor work goes through a card lane and a PR, and check_pr.py rule editor makes the card's human open each changed .uasset/.umap. mcp_allow: tool names a session may call without asking, copied from the tool list card 0.4a pastes into pipeline/unreal-rules.md. Empty until then [VERIFY on 5.8.4], so every MCP call is blocked. A tool whose name matches mcp_ask_words (it runs code or console commands as the editor process, outside the sandbox) always asks a human. Checked by tools/editor_mcp.py check.",
+  "mcp_enabled": false,
+  "mcp_roles": ["level-designer", "integrator", "art-director", "asset-specialist", "ui-ux"],
+  "mcp_allow": [],
+  "mcp_ask_words": [
+    "python",
+    "exec",
+    "console",
+    "command",
+    "script",
+    "shell",
+    "eval"
+  ],
+  "net_commands": [
+    "curl",
+    "wget",
+    "nc",
+    "ncat",
+    "netcat",
+    "telnet",
+    "ftp",
+    "sftp",
+    "scp",
+    "invoke-webrequest",
+    "iwr",
+    "invoke-restmethod",
+    "irm",
+    "start-bitstransfer"
+  ],
+  "write_commands": [
+    "rm",
+    "rmdir",
+    "mv",
+    "cp",
+    "touch",
+    "truncate",
+    "chmod",
+    "chown",
+    "ln",
+    "install",
+    "rsync",
+    "dd",
+    "unlink",
+    "shred",
+    "patch",
+    "remove-item",
+    "move-item",
+    "copy-item",
+    "set-content",
+    "add-content",
+    "out-file",
+    "new-item"
+  ],
+  "_ask_about": "Shell commands that need a human every call (hook.py guard returns permissionDecision \"ask\"). ask_commands: gh subcommands that merge, release, call the raw API or change repo settings (AGENTS.md section 7: humans only). git push asks when it targets a protected_branches branch (refspec, HEAD or no refspec while on it), deletes a branch, or forces (-f, --force*, +refspec, --mirror, --all). delete_ask_paths: rm/rmdir/Remove-Item/git rm that is recursive or uses a glob, or git clean -f, asks when it reaches one of these paths (deleting work needs a human, AGENTS.md section 4).",
+  "_human_submit_about": "Official Rules 17: each Submission is submitted by an Entrant, not by an AI agent or other automated means. human_only_commands are blocked for every agent session (hook.py guard), whatever the role: the packaging and submission owner runs them by hand (pipeline/human-checkpoints.md). The jam form on itch.io is a browser step; agents have no web tools.",
+  "human_only_commands": ["butler push", "butler login"],
+  "ask_commands": [
+    "gh pr merge",
+    "gh release",
+    "gh api",
+    "gh secret",
+    "gh variable",
+    "gh ruleset",
+    "gh repo edit",
+    "gh repo delete",
+    "gh repo rename",
+    "gh repo archive"
+  ],
+  "protected_branches": [
+    "main",
+    "master"
+  ],
+  "delete_ask_paths": [
+    "Content/**",
+    "Source/**"
+  ],
+  "_secret_read_about": "Credential folders outside the repo. settings.json denies Read on them; hook.py guard blocks a shell command that names them (~, $HOME, $env:USERPROFILE). tools/secrets_check.py rule settings requires the deny rules.",
+  "secret_read_paths": [
+    "~/.ssh",
+    "~/.aws",
+    "~/.config/gh"
+  ],
+  "_windows_about": "native_windows_shell: block = the guard hook blocks every Bash and PowerShell call on native Windows, because Claude Code's Bash sandbox runs only on macOS, Linux and WSL. Agents on a Windows machine run inside WSL; native Windows builds and packages are run by a human. [VERIFY on 0.18: `/sandbox` on the Windows packaging machine]",
+  "native_windows_shell": "block",
+  "_cap_about": "daily_token_cap: tokens (input + output + cache writes, from the Stop hook) one machine (JAM_HOST) may use in one UTC day. tools/prompt_log.py status exits 1 and prints cap=OVER:<host> past it. Over the cap, that machine starts no new agent session that day until the Producer human posts OK on the tracker. PROVISIONAL: 20000000 is a placeholder, not measured. Card 0.18 replaces it with the output of `prompt_log.py suggest-cap --sessions-per-day N` (3x the largest measured session times N) and writes that output line here. [VERIFY on 0.18: measured cap]",
+  "daily_token_cap": 20000000,
+  "_practice_about": "Practice mode (tools/practice.py): a committed .pipeline-practice marks a test repo. D39 is lifted there; submission, upload and G4 are blocked. real_repo is the team repo: tools/pipeline_check.py fails when the marker is on it (origin URL or GITHUB_REPOSITORY), so CI goes red.",
+  "practice": {"marker": ".pipeline-practice", "real_repo": "RickTheBuilder/GameJam2026"},
+  "_agent_env_about": "tools/git_gate.py (git pre-commit and pre-push hooks, every agent): any of these set means an agent runs the commit. A gate-path commit needs JAM_HUMAN=<name> and none of these. CODEX_* names [VERIFY on Codex CLI]: the help does not list the env vars Codex sets; kickoff sets JAM_ROLE for every session anyway.",
+  "agent_env": ["JAM_ROLE", "JAM_KICKOFF", "CLAUDECODE", "CODEX_SANDBOX", "CODEX_SANDBOX_NETWORK_DISABLED", "CODEX_THREAD_ID"]
+}

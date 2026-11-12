@@ -1,0 +1,17 @@
+# Open questions for the GDD authors (GDD 1.3)
+
+Master list for `docs/gdd/GDD-1.3.md` (commit `73b6a93`). Each has the pipeline's interim behavior, so work goes on.
+Answer in the next GDD revision (the commit note says: increment the version and add dated revision notes) or on the
+decision row named. Owner: Richard (design owner and document approver, GDD 1.3 §14) unless the row says otherwise.
+The B1.0 round and what 1.3 answered: `docs/gdd/questions-B1.0.md`.
+
+| # | Question | Interim behavior in the pipeline | Where it lands | Status (source) |
+|---|---|---|---|---|
+| Q1 | The cover says "REVIEW CANDIDATE 1.3 ... Not yet merged to GitHub" and §A says only a later approved replacement of the GitHub file is authoritative. The design owner merged it to `origin/main` (`73b6a93`). Is 1.3 the approved revision? | Treated as the approved revision: it is the PDF in GitHub (§14: "Only the approved PDF in the GitHub repository is the authoritative source after upload") and it calls itself "Richard-approved baseline". The manifest marks its APPROVED_P0 items implementation_authorized | next GDD revision's cover line | open (GDD v1.3 cover vs §14) |
+| Q2 | ART-02 (developer art-set selector) has no status word, only "Optional debug capability / OFF" (§5). Which status? | PROPOSED, off, no implementation authority, like VFX-01 | `docs/feature-manifest.json` ART-02 | open (GDD v1.3 §5) |
+| Q3 | VFX-01 still has no status word ("Optional; reset", §5). Which status? | PROPOSED, off (D-new-unstated-status) | `docs/feature-manifest.json` VFX-01 | open (GDD v1.3 §5; carried from B1.0 Q9) |
+| Q4 | QA-18 and §12A ask for a clean Windows **shipping** build. D6, D25 and D-new-ship-required say the jam takes a **Development** package and no Shipping run is needed. Which build does QA-18 mean? | The submission stays the Development package (jam rule). QA-18 runs on it: no workbench (D-new-workbench-debug), no missing assets, keyboard and controller play | D-new-gdd13-shipping (`docs/decisions.md`) | open (GDD v1.3 QA-18, §12A vs D6/D25) |
+| Q5 | Encounter numbers: `pipeline/level/encounter.json` still has a 150 s encounter with several patterns (D-new-level-rules); GDD 1.3 approves 90 s and one bolt pattern (3.0 s cadence, 0.75 s warning, 350 cm/s, 2.0 s grace, seed 20261112) | GDD 1.3 wins. The manifest `approved_parameters` holds the 1.3 numbers; a Level Designer card re-files `encounter.json` and `pipeline/feel/feel.json` to them (D20: numbers change only through tuning cards) | D-new-gdd13-numbers (`docs/decisions.md`) | open (GDD v1.3 §5A, §7B) |
+| Q6 | Is the manifest's feature-to-QA mapping right? GDD 1.3 gives it only for UMB-03 (Appendix B: QA-04, QA-10) | The `tests` mapping in the manifest, kept equal to `pipeline/qa/test-map.md` Features columns; QA-13..QA-28 mapped by the pipeline | D-new-qa-mapping | open (carried from B1.0 Q12) |
+| Q7 | Exact art style reference file (Appendix D: open for Josh) | `pipeline/art/art-bible.md` and the key art, both provisional placeholders (GDD 1.3 §7C, §9) | D-new-art-direction-doc | open (GDD v1.3 Appendix D; carried from B1.0 Q13) |
+| Q8 | Hold/Toggle setting (D18) was for "hold Space to open". In 1.3 the umbrella is open by default and ATTACK/SHIELD are holds. Does a Toggle setting apply to ATTACK and SHIELD? | Hold is the default for ATTACK and SHIELD (GDD 1.3 §9). A Toggle option is P1 and applies to each separately; shield still wins | D18, `pipeline/ui/accessibility.md` | open (GDD v1.3 §9 vs D18) |

@@ -1,0 +1,26 @@
+--- a/Source/UmbrellaElla/Private/Owl/ClockworkOwl.cpp
++++ b/Source/UmbrellaElla/Private/Owl/ClockworkOwl.cpp
+@@ -3,7 +3,7 @@
+ 
+ FVector FOwlRules::NextDriftPosition(const FVector& Current, const FVector& Target, float Speed, float DeltaSeconds)
+ {
+-	return Current;
++	return FMath::VInterpConstantTo(Current, Target, DeltaSeconds, Speed);
+ }
+ 
+ AClockworkOwl::AClockworkOwl()
+@@ -22,6 +22,14 @@
+ void AClockworkOwl::Tick(float DeltaSeconds)
+ {
+ 	Super::Tick(DeltaSeconds);
++	if (State == EOwlState::Stopped) { return; }
++	const FVector Target = State == EOwlState::DriftingUp ? DriftHigh : DriftLow;
++	const FVector Next = FOwlRules::NextDriftPosition(GetActorLocation(), Target, GetDefault<UUmbrellaTuning>()->Owl.DriftSpeed, DeltaSeconds);
++	SetActorLocation(Next);
++	if (Next.Equals(Target))
++	{
++		SetState(State == EOwlState::DriftingUp ? EOwlState::DriftingDown : EOwlState::DriftingUp);
++	}
+ }
+ 
+ void AClockworkOwl::SetState(EOwlState NewState)

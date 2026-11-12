@@ -1,0 +1,24 @@
+--- /dev/null
++++ b/Source/UmbrellaElla/Private/Tests/Attack/AttackRulesTest.cpp
+@@ -0,0 +1,21 @@
++#include "Misc/AutomationTest.h"
++#include "Attack/AttackRules.h"
++
++#if WITH_DEV_AUTOMATION_TESTS
++
++// Covers FAttackRules::CanEmit, the rule RequestEmit asks before it spawns. INV-1 itself (RequestEmit spawns nothing while
++// the flag is off) is cited by UmbrellaElla.Attack.World.EmitRespectsFlagAndCooldown (card 9.1), which calls RequestEmit.
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(FAttackEmitNeedsFlagAndCooldownTest, "UmbrellaElla.Attack.EmitNeedsFlagAndCooldown",
++	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
++
++bool FAttackEmitNeedsFlagAndCooldownTest::RunTest(const FString& Parameters)
++{
++	TestTrue(TEXT("flag on, cooldown done"), FAttackRules::CanEmit(true, 0.f));
++	TestFalse(TEXT("flag off, cooldown done"), FAttackRules::CanEmit(false, 0.f));
++	TestFalse(TEXT("flag on, still cooling down"), FAttackRules::CanEmit(true, 0.1f));
++	TestFalse(TEXT("flag off, still cooling down"), FAttackRules::CanEmit(false, 0.1f));
++	TestFalse(TEXT("flag on, a tiny bit of cooldown left"), FAttackRules::CanEmit(true, KINDA_SMALL_NUMBER));
++	return true;
++}
++
++#endif

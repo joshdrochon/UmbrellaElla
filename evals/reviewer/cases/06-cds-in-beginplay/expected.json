@@ -1,0 +1,19 @@
+{
+  "clean": false,
+  "defects": [
+    {
+      "id": "cds-outside-ctor",
+      "severity": "blocker",
+      "file": "Source/UmbrellaElla/Private/Owl/ClockworkOwl.cpp",
+      "lines": [
+        21,
+        21
+      ],
+      "keywords": [
+        "createdefaultsubobject",
+        "constructor",
+        "ctor"
+      ]
+    }
+  ]
+}

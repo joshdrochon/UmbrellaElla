@@ -1,0 +1,19 @@
+{
+  "clean": false,
+  "defects": [
+    {
+      "id": "frame-rate-dependent",
+      "severity": "high",
+      "file": "Source/UmbrellaElla/Private/Motor/PlayerMotorComponent.cpp",
+      "lines": [
+        13,
+        13
+      ],
+      "keywords": [
+        "deltatime",
+        "delta",
+        "frame"
+      ]
+    }
+  ]
+}

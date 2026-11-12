@@ -1,0 +1,545 @@
+{
+  "version": 2,
+  "gdd_revision": "1.3",
+  "duration_sec": 90,
+  "duration_status": "GDD 1.3 END-01, §8: unpaused ACTIVE time; approved provisional default",
+  "seed": 20261112,
+  "phase_change_cue": null,
+  "arena": {
+    "units": "cm; x right, y up from the bottom edge of the fixed camera view. GDD 1.3 §7B fixture 1600 x 900 cm with a centred origin: owl x=+560 -> 1360, player spawn x=-350, z=0 -> (450, 450)",
+    "width": 1600,
+    "height": 900,
+    "hero_zone": {
+      "x0": 50,
+      "x1": 1100,
+      "y0": 50,
+      "y1": 850
+    },
+    "owl_zone": {
+      "x0": 1200,
+      "x1": 1520
+    },
+    "owl_fire_x": 1300,
+    "owl_drift_y": [
+      350,
+      580
+    ],
+    "tuning_source": "tests/fixtures/gdd13/pipeline/feel/feel.json",
+    "tuning_note": "Hero speeds and the fixed hurtbox and bolt collider sizes (never derived from sprites, GDD 1.3 7A/7C) come from the tuning file (Game Designer), which mirrors the manifest approved_parameters. Never copy them here (E22).",
+    "bolt_core_radius": 15,
+    "owl_sprite": {"w": 300, "h": 350},
+    "owl_hitbox": {"w": 275, "h": 333},
+    "sim_cell": 10
+  },
+  "patterns": {
+    "BOLT_Single": {
+      "feature": "OWL-01",
+      "kind": "bolt",
+      "color": "amber",
+      "tell": {
+        "pose": "Owl_Attack_Windup",
+        "sound": "SFX_OwlBoltWindup",
+        "vfx": "VFX_ClockFlash_Amber"
+      },
+      "telegraph_sec": 0.75,
+      "active_sec": 0.1,
+      "recovery_sec": 1.0,
+      "angles_deg": [
+        0
+      ],
+      "aimed": true,
+      "speed": 350,
+      "spawn_offset_sec": 0,
+      "volleys": 1,
+      "volley_gap_sec": 0,
+      "seed_offset_deg": 0,
+      "seed_angle_step_deg": 0,
+      "interruptible_sec": 0,
+      "origin_locked_during_telegraph": true,
+      "draw_on_top": true,
+      "directional_sprite": true,
+      "covers": [
+        "pos_high",
+        "pos_low",
+        "ctl_rise",
+        "ctl_fall"
+      ]
+    }
+  },
+  "phases": [
+    {
+      "id": "base",
+      "start_pct": 0,
+      "end_pct": 100,
+      "space_rules": [],
+      "altitude_cap_y": null,
+      "schedule": [
+        {"at": 2, "pattern": "BOLT_Single"},
+        {"at": 5, "pattern": "BOLT_Single"},
+        {"at": 8, "pattern": "BOLT_Single"},
+        {"at": 11, "pattern": "BOLT_Single"},
+        {"at": 14, "pattern": "BOLT_Single"},
+        {"at": 17, "pattern": "BOLT_Single"},
+        {"at": 20, "pattern": "BOLT_Single"},
+        {"at": 23, "pattern": "BOLT_Single"},
+        {"at": 26, "pattern": "BOLT_Single"},
+        {"at": 29, "pattern": "BOLT_Single"},
+        {"at": 32, "pattern": "BOLT_Single"},
+        {"at": 35, "pattern": "BOLT_Single"},
+        {"at": 38, "pattern": "BOLT_Single"},
+        {"at": 41, "pattern": "BOLT_Single"},
+        {"at": 44, "pattern": "BOLT_Single"},
+        {"at": 47, "pattern": "BOLT_Single"},
+        {"at": 50, "pattern": "BOLT_Single"},
+        {"at": 53, "pattern": "BOLT_Single"},
+        {"at": 56, "pattern": "BOLT_Single"},
+        {"at": 59, "pattern": "BOLT_Single"},
+        {"at": 62, "pattern": "BOLT_Single"},
+        {"at": 65, "pattern": "BOLT_Single"},
+        {"at": 68, "pattern": "BOLT_Single"},
+        {"at": 71, "pattern": "BOLT_Single"},
+        {"at": 74, "pattern": "BOLT_Single"},
+        {"at": 77, "pattern": "BOLT_Single"},
+        {"at": 80, "pattern": "BOLT_Single"},
+        {"at": 83, "pattern": "BOLT_Single"},
+        {"at": 86, "pattern": "BOLT_Single"},
+        {"at": 89, "pattern": "BOLT_Single"}
+      ]
+    }
+  ],
+  "end_event": {
+    "stop_threats": true,
+    "owl_departs": true,
+    "survived_card": "WBP_Survived",
+    "quiet_sec": 5,
+    "clue": null
+  },
+  "encounter_presets": {
+    "_about": "Encounter presets (owner: Encounter Designer, pipeline/roles/encounter-designer.md). The fight as a whole: phases, targets with HP, attacks with their telegraph, effect and counterplay, phase transitions, pacing and story beats. Gameplay code reads the selected preset from this file (never hardcoded). The default preset is the GDD 1.3 baseline: it takes every number from the top-level patterns, phases and duration_sec above (manifest approved_parameters, E29) and copies none. Any other preset is PROPOSED: selectable only in workbench and practice builds and through the GDD picker, never shipped, until its decision row is DECIDED by its owner. Checked by tools/encounter_check.py (S rules; --ready for the hitbox, art and sound rows; --playthrough for the automated run log; --critic-packet and the card rules C6-C8 for the critic loop).",
+    "default": "GDD-1.3",
+    "select": {
+      "workbench_cvar": "UmbrellaElla.Encounter.Preset",
+      "env": "JAM_ENCOUNTER_PRESET",
+      "list": "python3 tools/encounter_check.py --presets --gdd 1.3"
+    },
+    "presets": {
+      "GDD-1.3": {
+        "status": "baseline",
+        "title": "GDD 1.3 baseline: survive 90 s of one telegraphed bolt",
+        "gdd_revision": "1.3",
+        "uses_top_level": true,
+        "source": "GDD 1.3 sections 5A, 7B, 8; manifest approved_parameters. Numbers: the top-level patterns, phases and duration_sec",
+        "selectable_in": ["ship", "workbench", "practice", "gdd_picker"],
+        "player": {
+          "verbs": ["move", "rise", "fall", "shoot", "shield"],
+          "shooting_falls": true,
+          "absorbing_falls": true,
+          "damage_reduces": ["umbrella_health"]
+        },
+        "entry": {"full_run": "base"},
+        "targets": [
+          {
+            "id": "OWL_BODY",
+            "hp": null,
+            "hitbox": "owl-body",
+            "vulnerable_in": ["base"],
+            "note": "OWL-05 hit region. No HP in GDD 1.3: the run ends on the timer"
+          },
+          {
+            "id": "OWL_CLOCK",
+            "hp": null,
+            "hitbox": "owl-clock",
+            "vulnerable_in": ["base"],
+            "note": "OWL-05 hit region; clock special effects off (COM-02)"
+          }
+        ],
+        "attacks": [
+          {
+            "id": "BOLT_Single",
+            "pattern": "BOLT_Single",
+            "counterplay": [
+              {"verb": "move_off_line", "how": "the bolt flies straight at where Ella was when the windup started"},
+              {
+                "verb": "shield",
+                "how": "the front shield blocks it and heals when the cooldown is ready (DEF-01, SURV-03)"
+              }
+            ],
+            "art": ["owl", "owl-bolt", "bolt-hit"],
+            "sound": ["OwlBoltWindup", "OwlBoltLaunch", "PlayerHurt"]
+          }
+        ],
+        "phases": [
+          {
+            "id": "base",
+            "targets": ["OWL_BODY", "OWL_CLOCK"],
+            "attacks": ["BOLT_Single"],
+            "ends_when": {"timer": "duration_sec"},
+            "next": null,
+            "ends_fight": true,
+            "transition_in": {
+              "sec": "first_schedule_at",
+              "new_attacks": false,
+              "in_flight": "none",
+              "note": "the 2.0 s initial grace"
+            }
+          }
+        ],
+        "end": {"stop_threats": true, "story_beat": "the owl departs; Survived card"}
+      },
+      "OWL-FIGHT-RICKY": {
+        "status": "proposed",
+        "title": "Ricky's owl fight: the Keeper's wings, three hanging mechanisms, then the clock",
+        "gdd_revision": "1.3",
+        "decision": "D-new-encounter-ricky",
+        "owner": "Richard",
+        "reference": "pipeline/level/reference/owl-fight-ricky.md",
+        "source": "Ricky, #owl-fight-mechanics, 10 Nov 2026 (the rebuilt fight as it plays now). Numbers listed in numbers_from_reference come from it; every other number is a pipeline proposal for Richard to accept or change",
+        "selectable_in": ["workbench", "practice", "gdd_picker"],
+        "needs_features": ["OWL-02", "OWL-04", "COM-02", "SURV-04", "MOVE-03"],
+        "unmapped_mechanics": [
+          "wing and mechanism HP targets",
+          "talon rake",
+          "clock eye blackout",
+          "Stored Thunder charge from yellow catches"
+        ],
+        "numbers_from_reference": [
+          "targets.WINGS.hp",
+          "targets.MECH_FRONT.hp",
+          "targets.MECH_MIDDLE.hp",
+          "targets.MECH_REAR.hp",
+          "targets.CLOCK.hp",
+          "targets.CLOCK.floor_pct_before_final",
+          "attacks.RED_Volley.effect.shots",
+          "attacks.YELLOW_Packet.effect.shots"
+        ],
+        "fight_length_sec": {"min": 90, "max": 180},
+        "player": {
+          "verbs": ["move", "rise", "fall", "shoot", "absorb", "catch", "dash"],
+          "shot_damage": 10,
+          "shot_cadence": "COM-01.cadence",
+          "shooting_falls": true,
+          "absorbing_falls": true,
+          "damage_reduces": ["umbrella_health", "lift"]
+        },
+        "entry": {"full_run": "wings", "boss_practice": "clock"},
+        "practice_note": "The saved Boss Practice setup starts at phase 3 (clock) and uses different movement and protection settings, so it can feel different from a full run. Loop captures come from full_run.",
+        "targets": [
+          {
+            "id": "WINGS",
+            "hp": 180,
+            "regions": ["WING_UPPER", "WING_LOWER"],
+            "shared_hp": true,
+            "hitbox": "owl-wing",
+            "vulnerable_in": ["wings"],
+            "hit_share": 0.6,
+            "on_break": {
+              "cancels": ["GUST_Band"],
+              "visual": "the damaged wings stay attached",
+              "stun_sec": 0,
+              "new_attacks": false,
+              "in_flight": "dangerous"
+            }
+          },
+          {
+            "id": "MECH_FRONT",
+            "hp": 100,
+            "order": 1,
+            "hitbox": "owl-mech-front",
+            "vulnerable_in": ["mechanisms"],
+            "vulnerable_when": "its head moves",
+            "hit_share": 0.4,
+            "on_break": {
+              "cancels": ["MECH_Front_Throw"],
+              "stun_sec": 1.5,
+              "exposes": "CLOCK",
+              "new_attacks": false,
+              "in_flight": "dangerous"
+            }
+          },
+          {
+            "id": "MECH_MIDDLE",
+            "hp": 110,
+            "order": 2,
+            "hitbox": "owl-mech-middle",
+            "vulnerable_in": ["mechanisms"],
+            "vulnerable_when": "its head moves",
+            "hit_share": 0.4,
+            "on_break": {
+              "cancels": ["MECH_Middle_Curve"],
+              "stun_sec": 1.5,
+              "exposes": "CLOCK",
+              "new_attacks": false,
+              "in_flight": "dangerous"
+            }
+          },
+          {
+            "id": "MECH_REAR",
+            "hp": 120,
+            "order": 3,
+            "hitbox": "owl-mech-rear",
+            "vulnerable_in": ["mechanisms"],
+            "vulnerable_when": "its head moves",
+            "hit_share": 0.4,
+            "on_break": {
+              "cancels": ["MECH_Rear_Pause"],
+              "stun_sec": 1.5,
+              "exposes": "CLOCK",
+              "new_attacks": false,
+              "in_flight": "dangerous"
+            }
+          },
+          {
+            "id": "CLOCK",
+            "hp": 320,
+            "floor_pct_before_final": 40,
+            "carry_damage": true,
+            "hitbox": "owl-clock",
+            "vulnerable_in": ["mechanisms", "clock"],
+            "vulnerable_when": "its openings (outer-part hits expose it earlier)",
+            "hit_share": 0.35,
+            "on_hit": {"world_slow_sec": 0.3, "feature": "COM-02"}
+          },
+          {
+            "id": "CLOCK_EYE",
+            "hp": 10,
+            "optional": true,
+            "hitbox": "owl-clock-eye",
+            "vulnerable_in": ["clock"],
+            "hit_share": 0.5,
+            "on_break": {
+              "clears_threats": true,
+              "extends_vulnerability": false,
+              "stun_sec": 0,
+              "new_attacks": false,
+              "in_flight": "cleared"
+            }
+          }
+        ],
+        "attacks": [
+          {
+            "id": "GUST_Band",
+            "phases": ["wings"],
+            "cancelled_by": "WINGS",
+            "first_at": 3.0,
+            "cadence_sec": 6.0,
+            "telegraph": {
+              "sec": 1.0,
+              "shows": "the warned altitude band",
+              "pose": "Owl_Gust_Windup",
+              "vfx": "VFX_GustBand_Warn",
+              "sound": "GustWindup"
+            },
+            "effect": {"damage": 15, "push": "left", "absorbable": false, "dash": "avoids the damage, not the push"},
+            "counterplay": [{"verb": "leave_band", "how": "move out of the warned altitude band"}],
+            "not_counterplay": [{"verb": "absorb", "why": "absorption does not cancel the gust"}],
+            "art": ["owl", "gust-band"],
+            "sound": ["GustWindup", "GustLoop", "PlayerHurt"]
+          },
+          {
+            "id": "MECH_Front_Throw",
+            "phases": ["mechanisms"],
+            "active_while": "MECH_FRONT",
+            "cancelled_by": "MECH_FRONT",
+            "first_at": 2.5,
+            "cadence_sec": 4.0,
+            "telegraph": {
+              "sec": 0.8,
+              "shows": "a warning line to where Ella was targeted",
+              "pose": "Mech_Front_Windup",
+              "vfx": "VFX_MechLine_Warn",
+              "sound": "MechWindup"
+            },
+            "effect": {
+              "damage": 20,
+              "path": "straight to the targeted spot",
+              "hurts": ["head_outward"],
+              "harmless": ["chain", "return"]
+            },
+            "counterplay": [{"verb": "move_off_line", "how": "leave the warned line"}],
+            "art": ["mechanism-head", "mechanism-chain"],
+            "sound": ["MechWindup", "MechThrow", "PlayerHurt"]
+          },
+          {
+            "id": "MECH_Middle_Curve",
+            "phases": ["mechanisms"],
+            "active_while": "MECH_MIDDLE",
+            "cancelled_by": "MECH_MIDDLE",
+            "first_at": 2.5,
+            "cadence_sec": 4.0,
+            "telegraph": {
+              "sec": 0.9,
+              "shows": "the high or low curve it will follow",
+              "pose": "Mech_Middle_Windup",
+              "vfx": "VFX_MechCurve_Warn",
+              "sound": "MechWindup"
+            },
+            "effect": {
+              "damage": 20,
+              "path": "a high or a low curve",
+              "hurts": ["head_outward"],
+              "harmless": ["chain", "return"],
+              "feature": "OWL-04"
+            },
+            "counterplay": [{"verb": "clear_curve", "how": "clear the whole curve, not only the straight path"}],
+            "art": ["mechanism-head", "mechanism-chain"],
+            "sound": ["MechWindup", "MechThrow", "PlayerHurt"]
+          },
+          {
+            "id": "MECH_Rear_Pause",
+            "phases": ["mechanisms"],
+            "active_while": "MECH_REAR",
+            "cancelled_by": "MECH_REAR",
+            "first_at": 2.5,
+            "cadence_sec": 4.5,
+            "telegraph": {
+              "sec": 0.8,
+              "shows": "a warning line to its original target",
+              "pose": "Mech_Rear_Windup",
+              "vfx": "VFX_MechLine_Warn",
+              "sound": "MechWindup"
+            },
+            "effect": {
+              "damage": 20,
+              "path": "halfway, a safe pause, then on to the original target",
+              "pause_sec": 0.6,
+              "hurts": ["head_outward"],
+              "harmless": ["chain", "return", "pause"]
+            },
+            "counterplay": [
+              {"verb": "move_off_line", "how": "leave the line"},
+              {"verb": "stay_clear_after_pause", "how": "it is not finished when it pauses"}
+            ],
+            "art": ["mechanism-head", "mechanism-chain"],
+            "sound": ["MechWindup", "MechThrow", "PlayerHurt"]
+          },
+          {
+            "id": "CLOCK_DoubleBeat",
+            "phases": ["clock"],
+            "first_at": 2.5,
+            "cadence_sec": 5.0,
+            "telegraph": {
+              "sec": 1.0,
+              "shows": "the clock's double beat and the red group's paths",
+              "pose": "Owl_Clock_Beat",
+              "vfx": "VFX_ClockBeat_Red",
+              "sound": "ClockBeat"
+            },
+            "effect": {"damage": 34, "shots": 6, "repeat": "the same paths once, not re-aimed", "absorbable": false},
+            "counterplay": [
+              {"verb": "leave_first_pattern", "how": "move away from the first group"},
+              {"verb": "dont_drift_back", "how": "the repeat uses the same paths"}
+            ],
+            "art": ["owl", "owl-bolt", "bolt-hit"],
+            "sound": ["ClockBeat", "OwlBoltLaunch", "PlayerHurt"]
+          },
+          {
+            "id": "RED_Volley",
+            "phases": ["wings", "mechanisms", "clock"],
+            "first_at": 2.0,
+            "cadence_by_phase": {"wings": 4.0, "mechanisms": 3.5, "clock": 3.0},
+            "telegraph": {
+              "sec": 0.75,
+              "shows": "the owl's windup and the volley's aim",
+              "pose": "Owl_Attack_Windup",
+              "vfx": "VFX_ClockFlash_Red",
+              "sound": "OwlBoltWindup"
+            },
+            "effect": {"damage": 34, "shots": 4, "absorbable": false, "note": "gets faster as the fight goes on"},
+            "counterplay": [{"verb": "dodge", "how": "move between or around the four shots"}],
+            "art": ["owl", "owl-bolt", "bolt-hit"],
+            "sound": ["OwlBoltWindup", "OwlBoltLaunch", "PlayerHurt"]
+          },
+          {
+            "id": "YELLOW_Packet",
+            "phases": ["wings", "mechanisms", "clock"],
+            "first_at": 3.5,
+            "cadence_sec": 5.0,
+            "telegraph": {
+              "sec": 0.75,
+              "shows": "a yellow glow on the owl before the packet",
+              "pose": "Owl_Attack_Windup",
+              "vfx": "VFX_ClockFlash_Yellow",
+              "sound": "OwlBoltWindup"
+            },
+            "effect": {
+              "damage": 10,
+              "shots": 2,
+              "absorbable": true,
+              "on_catch": "repairs the umbrella and charges Stored Thunder, also past the catch-XP limit"
+            },
+            "counterplay": [
+              {"verb": "catch", "how": "catch it on purpose to repair and charge"},
+              {"verb": "dodge", "how": "or move out of its path"}
+            ],
+            "art": ["owl-bolt", "umbrella-repair"],
+            "sound": ["OwlBoltLaunch", "ShieldCatch", "UmbrellaRepair"]
+          },
+          {
+            "id": "TALON_Rake",
+            "phases": ["wings", "mechanisms", "clock"],
+            "trigger": {"kind": "proximity", "radius_cm": 250, "rearm": "Ella leaves the area and comes back"},
+            "first_at": 2.0,
+            "telegraph": {
+              "sec": 0.6,
+              "shows": "the claw's warning pose",
+              "pose": "Owl_Talon_Warn",
+              "vfx": "VFX_Talon_Warn",
+              "sound": "TalonWarn"
+            },
+            "effect": {"damage": 25, "strike": "one quick committed strike"},
+            "counterplay": [
+              {"verb": "bait_then_leave", "how": "bait it, then move away"},
+              {"verb": "change_altitude", "how": "or change altitude"}
+            ],
+            "art": ["owl", "talon"],
+            "sound": ["TalonWarn", "TalonStrike", "PlayerHurt"]
+          }
+        ],
+        "phases": [
+          {
+            "id": "wings",
+            "targets": ["WINGS"],
+            "attacks": ["GUST_Band", "RED_Volley", "YELLOW_Packet", "TALON_Rake"],
+            "ends_when": {"broken": ["WINGS"]},
+            "next": "mechanisms",
+            "transition_in": {"sec": 2.0, "new_attacks": false, "in_flight": "none"},
+            "story_beat": "the Keeper spreads its wings over the town"
+          },
+          {
+            "id": "mechanisms",
+            "targets": ["MECH_FRONT", "MECH_MIDDLE", "MECH_REAR", "CLOCK"],
+            "attacks": [
+              "MECH_Front_Throw",
+              "MECH_Middle_Curve",
+              "MECH_Rear_Pause",
+              "RED_Volley",
+              "YELLOW_Packet",
+              "TALON_Rake"
+            ],
+            "ends_when": {"broken": ["MECH_FRONT", "MECH_MIDDLE", "MECH_REAR"]},
+            "next": "clock",
+            "sequence": ["MECH_FRONT", "MECH_MIDDLE", "MECH_REAR"],
+            "transition_in": {"sec": 2.0, "new_attacks": false, "in_flight": "dangerous"}
+          },
+          {
+            "id": "clock",
+            "targets": ["CLOCK", "CLOCK_EYE"],
+            "attacks": ["CLOCK_DoubleBeat", "RED_Volley", "YELLOW_Packet", "TALON_Rake"],
+            "ends_when": {"hp_zero": "CLOCK"},
+            "next": null,
+            "ends_fight": true,
+            "transition_in": {"sec": 2.0, "new_attacks": false, "in_flight": "dangerous"}
+          }
+        ],
+        "end": {
+          "stop_threats": true,
+          "story_beat": "reducing the clock to zero completes the fight; the Keeper leaves alive"
+        },
+        "open_items": [
+          "finished talon and grasp/throw animations are placeholders",
+          "automated runs do not show the fight is fair or fun: needs a human playtest"
+        ]
+      }
+    }
+  }
+}

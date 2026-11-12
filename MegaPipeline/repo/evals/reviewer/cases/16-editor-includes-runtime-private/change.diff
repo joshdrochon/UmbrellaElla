@@ -1,0 +1,27 @@
+--- /dev/null
++++ b/Source/UmbrellaEllaEditor/Private/EllaFlipbookValidator.cpp
+@@ -0,0 +1,24 @@
++#include "EllaFlipbookValidator.h"
++#include "../../UmbrellaElla/Private/Core/EllaAnimSpec.h"
++#include "PaperFlipbook.h"
++
++#define LOCTEXT_NAMESPACE "EllaFlipbookValidator"
++
++bool UEllaFlipbookValidator::CanValidateAsset_Implementation(const FAssetData& InAssetData, UObject* InObject, FDataValidationContext& InContext) const
++{
++	return Cast<UPaperFlipbook>(InObject) != nullptr && InAssetData.PackagePath.ToString().StartsWith(TEXT("/Game/UmbrellaElla/Art/Ella"));
++}
++
++EDataValidationResult UEllaFlipbookValidator::ValidateLoadedAsset_Implementation(const FAssetData& InAssetData, UObject* InAsset, FDataValidationContext& Context)
++{
++	const UPaperFlipbook* Flipbook = CastChecked<UPaperFlipbook>(InAsset);
++	if (!FMath::IsNearlyEqual(Flipbook->GetFramesPerSecond(), FEllaAnimSpec::FramesPerSecond))
++	{
++		AssetFails(InAsset, FText::Format(LOCTEXT("WrongFps", "Ella flipbooks must run at {0} fps."), FEllaAnimSpec::FramesPerSecond));
++		return EDataValidationResult::Invalid;
++	}
++	AssetPasses(InAsset);
++	return EDataValidationResult::Valid;
++}
++
++#undef LOCTEXT_NAMESPACE

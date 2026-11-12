@@ -1,0 +1,6 @@
+session,event,phase,pattern_id,explained,t_run_s,build
+s01,death,desperation,,y,131.2,abc1234
+s01,hit,contest,BOLT_Laser,y,61.0,abc1234
+s02,hit,contest,BOLT_Fan3,maybe,55.0,abc1234
+s02,clear,contest,BOLT_Fan3,y,56.0,abc1234
+s03,hit,section2,BOLT_Fan3,y,-1,abc1234

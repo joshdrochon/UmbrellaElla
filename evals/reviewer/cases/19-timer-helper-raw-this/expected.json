@@ -1,0 +1,32 @@
+{
+  "clean": false,
+  "defects": [
+    {
+      "id": "timer-raw-this",
+      "severity": "blocker",
+      "file": "Source/UmbrellaElla/Private/Owl/ClockworkOwl.cpp",
+      "lines": [
+        55,
+        55
+      ],
+      "keywords": [
+        "this",
+        "weak",
+        "dangling",
+        "lifetime",
+        "createuobject",
+        "capture",
+        "destroy"
+      ],
+      "also": [
+        {
+          "file": "Source/UmbrellaElla/Private/Owl/ClockworkOwl.cpp",
+          "lines": [
+            10,
+            10
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,464 @@
+{
+  "palette_status": "measured",
+  "palette_note": "Card 0.7, measured with: python3 tools/art_check.py --measure-palette pipeline/art/reference/target-keyart.png (each named colour re-centred on the reference pixels nearest it, within delta_e_tolerance). gold, amber-eye and spark-white cover under 0.05% of the key art, so they keep their by-eye values (see each entry's source). No art sign-off: card 0.7's gate patch (the TD human applies it) carries the values; art acceptance is the automated art gate (tools/art_check.py --gate). art_check fails while palette_status is not measured and the reference file exists.",
+  "delta_e_tolerance": 14,
+  "dark_l_max": 18,
+  "off_style_saturation_min": 0.55,
+  "texture_delta_l": 2.0,
+  "texture_note": "paper_texture: share of side-by-side sampled pixel pairs (both above dark_l_max) whose L* differs by >= texture_delta_l. paper_texture_min was provisional (0.1), set from synthetic frames (red-team round 2, finding 14: a flat gray graybox passed every other gate). Day-0 card 0.7 re-sets it from the measured reference key art; the reference must pass with margin. Measured on the reference (card 0.7): paper_texture 0.7696. paper_texture_min = 0.38, half the key art (Josh, 11 Nov). Measured 11 Nov: key art 0.7696, its earlier cut 0.7181 (pass); the GDD v1.4 concept frames gameplay-01 0.2596 and gameplay-02 0.3077 sit below it (draft concepts, not the target).",
+  "max_samples": 60000,
+  "palette": [
+    {
+      "name": "paper-light",
+      "role": "background",
+      "hex": "#aa8f7f",
+      "source": "measured: mean of the 0.0257 share of reference pixels nearest this entry (was #a89a8c, shift dE 6.51)"
+    },
+    {
+      "name": "paper-mid",
+      "role": "background",
+      "hex": "#93786b",
+      "source": "measured: mean of the 0.3275 share of reference pixels nearest this entry (was #8c7d70, shift dE 5.35)"
+    },
+    {
+      "name": "paper-stain",
+      "role": "background",
+      "hex": "#7b6157",
+      "source": "measured: mean of the 0.229 share of reference pixels nearest this entry (was #6f6157, shift dE 5.58)"
+    },
+    {
+      "name": "etch-line",
+      "role": "background",
+      "hex": "#c4a999",
+      "source": "measured: mean of the 0.0011 share of reference pixels nearest this entry (was #b8ab9e, shift dE 5.99)"
+    },
+    {
+      "name": "owl-umber",
+      "role": "midground",
+      "hex": "#3a2c25",
+      "source": "measured: mean of the 0.1415 share of reference pixels nearest this entry (was #3d2f26, shift dE 1.84)"
+    },
+    {
+      "name": "owl-feather",
+      "role": "midground",
+      "hex": "#5c473e",
+      "source": "measured: mean of the 0.1154 share of reference pixels nearest this entry (was #58463a, shift dE 2.38)"
+    },
+    {
+      "name": "silhouette",
+      "role": "silhouette",
+      "hex": "#1d1713",
+      "source": "measured: mean of the 0.1424 share of reference pixels nearest this entry (was #16110f, shift dE 3.46)"
+    },
+    {
+      "name": "spark-white",
+      "role": "accent",
+      "hex": "#fff3d6",
+      "source": "by eye: under 0.05% of reference pixels (0.0001), so not measurable from the key art; Rick confirms"
+    },
+    {
+      "name": "gold",
+      "role": "accent",
+      "hex": "#e9b04a",
+      "source": "by eye: under 0.05% of reference pixels (0.0), so not measurable from the key art; Rick confirms"
+    },
+    {
+      "name": "amber-eye",
+      "role": "accent",
+      "hex": "#c8862a",
+      "source": "by eye: under 0.05% of reference pixels (0.0001), so not measurable from the key art; Rick confirms"
+    },
+    {
+      "name": "rust-red",
+      "role": "accent",
+      "hex": "#743422",
+      "source": "measured: mean of the 0.0024 share of reference pixels nearest this entry (was #8f3a2b, shift dE 10.58)"
+    },
+    {
+      "name": "ink",
+      "role": "silhouette",
+      "hex": "#171614",
+      "source": "Josh, 2026-11-10 (D-new-palette-accents): INK from the quality-bar sheet (references.json vfx_spec, bar-casters) joins the darks"
+    }
+  ],
+  "accents": {
+    "_about": "Capped accents (Josh, DECIDED 2026-11-10, D-new-palette-accents; shot-red re-measured from the key art's rust bolts, Josh, DECIDED 2026-11-11, D-new-owl-shot-look): the quality-bar colours from Ricky's latest images, allowed only in their role and only up to a share of the frame, so the brand palette above still dominates. A pixel that is not near a palette colour counts as an accent of a role when it is within that role's delta_e_max of one of its colours AND its CIELAB hue and chroma fall in the role's band; it then counts as on-palette and never as off_style or off_band. Anything else (teal, saturated blue, a flat fill) is judged by the rules above as before. art_check fails a frame whose accents together pass total_share_max, or one role past its share_max.",
+    "total_share_max": 0.1,
+    "roles": {
+      "wind": {
+        "what": "the WIND-01 flow ribbons (bar-other-realm: ash-blue flowing ribbons, never a flat box)",
+        "share_max": 0.06,
+        "delta_e_max": 12,
+        "chroma": [
+          2,
+          12
+        ],
+        "hue_bands_deg": [
+          [
+            190,
+            260
+          ]
+        ],
+        "colours": [
+          {
+            "name": "wind-ash-blue",
+            "hex": "#555e60",
+            "source": "measured on pipeline/art/reference/discord/20261111-0318_Ricky_other-realm.png: mean of the brightest 10% of the ribbon pixels (5477 pixels with CIELAB hue 180-300, chroma >= 2.5, L* >= 30 in x 150-1672, y 100-620; L* 39.1, C* 4.0, hue 221). The label in the image reads '#7P9698', which is not a hex; the ribbons as rendered are this colour (body mean #495052, delta E 5.8)"
+          }
+        ]
+      },
+      "shot-red": {
+        "what": "the owl's shots: the key art's rust-red needle with a crosshair ring, its core, shell, trail and spill (Josh, DECIDED 2026-11-11, D-new-owl-shot-look; vfx_spec: tell, release, travel, fade). The pink chevrons of bar-casters and Ricky's red-shot sheets are not the look",
+        "share_max": 0.04,
+        "delta_e_max": 12,
+        "chroma": [
+          20,
+          50
+        ],
+        "hue_bands_deg": [
+          [
+            25,
+            55
+          ]
+        ],
+        "colours": [
+          {
+            "name": "RUST",
+            "hex": "#723929",
+            "source": "measured on pipeline/art/reference/target-keyart.png, the five bolts (8065 pixels with CIELAB chroma >= 20 and hue <= 55 in x 408-928, y 222-650; chroma 20-44, hue 29-55): mean (L* 30.9, C* 31.8, hue 42)"
+          },
+          {
+            "name": "RUST SHADOW",
+            "hex": "#5b2519",
+            "source": "measured on pipeline/art/reference/target-keyart.png, the five bolts (8065 pixels with CIELAB chroma >= 20 and hue <= 55 in x 408-928, y 222-650; chroma 20-44, hue 29-55): mean of the darkest 10% (L* 22.3)"
+          },
+          {
+            "name": "RUST HIGH",
+            "hex": "#79331f",
+            "source": "measured on pipeline/art/reference/target-keyart.png, the five bolts (8065 pixels with CIELAB chroma >= 20 and hue <= 55 in x 408-928, y 222-650; chroma 20-44, hue 29-55): mean of the most saturated 10% (C* 39.9)"
+          }
+        ],
+        "note": "All three are within delta_e_tolerance of the palette's rust-red (#743422), so the key-art shot pixels count as the brand rust (accent_area cap); this role catches rust variants just outside the palette, capped at share_max. Pink #ff3658 now fails off_style (D-new-owl-shot-look)"
+      },
+      "shot-yellow": {
+        "what": "yellow shots (absorbable shots in Ricky's proposal) and every shot core",
+        "share_max": 0.04,
+        "delta_e_max": 12,
+        "chroma": [
+          8,
+          120
+        ],
+        "hue_bands_deg": [
+          [
+            55,
+            100
+          ]
+        ],
+        "colours": [
+          {
+            "name": "YELLOW",
+            "hex": "#ffd84a",
+            "source": "bar-casters (Roadwarden / Sundial Casters sheet), references.json vfx_spec"
+          },
+          {
+            "name": "AMBER",
+            "hex": "#f5aa28",
+            "source": "bar-casters (Roadwarden / Sundial Casters sheet), references.json vfx_spec"
+          },
+          {
+            "name": "YELLOW SHADOW",
+            "hex": "#94611e",
+            "source": "bar-casters (Roadwarden / Sundial Casters sheet), references.json vfx_spec"
+          },
+          {
+            "name": "CORE",
+            "hex": "#fff5dc",
+            "source": "bar-casters (Roadwarden / Sundial Casters sheet), references.json vfx_spec"
+          }
+        ]
+      }
+    }
+  },
+  "thresholds": {
+    "on_palette_min": 0.8,
+    "off_style_max": 0.02,
+    "accent_area_max": 0.08,
+    "dark_share_min": 0.04,
+    "dark_share_max": 0.45,
+    "off_band_max": 0.01,
+    "paper_texture_min": 0.38
+  },
+  "screen_check": {
+    "note": "tools/screen_check.py: no flat fills, grey placeholder boxes or debug outlines in the default build, and a 16:9 gameplay view. Areas are shares of the gameplay view.",
+    "flat_tol": 2,
+    "flat_area_min": 0.01,
+    "grey_area_min": 0.0025,
+    "grey_chroma_max": 8,
+    "grey_value_min": 24,
+    "grey_value_max": 232,
+    "rect_fill_min": 0.9,
+    "outline_area_min": 0.01,
+    "outline_fill_max": 0.35,
+    "outline_edge_share": 0.9,
+    "bar_value_max": 12,
+    "aspect": "16:9",
+    "aspect_tol": 0.01
+  },
+  "hue_gate": {
+    "chroma_min": 18,
+    "allowed_hue_bands_deg": [
+      [
+        20,
+        95
+      ]
+    ],
+    "note": "CIELAB hue angle. Gold/amber ~55-95, rust ~20-50 (art/design review C2 M2). Re-centre on measured reference means +/-15 deg once the palette is measured."
+  },
+  "sprite": {
+    "status": "provisional",
+    "note": "Thresholds for tools/sprite_check.py, set from synthetic fixtures, not yet measured on real sprites. Measure on the first approved sprites before tightening or loosening.",
+    "alpha_clear_max": 8,
+    "alpha_solid_min": 247,
+    "require_pow2": false,
+    "pow2_note": "Open until D13. If D13 picks mipmaps, set true: Unreal gives non-power-of-two textures no mips (art-bible Import settings).",
+    "halo_l_min": 60,
+    "dark_l_max": 35,
+    "kinds": {
+      "silhouette": {
+        "note": "Ella, enemies, rock, spikes: near-black shapes cut out of a transparent sheet",
+        "border_visible_max": 0.0,
+        "fill_min": 0.25,
+        "fill_max": 0.92,
+        "fringe_max": 0.25,
+        "halo_max": 0.1,
+        "dark_share_min": 0.6
+      },
+      "fx": {
+        "note": "shots, glows, sparkles: soft alpha is expected",
+        "border_visible_max": 0.0,
+        "fill_min": 0.05,
+        "fill_max": 1.0,
+        "fringe_max": 1.0,
+        "halo_max": 1.0,
+        "dark_share_min": 0.0
+      },
+      "tile": {
+        "note": "ground or paper tiles that fill their frame on purpose",
+        "border_visible_max": 1.0,
+        "fill_min": 0.0,
+        "fill_max": 1.0,
+        "fringe_max": 0.25,
+        "halo_max": 1.0,
+        "dark_share_min": 0.0,
+        "seam_delta_e_max": 6.0,
+        "seam_note": "Mean CIELAB delta E76 between the left and right edge columns (and top and bottom with sidecar \"tile_axes\": \"xy\"). Provisional, set from synthetic tiles."
+      }
+    },
+    "pivot_drift_max_px": 2,
+    "pivot_feet_rows": 8,
+    "pivot_drift_note": "Feet point = bottom-center of the lowest pivot_feet_rows opaque rows of each frame (not the whole opaque box, so an umbrella that opens to one side does not move it); max minus min across frames. A sidecar may set \"feet_rows\" for one sheet. Checked on every silhouette sheet whose sidecar has \"anim\" or \"loop\": true, loops and one-shots alike (Open, Close, Attack, Hit, Death). A sidecar may raise the limit for one sheet with \"pivot_drift_max_px\" plus a non-empty \"pivot_drift_reason\". Limit proposed in D-new-port-13; pivot_feet_rows 8 proposed in D-new-art-drift.",
+    "sidecar_exempt_dirs": [
+      "Raw",
+      "Reference"
+    ],
+    "sidecar_note": "sprite_check --scan fails a PNG with no .sprite.json sidecar unless one of its folders is named in sidecar_exempt_dirs (case-insensitive). Proposed default; see decisions_for_josh.",
+    "umbrella_width_ratio_min": 1.8,
+    "umbrella_width_note": "sprite_check --width-ratio OPEN CLOSED: narrowest open frame's opaque box width / widest closed frame's width must be >= this (art bible: open >= 1.8x closed, closed <= 0.55x open)."
+  },
+  "anims": {
+    "note": "Machine copy of the art-bible flipbook table. Key = the <Anim> part of FB_<Asset>_<Anim>. fps is a number or [min, max]; frames is [min, max] or null (not set by the art bible). sprite_check checks a sidecar's \"anim\" against it; the editor dump check (--import-report) checks FramesPerSecond and keyframe count.",
+    "IdleFloat": {
+      "fps": 8,
+      "frames": [
+        4,
+        6
+      ]
+    },
+    "Fall": {
+      "fps": 12,
+      "frames": [
+        2,
+        4
+      ]
+    },
+    "Open": {
+      "fps": 24,
+      "frames": [
+        3,
+        4
+      ]
+    },
+    "Close": {
+      "fps": 24,
+      "frames": [
+        3,
+        4
+      ]
+    },
+    "Attack": {
+      "fps": 15,
+      "frames": [
+        3,
+        4
+      ]
+    },
+    "Hit": {
+      "fps": 12,
+      "frames": null
+    },
+    "Death": {
+      "fps": 12,
+      "frames": null
+    },
+    "Flap": {
+      "fps": 10,
+      "frames": null
+    },
+    "Impact": {
+      "fps": [
+        20,
+        24
+      ],
+      "frames": null
+    }
+  },
+  "naming": {
+    "note": "Asset names under Content/UmbrellaElla/Art/**, checked by sprite_check --names. Frames: SPR_<Asset>_<Anim>_<NN>, 2 digits from 00 (Extract Sprites, Grid mode, Naming Template SPR_<Asset>_<Anim>_{0}) [VERIFY the template token on 5.8.4]. Proposed; see decisions_for_josh.",
+    "asset_regex": "^(T|SPR|FB)_[A-Z][A-Za-z0-9]*_[A-Z][A-Za-z0-9]*(_\\d{2})?(_PH)?$",
+    "banned_regex": "(?i)_(v\\d+|final|new)(?=_|$)",
+    "extensions": [
+      ".uasset"
+    ]
+  },
+  "swatch": {
+    "note": "Engine colour round-trip check (art_check --swatch). make_art_calibration.py --swatch writes the source sprite: one cell per palette entry, in style.json order, cols per row. CAM_Eval_Swatch frames it; rect is where it lands in the 1920x1080 capture (null = the whole capture). [VERIFY rect once the camera exists.]",
+    "cols": 6,
+    "cell_px": 64,
+    "rect": null,
+    "inset": 0.25,
+    "delta_e_max": 3.0
+  },
+  "unreal_import": {
+    "status": "proposed",
+    "note": "Rules for the editor-side asset dump checked by sprite_check --import-report, the Config keys checked by sprite_check --config, and the .uproject plugins checked by --uproject. Property and key names are from memory of Paper2D, not read from 5.8.4. [VERIFY each name in card 0.4a.] status goes to 'verified' only when every name is pasted from 5.8.4; tests/test_sprite_check.py fails once card 0.4a is done and this is still 'proposed'. Detail: pipeline/art/import-rules.md.",
+    "texture": {
+      "filter_banned": [
+        "TF_Nearest"
+      ],
+      "srgb": true,
+      "compression": "TC_EditorIcon",
+      "never_stream": true,
+      "lod_group_banned": [
+        "TEXTUREGROUP_Pixels2D"
+      ],
+      "lod_group": null,
+      "lod_group_note": "null until D-new-art-texgroup (proposed TEXTUREGROUP_UI) [VERIFY the group's mip and filter settings on 5.8.4 against D13]. null: any group except lod_group_banned passes, and --gate fails. Set: every texture and Config DefaultSpriteTextureGroup must equal it, so World (mips, LOD bias) no longer passes.",
+      "mips": null,
+      "mips_note": "null until D13. D13 = 2x with mips: MipGenSettings must not be TMGS_NoMipmaps and the texture must be power-of-two. D13 = 1x: TMGS_NoMipmaps. sprite_check --import-report --gate fails while this is null, and tests/test_sprite_check.py fails once L_StyleFrame.umap exists (card 0.10) and this is still null. Cutoff and default requested in docs/decisions.md (proposed: before 0.10, default none)."
+    },
+    "sprite": {
+      "materials_by_kind": {
+        "silhouette": [
+          "/Paper2D/MaskedUnlitSpriteMaterial.MaskedUnlitSpriteMaterial"
+        ],
+        "tile": [
+          "/Paper2D/MaskedUnlitSpriteMaterial.MaskedUnlitSpriteMaterial"
+        ],
+        "fx": [
+          "/Paper2D/MaskedUnlitSpriteMaterial.MaskedUnlitSpriteMaterial",
+          "/Paper2D/TranslucentUnlitSpriteMaterial.TranslucentUnlitSpriteMaterial"
+        ]
+      },
+      "kind_prefixes": {
+        "SPR_FX": "fx",
+        "SPR_Paper": "tile",
+        "SPR_Rock": "tile"
+      },
+      "kind_note": "Kind of a sprite: the dump's \"kind\" field if present (copied from the source sheet's sidecar), else the first matching kind_prefixes entry, else silhouette. Only fx may use Translucent (art bible: translucent only for glow). Prefixes SPR_FX*, SPR_Paper*, SPR_Rock* are proposed names (decisions_for_josh).",
+      "collision": "None",
+      "atlas_group": null,
+      "pivot_modes": [
+        "Bottom_Center",
+        "Center_Center",
+        "Bottom_Left",
+        "Custom"
+      ],
+      "required_pivot": {
+        "SPR_Ella_": "Bottom_Center",
+        "SPR_Spikes_": "Bottom_Center",
+        "SPR_Shot_": "Center_Center",
+        "SPR_Cross_": "Center_Center",
+        "SPR_Flyer_": "Center_Center",
+        "SPR_Rock_": "Bottom_Left"
+      },
+      "pivot_note": "required_pivot: one pivot mode per asset prefix, from the art-bible asset table. Every sprite of one SPR_<Asset>_ shares one pivot across all its anims, so the umbrella Open/Close switch cannot jump. Prefixes other than SPR_Ella_ and SPR_Spikes_ are proposed asset names (decisions_for_josh).",
+      "full_rect_geometry": "SourceBoundingBox",
+      "full_rect_max_px": 256,
+      "required_sockets": {
+        "SPR_Ella_": [
+          "Muzzle"
+        ]
+      },
+      "sockets_note": "Socket name Muzzle is a proposal (decisions_for_josh). Dump sockets are {\"name\", \"location\": [x, y]} (the socket's LocalTransform X and Z, in the sprite's pixel space [VERIFY on 5.8.4]). One socket may move at most socket_drift_max_px across the frames of one SPR_<Asset>_<Anim> set (proposed 2, D-new-art-drift).",
+      "socket_drift_max_px": 2
+    },
+    "pixels_per_unit": null,
+    "pixels_per_unit_note": "null until card 0.10 confirms it (D-new-port-10). null: every sprite in the dump must share one pixels_per_unit. Set: every sprite and Config DefaultPixelsPerUnrealUnit must equal it.",
+    "flipbook": {
+      "frames_total_max": 60,
+      "note": "frames_total_max: jam-brief content cap, flipbook frames 60 in total, counted as unique sprites across all FB_ keyframes. Keyframe sprites must be SPR_<Asset>_<Anim>_NN of the flipbook's own anim, in ascending NN, with no sprite twice in a row (use frame_run for a hold). An anims row with \"order\": \"any\" allows other orders, e.g. ping-pong (none set; decisions_for_josh)."
+    },
+    "uproject": {
+      "required_plugins": [
+        "Paper2D"
+      ],
+      "banned_plugins": [
+        "PaperZD"
+      ],
+      "note": "sprite_check --uproject UmbrellaElla.uproject: Plugins must list each required plugin with Enabled true, and no banned one (unreal-rules.md). [VERIFY plugin names on 5.8.4]"
+    },
+    "config": {
+      "DefaultEditor.ini": {
+        "[/Script/Paper2DEditor.PaperImporterSettings]": {
+          "DefaultSpriteTextureGroup": {
+            "present": true,
+            "not": [
+              "TEXTUREGROUP_Pixels2D"
+            ],
+            "equals_style": "texture.lod_group"
+          },
+          "bOverrideTextureCompression": {
+            "equals": "True"
+          },
+          "DefaultSpriteTextureCompression": {
+            "equals": "TC_EditorIcon"
+          },
+          "UnlitDefaultMaskedMaterialName": {
+            "equals": "/Paper2D/MaskedUnlitSpriteMaterial.MaskedUnlitSpriteMaterial"
+          },
+          "UnlitDefaultTranslucentMaterialName": {
+            "equals": "/Paper2D/TranslucentUnlitSpriteMaterial.TranslucentUnlitSpriteMaterial"
+          },
+          "bPickBestMaterialWhenCreatingSprites": {
+            "present": true,
+            "note": "Open (decision row D-new-art-pickbest requested, proposed False: force the masked default; materials_by_kind already covers translucent fx). Once decided, replace present with equals."
+          },
+          "DefaultPixelsPerUnrealUnit": {
+            "present": true,
+            "equals_style": "pixels_per_unit"
+          }
+        }
+      },
+      "DefaultEngine.ini": {
+        "[/Script/Paper2D.PaperRuntimeSettings]": {
+          "bResizeSpriteDataToMatchTextures": {
+            "equals": "True"
+          },
+          "bEnableSpriteAtlasGroups": {
+            "equals": "False"
+          }
+        }
+      }
+    }
+  }
+}

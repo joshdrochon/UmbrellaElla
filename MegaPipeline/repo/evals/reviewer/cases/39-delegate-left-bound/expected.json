@@ -1,0 +1,33 @@
+{
+  "clean": false,
+  "defects": [
+    {
+      "id": "delegate-bound",
+      "severity": "high",
+      "file": "Source/UmbrellaElla/Private/Owl/ClockworkOwl.cpp",
+      "lines": [
+        35,
+        35
+      ],
+      "keywords": [
+        "remove",
+        "endplay",
+        "unbind",
+        "delegate",
+        "onencountercompleted",
+        "bound",
+        "handle",
+        "encountercompletedhandle"
+      ],
+      "also": [
+        {
+          "file": "Source/UmbrellaElla/Private/Owl/ClockworkOwl.cpp",
+          "lines": [
+            38,
+            40
+          ]
+        }
+      ]
+    }
+  ]
+}

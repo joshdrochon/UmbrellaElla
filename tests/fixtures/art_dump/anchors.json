@@ -1,0 +1,515 @@
+[
+  {
+    "class": "Texture2D",
+    "name": "T_Ella_IdleFloat",
+    "filter": "TF_Bilinear",
+    "srgb": true,
+    "compression": "TC_EditorIcon",
+    "never_stream": true,
+    "lod_group": "TEXTUREGROUP_World",
+    "mip_gen": "TMGS_NoMipmaps",
+    "width": 512,
+    "height": 128,
+    "sheet": {
+      "grid": [
+        128,
+        128
+      ],
+      "margin": 0,
+      "spacing": 0
+    }
+  },
+  {
+    "class": "PaperSprite",
+    "name": "SPR_Ella_IdleFloat_00",
+    "material": "/Paper2D/MaskedUnlitSpriteMaterial.MaskedUnlitSpriteMaterial",
+    "collision": "None",
+    "atlas_group": null,
+    "pivot_mode": "Bottom_Center",
+    "pivot": [],
+    "render_geometry": "TightBoundingBox",
+    "width": 128,
+    "height": 128,
+    "sockets": [
+      {
+        "name": "Muzzle",
+        "location": [
+          70,
+          40
+        ]
+      }
+    ],
+    "pixels_per_unit": 1.0,
+    "texture": "T_Ella_IdleFloat",
+    "source_uv": [
+      0,
+      0
+    ],
+    "source_size": [
+      128,
+      128
+    ]
+  },
+  {
+    "class": "PaperSprite",
+    "name": "SPR_Ella_IdleFloat_01",
+    "material": "/Paper2D/MaskedUnlitSpriteMaterial.MaskedUnlitSpriteMaterial",
+    "collision": "None",
+    "atlas_group": null,
+    "pivot_mode": "Bottom_Center",
+    "pivot": [],
+    "render_geometry": "TightBoundingBox",
+    "width": 128,
+    "height": 128,
+    "sockets": [
+      {
+        "name": "Muzzle",
+        "location": [
+          70,
+          40
+        ]
+      }
+    ],
+    "pixels_per_unit": 1.0,
+    "texture": "T_Ella_IdleFloat",
+    "source_uv": [
+      128,
+      0
+    ],
+    "source_size": [
+      128,
+      128
+    ]
+  },
+  {
+    "class": "PaperSprite",
+    "name": "SPR_Ella_IdleFloat_02",
+    "material": "/Paper2D/MaskedUnlitSpriteMaterial.MaskedUnlitSpriteMaterial",
+    "collision": "None",
+    "atlas_group": null,
+    "pivot_mode": "Bottom_Center",
+    "pivot": [],
+    "render_geometry": "TightBoundingBox",
+    "width": 128,
+    "height": 128,
+    "sockets": [
+      {
+        "name": "Muzzle",
+        "location": [
+          70,
+          40
+        ]
+      }
+    ],
+    "pixels_per_unit": 1.0,
+    "texture": "T_Ella_IdleFloat",
+    "source_uv": [
+      256,
+      0
+    ],
+    "source_size": [
+      128,
+      128
+    ]
+  },
+  {
+    "class": "PaperSprite",
+    "name": "SPR_Ella_IdleFloat_03",
+    "material": "/Paper2D/MaskedUnlitSpriteMaterial.MaskedUnlitSpriteMaterial",
+    "collision": "None",
+    "atlas_group": null,
+    "pivot_mode": "Bottom_Center",
+    "pivot": [],
+    "render_geometry": "TightBoundingBox",
+    "width": 128,
+    "height": 128,
+    "sockets": [
+      {
+        "name": "Muzzle",
+        "location": [
+          70,
+          40
+        ]
+      }
+    ],
+    "pixels_per_unit": 1.0,
+    "texture": "T_Ella_IdleFloat",
+    "source_uv": [
+      384,
+      0
+    ],
+    "source_size": [
+      128,
+      128
+    ]
+  },
+  {
+    "class": "PaperFlipbook",
+    "name": "FB_Ella_IdleFloat",
+    "fps": 8,
+    "keyframes": [
+      {
+        "sprite": "SPR_Ella_IdleFloat_00",
+        "frame_run": 1
+      },
+      {
+        "sprite": "SPR_Ella_IdleFloat_01",
+        "frame_run": 1
+      },
+      {
+        "sprite": "SPR_Ella_IdleFloat_02",
+        "frame_run": 1
+      },
+      {
+        "sprite": "SPR_Ella_IdleFloat_03",
+        "frame_run": 1
+      }
+    ]
+  },
+  {
+    "class": "Texture2D",
+    "name": "T_Ella_Open",
+    "filter": "TF_Bilinear",
+    "srgb": true,
+    "compression": "TC_EditorIcon",
+    "never_stream": true,
+    "lod_group": "TEXTUREGROUP_World",
+    "mip_gen": "TMGS_NoMipmaps",
+    "width": 512,
+    "height": 128,
+    "sheet": {
+      "grid": [
+        128,
+        128
+      ],
+      "margin": 0,
+      "spacing": 0
+    }
+  },
+  {
+    "class": "PaperSprite",
+    "name": "SPR_Ella_Open_00",
+    "material": "/Paper2D/MaskedUnlitSpriteMaterial.MaskedUnlitSpriteMaterial",
+    "collision": "None",
+    "atlas_group": null,
+    "pivot_mode": "Bottom_Center",
+    "pivot": [],
+    "render_geometry": "TightBoundingBox",
+    "width": 128,
+    "height": 128,
+    "sockets": [
+      {
+        "name": "Muzzle",
+        "location": [
+          64,
+          6
+        ]
+      }
+    ],
+    "pixels_per_unit": 1.0,
+    "texture": "T_Ella_Open",
+    "source_uv": [
+      0,
+      0
+    ],
+    "source_size": [
+      128,
+      128
+    ]
+  },
+  {
+    "class": "PaperSprite",
+    "name": "SPR_Ella_Open_01",
+    "material": "/Paper2D/MaskedUnlitSpriteMaterial.MaskedUnlitSpriteMaterial",
+    "collision": "None",
+    "atlas_group": null,
+    "pivot_mode": "Bottom_Center",
+    "pivot": [],
+    "render_geometry": "TightBoundingBox",
+    "width": 128,
+    "height": 128,
+    "sockets": [
+      {
+        "name": "Muzzle",
+        "location": [
+          64,
+          6
+        ]
+      }
+    ],
+    "pixels_per_unit": 1.0,
+    "texture": "T_Ella_Open",
+    "source_uv": [
+      128,
+      0
+    ],
+    "source_size": [
+      128,
+      128
+    ]
+  },
+  {
+    "class": "PaperSprite",
+    "name": "SPR_Ella_Open_02",
+    "material": "/Paper2D/MaskedUnlitSpriteMaterial.MaskedUnlitSpriteMaterial",
+    "collision": "None",
+    "atlas_group": null,
+    "pivot_mode": "Bottom_Center",
+    "pivot": [],
+    "render_geometry": "TightBoundingBox",
+    "width": 128,
+    "height": 128,
+    "sockets": [
+      {
+        "name": "Muzzle",
+        "location": [
+          64,
+          6
+        ]
+      }
+    ],
+    "pixels_per_unit": 1.0,
+    "texture": "T_Ella_Open",
+    "source_uv": [
+      256,
+      0
+    ],
+    "source_size": [
+      128,
+      128
+    ]
+  },
+  {
+    "class": "PaperFlipbook",
+    "name": "FB_Ella_Open",
+    "fps": 24,
+    "keyframes": [
+      {
+        "sprite": "SPR_Ella_Open_00",
+        "frame_run": 1
+      },
+      {
+        "sprite": "SPR_Ella_Open_01",
+        "frame_run": 1
+      },
+      {
+        "sprite": "SPR_Ella_Open_02",
+        "frame_run": 1
+      }
+    ]
+  },
+  {
+    "class": "Texture2D",
+    "name": "T_Spikes_Strip",
+    "filter": "TF_Bilinear",
+    "srgb": true,
+    "compression": "TC_EditorIcon",
+    "never_stream": true,
+    "lod_group": "TEXTUREGROUP_World",
+    "mip_gen": "TMGS_NoMipmaps",
+    "width": 256,
+    "height": 64
+  },
+  {
+    "class": "PaperSprite",
+    "name": "SPR_Spikes_Strip",
+    "material": "/Paper2D/MaskedUnlitSpriteMaterial.MaskedUnlitSpriteMaterial",
+    "collision": "None",
+    "atlas_group": null,
+    "pivot_mode": "Bottom_Center",
+    "pivot": [],
+    "render_geometry": "TightBoundingBox",
+    "width": 256,
+    "height": 64,
+    "sockets": [],
+    "pixels_per_unit": 1.0
+  },
+  {
+    "class": "Texture2D",
+    "name": "T_Flyer_Flap",
+    "filter": "TF_Bilinear",
+    "srgb": true,
+    "compression": "TC_EditorIcon",
+    "never_stream": true,
+    "lod_group": "TEXTUREGROUP_World",
+    "mip_gen": "TMGS_NoMipmaps",
+    "width": 512,
+    "height": 128,
+    "sheet": {
+      "grid": [
+        128,
+        128
+      ],
+      "margin": 0,
+      "spacing": 0
+    }
+  },
+  {
+    "class": "PaperSprite",
+    "name": "SPR_Flyer_Flap_00",
+    "material": "/Paper2D/MaskedUnlitSpriteMaterial.MaskedUnlitSpriteMaterial",
+    "collision": "None",
+    "atlas_group": null,
+    "pivot_mode": "Center_Center",
+    "pivot": [],
+    "render_geometry": "TightBoundingBox",
+    "width": 128,
+    "height": 128,
+    "sockets": [],
+    "pixels_per_unit": 1.0,
+    "texture": "T_Flyer_Flap",
+    "source_uv": [
+      0,
+      0
+    ],
+    "source_size": [
+      128,
+      128
+    ]
+  },
+  {
+    "class": "PaperSprite",
+    "name": "SPR_Flyer_Flap_01",
+    "material": "/Paper2D/MaskedUnlitSpriteMaterial.MaskedUnlitSpriteMaterial",
+    "collision": "None",
+    "atlas_group": null,
+    "pivot_mode": "Center_Center",
+    "pivot": [],
+    "render_geometry": "TightBoundingBox",
+    "width": 128,
+    "height": 128,
+    "sockets": [],
+    "pixels_per_unit": 1.0,
+    "texture": "T_Flyer_Flap",
+    "source_uv": [
+      128,
+      0
+    ],
+    "source_size": [
+      128,
+      128
+    ]
+  },
+  {
+    "class": "PaperSprite",
+    "name": "SPR_Flyer_Flap_02",
+    "material": "/Paper2D/MaskedUnlitSpriteMaterial.MaskedUnlitSpriteMaterial",
+    "collision": "None",
+    "atlas_group": null,
+    "pivot_mode": "Center_Center",
+    "pivot": [],
+    "render_geometry": "TightBoundingBox",
+    "width": 128,
+    "height": 128,
+    "sockets": [],
+    "pixels_per_unit": 1.0,
+    "texture": "T_Flyer_Flap",
+    "source_uv": [
+      256,
+      0
+    ],
+    "source_size": [
+      128,
+      128
+    ]
+  },
+  {
+    "class": "PaperSprite",
+    "name": "SPR_Flyer_Flap_03",
+    "material": "/Paper2D/MaskedUnlitSpriteMaterial.MaskedUnlitSpriteMaterial",
+    "collision": "None",
+    "atlas_group": null,
+    "pivot_mode": "Center_Center",
+    "pivot": [],
+    "render_geometry": "TightBoundingBox",
+    "width": 128,
+    "height": 128,
+    "sockets": [],
+    "pixels_per_unit": 1.0,
+    "texture": "T_Flyer_Flap",
+    "source_uv": [
+      384,
+      0
+    ],
+    "source_size": [
+      128,
+      128
+    ]
+  },
+  {
+    "class": "PaperFlipbook",
+    "name": "FB_Flyer_Flap",
+    "fps": 10,
+    "keyframes": [
+      {
+        "sprite": "SPR_Flyer_Flap_00",
+        "frame_run": 1
+      },
+      {
+        "sprite": "SPR_Flyer_Flap_01",
+        "frame_run": 1
+      },
+      {
+        "sprite": "SPR_Flyer_Flap_02",
+        "frame_run": 1
+      },
+      {
+        "sprite": "SPR_Flyer_Flap_03",
+        "frame_run": 1
+      }
+    ]
+  },
+  {
+    "class": "Texture2D",
+    "name": "T_Paper_Back",
+    "filter": "TF_Bilinear",
+    "srgb": true,
+    "compression": "TC_EditorIcon",
+    "never_stream": true,
+    "lod_group": "TEXTUREGROUP_World",
+    "mip_gen": "TMGS_NoMipmaps",
+    "width": 1024,
+    "height": 1024
+  },
+  {
+    "class": "PaperSprite",
+    "name": "SPR_Paper_Back",
+    "material": "/Paper2D/MaskedUnlitSpriteMaterial.MaskedUnlitSpriteMaterial",
+    "collision": "None",
+    "atlas_group": null,
+    "pivot_mode": "Bottom_Left",
+    "pivot": [],
+    "render_geometry": "TightBoundingBox",
+    "width": 1024,
+    "height": 1024,
+    "sockets": [],
+    "pixels_per_unit": 1.0,
+    "kind": "tile"
+  },
+  {
+    "class": "Texture2D",
+    "name": "T_Rock_Band",
+    "filter": "TF_Bilinear",
+    "srgb": true,
+    "compression": "TC_EditorIcon",
+    "never_stream": true,
+    "lod_group": "TEXTUREGROUP_World",
+    "mip_gen": "TMGS_NoMipmaps",
+    "width": 1024,
+    "height": 256
+  },
+  {
+    "class": "PaperSprite",
+    "name": "SPR_Rock_Band",
+    "material": "/Paper2D/MaskedUnlitSpriteMaterial.MaskedUnlitSpriteMaterial",
+    "collision": "None",
+    "atlas_group": null,
+    "pivot_mode": "Bottom_Left",
+    "pivot": [],
+    "render_geometry": "TightBoundingBox",
+    "width": 1024,
+    "height": 256,
+    "sockets": [],
+    "pixels_per_unit": 1.0
+  }
+]

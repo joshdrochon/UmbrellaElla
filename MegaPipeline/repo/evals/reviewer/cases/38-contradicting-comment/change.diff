@@ -1,0 +1,10 @@
+--- a/Source/UmbrellaElla/Private/Feedback/FeedbackAdapterComponent.cpp
++++ b/Source/UmbrellaElla/Private/Feedback/FeedbackAdapterComponent.cpp
+@@ -12,4 +12,6 @@
+ float FFeedbackRules::FallPlayRate(float FallSpeed, const FFeedbackTuning& Tuning)
+ {
+-	return 1.f;
++	const float Value = FallSpeed / Tuning.FallSpeedForFullRate;
++	// clamps to 0
++	return FMath::Max(Value, 1.f);
+ }

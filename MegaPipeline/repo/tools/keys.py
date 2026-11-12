@@ -1,0 +1,93 @@
+#!/usr/bin/env python3
+"""API keys for the asset tools, read only from the environment or the OS keychain. Never from a file in the repo,
+never printed. Stdlib only.
+
+Keys (pipeline/agent-ops/asset-tools.json `keys`): ELEVENLABS_API_KEY (ElevenLabs Sound Effects / Music),
+STABILITY_API_KEY (Stable Audio). Art needs no key (Blender, pipeline/art/blender/). Lookup order:
+  1. the environment variable of that name;
+  2. macOS Keychain: `security find-generic-password -s umbrella-ella -a <NAME> -w`
+     (set once: `security add-generic-password -s umbrella-ella -a ELEVENLABS_API_KEY -w`);
+  3. Windows Credential Manager / Linux Secret Service through the `keyring` package when it is installed
+     (set once: `python -m keyring set umbrella-ella ELEVENLABS_API_KEY`).
+KEYS_NO_KEYCHAIN=1 skips 2 and 3 (tests). Agent sessions never get the keys: tools/kickoff.py strips them from every
+session's environment and runs the API steps itself (tools/assetgen.py fulfil).
+
+  python3 tools/keys.py status      one line per key: `present (env|keychain)` or `missing -> <how to set it>`
+"""
+import os
+import platform
+import subprocess
+import sys
+
+SERVICE = "umbrella-ella"
+KEYS = {
+    "ELEVENLABS_API_KEY": "ElevenLabs Sound Effects / Music",
+    "STABILITY_API_KEY": "Stability AI (Stable Audio)",
+}
+
+
+def _keychain(name):
+    if os.environ.get("KEYS_NO_KEYCHAIN") == "1":
+        return None
+    if platform.system() == "Darwin":
+        try:
+            r = subprocess.run(["security", "find-generic-password", "-s", SERVICE, "-a", name, "-w"],
+                               capture_output=True, text=True, timeout=10)
+            if r.returncode == 0 and r.stdout.strip():
+                return r.stdout.strip()
+        except (OSError, subprocess.SubprocessError):
+            pass
+    try:
+        import keyring  # optional; Windows Credential Manager, Linux Secret Service
+        return keyring.get_password(SERVICE, name) or None
+    except Exception:
+        return None
+
+
+def lookup(name):
+    """(value, where) with where 'env' | 'keychain', or (None, None). The value is never printed."""
+    v = (os.environ.get(name) or "").strip()
+    if v:
+        return v, "env"
+    v = _keychain(name)
+    return (v, "keychain") if v else (None, None)
+
+
+def get(name):
+    return lookup(name)[0]
+
+
+def how_to_set(name):
+    return (f"set {name} once: export {name}=... (PowerShell: setx {name} ...), or the keychain: "
+            f"security add-generic-password -s {SERVICE} -a {name} -w (Windows: python -m keyring set {SERVICE} {name})")
+
+
+def status_lines():
+    out = []
+    for name, what in KEYS.items():
+        _, where = lookup(name)
+        out.append(f"{name} ({what}): " + (f"present ({where})" if where else "missing -> " + how_to_set(name)))
+    return out
+
+
+# Not a pipeline key any more, still never handed to a session (a machine may hold one for other work)
+SCRUB_ALSO = ("OPENAI_API_KEY",)
+
+
+def scrub(env):
+    """A copy of env without any key (agent sessions never hold them)."""
+    return {k: v for k, v in env.items() if k not in KEYS and k not in SCRUB_ALSO}
+
+
+def main(argv=None):
+    argv = sys.argv[1:] if argv is None else argv
+    if argv[:1] != ["status"]:
+        print(__doc__)
+        return 2
+    for ln in status_lines():
+        print(ln)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

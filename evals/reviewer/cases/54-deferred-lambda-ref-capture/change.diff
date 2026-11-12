@@ -1,0 +1,12 @@
+--- a/Source/UmbrellaElla/Private/Feedback/FeedbackAdapterComponent.cpp
++++ b/Source/UmbrellaElla/Private/Feedback/FeedbackAdapterComponent.cpp
+@@ -52,5 +52,9 @@
+ void UFeedbackAdapterComponent::HandleHealthChanged(const FGameEventInfo& Info, int32 OldHealth, int32 NewHealth)
+ {
+ 	if (NewHealth >= OldHealth) { return; }
+ 	const FFeedbackTuning& Tuning = GetDefault<UUmbrellaTuning>()->Feedback;
++	UPaperFlipbookComponent* Flashing = Sprite.Get();
++	if (!IsValid(Flashing)) { return; }
++	Flashing->SetSpriteColor(Tuning.HurtFlashColor);
++	GetWorld()->GetTimerManager().SetTimer(FlashTimer, FTimerDelegate::CreateWeakLambda(this, [&Flashing]() { Flashing->SetSpriteColor(FLinearColor::White); }), Tuning.HurtFlashSeconds, false);
+ }

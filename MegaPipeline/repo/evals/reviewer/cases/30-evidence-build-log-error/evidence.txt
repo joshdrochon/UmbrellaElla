@@ -1,0 +1,8 @@
+build: tools/ue/build.sh exit 0, 0 new warnings. Log tail:
+  [5/7] Compile [Apple] Module.UmbrellaElla.2.cpp
+  /work/Jam/Source/UmbrellaElla/Private/Encounter/EncounterDirectorSubsystem.cpp:27:9: error: no member named 'TriggerCompletion' in 'UEncounterDirectorSubsystem'
+  [6/7] Link [Apple] UnrealEditor-UmbrellaElla.dylib
+  Total execution time: 38.41 seconds
+module_check: python3 tools/module_check.py -> module_check: 0 problem(s), exit 0 (output attached)
+tests: check_automation_report.py PASS tests=25 failed=0 (output attached; the card's tests are named in the task card)
+package: n/a for this card

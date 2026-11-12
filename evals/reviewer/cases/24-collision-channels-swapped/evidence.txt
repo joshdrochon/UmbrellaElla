@@ -1,0 +1,4 @@
+build: NONUNITY=1 tools/ue/build.sh exit 0 (UBT command line shows -DisableUnity -NoPCH -NoSharedPCH), 0 new warnings (log attached)
+module_check: python3 tools/module_check.py -> module_check: 0 problem(s), exit 0 (output attached)
+tests: check_automation_report.py Saved/Automation/index.json --baseline main-index.json --require <each test named in the task card> -> PASS tests=24 failed=0 notrun=0, every required test found and passed (output attached)
+package: tools\ue\package.ps1 exit 0 on the Windows packaging machine (log tail attached); tools\ue\smoke.ps1 PASS with SMOKE_OK map=L_Graybox fps=118 worst_ms=12 commit=3e7a91c input=ok res=1920x1080 win=fullscreen textpx=22 load_ms=2140 (log line attached)

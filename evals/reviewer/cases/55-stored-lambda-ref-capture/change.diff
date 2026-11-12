@@ -1,0 +1,12 @@
+--- a/Source/UmbrellaElla/Private/Owl/ClockworkOwl.cpp
++++ b/Source/UmbrellaElla/Private/Owl/ClockworkOwl.cpp
+@@ -40,4 +40,9 @@
+ 
+ void AClockworkOwl::StartTelegraph()
+ {
++	if (State != EOwlState::Drifting) { return; }
++	SetState(EOwlState::Telegraph);
++	const FVector Origin = GetActorLocation();
++	auto Fire = [this, &Origin]() { FireVolley(Origin); };
++	GetWorldTimerManager().SetTimer(TelegraphTimer, FTimerDelegate::CreateWeakLambda(this, Fire), GetDefault<UUmbrellaTuning>()->Owl.TelegraphSeconds, false);
+ }

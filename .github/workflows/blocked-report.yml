@@ -1,0 +1,28 @@
+# Daily: for every open card with the `blocked` label, post on the tracker the cards that wait on it
+# (tools/check_card.py --blocked-by). Every other card keeps working. Does nothing until the repo variable
+# TRACKER_ISSUE is set. The logic lives in tools/lane_guard.py (tests/test_lane_guard.py).
+name: blocked-report
+on:
+  schedule:
+    - cron: "0 12 * * *"
+  workflow_dispatch:
+permissions:
+  contents: read
+  issues: write
+jobs:
+  blocked:
+    if: vars.TRACKER_ISSUE != ''
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      TRACKER: ${{ vars.TRACKER_ISSUE }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Post each blocked card and the cards that wait on it
+        run: python3 tools/lane_guard.py blocked --tracker "$TRACKER"

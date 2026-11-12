@@ -1,0 +1,25 @@
+{
+  "clean": false,
+  "defects": [
+    {
+      "id": "deltatime-on-speed",
+      "severity": "high",
+      "file": "Source/UmbrellaElla/Private/Motor/PlayerMotorComponent.cpp",
+      "lines": [
+        12,
+        13
+      ],
+      "keywords": [
+        "deltatime",
+        "deltaseconds",
+        "per-second",
+        "persecond",
+        "uu/s",
+        "frame",
+        "units",
+        "liftspeed",
+        "liftcap"
+      ]
+    }
+  ]
+}

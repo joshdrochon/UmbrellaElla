@@ -1,0 +1,21 @@
+--- a/Source/UmbrellaElla/Private/Motor/PlayerMotorComponent.cpp
++++ b/Source/UmbrellaElla/Private/Motor/PlayerMotorComponent.cpp
+@@ -31,6 +31,7 @@
+ 	Movement = Move;
+ 	// TickComponent writes Velocity.Z, so this component ticks before movement integrates it.
+ 	Move->AddTickPrerequisiteComponent(this);
++	Move->GravityScale = 2.5f;
+ }
+ 
+ void UPlayerMotorComponent::TickComponent(float DeltaSeconds, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+@@ -38,9 +39,10 @@
+ 	Super::TickComponent(DeltaSeconds, TickType, ThisTickFunction);
+ 	UCharacterMovementComponent* Move = Movement.Get();
+ 	const UUmbrellaStateComponent* Umbrella = UmbrellaState.Get();
+ 	if (!IsValid(Move) || !IsValid(Umbrella)) { return; }
++	Move->GravityScale = Umbrella->GetConfig() == EUmbrellaConfig::UpOpen ? 0.f : 2.5f;
+ 	if (Move->IsFalling())
+ 	{
+ 		Move->Velocity.Z = FMotorRules::NextVerticalVelocity(Move->Velocity.Z, Umbrella->GetConfig(), DeltaSeconds);
+ 	}
+ }

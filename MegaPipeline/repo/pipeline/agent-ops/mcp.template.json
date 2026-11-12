@@ -1,0 +1,15 @@
+{
+  "_about": "Template for the repo-root .mcp.json that connects Claude Code to Epic's Unreal MCP server in the editor (docs/unreal-sources.md U25; pipeline/agent-ops/editor-mcp.md). Prepared before the jam, as Official Rules 7(h) allows for MCP settings. OFF by default: no .mcp.json exists and gates.json mcp_enabled is false until the team enables it at kickoff (a needs-human checkpoint). Then the TD human copies mcpServers into .mcp.json, or runs ModelContextProtocol.GenerateClientConfig ClaudeCode in the editor and checks the result equals this. tools/editor_mcp.py check validates both.",
+  "_verify": [
+    "[VERIFY on 5.8.4] server name 'unreal-mcp': the name GenerateClientConfig ClaudeCode writes",
+    "[VERIFY on 5.8.4] url http://127.0.0.1:8000/mcp and transport type http (U25 says HTTP only, loopback, no auth)",
+    "[VERIFY on 5.8.4] console commands ModelContextProtocol.StartServer and ModelContextProtocol.GenerateClientConfig ClaudeCode",
+    "[VERIFY on 5.8.4] plugin names Unreal MCP and All Toolsets, and the toolset names SceneTools, ActorTools, MaterialInstanceTools, ObjectTools"
+  ],
+  "mcpServers": {
+    "unreal-mcp": {
+      "type": "http",
+      "url": "http://127.0.0.1:8000/mcp"
+    }
+  }
+}

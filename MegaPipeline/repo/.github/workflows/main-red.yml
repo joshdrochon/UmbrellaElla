@@ -1,0 +1,42 @@
+# Revert-first (AGENTS.md section 6, D-new-port-2). On each push to main, run the pipeline checks; if they fail,
+# tools/lane_guard.py opens a revert PR of the breaking squash commit and comments on the tracker issue naming the
+# integration owner. Repo admin: allow "GitHub Actions to create and approve pull requests" (Settings > Actions),
+# and set the repo variable TRACKER_ISSUE. The logic lives in tools/lane_guard.py (tests/test_lane_guard.py).
+# GITHUB_TOKEN caveat (final-10 A H3): GitHub starts no workflow run for a PR opened with GITHUB_TOKEN, so the
+# required `checks` job would never report on the revert PR. Workaround: add a REVERT_TOKEN secret (a fine-grained
+# PAT or GitHub App token: contents and pull-requests write); the step below uses it. Without it, the integration
+# owner closes and reopens the revert PR (a human event starts pipeline-checks).
+name: main-red
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+concurrency:
+  group: main-red
+  cancel-in-progress: false
+jobs:
+  revert-first:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.REVERT_TOKEN || github.token }}
+      GH_REPO: ${{ github.repository }}
+      TRACKER: ${{ vars.TRACKER_ISSUE }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: false
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Pipeline checks
+        id: checks
+        run: |
+          python3 tools/pipeline_check.py
+          python3 -m unittest discover -s tests
+      - name: Main is red, open the revert PR and tell the integration owner
+        if: failure() && steps.checks.outcome == 'failure'
+        run: python3 tools/lane_guard.py revert --sha "$GITHUB_SHA" --tracker "$TRACKER"

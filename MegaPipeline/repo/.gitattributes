@@ -1,0 +1,50 @@
+# Unreal + art + audio binaries go through Git LFS. tools/pipeline_check.py fails the
+# build if a binary in these formats is committed without LFS.
+*.uasset    filter=lfs diff=lfs merge=lfs -text lockable
+*.umap      filter=lfs diff=lfs merge=lfs -text lockable
+*.png       filter=lfs diff=lfs merge=lfs -text
+*.jpg       filter=lfs diff=lfs merge=lfs -text
+*.jpeg      filter=lfs diff=lfs merge=lfs -text
+*.psd       filter=lfs diff=lfs merge=lfs -text lockable
+*.ase       filter=lfs diff=lfs merge=lfs -text lockable
+*.aseprite  filter=lfs diff=lfs merge=lfs -text lockable
+*.kra       filter=lfs diff=lfs merge=lfs -text lockable
+*.tga       filter=lfs diff=lfs merge=lfs -text
+*.exr       filter=lfs diff=lfs merge=lfs -text
+*.wav       filter=lfs diff=lfs merge=lfs -text
+*.mp3       filter=lfs diff=lfs merge=lfs -text
+*.ogg       filter=lfs diff=lfs merge=lfs -text
+*.flac      filter=lfs diff=lfs merge=lfs -text
+*.fbx       filter=lfs diff=lfs merge=lfs -text lockable
+*.blend     filter=lfs diff=lfs merge=lfs -text lockable
+*.mp4       filter=lfs diff=lfs merge=lfs -text
+*.mov       filter=lfs diff=lfs merge=lfs -text
+*.ttf       filter=lfs diff=lfs merge=lfs -text
+*.otf       filter=lfs diff=lfs merge=lfs -text
+*.zip       filter=lfs diff=lfs merge=lfs -text
+*.pdf       filter=lfs diff=lfs merge=lfs -text
+
+# Text files: normalize line endings so Mac and Windows teammates don't fight.
+*.cpp   text eol=lf
+*.h     text eol=lf
+*.cs    text eol=lf
+*.ini   text eol=lf
+*.md    text eol=lf
+*.py    text eol=lf
+*.json  text eol=lf
+*.uproject text eol=lf
+# Windows Git checks text out as CRLF by default (core.autocrlf=true): a CRLF .sh fails in bash, a CRLF .diff fixture
+# no longer applies. These were LF in every commit; the rule keeps them LF on Windows checkouts too.
+*.sh    text eol=lf
+*.csv   text eol=lf
+*.txt   text eol=lf
+*.yml   text eol=lf
+*.yaml  text eol=lf
+*.toml  text eol=lf
+*.diff  text eol=lf
+*.log   text eol=lf
+*.bat   text eol=crlf
+*.ps1   text eol=crlf
+
+# One row per asset, appended by tools/assetgen.py on many card branches at once: keep every side's rows on merge.
+pipeline/art/provenance.csv merge=union

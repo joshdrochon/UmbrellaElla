@@ -1,0 +1,26 @@
+--- /dev/null
++++ b/Source/UmbrellaElla/Private/Tests/Motor/MotorRulesTest.cpp
+@@ -0,0 +1,23 @@
++#include "Misc/AutomationTest.h"
++#include "Motor/MotorRules.h"
++
++#if WITH_DEV_AUTOMATION_TESTS
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(FUpOpenSlowsThenReversesFallTest, "UmbrellaElla.Umbrella.UpOpenSlowsThenReversesFall",
++	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
++
++bool FUpOpenSlowsThenReversesFallTest::RunTest(const FString& Parameters)
++{
++	for (const float Dt : {1.f / 30.f, 1.f / 60.f, 1.f / 120.f})
++	{
++		float Z = -600.f;
++		for (int32 Frame = 0; Frame < 240; ++Frame)
++		{
++			Z = FMotorRules::NextVerticalVelocity(Z, EUmbrellaConfig::UpOpen, Dt);
++		}
++		TestTrue(FString::Printf(TEXT("vertical velocity stays valid at dt=%.4f"), Dt), FMath::IsFinite(Z));
++	}
++	return true;
++}
++
++#endif

@@ -1,0 +1,20 @@
+--- a/Source/UmbrellaElla/Private/Encounter/EncounterDirectorSubsystem.cpp
++++ b/Source/UmbrellaElla/Private/Encounter/EncounterDirectorSubsystem.cpp
+@@ -8,6 +8,6 @@
+ 
+ bool FEncounterRules::IsFixtureTimerDone(float ActiveSeconds, float FixtureSeconds)
+ {
+-	return false;
++	return ActiveSeconds >= FixtureSeconds;
+ }
+ 
+@@ -40,4 +40,9 @@
+ void UEncounterDirectorSubsystem::Tick(float DeltaSeconds)
+ {
+ 	if (State != EEncounterState::Active) { return; }
++	ActiveSeconds += DeltaSeconds;
++	const FEncounterTuning& Tuning = GetDefault<UUmbrellaTuning>()->Encounter;
++	if (Tuning.CompletionRule != EEncounterCompletionRule::FixtureTimer) { return; }
++	if (!FEncounterRules::IsFixtureTimerDone(ActiveSeconds, Tuning.FixtureSeconds)) { return; }
++	SetState(EEncounterState::EndingSuccess);
+ }

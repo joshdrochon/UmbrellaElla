@@ -1,0 +1,37 @@
+{
+  "clean": false,
+  "defects": [
+    {
+      "id": "out-of-lane",
+      "severity": "high",
+      "file": "Source/UmbrellaElla/Private/Health/HealthComponent.cpp",
+      "lines": [
+        30,
+        31
+      ],
+      "keywords": [
+        "card",
+        "damage",
+        "feedback",
+        "gameplay authority",
+        "health",
+        "hurt",
+        "invulnera",
+        "lane",
+        "not asked",
+        "outside",
+        "scope",
+        "unrelated"
+      ],
+      "also": [
+        {
+          "file": "Source/UmbrellaElla/Private/Health/HealthComponent.cpp",
+          "lines": [
+            2,
+            2
+          ]
+        }
+      ]
+    }
+  ]
+}

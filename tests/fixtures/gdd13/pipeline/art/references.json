@@ -1,0 +1,1890 @@
+{
+ "version": 2,
+ "_about": "The team's art references: the one list every art tool and the Art Director agent compares against (tools/art_check.py --references and --gate, tools/art_judge.py, tools/art_ref_check.py, tools/art_loop.py, tools/art_judge_prompt.md, tools/assetgen.py practice stand-ins, tools/submission_check.py assets). Reference only, never shipped: GDD 1.3 7C and its Provenance line ('Do not copy into the jam entry'); Official Rules 7(h) (game content is made during the Contest Period); a shipped byte copy of any file here fails submission_check.py assets. Schema (one list, `references`): id; path (repo-relative: under pipeline/art/reference/, or the team's own art folder for a team-art entry; null for kind described); kind (image | data | described); role (list, every value a key of `roles`); what; cards (Day-0 cards and MVP items judged against it: a Day-0 card listed on an image runs tools/art_ref_check.py, art_judge.py coverage); consulted_by (other cards and checks that read it without an art_ref_check verdict; art_check --references lists them with cards); judge (true = the blind X/Y judge sees it as style context); required (art_check --references and --gate fail while it is missing; false on an image = optional: a checkout without the file leaves the entry out of the list and out of every judge element, so the team-art entries work in repos that have only some of the files); judge_exempt (why no judge element uses it); tier (top = quality bar); cell (frame size of a sheet); description (kind described: the written target); note; origin. Kind data with role layout = the frame grids, pivots and fps (the source for sprite sidecars). elements and scene = what tools/art_judge.py scores; quality_bar = the top tier; gdd_embedded = images the current GDD embeds join the list automatically; team_art = every image under Assets/ and Mockups/ joins the list automatically (folders named obsolete skipped, already-listed paths and byte copies skipped), look only, never shipped. Practice repos only (.pipeline-practice): `tools/assetgen.py image --provider reference` (and any image step with no key) places the best-matching picture here by role as a stand-in, provenance `source=reference (practice)`; on the team repo assetgen refuses it and submission_check.py assets fails such a row.",
+ "note": "Every reference image the art is judged against: the curated set in this repo under pipeline/art/reference/ (Git LFS; `origin` says where each came from), plus the team's own art folders (Assets/, Mockups/: the described studies below and, through team_art, any image the team adds). References only, never shipped or imported (Official Rules §7(h): no game content before Nov 12; jam art is generated during the jam). tools/art_judge.py and tools/art_ref_check.py read this file: `scene` scores build screenshots, `elements` score generated art; each art card's own references are the ones listing it in `cards`. The evidence line carries refs=<first 12 hex of this file's sha256>, so a PASS made against an older or smaller set is refused (tools/check_pr.py rule artref).",
+ "roles": {
+  "composition target": "the whole-frame look a capture is judged against (layout, value structure, mood)",
+  "character poses": "Ella and umbrella poses and states (UP_OPEN, ATTACK_DESCENT, SHIELD_DESCENT, free fall)",
+  "owl": "the clockwork owl: body, chest clock, wing damage rows, its attack patterns",
+  "effects": "projectiles, impacts, wind, repair bursts",
+  "palette": "style.json palette and paper texture were measured from it",
+  "scale": "gameplay size and proportions at 1080p, background layer sizes",
+  "quality bar": "the top tier for rendering quality and finish: every art-loop round is also judged blind against one (quality_bar)",
+  "pattern": "attack-pattern diagrams: shapes and timing, not art style",
+  "layout": "frame grids, pivots and fps: the source for sprite sidecars (.sprite.json)",
+  "menu style bar": "a written target for menu screens and transitions (no image)",
+  "team art": "a picture the team added to its art folders (Assets/, Mockups/; team_art): look only, gameplay comes from the GDD"
+ },
+ "references": [
+  {
+   "id": "keyart",
+   "path": "pipeline/art/reference/target-keyart.png",
+   "kind": "image",
+   "role": [
+    "composition target",
+    "palette"
+   ],
+   "what": "The composition target (team, 10 Nov): the game must look like this frame. Owl large on the right with wings spread and the chest clock glowing gold; Ella small on the left under a striped umbrella; black jagged skyline along the bottom; etched wavy wind lines; rust-red cross bolts; gold star wand shots; textured paper; sparkle dots. Also the palette source (style.json)",
+   "cards": [
+    "0.10",
+    "MVP 12",
+    "0.21b"
+   ],
+   "consulted_by": [
+    "0.7",
+    "0.10a",
+    "0.22",
+    "every art PR (art_check.py --gate)"
+   ],
+   "judge": true,
+   "required": true,
+   "note": "The style target. style.json palette and paper_texture_min were measured from it (card 0.7). The X/Y judge's comparator (pair <capture>:target-keyart).",
+   "origin": "this repo"
+  },
+  {
+   "id": "original-picture",
+   "path": "pipeline/art/reference/Mockups/originalPicture.png",
+   "kind": "image",
+   "role": [
+    "composition target"
+   ],
+   "what": "Earlier cut of the key art, same composition; style and character source of the rehearsal sprites",
+   "cards": [
+    "0.10",
+    "0.21b"
+   ],
+   "consulted_by": [
+    "0.22"
+   ],
+   "judge": true,
+   "required": true,
+   "note": "Earlier cut of the key art, same composition; the style and character source for the rehearsal sprites.",
+   "origin": "Mockups/originalPicture.png (GameJam2026 main)"
+  },
+  {
+   "id": "gameplay-01",
+   "path": "pipeline/art/reference/v1.4/gameplay-01.png",
+   "kind": "image",
+   "role": [
+    "composition target",
+    "scale"
+   ],
+   "what": "Gameplay mood: Ella rises on the left while the clockwork owl hangs a mechanism above a lakeside town",
+   "cards": [
+    "0.10",
+    "MVP 12"
+   ],
+   "consulted_by": [
+    "0.22"
+   ],
+   "judge": true,
+   "required": true,
+   "note": "GDD v1.4 draft concept 1: Ella rises on the left while the owl hangs a mechanism above a lakeside town (scale, palette, silhouette). A copy is in this repo (v1.4/); gdd_embedded also picks up the GDD's own copy when that GDD is current.",
+   "origin": "scratch/gdd/v1.4/art-references/gameplay-01.png (v1.4 draft (local, not in a repo))"
+  },
+  {
+   "id": "gameplay-02",
+   "path": "pipeline/art/reference/v1.4/gameplay-02.png",
+   "kind": "image",
+   "role": [
+    "composition target",
+    "owl",
+    "scale"
+   ],
+   "what": "Gameplay scale: the owl with its chest clock fires a red volley toward Ella",
+   "cards": [
+    "0.10",
+    "MVP 7"
+   ],
+   "consulted_by": [
+    "0.22"
+   ],
+   "judge": true,
+   "required": true,
+   "note": "GDD v1.4 draft concept 2: the owl with its chest clock fires a red volley toward Ella (clock, direction of fire). A copy is in this repo (v1.4/); gdd_embedded also picks up the GDD's own copy when that GDD is current.",
+   "origin": "scratch/gdd/v1.4/art-references/gameplay-02.png (v1.4 draft (local, not in a repo))"
+  },
+  {
+   "id": "missile-patterns",
+   "path": "pipeline/art/reference/Mockups/missile-pattern-reference.png",
+   "kind": "image",
+   "role": [
+    "owl",
+    "pattern"
+   ],
+   "what": "Ten owl missile-pattern diagrams (straight, aimed, fans, lanes, gap wall, arcs, wave, spiral). Not art style",
+   "cards": [
+    "MVP 7"
+   ],
+   "consulted_by": [
+    "0.8b"
+   ],
+   "judge": false,
+   "required": true,
+   "judge_exempt": "pattern diagrams, not art: pipeline/level/encounter.md patterns are checked by tools/encounter_check.py, not by a look",
+   "note": "Ten owl missile-pattern diagrams (straight, aimed, fans, lanes, gap wall, arcs, wave, spiral). Pattern shapes, not art style.",
+   "origin": "Mockups/missile-pattern-reference.png (GameJam2026 main)"
+  },
+  {
+   "id": "ella-rising",
+   "path": "pipeline/art/reference/Rehearsal/Ella/Ella-Rising-02.png",
+   "kind": "image",
+   "role": [
+    "character poses",
+    "scale"
+   ],
+   "what": "Rising, umbrella open overhead, 6 poses in 3 x 2: UP_OPEN",
+   "cards": [
+    "0.10b",
+    "MVP 12"
+   ],
+   "consulted_by": [
+    "0.28",
+    "MVP 2",
+    "MVP 3"
+   ],
+   "judge": true,
+   "required": true,
+   "cell": [
+    512,
+    512
+   ],
+   "note": "Rising: umbrella open overhead, 6 poses in 3 x 2. Matches UP_OPEN.",
+   "origin": "Rehearsal/Art/Sprites/Ella/Rising/Ella-Rising-02.png (GameJam2026 main)"
+  },
+  {
+   "id": "ella-shooting",
+   "path": "pipeline/art/reference/Rehearsal/Ella/Ella-Shooting-03.png",
+   "kind": "image",
+   "role": [
+    "character poses",
+    "scale"
+   ],
+   "what": "Shooting, umbrella level like a lance, 6 poses in 3 x 2: ATTACK_DESCENT",
+   "cards": [
+    "0.10b",
+    "MVP 12"
+   ],
+   "consulted_by": [
+    "0.28",
+    "MVP 9"
+   ],
+   "judge": true,
+   "required": true,
+   "cell": [
+    512,
+    512
+   ],
+   "note": "Shooting: umbrella held level like a lance, 6 poses in 3 x 2. Matches ATTACK_DESCENT.",
+   "origin": "Rehearsal/Art/Sprites/Ella/Shooting/Ella-Shooting-03.png (GameJam2026 main)"
+  },
+  {
+   "id": "ella-absorbing",
+   "path": "pipeline/art/reference/Rehearsal/Ella/Ella-Absorbing-04.png",
+   "kind": "image",
+   "role": [
+    "character poses",
+    "scale"
+   ],
+   "what": "Absorbing, canopy turned forward as a shield, 6 poses in 3 x 2: SHIELD_DESCENT",
+   "cards": [
+    "MVP 12"
+   ],
+   "consulted_by": [
+    "0.10b",
+    "0.28",
+    "MVP 10"
+   ],
+   "judge": true,
+   "required": true,
+   "cell": [
+    512,
+    512
+   ],
+   "note": "Absorbing: canopy turned forward as a shield, 6 poses in 3 x 2. Matches SHIELD_DESCENT.",
+   "origin": "Rehearsal/Art/Sprites/Ella/Absorbing/Ella-Absorbing-04.png (GameJam2026 main)"
+  },
+  {
+   "id": "ella-freefall",
+   "path": "pipeline/art/reference/Rehearsal/Ella/Ella-FreeFall-03.png",
+   "kind": "image",
+   "role": [
+    "character poses",
+    "scale"
+   ],
+   "what": "Free fall, umbrella closed under her, 6 poses in 3 x 2: the closed silhouette",
+   "cards": [
+    "0.10b",
+    "MVP 12"
+   ],
+   "consulted_by": [
+    "0.28",
+    "MVP 2"
+   ],
+   "judge": true,
+   "required": true,
+   "cell": [
+    512,
+    512
+   ],
+   "note": "Free fall: umbrella closed under her, 6 poses in 3 x 2.",
+   "origin": "Rehearsal/Art/Sprites/Ella/FreeFall/Ella-FreeFall-03.png (GameJam2026 main)"
+  },
+  {
+   "id": "witch-cast",
+   "path": "pipeline/art/reference/Test_Assets/CHR_Witch_Cast.png",
+   "kind": "image",
+   "role": [
+    "character poses"
+   ],
+   "what": "Witch cast, 6 x 2 cells of 432 x 352, 14 fps, one shot; row 0 lift, row 1 guard fall; fires on column 3",
+   "cards": [
+    "MVP 9",
+    "MVP 12"
+   ],
+   "consulted_by": [
+    "0.10b",
+    "0.28"
+   ],
+   "judge": true,
+   "required": true,
+   "cell": [
+    432,
+    352
+   ],
+   "note": "Witch cast: 6 x 2 cells of 432 x 352, 14 fps, one shot; row 0 lift, row 1 guard fall; fires on column 3.",
+   "origin": "Test_Assets/CHR_Witch_Cast.png (GameJam2026 main)"
+  },
+  {
+   "id": "witch-guard",
+   "path": "pipeline/art/reference/Test_Assets/CHR_Witch_Guard_Transition.png",
+   "kind": "image",
+   "role": [
+    "character poses"
+   ],
+   "what": "Lift-to-guard turn, 5 x 1 cells of 432 x 352, 14 fps",
+   "cards": [
+    "MVP 10",
+    "MVP 12"
+   ],
+   "consulted_by": [
+    "0.10b"
+   ],
+   "judge": true,
+   "required": true,
+   "cell": [
+    432,
+    352
+   ],
+   "note": "Lift-to-guard turn: 5 x 1 cells of 432 x 352, 14 fps; backward for guard to lift.",
+   "origin": "Test_Assets/CHR_Witch_Guard_Transition.png (GameJam2026 main)"
+  },
+  {
+   "id": "umbrella-stance",
+   "path": "pipeline/art/reference/Test_Assets/PROP_Umbrella_Stance_Damage.png",
+   "kind": "image",
+   "role": [
+    "character poses"
+   ],
+   "what": "Umbrella, 5 x 5 cells of 368 x 352; columns overhead to front guard, rows intact to torn; grip pivot (126, 223)",
+   "cards": [
+    "MVP 4",
+    "MVP 12"
+   ],
+   "consulted_by": [
+    "0.10b",
+    "0.28",
+    "MVP 10"
+   ],
+   "judge": true,
+   "required": true,
+   "cell": [
+    368,
+    352
+   ],
+   "note": "Umbrella: 5 x 5 cells of 368 x 352; columns overhead to front guard, rows intact to torn; grip pivot (126, 223).",
+   "origin": "Test_Assets/PROP_Umbrella_Stance_Damage.png (GameJam2026 main)"
+  },
+  {
+   "id": "owl-flap",
+   "path": "pipeline/art/reference/Test_Assets/CHR_Owl_Flap_Damage.png",
+   "kind": "image",
+   "role": [
+    "owl",
+    "scale"
+   ],
+   "what": "Owl flap loop, 6 x 5 cells of 640 x 512, 10 fps, faces left; row 0 full, rows 1-4 torn",
+   "cards": [
+    "0.10b",
+    "MVP 7",
+    "MVP 12"
+   ],
+   "consulted_by": [
+    "0.28"
+   ],
+   "judge": true,
+   "required": true,
+   "cell": [
+    640,
+    512
+   ],
+   "note": "Owl flap loop: 6 x 5 cells of 640 x 512, 10 fps, faces left; row 0 full health, rows 1-4 tear wings and tail.",
+   "origin": "Test_Assets/CHR_Owl_Flap_Damage.png (GameJam2026 main)"
+  },
+  {
+   "id": "owl-missile",
+   "path": "pipeline/art/reference/Test_Assets/FX_Owl_Missile.png",
+   "kind": "image",
+   "role": [
+    "effects",
+    "scale"
+   ],
+   "what": "Static owl missile, one 160 x 80 frame, faces left",
+   "cards": [
+    "0.10b",
+    "MVP 7"
+   ],
+   "consulted_by": [
+    "0.28"
+   ],
+   "judge": true,
+   "required": true,
+   "note": "Static owl missile, one 160 x 80 frame, faces left.",
+   "origin": "Test_Assets/FX_Owl_Missile.png (GameJam2026 main)"
+  },
+  {
+   "id": "owl-missile-travel",
+   "path": "pipeline/art/reference/Test_Assets/FX_Owl_Missile_Travel.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Owl missile in flight, 6 x 1 cells of 160 x 80, 16 fps loop",
+   "cards": [
+    "MVP 7"
+   ],
+   "judge": true,
+   "required": true,
+   "cell": [
+    160,
+    80
+   ],
+   "note": "Owl missile in flight: 6 x 1 cells of 160 x 80, 16 fps loop, faces left.",
+   "origin": "Test_Assets/FX_Owl_Missile_Travel.png (GameJam2026 main)"
+  },
+  {
+   "id": "owl-missile-hit",
+   "path": "pipeline/art/reference/Test_Assets/FX_Owl_Missile_Hit.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Missile impact, 7 x 1 cells of 128 x 128, 20 fps, once",
+   "cards": [
+    "MVP 7"
+   ],
+   "consulted_by": [
+    "MVP 10"
+   ],
+   "judge": true,
+   "required": true,
+   "cell": [
+    128,
+    128
+   ],
+   "note": "Missile impact: 7 x 1 cells of 128 x 128, 20 fps, plays once.",
+   "origin": "Test_Assets/FX_Owl_Missile_Hit.png (GameJam2026 main)"
+  },
+  {
+   "id": "wand-star",
+   "path": "pipeline/art/reference/Test_Assets/FX_Wand_Star_Travel.png",
+   "kind": "image",
+   "role": [
+    "effects",
+    "scale"
+   ],
+   "what": "Wand shot, 6 x 1 cells of 128 x 64, 16 fps loop, faces right (gold star)",
+   "cards": [
+    "0.10c",
+    "MVP 9"
+   ],
+   "judge": true,
+   "required": true,
+   "cell": [
+    128,
+    64
+   ],
+   "note": "Wand shot: 6 x 1 cells of 128 x 64, 16 fps loop, faces right.",
+   "origin": "Test_Assets/FX_Wand_Star_Travel.png (GameJam2026 main)"
+  },
+  {
+   "id": "umbrella-repair",
+   "path": "pipeline/art/reference/Test_Assets/FX_Umbrella_Repair.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Repair burst at the canopy, 7 x 1 cells of 128 x 128, 18 fps, once (shield heal)",
+   "cards": [
+    "MVP 10"
+   ],
+   "consulted_by": [
+    "0.14b"
+   ],
+   "judge": true,
+   "required": true,
+   "cell": [
+    128,
+    128
+   ],
+   "note": "Repair burst at the canopy: 7 x 1 cells of 128 x 128, 18 fps, plays once.",
+   "origin": "Test_Assets/FX_Umbrella_Repair.png (GameJam2026 main)"
+  },
+  {
+   "id": "wind-curl",
+   "path": "pipeline/art/reference/Test_Assets/FX_Wind_Curl.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Wind curl, 8 x 1 cells of 144 x 112, 12 fps loop: the etched wind stroke for decorative lines and the WIND-01 zone",
+   "cards": [
+    "0.10c",
+    "MVP 11"
+   ],
+   "consulted_by": [
+    "0.14b"
+   ],
+   "judge": true,
+   "required": true,
+   "cell": [
+    144,
+    112
+   ],
+   "note": "Wind curl: 8 x 1 cells of 144 x 112, 12 fps loop.",
+   "origin": "Test_Assets/FX_Wind_Curl.png (GameJam2026 main)"
+  },
+  {
+   "id": "gothic-skyline",
+   "path": "pipeline/art/reference/Test_Assets/ENV_GothicSkyline_Tile.png",
+   "kind": "image",
+   "role": [
+    "scale"
+   ],
+   "what": "Transparent near skyline tile 3200 x 720, bottom-aligned, scrolls faster",
+   "cards": [
+    "0.10c",
+    "MVP 12"
+   ],
+   "judge": true,
+   "required": true,
+   "cell": [
+    800,
+    720
+   ],
+   "note": "Transparent near skyline, 3200 x 720; repeats along X, aligned to the bottom of the view, scrolls faster.",
+   "origin": "Test_Assets/ENV_GothicSkyline_Tile.png (GameJam2026 main)"
+  },
+  {
+   "id": "star-paper",
+   "path": "pipeline/art/reference/Test_Assets/SKY_StarPaper_Tile.png",
+   "kind": "image",
+   "role": [
+    "scale",
+    "palette"
+   ],
+   "what": "Far sky and paper tile 3200 x 1080, scrolls slower; the paper texture",
+   "cards": [
+    "0.10b",
+    "MVP 12"
+   ],
+   "judge": true,
+   "required": true,
+   "cell": [
+    1080,
+    1080
+   ],
+   "note": "Far sky layer, 3200 x 1080; repeats along X, scrolls slower than the skyline.",
+   "origin": "Test_Assets/SKY_StarPaper_Tile.png (GameJam2026 main)"
+  },
+  {
+   "id": "sprite-layout",
+   "path": "pipeline/art/reference/Test_Assets/SpriteLayout.json",
+   "kind": "data",
+   "role": [
+    "layout"
+   ],
+   "what": "Frame size, grid, pivot, fps, row labels and facing of each Test_Assets sheet: the sidecar numbers to copy (tools/sprite_check.py)",
+   "cards": [
+    "0.10b",
+    "0.10c"
+   ],
+   "consulted_by": [
+    "0.28",
+    "every sprite sheet (.sprite.json sidecar)"
+   ],
+   "judge": false,
+   "required": true,
+   "judge_exempt": "data, not an image: its grids and pivots go into the .sprite.json sidecars that sprite_check.py checks",
+   "note": "Frame sizes, grid, pivots, fps, grip_px and wand_tip_px per sheet. GDD 1.3 7A: illustrative; the final asset manifest is the authority.",
+   "origin": "Test_Assets/SpriteLayout.json (GameJam2026 main)"
+  },
+  {
+   "id": "asset-notes",
+   "path": "pipeline/art/reference/Test_Assets/Asset Notes.md",
+   "kind": "data",
+   "role": [
+    "layout"
+   ],
+   "what": "Sheet layouts, playback, the umbrella grip and wand-tip rules, and the provenance of the rehearsal art",
+   "cards": [
+    "0.10b"
+   ],
+   "judge": false,
+   "required": true,
+   "judge_exempt": "notes, not an image: the sheet layouts beside SpriteLayout.json",
+   "note": "Sheet layouts, playback and provenance of the rehearsal art (generated and reference-derived).",
+   "origin": "Test_Assets/Asset Notes.md (GameJam2026 main)"
+  },
+  {
+   "id": "d-red-shots",
+   "path": "pipeline/art/reference/discord/20261110-0258_Ricky_1.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Look only: Keeper of Time: red (damaging) shots concept sheet",
+   "cards": [
+    "0.10b",
+    "MVP 7"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "Discord #art-direction, Ricky, 10 Nov"
+  },
+  {
+   "id": "d-yellow-shots",
+   "path": "pipeline/art/reference/discord/20261110-0328_Ricky_1.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Look only: Yellow (absorbable) shots sheet with Ella's umbrella capture and lit movement modes. Absorbable yellow shots are not in GDD 1.3 (the shield catches owl bolts): a design proposal for Richard",
+   "cards": [
+    "MVP 10"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "Discord #art-direction, Ricky, 10 Nov"
+  },
+  {
+   "id": "d-yellow-crop",
+   "path": "pipeline/art/reference/discord/20261110-0331_Ricky_1.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Look only: Crop of the yellow-shot sequence: tell, release, travel, fade; umbrella pull-in and capture ('even brighter on the umbrella when she absorbs?')",
+   "cards": [
+    "MVP 10"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "Discord #art-direction, Ricky, 10 Nov"
+  },
+  {
+   "id": "d-wing-gust",
+   "path": "pipeline/art/reference/discord/20261110-0348_Ricky_1.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Look only: Wing gust attack, Ella pushed back, damaging vs rideable wind. OWL-02 (owl gust) is OFF in GDD 1.3; only WIND-01 (safe current) ships: use it for how wind reads, never as a new attack",
+   "cards": [
+    "0.10c",
+    "MVP 11"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "Discord #art-direction, Ricky, 10 Nov"
+  },
+  {
+   "id": "d-talon-rake",
+   "path": "pipeline/art/reference/discord/20261110-0512_Ricky_1.png",
+   "kind": "image",
+   "role": [
+    "owl"
+   ],
+   "what": "Look only: Talon rake with a sliding mechanical leg extension: an attack not in GDD 1.3 (proposal); look of the owl only",
+   "cards": [
+    "MVP 7"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "Discord #art-direction, Ricky, 10 Nov"
+  },
+  {
+   "id": "d-clock-double-beat",
+   "path": "pipeline/art/reference/discord/20261110-0800_Ricky_1.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Look only: Clock double-beat attack: clock-hand cycle, repeated red shot paths (proposal); look of the bolts and clock only",
+   "cards": [
+    "MVP 7"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "Discord #art-direction, Ricky, 10 Nov"
+  },
+  {
+   "id": "d-gear-break",
+   "path": "pipeline/art/reference/discord/20261110-1047_Ricky_1.png",
+   "kind": "image",
+   "role": [
+    "owl"
+   ],
+   "what": "Look only: Owl state study 01: rear gear mechanism hit and break. The owl has no HP in GDD 1.3 (§7A): damage states are a proposal; look only",
+   "cards": [
+    "MVP 7",
+    "MVP 12"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "Discord #art-direction, Ricky, 10 Nov"
+  },
+  {
+   "id": "d-wing-damage",
+   "path": "pipeline/art/reference/discord/20261110-1047_Ricky_2.png",
+   "kind": "image",
+   "role": [
+    "owl"
+   ],
+   "what": "Look only: Owl state study 02: wing damage and disable (proposal; look only)",
+   "cards": [
+    "MVP 12"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "Discord #art-direction, Ricky, 10 Nov"
+  },
+  {
+   "id": "d-flip-throw",
+   "path": "pipeline/art/reference/discord/20261110-1048_Ricky_1.png",
+   "kind": "image",
+   "role": [
+    "owl"
+   ],
+   "what": "Look only: Rear mechanism over-back flip throw, gear on chain (proposal; look only)",
+   "cards": [
+    "MVP 7"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "Discord #art-direction, Ricky, 10 Nov"
+  },
+  {
+   "id": "d-toss-kick",
+   "path": "pipeline/art/reference/discord/20261110-1048_Ricky_2.png",
+   "kind": "image",
+   "role": [
+    "owl"
+   ],
+   "what": "Look only: Middle mechanism toss and kick, lantern cage (proposal; look only)",
+   "cards": [
+    "MVP 7"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "Discord #art-direction, Ricky, 10 Nov"
+  },
+  {
+   "id": "d-arc-chain",
+   "path": "pipeline/art/reference/discord/20261110-1048_Ricky_3.png",
+   "kind": "image",
+   "role": [
+    "owl"
+   ],
+   "what": "Look only: Middle mechanism arc chain cast; the returning arc is an Experiment in GDD 1.3 §7 (proposal; look only)",
+   "cards": [
+    "MVP 7"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "Discord #art-direction, Ricky, 10 Nov"
+  },
+  {
+   "id": "d-ella-eyes",
+   "path": "pipeline/art/reference/discord/20261110-1049_Ricky_1.png",
+   "kind": "image",
+   "role": [
+    "character poses"
+   ],
+   "what": "Look only: Ella eye study: cloth mask, yellow glowing eyes with motion traces, hat on and off ('I didn't understand her dark face so I gave her a mask and yellow glowing eyes')",
+   "cards": [
+    "0.10b",
+    "MVP 12"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "Discord #art-direction, Ricky, 10 Nov"
+  },
+  {
+   "id": "d-clock-damage",
+   "path": "pipeline/art/reference/discord/20261110-1220_Ricky_1.png",
+   "kind": "image",
+   "role": [
+    "owl"
+   ],
+   "what": "Look only: Clock damage and failure: glass cracks, hand stops, keeper alive. GDD 1.3 keeps the clock-hit cue only (attack interruption OFF): look only",
+   "cards": [
+    "MVP 7"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "Discord #art-direction, Ricky, 10 Nov"
+  },
+  {
+   "id": "bar-casters",
+   "path": "pipeline/art/reference/discord/20261111-0319_Ricky_roadwarden-sundial-casters.png",
+   "kind": "image",
+   "role": [
+    "quality bar"
+   ],
+   "tier": "top",
+   "what": "THE top bar for rendering quality, character detail and projectile/VFX construction (Josh, 11 Nov: anything short of this is a complete failure). 'Roadwarden / Sundial Casters, key poses and shared shots, study 01': painted turnaround Ready/Aim/Fire/Recover; red and yellow projectiles built as bright core, shell and trail; tell, release, travel, fade sequences; light spill. The characters are a design proposal for Richard: LOOK and quality only, no mechanics",
+   "cards": [
+    "0.10",
+    "0.10b",
+    "0.10c",
+    "MVP 7",
+    "MVP 9",
+    "MVP 10",
+    "MVP 12"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "Discord #art-direction, Ricky, 2026-11-11T03:19Z (JPEG, stored as PNG for the judge)"
+  },
+  {
+   "id": "bar-other-realm",
+   "path": "pipeline/art/reference/discord/20261111-0318_Ricky_other-realm.png",
+   "kind": "image",
+   "role": [
+    "quality bar"
+   ],
+   "tier": "top",
+   "what": "The bar for scene mood, atmosphere and wind-flow rendering: 'Other Realm, hybrid study, proposed 01': dark scene, ash-blue wind-flow ribbons, floating eroded islands, gold shots, red bolts. This is how the WIND-01 zone should read (flowing ribbons, never a flat box). The realm is a design proposal for Richard: LOOK and quality only, no mechanics",
+   "cards": [
+    "0.10",
+    "0.10c",
+    "MVP 11",
+    "MVP 12"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "Discord #art-direction, Ricky, 2026-11-11T03:18Z"
+  },
+  {
+   "id": "menu-style-bar",
+   "path": null,
+   "kind": "described",
+   "role": [
+    "menu style bar"
+   ],
+   "what": "Written target for every menu screen and transition (title, pause, settings, Survived and fail): the feel of the paper cut-out, shadow-puppet animated end-credits sequence of the 2004 film 'Lemony Snicket's A Series of Unfortunate Events', in our brand and never deviating from our art. No frame of that film is stored or copied (copyright; Official Rules §7(h) and §15(d) ask for original work)",
+   "description": [
+    "layered paper cut-out silhouettes in near-black ink",
+    "parallax depth planes: three or more paper layers that slide at different speeds",
+    "hand-made, stop-motion-like motion: stepped timing, slight jitter, never smooth tweened easing",
+    "ink-and-paper textures on every surface: the game's aged, stained sepia paper and etched lines",
+    "gothic storybook typography",
+    "the game's limited palette only (style.json: paper, ink, gold/amber, rust red)",
+    "a painted vignette darkening the paper edges (part of the menu art, not the post-process vignette, which stays off)"
+   ],
+   "cards": [
+    "0.21b"
+   ],
+   "judge": false,
+   "required": false,
+   "origin": "Josh, 11 Nov (written; no image)"
+  },
+  {
+   "id": "study-ella-character",
+   "path": "Assets/Art/Ella-Character-Study-01.png",
+   "kind": "image",
+   "role": [
+    "team art",
+    "character poses",
+    "palette"
+   ],
+   "what": "Ella hero sheet: front, 3/4, side and back turnaround with the umbrella stowed on her back, hidden face, silhouette and etched-texture versions, materials and the INK-to-PAPER palette",
+   "cards": [
+    "0.10b",
+    "MVP 12"
+   ],
+   "consulted_by": [
+    "0.28"
+   ],
+   "judge": true,
+   "required": false,
+   "note": "Look only: any gameplay in it that is not in the current GDD is a proposal, never a new mechanic. Optional: a repo without this file leaves the entry out.",
+   "origin": "Assets/Art/ in the practice repo (Ricky, 10 Nov)"
+  },
+  {
+   "id": "study-ella-freefall",
+   "path": "Assets/Art/Ella-FreeFall-Pose-Study-01.png",
+   "kind": "image",
+   "role": [
+    "team art",
+    "character poses"
+   ],
+   "what": "Ella fast free fall: riding the closed umbrella point-down like a pogo, one hand on the hat, speed lines and the falling silhouette",
+   "cards": [
+    "0.10b",
+    "MVP 12"
+   ],
+   "consulted_by": [
+    "0.28",
+    "MVP 2"
+   ],
+   "judge": true,
+   "required": false,
+   "note": "Look only: any gameplay in it that is not in the current GDD is a proposal, never a new mechanic. Optional: a repo without this file leaves the entry out.",
+   "origin": "Assets/Art/ in the practice repo (Ricky, 10 Nov)"
+  },
+  {
+   "id": "study-ella-needle-1",
+   "path": "Assets/Art/Ella-Needle-Spell-Study-01.png",
+   "kind": "image",
+   "role": [
+    "team art",
+    "character poses",
+    "effects"
+   ],
+   "what": "Ella needle spell: canopy open behind her, shaft held level like a lance firing separate gold pulse shots forward (build, release, next pulse) and the small-scale silhouette",
+   "cards": [
+    "0.10b",
+    "MVP 12"
+   ],
+   "consulted_by": [
+    "MVP 9"
+   ],
+   "judge": true,
+   "required": false,
+   "note": "Look only: any gameplay in it that is not in the current GDD is a proposal, never a new mechanic. Optional: a repo without this file leaves the entry out.",
+   "origin": "Assets/Art/ in the practice repo (Ricky, 10 Nov)"
+  },
+  {
+   "id": "study-ella-needle-2",
+   "path": "Assets/Art/Ella-Needle-Spell-Study-02.png",
+   "kind": "image",
+   "role": [
+    "team art",
+    "character poses",
+    "effects"
+   ],
+   "what": "Ella needle spell, second pass of study 01 (same pose, gold pulse shots along the level shaft)",
+   "cards": [
+    "0.10b",
+    "MVP 12"
+   ],
+   "consulted_by": [
+    "MVP 9"
+   ],
+   "judge": true,
+   "required": false,
+   "note": "The same bytes as Assets/Conceptual Art/Ella-Needle-Spell-Study-02.png (concept-ella-needle-2); each repo has one of the two paths. Look only: any gameplay in it that is not in the current GDD is a proposal, never a new mechanic. Optional: a repo without this file leaves the entry out.",
+   "origin": "Assets/Art/ in the practice repo (Ricky, 10 Nov)"
+  },
+  {
+   "id": "study-ella-rising-1",
+   "path": "Assets/Art/Ella-Rising-Pose-Study-01.png",
+   "kind": "image",
+   "role": [
+    "team art",
+    "character poses",
+    "scale"
+   ],
+   "what": "Ella rising: umbrella open overhead, firm two-hand grip, weight hanging below, gold lift sparks at the canopy rim, and the suspended silhouette",
+   "cards": [
+    "0.10b",
+    "MVP 12"
+   ],
+   "consulted_by": [
+    "0.28",
+    "MVP 2",
+    "MVP 3"
+   ],
+   "judge": true,
+   "required": false,
+   "note": "Look only: any gameplay in it that is not in the current GDD is a proposal, never a new mechanic. Optional: a repo without this file leaves the entry out.",
+   "origin": "Assets/Art/ in the practice repo (Ricky, 10 Nov)"
+  },
+  {
+   "id": "study-ella-rising-2",
+   "path": "Assets/Art/Ella-Rising-Pose-Study-02.png",
+   "kind": "image",
+   "role": [
+    "team art",
+    "character poses",
+    "scale"
+   ],
+   "what": "Ella rising, second pass of study 01 (handle with the clock-hand terminal below the grip)",
+   "cards": [
+    "0.10b",
+    "MVP 12"
+   ],
+   "consulted_by": [
+    "0.28",
+    "MVP 2",
+    "MVP 3"
+   ],
+   "judge": true,
+   "required": false,
+   "note": "Look only: any gameplay in it that is not in the current GDD is a proposal, never a new mechanic. Optional: a repo without this file leaves the entry out.",
+   "origin": "Assets/Art/ in the practice repo (Ricky, 10 Nov)"
+  },
+  {
+   "id": "study-ella-small-blasts",
+   "path": "Assets/Art/Ella-SmallBlasts-Cycle-Study-01.png",
+   "kind": "image",
+   "role": [
+    "team art",
+    "character poses",
+    "effects"
+   ],
+   "what": "Ella small blasts: four-step cycle with the umbrella held level (ready folded, open with one gold magic pulse, close, ready again)",
+   "cards": [
+    "0.10b",
+    "MVP 12"
+   ],
+   "consulted_by": [
+    "MVP 9"
+   ],
+   "judge": true,
+   "required": false,
+   "note": "The same bytes as Assets/Conceptual Art/Ella-SmallBlasts-Cycle-Study-01.png (concept-ella-small-blasts); each repo has one of the two paths. Look only: any gameplay in it that is not in the current GDD is a proposal, never a new mechanic. Optional: a repo without this file leaves the entry out.",
+   "origin": "Assets/Art/ in the practice repo (Ricky, 10 Nov)"
+  },
+  {
+   "id": "study-ella-stored-thunder",
+   "path": "Assets/Art/Ella-StoredThunder-Study-02.png",
+   "kind": "image",
+   "role": [
+    "team art",
+    "character poses",
+    "effects"
+   ],
+   "what": "Ella stored thunder: the whole open umbrella charged with gold lightning, one heavy forward discharge and its pulse, release and aftershock rhythm",
+   "cards": [
+    "0.10b",
+    "MVP 12"
+   ],
+   "consulted_by": [
+    "MVP 9"
+   ],
+   "judge": true,
+   "required": false,
+   "note": "The same bytes as Assets/Conceptual Art/Ella-StoredThunder-Study-02.png (concept-ella-stored-thunder); each repo has one of the two paths. Look only: any gameplay in it that is not in the current GDD is a proposal, never a new mechanic. Optional: a repo without this file leaves the entry out.",
+   "origin": "Assets/Art/ in the practice repo (Ricky, 10 Nov)"
+  },
+  {
+   "id": "study-ella-streamed-blast",
+   "path": "Assets/Art/Ella-StreamedBlast-Shoulder-Study-03.png",
+   "kind": "image",
+   "role": [
+    "team art",
+    "character poses",
+    "effects"
+   ],
+   "what": "Ella streamed blast: umbrella open on her shoulder, a continuous gold stream sourced inside the canopy, with the canopy close-up and the small-scale silhouette",
+   "cards": [
+    "0.10b",
+    "MVP 12"
+   ],
+   "consulted_by": [
+    "MVP 9"
+   ],
+   "judge": true,
+   "required": false,
+   "note": "The same bytes as Assets/Conceptual Art/Ella-StreamedBlast-Shoulder-Study-03.png (concept-ella-streamed-blast); each repo has one of the two paths. Look only: any gameplay in it that is not in the current GDD is a proposal, never a new mechanic. Optional: a repo without this file leaves the entry out.",
+   "origin": "Assets/Art/ in the practice repo (Ricky, 10 Nov)"
+  },
+  {
+   "id": "study-ella-twin-stars",
+   "path": "Assets/Art/Ella-TwinStars-Study-01.png",
+   "kind": "image",
+   "role": [
+    "team art",
+    "character poses",
+    "effects"
+   ],
+   "what": "Ella twin stars: open canopy held forward, two gold star shots leaving the upper and lower canopy tips on two forward lanes",
+   "cards": [
+    "0.10b",
+    "MVP 12"
+   ],
+   "consulted_by": [
+    "MVP 9"
+   ],
+   "judge": true,
+   "required": false,
+   "note": "The same bytes as Assets/Conceptual Art/Ella-TwinStars-Study-01.png (concept-ella-twin-stars); each repo has one of the two paths. Look only: any gameplay in it that is not in the current GDD is a proposal, never a new mechanic. Optional: a repo without this file leaves the entry out.",
+   "origin": "Assets/Art/ in the practice repo (Ricky, 10 Nov)"
+  },
+  {
+   "id": "study-environment",
+   "path": "Assets/Art/Environment-Study-01.png",
+   "kind": "image",
+   "role": [
+    "team art",
+    "scale",
+    "composition target"
+   ],
+   "what": "Layered world: a medieval town on a shore under a darkening sky with an upper flight limit, travel to the right, parallax layers (sky, distant land, town and shore, black near ground), materials and palette",
+   "cards": [
+    "0.10c",
+    "MVP 12"
+   ],
+   "consulted_by": [
+    "0.10"
+   ],
+   "judge": true,
+   "required": false,
+   "note": "Look only: any gameplay in it that is not in the current GDD is a proposal, never a new mechanic. Optional: a repo without this file leaves the entry out.",
+   "origin": "Assets/Art/ in the practice repo (Ricky, 10 Nov)"
+  },
+  {
+   "id": "study-foundation",
+   "path": "Assets/Art/Foundation-Study-01.png",
+   "kind": "image",
+   "role": [
+    "team art",
+    "palette"
+   ],
+   "what": "Visual foundation: materials (blackened iron, aged bronze, dark steel, umbrella cloth, paper and ink, abstract ground), the world palette with gold and red for magic shots only, and soft, side-lit and in-motion lighting on the owl's wing and clock",
+   "cards": [
+    "0.10b",
+    "MVP 12"
+   ],
+   "consulted_by": [
+    "0.10"
+   ],
+   "judge": true,
+   "required": false,
+   "note": "Look only: any gameplay in it that is not in the current GDD is a proposal, never a new mechanic. Optional: a repo without this file leaves the entry out.",
+   "origin": "Assets/Art/ in the practice repo (Ricky, 10 Nov)"
+  },
+  {
+   "id": "study-keeper-front-grip",
+   "path": "Assets/Art/Keeper-Front-Grip-Study-04.png",
+   "kind": "image",
+   "role": [
+    "team art",
+    "owl"
+   ],
+   "what": "Keeper of Time front mechanism: a talon grips a ring on a chain, loads it under the body and releases it (grip, load, release); a mechanical handling study",
+   "cards": [
+    "MVP 7"
+   ],
+   "judge": true,
+   "required": false,
+   "note": "Look only: any gameplay in it that is not in the current GDD is a proposal, never a new mechanic. Optional: a repo without this file leaves the entry out.",
+   "origin": "Assets/Art/ in the practice repo (Ricky, 10 Nov)"
+  },
+  {
+   "id": "study-keeper-red-shots",
+   "path": "Assets/Art/Keeper-Red-Shots-Study-02.png",
+   "kind": "image",
+   "role": [
+    "team art",
+    "effects",
+    "owl"
+   ],
+   "what": "Keeper red shots: the firing tell at the chest, a volley of red bolts at Ella, each shot's tell, release, travel and fade, bright core, red shell and short trail, and the temporary light spill",
+   "cards": [
+    "0.10b",
+    "MVP 7"
+   ],
+   "judge": true,
+   "required": false,
+   "note": "Look only: any gameplay in it that is not in the current GDD is a proposal, never a new mechanic. Optional: a repo without this file leaves the entry out.",
+   "origin": "Assets/Art/ in the practice repo (Ricky, 10 Nov)"
+  },
+  {
+   "id": "study-keeper-talon-rake",
+   "path": "Assets/Art/Keeper-Talon-Rake-Study-07.png",
+   "kind": "image",
+   "role": [
+    "team art",
+    "owl"
+   ],
+   "what": "Keeper talon rake: side view with a sliding mechanical leg that extends and retracts (warning, extend, rake, retract)",
+   "cards": [
+    "MVP 7"
+   ],
+   "judge": true,
+   "required": false,
+   "note": "Look only: any gameplay in it that is not in the current GDD is a proposal, never a new mechanic. Optional: a repo without this file leaves the entry out.",
+   "origin": "Assets/Art/ in the practice repo (Ricky, 10 Nov)"
+  },
+  {
+   "id": "study-keeper-wing-gust",
+   "path": "Assets/Art/Keeper-Wing-Gust-Study-02.png",
+   "kind": "image",
+   "role": [
+    "team art",
+    "effects",
+    "owl"
+   ],
+   "what": "Keeper wing gust: warning, flap, gust and recovery; pale ash-blue wind streaks, a damaging gust versus a rideable current, and Ella pushed back in each movement mode",
+   "cards": [
+    "0.10c",
+    "MVP 11"
+   ],
+   "judge": true,
+   "required": false,
+   "note": "Look only: any gameplay in it that is not in the current GDD is a proposal, never a new mechanic. Optional: a repo without this file leaves the entry out.",
+   "origin": "Assets/Art/ in the practice repo (Ricky, 10 Nov)"
+  },
+  {
+   "id": "study-keeper-yellow-shots",
+   "path": "Assets/Art/Keeper-Yellow-Shots-Study-03.png",
+   "kind": "image",
+   "role": [
+    "team art",
+    "effects"
+   ],
+   "what": "Keeper yellow shots: gold-yellow bolts fired at Ella, pulled into the open umbrella and captured, with the light they throw on Ella in each movement mode",
+   "cards": [
+    "MVP 10"
+   ],
+   "judge": true,
+   "required": false,
+   "note": "Look only: any gameplay in it that is not in the current GDD is a proposal, never a new mechanic. Optional: a repo without this file leaves the entry out.",
+   "origin": "Assets/Art/ in the practice repo (Ricky, 10 Nov)"
+  },
+  {
+   "id": "study-keeper-character",
+   "path": "Assets/Art/KeeperofTime-Character-Study-02.png",
+   "kind": "image",
+   "role": [
+    "team art",
+    "owl",
+    "palette"
+   ],
+   "what": "The Clockkeeper: the mechanical owl with wings spread, chest clock and three hanging mechanisms; 3/4, side and back views, silhouette, close-ups and materials",
+   "cards": [
+    "0.10b",
+    "MVP 7",
+    "MVP 12"
+   ],
+   "consulted_by": [
+    "0.28"
+   ],
+   "judge": true,
+   "required": false,
+   "note": "Look only: any gameplay in it that is not in the current GDD is a proposal, never a new mechanic. Optional: a repo without this file leaves the entry out.",
+   "origin": "Assets/Art/ in the practice repo (Ricky, 10 Nov)"
+  },
+  {
+   "id": "study-umbrella-prop",
+   "path": "Assets/Art/Umbrella-Prop-Study-03.png",
+   "kind": "image",
+   "role": [
+    "team art",
+    "character poses"
+   ],
+   "what": "Ella's umbrella: open and closed, crown finial and clock-hand terminal, and the health stages 100/75/50/25 % as the cloth drains and tears",
+   "cards": [
+    "MVP 4",
+    "MVP 12"
+   ],
+   "consulted_by": [
+    "0.10b",
+    "MVP 10"
+   ],
+   "judge": true,
+   "required": false,
+   "note": "Look only: any gameplay in it that is not in the current GDD is a proposal, never a new mechanic. Optional: a repo without this file leaves the entry out.",
+   "origin": "Assets/Art/ in the practice repo (Ricky, 10 Nov)"
+  },
+  {
+   "id": "concept-ella-eye-trace",
+   "path": "Assets/Conceptual Art/Ella-Mask-Eye-Trail-Study-02.png",
+   "kind": "image",
+   "role": [
+    "team art",
+    "character poses"
+   ],
+   "what": "Ella eye trace: the masked face with glowing gold eyes, hat on and off, steady glow and a short tapering motion trace",
+   "cards": [
+    "0.10b",
+    "MVP 12"
+   ],
+   "judge": true,
+   "required": false,
+   "note": "Look only: any gameplay in it that is not in the current GDD is a proposal, never a new mechanic. Optional: a repo without this file leaves the entry out.",
+   "origin": "Assets/Conceptual Art/ on GameJam2026 main ('Asset List', 11 Nov)"
+  },
+  {
+   "id": "concept-ella-needle-2",
+   "path": "Assets/Conceptual Art/Ella-Needle-Spell-Study-02.png",
+   "kind": "image",
+   "role": [
+    "team art",
+    "character poses",
+    "effects"
+   ],
+   "what": "Ella needle spell, second pass of study 01 (same pose, gold pulse shots along the level shaft)",
+   "cards": [
+    "0.10b",
+    "MVP 12"
+   ],
+   "consulted_by": [
+    "MVP 9"
+   ],
+   "judge": true,
+   "required": false,
+   "note": "The same bytes as Assets/Art/Ella-Needle-Spell-Study-02.png (study-ella-needle-2); each repo has one of the two paths. Look only: any gameplay in it that is not in the current GDD is a proposal, never a new mechanic. Optional: a repo without this file leaves the entry out.",
+   "origin": "Assets/Conceptual Art/ on GameJam2026 main ('Asset List', 11 Nov)"
+  },
+  {
+   "id": "concept-ella-small-blasts",
+   "path": "Assets/Conceptual Art/Ella-SmallBlasts-Cycle-Study-01.png",
+   "kind": "image",
+   "role": [
+    "team art",
+    "character poses",
+    "effects"
+   ],
+   "what": "Ella small blasts: four-step cycle with the umbrella held level (ready folded, open with one gold magic pulse, close, ready again)",
+   "cards": [
+    "0.10b",
+    "MVP 12"
+   ],
+   "consulted_by": [
+    "MVP 9"
+   ],
+   "judge": true,
+   "required": false,
+   "note": "The same bytes as Assets/Art/Ella-SmallBlasts-Cycle-Study-01.png (study-ella-small-blasts); each repo has one of the two paths. Look only: any gameplay in it that is not in the current GDD is a proposal, never a new mechanic. Optional: a repo without this file leaves the entry out.",
+   "origin": "Assets/Conceptual Art/ on GameJam2026 main ('Asset List', 11 Nov)"
+  },
+  {
+   "id": "concept-ella-stored-thunder",
+   "path": "Assets/Conceptual Art/Ella-StoredThunder-Study-02.png",
+   "kind": "image",
+   "role": [
+    "team art",
+    "character poses",
+    "effects"
+   ],
+   "what": "Ella stored thunder: the whole open umbrella charged with gold lightning, one heavy forward discharge and its pulse, release and aftershock rhythm",
+   "cards": [
+    "0.10b",
+    "MVP 12"
+   ],
+   "consulted_by": [
+    "MVP 9"
+   ],
+   "judge": true,
+   "required": false,
+   "note": "The same bytes as Assets/Art/Ella-StoredThunder-Study-02.png (study-ella-stored-thunder); each repo has one of the two paths. Look only: any gameplay in it that is not in the current GDD is a proposal, never a new mechanic. Optional: a repo without this file leaves the entry out.",
+   "origin": "Assets/Conceptual Art/ on GameJam2026 main ('Asset List', 11 Nov)"
+  },
+  {
+   "id": "concept-ella-streamed-blast",
+   "path": "Assets/Conceptual Art/Ella-StreamedBlast-Shoulder-Study-03.png",
+   "kind": "image",
+   "role": [
+    "team art",
+    "character poses",
+    "effects"
+   ],
+   "what": "Ella streamed blast: umbrella open on her shoulder, a continuous gold stream sourced inside the canopy, with the canopy close-up and the small-scale silhouette",
+   "cards": [
+    "0.10b",
+    "MVP 12"
+   ],
+   "consulted_by": [
+    "MVP 9"
+   ],
+   "judge": true,
+   "required": false,
+   "note": "The same bytes as Assets/Art/Ella-StreamedBlast-Shoulder-Study-03.png (study-ella-streamed-blast); each repo has one of the two paths. Look only: any gameplay in it that is not in the current GDD is a proposal, never a new mechanic. Optional: a repo without this file leaves the entry out.",
+   "origin": "Assets/Conceptual Art/ on GameJam2026 main ('Asset List', 11 Nov)"
+  },
+  {
+   "id": "concept-ella-twin-stars",
+   "path": "Assets/Conceptual Art/Ella-TwinStars-Study-01.png",
+   "kind": "image",
+   "role": [
+    "team art",
+    "character poses",
+    "effects"
+   ],
+   "what": "Ella twin stars: open canopy held forward, two gold star shots leaving the upper and lower canopy tips on two forward lanes",
+   "cards": [
+    "0.10b",
+    "MVP 12"
+   ],
+   "consulted_by": [
+    "MVP 9"
+   ],
+   "judge": true,
+   "required": false,
+   "note": "The same bytes as Assets/Art/Ella-TwinStars-Study-01.png (study-ella-twin-stars); each repo has one of the two paths. Look only: any gameplay in it that is not in the current GDD is a proposal, never a new mechanic. Optional: a repo without this file leaves the entry out.",
+   "origin": "Assets/Conceptual Art/ on GameJam2026 main ('Asset List', 11 Nov)"
+  }
+ ],
+ "elements": {
+  "ella-up-open": {
+   "what": "Ella with the umbrella open overhead (UP_OPEN), the anchor 'Ella open'",
+   "refs": [
+    "ella-rising",
+    "witch-cast",
+    "d-ella-eyes",
+    "study-ella-rising-1",
+    "study-ella-rising-2",
+    "concept-ella-eye-trace",
+    "bar-casters"
+   ],
+   "score_min": 0.532,
+   "detail_min": 0.274,
+   "calibration": {
+    "method": "leave-one-out on the team images (quality bar excluded)",
+    "margin": 0.02,
+    "measured": "2026-11-11",
+    "loo": {
+     "ella-rising": 0.552,
+     "witch-cast": 0.552,
+     "d-ella-eyes": 0.879
+    },
+    "detail": {
+     "ella-rising": 0.468,
+     "witch-cast": 0.516,
+     "d-ella-eyes": 0.294
+    }
+   }
+  },
+  "ella-closed": {
+   "what": "Ella with the umbrella closed (the anchor 'Ella closed', falling states)",
+   "refs": [
+    "ella-freefall",
+    "ella-shooting",
+    "d-ella-eyes",
+    "study-ella-character",
+    "study-ella-freefall",
+    "concept-ella-eye-trace",
+    "bar-casters"
+   ],
+   "score_min": 0.749,
+   "detail_min": 0.274,
+   "calibration": {
+    "method": "leave-one-out on the team images (quality bar excluded)",
+    "margin": 0.02,
+    "measured": "2026-11-11",
+    "loo": {
+     "ella-freefall": 0.769,
+     "ella-shooting": 0.769,
+     "d-ella-eyes": 0.879
+    },
+    "detail": {
+     "ella-freefall": 0.682,
+     "ella-shooting": 0.637,
+     "d-ella-eyes": 0.294
+    }
+   }
+  },
+  "ella-attack": {
+   "what": "ATTACK_DESCENT: umbrella level like a lance, wand firing",
+   "refs": [
+    "ella-shooting",
+    "witch-cast",
+    "d-ella-eyes",
+    "study-ella-needle-1",
+    "study-ella-needle-2",
+    "study-ella-small-blasts",
+    "study-ella-stored-thunder",
+    "study-ella-streamed-blast",
+    "study-ella-twin-stars",
+    "concept-ella-eye-trace",
+    "concept-ella-needle-2",
+    "concept-ella-small-blasts",
+    "concept-ella-stored-thunder",
+    "concept-ella-streamed-blast",
+    "concept-ella-twin-stars",
+    "bar-casters"
+   ],
+   "score_min": 0.554,
+   "detail_min": 0.274,
+   "calibration": {
+    "method": "leave-one-out on the team images (quality bar excluded)",
+    "margin": 0.02,
+    "measured": "2026-11-11",
+    "loo": {
+     "ella-shooting": 0.574,
+     "witch-cast": 0.574,
+     "d-ella-eyes": 0.879
+    },
+    "detail": {
+     "ella-shooting": 0.637,
+     "witch-cast": 0.516,
+     "d-ella-eyes": 0.294
+    }
+   }
+  },
+  "ella-shield": {
+   "what": "SHIELD_DESCENT: canopy turned forward",
+   "refs": [
+    "ella-absorbing",
+    "witch-guard",
+    "d-yellow-shots",
+    "d-yellow-crop",
+    "d-ella-eyes",
+    "study-keeper-yellow-shots",
+    "concept-ella-eye-trace",
+    "bar-casters"
+   ],
+   "score_min": 0.497,
+   "detail_min": 0.274,
+   "calibration": {
+    "method": "leave-one-out on the team images (quality bar excluded)",
+    "margin": 0.02,
+    "measured": "2026-11-11",
+    "loo": {
+     "ella-absorbing": 0.611,
+     "witch-guard": 0.517,
+     "d-yellow-shots": 0.899,
+     "d-yellow-crop": 0.899,
+     "d-ella-eyes": 0.88
+    },
+    "detail": {
+     "ella-absorbing": 0.684,
+     "witch-guard": 0.516,
+     "d-yellow-shots": 0.384,
+     "d-yellow-crop": 0.299,
+     "d-ella-eyes": 0.294
+    }
+   }
+  },
+  "umbrella": {
+   "what": "the umbrella prop and its wear stages",
+   "refs": [
+    "umbrella-stance",
+    "study-umbrella-prop"
+   ],
+   "score_min": 0.5,
+   "detail_min": 0.403,
+   "calibration": {
+    "method": "leave-one-out on the team images (quality bar excluded)",
+    "margin": 0.02,
+    "measured": "2026-11-11",
+    "loo": {},
+    "detail": {
+     "umbrella-stance": 0.423
+    },
+    "note": "one team image and nothing to compare it with: score_min not measurable"
+   }
+  },
+  "owl": {
+   "what": "the owl (body, wings, chest clock)",
+   "refs": [
+    "owl-flap",
+    "d-talon-rake",
+    "d-gear-break",
+    "d-wing-damage",
+    "d-flip-throw",
+    "d-toss-kick",
+    "d-arc-chain",
+    "d-clock-damage",
+    "study-keeper-front-grip",
+    "study-keeper-talon-rake",
+    "study-keeper-character"
+   ],
+   "score_min": 0.525,
+   "detail_min": 0.301,
+   "calibration": {
+    "method": "leave-one-out on the team images (quality bar excluded)",
+    "margin": 0.02,
+    "measured": "2026-11-11",
+    "loo": {
+     "owl-flap": 0.545,
+     "d-talon-rake": 0.969,
+     "d-gear-break": 0.993,
+     "d-wing-damage": 0.979,
+     "d-flip-throw": 0.992,
+     "d-toss-kick": 0.992,
+     "d-arc-chain": 0.992,
+     "d-clock-damage": 0.993
+    },
+    "detail": {
+     "owl-flap": 0.655,
+     "d-talon-rake": 0.456,
+     "d-gear-break": 0.464,
+     "d-wing-damage": 0.45,
+     "d-flip-throw": 0.321,
+     "d-toss-kick": 0.322,
+     "d-arc-chain": 0.394,
+     "d-clock-damage": 0.491
+    }
+   }
+  },
+  "owl-bolt": {
+   "what": "the owl's rust-red cross bolt",
+   "refs": [
+    "owl-missile",
+    "owl-missile-travel",
+    "d-red-shots",
+    "d-clock-double-beat",
+    "study-keeper-red-shots",
+    "bar-casters"
+   ],
+   "score_min": 0.945,
+   "detail_min": 0.263,
+   "calibration": {
+    "method": "leave-one-out on the team images (quality bar excluded)",
+    "margin": 0.02,
+    "measured": "2026-11-11",
+    "loo": {
+     "owl-missile": 1.0,
+     "owl-missile-travel": 1.0,
+     "d-red-shots": 0.965,
+     "d-clock-double-beat": 0.965
+    },
+    "detail": {
+     "owl-missile": 0.283,
+     "owl-missile-travel": 0.283,
+     "d-red-shots": 0.445,
+     "d-clock-double-beat": 0.398
+    }
+   }
+  },
+  "bolt-hit": {
+   "what": "the bolt impact",
+   "refs": [
+    "owl-missile-hit",
+    "bar-casters"
+   ],
+   "score_min": 0.53,
+   "detail_min": 0.25,
+   "calibration": {
+    "method": "leave-one-out on the team images (quality bar excluded)",
+    "margin": 0.02,
+    "measured": "2026-11-11",
+    "loo": {
+     "owl-missile-hit": 0.55
+    },
+    "detail": {
+     "owl-missile-hit": 0.27
+    }
+   }
+  },
+  "wand-shot": {
+   "what": "Ella's gold star wand shot",
+   "refs": [
+    "wand-star",
+    "bar-casters"
+   ],
+   "score_min": 0.334,
+   "detail_min": 0.077,
+   "calibration": {
+    "method": "leave-one-out on the team images (quality bar excluded)",
+    "margin": 0.02,
+    "measured": "2026-11-11",
+    "loo": {
+     "wand-star": 0.354
+    },
+    "detail": {
+     "wand-star": 0.097
+    }
+   }
+  },
+  "umbrella-repair": {
+   "what": "the shield-heal burst at the canopy",
+   "refs": [
+    "umbrella-repair",
+    "d-yellow-shots",
+    "study-keeper-yellow-shots",
+    "bar-casters"
+   ],
+   "score_min": 0.733,
+   "detail_min": 0.364,
+   "calibration": {
+    "method": "leave-one-out on the team images (quality bar excluded)",
+    "margin": 0.02,
+    "measured": "2026-11-11",
+    "loo": {
+     "d-yellow-shots": 0.753
+    },
+    "detail": {
+     "d-yellow-shots": 0.384
+    }
+   }
+  },
+  "wind-lines": {
+   "what": "decorative etched wind lines (never gameplay-looking)",
+   "refs": [
+    "wind-curl",
+    "d-wing-gust",
+    "study-keeper-wing-gust",
+    "bar-other-realm"
+   ],
+   "score_min": 0.582,
+   "detail_min": 0.421,
+   "calibration": {
+    "method": "leave-one-out on the team images (quality bar excluded)",
+    "margin": 0.02,
+    "measured": "2026-11-11",
+    "loo": {
+     "wind-curl": 0.602,
+     "d-wing-gust": 0.741
+    },
+    "detail": {
+     "wind-curl": 0.441,
+     "d-wing-gust": 0.482
+    }
+   }
+  },
+  "wind-zone": {
+   "what": "the WIND-01 upward wind zone: etched upward strokes, engraved border, paper tint; never a flat fill (screen_check)",
+   "refs": [
+    "wind-curl",
+    "d-wing-gust",
+    "study-keeper-wing-gust",
+    "bar-other-realm"
+   ],
+   "score_min": 0.582,
+   "detail_min": 0.421,
+   "calibration": {
+    "method": "leave-one-out on the team images (quality bar excluded)",
+    "margin": 0.02,
+    "measured": "2026-11-11",
+    "loo": {
+     "wind-curl": 0.602,
+     "d-wing-gust": 0.741
+    },
+    "detail": {
+     "wind-curl": 0.441,
+     "d-wing-gust": 0.482
+    }
+   }
+  },
+  "skyline": {
+   "what": "the black jagged skyline layer",
+   "refs": [
+    "gothic-skyline",
+    "study-environment"
+   ],
+   "score_min": 0.5,
+   "detail_min": 0.143,
+   "calibration": {
+    "method": "leave-one-out on the team images (quality bar excluded)",
+    "margin": 0.02,
+    "measured": "2026-11-11",
+    "loo": {},
+    "detail": {
+     "gothic-skyline": 0.163
+    },
+    "note": "one team image and nothing to compare it with: score_min not measurable"
+   }
+  },
+  "paper": {
+   "what": "the paper and far-sky layer",
+   "refs": [
+    "star-paper",
+    "study-foundation"
+   ],
+   "score_min": 0.5,
+   "detail_min": 0.085,
+   "calibration": {
+    "method": "leave-one-out on the team images (quality bar excluded)",
+    "margin": 0.02,
+    "measured": "2026-11-11",
+    "loo": {},
+    "detail": {
+     "star-paper": 0.105
+    },
+    "note": "one team image and nothing to compare it with: score_min not measurable"
+   }
+  },
+  "menu-screen": {
+   "what": "a menu screen or transition frame (title, pause, settings, Survived, fail) in the menu style",
+   "refs": [
+    "keyart",
+    "original-picture",
+    "menu-style-bar"
+   ],
+   "score_min": 0.973,
+   "described": "menu-style-bar",
+   "detail_min": 0.5,
+   "calibration": {
+    "method": "leave-one-out on the team images (quality bar excluded)",
+    "margin": 0.02,
+    "measured": "2026-11-11",
+    "loo": {
+     "keyart": 0.993,
+     "original-picture": 0.993
+    },
+    "detail": {
+     "keyart": 0.555,
+     "original-picture": 0.52
+    }
+   }
+  }
+ },
+ "scene": {
+  "what": "a build screenshot against the key-art composition. Ranges measured from keyart, original-picture and gameplay-02 (10 Nov) and wide enough for the art-bible gameplay sizes (Ella 80-100 px, owl 55-70% of the height at 1080p)",
+  "refs": [
+   "keyart",
+   "original-picture",
+   "gameplay-01",
+   "gameplay-02"
+  ],
+  "classes": {
+   "dark_l_max": 30,
+   "ella_l_max": 34,
+   "accent_chroma_min": 25,
+   "gold_hue": [
+    55,
+    95
+   ],
+   "gold_l_min": 50,
+   "rust_hue": [
+    15,
+    55
+   ]
+  },
+  "ella_x_min": 0.05,
+  "ella_x_max": 0.35,
+  "skyline_median": [
+   0.03,
+   0.25
+  ],
+  "skyline_cover_min": 0.9,
+  "owl": {
+   "cx": [
+    0.55,
+    0.9
+   ],
+   "h": [
+    0.45,
+    0.95
+   ],
+   "w": [
+    0.25,
+    0.9
+   ]
+  },
+  "ella": {
+   "cx": [
+    0.04,
+    0.35
+   ],
+   "h": [
+    0.04,
+    0.3
+   ]
+  },
+  "owl_to_ella_h_min": 3.0,
+  "gold_share_min": 0.0008,
+  "clock_in_owl_min": 0.6,
+  "rust_share_min": 0.0008,
+  "similarity_min": 0.732,
+  "status": "provisional: calibrate on the first in-engine rebuild (card 0.10, the key-art style frame)",
+  "calibration": {
+   "method": "leave-one-out on the scene references",
+   "margin": 0.02,
+   "measured": "2026-11-11",
+   "loo": {
+    "keyart": 0.986,
+    "original-picture": 0.986,
+    "gameplay-01": 0.752,
+    "gameplay-02": 0.81
+   }
+  }
+ },
+ "discord_note": "pipeline/art/reference/discord/ (index.json beside them: author, time, message, description; one byte-identical repost skipped) holds Ricky's #art-direction posts of 10 Nov. They show Ricky's proposed attacks and visuals. Use them for LOOK only: any gameplay in them that is not in the current GDD (absorbable yellow shots, wing gust attack, talon rake, double-beat, owl and clock damage states, throws and chain casts) is a design proposal for Richard, never a new mechanic. References only, never shipped (Official Rules §7(h)).",
+ "not_art_cards": {
+  "0.10a": "the colour-calibration swatch: art_check.py --swatch measures it, it is not game art",
+  "0.4d": "the TD's art dump script and import settings: no art is made",
+  "0.20": "the UI string table and text styles: text data, no art",
+  "0.35": "the Story role's screen copy: the SourceString cells of the UI string table, text, no art"
+ },
+ "quality_bar": {
+  "refs": [
+   "bar-casters",
+   "bar-other-realm"
+  ],
+  "rule": "Top tier, on top of the key-art composition target. Every art-loop round also puts our piece blind against a quality-bar image (bar-casters for characters and shot VFX, bar-other-realm for the scene and wind); a round passes only when the critic picks neither the piece reference nor the quality bar over ours. A frame or piece that reads as flat primitives or a rough placeholder is an automatic FAIL (screen_check.py flat/grey/outline, the element judge's flat-fill and off-palette caps).",
+  "by_piece": {
+   "wind-zone": "bar-other-realm",
+   "wind-lines": "bar-other-realm",
+   "scene": "bar-other-realm",
+   "skyline": "bar-other-realm",
+   "paper": "bar-other-realm",
+   "menu-screen": "bar-other-realm"
+  },
+  "default": "bar-casters",
+  "palette_note": "The quality-bar colours (ash-blue flow, hot red #FF3658, coral, the yellows) are in style.json as capped accents (Josh, DECIDED 2026-11-10, D-new-palette-accents): art_check.py accepts them only in their role, hue band and share cap."
+ },
+ "vfx_spec": {
+  "source": "bar-casters",
+  "sequence": [
+   "tell",
+   "release",
+   "travel",
+   "fade"
+  ],
+  "construction": "bright core, shell, trail, light spill on nearby surfaces",
+  "palette": {
+   "INK": "#171614",
+   "RED": "#FF3658",
+   "CORAL": "#FF7848",
+   "RED SHADOW": "#8F173C",
+   "YELLOW": "#FFD84A",
+   "AMBER": "#F5AA28",
+   "YELLOW SHADOW": "#94611E",
+   "CORE": "#FFF5DC"
+  },
+  "rule": "The spec for every shot VFX (owl bolts, wand shots, impacts): each one has the four stages and the core/shell/trail build. The palette is the bar image's; style.json carries it as the shot-red and shot-yellow capped accents, INK with the darks (see quality_bar.palette_note)."
+ },
+ "gdd_embedded": {
+  "_about": "Images the current GDD embeds (markdown ![..](path) or <img src=..>, relative to the GDD file) join the list each run: the GDD a run picked with kickoff --gdd ($JAM_GDD, tools/gdd_select.py, which prints the images it brings) is read, else the one docs/gdd/CURRENT names. An entry above with the same path keeps its role and cards. Not required: a GDD without images adds none.",
+  "from": "docs/gdd/CURRENT",
+  "role": [
+   "composition target",
+   "scale"
+  ],
+  "cards": [
+   "0.10",
+   "0.22"
+  ],
+  "judge": true,
+  "required": false
+ },
+ "team_art": {
+  "_about": "Every image (png, jpg, jpeg, webp, any case) under the team's art folders joins the list each run (tools/art_check.py load_spec, the loader every art tool shares), unless it is already listed: the same path, or the same bytes as a listed file or as a team image joined before it (an LFS pointer compares by its object id). A folder whose name says obsolete (for example Assets/'... Test Assets - obsolete') is skipped. A joined image gets these defaults: kind image, role team art, judge true (style context for the blind judge, look only like the #art-direction posts: gameplay comes from the GDD), no judge element and no card until the Art Director gives it its own entry above, and it is never shipped (submission_check.py assets). An image that cannot be read (not the picture its extension says, empty or truncated) fails art_check.py --references and --gate, art_judge.py coverage and kickoff --check; both print a `team art:` line with how many images joined.",
+  "folders": [
+   "Assets",
+   "Mockups"
+  ],
+  "skip_words": [
+   "obsolete"
+  ],
+  "role": [
+   "team art"
+  ],
+  "cards": [],
+  "consulted_by": [
+   "0.10",
+   "0.10b",
+   "0.10c"
+  ],
+  "judge": true,
+  "required": false
+ }
+}

@@ -1,0 +1,40 @@
+--- a/Source/UmbrellaElla/Public/Umbrella/UmbrellaStateComponent.h
++++ b/Source/UmbrellaElla/Public/Umbrella/UmbrellaStateComponent.h
+@@ -44,3 +44,9 @@
+ private:
++	void SetConfig(EUmbrellaConfig NewConfig);
++
++	// DEC-01: with nothing held the umbrella is UP_OPEN, so that is where it starts.
++	UPROPERTY()
++	EUmbrellaConfig Config = EUmbrellaConfig::UpOpen;
++
+ 	UPROPERTY()
+ 	TWeakObjectPtr<UGameEventsSubsystem> Events;
+--- a/Source/UmbrellaElla/Private/Umbrella/UmbrellaStateComponent.cpp
++++ b/Source/UmbrellaElla/Private/Umbrella/UmbrellaStateComponent.cpp
+@@ -12,4 +12,7 @@
+ EUmbrellaConfig FUmbrellaRules::ResolveConfig(const FUmbrellaInput& Input)
+ {
++	// DEC-01: shield wins over attack; nothing held is UP_OPEN.
++	if (Input.bShieldHeld) { return EUmbrellaConfig::ShieldDescent; }
++	if (Input.bAttackHeld) { return EUmbrellaConfig::AttackDescent; }
+ 	return EUmbrellaConfig::UpOpen;
+ }
+@@ -50,8 +53,16 @@
+ EUmbrellaConfig UUmbrellaStateComponent::GetConfig() const
+ {
+-	return EUmbrellaConfig::UpOpen;
++	return Config;
+ }
+ 
+ void UUmbrellaStateComponent::ApplyInput(const FUmbrellaInput& Input)
+ {
++	SetConfig(FUmbrellaRules::ResolveConfig(Input));
++}
++
++void UUmbrellaStateComponent::SetConfig(EUmbrellaConfig NewConfig)
++{
++	if (Config == NewConfig) { return; }
++	Config = NewConfig;
++	BroadcastConfigChanged();
+ }

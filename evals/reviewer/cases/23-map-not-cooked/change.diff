@@ -1,0 +1,19 @@
+--- a/Source/UmbrellaElla/Private/Encounter/EncounterDirectorSubsystem.cpp
++++ b/Source/UmbrellaElla/Private/Encounter/EncounterDirectorSubsystem.cpp
+@@ -8,8 +8,10 @@
+ 
+ void UEncounterDirectorSubsystem::StartGame()
+ {
++	UGameplayStatics::OpenLevel(this, FName(TEXT("L_Arena")));
+ }
+ 
+ void UEncounterDirectorSubsystem::ReturnToTitle()
+ {
++	UGameplayStatics::OpenLevel(this, FName(TEXT("L_Title")));
+ }
+--- a/Config/DefaultGame.ini
++++ b/Config/DefaultGame.ini
+@@ -7,2 +7,3 @@
+ bShareMaterialShaderCode=True
+ +MapsToCook=(FilePath="/Game/UmbrellaElla/Maps/L_Graybox")
+++MapsToCook=(FilePath="/Game/UmbrellaElla/Maps/L_Title")

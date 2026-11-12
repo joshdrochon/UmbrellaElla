@@ -1,0 +1,87 @@
+name: Task card
+description: One agent-sized piece of work (see pipeline/templates/task-card.md)
+title: "[UE-___] "
+labels: ["task"]
+body:
+  - type: input
+    id: mvp
+    attributes: {label: "MVP item (number from docs/jam-brief.md), Day 0, or Stretch: <name>"}
+    validations: {required: true}
+  - type: input
+    id: gdd
+    attributes: {label: "GDD ref (section + short quote; \"none\" for tooling cards)"}
+    validations: {required: true}
+  - type: input
+    id: gddrev
+    attributes: {label: "GDD revision (the one in docs/gdd/CURRENT, e.g. 1.3)"}
+    validations: {required: true}
+  - type: input
+    id: features
+    attributes: {label: "Features (IDs from docs/feature-manifest.json; add \"Hook only\" for an interface + default flag with no behavior, OPEN/PROPOSED only; \"none\" for tooling cards)"}
+    validations: {required: true}
+  - type: textarea
+    id: outcome
+    attributes: {label: "Player outcome (the player sees X, does Y, can tell why; \"none\" for tooling cards)"}
+    validations: {required: true}
+  - type: dropdown
+    id: owner
+    attributes:
+      label: Owner role
+      options: [Producer, Dev Lead, Technical Director, Gameplay Dev, Integrator, Art Director, Asset Specialist, Audio, QA and Build, Game Designer, Encounter Designer, Story, Level Designer, UI and UX, Agent Ops]
+    validations: {required: true}
+  - type: dropdown
+    id: reviewer
+    attributes:
+      label: Reviewer role (must differ from owner)
+      options: [Producer, Dev Lead, Technical Director, Integrator, Art Director, Audio, QA and Build, Game Designer, Encounter Designer, Level Designer, UI and UX, Story, Agent Ops, Gameplay Dev, Asset Specialist]
+    validations: {required: true}
+  - type: input
+    id: human
+    attributes: {label: "Human (asked only when the card is stuck; kickoff merges)"}
+    validations: {required: true}
+  - type: textarea
+    id: io
+    attributes: {label: "Inputs and outputs (exact paths)"}
+    validations: {required: true}
+  - type: textarea
+    id: context
+    attributes: {label: "Context (what the code or asset next to Outputs does today, with file:line)", description: "Read it before you design the change. Write \"new files only\" if nothing exists yet."}
+    validations: {required: true}
+  - type: textarea
+    id: lane
+    attributes:
+      label: "File lane, do-not-touch paths, binary files to lock"
+      description: "Three lines, each read on its own by tools/check_card.py. Lane is paths or globs, or \"GitHub only\" for a card that writes no files; never none/everything."
+      value: |
+        Lane: 
+        Do not touch: Content/UmbrellaElla/Maps/**
+        Locks: none
+    validations: {required: true}
+  - type: textarea
+    id: scope
+    attributes: {label: "Out of scope (behaviors not to build; the reviewer rejects them)"}
+    validations: {required: true}
+  - type: input
+    id: after
+    attributes: {label: "After (cards that must merge first: #<n> or UE-<n>, comma separated; \"none\")", description: "check_card.py --blocked-by reads it, so a blocked card holds only the cards that wait on it (AGENTS.md section 6)."}
+    validations: {required: false}
+  - type: textarea
+    id: usedby
+    attributes: {label: "Used by (BPs, maps, widgets or components that read what this card changes; follow-up card IDs)", description: "Name the follow-up card (#<n> or UE-<n>), or write none if nothing outside this lane reads it."}
+    validations: {required: true}
+  - type: input
+    id: needs
+    attributes: {label: "Needs (build | tests | editor MCP | Windows packaging machine)"}
+    validations: {required: true}
+  - type: textarea
+    id: done
+    attributes: {label: "Done when (each line checkable)"}
+    validations: {required: true}
+  - type: input
+    id: budget
+    attributes: {label: "Budget and cut tier", description: "<n> min agent + <n> min human, then the cut tier. Agent over 120 min or human over 60 min: split the card.", placeholder: "90 min agent + 20 min human, MVP"}
+    validations: {required: true}
+  - type: textarea
+    id: unknowns
+    attributes: {label: "Unknowns (Decision needed / Why it matters / Proposed test / Choice; \"none\" if none)"}
+    validations: {required: true}

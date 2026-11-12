@@ -1,0 +1,22 @@
+--- a/Source/UmbrellaElla/Public/Motor/PlayerMotorComponent.h
++++ b/Source/UmbrellaElla/Public/Motor/PlayerMotorComponent.h
+@@ -30,5 +30,7 @@
+ public:
+ 	UPlayerMotorComponent();
++	/** Upward lift for the current umbrella configuration, in uu/s^2. */
++	float ComputeLift();
+ 
+ protected:
+ 	virtual void BeginPlay() override;
+--- a/Source/UmbrellaElla/Private/Motor/PlayerMotorComponent.cpp
++++ b/Source/UmbrellaElla/Private/Motor/PlayerMotorComponent.cpp
+@@ -60,2 +60,9 @@
+ 	}
+ }
++
++float UPlayerMotorComponent::ComputeLift()
++{
++	const UUmbrellaStateComponent* Umbrella = UmbrellaState.Get();
++	if (!IsValid(Umbrella) || Umbrella->GetConfig() != EUmbrellaConfig::UpOpen) { return 0.f; }
++	return GetDefault<UUmbrellaTuning>()->Motor.LiftAccel;
++}

@@ -1,0 +1,23 @@
+{
+  "clean": false,
+  "defects": [
+    {
+      "id": "lambda-ref",
+      "severity": "blocker",
+      "file": "Source/UmbrellaElla/Private/Feedback/FeedbackAdapterComponent.cpp",
+      "lines": [
+        59,
+        59
+      ],
+      "keywords": [
+        "reference",
+        "dangling",
+        "local",
+        "capture",
+        "lambda",
+        "&",
+        "by value"
+      ]
+    }
+  ]
+}

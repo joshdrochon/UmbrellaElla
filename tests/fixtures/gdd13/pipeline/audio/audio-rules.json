@@ -1,0 +1,212 @@
+{
+  "note": "Gate file for tools/audio_check.py. Agents never edit it during the jam. Unreal names and enums are [VERIFY] until the audio-core day-0 card reads them from 5.8.4.",
+  "list": {
+    "tiers": [
+      "P0",
+      "P1",
+      "P2",
+      "cut"
+    ],
+    "fallback_required_tiers": [
+      "P0"
+    ],
+    "fallback_required_classes": [
+      "Telegraph"
+    ],
+    "fallback_none": "none",
+    "fallback_dir": "pipeline/art/fallback/"
+  },
+  "wav": {
+    "name_regex": "^SW_([A-Z][A-Za-z0-9]*)_(\\d{2})(_PH)?\\.wav$",
+    "sample_rates": [
+      48000,
+      44100
+    ],
+    "bit_depths": [
+      16,
+      24
+    ],
+    "peak_dbfs_max": -1.0,
+    "gate_dbfs": -40.0,
+    "lead_silence_ms_max": 10,
+    "tail_ms": 5,
+    "tail_dbfs_max": -60.0,
+    "family_rms_db_tol": 3.0,
+    "loop_wrap_jump_max": 0.05
+  },
+  "coverage": {
+    "tiers": [
+      "P0"
+    ],
+    "release_tiers": [
+      "P0",
+      "P1"
+    ]
+  },
+  "classes": {
+    "names": [
+      "SCL_SFX",
+      "SCL_Telegraph",
+      "SCL_Music",
+      "SCL_UI"
+    ],
+    "by_list_class": {
+      "SFX": "SCL_SFX",
+      "Telegraph": "SCL_Telegraph",
+      "Music": "SCL_Music",
+      "UI": "SCL_UI"
+    },
+    "sfx_slider_covers": [
+      "SCL_SFX",
+      "SCL_Telegraph",
+      "SCL_UI"
+    ],
+    "master_submix": "SM_Master",
+    "limiter_effect_regex": "(?i):limiter$",
+    "limiters_on_master": 1
+  },
+  "concurrency": {
+    "why": "One asset per family, so a wand bolt never blocks or steals a hurt or a windup. Groups only limit sounds that share them. Launch and hit groups duck older voices (volume_scale 0.8), so a burst of 4 does not sum to full level.",
+    "assets": {
+      "SCON_WandBolt": {
+        "max_count": 3,
+        "retrigger_time": 0.05,
+        "resolution_rule": "StopLowestPriority",
+        "voice_steal_release_time": 0.03
+      },
+      "SCON_Launch": {
+        "max_count": 4,
+        "retrigger_time": 0.05,
+        "resolution_rule": "StopLowestPriority",
+        "voice_steal_release_time": 0.03,
+        "volume_scale": 0.8
+      },
+      "SCON_Hit": {
+        "max_count": 4,
+        "retrigger_time": 0.0,
+        "resolution_rule": "StopLowestPriority",
+        "voice_steal_release_time": 0.03,
+        "volume_scale": 0.8
+      },
+      "SCON_Hurt": {
+        "max_count": 1,
+        "retrigger_time": 0.0,
+        "resolution_rule": "StopLowestPriority",
+        "voice_steal_release_time": 0.03
+      },
+      "SCON_Telegraph": {
+        "max_count": 2,
+        "retrigger_time": 0.0,
+        "resolution_rule": "StopLowestPriority",
+        "voice_steal_release_time": 0.03
+      },
+      "SCON_State": {
+        "max_count": 2,
+        "retrigger_time": 0.05,
+        "resolution_rule": "StopLowestPriority",
+        "voice_steal_release_time": 0.03
+      },
+      "SCON_UI": {
+        "max_count": 2,
+        "retrigger_time": 0.05,
+        "resolution_rule": "StopLowestPriority",
+        "voice_steal_release_time": 0.03
+      }
+    },
+    "by_id": {
+      "WandBolt": "SCON_WandBolt",
+      "PlayerHurt": "SCON_Hurt",
+      "ChargeRelease": "SCON_WandBolt",
+      "OwlBoltFade": "SCON_Launch",
+      "ArcFade": "SCON_Launch",
+      "WandBoltFade": "SCON_WandBolt"
+    },
+    "by_family": {
+      "launch": "SCON_Launch",
+      "hit": "SCON_Hit",
+      "telegraph": "SCON_Telegraph",
+      "state": "SCON_State",
+      "ui": "SCON_UI"
+    }
+  },
+  "asset_name_regex": "^(SW|SC|MS)_([A-Z][A-Za-z0-9]*)(_\\d{2})?(_PH)?$",
+  "dump": {
+    "tool": "tools/ue/audio_dump.py",
+    "engine_regex": "^5\\.8",
+    "spatialize": false,
+    "attenuation": null,
+    "unread_max": 0
+  },
+  "variation": {
+    "pitch_jitter_max": 0.05,
+    "takes_min": 3
+  },
+  "attacks": {
+    "OwlBolt": "OwlBoltWindup",
+    "Gust": "GustWindup",
+    "Arc": "ArcWindup"
+  },
+  "telegraph": {
+    "lead_s_min": 0.2,
+    "visual_tolerance_s": 0.017
+  },
+  "gust": {
+    "attack": "Gust",
+    "min_changes": 1
+  },
+  "music": {
+    "stems": {
+      "MusicIntro": 0.0,
+      "MusicContest": 0.25,
+      "MusicDesperation": 0.7
+    },
+    "t_norm_tol": 0.02,
+    "duck_db_max": -6.0,
+    "start_modes": [
+      "bar",
+      "fade"
+    ],
+    "fade_s_max": 0.5
+  },
+  "voices": {
+    "t_norm_min": 0.9,
+    "max_active": 24,
+    "sample_gap_s": 10.0,
+    "virtual_telegraph_max": 0
+  },
+  "mix": {
+    "master_peak_dbfs_max": -1.0,
+    "phases": [
+      "intro",
+      "contest",
+      "desperation"
+    ]
+  },
+  "blind_id": {
+    "players_min": 3,
+    "players_floor": 3,
+    "per_player_min": 0.9,
+    "telegraph_min": 1.0,
+    "must_name": [
+      "PlayerHurt",
+      "UmbrellaTear"
+    ],
+    "tiers": [
+      "P0",
+      "P1"
+    ]
+  },
+  "stale_doc_refs": [
+    "enemy defeat",
+    "8 key sounds",
+    "docs/game-spec.md"
+  ],
+  "muted": {
+    "fields": [
+      "phase",
+      "attack",
+      "umbrella_tier"
+    ],
+    "players_min": 1
+  }
+}

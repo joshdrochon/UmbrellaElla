@@ -1,0 +1,38 @@
+--- /dev/null
++++ b/Source/UmbrellaElla/Public/Feedback/FeedbackAdapterComponent.h
+@@ -0,0 +1,35 @@
++#pragma once
++#include "CoreMinimal.h"
++#include "Components/ActorComponent.h"
++#include "Umbrella/UmbrellaConfig.h"
++#include "FeedbackAdapterComponent.generated.h"
++
++class UGameEventsSubsystem;
++class UPaperFlipbook;
++struct FGameEventInfo;
++
++// Shows Ella's state. Reads other modules through getters and events; never writes gameplay state.
++UCLASS(ClassGroup = (UmbrellaElla), meta = (BlueprintSpawnableComponent))
++class UMBRELLAELLA_API UFeedbackAdapterComponent final : public UActorComponent
++{
++	GENERATED_BODY()
++public:
++	UFeedbackAdapterComponent();
++
++protected:
++	virtual void BeginPlay() override;
++	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
++
++private:
++	void HandleUmbrellaConfigChanged(const FGameEventInfo& Info, EUmbrellaConfig NewConfig) const;
++	void ShowConfig(EUmbrellaConfig Config) const;
++
++	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Ella|Animation")
++	TObjectPtr<UPaperFlipbook> OpenFlipbook;
++	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Ella|Animation")
++	TObjectPtr<UPaperFlipbook> ClosedFlipbook;
++
++	UPROPERTY()
++	TWeakObjectPtr<UGameEventsSubsystem> Events;
++	FDelegateHandle ConfigChangedHandle;
++};

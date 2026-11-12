@@ -1,0 +1,61 @@
+id,family,kind,class,channels,takes,pitch_jitter,gdd,tier,event,owner,done_when,fallback
+WandBolt,launch,oneshot,SFX,1,3,0.05,GDD 1.3 §7B COM-01,P0,each wand shot,Audio owner,SW_WandBolt_00..02 pass --scan; SC_WandBolt in the dump with SCON_WandBolt and random no-repeat,pipeline/art/fallback/audio/SW_WandBolt_00.wav
+OwlBoltWindup,telegraph,oneshot,Telegraph,1,1,0,GDD 1.3 §7B OWL-01 warning,P0,amber clock flash starts,Audio owner,--log telegraph line for OwlBolt with lead >= 0.2 s,pipeline/art/fallback/audio/SW_OwlBoltWindup_00.wav
+OwlBoltLaunch,launch,oneshot,SFX,1,1,0,GDD 1.3 §7B OWL-01 launch,P0,each owl projectile spawns,Audio owner,SC_OwlBoltLaunch in the dump with SCON_Launch,pipeline/art/fallback/audio/SW_OwlBoltLaunch_00.wav
+GustWindup,telegraph,oneshot,Telegraph,1,1,0,§6 wing gust,P1,wing pose and flow lines start,Audio owner,--log telegraph line for Gust with lead >= 0.2 s,pipeline/art/fallback/audio/SW_GustWindup_00.wav
+GustLoop,ambience,loop,SFX,2,1,0,§4 §6,P1,gust zone active; volume follows gust strength (gust_param 0-1),Audio owner,loop wrap passes --scan; looping set only on this asset; --log gust_param changes in every gust,none
+ArcWindup,telegraph,oneshot,Telegraph,1,1,0,§6 returning arc,P2,red arc trail starts,Audio owner,--log telegraph line for Arc with lead >= 0.2 s,pipeline/art/fallback/audio/SW_ArcWindup_00.wav
+HitOwl,hit,oneshot,SFX,1,3,0.05,GDD 1.3 §7A OWL-05 BODY,P0,wand bolt hits the owl body,Audio owner,SW_HitOwl_00..02 pass --scan; random no-repeat in the dump; told apart from HitClock and HitWing in --blind-id,pipeline/art/fallback/audio/SW_HitOwl_00.wav
+HitClock,hit,oneshot,SFX,1,1,0,GDD 1.3 §7A OWL-05 CLOCK,P1,wand bolt hits the chest clock (briefly disrupts an attack),Audio owner,named by every player in the blind ID test (--blind-id),none
+HitWing,hit,oneshot,SFX,1,1,0,§5 §8,P1,wand bolt hits a wing (weakens future gusts),Audio owner,SC_HitWing in the dump with SCON_Hit; in the --blind-id set,none
+PlayerHurt,hit,oneshot,SFX,1,1,0,GDD 1.3 §6 CORE-03,P0,player takes one bolt hit (34 HP),Audio owner,named by every player in the blind ID test (--blind-id),pipeline/art/fallback/audio/SW_PlayerHurt_00.wav
+ShieldCatch,state,oneshot,SFX,1,1,0,GDD 1.3 §6 DEF-01,P0,front shield absorbs an owl bolt (CatchSucceeded; also during the heal cooldown),Audio owner,SC_ShieldCatch in the dump with SCON_State; told apart from ShieldHeal and PlayerHurt in --blind-id,pipeline/art/fallback/audio/SW_ShieldCatch_00.wav
+ShieldHeal,state,oneshot,SFX,1,1,0,GDD 1.3 §6 SURV-03,P0,a catch heals 20 HP (heal cooldown ready; never on a cooldown catch),Audio owner,SC_ShieldHeal in the dump with SCON_State; told apart from ShieldCatch in --blind-id,pipeline/art/fallback/audio/SW_ShieldHeal_00.wav
+UmbrellaTear,state,oneshot,SFX,1,1,0,§4,P1,umbrella moves down a tier (intact damaged critical),Audio owner,named by every player in the blind ID test (--blind-id),none
+UmbrellaOpen,state,oneshot,SFX,1,1,0,GDD 1.3 §3 UMB-01 UP_OPEN,P0,umbrella opens,Audio owner,plays on every open in the arena map,pipeline/art/fallback/audio/SW_UmbrellaOpen_00.wav
+UmbrellaClose,state,oneshot,SFX,1,1,0,GDD 1.3 §3 UMB-02 descent,P0,umbrella closes,Audio owner,plays on every close in the arena map,pipeline/art/fallback/audio/SW_UmbrellaClose_00.wav
+EndEvent,state,oneshot,SFX,2,1,0,GDD 1.3 §8 END-01,P0,owl pauses and departs,Audio owner,--log end_event then duck line,pipeline/art/fallback/audio/SW_EndEvent_00.wav
+PhaseChime,state,oneshot,SFX,2,1,0,GDD 1.3 §8 phases (optional presets),P1,phase changes (only when the encounter uses phase presets; same sound every run),Audio owner,UmbrellaElla.Owl.World.PhaseChangePlaysCue passes: 2 plays of SC_PhaseChime,pipeline/art/fallback/audio/SW_PhaseChime_00.wav
+SurvivedSting,ui,oneshot,Music,2,1,0,§2 end card,P1,Survived end card shows,Audio owner,plays once on the end card,none
+UiSelect,ui,oneshot,UI,1,1,0,§3 pause and retry,P1,pause or retry selected,Audio owner,plays on menu select,none
+MusicIntro,music,loop,Music,2,1,0,§8 phase 0-25%,P1,timer 0%,Audio owner,--log stem line at t_norm 0.00 layered=1 start=bar|fade,none
+MusicContest,music,loop,Music,2,1,0,§8 phase 25-70%,P1,timer 25%,Audio owner,--log stem line at t_norm 0.25 layered=1 start=bar|fade,none
+MusicDesperation,music,loop,Music,2,1,0,§8 phase 70-100%,P1,timer 70%,Audio owner,--log stem line at t_norm 0.70 layered=1 start=bar|fade,none
+ChargeWindup,launch,loop,SFX,1,1,0,§5 open note: PC shooting,P2,fire held to charge a shot (only if the PC shooting scheme is picked),Audio owner,loop wrap passes --scan; looping set only on this asset,none
+ChargeRelease,launch,oneshot,SFX,1,1,0,§5 open note: PC shooting,P2,charged shot fires,Audio owner,SC_ChargeRelease in the dump with SCON_WandBolt,none
+UmbrellaRepair,state,oneshot,SFX,1,1,0,§4 open note: repair,P2,umbrella moves up a tier while closed to repair it (only if repair is picked),Audio owner,SC_UmbrellaRepair in the dump with SCON_State; told apart from UmbrellaTear in --blind-id,none
+GustCatch,state,oneshot,SFX,1,1,0,GDD 1.3 §7 WIND-01,P0,the player enters the safe wind zone (WindEntered),Audio owner,SC_GustCatch in the dump with SCON_State; plays on every WindEntered in the arena map,pipeline/art/fallback/audio/SW_GustCatch_00.wav
+OwlGearSlip,state,oneshot,SFX,1,1,0,§8 owl condition,P2,the owl's condition drops a step,Audio owner,SC_OwlGearSlip in the dump with SCON_State,none
+FailSting,ui,oneshot,Music,2,1,0,GDD 1.3 §8 FLOW-01,P1,fail card shows (health 0 or bottom crossing),Audio owner,plays once on the fail card,none
+LowHealthLoop,state,loop,SFX,2,1,0,GDD 1.3 §6 critical stage,P1,health in the critical stage (1-33 HP),Audio owner,loop wrap passes --scan; stops when health leaves the critical stage,none
+UmbrellaCreak,state,loop,SFX,1,1,0,GDD 1.3 §6 critical stage,P1,umbrella shows the critical wear stage,Audio owner,loop wrap passes --scan; looping set only on this asset,none
+UiMove,ui,oneshot,UI,1,1,0,menus.md items 2-3 (focus),P1,menu focus moves to another button or row,Audio owner,SC_UiMove in the dump with SCON_UI; audio_loop close PASS for UiMove,none
+UiBack,ui,oneshot,UI,1,1,0,menus.md item 6 (Back),P1,Back closes the current screen,Audio owner,SC_UiBack in the dump with SCON_UI; audio_loop close PASS for UiBack,none
+UiOpen,ui,oneshot,UI,1,1,0,menus.md screens (title and settings),P1,a menu screen opens (title or settings),Audio owner,SC_UiOpen in the dump with SCON_UI; audio_loop close PASS for UiOpen,none
+UiClose,ui,oneshot,UI,1,1,0,menus.md screens,P1,a menu screen closes without Back (Resume or Play),Audio owner,SC_UiClose in the dump with SCON_UI; audio_loop close PASS for UiClose,none
+UiSliderTick,ui,oneshot,UI,1,1,0,menus.md item 8 (settings rows),P1,a settings value steps (each slider or option step),Audio owner,SC_UiSliderTick in the dump with SCON_UI; audio_loop close PASS for UiSliderTick,none
+UiTransition,ui,oneshot,UI,2,1,0,menus.md screens (title to play),P1,a full-screen transition (title to play or end card to restart),Audio owner,SC_UiTransition in the dump with SCON_UI; audio_loop close PASS for UiTransition,none
+PauseIn,ui,oneshot,UI,2,1,0,GDD 1.3 §8 PAUSED; menus.md item 6,P1,pause opens (Esc or P or Options),Audio owner,SC_PauseIn in the dump with SCON_UI; audio_loop close PASS for PauseIn,none
+PauseOut,ui,oneshot,UI,2,1,0,GDD 1.3 §8 PAUSED; menus.md item 6,P1,pause closes and play resumes,Audio owner,SC_PauseOut in the dump with SCON_UI; audio_loop close PASS for PauseOut,none
+MusicTitle,music,loop,Music,2,1,0,menus.md title screen,P1,title screen shows,Audio owner,loop wrap passes --scan; audio_loop close PASS for MusicTitle,none
+EncounterStart,state,oneshot,SFX,2,1,0,GDD 1.3 §8 READY to ACTIVE; §9 explicit start,P1,the encounter turns ACTIVE,Audio owner,SC_EncounterStart in the dump with SCON_State; audio_loop close PASS for EncounterStart,none
+Restart,state,oneshot,SFX,2,1,0,GDD 1.3 §8 RESTARTING FLOW-01,P1,retry starts RESTARTING,Audio owner,SC_Restart in the dump with SCON_State; audio_loop close PASS for Restart,none
+EllaDown,hit,oneshot,SFX,1,1,0,GDD 1.3 §3 DEFEATED CORE-03,P1,PlayerDefeated (health 0 or bottom crossing) before the fail card,Audio owner,SC_PlayerDefeat in the dump with SCON_Hit; audio_loop close PASS for EllaDown,none
+WindBed,ambience,loop,SFX,2,1,0,GDD 1.3 §7 encounter space (wind),P1,always on in the arena under the music,Audio owner,loop wrap passes --scan; audio_loop close PASS for WindBed,none
+WindZoneLoop,ambience,loop,SFX,2,1,0,GDD 1.3 §7 WIND-01,P1,the player is inside the safe wind current (WindEntered to WindExited),Audio owner,loop wrap passes --scan; audio_loop close PASS for WindZoneLoop,none
+WindExit,state,oneshot,SFX,1,1,0,GDD 1.3 §4 WindExited WIND-01,P1,the player leaves the safe wind current (WindExited),Audio owner,SC_WindExit in the dump with SCON_State; audio_loop close PASS for WindExit,none
+GustEnd,state,oneshot,SFX,1,1,0,§7 wing gust (OWL-02),P1,the owl gust zone turns off,Audio owner,SC_GustEnd in the dump with SCON_State; audio_loop close PASS for GustEnd,none
+UmbrellaFlap,motion,loop,SFX,1,1,0,GDD 1.3 §3 UP_OPEN UMB-01,P1,canopy flutter while UP_OPEN has lift (LiftAvailabilityChanged),Audio owner,loop wrap passes --scan; audio_loop close PASS for UmbrellaFlap,none
+ShieldRaise,state,oneshot,SFX,1,1,0,GDD 1.3 §3 SHIELD_DESCENT DEF-01,P1,umbrella turns to the front shield (SHIELD_DESCENT entered),Audio owner,SC_ShieldRaise in the dump with SCON_State; audio_loop close PASS for ShieldRaise,none
+EllaFallLoop,motion,loop,SFX,1,1,0,GDD 1.3 §3 NO_LIFT CORE-02,P1,air rush while falling; volume follows fall speed,Audio owner,loop wrap passes --scan; audio_loop close PASS for EllaFallLoop,none
+EllaBump,state,oneshot,SFX,1,1,0,GDD 1.3 §7 side and top bounds CORE-01,P1,Ella meets a side or top arena bound,Audio owner,SC_EllaBump in the dump with SCON_State; audio_loop close PASS for EllaBump,none
+OwlWingLoop,motion,loop,SFX,2,1,0,GDD 1.3 §7A owl idle,P1,owl wingbeats while it hovers,Audio owner,loop wrap passes --scan; audio_loop close PASS for OwlWingLoop,none
+OwlBoltTravelLoop,motion,loop,SFX,1,1,0,GDD 1.3 §7 base bolt OWL-01,P1,an owl bolt is in flight,Audio owner,loop wrap passes --scan; audio_loop close PASS for OwlBoltTravelLoop,none
+OwlBoltFade,trail,oneshot,SFX,1,1,0,GDD 1.3 §7B despawn OWL-01,P1,an owl bolt despawns without a contact (lifetime or bounds),Audio owner,SC_OwlBoltFade in the dump with SCON_Launch; audio_loop close PASS for OwlBoltFade,none
+ClockTickLoop,ambience,loop,SFX,1,1,0,GDD 1.3 §7A chest clock,P1,the owl chest clock ticks while the encounter is ACTIVE,Audio owner,loop wrap passes --scan; audio_loop close PASS for ClockTickLoop,none
+WandBoltFade,trail,oneshot,SFX,1,1,0,GDD 1.3 §7B COM-01 expiry,P1,a wand bolt expires or leaves the arena,Audio owner,SC_WandBoltFade in the dump with SCON_WandBolt; audio_loop close PASS for WandBoltFade,none
+WandBoltTravelLoop,motion,loop,SFX,1,1,0,GDD 1.3 §7B COM-01,P2,a wand bolt is in flight,Audio owner,loop wrap passes --scan; audio_loop close PASS for WandBoltTravelLoop,none
+ArcLaunch,launch,oneshot,SFX,1,1,0,§6 returning arc (OWL-04),P2,the returning arc spawns,Audio owner,SC_ArcLaunch in the dump with SCON_Launch; audio_loop close PASS for ArcLaunch,none
+ArcTravelLoop,motion,loop,SFX,1,1,0,§6 returning arc (OWL-04),P2,the returning arc is in flight,Audio owner,loop wrap passes --scan; audio_loop close PASS for ArcTravelLoop,none
+ArcFade,trail,oneshot,SFX,1,1,0,§6 returning arc (OWL-04),P2,the returning arc despawns without a contact,Audio owner,SC_ArcFade in the dump with SCON_Launch; audio_loop close PASS for ArcFade,none
+BelfryAmbience,ambience,loop,SFX,2,1,0,GDD 1.3 §7 arena; BG-01 backdrop,P1,always on in the arena: far bells and clockwork room tone,Audio owner,loop wrap passes --scan; audio_loop close PASS for BelfryAmbience,none

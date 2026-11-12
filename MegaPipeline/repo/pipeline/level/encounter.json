@@ -1,0 +1,755 @@
+{
+  "version": 3,
+  "gdd_revision": "SH1.0",
+  "model": "state",
+  "model_note": "GDD SH1.0: the Keeper fight is state-driven (HP-gated phases, an interval scheduler, phase-start checkpoints), so the fight is the baseline preset below. The GDD 1.3 timer timeline (top-level patterns, phases, duration_sec) is history: tests/fixtures/gdd13/encounter.json.",
+  "arena": {
+    "units": "GDD world units = Unreal cm (D-new-sh10-units); x right, y up from the bottom edge of the fixed camera view",
+    "width": 1920,
+    "height": 1080,
+    "tuning_source": "pipeline/feel/feel.json",
+    "tuning_note": "Ella's speeds and the fixed collider sizes come from the tuning file (Game Designer), which mirrors the manifest approved_parameters. Never copy them here."
+  },
+  "encounter_presets": {
+    "_about": "Encounter presets (owner: Encounter Designer, pipeline/roles/encounter-designer.md). The fight as a whole: phases, targets with HP, attacks with their telegraph, effect and counterplay, phase transitions, pacing and story beats. Gameplay code reads the selected preset from this file (never hardcoded). The default preset is the GDD SH1.0 baseline Keeper fight: every GDD number it uses is listed in numbers_from_gdd and equals the manifest start (E29). Any other preset is PROPOSED: selectable only in workbench and practice builds and through the GDD picker, never shipped, until its decision row is DECIDED by its owner. Checked by tools/encounter_check.py (S rules; --ready for the hitbox, art and sound rows; --playthrough for the automated run log; --critic-packet and the card rules C6-C8 for the critic loop).",
+    "default": "GDD-SH1.0",
+    "presets": {
+      "GDD-SH1.0": {
+        "status": "baseline",
+        "title": "GDD SH1.0 Keeper fight: wings, the three hanging mechanisms, then the clock (both modes)",
+        "gdd_revision": "SH1.0",
+        "source": "GDD SH1.0 section 5 (OWL-06..OWL-35) and the incoming damage of FLOW-33. Every number in numbers_from_gdd is the manifest start (E29); first_at, transition seconds, hit_share and fight_length_sec are pipeline prototype defaults (D-new-sh10-open-details)",
+        "selectable_in": [
+          "ship",
+          "workbench",
+          "practice",
+          "gdd_picker"
+        ],
+        "modes": [
+          "Start Game",
+          "Director's Cut"
+        ],
+        "numbers_from_gdd": {
+          "targets.WINGS.hp": "OWL-08.wings_hp",
+          "targets.MECH_FRONT.hp": "OWL-08.front_hp",
+          "targets.MECH_MIDDLE.hp": "OWL-08.middle_hp",
+          "targets.MECH_REAR.hp": "OWL-08.rear_hp",
+          "targets.CLOCK.hp": "OWL-08.clock_hp",
+          "targets.MECH_FRONT.on_break.stun_sec": "OWL-30.break_stun_s",
+          "targets.MECH_MIDDLE.on_break.stun_sec": "OWL-30.break_stun_s",
+          "targets.MECH_REAR.on_break.stun_sec": "OWL-30.break_stun_s",
+          "attacks.RED_Fan.cadence_by_phase.wings": "OWL-11.red_interval_s",
+          "attacks.RED_Fan.cadence_by_phase.mechanisms": "OWL-11.red_interval_s",
+          "attacks.RED_Fan.effect.damage": "FLOW-33.projectile_damage",
+          "attacks.RED_Fan.effect.spacing_sec": "OWL-11.red_spacing_s",
+          "attacks.RED_Fan.effect.speed_by_phase.wings": "OWL-11.red_speed_wings",
+          "attacks.RED_Fan.effect.speed_by_phase.mechanisms": "OWL-11.red_speed_mechanisms",
+          "attacks.RED_Fan.effect.spread_by_phase.wings": "OWL-11.red_spread_wings_deg",
+          "attacks.RED_Fan.effect.spread_by_phase.mechanisms": "OWL-11.red_spread_mechanisms_deg",
+          "attacks.CLOCK_DoubleBeat.effect.damage": "FLOW-33.projectile_damage",
+          "attacks.CLOCK_DoubleBeat.effect.speed": "OWL-11.red_speed_clock",
+          "attacks.CLOCK_DoubleBeat.effect.spread": "OWL-11.red_spread_clock_deg",
+          "attacks.CLOCK_DoubleBeat.effect.repeat_wait_sec": "OWL-28.repeat_wait_s",
+          "attacks.CLOCK_DoubleBeat.effect.recovery_sec": "OWL-28.repeat_recovery_s",
+          "attacks.CLOCK_DoubleBeat.effect.spacing_sec": "OWL-11.red_spacing_s",
+          "attacks.YELLOW_Packet.cadence_sec": "OWL-13.yellow_interval_s",
+          "attacks.YELLOW_Packet.effect.damage": "FLOW-33.projectile_damage",
+          "attacks.YELLOW_Packet.effect.size": "OWL-13.yellow_size",
+          "attacks.YELLOW_Packet.effect.speed_by_phase.wings": "OWL-13.yellow_speed_wings",
+          "attacks.YELLOW_Packet.effect.speed_by_phase.mechanisms": "OWL-13.yellow_speed_mechanisms",
+          "attacks.YELLOW_Packet.effect.speed_by_phase.clock": "OWL-13.yellow_speed_clock",
+          "attacks.GUST_Band.telegraph.sec": "OWL-15.gust_warning_s",
+          "attacks.GUST_Band.cadence_sec": "OWL-15.physical_interval_s",
+          "attacks.GUST_Band.effect.damage": "FLOW-33.projectile_damage",
+          "attacks.GUST_Band.effect.push": "OWL-16.gust_push",
+          "attacks.GUST_Band.effect.speed": "OWL-16.gust_speed",
+          "attacks.GUST_Band.effect.band_width": "OWL-16.gust_band_width",
+          "attacks.GUST_Band.effect.lifetime_sec": "OWL-16.gust_lifetime_s",
+          "attacks.TALON_Rake.telegraph.sec": "OWL-18.talon_warning_s",
+          "attacks.TALON_Rake.trigger.radius": "OWL-18.talon_reach",
+          "attacks.TALON_Rake.trigger.rearm_exit": "OWL-20.talon_rearm_exit",
+          "attacks.TALON_Rake.effect.damage": "FLOW-33.talon_damage",
+          "attacks.TALON_Rake.effect.tip_width": "OWL-19.talon_tip_width",
+          "attacks.TALON_Rake.effect.strike_sec": "OWL-19.talon_strike_s",
+          "attacks.TALON_Rake.effect.recovery_sec": "OWL-20.talon_recovery_s",
+          "attacks.TALON_Rake.effect.cooldown_sec": "OWL-20.talon_cooldown_s",
+          "attacks.MECH_Front_Cast.telegraph.sec": "OWL-21.cast_warning_s",
+          "attacks.MECH_Front_Cast.cadence_sec": "OWL-15.physical_interval_s",
+          "attacks.MECH_Front_Cast.effect.damage": "FLOW-33.chain_damage",
+          "attacks.MECH_Front_Cast.effect.reach": "OWL-22.chain_reach",
+          "attacks.MECH_Front_Cast.effect.speed": "OWL-22.chain_speed",
+          "attacks.MECH_Front_Cast.effect.head_width": "OWL-22.chain_head_width",
+          "attacks.MECH_Front_Cast.effect.return_sec": "OWL-23.chain_return_s",
+          "attacks.MECH_Middle_Curve.telegraph.sec": "OWL-21.cast_warning_s",
+          "attacks.MECH_Middle_Curve.cadence_sec": "OWL-15.physical_interval_s",
+          "attacks.MECH_Middle_Curve.effect.damage": "FLOW-33.chain_damage",
+          "attacks.MECH_Middle_Curve.effect.reach": "OWL-22.chain_reach",
+          "attacks.MECH_Middle_Curve.effect.speed": "OWL-22.chain_speed",
+          "attacks.MECH_Middle_Curve.effect.head_width": "OWL-22.chain_head_width",
+          "attacks.MECH_Middle_Curve.effect.return_sec": "OWL-23.chain_return_s",
+          "attacks.MECH_Rear_TwoStage.telegraph.sec": "OWL-21.cast_warning_s",
+          "attacks.MECH_Rear_TwoStage.cadence_sec": "OWL-15.physical_interval_s",
+          "attacks.MECH_Rear_TwoStage.effect.damage": "FLOW-33.chain_damage",
+          "attacks.MECH_Rear_TwoStage.effect.reach": "OWL-22.chain_reach",
+          "attacks.MECH_Rear_TwoStage.effect.speed": "OWL-22.chain_speed",
+          "attacks.MECH_Rear_TwoStage.effect.head_width": "OWL-22.chain_head_width",
+          "attacks.MECH_Rear_TwoStage.effect.return_sec": "OWL-23.chain_return_s",
+          "attacks.MECH_Middle_Curve.effect.offset": "OWL-24.middle_offset",
+          "attacks.MECH_Rear_TwoStage.effect.pause_sec": "OWL-26.rear_pause_s"
+        },
+        "fight_length_sec": {
+          "min": 60,
+          "max": 240
+        },
+        "player": {
+          "verbs": [
+            "move",
+            "rise",
+            "fall",
+            "shoot",
+            "absorb",
+            "dash"
+          ],
+          "shot_damage": 10,
+          "shot_cadence": 0.2,
+          "shot_note": "Small Blasts, 5 shots/s (COM-06), the Start Game basic shot; Director's Cut spells change the DPS",
+          "shooting_falls": true,
+          "absorbing_falls": true,
+          "damage_reduces": [
+            "active_health",
+            "lift"
+          ]
+        },
+        "entry": {
+          "full_run": "wings"
+        },
+        "targets": [
+          {
+            "id": "WINGS",
+            "hp": 180,
+            "regions": [
+              "WING_NEAR",
+              "WING_FAR"
+            ],
+            "shared_hp": true,
+            "hitbox": "keeper-wing",
+            "vulnerable_in": [
+              "wings"
+            ],
+            "hit_share": 0.15,
+            "on_break": {
+              "cancels": [
+                "GUST_Band"
+              ],
+              "visual": "depleted wings stay visible as cover, smoke stays, no wing damage region returns (OWL-09, OWL-17)",
+              "stun_sec": 0,
+              "new_attacks": false,
+              "in_flight": "cleared"
+            }
+          },
+          {
+            "id": "MECH_FRONT",
+            "hp": 100,
+            "order": 1,
+            "hitbox": "keeper-mech-front",
+            "vulnerable_in": [
+              "mechanisms"
+            ],
+            "vulnerable_when": "after the wings; front first (OWL-09)",
+            "hit_share": 0.15,
+            "on_break": {
+              "cancels": [
+                "MECH_Front_Cast"
+              ],
+              "stun_sec": 1.2,
+              "exposes": "CLOCK",
+              "new_attacks": false,
+              "in_flight": "dangerous"
+            }
+          },
+          {
+            "id": "MECH_MIDDLE",
+            "hp": 110,
+            "order": 2,
+            "hitbox": "keeper-mech-middle",
+            "vulnerable_in": [
+              "mechanisms"
+            ],
+            "vulnerable_when": "after the front",
+            "hit_share": 0.15,
+            "on_break": {
+              "cancels": [
+                "MECH_Middle_Curve"
+              ],
+              "stun_sec": 1.2,
+              "exposes": "CLOCK",
+              "new_attacks": false,
+              "in_flight": "dangerous"
+            }
+          },
+          {
+            "id": "MECH_REAR",
+            "hp": 120,
+            "order": 3,
+            "hitbox": "keeper-mech-rear",
+            "vulnerable_in": [
+              "mechanisms"
+            ],
+            "vulnerable_when": "after the middle",
+            "hit_share": 0.15,
+            "on_break": {
+              "cancels": [
+                "MECH_Rear_TwoStage"
+              ],
+              "stun_sec": 1.2,
+              "exposes": "CLOCK",
+              "new_attacks": false,
+              "in_flight": "dangerous"
+            }
+          },
+          {
+            "id": "CLOCK",
+            "hp": 320,
+            "floor_pct_before_final": 40,
+            "carry_damage": true,
+            "hitbox": "keeper-clock",
+            "vulnerable_in": [
+              "mechanisms",
+              "clock"
+            ],
+            "vulnerable_when": "open: 1.8 s after an outer hit or a mechanism break, 1.9 s every 4.8 s in the finale (OWL-29)",
+            "hit_share": 0.1,
+            "on_hit": {
+              "slow": "3 s at x0.35 world speed, 3 s cooldown, on a hit that lowers HP (OWL-31)",
+              "eye": "2 s eye window; an eye hit starts the 3 s blackout and the 5 s eye cooldown; the eye has no HP (OWL-32)"
+            }
+          }
+        ],
+        "attacks": [
+          {
+            "id": "RED_Fan",
+            "feature": "OWL-11",
+            "phases": [
+              "wings",
+              "mechanisms"
+            ],
+            "first_at": 2.0,
+            "cadence_by_phase": {
+              "wings": 1.35,
+              "mechanisms": 1.35
+            },
+            "telegraph": {
+              "sec": 0,
+              "shows": "the launch / aim posture and the captured lane; no timed prefire delay (OWL-12)",
+              "pose": "Keeper_Red_Launch",
+              "vfx": "VFX_RedLaunch",
+              "sound": "KeeperRedLaunch",
+              "no_prefire": "OWL-12"
+            },
+            "effect": {
+              "damage": 1,
+              "shots": 4,
+              "spacing_sec": 0.09,
+              "speed_by_phase": {
+                "wings": 240,
+                "mechanisms": 270
+              },
+              "spread_by_phase": {
+                "wings": 36,
+                "mechanisms": 70
+              },
+              "aim": {
+                "wings": "captured position",
+                "mechanisms": "fixed-left wide fan"
+              },
+              "reduced": "one shot, every 2.16 s while a physical attack warns or strikes (OWL-11)",
+              "absorbable": false
+            },
+            "counterplay": [
+              {
+                "verb": "move_off_line",
+                "how": "leave the captured lane by rising, falling, riding a current or a falling dash"
+              }
+            ],
+            "not_counterplay": [
+              {
+                "verb": "absorb",
+                "why": "red is never absorbable"
+              }
+            ],
+            "art": [
+              "keeper",
+              "red-shot",
+              "shot-impact"
+            ],
+            "sound": [
+              "KeeperRedLaunch",
+              "RedShotTravel",
+              "PlayerHurt"
+            ]
+          },
+          {
+            "id": "CLOCK_DoubleBeat",
+            "feature": "OWL-28",
+            "phases": [
+              "clock"
+            ],
+            "first_at": 2.0,
+            "cadence_sec": 1.99,
+            "telegraph": {
+              "sec": 0,
+              "shows": "the clock hand beat XII to III and the first group's captured paths (OWL-28)",
+              "pose": "Keeper_Clock_Beat",
+              "vfx": "VFX_ClockBeat_Red",
+              "sound": "ClockBeat",
+              "no_prefire": "OWL-12"
+            },
+            "effect": {
+              "damage": 1,
+              "shots": 4,
+              "spacing_sec": 0.09,
+              "speed": 300,
+              "spread": 48,
+              "repeat_wait_sec": 0.6,
+              "recovery_sec": 0.85,
+              "repeat": "the same captured paths once, never re-aimed",
+              "absorbable": false
+            },
+            "counterplay": [
+              {
+                "verb": "leave_first_pattern",
+                "how": "leave the first group's paths"
+              },
+              {
+                "verb": "dont_drift_back",
+                "how": "the repeat flies the same paths"
+              }
+            ],
+            "art": [
+              "keeper",
+              "red-shot",
+              "clock-beat"
+            ],
+            "sound": [
+              "ClockBeat",
+              "ClockBeatRepeat",
+              "KeeperRedLaunch",
+              "PlayerHurt"
+            ]
+          },
+          {
+            "id": "YELLOW_Packet",
+            "feature": "OWL-13",
+            "phases": [
+              "wings",
+              "mechanisms",
+              "clock"
+            ],
+            "first_at": 3.0,
+            "cadence_sec": 2.3,
+            "telegraph": {
+              "sec": 0,
+              "shows": "two slower aimed packets with their own rhythm, trail and sound (OWL-14)",
+              "pose": "Keeper_Yellow_Launch",
+              "vfx": "VFX_YellowLaunch",
+              "sound": "KeeperYellowLaunch",
+              "no_prefire": "OWL-12"
+            },
+            "effect": {
+              "damage": 1,
+              "shots": 2,
+              "size": 1.2,
+              "speed_by_phase": {
+                "wings": 180,
+                "mechanisms": 195,
+                "clock": 210
+              },
+              "absorbable": true,
+              "on_catch": "absorbing while dropping heals 0.5 + 0.3 per recovery rank, active life first; no XP, no ammunition, no stored energy (UMB-05)"
+            },
+            "counterplay": [
+              {
+                "verb": "absorb",
+                "how": "hold Absorb while dropping and face it to heal"
+              },
+              {
+                "verb": "dodge",
+                "how": "or leave its path"
+              }
+            ],
+            "art": [
+              "yellow-shot",
+              "yellow-capture"
+            ],
+            "sound": [
+              "KeeperYellowLaunch",
+              "YellowCatch",
+              "UmbrellaRepair"
+            ]
+          },
+          {
+            "id": "GUST_Band",
+            "feature": "OWL-16",
+            "phases": [
+              "wings"
+            ],
+            "cancelled_by": "WINGS",
+            "first_at": 3.0,
+            "cadence_sec": 6.5,
+            "telegraph": {
+              "sec": 1.1,
+              "shows": "the wing gather / load and the locked altitude band (OWL-15)",
+              "pose": "Keeper_Gust_Gather",
+              "vfx": "VFX_GustBand_Warn",
+              "sound": "GustWarning"
+            },
+            "effect": {
+              "damage": 1,
+              "push": 280,
+              "speed": 350,
+              "band_width": 120,
+              "lifetime_sec": 3,
+              "bypasses": "ordinary post-hit and hop protection; dash protection stops the damage, never the push (OWL-16)"
+            },
+            "counterplay": [
+              {
+                "verb": "leave_band",
+                "how": "leave the warned band; account for the push near the ceiling and the bottom"
+              }
+            ],
+            "not_counterplay": [
+              {
+                "verb": "absorb",
+                "why": "a hostile gust is never absorbed or ridden"
+              }
+            ],
+            "art": [
+              "keeper",
+              "hostile-gust"
+            ],
+            "sound": [
+              "GustWarning",
+              "GustRelease",
+              "GustTravelLoop",
+              "PlayerHurt"
+            ]
+          },
+          {
+            "id": "TALON_Rake",
+            "feature": "OWL-19",
+            "phases": [
+              "wings",
+              "mechanisms",
+              "clock"
+            ],
+            "first_at": 2.0,
+            "trigger": {
+              "kind": "proximity",
+              "radius": 270,
+              "rearm_exit": 370,
+              "rearm": "leave beyond 370, then come back within 270 (OWL-20)"
+            },
+            "telegraph": {
+              "sec": 1.05,
+              "shows": "the EMPTY claw drawn back and spread (OWL-18)",
+              "pose": "Keeper_Talon_Warn",
+              "vfx": "VFX_Talon_Warn",
+              "sound": "TalonWarning"
+            },
+            "effect": {
+              "damage": 1.5,
+              "tip_width": 48,
+              "strike_sec": 0.18,
+              "recovery_sec": 1,
+              "cooldown_sec": 3.5,
+              "strike": "one sweep toward the captured target, at most once per cast"
+            },
+            "counterplay": [
+              {
+                "verb": "bait_then_leave",
+                "how": "bait the warning, then leave"
+              },
+              {
+                "verb": "change_altitude",
+                "how": "or change altitude"
+              }
+            ],
+            "art": [
+              "keeper",
+              "talon"
+            ],
+            "sound": [
+              "TalonWarning",
+              "TalonSlash",
+              "TalonRecovery",
+              "PlayerHurt"
+            ]
+          },
+          {
+            "id": "MECH_Front_Cast",
+            "feature": "OWL-22",
+            "phases": [
+              "mechanisms"
+            ],
+            "active_while": "MECH_FRONT",
+            "cancelled_by": "MECH_FRONT",
+            "first_at": 2.5,
+            "cadence_sec": 6.5,
+            "telegraph": {
+              "sec": 0.9,
+              "shows": "the closed claw gripping the armillary ring and the locked destination (OWL-21)",
+              "pose": "Keeper_Front_Grasp",
+              "vfx": "VFX_Cast_Warn",
+              "sound": "CastWarning"
+            },
+            "effect": {
+              "damage": 1.25,
+              "reach": 800,
+              "speed": 400,
+              "head_width": 32,
+              "return_sec": 1.2,
+              "path": "straight to the captured endpoint",
+              "hurts": [
+                "head_outward"
+              ],
+              "harmless": [
+                "links",
+                "return"
+              ]
+            },
+            "counterplay": [
+              {
+                "verb": "move_off_line",
+                "how": "leave the captured lane by rising, falling, riding a current or a falling dash"
+              }
+            ],
+            "art": [
+              "mechanism-head",
+              "mechanism-chain",
+              "talon"
+            ],
+            "sound": [
+              "CastWarning",
+              "FrontCastLaunch",
+              "ChainTravel",
+              "CastReturn",
+              "PlayerHurt"
+            ]
+          },
+          {
+            "id": "MECH_Middle_Curve",
+            "feature": "OWL-25",
+            "phases": [
+              "mechanisms"
+            ],
+            "active_while": "MECH_MIDDLE",
+            "cancelled_by": "MECH_MIDDLE",
+            "first_at": 2.5,
+            "cadence_sec": 6.5,
+            "telegraph": {
+              "sec": 0.9,
+              "shows": "the curved stroke it will follow, sign by the global physical-attack serial (OWL-24)",
+              "pose": "Keeper_Middle_Cradle",
+              "vfx": "VFX_Cast_Warn",
+              "sound": "CastWarning"
+            },
+            "effect": {
+              "damage": 1.25,
+              "reach": 800,
+              "speed": 400,
+              "head_width": 32,
+              "return_sec": 1.2,
+              "path": "a +/-80 sine curve to the same endpoint",
+              "hurts": [
+                "head_outward"
+              ],
+              "harmless": [
+                "links",
+                "return"
+              ],
+              "offset": 80
+            },
+            "counterplay": [
+              {
+                "verb": "move_off_line",
+                "how": "leave the captured lane by rising, falling, riding a current or a falling dash"
+              },
+              {
+                "verb": "clear_curve",
+                "how": "clear the whole curve, not the straight line"
+              }
+            ],
+            "art": [
+              "mechanism-head",
+              "mechanism-chain",
+              "talon"
+            ],
+            "sound": [
+              "CastWarning",
+              "MiddleCastLaunch",
+              "ChainTravel",
+              "CastReturn",
+              "PlayerHurt"
+            ]
+          },
+          {
+            "id": "MECH_Rear_TwoStage",
+            "feature": "OWL-26",
+            "phases": [
+              "mechanisms"
+            ],
+            "active_while": "MECH_REAR",
+            "cancelled_by": "MECH_REAR",
+            "first_at": 2.5,
+            "cadence_sec": 6.5,
+            "telegraph": {
+              "sec": 0.9,
+              "shows": "the line to the original endpoint; the second clack says it is not finished (OWL-27)",
+              "pose": "Keeper_Rear_Prepare",
+              "vfx": "VFX_Cast_Warn",
+              "sound": "CastWarning"
+            },
+            "effect": {
+              "damage": 1.25,
+              "reach": 800,
+              "speed": 400,
+              "head_width": 32,
+              "return_sec": 1.2,
+              "path": "half the stroke, a safe 0.65 s pause, then on to the original endpoint",
+              "hurts": [
+                "head_outward"
+              ],
+              "harmless": [
+                "links",
+                "return"
+              ],
+              "pause_sec": 0.65
+            },
+            "counterplay": [
+              {
+                "verb": "move_off_line",
+                "how": "leave the captured lane by rising, falling, riding a current or a falling dash"
+              },
+              {
+                "verb": "stay_clear_after_pause",
+                "how": "it is not finished at the pause"
+              }
+            ],
+            "art": [
+              "mechanism-head",
+              "mechanism-chain",
+              "talon"
+            ],
+            "sound": [
+              "CastWarning",
+              "RearCastLaunch",
+              "RearMidpointClack",
+              "ChainTravel",
+              "CastReturn",
+              "PlayerHurt"
+            ]
+          }
+        ],
+        "phases": [
+          {
+            "id": "wings",
+            "targets": [
+              "WINGS"
+            ],
+            "attacks": [
+              "RED_Fan",
+              "YELLOW_Packet",
+              "GUST_Band",
+              "TALON_Rake"
+            ],
+            "ends_when": {
+              "broken": [
+                "WINGS"
+              ]
+            },
+            "next": "mechanisms",
+            "checkpoint": true,
+            "transition_in": {
+              "sec": 2.0,
+              "new_attacks": false,
+              "in_flight": "none"
+            },
+            "story_beat": "arrival: the single remaining clock hand and the empty mounting are visible (NAR-06)"
+          },
+          {
+            "id": "mechanisms",
+            "targets": [
+              "MECH_FRONT",
+              "MECH_MIDDLE",
+              "MECH_REAR",
+              "CLOCK"
+            ],
+            "attacks": [
+              "MECH_Front_Cast",
+              "MECH_Middle_Curve",
+              "MECH_Rear_TwoStage",
+              "RED_Fan",
+              "YELLOW_Packet",
+              "TALON_Rake"
+            ],
+            "ends_when": {
+              "broken": [
+                "MECH_FRONT",
+                "MECH_MIDDLE",
+                "MECH_REAR"
+              ]
+            },
+            "next": "clock",
+            "checkpoint": true,
+            "sequence": [
+              "MECH_FRONT",
+              "MECH_MIDDLE",
+              "MECH_REAR"
+            ],
+            "transition_in": {
+              "sec": 2.0,
+              "new_attacks": false,
+              "in_flight": "dangerous"
+            }
+          },
+          {
+            "id": "clock",
+            "targets": [
+              "CLOCK"
+            ],
+            "attacks": [
+              "CLOCK_DoubleBeat",
+              "YELLOW_Packet",
+              "TALON_Rake"
+            ],
+            "ends_when": {
+              "hp_zero": "CLOCK"
+            },
+            "next": null,
+            "ends_fight": true,
+            "checkpoint": true,
+            "transition_in": {
+              "sec": 2.0,
+              "new_attacks": false,
+              "in_flight": "dangerous"
+            }
+          }
+        ],
+        "end": {
+          "stop_threats": true,
+          "story_beat": "final clock completion stops combat damage once; the Keeper withdraws alive in about 2.5 s (OWL-35, NAR-07)"
+        },
+        "open_items": [
+          "same-frame fatal hit vs final clock hit precedence (OWL-35, OPEN)",
+          "exact spawn, camera and collision proportions (section 5, OPEN; D-new-sh10-units default)",
+          "the state-driven fairness sim of overlapping red fans, casts and the talon is not built (encounter_check E1-E27 model the GDD 1.3 timer arena)"
+        ]
+      }
+    },
+    "select": {
+      "workbench_cvar": "UmbrellaElla.Encounter.Preset",
+      "env": "JAM_ENCOUNTER_PRESET",
+      "list": "python3 tools/encounter_check.py --presets --gdd 1.3"
+    }
+  }
+}

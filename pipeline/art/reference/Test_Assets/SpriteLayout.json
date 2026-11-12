@@ -1,0 +1,229 @@
+{
+  "CHR_Owl_Flap_Damage.png": {
+    "frame_size": [
+      640,
+      512
+    ],
+    "columns": 6,
+    "rows": 5,
+    "pivot_px": [
+      296,
+      280
+    ],
+    "fps": 10,
+    "row_labels": [
+      "full",
+      "damage_1",
+      "damage_2",
+      "damage_3",
+      "damage_4"
+    ],
+    "column_order": "flap loop, left to right",
+    "loop": true,
+    "faces": "left"
+  },
+  "CHR_Witch_Cast.png": {
+    "frame_size": [
+      432,
+      352
+    ],
+    "columns": 6,
+    "rows": 2,
+    "pivot_px": [
+      229,
+      188
+    ],
+    "fps": 14,
+    "row_labels": [
+      "lift",
+      "guard_fall"
+    ],
+    "loop": false,
+    "faces": "right",
+    "fire_on_column": 3,
+    "wand_tip_px": [
+      [
+        385.1,
+        147.7
+      ],
+      [
+        368.9,
+        107.2
+      ],
+      [
+        380.0,
+        129.6
+      ],
+      [
+        387.3,
+        164.2
+      ],
+      [
+        387.1,
+        180.9
+      ],
+      [
+        385.1,
+        147.7
+      ]
+    ],
+    "grip_px": [
+      [
+        201.2,
+        73.8
+      ],
+      [
+        262.2,
+        151.9
+      ]
+    ]
+  },
+  "CHR_Witch_Guard_Transition.png": {
+    "frame_size": [
+      432,
+      352
+    ],
+    "columns": 5,
+    "rows": 1,
+    "pivot_px": [
+      229,
+      188
+    ],
+    "fps": 14,
+    "loop": false,
+    "column_order": "lift to guard; reverse for guard to lift",
+    "grip_px": [
+      [
+        201.2,
+        73.8
+      ],
+      [
+        217.4,
+        74.2
+      ],
+      [
+        246.3,
+        88.0
+      ],
+      [
+        264.3,
+        118.0
+      ],
+      [
+        262.2,
+        151.9
+      ]
+    ]
+  },
+  "PROP_Umbrella_Stance_Damage.png": {
+    "frame_size": [
+      368,
+      352
+    ],
+    "columns": 5,
+    "rows": 5,
+    "pivot_px": [
+      126,
+      223
+    ],
+    "fps": 14,
+    "loop": false,
+    "row_labels": [
+      "full",
+      "damage_1",
+      "damage_2",
+      "damage_3",
+      "damage_4"
+    ],
+    "column_order": "overhead, turn 1, turn 2, turn 3, front guard",
+    "guard_heal": "on a successful guard hit use the previous damage row and play FX_Umbrella_Repair"
+  },
+  "FX_Wand_Star_Travel.png": {
+    "frame_size": [
+      128,
+      64
+    ],
+    "columns": 6,
+    "rows": 1,
+    "pivot_px": [
+      99,
+      32
+    ],
+    "fps": 16,
+    "loop": true,
+    "faces": "right"
+  },
+  "FX_Owl_Missile.png": {
+    "frame_size": [
+      160,
+      80
+    ],
+    "columns": 1,
+    "rows": 1,
+    "pivot_px": [
+      46,
+      40
+    ],
+    "fps": 0,
+    "loop": false,
+    "faces": "left"
+  },
+  "FX_Owl_Missile_Travel.png": {
+    "frame_size": [
+      160,
+      80
+    ],
+    "columns": 6,
+    "rows": 1,
+    "pivot_px": [
+      46,
+      40
+    ],
+    "fps": 16,
+    "loop": true,
+    "faces": "left"
+  },
+  "FX_Owl_Missile_Hit.png": {
+    "frame_size": [
+      128,
+      128
+    ],
+    "columns": 7,
+    "rows": 1,
+    "pivot_px": [
+      64,
+      64
+    ],
+    "fps": 20,
+    "loop": false
+  },
+  "FX_Wind_Curl.png": {
+    "frame_size": [
+      144,
+      112
+    ],
+    "columns": 8,
+    "rows": 1,
+    "pivot_px": [
+      77,
+      59
+    ],
+    "fps": 12,
+    "loop": true,
+    "faces": "right"
+  },
+  "FX_Umbrella_Repair.png": {
+    "frame_size": [
+      128,
+      128
+    ],
+    "columns": 7,
+    "rows": 1,
+    "pivot_px": [
+      64,
+      64
+    ],
+    "fps": 18,
+    "loop": false
+  }
+}

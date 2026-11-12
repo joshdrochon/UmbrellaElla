@@ -1,0 +1,14 @@
+{
+ "gdd_revision": "SH1.0",
+ "note": "GDD SH1.0 section 10 QA presets: only T-01 BASE is assigned; the other preset rows are blank templates ('T-<two digits>'), so no other preset exists yet (D-new-sh10-presets). The GDD 1.3 presets T-02..T-07 are history (docs/gdd/GDD-1.3.md section 10). The workbench that loads presets exists only in debug and dev builds (D-new-workbench-debug).",
+ "presets": [
+  {
+   "id": "T-01",
+   "name": "BASE",
+   "enable": [],
+   "disable": [],
+   "learning_goal": "Does the complete game work with every APPROVED_P0 rule on: Start Game (Keeper fight, one basic shot) and Director's Cut (story, progression, full level, same Keeper fight)?",
+   "note": "GDD SH1.0 section 10: 'The reviewed export requires T-01 BASE with empty enable / disable arrays.' Every APPROVED_P0 rule on; nothing else exists to enable."
+  }
+ ]
+}

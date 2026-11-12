@@ -1,0 +1,21 @@
+--- a/Config/DefaultEngine.ini
++++ b/Config/DefaultEngine.ini
+@@ -6,3 +6,5 @@
+ +ClassRedirects=(OldName="/Script/UmbrellaElla.UmbrellaPawn",NewName="/Script/UmbrellaElla.EllaCharacter")
+ 
+ [/Script/Engine.CollisionProfile]
+++DefaultChannelResponses=(Channel=ECC_GameTraceChannel1,DefaultResponse=ECR_Ignore,bTraceType=False,bStaticObject=False,Name="Projectile")
+++DefaultChannelResponses=(Channel=ECC_GameTraceChannel2,DefaultResponse=ECR_Ignore,bTraceType=False,bStaticObject=False,Name="ArenaBounds")
+--- /dev/null
++++ b/Source/UmbrellaElla/Public/Core/UmbrellaCollision.h
+@@ -0,0 +1,10 @@
++#pragma once
++#include "CoreMinimal.h"
++#include "Engine/EngineTypes.h"
++
++// Mirrors [/Script/Engine.CollisionProfile] in Config/DefaultEngine.ini.
++namespace UmbrellaCollision
++{
++	constexpr ECollisionChannel ArenaBounds = ECC_GameTraceChannel1;
++	constexpr ECollisionChannel Projectile = ECC_GameTraceChannel2;
++}

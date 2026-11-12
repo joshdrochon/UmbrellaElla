@@ -1,0 +1,30 @@
+--- a/Source/UmbrellaElla/Private/Health/HealthComponent.cpp
++++ b/Source/UmbrellaElla/Private/Health/HealthComponent.cpp
+@@ -3,7 +3,8 @@
+ 
+ int32 FHealthRules::HealthAfterHit(int32 Current, int32 Damage, float ImmunityRemaining)
+ {
+-	return Current;
++	if (ImmunityRemaining > 0.f || Damage <= 0) { return Current; }
++	return FMath::Max(0, Current - Damage);
+ }
+ 
+ UHealthComponent::UHealthComponent()
+@@ -20,8 +21,17 @@
+ void UHealthComponent::TickComponent(float DeltaSeconds, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+ {
+ 	Super::TickComponent(DeltaSeconds, TickType, ThisTickFunction);
++	ImmunityRemaining = FMath::Max(0.f, ImmunityRemaining - DeltaSeconds);
+ }
+ 
+ void UHealthComponent::ApplyDamage(int32 Damage)
+ {
++	const int32 Before = Health;
++	Health = FHealthRules::HealthAfterHit(Health, Damage, ImmunityRemaining);
++	if (Health == Before) { return; }
++	ImmunityRemaining = GetDefault<UUmbrellaTuning>()->Health.ImmunitySeconds;
++	UGameEventsSubsystem* EventBus = Events.Get();
++	if (!EventBus) { return; }
++	EventBus->OnPlayerHealthChanged().Broadcast(EventBus->MakeEventInfo(GetOwner(), GetOwner()), Before, Health);
++	if (Health == 0) { EventBus->OnPlayerDefeated().Broadcast(EventBus->MakeEventInfo(GetOwner(), GetOwner()), EDefeatReason::Health); }
+ }

@@ -1,0 +1,44 @@
+--- /dev/null
++++ b/Source/UmbrellaElla/Public/Core/EllaCharacter.h
+@@ -0,0 +1,38 @@
++#pragma once
++#include "CoreMinimal.h"
++#include "EllaCharacter.generated.h"
++#include "PaperCharacter.h"
++
++class UCameraComponent;
++class UInputMappingContext;
++class USpringArmComponent;
++class UInputAdapterComponent;
++class UPlayerMotorComponent;
++class UUmbrellaStateComponent;
++class UHealthComponent;
++class UFeedbackAdapterComponent;
++
++// Shell: creates the components, spring arm and camera, and hands input to the Input Adapter. No rules here.
++UCLASS()
++class UMBRELLAELLA_API AEllaCharacter : public APaperCharacter
++{
++	GENERATED_BODY()
++public:
++	AEllaCharacter();
++	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
++
++private:
++	UPROPERTY(EditDefaultsOnly, Category = "Ella|Input")
++	TObjectPtr<UInputMappingContext> DefaultMappingContext;
++	UPROPERTY(VisibleAnywhere, Category = "Ella")
++	TObjectPtr<USpringArmComponent> SpringArm;
++	UPROPERTY(VisibleAnywhere, Category = "Ella")
++	TObjectPtr<UCameraComponent> Camera;
++	UPROPERTY(VisibleAnywhere, Category = "Ella")
++	TObjectPtr<UInputAdapterComponent> InputAdapter;
++	UPROPERTY(VisibleAnywhere, Category = "Ella")
++	TObjectPtr<UPlayerMotorComponent> Motor;
++	UPROPERTY(VisibleAnywhere, Category = "Ella")
++	TObjectPtr<UUmbrellaStateComponent> UmbrellaState;
++	UPROPERTY(VisibleAnywhere, Category = "Ella")
++	TObjectPtr<UHealthComponent> Health;
++	UPROPERTY(VisibleAnywhere, Category = "Ella")
++	TObjectPtr<UFeedbackAdapterComponent> Feedback;
++};
