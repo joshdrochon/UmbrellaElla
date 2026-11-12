@@ -1,4 +1,5 @@
 #include "Level/LevelCatalogue.h"
+#include "Level/LevelGrammar.h"
 #include "Core/UmbrellaTuning.h"
 #include "Harness/UmbrellaFeatureFlags.h"
 #include "Math/RandomStream.h"
@@ -13,7 +14,7 @@ namespace
 	TArray<FChunkVariant> BuildAll()
 	{
 		using M = EChunkMechanic;
-		// HAZ-25..36: mechanics per authored chunk (A and B share the set; arrangement differs).
+		// mechanics per authored chunk (A and B share the set; arrangement differs).
 		const TArray<TArray<M>> PerChunk = {
 			{M::Column},				// CH01 drop and catch
 			{M::Warden},				// CH02 rooftop line
@@ -29,14 +30,14 @@ namespace
 			{M::Stilt, M::Courier}		// CH12 stilt and courier
 		};
 		TArray<FChunkVariant> Out;
-		for (int32 i = 0; i < PerChunk.Num(); ++i)
+		for (int32 I = 0; I < PerChunk.Num(); ++I)
 		{
 			for (const TCHAR Letter : {TEXT('A'), TEXT('B')})
 			{
 				FChunkVariant V;
-				V.Chunk = i + 1;
+				V.Chunk = I + 1;
 				V.Variant = Letter;
-				V.Mechanics = PerChunk[i];
+				V.Mechanics = PerChunk[I];
 				Out.Add(V);
 			}
 		}
@@ -83,19 +84,18 @@ namespace LevelCatalogue
 
 	TArray<int32> SlotOptions(int32 SlotIndex)
 	{
-		switch (SlotIndex)
+		TArray<int32> Out;
+		if (SlotIndex >= 0 && SlotIndex < UE_ARRAY_COUNT(LevelGrammar::SlotChunks))
 		{
-		case 0: return {1};
-		case 1: return {2};
-		case 2: return {3};
-		case 3: return {4};
-		case 4: return {5, 6};
-		case 5: return {7, 8};
-		case 6: return {9, 10};
-		case 7: return {5, 6, 7, 8};	// a not-yet-used one, filtered when drawing
-		case 8: return {11, 12};
-		default: return {};
+			for (const int32 Chunk : LevelGrammar::SlotChunks[SlotIndex])
+			{
+				if (Chunk != 0)
+				{
+					Out.Add(Chunk);
+				}
+			}
 		}
+		return Out;
 	}
 
 	int32 NewMechanicCount(const FChunkVariant& V, const TSet<EChunkMechanic>& Introduced)
@@ -122,24 +122,24 @@ namespace LevelCatalogue
 		}
 		TSet<EChunkMechanic> Introduced;
 		TSet<int32> UsedChunks;
-		for (int32 i = 0; i < Route.Slots.Num(); ++i)
+		for (int32 I = 0; I < Route.Slots.Num(); ++I)
 		{
-			const FChunkVariant& V = Route.Slots[i];
-			if (!SlotOptions(i).Contains(V.Chunk))
+			const FChunkVariant& V = Route.Slots[I];
+			if (!SlotOptions(I).Contains(V.Chunk))
 			{
-				Problems.Add(FString::Printf(TEXT("slot %d: %s not allowed by the nine-slot grammar"), i + 1, *V.Label()));
+				Problems.Add(FString::Printf(TEXT("slot %d: %s not allowed by the nine-slot grammar"), I + 1, *V.Label()));
 			}
 			if (!V.bInterfaceN || !V.bReturnFlow || !V.bBypass)
 			{
-				Problems.Add(FString::Printf(TEXT("slot %d: %s breaks interface N / return flow / bypass"), i + 1, *V.Label()));
+				Problems.Add(FString::Printf(TEXT("slot %d: %s breaks interface N / return flow / bypass"), I + 1, *V.Label()));
 			}
 			if (NewMechanicCount(V, Introduced) > 1)
 			{
-				Problems.Add(FString::Printf(TEXT("slot %d: %s introduces more than one new mechanic"), i + 1, *V.Label()));
+				Problems.Add(FString::Printf(TEXT("slot %d: %s introduces more than one new mechanic"), I + 1, *V.Label()));
 			}
 			if (UsedChunks.Contains(V.Chunk))
 			{
-				Problems.Add(FString::Printf(TEXT("slot %d: chunk %d repeats"), i + 1, V.Chunk));
+				Problems.Add(FString::Printf(TEXT("slot %d: chunk %d repeats"), I + 1, V.Chunk));
 			}
 			UsedChunks.Add(V.Chunk);
 			Introduced.Append(V.Mechanics);
@@ -149,8 +149,8 @@ namespace LevelCatalogue
 
 	FRoute BuildCandidate(int64 Seed, int32 Attempt)
 	{
-		// Separate layout stream: cosmetic and story streams are never drawn from here (HAZ-40).
-		FRandomStream Layout(static_cast<int32>((Seed * 2654435761LL + Attempt * 40503LL) & 0x7fffffff));
+		// Separate layout stream: cosmetic and story streams are never drawn from here.
+		FRandomStream Layout(static_cast<int32>((Seed * LevelGrammar::SeedMultiplier + Attempt * LevelGrammar::AttemptStride) & LevelGrammar::SeedMask));
 		FRoute R;
 		R.Seed = Seed;
 		TSet<int32> Used;
@@ -176,7 +176,7 @@ namespace LevelCatalogue
 
 	FRoute FallbackRoute()
 	{
-		return FromLabels(1001, {TEXT("01A"), TEXT("02A"), TEXT("03A"), TEXT("04A"), TEXT("05A"), TEXT("07A"), TEXT("09A"), TEXT("08A"), TEXT("11A")});
+		return FromLabels(Tuning().FallbackSeed, {TEXT("01A"), TEXT("02A"), TEXT("03A"), TEXT("04A"), TEXT("05A"), TEXT("07A"), TEXT("09A"), TEXT("08A"), TEXT("11A")});
 	}
 
 	FRoute Generate(int64 Seed)
@@ -205,12 +205,12 @@ namespace LevelCatalogue
 	float SlotStartX(int32 SlotIndex)
 	{
 		const float RefugeLength = Tuning().RefugeLengthFraction * Tuning().ChunkLength;
-		return SlotIndex * Tuning().ChunkLength + (SlotIndex / 3) * RefugeLength;
+		return SlotIndex * Tuning().ChunkLength + (SlotIndex / Tuning().SlotsPerCheckpoint) * RefugeLength;
 	}
 
 	float RefugeStartX(int32 Checkpoint)
 	{
-		return SlotStartX(3 * Checkpoint) - Tuning().RefugeLengthFraction * Tuning().ChunkLength;
+		return SlotStartX(Tuning().SlotsPerCheckpoint * Checkpoint) - Tuning().RefugeLengthFraction * Tuning().ChunkLength;
 	}
 
 	float RouteLength()
@@ -218,7 +218,7 @@ namespace LevelCatalogue
 		return SlotStartX(Tuning().RouteSlotCount);
 	}
 
-	bool FootprintOnSupport(float Centre, float HalfWidth, float SupportMin, float SupportMax)
+	bool IsFootprintOnSupport(float Centre, float HalfWidth, float SupportMin, float SupportMax)
 	{
 		return Centre - HalfWidth >= SupportMin && Centre + HalfWidth <= SupportMax;
 	}

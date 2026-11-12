@@ -4,9 +4,9 @@
 
 #if WITH_AUTOMATION_TESTS
 
-#define LEVEL_TEST_FLAGS (EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+#define UMBRELLAELLA_LEVEL_TEST_FLAGS (EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FLevelCatalogueSize, "UmbrellaElla.Level.CatalogueHas24Variants", LEVEL_TEST_FLAGS)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FLevelCatalogueSize, "UmbrellaElla.Level.CatalogueHas24Variants", UMBRELLAELLA_LEVEL_TEST_FLAGS)
 bool FLevelCatalogueSize::RunTest(const FString& Parameters)
 {
 	TestEqual(TEXT("24 variants"), LevelCatalogue::All().Num(), 24);
@@ -15,7 +15,7 @@ bool FLevelCatalogueSize::RunTest(const FString& Parameters)
 	return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FLevelSeedDeterministic, "UmbrellaElla.Level.SameSeedSameRoute", LEVEL_TEST_FLAGS)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FLevelSeedDeterministic, "UmbrellaElla.Level.SameSeedSameRoute", UMBRELLAELLA_LEVEL_TEST_FLAGS)
 bool FLevelSeedDeterministic::RunTest(const FString& Parameters)
 {
 	for (const int64 Seed : {1001LL, 1002LL, 1003LL, 77LL, 123456789LL})
@@ -29,7 +29,7 @@ bool FLevelSeedDeterministic::RunTest(const FString& Parameters)
 	return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FLevelGrammar, "UmbrellaElla.Level.NineSlotGrammar", LEVEL_TEST_FLAGS)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FLevelGrammar, "UmbrellaElla.Level.NineSlotGrammar", UMBRELLAELLA_LEVEL_TEST_FLAGS)
 bool FLevelGrammar::RunTest(const FString& Parameters)
 {
 	TSet<FString> Signatures;
@@ -49,7 +49,7 @@ bool FLevelGrammar::RunTest(const FString& Parameters)
 	return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FLevelValidateRejects, "UmbrellaElla.Level.ValidateRejectsBadRoutes", LEVEL_TEST_FLAGS)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FLevelValidateRejects, "UmbrellaElla.Level.ValidateRejectsBadRoutes", UMBRELLAELLA_LEVEL_TEST_FLAGS)
 bool FLevelValidateRejects::RunTest(const FString& Parameters)
 {
 	FRoute Good = LevelCatalogue::FallbackRoute();
@@ -66,7 +66,7 @@ bool FLevelValidateRejects::RunTest(const FString& Parameters)
 	return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FLevelFallbackAndRetry, "UmbrellaElla.Level.FallbackAndAvoidRepeat", LEVEL_TEST_FLAGS)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FLevelFallbackAndRetry, "UmbrellaElla.Level.FallbackAndAvoidRepeat", UMBRELLAELLA_LEVEL_TEST_FLAGS)
 bool FLevelFallbackAndRetry::RunTest(const FString& Parameters)
 {
 	const FRoute Fallback = LevelCatalogue::FallbackRoute();
@@ -78,7 +78,7 @@ bool FLevelFallbackAndRetry::RunTest(const FString& Parameters)
 	return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FLevelLayout, "UmbrellaElla.Level.RefugesAndLength", LEVEL_TEST_FLAGS)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FLevelLayout, "UmbrellaElla.Level.RefugesAndLength", UMBRELLAELLA_LEVEL_TEST_FLAGS)
 bool FLevelLayout::RunTest(const FString& Parameters)
 {
 	TestEqual(TEXT("slot 0 at 0"), LevelCatalogue::SlotStartX(0), 0.0f);
@@ -89,18 +89,18 @@ bool FLevelLayout::RunTest(const FString& Parameters)
 	return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FLevelContainment, "UmbrellaElla.Level.GroundContainment", LEVEL_TEST_FLAGS)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FLevelContainment, "UmbrellaElla.Level.GroundContainment", UMBRELLAELLA_LEVEL_TEST_FLAGS)
 bool FLevelContainment::RunTest(const FString& Parameters)
 {
-	TestTrue(TEXT("inside"), LevelCatalogue::FootprintOnSupport(100.0f, 30.0f, 0.0f, 200.0f));
-	TestFalse(TEXT("hangs off right"), LevelCatalogue::FootprintOnSupport(180.0f, 30.0f, 0.0f, 200.0f));
+	TestTrue(TEXT("inside"), LevelCatalogue::IsFootprintOnSupport(100.0f, 30.0f, 0.0f, 200.0f));
+	TestFalse(TEXT("hangs off right"), LevelCatalogue::IsFootprintOnSupport(180.0f, 30.0f, 0.0f, 200.0f));
 	TestEqual(TEXT("clamped right"), LevelCatalogue::ClampPatrolCentre(190.0f, 30.0f, 0.0f, 200.0f), 170.0f);
 	TestEqual(TEXT("clamped left"), LevelCatalogue::ClampPatrolCentre(-50.0f, 30.0f, 0.0f, 200.0f), 30.0f);
 	TestEqual(TEXT("narrow support centres"), LevelCatalogue::ClampPatrolCentre(5.0f, 60.0f, 0.0f, 100.0f), 50.0f);
 	return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FLevelCameraRules, "UmbrellaElla.Level.CameraLeadAndReveal", LEVEL_TEST_FLAGS)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FLevelCameraRules, "UmbrellaElla.Level.CameraLeadAndReveal", UMBRELLAELLA_LEVEL_TEST_FLAGS)
 bool FLevelCameraRules::RunTest(const FString& Parameters)
 {
 	const float W = 1600.0f;
@@ -115,19 +115,19 @@ bool FLevelCameraRules::RunTest(const FString& Parameters)
 	return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FLevelRulesMath, "UmbrellaElla.Level.ClearanceAndInterface", LEVEL_TEST_FLAGS)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FLevelRulesMath, "UmbrellaElla.Level.ClearanceAndInterface", UMBRELLAELLA_LEVEL_TEST_FLAGS)
 bool FLevelRulesMath::RunTest(const FString& Parameters)
 {
 	TestEqual(TEXT("margin uses larger of 3% H and quarter diameter"), LevelRules::ClearanceMargin(900.0f, 200.0f), 50.0f);
 	TestEqual(TEXT("margin height wins"), LevelRules::ClearanceMargin(900.0f, 40.0f), 27.0f);
-	TestTrue(TEXT("opening fits"), LevelRules::OpeningFits(200.0f, 200.0f, 40.0f, 40.0f, 20.0f));
-	TestFalse(TEXT("opening too narrow"), LevelRules::OpeningFits(100.0f, 200.0f, 40.0f, 40.0f, 20.0f));
+	TestTrue(TEXT("opening fits"), LevelRules::CanOpeningFit(200.0f, 200.0f, 40.0f, 40.0f, 20.0f));
+	TestFalse(TEXT("opening too narrow"), LevelRules::CanOpeningFit(100.0f, 200.0f, 40.0f, 40.0f, 20.0f));
 	TestEqual(TEXT("interface at half height"), LevelRules::InterfaceHeight(900.0f), 450.0f);
 	TestEqual(TEXT("vestibule 0.2 W"), LevelRules::VestibuleLength(1600.0f), 320.0f);
 	TestEqual(TEXT("clearance floor 0.3 H"), LevelRules::MinVerticalClearance(900.0f, 100.0f), 270.0f);
 	TestEqual(TEXT("clearance envelope wins"), LevelRules::MinVerticalClearance(900.0f, 400.0f), 400.0f);
-	TestTrue(TEXT("ray clears"), LevelRules::RayClearsCircle(FVector2D(0, 0), FVector2D(100, 0), FVector2D(50, 100), 50.0f, 8.0f, 0.0f));
-	TestFalse(TEXT("ray hits rotor"), LevelRules::RayClearsCircle(FVector2D(0, 0), FVector2D(100, 0), FVector2D(50, 40), 50.0f, 8.0f, 0.0f));
+	TestTrue(TEXT("ray clears"), LevelRules::IsRayClearOfCircle(FVector2D(0, 0), FVector2D(100, 0), FVector2D(50, 100), 50.0f, 8.0f, 0.0f));
+	TestFalse(TEXT("ray hits rotor"), LevelRules::IsRayClearOfCircle(FVector2D(0, 0), FVector2D(100, 0), FVector2D(50, 40), 50.0f, 8.0f, 0.0f));
 	return true;
 }
 

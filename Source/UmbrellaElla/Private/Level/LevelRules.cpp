@@ -10,7 +10,7 @@ namespace LevelRules
 		return FMath::Max(T.ClearanceMarginHeightFraction * ArenaHeight, T.ClearanceMarginDiameterFraction * HurtboxDiameter);
 	}
 
-	bool OpeningFits(float OpeningWidth, float OpeningHeight, float HalfExtentX, float HalfExtentZ, float Margin)
+	bool CanOpeningFit(float OpeningWidth, float OpeningHeight, float HalfExtentX, float HalfExtentZ, float Margin)
 	{
 		return OpeningWidth >= 2.0f * HalfExtentX + 2.0f * Margin && OpeningHeight >= 2.0f * HalfExtentZ + 2.0f * Margin;
 	}
@@ -36,13 +36,13 @@ namespace LevelRules
 		return Inner.bIsValid && Hazard.bIsValid && Inner.IsInside(Hazard.Min) && Inner.IsInside(Hazard.Max);
 	}
 
-	bool RayClearsCircle(const FVector2D& Start, const FVector2D& End, const FVector2D& Center, float Radius, float ShotRadius, float Margin)
+	bool IsRayClearOfCircle(const FVector2D& Start, const FVector2D& End, const FVector2D& Center, float Radius, float ShotRadius, float Margin)
 	{
 		const FVector Closest = FMath::ClosestPointOnSegment(FVector(Center, 0.0), FVector(Start, 0.0), FVector(End, 0.0));
 		return FVector2D::Distance(FVector2D(Closest.X, Closest.Y), Center) >= Radius + ShotRadius + Margin;
 	}
 
-	bool InActivationRegion(const FVector2D& Point, const FBox2D& Region)
+	bool IsInActivationRegion(const FVector2D& Point, const FBox2D& Region)
 	{
 		return Region.IsInside(Point);
 	}
