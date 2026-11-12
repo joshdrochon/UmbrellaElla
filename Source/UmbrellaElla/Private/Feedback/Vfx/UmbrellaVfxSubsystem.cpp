@@ -62,7 +62,7 @@ FName UUmbrellaVfxSubsystem::EffectForEvent(const FUmbrellaEvent& Event)
 	case EUmbrellaEventType::CatchFailed:
 		return TEXT("AbsorbFizzle");
 	case EUmbrellaEventType::BossTargetHit:
-		return TEXT("KeeperHitFlash");
+		return Event.Detail == TEXT("Enemy") ? FName(TEXT("ShotImpact")) : FName(TEXT("KeeperHitFlash"));
 	case EUmbrellaEventType::BossAttackTelegraphed:
 		return TEXT("KeeperTelegraph");
 	case EUmbrellaEventType::BossPartDestroyed:
