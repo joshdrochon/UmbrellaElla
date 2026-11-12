@@ -11,6 +11,8 @@ if [ ! -d "$WT" ]; then
     git -C "$ROOT" worktree add "$WT" -B "area/$A" "origin/area/$A"
   else git -C "$ROOT" worktree add "$WT" -b "area/$A" main; fi
 fi
+# First editor launch writes this file and test.sh fails once on the change; seed it from the main checkout.
+mkdir -p "$WT/Saved/Config/MacEditor"; cp -n "$ROOT/Saved/Config/MacEditor/GameUserSettings.ini" "$WT/Saved/Config/MacEditor/" 2>/dev/null || true
 PROMPT="You are the '$A' area worker for Umbrella Ella (UE 5.8.4). Your worktree is $WT on branch area/$A.
 Read docs/build/worker-rules.md, then docs/build/areas/$A.md, and docs/build/areas/$A-status.md if it exists (it says
 what is already done). Build your area to its definition of done: G1 Rule IDs first, then the later list.
