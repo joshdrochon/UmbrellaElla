@@ -7,12 +7,16 @@
 #include "Core/UmbrellaEventBus.h"
 #include "Core/UmbrellaGameMode.h"
 #include "Engine/Engine.h"
+#include "Engine/LocalPlayer.h"
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
+#include "Encounter/EncounterDirectorSubsystem.h"
 #include "Flow/UmbrellaPlayerController.h"
 #include "GameFramework/PlayerState.h"
 #include "GameFramework/WorldSettings.h"
 #include "Kismet/GameplayStatics.h"
+#include "Progression/ProgressionSubsystem.h"
+#include "UI/Progression/ProgressionPurchaseWidget.h"
 
 namespace
 {
@@ -92,6 +96,8 @@ bool FFlowWorldStartTest::RunTest(const FString& Parameters)
 	TestTrue(TEXT("the arena exists"), Mode && Mode->GetArena() != nullptr);
 	TestTrue(TEXT("camera is the arena"), Test.Controller->GetViewTarget() == Mode->GetArena());
 	TestEqual(TEXT("start game mode"), Test.Controller->GetPlayMode(), EUmbrellaPlayMode::StartGame);
+	const UEncounterDirectorSubsystem* Director = Test.World->GetSubsystem<UEncounterDirectorSubsystem>();
+	TestTrue(TEXT("the director is Active"), Director && Director->GetState() == EEncounterState::Active);
 	return true;
 }
 
@@ -177,6 +183,9 @@ bool FFlowWorldDefeatTest::RunTest(const FString& Parameters)
 	Test.Controller->TickFlow(1.0f);
 	TestEqual(TEXT("fight again"), Test.Controller->GetScreen(), EFlowScreen::Playing);
 	TestTrue(TEXT("Ella is back"), Test.Controller->GetPawn() != nullptr);
+	const UEncounterDirectorSubsystem* Director = Test.World->GetSubsystem<UEncounterDirectorSubsystem>();
+	TestTrue(TEXT("the director is Ready or Active again after the reset"),
+		Director && (Director->GetState() == EEncounterState::Ready || Director->GetState() == EEncounterState::Active));
 	return true;
 }
 
@@ -205,3 +214,39 @@ bool FFlowWorldWinTest::RunTest(const FString& Parameters)
 }
 
 #endif
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFlowWorldPurchaseDraftTest, "UmbrellaElla.Flow.World.LeavingPurchaseDiscardsDraft",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FFlowWorldPurchaseDraftTest::RunTest(const FString& Parameters)
+{
+	FFlowTestWorld Test;
+	// The test game instance has no subsystems until it is initialised.
+	Test.Instance->Init();
+	UProgressionSubsystem* Progression = UProgressionSubsystem::Get(Test.World);
+	if (!TestNotNull(TEXT("progression subsystem"), Progression))
+	{
+		return false;
+	}
+	Progression->UseSaveSlot(FString());
+	Progression->SetPlayMode(EUmbrellaPlayMode::DirectorsCut);
+	Progression->BeginShadowProgress(10);
+	// Widgets need a local player; the test world has none, so give the controller one.
+	Test.Controller->SetPlayer(NewObject<ULocalPlayer>(GEngine, GEngine->LocalPlayerClass));
+	Test.Controller->ApplyCommand(EFlowCommand::OpenPurchase);
+	TestEqual(TEXT("purchase screen"), Test.Controller->GetScreen(), EFlowScreen::Purchase);
+	UProgressionPurchaseWidget* Widget = Test.Controller->GetPurchaseWidget();
+	if (!TestNotNull(TEXT("purchase widget"), Widget))
+	{
+		return false;
+	}
+	// No viewport here, so build the Slate tree by hand; that runs NativeConstruct and starts the draft.
+	Widget->TakeWidget();
+	Widget->StageBuy(EProgressionTrack::HitCapacity);
+	TestTrue(TEXT("a staged purchase is a dirty draft"), Widget->IsDraftDirty());
+	Test.Controller->ApplyCommand(EFlowCommand::Pause);
+	TestEqual(TEXT("pause leaves the purchase screen"), Test.Controller->GetScreen(), EFlowScreen::Title);
+	TestNull(TEXT("widget released"), Test.Controller->GetPurchaseWidget());
+	TestFalse(TEXT("the unconfirmed draft was discarded"), Widget->IsDraftDirty());
+	Progression->EndShadowProgress();
+	return true;
+}

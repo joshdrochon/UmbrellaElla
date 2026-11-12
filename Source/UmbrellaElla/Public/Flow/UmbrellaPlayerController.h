@@ -11,6 +11,8 @@ class SWidget;
 class SFlowTextScreen;
 class UInputAction;
 class UInputMappingContext;
+class UProgressionPurchaseWidget;
+class UXpRingWidget;
 
 /**
  * Menus, pause, mode select and IMC_Menu switching (Flow, lane d). Owns the screen state (FFlowRules), the widgets for
@@ -64,6 +66,12 @@ public:
 	/** Never read or write the settings file for the tutorial flag (tests and the smoke hook use this). */
 	void KeepTutorialInMemoryOnly();
 
+	/** True when a Director's Cut start should first offer the purchase screen (unspent points to spend). */
+	bool ShouldOfferPurchase() const;
+
+	/** The purchase screen while it is open (null otherwise); tests read its draft. */
+	UProgressionPurchaseWidget* GetPurchaseWidget() const { return PurchaseWidget; }
+
 	/** Advance the screen timers by real seconds; runs while the world is paused. */
 	void TickFlow(float DeltaSeconds);
 
@@ -78,6 +86,12 @@ private:
 	void StartMode(EUmbrellaPlayMode Mode);
 	void BeginRun();
 	void AdvanceTutorial();
+	void OpenSettingsMenu();
+	void CloseSettingsMenu();
+	bool IsSettingsMenuOpen() const;
+	void ShowPurchaseScreen();
+	void ClearPurchaseScreen();
+	void SyncProgressionMode(EUmbrellaPlayMode Mode);
 	void EnterScreen(EFlowScreen To, EFlowCommand Cause);
 	void ShowScreenWidget();
 	void ClearScreenWidget();
@@ -98,6 +112,16 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<UInputAction> PauseAction;
+
+	UPROPERTY()
+	TObjectPtr<UProgressionPurchaseWidget> PurchaseWidget;
+
+	UPROPERTY()
+	TObjectPtr<UXpRingWidget> XpRing;
+
+	TSharedPtr<SWidget> PurchaseDoneButton;
+	bool bPurchaseDone = false;
+	bool bSettingsOpened = false;
 
 	EFlowScreen Screen = EFlowScreen::Title;
 	EUmbrellaPlayMode PlayMode = EUmbrellaPlayMode::StartGame;

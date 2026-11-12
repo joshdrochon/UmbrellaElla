@@ -9,7 +9,14 @@ EFlowScreen FFlowRules::Next(EFlowScreen From, EFlowCommand Command)
 		{
 			return EFlowScreen::Tutorial;
 		}
+		if (Command == EFlowCommand::OpenPurchase)
+		{
+			return EFlowScreen::Purchase;
+		}
 		return Command == EFlowCommand::StartMode ? EFlowScreen::Playing : From;
+	case EFlowScreen::Purchase:
+		// Done, Back and Pause (Escape, F1, Menu, B) all return to the title; the Start press that opened it is then repeated.
+		return (Command == EFlowCommand::Continue || Command == EFlowCommand::Back || Command == EFlowCommand::Pause) ? EFlowScreen::Title : From;
 	case EFlowScreen::Tutorial:
 		// Pause then Skip works on every page; finishing the last page ends the tutorial the same way as Skip.
 		switch (Command)
@@ -93,9 +100,44 @@ bool FFlowRules::HasTutorialPageAfter(int32 Page, int32 PageCount)
 	return Page + 1 < PageCount;
 }
 
+bool FFlowRules::ShouldOfferPurchase(bool bFeatureOn, int32 UnspentPoints, bool bCanRefund, bool bAnythingRefundable)
+{
+	// Refunds are open from run 2, so a player with spent points and none unspent still gets the screen.
+	return bFeatureOn && (UnspentPoints > 0 || (bCanRefund && bAnythingRefundable));
+}
+
 bool FFlowRules::ShouldShowTutorial(bool bFeatureOn, bool bAlreadySeen)
 {
 	return bFeatureOn && !bAlreadySeen;
+}
+
+EFlowMenuIntent FFlowRules::MenuIntentForKey(const FKey& Key)
+{
+	if (Key == EKeys::Up || Key == EKeys::W || Key == EKeys::Gamepad_DPad_Up || Key == EKeys::Gamepad_LeftStick_Up)
+	{
+		return EFlowMenuIntent::Up;
+	}
+	if (Key == EKeys::Down || Key == EKeys::S || Key == EKeys::Gamepad_DPad_Down || Key == EKeys::Gamepad_LeftStick_Down)
+	{
+		return EFlowMenuIntent::Down;
+	}
+	if (Key == EKeys::Left || Key == EKeys::A || Key == EKeys::Gamepad_DPad_Left || Key == EKeys::Gamepad_LeftStick_Left)
+	{
+		return EFlowMenuIntent::Left;
+	}
+	if (Key == EKeys::Right || Key == EKeys::D || Key == EKeys::Gamepad_DPad_Right || Key == EKeys::Gamepad_LeftStick_Right)
+	{
+		return EFlowMenuIntent::Right;
+	}
+	if (Key == EKeys::Enter || Key == EKeys::SpaceBar || Key == EKeys::Gamepad_FaceButton_Bottom)
+	{
+		return EFlowMenuIntent::Confirm;
+	}
+	if (Key == EKeys::Escape || Key == EKeys::F1 || Key == EKeys::Gamepad_FaceButton_Right || Key == EKeys::Gamepad_Special_Right)
+	{
+		return EFlowMenuIntent::Back;
+	}
+	return EFlowMenuIntent::None;
 }
 
 bool FFlowRules::IsBackgroundShownOn(EFlowScreen Screen)
