@@ -16,6 +16,7 @@ namespace
 		EUmbrellaEventType::PlayerDefeated,
 		EUmbrellaEventType::EncounterCompleted,
 		EUmbrellaEventType::ModeSelected,
+		EUmbrellaEventType::LevelGained,
 	};
 }
 
@@ -70,6 +71,8 @@ FName UUmbrellaCueSubsystem::CueForEvent(const FUmbrellaEvent& Event)
 		return TEXT("EndMusic");
 	case EUmbrellaEventType::ModeSelected:
 		return TEXT("StartMusic");
+	case EUmbrellaEventType::LevelGained:
+		return TEXT("LevelUp");
 	default:
 		return NAME_None;
 	}

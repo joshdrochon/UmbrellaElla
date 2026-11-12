@@ -40,3 +40,6 @@ Shared test helper for other areas: `Private/Tests/Shared/UmbrellaTestWorld.h` (
 - Remapping UI/Save (MOVE-09/10/17) is not in my list.
 - Ella is not visibly moved by art: AnimPresenter is arena's.
 - Package/smoke not run (build lead).
+
+## Settings integration (MOVE-17)
+Adapter applies saved bindings in BindInput via ApplySavedBindings (soft dependency on USettingsMenuSubsystem). Test: UmbrellaElla.Move.World.SavedRemapReachesLiveContext. Move tests: 26 pass.
