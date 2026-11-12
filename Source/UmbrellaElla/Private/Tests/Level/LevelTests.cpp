@@ -1,5 +1,6 @@
 #include "Level/LevelCatalogue.h"
 #include "Level/LevelRules.h"
+#include "Level/LevelContracts.h"
 #include "Misc/AutomationTest.h"
 
 #if WITH_AUTOMATION_TESTS
@@ -128,6 +129,29 @@ bool FLevelRulesMath::RunTest(const FString& Parameters)
 	TestEqual(TEXT("clearance envelope wins"), LevelRules::MinVerticalClearance(900.0f, 400.0f), 400.0f);
 	TestTrue(TEXT("ray clears"), LevelRules::IsRayClearOfCircle(FVector2D(0, 0), FVector2D(100, 0), FVector2D(50, 100), 50.0f, 8.0f, 0.0f));
 	TestFalse(TEXT("ray hits rotor"), LevelRules::IsRayClearOfCircle(FVector2D(0, 0), FVector2D(100, 0), FVector2D(50, 40), 50.0f, 8.0f, 0.0f));
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FLevelContractsRules, "UmbrellaElla.Level.ContractsReadabilityCatchCheckpoint", UMBRELLAELLA_LEVEL_TEST_FLAGS)
+bool FLevelContractsRules::RunTest(const FString& Parameters)
+{
+	TestTrue(TEXT("FLOW-25 drawn width matches"), LevelContracts::IsWindFieldDrawnTrue(300.0f, 300.0f, 4.0f));
+	TestFalse(TEXT("FLOW-25 centreline-only draw rejected"), LevelContracts::IsWindFieldDrawnTrue(20.0f, 300.0f, 4.0f));
+	TestTrue(TEXT("FLOW-25 lead safe mid route"), LevelContracts::IsLeadSafeBothDirections(2000.0f, 1600.0f, 0.0f, 10000.0f));
+	TestTrue(TEXT("FLOW-25 lead safe at the route end"), LevelContracts::IsLeadSafeBothDirections(9900.0f, 1600.0f, 0.0f, 10000.0f));
+	TestTrue(TEXT("FLOW-25 stages covered"), LevelContracts::IsRouteCoveredByBackground({FVector2D(0, 100), FVector2D(100, 250)}, {FVector2D(0, 120), FVector2D(110, 300)}));
+	TestFalse(TEXT("FLOW-25 gap between backgrounds"), LevelContracts::IsRouteCoveredByBackground({FVector2D(0, 250)}, {FVector2D(0, 100), FVector2D(150, 300)}));
+	TestTrue(TEXT("CAM-04 inside envelope"), LevelContracts::IsInsideQualifiedEnvelope(5.0f, 1.0f, 8.0f));
+	TestFalse(TEXT("CAM-04 outside envelope is unqualified"), LevelContracts::IsInsideQualifiedEnvelope(9.0f, 1.0f, 8.0f));
+	TestTrue(TEXT("CAM-07 enough height to reopen"), LevelContracts::IsReopenHeightEnough(400.0f, 300.0f));
+	TestFalse(TEXT("CAM-07 too low to reopen"), LevelContracts::IsReopenHeightEnough(200.0f, 300.0f));
+	TestFalse(TEXT("CAM-07 current gone before challenge clears"), LevelContracts::IsRequiredCurrentValid(false, false));
+	TestTrue(TEXT("CAM-07 current may end after the clear"), LevelContracts::IsRequiredCurrentValid(true, false));
+	TestEqual(TEXT("FLOW-28 no free heal"), LevelContracts::CarriedHealth(2, 5), 2);
+	TestEqual(TEXT("FLOW-28 never above max"), LevelContracts::CarriedHealth(9, 5), 5);
+	TestFalse(TEXT("FLOW-28 threats left"), LevelContracts::IsBossArrivalReady(1, true));
+	TestFalse(TEXT("FLOW-28 framing not settled"), LevelContracts::IsBossArrivalReady(0, false));
+	TestTrue(TEXT("FLOW-28 ready"), LevelContracts::IsBossArrivalReady(0, true));
 	return true;
 }
 
