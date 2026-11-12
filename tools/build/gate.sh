@@ -86,4 +86,5 @@ if ! git merge -q --ff-only gate 2>/dev/null; then
   fi
   git -c core.hooksPath=/dev/null merge -q --no-edit -m "Merge gate result for area/$A" gate || { git merge --abort; echo "GATE FAIL: merge"; exit 1; }
 fi
-git push -q origin main && echo "GATE PASS: main $(git rev-parse --short HEAD) pushed ($(( $(date +%s) - T0 )) s)"
+git push -q origin main 2>/dev/null || { git fetch -q origin && git -c core.hooksPath=/dev/null merge -q --no-edit origin/main && git push -q origin main; } || { echo "GATE FAIL: push"; exit 1; }
+echo "GATE PASS: main $(git rev-parse --short HEAD) pushed ($(( $(date +%s) - T0 )) s)"
