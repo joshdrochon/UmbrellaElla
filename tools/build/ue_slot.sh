@@ -34,9 +34,14 @@ while :; do
     if [ -n "${UE_SLOT_EXCLUSIVE:-}" ]; then
       # Packaging: UAT's own UBT calls fail on UBT's machine-wide mutex while any other build runs, so wait until no
       # slot is held, then hold enough slots that nobody else starts.
-      if [ "$have" = 0 ]; then
+      # Reserve first (every caller counts these, so nobody new starts), then wait for the others to finish.
+      if [ ! -d "$DIR/slot$$-x1" ]; then
         for i in 1 2 3 4 5 6; do mkdir "$DIR/slot$$-x$i"; echo "$$ $(pwd)" > "$DIR/slot$$-x$i/owner"; done
-        rmdir "$DIR/.mutex"; trap 'rm -rf "$DIR"/slot$$-x*' EXIT INT TERM
+        trap 'rm -rf "$DIR"/slot$$-x*' EXIT INT TERM
+        echo "ue_slot: exclusive reserved by $$, waiting for $have running" >&2
+      fi
+      if [ $(( have - 6 )) -le 0 ] && [ "$have" -ge 6 ]; then
+        rmdir "$DIR/.mutex"
         echo "ue_slot: exclusive for $$: $*" >&2
         "$@"; exit $?
       fi
