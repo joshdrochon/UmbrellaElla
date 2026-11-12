@@ -35,6 +35,8 @@ exactly one area, lanes disjoint).
      (flow), `UI/UmbrellaHUD` (health). Fill in your own; call others only through their public functions and events.
 
 ## Hard rules
+- Unity builds merge many `.cpp` files into one: never put generic names (`Step`, `Count`, `Tolerance`) at file scope
+  or in an anonymous namespace; prefix them with your area (`KeeperTestStep`), or `-Wshadow` breaks another area's build.
 - Stay in your file lane (your area file lists it). Never edit another lane's files, `Core/`, `Harness/`, the
   `.uproject`, `Config/*.ini` or `Source/*.Target.cs`. If you truly need a change there, write it in
   `docs/build/requests/<area>.md` (create it) with the exact diff, and work around it with a stub in your lane.
