@@ -53,7 +53,7 @@ Before each packaged build: `tools/build/prepackage.sh` (full Unreal + Python su
 with input/gamepad/16:9, `ui_check flow-check`, encounter playthrough + critic). Windows: `docs/build/windows-check.md`.
 
 ## Continue on Mac (Claude Code)
-    cd ~/Desktop/Developer/UmbrellaElla && git pull
+    cd <your UmbrellaElla clone> && git pull     # area worktrees live in the sibling folder ../UmbrellaElla-areas/
     tools/build/start_area.sh <area>            # starts/continues a worker in ../UmbrellaElla-areas/<area>, log ../UmbrellaElla-areas/logs/<area>.log
     tools/build/push_areas.sh --loop &          # pushes area/* branches every 2 min
     # merge loop, per finished slice (merges in ../UmbrellaElla-areas/gate, pushes main only on PASS):
