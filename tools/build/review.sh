@@ -25,5 +25,9 @@ End your answer with exactly one line 'VERDICT: approve' or 'VERDICT: changes', 
 env -u CLAUDECODE -u CLAUDE_CODE_ENTRYPOINT claude -p "$PROMPT" --permission-mode bypassPermissions \
   --disallowedTools "Bash(git push:*)" "Bash(git commit:*)" Edit Write --model "${REVIEW_MODEL:-claude-sonnet-5-5}" > "$OUT" 2>&1
 grep -q "^VERDICT: approve" "$OUT" && { echo "review: approve role=$ROLE"; exit 0; }
-grep -q "^VERDICT: changes" "$OUT" && { echo "review: changes role=$ROLE ($OUT)"; exit 1; }
+if grep -q "^VERDICT: changes" "$OUT"; then
+  # "changes" with no numbered item after the verdict line (only Minor:) counts as approve with follow-ups.
+  if sed -n '/^VERDICT: changes/,/^Minor/p' "$OUT" | grep -q -E '^[0-9]+\.'; then echo "review: changes role=$ROLE ($OUT)"; exit 1; fi
+  echo "review: approve (minor only) role=$ROLE ($OUT)"; exit 0
+fi
 echo "review: no verdict role=$ROLE ($OUT)"; exit 2

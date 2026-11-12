@@ -25,3 +25,9 @@ Also: absorb component (yellow only during absorb-fall, red CatchFailed), `Reset
 
 ## Left
 Nothing in this lane. Progression moved to the progression area. Open design item: life-hand angles (see requests/health.md).
+
+## Nov 12 14:12 integration fixes
+- Absorb pose now follows every UmbrellaConfigChanged from Ella: AbsorbFall iff Detail == AbsorbFall. Test: `Health.World.AbsorbPoseFollowsUmbrellaState` (drives the real UUmbrellaStateComponent).
+- CheckpointRetried (TargetId Ella, Amount 3) calls ResetForRetry. Test: `Health.World.CheckpointRetryRestoresFullHealthAndLives`.
+- Source GUST_Band bypasses post-hit protection and does not start or renew it; talon/mechanism hits unchanged. Test: `Health.World.GustBypassesProtectionTalonDoesNot`.
+- Health test world now starts play (components run BeginPlay).

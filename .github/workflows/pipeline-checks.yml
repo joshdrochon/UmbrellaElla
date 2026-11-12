@@ -12,13 +12,19 @@ permissions:
 # CI profile (pipeline/agent-ops/README.md "CI profile"): a committed .pipeline-ci-full at the root turns on the long
 # pipeline suites (the Linux unit tests, the windows job). The installer never ships it, so a game repo runs the fast
 # game checks only; the pipeline source repo and the pipeline test repo keep it.
+# Build mode: docs/build/MODE says `direct` (or there is no MODE file and HANDOFF.md exists) when the team builds
+# directly: a build lead merges area/* branches into main after the local gate (tools/build/gate.sh) and pushes. Then
+# the card-only work is skipped (card readiness, PR body, the LFS art pulls for the PR ship gate) and so are the checks
+# the local gate judges against main instead of absolutely (ui_check ci, bake_preset, the audio WAV scans): an
+# unfinished game fails them by design. The fast checks keep running, so a red main still means something broke.
+# The Unreal build never runs on GitHub runners; the local gate builds and tests it.
 jobs:
   profile:
-    if: github.event_name != 'issues'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
       full: ${{ steps.marker.outputs.full }}
+      direct: ${{ steps.mode.outputs.direct }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -29,9 +35,17 @@ jobs:
           if [ -f .pipeline-ci-full ]; then full=true; else full=false; fi
           echo "CI profile: full=$full"
           echo "full=$full" >> "${GITHUB_OUTPUT:-/dev/null}"
+      - name: Build mode from docs/build/MODE (direct = local build lead merges, no cards or PRs)
+        id: mode
+        run: |
+          if [ -f docs/build/MODE ]; then mode=$(tr -d '[:space:]' < docs/build/MODE); elif [ -f HANDOFF.md ]; then mode=direct; else mode=cards; fi
+          if [ "$mode" = direct ]; then direct=true; else direct=false; fi
+          echo "build mode: $mode (direct=$direct)"
+          echo "direct=$direct" >> "${GITHUB_OUTPUT:-/dev/null}"
   card:
     # Card readiness when a card is filed or edited, not only when its PR opens (AGENTS.md section 8).
-    if: github.event_name == 'issues' && contains(github.event.issue.labels.*.name, 'task')
+    needs: profile
+    if: github.event_name == 'issues' && contains(github.event.issue.labels.*.name, 'task') && needs.profile.outputs.direct != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -49,6 +63,8 @@ jobs:
     if: ${{ !cancelled() && github.event_name != 'issues' }}
     runs-on: ubuntu-latest
     timeout-minutes: ${{ needs.profile.outputs.full == 'true' && 180 || 20 }}   # full: the unit tests take about 100 min
+    env:
+      DIRECT: ${{ needs.profile.outputs.direct }}   # 'true': direct local build, the card-only steps below skip
     steps:
       - uses: actions/checkout@v4
         with:
@@ -59,17 +75,20 @@ jobs:
       - name: Repo guardrails and the cross-doc consistency gate (decision IDs, card IDs, paths, owners, Day-0 cycles)
         run: python3 tools/pipeline_check.py
       - name: List the LFS art the ship gate re-measures (references, team art, the GDD's images)
+        if: env.DIRECT != 'true'
         id: lfsart
         run: |
           git lfs ls-files -l -I 'pipeline/art/reference/**,Assets/**,Mockups/**,docs/gdd/**' | sort > "$RUNNER_TEMP/lfs-art.txt"
           echo "key=$(python3 -c 'import hashlib,sys; print(hashlib.sha256(open(sys.argv[1],"rb").read()).hexdigest()[:16])' "$RUNNER_TEMP/lfs-art.txt")" >> "${GITHUB_OUTPUT:-/dev/null}"
       - name: Restore the LFS art cache (bandwidth is spent only when the art set changes)
+        if: env.DIRECT != 'true'
         uses: actions/cache@v4
         with:
           path: .git/lfs/objects
           key: lfs-art-${{ runner.os }}-${{ steps.lfsart.outputs.key }}
           restore-keys: lfs-art-${{ runner.os }}-
       - name: Pull the art the ship gate re-measures (check_pr artship re-runs the art checks on every shipped image against these; the art calibration and ship-gate unit tests read them too)
+        if: env.DIRECT != 'true'
         run: git lfs pull --include='pipeline/art/reference/**,Assets/**,Mockups/**,docs/gdd/**'
       - name: Pull the key art from LFS so the art calibration test runs (it skips on a pointer; full CI profile only)
         if: hashFiles('.pipeline-ci-full') != ''
@@ -112,14 +131,19 @@ jobs:
       - name: Owl encounter data (Level Designer)
         run: python3 tools/encounter_check.py
       - name: UI inputs that exist yet (UI and UX; skips inputs not created)
+        if: env.DIRECT != 'true'
         run: python3 tools/ui_check.py ci
       - name: Feel data limits (Game Designer)
         run: python3 tools/feel_check.py
       - name: Shipped defaults equal the baked preset; before the G4 bake, every C++ default follows the tuning rules
+        if: env.DIRECT != 'true'
         run: |
           if [ -f pipeline/qa/baked.json ]; then python3 tools/bake_preset.py check; else python3 tools/bake_preset.py defaults; fi
       - name: Submission duties and the deadline guard stay wired (Producer; dry run B M2)
         run: python3 tools/submission_check.py wiring
+      - name: No undeclared game commits before the jam start (direct build; tools/build/gate.sh runs it on every merge)
+        if: env.DIRECT == 'true'
+        run: python3 tools/submission_check.py prejam
       - name: Official Rules (docs/rules) - jam rules cite them, deadline = section 4, pre-jam assets (7(h)), English (7(i))
         run: |
           python3 tools/submission_check.py rules
@@ -148,11 +172,13 @@ jobs:
           python3 tools/story_check.py --calibrate
           if [ -f Content/UmbrellaElla/UI/ST_UI.csv ]; then python3 tools/story_check.py --scan Content/UmbrellaElla/UI/ST_UI.csv pipeline/submission/itch-page.md; else python3 tools/story_check.py --scan pipeline/submission/itch-page.md; fi
       - name: Audio source WAVs (skips LFS pointers and a missing Audio/Source; add --require-dir once card 0.15 or the first audio card merges)
+        if: env.DIRECT != 'true'
         run: python3 tools/audio_check.py --scan Audio/Source
       - name: Audio quality bar, measured (pipeline/audio/style-target.md; skips LFS pointers and a missing Audio/Source)
+        if: env.DIRECT != 'true'
         run: python3 tools/audio_style_check.py check Audio/Source
       - name: PR body has task, evidence header, package evidence where paths or the linked card need it, linked risks
-        if: github.event_name == 'pull_request'
+        if: (github.event_name == 'pull_request') && env.DIRECT != 'true'
         env:
           BASE: ${{ github.event.pull_request.base.sha }}
           GH_TOKEN: ${{ github.token }}
@@ -171,7 +197,7 @@ jobs:
             python3 tools/check_pr.py --changed "$RUNNER_TEMP/changed.txt" --base "$BASE"
           fi
       - name: Linked task card is ready (Producer)
-        if: github.event_name == 'pull_request'
+        if: (github.event_name == 'pull_request') && env.DIRECT != 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -183,7 +209,7 @@ jobs:
     # Linux job, plus one headless Blender render. Suites that drive the Mac tools/ue/*.sh scripts skip on Windows.
     # Full CI profile only (.pipeline-ci-full): Windows minutes count double on the game repo's plan.
     needs: profile
-    if: github.event_name != 'issues' && needs.profile.outputs.full == 'true'
+    if: github.event_name != 'issues' && needs.profile.outputs.full == 'true' && needs.profile.outputs.direct != 'true'
     runs-on: windows-latest
     timeout-minutes: 300   # the Linux suite takes about 100 min; Windows starts processes and git more slowly
     env:

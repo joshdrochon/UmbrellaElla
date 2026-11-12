@@ -4,6 +4,7 @@
 #include "Engine/World.h"
 #include "Harness/UmbrellaFeatureFlags.h"
 #include "Projectile/UmbrellaShotSpec.h"
+#include "Umbrella/UmbrellaPlayerIds.h"
 
 namespace
 {
@@ -12,6 +13,7 @@ namespace
 	const FName CaptureDetail(TEXT("FullCapture"));
 	const FName ResetDetail(TEXT("Reset"));
 	const FName ConfigDetail(TEXT("Config"));
+	const FName GustSource(TEXT("GUST_Band"));
 }
 
 UUmbrellaHealthComponent::UUmbrellaHealthComponent()
@@ -32,6 +34,33 @@ void UUmbrellaHealthComponent::BeginPlay()
 	State = HealthRules::MakeFull(State.Capacity > 0.0f ? State.Capacity : Tuning.HitsPerLife, State.MaxLives);
 	ProtectedUntil = -1.0;
 	BroadcastHealth(NAME_None, ConfigDetail);
+	if (UUmbrellaEventBus* Bus = UUmbrellaEventBus::Get(this))
+	{
+		RetryHandle = Bus->On(EUmbrellaEventType::CheckpointRetried).AddUObject(this, &UUmbrellaHealthComponent::OnCheckpointRetried);
+	}
+}
+
+void UUmbrellaHealthComponent::EndPlay(const EEndPlayReason::Type Reason)
+{
+	if (UUmbrellaEventBus* Bus = UUmbrellaEventBus::Get(this))
+	{
+		Bus->On(EUmbrellaEventType::CheckpointRetried).Remove(RetryHandle);
+	}
+	RetryHandle.Reset();
+	Super::EndPlay(Reason);
+}
+
+void UUmbrellaHealthComponent::OnCheckpointRetried(const FUmbrellaEvent& Event)
+{
+	if (Event.TargetId == UmbrellaPlayerIds::Ella && Event.Amount == State.MaxLives)
+	{
+		ResetForRetry();
+	}
+}
+
+bool UUmbrellaHealthComponent::ShouldBypassProtection(FName SourceId)
+{
+	return SourceId == GustSource;
 }
 
 EUmbrellaShotResult UUmbrellaHealthComponent::ReceiveShot(const FUmbrellaShotSpec& Shot, const FVector& HitLocation)
@@ -58,7 +87,8 @@ EHitResult UUmbrellaHealthComponent::TakeHit(float RawDamage, FName SourceId)
 
 EHitResult UUmbrellaHealthComponent::TakeHitAt(float RawDamage, FName SourceId, double NowSeconds)
 {
-	if (!IsFeatureEnabled(EFeatureId::SURV_05) || State.IsDefeated() || NowSeconds < ProtectedUntil)
+	const bool bBypass = ShouldBypassProtection(SourceId);
+	if (!IsFeatureEnabled(EFeatureId::SURV_05) || State.IsDefeated() || (!bBypass && NowSeconds < ProtectedUntil))
 	{
 		return EHitResult::Blocked;
 	}
@@ -69,7 +99,10 @@ EHitResult UUmbrellaHealthComponent::TakeHitAt(float RawDamage, FName SourceId, 
 		return EHitResult::Blocked;
 	}
 	// The protection window starts on the hit and is not renewed by a life handover.
-	ProtectedUntil = NowSeconds + Tuning.PostHitProtectionSeconds;
+	if (!bBypass)
+	{
+		ProtectedUntil = NowSeconds + Tuning.PostHitProtectionSeconds;
+	}
 	const FHealthDamageOutcome Outcome = HealthRules::ApplyDamage(State, Scaled);
 	BroadcastHealth(SourceId, DamageDetail);
 	for (int32 Lost = 0; Lost < Outcome.LivesLost; ++Lost)

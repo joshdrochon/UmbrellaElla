@@ -81,7 +81,8 @@ write why in the status file, commit, and stop.
   the bar stays a tracked `_PH` placeholder (put `_PH` in the file name); the merge goes ahead without it.
 - Audio ships only on a pass: every WAV under `Audio/Source/` passes `tools/audio_check.py --scan Audio/Source` and
   `tools/audio_style_check.py check Audio/Source`, or is a tracked placeholder take (provenance origin
-  `placeholder: <reason>`).
+  `placeholder: <reason>`), and the blind audio critic (`tools/audio_loop.py` packet, one fresh session per sound id)
+  must pass it; a piece the critic fails is marked a tracked placeholder by the gate and regenerated later.
 - UI (`tools/ui_check.py ci`) and story (`tools/story_check.py`) may not get worse than main. Story merges also need the
   blind story critic (`tools/build/critic.sh story`); Keeper and enemy merges need the encounter critic once the game
   writes a run log.
