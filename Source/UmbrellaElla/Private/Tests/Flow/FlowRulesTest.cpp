@@ -77,6 +77,15 @@ bool FFlowTimelineTest::RunTest(const FString& Parameters)
 	TestEqual(TEXT("neutral grows while released"), FFlowRules::AdvanceNeutral(0.1f, 0.1f, false), 0.2f);
 	TestEqual(TEXT("neutral resets on a held key"), FFlowRules::AdvanceNeutral(0.1f, 0.1f, true), 0.0f);
 	TestTrue(TEXT("ending story has text"), FFlowStoryText::GetEndingPages().Num() > 0);
+	bool bHasRole = false;
+	bool bHasProducer = false;
+	for (const FText& Line : FFlowStoryText::GetCreditsLines())
+	{
+		bHasRole |= Line.ToString() == TEXT("[ROLE - Josh to supply]");
+		bHasProducer |= Line.ToString() == TEXT("[EXECUTIVE PRODUCER NAME - Josh to supply]");
+	}
+	TestTrue(TEXT("credits carry the role placeholder"), bHasRole);
+	TestTrue(TEXT("credits carry the executive producer placeholder"), bHasProducer);
 	return true;
 }
 

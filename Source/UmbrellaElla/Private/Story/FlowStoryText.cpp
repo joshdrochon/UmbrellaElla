@@ -13,6 +13,8 @@ TArray<FText> FFlowStoryText::GetCreditsLines()
 	TArray<FText> Lines;
 	Lines.Add(FText::FromString(TEXT("Umbrella Ella")));
 	Lines.Add(FText::FromString(TEXT("Rick Rispoli")));
+	Lines.Add(FText::FromString(TEXT("[ROLE - Josh to supply]")));
+	Lines.Add(FText::FromString(TEXT("[EXECUTIVE PRODUCER NAME - Josh to supply]")));
 	Lines.Add(FText::FromString(TEXT("Richard - Producer")));
 	Lines.Add(FText::FromString(TEXT("Josh Rochon - Technical Lead")));
 	return Lines;
