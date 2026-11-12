@@ -44,6 +44,8 @@ struct UMBRELLAELLA_API FUmbrellaSettingsData
 	int32 MusicVolume = 0;
 	int32 TextScalePercent = 0;
 	bool bReducedMotion = false;
+	/** Accessibility: shrink flashing effects (VFX-10). */
+	bool bReducedFlash = false;
 	TArray<FUmbrellaDefaultBinding> Bindings;
 
 	bool operator==(const FUmbrellaSettingsData& Other) const;
@@ -125,6 +127,7 @@ public:
 	void SetMusicVolume(int32 Value);
 	void SetTextScalePercent(int32 Percent);
 	void SetReducedMotion(bool bEnabled);
+	void SetReducedFlash(bool bEnabled);
 
 	/** True when the Slot-th binding entry of Action exists and Key is a valid key. */
 	bool CanRemap(EUmbrellaInputAction Action, int32 Slot, const FKey& NewKey) const;

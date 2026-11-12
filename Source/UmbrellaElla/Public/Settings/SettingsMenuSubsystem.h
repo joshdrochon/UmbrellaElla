@@ -7,6 +7,7 @@
 #include "SettingsMenuSubsystem.generated.h"
 
 class APlayerController;
+class UWorld;
 class USettingsMenuWidget;
 class UInputMappingContext;
 class USoundClass;
@@ -47,6 +48,12 @@ public:
 	/** Drop unsaved changes on one page. */
 	void DiscardChanges(ESettingsPage Page);
 
+	/** Push reduced flash to the Vfx subsystem of this game instance's world (and any world that starts later). */
+	void ApplyReducedFlash(bool bReduced);
+
+	/** Set reduced flash on one world's Vfx subsystem. Returns false when the world has none. */
+	static bool ApplyReducedFlashToWorld(UWorld* World, bool bReduced);
+
 	/** Set the volumes of the three sound classes from data. */
 	void ApplyVolumes(const FUmbrellaSettingsData& Data);
 
@@ -68,6 +75,7 @@ public:
 
 private:
 	void LoadDefaultSoundClasses();
+	FDelegateHandle WorldInitHandle;
 
 	FSettingsSession Session;
 	FString StorePath;

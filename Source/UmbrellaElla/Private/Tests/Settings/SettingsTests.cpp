@@ -18,6 +18,12 @@
 #include "Settings/SettingsStore.h"
 #include "Sound/SoundClass.h"
 #include "UI/Settings/SettingsMenuWidget.h"
+#include "Core/EllaCharacter.h"
+#include "EnhancedInputComponent.h"
+#include "Engine/World.h"
+#include "Feedback/Vfx/UmbrellaVfxSubsystem.h"
+#include "Input/EllaInputAdapterComponent.h"
+#include "Tests/Shared/UmbrellaTestWorld.h"
 
 namespace
 {
@@ -324,6 +330,89 @@ bool FSettingsWidgetBackTest::RunTest(const FString& Parameters)
 	Widget->BeginRemap(EUmbrellaInputAction::Shoot, 0);
 	Widget->CaptureKey(EKeys::Escape);
 	TestFalse(TEXT("Escape cancels a remap"), Subsystem->GetSession().IsDirty());
+	SettingsStore::Delete(Path);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FSettingsReducedFlashTest, "UmbrellaElla.Settings.World.ReducedFlashReachesVfx", SettingsFlags)
+bool FSettingsReducedFlashTest::RunTest(const FString& Parameters)
+{
+	const FString Path = ScratchPath(TEXT("flash.ini"));
+	SettingsStore::Delete(Path);
+	USoundClass* Master = nullptr;
+	USoundClass* Sfx = nullptr;
+	USoundClass* Music = nullptr;
+	USettingsMenuSubsystem* Subsystem = MakeSubsystem(Path, Master, Sfx, Music);
+	FUmbrellaTestWorld TestWorld;
+	UWorld* World = TestWorld.GetWorld();
+	UUmbrellaVfxSubsystem* Vfx = World ? World->GetSubsystem<UUmbrellaVfxSubsystem>() : nullptr;
+	if (!TestNotNull(TEXT("world has the Vfx subsystem"), Vfx))
+	{
+		return false;
+	}
+	TestFalse(TEXT("reduced flash defaults off"), Subsystem->GetSession().GetSaved().bReducedFlash);
+	Subsystem->EditSession().SetReducedFlash(true);
+	TestFalse(TEXT("draft change does not reach Vfx before Save"), Vfx->IsReducedFlash());
+	Subsystem->SaveSettings(ESettingsPage::Sound);
+	TestTrue(TEXT("saved copy has reduced flash"), Subsystem->GetSession().GetSaved().bReducedFlash);
+	TestTrue(TEXT("the saved value applies to a world"), USettingsMenuSubsystem::ApplyReducedFlashToWorld(World, Subsystem->GetSession().GetSaved().bReducedFlash));
+	TestTrue(TEXT("Vfx is reduced after apply"), Vfx->IsReducedFlash());
+
+	// Startup: a fresh subsystem reading the file gets the saved value.
+	USettingsMenuSubsystem* Fresh = MakeSubsystem(Path, Master, Sfx, Music);
+	TestTrue(TEXT("saved value survives a reload"), Fresh->GetSession().GetSaved().bReducedFlash);
+	Vfx->SetReducedFlash(false);
+	USettingsMenuSubsystem::ApplyReducedFlashToWorld(World, Fresh->GetSession().GetSaved().bReducedFlash);
+	TestTrue(TEXT("startup applies the saved value"), Vfx->IsReducedFlash());
+	SettingsStore::Delete(Path);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FSettingsSavedKeyLiveTest, "UmbrellaElla.Settings.World.SavedBindingReachesLiveContext", SettingsFlags)
+bool FSettingsSavedKeyLiveTest::RunTest(const FString& Parameters)
+{
+	const FString Path = ScratchPath(TEXT("live.ini"));
+	SettingsStore::Delete(Path);
+	UGameInstance* GameInstance = NewObject<UGameInstance>(GEngine);
+	GameInstance->InitializeStandalone();
+	USettingsMenuSubsystem* Subsystem = GameInstance->GetSubsystem<USettingsMenuSubsystem>();
+	if (!TestNotNull(TEXT("game instance owns the settings subsystem"), Subsystem))
+	{
+		return false;
+	}
+	Subsystem->SetStorePath(Path);
+	Subsystem->ReloadFromStore();
+	Subsystem->EditSession().Remap(EUmbrellaInputAction::Shoot, 0, EKeys::F);
+	Subsystem->SaveSettings(ESettingsPage::Controller);
+
+	FUmbrellaTestWorld TestWorld;
+	UWorld* World = TestWorld.GetWorld();
+	AEllaCharacter* Ella = World ? TestWorld.SpawnElla() : nullptr;
+	if (!TestNotNull(TEXT("Ella spawned"), Ella))
+	{
+		SettingsStore::Delete(Path);
+		return false;
+	}
+	World->SetGameInstance(GameInstance);
+	// Respawn path: BindInput builds a fresh IMC_Default and applies the saved keys.
+	Ella->GetInputAdapter()->BindInput(NewObject<UEnhancedInputComponent>(Ella));
+	const UInputMappingContext* Context = Ella->GetInputAdapter()->GetMappingContext();
+	bool bShootOnF = false;
+	bool bShootOnOld = false;
+	const FKey OldKey = SettingsRules::MakeDefaults().Bindings[SettingsRules::FindBindingIndex(SettingsRules::MakeDefaults().Bindings, EUmbrellaInputAction::Shoot, 0)].Key;
+	if (TestNotNull(TEXT("Ella has a mapping context"), Context))
+	{
+		for (const FEnhancedActionKeyMapping& Mapping : Context->GetMappings())
+		{
+			if (Mapping.Action && Mapping.Action->GetFName() == UmbrellaInputBindings::ActionName(EUmbrellaInputAction::Shoot))
+			{
+				bShootOnF |= Mapping.Key == EKeys::F;
+				bShootOnOld |= Mapping.Key == OldKey;
+			}
+		}
+	}
+	TestTrue(TEXT("saved Shoot key is live after respawn"), bShootOnF);
+	TestFalse(TEXT("the old Shoot key is gone"), bShootOnOld);
 	SettingsStore::Delete(Path);
 	return true;
 }

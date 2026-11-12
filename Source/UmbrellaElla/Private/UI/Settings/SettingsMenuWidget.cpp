@@ -362,6 +362,25 @@ void USettingsMenuWidget::AddSoundBody()
 				Label(LOCTEXT("ReducedMotion", "Reduced motion"), Size, Sepia())
 			]
 		];
+		BodyBox->AddSlot().AutoHeight().Padding(SettingsLayout::RowPadding)
+		[
+			SNew(SCheckBox)
+			.IsChecked(TAttribute<ECheckBoxState>::Create(TAttribute<ECheckBoxState>::FGetter::CreateWeakLambda(this, [this]()
+			{
+				const USettingsMenuSubsystem* Subsystem = Owner.Get();
+				return Subsystem && Subsystem->GetSession().GetDraft().bReducedFlash ? ECheckBoxState::Checked : ECheckBoxState::Unchecked;
+			})))
+			.OnCheckStateChanged(FOnCheckStateChanged::CreateWeakLambda(this, [this](ECheckBoxState State)
+			{
+				if (USettingsMenuSubsystem* Subsystem = Owner.Get())
+				{
+					Subsystem->EditSession().SetReducedFlash(State == ECheckBoxState::Checked);
+				}
+			}))
+			[
+				Label(LOCTEXT("ReducedFlash", "Reduced flash"), Size, Sepia())
+			]
+		];
 	}
 }
 
