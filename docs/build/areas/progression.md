@@ -1,6 +1,6 @@
 # Area: progression (Director's Cut XP, levels, unlocks, upgrades, persistence, XP ring)
 
-Branch `area/progression`. Read `docs/build/worker-rules.md` first. Added Nov 12 14:10 (Josh: 8 workers).
+Branch `area/progression`. Read `docs/build/worker-rules.md` first. Added Nov 12 14:02 (Josh: 8 workers).
 
 ## Rule IDs (all Director's Cut, G3)
 SURV-06, FLOW-05 .. FLOW-08, FLOW-10 .. FLOW-23 (run scaling, Final Hour, checkpoint retry XP, quit/reload, win carries

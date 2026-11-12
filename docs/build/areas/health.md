@@ -5,7 +5,7 @@ Branch `area/health`. Read `docs/build/worker-rules.md` first.
 ## Rule IDs
 G1 first: SURV-05, SURV-07, FLOW-30, FLOW-31, FLOW-32, FLOW-33, plus the Projectile Service (all shots in the game) and
 the clock HUD with health and life hands (MVP item 4: 3 hits x 3 lives, damage 1 / 1.25 / 1.5, yellow heals).
-Later: none (progression moved to the `progression` area, Nov 12 14:10). Lead call: arena walls and ceiling block
+Later: none (progression moved to the `progression` area, Nov 12 14:02). Lead call: arena walls and ceiling block
 PlayerShot/EnemyShot; the Projectile Service destroys a shot on any blocking hit.
 
 ## GDD sections

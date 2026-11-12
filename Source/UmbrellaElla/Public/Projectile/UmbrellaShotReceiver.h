@@ -22,7 +22,8 @@ class UUmbrellaShotReceiver : public UInterface
 
 /**
  * Implemented by anything a shot can hit: Ella's health/absorb components, Keeper parts, enemies.
- * The Projectile Service calls it on the hit actor, then on its components. Consumed removes the shot.
+ * The Projectile Service calls it on the hit actor, then on its components, highest priority first.
+ * Consumed removes the shot and stops the call chain.
  */
 class UMBRELLAELLA_API IUmbrellaShotReceiver
 {
@@ -30,4 +31,7 @@ class UMBRELLAELLA_API IUmbrellaShotReceiver
 
 public:
 	virtual EUmbrellaShotResult ReceiveShot(const FUmbrellaShotSpec& Shot, const FVector& HitLocation) = 0;
+
+	/** Higher goes first. Default 0; Ella's absorb answers at 100 so a catch is decided before damage. */
+	virtual int32 GetShotPriority() const { return 0; }
 };
