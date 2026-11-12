@@ -159,7 +159,7 @@ void UStorySubsystem::HandleMainMenu()
 void UStorySubsystem::EnsureWidgets()
 {
 	APlayerController* Owner = GetWorld() ? GetWorld()->GetFirstPlayerController() : nullptr;
-	if (!Owner)
+	if (!Owner || !Owner->IsLocalController())
 	{
 		return;
 	}
@@ -190,7 +190,7 @@ void UStorySubsystem::Refresh()
 	if (Model.ShouldShowStatistics() && !bStatisticsShown && IsFeatureEnabled(EFeatureId::FLOW_49))
 	{
 		APlayerController* Owner = GetWorld() ? GetWorld()->GetFirstPlayerController() : nullptr;
-		Statistics = Owner ? CreateWidget<UJourneyCompleteWidget>(Owner) : nullptr;
+		Statistics = (Owner && Owner->IsLocalController()) ? CreateWidget<UJourneyCompleteWidget>(Owner) : nullptr;
 		if (Statistics)
 		{
 			Statistics->SetStats(Model.GetStats());
