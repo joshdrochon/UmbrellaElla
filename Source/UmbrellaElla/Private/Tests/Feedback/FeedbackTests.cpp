@@ -3,6 +3,7 @@
 #include "Feedback/Anim/EllaAnimPresenterComponent.h"
 #include "Feedback/Audio/UmbrellaCueSubsystem.h"
 #include "Feedback/Build/BuildIdentity.h"
+#include "Feedback/Vfx/UmbrellaVfxSubsystem.h"
 #include "GameFramework/Actor.h"
 #include "Core/UmbrellaEventBus.h"
 #include "Misc/AutomationTest.h"
@@ -92,6 +93,52 @@ bool FFeedbackStateMap::RunTest(const FString& Parameters)
 	TestEqual(TEXT("life lost shows hurt"), static_cast<int32>(UEllaAnimPresenterComponent::StateForEvent(Event, Ella)), static_cast<int32>(EEllaVisualState::Hurt));
 	Event.Type = EUmbrellaEventType::PlayerDefeated;
 	TestEqual(TEXT("defeat shows down"), static_cast<int32>(UEllaAnimPresenterComponent::StateForEvent(Event, Ella)), static_cast<int32>(EEllaVisualState::Down));
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFeedbackVfxMap, "UmbrellaElla.Feedback.VfxMapping",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+
+bool FFeedbackVfxMap::RunTest(const FString& Parameters)
+{
+	FUmbrellaEvent Event;
+	Event.Type = EUmbrellaEventType::ProjectileSpawned;
+	TestEqual(TEXT("shot muzzle"), UUmbrellaVfxSubsystem::EffectForEvent(Event), FName(TEXT("ShotMuzzle")));
+	Event.Type = EUmbrellaEventType::CatchSucceeded;
+	TestEqual(TEXT("absorb burst"), UUmbrellaVfxSubsystem::EffectForEvent(Event), FName(TEXT("AbsorbBurst")));
+	Event.Type = EUmbrellaEventType::BossAttackTelegraphed;
+	TestEqual(TEXT("keeper telegraph"), UUmbrellaVfxSubsystem::EffectForEvent(Event), FName(TEXT("KeeperTelegraph")));
+	Event.Type = EUmbrellaEventType::WindEntered;
+	TestTrue(TEXT("wind has no effect"), UUmbrellaVfxSubsystem::EffectForEvent(Event).IsNone());
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFeedbackVfxWorld, "UmbrellaElla.Feedback.World.VfxStandIn",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+
+bool FFeedbackVfxWorld::RunTest(const FString& Parameters)
+{
+	UWorld* World = UWorld::CreateWorld(EWorldType::Game, false);
+	if (!TestNotNull(TEXT("world"), World))
+	{
+		return false;
+	}
+	FWorldContext& Context = GEngine->CreateNewWorldContext(EWorldType::Game);
+	Context.SetCurrentWorld(World);
+	UUmbrellaVfxSubsystem* Vfx = World->GetSubsystem<UUmbrellaVfxSubsystem>();
+	if (TestNotNull(TEXT("vfx subsystem"), Vfx))
+	{
+		FUmbrellaEvent Event;
+		Event.Type = EUmbrellaEventType::CatchSucceeded;
+		Vfx->PlayForEvent(Event);
+		TestEqual(TEXT("last effect"), Vfx->GetLastEffect(), FName(TEXT("AbsorbBurst")));
+		TestEqual(TEXT("one effect"), Vfx->GetEffectCount(), 1);
+		Event.Type = EUmbrellaEventType::WindEntered;
+		Vfx->PlayForEvent(Event);
+		TestEqual(TEXT("still one effect"), Vfx->GetEffectCount(), 1);
+	}
+	GEngine->DestroyWorldContext(World);
+	World->DestroyWorld(false);
 	return true;
 }
 
