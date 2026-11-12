@@ -34,6 +34,12 @@ public:
 	 */
 	void ShowDirectorsCutEnding();
 
+	/**
+	 * Flow calls this once the play world for the chosen mode is up (the mode may have been chosen before this world
+	 * existed, so the ModeSelected event can be missed). A later ModeSelected for the same untouched run is ignored.
+	 */
+	void BeginNewRun(EUmbrellaPlayMode Mode);
+
 	/** Flow asks before routing a skip press to play: true while the opening or a skippable ending is on screen. */
 	bool IsSkipPressForStory() const;
 

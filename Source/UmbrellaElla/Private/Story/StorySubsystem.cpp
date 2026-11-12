@@ -112,6 +112,17 @@ void UStorySubsystem::HandleEvent(const FUmbrellaEvent& Event)
 	Refresh();
 }
 
+void UStorySubsystem::BeginNewRun(EUmbrellaPlayMode Mode)
+{
+	bStatisticsShown = false;
+	if (Statistics)
+	{
+		Statistics->RemoveFromParent();
+	}
+	Model.BeginNewRun(Mode);
+	Refresh();
+}
+
 void UStorySubsystem::ShowDirectorsCutEnding()
 {
 	if (Model.IsDirectorsCut() && Model.GetEndingStage() == EStoryEndingStage::None)

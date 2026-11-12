@@ -206,7 +206,14 @@ void FStoryModel::OnEvent(const FUmbrellaEvent& Event)
 	}
 	if (Event.Type == EUmbrellaEventType::ModeSelected)
 	{
-		BeginNewRun(Event.Detail == DirectorsCutName ? EUmbrellaPlayMode::DirectorsCut : EUmbrellaPlayMode::StartGame);
+		const EUmbrellaPlayMode Selected = Event.Detail == DirectorsCutName ? EUmbrellaPlayMode::DirectorsCut : EUmbrellaPlayMode::StartGame;
+		// A late ModeSelected after flow already called BeginNewRun for an untouched run must not replay the opening.
+		const bool bUntouched = bRunLive && Mode == Selected && Stage == EStoryEndingStage::None && Stats.Deaths == 0
+			&& Stats.EnemiesDefeated == 0 && Stats.ShotsFired == 0 && Stats.ShotsFiredAtYou == 0;
+		if (!bUntouched)
+		{
+			BeginNewRun(Selected);
+		}
 	}
 	if (!IsDirectorsCut() || !bRunLive)
 	{

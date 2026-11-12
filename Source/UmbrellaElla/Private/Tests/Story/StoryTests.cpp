@@ -95,6 +95,41 @@ bool FStoryOpeningTest::RunTest(const FString& Parameters)
 	return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FStoryLateModeTest, "UmbrellaElla.Story.LateModeSelectedShowsOpeningOnce", UMBRELLAELLA_STORY_TEST_FLAGS)
+
+bool FStoryLateModeTest::RunTest(const FString& Parameters)
+{
+	FStoryModel Model = NewModel();
+	Model.BeginNewRun(EUmbrellaPlayMode::DirectorsCut);
+	Run(Model, 0.2f);
+	Model.OnEvent(Make(EUmbrellaEventType::ModeSelected, DirectorsCut));
+	Run(Model, 0.2f);
+	TestEqual(TEXT("late ModeSelected does not replay"), Model.CountShown(FName(TEXT("OpeningMother"))), 1);
+	Run(Model, 5.0f);
+	TestEqual(TEXT("still once"), Model.CountShown(FName(TEXT("OpeningMother"))), 1);
+	FStoryModel Only = NewModel();
+	Only.OnEvent(Make(EUmbrellaEventType::ModeSelected, DirectorsCut));
+	Run(Only, 0.2f);
+	TestEqual(TEXT("ModeSelected alone starts the run"), Only.CountShown(FName(TEXT("OpeningMother"))), 1);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FStoryWingsClueTest, "UmbrellaElla.Story.ClueOnPhaseStartedWings", UMBRELLAELLA_STORY_TEST_FLAGS)
+
+bool FStoryWingsClueTest::RunTest(const FString& Parameters)
+{
+	FStoryModel Model = NewModel();
+	Model.OnEvent(Make(EUmbrellaEventType::ModeSelected, DirectorsCut));
+	Run(Model, 12.0f);
+	Model.OnEvent(Make(EUmbrellaEventType::PhaseStarted, TEXT("mechanisms")));
+	Run(Model, 0.2f);
+	TestEqual(TEXT("mechanisms does not show it"), Model.CountShown(FName(TEXT("KeeperArrival"))), 0);
+	Model.OnEvent(Make(EUmbrellaEventType::PhaseStarted, TEXT("wings")));
+	Run(Model, 0.2f);
+	TestEqual(TEXT("PhaseStarted wings alone shows the clue"), Model.CountShown(FName(TEXT("KeeperArrival"))), 1);
+	return true;
+}
+
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FStoryStartGameTest, "UmbrellaElla.Story.StartGameHasNoStory", UMBRELLAELLA_STORY_TEST_FLAGS)
 
 bool FStoryStartGameTest::RunTest(const FString& Parameters)
