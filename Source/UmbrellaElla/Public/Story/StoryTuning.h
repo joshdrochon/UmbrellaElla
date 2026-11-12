@@ -4,8 +4,7 @@
 #include "StoryTuning.generated.h"
 
 /**
- * Every number of the Story module (lane story). Core's UUmbrellaTuning has no Story member yet (request in
- * docs/build/requests/story.md), so the story code reads FStoryTuning::Get(). Values are story-lane choices where the
+ * Every number of the Story module (lane story). Read with GetDefault<UUmbrellaTuning>()->Story. Values are story-lane choices where the
  * GDD says OPEN; the GDD value is named where there is one.
  */
 USTRUCT()
@@ -76,10 +75,4 @@ struct UMBRELLAELLA_API FStoryTuning
 	int32 CaptionZOrder = 80;
 	UPROPERTY(EditAnywhere)
 	int32 StatisticsZOrder = 90;
-
-	static const FStoryTuning& Get()
-	{
-		static const FStoryTuning Defaults;
-		return Defaults;
-	}
 };
