@@ -320,7 +320,16 @@ void AUmbrellaPlayerController::BeginRun()
 	}
 	if (AUmbrellaGameMode* Fight = GetWorld()->GetAuthGameMode<AUmbrellaGameMode>())
 	{
-		Fight->BeginFight(this);
+		// Director's Cut walks the route first; the level director starts the Keeper at its end. If the route cannot be
+		// built (level flags off), Director's Cut falls back to the Keeper fight as before.
+		if (PlayMode == EUmbrellaPlayMode::DirectorsCut)
+		{
+			Fight->BeginRoute(this, GetDefault<UUmbrellaTuning>()->Flow.DirectorsCutRouteSeed);
+		}
+		if (!Fight->HasRoute())
+		{
+			Fight->BeginFight(this);
+		}
 	}
 	// Broadcast once the world is up, so listeners can rely on the arena and Ella.
 	if (UUmbrellaEventBus* Bus = UUmbrellaEventBus::Get(this))
@@ -435,6 +444,10 @@ void AUmbrellaPlayerController::EnterScreen(EFlowScreen To, EFlowCommand Cause)
 		if (AUmbrellaGameMode* Mode = GetWorld()->GetAuthGameMode<AUmbrellaGameMode>())
 		{
 			Mode->EnsurePlayerPawn(this);
+			if (PlayMode == EUmbrellaPlayMode::DirectorsCut)
+			{
+				Mode->PlaceAtLastCheckpoint(this);
+			}
 		}
 	}
 

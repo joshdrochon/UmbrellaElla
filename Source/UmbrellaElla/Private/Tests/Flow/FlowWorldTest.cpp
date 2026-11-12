@@ -12,6 +12,7 @@
 #include "Engine/World.h"
 #include "Encounter/EncounterDirectorSubsystem.h"
 #include "Flow/UmbrellaPlayerController.h"
+#include "Level/UmbrellaLevelDirector.h"
 #include "GameFramework/PlayerState.h"
 #include "GameFramework/WorldSettings.h"
 #include "Kismet/GameplayStatics.h"
@@ -139,6 +140,41 @@ bool FFlowWorldDirectorsCutTest::RunTest(const FString& Parameters)
 	TestEqual(TEXT("playing"), Test.Controller->GetScreen(), EFlowScreen::Playing);
 	TestEqual(TEXT("director's cut mode"), Test.Controller->GetPlayMode(), EUmbrellaPlayMode::DirectorsCut);
 	TestTrue(TEXT("Ella is possessed"), Cast<AEllaCharacter>(Test.Controller->GetPawn()) != nullptr);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFlowWorldRouteTest, "UmbrellaElla.Flow.World.DirectorsCutReachesFirstCheckpointWithRoute",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FFlowWorldRouteTest::RunTest(const FString& Parameters)
+{
+	FFlowTestWorld Test;
+	Test.Controller->StartDirectorsCut();
+	AUmbrellaGameMode* Mode = Test.World->GetAuthGameMode<AUmbrellaGameMode>();
+	AUmbrellaLevelDirector* Level = Mode ? Mode->GetLevelDirector() : nullptr;
+	if (!TestNotNull(TEXT("level director spawned"), Level))
+	{
+		return false;
+	}
+	TestEqual(TEXT("nine chunks"), Level->GetSlotsSpawned(), 9);
+	TestFalse(TEXT("Keeper not started yet"), Level->HasHandedOff());
+	const APawn* Pawn = Test.Controller->GetPawn();
+	if (!TestNotNull(TEXT("Ella"), Pawn))
+	{
+		return false;
+	}
+	TestEqual(TEXT("Ella stands at checkpoint 1"), Pawn->GetActorLocation().X, LevelPlan::CheckpointStandLocation(1).X);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFlowWorldStartGameNoRouteTest, "UmbrellaElla.Flow.World.StartGameSkipsRouteAndStartsKeeper",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FFlowWorldStartGameNoRouteTest::RunTest(const FString& Parameters)
+{
+	FFlowTestWorld Test;
+	Test.Controller->StartGame();
+	AUmbrellaGameMode* Mode = Test.World->GetAuthGameMode<AUmbrellaGameMode>();
+	TestTrue(TEXT("fight started"), Mode && Mode->IsFightStarted());
+	TestTrue(TEXT("no level director"), Mode && Mode->GetLevelDirector() == nullptr);
 	return true;
 }
 
