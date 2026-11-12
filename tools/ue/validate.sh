@@ -7,7 +7,7 @@ LOG="$LOGDIR/validate-$STAMP-$$.log"
 rc=0
 "${UE_RUN[@]}" run --timeout "$UE_TIMEOUT" --log "$LOG" -- \
   "$UE_ROOT/Engine/Binaries/Mac/UnrealEditor.app/Contents/MacOS/UnrealEditor" "$PROJECT" \
-  -run=DataValidation -unattended -nopause -nosplash -NullRHI -stdout >/dev/null || rc=$?
+  -run=DataValidation -unattended -nopause -nosplash -NullRHI -nocrashreports -stdout >/dev/null || rc=$?
 if [ "$rc" = "124" ]; then echo "FAIL: validation timed out after ${UE_TIMEOUT}s; log: $LOG"; exit 124; fi
 err="$(grep -cE "\bError:" "$LOG" || true)"
 warn="$(grep -cE "\bWarning:" "$LOG" || true)"

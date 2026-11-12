@@ -6,9 +6,17 @@ Branch `area/flow`. Read `docs/build/worker-rules.md` first.
 G1 first: FLOW-02, FLOW-04, FLOW-34, FLOW-35, ART-04 (start screen with Start Game and Start Director's Cut; Start Game
 goes straight to the Keeper with one basic shot; pause with Continue, Settings, Quit; defeat retry screen; the win:
 story text over the background, then credits), plus the smoke hook (below).
-Later (G2/G3): FLOW-03 (first-start tutorials, Pause then Skip), FLOW-36 .. FLOW-41, FLOW-43, FLOW-44, FLOW-45
-(settings: Sound, Controller remap, Credits, Back, Save; Director-only Game Options),
-MOVE-08, MOVE-09, MOVE-10, MOVE-17 (menu navigation, remapping UI). NAR-* and FLOW-49 moved to the `story` area (Nov 12 14:10).
+Later (G2/G3): FLOW-03 (first-start tutorials in both modes, Pause then Skip at every step), FLOW-41 (pause and start
+design retained), MOVE-08 (pause/retry/spell-cycle inputs), MOVE-09 (menu navigation, resume waits for neutral).
+Moved out Nov 12: NAR-* and FLOW-49 -> `story`; at 14:08 the settings pages (FLOW-36..40, FLOW-43..45, MOVE-10, MOVE-17)
+and `Settings/**` -> `settings`. Your pause menu's Settings entry calls the settings area's public
+`USettingsMenuSubsystem::OpenSettings(APlayerController*)` when it exists; until then show a stub page.
+
+Also yours (lead call Nov 12): the progression area's purchase and level-up screens. Flow calls
+`SetPurchaseContext` (progression's API; see docs/build/requests/progression.md) at refuges and between runs, and
+shows the two progression widgets (purchase screen, level-up) inside the 16:9 view with IMC_Menu active.
+Credits: keep the executive producer's name and Rick's role as clearly marked placeholders
+(`[EXECUTIVE PRODUCER NAME - Josh to supply]`, `[ROLE - Josh to supply]`); Josh will supply them.
 
 ## GDD sections
 2 (Player journey and modes), 6 (Story and dialogue), 7 (Menus, settings and accessibility, win results, settings and
@@ -16,7 +24,7 @@ earned-character interactions), 8 "Start screen and menu visual direction" and t
 
 ## File lane (only these)
 - `Source/UmbrellaElla/Public/Core/UmbrellaGameMode.h` and `Private/Core/UmbrellaGameMode.cpp` (you own the GameMode),
-  `{Public,Private}/Flow/**`, `UI/Menus/**`, `Settings/**`, `Smoke/**`
+  `{Public,Private}/Flow/**`, `UI/Menus/**`, `Smoke/**`
 - `Source/UmbrellaElla/Private/Tests/Flow/**`
 - `Content/UmbrellaElla/Input/Menu/**`, `Content/UmbrellaElla/UI/Menus/**`, `docs/build/areas/flow-status.md`,
   `docs/build/requests/flow.md`

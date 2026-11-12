@@ -28,7 +28,7 @@ rc=0
 "${UE_RUN[@]}" run --timeout "$UE_TIMEOUT" --log "$LOG" -- \
   "$UE_ROOT/Engine/Build/BatchFiles/RunUAT.sh" BuildCookRun -project="$PROJECT" -target="$TARGET" -noP4 -platform=Mac \
   -clientconfig=$CFG -build -cook -stage -pak -iostore -archive -archivedirectory="$OUT" \
-  -unattended -utf8output ${EXTRA[@]+"${EXTRA[@]}"} || rc=$?
+  -unattended -utf8output -nocrashreports -AdditionalCookerOptions=-nocrashreports ${EXTRA[@]+"${EXTRA[@]}"} || rc=$?
 if grep -E "^(Error:|.*LogCook: Error)" "$LOG" >/dev/null; then echo "FAIL: errors in cook log $LOG"; exit 1; fi
 echo "cook warnings: $(grep -cE "^Warning:|LogCook: Warning" "$LOG" || true)"   # daily fails if it rises [VERIFY pattern on 5.8.4]
 NOW="$(git -C "$REPO" rev-parse HEAD 2>/dev/null || echo unknown)"

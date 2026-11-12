@@ -4,7 +4,7 @@
 . "$PSScriptRoot\common.ps1"
 $Log = Join-Path $LogDir "validate-$Stamp-$PID.log"
 & $Py @UERun run --timeout $UETimeout --log $Log -- `
-  "$UERoot\Engine\Binaries\Win64\UnrealEditor-Cmd.exe" $Project -run=DataValidation -unattended -nopause -nosplash -NullRHI -log | Out-Null
+  "$UERoot\Engine\Binaries\Win64\UnrealEditor-Cmd.exe" $Project -run=DataValidation -unattended -nopause -nosplash -NullRHI -nocrashreports -log | Out-Null
 $rc = $LASTEXITCODE
 if ($rc -eq 124) { Write-Host "FAIL: validation timed out after $UETimeout s; log: $Log"; exit 124 }
 $err = @(Select-String -Path $Log -Pattern "\bError:").Count

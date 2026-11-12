@@ -9,6 +9,7 @@
 #include "Engine/StaticMesh.h"
 #include "Engine/World.h"
 #include "Harness/UmbrellaFeatureFlags.h"
+#include "Level/LevelCatalogue.h"
 
 namespace
 {
@@ -127,9 +128,10 @@ void AUmbrellaArena::BuildPlaceholders()
 	};
 	// Cube is 100 units; scale = size / 100.
 	const float Unit = UmbrellaArenaConst::CubeSize;
-	BackgroundFar = Make(TEXT("BackgroundFar"), FVector(HalfW, UmbrellaDrawOrder::BackgroundFarY, HalfH), FVector(T.ArenaWidth / Unit, UmbrellaArenaConst::PlaneThickness, T.ArenaHeight / Unit));
-	BackgroundNear = Make(TEXT("BackgroundNear"), FVector(HalfW, UmbrellaDrawOrder::BackgroundNearY, HalfH * 0.5f), FVector(T.ArenaWidth / Unit, UmbrellaArenaConst::PlaneThickness, T.ArenaHeight * 0.5f / Unit));
+	BackgroundFar = Make(TEXT("BackgroundFar"), FVector(HalfW, UmbrellaDrawOrder::BackgroundFarY, HalfH), FVector(T.ArenaWidth * T.BackgroundWidthScale / Unit, UmbrellaArenaConst::PlaneThickness, T.ArenaHeight / Unit));
+	BackgroundNear = Make(TEXT("BackgroundNear"), FVector(HalfW, UmbrellaDrawOrder::BackgroundNearY, HalfH * 0.5f), FVector(T.ArenaWidth * T.BackgroundWidthScale / Unit, UmbrellaArenaConst::PlaneThickness, T.ArenaHeight * 0.5f / Unit));
 	KeeperStandIn = Make(TEXT("KeeperStandIn"), FVector(T.ArenaWidth * T.KeeperAnchorXFraction, UmbrellaDrawOrder::KeeperY, T.ArenaHeight * T.KeeperAnchorZFraction), FVector(T.KeeperStandInSize / Unit, UmbrellaArenaConst::KeeperDepthScale, T.KeeperStandInSize / Unit));
+	ApplyScroll();
 }
 
 void AUmbrellaArena::BeginPlay()
@@ -150,6 +152,7 @@ void AUmbrellaArena::Tick(float DeltaSeconds)
 	{
 		BroadcastLooped(TEXT("Near"));
 	}
+	ApplyScroll();
 }
 
 void AUmbrellaArena::BroadcastLooped(FName Layer) const
@@ -162,4 +165,39 @@ void AUmbrellaArena::BroadcastLooped(FName Layer) const
 		Event.Detail = Layer;
 		Bus->Broadcast(Event);
 	}
+}
+
+float AUmbrellaArena::PlaneCenterX(float Offset, float ArenaWidth, float WidthScale)
+{
+	// The plane spans [-Offset, -Offset + ArenaWidth * WidthScale]; with scale >= 2 and Offset < ArenaWidth it covers [0, ArenaWidth].
+	return -Offset + ArenaWidth * WidthScale * 0.5f;
+}
+
+void AUmbrellaArena::ApplyScroll()
+{
+	const FArenaCameraTuning& T = GetDefault<UUmbrellaTuning>()->ArenaCamera;
+	const auto Move = [&T](UStaticMeshComponent* Plane, float Offset)
+	{
+		if (IsValid(Plane))
+		{
+			FVector Location = Plane->GetRelativeLocation();
+			Location.X = PlaneCenterX(Offset, T.ArenaWidth, T.BackgroundWidthScale);
+			Plane->SetRelativeLocation(Location);
+		}
+	};
+	Move(BackgroundFar, FarOffset);
+	Move(BackgroundNear, NearOffset);
+}
+
+void AUmbrellaArena::FollowEllaX(float EllaX, int32 TravelDirection)
+{
+	if (!IsFeatureEnabled(EFeatureId::CAM_08))
+	{
+		return;
+	}
+	const float ViewWidth = GetDefault<UUmbrellaTuning>()->ArenaCamera.ArenaWidth;
+	const float Centre = CameraRules::ScrollCentreX(EllaX, TravelDirection, ViewWidth, 0.0f, LevelCatalogue::RouteLength());
+	FVector Location = PlayCamera->GetComponentLocation();
+	Location.X = Centre;
+	PlayCamera->SetWorldLocation(Location);
 }
