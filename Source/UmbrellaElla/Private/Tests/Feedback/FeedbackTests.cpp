@@ -277,6 +277,15 @@ bool FFeedbackVfxLayersWorld::RunTest(const FString& Parameters)
 		TestFalse(TEXT("reduced flash defaults off"), Other->IsReducedFlash());
 		Other->SetReducedFlash(true);
 		TestTrue(TEXT("reduced flash can be set"), Other->IsReducedFlash());
+		const AActor* Full = Vfx->GetLastActor();
+		const float FullScale = Full && Full->GetRootComponent() ? Full->GetRootComponent()->GetRelativeScale3D().X : 0.0f;
+		Other->PlayForEvent(Event);
+		const AActor* Small = Other->GetLastActor();
+		if (TestNotNull(TEXT("reduced flash still shows an effect"), Small) && FullScale > 0.0f)
+		{
+			TestEqual(TEXT("reduced flash shrinks a flashing effect"), static_cast<float>(Small->GetRootComponent()->GetRelativeScale3D().X),
+				FullScale * UmbrellaVfxConst::ReducedFlashScale);
+		}
 	}
 	GEngine->DestroyWorldContext(World);
 	World->DestroyWorld(false);

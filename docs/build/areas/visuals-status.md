@@ -43,3 +43,11 @@ Left (nothing more I can do from this lane):
   critic session, and the Blender-made stills are far below the key-art bar, so everything stays a tracked `_PH` placeholder.
 - Niagara/flipbook swap for VFX and per-state flipbooks (needs passing art).
 - Reduced-flash toggle: needs the settings lane to call `UUmbrellaVfxSubsystem::SetReducedFlash`.
+
+## Nov 12 review fixes
+- Stale lines above ("Still open: enemy presenter, BG-02..06, VFX-06..11", "Left" in the first sections) are superseded by slice 2:
+  enemy presenter, BG-02..06 and VFX-02, VFX-06..11 are built as stand-ins.
+- Backdrop subsystem now only exists in Game/PIE worlds (`ShouldCreateSubsystem`), so editor worlds never get panel actors.
+- Reduced flash: test `VfxLayersLightLimits` now checks the shrink through the subsystem. The toggle itself needs the settings
+  lane: request filed in `docs/build/requests/visuals.md`.
+- Not run: Unreal build and tests (no engine in this session).

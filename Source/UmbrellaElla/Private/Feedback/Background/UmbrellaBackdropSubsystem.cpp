@@ -65,6 +65,12 @@ float UUmbrellaBackdropSubsystem::LayerXForCamera(float CameraX, float Parallax)
 	return CameraX - LoopOffset(CameraX, Parallax);
 }
 
+bool UUmbrellaBackdropSubsystem::ShouldCreateSubsystem(UObject* Outer) const
+{
+	const UWorld* World = Cast<UWorld>(Outer);
+	return World && World->IsGameWorld() && Super::ShouldCreateSubsystem(Outer);
+}
+
 void UUmbrellaBackdropSubsystem::PostInitialize()
 {
 	Super::PostInitialize();

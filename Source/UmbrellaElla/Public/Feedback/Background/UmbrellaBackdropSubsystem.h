@@ -42,6 +42,8 @@ class UMBRELLAELLA_API UUmbrellaBackdropSubsystem final : public UTickableWorldS
 	GENERATED_BODY()
 
 public:
+	/** Game and PIE worlds only: an editor world would get the panels saved into the .umap. */
+	virtual bool ShouldCreateSubsystem(UObject* Outer) const override;
 	virtual void PostInitialize() override;
 
 	/** Build the layers (safe to call twice). Returns the number of layers now present. */
