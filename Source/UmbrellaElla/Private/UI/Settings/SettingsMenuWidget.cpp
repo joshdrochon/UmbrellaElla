@@ -114,6 +114,7 @@ void USettingsMenuWidget::Setup(USettingsMenuSubsystem* InOwner, EUmbrellaPlayMo
 {
 	Owner = InOwner;
 	Mode = InMode;
+	SetIsFocusable(true);
 	const TArray<ESettingsPage> Pages = SettingsRules::GetPages(Mode);
 	Page = Pages.Num() > 0 ? Pages[0] : ESettingsPage::Sound;
 }
@@ -263,21 +264,18 @@ void USettingsMenuWidget::RebuildBody()
 				Label(LOCTEXT("Back", "Back"), Size, Sepia())
 			]
 		];
-		if (Page != ESettingsPage::Credits)
-		{
-			Buttons->AddSlot().AutoWidth().Padding(SettingsLayout::RowPadding)
+		Buttons->AddSlot().AutoWidth().Padding(SettingsLayout::RowPadding)
+		[
+			SNew(SButton)
+			.OnClicked(FOnClicked::CreateWeakLambda(this, [this]()
+			{
+				PressSave();
+				return FReply::Handled();
+			}))
 			[
-				SNew(SButton)
-				.OnClicked(FOnClicked::CreateWeakLambda(this, [this]()
-				{
-					PressSave();
-					return FReply::Handled();
-				}))
-				[
-					Label(LOCTEXT("Save", "Save"), Size, Gold())
-				]
-			];
-		}
+				Label(LOCTEXT("Save", "Save"), Size, Gold())
+			]
+		];
 	}
 	FooterBox->AddSlot().AutoHeight()[Buttons];
 }
@@ -579,6 +577,17 @@ FReply USettingsMenuWidget::NativeOnKeyDown(const FGeometry& InGeometry, const F
 		return FReply::Handled();
 	}
 	return Super::NativeOnKeyDown(InGeometry, InKeyEvent);
+}
+
+FReply USettingsMenuWidget::NativeOnPreviewMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+{
+	// Preview runs before Slate buttons see the click, so a mouse button can be bound even over a button.
+	if (IsCapturingKey())
+	{
+		CaptureKey(InMouseEvent.GetEffectingButton());
+		return FReply::Handled();
+	}
+	return Super::NativeOnPreviewMouseButtonDown(InGeometry, InMouseEvent);
 }
 
 FReply USettingsMenuWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)

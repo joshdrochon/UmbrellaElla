@@ -163,6 +163,13 @@ void USettingsMenuSubsystem::OpenSettings(APlayerController* Controller)
 	{
 		OpenWidget->Setup(this, PlayMode);
 		OpenWidget->AddToPlayerScreen();
+		Controller->SetShowMouseCursor(true);
+		FInputModeUIOnly InputMode;
+		InputMode.SetWidgetToFocus(OpenWidget->TakeWidget());
+		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+		Controller->SetInputMode(InputMode);
+		OpenWidget->SetUserFocus(Controller);
+		OpenController = Controller;
 	}
 }
 
@@ -172,6 +179,14 @@ void USettingsMenuSubsystem::CloseSettings()
 	{
 		OpenWidget->RemoveFromParent();
 		OpenWidget = nullptr;
+		if (APlayerController* Controller = OpenController.Get())
+		{
+			Controller->SetInputMode(FInputModeGameOnly());
+			Controller->SetShowMouseCursor(false);
+		}
+		OpenController = nullptr;
+		// A draft left on another page must not reappear on the next open.
+		Session.Discard();
 	}
 }
 

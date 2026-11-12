@@ -302,6 +302,13 @@ bool FSettingsWidgetBackTest::RunTest(const FString& Parameters)
 	const int32 Index = SettingsRules::FindBindingIndex(Subsystem->GetSession().GetDraft().Bindings, EUmbrellaInputAction::Shoot, 0);
 	TestEqual(TEXT("captured key lands in the draft"), Subsystem->GetSession().GetDraft().Bindings[Index].Key, EKeys::G);
 
+	Widget->BeginRemap(EUmbrellaInputAction::Shoot, 0);
+	const FPointerEvent LeftClick(0, 0, FVector2D::ZeroVector, FVector2D::ZeroVector, TSet<FKey>(), EKeys::LeftMouseButton, 0, FModifierKeysState());
+	const FReply Preview = Widget->NativeOnPreviewMouseButtonDown(FGeometry(), LeftClick);
+	TestTrue(TEXT("preview click is handled while capturing"), Preview.IsEventHandled());
+	TestFalse(TEXT("left mouse ends the capture"), Widget->IsCapturingKey());
+	TestEqual(TEXT("left mouse lands in the draft"), Subsystem->GetSession().GetDraft().Bindings[Index].Key, EKeys::LeftMouseButton);
+
 	Widget->PressBack();
 	TestTrue(TEXT("dirty Back shows the prompt"), Widget->IsBackPromptShown());
 	Widget->ChooseBack(ESettingsBackChoice::KeepEditing);

@@ -21,3 +21,10 @@ deleted), SlidersSetClassVolume, RemapRebuildsMappingContext, WidgetBackAndPages
 - A left-click while waiting for a key lands on a Slate button first, so the mouse can only be captured on a non-button area; keyboard and gamepad capture normally.
 - Game Options page lists the FLOW-44 candidate names only (contents are OPEN in the GDD).
 - Text size and reduced motion are stored and shown here; other screens do not read them yet.
+
+## Review round 1 fixes (FLOW-40, FLOW-45, MOVE-10, MOVE-17)
+- Save shows on every page incl. Credits.
+- OpenSettings: cursor on, UI-only input mode, widget focused (`SetIsFocusable`); CloseSettings restores game input and discards the leftover draft.
+- Mouse capture runs in `NativeOnPreviewMouseButtonDown`, so it works over a button; test in `UmbrellaElla.Settings.WidgetBackAndPages`.
+- Build exit 0, `UmbrellaElla.Settings` PASS 12/12, module_check 0. Not run: window layout.
+- Left: review item 4 (callers, applying saved bindings) is for move/flow.

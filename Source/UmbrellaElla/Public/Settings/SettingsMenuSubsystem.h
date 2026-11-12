@@ -84,4 +84,5 @@ private:
 
 	UPROPERTY(Transient)
 	TObjectPtr<USettingsMenuWidget> OpenWidget;
+	TWeakObjectPtr<APlayerController> OpenController;
 };

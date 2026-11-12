@@ -42,6 +42,9 @@ public:
 	/** Controller page Reset button: shipped default bindings in the draft. */
 	void PressResetBindings();
 
+	/** Public so tests can feed a click; runs before Slate buttons, so mouse buttons bind over a button. */
+	virtual FReply NativeOnPreviewMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+
 protected:
 	virtual TSharedRef<SWidget> RebuildWidget() override;
 	virtual void ReleaseSlateResources(bool bReleaseChildren) override;
