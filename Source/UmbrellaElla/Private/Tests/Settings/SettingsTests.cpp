@@ -339,10 +339,15 @@ bool FSettingsReducedFlashTest::RunTest(const FString& Parameters)
 {
 	const FString Path = ScratchPath(TEXT("flash.ini"));
 	SettingsStore::Delete(Path);
-	USoundClass* Master = nullptr;
-	USoundClass* Sfx = nullptr;
-	USoundClass* Music = nullptr;
-	USettingsMenuSubsystem* Subsystem = MakeSubsystem(Path, Master, Sfx, Music);
+	UGameInstance* GameInstance = NewObject<UGameInstance>(GEngine);
+	GameInstance->InitializeStandalone();
+	USettingsMenuSubsystem* Subsystem = GameInstance->GetSubsystem<USettingsMenuSubsystem>();
+	if (!TestNotNull(TEXT("game instance owns the settings subsystem"), Subsystem))
+	{
+		return false;
+	}
+	Subsystem->SetStorePath(Path);
+	Subsystem->ReloadFromStore();
 	FUmbrellaTestWorld TestWorld;
 	UWorld* World = TestWorld.GetWorld();
 	UUmbrellaVfxSubsystem* Vfx = World ? World->GetSubsystem<UUmbrellaVfxSubsystem>() : nullptr;
@@ -350,21 +355,50 @@ bool FSettingsReducedFlashTest::RunTest(const FString& Parameters)
 	{
 		return false;
 	}
+	World->SetGameInstance(GameInstance);
 	TestFalse(TEXT("reduced flash defaults off"), Subsystem->GetSession().GetSaved().bReducedFlash);
 	Subsystem->EditSession().SetReducedFlash(true);
 	TestFalse(TEXT("draft change does not reach Vfx before Save"), Vfx->IsReducedFlash());
-	Subsystem->SaveSettings(ESettingsPage::Sound);
+	TestEqual(TEXT("Save succeeds"), Subsystem->SaveSettings(ESettingsPage::Sound), ESettingsResult::Ok);
 	TestTrue(TEXT("saved copy has reduced flash"), Subsystem->GetSession().GetSaved().bReducedFlash);
-	USettingsMenuSubsystem::ApplyReducedFlashToWorld(World, Subsystem->GetSession().GetSaved());
-	TestTrue(TEXT("Vfx is reduced after apply"), Vfx->IsReducedFlash());
+	// SaveSettings pushes to the game instance's own world; the test world is a separate one, so it
+	// receives the saved value through the world-init hook, the same path a real level load takes.
+	Subsystem->HandleWorldInit(World);
+	TestTrue(TEXT("world init applies the saved value"), Vfx->IsReducedFlash());
 
-	// Startup: a fresh subsystem reading the file gets the saved value.
-	USettingsMenuSubsystem* Fresh = MakeSubsystem(Path, Master, Sfx, Music);
-	TestTrue(TEXT("saved value survives a reload"), Fresh->GetSession().GetSaved().bReducedFlash);
+	// A world of another game instance is left alone.
 	Vfx->SetReducedFlash(false);
-	USettingsMenuSubsystem::ApplyReducedFlashToWorld(World, Fresh->GetSession().GetSaved());
-	TestTrue(TEXT("startup applies the saved value"), Vfx->IsReducedFlash());
+	World->SetGameInstance(nullptr);
+	Subsystem->HandleWorldInit(World);
+	TestFalse(TEXT("another game instance's world is untouched"), Vfx->IsReducedFlash());
 	SettingsStore::Delete(Path);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FSettingsSaveFailedTest, "UmbrellaElla.Settings.SaveFailureKeepsMenuOpen", SettingsFlags)
+bool FSettingsSaveFailedTest::RunTest(const FString& Parameters)
+{
+	// A directory where the file should go makes the write fail.
+	const FString Path = ScratchPath(TEXT("blocked.ini"));
+	IFileManager::Get().MakeDirectory(*Path, true);
+	USoundClass* Master = nullptr;
+	USoundClass* Sfx = nullptr;
+	USoundClass* Music = nullptr;
+	USettingsMenuSubsystem* Subsystem = MakeSubsystem(Path, Master, Sfx, Music);
+	USettingsMenuWidget* Widget = NewObject<USettingsMenuWidget>(GetTransientPackage());
+	Widget->Setup(Subsystem, EUmbrellaPlayMode::StartGame);
+	Widget->ShowPage(ESettingsPage::Sound);
+	Subsystem->EditSession().SetMusicVolume(12);
+	TestEqual(TEXT("Save reports Failed"), Subsystem->SaveSettings(ESettingsPage::Sound), ESettingsResult::Failed);
+
+	Subsystem->EditSession().SetMusicVolume(13);
+	Widget->PressSave();
+	TestTrue(TEXT("Save button shows the warning"), Widget->IsSaveFailedShown());
+	Subsystem->EditSession().SetMusicVolume(14);
+	Widget->PressBack();
+	Widget->ChooseBack(ESettingsBackChoice::Save);
+	TestTrue(TEXT("Back then Save keeps the warning and does not close"), Widget->IsSaveFailedShown());
+	IFileManager::Get().DeleteDirectory(*Path, false, true);
 	return true;
 }
 

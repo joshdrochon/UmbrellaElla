@@ -5,7 +5,6 @@
 #include "Engine/World.h"
 #include "Feedback/Vfx/UmbrellaVfxSubsystem.h"
 #include "GameFramework/Pawn.h"
-#include "GameFramework/Pawn.h"
 #include "GameFramework/PlayerController.h"
 #include "Harness/UmbrellaFeatureFlags.h"
 #include "Input/EllaInputAdapterComponent.h"
@@ -35,12 +34,17 @@ void USettingsMenuSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 		// Reduced flash follows the saved value in every world that starts, and in the one already running.
 		WorldInitHandle = FWorldDelegates::OnPostWorldInitialization.AddWeakLambda(this, [this](UWorld* World, const UWorld::InitializationValues)
 		{
-			if (World && World->GetGameInstance() == GetGameInstance())
-			{
-				ApplyReducedFlashToWorld(World, Session.GetSaved());
-			}
+			HandleWorldInit(World);
 		});
 		ApplyReducedFlash();
+	}
+}
+
+void USettingsMenuSubsystem::HandleWorldInit(UWorld* World)
+{
+	if (World && World->GetGameInstance() == GetGameInstance())
+	{
+		ApplyReducedFlashToWorld(World, Session.GetSaved());
 	}
 }
 
