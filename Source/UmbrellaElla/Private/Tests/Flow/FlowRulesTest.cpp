@@ -184,3 +184,18 @@ bool FFlowPurchaseRulesTest::RunTest(const FString& Parameters)
 	TestEqual(TEXT("done returns to the title"), FFlowRules::Next(Screen, EFlowCommand::Continue), EFlowScreen::Title);
 	return true;
 }
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFlowRulesLevelUpTest, "UmbrellaElla.Flow.LevelUpScreen",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FFlowRulesLevelUpTest::RunTest(const FString& Parameters)
+{
+	const EFlowScreen Screen = FFlowRules::Next(EFlowScreen::Playing, EFlowCommand::OpenLevelUp);
+	TestEqual(TEXT("level gained opens the screen"), Screen, EFlowScreen::LevelUp);
+	TestTrue(TEXT("it blocks gameplay input"), FFlowRules::IsInputBlockedOn(Screen));
+	TestTrue(TEXT("it stops the world"), FFlowRules::IsWorldPausedOn(Screen));
+	TestEqual(TEXT("back closes to the neutral wait"), FFlowRules::Next(Screen, EFlowCommand::Back), EFlowScreen::Resuming);
+	TestEqual(TEXT("confirm closes it"), FFlowRules::Next(Screen, EFlowCommand::Continue), EFlowScreen::Resuming);
+	TestEqual(TEXT("pause closes it"), FFlowRules::Next(Screen, EFlowCommand::Pause), EFlowScreen::Resuming);
+	TestEqual(TEXT("it does not open from the title"), FFlowRules::Next(EFlowScreen::Title, EFlowCommand::OpenLevelUp), EFlowScreen::Title);
+	return true;
+}

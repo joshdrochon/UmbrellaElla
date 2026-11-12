@@ -126,6 +126,7 @@ void AUmbrellaPlayerController::BeginPlay()
 	{
 		DefeatHandle = Bus->On(EUmbrellaEventType::PlayerDefeated).AddUObject(this, &AUmbrellaPlayerController::HandlePlayerDefeated);
 		CompletedHandle = Bus->On(EUmbrellaEventType::EncounterCompleted).AddUObject(this, &AUmbrellaPlayerController::HandleEncounterCompleted);
+		LevelHandle = Bus->On(EUmbrellaEventType::LevelGained).AddUObject(this, &AUmbrellaPlayerController::HandleLevelGained);
 	}
 
 	const UUmbrellaTuning* Tuning = GetDefault<UUmbrellaTuning>();
@@ -159,6 +160,7 @@ void AUmbrellaPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason
 	{
 		Bus->On(EUmbrellaEventType::PlayerDefeated).Remove(DefeatHandle);
 		Bus->On(EUmbrellaEventType::EncounterCompleted).Remove(CompletedHandle);
+		Bus->On(EUmbrellaEventType::LevelGained).Remove(LevelHandle);
 	}
 	ClearScreenWidget();
 	Super::EndPlay(EndPlayReason);
@@ -618,6 +620,14 @@ void AUmbrellaPlayerController::ShowScreenWidget()
 		Menu = SNew(SFlowMenu).WasdNavigation(IsFeatureEnabled(EFeatureId::MOVE_09)).Backdrop(EFlowBackdrop::Clocks).Tuning(Tuning).Heading(FFlowMenuText::PausedHeading()).Items(Items).OnBack(Resume);
 		break;
 	}
+	case EFlowScreen::LevelUp:
+	{
+		TArray<FFlowMenuItem> Items;
+		Items.Add({ FFlowMenuText::ContinueLabel(), Resume });
+		Menu = SNew(SFlowMenu).WasdNavigation(IsFeatureEnabled(EFeatureId::MOVE_09)).Tuning(Tuning).Heading(FFlowMenuText::LevelUpHeading(LevelUpShown))
+			.Body(FFlowMenuText::LevelUpBody()).Items(Items).OnBack(Back);
+		break;
+	}
 	case EFlowScreen::Defeat:
 	{
 		TArray<FFlowMenuItem> Items;
@@ -785,4 +795,14 @@ void AUmbrellaPlayerController::ReturnToTitle()
 void AUmbrellaPlayerController::QuitGame()
 {
 	UKismetSystemLibrary::QuitGame(this, this, EQuitPreference::Quit, false);
+}
+
+void AUmbrellaPlayerController::HandleLevelGained(const FUmbrellaEvent& Event)
+{
+	// Director's Cut only; a level reached while another screen holds the game is not shown late.
+	if (IsFeatureEnabled(EFeatureId::FLOW_42) && PlayMode == EUmbrellaPlayMode::DirectorsCut && Screen == EFlowScreen::Playing)
+	{
+		LevelUpShown = Event.Amount;
+		ApplyCommand(EFlowCommand::OpenLevelUp);
+	}
 }
