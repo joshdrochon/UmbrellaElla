@@ -13,6 +13,10 @@
 #include "Flow/FlowTuning.h"
 #include "Arena/ArenaCameraTuning.h"
 #include "Field/FieldTuning.h"
+#include "Enemy/EnemyTuning.h"
+#include "Trap/TrapTuning.h"
+#include "BrokenMill/BrokenMillTuning.h"
+#include "Progression/ProgressionTuning.h"
 #include "UmbrellaTuning.generated.h"
 
 /**
@@ -57,4 +61,16 @@ public:
 
 	UPROPERTY(Config, EditAnywhere, Category = "Field")
 	FFieldTuning Field;
+
+	UPROPERTY(Config, EditAnywhere, Category = "Enemy")
+	FEnemyTuning Enemy;
+
+	UPROPERTY(Config, EditAnywhere, Category = "Trap")
+	FTrapTuning Trap;
+
+	UPROPERTY(Config, EditAnywhere, Category = "BrokenMill")
+	FBrokenMillTuning BrokenMill;
+
+	UPROPERTY(Config, EditAnywhere, Category = "Progression")
+	FProgressionTuning Progression;
 };

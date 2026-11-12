@@ -4,6 +4,7 @@
 #include "GameFramework/Actor.h"
 #include "Trap/TrapRules.h"
 #include "Trap/TrapTuning.h"
+#include "Core/UmbrellaTuning.h"
 #include "UmbrellaTrap.generated.h"
 
 class UBoxComponent;
@@ -49,7 +50,7 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Trap")
 	ETrapKind Kind = ETrapKind::AirMill;
 
-	FTrapTuning Tuning;
+	const FTrapTuning& Tuning() const { return GetDefault<UUmbrellaTuning>()->Trap; }
 	FTrapCycle Cycle;
 	FContactGate Gate;
 	float CycleTime = 0.0f;

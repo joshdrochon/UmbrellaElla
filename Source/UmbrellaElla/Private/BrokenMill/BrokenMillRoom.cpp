@@ -24,7 +24,7 @@ ABrokenMillRoom::ABrokenMillRoom()
 	TargetBox->SetupAttachment(Root);
 	TargetBox->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
 	TargetBox->SetCollisionResponseToChannel(UmbrellaCollision::PlayerShot, ECR_Block);
-	GuardHp = Tuning.GuardHp;
+	GuardHp = Tuning().GuardHp;
 }
 
 FVector ABrokenMillRoom::RoomToWorld(const FVector2D& RoomPoint) const
@@ -44,16 +44,16 @@ void ABrokenMillRoom::BuildRoom()
 	{
 		return;
 	}
-	const float IslandWidth = Tuning.IslandXRange.Y - Tuning.IslandXRange.X;
-	const float IslandHeight = Tuning.IslandTop - Tuning.IslandUnderside;
-	Island->SetBoxExtent(FVector(IslandWidth * 0.5, Tuning.DepthHalfExtent, IslandHeight * 0.5));
-	Island->SetRelativeLocation(FVector(Tuning.IslandXRange.X + IslandWidth * 0.5, 0.0, Tuning.IslandUnderside + IslandHeight * 0.5));
+	const float IslandWidth = Tuning().IslandXRange.Y - Tuning().IslandXRange.X;
+	const float IslandHeight = Tuning().IslandTop - Tuning().IslandUnderside;
+	Island->SetBoxExtent(FVector(IslandWidth * 0.5, Tuning().DepthHalfExtent, IslandHeight * 0.5));
+	Island->SetRelativeLocation(FVector(Tuning().IslandXRange.X + IslandWidth * 0.5, 0.0, Tuning().IslandUnderside + IslandHeight * 0.5));
 	// The target sits at the shared target centre in the room frame.
-	TargetBox->SetBoxExtent(FVector(Tuning.TargetSize.X * 0.5, Tuning.DepthHalfExtent, Tuning.TargetSize.Y * 0.5));
-	TargetBox->SetRelativeLocation(FVector(Tuning.TargetCentre.X, 0.0, Tuning.TargetCentre.Y));
+	TargetBox->SetBoxExtent(FVector(Tuning().TargetSize.X * 0.5, Tuning().DepthHalfExtent, Tuning().TargetSize.Y * 0.5));
+	TargetBox->SetRelativeLocation(FVector(Tuning().TargetCentre.X, 0.0, Tuning().TargetCentre.Y));
 	if (UWorld* World = GetWorld())
 	{
-		Rotor = World->SpawnActor<AUmbrellaTrap>(AUmbrellaTrap::StaticClass(), FTransform(RoomToWorld(Tuning.RotorCentre)));
+		Rotor = World->SpawnActor<AUmbrellaTrap>(AUmbrellaTrap::StaticClass(), FTransform(RoomToWorld(Tuning().RotorCentre)));
 		if (IsValid(Rotor))
 		{
 			Rotor->ConfigureKind(ETrapKind::AirMill);
@@ -76,7 +76,7 @@ void ABrokenMillRoom::ResetForRestart()
 	Guard.Reset();
 	Guard.SetGuardEnabled(true);
 	ShotLog.Entries.Reset();
-	GuardHp = Tuning.GuardHp;
+	GuardHp = Tuning().GuardHp;
 	ShotsFired = 0;
 	Clock = 0.0f;
 	SetActorHiddenInGame(false);
@@ -101,7 +101,7 @@ EUmbrellaShotResult ABrokenMillRoom::ReceiveShot(const FUmbrellaShotSpec& Shot, 
 			Event.SourceId = GetFName();
 			Event.TargetId = GetFName();
 			Event.Detail = TEXT("Enemy");
-			Event.Value = Tuning.GuardHp;
+			Event.Value = Tuning().GuardHp;
 			Bus->Broadcast(Event);
 		}
 	}
@@ -131,11 +131,11 @@ EMillGuardEvent ABrokenMillRoom::StepSeconds(float DeltaSeconds)
 	{
 		const FVector2D Ella = WorldToRoom(Found->GetActorLocation());
 		Inputs.Ella = FVector(Ella.X, 0.0, Ella.Y);
-		Inputs.bInActivationRegion = FBrokenMillRules::IsInActivationRegion(Tuning, Inputs.Ella);
-		Inputs.bEngagementValid = FBrokenMillRules::IsEngagementValid(Tuning, Ella, true);
-		Inputs.bPassedBehind = Ella.X > Tuning.GuardMuzzle.X;
+		Inputs.bInActivationRegion = FBrokenMillRules::IsInActivationRegion(Tuning(), Inputs.Ella);
+		Inputs.bEngagementValid = FBrokenMillRules::IsEngagementValid(Tuning(), Ella, true);
+		Inputs.bPassedBehind = Ella.X > Tuning().GuardMuzzle.X;
 	}
-	const EMillGuardEvent Event = Guard.Advance(Tuning, DeltaSeconds, Inputs);
+	const EMillGuardEvent Event = Guard.Advance(Tuning(), DeltaSeconds, Inputs);
 	if (Event == EMillGuardEvent::ShotReleased)
 	{
 		ReleaseShot();
@@ -147,13 +147,13 @@ void ABrokenMillRoom::ReleaseShot()
 {
 	FUmbrellaShotSpec Spec;
 	Spec.Kind = EUmbrellaShotKind::EnemyRed;
-	Spec.Origin = RoomToWorld(Tuning.GuardMuzzle);
+	Spec.Origin = RoomToWorld(Tuning().GuardMuzzle);
 	Spec.Origin.Y = UmbrellaDrawOrder::ProjectileY;
 	const FVector Captured = RoomToWorld(FVector2D(Guard.CapturedTarget.X, Guard.CapturedTarget.Z));
-	Spec.Velocity = FEnemyRules::AimVelocity(Spec.Origin, Captured, Tuning.ShotSpeed);
-	Spec.Radius = Tuning.ShotRadius;
-	Spec.Damage = Tuning.ShotDamage;
-	Spec.LifetimeSeconds = FBrokenMillRules::GetGuardShotLifetime(Tuning);
+	Spec.Velocity = FEnemyRules::AimVelocity(Spec.Origin, Captured, Tuning().ShotSpeed);
+	Spec.Radius = Tuning().ShotRadius;
+	Spec.Damage = Tuning().ShotDamage;
+	Spec.LifetimeSeconds = FBrokenMillRules::GetGuardShotLifetime(Tuning());
 	Spec.SourceId = GetFName();
 	++ShotsFired;
 	ShotLog.RecordEmission(Guard.ShotSerial, Clock, Spec.Origin);

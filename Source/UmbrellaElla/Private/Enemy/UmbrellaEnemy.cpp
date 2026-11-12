@@ -36,7 +36,7 @@ AUmbrellaEnemy::AUmbrellaEnemy()
 	Hitbox->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
 	Hitbox->SetCollisionResponseToChannel(UmbrellaCollision::PlayerShot, ECR_Block);
 	RootComponent = Hitbox;
-	Profile = FEnemyRules::MakeProfile(Type, Tuning);
+	Profile = FEnemyRules::MakeProfile(Type, Tuning());
 	Brain.Reset(Profile);
 	Packets.Reset(0);
 }
@@ -47,9 +47,9 @@ void AUmbrellaEnemy::Configure(EEnemyType NewType, EEnemyGender NewGender, EUmbr
 	Gender = IsFeatureEnabled(EFeatureId::COM_12) ? NewGender : EEnemyGender::Male;
 	// Red or yellow only; a type is never limited to one colour.
 	ShotKind = (IsFeatureEnabled(EFeatureId::COM_13) && NewShotKind == EUmbrellaShotKind::EnemyYellow) ? EUmbrellaShotKind::EnemyYellow : EUmbrellaShotKind::EnemyRed;
-	Profile = FEnemyRules::MakeProfile(Type, Tuning);
+	Profile = FEnemyRules::MakeProfile(Type, Tuning());
 	const FVector2D Body = Profile.Body;
-	Hitbox->SetBoxExtent(FVector(Body.X * 0.5, Tuning.DepthHalfExtent, Body.Y * 0.5));
+	Hitbox->SetBoxExtent(FVector(Body.X * 0.5, Tuning().DepthHalfExtent, Body.Y * 0.5));
 	HomeLocation = GetActorLocation();
 	ResetForRestart();
 }
@@ -57,7 +57,7 @@ void AUmbrellaEnemy::Configure(EEnemyType NewType, EEnemyGender NewGender, EUmbr
 void AUmbrellaEnemy::ResetForRestart()
 {
 	Brain.Reset(Profile);
-	Packets.Reset(Type == EEnemyType::SkyCourier && IsFeatureEnabled(EFeatureId::COM_17) ? Tuning.CourierEmissionSlots : 0);
+	Packets.Reset(Type == EEnemyType::SkyCourier && IsFeatureEnabled(EFeatureId::COM_17) ? Tuning().CourierEmissionSlots : 0);
 	ShotsFired = 0;
 	SetActorHiddenInGame(false);
 	Hitbox->SetCollisionResponseToChannel(UmbrellaCollision::PlayerShot, ECR_Block);
@@ -81,7 +81,7 @@ void AUmbrellaEnemy::BeginPlay()
 	}
 	Placeholder->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Placeholder->SetupAttachment(RootComponent);
-	Placeholder->SetRelativeScale3D(FVector(Profile.Body.X / EnemyConst::CubeSize, Tuning.PlaceholderDepthScale, Profile.Body.Y / EnemyConst::CubeSize));
+	Placeholder->SetRelativeScale3D(FVector(Profile.Body.X / EnemyConst::CubeSize, Tuning().PlaceholderDepthScale, Profile.Body.Y / EnemyConst::CubeSize));
 	Placeholder->RegisterComponent();
 }
 

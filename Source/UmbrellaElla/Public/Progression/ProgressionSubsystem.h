@@ -111,7 +111,6 @@ private:
 	void Broadcast(EUmbrellaEventType Type, FName Detail, int32 Amount);
 	bool IsProgressing() const;
 
-	FProgressionTuning Tuning;
 	FProgressionProfile Profile;
 	FProgressionProfile RealProfileWhileShadow;
 	FString SaveSlot;

@@ -1,5 +1,6 @@
 #include "Health/HealthModel.h"
 #include "Health/HealthTuning.h"
+#include "Owl/KeeperTuning.h"
 #include "Misc/AutomationTest.h"
 
 #if WITH_AUTOMATION_TESTS
@@ -14,14 +15,15 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FHealthDamageScale, "UmbrellaElla.Health.Damage
 bool FHealthDamageScale::RunTest(const FString& Parameters)
 {
 	const FHealthTuning Tuning;
+	const FKeeperTuning KeeperTuning;
 	TestEqual(TEXT("rank 0"), HealthRules::ScaleDamage(1.0f, 0, Tuning), 1.0f, Tol);
 	TestEqual(TEXT("rank I"), HealthRules::ScaleDamage(1.0f, 1, Tuning), 0.9f, Tol);
 	TestEqual(TEXT("rank II"), HealthRules::ScaleDamage(1.0f, 2, Tuning), 0.8f, Tol);
 	TestEqual(TEXT("rank III"), HealthRules::ScaleDamage(1.0f, 3, Tuning), 0.7f, Tol);
 	TestEqual(TEXT("rank clamps at III"), HealthRules::ScaleDamage(1.0f, 9, Tuning), 0.7f, Tol);
-	TestEqual(TEXT("chain"), HealthRules::ScaleDamage(Tuning.ChainDamage, 0, Tuning), 1.25f, Tol);
-	TestEqual(TEXT("talon"), HealthRules::ScaleDamage(Tuning.TalonDamage, 0, Tuning), 1.5f, Tol);
-	TestEqual(TEXT("defense applies once to chain"), HealthRules::ScaleDamage(Tuning.ChainDamage, 2, Tuning), 1.0f, Tol);
+	TestEqual(TEXT("chain"), HealthRules::ScaleDamage(KeeperTuning.ChainDamage, 0, Tuning), 1.25f, Tol);
+	TestEqual(TEXT("talon"), HealthRules::ScaleDamage(KeeperTuning.TalonDamage, 0, Tuning), 1.5f, Tol);
+	TestEqual(TEXT("defense applies once to chain"), HealthRules::ScaleDamage(KeeperTuning.ChainDamage, 2, Tuning), 1.0f, Tol);
 	return true;
 }
 

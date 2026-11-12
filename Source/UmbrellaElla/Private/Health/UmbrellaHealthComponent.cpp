@@ -73,7 +73,7 @@ EUmbrellaShotResult UUmbrellaHealthComponent::ReceiveShot(const FUmbrellaShotSpe
 	{
 		return EUmbrellaShotResult::Ignored;
 	}
-	const float Raw = Shot.Damage > 0.0f ? Shot.Damage : GetDefault<UUmbrellaTuning>()->Health.ProjectileDamage;
+	const float Raw = Shot.Damage > 0.0f ? Shot.Damage : GetDefault<UUmbrellaTuning>()->Keeper.ProjectileDamage;
 	TakeHit(Raw, Shot.SourceId);
 	// A hit during protection still spends the shot: it must not wait outside and land the moment protection ends.
 	return EUmbrellaShotResult::Consumed;

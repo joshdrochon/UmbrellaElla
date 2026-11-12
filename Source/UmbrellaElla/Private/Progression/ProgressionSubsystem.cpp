@@ -1,6 +1,7 @@
 #include "Progression/ProgressionSubsystem.h"
 #include "BrokenMill/BrokenMillRoom.h"
 #include "Core/UmbrellaEventBus.h"
+#include "Core/UmbrellaTuning.h"
 #include "Core/UmbrellaLog.h"
 #include "Engine/GameInstance.h"
 #include "Enemy/UmbrellaEnemy.h"
@@ -63,7 +64,7 @@ void UProgressionSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	Profile = FProgressionRules::MakeEmptyProfile();
 	PostInitHandle = FWorldDelegates::OnPostWorldInitialization.AddUObject(this, &UProgressionSubsystem::OnPostWorldInit);
 	CleanupHandle = FWorldDelegates::OnWorldCleanup.AddUObject(this, &UProgressionSubsystem::OnWorldCleanup);
-	UseSaveSlot(Tuning.SaveSlotName);
+	UseSaveSlot(GetTuning().SaveSlotName);
 	if (const UGameInstance* Instance = GetGameInstance())
 	{
 		UWorld* World = Instance->GetWorld();
@@ -263,8 +264,8 @@ void UProgressionSubsystem::BeginRun()
 	{
 		return;
 	}
-	bFinalHour = FProgressionRules::IsAllStatsMaxed(Tuning, Profile);
-	RunScaling = FProgressionRules::NextRunScaling(Tuning, Profile);
+	bFinalHour = FProgressionRules::IsAllStatsMaxed(GetTuning(), Profile);
+	RunScaling = FProgressionRules::NextRunScaling(GetTuning(), Profile);
 	bRunActive = true;
 	FProgressionRules::ReachCheckpoint(Profile, EProgressionCheckpointKind::Level);
 	Persist();
@@ -338,17 +339,17 @@ int32 UProgressionSubsystem::AwardKill(FName Label)
 	{
 		return 0;
 	}
-	const int32 Xp = FProgressionRules::KillXp(Tuning, Label);
+	const int32 Xp = FProgressionRules::KillXp(GetTuning(), Label);
 	if (Xp <= 0)
 	{
 		return 0;
 	}
-	const int32 Gained = FProgressionRules::AddXp(Tuning, Profile, Xp);
+	const int32 Gained = FProgressionRules::AddXp(GetTuning(), Profile, Xp);
 	Persist();
 	Broadcast(EUmbrellaEventType::XPAwarded, Label, Xp);
 	if (Gained > 0)
 	{
-		const int32 Level = FProgressionRules::LevelForXp(Tuning, Profile.Xp).Level;
+		const int32 Level = FProgressionRules::LevelForXp(GetTuning(), Profile.Xp).Level;
 		Broadcast(EUmbrellaEventType::LevelGained, Label, Level);
 		LevelGainedDelegate.Broadcast(Level);
 	}
@@ -369,7 +370,7 @@ int32 UProgressionSubsystem::GetLevel() const
 
 FLevelProgress UProgressionSubsystem::GetLevelProgress() const
 {
-	return FProgressionRules::LevelForXp(Tuning, GetEffectiveProfile().Xp);
+	return FProgressionRules::LevelForXp(GetTuning(), GetEffectiveProfile().Xp);
 }
 
 int32 UProgressionSubsystem::GetXp() const
@@ -379,7 +380,7 @@ int32 UProgressionSubsystem::GetXp() const
 
 int32 UProgressionSubsystem::GetUnspentPoints() const
 {
-	return FProgressionRules::UnspentPoints(Tuning, GetEffectiveProfile());
+	return FProgressionRules::UnspentPoints(GetTuning(), GetEffectiveProfile());
 }
 
 int32 UProgressionSubsystem::GetCompletedRuns() const
@@ -394,47 +395,47 @@ int32 UProgressionSubsystem::GetRank(EProgressionTrack Track) const
 
 bool UProgressionSubsystem::IsSpellUnlocked(EProgressionSpell Spell) const
 {
-	return FProgressionRules::IsSpellUnlocked(Tuning, GetLevel(), Spell);
+	return FProgressionRules::IsSpellUnlocked(GetTuning(), GetLevel(), Spell);
 }
 
 TArray<EProgressionSpell> UProgressionSubsystem::GetUnlockedSpells() const
 {
-	return FProgressionRules::UnlockedSpells(Tuning, GetLevel());
+	return FProgressionRules::UnlockedSpells(GetTuning(), GetLevel());
 }
 
 int32 UProgressionSubsystem::GetHitCapacity() const
 {
-	return FProgressionRules::HitCapacity(Tuning, GetEffectiveProfile().Ranks);
+	return FProgressionRules::HitCapacity(GetTuning(), GetEffectiveProfile().Ranks);
 }
 
 int32 UProgressionSubsystem::GetMaxLives() const
 {
-	return FProgressionRules::MaxLives(Tuning, GetEffectiveProfile().Ranks);
+	return FProgressionRules::MaxLives(GetTuning(), GetEffectiveProfile().Ranks);
 }
 
 float UProgressionSubsystem::GetHealPerYellow() const
 {
-	return FProgressionRules::HealPerYellow(Tuning, GetEffectiveProfile().Ranks);
+	return FProgressionRules::HealPerYellow(GetTuning(), GetEffectiveProfile().Ranks);
 }
 
 float UProgressionSubsystem::GetDamageReduction() const
 {
-	return FProgressionRules::DamageReduction(Tuning, GetEffectiveProfile().Ranks);
+	return FProgressionRules::DamageReduction(GetTuning(), GetEffectiveProfile().Ranks);
 }
 
 float UProgressionSubsystem::GetSuctionRange() const
 {
-	return FProgressionRules::SuctionRange(Tuning, GetEffectiveProfile().Ranks);
+	return FProgressionRules::SuctionRange(GetTuning(), GetEffectiveProfile().Ranks);
 }
 
 float UProgressionSubsystem::GetSuctionConeDegrees() const
 {
-	return FProgressionRules::SuctionConeDegrees(Tuning, GetEffectiveProfile().Ranks);
+	return FProgressionRules::SuctionConeDegrees(GetTuning(), GetEffectiveProfile().Ranks);
 }
 
 float UProgressionSubsystem::GetSpellDamageMultiplier(EProgressionSpell Spell) const
 {
-	return FProgressionRules::SpellDamageMultiplier(Tuning, GetEffectiveProfile().Ranks, Spell);
+	return FProgressionRules::SpellDamageMultiplier(GetTuning(), GetEffectiveProfile().Ranks, Spell);
 }
 
 EProgressionLoadStatus UProgressionSubsystem::GetLoadStatus() const
@@ -475,7 +476,7 @@ EProgressionCommit UProgressionSubsystem::CommitRanks(const TArray<int32>& NewRa
 	{
 		return EProgressionCommit::PurchaseNotAllowed;
 	}
-	const EProgressionCommit Result = FProgressionRules::TryCommitRanks(Tuning, Profile, NewRanks, PurchaseContext);
+	const EProgressionCommit Result = FProgressionRules::TryCommitRanks(GetTuning(), Profile, NewRanks, PurchaseContext);
 	if (Result == EProgressionCommit::Ok)
 	{
 		Persist();
@@ -492,7 +493,7 @@ void UProgressionSubsystem::BeginShadowProgress(int32 Level)
 		return;
 	}
 	RealProfileWhileShadow = Profile;
-	Profile = FProgressionRules::MakeFixture(Tuning, Level);
+	Profile = FProgressionRules::MakeFixture(GetTuning(), Level);
 	bShadowActive = true;
 	ChangedDelegate.Broadcast();
 }
@@ -535,5 +536,5 @@ FOnProgressionLevelGained& UProgressionSubsystem::OnLevelGained()
 
 const FProgressionTuning& UProgressionSubsystem::GetTuning() const
 {
-	return Tuning;
+	return GetDefault<UUmbrellaTuning>()->Progression;
 }

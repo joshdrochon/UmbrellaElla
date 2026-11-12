@@ -195,8 +195,8 @@ public:
 	bool IsTalonArmed() const { return bTalonArmed; }
 	float GetTalonCooldown() const { return TalonCooldown; }
 	FVector2D GetMechanismHome(EKeeperPart Part) const;
-	FVector2D GetMuzzle() const { return Anchor + FVector2D(Tuning.MuzzleOffset); }
-	FVector2D GetClaw() const { return Anchor + FVector2D(Tuning.ClawOffset); }
+	FVector2D GetMuzzle() const { return Anchor + FVector2D(Tuning().MuzzleOffset); }
+	FVector2D GetClaw() const { return Anchor + FVector2D(Tuning().ClawOffset); }
 	float GetStageRemaining() const { return StageRemaining; }
 
 	/** The shared rule for parity: the sign of the middle curve for a global physical-attack serial. */
@@ -247,7 +247,9 @@ private:
 	float YellowSpeed() const;
 	float SegmentDistance(const FVector2D& P, const FVector2D& A, const FVector2D& B) const;
 
-	FKeeperTuning Tuning;
+	/** Borrowed, read-only; the caller keeps it alive (the shared settings object, or a test fixture). */
+	const FKeeperTuning& Tuning() const { return *TuningRef; }
+	const FKeeperTuning* TuningRef = nullptr;
 	FEncounterTuning EncounterTuning;
 	FKeeperRuleSwitches Switches;
 	FVector2D Anchor = FVector2D::ZeroVector;
