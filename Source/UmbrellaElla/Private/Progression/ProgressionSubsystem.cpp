@@ -40,7 +40,7 @@ namespace
 				}
 			}
 		}
-		// The Broken Mill guard is the introductory stationary Roadwarden (GDD HAZ-03).
+		// The Broken Mill guard is the introductory stationary Roadwarden.
 		for (TActorIterator<ABrokenMillRoom> It(World); It; ++It)
 		{
 			if (It->GetFName() == ActorName)
