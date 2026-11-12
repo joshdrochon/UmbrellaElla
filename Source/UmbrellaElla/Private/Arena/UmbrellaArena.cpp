@@ -1,15 +1,14 @@
 #include "Arena/UmbrellaArena.h"
 #include "Camera/CameraComponent.h"
 #include "Components/BoxComponent.h"
+#include "Core/UmbrellaCollision.h"
 #include "Core/UmbrellaDrawOrder.h"
 #include "Core/UmbrellaEventBus.h"
 #include "Core/UmbrellaTuning.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/World.h"
-#include "GameFramework/PlayerController.h"
 #include "Harness/UmbrellaFeatureFlags.h"
-#include "Kismet/GameplayStatics.h"
 
 namespace
 {
@@ -20,6 +19,13 @@ namespace
 		Box->SetupAttachment(Parent);
 		Box->SetCollisionProfileName(Profile);
 		return Box;
+	}
+
+	/** Walls and ceiling stop shots (lead call B): Block on both shot channels. */
+	void BlockShots(UBoxComponent* Box)
+	{
+		Box->SetCollisionResponseToChannel(UmbrellaCollision::PlayerShot, ECR_Block);
+		Box->SetCollisionResponseToChannel(UmbrellaCollision::EnemyShot, ECR_Block);
 	}
 }
 
@@ -35,6 +41,9 @@ AUmbrellaArena::AUmbrellaArena()
 	LeftWall = MakeBox(this, Root, TEXT("LeftWall"), TEXT("BlockAllDynamic"));
 	RightWall = MakeBox(this, Root, TEXT("RightWall"), TEXT("BlockAllDynamic"));
 	Ceiling = MakeBox(this, Root, TEXT("Ceiling"), TEXT("BlockAllDynamic"));
+	BlockShots(LeftWall);
+	BlockShots(RightWall);
+	BlockShots(Ceiling);
 	LethalBottom = MakeBox(this, Root, TEXT("LethalBottom"), TEXT("OverlapAllDynamic"));
 	LethalBottom->ComponentTags.Add(TEXT("LethalBottom"));
 
@@ -127,15 +136,6 @@ void AUmbrellaArena::BeginPlay()
 {
 	Super::BeginPlay();
 	BuildPlaceholders();
-	if (!IsFeatureEnabled(EFeatureId::CAM_03))
-	{
-		return;
-	}
-	APlayerController* Controller = UGameplayStatics::GetPlayerController(this, 0);
-	if (IsValid(Controller))
-	{
-		Controller->SetViewTarget(this);
-	}
 }
 
 void AUmbrellaArena::Tick(float DeltaSeconds)
