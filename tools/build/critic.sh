@@ -27,7 +27,8 @@ p += "\n\nLines to judge (id | surface | text), cycle=1, builder=area-worker:\n"
 open(sys.argv[1], "w").write(p)
 print(len(rows))
 P
-  n=$(grep -c " | " "$W/packet.md"); [ "$n" = 0 ] && { echo "story critic: PASS (no player-facing lines yet)"; exit 0; }
+  n=$(python3 -c "import csv;print(sum(1 for r in csv.DictReader(open('pipeline/story/lines.csv')) if r.get('text')))")
+  [ "$n" = 0 ] && { echo "story critic: PASS (no player-facing lines in pipeline/story/lines.csv yet)"; exit 0; }
   ask "$W/packet.md" > "$OUT" 2>&1
   line=$(grep -m1 "^STORY_CRITIC:" "$OUT"); echo "$line"
   echo "$line" | grep -q "^STORY_CRITIC: PASS" && python3 tools/story_check.py --critic "$line" >/dev/null 2>&1 && exit 0
