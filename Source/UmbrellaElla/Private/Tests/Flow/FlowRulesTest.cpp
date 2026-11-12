@@ -6,7 +6,7 @@
 #include "Flow/FlowRules.h"
 #include "Flow/FlowTutorialText.h"
 #include "Smoke/SmokeHookSubsystem.h"
-#include "Story/FlowStoryText.h"
+#include "Flow/FlowStoryText.h"
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFlowStartTest, "UmbrellaElla.Flow.TitleStartsPlaying",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)

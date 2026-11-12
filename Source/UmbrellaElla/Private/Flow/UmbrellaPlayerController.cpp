@@ -23,7 +23,7 @@
 #include "UI/Progression/ProgressionPurchaseWidget.h"
 #include "UI/Progression/XpRingWidget.h"
 #include "Widgets/Input/SButton.h"
-#include "Story/FlowStoryText.h"
+#include "Flow/FlowStoryText.h"
 #include "UI/Menus/FlowMenuWidgets.h"
 #include "Widgets/Layout/SBox.h"
 #include "Widgets/Text/STextBlock.h"
