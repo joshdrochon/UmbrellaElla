@@ -14,3 +14,10 @@ File: `Source/UmbrellaElla/Public/Enemy/UmbrellaEnemy.h`. Add `UPROPERTY(EditAny
 `ERoadwardenEquipment GetEquipment() const`. Until then the presenter keeps the variant itself:
 `UEnemyPresenterSubsystem::SetEquipment(Enemy, Equipment)` (default SundialCaster). When the getter exists, call
 `SetEquipment` from `ShowStandIn` with it.
+
+## Stream beam rescales its cube after the art swap (request 3)
+File: `Source/UmbrellaElla/Private/Attack/StreamBeamActor.cpp` line 114. `Visual->SetWorldScale3D(FVector(...))` writes a cube scale even when
+the beam shows a picture (a plane). Exact change: replace it with
+`ArtSlot::SetWorldBoxScale(Visual, FVector(FMath::Max(EffectiveLength, MinVisualLength) / CubeSize, BeamWidth / CubeSize * VisualDepthFraction, BeamWidth / CubeSize));`
+(ArtSlot.h is already included there; it falls back to the same world scale while a cube shows). Until then `UShotPresenterSubsystem` re-sizes the picture on its tick, so
+the wrong scale can show for the frames between a beam step and the next presenter tick.

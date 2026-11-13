@@ -19,6 +19,11 @@ Blender headless; scripts and recipes in pipeline/art/blender/)
           No Blender (PATH, $BLENDER, or the usual install folder): labelled placeholder frames, which can never
           pass the art loop (tools/art_loop.py) or ship (check_pr.py, submission_check.py art).
   blender --script PY --out PNG [-- args]   any other Blender script, headless
+  video   --prompt P --input OURS.png --out X.mp4 --piece ID [--seed S]
+          Image-to-video on fal, the fixed model fal-ai/veo3.1/fast/image-to-video (any other --model is refused; the live model
+          page must say "active"), 4 s, audio off, the prompt gets the flat chroma-green background text. Same guards as `image`
+          (in-jam input, FAL_KEY, shared counter), priced from fal's live per-second price, its own 1 USD per-piece cap.
+          Writes the mp4, <stem>.request.json and the provenance row (model, prompt, input image, seed, cost).
   batch   --jobs jobs.json [--workers 4]   up to 4 paid `image` calls at once (each job = one image argument list); same caps per call
   image   --prompt P --out pipeline/art/proof/ImageProof/<name>.png (proof images; shipped art goes under Art/) [--provider gemini|openai|openrouter|fal] [--tier draft|final] [--input OURS.png ...] [--model M]
           [--size WxH] [--aspect 4:1] [--image-size 0.5K|1K|2K|4K] [--seed S] [--quality low|medium|high]
@@ -890,12 +895,14 @@ def spend_reserve(cost, entry):
         if piece:
             ps = round(sum(float(c.get("cost_usd") or 0) for c in d["calls"]
                            if c.get("piece") == piece and not c.get("refunded")), 6)
-            if ps + cost > piece_cap() + 1e-9:
-                msg = (f"PIECE CAP: piece {piece} has spent ${ps:.3f} of the ${piece_cap():.2f} per-piece cap; this "
+            pcap = float(entry.pop("piece_cap", None) or piece_cap())   # video calls carry their own per-piece cap
+            if ps + cost > pcap + 1e-9:
+                msg = (f"PIECE CAP: piece {piece} has spent ${ps:.3f} of the ${pcap:.2f} per-piece cap; this "
                        f"call (${cost:.3f}) would pass it. triage art vs check before more spend. No call made")
                 log_piece_cap(entry.get("root") or os.getcwd(), f"piece={piece} provider={entry.get('provider')} {msg}")
                 raise ImageRefused(msg)
         entry.pop("root", None)
+        entry.pop("piece_cap", None)
         d["spent_usd"] = round(d["spent_usd"] + cost, 6)
         d["cap_usd"] = cap
         d["openrouter_cap_usd"] = openrouter_cap()
@@ -2082,6 +2089,140 @@ def cmd_fulfil(a, argv, root):
     return 1 if any(r["exit"] for r in results) else 0
 
 
+# ---------- video mode (artvideo trial): image-to-video on fal, Veo only ----------
+# Checked against fal's live model page (GET https://api.fal.ai/v1/models?endpoint_id=..., free) on Nov 13: fal-ai/veo3,
+# veo3/fast and veo2 image-to-video are "deprecated"; fal-ai/veo3.1/{,fast/,lite/}image-to-video are "active". Live prices
+# (GET /v1/models/pricing, key header, free): 0.40 / 0.15 / 0.05 USD per second. Fast is the fixed model. Anything else is refused.
+FAL_VIDEO_MODEL = "fal-ai/veo3.1/fast/image-to-video"
+FAL_QUEUE = "https://queue.fal.run/"
+FAL_API = "https://api.fal.ai/v1/"
+FAL_PRICE_FALLBACK = 0.15       # USD per second, used only when the live price cannot be read
+FAL_VIDEO_SECONDS = 4           # fal's shortest Veo 3.1 clip (4s, 6s, 8s); the trial uses its first ~2 s
+FAL_VIDEO_PIECE_CAP_USD = 1.00  # per-piece cap of a video piece, inside the fal cap (FAL_SPEND_CAP_USD) of the shared counter
+FAL_POLL_SECONDS = 5
+FAL_POLL_TRIES = 120
+FAL_INFO = {"name": "fal.ai (Google Veo 3.1 Fast, image-to-video)",
+            "licence": "fal.ai Terms of Service; output of Google Veo: Google generative AI terms (commercial use allowed on fal; "
+                       "SynthID watermark)"}
+VIDEO_PROMPT_SUFFIX = (" Flat solid chroma green background (pure #00FF00), the whole frame outside the character stays that "
+                       "one green, no floor, no shadows, no gradient, no text. Static locked camera, no zoom, no pan, no cut. "
+                       "The character stays in place and keeps her size; only a small gentle idle movement. No sound.")
+VIDEO_NEGATIVE = "camera movement, zoom, cut, text, subtitles, logo, background scenery, shadows on the background, people other than the character, sound"
+
+
+def fal_video_model(model):
+    if model != FAL_VIDEO_MODEL:
+        raise ImageRefused(f"VIDEO MODEL REFUSED: {model!r} is not the fixed video model {FAL_VIDEO_MODEL}; no fallback")
+    return model
+
+
+def _fal_get_json(url, key=None):
+    hdr = {"Authorization": f"Key {key}"} if key else {}
+    return json.loads(http_get(url, hdr))
+
+
+def fal_live_check(model, key):
+    """(unit USD per second, status) from fal's live pages. ImageRefused when the endpoint is not active."""
+    try:
+        d = _fal_get_json(f"{FAL_API}models?endpoint_id={model}")
+        status = ((d.get("models") or [{}])[0].get("metadata") or {}).get("status")
+    except Exception as e:   # noqa: BLE001
+        raise ImageRefused(f"the model page could not be read ({e}); no call made")
+    if status != "active":
+        raise ImageRefused(f"VIDEO MODEL NOT ACTIVE: fal lists {model} as {status!r}; no call made")
+    try:
+        d = _fal_get_json(f"{FAL_API}models/pricing?endpoint_id={model}", key)
+        price = float(d["prices"][0]["unit_price"])
+    except Exception:   # noqa: BLE001
+        price = FAL_PRICE_FALLBACK
+    return price, status
+
+
+def fal_video_request(model, prompt, image_path, seed, key):
+    """Submit, poll, return (mp4 bytes, reply dict). Audio off. The key only goes in the Authorization header."""
+    import base64
+    hdr = {"Authorization": f"Key {key}", "Content-Type": "application/json"}
+    uri = "data:image/png;base64," + base64.b64encode(open(image_path, "rb").read()).decode()
+    body = {"prompt": prompt, "image_url": uri, "duration": f"{FAL_VIDEO_SECONDS}s", "generate_audio": False,
+            "resolution": "720p", "aspect_ratio": "16:9", "negative_prompt": VIDEO_NEGATIVE, "seed": seed,
+            "auto_fix": False}
+    sub = json.loads(http_post(FAL_QUEUE + model, hdr, json.dumps(body).encode()))
+    status_url, result_url = sub["status_url"], sub["response_url"]
+    for _ in range(FAL_POLL_TRIES):
+        st = json.loads(http_get(status_url, hdr))
+        if st.get("status") == "COMPLETED":
+            break
+        if st.get("status") not in ("IN_QUEUE", "IN_PROGRESS"):
+            raise RuntimeError(f"fal status {st.get('status')}: {str(st)[:200]}")
+        if not os.environ.get("ASSETGEN_HTTP_STUB"):
+            time.sleep(FAL_POLL_SECONDS)
+    else:
+        raise RuntimeError("fal: the video was not ready in time (cost kept: it may be billed)")
+    res = json.loads(http_get(result_url, hdr))
+    vurl = (res.get("video") or {}).get("url")
+    if not vurl:
+        raise RuntimeError(f"fal: no video in the reply: {str(res)[:200]}")
+    return http_get(vurl, {}), {"request_id": sub.get("request_id"), "video": {k: v for k, v in res["video"].items() if k != "url"}}
+
+
+def cmd_video(a, argv, root):
+    try:
+        return cmd_video_model(a, argv, root)
+    except ImageRefused as e:
+        print(f"REFUSED: video: {e}")
+        return 2
+
+
+def cmd_video_model(a, argv, root):
+    """One paid image-to-video clip. Order: model fixed, input guarded, key, live price, cap reserved, call, provenance."""
+    fal_video_model(a.model or FAL_VIDEO_MODEL)
+    piece = (a.piece or "").strip()
+    if not piece:
+        raise ImageRefused("PIECE REQUIRED: every paid video call names its piece (--piece <id>); no call made")
+    why = refuse_prejam_input(root, a.input)
+    if why:
+        raise ImageRefused(f"PRE-JAM INPUT REFUSED: {why}. GDD ART-03: only in-jam images we made may be inputs")
+    k = keys.get("FAL_KEY")
+    if not k:
+        raise ImageRefused("NO KEY: FAL_KEY is not set, so no video was made")
+    price, _ = fal_live_check(FAL_VIDEO_MODEL, k)
+    cost = round(price * FAL_VIDEO_SECONDS, 6)
+    seed = a.seed if a.seed is not None else 7
+    prompt = a.prompt.strip() + VIDEO_PROMPT_SUFFIX
+    entry = {"provider": "fal", "model": FAL_VIDEO_MODEL, "kind": "video", "out": rel(a.out, root), "inputs": 1,
+             "piece": piece, "root": root, "piece_cap": FAL_VIDEO_PIECE_CAP_USD, "worker": os.path.basename(root),
+             "role": os.environ.get("JAM_ROLE"), "seconds": FAL_VIDEO_SECONDS, "unit_usd_per_s": price}
+    idx, spent, cap = spend_reserve(cost, entry)
+    try:
+        data, meta = fal_video_request(FAL_VIDEO_MODEL, prompt, a.input, seed, k)
+    except Exception as e:   # noqa: BLE001
+        code = getattr(e, "code", None)
+        refused = isinstance(code, int) and 400 <= code < 500   # rejected before generation: not billed
+        spent = spend_settle(idx, "failed", refund=refused, error=api_error(e) if code else str(e)[:200])
+        print(f"FAIL: video fal {FAL_VIDEO_MODEL}: {api_error(e) if code else e}; counter ${spent:.3f} of ${cap:.2f}"
+              + (" (refunded: the provider refused the request)" if refused else " (cost kept: it may be billed)"))
+        return 1
+    os.makedirs(os.path.dirname(os.path.abspath(a.out)), exist_ok=True)
+    with open(a.out, "wb") as fh:
+        fh.write(data)
+    spent = spend_settle(idx, "done", cost=cost, model_version=FAL_VIDEO_MODEL)
+    req = os.path.splitext(a.out)[0] + ".request.json"
+    with open(req, "w", encoding="utf-8") as fh:
+        json.dump({"provider": "fal", "model": FAL_VIDEO_MODEL, "prompt": prompt, "negative_prompt": VIDEO_NEGATIVE,
+                   "seed": seed, "duration_s": FAL_VIDEO_SECONDS, "generate_audio": False, "resolution": "720p",
+                   "aspect_ratio": "16:9", "input_image": rel(a.input, root), "unit_usd_per_s": price,
+                   "cost_usd": cost, "reply": meta, "date": now_iso()}, fh, indent=1)
+        fh.write("\n")
+    write_provenance(root, a.out, "fal-video", prompt, FAL_VIDEO_MODEL, inputs=[a.input], origin="generated in jam",
+                     info=FAL_INFO, seed=seed,
+                     note=f"video model fal {FAL_VIDEO_MODEL}, {FAL_VIDEO_SECONDS} s, audio off; ${cost:.3f} counted against the "
+                          f"fal image cap; full request in {rel(req, root)}")
+    log_image_prompt(root, prompt, "fal", FAL_VIDEO_MODEL, a.out, cost)
+    print(f"VIDEO {rel(a.out, root)} via=fal model={FAL_VIDEO_MODEL} {len(data)} bytes seed={seed} cost=${cost:.3f} "
+          f"spent=${spent:.3f} of ${cap:.2f}")
+    return 0
+
+
 def parser():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -2104,6 +2245,13 @@ def parser():
     p.add_argument("--element", choices=tuple(ELEMENT_ROLE))
     p.add_argument("--character", help="a recipe in pipeline/art/blender/characters.json (default: by element)")
     p.add_argument("--anim", help="the recipe row (default: Still, else the first)")
+    p.add_argument("--seed", type=int)
+    p = sub.add_parser("video")
+    p.add_argument("--prompt", required=True, help="how the still moves; the chroma-green background text is added")
+    p.add_argument("--input", required=True, help="an in-jam still of ours (pre-jam images are refused)")
+    p.add_argument("--out", required=True)
+    p.add_argument("--piece", help="the video piece id (its own 1 USD cap in the shared counter)")
+    p.add_argument("--model", help=f"only {FAL_VIDEO_MODEL} is accepted")
     p.add_argument("--seed", type=int)
     p = sub.add_parser("batch")
     p.add_argument("--jobs", required=True, help="JSON list; each job is one `image` argument list (paid providers only)")
@@ -2188,7 +2336,7 @@ def parser():
     return ap
 
 
-CMDS = {"image": cmd_image, "batch": cmd_batch, "clean": cmd_clean, "sheet": cmd_sheet, "blender": cmd_blender,
+CMDS = {"image": cmd_image, "video": cmd_video, "batch": cmd_batch, "clean": cmd_clean, "sheet": cmd_sheet, "blender": cmd_blender,
         "frames": cmd_frames, "image-models": cmd_image_models, "crop": cmd_crop,
         "sfx": lambda a, v, r: cmd_audio(a, v, r), "music": lambda a, v, r: cmd_audio(a, v, r, music=True),
         "edit": cmd_edit, "capture": cmd_capture, "cut": cmd_cut, "zip": cmd_zip, "fulfil": cmd_fulfil}

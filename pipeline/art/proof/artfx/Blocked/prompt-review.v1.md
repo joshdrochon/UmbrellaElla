@@ -1,0 +1,4 @@
+ROLE: Art Director | session 2026-11-12 (fresh review of prompt.v1.txt, no image call)
+
+Verdict: apply fixes. 'Ella' and 'shield' removed (would paint a character or heraldic shield with an emblem); ring kept empty-centred so it cuts cleanly; star head meets the ring from the left as in the shot studies (wand-star, 4 long and 4 short points). Gold-only palette matches Palette accents.
+Common fixes: aspect stated (wide 16:9, clear green round each frame); ink 'wide relative to the shape' made relative (a tenth of width) with hairline ink for tiny sparks so frame 4 stays coloured; positive phrasing for the tail and perspective clauses. Kept: narrative, pose first, one style block, centres at 1/8..7/8, ink #171614 and palette per art-bible. Risk: judge at gameplay size, hatching may read as a sticker.

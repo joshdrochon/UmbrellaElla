@@ -1,0 +1,32 @@
+{
+ "element": "vfx-clock-beat",
+ "note": "crops of the effect cut from the concept sheets; originals untouched",
+ "crops": [
+  {
+   "file": "shot-row.png",
+   "source": "pipeline/art/reference/discord/20261110-0800_Ricky_1.png",
+   "box": [
+    570,
+    270,
+    1160,
+    330
+   ],
+   "key": "red",
+   "pieces": "all",
+   "opaque_px": 17391
+  },
+  {
+   "file": "hand-arc.png",
+   "source": "pipeline/art/reference/discord/20261110-0800_Ricky_1.png",
+   "box": [
+    1190,
+    160,
+    1370,
+    300
+   ],
+   "key": "red",
+   "pieces": "all",
+   "opaque_px": 22108
+  }
+ ]
+}

@@ -1,0 +1,36 @@
+{
+ "provider": "gemini",
+ "tool": "Gemini API image generation (Google)",
+ "model": "gemini-3.1-flash-image-preview",
+ "model_version": "gemini-3.1-flash-image-preview",
+ "prompt": "Four animation frames of a thin shaft of light falling into the abyss, painted as a two by two grid of four equal panels in one 16:9 picture, each panel filling its quarter of the picture edge to edge, with no borders or gaps between panels, flat face-on with no perspective. Each panel shows one narrow column of light falling straight down from the top edge to the bottom edge, built from many parallel engraved rays of pale cream #FFF5DC and warm gold #E9C46A, fine hatched lines brightest in the middle of the column and breaking into short dashes toward both sides, with a few drifting dust specks inside it. The column is thin, about one fifth of the panel width, with empty dark space on both sides. The column stands in exactly the same place in every panel: centred horizontally, one single column per panel, the same width and the same height, falling from the top edge to the bottom edge. Across the four panels the rays shift sideways a little and the dust drifts downward, so the sequence loops smoothly. Style: a dark painterly etched storybook illustration, ink and wash with fine etched cross-hatching and a faint paper grain, every mark engraved and hand-inked, never a smooth airbrushed gradient. The panel background is pure flat black #000000 everywhere outside the rays, with the rays glowing against it. The image contains only the four panels, with text, labels, grid lines, frames and watermark all absent.",
+ "seed": "",
+ "size": "1024x1024",
+ "quality": "medium",
+ "aspect_ratio": "16:9",
+ "image_size": "1K",
+ "input_images": [],
+ "cost_usd": 0.067155,
+ "reply": {
+  "usage": {
+   "promptTokenCount": 310,
+   "candidatesTokenCount": 1426,
+   "totalTokenCount": 1736,
+   "promptTokensDetails": [
+    {
+     "modality": "TEXT",
+     "tokenCount": 310
+    }
+   ],
+   "candidatesTokensDetails": [
+    {
+     "modality": "IMAGE",
+     "tokenCount": 1120
+    }
+   ],
+   "serviceTier": "standard"
+  },
+  "finish": "STOP"
+ },
+ "date": "2026-11-13T08:45+00:00"
+}

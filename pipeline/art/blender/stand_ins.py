@@ -14,7 +14,7 @@ import math
 import random
 
 import bpy  # noqa: F401  (Blender only)
-from mathutils import Quaternion, Vector
+from mathutils import Matrix, Quaternion, Vector
 
 AXIS = Vector((0.0, -1.0, 0.0))   # the picture-plane normal toward the camera: positive angle = counter-clockwise
 
@@ -83,6 +83,8 @@ def materials(colours, look):
     return {
         "ink": toon("ink", shades, look),
         "feather": toon("feather", [c("silhouette"), c("owl-umber"), c("owl-feather")], look),
+        "cloth": toon("cloth", [c("paper-stain"), c("paper-mid"), c("paper-light")], dict(look, grain=0.38)),
+        "hair": toon("hair", [c("owl-umber"), c("paper-stain"), c("paper-mid")], dict(look, grain=0.38)),
         "stripe": toon("stripe", [c("ink"), c("ink"), c("silhouette")], look),
         "gold": glow("gold", c("gold", "#e9b04a")),
         "amber": glow("amber", c("amber-eye", "#c8862a")),
@@ -167,49 +169,126 @@ def pose(arm, p, ppu, extra=None):
 
 
 # ---------- characters ----------
+def _jag(ob, rnd, amt, below):
+    """Ragged hem: push the lowest ring's vertices in and out (before transform_apply)."""
+    for v in ob.data.vertices:
+        if v.co.z < below:
+            k = 1.0 + rnd.uniform(-amt, amt)
+            v.co.x *= k
+            v.co.y *= k
+            v.co.z += rnd.uniform(-amt, amt) * 0.25
+
+
 def build_ella(m, rnd):
+    """Ella (GDD SH1.0 ART-06): bent pointed hat, long hair and torn scarf, layered ragged skirt, laced boots, a
+    slender ribbed umbrella with a scalloped rim, crown finial and diamond terminal, one raised hand on the shaft."""
     r = Rig("Ella")
     r.bone("body", (0, 0, -0.2), (0, 0, 0.7))
     r.bone("skirt", (0, 0, 0.0), (0, 0, -0.9), "body")
     r.bone("umbrella_arm", (0.12, 0, 0.52), (0.14, 0, 0.97), "body")
     r.bone("canopy", (0.15, 0, 2.0), (0.15, 0, 1.55), "umbrella_arm")
     r.bone("wand_arm", (0.05, 0, 0.5), (0.05, 0, 0.1), "body")
-    ink, stripe, gold = m["ink"], m["stripe"], m["gold"]
-    r.add("primitive_cone_add", "skirt", ink, loc=(0, 0, -0.45), vertices=14, radius1=0.56, radius2=0.17, depth=1.0)
-    for i, x in enumerate((-0.12, 0.13)):   # ragged hem
-        r.add("primitive_cone_add", "skirt", ink, loc=(x * 3.4, 0, -0.98), rot=(0, 0.5 - i, 0), vertices=3,
-              radius1=0.12, radius2=0.0, depth=0.3)
-    for x in (-0.09, 0.1):
-        r.add("primitive_cylinder_add", "body", ink, loc=(x, 0, -1.08), vertices=8, radius=0.045, depth=0.3)
-        r.add("primitive_cube_add", "body", ink, loc=(x + 0.06, 0, -1.24), size=1, scale=(0.18, 0.08, 0.07))
-    r.add("primitive_cylinder_add", "body", ink, loc=(0, 0, 0.32), vertices=12, radius=0.17, depth=0.58)
-    r.add("primitive_uv_sphere_add", "body", ink, loc=(0.02, 0, 0.84), segments=16, ring_count=10, radius=0.23)
-    r.add("primitive_uv_sphere_add", "body", ink, loc=(-0.14, 0, 0.74), segments=12, ring_count=8, radius=0.2,
-          scale=(1.0, 0.8, 1.35))   # hair
-    r.add("primitive_cylinder_add", "body", ink, loc=(0.0, 0, 1.0), rot=(0, -0.12, 0), vertices=20, radius=0.44,
-          depth=0.035)   # hat brim
-    r.add("primitive_cone_add", "body", ink, loc=(-0.08, 0, 1.3), rot=(0, -0.42, 0), vertices=12, radius1=0.24,
-          radius2=0.0, depth=0.62)
-    r.add("primitive_uv_sphere_add", "body", m["amber"], loc=(0.2, -0.2, 0.86), segments=8, ring_count=6,
-          radius=0.03)   # the eye glint the references show
-    # umbrella: arm, shaft, striped canopy (alternate faces), hook handle
-    r.add("primitive_cylinder_add", "umbrella_arm", ink, loc=(0.13, 0, 0.74), vertices=8, radius=0.05, depth=0.46)
-    r.add("primitive_cylinder_add", "umbrella_arm", ink, loc=(0.15, 0, 1.38), vertices=8, radius=0.022, depth=1.3)
-    r.add("primitive_torus_add", "umbrella_arm", ink, loc=(0.22, 0, 0.74), rot=(math.pi / 2, 0, 0),
-          major_radius=0.07, minor_radius=0.018, major_segments=12, minor_segments=6)
-    can = r.add("primitive_cone_add", "canopy", ink, loc=(0.15, 0, 1.78), vertices=16, radius1=1.0, radius2=0.03,
-                depth=0.44)
+    ink, stripe, gold, feather = m["hair"], m["stripe"], m["gold"], m["cloth"]
+    pi = math.pi
+    # ragged layered skirt: five stacked tiers, each wider and torn, over the legs
+    for i in range(5):
+        z = 0.02 - 0.19 * i
+        rad = 0.30 + 0.085 * i
+        t = r.add("primitive_cone_add", "skirt", feather if i % 2 else ink, loc=(-0.02 * i, 0, z - 0.2),
+                  vertices=18, radius1=rad, radius2=0.17 + 0.02 * i, depth=0.4)
+        _jag(t, rnd, 0.22, -0.15)
+    for k in range(7):   # torn points that hang below the last tier
+        x = -0.34 + 0.115 * k
+        r.add("primitive_cone_add", "skirt", ink, loc=(x, rnd.uniform(-0.1, 0.1), -0.98 - rnd.uniform(0.0, 0.1)),
+              rot=(pi, rnd.uniform(-0.25, 0.25), 0), vertices=3, radius1=0.07, radius2=0.0, depth=0.26)
+    # legs and laced boots
+    for x, dz, bend in ((-0.09, 0.0, 0.0), (0.05, 0.1, 0.9)):   # second knee bent: she is airborne, not standing
+        r.add("primitive_cylinder_add", "body", feather, loc=(x, 0, -1.1 + dz), vertices=8, radius=0.05, depth=0.36)
+        sx = -0.17 * math.sin(bend)
+        r.add("primitive_cylinder_add", "body", ink, loc=(x + sx, 0, -1.3 + dz + 0.04 * bend), rot=(0, -bend * 0.5, 0),
+              vertices=8, radius=0.062, depth=0.26)
+        r.add("primitive_cube_add", "body", ink, loc=(x + sx * 1.6 + 0.07, 0, -1.42 + dz + 0.09 * bend),
+              rot=(0, -bend * 0.5, 0), size=1, scale=(0.22, 0.09, 0.09))
+        for q in range(3):
+            r.add("primitive_torus_add", "body", gold, loc=(x + sx * 0.8, 0, -1.22 + dz - 0.06 * q),
+                  major_radius=0.066, minor_radius=0.008, major_segments=10, minor_segments=4)
+    # torso, belt, shoulder
+    r.add("primitive_cylinder_add", "body", feather, loc=(0, 0, 0.32), vertices=14, radius=0.17, depth=0.62,
+          scale=(1.0, 0.7, 1.0))
+    r.add("primitive_cylinder_add", "body", gold, loc=(0, 0, 0.12), vertices=14, radius=0.178, depth=0.05,
+          scale=(1.0, 0.72, 1.0))   # belt
+    r.add("primitive_uv_sphere_add", "body", ink, loc=(0.1, 0, 0.58), segments=10, ring_count=6, radius=0.11)
+    # head, mask, hair
+    r.add("primitive_uv_sphere_add", "body", ink, loc=(0.02, 0, 0.84), segments=16, ring_count=10, radius=0.2)
+    r.add("primitive_cylinder_add", "body", feather, loc=(0.08, -0.12, 0.8), rot=(pi / 2, 0, 0), vertices=10,
+          radius=0.12, depth=0.1)   # cloth mask over the lower face
+    r.add("primitive_uv_sphere_add", "body", m["amber"], loc=(0.16, -0.17, 0.89), segments=8, ring_count=6,
+          radius=0.028)   # the eye glint the references show
+    for k in range(7):   # long hair streaming back in the wind, in wavy cones
+        y = rnd.uniform(-0.05, 0.05)
+        ln = 0.7 + rnd.uniform(0.0, 0.4)
+        r.add("primitive_cone_add", "body", feather if k % 2 else ink, loc=(-0.2 - 0.35 * ln, y, 0.7 - 0.07 * k),
+              rot=(0, pi / 2 + 0.28 + 0.05 * k, 0), vertices=5, radius1=0.05, radius2=0.0, depth=ln)
+    # torn scarf: a flat ribbon blown back, with ragged points
+    for k in range(3):
+        r.add("primitive_cube_add", "body", feather, loc=(-0.3 - 0.27 * k, 0.02, 0.58 - 0.07 * k),
+              rot=(0, 0.3 + 0.12 * k, 0), size=1, scale=(0.34, 0.02, 0.15 - 0.03 * k))
+        r.add("primitive_cone_add", "body", feather, loc=(-0.5 - 0.27 * k, 0.02, 0.52 - 0.1 * k),
+              rot=(0, pi / 2 + 0.35, 0), vertices=3, radius1=0.07, radius2=0.0, depth=0.22)
+    # hat: wide curved brim, then a pointed cone bent over in three sections
+    r.add("primitive_cylinder_add", "body", ink, loc=(0.0, 0, 1.02), rot=(0, -0.14, 0), vertices=24, radius=0.46,
+          depth=0.03, scale=(1.0, 0.55, 1.0))
+    r.add("primitive_cone_add", "body", ink, loc=(-0.02, 0, 1.2), rot=(0, -0.1, 0), vertices=14, radius1=0.25,
+          radius2=0.17, depth=0.3)
+    r.add("primitive_cone_add", "body", feather, loc=(-0.1, 0, 1.45), rot=(0, -0.45, 0), vertices=14, radius1=0.17,
+          radius2=0.1, depth=0.3)
+    r.add("primitive_cone_add", "body", ink, loc=(-0.31, 0, 1.65), rot=(0, -0.95, 0), vertices=12, radius1=0.1,
+          radius2=0.0, depth=0.42)
+    r.add("primitive_torus_add", "body", gold, loc=(-0.02, 0, 1.08), major_radius=0.25, minor_radius=0.014,
+          major_segments=16, minor_segments=4)   # hat band
+    # umbrella: sleeve, raised hand, slender shaft, diamond terminal below the hand
+    r.add("primitive_cylinder_add", "umbrella_arm", ink, loc=(0.13, 0, 0.74), vertices=8, radius=0.055, depth=0.5)
+    r.add("primitive_uv_sphere_add", "umbrella_arm", feather, loc=(0.15, 0, 0.98), segments=8, ring_count=6,
+          radius=0.06)   # hand
+    r.add("primitive_cylinder_add", "umbrella_arm", gold, loc=(0.15, 0, 1.38), vertices=8, radius=0.02, depth=1.3)
+    r.add("primitive_cone_add", "umbrella_arm", gold, loc=(0.15, 0, 0.62), rot=(pi, 0, 0), vertices=4,
+          radius1=0.05, radius2=0.0, depth=0.16)   # diamond terminal: two cones
+    r.add("primitive_cone_add", "umbrella_arm", gold, loc=(0.15, 0, 0.7), vertices=4, radius1=0.05, radius2=0.0,
+          depth=0.12)
+    # canopy: 16 ribbed gores alternating stripe/ink, scalloped rim, rib tips, crown finial
+    can = r.add("primitive_cone_add", "canopy", ink, loc=(0.15, 0, 1.78), vertices=16, radius1=1.05, radius2=0.03,
+                depth=0.46)
     can.data.materials.append(stripe)
+    for v in can.data.vertices:
+        if v.co.z < -0.2:   # scallop: every second rim vertex pulled up and in
+            idx = v.index
+            if idx % 2:
+                v.co.z += 0.07
+                v.co.x *= 0.93
+                v.co.y *= 0.93
     for i, poly in enumerate(can.data.polygons):
         poly.material_index = i % 2
-    r.add("primitive_cone_add", "canopy", ink, loc=(0.15, 0, 2.07), vertices=6, radius1=0.03, radius2=0.0,
-          depth=0.16)   # ferrule
-    for k in range(8):   # rib tips under the rim, so the open canopy reads ragged in silhouette
-        a = 2 * math.pi * k / 8
-        r.add("primitive_cone_add", "canopy", ink, loc=(0.15 + 0.98 * math.cos(a), 0.98 * math.sin(a), 1.55),
-              vertices=3, radius1=0.035, radius2=0.0, depth=0.12)
-    # the free arm (GDD SH1.0 ART-06: no wand; spells leave the canopy, card 0.38 adds the second hand on the shaft)
-    r.add("primitive_cylinder_add", "wand_arm", ink, loc=(0.05, 0, 0.3), vertices=8, radius=0.045, depth=0.42)
+    rim = 16
+    for k in range(rim):
+        a = 2 * pi * k / rim
+        dx, dy, dz = 1.05 * math.cos(a), 1.05 * math.sin(a), -0.46
+        ln = math.sqrt(dx * dx + dy * dy + dz * dz)
+        r.add("primitive_cylinder_add", "canopy", gold, loc=(0.15 + dx / 2, dy / 2, 2.0 + dz / 2 - 0.02),
+              rot=(0, math.acos(dz / ln), math.atan2(dy, dx)), vertices=4, radius=0.012, depth=ln)
+        r.add("primitive_cone_add", "canopy", gold, loc=(0.15 + 1.03 * math.cos(a), 1.03 * math.sin(a), 1.56),
+              rot=(pi, 0, 0), vertices=3, radius1=0.04, radius2=0.0, depth=0.12)
+    r.add("primitive_cone_add", "canopy", gold, loc=(0.15, 0, 2.06), vertices=4, radius1=0.045, radius2=0.0,
+          depth=0.2)   # crown finial
+    r.add("primitive_uv_sphere_add", "canopy", gold, loc=(0.15, 0, 2.0), segments=8, ring_count=6, radius=0.04)
+    # the free arm: sleeve and hand, lifted behind the body
+    r.add("primitive_cylinder_add", "wand_arm", ink, loc=(0.05, 0, 0.3), vertices=8, radius=0.05, depth=0.42)
+    r.add("primitive_uv_sphere_add", "wand_arm", feather, loc=(0.05, 0, 0.08), segments=8, ring_count=6, radius=0.055)
+    lean = 0.2   # airborne lean: the figure hangs diagonally from the raised umbrella, not upright
+    rot = Matrix.Rotation(lean, 3, "Y")
+    for name, (h, t, par) in list(r.bones.items()):
+        r.bones[name] = (rot @ h, rot @ t, par)
+    for ob, _ in r.parts:
+        ob.data.transform(rot.to_4x4())
     return r.build(), {}
 
 
