@@ -1,6 +1,7 @@
 """Loop recipes for the sndworld lane (sndworld_build.py). One per sound id; edit between critic rounds.
 seconds: loop length. rms_db: the file's level (audio_check: every ambience loop within 3 dB of the family median).
 Layer with "hits": one-shot samples on a time grid; any other layer is a continuous bed.
+Stem levels: the approved MusicTitle sits at RMS -27.0, so the stems are -26 / -25 / -24 (family median within 3 dB of all four).
 Music tempo: 75 BPM (beat 0.8 s); the three stems are 40 beats = 32.0 s; ClockTickLoop ticks on the same beat."""
 BEAT = 0.8
 
@@ -118,5 +119,37 @@ RECIPES = {
               "hits": [[i * 0.6 + 0.2, 0 if i % 2 == 0 else -4, i % 2] for i in range(40)]},
    "chime": {"from": ["RefugeLoop", "bell", 0], "rate": 2.0, "trim": 2.2, "start_db": -35, "filter": "highpass=f=300,lowpass=f=4500", "peak_db": -15, "pan": -0.3,
              "hits": [[4.0, 0], [5.0, -3], [15.0, -2], [16.0, -5], [17.0, -8]]},
+  }},
+ # Fight music stems: vertical layers, one tempo (75 BPM), one key (D minor), one length (20 beats = 16.0 s, 5 bars).
+ "MusicIntro": {
+  "seconds": 20 * BEAT, "rms_db": -26.0,
+  "layers": {
+   "score": {"kind": "music", "prompt": "slow gothic orchestral horror underscore, 75 BPM, D minor: sustained low cello and double bass drone, eerie viola sul ponticello swells in the middle register, a distant church bell every two bars, hushed wordless choir far away, sparse and uneasy, large cathedral reverb, instrumental, no drums, no lyrics, plays at full level to the very end with no fade out",
+             "secs": 23, "cand": 1, "skip": 0.3, "skip_end": 3.4, "xfade": 2.5, "swell": 0.45, "filter": "highpass=f=140,highpass=f=140,lowshelf=g=-10:f=260,equalizer=f=900:t=q:w=1:g=4", "level_db": -24},
+   "pulse": {"from": ["ClockTickLoop", "tick", 0], "cuts": [0.585], "rate": 0.6, "trim": 0.4, "decay": 5, "filter": "highpass=f=120,lowpass=f=6000", "peak_db": -5, "pan": 0.2,
+             "hits": [[i * BEAT, 0 if i % 4 == 0 else -3] for i in range(20)]},
+   "knock": {"from": ["ClockTickLoop", "body", 0], "trim": 0.45, "start_db": -60, "peak_db": -12, "pan": 0.2,
+             "hits": [[i * BEAT, 0 if i % 4 == 0 else -3] for i in range(20)]},
+  }},
+ "MusicContest": {
+  "seconds": 20 * BEAT, "rms_db": -25.0,
+  "layers": {
+   "score": {"kind": "music", "prompt": "gothic orchestral battle music, 75 BPM, D minor, 4/4: driving low brass ostinato of horns and trombones, spiccato strings on every beat, rising wordless mixed choir, timpani hits on each downbeat, a church bell on each phrase, dark and urgent, large hall reverb, instrumental, no lyrics, no electronic sounds, plays at full level to the very end with no fade out",
+             "secs": 23, "skip": 0.3, "skip_end": 3.4, "xfade": 2.5, "swell": 0.3, "filter": "highpass=f=60,lowshelf=g=-6:f=200", "level_db": -23},
+   "pulse": {"from": ["ClockTickLoop", "tick", 0], "cuts": [0.585], "rate": 0.6, "trim": 0.4, "decay": 5, "filter": "highpass=f=120,lowpass=f=6000", "peak_db": -8, "pan": 0.2,
+             "hits": [[i * BEAT, 0 if i % 4 == 0 else -3] for i in range(20)]},
+   "knock": {"from": ["AirMillLoop", "thunk", 0], "trim": 0.55, "start_db": -60, "peak_db": -12, "pan": 0.0,
+             "hits": [[i * 4 * BEAT, 0] for i in range(5)]},
+  }},
+ "MusicDesperation": {
+  "seconds": 20 * BEAT, "rms_db": -24.0,
+  "layers": {
+   "score": {"kind": "music", "prompt": "climactic gothic orchestral horror music, 75 BPM, D minor, 4/4: frantic high violin tremolo, full wordless choir, clustered church bells, brass stabs, timpani rolls, anvil-like metal hits on the off-beats, dread at its height, cathedral reverb, instrumental, no lyrics, no electronic sounds, plays at full level to the very end with no fade out",
+             "secs": 23, "skip": 6.0, "skip_end": 7.4, "xfade": 1.6, "swell": 0.4,   # full band only from 6.0 to 15.6 s: a 10-beat loop, played twice
+             "filter": "highpass=f=60,lowshelf=g=-4:f=200", "level_db": -22},
+   "ratchet": {"from": ["ClockTickLoop", "tick", 0], "cuts": [0.585, 0.863], "rate": 0.45, "trim": 0.3, "decay": 9, "filter": "highpass=f=200,lowpass=f=6000", "peak_db": -4, "pan": -0.2,
+               "hits": [[i * BEAT + BEAT / 2, 0, i % 2] for i in range(20)]},
+   "anvil": {"from": ["AirMillLoop", "thunk", 0], "trim": 0.55, "start_db": -60, "peak_db": -11, "pan": -0.2,
+             "hits": [[i * BEAT + BEAT / 2, 0] for i in range(20)]},
   }},
 }

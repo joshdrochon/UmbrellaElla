@@ -62,7 +62,7 @@ def bed(src, spec, L, out):
     """A continuous layer made exactly L seconds long and periodic: trim the generator's own fade in and out, filter,
     set the level, then crossfade the last X seconds into the first X (equal power)."""
     skip, X = spec.get("skip", 0.4), spec.get("xfade", 3.0)
-    flt = f"aformat=sample_fmts=flt:sample_rates={RATE}:channel_layouts=mono,atrim={skip}:{dur(src) - skip},asetpts=N/SR/TB,{spec.get('filter', 'anull')}"
+    flt = f"aformat=sample_fmts=flt:sample_rates={RATE}:channel_layouts=mono,atrim={skip}:{dur(src) - spec.get('skip_end', skip)},asetpts=N/SR/TB,{spec.get('filter', 'anull')}"
     tmp = out.with_suffix(".pre.wav")
     ff(["-i", str(src), "-af", flt, "-c:a", "pcm_f32le", str(tmp)], "bed filter")
     mean, mx = levels(tmp)
@@ -77,6 +77,9 @@ def bed(src, spec, L, out):
             f"[a1][b1]acrossfade=d={X}:c1=qsin:c2=qsin,aloop=loop=-1:size={int(P * RATE)},atrim=0:{2 * L + 3 * X}",
             "-c:a", "pcm_f32le", str(nxt)], "bed tile")
         cur = nxt
+        if abs(L / P - round(L / P)) < 1e-6:      # L is a whole number of that loop: it is already periodic, just cut it
+            ff(["-i", str(cur), "-af", f"volume={gain}dB,atrim=end_sample={int(L * RATE)}", "-c:a", "pcm_f32le", str(out)], "bed cut")
+            return                                # (an equal-power crossfade of a signal with itself would bump the level)
     ff(["-i", str(cur), "-filter_complex",
         f"[0]asplit[a][b];[a]atrim={X}:{L + X},asetpts=N/SR/TB[a1];[b]atrim=0:{X},asetpts=N/SR/TB[b1];"
         f"[a1][b1]acrossfade=d={X}:c1=qsin:c2=qsin,volume={gain}dB,atrim=end_sample={int(L * RATE)},asetpts=N/SR/TB"
@@ -134,7 +137,8 @@ def build(sid, cand=0):
         import math
         a = (p + 1) * math.pi / 4
         ins += ["-i", str(lay)]
-        chains.append(f"[{i}:a]volume={spec.get('gain_db', 0)}dB,pan=stereo|c0={math.cos(a):.4f}*c0|c1={math.sin(a):.4f}*c0[l{i}]")
+        sw = f"volume='1-{spec['swell']}*cos(2*PI*t/{L})':eval=frame," if spec.get("swell") else ""   # one slow swell per loop, periodic
+        chains.append(f"[{i}:a]{sw}volume={spec.get('gain_db', 0)}dB,pan=stereo|c0={math.cos(a):.4f}*c0|c1={math.sin(a):.4f}*c0[l{i}]")
         labs.append(f"[l{i}]")
     n = len(labs)
     g = ";".join(chains) + ";" + "".join(labs) + f"amix=inputs={n}:normalize=0:duration=first,{rec.get('post', 'anull')},atrim=end_sample={N}"
