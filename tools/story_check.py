@@ -322,7 +322,11 @@ def line_problems(rows, bible, rules, nar_ok):
             continue
         out += text_problems(text, where, rules, bible)
         words = len(WORD.findall(text))
-        if sf and words > sf["max_words"]:
+        cap = sf["max_words"] if sf else 0
+        ex = (rules.get("length_exceptions") or {}).get(r["id"])
+        if ex and ex.get("why"):
+            cap = max(cap, int(ex["max_words"]))
+        if sf and words > cap:
             out.append(("length", where, f"{words} words; a {r['surface']} allows {sf['max_words']}"))
         for fid, rx, why in contra:
             if rx.search(text):

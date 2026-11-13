@@ -473,7 +473,7 @@ void USettingsMenuWidget::AddControllerBody()
 	{
 		BodyBox->AddSlot().AutoHeight().Padding(SettingsLayout::RowPadding)
 		[
-			Label(LOCTEXT("Conflict", "Shoot and Absorb share a key. The four flight modes need them apart. Reset bindings to recover."), Size, Warn())
+			Label(LOCTEXT("Conflict", "Shoot and Absorb share a key. Give one of them a different key."), Size, Warn())
 		];
 	}
 	BodyBox->AddSlot().AutoHeight().Padding(SettingsLayout::RowPadding)
@@ -507,8 +507,8 @@ void USettingsMenuWidget::AddGameOptionsBody()
 	BodyBox->AddSlot().AutoHeight().Padding(SettingsLayout::RowPadding)
 	[
 		Label(bEditable
-			? LOCTEXT("DevNote", "Developer options (Director's Cut only). Save applies them to this session; 100% is as tuned.")
-			: LOCTEXT("DevNoteLocked", "Developer options (Director's Cut only). They can be changed in the tester build."), Size, Gold())
+			? LOCTEXT("DevNote", "Developer options (Director's Cut only). Save applies them to this session; 100% is the usual value.")
+			: LOCTEXT("DevNoteLocked", "Developer options (Director's Cut only). They can be changed in Director's Cut."), Size, Gold())
 	];
 	const USettingsMenuSubsystem* Subsystem = Owner.Get();
 	int32 BaseRetryLives = 0;
@@ -615,7 +615,7 @@ void USettingsMenuWidget::AddGameOptionsBody()
 				return FReply::Handled();
 			}))
 			[
-				Label(LOCTEXT("ResetDev", "Reset to as tuned"), Size, Gold())
+				Label(LOCTEXT("ResetDev", "Reset to usual"), Size, Gold())
 			]
 		];
 	}
