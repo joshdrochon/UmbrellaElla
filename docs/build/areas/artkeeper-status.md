@@ -36,3 +36,7 @@ Stuck rule: critic gap unchanged 3 rounds (deterministic score best 0.716): NEED
 ## Round 4 (Nov 13), cost $0.144, spent 3.238 of 33.82
 - Big gain: riveted perforated vane wings, round owl head, clock, three mechanisms spread front/middle/rear with underside eyes. Gaps: chains do not converge on a top-of-head eye (gear chain starts at the tail, armillary chain at the brow); cell 1 wing tip touches the top edge.
 - Next: cut cells (crop divider lines), key green, run art_check / art_ref_check / sprite checks, blind panel.
+
+## Round 4 deterministic checks (Nov 13) and triage
+- Cut cells (ffmpeg crop, divider lines gone), keyed with assetgen clean (enclosed-key warnings are the real gaps between chains and mechanisms). Best cell art_ref_check owl 0.629 (min 0.698); detail 0.76 (floor 0.301) fine; edges 0.95; silhouette IoU 0.52.
+- Triage: check is sound (reference vs itself = 1.0). Failing term is value: our dark-pixel share 0.75 vs reference 0.30. Verdict: ours (prompt asked for #3A2C25/#1D1713 metal, too dark). R5 lightens metal to mid-tone bronze and keeps ink near black.
