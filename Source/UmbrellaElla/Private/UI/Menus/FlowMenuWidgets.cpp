@@ -1,7 +1,9 @@
 #include "UI/Menus/FlowMenuWidgets.h"
+#include "Flow/FlowMenuText.h"
 #include "Flow/FlowRules.h"
 #include "Brushes/SlateRoundedBoxBrush.h"
 #include "Framework/Application/SlateApplication.h"
+#include "Layout/WidgetPath.h"
 #include "Rendering/DrawElements.h"
 #include "Styling/CoreStyle.h"
 #include "UI/Style/UmbrellaUIStyle.h"
@@ -18,6 +20,14 @@ namespace
 	{
 		return Value - FMath::FloorToFloat(Value);
 	}
+
+	/** The control hint: small, dim, set in from the bottom-right corner, Confirm then Back with a gap between. */
+	constexpr int32 PromptTextSize = UmbrellaUI::MinTextSize + 2;
+	constexpr float PromptInsetX = 64.0f;
+	constexpr float PromptInsetY = 44.0f;
+	constexpr float PromptGap = 40.0f;
+
+	TWeakPtr<SFlowMenu> LastOpenedMenu;
 }
 
 void SFlowBackground::Construct(const FArguments& InArgs)
@@ -173,24 +183,31 @@ void SFlowMenu::Construct(const FArguments& InArgs)
 	}
 	for (const FFlowMenuItem& Item : InArgs._Items)
 	{
+		const int32 Index = Buttons.Num();
 		TSharedRef<SUmbrellaButton> Button = SNew(SUmbrellaButton)
 			.Text(Item.Label)
 			.FontSize(Tuning.MenuFontSize)
 			.Ornament(true)
-			.OnClicked_Lambda([Chosen = Item.OnChosen]()
+			.LitOnlyWhenSelected(true)
+			.Selected_Lambda([this, Index]() { return SelectedIndex == Index; })
+			.OnClicked_Lambda([this, Index]()
 			{
-				Chosen.ExecuteIfBound();
+				SelectedIndex = Index;
+				ChooseSelected();
 				return FReply::Handled();
 			});
-		if (!FirstButton.IsValid())
-		{
-			FirstButton = Button;
-		}
+		Button->SetOnHovered(FSimpleDelegate::CreateSP(this, &SFlowMenu::HandleHovered, Index));
+		Buttons.Add(Button);
+		Choices.Add(Item.OnChosen);
+		Labels.Add(Item.Label);
 		Column->AddSlot().AutoHeight().HAlign(HAlign_Left).Padding(0.0f, UmbrellaUI::ItemGap)
 		[
 			Button
 		];
 	}
+	// Start Game (or whatever comes first) is the choice the moment the screen opens, with or without focus.
+	SelectedIndex = Buttons.Num() > 0 ? 0 : INDEX_NONE;
+	LastOpenedMenu = SharedThis(this);
 
 	ChildSlot
 	[
@@ -206,12 +223,121 @@ void SFlowMenu::Construct(const FArguments& InArgs)
 				Column
 			]
 		]
+		+ SOverlay::Slot().HAlign(HAlign_Right).VAlign(VAlign_Bottom).Padding(0.0f, 0.0f, PromptInsetX, PromptInsetY)
+		[
+			SNew(SHorizontalBox).Visibility(EVisibility::HitTestInvisible)
+			+ SHorizontalBox::Slot().AutoWidth()
+			[
+				SNew(STextBlock).Text(this, &SFlowMenu::GetConfirmPrompt).Font(FUmbrellaUIStyle::BodyFont(PromptTextSize))
+					.ColorAndOpacity(FUmbrellaUIStyle::Dim())
+					.ShadowOffset(FVector2D(UmbrellaUI::ShadowOffset, UmbrellaUI::ShadowOffset)).ShadowColorAndOpacity(FUmbrellaUIStyle::Shadow())
+			]
+			+ SHorizontalBox::Slot().AutoWidth().Padding(PromptGap, 0.0f, 0.0f, 0.0f)
+			[
+				SNew(STextBlock).Text(this, &SFlowMenu::GetBackPrompt).Font(FUmbrellaUIStyle::BodyFont(PromptTextSize))
+					.ColorAndOpacity(FUmbrellaUIStyle::Dim())
+					.ShadowOffset(FVector2D(UmbrellaUI::ShadowOffset, UmbrellaUI::ShadowOffset)).ShadowColorAndOpacity(FUmbrellaUIStyle::Shadow())
+					.Visibility(BackDelegate.IsBound() ? EVisibility::HitTestInvisible : EVisibility::Collapsed)
+			]
+		]
 	];
+}
+
+TSharedPtr<SFlowMenu> SFlowMenu::GetLastOpened()
+{
+	return LastOpenedMenu.Pin();
+}
+
+TSharedPtr<SUmbrellaButton> SFlowMenu::GetItemButton(int32 Index) const
+{
+	return Buttons.IsValidIndex(Index) ? Buttons[Index] : nullptr;
+}
+
+int32 SFlowMenu::FindItem(const FText& Label) const
+{
+	return Labels.IndexOfByPredicate([&Label](const FText& Each) { return Each.EqualTo(Label); });
+}
+
+void SFlowMenu::SelectItem(int32 Index)
+{
+	if (!Buttons.IsValidIndex(Index))
+	{
+		return;
+	}
+	SelectedIndex = Index;
+	if (FSlateApplication::IsInitialized() && !Buttons[Index]->HasAnyUserFocus().IsSet())
+	{
+		FSlateApplication::Get().SetAllUserFocus(Buttons[Index], EFocusCause::Mouse);
+	}
+}
+
+bool SFlowMenu::ChooseSelected()
+{
+	if (!Choices.IsValidIndex(SelectedIndex))
+	{
+		return false;
+	}
+	// Copy first: the action usually closes this menu, which destroys the array.
+	const FSimpleDelegate Chosen = Choices[SelectedIndex];
+	return Chosen.ExecuteIfBound();
+}
+
+void SFlowMenu::HandleHovered(int32 Index)
+{
+	bGamepadPrompts = false;
+	SelectItem(Index);
+}
+
+FText SFlowMenu::GetConfirmPrompt() const
+{
+	return FFlowMenuText::ConfirmPrompt(bGamepadPrompts);
+}
+
+FText SFlowMenu::GetBackPrompt() const
+{
+	return FFlowMenuText::BackPrompt(bGamepadPrompts);
 }
 
 bool SFlowMenu::SupportsKeyboardFocus() const
 {
 	return true;
+}
+
+FReply SFlowMenu::OnPreviewKeyDown(const FGeometry& MyGeometry, const FKeyEvent& InKeyEvent)
+{
+	// Only watches which device spoke last, for the hint's wording; the key goes on to the focused button.
+	bGamepadPrompts = InKeyEvent.GetKey().IsGamepadKey();
+	return FReply::Unhandled();
+}
+
+FReply SFlowMenu::OnMouseMove(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)
+{
+	bGamepadPrompts = false;
+	return FReply::Unhandled();
+}
+
+FReply SFlowMenu::OnMouseButtonDown(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)
+{
+	// A click on the empty ground keeps keys and the pad on the menu (the game viewport would otherwise take focus).
+	if (Buttons.IsValidIndex(SelectedIndex))
+	{
+		return FReply::Handled().SetUserFocus(Buttons[SelectedIndex].ToSharedRef(), EFocusCause::SetDirectly);
+	}
+	return FReply::Handled();
+}
+
+void SFlowMenu::OnFocusChanging(const FWeakWidgetPath& PreviousFocusPath, const FWidgetPath& NewWidgetPath, const FFocusEvent& InFocusEvent)
+{
+	SCompoundWidget::OnFocusChanging(PreviousFocusPath, NewWidgetPath, InFocusEvent);
+	// Keys and the pad move Slate focus between the rows; the selection follows it.
+	for (int32 Index = 0; Index < Buttons.Num(); ++Index)
+	{
+		if (NewWidgetPath.ContainsWidget(Buttons[Index].Get()))
+		{
+			SelectedIndex = Index;
+			return;
+		}
+	}
 }
 
 FReply SFlowMenu::OnKeyDown(const FGeometry& MyGeometry, const FKeyEvent& InKeyEvent)
@@ -221,6 +347,11 @@ FReply SFlowMenu::OnKeyDown(const FGeometry& MyGeometry, const FKeyEvent& InKeyE
 	if (Intent == EFlowMenuIntent::Back)
 	{
 		return BackDelegate.ExecuteIfBound() ? FReply::Handled() : FReply::Unhandled();
+	}
+	// Confirm reaching the menu itself (no row held focus): choose the selected row, as the mark shows.
+	if (Intent == EFlowMenuIntent::Confirm && !InKeyEvent.IsRepeat())
+	{
+		return ChooseSelected() ? FReply::Handled() : FReply::Unhandled();
 	}
 	// WASD walks the buttons like the arrow keys (arrows and the D-pad navigate through Slate already).
 	const bool bWasdKey = Key == EKeys::W || Key == EKeys::A || Key == EKeys::S || Key == EKeys::D;
@@ -236,20 +367,20 @@ FReply SFlowMenu::OnKeyDown(const FGeometry& MyGeometry, const FKeyEvent& InKeyE
 
 FReply SFlowMenu::OnFocusReceived(const FGeometry& MyGeometry, const FFocusEvent& InFocusEvent)
 {
-	// The menu itself is only a holder: focus given to it (the input mode does that) lands on the first button, so the
-	// player always sees which item a key or pad press will choose.
-	if (FirstButton.IsValid())
+	// The menu itself is only a holder: focus given to it (the input mode does that) lands on the selected button, so
+	// a key or pad press chooses the row the mark is on.
+	if (Buttons.IsValidIndex(SelectedIndex))
 	{
-		return FReply::Handled().SetUserFocus(FirstButton.ToSharedRef(), EFocusCause::SetDirectly);
+		return FReply::Handled().SetUserFocus(Buttons[SelectedIndex].ToSharedRef(), EFocusCause::SetDirectly);
 	}
 	return SCompoundWidget::OnFocusReceived(MyGeometry, InFocusEvent);
 }
 
 void SFlowMenu::FocusFirstItem()
 {
-	if (FirstButton.IsValid() && FSlateApplication::IsInitialized())
+	if (Buttons.IsValidIndex(SelectedIndex) && FSlateApplication::IsInitialized())
 	{
-		FSlateApplication::Get().SetAllUserFocus(FirstButton, EFocusCause::SetDirectly);
+		FSlateApplication::Get().SetAllUserFocus(Buttons[SelectedIndex], EFocusCause::SetDirectly);
 	}
 	else if (FSlateApplication::IsInitialized())
 	{

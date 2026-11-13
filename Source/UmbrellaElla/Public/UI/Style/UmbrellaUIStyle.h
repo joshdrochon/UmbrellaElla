@@ -253,6 +253,11 @@ public:
 	SLATE_ATTRIBUTE(bool, Selected)
 	/** Label colour at rest; cream when unset. */
 	SLATE_ATTRIBUTE(FLinearColor, RestColor)
+	/**
+	 * Lit only by Selected, never by its own focus or hover: for a menu that owns one selection, so exactly one row shows
+	 * the mark whether the player last used the mouse, keys or a pad (SFlowMenu).
+	 */
+	SLATE_ARGUMENT_DEFAULT(bool, LitOnlyWhenSelected) = false;
 	SLATE_END_ARGS()
 
 	void Construct(const FArguments& InArgs);
@@ -264,10 +269,14 @@ public:
 	/** True when the button shows its focus mark (focus, hover or selected). */
 	bool IsLit() const;
 
+	/** Height (local, from the button's top) of the focus diamond and its rule: the middle of the label's line. */
+	static float OrnamentCenterY(float ButtonHeight);
+
 private:
 	FSlateColor GetLabelColor() const;
 
 	bool bOrnament = false;
+	bool bLitOnlyWhenSelected = false;
 	TAttribute<bool> SelectedAttribute;
 	TAttribute<FLinearColor> RestColorAttribute;
 };

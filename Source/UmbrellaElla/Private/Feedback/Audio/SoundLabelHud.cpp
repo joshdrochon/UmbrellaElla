@@ -45,6 +45,8 @@ namespace
 					.ColorAndOpacity_Lambda([this, Row]() { return RowColor(Row); })
 				];
 			}
+			// Read-only and full-screen above every menu: it must never take a click or a hover (menumouse).
+			SetVisibility(EVisibility::HitTestInvisible);
 			ChildSlot
 			.HAlign(HAlign_Left).VAlign(VAlign_Top)
 			.Padding(TAttribute<FMargin>::CreateLambda([]()

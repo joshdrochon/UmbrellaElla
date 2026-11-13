@@ -400,6 +400,7 @@ int32 SUmbrellaRule::OnPaint(const FPaintArgs& Args, const FGeometry& AllottedGe
 void SUmbrellaButton::Construct(const FArguments& InArgs)
 {
 	bOrnament = InArgs._Ornament;
+	bLitOnlyWhenSelected = InArgs._LitOnlyWhenSelected;
 	SelectedAttribute = InArgs._Selected;
 	RestColorAttribute = InArgs._RestColor;
 	const float Left = UmbrellaUI::ButtonPadX + (bOrnament ? UmbrellaUI::OrnamentWidth + UmbrellaUI::OrnamentGap : 0.0f);
@@ -421,7 +422,17 @@ void SUmbrellaButton::Construct(const FArguments& InArgs)
 
 bool SUmbrellaButton::IsLit() const
 {
+	if (bLitOnlyWhenSelected)
+	{
+		return IsEnabled() && SelectedAttribute.Get(false);
+	}
 	return IsEnabled() && (HasKeyboardFocus() || HasAnyUserFocus().IsSet() || IsHovered() || SelectedAttribute.Get(false));
+}
+
+float SUmbrellaButton::OrnamentCenterY(float ButtonHeight)
+{
+	// The label sits between ButtonPadY above and ButtonPadY + UnderlineDrop below, so this is its middle.
+	return (ButtonHeight - UmbrellaUI::UnderlineDrop) * 0.5f;
 }
 
 FSlateColor SUmbrellaButton::GetLabelColor() const
@@ -430,7 +441,8 @@ FSlateColor SUmbrellaButton::GetLabelColor() const
 	{
 		return FUmbrellaUIStyle::Dim().CopyWithNewOpacity(UmbrellaUI::DisabledAlpha);
 	}
-	if (IsPressed() || HasKeyboardFocus() || HasAnyUserFocus().IsSet() || IsHovered())
+	const bool bLit = bLitOnlyWhenSelected ? SelectedAttribute.Get(false) : (HasKeyboardFocus() || HasAnyUserFocus().IsSet() || IsHovered());
+	if (IsPressed() || bLit)
 	{
 		return FUmbrellaUIStyle::GoldBright();
 	}
@@ -459,7 +471,7 @@ int32 SUmbrellaButton::OnPaint(const FPaintArgs& Args, const FGeometry& Allotted
 	FUmbrellaUIStyle::PaintRule(AllottedGeometry, OutDrawElements, Layer, FVector2f(TextLeft, Under), FVector2f(Size.X, Under), Gold, UmbrellaUI::UnderlineFadeAlpha);
 	if (bOrnament)
 	{
-		const float Mid = (Size.Y - UmbrellaUI::UnderlineDrop) * 0.5f;
+		const float Mid = OrnamentCenterY(Size.Y);
 		const float DiamondX = UmbrellaUI::ButtonPadX + UmbrellaUI::OrnamentWidth - UmbrellaUI::DiamondSize;
 		// The rule fades in from the left and ends in the diamond that points at the label.
 		TArray<FSlateGradientStop> Stops;

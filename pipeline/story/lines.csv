@@ -96,6 +96,10 @@ ui-level-up-a-new-point-to-spend,screen,A new point to spend at the next refuge.
 ui-defeat-defeated,screen,Defeated,,yes,screen=defeat; where=FlowMenuText.cpp
 ui-defeat-retry,button,Retry,,yes,screen=defeat; where=FlowMenuText.cpp
 ui-defeat-quit-to-title,button,Quit to Title,,yes,screen=defeat; where=FlowMenuText.cpp
+ui-prompt-confirm-keys,prompt,Click or Enter to choose,,yes,screen=menus; where=FlowMenuText.cpp; control hint (menus.md rule 4)
+ui-prompt-back-keys,prompt,Esc to go back,,yes,screen=menus; where=FlowMenuText.cpp; control hint (menus.md rule 4)
+ui-prompt-confirm-pad,prompt,A to choose,,yes,screen=menus; where=FlowMenuText.cpp; control hint (menus.md rule 4)
+ui-prompt-back-pad,prompt,B to go back,,yes,screen=menus; where=FlowMenuText.cpp; control hint (menus.md rule 4)
 story-ending-page-1,end_card,"Eventually, the owl's pursuit ends, and he retreats into the darkness, leaving Ella alive but still suspended between worlds.",F3;P8,yes,screen=ending; where=FlowStoryText.cpp
 story-ending-page-2,end_card,"She has survived, yet neither her fate nor the owl's intentions are resolved. Perhaps the owl has merely postponed his judgment, or perhaps something about Ella has challenged even his understanding of time.",F3;P8,yes,screen=ending; where=FlowStoryText.cpp
 credit-umbrella-ella-the-stolen-hour,screen,Umbrella Ella The Stolen Hour,,yes,screen=credits; where=FlowStoryText.cpp
