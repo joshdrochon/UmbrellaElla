@@ -15,6 +15,10 @@ ARGS = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
 POSE = ARGS[0] if ARGS else "open"
 OUT = ARGS[1] if len(ARGS) > 1 else "/tmp/ella_gp.png"
 SEED = int(ARGS[2]) if len(ARGS) > 2 else 7
+DENSITY = float(ARGS[3]) if len(ARGS) > 3 else 0.8     # hatch spacing multiplier (lower = more etching)
+CLOSED_LEAN = float(ARGS[5]) if len(ARGS) > 5 else -16.0
+LIFT = float(ARGS[6]) if len(ARGS) > 6 else 0.3          # tone lift toward each ramp's light end (dark-share match)
+GRAIN_X = float(ARGS[4]) if len(ARGS) > 4 else 1.8     # paper-grain count multiplier
 RNG = random.Random(SEED)
 W, H = 600, 700            # render size; drawing space is placed at 1:1 with a margin
 OX, OY = 130, 60            # drawing-space offset inside the render
@@ -36,7 +40,8 @@ SKIN = (150, 128, 108)
 
 def ramp(t, lo=DEEP, mid=MID, hi=LIGHT):
     t = max(0.0, min(1.0, t))
-    return lerp(lo, mid, t * 2) if t < 0.5 else lerp(mid, hi, (t - 0.5) * 2)
+    c = lerp(lo, mid, t * 2) if t < 0.5 else lerp(mid, hi, (t - 0.5) * 2)
+    return lerp(c, hi, LIFT)
 
 
 # ---------- scene
@@ -251,7 +256,7 @@ def contour(poly, color=INK, w=1.7, closed=True, thick_side=(0.6, 0.8)):
 
 
 def shape(poly, tone, light=(-1, -0.4), hatch=62, cont=1.6, hatch_color=INK, lo=DEEP, mid=MID, hi=LIGHT,
-          shade_dir=(1, 0.6), n_grain=0, hatch_w=0.55, spacing=3.4):
+          shade_dir=(1, 0.6), n_grain=0, hatch_w=0.8, spacing=3.4):
     wash(poly, tone, light, lo, mid, hi)
     x0, y0, x1, y1 = bbox(poly)
     sx, sy = shade_dir
@@ -260,9 +265,9 @@ def shape(poly, tone, light=(-1, -0.4), hatch=62, cont=1.6, hatch_color=INK, lo=
         u = ((x - x0) * sx + (y - y0) * sy) / (((x1 - x0) * abs(sx) + (y1 - y0) * abs(sy)) or 1)
         return max(0.05, min(0.95, u * 0.95 + 0.1 - tone * 0.4))
     if hatch is not None:
-        etch(poly, hatch, spacing, hatch_color, hatch_w, shade)
+        etch(poly, hatch, spacing * DENSITY, hatch_color, hatch_w, shade)
     if n_grain:
-        grain(poly, n_grain, base=ramp(tone, lo, mid, hi))
+        grain(poly, int(n_grain * GRAIN_X), base=ramp(tone, lo, mid, hi))
     if cont:
         contour(poly, INK, cont)
 
@@ -493,9 +498,10 @@ def furled(cx, top, bottom):
 
 def draw_closed():
     """Free fall: Ella crouched over a closed umbrella held upright under her, one hand on the hat."""
+    LEAN[0], LEAN[1] = CLOSED_LEAN, (158.0, 330.0)
     furled(158, 446, 506)
     shaft((158, 214), (158, 450), 3.4)
-    hair_and_scarf((108, 202), 0.7)
+    hair_and_scarf((108, 202), 1.6)
     body(lean=0)
     bent_legs((108, 380), (150, 396), (142, 438), (136, 384), (178, 402), (172, 438))
     hat((108, 192), -6)
@@ -505,6 +511,7 @@ def draw_closed():
     arm((126, 212), (108, 176), 10)
     hand((104, 170))
     terminal((158, 208), 0.7)
+    LEAN[0], LEAN[1] = 0.0, (160.0, 140.0)
 
 
 def draw_attack():
