@@ -1,0 +1,37 @@
+{
+ "provider": "gemini",
+ "tool": "Gemini API image generation (Google)",
+ "model": "gemini-3-pro-image-preview",
+ "model_version": "gemini-3-pro-image-preview",
+ "prompt": "A flat, straight-on, front-view illustration of one rectangular parchment card in 16:9 proportion, centred and square to the camera, its border reaching almost to the frame edges, made to hold menu text on top of it.\n\nStyle: dark storybook ink and wash on aged sepia paper, a worn hand-printed etching, fine cross-hatching, coarse paper fibre and ink stipple visible at every scale, slightly rough uneven ink edges, small ink blots and scratches. Palette: soot black #171614, charcoal, umber and smoky taupe; light only as warm ivory #FFF3D6 and thin gold #E9C46A. Every other tone is muted brown-grey; the card carries no lettering of any kind.\n\nThe card interior is an empty, quiet field of dark umber-charcoal paper wash, evenly dark across the middle and never one flat colour: soft mottled stains, faint etched hatching and paper grain give it a lived-in surface. It stays open and uncluttered for lettering, a clean field with only paper and ink texture on it. Around the edge runs a hand-inked double border: a thicker soot-black ink line on the outside and a thin gold line just inside it, with small etched corner flourishes in gold at all four corners. The outermost edges of the paper are slightly torn and darkened, and fade into soot black at the outer margin of the frame.",
+ "seed": "",
+ "size": "1024x1024",
+ "quality": "medium",
+ "aspect_ratio": "16:9",
+ "image_size": "2K",
+ "input_images": [],
+ "cost_usd": 0.137686,
+ "reply": {
+  "usage": {
+   "promptTokenCount": 301,
+   "candidatesTokenCount": 1483,
+   "totalTokenCount": 2041,
+   "promptTokensDetails": [
+    {
+     "modality": "TEXT",
+     "tokenCount": 301
+    }
+   ],
+   "candidatesTokensDetails": [
+    {
+     "modality": "IMAGE",
+     "tokenCount": 1120
+    }
+   ],
+   "thoughtsTokenCount": 257,
+   "serviceTier": "standard"
+  },
+  "finish": "STOP"
+ },
+ "date": "2026-11-13T07:03+00:00"
+}
