@@ -8,6 +8,13 @@
 class UKeeperPartComponent;
 class UStaticMeshComponent;
 
+/** Whether a part shows a state its static slot art cannot (broken, clock open): then its cube shows even under art. */
+enum class EKeeperCubeState : uint8
+{
+	Default,
+	StateCue,
+};
+
 /**
  * The Keeper of Time boss actor: wings, three hanging mechanisms, clock and eye. Spawned by the Encounter Director.
  * It holds the hit regions and a placeholder look made from engine primitives; every rule lives in FKeeperFightModel.
@@ -43,14 +50,27 @@ public:
 
 	bool IsDeparting() const { return DepartureRemaining > 0.0f; }
 
+	/**
+	 * Presentation only: slot art now draws this part (the body sprite or the part's own layer), so its stand-in cube
+	 * hides while the part is in its default state. The art is static, so a broken wing or mechanism and an open clock
+	 * still show their coloured cube as the state cue. Hit regions are unchanged.
+	 */
+	void MarkPartArtDrawn(EKeeperPart Part);
+	void ClearPartArtDrawn(EKeeperPart Part);
+	bool IsPartArtDrawn(EKeeperPart Part) const;
+
+	/** The stand-in cube for a body part (nullptr for parts without one). Tests read it. */
+	UStaticMeshComponent* GetStandInVisual(EKeeperPart Part) const;
+
 	virtual void Tick(float DeltaSeconds) override;
 
 private:
 	UKeeperPartComponent* MakePart(FName Name, EKeeperPart Part, const FVector2D& Offset, const FVector2D& HalfExtent);
 	UStaticMeshComponent* MakeVisual(FName Name);
-	void PlaceVisual(UStaticMeshComponent* Visual, const FVector2D& Centre, const FVector2D& HalfExtent, const FLinearColor& Colour);
+	void PlaceVisual(UStaticMeshComponent* Visual, const FVector2D& Centre, const FVector2D& HalfExtent, const FLinearColor& Colour, EKeeperCubeState State = EKeeperCubeState::Default);
 	void HideVisual(UStaticMeshComponent* Visual);
 	FVector ToWorld(const FVector2D& Position) const;
+	bool IsCoveredByArt(const UStaticMeshComponent* Visual) const;
 
 	UPROPERTY()
 	TObjectPtr<UKeeperPartComponent> WingsPart;
@@ -96,6 +116,8 @@ private:
 	FVector2D TelegraphFrom = FVector2D::ZeroVector;
 	FVector2D TelegraphTo = FVector2D::ZeroVector;
 	bool bTelegraphShown = false;
+	/** One bit per EKeeperPart whose slot art draws. */
+	uint8 ArtDrawnParts = 0;
 	float DepartureRemaining = 0.0f;
 	float DepartureTotal = 0.0f;
 };
