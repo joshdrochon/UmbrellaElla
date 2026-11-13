@@ -821,7 +821,7 @@ bool FArtSlotKeeperStandInHidden::RunTest(const FString& Parameters)
 		// No art over a part: its cube shows again on the next Refresh (a stand-in shows when no art does).
 		for (const EKeeperPart Part : BodyParts)
 		{
-			Keeper->SetPartArtDrawn(Part, false);
+			Keeper->ClearPartArtDrawn(Part);
 		}
 		Keeper->Refresh(Model, 0.0f);
 		for (const EKeeperPart Part : BodyParts)

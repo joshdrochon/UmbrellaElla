@@ -127,18 +127,23 @@ UStaticMeshComponent* AKeeperOfTime::GetStandInVisual(EKeeperPart Part) const
 	}
 }
 
-void AKeeperOfTime::SetPartArtDrawn(EKeeperPart Part, bool bDrawn)
+void AKeeperOfTime::MarkPartArtDrawn(EKeeperPart Part)
 {
 	if (Part == EKeeperPart::Count)
 	{
 		return;
 	}
-	const uint8 Bit = static_cast<uint8>(1u << static_cast<uint8>(Part));
-	ArtDrawnParts = bDrawn ? (ArtDrawnParts | Bit) : (ArtDrawnParts & ~Bit);
-	if (bDrawn)
+	ArtDrawnParts |= static_cast<uint8>(1u << static_cast<uint8>(Part));
+	HideVisual(GetStandInVisual(Part));
+}
+
+void AKeeperOfTime::ClearPartArtDrawn(EKeeperPart Part)
+{
+	if (Part == EKeeperPart::Count)
 	{
-		HideVisual(GetStandInVisual(Part));
+		return;
 	}
+	ArtDrawnParts &= static_cast<uint8>(~(1u << static_cast<uint8>(Part)));
 }
 
 bool AKeeperOfTime::IsPartArtDrawn(EKeeperPart Part) const

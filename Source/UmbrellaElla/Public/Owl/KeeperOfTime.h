@@ -47,7 +47,8 @@ public:
 	 * Presentation only: slot art now draws this part (the body sprite or the part's own layer), so its stand-in cube
 	 * stays hidden. A stand-in shows only when no art does. Hit regions are unchanged.
 	 */
-	void SetPartArtDrawn(EKeeperPart Part, bool bDrawn);
+	void MarkPartArtDrawn(EKeeperPart Part);
+	void ClearPartArtDrawn(EKeeperPart Part);
 	bool IsPartArtDrawn(EKeeperPart Part) const;
 
 	/** The stand-in cube for a body part (nullptr for parts without one). Tests read it. */

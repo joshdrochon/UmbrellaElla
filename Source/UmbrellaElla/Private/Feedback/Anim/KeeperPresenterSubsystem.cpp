@@ -48,7 +48,7 @@ namespace
 		}
 		for (const EKeeperPart Part : Covered)
 		{
-			Owl->SetPartArtDrawn(Part, true);
+			Owl->MarkPartArtDrawn(Part);
 		}
 	}
 }
