@@ -370,20 +370,34 @@ bool FMoveWorldSavedRemapTest::RunTest(const FString& Parameters)
 
 namespace
 {
-	/** Sets HeroSize and hitbox scale for one test and restores the defaults on exit. */
+	/** Tuning copy with HeroSize and hitbox scale overridden. Workbench builds (editor tests) only; elsewhere the baked values. */
+	FMotorTuning MoveTuningWithHeroSize(FMotorTuning Base, float HeroSize, float Hitbox)
+	{
+#if UMBRELLAELLA_WORKBENCH
+		Base.HeroSize = HeroSize;
+		Base.HitboxScale = Hitbox;
+#endif
+		return Base;
+	}
+
+	/** Sets HeroSize and hitbox scale for one test and restores the live tuning on exit. */
 	struct FMoveHeroSizeScope
 	{
 		FMotorTuning Saved;
 		FMoveHeroSizeScope(float HeroSize, float Hitbox)
 		{
+#if UMBRELLAELLA_WORKBENCH
 			FMotorTuning& Motor = GetMutableDefault<UUmbrellaTuning>()->Motor;
 			Saved = Motor;
-#if UMBRELLAELLA_WORKBENCH
-			Motor.HeroSize = HeroSize;
-			Motor.HitboxScale = Hitbox;
+			Motor = MoveTuningWithHeroSize(Motor, HeroSize, Hitbox);
 #endif
 		}
-		~FMoveHeroSizeScope() { GetMutableDefault<UUmbrellaTuning>()->Motor = Saved; }
+		~FMoveHeroSizeScope()
+		{
+#if UMBRELLAELLA_WORKBENCH
+			GetMutableDefault<UUmbrellaTuning>()->Motor = Saved;
+#endif
+		}
 	};
 }
 
@@ -397,12 +411,12 @@ bool FMoveHeroSizeRuleTest::RunTest(const FString& Parameters)
 	TestEqual(TEXT("hitbox range 0.75..1"), Tuning.HitboxScaleMin, 0.75f);
 	TestEqual(TEXT("hitbox upper 1"), Tuning.HitboxScaleMax, 1.0f);
 	TestEqual(TEXT("actor scale 0.5 at HeroSize 1"), HeroSizeRules::ActorScale(Tuning), 0.5f);
-	Tuning.HeroSize = 1.3f;
+	Tuning = MoveTuningWithHeroSize(Tuning, 1.3f, 1.0f);
 	TestEqual(TEXT("muzzle 57.2 / 7.8 at HeroSize 1.3"), static_cast<float>(HeroSizeRules::MuzzleOffset(FVector(44.0, 0.0, 6.0), Tuning).X), 57.2f, 0.01f);
 	TestEqual(TEXT("muzzle Z 7.8 at HeroSize 1.3"), static_cast<float>(HeroSizeRules::MuzzleOffset(FVector(44.0, 0.0, 6.0), Tuning).Z), 7.8f, 0.01f);
-	Tuning.HeroSize = 5.0f;
+	Tuning = MoveTuningWithHeroSize(Tuning, 5.0f, 1.0f);
 	TestEqual(TEXT("HeroSize clamps to the range"), HeroSizeRules::ClampedHeroSize(Tuning), 1.3f);
-	Tuning.HitboxScale = 0.1f;
+	Tuning = MoveTuningWithHeroSize(Tuning, 5.0f, 0.1f);
 	TestEqual(TEXT("hitbox scale clamps to the range"), HeroSizeRules::ClampedHitboxScale(Tuning), 0.75f);
 	return true;
 }
