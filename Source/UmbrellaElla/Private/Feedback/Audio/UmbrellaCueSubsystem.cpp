@@ -9,6 +9,11 @@
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundBase.h"
 #include "Components/AudioComponent.h"
+#include "Misc/ScopeExit.h"
+#if UMBRELLAELLA_WORKBENCH
+#include "Feedback/Audio/SoundLabelBoard.h"
+#include "Feedback/Audio/SoundLabelHud.h"
+#endif
 
 namespace
 {
@@ -46,6 +51,11 @@ void UUmbrellaCueSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Collection.InitializeDependency<UUmbrellaEventBus>();
 	Super::Initialize(Collection);
+#if UMBRELLAELLA_WORKBENCH
+	SoundLabels = MakeShared<FUmbrellaSoundLabelBoard>();
+	SoundLabelHud = MakeShared<FUmbrellaSoundLabelHud>(SoundLabels.ToSharedRef());
+	SoundLabelHud->Arm(GetWorld());
+#endif
 	UUmbrellaEventBus* Bus = UUmbrellaEventBus::Get(this);
 	if (!IsValid(Bus))
 	{
@@ -62,8 +72,26 @@ void UUmbrellaCueSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	}
 }
 
+#if UMBRELLAELLA_WORKBENCH
+void UUmbrellaCueSubsystem::NoteSoundLabel(FName Id, int32 Take)
+{
+	if (SoundLabels.IsValid())
+	{
+		SoundLabels->Note(Id, LabelEvent.IsEmpty() ? FString(TEXT("Direct")) : LabelEvent, Take);
+	}
+}
+#endif
+
 void UUmbrellaCueSubsystem::Deinitialize()
 {
+#if UMBRELLAELLA_WORKBENCH
+	if (SoundLabelHud.IsValid())
+	{
+		SoundLabelHud->Detach();
+	}
+	SoundLabelHud.Reset();
+	SoundLabels.Reset();
+#endif
 	UUmbrellaEventBus* Bus = UUmbrellaEventBus::Get(this);
 	if (IsValid(Bus))
 	{
@@ -118,6 +146,10 @@ FName UUmbrellaCueSubsystem::CueForEvent(const FUmbrellaEvent& Event)
 
 void UUmbrellaCueSubsystem::HandleEvent(const FUmbrellaEvent& Event)
 {
+#if UMBRELLAELLA_WORKBENCH
+	LabelEvent = StaticEnum<EUmbrellaEventType>()->GetNameStringByValue(static_cast<int64>(Event.Type));
+	ON_SCOPE_EXIT { LabelEvent.Reset(); };
+#endif
 	const FName PrevDetail = PrevDetails.FindRef(Event.Type);
 	for (const FUmbrellaLoopGroupStop& Stop : UmbrellaCueTable::GroupStops())
 	{
@@ -159,6 +191,9 @@ void UUmbrellaCueSubsystem::HandleEvent(const FUmbrellaEvent& Event)
 	const FString Path = FString::Printf(TEXT("/Game/UmbrellaElla/Audio/%s.%s"), *Cue.ToString(), *Cue.ToString());
 	if (USoundBase* Sound = LoadObject<USoundBase>(nullptr, *Path, nullptr, LOAD_Quiet | LOAD_NoWarn))
 	{
+#if UMBRELLAELLA_WORKBENCH
+		NoteSoundLabel(Cue, 0);
+#endif
 		if (IsMusicCue(Cue))
 		{
 			RestartMusic(Sound);
@@ -264,6 +299,9 @@ void UUmbrellaCueSubsystem::PlayRow(const FUmbrellaSoundCue& Cue, bool& bOutPlay
 	}
 	USoundBase* Sound = Takes[CueRandom.RandHelper(Takes.Num())];
 	bOutPlayed = true;
+#if UMBRELLAELLA_WORKBENCH
+	NoteSoundLabel(FName(Cue.Id), FUmbrellaSoundLabelBoard::TakeFromAssetName(Sound->GetName()));
+#endif
 	LastSoundId = FName(Cue.Id);
 	++SoundCueCount;
 	if (Cue.SoundClass == EUmbrellaCueClass::Music && Cue.bLoop)
