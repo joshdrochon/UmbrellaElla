@@ -141,3 +141,9 @@ missing the agent-play script on main (not my lane).
 - Note: host load ~30 made UE captures take 12+ min; `timeout` does not exist on this Mac.
 - Next: capture at 1920x1080 (RUN_RES) to match the reference resolution, re-judge settings, then apply the panel to pause,
   credits, defeated, tutorial (those still draw no panel).
+
+## Resume 2 (13 Nov, artui worker, after second kill)
+- Tree clean, main merged, artslots has nothing new for this lane. Spend counter: $17.26 of $33.82 (all lanes).
+- Screen-context blocker is fixed on main (`required_pairs` skips context for `ui` elements). Inventory: artui 25, 2 passed (tutorial).
+- BLOCKED (lead): no `-SmokeScreen` capture switch exists, so 10 screens cannot be captured; written as request 4. Host load ~26.
+- Only ui-title can be re-captured; it needs painting spend plus 12+ min captures at this load. Held until the switch lands.

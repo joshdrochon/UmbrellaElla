@@ -33,3 +33,10 @@ ink ground and the HUD to the drawn dial (no crash); the display font is embedde
 `ui_check.py widgets` (U10, no NativeTick in a UUserWidget) does not match a class declared `final`
 (`class X final : public UUserWidget`), so `UXpRingWidget`'s `NativeTick` is not seen. I did not change that check: fixing
 it makes `ui_check ci` fail on main (progression lane's widget). The new `screens` check does match `final` classes.
+
+## 4. Per-screen capture switch (Smoke hook, lead) — BLOCKS 10 of 12 screens
+Only the title is reachable through `run_game.sh -SmokeShot` (the smoke hook passes title straight to gameplay). Settings, Pause,
+Defeat, Credits, Story, Purchase, LevelUp, Statistics and the HUD cannot be captured from the repo, so no panel round can run on them
+(a context-free pair still needs a fresh in-engine capture of the screen). Request: a `-SmokeScreen=<EFlowScreen name>` switch in the
+smoke hook that opens that flow screen before the shot (Smoke lane; the screens already exist in `Flow/FlowRules.h`).
+Until then my loop only continues on ui-title (not passed: reference pair lost r8-r17).
