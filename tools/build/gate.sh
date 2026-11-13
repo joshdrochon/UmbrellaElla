@@ -16,6 +16,8 @@ G="$BASE/gate"; L="$BASE/logs"; mkdir -p "$L"; T0=$(date +%s); fail=0
 # A head the gate failed or held is never gated again; the lane needs new commits (Josh, Nov 12). Lane verdicts are
 # recorded on exit (1 FAIL, 3 HOLD); exits that are not the lane's fault set NORECORD=1 first.
 TIP="$(git -C "$ROOT" rev-parse "$C" 2>/dev/null)"; NORECORD=0
+# A batch must hold lane merges; an empty batch (branch reset to main) never passes (Nov 12: one "passed" and dropped 7 lanes).
+if [ "$A" = batch ] && ! git -C "$ROOT" log --format=%s "origin/main..$C" | grep -q " into batch$"; then echo "GATE FAIL: area/batch holds no lane merges"; exit 1; fi
 python3 "$ROOT/tools/build/gate_seen.py" check "$L" "$A" "$TIP" || exit 4
 trap 'rc=$?; if [ "$NORECORD" = 0 ]; then case $rc in 1) python3 "$ROOT/tools/build/gate_seen.py" record "$L" "$A" "$TIP" FAIL;; 3) python3 "$ROOT/tools/build/gate_seen.py" record "$L" "$A" "$TIP" HOLD;; esac; fi' EXIT
 step() { echo "[gate $A] $1 ($(( $(date +%s) - T1 )) s)"; }

@@ -9,7 +9,7 @@ if [ "${1:-}" = add ]; then shift; for a in "$@"; do grep -qx "$a" "$Q" || echo 
   exit 0; fi
 mkdir "$L/gate-runner.lock" 2>/dev/null || { echo "a runner is already running"; exit 0; }
 trap 'rmdir "$L/gate-runner.lock"' EXIT
-GROUPS="$L/gate-groups"; touch "$GROUPS"
+GRP="$L/gate-groups"; touch "$GRP"
 # Batches (Josh, Nov 12): up to 8 queued lanes that merge cleanly together are gated in one run (one build and test
 # run, a review per lane). A failed batch is bisected: its two halves go to gate-groups and are gated next, down to
 # single lanes, so the bad lane is found without re-gating every lane alone. A held batch records only the lanes whose
@@ -20,7 +20,7 @@ gate_group() {   # $@ = lanes; gates them as one batch (or a single lane) and ha
     echo "$(date +%H:%M) $1 rc=$rc: $(grep -E '^GATE' "$L/gate-$1.log" | tail -1)"; return
   fi
   out=$("$ROOT/tools/build/gate_batch.sh" "$@" 2>>"$L/gate-batch.err" | tail -1)
-  if [ "${out%% *}" != batch ]; then for x in "$@"; do echo "$x" >> "$GROUPS"; done; return; fi
+  if [ "${out%% *}" != batch ]; then for x in "$@"; do echo "$x" >> "$GRP"; done; return; fi
   lanes="${out#batch }"; for x in "$@"; do case " $lanes " in *" $x "*) ;; *) echo "$x" >> "$Q";; esac; done
   echo 0 > "$L/review-batch.round"
   "$ROOT/tools/build/gate.sh" batch area/batch > "$L/gate-batch.log" 2>&1; rc=$?
@@ -30,12 +30,12 @@ gate_group() {   # $@ = lanes; gates them as one batch (or a single lane) and ha
     for x in $lanes; do case " $held " in *" $x "*) ;; *) echo "$x" >> "$Q";; esac; done
   elif [ $rc != 0 ]; then
     set -- $lanes; n=$#; h=$(( (n + 1) / 2 )); first="${*:1:$h}"; second="${*:$((h+1))}"
-    echo "$first" >> "$GROUPS"; [ -n "$second" ] && echo "$second" >> "$GROUPS"
+    echo "$first" >> "$GRP"; [ -n "$second" ] && echo "$second" >> "$GRP"
     echo "$(date +%H:%M) bisect: [$first] then [$second]"
   fi
 }
 while :; do
-  if g=$(head -1 "$GROUPS") && [ -n "$g" ]; then sed -i '' '1d' "$GROUPS"; gate_group $g; continue; fi
+  if g=$(head -1 "$GRP") && [ -n "$g" ]; then sed -i '' '1d' "$GRP"; gate_group $g; continue; fi
   a=$(head -1 "$Q"); [ -z "$a" ] && break
   lanes=$(head -16 "$Q" | tr '\n' ' '); for x in $lanes; do sed -i '' "/^$x\$/d" "$Q"; done
   if [ "${GATE_BATCH:-8}" -gt 1 ]; then gate_group $lanes; else for x in $lanes; do echo "$x" >> "$Q"; done; sed -i '' '1d' "$Q"; gate_group "$a"; fi
