@@ -103,3 +103,14 @@ Triage: unsnapped paint drifts off palette (off_style 0.11 to 0.25): ours (post)
 No piece passes. Still blocked on the `context` pair (needs an in-engine capture after import).
 Triage open: the score drop on owl-bolt/bolt-hit followed the inventory merge (references.json now 100 entries, new min/closest ref). Verdict "check changed, not our pixels": g1_fit.png bytes are unchanged. Not yet tested on a known-good input; the lead's art_ref_check owner should confirm the new owl-bolt min 0.729 still holds with the added refs.
 Next: bolt-hit panel rerun; add etched dark linework to the paintings (prompt gap on both shots), one more Gemini call each if the lead keeps Spend OK.
+
+## 13 Nov: art_ref_check triage and etched-ink repaints (merged main e10efbd9)
+Check triage: verdict "check holds, earlier drop was the old reference set". On the merged main (refs=d1afca932485): the reference
+images clear their own min (discord-crop-red-shot 1.0, d-red-shots 1.0, d-clock-double-beat 0.965 vs owl-bolt min 0.729; bolt-hit
+discord-crop-red-release 0.686 vs min 0.666), and the unchanged g1_fit.png scores owl-bolt 0.732 (PASS) and bolt-hit 0.688 (PASS) again.
+No check defect now; the 0.595/0.651 readings came from the pre-fix set in area/artinventory (89debfe6 fixed it on main).
+Repaint (ours, prompt): critics' gap was no near-black etched linework. v2 asked for bold ink: art_ref_check FAIL (owl 0.2: dark-ink blends
+at the 24x24 downscale read as off-band maroon, offband 0.127 > 0.05; dark share 0.50 vs refs ~0.2). v3 thin ink 1.5 px, v4 also slim
+shadow facets, dark tones under a quarter: owl g4 PASS 0.744, wand g3 PASS 0.583, bolt-hit g3 PASS 0.685 (Art/Source/<Asset>/prompt.v*.txt, Paint/g*_fit.png).
+Lesson: ink-heavy art must keep the dark share near the references or art_judge's value/offband terms fail it. art_shots_fit.py gained an ERODE arg
+(ink thinning); not used on the candidates (it flattens the ink look). Spend by me this session: about $0.97 (shared 7.72 of 33.82). Panels: Saved/panel/{owlG3,wandG3,hitG3}.
