@@ -20,6 +20,8 @@ BLENDER = os.environ.get("BLENDER", "/Applications/Blender.app/Contents/MacOS/Bl
 PIECES = {
     "owl-bolt": ("bolt", "shot_red", "OwlBolt", (160, 80), (46, 40), 30.0, "left"),
     "bolt-hit": ("bolt", "burst_red", "BoltHit", (128, 128), (64, 64), 30.0, "right"),
+    "wind-lines": ("bolt", "wind_lines", "WindLines", (408, 128), (204, 64), 40.0, "right"),
+    "wind-zone": ("bolt", "wind_zone", "WindZone", (256, 448), (128, 224), 60.0, "right"),
     "wand-shot": ("bolt", "shot_gold", "WandShot", (128, 64), (99, 32), 24.0, "right"),
 }
 

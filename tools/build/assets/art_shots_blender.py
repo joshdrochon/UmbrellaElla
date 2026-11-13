@@ -285,6 +285,81 @@ def build_burst_red(m, rnd):
 stand_ins.BUILDERS["burst_red"] = build_burst_red
 
 
+def strand(r, bone, mat, pts, width, y=0.0, name="strand", taper=0.8):
+    """A thin tapered stroke along the 2D polyline pts (x, z): a ribbon whose width swells then thins to a point."""
+    n = len(pts)
+    left, right = [], []
+    for i, (x, z) in enumerate(pts):
+        a = pts[max(0, i - 1)]
+        b = pts[min(n - 1, i + 1)]
+        dx, dz = b[0] - a[0], b[1] - a[1]
+        ln = math.hypot(dx, dz) or 1.0
+        nx, nz = -dz / ln, dx / ln
+        t = i / (n - 1)
+        w = width * (math.sin(math.pi * t) ** taper)
+        left.append((x + nx * w, z + nz * w))
+        right.append((x - nx * w, z - nz * w))
+    return poly_part(r, bone, mat, left + list(reversed(right)), y=y, thick=0.01, name=name)
+
+
+def flow_pts(x0, z0, length, amp, phase, rise, n=40, vertical=False):
+    out = []
+    for i in range(n):
+        t = i / (n - 1)
+        u = length * t
+        v = amp * math.sin(2 * math.pi * (t * 0.9 + phase)) + rise * t * length
+        out.append((x0 + v, z0 + u) if vertical else (x0 + u, z0 + v))
+    return out
+
+
+def build_wind_lines(m, rnd):
+    """The key art's etched wind lines (keyart-wind-lines): a few long thin parallel ink strokes sweeping up to the
+    right, barbed with tiny flecks, thinning at both ends. Decoration, never gameplay."""
+    r = Rig("WindLines")
+    r.bone("body", (-0.5, 0, 0), (0.5, 0, 0))
+    rr = random.Random(21)
+    for i in range(8):
+        z0 = -1.25 + i * 0.22 + rr.uniform(-0.05, 0.05)
+        ln = rr.uniform(6.5, 9.0)
+        x0 = -5.0 + rr.uniform(0, 1.6)
+        pts = flow_pts(x0, z0, ln, 0.12 + 0.04 * i, rr.random(), 0.1 + 0.015 * i)
+        strand(r, "body", m["g_umber2" if i % 2 else "g_umber"], pts, 0.04 + 0.012 * rr.random(), y=-0.02 * i, name="line%d" % i)
+        for k in range(rr.randint(3, 6)):   # tiny barbs along the stroke
+            j = rr.randint(6, 34)
+            bx, bz = pts[j]
+            L = rr.uniform(0.18, 0.4)
+            poly_part(r, "body", m["g_umber2"], [(bx, bz), (bx + L, bz + 0.06), (bx + L, bz + 0.085), (bx, bz + 0.03)],
+                      y=-0.02 * i - 0.01, thick=0.01, name="barb%d_%d" % (i, k))
+    return r.build(), {}
+
+
+def build_wind_zone(m, rnd):
+    """The WIND-01 zone (bar-other-realm's flowing ash-blue ribbons): bundles of fine strands that rise and sway,
+    thinning at both ends, over a faint engraved border. Never a flat box."""
+    r = Rig("WindZone")
+    r.bone("body", (-0.5, 0, 0), (0.5, 0, 0))
+    rr = random.Random(33)
+    for bundle in range(5):
+        cx = -1.6 + bundle * 0.8 + rr.uniform(-0.15, 0.15)
+        ph = rr.random()
+        for k in range(9):
+            pts = flow_pts(cx + (k - 4) * 0.06, -3.4 + rr.uniform(0, 0.6), rr.uniform(5.4, 6.8), 0.34 + 0.02 * k, ph + k * 0.012,
+                           0.0, vertical=True)
+            strand(r, "body", m["g_ash" if k % 3 else "g_ash2"], pts, 0.028 + 0.012 * rr.random(), y=-0.01 * k,
+                   name="ribbon%d_%d" % (bundle, k), taper=0.7)
+    for sx in (-2.05, 2.05):   # engraved border strokes, ink, slightly wobbling
+        strand(r, "body", m["g_ink"], [(sx + 0.03 * math.sin(i * 0.7), -3.55 + 7.1 * i / 39) for i in range(40)], 0.045,
+               y=0.02, name="edge", taper=0.25)
+    for sz in (-3.55, 3.55):
+        strand(r, "body", m["g_ink"], [(-2.05 + 4.1 * i / 39, sz + 0.02 * math.sin(i * 0.9)) for i in range(40)], 0.04,
+               y=0.02, name="cap", taper=0.25)
+    return r.build(), {}
+
+
+stand_ins.BUILDERS["wind_lines"] = build_wind_lines
+stand_ins.BUILDERS["wind_zone"] = build_wind_zone
+
+
 def build_shot_red(m, rnd):
     return shot(m, rnd, "g_shell", "g_mid", "g_core", "core", "spill_red", "red", "redshadow")
 
@@ -319,6 +394,11 @@ def materials(colours, look):
     mats["g_wand"] = graded("g_wand", c("gold", "#e9c46a"), c("amber", "#f5aa28"), snap=sn_)
     mats["g_wm"] = graded("g_wm", c("amber-eye", "#ffc76a"), c("gold", "#e9c46a"), snap=sn_)
     mats["gold"] = glow("gold2", c("gold", "#e9c46a"))
+    mats["g_ink"] = graded("g_ink", c("ink", "#171614"), c("ink", "#171614"), snap=sn_)
+    mats["g_umber"] = graded("g_umber", c("paper-stain", "#7b6157"), c("paper-stain", "#7b6157"), snap=sn_, grain=0.2)
+    mats["g_umber2"] = graded("g_umber2", c("owl-umber", "#3a2c25"), c("owl-umber", "#3a2c25"), snap=sn_, grain=0.2)
+    mats["g_ash"] = graded("g_ash", c("wind-ash-blue", "#555e60"), c("wind-ash-blue", "#555e60"), snap=sn_)
+    mats["g_ash2"] = graded("g_ash2", c("wind-ash-blue", "#555e60"), c("wind-ash-blue", "#555e60"), snap=sn_, grain=0.2)
     mats["spill_red"] = radial_glow("spill_red", c("red", "#ff3658"), 0.45, 2.6, 1.05, -0.5)
     mats["spill_gold"] = radial_glow("spill_gold", c("yellow", "#ffd84a"), 0.45, 2.6, 1.05, -0.5)
     return mats
