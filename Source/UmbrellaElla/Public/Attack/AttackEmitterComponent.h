@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Attack/SpellRules.h"
+#include "Attack/SpellPresentation.h"
 #include "Core/UmbrellaPlayMode.h"
 #include "Projectile/UmbrellaShotSpec.h"
 #include "AttackEmitterComponent.generated.h"
@@ -79,6 +80,18 @@ public:
 	int32 GetShotsFired() const { return ShotsFired; }
 	const FUmbrellaShotSpec& GetLastShot() const { return LastShot; }
 
+	/** Body family for the equipped spell (RegularFall or the shoulder-braced ShoulderFall). Presentation reads it. */
+	EUmbrellaBodyPose GetBodyPose() const { return SpellPresentationRules::BodyPoseFor(Equipped); }
+
+	/** Canopy cycle as it is now: Small Blasts snap open on each actual emission, then cock back to folded-ready. */
+	EUmbrellaCanopyPhase GetCanopyPhase() const { return Canopy.Phase; }
+
+	/** Canopy pulses shown so far (one per Small Blasts emission). */
+	int32 GetCanopyPulses() const { return Canopy.Pulses; }
+
+	/** The four spells as the wheel shows them now: locked ones carry their unlock-level label. */
+	TArray<FSpellWheelEntry> GetWheelEntries() const;
+
 	/** Raised when the equipped spell changes (the wheel UI and HUD listen). */
 	FOnEquippedSpellChanged& OnEquippedSpellChanged() { return EquippedChanged; }
 
@@ -109,6 +122,7 @@ private:
 	TArray<float> PendingBurstDelays;
 	FOnEquippedSpellChanged EquippedChanged;
 	FUmbrellaShotSpec LastShot;
+	FCanopyCycleState Canopy;
 	EUmbrellaSpell Equipped = EUmbrellaSpell::SmallBlasts;
 	EUmbrellaSpell WheelPreview = EUmbrellaSpell::SmallBlasts;
 	EUmbrellaSpell HeldKey = EUmbrellaSpell::Count;

@@ -7,33 +7,33 @@ FLOW-04,credits roll with music,i,flow
 FLOW-04,credits use the Start screen background,i,flow
 MOVE-11,same movement/controls asserted inside a boss encounter,i,move
 MOVE-11,same rules asserted inside a level route,i,move
-MOVE-12,"no ammo/energy for Stream, Twin, Needle (only Small tested)",i,move
+MOVE-12,"no ammo/energy for Stream, Twin, Needle (only Small tested)",proven,move
 MOVE-13,same profile asserted in every level/boss encounter,i,move
-MOVE-15,hop protection actually blocks damage in Health,ii,move
-MOVE-15,hop vs post-hit protection asserted distinct,i,move
+MOVE-15,hop protection actually blocks damage in Health,proven,move
+MOVE-15,hop vs post-hit protection asserted distinct,proven,move
 MOVE-15,qualifying route rejects developer protection setting,i,move
-MOVE-19,right stick selects a spell,i,move
-MOVE-20,Absorb/Free fall disengage Ride (only Shoot tested),i,move
-MOVE-20,remapped controls keep the four combinations,i,move
-UMB-05,catch gives no ammo/stored-energy reward,i,move
-UMB-05,repair not disabled by reward eligibility,i,move
+MOVE-19,right stick selects a spell,proven,move
+MOVE-20,Absorb/Free fall disengage Ride (only Shoot tested),proven,move
+MOVE-20,remapped controls keep the four combinations,proven,move
+UMB-05,catch gives no ammo/stored-energy reward,proven,move
+UMB-05,repair not disabled by reward eligibility,proven,move
 WIND-03,riding a current deals zero damage,i,levelchunks
 WIND-03,safe supports/solids/lethal bottoms explicitly tagged,ii,levelchunks
 MOVE-22,effective profile recorded before qualifying play,i,move
 MOVE-22,encounter display vs collision scale tested independently,i,move
-COM-05,Stream/Twin/Needle never run out (only Small tested),i,move
-COM-05,catch gives no weapon charge,i,move
-COM-06,"fold-ready, snap open, pulse, cock, reset cycle tied to emission",ii,move
-COM-07,canopy strands converge around dark body (art),ii,move
-COM-07,shoulder-braced body family used for Stream,ii,move
+COM-05,Stream/Twin/Needle never run out (only Small tested),proven,move
+COM-05,catch gives no weapon charge,proven,move
+COM-06,"fold-ready, snap open, pulse, cock, reset cycle tied to emission",proven,move
+COM-07,canopy strands converge around dark body (art),proven,move
+COM-07,shoulder-braced body family used for Stream,i,move
 COM-07,posture/art adds no damage or aim (beam),i,move
 COM-09,Needle penetrates wings during clock opening,i,move
 COM-09,Needle never bypasses clock protection/order,i,move
-COM-11,locked-weapon UI shows levels 1/10/20/30,ii,move
+COM-11,locked-weapon UI shows levels 1/10/20/30,proven,move
 COM-11,XP display derived from tuned curve,i,move
 COM-11,damage ranks applied once to baseline,i,move
-COM-11,RegularFall vs ShoulderFall poses per spell,ii,move
-COM-11,only Small uses fold/open/cock,ii,move
+COM-11,RegularFall vs ShoulderFall poses per spell,i,move
+COM-11,only Small uses fold/open/cock,proven,move
 COM-11,required routes clearable with basic fire,i,move
 FLOW-05,Enemy HP/cadence/count multipliers applied to real enemies (GetRunScaling has no consumer),ii,progression
 FLOW-05,Ordinary firing cooldowns divided by cadence multiplier,ii,progression
@@ -49,7 +49,7 @@ FLOW-06,Telegraphs/recovery/scheduling/projectile speed/safe placement preserved
 FLOW-06,No automatic increase in incoming damage,i,progression
 FLOW-08,Quit reload restores checkpoint upgrades (ranks),i,progression
 FLOW-08,only XP asserted,i,progression
-FLOW-09,Exactly 3 lives on retry in both modes (Start Game not tested),i,keeper
+FLOW-09,Exactly 3 lives on retry in both modes (Start Game not tested),proven,keeper
 FLOW-09,"3-life reset keeps purchased max lives (Health.World.RetryRestoresFullLivesAndHealth asserts 4 lives, not 3)",ii,keeper
 FLOW-09,Rollback applied before full heal (ordering),ii,keeper
 FLOW-09,Level-checkpoint retry fully heals (only event-driven retry tested),ii,keeper
@@ -78,9 +78,9 @@ FLOW-22,Earned data separate from tuning/bindings,i,progression
 FLOW-22,Two corrupt copies error is recoverable,i,progression
 FLOW-22,Shadow progress restored on relaunch,i,progression
 FLOW-22,Tutorial replay uses shadow progress,ii,progression
-OWL-06,Rules apply in BOTH modes (no Director's Cut keeper test),i,keeper
+OWL-06,Rules apply in BOTH modes (no Director's Cut keeper test),proven,keeper
 OWL-06,"Retained/restored capacity, max lives, upgrades on retry",ii,keeper
-OWL-06,Normal phase advancement carries Ella's health,i,keeper
+OWL-06,Normal phase advancement carries Ella's health,proven,keeper
 OWL-07,Complete fight contract (OWL-06..35 rows themselves partial),ii,keeper
 OWL-07,No player resource system (no test),i,keeper
 OWL-07,"Gameplay state, not animation length, owns damage/transitions",i,keeper
@@ -94,10 +94,10 @@ OWL-09,Wings damaged from lift,i,keeper
 OWL-09,No new gusts after wing depletion,i,keeper
 OWL-09,Depleted wings remain visible as cover,i,keeper
 OWL-09,Middle/rear break cancels cast and removes attack,i,keeper
-OWL-10,Both modes checkpoint at each phase start,i,keeper
-OWL-10,No mid-mechanism checkpoint after a mechanism breaks,i,keeper
+OWL-10,Both modes checkpoint at each phase start,proven,keeper
+OWL-10,No mid-mechanism checkpoint after a mechanism breaks,proven,keeper
 OWL-10,"Retained/restored capacity, max lives, upgrades on retry",ii,keeper
-OWL-10,Initial phase advancement carries Ella's health,i,keeper
+OWL-10,Initial phase advancement carries Ella's health,proven,keeper
 OWL-11,Wings/clock aim at captured positions,i,keeper
 OWL-11,Mechanisms use fixed-left fan,i,keeper
 OWL-11,No homing,i,keeper
@@ -115,8 +115,8 @@ OWL-12,Player can leave via rise/fall/current/evade,i,keeper
 OWL-12,Traveling missiles continue during electrical stun,proven,keeper
 OWL-13,Yellow shots are aimed,i,keeper
 OWL-13,Independent 2.3s cadence,i,keeper
-OWL-13,Keeper yellow ordinary contact deals 1 health,i,keeper
-OWL-13,Shoot alone never auto-catches,i,keeper
+OWL-13,Keeper yellow ordinary contact deals 1 health,proven,keeper
+OWL-13,Shoot alone never auto-catches,proven,keeper
 OWL-13,No absorption cooldown or energy reward,i,keeper
 OWL-13,Speeds 195/210 (no mechanism/clock yellow test),proven,keeper
 OWL-15,Gust in wing act only,i,keeper
@@ -349,9 +349,9 @@ FLOW-43,reset never erases the earned profile,i,settings2
 ART-04,credits/End screen uses the Start background (only Story+Title flag tested),i,flow
 ART-04,background moves slowly,i,flow
 ART-04,background art contains no characters,i,flow
-MOVE-07,arrow-key trim aliases,i,move
-MOVE-07,fire goes right while traveling left,i,move
-MOVE-07,right stick selects spells,i,move
+MOVE-07,arrow-key trim aliases,proven,move
+MOVE-07,fire goes right while traveling left,proven,move
+MOVE-07,right stick selects spells,proven,move
 MOVE-08,D-pad left/right and [ cycle spells,i,flow
 MOVE-08,keys 2/3 bound to Stream/Twin,i,flow
 MOVE-08,right-stick directions select spells,i,flow
@@ -363,8 +363,8 @@ MOVE-10,controller (gamepad) button remap in Controller menu,i,settings2
 MOVE-17,controller (gamepad) button remap in Controller menu,i,settings2
 SURV-05,clock HUD actually drawn in game,i,move
 SURV-05,"no extra clocks, umbrella icons or numeric count",i,move
-SURV-05,Shoot-only fall does not auto-catch,i,move
-SURV-05,no absorption cooldown (repeated world catches),i,move
+SURV-05,Shoot-only fall does not auto-catch,proven,move
+SURV-05,no absorption cooldown (repeated world catches),proven,move
 SURV-06,+1 life per point (lives value after purchase),ii,progression
 SURV-06,previous-rank dependency for three-rank tracks,i,progression
 FLOW-24,story events deterministic on retry,ii,levelchunks
@@ -415,20 +415,20 @@ COM-18,Courier need not die to supply healing,i,enemies2
 COM-18,descent window and left reset before every enemy,ii,enemies2
 HAZ-24,no horizontal whole-chunk mirror,i,levelchunks
 FLOW-30,clock HUD actually drawn in game (only layout math tested),i,move
-FLOW-30,"antique bronze/gold look, smoky translucent face, etched rim",ii,move
+FLOW-30,"antique bronze/gold look, smoky translucent face, etched rim",proven,move
 FLOW-30,warm gold upper-right arc,i,move
 FLOW-30,"no extra clocks, umbrella HUD units or numeric count",i,move
 FLOW-30,hands high-contrast/readable over face across scenes,i,move
-FLOW-31,life-loss transition adds no protection window,i,move
-FLOW-32,absorbed energy visibly flows into the clock,ii,move
+FLOW-31,life-loss transition adds no protection window,proven,move
+FLOW-32,absorbed energy visibly flows into the clock,proven,move
 FLOW-32,gold arc restores on heal / drains on hit,i,move
-FLOW-32,life hand unchanged on partial damage/heal,i,move
+FLOW-32,life hand unchanged on partial damage/heal,proven,move
 FLOW-32,reserve handover shown without invulnerability/reset pause,i,move
-FLOW-33,ordinary red/yellow projectile damage is 1 (no bound key),i,move
+FLOW-33,ordinary red/yellow projectile damage is 1 (no bound key),proven,move
 FLOW-33,same-shot heal overflow into spent reserve,i,move
-FLOW-33,handover grants no new protection,i,move
+FLOW-33,handover grants no new protection,proven,move
 FLOW-33,progression rollback applied before health restore,i,move
-FLOW-33,normal checkpoint passage does not heal,i,move
+FLOW-33,normal checkpoint passage does not heal,proven,move
 FLOW-33,+1 life per point in Director's Cut,i,move
 VFX-06,no dynamic VFX/illumination baked into base sprites,ii,standins
 VFX-06,"effects off: character stays dark, posed, damaged",i,standins

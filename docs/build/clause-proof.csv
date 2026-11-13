@@ -27,3 +27,40 @@ HAZ-03,"fixed camera at (960,540) (binding is RoomSize/2, no camera checked)",gd
 HAZ-03,"guard contact damage 0 (bound, but no test exercises contact)",gdd:HAZ-03.contact_damage
 FLOW-34,title music plays,test:UmbrellaElla.Flow.World.TitlePlaysMusic
 MOVE-09,controller button remap,test:UmbrellaElla.Flow.World.PauseSettingsRemapsControllerButton
+MOVE-09,mouse click selects in menus,test:UmbrellaElla.Flow.MenuMouse.ClickChoosesEachItem
+MOVE-15,hop protection actually blocks damage in Health,test:UmbrellaElla.Move.World.HopProtectionBlocksHealthDamage
+MOVE-15,hop vs post-hit protection asserted distinct,test:UmbrellaElla.Move.World.HopProtectionBlocksHealthDamage
+COM-06,"fold-ready, snap open, pulse, cock, reset cycle tied to emission",test:UmbrellaElla.Move.World.CanopyCycleTiedToEmission
+COM-07,canopy strands converge around dark body (art),test:UmbrellaElla.Move.World.StreamStrandsConvergeOnDarkBody
+COM-11,locked-weapon UI shows levels 1/10/20/30,test:UmbrellaElla.Move.WheelShowsUnlockLevels
+COM-11,only Small uses fold/open/cock,test:UmbrellaElla.Move.SmallCanopyCycle
+FLOW-30,"antique bronze/gold look, smoky translucent face, etched rim",test:UmbrellaElla.Move.ClockDialLook
+FLOW-32,absorbed energy visibly flows into the clock,test:UmbrellaElla.Move.World.HealEnergyFlowsIntoClock
+MOVE-12,"no ammo/energy for Stream, Twin, Needle (only Small tested)",test:UmbrellaElla.Move.World.AllSpellsNeverRunOut
+MOVE-19,right stick selects a spell,test:UmbrellaElla.Move.ArrowTrimAndRightStickSpells
+COM-05,Stream/Twin/Needle never run out (only Small tested),test:UmbrellaElla.Move.World.AllSpellsNeverRunOut
+MOVE-07,arrow-key trim aliases,test:UmbrellaElla.Move.ArrowTrimAndRightStickSpells
+MOVE-07,fire goes right while traveling left,test:UmbrellaElla.Move.World.FireGoesRightWhileTravelingLeft
+MOVE-07,right stick selects spells,test:UmbrellaElla.Move.ArrowTrimAndRightStickSpells
+MOVE-20,Absorb/Free fall disengage Ride (only Shoot tested),test:UmbrellaElla.Move.World.AbsorbAndFreeFallDisengageRide
+MOVE-20,remapped controls keep the four combinations,test:UmbrellaElla.Move.World.RemapKeepsFourCombinations
+UMB-05,catch gives no ammo/stored-energy reward,test:UmbrellaElla.Move.World.CatchGivesNoChargeButRepairs
+UMB-05,repair not disabled by reward eligibility,test:UmbrellaElla.Move.World.CatchGivesNoChargeButRepairs
+COM-05,catch gives no weapon charge,test:UmbrellaElla.Move.World.CatchGivesNoChargeButRepairs
+SURV-05,Shoot-only fall does not auto-catch,test:UmbrellaElla.Move.World.ShootFallDoesNotAutoCatch
+SURV-05,no absorption cooldown (repeated world catches),test:UmbrellaElla.Move.World.RepeatedCatchesHaveNoCooldown
+FLOW-31,life-loss transition adds no protection window,test:UmbrellaElla.Move.World.LifeHandoverAddsNoProtection
+FLOW-33,handover grants no new protection,test:UmbrellaElla.Move.World.LifeHandoverAddsNoProtection
+FLOW-33,normal checkpoint passage does not heal,test:UmbrellaElla.Move.World.CheckpointPassageDoesNotHeal
+FLOW-33,ordinary red/yellow projectile damage is 1 (no bound key),test:UmbrellaElla.Move.World.OrdinaryProjectileDamageIsOne
+FLOW-32,life hand unchanged on partial damage/heal,test:UmbrellaElla.Move.LifeHandSteadyOnPartialChanges
+FLOW-09,Exactly 3 lives on retry in both modes (Start Game not tested),test:UmbrellaElla.Move.World.KeeperRetryGivesThreeLivesInBothModes
+OWL-06,Rules apply in BOTH modes (no Director's Cut keeper test),test:UmbrellaElla.Move.World.KeeperPhasesCarryHealthAndCheckpointInBothModes
+OWL-06,Normal phase advancement carries Ella's health,test:UmbrellaElla.Move.World.KeeperPhasesCarryHealthAndCheckpointInBothModes
+OWL-10,Both modes checkpoint at each phase start,test:UmbrellaElla.Move.World.KeeperPhasesCarryHealthAndCheckpointInBothModes
+OWL-10,No mid-mechanism checkpoint after a mechanism breaks,test:UmbrellaElla.Move.World.KeeperPhasesCarryHealthAndCheckpointInBothModes
+OWL-10,Initial phase advancement carries Ella's health,test:UmbrellaElla.Move.World.KeeperPhasesCarryHealthAndCheckpointInBothModes
+OWL-13,Keeper yellow ordinary contact deals 1 health,test:UmbrellaElla.Move.World.KeeperYellowContactCostsOneAndShootNeverCatches
+OWL-13,Shoot alone never auto-catches,test:UmbrellaElla.Move.World.KeeperYellowContactCostsOneAndShootNeverCatches
+FLOW-09,3-life reset keeps purchased max lives (Health.World.RetryRestoresFullLivesAndHealth asserts 4 lives; not 3),test:UmbrellaElla.Move.World.RetryGivesThreeLivesKeepsPurchasedMaximum
+OWL-16,Dash protection blocks damage not push,test:UmbrellaElla.Move.World.DashGivesNoProtectionByDefault

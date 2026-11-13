@@ -120,14 +120,14 @@ private:
 	void SyncProgressionMode(EUmbrellaPlayMode Mode);
 	void EnterScreen(EFlowScreen To, EFlowCommand Cause);
 	void ShowScreenWidget();
+	/** Starts or stops music for the screen just entered (Start screen, story and credits). */
+	void PlayFlowMusic(EFlowScreen To);
 	void ClearScreenWidget();
 	void SetInputBlocked(bool bBlocked);
 	void ApplyPawnInputBlock();
 	void SetInputModeFor(EFlowScreen To);
 	void AddViewportWidget(const TSharedRef<SWidget>& Widget);
 	void ReturnToTitle();
-	/** The Start screen's music (audio's MusicTitle row through the cue subsystem). */
-	void PlayTitleMusic();
 	void QuitGame();
 	bool IsAnyNeutralKeyHeld() const;
 	void OnPausePressed();

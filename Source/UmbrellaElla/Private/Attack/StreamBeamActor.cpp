@@ -1,6 +1,7 @@
 #include "Attack/StreamBeamActor.h"
 #include "Feedback/Art/ArtSlot.h"
 #include "Attack/SpellRules.h"
+#include "Attack/SpellPresentation.h"
 #include "Components/StaticMeshComponent.h"
 #include "Core/UmbrellaDrawOrder.h"
 #include "Attack/AttackTuning.h"
@@ -19,6 +20,22 @@ namespace
 	const TCHAR* BeamCubePath = TEXT("/Engine/BasicShapes/Cube.Cube");
 	const TCHAR* BeamMaterialPath = TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial");
 	const FName BeamColorParameter(TEXT("Color"));
+	/** Each strand is drawn as two straight parts: canopy to body edge, then along the edge to the tip. */
+	constexpr int32 BeamStrandSegments = 2;
+
+	void BeamPaintPart(UStaticMeshComponent* Part, UObject* Outer, const FLinearColor& Color)
+	{
+		ArtSlot::SetFlatUnlit(Part, Outer, Color);
+		if (!ArtSlot::IsUnlit(Part))
+		{
+			if (UMaterialInterface* Base = LoadObject<UMaterialInterface>(nullptr, BeamMaterialPath, nullptr, LOAD_NoWarn | LOAD_Quiet))
+			{
+				UMaterialInstanceDynamic* Material = UMaterialInstanceDynamic::Create(Base, Outer);
+				Material->SetVectorParameterValue(BeamColorParameter, Color);
+				Part->SetMaterial(0, Material);
+			}
+		}
+	}
 
 	TArray<IUmbrellaShotReceiver*> BeamGatherReceivers(AActor* Target)
 	{
@@ -96,23 +113,68 @@ void AStreamBeamActor::SetBeam(const FVector& Muzzle, float Length, float Width)
 	SetActorLocation(BeamMuzzle + FVector(EffectiveLength * 0.5f, 0.0f, 0.0f));
 	if (!Visual->GetStaticMesh())
 	{
+		BodyColor = Tuning.StreamBodyColor;
+		StrandColor = Tuning.StreamStrandColor;
 		if (UStaticMesh* Mesh = LoadObject<UStaticMesh>(nullptr, BeamCubePath, nullptr, LOAD_NoWarn | LOAD_Quiet))
 		{
 			Visual->SetStaticMesh(Mesh);
-			ArtSlot::SetFlatUnlit(Visual, this, Tuning.StreamPlaceholderColor);
-			if (ArtSlot::IsUnlit(Visual))
-			{
-			}
-			else if (UMaterialInterface* Base = LoadObject<UMaterialInterface>(nullptr, BeamMaterialPath, nullptr, LOAD_NoWarn | LOAD_Quiet))
-			{
-				UMaterialInstanceDynamic* Material = UMaterialInstanceDynamic::Create(Base, this);
-				Material->SetVectorParameterValue(BeamColorParameter, Tuning.StreamPlaceholderColor);
-				Visual->SetMaterial(0, Material);
-			}
+			BeamPaintPart(Visual, this, BodyColor);
 		}
 	}
 	Visual->SetWorldScale3D(FVector(FMath::Max(EffectiveLength, MinVisualLength) / CubeSize, BeamWidth / CubeSize * VisualDepthFraction, BeamWidth / CubeSize));
 	Visual->SetVisibility(EffectiveLength > 0.0f);
+	PlaceStrands();
+}
+
+UStaticMeshComponent* AStreamBeamActor::MakePart(const FName& Name, const FLinearColor& Color)
+{
+	UStaticMeshComponent* Part = NewObject<UStaticMeshComponent>(this, Name);
+	Part->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Part->SetGenerateOverlapEvents(false);
+	Part->SetupAttachment(Visual);
+	Part->SetAbsolute(true, true, true);
+	if (UStaticMesh* Mesh = LoadObject<UStaticMesh>(nullptr, BeamCubePath, nullptr, LOAD_NoWarn | LOAD_Quiet))
+	{
+		Part->SetStaticMesh(Mesh);
+	}
+	Part->RegisterComponent();
+	BeamPaintPart(Part, this, Color);
+	return Part;
+}
+
+void AStreamBeamActor::PlaceStrands()
+{
+	const FAttackTuning& Tuning = GetDefault<UUmbrellaTuning>()->Attack;
+	const TArray<FBeamStrand> Strands = SpellPresentationRules::BeamStrands(EffectiveLength, BeamWidth, Tuning);
+	const int32 Needed = Strands.Num() * BeamStrandSegments;
+	while (StrandParts.Num() < Needed)
+	{
+		StrandParts.Add(MakePart(*FString::Printf(TEXT("Strand%d"), StrandParts.Num()), StrandColor));
+	}
+	const float Depth = BeamWidth / CubeSize * VisualDepthFraction;
+	// Strands sit just in front of the body (larger Y draws nearer) so the light reads around the dark core.
+	const float FrontY = BeamMuzzle.Y + Tuning.StreamDepthHalfExtent * VisualDepthFraction;
+	for (int32 Index = 0; Index < StrandParts.Num(); ++Index)
+	{
+		UStaticMeshComponent* Part = StrandParts[Index];
+		const int32 StrandIndex = Index / BeamStrandSegments;
+		if (!Strands.IsValidIndex(StrandIndex))
+		{
+			Part->SetVisibility(false);
+			continue;
+		}
+		const FBeamStrand& Strand = Strands[StrandIndex];
+		const bool bFirst = Index % BeamStrandSegments == 0;
+		const FVector2D From = bFirst ? Strand.Start : Strand.Converge;
+		const FVector2D To = bFirst ? Strand.Converge : Strand.End;
+		const FVector A(BeamMuzzle.X + From.X, FrontY, BeamMuzzle.Z + From.Y);
+		const FVector B(BeamMuzzle.X + To.X, FrontY, BeamMuzzle.Z + To.Y);
+		const FVector Span = B - A;
+		const float SpanLength = static_cast<float>(Span.Size());
+		Part->SetWorldLocationAndRotation((A + B) * 0.5f, SpanLength > 0.0f ? FRotationMatrix::MakeFromX(Span).Rotator() : FRotator::ZeroRotator);
+		Part->SetWorldScale3D(FVector(FMath::Max(SpanLength, MinVisualLength) / CubeSize, Depth, Tuning.StreamStrandThickness / CubeSize));
+		Part->SetVisibility(SpanLength > 0.0f);
+	}
 }
 
 int32 AStreamBeamActor::ApplyTick(const FUmbrellaShotSpec& Tick)
