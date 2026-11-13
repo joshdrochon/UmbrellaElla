@@ -17,7 +17,8 @@ import os, re, subprocess, sys
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 sys.path.insert(0, os.path.join(ROOT, "tools"))
 BLOCKING = {"ui_check": ["tools/ui_check.py", "ci"], "story_check": ["tools/story_check.py"],
-            "bake_defaults": ["tools/bake_preset.py", "defaults"]}
+            "bake_defaults": ["tools/bake_preset.py", "defaults"],
+            "pipeline_check": ["tools/pipeline_check.py"]}
 
 
 def run(args):

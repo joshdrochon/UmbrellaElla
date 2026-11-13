@@ -90,6 +90,7 @@ void UEllaMotorComponent::StepMotor(float DeltaSeconds)
 	Input.MoveAxis = MoveAxis;
 	Input.bInCurrent = ActiveCurrents.Num() > 0;
 	Input.CurrentVelocity = SumCurrents();
+	Input.ForcedVelocity = SumForcedPushes();
 	Input.LiftMultiplier = LiftMultiplier;
 
 	const FMotorTuning& Tuning = GetDefault<UUmbrellaTuning>()->Motor;
@@ -174,12 +175,30 @@ FVector2D UEllaMotorComponent::SumCurrents() const
 	return Sum;
 }
 
+FVector2D UEllaMotorComponent::SumForcedPushes() const
+{
+	FVector2D Sum = FVector2D::ZeroVector;
+	for (const TPair<FName, FVector2D>& Push : ForcedPushes)
+	{
+		Sum += Push.Value;
+	}
+	return Sum;
+}
+
 void UEllaMotorComponent::OnWindEntered(const FUmbrellaEvent& Event)
 {
 	if (IsEventForElla(Event))
 	{
 		// Current contract: force (speed, units/s) in Value, direction word or "x,z" in Detail.
-		ActiveCurrents.Add(Event.SourceId, MotorModel::ParseCurrentDirection(Event.Detail) * Event.Value);
+		const FVector2D Velocity = MotorModel::ParseCurrentDirection(Event.Detail) * Event.Value;
+		if (MotorModel::IsForcedSource(Event.SourceId))
+		{
+			ForcedPushes.Add(Event.SourceId, Velocity);
+		}
+		else
+		{
+			ActiveCurrents.Add(Event.SourceId, Velocity);
+		}
 	}
 }
 
@@ -188,6 +207,7 @@ void UEllaMotorComponent::OnWindExited(const FUmbrellaEvent& Event)
 	if (IsEventForElla(Event))
 	{
 		ActiveCurrents.Remove(Event.SourceId);
+		ForcedPushes.Remove(Event.SourceId);
 	}
 }
 
