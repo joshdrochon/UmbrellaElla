@@ -21,6 +21,8 @@ OUTDIR = os.path.join(ROOT, "Art", "Source", "UI", "Ground", "Raw")
 ALPHA_FLOOR = 0.035
 ALPHA_FULL = 0.30
 MARGIN = 8
+BG_HEADROOM = 0.02     # the alpha floor sits this far above the painted black's own level (its median), so the
+                       # model's not-quite-black ground keys out fully instead of leaving a faint dark patch
 
 
 def write_png(path, rgba):
@@ -47,10 +49,11 @@ for name, half in (("T_UI_HeadPaused_PH", px[: h // 2]), ("T_UI_HeadSettings_PH"
     crop = crop[: crop.shape[0] // 2 * 2, : crop.shape[1] // 2 * 2]
     crop = crop.reshape(crop.shape[0] // 2, 2, crop.shape[1] // 2, 2, 3).mean(axis=(1, 3))
     b = crop.max(axis=2)
-    alpha = np.clip((b - ALPHA_FLOOR) / (ALPHA_FULL - ALPHA_FLOOR), 0.0, 1.0)
+    floor = max(ALPHA_FLOOR, float(np.median(b[b < ALPHA_FULL])) + BG_HEADROOM)
+    alpha = np.clip((b - floor) / (ALPHA_FULL - floor), 0.0, 1.0)
     rgb = np.where(alpha[..., None] > 0, crop / np.maximum(b, 1e-4)[..., None], 0.0)
     rgb = np.clip(rgb * np.clip(b, 0, 1)[..., None] / np.maximum(alpha, 1e-4)[..., None], 0.0, 1.0)
     rgb = np.where(alpha[..., None] > 0, rgb, 0.0)
     out = np.dstack([rgb, alpha])
     write_png(os.path.join(OUTDIR, name + ".png"), (out * 255.0 + 0.5).astype(np.uint8))
-    print("build_headings: wrote", name, out.shape[1], "x", out.shape[0])
+    print("build_headings: wrote", name, out.shape[1], "x", out.shape[0], "alpha floor %.4f" % floor)
