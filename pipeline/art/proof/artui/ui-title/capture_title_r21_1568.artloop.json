@@ -1,0 +1,38 @@
+{
+ "file": "pipeline/art/proof/artui/ui-title/capture_title_r21_1568.png",
+ "sha256": "e742a618cfa4c7b22a3aeb6dfc40a4f02f23adbaa8f4109047d0d36c7a208151",
+ "card": "artui",
+ "piece": "ui-title",
+ "verdict": "ours",
+ "pairs": {
+  "quality_bar": "ours",
+  "reference": "ours"
+ },
+ "panel": 3,
+ "calibration": {
+  "sessions": 6,
+  "passed": 6
+ },
+ "critic_sessions": [
+  "ui-title-r19-00-reference-c1",
+  "ui-title-r19-00-reference-c2",
+  "ui-title-r19-00-reference-c3",
+  "ui-title-r19-01-quality_bar-c1",
+  "ui-title-r19-01-quality_bar-c2",
+  "ui-title-r19-01-quality_bar-c3"
+ ],
+ "manifest": "cf6f243324b7bf456b6ea5e94a0efc2142e0cb6cb0efb3ec9f7fe5b092f00331",
+ "refs_judged": [
+  "pipeline/art/reference/discord/20261112-0443_Ricky_title-screen.png"
+ ],
+ "context": null,
+ "checks": {
+  "art_check": "pass",
+  "screen_check": "pass",
+  "art_ref_check": "pass"
+ },
+ "rounds": 19,
+ "refs": "669f6f2ac14d",
+ "judged_commit": "11db5a1ceb59",
+ "at": "2026-11-13T14:08:34Z"
+}
