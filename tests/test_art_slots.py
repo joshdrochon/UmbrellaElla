@@ -11,7 +11,7 @@ import art_slots  # noqa: E402
 
 class ArtSlots(unittest.TestCase):
     def test_every_inventory_visual_has_a_unique_slot(self):
-        names = [art_slots.slot_path(v) for v in art_slots.visuals()]
+        names = [art_slots.slot_path(v) for v in art_slots.visuals() if v not in art_slots.NO_SLOT]
         self.assertGreaterEqual(len(names), 100)
         self.assertNotIn("", names)
         self.assertEqual(len(names), len(set(names)))

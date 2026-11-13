@@ -20,6 +20,8 @@
 #include "Core/UmbrellaEvent.h"
 #include "Projectile/UmbrellaProjectile.h"
 #include "Feedback/Background/UmbrellaBackdropSubsystem.h"
+#include "Feedback/Background/SceneArtSubsystem.h"
+#include "Level/LevelCatalogue.h"
 #include "GameFramework/Actor.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Misc/AutomationTest.h"
@@ -595,6 +597,83 @@ bool FArtSlotWind::RunTest(const FString& Parameters)
 					TestTrue(*FString::Printf(TEXT("%s asset exists, so the wind draws it"), Visual), bDrawn);
 				}
 			}
+		}
+	}
+	ArtSlotTestEnd(World);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FArtSlotScene, "UmbrellaElla.Feedback.World.ArtSlotScene",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+
+bool FArtSlotScene::RunTest(const FString& Parameters)
+{
+	UWorld* World = ArtSlotTestWorld();
+	if (!TestNotNull(TEXT("world"), World))
+	{
+		return false;
+	}
+	USceneArtSubsystem* Scene = World->GetSubsystem<USceneArtSubsystem>();
+	if (TestNotNull(TEXT("scene art subsystem"), Scene))
+	{
+		UTexture2D* Texture = ArtSlotTestTexture();
+		TSet<FName> Visuals;
+		for (const FSceneArtSpec& Spec : USceneArtSubsystem::Specs())
+		{
+			Visuals.Add(Spec.Visual);
+		}
+		TestEqual(TEXT("six scene slots have a consumer"), Visuals.Num(), 6);
+		for (const FName Visual : Visuals)
+		{
+			const FString Id = Visual.ToString();
+			const FArtSlotRow* Row = ArtSlot::Find(*Id);
+			if (!TestNotNull(*FString::Printf(TEXT("%s has a slot row"), *Id), Row))
+			{
+				continue;
+			}
+			TestFalse(*FString::Printf(TEXT("%s names a consumer"), *Id), FString(Row->DrawnBy) == TEXT("-"));
+			// A slot asset that exists is drawn at start; otherwise the transient picture is.
+			const bool bAssetExists = ArtSlot::LoadTexture(*Row) != nullptr;
+			TestEqual(*FString::Printf(TEXT("%s is drawn at start iff its asset exists"), *Id), Scene->PanelCount(Id) > 0, bAssetExists);
+			if (!bAssetExists)
+			{
+				TestTrue(*FString::Printf(TEXT("%s takes a picture"), *Id), Scene->ShowArt(Id, Texture) == EArtSlotDraw::Drawn);
+			}
+			TestTrue(*FString::Printf(TEXT("second picture for %s refused"), *Id), Scene->ShowArt(Id, Texture) != EArtSlotDraw::Drawn);
+			const int32 Expected = Id == TEXT("bg:start-end") ? 2 : 1;
+			TestEqual(*FString::Printf(TEXT("%s panel count"), *Id), Scene->PanelCount(Id), Expected);
+			const UStaticMeshComponent* Panel = Scene->FindPanel(Id);
+			if (TestNotNull(*FString::Printf(TEXT("%s panel"), *Id), Panel))
+			{
+				TestTrue(*FString::Printf(TEXT("%s shows art"), *Id), ArtSlot::IsDrawingArt(Panel));
+				TestEqual(*FString::Printf(TEXT("%s has no collision"), *Id), static_cast<int32>(Panel->GetCollisionEnabled()), static_cast<int32>(ECollisionEnabled::NoCollision));
+			}
+		}
+
+		// Depth: backdrop pictures sit between the sky and the play layer; the frame is in front of play.
+		for (const FSceneArtSpec& Spec : USceneArtSubsystem::Specs())
+		{
+			const bool bFrame = Spec.Visual == FName(TEXT("scene:gameplay-frame"));
+			TestTrue(*FString::Printf(TEXT("%s depth"), *Spec.Visual.ToString()), bFrame ? Spec.Depth >= UmbrellaDrawOrder::ForegroundY : (Spec.Depth >= UmbrellaDrawOrder::BackgroundFarY && Spec.Depth < UmbrellaDrawOrder::ArenaY));
+		}
+
+		// Placement: the frame follows the camera, route ends stay at the ends, layers scroll with parallax.
+		const float CameraX = 5000.0f;
+		Scene->ScrollTo(CameraX);
+		const AActor* Frame = Scene->FindPanel(TEXT("scene:gameplay-frame")) ? Scene->FindPanel(TEXT("scene:gameplay-frame"))->GetOwner() : nullptr;
+		if (TestNotNull(TEXT("frame actor"), Frame))
+		{
+			TestEqual(TEXT("frame follows the camera"), static_cast<float>(Frame->GetActorLocation().X), CameraX);
+		}
+		const AActor* End = Scene->FindPanel(TEXT("bg:start-end"), 1) ? Scene->FindPanel(TEXT("bg:start-end"), 1)->GetOwner() : nullptr;
+		if (TestNotNull(TEXT("route end actor"), End))
+		{
+			TestTrue(TEXT("route end picture sits at the route end"), End->GetActorLocation().X > LevelCatalogue::RouteLength() - GetDefault<UUmbrellaTuning>()->ArenaCamera.ArenaWidth);
+		}
+		const AActor* Land = Scene->FindPanel(TEXT("bg:land")) ? Scene->FindPanel(TEXT("bg:land"))->GetOwner() : nullptr;
+		if (TestNotNull(TEXT("land actor"), Land))
+		{
+			TestEqual(TEXT("land scrolls like a backdrop layer"), static_cast<float>(Land->GetActorLocation().X), UUmbrellaBackdropSubsystem::LayerXForCamera(CameraX, UmbrellaBackdropConst::FarParallax));
 		}
 	}
 	ArtSlotTestEnd(World);

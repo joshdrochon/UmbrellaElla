@@ -29,6 +29,9 @@ ELLA = {"ella:free-fall": "Ella_FreeFall", "ella:hop-cartwheel-dash": "Ella_Moti
 KEEPER = {"body-hover-flap": "Owl", "clock-cover-glass-hands": "Clock", "living-departure": "Departure",
           "mechanism-front": "MechFront", "mechanism-middle": "MechMiddle", "mechanism-rear": "MechRear",
           "part-masks-7-6-4-0": "DamageMasks", "talon-empty-and-closed": "Talon", "wings-gust-wear": "Wing"}
+UI_SOURCE = {"ui:clock-face": "ClockFace", "ui:ground-Grain": "Grain", "ui:ground-Ground": "Ground",
+             "ui:head-Paused": "HeadPaused", "ui:head-Settings": "HeadSettings", "ui:panel": "Panel", "ui:title-lockup": "TitleLockup"}
+NO_SLOT = {"ui:font"}   # a font file, not a texture: nothing to load
 UI = {"ui:xp-ring": "XpRing", "ui:spell-wheel": "SpellWheel", "ui:device-and-remap-prompts": "Prompts"}
 SHOTS = {"shot:red": "OwlBolt", "shot:red-impact": "BoltHit", "shot:gold": "WandShot", "shot:stream-beam": "StreamBeam",
          "shot:yellow": "YellowShot", "wind:current-field": "WindZone", "wind:decor-lines": "WindLines"}
@@ -41,7 +44,8 @@ CONSUMER = [("bg-layer:", "UUmbrellaBackdropSubsystem"), ("ella-state:", "UEllaA
             ("enemy:", "UEnemyPresenterSubsystem"),
             ("wind:", "UWindPresenterSubsystem"), ("shot:red-impact", "UUmbrellaVfxSubsystem"), ("shot:red", "UShotPresenterSubsystem"),
             ("shot:gold", "UShotPresenterSubsystem"), ("shot:yellow", "UShotPresenterSubsystem"), ("keeper:body-hover-flap", "UKeeperPresenterSubsystem"),
-            ("vfx-sheet:", "VfxSheetVisual"), ("screen:", "UUiArtSubsystem")]
+            ("vfx-sheet:", "VfxSheetVisual"), ("screen:", "UUiArtSubsystem"),
+            ("bg:", "USceneArtSubsystem"), ("scene:", "USceneArtSubsystem")]
 
 
 def derive(visual):
@@ -63,6 +67,8 @@ def derive(visual):
         return "UI", "T_MenuBackdrop_" + rest, 1, False
     if kind == "screen":
         return "UI", "T_Screen_" + rest, 1, False
+    if visual in UI_SOURCE:
+        return "UI", "T_UI_" + UI_SOURCE[visual], 1, False
     if visual in UI:
         return "UI", "T_" + UI[visual], 1, False
     if visual in SHOTS:
@@ -97,6 +103,8 @@ def cpp_rows(vis=None):
     out = []
     for v in (vis if vis is not None else visuals()):
         d = derive(v)
+        if v in NO_SLOT:
+            continue
         if not d:
             raise SystemExit("FAIL art_slots: no slot rule for %s" % v)
         out.append('\t{ TEXT("%s"), TEXT("%s"), TEXT("%s"), %d, %s, TEXT("%s") },'
@@ -124,7 +132,7 @@ def main(argv=None):
     if have != want:
         print("FAIL art_slots: %s is out of date: python3 tools/build/art_slots.py cpp > %s" % (INC, INC))
         return 1
-    names = [slot_path(v) for v in visuals()]
+    names = [slot_path(v) for v in visuals() if v not in NO_SLOT]
     if len(set(names)) != len(names):
         dup = sorted({n for n in names if names.count(n) > 1})
         print("FAIL art_slots: two visuals share a slot: %s" % ", ".join(dup))

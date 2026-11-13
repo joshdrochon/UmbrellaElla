@@ -4,11 +4,11 @@ bg-layer:ClockWaterWind,Source Feedback/Background LayerSpecs,bg-clock-water-win
 bg-layer:FarLand,Source Feedback/Background LayerSpecs,skyline,artscene,no,/Game/UmbrellaElla/Art/Scene/T_Skyline,UUmbrellaBackdropSubsystem
 bg-layer:NearArchitecture,Source Feedback/Background LayerSpecs,bg-architecture,artscene,no,/Game/UmbrellaElla/Art/Scene/T_BgArchitecture,UUmbrellaBackdropSubsystem
 bg-layer:Sky,Source Feedback/Background LayerSpecs,paper,artscene,no,/Game/UmbrellaElla/Art/Scene/T_Paper,UUmbrellaBackdropSubsystem
-bg:atmosphere,GDD BG-03,bg-atmosphere,artscene,no,/Game/UmbrellaElla/Art/Scene/T_BgAtmosphere,-
-bg:clocks,GDD BG-03,bg-clock,artscene,no,/Game/UmbrellaElla/Art/Scene/T_BgClock,-
-bg:land,GDD BG-04,bg-land,artscene,no,/Game/UmbrellaElla/Art/Scene/T_BgLand,-
-bg:start-end,GDD ART-04,bg-start-end,artscene,no,/Game/UmbrellaElla/Art/Scene/T_BgStartEnd,-
-bg:water,GDD BG-03,bg-water,artscene,no,/Game/UmbrellaElla/Art/Scene/T_BgWater,-
+bg:atmosphere,GDD BG-03,bg-atmosphere,artscene,no,/Game/UmbrellaElla/Art/Scene/T_BgAtmosphere,USceneArtSubsystem
+bg:clocks,GDD BG-03,bg-clock,artscene,no,/Game/UmbrellaElla/Art/Scene/T_BgClock,USceneArtSubsystem
+bg:land,GDD BG-04,bg-land,artscene,no,/Game/UmbrellaElla/Art/Scene/T_BgLand,USceneArtSubsystem
+bg:start-end,GDD ART-04,bg-start-end,artscene,no,/Game/UmbrellaElla/Art/Scene/T_BgStartEnd,USceneArtSubsystem
+bg:water,GDD BG-03,bg-water,artscene,no,/Game/UmbrellaElla/Art/Scene/T_BgWater,USceneArtSubsystem
 ella-state:Absorb,Source Feedback/Anim EEllaVisualState,ella-shield,artella,no,/Game/UmbrellaElla/Art/Ella/T_Ella_Absorb,UEllaAnimPresenterComponent
 ella-state:Down,Source Feedback/Anim EEllaVisualState,ella-down,artella,no,/Game/UmbrellaElla/Art/Ella/T_Ella_Down,UEllaAnimPresenterComponent
 ella-state:Hurt,Source Feedback/Anim EEllaVisualState,ella-hurt,artella,no,/Game/UmbrellaElla/Art/Ella/T_Ella_Hurt,UEllaAnimPresenterComponent
@@ -40,7 +40,7 @@ keeper:talon-empty-and-closed,GDD ANIM-06,keeper-talon,artkeeper,no,/Game/Umbrel
 keeper:wings-gust-wear,GDD ANIM-06,keeper-wing,artkeeper,no,/Game/UmbrellaElla/Art/Keeper/T_Keeper_Wing,-
 menu-backdrop:Clocks,Source UI/Menus EFlowBackdrop,ui-pause,artui,no,/Game/UmbrellaElla/Art/UI/T_MenuBackdrop_Clocks,-
 menu-backdrop:Drift,Source UI/Menus EFlowBackdrop,menu-screen,artscene,no,/Game/UmbrellaElla/Art/UI/T_MenuBackdrop_Drift,-
-scene:gameplay-frame,GDD ART-07,scene,artscene,no,/Game/UmbrellaElla/Art/Scene/T_Frame,-
+scene:gameplay-frame,GDD ART-07,scene,artscene,no,/Game/UmbrellaElla/Art/Scene/T_Frame,USceneArtSubsystem
 screen:Credits,Source Flow/FlowRules.h EFlowScreen,ui-credits,artui,no,/Game/UmbrellaElla/Art/UI/T_Screen_Credits,UUiArtSubsystem
 screen:Defeat,Source Flow/FlowRules.h EFlowScreen,ui-defeated,artui,no,/Game/UmbrellaElla/Art/UI/T_Screen_Defeat,UUiArtSubsystem
 screen:LevelUp,Source Flow/FlowRules.h EFlowScreen,ui-level-up,artui,no,/Game/UmbrellaElla/Art/UI/T_Screen_LevelUp,UUiArtSubsystem
@@ -59,16 +59,16 @@ shot:red,GDD VFX-04,owl-bolt,artshots,no,/Game/UmbrellaElla/Art/Shots/T_OwlBolt,
 shot:red-impact,GDD VFX-04,bolt-hit,artshots,no,/Game/UmbrellaElla/Art/Shots/T_BoltHit,UUmbrellaVfxSubsystem
 shot:stream-beam,GDD ANIM-05,stream-beam,artshots,no,/Game/UmbrellaElla/Art/Shots/T_StreamBeam,-
 shot:yellow,GDD VFX-04,yellow-shot,artshots,no,/Game/UmbrellaElla/Art/Shots/T_YellowShot,UShotPresenterSubsystem
-ui:clock-face,Art/Source/UI/Ground/Raw/T_UI_ClockFace_PH.png,ui-hud-clock,artui,no,,-
+ui:clock-face,Art/Source/UI/Ground/Raw/T_UI_ClockFace_PH.png,ui-hud-clock,artui,no,/Game/UmbrellaElla/Art/UI/T_UI_ClockFace,-
 ui:device-and-remap-prompts,GDD ART-08,ui-settings,artui,no,/Game/UmbrellaElla/Art/UI/T_Prompts,-
 ui:font,Art/Source/UI/Font/UmbrellaStorybook.ttf,ui-title,artui,no,,-
-ui:ground-Grain,Art/Source/UI/Ground/Raw/T_UI_Grain_PH.png,ui-title,artui,no,,-
-ui:ground-Ground,Art/Source/UI/Ground/Raw/T_UI_Ground_PH.png,ui-title,artui,no,,-
-ui:head-Paused,Art/Source/UI/Ground/Raw/T_UI_HeadPaused_PH.png,ui-pause,artui,no,,-
-ui:head-Settings,Art/Source/UI/Ground/Raw/T_UI_HeadSettings_PH.png,ui-settings,artui,no,,-
-ui:panel,Art/Source/UI/Ground/Raw/T_UI_Panel_PH.png,ui-settings,artui,no,,-
+ui:ground-Grain,Art/Source/UI/Ground/Raw/T_UI_Grain_PH.png,ui-title,artui,no,/Game/UmbrellaElla/Art/UI/T_UI_Grain,-
+ui:ground-Ground,Art/Source/UI/Ground/Raw/T_UI_Ground_PH.png,ui-title,artui,no,/Game/UmbrellaElla/Art/UI/T_UI_Ground,-
+ui:head-Paused,Art/Source/UI/Ground/Raw/T_UI_HeadPaused_PH.png,ui-pause,artui,no,/Game/UmbrellaElla/Art/UI/T_UI_HeadPaused,-
+ui:head-Settings,Art/Source/UI/Ground/Raw/T_UI_HeadSettings_PH.png,ui-settings,artui,no,/Game/UmbrellaElla/Art/UI/T_UI_HeadSettings,-
+ui:panel,Art/Source/UI/Ground/Raw/T_UI_Panel_PH.png,ui-settings,artui,no,/Game/UmbrellaElla/Art/UI/T_UI_Panel,-
 ui:spell-wheel,GDD ART-08,ui-spell-wheel,artui,no,/Game/UmbrellaElla/Art/UI/T_SpellWheel,-
-ui:title-lockup,Art/Source/UI/Ground/Raw/T_UI_TitleLockup_PH.png,ui-title,artui,no,,-
+ui:title-lockup,Art/Source/UI/Ground/Raw/T_UI_TitleLockup_PH.png,ui-title,artui,no,/Game/UmbrellaElla/Art/UI/T_UI_TitleLockup,-
 ui:xp-ring,GDD ART-08,ui-xp-ring,artui,no,/Game/UmbrellaElla/Art/UI/T_XpRing,-
 umbrella:prop,GDD ART-06,umbrella,artella,no,/Game/UmbrellaElla/Art/Ella/T_Umbrella,-
 umbrella:repair,GDD ANIM-03,umbrella-repair,artella,no,/Game/UmbrellaElla/Art/Ella/T_UmbrellaRepair,-
