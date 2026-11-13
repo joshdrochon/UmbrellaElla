@@ -135,3 +135,8 @@ NEEDS HUMAN: lead: smoke switch to start the Keeper fight, ProjectDir-relative -
 - Merged main (one conflict in tools/build/art_inventory.py, kept both rule sets) and area/artslots (already in). Source still has no -SmokeKeeper/-SmokeSection/-SmokeMap handling (grep empty), so the context pair cannot be made (docs/build/requests/artkeeper.md items 1-2). Paint plateaued R6-R10; no round run.
 - Owl stays tracked _PH; nothing shipped.
 NEEDS HUMAN: lead: smoke switch to start the Keeper fight, ProjectDir-relative -SmokeShot, Blender-vs-paint decision.
+
+## Nov 13 session 6: still blocked (no new paint, spend unchanged)
+- Merged main and area/artslots. Source still has no -SmokeKeeper/-SmokeSection/-SmokeMap (grep empty), so the context pair cannot be made (requests items 1-2). Owl paint plateaued R6-R10.
+- Set base: owl, base_mode: reuse in references.json for keeper-clock, -talon, -wing, -mech-front/-middle/-mech-rear, -damage, -departure (art_pass_verify base_link check PASS). They are judged on what differs only once the owl base has a verified pass; none can be painted usefully before that.
+NEEDS HUMAN: lead: smoke switch to start the Keeper fight, ProjectDir-relative -SmokeShot, Blender-vs-paint decision.

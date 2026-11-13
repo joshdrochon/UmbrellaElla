@@ -2261,7 +2261,9 @@
     "margin": 0.02,
     "measured": "2026-11-12",
     "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
-   }
+   },
+   "base": "owl",
+   "base_mode": "reuse"
   },
   "keeper-talon": {
    "what": "the Keeper's talon (ANIM-06): the empty rake and the closed front grasp, release",
@@ -2280,7 +2282,9 @@
     "margin": 0.02,
     "measured": "2026-11-12",
     "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
-   }
+   },
+   "base": "owl",
+   "base_mode": "reuse"
   },
   "keeper-wing": {
    "what": "the Keeper's wings (ANIM-06): gather, flap, front, recovery, wing wear, the disabled-gust state",
@@ -2299,7 +2303,9 @@
     "margin": 0.02,
     "measured": "2026-11-12",
     "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
-   }
+   },
+   "base": "owl",
+   "base_mode": "reuse"
   },
   "keeper-mech-front": {
    "what": "the Keeper's front mechanism (ANIM-06): the grasp-and-throw arm",
@@ -2318,7 +2324,9 @@
     "margin": 0.02,
     "measured": "2026-11-12",
     "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
-   }
+   },
+   "base": "owl",
+   "base_mode": "reuse"
   },
   "keeper-mech-middle": {
    "what": "the Keeper's middle mechanism (ANIM-06): the curved cast",
@@ -2336,7 +2344,9 @@
     "margin": 0.02,
     "measured": "2026-11-12",
     "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
-   }
+   },
+   "base": "owl",
+   "base_mode": "reuse"
   },
   "keeper-mech-rear": {
    "what": "the Keeper's rear mechanism (ANIM-06): first stroke, safe pause, second stroke",
@@ -2354,7 +2364,9 @@
     "margin": 0.02,
     "measured": "2026-11-12",
     "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
-   }
+   },
+   "base": "owl",
+   "base_mode": "reuse"
   },
   "keeper-damage": {
    "what": "the Keeper's part damage (ANIM-06): surviving-mechanism masks 7, 6, 4, 0, break, stun",
@@ -2373,7 +2385,9 @@
     "margin": 0.02,
     "measured": "2026-11-12",
     "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
-   }
+   },
+   "base": "owl",
+   "base_mode": "reuse"
   },
   "keeper-departure": {
    "what": "the Keeper's living departure and phase/retry reset (ANIM-06): it leaves alive, not defeated",
@@ -2390,7 +2404,9 @@
     "margin": 0.02,
     "measured": "2026-11-12",
     "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
-   }
+   },
+   "base": "owl",
+   "base_mode": "reuse"
   },
   "enemy-sundial": {
    "what": "Roadwarden, Sundial Caster (GDD SH1.0 ANIM-08, ART-10): one enemy figure, male or female, as a transparent sprite set (idle, aim, fire red or yellow, recover, hit, defeat)",
