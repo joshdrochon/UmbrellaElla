@@ -100,3 +100,13 @@ No gameplay timing, collision or state is written by any of it (tests check the 
 - Verdicts: context capture "ours: capture timing" (the shot fires once the effect is live, on wall time, but game time crawls); quality bar "work" (the painted burst is thin: next paint asks for heavier ink silhouette and value steps).
 - Next: pin the demo to one frame (hold frame 3 for the shot), repaint gold impact with a heavier etched look (one call, prompt reviewed by a fresh Art Director session), rerun. Spend stays 4.56 of 33.82. `VFX_GoldImpact_PH` stays the generated placeholder; nothing shipped.
 - Ran: build exit 0, `UmbrellaElla.Feedback` 35/35 PASS, module_check 0 problems.
+
+## Slice 11 (Nov 13): split lane (10 pieces), flash drafts for all of them, import queued
+- Lane now: vfx-gold-fade, gold-impact, gust, gust-puff, light-shaft, light-spill, umbra, blackout, blocked, slow. Merged main.
+- Demo capture holds one sheet cell (`DemoHoldFrame`, non-shipping) so the shot cannot land on a faded frame. Build exit 0.
+- Prompts reviewed by fresh sessions before any call (`prompt-review*.md` next to each). Drafts on `gemini-3.1-flash-image-preview` 1K (about $0.067 each, 11 calls, no 3-pro yet). Spend counter 17.26 of 33.82 at last call (shared).
+- Sprite pieces (strip on green, `cut_strip.py`, `snap_palette.py`): GoldImpact v3 (heavier ink, value steps: a clear step up from v2), GoldFade, GustPuff, Gust, Blocked. `art_check --effect` PASS on all five.
+- Veil pieces (2 x 2 grid on flat black or white, new `cut_veil.py`: brightness or darkness becomes alpha): LightShaft, Umbra, Blackout, Slow, LightSpill. `art_check --effect` PASS (after palette snap for the light ones). Light shaft needed a second draw (frames drifted); fixed with a "same place in every panel" sentence.
+- Light spill has no texture slot (it is the `M_VFX_Spill_PH` material), so it has a candidate image but no in-engine slot yet; wiring it needs an `import_vfx.py` change.
+- Slow: the GDD slow cue is local to the clock bezel; the full-frame overlay needs a placement check in engine (flagged by the prompt reviewer).
+- Not done: in-engine import of the 9 sheets into the `_PH` slots (editor import waits for a free Unreal slot; first attempt used a relative script path, fixed), captures, panel rounds. Nothing shipped; every slot stays a tracked `_PH`.
