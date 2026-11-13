@@ -64,3 +64,10 @@ NEEDS HUMAN: lead: (1) hide the cube when the slot has art, (2) Blender-vs-paint
 - Counter ../logs/image-spend.json: 34.97 USD spent, cap 33.82 (IMAGE_SPEND_CAP_USD). Over the cap, so assetgen refuses any paid call; no R3 draft possible.
 - No piece passes (R1 mech fails on_palette 0.65 to 0.77 against the 0.8 bar; R2 unusable). The per-piece 1.00 cap rule does not apply: no piece is within 0.05 of score_min, and the shared cap is exhausted anyway.
 NEEDS HUMAN: lead: raise IMAGE_SPEND_CAP_USD (R3 flash drafts at ~0.04 each) or confirm the six Keeper parts stay tracked placeholders.
+
+## Nov 13 session 20: R3 mech draft painted, keyed, cut; deterministic checks still fail (spend 35.007, assetgen did not refuse)
+- R3 flash draft (0.039) with flat-green wording: ground came back near-uniform, `assetgen clean --chroma 85A272 --grow 2 --hue-tol 30` worked. Cut into front/middle/rear (pipeline/art/proof/artkeeper2/mech/R3/); front re-cut from x=150 to drop top-left residue.
+- art_check --effect: front on_palette 0.837 PASS, off_band 0.0107 (bar 0.01) FAIL by 0.0007; middle on_palette 0.788 (bar 0.8), off_band 0.0063; rear on_palette 0.670 FAIL. Better than R1 (0.65 to 0.77), still no piece passes.
+- Drawing defect: each piece has an eye-pendant under it (model read "top eye" as an eye); needs wording "plain round ring, no eye symbol" in R4.
+- Not run: art_ref_check, blind panel, context pair, slots (no piece clears art_check).
+- Next: R4 flash draft: no eye symbols, rear gear in darker bronze/umber to lift on_palette; crop and recheck.
