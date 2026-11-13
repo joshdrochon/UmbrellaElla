@@ -55,9 +55,9 @@ ui-settings-game-options-part-break-stun-time,label,Part-break stun time,,yes,sc
 ui-settings-game-options-keeper-slow-attack,label,Keeper slow attack,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
 ui-settings-game-options-eye-blackout-time,label,Eye blackout time,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
 ui-settings-game-options-first-play-tutorials,label,First-play tutorials,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
-ui-settings-game-options-remap-controls,label,Remap controls,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
+ui-settings-game-options-remap-controls,button,Remap controls,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
 ui-settings-game-options-menu-background-motion,label,Menu background motion,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
-ui-settings-game-options-off,label,Off,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
+ui-settings-game-options-off,button,Off,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
 ui-settings-game-options-open,button,Open,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
 ui-settings-controller-shoot,label,Shoot,,yes,screen=settings-controller; where=SettingsModel.cpp
 ui-settings-controller-absorb,label,Absorb,,yes,screen=settings-controller; where=SettingsModel.cpp
