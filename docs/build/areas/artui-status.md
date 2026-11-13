@@ -170,3 +170,19 @@ missing the agent-play script on main (not my lane).
 ## Resume 5 (13 Nov, artui worker)
 - Merged origin/main (rules text only). Nothing new for this lane; inventory artui 25, 2 passed (tutorial). No image spend, no panel run.
 - STOPPED on the Opus restart already written as request 5 in `docs/build/requests/artui.md` (ui-title flat about 10 rounds, triage = work). Derived screens wait on the title lettering.
+
+## Resume 6 (13 Nov, artui worker on Opus, request 5)
+- Lockup r2: new prompt (`pipeline/art/proof/artui/ui-title-lockup/r2/prompt.md`) after a fresh Art Director review
+  (`prompt-review.md`, 7 edits applied): stamped, worn letterpress capitals, a partial inked clock arc with XI/XII/I, a gold
+  clock-hand flourish off the end of "The Stolen Hour", all kept clear of the subtitle and menu. 2 flash drafts ($0.078;
+  shared counter $28.413 of $33.82). Draft A keyed by `build_lockup.py` (now crops to the content and keeps arc + hand)
+  and imported as `T_UI_TitleLockup_PH`.
+- Triage: two check defects found (requests 6 and 7). (6) assetgen's `--tier final` draft gate runs full-frame art_check
+  on UI pieces, so no screen can ever get a pro final; (7) `art_loop.fit_packet` centre-crops a 1920-wide capture to
+  1568, cutting the title swash and menu: the "cropped at the left edge" gap in every 1080p round. Workaround: capture at
+  `RUN_RES=1568x882`.
+- ui-title r18 (1920x1080, cropped by the packet): reference wins both pairs. r19 (1568x882, same build):
+  `art_loop: round 19 piece=ui-title verdict=ours pairs=quality_bar:ours,reference:ours panel=3 calibration=6/6 checks=pass -> pass`.
+  Record: `pipeline/art/proof/artui/ui-title/capture_title_r21_1568.artloop.json`. ui-title PASSED.
+- No pro final was painted: the piece passed on the flash draft, so the $0.13 was not spent.
+- The shipped texture is still named `T_UI_TitleLockup_PH`. Renaming it off `_PH` changes `UmbrellaUIStyle.cpp` and the asset; that's left to the lead's ship step.

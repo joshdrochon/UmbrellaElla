@@ -169,6 +169,45 @@
    "commit": "783fb1f1b6bd",
    "gap": "Y has a smoother, more digital finish, with less grain, less etched linework and a flatter, less textured paper surface than X.; X has smoother, more digital rendering with plainer lettering, lacking Y's etched linework, paper grain and ornate hand-drawn letterforms.; X is smoother and more digital, with less grain, fewer etched edge details and flatter cloud and rock surfaces than Y's textured paper finish.",
    "at": "2026-11-13T10:25:48Z"
+  },
+  {
+   "piece": "ui-defeated",
+   "round": 5,
+   "verdict": "ours",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "ours",
+    "reference": "ours"
+   },
+   "panel": 3,
+   "calibration": {
+    "sessions": 6,
+    "passed": 6
+   },
+   "missing": [],
+   "critic_sessions": [
+    "ui-defeated-r5-00-reference-c1",
+    "ui-defeated-r5-00-reference-c2",
+    "ui-defeated-r5-00-reference-c3",
+    "ui-defeated-r5-01-quality_bar-c1",
+    "ui-defeated-r5-01-quality_bar-c2",
+    "ui-defeated-r5-01-quality_bar-c3"
+   ],
+   "manifest": "a528c7c4f0dc53fffaf05292f28986f37176697f5fcc2ecbe360f759026cd418",
+   "evidence": "pipeline/art/critic/ui-defeated/5",
+   "prompt": "art_loop PANEL_PROMPT 8f1e148c4dd0",
+   "files": "43e6908a46c185058b4de6783552c5493f31f7b994226df12ef7072d96714e0d",
+   "file": "pipeline/art/proof/artui/ui-defeated/capture_defeated_r21_1568.png",
+   "card": "artui",
+   "refs": "669f6f2ac14d",
+   "commit": "ab91a1ce827a",
+   "gap": "",
+   "at": "2026-11-13T16:03:57Z"
   }
  ]
 }

@@ -168,6 +168,47 @@
    "commit": "783fb1f1b6bd",
    "gap": "Y's cartoon-clean inking and smooth digital gradients lack X's grainy, textured wash.",
    "at": "2026-11-13T10:40:50Z"
+  },
+  {
+   "piece": "ui-pause",
+   "round": 5,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "ours",
+    "reference": "reference"
+   },
+   "panel": 3,
+   "calibration": {
+    "sessions": 6,
+    "passed": 6
+   },
+   "missing": [
+    "reference:pipeline/art/reference/discord/20261112-0443_Ricky_title-screen.png"
+   ],
+   "critic_sessions": [
+    "ui-pause-r5-00-reference-c1",
+    "ui-pause-r5-00-reference-c2",
+    "ui-pause-r5-00-reference-c3",
+    "ui-pause-r5-01-quality_bar-c1",
+    "ui-pause-r5-01-quality_bar-c2",
+    "ui-pause-r5-01-quality_bar-c3"
+   ],
+   "manifest": "",
+   "evidence": "",
+   "prompt": "",
+   "files": "36aa87c679268823f97f92eefb34c91035f6e22f13536079f5ff6796bb1860ab",
+   "file": "pipeline/art/proof/artui/ui-pause/capture_pause_r21_1568.png",
+   "card": "artui",
+   "refs": "669f6f2ac14d",
+   "commit": "ab91a1ce827a",
+   "gap": "X's ink line is clean but flat, and its paper texture is thin. Its \"Paused\" lettering is plain, with a faint patch behind it, and its distant layers don't carry Y's etched detail.; X has softer, less refined lettering and a smoother painted finish, with weaker etched line and paper grain than Y's detailed, textured ink work.",
+   "at": "2026-11-13T14:35:51Z"
   }
  ]
 }

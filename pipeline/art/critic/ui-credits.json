@@ -168,6 +168,47 @@
    "commit": "783fb1f1b6bd",
    "gap": "Y's lettering is plain, uniform, left-aligned type with no hierarchy, ornament or gold/rust accent. It also shows bracketed placeholder text and looks unfinished next to X's etched title and ruled menu.; Y's lettering is plain, evenly spaced and unornamented, with no gold accent, no etched flourish and no hierarchy, and its placeholder text breaks the finish.; Y's credits lettering is plain, evenly spaced and unornamented, with placeholder bracket text, and it has none of X's etched title lettering, gold-edge finish or layout hierarchy.",
    "at": "2026-11-13T10:26:09Z"
+  },
+  {
+   "piece": "ui-credits",
+   "round": 4,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "ours",
+    "reference": "reference"
+   },
+   "panel": 3,
+   "calibration": {
+    "sessions": 6,
+    "passed": 6
+   },
+   "missing": [
+    "reference:pipeline/art/reference/discord/20261112-0443_Ricky_title-screen.png"
+   ],
+   "critic_sessions": [
+    "ui-credits-r4-00-reference-c1",
+    "ui-credits-r4-00-reference-c2",
+    "ui-credits-r4-00-reference-c3",
+    "ui-credits-r4-01-quality_bar-c1",
+    "ui-credits-r4-01-quality_bar-c2",
+    "ui-credits-r4-01-quality_bar-c3"
+   ],
+   "manifest": "",
+   "evidence": "",
+   "prompt": "",
+   "files": "6f35fc382b73068dee8344bb84fea30be4fcc9abe050d21d74cd34f294abad0e",
+   "file": "pipeline/art/proof/artui/ui-credits/capture_credits_r21_1568.png",
+   "card": "artui",
+   "refs": "669f6f2ac14d",
+   "commit": "ab91a1ce827a",
+   "gap": "Y's lettering is plain, evenly spaced and untreated, with no gilding or etching, and the credits read as placeholders rather than finished type.; X's lettering is plain small-caps with no etched or gold detail, and bracketed placeholder text breaks the finish.; X has plain flat small-cap lettering with no etched or gilded finish, and a looser, less textured painted ground; Y has a crafted title mark and a richer inked ground.",
+   "at": "2026-11-13T15:30:35Z"
   }
  ]
 }
