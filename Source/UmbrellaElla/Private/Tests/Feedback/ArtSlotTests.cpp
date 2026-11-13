@@ -1,3 +1,4 @@
+#include "Attack/StreamBeamActor.h"
 #include "Components/StaticMeshComponent.h"
 #include "Feedback/Art/ArtSlot.h"
 #include "Core/UmbrellaDrawOrder.h"
@@ -10,7 +11,6 @@
 #include "Feedback/Anim/EnemyPresenterSubsystem.h"
 #include "Feedback/Anim/KeeperPresenterSubsystem.h"
 #include "Feedback/Anim/ShotPresenterSubsystem.h"
-#include "Attack/StreamBeamActor.h"
 #include "Feedback/Anim/WindPresenterSubsystem.h"
 #include "Field/WindCurrent.h"
 #include "Feedback/Vfx/UmbrellaVfxDirectorSubsystem.h"
@@ -650,6 +650,11 @@ bool FArtSlotScene::RunTest(const FString& Parameters)
 				TestEqual(*FString::Printf(TEXT("%s has no collision"), *Id), static_cast<int32>(Panel->GetCollisionEnabled()), static_cast<int32>(ECollisionEnabled::NoCollision));
 			}
 		}
+
+		TestTrue(TEXT("land is gated on BG-04"), USceneArtSubsystem::FeatureFor(TEXT("bg:land")) == EFeatureId::BG_04);
+		TestTrue(TEXT("water is gated on BG-03"), USceneArtSubsystem::FeatureFor(TEXT("bg:water")) == EFeatureId::BG_03);
+		TestTrue(TEXT("frame is gated on FLOW-25"), USceneArtSubsystem::FeatureFor(TEXT("scene:gameplay-frame")) == EFeatureId::FLOW_25);
+		TestTrue(TEXT("route ends are gated on FLOW-25"), USceneArtSubsystem::FeatureFor(TEXT("bg:start-end")) == EFeatureId::FLOW_25);
 
 		// Depth: backdrop pictures sit between the sky and the play layer; the frame is in front of play.
 		for (const FSceneArtSpec& Spec : USceneArtSubsystem::Specs())
