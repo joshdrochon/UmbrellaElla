@@ -101,3 +101,8 @@ Next paints: shield R3 (terminal, finial, mask, gold in prompt), closed R3 (airb
 Merged main; origin/area/artslots has nothing new. `grep -rn "Art/Ella" Source` finds no Ella loader (only VFX paths). `Content/UmbrellaElla/Art/` has only `VFX/`.
 No `context` capture is possible, so no Ella piece can pass. No paint spend this round (R3 for shield/closed would not change that).
 Stopped on the blocker: lead must add the `FB_Ella_<State>_PH` loader in the feedback lane (docs/build/requests/artella.md #2). Then: import ella-up-open as `FB_Ella_Open_PH`, capture, finish its panel; paint shield R3 and closed R3.
+
+## Round 12 (Nov 13): candidates moved off Art/Source
+Merged main. Per art-image-model.md "Where candidates live": Paint R1/R2 (paints, keys, posts, frames) now under
+`pipeline/art/proof/artella/<piece>/<round>/`; Blender/GP/3D renders under `pipeline/art/proof/artella/raw/`. Provenance paths updated (51 rows);
+`paint.py` writes to the new path. `Art/Source/Ella/Raw/Ella_*_PH` (the tracked placeholders) and the scripts stay. Blocker unchanged: request #2 (Ella slot loader).
