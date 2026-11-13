@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Render the shots art lane's pieces with Blender (owl-bolt, bolt-hit, wand-shot, wind-zone, wind-lines).
 
-  python3 tools/build/assets/art_shots.py <piece> [--out-dir Art/Source/<Asset>/Raw/Still]
+  python3 tools/build/assets/art_shots.py <piece> [--out-dir pipeline/art/proof/artshots/<piece>/Raw/Still]
 Builds the render job from the shared planner (pipeline/art/blender/plan.py: colours, look, layout sheet), swaps in this
 lane's builder (art_shots_blender.py) and runs Blender headless. Prints the frame path.
 """
@@ -48,7 +48,7 @@ def main(argv=None):
     ap.add_argument("--seed", type=int)
     ap.add_argument("--scale", type=int, default=1, help="render at N x the layout frame size")
     a = ap.parse_args(argv)
-    out = (a.out_dir or f"Art/Source/{PIECES[a.piece][2]}/Raw/Still").rstrip("/")
+    out = (a.out_dir or f"pipeline/art/proof/artshots/{a.piece}/Raw/Still").rstrip("/")
     j = make_job(a.piece, out, a.seed, a.scale)
     os.makedirs(out, exist_ok=True)
     jp = f"{out}/{j['asset']}_Still.job.json"

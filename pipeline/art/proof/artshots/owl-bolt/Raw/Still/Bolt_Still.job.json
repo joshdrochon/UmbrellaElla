@@ -62,9 +62,9 @@
   ],
   "samples": 16
  },
- "out_dir": "Art/Source/OwlBolt/Raw/Still",
+ "out_dir": "pipeline/art/proof/artshots/owl-bolt/Raw/Still",
  "frames": [
-  "Art/Source/OwlBolt/Raw/Still/Bolt_Still_00.png"
+  "pipeline/art/proof/artshots/owl-bolt/Raw/Still/Bolt_Still_00.png"
  ],
- "blend": "Art/Source/OwlBolt/Raw/Still/Bolt_Still.blend"
+ "blend": "pipeline/art/proof/artshots/owl-bolt/Raw/Still/Bolt_Still.blend"
 }

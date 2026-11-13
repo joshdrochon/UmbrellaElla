@@ -1,18 +1,18 @@
 {
- "character": "wind-lines",
+ "character": "owl-bolt",
  "anim": "Still",
- "builder": "wind_lines",
- "asset": "WindLines",
+ "builder": "shot_red",
+ "asset": "OwlBolt",
  "frame_size": [
-  816,
-  256
+  640,
+  320
  ],
  "pivot_px": [
-  408,
-  128
+  184,
+  160
  ],
- "faces": "right",
- "px_per_unit": 80.0,
+ "faces": "left",
+ "px_per_unit": 120.0,
  "fps": 0,
  "loop": false,
  "layout": "recipe",
@@ -51,7 +51,7 @@
    "owl-umber"
   ],
   "ink": "ink",
-  "line_px": 2.0,
+  "line_px": 4.0,
   "grain": 0.06,
   "grain_scale": 180.0,
   "seed": 11,
@@ -62,11 +62,11 @@
   ],
   "samples": 24,
   "filter_px": 0.6,
-  "snap": 0.0125
+  "snap": 0.008333
  },
- "out_dir": "Art/Source/WindLines/Raw/Still2",
+ "out_dir": "pipeline/art/proof/artshots/owl-bolt/Raw/Still6",
  "frames": [
-  "Art/Source/WindLines/Raw/Still2/WindLines_Still_00.png"
+  "pipeline/art/proof/artshots/owl-bolt/Raw/Still6/OwlBolt_Still_00.png"
  ],
- "blend": "Art/Source/WindLines/Raw/Still2/WindLines_Still.blend"
+ "blend": "pipeline/art/proof/artshots/owl-bolt/Raw/Still6/OwlBolt_Still.blend"
 }

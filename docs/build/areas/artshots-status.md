@@ -114,3 +114,6 @@ at the 24x24 downscale read as off-band maroon, offband 0.127 > 0.05; dark share
 shadow facets, dark tones under a quarter: owl g4 PASS 0.744, wand g3 PASS 0.583, bolt-hit g3 PASS 0.685 (Art/Source/<Asset>/prompt.v*.txt, Paint/g*_fit.png).
 Lesson: ink-heavy art must keep the dark share near the references or art_judge's value/offband terms fail it. art_shots_fit.py gained an ERODE arg
 (ink thinning); not used on the candidates (it flattens the ink look). Spend by me this session: about $0.97 (shared 7.72 of 33.82). Panels: Saved/panel/{owlG3,wandG3,hitG3}.
+
+## 13 Nov: candidates moved (lead's "Where candidates live" rule)
+All paints, keyed cuts, renders, prompts and job files moved from Art/Source/<Asset>/ to pipeline/art/proof/artshots/<piece>/ (owl-bolt, wand-shot, bolt-hit, wind-lines, wind-zone). Provenance and critic-record paths updated; art_shots.py default out-dir now the proof folder. Art/Source holds nothing of mine (all five still untracked-_PH, no piece has passed). Merged main.

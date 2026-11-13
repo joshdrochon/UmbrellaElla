@@ -1,18 +1,18 @@
 {
- "character": "bolt-hit",
+ "character": "wand-shot",
  "anim": "Still",
- "builder": "burst_red",
- "asset": "BoltHit",
+ "builder": "shot_gold",
+ "asset": "WandShot",
  "frame_size": [
   512,
-  512
- ],
- "pivot_px": [
-  256,
   256
  ],
+ "pivot_px": [
+  396,
+  128
+ ],
  "faces": "right",
- "px_per_unit": 120.0,
+ "px_per_unit": 96.0,
  "fps": 0,
  "loop": false,
  "layout": "recipe",
@@ -62,11 +62,11 @@
   ],
   "samples": 24,
   "filter_px": 0.6,
-  "snap": 0.008333
+  "snap": 0.010417
  },
- "out_dir": "Art/Source/BoltHit/Raw/Still4",
+ "out_dir": "pipeline/art/proof/artshots/wand-shot/Raw/Still4",
  "frames": [
-  "Art/Source/BoltHit/Raw/Still4/BoltHit_Still_00.png"
+  "pipeline/art/proof/artshots/wand-shot/Raw/Still4/WandShot_Still_00.png"
  ],
- "blend": "Art/Source/BoltHit/Raw/Still4/BoltHit_Still.blend"
+ "blend": "pipeline/art/proof/artshots/wand-shot/Raw/Still4/WandShot_Still.blend"
 }
