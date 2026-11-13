@@ -43,3 +43,15 @@ not measured:
 - tests.test_final9_fixes (workbench-check on UmbrellaElla.Target.cs), tests.test_audio_check.AudioDumpTool
   (home copy differs from staged), tests.test_assetgen.AudioSteps (25 tracked audio placeholders in the repo).
 All outside this lane; for the build lead.
+
+## Critic-check defects from artshots (12 Nov)
+- Packet ground (request 1): `tools/art_loop.py flatten_on_ground` now composites transparent sprites (ours and reference)
+  on the game's paper tile `SKY_StarPaper_Tile.png` (flat `PACKET_GROUND` only if the tile is missing). Tests in
+  `tests/test_art_loop.py` (tile pixel under a clear pixel; a transparent entry has more than one ground colour).
+  Critic evidence is artshots' own (same seeds: flat ground 0/3 wins, paper tile 1/3, nobody names the ground); not re-run here.
+- Wand-shot calibration (request 3): new `tests/fixtures/art/crude/wand_pulse_crude.png` (crude gold pulse), mapped to
+  `wand-shot` in `evals/art-judge/critic-calibration.json` (removed from the rust-cross bolt's list); listed in
+  `tests/test_art_calibration.py` TARGETS (fails the numeric judge). Three blind critic sessions on freshly built
+  wand-shot folders (seeds 1-3, Opus): all three got both calibration pairs right (team image beats crude, SAME on the
+  shifted copy). "3 runs in a row" = these 3 sessions; not the full panel.
+- Left: artshots requests 2 and 4 are not in this lane.
