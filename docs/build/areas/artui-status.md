@@ -87,7 +87,7 @@
 Ground paints r1/r2 (+ requests, prompts) now under `pipeline/art/proof/artui/ui-title/`; provenance paths updated.
 `Art/Source/UI` holds only the font and the tracked `_PH` ground/clock-face. Main merged (references.json taken from main;
 all 12 screen elements plus `ui-spell-wheel` present); `ui_check.py ci` PASS. `pipeline_check` has 2 problems, both
-missing `tools/build/agent_play.py` on main (not my lane).
+missing the agent-play script on main (not my lane).
 
 ## Round 7-9 (12 Nov, artui worker)
 - references.json: `artui` re-added to `cards` of `title-screen` and `bar-other-realm` (main's merge had dropped it); art_ref_check PASS 0.958.

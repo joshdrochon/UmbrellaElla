@@ -112,15 +112,22 @@ MATERIAL = {"M_VFX_Sheet": "vfx-light-spill", "M_VFX_Spill": "vfx-light-spill"}
 WIDGET = {"USettingsMenuWidget": "ui-settings", "UXpRingWidget": "ui-xp-ring",
           "UStoryCaptionWidget": "ui-story-text", "UJourneyCompleteWidget": "ui-journey-complete",
           "AUmbrellaHUD": "ui-hud-clock", "SFlowBackground": "menu-screen", "SFlowMenu": "ui-title",
-          "SFlowTextScreen": "ui-credits", "UProgressionPurchaseWidget": "ui-purchase"}
+          "SFlowTextScreen": "ui-credits", "UProgressionPurchaseWidget": "ui-purchase",
+          "SUmbrellaGround": "ui-title", "SUmbrellaRule": "ui-title"}
 # Files under Art/ and Content/*/Art: (regex on the repo-relative path, visual id; {1} = first group).
 FILE_RULES = [
     (r"^Art/Source/VFX/Raw/(VFX_\w+?)(?:_PH)?\.png$", "vfx-sheet:{1}"),
     (r"^Content/[^/]+/Art/VFX/T_(VFX_\w+?)(?:_PH)?\.uasset$", "vfx-sheet:{1}"),
     (r"^Content/[^/]+/Art/VFX/(M_VFX_\w+?)(?:_PH)?\.uasset$", "vfx-material:{1}"),
     (r"^Art/Source/Keeper/", "keeper:body-hover-flap"),
+    (r"^Art/Source/UI/Font/UmbrellaStorybook\.ttf$", "ui:font"),
+    (r"^Art/Source/UI/Ground/Raw/T_UI_(Ground|Grain)_PH\.png$", "ui:ground-{1}"),
+    (r"^Art/Source/UI/Ground/Raw/T_UI_ClockFace_PH\.png$", "ui:clock-face"),
+    (r"^Art/Source/UI/Ground/Raw/T_UI_TitleLockup_PH\.png$", "ui:title-lockup"),
 ]
-NOT_ART = (".json", ".py", ".md", ".txt", ".csv", ".meta", ".sh", ".blend1", ".log")
+UI_FILE_PIECE = {"ui:font": "ui-title", "ui:ground-Ground": "ui-title", "ui:ground-Grain": "ui-title",
+                 "ui:clock-face": "ui-hud-clock", "ui:title-lockup": "ui-title"}
+NOT_ART = (".json", ".py", ".md", ".txt", ".csv", ".meta", ".sh", ".blend1", ".log", ".pyc")
 
 
 def rd(rel):
@@ -210,7 +217,7 @@ def discover():
                 elif visual.startswith("vfx-sheet:"):
                     put(visual, rel, VFX_SHEET.get(m.group(1)))
                 else:
-                    put(visual, rel, rows.get(visual, [None, None])[1])
+                    put(visual, rel, UI_FILE_PIECE.get(visual, rows.get(visual, [None, None])[1]))
                 break
         else:
             put("file:" + rel, rel, None)
