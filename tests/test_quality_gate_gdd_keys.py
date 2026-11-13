@@ -30,5 +30,10 @@ class GddKeys(unittest.TestCase):
         self.assertEqual(quality_gate.gdd_keys(lane) - quality_gate.gdd_keys(cached), set())
 
 
+    def test_a_baseline_written_with_keys_round_trips(self):
+        keys = quality_gate.gdd_keys(MAIN)   # what `quality_gate.py baseline` writes now
+        self.assertEqual(quality_gate.gdd_keys(sorted(keys)), keys)
+
+
 if __name__ == "__main__":
     unittest.main()
