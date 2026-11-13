@@ -78,11 +78,11 @@ TArray<FDeveloperOptionSpec> DeveloperOptionRules::AllSpecs()
 	Specs.Add(MakeDevSpec(EDeveloperOption::Hop, TEXT("Hop"), LOCTEXT("Hop", "Hop distance"), EKind::Percent, Low));
 	Specs.Add(MakeDevSpec(EDeveloperOption::Dash, TEXT("Dash"), LOCTEXT("Dash", "Dash distance"), EKind::Percent, Low));
 	Specs.Add(MakeDevSpec(EDeveloperOption::VoluntaryCurrents, TEXT("VoluntaryCurrents"), LOCTEXT("VoluntaryCurrents", "Wind current strength"), EKind::Percent, Off));
-	Specs.Add(MakeDevSpec(EDeveloperOption::HostileGusts, TEXT("HostileGusts"), LOCTEXT("HostileGusts", "Hostile gust push and damage"), EKind::Percent, Off));
-	Specs.Add(MakeDevSpec(EDeveloperOption::Missiles, TEXT("Missiles"), LOCTEXT("Missiles", "Missile speed"), EKind::Percent, Low));
+	Specs.Add(MakeDevSpec(EDeveloperOption::HostileGusts, TEXT("HostileGusts"), LOCTEXT("HostileGusts", "Hostile gust strength"), EKind::Percent, Off));
+	Specs.Add(MakeDevSpec(EDeveloperOption::Missiles, TEXT("Missiles"), LOCTEXT("Missiles", "Enemy shot speed"), EKind::Percent, Low));
 	Specs.Add(MakeDevSpec(EDeveloperOption::Absorption, TEXT("Absorption"), LOCTEXT("Absorption", "Absorb range and pull"), EKind::Percent, Low));
 	Specs.Add(MakeDevSpec(EDeveloperOption::HealthGround, TEXT("HealthGround"), LOCTEXT("HealthGround", "Hits per life"), EKind::Offset, 0));
-	Specs.Add(MakeDevSpec(EDeveloperOption::FourWeapons, TEXT("FourWeapons"), LOCTEXT("FourWeapons", "All four weapons unlocked"), EKind::Toggle, DeveloperOptionLimits::ToggleOff));
+	Specs.Add(MakeDevSpec(EDeveloperOption::FourWeapons, TEXT("FourWeapons"), LOCTEXT("FourWeapons", "All four spells unlocked"), EKind::Toggle, DeveloperOptionLimits::ToggleOff));
 	Specs.Add(MakeDevSpec(EDeveloperOption::ProgressionScarf, TEXT("ProgressionScarf"), LOCTEXT("ProgressionScarf", "Experience gained"), EKind::Percent, Off));
 	Specs.Add(MakeDevSpec(EDeveloperOption::OwlParts, TEXT("OwlParts"), LOCTEXT("OwlParts", "Keeper part health"), EKind::Percent, Low));
 	Specs.Add(MakeDevSpec(EDeveloperOption::Clock, TEXT("Clock"), LOCTEXT("Clock", "Keeper clock health"), EKind::Percent, Low));
@@ -91,7 +91,7 @@ TArray<FDeveloperOptionSpec> DeveloperOptionRules::AllSpecs()
 	Specs.Add(MakeDevSpec(EDeveloperOption::EyesBlackout, TEXT("EyesBlackout"), LOCTEXT("EyesBlackout", "Eye blackout time"), EKind::Percent, Off));
 	Specs.Add(MakeDevSpec(EDeveloperOption::Tutorial, TEXT("Tutorial"), LOCTEXT("Tutorial", "First-play tutorials"), EKind::Toggle, DeveloperOptionLimits::ToggleOn));
 	Specs.Add(MakeDevSpec(EDeveloperOption::Remapping, TEXT("Remapping"), LOCTEXT("Remapping", "Remap controls"), EKind::Link, 0));
-	Specs.Add(MakeDevSpec(EDeveloperOption::SizeHitbox, TEXT("SizeHitbox"), LOCTEXT("SizeHitbox", "Ella hitbox size"), EKind::Percent, Low));
+	Specs.Add(MakeDevSpec(EDeveloperOption::SizeHitbox, TEXT("SizeHitbox"), LOCTEXT("SizeHitbox", "Ella's hit area"), EKind::Percent, Low));
 	Specs.Add(MakeDevSpec(EDeveloperOption::Background, TEXT("Background"), LOCTEXT("Background", "Menu background motion"), EKind::Percent, Off));
 	return Specs;
 }
@@ -293,7 +293,7 @@ FText DeveloperOptionRules::ValueText(EDeveloperOption Option, int32 Value, int3
 		return FText::AsNumber(DevCount(Base, Value));
 	}
 	case EDeveloperOptionKind::Toggle:
-		return Value == DeveloperOptionLimits::ToggleOn ? LOCTEXT("On", "On") : LOCTEXT("Off", "Off");
+		return Value == DeveloperOptionLimits::ToggleOn ? LOCTEXT("On", "On") : LOCTEXT("Off", "Turn off");
 	case EDeveloperOptionKind::Link:
 	default:
 		return LOCTEXT("Open", "Open");
