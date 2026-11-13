@@ -31,8 +31,15 @@ public:
 	/** The painted title lockup (Art/Source/UI/Lockup/build_lockup.py), transparent. Null when not imported. */
 	UTexture2D* GetTitleLockup() const { return TitleLockup; }
 
+	/** The painted screen headings (Art/Source/UI/Headings/build_headings.py), transparent. Null when not imported. */
+	UTexture2D* GetHeadPaused() const { return HeadPaused; }
+	UTexture2D* GetHeadSettings() const { return HeadSettings; }
+
 	/** The seamless paper and ink grain tile drawn over the ground (Art/Source/UI/Grain/build_grain.py). Null when not imported. */
 	UTexture2D* GetGrain() const { return Grain; }
+
+	/** The painted ink-and-paper card behind dense screens, drawn as a nine-slice (Art/Source/UI/Ground/Raw/T_UI_Panel_PH.png). */
+	UTexture2D* GetPanel() const { return Panel; }
 
 	UFontFace* GetDisplayFace() const { return DisplayFace; }
 	UFont* GetDisplayCanvasFont() const { return DisplayCanvasFont; }
@@ -53,7 +60,16 @@ private:
 	TObjectPtr<UTexture2D> TitleLockup;
 
 	UPROPERTY()
+	TObjectPtr<UTexture2D> HeadPaused;
+
+	UPROPERTY()
+	TObjectPtr<UTexture2D> HeadSettings;
+
+	UPROPERTY()
 	TObjectPtr<UTexture2D> Grain;
+
+	UPROPERTY()
+	TObjectPtr<UTexture2D> Panel;
 
 	/** The display face, made at first use from the bytes in UmbrellaStorybookFont.inl. */
 	UPROPERTY(Transient)

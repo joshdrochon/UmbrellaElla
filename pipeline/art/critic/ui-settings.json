@@ -41,6 +41,47 @@
    "commit": "d7982cdeeb7a",
    "gap": "X's settings panel is a flat dark rectangle with a thin gold outline, plain sans text and hairline sliders, so it has no etched lettering or paper texture and doesn't match the painted background.; Y has a flat, untextured dark panel with plain sans-serif body text and thin sliders, so it lacks X's etched, hand-lettered title and inked texture.; X has a flat, smooth dark panel with thin generic type and plain hairline sliders, so it has no etched or inked lettering and no paper grain.",
    "at": "2026-11-13T06:03:14Z"
+  },
+  {
+   "piece": "ui-settings",
+   "round": 2,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "ours",
+    "reference": "reference"
+   },
+   "panel": 3,
+   "calibration": {
+    "sessions": 6,
+    "passed": 6
+   },
+   "missing": [
+    "reference:pipeline/art/reference/discord/20261112-0443_Ricky_title-screen.png"
+   ],
+   "critic_sessions": [
+    "ui-settings-r2-00-reference-c1",
+    "ui-settings-r2-00-reference-c2",
+    "ui-settings-r2-00-reference-c3",
+    "ui-settings-r2-01-quality_bar-c1",
+    "ui-settings-r2-01-quality_bar-c2",
+    "ui-settings-r2-01-quality_bar-c3"
+   ],
+   "manifest": "",
+   "evidence": "",
+   "prompt": "",
+   "files": "2ed516c9b0fd340f3cf965fc08dbc7d915d259261059bd81260700ba684178d9",
+   "file": "pipeline/art/proof/artui/ui-settings/capture_r16_settings.png",
+   "card": "artui",
+   "refs": "669f6f2ac14d",
+   "commit": "61ba52ca34e4",
+   "gap": "Y's settings panel is a flat dark box with a thin generic sans font and plain hairline sliders. It has no etched or inked lettering and no paper texture, so it doesn't match the painted art behind it.; Y has a flat dark panel with plain sans-serif body text, so it lacks the etched, textured lettering and paper finish of X.; Y's settings panel is a flat dark fill with plain sans text and thin rules, so it has none of X's etched lettering, ink-wash depth or textured finish.",
+   "at": "2026-11-13T06:53:46Z"
   }
  ]
 }

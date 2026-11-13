@@ -6,7 +6,7 @@ import unreal
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 DEST = "/Game/UmbrellaElla/UI"
-NAMES = ["T_UI_Ground_PH", "T_UI_ClockFace_PH", "T_UI_TitleLockup_PH", "T_UI_Grain_PH"]
+NAMES = ["T_UI_Ground_PH", "T_UI_ClockFace_PH", "T_UI_TitleLockup_PH", "T_UI_Grain_PH", "T_UI_Panel_PH", "T_UI_HeadPaused_PH", "T_UI_HeadSettings_PH"]
 
 tasks = []
 for name in NAMES:

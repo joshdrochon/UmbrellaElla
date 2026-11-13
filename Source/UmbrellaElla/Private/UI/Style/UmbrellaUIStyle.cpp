@@ -20,9 +20,15 @@ struct FUmbrellaUIStyleData
 	bool bGroundValid = false;
 	FSlateBrush TitleLockupBrush;
 	bool bTitleLockupValid = false;
+	FSlateBrush HeadPausedBrush;
+	FSlateBrush HeadSettingsBrush;
+	bool bHeadPausedValid = false;
+	bool bHeadSettingsValid = false;
 	FSlateBrush GrainBrush;
 	bool bGrainValid = false;
 	TUniquePtr<FSlateRoundedBoxBrush> Panel;
+	FSlateBrush PanelArtBrush;
+	bool bPanelArtValid = false;
 	TUniquePtr<FSlateRoundedBoxBrush> SliderBar;
 	TUniquePtr<FSlateRoundedBoxBrush> SliderThumb;
 	TUniquePtr<FSlateRoundedBoxBrush> SliderThumbLit;
@@ -107,6 +113,30 @@ namespace
 			Data->bTitleLockupValid = true;
 		}
 
+		if (UTexture2D* Paused = Assets->GetHeadPaused())
+		{
+			Data->HeadPausedBrush.SetResourceObject(Paused);
+			Data->HeadPausedBrush.ImageSize = FVector2D(UmbrellaUI::HeadPausedWidth, UmbrellaUI::HeadPausedHeight);
+			Data->HeadPausedBrush.DrawAs = ESlateBrushDrawType::Image;
+			Data->bHeadPausedValid = true;
+		}
+		if (UTexture2D* SettingsHead = Assets->GetHeadSettings())
+		{
+			Data->HeadSettingsBrush.SetResourceObject(SettingsHead);
+			Data->HeadSettingsBrush.ImageSize = FVector2D(UmbrellaUI::HeadSettingsWidth, UmbrellaUI::HeadSettingsHeight);
+			Data->HeadSettingsBrush.DrawAs = ESlateBrushDrawType::Image;
+			Data->bHeadSettingsValid = true;
+		}
+
+		if (UTexture2D* PanelArt = Assets->GetPanel())
+		{
+			Data->PanelArtBrush.SetResourceObject(PanelArt);
+			Data->PanelArtBrush.ImageSize = FVector2D(UmbrellaUI::PanelArtWidth, UmbrellaUI::PanelArtHeight);
+			Data->PanelArtBrush.DrawAs = ESlateBrushDrawType::Box;
+			Data->PanelArtBrush.Margin = FMargin(UmbrellaUI::PanelArtMarginX, UmbrellaUI::PanelArtMarginY);
+			Data->bPanelArtValid = true;
+		}
+
 		const FLinearColor Ink = FUmbrellaUIStyle::Ink();
 		const FLinearColor Gold = FUmbrellaUIStyle::Gold();
 		const FLinearColor Bright = FUmbrellaUIStyle::GoldBright();
@@ -145,9 +175,15 @@ UUmbrellaUIStyleAssets::UUmbrellaUIStyleAssets()
 	static ConstructorHelpers::FObjectFinderOptional<UTexture2D> ClockFinder(TEXT("/Game/UmbrellaElla/UI/T_UI_ClockFace_PH.T_UI_ClockFace_PH"));
 	static ConstructorHelpers::FObjectFinderOptional<UTexture2D> LockupFinder(TEXT("/Game/UmbrellaElla/UI/T_UI_TitleLockup_PH.T_UI_TitleLockup_PH"));
 	Ground = GroundFinder.Get();
+	static ConstructorHelpers::FObjectFinderOptional<UTexture2D> HeadPausedFinder(TEXT("/Game/UmbrellaElla/UI/T_UI_HeadPaused_PH.T_UI_HeadPaused_PH"));
+	static ConstructorHelpers::FObjectFinderOptional<UTexture2D> HeadSettingsFinder(TEXT("/Game/UmbrellaElla/UI/T_UI_HeadSettings_PH.T_UI_HeadSettings_PH"));
+	HeadPaused = HeadPausedFinder.Get();
+	HeadSettings = HeadSettingsFinder.Get();
 	TitleLockup = LockupFinder.Get();
 	static ConstructorHelpers::FObjectFinderOptional<UTexture2D> GrainFinder(TEXT("/Game/UmbrellaElla/UI/T_UI_Grain_PH.T_UI_Grain_PH"));
 	Grain = GrainFinder.Get();
+	static ConstructorHelpers::FObjectFinderOptional<UTexture2D> PanelFinder(TEXT("/Game/UmbrellaElla/UI/T_UI_Panel_PH.T_UI_Panel_PH"));
+	Panel = PanelFinder.Get();
 	ClockFace = ClockFinder.Get();
 }
 
@@ -186,7 +222,7 @@ FUmbrellaHandBlade FUmbrellaUIStyle::HandBlade(const FVector2D& Center, const FV
 
 FSlateFontInfo FUmbrellaUIStyle::BodyFont(int32 Size)
 {
-	// Body copy is lettered in the storybook face too (the engine sans read as plain UI); the engine face stays the fallback.
+	// Body copy is lettered in the storybook face too (critics: plain sans reads as default UI); engine face is the fallback.
 	if (HasDisplayFont())
 	{
 		return DisplayFontSpaced(Size, UmbrellaUI::BodyLetterSpacing);
@@ -219,6 +255,20 @@ const FSlateBrush* FUmbrellaUIStyle::TitleLockupBrush()
 	return Data.bTitleLockupValid ? &Data.TitleLockupBrush : nullptr;
 }
 
+const FSlateBrush* FUmbrellaUIStyle::HeadingBrush(const FString& Heading)
+{
+	FUmbrellaUIStyleData& Data = UmbrellaUIStyleData();
+	if (Heading == TEXT("Paused"))
+	{
+		return Data.bHeadPausedValid ? &Data.HeadPausedBrush : nullptr;
+	}
+	if (Heading == TEXT("Settings"))
+	{
+		return Data.bHeadSettingsValid ? &Data.HeadSettingsBrush : nullptr;
+	}
+	return nullptr;
+}
+
 UTexture2D* FUmbrellaUIStyle::ClockFaceTexture()
 {
 	return UmbrellaUIAssets()->GetClockFace();
@@ -230,7 +280,11 @@ UFont* FUmbrellaUIStyle::DisplayCanvasFont()
 	return HasDisplayFont() ? UmbrellaUIAssets()->GetDisplayCanvasFont() : nullptr;
 }
 
-const FSlateBrush* FUmbrellaUIStyle::PanelBrush() { return UmbrellaUIStyleData().Panel.Get(); }
+const FSlateBrush* FUmbrellaUIStyle::PanelBrush()
+{
+	FUmbrellaUIStyleData& Data = UmbrellaUIStyleData();
+	return Data.bPanelArtValid ? &Data.PanelArtBrush : Data.Panel.Get();
+}
 const FButtonStyle& FUmbrellaUIStyle::TextButtonStyle() { return UmbrellaUIStyleData().TextButton; }
 const FSliderStyle& FUmbrellaUIStyle::SliderStyle() { return UmbrellaUIStyleData().Slider; }
 const FCheckBoxStyle& FUmbrellaUIStyle::CheckBoxStyle() { return UmbrellaUIStyleData().CheckBox; }

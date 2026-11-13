@@ -329,6 +329,48 @@
    "commit": "93ed3aa5eef1",
    "gap": "X has flatter, cleaner vector-like fills with less paper grain and etched texture. Its title lockup collides with the clock hands, and its menu is small and weak.",
    "at": "2026-11-13T06:17:50Z"
+  },
+  {
+   "piece": "ui-title",
+   "round": 16,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "ours",
+    "reference": "reference"
+   },
+   "panel": 3,
+   "calibration": {
+    "sessions": 7,
+    "passed": 6
+   },
+   "missing": [
+    "reference:pipeline/art/reference/discord/20261112-0443_Ricky_title-screen.png"
+   ],
+   "critic_sessions": [
+    "ui-title-r16-00-reference-c1",
+    "ui-title-r16-00-reference-c2",
+    "ui-title-r16-00-reference-c3",
+    "ui-title-r16-01-quality_bar-c1",
+    "ui-title-r16-01-quality_bar-c2",
+    "ui-title-r16-01-quality_bar-c3",
+    "ui-title-r16-01-quality_bar-c4"
+   ],
+   "manifest": "",
+   "evidence": "",
+   "prompt": "",
+   "files": "9fea1187d483a040f60b6bd930fd0c3ed9a4eb343b630ce5e5f20d1017da62c6",
+   "file": "pipeline/art/proof/artui/ui-title/capture_r16_title.png",
+   "card": "artui",
+   "refs": "669f6f2ac14d",
+   "commit": "04051fef0b71",
+   "gap": "X is smoother and more digital, with less etched ink detail and paper grain. Its clock hands also collide with the title and subtitle.; Both are the same painted scene, with a cold blue-grey mist that breaks the two-accent palette and a title lockup that isn't etched into the scene.",
+   "at": "2026-11-13T07:07:40Z"
   }
  ]
 }

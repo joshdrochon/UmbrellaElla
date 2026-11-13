@@ -140,6 +140,13 @@ void SFlowMenu::Construct(const FArguments& InArgs)
 					.ShadowOffset(FVector2D(UmbrellaUI::ShadowOffset, UmbrellaUI::ShadowOffset)).ShadowColorAndOpacity(FUmbrellaUIStyle::Shadow())
 			];
 		}
+		else if (FUmbrellaUIStyle::HeadingBrush(Heading))
+		{
+			Column->AddSlot().AutoHeight().HAlign(HAlign_Left).Padding(TextInset - UmbrellaUI::OrnamentWidth, 0.0f, 0.0f, 0.0f)
+			[
+				SNew(SImage).Image(FUmbrellaUIStyle::HeadingBrush(Heading))
+			];
+		}
 		else
 		{
 			const int32 HeadingSize = Heading.Len() > UmbrellaUI::LongHeadingLength ? FMath::Min(Tuning.TitleFontSize, UmbrellaUI::LongHeadingSize) : Tuning.TitleFontSize;
