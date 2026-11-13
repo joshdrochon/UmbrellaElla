@@ -29,8 +29,8 @@ HALF = math.pi / 2
 KEEPER_SCALE = 0.88          # whole figure, so the raised wing stays inside the frame
 KEEPER_PALETTE = ("#0f0d0b", "#171614", "#292622", "#463C32", "#695640", "#918173", "#B0A294", "#cdbfa9")
 KEEPER_STOPS = (0.0, 0.07, 0.2, 0.36, 0.52, 0.72, 0.9, 1.0)
-KEEPER_LINE_PX = 0.9
-KEEPER_GAIN = 0.37            # linear render value that maps to the lightest paper tone
+KEEPER_LINE_PX = 1.25
+KEEPER_GAIN = 0.235           # render value scale of the tone shoulder (higher = darker)
 
 
 def rad(deg):
@@ -64,8 +64,8 @@ class KeeperKit:
         b = self.bm(bone, mat, False, thick)
         uv = b.loops.layers.uv.active
         m = self.scale @ self.place(x, z, y, a, tilt, pitch)
-        ts = (0.0, 0.06, 0.2, 0.42, 0.64, 0.8, 0.91, 1.0)
-        hw = (base, 0.82, 1.0, 1.0, 0.9, 0.68 * tip + 0.3 * (1 - tip), 0.4 * tip + 0.25 * (1 - tip), 0.012)
+        ts = (0.0, 0.05, 0.14, 0.4, 0.62, 0.78, 0.9, 1.0)       # straight-sided sheet, chisel point
+        hw = (base, 0.9, 1.0, 1.0, 1.0, 0.94, 0.56 * tip + 0.3 * (1 - tip), 0.012)
         rows = []
         for t, h in zip(ts, hw):
             c = skew * wd * t * t
@@ -238,18 +238,23 @@ def keeper_wing(k, bone, y, sh, tone, dark, rnd, far=False, swing=0.0):
     el = turn(-1.15, 0.95)
     wr = turn(-2.35, 1.3)
     fe, sp, iron = tone
-    # primaries: long perforated vanes from the wrist
-    n = 9
+    # primaries: long broad perforated vanes from the wrist
+    def seam_rivets(bx, bz, a, ln, yy, count):
+        for q in range(count):
+            u = 0.16 + 0.68 * q / max(1, count - 1)
+            k.rivet(bone, iron, bx + ln * u * math.cos(rad(a)), bz + ln * u * math.sin(rad(a)), yy, 0.032)
+    n = 7
     for i in range(n):
         t = i / (n - 1.0)
-        a = 152 + 56 * t + rnd.uniform(-1.5, 1.5) + swing
-        ln = 3.05 - 0.75 * t + rnd.uniform(-0.08, 0.08)
+        a = 150 + 58 * t + rnd.uniform(-1.5, 1.5) + swing
+        ln = 2.9 - 0.55 * t + rnd.uniform(-0.08, 0.08)
         bx, bz = wr[0] + 0.5 * t, wr[1] - 0.12 * t
-        k.blade(bone, fe if i % 3 else dark, bx, bz, y - d * (0.30 + 0.012 * i), a, ln, 0.6, tilt=d * 0.16,
-                ridge=0.07, skew=-0.22, slots=2 if i % 3 == 0 else 0, base=0.5)
-        k.rivet(bone, iron, bx + 0.22 * math.cos(rad(a)), bz + 0.22 * math.sin(rad(a)), y - d * (0.36 + 0.012 * i), 0.04)
+        yy = y - d * (0.24 + 0.03 * i)
+        k.blade(bone, fe if i % 2 else sp, bx, bz, yy, a, ln, 0.86, tilt=d * 0.28, ridge=0.08, skew=-0.3,
+                slots=2 if i % 3 == 1 else 0, base=0.45)
+        seam_rivets(bx, bz, a, ln, yy - d * 0.09, 4)
     # secondaries: along forearm then humerus, turning down toward the body
-    n = 11
+    n = 8
     for i in range(n):
         t = i / (n - 1.0)
         if t < 0.55:
@@ -258,12 +263,14 @@ def keeper_wing(k, bone, y, sh, tone, dark, rnd, far=False, swing=0.0):
         else:
             u = (t - 0.55) / 0.45
             bx, bz = el[0] + (sx - el[0]) * u + 0.3, el[1] + (sz - el[1]) * u - 0.12
-        a = 208 + 40 * t + rnd.uniform(-2, 2) + swing * (1 - 0.6 * t)
-        ln = 2.5 - 0.95 * t + rnd.uniform(-0.1, 0.1)
-        k.blade(bone, fe if i % 2 else sp, bx, bz, y - d * (0.42 + 0.012 * i), a, ln, 0.58, tilt=d * 0.14, ridge=0.06,
-                skew=-0.15, slots=1 if i % 4 == 1 else 0, base=0.6)
+        a = 210 + 38 * t + rnd.uniform(-2, 2) + swing * (1 - 0.6 * t)
+        ln = 2.55 - 0.95 * t + rnd.uniform(-0.1, 0.1)
+        yy = y - d * (0.46 + 0.026 * i)
+        k.blade(bone, fe if i % 2 else sp, bx, bz, yy, a, ln, 0.8, tilt=d * 0.26, ridge=0.07,
+                skew=-0.24, slots=1 if i % 4 == 1 else 0, base=0.55)
+        seam_rivets(bx, bz, a, ln, yy - d * 0.08, 3)
     # greater coverts: short broad plates over the vane roots
-    n = 13
+    n = 9
     for i in range(n):
         t = i / (n - 1.0)
         if t < 0.5:
@@ -273,12 +280,13 @@ def keeper_wing(k, bone, y, sh, tone, dark, rnd, far=False, swing=0.0):
             u = (t - 0.5) / 0.5
             bx, bz = el[0] + (sx - el[0]) * u + 0.1, el[1] + (sz - el[1]) * u
         a = 196 + 44 * t + rnd.uniform(-3, 3) + swing * (1 - 0.6 * t)
-        ln = 1.25 - 0.3 * t + rnd.uniform(-0.06, 0.06)
-        k.blade(bone, sp if i % 2 else fe, bx, bz, y - d * (0.60 + 0.01 * i), a, ln, 0.5, tilt=d * 0.12, ridge=0.06,
-                skew=-0.1, base=0.7)
-        k.rivet(bone, iron, bx + 0.16 * math.cos(rad(a)), bz + 0.16 * math.sin(rad(a)), y - d * (0.66 + 0.01 * i), 0.035)
-    # lesser coverts: small scales along the arm
-    n = 15
+        ln = 1.4 - 0.3 * t + rnd.uniform(-0.06, 0.06)
+        yy = y - d * (0.68 + 0.02 * i)
+        k.blade(bone, sp if i % 2 else fe, bx, bz, yy, a, ln, 0.68, tilt=d * 0.24, ridge=0.07,
+                skew=-0.2, base=0.7)
+        seam_rivets(bx, bz, a, ln, yy - d * 0.08, 2)
+    # lesser coverts: small plates along the arm
+    n = 11
     for i in range(n):
         t = i / (n - 1.0)
         if t < 0.5:
@@ -288,10 +296,10 @@ def keeper_wing(k, bone, y, sh, tone, dark, rnd, far=False, swing=0.0):
             u = (t - 0.5) / 0.5
             bx, bz = el[0] + (sx - el[0]) * u, el[1] + (sz - el[1]) * u + 0.05
         a = 200 + 40 * t + rnd.uniform(-4, 4) + swing * (1 - 0.6 * t)
-        k.blade(bone, fe if i % 2 else sp, bx, bz, y - d * (0.74 + 0.008 * i), a, 0.62, 0.36, tilt=d * 0.1, ridge=0.05,
-                base=0.8)
+        k.blade(bone, fe if i % 2 else sp, bx, bz, y - d * (0.88 + 0.012 * i), a, 0.72, 0.46, tilt=d * 0.2, ridge=0.06,
+                skew=-0.15, base=0.8)
     # the arm: two riveted spars, a brace, hinge discs with bolts
-    ya = y - d * 0.92
+    ya = y - d * 1.06
     k.bar(bone, iron, (sx, sz), el, ya, 0.2, 0.1)
     k.bar(bone, iron, el, wr, ya, 0.17, 0.1)
     k.bar(bone, iron, (sx - 0.25, sz + 0.5), (el[0] - 0.55, el[1] + 0.3), ya + d * 0.03, 0.07, 0.06)   # brace
@@ -347,8 +355,8 @@ def build_keeper(m, rnd):
     # ---- tail: plated fan
     for i in range(7):
         a = 186 + 9 * i + rnd.uniform(-1.5, 1.5)
-        k.blade("tail", P if i % 2 else D, -1.25 - 0.05 * i, -0.2 - 0.08 * i, 0.35 - 0.02 * i, a, 2.7 - 0.12 * i, 0.5,
-                tilt=-0.12, ridge=0.06, skew=-0.12, slots=2 if i % 2 else 0)
+        k.blade("tail", P if i % 2 else D, -1.25 - 0.05 * i, -0.2 - 0.08 * i, 0.35 - 0.02 * i, a, 2.7 - 0.12 * i, 0.66,
+                tilt=-0.16, ridge=0.07, skew=-0.25, slots=1 if i % 3 == 1 else 0)
     # ---- far leg, then body core
     keeper_leg(k, (-0.35, -0.85), 0.45, P, S, I, D)
     k.sphere("body", D, -0.25, 0.0, 0.0, 1.0, sc=(1.75, 0.72, 1.08), a=12, seg=24)
@@ -510,7 +518,7 @@ def keeper_leg(k, hip, y, P, S, I, D):
 
 
 # ---------- look: worn metal in Cycles ----------
-def keeper_metal(name, base, vary=0.25, rough=0.55, veins=0.0, metallic=0.4):
+def keeper_metal(name, base, vary=0.14, rough=0.5, veins=0.0, metallic=0.5):
     """Aged sheet metal: mottled value, fine scratches, optional barb veins from the UV (u along the vane, v across)."""
     m = bpy.data.materials.new(name)
     m.use_nodes = True
@@ -563,14 +571,22 @@ def keeper_metal(name, base, vary=0.25, rough=0.55, veins=0.0, metallic=0.4):
         L(uv.outputs["UV"], sep.inputs[0])
         vabs = math_node("ABSOLUTE", math_node("SUBTRACT", sep.outputs["Y"], 0.5))       # 0 on the ridge, 0.5 at the edge
         ph = math_node("ADD", math_node("MULTIPLY", sep.outputs["X"], veins), math_node("MULTIPLY", vabs, 9.0))
-        barb = math_node("LESS_THAN", math_node("FRACT", ph), 0.2)
+        barb = math_node("LESS_THAN", math_node("FRACT", ph), 0.14)
         barb = math_node("MULTIPLY", barb, math_node("GREATER_THAN", vabs, 0.04))
-        ridge = math_node("LESS_THAN", vabs, 0.03)
+        ridge = math_node("LESS_THAN", vabs, 0.022)
         edge = math_node("GREATER_THAN", vabs, 0.455)
         root = math_node("SUBTRACT", 1.0, math_node("MULTIPLY", math_node("SUBTRACT", 1.0, sep.outputs["X"]), 0.45))   # darker at the root
         val = math_node("MULTIPLY", val, math_node("SUBTRACT", 1.0, math_node("MULTIPLY", barb, 0.3)))
-        val = math_node("MULTIPLY", val, math_node("MULTIPLY_ADD", ridge, 0.5, 1.0))
-        val = math_node("MULTIPLY", val, math_node("MULTIPLY_ADD", edge, 0.45, 1.0))
+        val = math_node("MULTIPLY", val, math_node("MULTIPLY_ADD", ridge, -0.5, 1.0))            # inked seam
+        val = math_node("MULTIPLY", val, math_node("MULTIPLY_ADD", edge, 0.5, 1.0))               # worn bright edge
+        val = math_node("MULTIPLY", val, math_node("MULTIPLY_ADD", sep.outputs["Y"], 0.45, 0.72))   # light falls across the plate
+        hair = N("ShaderNodeTexNoise")                                                           # fine scratches along the plate
+        hmap = N("ShaderNodeMapping")
+        hmap.inputs["Scale"].default_value = (1.5, 60.0, 1.0)
+        L(uv.outputs["UV"], hmap.inputs["Vector"])
+        L(hmap.outputs["Vector"], hair.inputs["Vector"])
+        hair.inputs["Scale"].default_value = 3.0
+        val = math_node("MULTIPLY", val, math_node("MULTIPLY_ADD", math_node("GREATER_THAN", hair.outputs["Fac"], 0.62), -0.16, 1.0))
         val = math_node("MULTIPLY", val, root)
         bump_h = math_node("SUBTRACT", bump_h, math_node("MULTIPLY", barb, 0.8))
     col = N("ShaderNodeMixRGB")
@@ -586,7 +602,7 @@ def keeper_metal(name, base, vary=0.25, rough=0.55, veins=0.0, metallic=0.4):
     bev.samples = 4
     bev.inputs["Radius"].default_value = 0.018
     bump = N("ShaderNodeBump")
-    bump.inputs["Strength"].default_value = 0.35
+    bump.inputs["Strength"].default_value = 0.2
     bump.inputs["Distance"].default_value = 0.02
     L(bump_h, bump.inputs["Height"])
     L(bev.outputs["Normal"], bump.inputs["Normal"])
@@ -616,7 +632,7 @@ def keeper_scene_look(scene, job):
     """Cycles, a key sun from the upper front, soft warm sky fill for the metal to reflect, thin ink lines."""
     scene.render.engine = "CYCLES"
     look = job["look"]
-    scene.cycles.samples = int(look.get("cycles_samples", 96))
+    scene.cycles.samples = int(look.get("cycles_samples", 128))
     scene.cycles.use_denoising = True
     scene.cycles.seed = int(look.get("seed", 11))
     scene.cycles.use_animated_seed = False
@@ -630,7 +646,7 @@ def keeper_scene_look(scene, job):
     sun = bpy.data.objects.new("key", bpy.data.lights.new("key", "SUN"))
     sun.data.energy = 5.5
     sun.data.angle = rad(6)
-    sun.rotation_euler = (rad(58), rad(0), rad(-28))       # from the upper front-left of the final picture
+    sun.rotation_euler = (rad(42), rad(0), rad(-40))       # from the upper front-left of the final picture
     scene.collection.objects.link(sun)
     rim = bpy.data.objects.new("rim", bpy.data.lights.new("rim", "SUN"))
     rim.data.energy = 0.7
@@ -713,20 +729,19 @@ def keeper_paint(path, seed=7):
         bot = g[y0 + 1][:, x0] * (1 - fx) + g[y0 + 1][:, x0 + 1] * fx
         return top * (1 - fy) + bot * fy
 
-    v = np.clip((lum - 0.008) / float(KEEPER_GAIN), 0, 1) ** 0.55                     # tone curve: open the half-tones
+    v = 1.0 - np.exp(-np.clip(lum - 0.004, 0, 4) / float(KEEPER_GAIN))   # shoulder: lit plates keep their tone
     wob = (noise(9) - 0.5) * 5.0
     h1 = (np.abs(((xx + yy + wob) % 3.6) - 1.8) > 1.25).astype(np.float32)      # etched hatch, one direction
     h2 = (np.abs(((xx - yy * 0.6 + wob) % 4.4) - 2.2) > 1.7).astype(np.float32)   # cross hatch for deep shadow
     half = np.clip((0.6 - v) / 0.35, 0, 1)
     deep = np.clip((0.34 - v) / 0.25, 0, 1)
     v = v * (1.0 - 0.2 * h1 * half) * (1.0 - 0.24 * h2 * deep)
-    v = v * (0.94 + 0.12 * (0.5 * noise(14) + 0.5 * noise(3)))            # tooth and mottle
+    v = v * (0.97 + 0.06 * noise(2))            # tooth and mottle
     v = v + (rng.random((h, w)).astype(np.float32) - 0.5) * 0.035
     v = np.clip(v, 0, 1)
     stops = np.array(KEEPER_STOPS, dtype=np.float32)
     cols = np.array([[int(c[i:i + 2], 16) / 255.0 for i in (1, 3, 5)] for c in KEEPER_PALETTE], dtype=np.float32)
-    lin = np.where(cols <= 0.04045, cols / 12.92, ((cols + 0.055) / 1.055) ** 2.4)     # the image buffer is linear
-    out = np.stack([np.interp(v, stops, lin[:, i]) for i in range(3)], axis=-1)
+    out = np.stack([np.interp(v, stops, cols[:, i]) for i in range(3)], axis=-1)   # a byte image's buffer is display-referred
     px[..., :3] = out * al[..., None]
     img.pixels[:] = px.ravel()
     img.filepath_raw = path
@@ -737,8 +752,17 @@ def keeper_paint(path, seed=7):
 
 if __name__ == "__main__":
     import json
+    import shutil
+    import tempfile
     import render_sprite
-    render_sprite.main()
     _job = json.load(open(render_sprite.args(), encoding="utf-8"))
+    _raw = os.path.join(tempfile.gettempdir(), "keeper_raw")       # unpainted renders, for --paint-only tuning
+    os.makedirs(_raw, exist_ok=True)
+    if "--paint-only" not in sys.argv:
+        render_sprite.main()
+        for _f in _job["frames"]:
+            shutil.copyfile(_f, os.path.join(_raw, os.path.basename(_f)))
     for _f in _job["frames"]:
+        if "--paint-only" in sys.argv:
+            shutil.copyfile(os.path.join(_raw, os.path.basename(_f)), _f)
         keeper_paint(os.path.abspath(_f))
