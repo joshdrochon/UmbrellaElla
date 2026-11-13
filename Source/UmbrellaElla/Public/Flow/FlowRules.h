@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "InputCoreTypes.h"
+#include "Core/UmbrellaPlayMode.h"
 #include "FlowRules.generated.h"
 
 /** Which screen the player is on. */
@@ -19,7 +20,9 @@ enum class EFlowScreen : uint8
 	Tutorial,
 	TutorialPaused,
 	Purchase,
-	LevelUp
+	LevelUp,
+	/** Director's Cut Journey Complete after the credits; Story's widget, Try Again / Main Menu leave it. */
+	Statistics
 };
 
 /** What happens to the flow. */
@@ -42,7 +45,9 @@ enum class EFlowCommand : uint8
 	EncounterCompleted,
 	Retry,
 	NeutralReached,
-	TimelineDone
+	TimelineDone,
+	/** Director's Cut: credits finished, or a later-win Skip from the ending story or credits. */
+	ShowStatistics
 };
 
 /** What a key means inside a menu. */
@@ -90,6 +95,24 @@ struct UMBRELLAELLA_API FFlowRules
 
 	/** True once Elapsed has reached Duration. */
 	static bool IsTimelineDone(float Elapsed, float Duration);
+
+	/** Story Skip keys (opening caption, ending): Enter and the gamepad View button; no gameplay action uses them, so a skip press never reaches play. */
+	static TArray<FKey> StorySkipKeys();
+
+	/** The level option a Try Again reload carries: the new world starts a Director's Cut run at once. */
+	static const TCHAR* TryAgainOption();
+
+	/** True when the game options of a freshly loaded world ask for the Try Again start. */
+	static bool IsTryAgainStart(const FString& GameOptions);
+
+	/** True during the ending hold on Ella: the Story screen shows the world, not the ending background. */
+	static bool IsEndingHoldAt(float StoryElapsed, float HoldSeconds);
+
+	/** The ending page at StoryElapsed seconds on the Story screen (after the hold), or INDEX_NONE in the hold or after. */
+	static int32 EndingPageAt(float StoryElapsed, float HoldSeconds, float PageSeconds, int32 PageCount);
+
+	/** What the end of the credits does: Director's Cut shows Journey Complete, Start Game returns to the title. */
+	static EFlowCommand AfterCredits(EUmbrellaPlayMode Mode, bool bStatisticsOn);
 
 	/** Seconds of neutral input so far: resets to 0 when a key is held. */
 	static float AdvanceNeutral(float NeutralSoFar, float DeltaSeconds, bool bAnyHeld);

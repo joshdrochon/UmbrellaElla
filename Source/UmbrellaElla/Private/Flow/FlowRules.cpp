@@ -99,9 +99,20 @@ EFlowScreen FFlowRules::Next(EFlowScreen From, EFlowCommand Command)
 	case EFlowScreen::Defeat:
 		return Command == EFlowCommand::Retry ? EFlowScreen::Resuming : From;
 	case EFlowScreen::Story:
+		if (Command == EFlowCommand::ShowStatistics)
+		{
+			return EFlowScreen::Statistics;
+		}
 		return Command == EFlowCommand::TimelineDone ? EFlowScreen::Credits : From;
 	case EFlowScreen::Credits:
+		if (Command == EFlowCommand::ShowStatistics)
+		{
+			return EFlowScreen::Statistics;
+		}
 		return Command == EFlowCommand::TimelineDone ? EFlowScreen::Title : From;
+	case EFlowScreen::Statistics:
+		// Only its Try Again and Main Menu buttons leave it; both reload the level.
+		return From;
 	default:
 		return From;
 	}
@@ -186,4 +197,50 @@ bool FFlowRules::IsTimelineDone(float Elapsed, float Duration)
 float FFlowRules::AdvanceNeutral(float NeutralSoFar, float DeltaSeconds, bool bAnyHeld)
 {
 	return bAnyHeld ? 0.0f : NeutralSoFar + DeltaSeconds;
+}
+
+const TCHAR* FFlowRules::TryAgainOption()
+{
+	return TEXT("UmbrellaTryAgain");
+}
+
+bool FFlowRules::IsTryAgainStart(const FString& GameOptions)
+{
+	// Options look like "?Key=Value?Key2"; match whole keys only.
+	TArray<FString> Parts;
+	GameOptions.ParseIntoArray(Parts, TEXT("?"), true);
+	for (const FString& Part : Parts)
+	{
+		FString Key = Part;
+		FString Value;
+		Part.Split(TEXT("="), &Key, &Value);
+		if (Key.Equals(TryAgainOption(), ESearchCase::IgnoreCase))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+bool FFlowRules::IsEndingHoldAt(float StoryElapsed, float HoldSeconds)
+{
+	return StoryElapsed < HoldSeconds;
+}
+
+int32 FFlowRules::EndingPageAt(float StoryElapsed, float HoldSeconds, float PageSeconds, int32 PageCount)
+{
+	return IsEndingHoldAt(StoryElapsed, HoldSeconds) ? INDEX_NONE : StoryPageAt(StoryElapsed - HoldSeconds, PageSeconds, PageCount);
+}
+
+EFlowCommand FFlowRules::AfterCredits(EUmbrellaPlayMode Mode, bool bStatisticsOn)
+{
+	return Mode == EUmbrellaPlayMode::DirectorsCut && bStatisticsOn ? EFlowCommand::ShowStatistics : EFlowCommand::TimelineDone;
+}
+
+TArray<FKey> FFlowRules::StorySkipKeys()
+{
+	TArray<FKey> Keys;
+	Keys.Add(EKeys::Enter);
+	Keys.Add(EKeys::Gamepad_Special_Left);
+	return Keys;
 }
