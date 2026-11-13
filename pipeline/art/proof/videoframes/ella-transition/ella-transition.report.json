@@ -1,0 +1,81 @@
+{
+ "video": "pipeline/art/proof/videoframes/ella-transition/ella-transition.mp4",
+ "fps": 12,
+ "source_frames": 48,
+ "loop_end": 36,
+ "end_candidates": {
+  "28": 60.65,
+  "29": 60.36,
+  "30": 60.05,
+  "31": 60.06,
+  "32": 60.01,
+  "33": 59.94,
+  "34": 59.56,
+  "35": 59.22,
+  "36": 58.8,
+  "37": 59.12,
+  "38": 59.84,
+  "39": 60.26,
+  "40": 60.11,
+  "41": 60.38,
+  "42": 60.23,
+  "43": 59.93,
+  "44": 59.69,
+  "45": 60.28,
+  "46": 60.61,
+  "47": 60.66
+ },
+ "jitter_before": {
+  "max_anchor_step_px": 1.09,
+  "max_height_step_pct": 5.54,
+  "max_anchor_from_first_px": 4.41,
+  "height_range_pct": 18.88
+ },
+ "jitter_after": {
+  "max_anchor_step_px": 0.94,
+  "max_height_step_pct": 5.54,
+  "max_anchor_from_first_px": 0.59,
+  "height_range_pct": 18.88
+ },
+ "green_inside_px_max": 0,
+ "sets": {
+  "24": {
+   "strip": "pipeline/art/proof/videoframes/ella-transition/ella-transition_N24_strip.png",
+   "gif": "pipeline/art/proof/videoframes/ella-transition/ella-transition_N24_preview.gif",
+   "loop": {
+    "indices": [
+     0,
+     2,
+     3,
+     5,
+     6,
+     8,
+     9,
+     11,
+     12,
+     14,
+     15,
+     17,
+     18,
+     20,
+     22,
+     23,
+     25,
+     26,
+     28,
+     29,
+     31,
+     32,
+     34,
+     35
+    ],
+    "mean_step": 22.95,
+    "max_step": 49.78,
+    "last_to_first": 59.22,
+    "loop_ratio": 2.58,
+    "loops": true
+   },
+   "fps": 7.78
+  }
+ }
+}

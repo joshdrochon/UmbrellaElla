@@ -47,7 +47,7 @@ namespace UmbrellaUIStyleConstants
 	static constexpr float PanelBorderAlpha = 0.85f;
 	static constexpr float PanelCornerRadius = 3.0f;
 	static constexpr float PanelBorderWidth = 1.5f;
-	static constexpr float PanelPadding = 44.0f;
+	static constexpr float PanelPadding = 76.0f;
 	/** Painted panel card as a nine-slice: drawn size of the whole card image and the border share kept unstretched. */
 	static constexpr float PanelArtWidth = 460.0f;
 	static constexpr float PanelArtHeight = 253.0f;
@@ -124,6 +124,11 @@ namespace UmbrellaUIStyleConstants
 	static constexpr float HeadSettingsWidth = 1086.0f * 0.3f;
 	static constexpr float HeadSettingsHeight = 323.0f * 0.3f;
 	static constexpr float HeadSettingsWidgetHeight = 60.0f;
+	static constexpr int32 CreditsTitleSize = 52;
+	static constexpr int32 CreditsNameSize = 36;
+	static constexpr int32 CreditsRoleSize = 22;
+	static constexpr int32 CreditsSubtitleSize = CreditsRoleSize + 6;   // the title's "The Stolen Hour" line on the credits roll
+	static constexpr float CreditsGap = 30.0f;
 	static constexpr int32 LockupNameSize = 74;
 	static constexpr int32 LockupSubtitleSize = 38;
 	static constexpr int32 LockupSubtitleSpacing = 260;

@@ -448,7 +448,84 @@ void SFlowTextScreen::Construct(const FArguments& InArgs)
 					.RenderTransform(this, &SFlowTextScreen::GetScrollTransform)
 			]
 		]
+		+ SOverlay::Slot().HAlign(HAlign_Left).VAlign(VAlign_Center).Padding(UmbrellaUI::ColumnLeft, 0.0f, 0.0f, 0.0f)
+		[
+			SNew(SBox).WidthOverride(FMath::Min(Tuning.TextBlockWidth, UmbrellaUI::ColumnWidth))
+			[
+				SAssignNew(CreditsBox, SVerticalBox)
+				.Visibility(EVisibility::Collapsed)
+				.RenderTransform(this, &SFlowTextScreen::GetScrollTransform)
+			]
+		]
 	];
+}
+
+void SFlowTextScreen::SetCredits(const TArray<FString>& Lines, float ScrollOffset)
+{
+	Scroll = ScrollOffset;
+	if (!CreditsBox.IsValid())
+	{
+		return;
+	}
+	if (TextBlock.IsValid())
+	{
+		TextBlock->SetVisibility(EVisibility::Collapsed);
+	}
+	CreditsBox->SetVisibility(EVisibility::HitTestInvisible);
+	if (Lines == CreditsShown)
+	{
+		return;
+	}
+	CreditsShown = Lines;
+	CreditsBox->ClearChildren();
+	const auto AddRow = [this](const FString& Text, const FSlateFontInfo& Font, const FLinearColor& Color, float Above)
+	{
+		CreditsBox->AddSlot().AutoHeight().Padding(0.0f, Above, 0.0f, 0.0f)
+		[
+			SNew(STextBlock).Text(FText::FromString(Text)).Font(Font).ColorAndOpacity(Color)
+				.ShadowOffset(FVector2D(UmbrellaUI::ShadowOffset, UmbrellaUI::ShadowOffset)).ShadowColorAndOpacity(FUmbrellaUIStyle::Shadow())
+		];
+	};
+	const auto IsRole = [](const FString& Line)
+	{
+		return Line.Contains(TEXT("Producer")) || Line.Contains(TEXT("Lead")) || Line.Contains(TEXT("Director"))
+			|| Line.Contains(TEXT("Designer")) || Line.Contains(TEXT("Artist")) || Line.Contains(TEXT("Composer"));
+	};
+	for (int32 Index = 0; Index < Lines.Num(); ++Index)
+	{
+		FString Name, Role;
+		if (Index == 0)
+		{
+			// "Umbrella Ella The Stolen Hour": the name on one row, the subtitle under it, as on the title screen.
+			FString TitleName, TitleSubtitle;
+			if (!Lines[0].Split(TEXT(" The "), &TitleName, &TitleSubtitle))
+			{
+				TitleName = Lines[0];
+			}
+			AddRow(TitleName, FUmbrellaUIStyle::DisplayFont(UmbrellaUI::CreditsTitleSize), FUmbrellaUIStyle::Cream(), 0.0f);
+			if (!TitleSubtitle.IsEmpty())
+			{
+				AddRow(TEXT("The ") + TitleSubtitle, FUmbrellaUIStyle::DisplayFontSpaced(UmbrellaUI::CreditsSubtitleSize, UmbrellaUI::LockupSubtitleSpacing), FUmbrellaUIStyle::Gold(), 0.0f);
+			}
+			CreditsBox->AddSlot().AutoHeight().Padding(0.0f, UmbrellaUI::HeadingGap, UmbrellaUI::HeadingWidth - UmbrellaUI::ColumnWidth, UmbrellaUI::SectionGap)
+			[
+				SNew(SUmbrellaRule)
+			];
+		}
+		else if (Lines[Index].Split(TEXT(" - "), &Name, &Role))
+		{
+			AddRow(Name, FUmbrellaUIStyle::DisplayFont(UmbrellaUI::CreditsNameSize), FUmbrellaUIStyle::Cream(), UmbrellaUI::CreditsGap);
+			AddRow(Role, FUmbrellaUIStyle::DisplayFontSpaced(UmbrellaUI::CreditsRoleSize, UmbrellaUI::LockupSubtitleSpacing), FUmbrellaUIStyle::Gold(), 0.0f);
+		}
+		else if (IsRole(Lines[Index]))
+		{
+			AddRow(Lines[Index], FUmbrellaUIStyle::DisplayFontSpaced(UmbrellaUI::CreditsRoleSize, UmbrellaUI::LockupSubtitleSpacing), FUmbrellaUIStyle::Gold(), 0.0f);
+		}
+		else
+		{
+			AddRow(Lines[Index], FUmbrellaUIStyle::DisplayFont(UmbrellaUI::CreditsNameSize), FUmbrellaUIStyle::Cream(), UmbrellaUI::CreditsGap);
+		}
+	}
 }
 
 void SFlowTextScreen::SetText(const FText& NewText, float ScrollOffset)

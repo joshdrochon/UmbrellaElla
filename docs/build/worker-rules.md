@@ -157,3 +157,15 @@ A piece whose best measured art_ref_check score is within 0.05 of its `score_min
 1.00 USD instead of 0.50: run that piece's calls with `IMAGE_SPEND_PIECE_CAP_USD=1.00` set in the same command, and
 put the measured score and `score_min` in the commit message. Any other piece keeps 0.50. Style block on (automatic),
 flash drafts first, pro final only from a passing draft.
+
+## Setting a rule to built (Nov 13, gate check clause_check)
+A rule-status row may become `built` only when every GDD clause of that rule is proven in `docs/build/clause-proof.csv`
+(`rule,clause,proof`, proof = `test:UmbrellaElla.<Area>.<Name>`, `py:tests/<file>.py` or `gdd:<binding key>`), covering
+every clause `docs/build/clause-audit.csv` lists for that rule. Add those rows in the same commit; the gate fails the
+merge otherwise. The 150 rows built before the audit are the baseline.
+
+## Merge main often; pre-check before the gate (Nov 13, Josh)
+Merge `origin/main` before each commit batch and at least every 30 minutes. A tip more than 30 minutes behind main is not
+queued for the gate, and neither is a tip without a `PRECHECK PASS` for that exact commit
+(`../logs/precheck-<lane>.result` names the sha); you get a note with the reason instead. The pre-check runs the gate's
+checks except the Unreal build and tests.

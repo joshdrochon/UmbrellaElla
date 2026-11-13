@@ -1,0 +1,40 @@
+{
+ "provider": "gemini",
+ "tier": "final",
+ "tool": "Gemini API image generation (Google)",
+ "model": "gemini-3-pro-image-preview",
+ "openrouter_model": null,
+ "fal_model": null,
+ "model_version": "gemini-3-pro-image-preview",
+ "prompt": "A wide picture for a 2D game, piece keeper-talon. A metal owl's talon in side view in two poses: an open raking claw, and a closed gripping fist. Dark iron with bronze joints and fine cross-hatching. The subject is drawn alone on a plain aged cream paper ground with visible paper grain and fibre, in dark muted ink with etched crosshatch shading and near-black outlines, no green, no text.  Style: a dark painterly etched storybook illustration, ink and wash with fine etched cross-hatching and a faint paper grain inside the shapes only. Large shapes have a clean near-black ink outline #171614 about 2 px wide at this size. One light source sits in front and slightly above: upper edges brighter, lower edges shaded with fine hatching. Palette: charcoal and ash-blue darks, muted sepia, bone ivory #FFF5DC, warm gold #E9C46A, bronze #94611E, with only tiny accents of crimson #FF3658. Seed variation 2: a fresh composition. \n\nStyle (required): dark, muted ink on aged paper, like an etched storybook engraving. Etched ink linework with near-black ink outlines; crosshatch and fine line hatching for every shadow and form; visible aged paper grain and fibre texture under all colour; hand-printed, slightly uneven ink. No flat fills, no vector shapes, no smooth digital gradients, no glossy 3D rendering.",
+ "seed": "",
+ "size": "1024x1024",
+ "quality": "medium",
+ "aspect_ratio": "16:9",
+ "image_size": "2K",
+ "input_images": [],
+ "cost_usd": 0.138458,
+ "reply": {
+  "usage": {
+   "promptTokenCount": 321,
+   "candidatesTokenCount": 1394,
+   "totalTokenCount": 2033,
+   "promptTokensDetails": [
+    {
+     "modality": "TEXT",
+     "tokenCount": 321
+    }
+   ],
+   "candidatesTokensDetails": [
+    {
+     "modality": "IMAGE",
+     "tokenCount": 1120
+    }
+   ],
+   "thoughtsTokenCount": 318,
+   "serviceTier": "standard"
+  },
+  "finish": "STOP"
+ },
+ "date": "2026-11-13T17:12+00:00"
+}

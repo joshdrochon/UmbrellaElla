@@ -1,0 +1,2 @@
+STRIPS sundial-turn source_frames=48 loop_end=47 jitter 22.27 -> 0.93 px
+  N=24 fps=6.0 loop last->first 74.65 vs mean step 46.86 loops=True -> pipeline/art/proof/videoframes/sundial-turn/sundial-turn_N24_strip.png
