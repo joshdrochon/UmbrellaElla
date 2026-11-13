@@ -58,6 +58,17 @@ class Strip(unittest.TestCase):
             self.assertTrue(os.path.getsize(os.path.join(out, f"T_N{n}_preview.gif")) > 0)
             self.assertTrue(r["sets"][str(n)]["loop"]["loops"], r["sets"][str(n)]["loop"])
 
+    def test_keyed_frames_reused_for_other_counts(self):
+        mp4 = clip(self.d)
+        first = os.path.join(self.d, "first")
+        v.convert(mp4, first, "T", [8], FPS, H)
+        out = os.path.join(self.d, "again")
+        r = v.convert(mp4, out, "T", [24], FPS, H, keyed=os.path.join(first, "keyed"))
+        side = json.load(open(os.path.join(out, "T_N24.frames.json")))
+        self.assertEqual(side["frames"], 24)
+        self.assertFalse(os.path.exists(os.path.join(out, "keyed")))
+        self.assertEqual(r["source_frames"], SECS * FPS)
+
     def test_pick_and_loop_numbers(self):
         self.assertEqual(v.pick(8, 24), [0, 3, 6, 9, 12, 15, 18, 21])
         a = (2, 1, [[(10, 10, 10, 255), (0, 0, 0, 0)]])

@@ -225,19 +225,27 @@ def gif(frames_dir, stem, count, fps, out, paper=None):
         ["-filter_complex", fc, "-map", "[o]", "-frames:v", str(count), "-loop", "0", out])
 
 
-def convert(video, out_dir, stem, counts, fps, height, trim_start=0.0, paper=None, crop=None):
+def convert(video, out_dir, stem, counts, fps, height, trim_start=0.0, paper=None, crop=None, keyed=None):
     ag = _assetgen()
     os.makedirs(out_dir, exist_ok=True)
-    raws = extract(video, os.path.join(out_dir, "raw"), fps, height, trim_start, crop)
-    if len(raws) < 4:
-        raise ValueError(f"only {len(raws)} frames at {fps} fps; need at least 4")
-    keyed_dir = os.path.join(out_dir, "keyed")
-    os.makedirs(keyed_dir, exist_ok=True)
-    frames, key_stats = [], []
-    for i, r in enumerate(raws):
-        k = os.path.join(keyed_dir, "keyed_%03d.png" % i)
-        key_stats.append(ag.chroma_key(r, k))
-        frames.append(png.read_png(k))
+    key_stats = []
+    if keyed:
+        names_k = sorted(f for f in os.listdir(keyed) if f.startswith("keyed_") and f.endswith(".png"))
+        if len(names_k) < 4:
+            raise ValueError(f"only {len(names_k)} keyed frames in {keyed}")
+        frames = [png.read_png(os.path.join(keyed, f)) for f in names_k]
+        key_stats = [{"green_inside_px": 0}]
+    else:
+        raws = extract(video, os.path.join(out_dir, "raw"), fps, height, trim_start, crop)
+        if len(raws) < 4:
+            raise ValueError(f"only {len(raws)} frames at {fps} fps; need at least 4")
+        keyed_dir = os.path.join(out_dir, "keyed")
+        os.makedirs(keyed_dir, exist_ok=True)
+        frames = []
+        for i, r in enumerate(raws):
+            k = os.path.join(keyed_dir, "keyed_%03d.png" % i)
+            key_stats.append(ag.chroma_key(r, k))
+            frames.append(png.read_png(k))
     reg, before, after, anchor = register(frames)
     e, ends = loop_window(reg)
     result = {"video": video, "fps": fps, "source_frames": len(reg), "loop_end": e, "end_candidates": ends,
@@ -268,10 +276,11 @@ def main(argv=None):
     ap.add_argument("--height", type=int, default=540)
     ap.add_argument("--trim-start", type=float, default=0.0)
     ap.add_argument("--paper")
+    ap.add_argument("--keyed", help="reuse already keyed frames (keyed_NNN.png) from this dir; skips ffmpeg and keying")
     ap.add_argument("--crop", help="ffmpeg crop w:h:x:y after scaling (pure-Python keying is slow: crop to the figure)")
     a = ap.parse_args(argv)
     try:
-        r = convert(a.video, a.out, a.stem, a.counts, a.fps, a.height, a.trim_start, a.paper, a.crop)
+        r = convert(a.video, a.out, a.stem, a.counts, a.fps, a.height, a.trim_start, a.paper, a.crop, a.keyed)
     except (ValueError, subprocess.CalledProcessError) as e:
         print(f"FAIL: video_to_strip: {e}")
         return 1
