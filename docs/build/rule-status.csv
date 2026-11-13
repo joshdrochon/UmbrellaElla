@@ -160,7 +160,7 @@ FLOW-35,flow,built,Flow.PauseCycle; Flow.World.MenuBlocksGameplayInput,"drifting
 FLOW-36,settings,built,Settings.PagesByMode; Settings.SaveAppliesCurrentPage; Settings.BackDiscardsUnsaved; Settings.SliderRange; Settings.Credits,Slate layout not seen on screen,
 FLOW-37,settings,built,Settings.PagesByMode; Settings.SaveAppliesCurrentPage; Settings.BackDiscardsUnsaved; Settings.SliderRange; Settings.Credits,Slate layout not seen on screen,
 FLOW-38,settings,built,Settings.PagesByMode; Settings.SaveAppliesCurrentPage; Settings.BackDiscardsUnsaved; Settings.SliderRange; Settings.Credits,Slate layout not seen on screen,
-FLOW-39,settings,blocked,Settings.Credits,"credit names and roles are ""[... Josh to supply]"" in FlowStoryText.cpp",Josh
+FLOW-39,settings,built,Settings.Credits,"Rick Rispoli is Executive Producer (D-new-credits-ep)",
 FLOW-40,settings,built,Settings.PagesByMode; Settings.SaveAppliesCurrentPage; Settings.BackDiscardsUnsaved; Settings.SliderRange; Settings.Credits,Slate layout not seen on screen,
 FLOW-49,story,built,Story.JourneyStatistics; Flow.World.DirectorsCutEndingOneTimeline,Journey Complete follows Flow credits; Try Again / Main Menu bound (dcb08d4); keyboard focus on the widget is an artui follow-up,
 FLOW-41,flow,built,Flow.TitleStartsPlaying; Flow.StartAndPauseDesignRetained,,

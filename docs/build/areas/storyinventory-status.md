@@ -32,3 +32,10 @@ Checks: UE build exit 0; Flow+Flow.World+Story tests PASS 42/0; module_check 0; 
 Not run to completion: `affected_tests.py --run` (killed at the 10 min background limit). Ran tests.test_story_check + tests.test_story_inventory directly: all pass except RepoStoryFilesPass, which fails only on the 6 placeholder problems.
 
 TOTAL=119 BEFORE=7 NEW=112 PASSED=0 | remaining story_check problems=6 | credits=7 defeat=3 ending=5 in-world=2 journey-complete=11 level-up=3 opening=2 pause=3 purchase=14 settings=24 settings-controller=14 settings-game-options=21 title=3 tutorial=7
+
+## Credits (D-new-credits-ep, 2026-11-12)
+FlowStoryText.cpp: "Executive Producer" replaces the role placeholder; the producer-name placeholder line is removed. FlowRulesTest checks the role line and no "Josh to supply" text. lines.csv: credit-rick-role = "Executive Producer", the name row deleted. FLOW-39 now built.
+Checks: story_check PASS (0 problems, lines=118); story_inventory PASS shipped=118 rows=118; UE build exit 0; Flow tests PASS 30/0; test_story_check + test_story_inventory OK; module_check 0.
+Left (settings lane, not mine): SettingsModel.cpp GetCredits still has "Rick Rispoli" with an empty role and "[the executive producer]"; SettingsTests expects the empty role. Not shipped text the check flags, but it disagrees with the new credit.
+
+TOTAL=118 BEFORE=7 NEW=111 PASSED=0 | remaining story_check problems=0

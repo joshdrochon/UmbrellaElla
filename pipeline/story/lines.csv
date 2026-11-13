@@ -109,8 +109,7 @@ ui-defeat-quit-to-title,button,Quit to Title,,yes,screen=defeat; where=FlowMenuT
 story-ending-page-1,end_card,"Eventually, the owl's pursuit ends, and he retreats into the darkness, leaving Ella alive but still suspended between worlds.",F3;P8,yes,screen=ending; where=FlowStoryText.cpp
 story-ending-page-2,end_card,"She has survived, yet neither her fate nor the owl's intentions are resolved. Perhaps the owl has merely postponed his judgment, or perhaps something about Ella has challenged even his understanding of time.",F3;P8,yes,screen=ending; where=FlowStoryText.cpp
 credit-umbrella-ella-the-stolen-hour,screen,Umbrella Ella The Stolen Hour,,yes,screen=credits; where=FlowStoryText.cpp
-credit-role-josh-to-supply,screen,[ROLE - Josh to supply],,yes,screen=credits; where=FlowStoryText.cpp
-credit-executive-producer-name-josh-to,screen,[EXECUTIVE PRODUCER NAME - Josh to supply],,yes,screen=credits; where=FlowStoryText.cpp
+credit-rick-role,screen,Executive Producer,,yes,screen=credits; where=FlowStoryText.cpp
 ui-tutorial-while-dropping-shoot-with-j,screen,"While dropping, shoot with J or the left mouse button. Shots always fly right. Basic shots never run out.",,yes,screen=tutorial; where=FlowTutorialText.cpp
 ui-tutorial-absorb-yellow-shots-with-k,screen,Absorb yellow shots with K or the right mouse button to heal. Dash with Q and E or the bumpers.,,yes,screen=tutorial; where=FlowTutorialText.cpp
 ui-tutorial-shoot-with-j-or-the,screen,"Shoot with J or the left mouse button while dropping. Cycle spells with [ and ] or the D-pad, or press 1 to 4.",,yes,screen=tutorial; where=FlowTutorialText.cpp
