@@ -22,3 +22,7 @@ Open items at handoff. These go into the HANDOFF "Follow-up list". The pipeline 
 ## keeper
 - `UmbrellaElla.Keeper.QueuedEmissionsRunOnScaledWorldTime` (area/keeper 507f1350, not on main) fails: "Expected 'slowed'
   to be true". The commit that rewrote it was only pre-checked, never run in Unreal.
+
+## Keeper
+- Attack warnings still use placeholder shapes (eye, chain head, talon tip, gust, telegraph cubes); no art covers them yet. Kept on purpose: they are the only cue for each attack (coordinator, Nov 13).
+- A faint darker rectangle shows behind the Keeper owl art in gameplay captures.
