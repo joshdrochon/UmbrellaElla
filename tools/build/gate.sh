@@ -28,7 +28,7 @@ fi
 cd "$ROOT"; git fetch -q origin
 [ -d "$G" ] || git worktree add -q "$G" -B "$GB" main
 mkdir -p "$G/Saved/Config/MacEditor"; cp -n "$ROOT/Saved/Config/MacEditor/GameUserSettings.ini" "$G/Saved/Config/MacEditor/" 2>/dev/null
-cd "$G"; git reset -q --hard main; MAIN=$(git rev-parse HEAD)
+cd "$G"; git reset -q --hard main; git clean -qfd; MAIN=$(git rev-parse HEAD)   # untracked leftovers from a killed run must not reach the checks
 # The baseline depends only on main, so it is computed once per main SHA and reused (Nov 12: ~10 min per gate run).
 T1=$(date +%s); QB="$L/quality-base-$MAIN.txt"
 if [ -s "$QB" ]; then cp "$QB" "$L/quality-base.txt"; step "baseline (cached for $(git rev-parse --short HEAD))"
