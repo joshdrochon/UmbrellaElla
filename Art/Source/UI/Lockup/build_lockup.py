@@ -19,6 +19,8 @@ ROOT = os.path.abspath(os.path.join(HERE, "..", "..", "..", ".."))
 SRC = os.path.join(ROOT, "pipeline", "art", "proof", "artui", "ui-title-lockup", "lockup_a.png")
 OUT = os.path.join(ROOT, "Art", "Source", "UI", "Ground", "Raw", "T_UI_TitleLockup_PH.png")
 ALPHA_FLOOR = 0.035     # below this brightness a pixel is background (jpeg-ish noise in the black)
+DIM_MAX = 0.55         # ring/numeral paint is dimmer than the cream lettering
+HAND_SAT = 0.33        # the gold hands are more saturated than cream
 ALPHA_FULL = 0.30       # at or above this brightness the pixel is fully opaque
 
 
@@ -40,6 +42,16 @@ px = np.array(img.pixels[:], dtype=np.float32).reshape(h, w, 4)[::-1, :, :3]   #
 px = px[: h // 2 * 2, : w // 2 * 2]
 px = px.reshape(h // 2, 2, w // 2, 2, 3).mean(axis=(1, 3))
 bright = px.max(axis=2)
+# The painted clock ring and hands behind the lettering collide with the subtitle and the menu rule, and the ground
+# already carries its own clock. Keep the lettering only: drop dim pixels (the ring, numerals) everywhere and the
+# saturated gold hands inside the box they cross. Boxes are fractions of the image.
+sat = (bright - px.min(axis=2)) / np.maximum(bright, 1e-4)
+hh, ww = bright.shape
+yy, xx = np.mgrid[0:hh, 0:ww]
+hand_box = (xx > 0.52 * ww) & (yy > 0.50 * hh)
+drop = (bright < DIM_MAX) | (hand_box & (sat > HAND_SAT))
+bright = np.where(drop, 0.0, bright)
+px = np.where(drop[..., None], 0.0, px)
 alpha = np.clip((bright - ALPHA_FLOOR) / (ALPHA_FULL - ALPHA_FLOOR), 0.0, 1.0)
 rgb = np.where(alpha[..., None] > 0, px / np.maximum(bright, 1e-4)[..., None], 0.0)
 rgb = np.clip(rgb * np.clip(bright / 1.0, 0, 1)[..., None] / np.maximum(alpha, 1e-4)[..., None], 0.0, 1.0)

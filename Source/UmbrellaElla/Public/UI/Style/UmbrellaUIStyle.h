@@ -43,7 +43,7 @@ namespace UmbrellaUIStyleConstants
 	static constexpr float PanelBorderAlpha = 0.85f;
 	static constexpr float PanelCornerRadius = 3.0f;
 	static constexpr float PanelBorderWidth = 1.5f;
-	static constexpr float PanelPadding = 44.0f;
+	static constexpr float PanelPadding = 76.0f;
 	/** Painted panel card as a nine-slice: drawn size of the whole card image and the border share kept unstretched. */
 	static constexpr float PanelArtWidth = 460.0f;
 	static constexpr float PanelArtHeight = 253.0f;

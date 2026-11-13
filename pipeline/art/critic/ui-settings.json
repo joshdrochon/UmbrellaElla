@@ -82,6 +82,50 @@
    "commit": "61ba52ca34e4",
    "gap": "Y's settings panel is a flat dark box with a thin generic sans font and plain hairline sliders. It has no etched or inked lettering and no paper texture, so it doesn't match the painted art behind it.; Y has a flat dark panel with plain sans-serif body text, so it lacks the etched, textured lettering and paper finish of X.; Y's settings panel is a flat dark fill with plain sans text and thin rules, so it has none of X's etched lettering, ink-wash depth or textured finish.",
    "at": "2026-11-13T06:53:46Z"
+  },
+  {
+   "piece": "ui-settings",
+   "round": 3,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "ours",
+    "reference": "reference"
+   },
+   "panel": 3,
+   "calibration": {
+    "sessions": 9,
+    "passed": 6
+   },
+   "missing": [
+    "reference:pipeline/art/reference/discord/20261112-0443_Ricky_title-screen.png"
+   ],
+   "critic_sessions": [
+    "ui-settings-r3-00-reference-c1",
+    "ui-settings-r3-00-reference-c2",
+    "ui-settings-r3-00-reference-c3",
+    "ui-settings-r3-01-quality_bar-c1",
+    "ui-settings-r3-01-quality_bar-c2",
+    "ui-settings-r3-01-quality_bar-c3",
+    "ui-settings-r3-00-reference-c4",
+    "ui-settings-r3-00-reference-c5",
+    "ui-settings-r3-00-reference-c6"
+   ],
+   "manifest": "",
+   "evidence": "",
+   "prompt": "",
+   "files": "b8ef76b4101fcb3c03094c7c72571ae82e47e03b27adf6bddead0b2fd71621d4",
+   "file": "pipeline/art/proof/artui/ui-settings/capture_r17_settings.png",
+   "card": "artui",
+   "refs": "669f6f2ac14d",
+   "commit": "9c3c278ce84a",
+   "gap": "Both show the title screen, not a settings screen. The clock and cloud areas are soft and hazy, and the menu text has little etched weight.; X's settings panel is a muddy, murky slab with soft, low-resolution lettering. It lacks Y's crisp etched lettering and its depth of ink and paper finish.",
+   "at": "2026-11-13T09:55:07Z"
   }
  ]
 }

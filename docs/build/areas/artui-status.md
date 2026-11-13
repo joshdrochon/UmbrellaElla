@@ -129,3 +129,15 @@ missing the agent-play script on main (not my lane).
 - BLOCKED (env/requests): needs a committed per-screen capture switch (e.g. `-SmokeScreen=settings|pause|hud|purchase|levelup` in the smoke hook, Smoke lane) or a way to say how /tmp/uishots was made.
 - `art_pass_verify` currently FAILS on ui-defeated (not my piece; says passed with no panel record). My pieces: 0 passed.
 - Spend: no image calls this session.
+
+## Round 16-17 (13 Nov, artui worker, resumed after kill)
+- r16 records (pause, defeated, settings, credits, story, tutorial, hud) were committed but not logged: all lose the reference
+  pair on "flat sans, no etched lettering or paper texture" (defeated "ours" was a refused panel, not a pass).
+- Painted panel card (`pipeline/art/proof/artui/ui-panel/panel_r1.png`, $0.138, spent $13.25 of $33.82; prompt.md + prompt-review.md)
+  shipped as `T_UI_Panel_PH`, drawn as a nine-slice by `FUmbrellaUIStyle::PanelBrush()` (settings, purchase, story use it);
+  `PanelPadding` 28 -> 76 so text clears the painted border. Build exit 0, 0 warnings.
+- ui-settings r3 at 1280x720: checks pass (art_ref 0.921), quality_bar: ours, reference: reference, calibration 6/9. Gap: soft
+  lettering, "little etched weight" (resolution). NOT passed.
+- Note: host load ~30 made UE captures take 12+ min; `timeout` does not exist on this Mac.
+- Next: capture at 1920x1080 (RUN_RES) to match the reference resolution, re-judge settings, then apply the panel to pause,
+  credits, defeated, tutorial (those still draw no panel).
