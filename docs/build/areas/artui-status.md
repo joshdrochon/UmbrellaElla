@@ -153,3 +153,9 @@ missing the agent-play script on main (not my lane).
 - r18 (1920x1080, 7 screens): credits, defeated, hud-clock, pause, settings lose the reference pair (gap: "smoother digital finish, plain lettering, no etched grain"); story-text r4 was a refused panel (no verdict). None pass.
 - Still BLOCKED (lead): `-SmokeScreen` capture switch (request 4) for purchase, level-up, statistics and re-captures after any fix. No image spend this session.
 - Next once unblocked: paint the lettering/headings per screen (as done for title and settings), re-capture, re-panel.
+
+## Resume 3 (13 Nov, artui worker)
+- Merged origin/main (ue_slot.sh has UE_SLOT_HELD). `RUN_RES=1920x1080 tools/build/run_game.sh -UIShots=/tmp/uishots_r19` finished in ~1 min, no slot deadlock: 9 PNGs (title, defeated, pause, settings, story, credits, tutorial, hud, known-bad).
+- Correction: `-UIShots=<folder>` (UIShotSubsystem) is the per-screen capture switch; request 4 (`-SmokeScreen`) is not needed.
+- r18 critic records committed: 6 screens judged, reference wins on all (lettering/paper texture). Still 0 passed by my pieces.
+- Next: panel/lettering rounds on those 6 screens using r19 captures.
