@@ -30,3 +30,11 @@ Procedural Blender geometry does not reach the painted/etched look of the key ar
   as evidence (ours on brown, critics: "flat brown backdrop"). Next: composite on white, rerun once.
 - Still not tried: Grease Pencil Line Art pass, much denser architecture (reference has ~5x the window/roof/ironwork count), painted-light pass,
   paper, scene, menu-screen. Nothing ships; `_PH` stays.
+
+## Round log, skyline (after artfix merged: packet images flattened onto one paper ground; earlier panel rounds r3b/r3c are invalid)
+- r4 panel (render = r3b look, flattened): calibration 7/9, quality_bar pair ours, reference pair reference. Gap: flat, no etched line.
+- r5 (dense gabled houses, dormers, muntins, tall ground band): panel calibration 9/9, quality_bar ours/same, reference loses ours. art_check off_style 0.044 FAIL (window gold too saturated).
+  Gap: fuzzy edges, blobby windows, no etched detail inside the mass.
+- r6 (cleaner edges, palette gold #e9c46a-ish, etched strands survive the ink pass, stone courses): calibration 9/9, checks all PASS (art_ref 0.749),
+  quality_bar pair ours, reference pair still reference. Gap: repetitive same-height gabled houses, uniform window grids, flat ground band, no clock/domes/arches.
+- Next r7: architectural variety (clock tower, flying buttresses, wide manors, irregular window patterns, conservatory dome), ground-band tone.
