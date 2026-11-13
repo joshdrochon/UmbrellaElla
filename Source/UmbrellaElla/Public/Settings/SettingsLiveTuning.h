@@ -13,11 +13,13 @@
 
 class UUmbrellaTuning;
 
+#if UMBRELLAELLA_WORKBENCH
 /**
  * A copy of the module tuning structs the settings can change at runtime: the Director's Cut developer options and the
  * reduced-motion presentation. Readers keep reading GetDefault<UUmbrellaTuning>() at the point of use; the settings
  * subsystem writes a composed copy into it while an option is active and writes the captured baseline back after.
- * Nothing here is saved to an ini file.
+ * Nothing here is saved to an ini file. Compiled only in workbench builds: the submission never writes the tuning
+ * class default (pipeline/unreal-rules.md), so there the developer options stay read-only.
  */
 struct UMBRELLAELLA_API FSettingsLiveTuning
 {
@@ -37,3 +39,4 @@ struct UMBRELLAELLA_API FSettingsLiveTuning
 	/** Write the structs into a tuning object (the live defaults every reader sees). */
 	void WriteTo(UUmbrellaTuning* Tuning) const;
 };
+#endif // UMBRELLAELLA_WORKBENCH

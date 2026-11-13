@@ -1,6 +1,8 @@
 #include "Settings/SettingsLiveTuning.h"
 #include "Core/UmbrellaTuning.h"
 
+#if UMBRELLAELLA_WORKBENCH
+
 FSettingsLiveTuning FSettingsLiveTuning::ReadFrom(const UUmbrellaTuning* Tuning)
 {
 	FSettingsLiveTuning Copy;
@@ -36,3 +38,5 @@ void FSettingsLiveTuning::WriteTo(UUmbrellaTuning* Tuning) const
 	Tuning->Encounter = Encounter;
 	Tuning->UmbrellaFlight = UmbrellaFlight;
 }
+
+#endif // UMBRELLAELLA_WORKBENCH

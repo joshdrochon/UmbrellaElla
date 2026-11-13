@@ -118,9 +118,11 @@ namespace DeveloperOptionRules
 	/** The options change values only in Director's Cut, and only where the release rule allows it. */
 	UMBRELLAELLA_API bool CanEdit(EUmbrellaPlayMode Mode, bool bWorkbenchBuild);
 
+#if UMBRELLAELLA_WORKBENCH
 	/** Write the options onto a tuning copy taken from the baseline. Defaults leave it unchanged. */
 	UMBRELLAELLA_API void Apply(const TArray<int32>& Values, FSettingsLiveTuning& Tuning);
+#endif
 
 	/** What the option makes of the baseline, for the page ("290 cm/s", "4 lives", "On"). */
-	UMBRELLAELLA_API FText ValueText(EDeveloperOption Option, int32 Value, const FSettingsLiveTuning& Baseline);
+	UMBRELLAELLA_API FText ValueText(EDeveloperOption Option, int32 Value, int32 BaseRetryLives, int32 BaseHitsPerLife);
 }

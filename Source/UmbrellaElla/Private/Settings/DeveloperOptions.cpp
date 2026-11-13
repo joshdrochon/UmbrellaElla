@@ -40,6 +40,7 @@ namespace
 		return Spec;
 	}
 
+#if UMBRELLAELLA_WORKBENCH
 	float DevPercentScale(int32 Percent)
 	{
 		return static_cast<float>(Percent) / static_cast<float>(DeveloperOptionLimits::PercentUnit);
@@ -54,6 +55,7 @@ namespace
 	{
 		Value = FMath::RoundToInt(static_cast<float>(Value) * DevPercentScale(Percent));
 	}
+#endif
 
 	int32 DevCount(int32 Base, int32 Offset)
 	{
@@ -162,6 +164,7 @@ bool DeveloperOptionRules::CanEdit(EUmbrellaPlayMode Mode, bool bWorkbenchBuild)
 		&& (bWorkbenchBuild || DeveloperOptionRelease::bEditableInSubmissionBuild);
 }
 
+#if UMBRELLAELLA_WORKBENCH
 void DeveloperOptionRules::Apply(const TArray<int32>& Values, FSettingsLiveTuning& Tuning)
 {
 	if (!IsFeatureEnabled(EFeatureId::FLOW_44))
@@ -275,7 +278,9 @@ void DeveloperOptionRules::Apply(const TArray<int32>& Values, FSettingsLiveTunin
 	}
 }
 
-FText DeveloperOptionRules::ValueText(EDeveloperOption Option, int32 Value, const FSettingsLiveTuning& Baseline)
+#endif // UMBRELLAELLA_WORKBENCH
+
+FText DeveloperOptionRules::ValueText(EDeveloperOption Option, int32 Value, int32 BaseRetryLives, int32 BaseHitsPerLife)
 {
 	const FDeveloperOptionSpec Spec = SpecFor(Option);
 	switch (Spec.Kind)
@@ -284,7 +289,7 @@ FText DeveloperOptionRules::ValueText(EDeveloperOption Option, int32 Value, cons
 		return FText::Format(LOCTEXT("PercentValue", "{0}%"), FText::AsNumber(Value));
 	case EDeveloperOptionKind::Offset:
 	{
-		const int32 Base = Option == EDeveloperOption::EntryRetries ? Baseline.Encounter.RetryLives : FMath::RoundToInt(Baseline.Health.HitsPerLife);
+		const int32 Base = Option == EDeveloperOption::EntryRetries ? BaseRetryLives : BaseHitsPerLife;
 		return FText::AsNumber(DevCount(Base, Value));
 	}
 	case EDeveloperOptionKind::Toggle:

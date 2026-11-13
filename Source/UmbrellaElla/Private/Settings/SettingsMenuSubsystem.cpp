@@ -83,7 +83,9 @@ void USettingsMenuSubsystem::Deinitialize()
 {
 	FWorldDelegates::OnPostWorldInitialization.Remove(WorldInitHandle);
 	FTSTicker::GetCoreTicker().RemoveTicker(PlayModeTicker);
+#if UMBRELLAELLA_WORKBENCH
 	RestoreBaselineTuning();
+#endif
 	CloseSettings();
 	Super::Deinitialize();
 }
@@ -142,13 +144,24 @@ int32 USettingsMenuSubsystem::GetDeveloperOption(EDeveloperOption Option) const
 	return DeveloperOptionRules::ValueOf(Session.GetSaved().DeveloperValues, Option);
 }
 
-FSettingsLiveTuning USettingsMenuSubsystem::GetBaselineTuning() const
+void USettingsMenuSubsystem::GetBaselineLifeCounts(int32& OutRetryLives, int32& OutHitsPerLife) const
 {
-	return bLiveTuningApplied ? BaselineTuning : FSettingsLiveTuning::ReadFrom(GetDefault<UUmbrellaTuning>());
+#if UMBRELLAELLA_WORKBENCH
+	const FSettingsLiveTuning Baseline = bLiveTuningApplied ? BaselineTuning : FSettingsLiveTuning::ReadFrom(GetDefault<UUmbrellaTuning>());
+	OutRetryLives = Baseline.Encounter.RetryLives;
+	OutHitsPerLife = FMath::RoundToInt(Baseline.Health.HitsPerLife);
+#else
+	const UUmbrellaTuning* Tuning = GetDefault<UUmbrellaTuning>();
+	OutRetryLives = Tuning->Encounter.RetryLives;
+	OutHitsPerLife = FMath::RoundToInt(Tuning->Health.HitsPerLife);
+#endif
 }
 
 void USettingsMenuSubsystem::RefreshLiveTuning()
 {
+#if UMBRELLAELLA_WORKBENCH
+	// Workbench builds only: a composed copy goes into the live tuning object. The submission never writes the
+	// tuning class default (the // bake: defaults are the shipped values), so there the options stay read-only.
 	const FUmbrellaSettingsData& Saved = Session.GetSaved();
 	const bool bDeveloper = IsDeveloperTuningActive() && !DeveloperOptionRules::IsAllDefault(Saved.DeveloperValues);
 	const bool bMotion = IsFeatureEnabled(EFeatureId::FLOW_45) && Saved.bReducedMotion;
@@ -175,9 +188,11 @@ void USettingsMenuSubsystem::RefreshLiveTuning()
 	}
 	Composed.WriteTo(Live);
 	bLiveTuningApplied = true;
+#endif
 	ApplyReducedMotionToRings();
 }
 
+#if UMBRELLAELLA_WORKBENCH
 void USettingsMenuSubsystem::RestoreBaselineTuning()
 {
 	if (bLiveTuningApplied)
@@ -186,6 +201,7 @@ void USettingsMenuSubsystem::RestoreBaselineTuning()
 		bLiveTuningApplied = false;
 	}
 }
+#endif
 
 void USettingsMenuSubsystem::ApplyReducedMotionToRings()
 {

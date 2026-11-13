@@ -65,6 +65,7 @@ float UmbrellaAccessibility::ShakeScaleFor(bool bReducedMotion)
 	return bReducedMotion ? 0.0f : 1.0f;
 }
 
+#if UMBRELLAELLA_WORKBENCH
 void UmbrellaAccessibility::ApplyReducedMotion(FSettingsLiveTuning& Tuning)
 {
 	if (!IsFeatureEnabled(EFeatureId::FLOW_45))
@@ -80,3 +81,4 @@ void UmbrellaAccessibility::ApplyReducedMotion(FSettingsLiveTuning& Tuning)
 	Tuning.Progression.RingPulseExtraThickness = 0.0f;
 	Tuning.Keeper.HoverAmplitude = 0.0f;
 }
+#endif

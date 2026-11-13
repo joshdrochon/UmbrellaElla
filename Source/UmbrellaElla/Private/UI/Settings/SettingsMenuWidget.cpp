@@ -4,7 +4,6 @@
 #include "Harness/UmbrellaFeatureFlags.h"
 #include "Settings/DeveloperOptions.h"
 #include "Settings/SettingsConstants.h"
-#include "Settings/SettingsLiveTuning.h"
 #include "Settings/SettingsMenuSubsystem.h"
 #include "Settings/UmbrellaAccessibility.h"
 #include "Styling/CoreStyle.h"
@@ -485,7 +484,12 @@ void USettingsMenuWidget::AddGameOptionsBody()
 			: LOCTEXT("DevNoteLocked", "Developer options (Director's Cut only). They can be changed in the tester build."), Size, Gold())
 	];
 	const USettingsMenuSubsystem* Subsystem = Owner.Get();
-	const FSettingsLiveTuning Baseline = Subsystem ? Subsystem->GetBaselineTuning() : FSettingsLiveTuning();
+	int32 BaseRetryLives = 0;
+	int32 BaseHitsPerLife = 0;
+	if (Subsystem)
+	{
+		Subsystem->GetBaselineLifeCounts(BaseRetryLives, BaseHitsPerLife);
+	}
 	if (SettingsRules::GetDeveloperOptionNames(Mode).Num() == 0)
 	{
 		return;
@@ -562,12 +566,12 @@ void USettingsMenuWidget::AddGameOptionsBody()
 					SNew(STextBlock)
 					.Font(Font(Size))
 					.ColorAndOpacity(Gold())
-					.Text(TAttribute<FText>::Create(TAttribute<FText>::FGetter::CreateWeakLambda(this, [this, Option, Baseline]()
+					.Text(TAttribute<FText>::Create(TAttribute<FText>::FGetter::CreateWeakLambda(this, [this, Option, BaseRetryLives, BaseHitsPerLife]()
 					{
 						const USettingsMenuSubsystem* Current = Owner.Get();
 						const int32 Value = Current ? DeveloperOptionRules::ValueOf(Current->GetSession().GetDraft().DeveloperValues, Option)
 							: DeveloperOptionRules::SpecFor(Option).Default;
-						return DeveloperOptionRules::ValueText(Option, Value, Baseline);
+						return DeveloperOptionRules::ValueText(Option, Value, BaseRetryLives, BaseHitsPerLife);
 					})))
 				]
 			]

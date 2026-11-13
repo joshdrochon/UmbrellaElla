@@ -3,7 +3,9 @@
 #include "CoreMinimal.h"
 #include "Core/UmbrellaPlayMode.h"
 #include "Containers/Ticker.h"
+#if UMBRELLAELLA_WORKBENCH
 #include "Settings/SettingsLiveTuning.h"
+#endif
 #include "Settings/SettingsModel.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "SettingsMenuSubsystem.generated.h"
@@ -79,7 +81,7 @@ public:
 	bool IsLiveTuningApplied() const { return bLiveTuningApplied; }
 
 	/** The tuning captured before the settings first changed it (what "as tuned" means on the Game Options page). */
-	FSettingsLiveTuning GetBaselineTuning() const;
+	void GetBaselineLifeCounts(int32& OutRetryLives, int32& OutHitsPerLife) const;
 
 	/** Follow the play mode of the first local player's controller (flow does not call SetPlayMode). */
 	void SyncPlayModeFromPlayer();
@@ -111,13 +113,17 @@ public:
 
 private:
 	void LoadDefaultSoundClasses();
+#if UMBRELLAELLA_WORKBENCH
 	void RestoreBaselineTuning();
+#endif
 	void ApplyReducedMotionToRings();
 
 	FDelegateHandle WorldInitHandle;
 	FTSTicker::FDelegateHandle PlayModeTicker;
 	FSimpleMulticastDelegate SettingsSavedEvent;
+#if UMBRELLAELLA_WORKBENCH
 	FSettingsLiveTuning BaselineTuning;
+#endif
 	bool bLiveTuningApplied = false;
 	bool bWorkbenchBuild = DeveloperOptionRules::IsWorkbenchBuild();
 	FSettingsSession Session;

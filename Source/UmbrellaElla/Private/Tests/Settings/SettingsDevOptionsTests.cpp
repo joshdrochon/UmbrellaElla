@@ -10,7 +10,9 @@
 #include "Misc/Paths.h"
 #include "Settings/DeveloperOptions.h"
 #include "Settings/SettingsConstants.h"
+#if UMBRELLAELLA_WORKBENCH
 #include "Settings/SettingsLiveTuning.h"
+#endif
 #include "Settings/SettingsMenuSubsystem.h"
 #include "Settings/SettingsModel.h"
 #include "Settings/SettingsStore.h"
@@ -79,6 +81,7 @@ bool FSettingsDevSpecsTest::RunTest(const FString& Parameters)
 	return true;
 }
 
+#if UMBRELLAELLA_WORKBENCH
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FSettingsDevApplyTest, "UmbrellaElla.Settings.DeveloperOptionsApply", SettingsDevFlags)
 bool FSettingsDevApplyTest::RunTest(const FString& Parameters)
 {
@@ -119,10 +122,11 @@ bool FSettingsDevApplyTest::RunTest(const FString& Parameters)
 	TestEqual(TEXT("clock untouched by owl parts"), Changed.Keeper.ClockHp, Base.Keeper.ClockHp);
 	TestEqual(TEXT("hitbox 50%"), Changed.Encounter.PlayerRadius, Base.Encounter.PlayerRadius * 0.5f);
 	TestEqual(TEXT("experience 200%"), Changed.Progression.XpClock, Base.Progression.XpClock * 2);
-	TestEqual(TEXT("value text shows the resulting lives"), DeveloperOptionRules::ValueText(EDeveloperOption::EntryRetries, 2, Base).ToString(),
+	TestEqual(TEXT("value text shows the resulting lives"), DeveloperOptionRules::ValueText(EDeveloperOption::EntryRetries, 2, Base.Encounter.RetryLives, FMath::RoundToInt(Base.Health.HitsPerLife)).ToString(),
 		FString::FromInt(Base.Encounter.RetryLives + 2));
 	return true;
 }
+#endif // UMBRELLAELLA_WORKBENCH
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FSettingsDevDirectorOnlyTest, "UmbrellaElla.Settings.DeveloperOptionsDirectorOnly", SettingsDevFlags)
 bool FSettingsDevDirectorOnlyTest::RunTest(const FString& Parameters)
@@ -166,6 +170,7 @@ bool FSettingsDevDirectorOnlyTest::RunTest(const FString& Parameters)
 	return true;
 }
 
+#if UMBRELLAELLA_WORKBENCH
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FSettingsDevLiveTest, "UmbrellaElla.Settings.World.DeveloperOptionsReachLiveTuning", SettingsDevFlags)
 bool FSettingsDevLiveTest::RunTest(const FString& Parameters)
 {
@@ -184,7 +189,10 @@ bool FSettingsDevLiveTest::RunTest(const FString& Parameters)
 	TestTrue(TEXT("Save applies"), Subsystem->IsLiveTuningApplied());
 	TestEqual(TEXT("live rise speed doubled"), GetDefault<UUmbrellaTuning>()->Motor.RiseSpeed, BaseRise * 2.0f);
 	TestEqual(TEXT("live retries +3"), GetDefault<UUmbrellaTuning>()->Encounter.RetryLives, BaseRetries + 3);
-	TestEqual(TEXT("the page's baseline is still as tuned"), Subsystem->GetBaselineTuning().Motor.RiseSpeed, BaseRise);
+	int32 BaselineRetries = 0;
+	int32 BaselineHits = 0;
+	Subsystem->GetBaselineLifeCounts(BaselineRetries, BaselineHits);
+	TestEqual(TEXT("the page's baseline is still as tuned"), BaselineRetries, BaseRetries);
 	TestEqual(TEXT("readers get the saved value"), Subsystem->GetDeveloperOption(EDeveloperOption::Movement), 200);
 
 	Subsystem->SetPlayMode(EUmbrellaPlayMode::StartGame);
@@ -208,6 +216,7 @@ bool FSettingsDevLiveTest::RunTest(const FString& Parameters)
 	ResetSettingsDevSubsystem(Subsystem, Path);
 	return true;
 }
+#endif // UMBRELLAELLA_WORKBENCH
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FSettingsAccessDefaultsTest, "UmbrellaElla.Settings.AccessibilityDefaults", SettingsDevFlags)
 bool FSettingsAccessDefaultsTest::RunTest(const FString& Parameters)
@@ -221,6 +230,7 @@ bool FSettingsAccessDefaultsTest::RunTest(const FString& Parameters)
 	TestEqual(TEXT("text scale clamps at 200%"), UmbrellaAccessibility::TextScaleFromPercent(300), 2.0f);
 	TestEqual(TEXT("reduced motion zeroes shake"), UmbrellaAccessibility::ShakeScaleFor(true), 0.0f);
 
+#if UMBRELLAELLA_WORKBENCH
 	const FSettingsLiveTuning Base = FSettingsLiveTuning::ReadFrom(GetDefault<UUmbrellaTuning>());
 	FSettingsLiveTuning Still = Base;
 	UmbrellaAccessibility::ApplyReducedMotion(Still);
@@ -230,6 +240,7 @@ bool FSettingsAccessDefaultsTest::RunTest(const FString& Parameters)
 	TestEqual(TEXT("Keeper stops bobbing"), Still.Keeper.HoverAmplitude, 0.0f);
 	TestEqual(TEXT("gameplay numbers untouched"), Still.Motor.RiseSpeed, Base.Motor.RiseSpeed);
 	TestEqual(TEXT("menu shape count untouched"), Still.Flow.FallingShapeCount, Base.Flow.FallingShapeCount);
+#endif
 	return true;
 }
 
@@ -247,8 +258,10 @@ bool FSettingsAccessLiveTest::RunTest(const FString& Parameters)
 	}
 	Subsystem->SetStorePath(Path);
 	Subsystem->ReloadFromStore();
+#if UMBRELLAELLA_WORKBENCH
 	const float BaseSway = GetDefault<UUmbrellaTuning>()->Flow.BackgroundSwayAmplitude;
 	const float BaseFall = GetDefault<UUmbrellaTuning>()->Flow.FallingShapeMaxSpeed;
+#endif
 
 	FUmbrellaTestWorld TestWorld;
 	UWorld* World = TestWorld.GetWorld();
@@ -272,14 +285,18 @@ bool FSettingsAccessLiveTest::RunTest(const FString& Parameters)
 	TestEqual(TEXT("camera shake readers get 0"), UmbrellaAccessibility::GetShakeScale(World), 0.0f);
 	TestTrue(TEXT("readers see reduced flash"), UmbrellaAccessibility::IsReducedFlash(World));
 	TestEqual(TEXT("readers see 150% text"), UmbrellaAccessibility::GetTextScale(World), 1.5f);
+#if UMBRELLAELLA_WORKBENCH
 	TestEqual(TEXT("live menu shapes stop falling"), GetDefault<UUmbrellaTuning>()->Flow.FallingShapeMaxSpeed, 0.0f);
 	TestEqual(TEXT("live menu shapes stop swaying"), GetDefault<UUmbrellaTuning>()->Flow.BackgroundSwayAmplitude, 0.0f);
+#endif
 
 	Subsystem->EditSession().SetReducedMotion(false);
 	Subsystem->SaveSettings(ESettingsPage::Sound);
 	TestFalse(TEXT("motion back on"), UmbrellaAccessibility::IsReducedMotion(World));
+#if UMBRELLAELLA_WORKBENCH
 	TestEqual(TEXT("sway restored"), GetDefault<UUmbrellaTuning>()->Flow.BackgroundSwayAmplitude, BaseSway);
 	TestEqual(TEXT("fall speed restored"), GetDefault<UUmbrellaTuning>()->Flow.FallingShapeMaxSpeed, BaseFall);
+#endif
 	TestFalse(TEXT("nothing left in the live tuning"), Subsystem->IsLiveTuningApplied());
 
 	Subsystem->OnSettingsSaved().Remove(Handle);
