@@ -361,10 +361,10 @@ MOVE-09,mouse click selects in menus,i,flow
 MOVE-09,controller button remap,ii,flow
 MOVE-10,controller (gamepad) button remap in Controller menu,i,settings2
 MOVE-17,controller (gamepad) button remap in Controller menu,i,settings2
-SURV-05,clock HUD actually drawn in game,i,health
-SURV-05,"no extra clocks, umbrella icons or numeric count",i,health
-SURV-05,Shoot-only fall does not auto-catch,i,health
-SURV-05,no absorption cooldown (repeated world catches),i,health
+SURV-05,clock HUD actually drawn in game,i,move
+SURV-05,"no extra clocks, umbrella icons or numeric count",i,move
+SURV-05,Shoot-only fall does not auto-catch,i,move
+SURV-05,no absorption cooldown (repeated world catches),i,move
 SURV-06,+1 life per point (lives value after purchase),ii,progression
 SURV-06,previous-rank dependency for three-rank tracks,i,progression
 FLOW-24,story events deterministic on retry,ii,levelchunks
@@ -414,34 +414,34 @@ COM-18,all required traversal works with basic fire,i,enemies2
 COM-18,Courier need not die to supply healing,i,enemies2
 COM-18,descent window and left reset before every enemy,ii,enemies2
 HAZ-24,no horizontal whole-chunk mirror,i,levelchunks
-FLOW-30,clock HUD actually drawn in game (only layout math tested),i,health
-FLOW-30,"antique bronze/gold look, smoky translucent face, etched rim",ii,health
-FLOW-30,warm gold upper-right arc,i,health
-FLOW-30,"no extra clocks, umbrella HUD units or numeric count",i,health
-FLOW-30,hands high-contrast/readable over face across scenes,i,health
-FLOW-31,life-loss transition adds no protection window,i,health
-FLOW-32,absorbed energy visibly flows into the clock,ii,health
-FLOW-32,gold arc restores on heal / drains on hit,i,health
-FLOW-32,life hand unchanged on partial damage/heal,i,health
-FLOW-32,reserve handover shown without invulnerability/reset pause,i,health
-FLOW-33,ordinary red/yellow projectile damage is 1 (no bound key),i,health
-FLOW-33,same-shot heal overflow into spent reserve,i,health
-FLOW-33,handover grants no new protection,i,health
-FLOW-33,progression rollback applied before health restore,i,health
-FLOW-33,normal checkpoint passage does not heal,i,health
-FLOW-33,+1 life per point in Director's Cut,i,health
-VFX-06,no dynamic VFX/illumination baked into base sprites,ii,visuals
-VFX-06,"effects off: character stays dark, posed, damaged",i,visuals
-VFX-06,audio cleared on retry/phase reset/defeat,i,visuals
-VFX-06,effects cleared on defeat,i,visuals
-VFX-06,destroyed parts not restored incorrectly,i,visuals
-VFX-09,effects inspected at camera scale on every background/state,i,visuals
-VFX-09,visual threat extent matches hitboxes,i,visuals
-VFX-09,glow never implies range or hides safe gap,i,visuals
-VFX-09,red/yellow distinguishable without colour,ii,visuals
-VFX-09,warning/active/recovery distinguishable without colour,i,visuals
-VFX-09,VFX/animation obey pause/slow/cancel timing,i,visuals
-VFX-09,"no added delays, re-aims or beats",i,visuals
+FLOW-30,clock HUD actually drawn in game (only layout math tested),i,move
+FLOW-30,"antique bronze/gold look, smoky translucent face, etched rim",ii,move
+FLOW-30,warm gold upper-right arc,i,move
+FLOW-30,"no extra clocks, umbrella HUD units or numeric count",i,move
+FLOW-30,hands high-contrast/readable over face across scenes,i,move
+FLOW-31,life-loss transition adds no protection window,i,move
+FLOW-32,absorbed energy visibly flows into the clock,ii,move
+FLOW-32,gold arc restores on heal / drains on hit,i,move
+FLOW-32,life hand unchanged on partial damage/heal,i,move
+FLOW-32,reserve handover shown without invulnerability/reset pause,i,move
+FLOW-33,ordinary red/yellow projectile damage is 1 (no bound key),i,move
+FLOW-33,same-shot heal overflow into spent reserve,i,move
+FLOW-33,handover grants no new protection,i,move
+FLOW-33,progression rollback applied before health restore,i,move
+FLOW-33,normal checkpoint passage does not heal,i,move
+FLOW-33,+1 life per point in Director's Cut,i,move
+VFX-06,no dynamic VFX/illumination baked into base sprites,ii,standins
+VFX-06,"effects off: character stays dark, posed, damaged",i,standins
+VFX-06,audio cleared on retry/phase reset/defeat,i,standins
+VFX-06,effects cleared on defeat,i,standins
+VFX-06,destroyed parts not restored incorrectly,i,standins
+VFX-09,effects inspected at camera scale on every background/state,i,standins
+VFX-09,visual threat extent matches hitboxes,i,standins
+VFX-09,glow never implies range or hides safe gap,i,standins
+VFX-09,red/yellow distinguishable without colour,ii,standins
+VFX-09,warning/active/recovery distinguishable without colour,i,standins
+VFX-09,VFX/animation obey pause/slow/cancel timing,i,standins
+VFX-09,"no added delays, re-aims or beats",i,standins
 CORE-04,"movement owns input mode, position/velocity, locks",i,move
 CORE-04,"weapons own emission/trajectory/hit identity, not ammo",i,move
 CORE-04,"encounter owns targets, scheduling, cancellation",i,move
