@@ -191,7 +191,7 @@ void AUmbrellaLevelDirector::StepFollow(float EllaX, int32 TravelDirection)
 			if (IsValid(A) && (A->IsA<AUmbrellaEnemy>() || A->IsA<AUmbrellaTrap>()))
 			{
 				A->Destroy();
-				Spawned.RemoveAtSwap(i);
+				Spawned.RemoveAtSwap(Index);
 			}
 		}
 		if (UEncounterDirectorSubsystem* Encounter = GetWorld() ? GetWorld()->GetSubsystem<UEncounterDirectorSubsystem>() : nullptr)
