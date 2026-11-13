@@ -68,4 +68,23 @@ struct UMBRELLAELLA_API FFieldTuning
 	/** margin inside the view a hazard must clear to count as revealed, fraction of view width. */
 	UPROPERTY(EditAnywhere, meta = (ClampMin = "0", ClampMax = "0.5"))
 	float RevealEdgeFraction = 0.03f;
+
+	/** Stand-in wind field tints per kind, used until the painted gust slot ships. */
+	UPROPERTY(EditAnywhere)
+	FLinearColor WindTransportTint = FLinearColor(0.60f, 0.85f, 0.95f);
+
+	UPROPERTY(EditAnywhere)
+	FLinearColor WindDescentTint = FLinearColor(0.45f, 0.35f, 0.75f);
+
+	UPROPERTY(EditAnywhere)
+	FLinearColor WindRescueTint = FLinearColor(0.95f, 0.78f, 0.30f);
+
+	UPROPERTY(EditAnywhere, meta = (ClampMin = "0", ClampMax = "1"))
+	float WindTransportOpacity = 0.25f;
+
+	UPROPERTY(EditAnywhere, meta = (ClampMin = "0", ClampMax = "1"))
+	float WindDescentOpacity = 0.45f;
+
+	UPROPERTY(EditAnywhere, meta = (ClampMin = "0", ClampMax = "1"))
+	float WindRescueOpacity = 0.35f;
 };

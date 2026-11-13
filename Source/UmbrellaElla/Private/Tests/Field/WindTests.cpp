@@ -68,4 +68,48 @@ bool FWindWorldEvents::RunTest(const FString& Parameters)
 	return bOk;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FWindDrawnWidth, "UmbrellaElla.Field.World.DrawnWidthMatchesUsable",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+
+bool FWindDrawnWidth::RunTest(const FString& Parameters)
+{
+	TestEqual(TEXT("right is transport"), AWindCurrent::KindFor(FVector(1, 0, 0), false), EWindKind::Transport);
+	TestEqual(TEXT("down is descent"), AWindCurrent::KindFor(FVector(0, 0, -1), false), EWindKind::Descent);
+	TestEqual(TEXT("up is rescue"), AWindCurrent::KindFor(FVector(0, 0, 1), false), EWindKind::Rescue);
+	TestEqual(TEXT("local field is rescue"), AWindCurrent::KindFor(FVector(1, 0, 0), true), EWindKind::Rescue);
+	TestNotEqual(TEXT("transport/descent tint differ"), AWindCurrent::KindTint(EWindKind::Transport), AWindCurrent::KindTint(EWindKind::Descent));
+	TestNotEqual(TEXT("descent/rescue tint differ"), AWindCurrent::KindTint(EWindKind::Descent), AWindCurrent::KindTint(EWindKind::Rescue));
+
+	UWorld* World = UWorld::CreateWorld(EWorldType::Game, false);
+	if (!TestNotNull(TEXT("world"), World))
+	{
+		return false;
+	}
+	FWorldContext& Context = GEngine->CreateNewWorldContext(EWorldType::Game);
+	Context.SetCurrentWorld(World);
+	struct FCase { FVector Dir; bool bLocal; float HalfX; float HalfZ; };
+	const FCase Cases[] = { { FVector(1, 0, 0), false, 400.0f, 100.0f }, { FVector(0, 0, -1), false, 100.0f, 500.0f }, { FVector(1, 0, 0), true, 300.0f, 150.0f } };
+	for (const FCase& Case : Cases)
+	{
+		AWindCurrent* Wind = World->SpawnActor<AWindCurrent>();
+		if (!TestNotNull(TEXT("wind"), Wind))
+		{
+			continue;
+		}
+		Wind->SetHalfExtent(Case.HalfX, Case.HalfZ);
+		Wind->SetCurrent(Case.Dir, 200.0f);
+		if (Case.bLocal)
+		{
+			Wind->SetLocalVerticalField(1.0f, 0.0f, 0.0f);
+		}
+		TestTrue(TEXT("drawn"), Wind->IsDrawn());
+		TestEqual(TEXT("usable width"), Wind->GetUsableSize().X, Case.HalfX * 2.0);
+		TestEqual(TEXT("drawn width equals usable"), Wind->GetDrawnSize().X, Wind->GetUsableSize().X);
+		TestEqual(TEXT("drawn height equals usable"), Wind->GetDrawnSize().Y, Wind->GetUsableSize().Y);
+	}
+	GEngine->DestroyWorldContext(World);
+	World->DestroyWorld(false);
+	return true;
+}
+
 #endif
