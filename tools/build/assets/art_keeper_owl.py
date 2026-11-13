@@ -220,10 +220,10 @@ _orig = si.materials
 def materials(colours, look):
     d = _orig(colours, look)
     c = colours.get
-    d["plate"] = etched("plate", ["#5e4f3f", "#7d6a55", "#9d8c78"], look, hatch=0.22)
-    d["feather"] = etched("feather", ["#4d4034", "#6d5c4a", "#8c7b68"], look, hatch=0.22)
-    d["lite"] = etched("lite", ["#7d6a55", "#a09080", "#bdb09c"], look, hatch=0.18)
-    d["aged"] = si.glow("aged", "#b8873a", 0.8)
+    d["plate"] = etched("plate", ["#6a5a48", "#8a7761", "#aa9984"], look, hatch=0.22)
+    d["feather"] = etched("feather", ["#5a4b3d", "#7a6954", "#9a8873"], look, hatch=0.22)
+    d["lite"] = etched("lite", ["#8a7761", "#aa9a88", "#c6baa6"], look, hatch=0.18)
+    d["aged"] = si.glow("aged", "#9a7434", 0.7)
     d["rust"] = si.glow("rust", c("rust-red", "#743422"))
     return d
 
@@ -246,8 +246,13 @@ def painted_pass(path, seed=7):
 
     def smooth_noise(sc):
         g = rng.random((h // sc + 2, w // sc + 2)).astype(np.float32)
-        big = np.kron(g, np.ones((sc, sc), dtype=np.float32))
-        return big[:h, :w]
+        gy = np.arange(h, dtype=np.float32) / sc
+        gx = np.arange(w, dtype=np.float32) / sc
+        y0, x0 = gy.astype(int), gx.astype(int)
+        fy, fx = (gy - y0)[:, None], (gx - x0)[None, :]
+        top = g[y0][:, x0] * (1 - fx) + g[y0][:, x0 + 1] * fx   # bilinear: no blocky cells
+        bot = g[y0 + 1][:, x0] * (1 - fx) + g[y0 + 1][:, x0 + 1] * fx
+        return top * (1 - fy) + bot * fy
     mottle = 0.5 * smooth_noise(24) + 0.3 * smooth_noise(8) + 0.2 * smooth_noise(3)
     # hatching: two families of diagonal etched lines, denser as the value drops
     d1 = ((xx + yy) % 5.0) < 1.15
@@ -255,7 +260,7 @@ def painted_pass(path, seed=7):
     shade = np.clip((0.42 - lum) / 0.3, 0, 1)            # 0 in light, 1 in deep shadow
     mid = np.clip((0.62 - lum) / 0.3, 0, 1)
     wob = (smooth_noise(6) - 0.5) * 2.2
-    h1 = (((xx + yy + wob * 3) % 5.0) < 1.2) & (mid > 0.25)
+    h1 = (((xx + yy + wob * 3) % 4.0) < 1.0) & (mid > 0.2)
     h2 = (((xx - yy + wob * 3) % 6.0) < 1.0) & (shade > 0.35)
     hatch = np.where(h1, 0.18, 0.0) + np.where(h2, 0.2, 0.0)
     # light etched highlights on the lit plates (thin paper-tone lines)
