@@ -20,3 +20,12 @@ not subtle cases.
 ## Done / left
 - recipes for all 11 pieces are in pipeline/audio/build/recipes.py (layered regeneration via regen.py).
 - WandBolt regenerated earlier (commit 33bc966). Others: see below.
+
+## Audio core assets (Nov 12 2026)
+`tools/build/assets/arena_audio_core.py` creates Content/UmbrellaElla/Audio/Core: SCL_SFX/Telegraph/UI/Music, SM_Master
+(+ SMFX_MasterLimiter, Limiter mode), SCON_WandBolt/Launch/Hit/Hurt/Telegraph/State/UI from audio-rules.json, and SCON_Default.
+Config/DefaultEngine.ini [/Script/Engine.AudioSettings] DefaultSoundConcurrencyName = SCON_Default. Rows removed:
+D-new-smoke-concurrency (decisions.md) and its tools/ue/smoke-allow.txt line.
+Evidence: editor run exit clean ("arena_audio_core: done"); tools/ue/audio_dump.py then `audio_check.py --ue-dump` reports
+no core, group or unread errors; only the 8 old cue names (Shot, Hit, ...) fail the SW_/SC_ naming rule (arena cue imports, not mine).
+Not run: packaged smoke (build lead).
