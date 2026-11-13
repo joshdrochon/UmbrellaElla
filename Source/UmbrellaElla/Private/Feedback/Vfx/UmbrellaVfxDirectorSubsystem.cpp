@@ -27,6 +27,8 @@
 #include "Harness/UmbrellaFeatureFlags.h"
 #include "Kismet/GameplayStatics.h"
 #include "Camera/PlayerCameraManager.h"
+#include "Camera/CameraComponent.h"
+#include "Arena/UmbrellaArena.h"
 #include "Owl/KeeperOfTime.h"
 #include "Owl/KeeperPartComponent.h"
 #include "Projectile/UmbrellaProjectile.h"
@@ -635,6 +637,14 @@ void UUmbrellaVfxDirectorSubsystem::StepDemo()
 	{
 		// The capture is of the effect on paper: Ella's and the Keeper's dark stand-ins would be mistaken for it by the piece locator.
 		Player->SetActorHiddenInGame(true);
+		// Zoomed capture: the camera moves closer (a narrower orthographic view); the effect itself is never scaled.
+		for (TActorIterator<AUmbrellaArena> ArenaIt(GetWorld()); ArenaIt; ++ArenaIt)
+		{
+			if (UCameraComponent* PlayCam = ArenaIt->GetPlayCamera())
+			{
+				PlayCam->SetOrthoWidth(UmbrellaVfxDirectorConst::DemoZoomedOrthoWidth);
+			}
+		}
 		for (TActorIterator<AKeeperOfTime> It(GetWorld()); It; ++It)
 		{
 			It->SetActorHiddenInGame(true);
