@@ -185,3 +185,6 @@ Merged main (screenfix in). Checks: ella-up-open art_ref_check PASS 0.728, ella-
 
 ## Round 24 (Nov 13 late): merged main, capture still queued
 Merged main (artslots had nothing new). Two earlier up-open capture launches (pids 85916, 88232, from 1:15 AM) are still waiting on ue_slot; no shot file yet. Load ~29. No paint, no panel, no spend (15.08 of 33.82). Verdict: env (slot queue), not the art. Next: when the shot lands, run the up-open panel; then shield R3 and closed R3.
+
+## Round 25 (Nov 13 late): merged main and artslots, capture still queued
+Nothing new on main or artslots. The up-open capture (pid 85916, since 1:15 AM) is still waiting on ue_slot (~30 ue_slot processes, load ~25); no shot file. No paint, no panel, no spend (15.08 of 33.82). Verdict: env (slot queue), not the art. Next: when the shot lands, up-open panel; then shield R3 and closed R3.
