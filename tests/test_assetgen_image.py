@@ -21,7 +21,7 @@ import test_assetgen as base  # noqa: E402
 PY = sys.executable
 FAKE_KEY = "fake-image-key-0000"
 GEMINI_PRICE = 0.039   # asset-tools.json gemini-image price_usd_per_image gemini-2.5-flash-image
-INPUT_PRICE = 0.001
+INPUT_PRICE = 0.003   # price_usd_per_input_image (reserve; settled from promptTokenCount when the reply has it)
 
 STUB = textwrap.dedent('''
     """Fake image client: answers the Gemini and OpenAI image endpoints with a small PNG; logs one JSON line per call
@@ -41,24 +41,36 @@ STUB = textwrap.dedent('''
     def post(url, headers, body):
         key_sent = {key!r} in json.dumps(headers)
         inputs = 0
+        image_config = None
         if "generativelanguage" in url:
-            parts = json.loads(body)["contents"][0]["parts"]
+            req = json.loads(body)
+            parts = req["contents"][0]["parts"]
             inputs = sum(1 for p in parts if "inline_data" in p)
+            image_config = req["generationConfig"].get("imageConfig")
         elif "images/edits" in url:
             inputs = body.count(b'name="image[]"')
         with open(os.environ["HTTP_STUB_LOG"], "a") as fh:
-            fh.write(json.dumps({{"url": url, "key_sent": key_sent, "inputs": inputs}}) + "\\n")
+            fh.write(json.dumps({{"url": url, "key_sent": key_sent, "inputs": inputs,
+                                 "image_config": image_config}}) + "\\n")
         code = os.environ.get("STUB_FAIL")
         if code:
             raise urllib.error.HTTPError(url, int(code), "err", {{}}, io.BytesIO(b'{{"error":{{"message":"bad"}}}}'))
         data = base64.b64encode(_png()).decode()
         if "generativelanguage" in url:
-            return json.dumps({{"modelVersion": "gemini-2.5-flash-image", "usageMetadata": {{"candidatesTokenCount": 1290}},
+            usage = json.loads(os.environ.get("STUB_USAGE") or '{{"candidatesTokenCount": 1290}}')
+            return json.dumps({{"modelVersion": url.split("/models/")[1].split(":")[0], "usageMetadata": usage,
                                "candidates": [{{"finishReason": "STOP", "content": {{"parts": [
                                    {{"inlineData": {{"mimeType": "image/png", "data": data}}}}]}}}}]}}).encode()
         if "api.openai.com" in url:
             return json.dumps({{"data": [{{"b64_json": data}}]}}).encode()
         raise OSError("no stub for " + url)
+
+    def get(url, headers):
+        with open(os.environ["HTTP_STUB_LOG"], "a") as fh:
+            fh.write(json.dumps({{"url": url, "key_sent": {key!r} in json.dumps(headers), "inputs": 0}}) + "\\n")
+        names = ["gemini-2.5-flash", "gemini-2.5-flash-image", "gemini-3-pro-image-preview", "gemini-3.5-flash-image"]
+        return json.dumps({{"models": [{{"name": "models/" + n, "displayName": n,
+                                        "supportedGenerationMethods": ["generateContent"]}} for n in names]}}).encode()
 ''')
 
 
