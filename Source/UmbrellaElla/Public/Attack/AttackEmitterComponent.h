@@ -71,6 +71,9 @@ public:
 	void SetTuningOverride(const FAttackTuning& InTuning) { TuningOverride = &InTuning; }
 	void ClearTuningOverride() { TuningOverride = nullptr; }
 
+	/** Test only: behave as if the burst-shot feature flag were switched off (the flag table is a constant). */
+	void SetCom06OffForTest(bool bOff) { bCom06OffForTest = bOff; }
+
 	int32 GetShotsFired() const { return ShotsFired; }
 	const FUmbrellaShotSpec& GetLastShot() const { return LastShot; }
 
@@ -110,6 +113,7 @@ private:
 	float KeyHeldSeconds = 0.0f;
 	int32 DirectorLevel = 0;
 	int32 ShotsFired = 0;
+	bool bCom06OffForTest = false;
 	bool bWheelOpen = false;
 	bool bWheelLockedState = false;
 };
