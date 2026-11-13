@@ -43,3 +43,12 @@ Until then my loop only continues on ui-title (not passed: reference pair lost r
 
 ## 5. Escalate artui to Opus (worker-rules: repeat failures)
 ui-title has lost the reference pair on the same gap (smooth lettering, no etched/distressed feel) for about 10 rounds; triage says work (calibration 6/6, quality-bar pair won, capture is 1920x1080 and uncropped). Restart with `WORKER_MODEL=claude-opus-5-5 tools/build/start_area.sh artui "..."`. Remaining image budget is about $5.5 shared.
+
+## 6. assetgen draft gate uses full-frame art_check on UI screen pieces (tools/assetgen.py, build lead)
+`assetgen.draft_checks_passed` runs `art_check.evaluate(measure(...))` (the full-frame share rules) for every piece, but
+`art_loop.measure` judges a non-`scene` piece with `sprite_checks` (colour rules only; "the share rules belong to the
+full frame"). Triage on known inputs (13 Nov): the r19 title capture, whose art_loop checks passed (status, Resume 4),
+fails the draft gate with `paper_texture 0.28 < 0.38; dark_share 0.459 outside [0.04, 0.45]`; the keyed lockup draft on
+black fails `dark_share 0.94`. So no UI screen piece can ever get a `--tier final` call. Verdict: check defect.
+Change: in `draft_checks_passed`, when `piece_is_screen(root, piece)`, run `art_loop.measure(root, <card>, piece, draft)`
+(the loop's own checks) instead of the full-frame art_check; test: the r19 capture passes, a flat grey 16:9 PNG fails.
