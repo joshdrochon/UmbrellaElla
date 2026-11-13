@@ -24,3 +24,15 @@ Left / not done:
 - art_loop's "final-candidate step passes final": `tools/art_loop.py` contains no image-generation call (workers run
   `assetgen.py image` themselves), so there is nothing there to change. Callers for final candidates pass `--tier final
   --image-size ..`. Outside this lane; say if you want it wired somewhere.
+
+## Nov 13: fal and batch
+- fal provider (`--provider fal`, key `FAL_KEY`): same two Google models only (`FAL_MODELS`, else `ImageRefused`), own cap
+  74.84 (`FAL_SPEND_CAP_USD`) in the shared counter. Auto order: gemini, then OpenRouter, then fal (only when both are
+  within 5 final calls of their caps and a fal key exists). Tests in `tests/test_assetgen_tiers.py` (fake client). No paid fal call made.
+- `assetgen.py batch --jobs jobs.json [--workers N]` (max 4): each job is one `image` argument list; paid providers only
+  (gemini/openai/openrouter/fal). Every job takes the same reserve -> call -> settle path under the file lock, so provider
+  caps, per-piece cap, draft-first and the context-shot guard apply per call. A refused or failed job never stops the others.
+  Provenance and prompt-log writes are thread-locked. Blender, keying, scans, Unreal shots stay outside.
+- Tests `tests.test_assetgen_tiers.Batch` (6): 4 run at once (peak 4), never above 4, 4 racing for a cap that fits 2
+  spend at most the cap, a refused job doesn't block the rest, per-piece cap, local providers refused.
+- Not done: there is no video generation command in assetgen.py (only capture/cut of our own footage), so nothing to batch there.
