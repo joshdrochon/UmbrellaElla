@@ -3,8 +3,6 @@
 #include "CoreMinimal.h"
 #include "Widgets/SCompoundWidget.h"
 #include "Widgets/SLeafWidget.h"
-#include "Styling/SlateTypes.h"
-#include "Brushes/SlateRoundedBoxBrush.h"
 #include "Flow/FlowTuning.h"
 
 /** Which shapes the moving background draws. */
@@ -46,7 +44,8 @@ struct UMBRELLAELLA_API FFlowMenuItem
 };
 
 /**
- * A full-screen menu: background, a heading, optional body text and a column of pill buttons.
+ * A full-screen menu in the shared UI style (UI/Style): the painted ground, a lettered heading with its rule, optional
+ * body text and a column of lettered buttons, set in the dark left third as on the title-screen reference.
  * Gamepad and keyboard navigation use Slate focus; Escape, F1, B or Menu call OnBack.
  */
 class UMBRELLAELLA_API SFlowMenu : public SCompoundWidget
@@ -58,6 +57,8 @@ public:
 	SLATE_ARGUMENT_DEFAULT(EFlowBackdrop, Backdrop) = EFlowBackdrop::Drift;
 	SLATE_ARGUMENT(FFlowTuning, Tuning)
 	SLATE_ARGUMENT(FText, Heading)
+	/** Heading colour; unset = the style's cream. The Defeated screen uses the rust accent. */
+	SLATE_ARGUMENT(TOptional<FLinearColor>, HeadingColor)
 	SLATE_ARGUMENT(FText, Body)
 	SLATE_ARGUMENT(TArray<FFlowMenuItem>, Items)
 	SLATE_EVENT(FSimpleDelegate, OnBack)
@@ -68,6 +69,7 @@ public:
 
 	virtual bool SupportsKeyboardFocus() const override;
 	virtual FReply OnKeyDown(const FGeometry& MyGeometry, const FKeyEvent& InKeyEvent) override;
+	virtual FReply OnFocusReceived(const FGeometry& MyGeometry, const FFocusEvent& InFocusEvent) override;
 
 	/** Put keyboard and gamepad focus on the first button. */
 	void FocusFirstItem();
@@ -76,13 +78,9 @@ private:
 	FSimpleDelegate BackDelegate;
 	bool bWasdNavigation = true;
 	TSharedPtr<SWidget> FirstButton;
-	TSharedPtr<FSlateRoundedBoxBrush> NormalBrush;
-	TSharedPtr<FSlateRoundedBoxBrush> HoverBrush;
-	TSharedPtr<FSlateRoundedBoxBrush> PressedBrush;
-	FButtonStyle ButtonStyle;
 };
 
-/** Heading plus moving text over the background: ending story pages and the credits. */
+/** Moving text over the ground, set in the same left column as the menus: ending story pages and the credits. */
 class UMBRELLAELLA_API SFlowTextScreen : public SCompoundWidget
 {
 public:
