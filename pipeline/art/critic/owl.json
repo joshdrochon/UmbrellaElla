@@ -154,6 +154,83 @@
    "commit": "7e717787ff58",
    "gap": "X is a single organic-looking owl whose eyes and head are warm and polished with a brow plate, while Y is a multi-panel sheet with rigid feathered vanes. X has a small head, only the left wing, and glossy, flat-looking plates.",
    "at": "2026-11-13T04:35:14Z"
+  },
+  {
+   "piece": "owl",
+   "round": 5,
+   "verdict": "reference",
+   "checks": false,
+   "results": {
+    "art_check": "fail",
+    "screen_check": "pass",
+    "art_ref_check": "fail"
+   },
+   "pairs": {
+    "context": "reference",
+    "quality_bar": "ours",
+    "reference": "reference"
+   },
+   "panel": 3,
+   "calibration": {
+    "sessions": 40,
+    "passed": 30
+   },
+   "missing": [
+    "context:pipeline/art/reference/target-keyart.png",
+    "reference:pipeline/art/reference/discord/20261110-1047_Ricky_2.png"
+   ],
+   "critic_sessions": [
+    "owl-r5-00-reference-c1",
+    "owl-r5-00-reference-c2",
+    "owl-r5-00-reference-c3",
+    "owl-r5-01-reference-c1",
+    "owl-r5-01-reference-c2",
+    "owl-r5-01-reference-c3",
+    "owl-r5-02-reference-c1",
+    "owl-r5-02-reference-c2",
+    "owl-r5-02-reference-c3",
+    "owl-r5-03-reference-c1",
+    "owl-r5-03-reference-c2",
+    "owl-r5-03-reference-c3",
+    "owl-r5-04-reference-c1",
+    "owl-r5-04-reference-c2",
+    "owl-r5-04-reference-c3",
+    "owl-r5-05-reference-c1",
+    "owl-r5-05-reference-c2",
+    "owl-r5-05-reference-c3",
+    "owl-r5-06-reference-c1",
+    "owl-r5-06-reference-c2",
+    "owl-r5-06-reference-c3",
+    "owl-r5-07-reference-c1",
+    "owl-r5-07-reference-c2",
+    "owl-r5-07-reference-c3",
+    "owl-r5-08-quality_bar-c1",
+    "owl-r5-08-quality_bar-c2",
+    "owl-r5-08-quality_bar-c3",
+    "owl-r5-09-context-c1",
+    "owl-r5-09-context-c2",
+    "owl-r5-09-context-c3",
+    "owl-r5-01-reference-c4",
+    "owl-r5-04-reference-c4",
+    "owl-r5-05-reference-c4",
+    "owl-r5-06-reference-c4",
+    "owl-r5-07-reference-c4",
+    "owl-r5-08-quality_bar-c4",
+    "owl-r5-08-quality_bar-c5",
+    "owl-r5-06-reference-c5",
+    "owl-r5-06-reference-c6",
+    "owl-r5-06-reference-c7"
+   ],
+   "manifest": "",
+   "evidence": "",
+   "prompt": "",
+   "files": "afc0ff679913e91f12aa32a654180f96e7e8a0019e15ff94c17a58f5c3ccd08d",
+   "file": "pipeline/art/proof/Keeper/owl/Keeper_R10/keyed_3.png",
+   "card": "artkeeper",
+   "refs": "19cb72219702",
+   "commit": "61efef3f8a24",
+   "gap": "X is a purple placeholder block and a dark gradient with a pale rectangle. It has no owl, no metal and no etched line work.; X is a broken sheet with a flat lilac block, a blank gradient bar and a clipped fragment, so there is no finished owl, no etched metal and no coherent art.; X is a blank grey sheet with a flat purple block and a plain gradient bar, with no owl, no etched ink linework and no paper texture.; X is saturated glossy brass with a flat grey pasted background, not near-black ink with a restrained bronze palette on aged paper.",
+   "at": "2026-11-13T16:14:13Z"
   }
  ]
 }

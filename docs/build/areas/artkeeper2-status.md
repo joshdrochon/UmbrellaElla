@@ -34,3 +34,9 @@ NEEDS HUMAN: lead: (1) add a Veo step to assetgen (counter-guarded, 1 USD/piece)
 - art_loop run owl R10 (round 5): quality_bar pair OURS wins; reference pair and context pair lose. Context GAP is the lilac stand-in cube over the art, not the painting. art_check FAIL off_style 0.045 > 0.02 (saturated colours); art_ref_check has no refs for card "artkeeper" (the card id must be the piece's card).
 - Triage: context = "check/source defect: stand-in cube hides the art" -> docs/build/requests/artkeeper2.md. off_style: ours (green despill/saturated brass), to fix in the key step.
 - Next: fix off_style in the key, then paint the six mech/clock/damage/departure parts only after the cube is hidden.
+
+## Nov 13 session 15: merged main, rebuilt (exit 0), recaptured; blocked on the stand-in cube (no new paint, spend unchanged)
+- Merged origin/main (fd65ca99), built, took -SmokeKeeper capture (Saved/Logs/pipeline/keeper-owl-shot.png). The lilac stand-in cube still covers the Keeper art (art only shows above and below it); the Keeper part slots (clock, mechanisms, talon, wings) draw nothing yet because no T_Keeper_* parts exist, so there is nothing of mine to capture in game.
+- Request unchanged: docs/build/requests/artkeeper2.md (hide cube when ArtSlot::HasArt; Feedback/Anim + Owl lane, not mine). Every context pair fails on the cube, not on the paint.
+- Spend: 29.57 of 33.82 shared; about 4.2 left is too little to paint six parts plus rounds on a base stuck at the R6-R10 plateau, so I paid nothing.
+NEEDS HUMAN: lead: (1) hide the stand-in cube when the slot has art, (2) Blender-vs-paint decision for the Keeper base, (3) say who may spend the last ~4 USD.
