@@ -20,6 +20,11 @@ and no better score, the build lead restarts that one worker with `WORKER_MODEL=
 Fable (`claude-fable-5-2`) only by an explicit emergency call from the build lead for a very challenging task, told to
 Josh when made (Josh, Nov 12 late); never as the routine escalation.
 
+## Never search outside your worktree (Josh, Nov 12 late)
+`find`, `bfs`, `mdfind`, `grep -r` and the like run only inside your worktree, `../logs` and the engine folder you were
+pointed to. Never search `/`, `~` or another lane's worktree: a `find /` for one screenshot lagged Josh's Mac. If a file
+is missing, say so in your status instead of hunting for it.
+
 ## Numbers-only work never uses a smart model (Josh, Nov 12 late)
 Work that only measures or applies numbers (loudness normalise, peak limit, fades, trims, lengths, resizes, crops,
 counts, format conversions) runs as a plain script (ffmpeg loudnorm, alimiter, afade, silenceremove, atrim; Python),
