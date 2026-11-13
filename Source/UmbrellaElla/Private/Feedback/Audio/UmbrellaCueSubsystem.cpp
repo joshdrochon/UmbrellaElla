@@ -5,6 +5,7 @@
 #include "Core/UmbrellaEventBus.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundBase.h"
+#include "Components/AudioComponent.h"
 
 namespace
 {
@@ -48,6 +49,8 @@ void UUmbrellaCueSubsystem::Deinitialize()
 		}
 	}
 	Handles.Reset();
+	StopMusic();
+	MusicComponent = nullptr;
 	Super::Deinitialize();
 }
 
@@ -94,6 +97,54 @@ void UUmbrellaCueSubsystem::HandleEvent(const FUmbrellaEvent& Event)
 	const FString Path = FString::Printf(TEXT("/Game/UmbrellaElla/Audio/%s.%s"), *Cue.ToString(), *Cue.ToString());
 	if (USoundBase* Sound = LoadObject<USoundBase>(nullptr, *Path, nullptr, LOAD_Quiet | LOAD_NoWarn))
 	{
-		UGameplayStatics::PlaySound2D(this, Sound);
+		if (IsMusicCue(Cue))
+		{
+			RestartMusic(Sound);
+		}
+		else
+		{
+			if (Cue == TEXT("EndMusic"))
+			{
+				// The end sting replaces the music instead of playing over it.
+				StopMusic();
+			}
+			UGameplayStatics::PlaySound2D(this, Sound);
+		}
+	}
+}
+
+bool UUmbrellaCueSubsystem::IsMusicCue(FName Cue)
+{
+	return Cue == TEXT("StartMusic");
+}
+
+void UUmbrellaCueSubsystem::StopMusic()
+{
+	if (IsValid(MusicComponent))
+	{
+		MusicComponent->Stop();
+	}
+}
+
+void UUmbrellaCueSubsystem::RestartMusic(USoundBase* Sound)
+{
+	StopMusic();
+	if (!IsValid(Sound))
+	{
+		return;
+	}
+	if (!IsValid(MusicComponent))
+	{
+		// One persistent, non-auto-destroy component: a mode change reuses it instead of orphaning a fire-and-forget sound.
+		MusicComponent = UGameplayStatics::CreateSound2D(this, Sound, 1.0f, 1.0f, 0.0f, nullptr, true, false);
+	}
+	else
+	{
+		MusicComponent->SetSound(Sound);
+	}
+	if (IsValid(MusicComponent))
+	{
+		MusicComponent->Play();
+		++MusicStartCount;
 	}
 }

@@ -90,3 +90,14 @@ Not run: audio_dump / `audio_check --ue-dump` on the new assets, packaged smoke 
 - Nothing in the 11 pieces. `audio_check --scan Audio/Source` still reports 63 "P0 sound has no file" lines: the sounds
   of the six new lanes (sndstate, sndui, sndhit, sndlaunch, sndtele, sndworld).
 - The gate critic has not judged the current bytes of the 10 pieces yet.
+
+## Music through one persistent component (Nov 12 2026, night)
+- `UUmbrellaCueSubsystem` no longer plays StartMusic with PlaySound2D (the "orphaned sound StartMusic" warning). Music cues
+  (`IsMusicCue`) go to `RestartMusic`: stop, then play on one persistent non-auto-destroy `UAudioComponent` that is reused
+  across mode changes. `EndMusic` stops the music first, then plays the sting. Deinitialize stops it.
+- Tests (pass, `UmbrellaElla.Audio` tests=2 failed=0): `UmbrellaElla.Audio.MusicCueIsLooped`,
+  `UmbrellaElla.Audio.World.MusicRestartReusesOneComponent` (same component across restarts, start count, stop, null sound).
+  The test is tolerant of no audio device (component null); the player-side warning is not run here.
+- StartMusic asset re-imported from the approved SW_MusicTitle_00.wav with arena_audio_import.py. Read back in the editor:
+  StartMusic ch=2 dur=40.040 s looping=True (source: 2 ch, 48 kHz, 40.04 s). Other cues re-imported unchanged-bytes.
+Not run: packaged smoke (build lead).
