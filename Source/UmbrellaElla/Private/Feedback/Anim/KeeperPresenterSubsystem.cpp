@@ -2,6 +2,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/World.h"
+#include "Feedback/Art/ArtSlot.h"
 #include "GameFramework/Actor.h"
 #include "Harness/UmbrellaFeatureFlags.h"
 #include "Owl/KeeperOfTime.h"
@@ -32,6 +33,18 @@ void UKeeperPresenterSubsystem::HandleActorSpawned(AActor* Actor)
 	}
 }
 
+EArtSlotDraw UKeeperPresenterSubsystem::ShowArt(AActor* Keeper, UTexture2D* Texture)
+{
+	static const FName StandInName(TEXT("KeeperStandIn"));
+	UStaticMeshComponent* Mesh = IsValid(Keeper) ? FindObjectFast<UStaticMeshComponent>(Keeper, StandInName) : nullptr;
+	const FArtSlotRow* Row = ArtSlot::Find(TEXT("keeper:body-hover-flap"));
+	if (!Mesh || !Row || ArtSlot::HasArt(Mesh))
+	{
+		return EArtSlotDraw::NoTexture;
+	}
+	return ArtSlot::Apply(Mesh, Texture, *Row, UmbrellaKeeperPresenterConst::StandInScale);
+}
+
 void UKeeperPresenterSubsystem::ShowStandIn(AActor* Keeper)
 {
 	if (!IsValid(Keeper) || !IsFeatureEnabled(EFeatureId::ANIM_06))
@@ -58,6 +71,11 @@ void UKeeperPresenterSubsystem::ShowStandIn(AActor* Keeper)
 	else
 	{
 		Mesh->SetupAttachment(Keeper->GetRootComponent());
+	}
+	// Art slot keeper:body-hover-flap; the cube stays when no asset exists.
+	if (const FArtSlotRow* Row = ArtSlot::Find(TEXT("keeper:body-hover-flap")))
+	{
+		ArtSlot::ApplyRow(Mesh, *Row, UmbrellaKeeperPresenterConst::StandInScale);
 	}
 	Mesh->RegisterComponent();
 	++PresentedCount;

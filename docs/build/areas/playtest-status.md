@@ -55,3 +55,46 @@ Evidence: build exit 0, `UmbrellaElla.Smoke` tests PASS (4), module_check 0 prob
 
 ## Lead request (levelchunks #2)
 - FLOW-28 now calls `StepFollow(KeeperHandoffX(), 1)` once more after the handoff fires, then counts `AUmbrellaEnemy`. `GetThreatsRemaining()` does not exist in this tree or main, so the enemy count stays. Build exit 0. Not re-run in game: the handoff clear is not in this tree; re-run FLOW-28 after levelchunks merges.
+
+## QA-36 run after merging main (Nov 12 19:3x; run_game.sh, 640x360, no sound)
+Logs: raw run logs not kept (trimmed after the run); results are in the table below.
+Main has no levelchunks route winds and no motor-id fix yet (requests/playtest.md #1 still open), so nothing changed.
+| Row | Result | Why |
+|---|---|---|
+| CAM-04 | FAIL | Ella never rides (id mismatch). With relay she leaves the band by the top before the far edge. |
+| CAM-07 | FAIL | Same bug; currents never live (samples_live=0). CAM-07 also waits on levelchunks route currents. |
+| FLOW-25 | FAIL | Drawn wind width 0 vs usable 200; backdrop covers 0 of 9 stages. |
+| FLOW-28 | FAIL | 5 enemies alive at handoff (health carries 2 to 2). Re-run after levelchunks. |
+| HAZ-16 | FAIL | Not run at 1280x720/1920x1080 (run_game.sh fixes 640x360); guard one-shot is a designer call. |
+Nothing left to fix inside the playtest lane. Re-run `-SmokePlaytest` after the Motor fix, a drawn wind field and levelchunks merge.
+
+## QA-36 run on main with windfix (1ded91d5) merged (Nov 12 20:1x; run_game.sh, 640x360, no sound)
+Log: `docs/build/playtest-logs/run-2026-11-12g.log` (commit ac4403d2, `-SmokePlaytest -SmokeQuitAfter=20`, no relay). Build exit 0.
+Check fixed: a real negative `steady_vz` was skipped as "never reached"; only the time keys use a negative sentinel now (test added, 22 OK).
+| Row | Result | Why |
+|---|---|---|
+| CAM-04 | FAIL | Ella now rides and exits the right edge in all 6 profiles (exit_root_z 217 to 259, inside the 210-330 band). Against the frozen `mill_lower_v1` ranges: steady_vz -54 (range 115-125), accel_t90 0.43 (0.45-0.95), reacq_t90 0.42 (0.45-0.95). v1 predates the windfix restoring field (centre z 230), so the vertical figure changed by design. |
+| CAM-07 | FAIL | On-time and late reopens caught; but both currents are live on 0 of 78 ticks while the guard lived (route/mill current not active in the HAZ run). |
+| FLOW-25 | FAIL | Drawn wind width 0 vs usable 200; backdrop 0 of 9 stages. |
+| FLOW-28 | FAIL | 5 enemies alive at handoff (health 2 to 2). |
+| HAZ-16 | FAIL | Guard dies in 1.4 s (boring, 1 useful hit); only 640x360 and healthy runs here. |
+Decision for the lead (not mine, it moves a bar): recalibrate CAM-04 as `mill_lower_v2` from the post-windfix motor, or change the motor. I did not touch the ranges.
+Nothing else is fixable in the playtest lane: wind drawing (FLOW-25), mill current in the HAZ run (CAM-07), handoff clear (FLOW-28), guard HP (HAZ-16).
+
+## Lead decisions applied (Nov 12 20:3x; build exit 0, `tests.test_playtest_check` 24 OK)
+Logs: `run-2026-11-12h-guard20.log`, `-h-720p.log`, `-h-1080p.log` (commit 8b1c93be + this slice; `-ABSLOG` used to capture the game log).
+1. CAM-04: `mill_lower_v2` recorded once from `run-2026-11-12g.log`; `mill_lower_v1` kept in `playtest_calibration.py` as history, v2 frozen. Gate first: all 6 rides leave the right edge with exit root z 217.56 to 259.00, inside HAZ-06 lower eligibility z 210-330 and HAZ-08 required underpass root envelope z 185-285. CAM-04 now PASS on that log.
+2. HAZ-16 20 HP guard (`-MillGuardComparison`, one changed variable): 125 attempts in 25 s, 1 useful hit, guard not cleared (cleared=0), still boring=1. Healthy 10 HP guard: dies in 1.25 to 1.44 s, 1 useful hit, boring=1. Both recorded; neither passes. Whether 20 HP is the right value, or the scripted shooter is wrong for it, is the designer's call.
+3. Resolutions: `RUN_RES=WxH` added to `run_game.sh` (-RenderOffscreen -ResX -ResY, no window, no sound). 1280x720 offscreen renders at exactly 1280x720 (log: res=1280x720). 1920x1080 does NOT: the Mac display clamps the viewport to 1728x1117 even offscreen. Stopped on that point; 1920x1080 needs a larger display or a packaged/fullscreen path.
+4. FLOW-28 waits on levelchunks (gate queue). FLOW-25 (drawn wind width, backdrop) and CAM-07 (route current live in the HAZ run) belong to other lanes. Not touched.
+Still failing: FLOW-25, CAM-07, FLOW-28, HAZ-16.
+
+## QA-36 run with levelchunks (9e10e083) merged (Nov 12 20:3x; run_game.sh, 640x360, no sound)
+Log: `docs/build/playtest-logs/run-2026-11-12i.log` (commit 10959f90, `-SmokePlaytest -SmokeQuitAfter=20`). Build exit 0.
+| Row | Result | Why |
+|---|---|---|
+| CAM-04 | PASS | mill_lower_v2 ranges. |
+| FLOW-28 | PASS | health 2 to 2, threats=0 at handoff, framing settled, Keeper began (route_s 3.97). |
+| CAM-07 | FAIL | Reopen cases caught, but the required mill current is live on 0 of 955 ticks in the HAZ run (`case=persist`). Route/mill current not active there; not in the playtest lane. |
+| FLOW-25 | FAIL | Drawn width 200 = usable 200 now. Backdrop covers 0 of 9 stages (field/art lane). |
+| HAZ-16 | FAIL | Unchanged: 1920x1080 impossible on this display, guard one-shot, designer call. |

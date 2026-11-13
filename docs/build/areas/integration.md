@@ -36,4 +36,4 @@ reader lines in `Private/Health/**`, `Private/Motor/**`, `Private/Umbrella/**`, 
 
 ## Done
 `python3 tools/bake_preset.py defaults` 0 problems; `tools/build/ue_slot.sh tools/ue/build.sh` exit 0; full
-`tools/build/ue_slot.sh tools/ue/test.sh` PASS (Core changed); `module_check` 0. Commit after each task, then stop.
+targeted tests PASS (`TEST_FILTER` from `tools/build/gate_plan.py`, plus `tools/affected_tests.py --run`) (Core changed); `module_check` 0. Commit after each task, then stop.
