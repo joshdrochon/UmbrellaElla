@@ -82,6 +82,177 @@
    "commit": "61ba52ca34e4",
    "gap": "Y's settings panel is a flat dark box with a thin generic sans font and plain hairline sliders. It has no etched or inked lettering and no paper texture, so it doesn't match the painted art behind it.; Y has a flat dark panel with plain sans-serif body text, so it lacks the etched, textured lettering and paper finish of X.; Y's settings panel is a flat dark fill with plain sans text and thin rules, so it has none of X's etched lettering, ink-wash depth or textured finish.",
    "at": "2026-11-13T06:53:46Z"
+  },
+  {
+   "piece": "ui-settings",
+   "round": 3,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "ours",
+    "reference": "reference"
+   },
+   "panel": 3,
+   "calibration": {
+    "sessions": 9,
+    "passed": 6
+   },
+   "missing": [
+    "reference:pipeline/art/reference/discord/20261112-0443_Ricky_title-screen.png"
+   ],
+   "critic_sessions": [
+    "ui-settings-r3-00-reference-c1",
+    "ui-settings-r3-00-reference-c2",
+    "ui-settings-r3-00-reference-c3",
+    "ui-settings-r3-01-quality_bar-c1",
+    "ui-settings-r3-01-quality_bar-c2",
+    "ui-settings-r3-01-quality_bar-c3",
+    "ui-settings-r3-00-reference-c4",
+    "ui-settings-r3-00-reference-c5",
+    "ui-settings-r3-00-reference-c6"
+   ],
+   "manifest": "",
+   "evidence": "",
+   "prompt": "",
+   "files": "b8ef76b4101fcb3c03094c7c72571ae82e47e03b27adf6bddead0b2fd71621d4",
+   "file": "pipeline/art/proof/artui/ui-settings/capture_r17_settings.png",
+   "card": "artui",
+   "refs": "669f6f2ac14d",
+   "commit": "9c3c278ce84a",
+   "gap": "Both show the title screen, not a settings screen. The clock and cloud areas are soft and hazy, and the menu text has little etched weight.; X's settings panel is a muddy, murky slab with soft, low-resolution lettering. It lacks Y's crisp etched lettering and its depth of ink and paper finish.",
+   "at": "2026-11-13T09:55:07Z"
+  },
+  {
+   "piece": "ui-settings",
+   "round": 4,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "ours",
+    "reference": "reference"
+   },
+   "panel": 3,
+   "calibration": {
+    "sessions": 9,
+    "passed": 6
+   },
+   "missing": [
+    "reference:pipeline/art/reference/discord/20261112-0443_Ricky_title-screen.png"
+   ],
+   "critic_sessions": [
+    "ui-settings-r4-00-reference-c1",
+    "ui-settings-r4-00-reference-c2",
+    "ui-settings-r4-00-reference-c3",
+    "ui-settings-r4-01-quality_bar-c1",
+    "ui-settings-r4-01-quality_bar-c2",
+    "ui-settings-r4-01-quality_bar-c3",
+    "ui-settings-r4-00-reference-c4",
+    "ui-settings-r4-01-quality_bar-c4",
+    "ui-settings-r4-00-reference-c5"
+   ],
+   "manifest": "",
+   "evidence": "",
+   "prompt": "",
+   "files": "b8ef76b4101fcb3c03094c7c72571ae82e47e03b27adf6bddead0b2fd71621d4",
+   "file": "pipeline/art/proof/artui/ui-settings/capture_r17_settings.png",
+   "card": "artui",
+   "refs": "669f6f2ac14d",
+   "commit": "783fb1f1b6bd",
+   "gap": "X has a flat, thin-lettered parchment panel with sparse layout and weak value depth, so it lacks Y's etched, textured finish and strong lettering.; X's panel and lettering are smaller and flatter, with a muddier value structure and less fine etched detail than Y's inked, gold-edged painting.",
+   "at": "2026-11-13T10:45:14Z"
+  },
+  {
+   "piece": "ui-settings",
+   "round": 5,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "ours",
+    "reference": "reference"
+   },
+   "panel": 3,
+   "calibration": {
+    "sessions": 6,
+    "passed": 6
+   },
+   "missing": [
+    "reference:pipeline/art/reference/discord/20261112-0443_Ricky_title-screen.png"
+   ],
+   "critic_sessions": [
+    "ui-settings-r5-00-reference-c1",
+    "ui-settings-r5-00-reference-c2",
+    "ui-settings-r5-00-reference-c3",
+    "ui-settings-r5-01-quality_bar-c1",
+    "ui-settings-r5-01-quality_bar-c2",
+    "ui-settings-r5-01-quality_bar-c3"
+   ],
+   "manifest": "",
+   "evidence": "",
+   "prompt": "",
+   "files": "dd57278fc944ed3072e99cc702a74819dda22075fa44af29719eee4731d85ee1",
+   "file": "pipeline/art/proof/artui/ui-settings/capture_settings_r21_1568.png",
+   "card": "artui",
+   "refs": "669f6f2ac14d",
+   "commit": "ab91a1ce827a",
+   "gap": "X's panel interior is a flat dark fill with plain small lettering, and it lacks Y's etched, painterly depth and bold title lettering.; X's parchment panel is a flat, muddy fill with small, thin lettering, and it sits on a cleaner, cartoonish background with no atmospheric haze or etched depth.; X has a flat, smudgy dark panel with thin, uniform lettering and sliders, and its scene is softer and less etched than Y's inked, richly textured, gold-edged rendering.",
+   "at": "2026-11-13T14:59:30Z"
+  },
+  {
+   "piece": "ui-settings",
+   "round": 6,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "ours",
+    "reference": "reference"
+   },
+   "panel": 3,
+   "calibration": {
+    "sessions": 7,
+    "passed": 6
+   },
+   "missing": [
+    "reference:pipeline/art/reference/discord/20261112-0443_Ricky_title-screen.png"
+   ],
+   "critic_sessions": [
+    "ui-settings-r6-00-reference-c1",
+    "ui-settings-r6-00-reference-c2",
+    "ui-settings-r6-00-reference-c3",
+    "ui-settings-r6-01-quality_bar-c1",
+    "ui-settings-r6-01-quality_bar-c2",
+    "ui-settings-r6-01-quality_bar-c3",
+    "ui-settings-r6-01-quality_bar-c4"
+   ],
+   "manifest": "",
+   "evidence": "",
+   "prompt": "",
+   "files": "673dedc37240d7c072366353d6ca3c7a00475565fb720b60e018d85d3e762a3e",
+   "file": "pipeline/art/proof/artui/ui-settings/capture_settings_r22_1568.png",
+   "card": "artui",
+   "refs": "ed2d6b980e48",
+   "commit": "668abebdf1e1",
+   "gap": "X's panel interior is a muddy, flat dark fill with thin, weak lettering, and the panel sits pasted over the art with no integration or atmosphere.; Y's pasted-on parchment panel and thin sliders look flat next to the atmospheric painted background, and its line and tone work is less refined than X's.; Y is a tiny blocky pixel fragment in flat fills, with no etched lines, parchment texture, lettering or settings panel.",
+   "at": "2026-11-13T17:26:55Z"
   }
  ]
 }

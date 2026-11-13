@@ -331,6 +331,18 @@ class ModuleCheckTests(unittest.TestCase):
         problems = module_check.check(os.path.join(FIX, "broken_wz_epic_standard"))
         self.assertEqual(sorted(p[0] for p in problems), sorted("ABCDEGlwwwwxyzz"), problems)
 
+    def test_engine_override_keeps_its_uobject_reference(self):
+        # UWorldSubsystem::OnWorldBeginPlay(UWorld&) is the engine's signature; an override cannot take a pointer (Nov 13).
+        ella = "Source/UmbrellaElla/Public/Character/EllaCharacter.h"
+        tmp = self._copy_clean()
+        self._edit(tmp, ella, "class UUmbrellaComponent;\n", "class UUmbrellaComponent;\nclass UWorld;\n")
+        with open(os.path.join(tmp, ella), encoding="utf-8") as fh:
+            text = fh.read()
+        i = text.rindex("};")
+        with open(os.path.join(tmp, ella), "w", encoding="utf-8") as fh:
+            fh.write(text[:i] + "public:\n\tvirtual void OnWorldBeginPlay(UWorld& InWorld) override;\n" + text[i:])
+        self.assertNotIn("D", [p[0] for p in module_check.check(tmp)])
+
     def test_header_including_what_it_could_forward_declare_is_caught(self):
         ella = "Source/UmbrellaElla/Public/Character/EllaCharacter.h"
         tmp = self._copy_clean()
