@@ -19,8 +19,20 @@ Blender headless; scripts and recipes in pipeline/art/blender/)
           No Blender (PATH, $BLENDER, or the usual install folder): labelled placeholder frames, which can never
           pass the art loop (tools/art_loop.py) or ship (check_pr.py, submission_check.py art).
   blender --script PY --out PNG [-- args]   any other Blender script, headless
-  image   --prompt P --out Art/Source/<name>.png [--element owl|character|effects|background|frame]
-          [--character <id>] [--anim <Anim>] [--provider blender|placeholder|reference]
+  image   --prompt P --out Art/Source/<name>.png [--provider gemini|openai] [--input OURS.png ...] [--model M]
+          [--size WxH] [--seed S] [--quality low|medium|high]
+          Image model (D-new-art-image-model; default gemini, key GEMINI_API_KEY; openai optional, OPENAI_API_KEY):
+          one still from the prompt. Order: every --input is guarded first (GDD ART-03 / BG-02: a file under
+          pipeline/art/reference/ or Assets/, a references.json or quality-bar image, the same bytes as one, an image
+          with no provenance row or one dated before the jam start is REFUSED; our in-jam images may be inputs), then
+          the key (none: NO KEY, exit 2, no placeholder; in a kickoff session it is queued), then the price from
+          asset-tools.json price_usd_per_image, then the shared spend counter (env IMAGE_SPEND_FILE, locked): the
+          cost is reserved before the call and the call is REFUSED when it would pass the hard total cap
+          IMAGE_SPEND_CAP_USD (no cap or no counter set: no paid call). A request the provider rejects (HTTP 4xx)
+          is refunded; any other failure keeps its cost. Writes the PNG, <stem>.request.json (full prompt, model,
+          seed, inputs, cost, usage), the provenance row and a prompt line in Saved/agent-log/<day>.jsonl.
+          [--element owl|character|effects|background|frame] [--character <id>] [--anim <Anim>]
+          [--provider blender|placeholder|reference]
           One still: the element's (or --character's) recipe rendered by Blender, frame 0 of --anim (default
           its Still row, else its first). Fallback `--provider placeholder` (and no Blender): a labelled dark
           placeholder so the build never waits, never accepted as art. PRACTICE repos only (.pipeline-practice):
@@ -54,7 +66,7 @@ Video and package
 Kickoff
   fulfil  --outbox DIR   run the queued API requests of an agent session (tools/kickoff.py calls it with the keys)
 
-API steps (audio only; art needs no key) need a key (tools/keys.py: env or OS keychain). Inside an agent session
+API steps (audio, and the image model's paid calls) need a key (tools/keys.py: env or OS keychain). Inside an agent session
 (JAM_OUTBOX set) there is never a key, so an API step is QUEUED to $JAM_OUTBOX/asset-requests.jsonl and exits 3; kickoff
 runs it with the key after the session and starts the next session with the files in place. With no key at fulfil
 time the offline fallback runs (procedural audio) and the provenance row says so.
@@ -426,6 +438,12 @@ def render(a, root, character, anim, out_dir, frames=None):
 
 def cmd_image(a, argv, root):
     provider = a.provider
+    if provider in IMAGE_PROVIDERS:
+        try:
+            return cmd_image_model(a, argv, root, provider)
+        except ImageRefused as e:
+            print(f"REFUSED: image: {e}")
+            return 2
     if provider == "reference":
         rc = place_reference(a, root, "asked for")
         if rc is not None:
@@ -462,6 +480,377 @@ def cmd_image(a, argv, root):
                           f"{', '.join(targets) or 'none'} (reference only, never shipped)",
                      seed=j["look"].get("seed", ""))
     print(f"IMAGE {rel(a.out, root)} via=blender character={character} anim={anim} version={version}")
+    return 0
+
+
+# ---------- image model providers (D-new-art-image-model) ----------
+IMAGE_PROVIDERS = {"gemini": ("gemini-image", "GEMINI_API_KEY"), "openai": ("openai-image", "OPENAI_API_KEY")}
+GEMINI_RATIOS = ("1:1", "2:3", "3:2", "3:4", "4:3", "4:5", "5:4", "9:16", "16:9", "21:9")
+OPENAI_SIZES = {"1024x1024": 1.0, "1024x1536": 1.5, "1536x1024": 1.5}
+SPEND_LOCK_TRIES = 600   # 0.05 s apart: half a minute for another worker's counter write
+
+
+class ImageRefused(Exception):
+    """The image call must not run (no key, no cap, the cap reached, a pre-jam input). Never a placeholder."""
+
+
+def _sha(path):
+    import hashlib
+    with open(path, "rb") as fh:
+        return hashlib.sha256(fh.read()).hexdigest()
+
+
+def prejam_images(root):
+    """{repo path: sha256} of every pre-jam picture: anything under pipeline/art/reference/ or Assets/ (the team's
+    key art, references, studies and quality-bar images) and every image path pipeline/art/references.json names."""
+    out = {}
+    paths = set()
+    for top in (os.path.join(root, "pipeline", "art", "reference"), os.path.join(root, "Assets")):
+        for d, _, fs in os.walk(top):
+            paths.update(os.path.join(d, f) for f in fs if f.lower().endswith((".png", ".jpg", ".jpeg", ".webp")))
+    try:
+        with open(os.path.join(root, "pipeline", "art", "references.json"), encoding="utf-8") as fh:
+            spec = json.load(fh)
+        paths.update(os.path.join(root, r["path"]) for r in spec.get("references", []) if r.get("path"))
+    except (OSError, ValueError):
+        pass
+    for f in paths:
+        if os.path.isfile(f):
+            try:
+                out[rel(f, root)] = _sha(f)
+            except OSError:
+                continue
+    return out
+
+
+def provenance_row(root, path):
+    p = os.path.join(root, PROVENANCE)
+    if not os.path.isfile(p):
+        return None
+    with open(p, encoding="utf-8", newline="") as fh:
+        for r in csv.DictReader(fh):
+            if r.get("asset_path") == rel(path, root):
+                return r
+    return None
+
+
+def jam_start():
+    import submission_check
+    return submission_check.JAM_START
+
+
+def refuse_prejam_input(root, path):
+    """None when `path` may be an image-model input, else why not (GDD ART-03, BG-02: no pre-jam image is ever an
+    input; an in-jam image we made, with its provenance row dated after the jam start, may be)."""
+    if not os.path.isfile(path):
+        return f"{path}: no such file"
+    r = rel(path, root)
+    pre = prejam_images(root)
+    if r.startswith(("pipeline/art/reference/", "Assets/")) or r in pre:
+        return f"{r} is pre-jam team art (a reference, key art, study or quality-bar image)"
+    sha = _sha(path)
+    same = [p for p, h in pre.items() if h == sha]
+    if same:
+        return f"{r} has the same bytes as the pre-jam image {same[0]}"
+    row = provenance_row(root, path)
+    if not row:
+        return f"{r} has no provenance row, so nothing shows it was made in the jam"
+    try:
+        made = dt.datetime.fromisoformat((row.get("date") or "").replace("Z", "+00:00"))
+    except ValueError:
+        return f"{r}: provenance date {row.get('date')!r} is not ISO 8601"
+    if made.tzinfo is None or made < jam_start():
+        return f"{r}: provenance date {row.get('date')} is before the jam start {jam_start().isoformat()}"
+    if REFERENCE_SOURCE in (row.get("origin") or "") or PLACEHOLDER_ORIGIN in (row.get("origin") or ""):
+        return f"{r}: provenance origin {row.get('origin')!r} is a reference stand-in or a placeholder, not our art"
+    return None
+
+
+def image_price(t, model, quality, size, n_inputs):
+    """USD for one output image from asset-tools.json's published price (price_usd_per_image)."""
+    table = t.get("price_usd_per_image") or {}
+    price = table.get(model)
+    if price is None:
+        raise ImageRefused(f"no published price for model {model} in asset-tools.json ({t['id']} "
+                           f"price_usd_per_image): an unpriced call cannot be counted against the cap")
+    if isinstance(price, dict):
+        if quality not in price:
+            raise ImageRefused(f"no published price for {model} quality {quality} (asset-tools.json)")
+        price = price[quality]
+        price *= OPENAI_SIZES.get(size, 1.5)
+    return round(float(price) + n_inputs * float(t.get("price_usd_per_input_image") or 0), 6)
+
+
+class _SpendLock:
+    """An exclusive lock on <counter>.lock shared by every worker process (fcntl, else msvcrt, else O_EXCL)."""
+
+    def __init__(self, path):
+        self.path = path + ".lock"
+        self.fh = None
+
+    def __enter__(self):
+        os.makedirs(os.path.dirname(os.path.abspath(self.path)), exist_ok=True)
+        self.fh = open(self.path, "a+")
+        try:
+            import fcntl
+            fcntl.flock(self.fh, fcntl.LOCK_EX)
+            return self
+        except ImportError:
+            pass
+        import msvcrt
+        for _ in range(SPEND_LOCK_TRIES):
+            try:
+                self.fh.seek(0)
+                msvcrt.locking(self.fh.fileno(), msvcrt.LK_NBLCK, 1)
+                return self
+            except OSError:
+                time.sleep(0.05)
+        raise ImageRefused(f"the spend counter {self.path} stayed locked; no call made")
+
+    def __exit__(self, *exc):
+        try:
+            import fcntl
+            fcntl.flock(self.fh, fcntl.LOCK_UN)
+        except ImportError:
+            import msvcrt
+            self.fh.seek(0)
+            msvcrt.locking(self.fh.fileno(), msvcrt.LK_UNLCK, 1)
+        self.fh.close()
+
+
+def spend_settings():
+    """(counter file, cap USD). Both are required: no shared counter or no cap means no paid call."""
+    cap_s = (os.environ.get("IMAGE_SPEND_CAP_USD") or "").strip()
+    path = (os.environ.get("IMAGE_SPEND_FILE") or "").strip()
+    if not cap_s:
+        raise ImageRefused("NO CAP: IMAGE_SPEND_CAP_USD is not set, so no paid image call runs (the cap comes from "
+                           "the build lead with Josh's Spend OK; tools/build/start_area.sh sets it)")
+    try:
+        cap = float(cap_s)
+    except ValueError:
+        raise ImageRefused(f"NO CAP: IMAGE_SPEND_CAP_USD={cap_s!r} is not a number")
+    if not path:
+        raise ImageRefused("NO COUNTER: IMAGE_SPEND_FILE is not set, so this call could not be counted with every "
+                           "other worker's (tools/build/start_area.sh sets it)")
+    return path, cap
+
+
+def _read_spend(path):
+    if not os.path.isfile(path):
+        return {"spent_usd": 0.0, "calls": []}
+    with open(path, encoding="utf-8") as fh:
+        d = json.load(fh)
+    d.setdefault("calls", [])
+    d["spent_usd"] = float(d.get("spent_usd") or 0)
+    return d
+
+
+def _write_spend(path, d):
+    tmp = path + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as fh:
+        json.dump(d, fh, indent=1)
+        fh.write("\n")
+    os.replace(tmp, path)
+
+
+def spend_reserve(cost, entry):
+    """Add `cost` to the shared counter before the call, under the lock; ImageRefused when it would pass the cap.
+    Returns the call's index in the counter (spend_settle updates it)."""
+    path, cap = spend_settings()
+    with _SpendLock(path):
+        d = _read_spend(path)
+        if d["spent_usd"] + cost > cap + 1e-9:
+            raise ImageRefused(f"CAP REACHED: spent ${d['spent_usd']:.3f} of the ${cap:.2f} total image cap "
+                               f"(IMAGE_SPEND_CAP_USD); this call (${cost:.3f}) would pass it. No call made. "
+                               f"Every further image call stops here (counter {path})")
+        d["spent_usd"] = round(d["spent_usd"] + cost, 6)
+        d["cap_usd"] = cap
+        d["calls"].append(dict(entry, cost_usd=cost, status="reserved", ts=now_iso()))
+        _write_spend(path, d)
+        return len(d["calls"]) - 1, d["spent_usd"], cap
+
+
+def spend_settle(index, status, refund=False, **extra):
+    """Mark a reserved call done or failed; refund=True gives its cost back (the provider refused the request, so it
+    was not billed)."""
+    path, _ = spend_settings()
+    with _SpendLock(path):
+        d = _read_spend(path)
+        c = d["calls"][index]
+        c.update(extra, status=status)
+        if refund and not c.get("refunded"):
+            c["refunded"] = True
+            d["spent_usd"] = round(max(0.0, d["spent_usd"] - float(c.get("cost_usd") or 0)), 6)
+        _write_spend(path, d)
+        return d["spent_usd"]
+
+
+def log_image_prompt(root, prompt, provider, model, out, cost):
+    """One `prompt` line in Saved/agent-log/<day>.jsonl, the log tools/prompt_log.py reads and exports."""
+    ts = dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")
+    host = os.environ.get("JAM_HOST")
+    if host:
+        host = re.sub(r"[^A-Za-z0-9_-]", "-", host)[:32]
+    else:
+        import hashlib
+        import socket
+        host = "host-" + hashlib.sha256(socket.gethostname().encode()).hexdigest()[:6]
+    rec = {"ts": ts, "event": "prompt", "kind": "image", "role": os.environ.get("JAM_ROLE"), "card": None,
+           "host": host, "session": None, "tool": provider, "model": model, "out": rel(out, root), "cost_usd": cost,
+           "prompt": prompt}
+    d = os.path.join(root, "Saved", "agent-log")
+    os.makedirs(d, exist_ok=True)
+    with open(os.path.join(d, ts[:10] + ".jsonl"), "a", encoding="utf-8") as fh:
+        fh.write(json.dumps(rec, sort_keys=True) + "\n")
+
+
+def _ratio(size):
+    w, h = (int(v) for v in size.lower().split("x"))
+    want = w / h
+    return min(GEMINI_RATIOS, key=lambda r: abs(int(r.split(":")[0]) / int(r.split(":")[1]) - want))
+
+
+def _mime(path):
+    with open(path, "rb") as fh:
+        head = fh.read(12)
+    if head[:8] == b"\x89PNG\r\n\x1a\n":
+        return "image/png"
+    if head[:3] == b"\xff\xd8\xff":
+        return "image/jpeg"
+    if head[:4] == b"RIFF" and head[8:12] == b"WEBP":
+        return "image/webp"
+    raise ValueError(f"{path}: not a PNG, JPEG or WebP image")
+
+
+def gemini_request(t, model, prompt, inputs, size, seed, key):
+    import base64
+    parts = [{"text": prompt}]
+    for f in inputs:
+        with open(f, "rb") as fh:
+            parts.append({"inline_data": {"mime_type": _mime(f), "data": base64.b64encode(fh.read()).decode()}})
+    cfg = {"responseModalities": ["IMAGE"], "imageConfig": {"aspectRatio": _ratio(size)}}
+    if seed is not None:
+        cfg["seed"] = int(seed)
+    body = json.dumps({"contents": [{"role": "user", "parts": parts}], "generationConfig": cfg}).encode()
+    raw = http_post(t["endpoint"].format(model=model), {"x-goog-api-key": key, "Content-Type": "application/json"},
+                    body)
+    reply = json.loads(raw)
+    for cand in reply.get("candidates") or []:
+        for part in (cand.get("content") or {}).get("parts") or []:
+            data = part.get("inlineData") or part.get("inline_data")
+            if data and data.get("data"):
+                return (base64.b64decode(data["data"]), reply.get("modelVersion") or model,
+                        {"usage": reply.get("usageMetadata"), "finish": cand.get("finishReason")})
+    why = [c.get("finishReason") for c in reply.get("candidates") or []] or reply.get("promptFeedback")
+    texts = [p.get("text") for c in reply.get("candidates") or [] for p in (c.get("content") or {}).get("parts") or []
+             if p.get("text")]
+    raise RuntimeError(f"gemini returned no image (finish={why}; text={' '.join(texts)[:160]!r})")
+
+
+def _multipart(fields, files):
+    import uuid
+    b = "----assetgen" + uuid.uuid4().hex
+    out = io.BytesIO()
+    for k, v in fields.items():
+        out.write(f"--{b}\r\nContent-Disposition: form-data; name=\"{k}\"\r\n\r\n{v}\r\n".encode())
+    for k, f in files:
+        with open(f, "rb") as fh:
+            data = fh.read()
+        out.write(f"--{b}\r\nContent-Disposition: form-data; name=\"{k}\"; filename=\"{os.path.basename(f)}\"\r\n"
+                  f"Content-Type: {_mime(f)}\r\n\r\n".encode() + data + b"\r\n")
+    out.write(f"--{b}--\r\n".encode())
+    return out.getvalue(), f"multipart/form-data; boundary={b}"
+
+
+def openai_request(t, model, prompt, inputs, size, quality, key):
+    import base64
+    auth = {"Authorization": f"Bearer {key}"}
+    fields = {"model": model, "prompt": prompt, "size": size if size in OPENAI_SIZES else "auto", "quality": quality,
+              "n": "1"}
+    if inputs:
+        body, ctype = _multipart(fields, [("image[]", f) for f in inputs])
+        raw = http_post(t["edit_endpoint"], dict(auth, **{"Content-Type": ctype}), body)
+    else:
+        fields["n"] = 1
+        raw = http_post(t["endpoint"], dict(auth, **{"Content-Type": "application/json"}), json.dumps(fields).encode())
+    reply = json.loads(raw)
+    data = (reply.get("data") or [{}])[0].get("b64_json")
+    if not data:
+        raise RuntimeError(f"openai returned no image ({str(reply)[:160]})")
+    return base64.b64decode(data), model, {"usage": reply.get("usage")}
+
+
+def to_png(data, out):
+    """Write the model's bytes as a PNG (macOS sips or ffmpeg convert a JPEG or WebP reply)."""
+    os.makedirs(os.path.dirname(os.path.abspath(out)), exist_ok=True)
+    if data[:8] == b"\x89PNG\r\n\x1a\n":
+        with open(out, "wb") as fh:
+            fh.write(data)
+        return "png"
+    tmp = out + ".src"
+    with open(tmp, "wb") as fh:
+        fh.write(data)
+    try:
+        if shutil.which("sips"):
+            run(["sips", "-s", "format", "png", tmp, "--out", out])
+        else:
+            run(command("ffmpeg") + ["-y", "-i", tmp, out])
+    finally:
+        os.remove(tmp)
+    return "converted"
+
+
+def cmd_image_model(a, argv, root, provider):
+    """One paid still from an image model. Order: inputs guarded, key, price, cap reserved, call, provenance, log."""
+    tid, key_name = IMAGE_PROVIDERS[provider]
+    t = tool(tid)
+    model = a.model or t["model"]
+    inputs = list(a.input or [])
+    for f in inputs:
+        why = refuse_prejam_input(root, f)
+        if why:
+            raise ImageRefused(f"PRE-JAM INPUT REFUSED: {why}. GDD ART-03 / BG-02: describe pre-jam art in words "
+                               f"(pipeline/art/art-bible.md, the references' notes); only in-jam images we made may "
+                               f"be inputs")
+    k = keys.get(key_name)
+    if not k:
+        if os.environ.get("JAM_OUTBOX") and not os.environ.get("ASSETGEN_FULFIL"):
+            queue_or_key(argv, key_name)
+        raise ImageRefused(f"NO KEY: {key_name} is not set (tools/keys.py status), so no image was made and no "
+                           f"placeholder stands in for it. {keys.how_to_set(key_name)}")
+    cost = image_price(t, model, a.quality, a.size, len(inputs))
+    entry = {"provider": provider, "model": model, "out": rel(a.out, root), "inputs": len(inputs),
+             "worker": os.path.basename(root), "role": os.environ.get("JAM_ROLE")}
+    idx, spent, cap = spend_reserve(cost, entry)
+    try:
+        if provider == "gemini":
+            data, version, meta = gemini_request(t, model, a.prompt, inputs, a.size, a.seed, k)
+        else:
+            data, version, meta = openai_request(t, model, a.prompt, inputs, a.size, a.quality, k)
+    except Exception as e:   # noqa: BLE001  the call failed: settle the counter, report, never a placeholder
+        code = getattr(e, "code", None)
+        refused = isinstance(code, int) and 400 <= code < 500   # rejected before generation: not billed
+        spent = spend_settle(idx, "failed", refund=refused, error=api_error(e) if code else str(e)[:200])
+        print(f"FAIL: image {provider} {model}: {api_error(e) if code else e}; counter ${spent:.3f} of ${cap:.2f}"
+              + (" (refunded: the provider refused the request)" if refused else " (cost kept: it may be billed)"))
+        return 1
+    how = to_png(data, a.out)
+    spent = spend_settle(idx, "done", usage=meta.get("usage"), model_version=version)
+    seed = a.seed if (provider == "gemini" and a.seed is not None) else ("none (no seed parameter)"
+                                                                         if provider == "openai" else "")
+    with open(os.path.splitext(a.out)[0] + ".request.json", "w", encoding="utf-8") as fh:
+        json.dump({"provider": provider, "tool": t["name"], "model": model, "model_version": version,
+                   "prompt": a.prompt, "seed": seed, "size": a.size, "quality": a.quality,
+                   "input_images": [rel(f, root) for f in inputs], "cost_usd": cost, "reply": meta,
+                   "date": now_iso()}, fh, indent=1)
+        fh.write("\n")
+    write_provenance(root, a.out, tid, a.prompt, version, inputs=inputs, origin="generated in jam",
+                     note=f"image model {provider}; ${cost:.3f} counted against the shared image cap; full prompt in "
+                          f"{rel(os.path.splitext(a.out)[0] + '.request.json', root)}", seed=seed)
+    log_image_prompt(root, a.prompt, provider, version, a.out, cost)
+    w, h, _ = png.read_png(a.out)
+    print(f"IMAGE {rel(a.out, root)} via={provider} model={version} {w}x{h} inputs={len(inputs)} cost=${cost:.3f} "
+          f"spent=${spent:.3f} of ${cap:.2f} ({how})")
     return 0
 
 
@@ -872,7 +1261,11 @@ def parser():
     p.add_argument("--prompt", required=True)
     p.add_argument("--out", required=True)
     p.add_argument("--size", default="1024x1024")
-    p.add_argument("--provider", choices=("blender", "placeholder", "reference"), default="blender")
+    p.add_argument("--provider", choices=("gemini", "openai", "blender", "placeholder", "reference"), default="gemini")
+    p.add_argument("--input", action="append", help="an in-jam image of ours as an image-model input (repeatable; "
+                   "pre-jam images are refused)")
+    p.add_argument("--model", help="image model (default: the provider's model in asset-tools.json)")
+    p.add_argument("--quality", default="medium", choices=("low", "medium", "high"), help="openai quality")
     p.add_argument("--element", choices=tuple(ELEMENT_ROLE))
     p.add_argument("--character", help="a recipe in pipeline/art/blender/characters.json (default: by element)")
     p.add_argument("--anim", help="the recipe row (default: Still, else the first)")
