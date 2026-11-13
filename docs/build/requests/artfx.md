@@ -30,3 +30,23 @@ open a blind panel for them. Needed: elements (refs + calibration) for at least 
 `spell-twin-stars`, `spell-needle` (refs: the `study-ella-*` spell studies, bar-casters), `keeper-warning`, `keeper-strike`,
 `clock-beat` (refs: `d-clock-double-beat`, `study-keeper-red-shots`) and `light-shaft` (no reference image exists yet).
 Until then every sheet stays a tracked `_PH`.
+
+## 5. Check defects that stop every VFX piece (triage verdict: "check defect", Nov 13; main e10efbd9 still has all three)
+Evidence: gold impact v2 (`pipeline/art/proof/artfx/GoldImpact/sheet.png`), 9-session panel: verdict=reference, calibration 3/9, score 0.526.
+1. `tools/art_check.py` colour rules (on_palette, off_style, off_band) are full-frame rules. A gold sprite with bronze/amber shading
+   fails them (on_palette 0.55, off_style 0.32, off_band 0.15). Needed: a sprite/effect mode that reads only the non-transparent
+   pixels against the effect palette, with a test on a known-good and a known-bad sprite.
+2. Critic sessions miss calibration folder C (clearly different pair) and answer SAME: 3/9 calibrated, so a round cannot count.
+   Needed: a calibrated-session rule (re-draw uncalibrated sessions until N calibrated) or a fixed folder C prompt.
+3. The `context` pair compares a near-black graybox capture against the key art, so it judges the scene, not the burst.
+   Needed: a context reference for effects (a crop of the effect in the key art, or an effect-on-its-own-background capture).
+Until these land no `vfx-*` piece can pass; more paint would only add `_PH` candidates. Spend stays 4.56 of 33.82.
+
+## 6. (withdrawn) `artfx` in `cards` of the 19 refs
+Allowed by `docs/build/art-image-model.md` "Shared references" on main (additions only, in-lane). Edit restored; no lead action.
+
+## 7. Quality bar image for effect pieces (check defect candidate, Nov 13)
+Gold impact round 7 (counted, calibration 8/9): reference pair ours, quality-bar and context pairs go to the other image.
+The quality-bar image the panel uses for `vfx-*` pieces is a sundial-casters picture, not a burst, so the pair compares a
+small effect sprite to a full illustration. Needed: confirm which bar image applies to effect pieces (or add an effect bar
+image / bar crop), and a context reference that is a crop of the burst at game scale. Not loosened by me.

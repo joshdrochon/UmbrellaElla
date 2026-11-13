@@ -1,0 +1,34 @@
+A horizontal strip of four equal cells, left to right, showing four animation frames of one small magic projectile for a
+2D side-view game: a compact gold star head flying to the right, trailing a short tapered tail to the left. All four
+frames sit on the same horizontal centre line, each centred in its own cell, evenly spaced with wide empty gaps of flat
+green between them, so no frame touches another or the edge of the picture. The star head is the same size in all four
+frames. The picture is seen directly from the side, at the distance of a game sprite, with the projectile occupying about
+a third of its cell.
+
+The head is a sharp, angular eight-point star in the shape of a faceted compass star. Four long points lie on the
+horizontal and vertical axes, and four shorter points lie between them. The long point on the right, the direction of
+travel, is the longest and sharpest, and the left point flows straight into the tail. Every point is a thin, pointed
+blade with straight edges, like a cut spear tip. The tail is short: a tapered gold streak that narrows to a point on the
+left, ending in a few broken dashes and two or three tiny pointed diamond sparks. It reaches back about as far as one and
+a half star widths and never reaches the neighbouring cell.
+
+The head is built in three layers. At its centre is a small bright core of pale cream #FFF5DC. Around the core is a
+shell of warm gold #E9C46A. The lower half of the shell is shaded with a few fine etched hatching lines in amber #F5AA28,
+and the lower edge is darkened with deep bronze #94611E. The tail uses the same gold and amber, getting paler and thinner
+toward its tip. The only colours in the whole effect are these gold, amber, bronze and cream tones plus the near-black
+ink outline, so the star reads as one warm gold family.
+
+Lighting comes from one source, in front of the star and slightly above, so the upper edges are brighter and the lower
+edges are shaded. The glow stays inside the star: the core is the brightest point, and the light fades to the ink outline
+inside the shape. Outside the outline the picture is only the flat green.
+
+Frame 1: the star at rest, core small, points at their normal length, tail at normal length. Frame 2: the core brighter and
+larger, the points a little longer, the tail a little longer. Frame 3: back to frame 1, the core small, the points a
+little shorter, the tail a little shorter. Frame 4: the core brighter again, the points and tail at normal length. The
+star does not rotate: only the core, point length and tail length change from frame to frame.
+
+Style: a dark painterly etched storybook illustration, ink and wash with fine etched cross-hatching and a faint paper
+grain inside the shapes only. Each shape has a clean near-black ink outline #171614 about 3 px wide at this size. The
+background is one perfectly flat, even, uniform pure green #00FF00 filling the canvas edge to edge, with the shapes cut
+cleanly against it and the green identical in every cell. Nothing in the effect is green. The image contains only the
+four projectiles on green: no text, labels, numbers, grid lines, frames or watermark.

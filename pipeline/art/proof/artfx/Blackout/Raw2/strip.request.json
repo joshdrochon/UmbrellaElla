@@ -1,0 +1,36 @@
+{
+ "provider": "gemini",
+ "tool": "Gemini API image generation (Google)",
+ "model": "gemini-3.1-flash-image-preview",
+ "model_version": "gemini-3.1-flash-image-preview",
+ "prompt": "Four animation frames of the blackout veil, the darkness that covers the whole screen while the Keeper, the metal clock owl, is hidden, painted as a two by two grid of four equal panels in one 16:9 picture, each panel filling its quarter of the picture edge to edge, with no borders or gaps between panels, flat face-on with no perspective. Each panel is a veil of near-black ink #171614 that covers the whole panel from the edges inward: solid dark ink along all four edges and corners, thinning toward the middle into dense etched cross-hatching, and a small clear paper-white opening at the centre. Across the four panels the hatching crawls and the opening breathes a little larger and smaller, so the sequence loops smoothly. Style: a dark painterly etched storybook illustration, ink and wash with fine etched cross-hatching and a faint paper grain, every mark engraved and hand-inked, never a smooth airbrushed gradient. Inside the opening the panel is pure flat white #FFFFFF. The image contains only the four panels, with text, labels, grid lines, frames and watermark all absent.",
+ "seed": "",
+ "size": "1024x1024",
+ "quality": "medium",
+ "aspect_ratio": "16:9",
+ "image_size": "1K",
+ "input_images": [],
+ "cost_usd": 0.067119,
+ "reply": {
+  "usage": {
+   "promptTokenCount": 238,
+   "candidatesTokenCount": 1387,
+   "totalTokenCount": 1625,
+   "promptTokensDetails": [
+    {
+     "modality": "TEXT",
+     "tokenCount": 238
+    }
+   ],
+   "candidatesTokensDetails": [
+    {
+     "modality": "IMAGE",
+     "tokenCount": 1120
+    }
+   ],
+   "serviceTier": "standard"
+  },
+  "finish": "STOP"
+ },
+ "date": "2026-11-13T08:43+00:00"
+}
