@@ -20,3 +20,5 @@ Passed already, skipped: screen:Tutorial, screen:TutorialPaused.
 
 ## Not run
 Build, tests, in-engine capture, art_ref_check on the unscored drafts (near-copy-of-reference check not run for them). Sprite-sheet layout of the first drafts is not verified against each presenter; some drafts may not be grids.
+
+Location note: copies live in pipeline/art/proof/standins/<piece>/, not Art/Source/StandIns/ (art_inventory.py counts every file under Art/ as an unmapped visual and sprite_check --scan Art wants a sidecar for each, so precheck failed on them).
