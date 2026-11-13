@@ -2,6 +2,7 @@
 #include "Attack/StreamBeamActor.h"
 #include "Components/PointLightComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Misc/App.h"
 #include "Core/EllaCharacter.h"
 #include "Core/UmbrellaEvent.h"
 #include "Core/UmbrellaEventBus.h"
@@ -581,7 +582,8 @@ void UUmbrellaVfxDirectorSubsystem::StepDemo()
 	{
 		return;
 	}
-	const double Now = FPlatformTime::Seconds();
+	// Wall time on purpose: art capture only, non-shipping; game time crawls while shaders compile.
+	const double Now = FApp::GetCurrentTime();
 	if (DemoStartSeconds < 0.0)
 	{
 		DemoStartSeconds = Now;

@@ -90,4 +90,4 @@ No gameplay timing, collision or state is written by any of it (tests check the 
 ## Review fix round 2 (Nov 13)
 - Lead ruling: the `cards` additions in `pipeline/art/references.json` (19 refs, additions only) are in-lane per `docs/build/art-image-model.md` "Shared references" on main. Restored; request 6 withdrawn. `art_loop.py pieces --card artfx` lists the 26 `vfx-*` pieces again.
 - Demo test `UmbrellaElla.Feedback.VfxDemoRules` kept (uses `FName(TEXT(...))`); `StepDemo` early-returns with no key and times on wall time.
-- Not run: UE build and tests (the lead's slot).
+- Ran: build exit 0, `UmbrellaElla.Feedback` 30/30 PASS, module_check 0 problems. Demo timer uses `FApp::GetCurrentTime()` (wall time, non-shipping art capture only) because rule N flags `FPlatformTime`.
