@@ -17,10 +17,10 @@ import bpy  # noqa: E402
 import stand_ins  # noqa: E402
 from stand_ins import Rig, glow, hex_rgb  # noqa: E402
 
-SHOT_EDGE_TOP = [(0.95, 0.10), (0.55, 0.40), (0.45, 0.19), (-0.05, 0.62), (-0.15, 0.29), (-0.75, 0.52),
-                 (-0.85, 0.21), (-1.5, 0.38), (-1.6, 0.13), (-2.2, 0.19)]
-SHOT_EDGE_BOT = [(1.0, -0.09), (0.62, -0.34), (0.5, -0.17), (0.0, -0.55), (-0.1, -0.26), (-0.7, -0.6),
-                 (-0.8, -0.2), (-1.4, -0.34), (-1.5, -0.12), (-2.1, -0.2)]
+SHOT_EDGE_TOP = [(1.0, 0.06), (0.6, 0.38), (0.5, 0.15), (0.0, 0.62), (-0.1, 0.22), (-0.7, 0.56),
+                 (-0.8, 0.15), (-1.45, 0.34), (-1.5, 0.08)]
+SHOT_EDGE_BOT = [(1.05, -0.05), (0.7, -0.33), (0.55, -0.13), (0.1, -0.52), (0.0, -0.19), (-0.6, -0.6),
+                 (-0.7, -0.14), (-1.4, -0.3), (-1.45, -0.07)]
 
 
 def alpha_glow(name, hexcol, alpha, strength=1.0):
@@ -88,6 +88,69 @@ def graded(name, head_hex, tail_hex, x_tail=-2.6, x_head=1.4, grain=0.15, cut=0.
     return m
 
 
+def glow_plane(r, bone, mat, size=(7.0, 3.6), centre=(-0.6, 0.45)):
+    """A separate bounded light mask behind the shot: a soft radial falloff, never part of the body."""
+    import bmesh
+    me = bpy.data.meshes.new("glow")
+    ob = bpy.data.objects.new("glow", me)
+    bpy.context.scene.collection.objects.link(ob)
+    bm = bmesh.new()
+    w, h = size[0] / 2, size[1] / 2
+    bm.faces.new([bm.verts.new((centre[0] + dx * w, 0.3, centre[1] * 0 + dz * h)) for dx, dz in
+                  ((-1, -1), (1, -1), (1, 1), (-1, 1))])
+    bm.to_mesh(me)
+    bm.free()
+    me.materials.append(mat)
+    r.parts.append((ob, bone))
+
+
+def radial_glow(name, hexcol, alpha, rx, rz, cx):
+    m = glow(name, hexcol)
+    nt = m.node_tree
+    out = nt.nodes["Material Output"]
+    emi = [n for n in nt.nodes if n.type == "EMISSION"][0]
+    coord = nt.nodes.new("ShaderNodeTexCoord")
+    sep = nt.nodes.new("ShaderNodeSeparateXYZ")
+    nx = nt.nodes.new("ShaderNodeMath")
+    nx.operation = "SUBTRACT"
+    nx.inputs[1].default_value = cx
+    ex = nt.nodes.new("ShaderNodeMath")
+    ex.operation = "DIVIDE"
+    ex.inputs[1].default_value = rx
+    ez = nt.nodes.new("ShaderNodeMath")
+    ez.operation = "DIVIDE"
+    ez.inputs[1].default_value = rz
+    comb = nt.nodes.new("ShaderNodeCombineXYZ")
+    ln = nt.nodes.new("ShaderNodeVectorMath")
+    ln.operation = "LENGTH"
+    ramp = nt.nodes.new("ShaderNodeMapRange")
+    ramp.inputs["From Min"].default_value = 0.0
+    ramp.inputs["From Max"].default_value = 1.0
+    ramp.inputs["To Min"].default_value = alpha
+    ramp.inputs["To Max"].default_value = 0.0
+    ramp.interpolation_type = "SMOOTHSTEP"
+    tr = nt.nodes.new("ShaderNodeBsdfTransparent")
+    mix = nt.nodes.new("ShaderNodeMixShader")
+    L = nt.links.new
+    L(coord.outputs["Object"], sep.inputs[0])
+    L(sep.outputs["X"], nx.inputs[0])
+    L(nx.outputs[0], ex.inputs[0])
+    L(sep.outputs["Z"], ez.inputs[0])
+    L(ex.outputs[0], comb.inputs["X"])
+    L(ez.outputs[0], comb.inputs["Y"])
+    L(comb.outputs[0], ln.inputs[0])
+    L(ln.outputs["Value"], ramp.inputs["Value"])
+    L(ramp.outputs[0], mix.inputs[0])
+    L(tr.outputs[0], mix.inputs[1])
+    L(emi.outputs[0], mix.inputs[2])
+    L(mix.outputs[0], out.inputs["Surface"])
+    try:
+        m.surface_render_method = "BLENDED"
+    except (AttributeError, TypeError):
+        pass
+    return m
+
+
 def inked():
     """The Freestyle collection: only objects linked here get an ink outline."""
     c = bpy.data.collections.get("inked")
@@ -115,7 +178,7 @@ def poly_part(r, bone, mat, pts, y=0.0, thick=0.04, name="poly", ink=False):
     return ob
 
 
-def shot_outline(sx, sz, dx=0.0, head=1.45, tail=-2.3, grow=0.0):
+def shot_outline(sx, sz, dx=0.0, head=1.5, tail=-2.2, grow=0.0):
     sx, sz, dx = sx * 0.82, sz * 1.3, dx * 0.82   # a stubbier build: the tuned aspect of the red-shot crops
     top = [(x * sx + dx, z * sz + grow) for x, z in SHOT_EDGE_TOP]
     bot = [(x * sx + dx, z * sz - grow) for x, z in SHOT_EDGE_BOT]
@@ -126,12 +189,17 @@ def shot(m, rnd, shell, mid, body, core, spill, trail_a, trail_b):
     """bar-casters' shared projectile: bright core, shell, trail, light spill; one pointed angular geometry."""
     r = Rig("Shot")
     r.bone("body", (-0.5, 0, 0), (0.5, 0, 0))
+    glow_plane(r, "body", m[spill])
     poly_part(r, "body", m["ink"], shot_outline(1.0, 1.0, 0.0, 1.5, -2.35, grow=0.04), y=0.04, thick=0.02, name="ink")
     poly_part(r, "body", m[shell], shot_outline(1.0, 1.0), y=0.0, name="shell")
     poly_part(r, "body", m["redshadow"], shot_outline(0.95, 0.3, -0.05), y=-0.03, name="shade")
     poly_part(r, "body", m[mid], shot_outline(0.86, 0.72, 0.1), y=-0.06, name="mid")
     poly_part(r, "body", m[body], shot_outline(0.7, 0.4, 0.25), y=-0.12, name="body")
     poly_part(r, "body", m[core], shot_outline(0.62, 0.17, 0.4), y=-0.18, name="core")
+    streak = [(-1.3, 0.12), (-2.5, 0.07), (-3.5, 0.025), (-3.5, -0.025), (-2.5, -0.07), (-1.3, -0.12)]
+    poly_part(r, "body", m["redshadow" if shell == "g_shell" else "yshadow"], streak, y=0.02, thick=0.02, name="streak")
+    poly_part(r, "body", m["red" if shell == "g_shell" else "yellow"],
+              [(x * 0.95, z * 0.45) for x, z in streak], y=-0.01, thick=0.02, name="streak_core")
     rr = random.Random(9)
     x = -2.1
     for i in range(6):   # broken-off shards thinning down the trail
@@ -170,8 +238,8 @@ def materials(colours, look):
     mats["g_core"] = graded("g_core", c("core", "#fff5dc"), c("coral", "#ff7848"), x_tail=-1.8, snap=sn_)
     mats["g_ys"] = graded("g_ys", c("yellow", "#ffd84a"), c("yellow shadow", "#94611e"), snap=sn_)
     mats["g_ym"] = graded("g_ym", c("amber", "#f5aa28"), c("yellow", "#ffd84a"), snap=sn_)
-    mats["spill_red"] = alpha_glow("spill_red", c("red", "#ff3658"), 0.22)
-    mats["spill_gold"] = alpha_glow("spill_gold", c("yellow", "#ffd84a"), 0.22)
+    mats["spill_red"] = radial_glow("spill_red", c("red", "#ff3658"), 0.45, 2.6, 1.05, -0.5)
+    mats["spill_gold"] = radial_glow("spill_gold", c("yellow", "#ffd84a"), 0.45, 2.6, 1.05, -0.5)
     return mats
 
 
