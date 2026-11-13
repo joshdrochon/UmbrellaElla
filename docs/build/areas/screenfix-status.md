@@ -43,3 +43,6 @@
 - Main does not compile as-is: SettingsMenuWidget.cpp include order (UI lane). Built with a local, reverted fix;
   request in `docs/build/requests/screenfix.md`.
 - artella must rebuild (`tools/build/ue_slot.sh tools/ue/build.sh`) before its next capture; run_game.sh now says so.
+- Affected checks: `UmbrellaElla.Flow` 30/30 success. Python affected set: 212 tests, 5 failures + 1 error, all in
+  `test_gdd_check` and `test_area`; the same 6 fail on a clean origin/main checkout, so not from this change.
+  `affected_tests.py --base origin/main` itself takes over 10 min to list on this machine.
