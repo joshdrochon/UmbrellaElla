@@ -39,3 +39,6 @@ Next once unblocked: stun arcs draft (flash), cut with NOGRADE=1, per-frame art_
 
 ## 2026-11-13 (recheck)
 Still blocked: origin/main has no SmokeShotFrames in Source/ (area/screenfix not merged). No paid call made. Request in docs/build/requests/artfx3.md stands.
+
+## 2026-11-13 (recheck 2)
+Still blocked: origin/main (80aacfd8) has no SmokeShotFrames in Source/. No paid call made. Request in docs/build/requests/artfx3.md stands.
