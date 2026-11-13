@@ -28,3 +28,9 @@ NEEDS HUMAN: lead: (1) -SmokeKeeper calling BeginFight plus ProjectDir-relative 
 - New blocker: the video method needs a passed still, and none of my six pieces has one (Keeper base still at the R6-R10 plateau; no art_loop PASS record).
 - New blocker: tools/assetgen.py has no video-from-image step and no fal Veo model (FAL_MODELS lists only the two Gemini image models). A Veo call would bypass the shared spend counter, so I did not write one.
 NEEDS HUMAN: lead: (1) add a Veo step to assetgen (counter-guarded, 1 USD/piece), (2) a passed Keeper body still to animate from, or the Blender-vs-paint decision.
+
+## Nov 13 session 14: captured in-game, judged owl R10 in context (spend unchanged, no new paint)
+- Merged main (up to date), built (exit 0), took -SmokeKeeper capture at 1280x720 with R10 keyed_3 in T_Keeper_Owl_PH.
+- art_loop run owl R10 (round 5): quality_bar pair OURS wins; reference pair and context pair lose. Context GAP is the lilac stand-in cube over the art, not the painting. art_check FAIL off_style 0.045 > 0.02 (saturated colours); art_ref_check has no refs for card "artkeeper" (the card id must be the piece's card).
+- Triage: context = "check/source defect: stand-in cube hides the art" -> docs/build/requests/artkeeper2.md. off_style: ours (green despill/saturated brass), to fix in the key step.
+- Next: fix off_style in the key, then paint the six mech/clock/damage/departure parts only after the cube is hidden.
