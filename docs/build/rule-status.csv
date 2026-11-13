@@ -1,205 +1,205 @@
-id,area,status,evidence,note
-FLOW-02,flow,built,Flow.TitleStartsPlaying; Flow.World.StartGameReachesFight; Flow.World.DirectorsCutReachesSameFight,
-FLOW-03,flow,built,Flow.TutorialPauseSkip; Flow.World.TutorialFirstStartSkippable,tracking/replay left OPEN in GDD
-FLOW-04,flow,built,Flow.WinStoryThenCredits; Flow.World.EncounterCompletedReachesCredits,Credits carry placeholder names for Josh to supply
-MOVE-04,move,built,Move.DefaultBindings; Move.World.InputAssetsBuilt,hardware input not run
-MOVE-05,move,built,Move.DefaultBindings; Move.World.InputAssetsBuilt,hardware input not run
-MOVE-06,move,built,Move.DefaultBindings; Move.World.InputAssetsBuilt,hardware input not run
-MOVE-07,move,built,Move.DefaultBindings; Move.World.InputAssetsBuilt,hardware input not run
-MOVE-08,flow,built,Flow.MenuInputs; Move.DefaultBindings,"spell cycle in Move, pause/retry keys in Flow"
-MOVE-09,flow,built,Flow.MenuInputs,
-MOVE-10,settings,built,Settings.RemapRebuildsMappingContext; Move.World.SavedRemapReachesLiveContext,no on-screen check of the remap UI
-MOVE-11,move,built,Move.NoDirectSteering; Move.StateSpeedsAndTrim,
-MOVE-12,move,built,Move.World.FireIsUnlimited; Move.SpellAvailability,
-MOVE-13,move,built,Move.ActionRules; Move.World.AbsorbFallAndFreeFall,
-MOVE-14,move,built,Move.World.ShootFallFiresRightOnlyWhileDropping,
-MOVE-15,move,built,Move.HopDashTuned,hop protection in Motor
-MOVE-16,move,built,Move.World.ControlsSameInBothModes,
-MOVE-17,settings,built,Settings.RemapRebuildsMappingContext; Move.World.SavedRemapReachesLiveContext,no on-screen check of the remap UI
-MOVE-18,move,built,Move.World.ControlsSameInBothModes,
-MOVE-19,move,built,Move.StateLockWaitsForNeutral; Move.ActionRules,
-MOVE-20,move,built,Move.StateLockWaitsForNeutral; Move.ActionRules,
-MOVE-21,move,built,Move.Baseline; Move.StateSpeedsAndTrim; Move.HopDashTuned,Hop direction is a default awaiting Josh
-SURV-05,health,built,Health.ThreeHitsCostALife; Health.World.PostHitProtectionBlocksSecondHit,
-UMB-05,move,built,Move.Baseline; Move.World.LiftScalesWithHealth; Health.World.YellowDuringAbsorbFallHealsAndIsConsumed,
-WIND-03,arena,built,Field.World.BroadcastsEnterExit; Field.DirectionLabel,
-MOVE-22,move,built,Move.WindRideAndDecay; Move.World.RideCurrentFromEvents,
-COM-05,move,built,Move.SpellAvailability; Move.SpellBaseline,
-COM-06,move,partial,Move.SmallBlastCadence; Move.World.ShootFallFiresRightOnlyWhileDropping,Burst option (1-5 shots) not built; default single shot
-COM-07,move,partial,Move.SpellVolleys,"Streamed Blast is 10 thin pulses per s, no beam actor"
-COM-08,move,built,Move.SpellVolleys; Move.World.SpellSelectionAndFire,
-COM-09,move,built,Move.SpellVolleys; Move.World.SpellSelectionAndFire,
-COM-10,move,built,Move.SpellAvailability; Move.SpellBaseline,
-COM-11,move,built,Move.SpellAvailability; Move.SpellBaseline,
-FLOW-05,progression,built,Progression.RunScalingMatchesOracle; Progression.World.OnlyAWonRunAdvancesScaling,
-FLOW-06,progression,built,Progression.AllStatsMaxedTriggersFinalHour,
-FLOW-07,progression,built,Progression.LevelCheckpointRetryKeepsXpAndRanks; Progression.BossCheckpointRollsBackCoherently,
-FLOW-08,progression,built,Progression.QuitReloadRestoresLastCheckpoint,
-FLOW-09,keeper,built,Keeper.RetryRestoresPhaseCheckpoint; Keeper.World.RetryRestoresPhaseCheckpointWithThreeLives; Health.World.CheckpointRetryRestoresFullHealthAndLives,
-FLOW-10,progression,built,Progression.WinKeepsGrowthAndCountsOnce,
-FLOW-11,progression,built,Progression.PurchaseVersusReallocation,
-FLOW-12,progression,built,Progression.World.LevelRetryKeepsXpAndRewardsAgain,
-FLOW-13,progression,built,Progression.World.BossRetryRollsBackXpAndPartsPayAgain,wing XP per part is a default
-FLOW-14,progression,built,Persistence.RoundTrip; Progression.World.StartGameGivesNoXp,
-FLOW-15,progression,built,Progression.XpCurveMatchesOracle,
-FLOW-16,progression,built,Progression.UnlockScheduleMatchesOracle,
-SURV-06,progression,built,Progression.RankValues; Progression.CommitIsAtomicAndGated,
-SURV-07,health,built,Health.HealingActiveFirstThenReserves,
-FLOW-17,progression,built,Progression.World.PurchaseNeedsContext,
-FLOW-18,progression,built,Progression.PurchaseVersusReallocation,
-FLOW-19,progression,built,Progression.KillXpTable; Progression.World.KillsAwardXpAndLevels,
-FLOW-20,progression,built,Progression.World.RealEnemyAndMillKillsPayXp; Progression.World.KeeperEventStringsDriveXpAndCheckpoints,
-FLOW-21,progression,built,Progression.RunScalingMatchesOracle,
-FLOW-22,progression,built,Persistence.CorruptMainFallsBackToBackup; Persistence.TwoCorruptCopiesBlock; Persistence.World.ProfileSurvivesRelaunch,
-FLOW-23,progression,built,Progression.DeveloperFixtureLevels; Progression.World.ShadowProgressNeverTouchesTheProfile,
-OWL-06,keeper,built,Keeper.PhaseGating; Keeper.World.PhaseAdvancesWhenItsPartsBreak,
-OWL-07,keeper,built,Keeper.* suite (34 tests),contract is the sum of OWL-06..35
-OWL-08,keeper,built,Keeper.BaselineHp,
-OWL-09,keeper,built,Keeper.PhaseGating; Keeper.WingBreakAdvancesToMechanisms,
-OWL-10,keeper,built,Keeper.RetryRestoresPhaseCheckpoint,
-OWL-11,keeper,built,Keeper.RedPressure,
-OWL-12,keeper,built,Keeper.RedIsReducedDuringPhysicalActivity,
-OWL-13,keeper,built,Keeper.YellowPackets,
-OWL-14,keeper,partial,Keeper.YellowPackets,data and contract tested; visuals are engine cubes
-OWL-15,keeper,built,Keeper.GustLocksBandAndStopsWithWings; Keeper.GustDamagesAndPushesOnce,gust push direction is a default
-OWL-16,keeper,built,Keeper.GustLocksBandAndStopsWithWings; Keeper.GustDamagesAndPushesOnce,gust push direction is a default
-OWL-17,keeper,built,Keeper.GustLocksBandAndStopsWithWings; Keeper.GustDamagesAndPushesOnce,gust push direction is a default
-OWL-18,keeper,built,Keeper.TalonWarnsStrikesAndRearms; Keeper.TalonWarningDoesNoDamage,
-OWL-19,keeper,built,Keeper.TalonWarnsStrikesAndRearms; Keeper.TalonWarningDoesNoDamage,
-OWL-20,keeper,built,Keeper.TalonWarnsStrikesAndRearms; Keeper.TalonWarningDoesNoDamage,
-OWL-21,keeper,built,Keeper.ChainHeadDamagesOncePerCast; Keeper.MiddleCurveSignFollowsSerial,
-OWL-22,keeper,built,Keeper.ChainHeadDamagesOncePerCast; Keeper.MiddleCurveSignFollowsSerial,
-OWL-23,keeper,built,Keeper.ChainHeadDamagesOncePerCast; Keeper.MiddleCurveSignFollowsSerial,
-OWL-24,keeper,built,Keeper.ChainHeadDamagesOncePerCast; Keeper.MiddleCurveSignFollowsSerial,
-OWL-25,keeper,built,Keeper.ChainHeadDamagesOncePerCast; Keeper.MiddleCurveSignFollowsSerial,
-OWL-26,keeper,built,Keeper.RearTwoStageHasSafePause,
-OWL-27,keeper,built,Keeper.RearTwoStageHasSafePause,
-OWL-28,keeper,built,Keeper.ClockDoubleBeatRepeatsPaths,
-OWL-29,keeper,built,Keeper.ClockOpeningWindowAndRecovery; Keeper.FinalExposureCycle,
-OWL-30,keeper,built,Keeper.BreakStunCancelsPhysicalMove,
-OWL-31,keeper,built,Keeper.ClockHitStartsSlowAndEyeThenBlackout,
-OWL-32,keeper,built,Keeper.ClockHitStartsSlowAndEyeThenBlackout,
-OWL-33,keeper,built,Keeper.SlowStretchesWorldTimersNotClockTimers,
-OWL-34,keeper,built,Keeper.PhysicalSchedulerSerialisesMoves,
-OWL-35,keeper,built,Keeper.FinalClockHitEndsFight; Keeper.World.FinalClockHitEndsInSuccess,
-FLOW-24,arena,built,Level.RefugesAndLength; Level.NineSlotGrammar,
-FLOW-25,arena,partial,Level.ContractsReadabilityCatchCheckpoint,rule functions only; QA-36 playtest measurement still needed
-FLOW-26,arena,blocked,,authored design only; GDD says not to claim it built; needs playtest
-HAZ-02,enemies,built,BrokenMill.GeometryEstimatesMatchGdd; BrokenMill.ActivationAndEngagement; BrokenMill.GuardOneShotPerPass; BrokenMill.TwoWindsNeverSteal,rule layer; Mill wind volumes not spawned
-HAZ-03,enemies,built,BrokenMill.GeometryEstimatesMatchGdd; BrokenMill.ActivationAndEngagement; BrokenMill.GuardOneShotPerPass; BrokenMill.TwoWindsNeverSteal,rule layer; Mill wind volumes not spawned
-HAZ-04,enemies,built,BrokenMill.GeometryEstimatesMatchGdd; BrokenMill.ActivationAndEngagement; BrokenMill.GuardOneShotPerPass; BrokenMill.TwoWindsNeverSteal,rule layer; Mill wind volumes not spawned
-HAZ-05,enemies,built,BrokenMill.GeometryEstimatesMatchGdd; BrokenMill.ActivationAndEngagement; BrokenMill.GuardOneShotPerPass; BrokenMill.TwoWindsNeverSteal,rule layer; Mill wind volumes not spawned
-HAZ-06,enemies,built,BrokenMill.GeometryEstimatesMatchGdd; BrokenMill.ActivationAndEngagement; BrokenMill.GuardOneShotPerPass; BrokenMill.TwoWindsNeverSteal,rule layer; Mill wind volumes not spawned
-HAZ-07,enemies,built,BrokenMill.GeometryEstimatesMatchGdd; BrokenMill.ActivationAndEngagement; BrokenMill.GuardOneShotPerPass; BrokenMill.TwoWindsNeverSteal,rule layer; Mill wind volumes not spawned
-HAZ-08,enemies,built,BrokenMill.GeometryEstimatesMatchGdd; BrokenMill.FiringWindowsMatchGdd; BrokenMill.EmissionCountsAndDelayedImpact,arithmetic only
-HAZ-09,enemies,built,BrokenMill.GeometryEstimatesMatchGdd; BrokenMill.FiringWindowsMatchGdd; BrokenMill.EmissionCountsAndDelayedImpact,arithmetic only
-HAZ-10,enemies,built,BrokenMill.GeometryEstimatesMatchGdd; BrokenMill.FiringWindowsMatchGdd; BrokenMill.EmissionCountsAndDelayedImpact,arithmetic only
-HAZ-11,enemies,built,BrokenMill.GeometryEstimatesMatchGdd; BrokenMill.FiringWindowsMatchGdd; BrokenMill.EmissionCountsAndDelayedImpact,arithmetic only
-HAZ-12,enemies,built,BrokenMill.GeometryEstimatesMatchGdd; BrokenMill.FiringWindowsMatchGdd; BrokenMill.EmissionCountsAndDelayedImpact,arithmetic only
-HAZ-13,enemies,built,BrokenMill.GeometryEstimatesMatchGdd; BrokenMill.FiringWindowsMatchGdd; BrokenMill.EmissionCountsAndDelayedImpact,arithmetic only
-HAZ-14,enemies,partial,BrokenMill.GuardCancelAbortPausePassBehind,needs integrated build with real Motor and wind
-HAZ-15,enemies,partial,BrokenMill.GuardCancelAbortPausePassBehind,needs integrated build with real Motor and wind
-HAZ-16,enemies,blocked,,human acceptance run
-HAZ-17,enemies,built,BrokenMill.ShotLogAndPoolGate,
-HAZ-18,enemies,blocked,,"art evidence, no passing art"
-CAM-03,arena,built,Arena.World.CameraAndAnchors; Arena.BackgroundLoopWraps,
-CAM-04,arena,partial,Level.ContractsReadabilityCatchCheckpoint,rule functions only; QA-36 playtest measurement still needed
-CAM-05,arena,built,Level.ClearanceAndInterface,
-CAM-06,arena,built,Level.ClearanceAndInterface,
-CAM-07,arena,partial,Level.ContractsReadabilityCatchCheckpoint,rule functions only; QA-36 playtest measurement still needed
-CAM-08,arena,partial,Level.CameraLeadAndReveal; Arena.World.CameraAndAnchors,FollowEllaX exists but nothing calls it yet
-HAZ-19,enemies,built,Trap.* ; Trap.World.EachTrapHurtsOnContact,
-HAZ-20,enemies,built,Trap.* ; Trap.World.EachTrapHurtsOnContact,
-HAZ-21,enemies,built,Trap.* ; Trap.World.EachTrapHurtsOnContact,Motor does not read bellows push yet
-HAZ-22,enemies,built,Trap.* ; Trap.World.EachTrapHurtsOnContact,
-HAZ-23,enemies,built,Trap.PressureContract,
-COM-12,enemies,built,Enemy.World.GenderChangesNoMechanics; Enemy.World.FiresConfiguredColour,
-COM-13,enemies,built,Enemy.World.GenderChangesNoMechanics; Enemy.World.FiresConfiguredColour,
-FLOW-46,enemies,built,Enemy.ColorRatioTwoRedToOneYellow,
-HAZ-41,arena,built,Level.GroundContainment,
-FLOW-47,arena,built,Level.RefugesAndLength; Level.NineSlotGrammar,
-COM-14,enemies,built,Enemy.ProfilesMatchGdd; Enemy.BrainCycle; Enemy.World.DiesAtZeroHp,
-COM-15,enemies,built,Enemy.ProfilesMatchGdd; Enemy.BrainCycle; Enemy.World.DiesAtZeroHp,
-COM-16,enemies,built,Enemy.ProfilesMatchGdd; Enemy.BrainCycle; Enemy.World.DiesAtZeroHp,
-COM-17,enemies,built,Enemy.CourierPacketLifecycle; Enemy.World.CourierWithdrawsAndRetryRestores,
-COM-18,enemies,built,Enemy.FiringWindowIsFixedRight,
-HAZ-24,arena,built,Level.CatalogueHas24Variants,
-HAZ-25,arena,partial,Level.CatalogueHas24Variants,chunk is data only; no placeable level actors or geometry
-HAZ-26,arena,partial,Level.CatalogueHas24Variants,chunk is data only; no placeable level actors or geometry
-HAZ-27,arena,partial,Level.CatalogueHas24Variants,chunk is data only; no placeable level actors or geometry
-HAZ-28,arena,partial,Level.CatalogueHas24Variants,chunk is data only; no placeable level actors or geometry
-HAZ-29,arena,partial,Level.CatalogueHas24Variants,chunk is data only; no placeable level actors or geometry
-HAZ-30,arena,partial,Level.CatalogueHas24Variants,chunk is data only; no placeable level actors or geometry
-HAZ-31,arena,partial,Level.CatalogueHas24Variants,chunk is data only; no placeable level actors or geometry
-HAZ-32,arena,partial,Level.CatalogueHas24Variants,chunk is data only; no placeable level actors or geometry
-HAZ-33,arena,partial,Level.CatalogueHas24Variants,chunk is data only; no placeable level actors or geometry
-HAZ-34,arena,partial,Level.CatalogueHas24Variants,chunk is data only; no placeable level actors or geometry
-HAZ-35,arena,partial,Level.CatalogueHas24Variants,chunk is data only; no placeable level actors or geometry
-HAZ-36,arena,partial,Level.CatalogueHas24Variants,chunk is data only; no placeable level actors or geometry
-HAZ-37,arena,built,Level.NineSlotGrammar,
-HAZ-38,arena,partial,Level.ValidateRejectsBadRoutes,bBypass flag on variants; no test reads a bypass choice
-HAZ-39,arena,partial,Level.SameSeedSameRoute,seeded layouts exist; no fixture proposal output
-HAZ-40,arena,built,Level.FallbackAndAvoidRepeat; Level.SameSeedSameRoute,
-FLOW-27,arena,built,Level.RefugesAndLength; Level.NineSlotGrammar,
-FLOW-28,arena,partial,Level.ContractsReadabilityCatchCheckpoint,rule functions only; QA-36 playtest measurement still needed
-FLOW-29,progression,built,Progression.World.PurchaseNeedsContext,
-NAR-02,story,not built,,"Story subsystem lives on branch area/story, not on main"
-NAR-03,story,not built,,"Story subsystem lives on branch area/story, not on main"
-NAR-04,story,not built,,"Story subsystem lives on branch area/story, not on main"
-NAR-05,story,not built,,"Story subsystem lives on branch area/story, not on main"
-NAR-06,story,not built,,"Story subsystem lives on branch area/story, not on main"
-NAR-07,story,partial,Keeper.World.FinalClockHitEndsInSuccess; Flow.WinStoryThenCredits,departure and ending pages exist; Director's Cut story delivery is not on main
-NAR-08,story,not built,,"Story subsystem lives on branch area/story, not on main"
-FLOW-30,health,built,Health.ClockHudInsideSixteenByNineView; Health.ClockHudTextAtLeast18Px,HUD not seen on screen
-FLOW-48,progression,partial,Progression.RingFillAndMax,"fill logic tested, drawing not"
-FLOW-31,health,built,Health.LifeHandAdvancesTowardXIIAndEndsAtXII; Health.World.LastLifeBroadcastsDefeatedOnce,life-hand angles open (requests/health.md)
-FLOW-32,health,built,Health.DrawnHandFollowsWithoutGameplayDelay; Health.World.FullHealthCatchIsValidAndNotHealing,
-FLOW-33,health,built,Health.DamageScaleByDefenseRank; Health.DamageOverflowCarriesAcrossLives,
-FLOW-34,flow,built,Flow.TitleStartsPlaying; Flow.StartAndPauseDesignRetained,
-FLOW-35,flow,built,Flow.PauseCycle; Flow.World.MenuBlocksGameplayInput,"drifting background, not seen on screen"
-FLOW-36,settings,built,Settings.PagesByMode; Settings.SaveAppliesCurrentPage; Settings.BackDiscardsUnsaved; Settings.SliderRange; Settings.Credits,Slate layout not seen on screen
-FLOW-37,settings,built,Settings.PagesByMode; Settings.SaveAppliesCurrentPage; Settings.BackDiscardsUnsaved; Settings.SliderRange; Settings.Credits,Slate layout not seen on screen
-FLOW-38,settings,built,Settings.PagesByMode; Settings.SaveAppliesCurrentPage; Settings.BackDiscardsUnsaved; Settings.SliderRange; Settings.Credits,Slate layout not seen on screen
-FLOW-39,settings,partial,Settings.Credits,Credit names are placeholders for Josh to supply
-FLOW-40,settings,built,Settings.PagesByMode; Settings.SaveAppliesCurrentPage; Settings.BackDiscardsUnsaved; Settings.SliderRange; Settings.Credits,Slate layout not seen on screen
-FLOW-49,story,not built,,Journey Complete statistics: story branch not on main
-FLOW-41,flow,built,Flow.TitleStartsPlaying; Flow.StartAndPauseDesignRetained,
-FLOW-42,progression,built,Progression.DraftStagesWithoutChangingLiveValues; Flow.PurchaseScreenReturnsToTitle; Flow.World.LeavingPurchaseDiscardsDraft,layout never seen; level-up widget not wired
-FLOW-43,settings,built,Settings.PagesByMode; Settings.SaveAppliesCurrentPage; Settings.BackDiscardsUnsaved; Settings.SliderRange; Settings.Credits,Slate layout not seen on screen
-FLOW-44,settings,partial,Settings.PagesByMode,candidate option names only; contents OPEN in GDD
-FLOW-45,settings,partial,"Settings.* (text size, reduced motion stored)",other screens do not read them; reduced-flash toggle not wired to the VFX subsystem
-ART-03,arena,built,Feedback.World.PresenterStandIn,stand-in box when no art
-ART-04,flow,built,Flow.World.StartGameReachesFight (shared background),
-ART-05,visuals,blocked,,"visual direction/brief; art below the quality bar, no art_loop pass"
-ART-06,visuals,blocked,,"visual direction/brief; art below the quality bar, no art_loop pass"
-ART-07,visuals,blocked,,"visual direction/brief; art below the quality bar, no art_loop pass"
-ANIM-02,visuals,partial,Feedback.PresenterStateCoverage,stand-ins only
-ANIM-03,visuals,partial,Feedback.PresenterStateCoverage; Feedback.PresenterStateMapping,every Ella state has a stand-in shape; no art
-ANIM-04,visuals,partial,Feedback.World.ArtSwapKeepsCollision,collision stays fixed; no art
-ANIM-05,visuals,blocked,,"spell art, no passing art"
-ANIM-06,visuals,partial,Feedback.World.KeeperStandIn,stand-in box; keeper_idle_PH placeholder
-ANIM-07,visuals,blocked,,"keeper animation art, no passing art"
-ANIM-08,visuals,partial,Feedback.EnemyPresenterCoverage; Feedback.World.EnemyStandIn,stand-ins
-ART-08,visuals,blocked,,"UI art, no passing art"
-ART-09,visuals,partial,Health.ClockHudInsideSixteenByNineView,"C++ canvas HUD, no produced art"
-ANIM-09,visuals,partial,Feedback.CueMapping,8 cues mapped and sourced; LevelUp uasset not imported; other P0 sounds not made
-ANIM-10,visuals,blocked,,asset family acceptance needs passing art and a critic
-ART-10,visuals,partial,Feedback.EnemyPresenterCoverage,stand-ins
-BG-02,visuals,partial,Feedback.BackdropLoop,stand-in panels
-BG-03,visuals,partial,Feedback.BackdropLoop; Feedback.World.BackdropLayers,"stand-in parallax layers, no art"
-BG-04,visuals,partial,Feedback.BackdropLoop; Feedback.World.BackdropLayers,"stand-in parallax layers, no art"
-BG-05,visuals,partial,Feedback.BackdropLoop; Feedback.World.BackdropLayers,"stand-in parallax layers, no art"
-BG-06,visuals,partial,Feedback.BackdropLoop; Feedback.World.BackdropLayers,"stand-in parallax layers, no art"
-VFX-02,visuals,partial,Feedback.VfxRules,effect specs; no Niagara/flipbook delivery
-VFX-03,visuals,partial,Feedback.VfxMapping; Feedback.World.VfxStandIn,sphere stand-ins
-VFX-04,visuals,partial,Feedback.VfxMapping; Feedback.World.VfxStandIn,sphere stand-ins
-VFX-05,visuals,partial,Feedback.VfxMapping; Feedback.World.VfxStandIn,sphere stand-ins
-VFX-06,visuals,built,Feedback.VfxRules; Feedback.World.VfxLayersLightLimits,
-VFX-07,visuals,partial,Feedback.World.VfxLayersLightLimits,"point-light stand-in, no lit material"
-VFX-08,visuals,partial,Feedback.World.VfxLayersLightLimits,"point-light stand-in, no lit material"
-VFX-09,visuals,built,Feedback.VfxRules; Feedback.World.VfxLayersLightLimits,
-VFX-10,visuals,built,Feedback.VfxRules; Feedback.World.VfxLayersLightLimits,reduced-flash toggle not wired from Settings
-VFX-11,visuals,blocked,,acceptance needs real VFX and a playtest
-CORE-04,move,built,tools/module_check.py,
-CORE-05,move,built,Move.StateLockWaitsForNeutral; Move.World.LockStopsMotionAndFire,
-CORE-06,arena,partial,Feedback.BuildIdentityRecord,Revision and asset-manifest fields not wired to BUILD_INFO
+id,area,status,evidence,note,owner
+FLOW-02,flow,built,Flow.TitleStartsPlaying; Flow.World.StartGameReachesFight; Flow.World.DirectorsCutReachesSameFight,,
+FLOW-03,flow,built,Flow.TutorialPauseSkip; Flow.World.TutorialFirstStartSkippable,tracking/replay left OPEN in GDD,
+FLOW-04,flow,built,Flow.WinStoryThenCredits; Flow.World.EncounterCompletedReachesCredits,Credits carry placeholder names for Josh to supply,
+MOVE-04,move,built,Move.DefaultBindings; Move.World.InputAssetsBuilt,hardware input not run,
+MOVE-05,move,built,Move.DefaultBindings; Move.World.InputAssetsBuilt,hardware input not run,
+MOVE-06,move,built,Move.DefaultBindings; Move.World.InputAssetsBuilt,hardware input not run,
+MOVE-07,move,built,Move.DefaultBindings; Move.World.InputAssetsBuilt,hardware input not run,
+MOVE-08,flow,built,Flow.MenuInputs; Move.DefaultBindings,"spell cycle in Move, pause/retry keys in Flow",
+MOVE-09,flow,built,Flow.MenuInputs,,
+MOVE-10,settings,built,Settings.RemapRebuildsMappingContext; Move.World.SavedRemapReachesLiveContext,no on-screen check of the remap UI,
+MOVE-11,move,built,Move.NoDirectSteering; Move.StateSpeedsAndTrim,,
+MOVE-12,move,built,Move.World.FireIsUnlimited; Move.SpellAvailability,,
+MOVE-13,move,built,Move.ActionRules; Move.World.AbsorbFallAndFreeFall,,
+MOVE-14,move,built,Move.World.ShootFallFiresRightOnlyWhileDropping,,
+MOVE-15,move,built,Move.HopDashTuned,hop protection in Motor,
+MOVE-16,move,built,Move.World.ControlsSameInBothModes,,
+MOVE-17,settings,built,Settings.RemapRebuildsMappingContext; Move.World.SavedRemapReachesLiveContext,no on-screen check of the remap UI,
+MOVE-18,move,built,Move.World.ControlsSameInBothModes,,
+MOVE-19,move,built,Move.StateLockWaitsForNeutral; Move.ActionRules,,
+MOVE-20,move,built,Move.StateLockWaitsForNeutral; Move.ActionRules,,
+MOVE-21,move,built,Move.Baseline; Move.StateSpeedsAndTrim; Move.HopDashTuned,Hop direction is a default awaiting Josh,
+SURV-05,health,built,Health.ThreeHitsCostALife; Health.World.PostHitProtectionBlocksSecondHit,,
+UMB-05,move,built,Move.Baseline; Move.World.LiftScalesWithHealth; Health.World.YellowDuringAbsorbFallHealsAndIsConsumed,,
+WIND-03,arena,partial,Field.World.BroadcastsEnterExit; Move.World.RideCurrentFromEvents,"regressed from built: AWindCurrent sets TargetId to the pawn actor name, Motor accepts only Ella, so no current moves Ella in play (requests/enemies.md, not applied)",ORPHAN
+MOVE-22,move,built,Move.WindRideAndDecay; Move.World.RideCurrentFromEvents,,
+COM-05,move,built,Move.SpellAvailability; Move.SpellBaseline,,
+COM-06,move,built,Move.SpellBurstRules; Move.World.SmallBlastBurst; Move.World.Com06OffClearsBeamAndBursts,burst count 1-5 is tuning only; no in-game control changes it,
+COM-07,move,built,Move.World.StreamBeamActor; Move.World.StreamBeamWallAtMuzzle,AStreamBeamActor beam; beam art is a placeholder cube,
+COM-08,move,built,Move.SpellVolleys; Move.World.SpellSelectionAndFire,,
+COM-09,move,built,Move.SpellVolleys; Move.World.SpellSelectionAndFire,,
+COM-10,move,built,Move.SpellAvailability; Move.SpellBaseline,,
+COM-11,move,built,Move.SpellAvailability; Move.SpellBaseline,,
+FLOW-05,progression,built,Progression.RunScalingMatchesOracle; Progression.World.OnlyAWonRunAdvancesScaling,,
+FLOW-06,progression,built,Progression.AllStatsMaxedTriggersFinalHour,,
+FLOW-07,progression,built,Progression.LevelCheckpointRetryKeepsXpAndRanks; Progression.BossCheckpointRollsBackCoherently,,
+FLOW-08,progression,built,Progression.QuitReloadRestoresLastCheckpoint,,
+FLOW-09,keeper,built,Keeper.RetryRestoresPhaseCheckpoint; Keeper.World.RetryRestoresPhaseCheckpointWithThreeLives; Health.World.CheckpointRetryRestoresFullHealthAndLives,,
+FLOW-10,progression,built,Progression.WinKeepsGrowthAndCountsOnce,,
+FLOW-11,progression,built,Progression.PurchaseVersusReallocation,,
+FLOW-12,progression,built,Progression.World.LevelRetryKeepsXpAndRewardsAgain,,
+FLOW-13,progression,built,Progression.World.BossRetryRollsBackXpAndPartsPayAgain,wing XP per part is a default,
+FLOW-14,progression,built,Persistence.RoundTrip; Progression.World.StartGameGivesNoXp,,
+FLOW-15,progression,built,Progression.XpCurveMatchesOracle,,
+FLOW-16,progression,built,Progression.UnlockScheduleMatchesOracle,,
+SURV-06,progression,built,Progression.RankValues; Progression.CommitIsAtomicAndGated,,
+SURV-07,health,built,Health.HealingActiveFirstThenReserves,,
+FLOW-17,progression,built,Progression.World.PurchaseNeedsContext,,
+FLOW-18,progression,built,Progression.PurchaseVersusReallocation,,
+FLOW-19,progression,built,Progression.KillXpTable; Progression.World.KillsAwardXpAndLevels,,
+FLOW-20,progression,built,Progression.World.RealEnemyAndMillKillsPayXp; Progression.World.KeeperEventStringsDriveXpAndCheckpoints,,
+FLOW-21,progression,built,Progression.RunScalingMatchesOracle,,
+FLOW-22,progression,built,Persistence.CorruptMainFallsBackToBackup; Persistence.TwoCorruptCopiesBlock; Progression.World.ProfileSurvivesRelaunch,,
+FLOW-23,progression,built,Progression.DeveloperFixtureLevels; Progression.World.ShadowProgressNeverTouchesTheProfile,,
+OWL-06,keeper,built,Keeper.PhaseGating; Keeper.World.PhaseAdvancesWhenItsPartsBreak,,
+OWL-07,keeper,built,Keeper.* suite (34 tests),contract is the sum of OWL-06..35,
+OWL-08,keeper,built,Keeper.BaselineHp,,
+OWL-09,keeper,built,Keeper.PhaseGating; Keeper.WingBreakAdvancesToMechanisms,,
+OWL-10,keeper,built,Keeper.RetryRestoresPhaseCheckpoint,,
+OWL-11,keeper,built,Keeper.RedPressure,,
+OWL-12,keeper,built,Keeper.RedIsReducedDuringPhysicalActivity,,
+OWL-13,keeper,built,Keeper.YellowPackets,,
+OWL-14,keeper,partial,Keeper.YellowPackets,data and contract tested; red/yellow packets are engine cubes; owl-bolt art pending,artshots
+OWL-15,keeper,built,Keeper.GustLocksBandAndStopsWithWings; Keeper.GustDamagesAndPushesOnce,gust push direction is a default,
+OWL-16,keeper,built,Keeper.GustLocksBandAndStopsWithWings; Keeper.GustDamagesAndPushesOnce,gust push direction is a default,
+OWL-17,keeper,built,Keeper.GustLocksBandAndStopsWithWings; Keeper.GustDamagesAndPushesOnce,gust push direction is a default,
+OWL-18,keeper,built,Keeper.TalonWarnsStrikesAndRearms; Keeper.TalonWarningDoesNoDamage,,
+OWL-19,keeper,built,Keeper.TalonWarnsStrikesAndRearms; Keeper.TalonWarningDoesNoDamage,,
+OWL-20,keeper,built,Keeper.TalonWarnsStrikesAndRearms; Keeper.TalonWarningDoesNoDamage,,
+OWL-21,keeper,built,Keeper.ChainHeadDamagesOncePerCast; Keeper.MiddleCurveSignFollowsSerial,,
+OWL-22,keeper,built,Keeper.ChainHeadDamagesOncePerCast; Keeper.MiddleCurveSignFollowsSerial,,
+OWL-23,keeper,built,Keeper.ChainHeadDamagesOncePerCast; Keeper.MiddleCurveSignFollowsSerial,,
+OWL-24,keeper,built,Keeper.ChainHeadDamagesOncePerCast; Keeper.MiddleCurveSignFollowsSerial,,
+OWL-25,keeper,built,Keeper.ChainHeadDamagesOncePerCast; Keeper.MiddleCurveSignFollowsSerial,,
+OWL-26,keeper,built,Keeper.RearTwoStageHasSafePause,,
+OWL-27,keeper,built,Keeper.RearTwoStageHasSafePause,,
+OWL-28,keeper,built,Keeper.ClockDoubleBeatRepeatsPaths,,
+OWL-29,keeper,built,Keeper.ClockOpeningWindowAndRecovery; Keeper.FinalExposureCycle,,
+OWL-30,keeper,built,Keeper.BreakStunCancelsPhysicalMove,,
+OWL-31,keeper,built,Keeper.ClockHitStartsSlowAndEyeThenBlackout,,
+OWL-32,keeper,built,Keeper.ClockHitStartsSlowAndEyeThenBlackout,,
+OWL-33,keeper,built,Keeper.SlowStretchesWorldTimersNotClockTimers,,
+OWL-34,keeper,built,Keeper.PhysicalSchedulerSerialisesMoves,,
+OWL-35,keeper,built,Keeper.FinalClockHitEndsFight; Keeper.World.FinalClockHitEndsInSuccess,,
+FLOW-24,arena,built,Level.RefugesAndLength; Level.NineSlotGrammar,,
+FLOW-25,arena,partial,Level.ContractsReadabilityCatchCheckpoint,rule functions called only from tests; QA-36 measurement not run,playtest
+FLOW-26,arena,blocked,,"GDD row says the design is authored, not implemented; nothing to build until the GDD changes",ORPHAN
+HAZ-02,enemies,built,BrokenMill.GeometryEstimatesMatchGdd; BrokenMill.ActivationAndEngagement; BrokenMill.GuardOneShotPerPass; BrokenMill.TwoWindsNeverSteal,rule layer; Mill wind volumes not spawned,
+HAZ-03,enemies,built,BrokenMill.GeometryEstimatesMatchGdd; BrokenMill.ActivationAndEngagement; BrokenMill.GuardOneShotPerPass; BrokenMill.TwoWindsNeverSteal,rule layer; Mill wind volumes not spawned,
+HAZ-04,enemies,built,BrokenMill.GeometryEstimatesMatchGdd; BrokenMill.ActivationAndEngagement; BrokenMill.GuardOneShotPerPass; BrokenMill.TwoWindsNeverSteal,rule layer; Mill wind volumes not spawned,
+HAZ-05,enemies,built,BrokenMill.GeometryEstimatesMatchGdd; BrokenMill.ActivationAndEngagement; BrokenMill.GuardOneShotPerPass; BrokenMill.TwoWindsNeverSteal,rule layer; Mill wind volumes not spawned,
+HAZ-06,enemies,built,BrokenMill.GeometryEstimatesMatchGdd; BrokenMill.ActivationAndEngagement; BrokenMill.GuardOneShotPerPass; BrokenMill.TwoWindsNeverSteal,rule layer; Mill wind volumes not spawned,
+HAZ-07,enemies,built,BrokenMill.GeometryEstimatesMatchGdd; BrokenMill.ActivationAndEngagement; BrokenMill.GuardOneShotPerPass; BrokenMill.TwoWindsNeverSteal,rule layer; Mill wind volumes not spawned,
+HAZ-08,enemies,built,BrokenMill.GeometryEstimatesMatchGdd; BrokenMill.FiringWindowsMatchGdd; BrokenMill.EmissionCountsAndDelayedImpact,arithmetic only,
+HAZ-09,enemies,built,BrokenMill.GeometryEstimatesMatchGdd; BrokenMill.FiringWindowsMatchGdd; BrokenMill.EmissionCountsAndDelayedImpact,arithmetic only,
+HAZ-10,enemies,built,BrokenMill.GeometryEstimatesMatchGdd; BrokenMill.FiringWindowsMatchGdd; BrokenMill.EmissionCountsAndDelayedImpact,arithmetic only,
+HAZ-11,enemies,built,BrokenMill.GeometryEstimatesMatchGdd; BrokenMill.FiringWindowsMatchGdd; BrokenMill.EmissionCountsAndDelayedImpact,arithmetic only,
+HAZ-12,enemies,built,BrokenMill.GeometryEstimatesMatchGdd; BrokenMill.FiringWindowsMatchGdd; BrokenMill.EmissionCountsAndDelayedImpact,arithmetic only,
+HAZ-13,enemies,built,BrokenMill.GeometryEstimatesMatchGdd; BrokenMill.FiringWindowsMatchGdd; BrokenMill.EmissionCountsAndDelayedImpact,arithmetic only,
+HAZ-14,enemies,partial,BrokenMill.World.GuardChecksWithRealElla; BrokenMill.World.WindCarriesEllaPastOneShotPerPass,"real Ella and Motor now; test broadcasts wind with TargetId=Ella to dodge the WIND-03 TargetId bug, so real wind is unproven",ORPHAN
+HAZ-15,enemies,partial,BrokenMill.World.GuardChecksWithRealElla; BrokenMill.World.WindCarriesEllaPastOneShotPerPass,free-rise miss case and rescue envelope at minimum lift not tested; same wind TargetId workaround,ORPHAN
+HAZ-16,enemies,not built,,was blocked on a human run; Josh: automated playtest replaces it; no playtest-status.md on main yet,playtest
+HAZ-17,enemies,built,BrokenMill.ShotLogAndPoolGate,,
+HAZ-18,enemies,partial,BrokenMill.World.RoomFiresOneShotAndDies,collision-aligned cube proxies; no wind-band art passed (artcal fixing wind calibration),artshots
+CAM-03,arena,built,Arena.World.CameraAndAnchors; Arena.BackgroundLoopWraps,,
+CAM-04,arena,partial,Level.ContractsReadabilityCatchCheckpoint,rule functions only; QA-36 calibration measurement not run,playtest
+CAM-05,arena,built,Level.ClearanceAndInterface,,
+CAM-06,arena,built,Level.ClearanceAndInterface,,
+CAM-07,arena,partial,Level.ContractsReadabilityCatchCheckpoint,"rule functions only; the route spawns no wind currents, so catch flow cannot be measured yet",playtest
+CAM-08,arena,built,Level.CameraLeadAndReveal; Level.World.CameraFollowsAndCheckpoints,level director tick now calls FollowEllaX; 1 s cue target is a GDD proposal,
+HAZ-19,enemies,built,Trap.* ; Trap.World.EachTrapHurtsOnContact,,
+HAZ-20,enemies,built,Trap.* ; Trap.World.EachTrapHurtsOnContact,,
+HAZ-21,enemies,built,Trap.* ; Trap.World.EachTrapHurtsOnContact,Motor does not read bellows push yet,
+HAZ-22,enemies,built,Trap.* ; Trap.World.EachTrapHurtsOnContact,,
+HAZ-23,enemies,built,Trap.PressureContract,,
+COM-12,enemies,built,Enemy.World.GenderChangesNoMechanics; Enemy.World.FiresConfiguredColour,,
+COM-13,enemies,built,Enemy.World.GenderChangesNoMechanics; Enemy.World.FiresConfiguredColour,,
+FLOW-46,enemies,built,Enemy.ColorRatioTwoRedToOneYellow,,
+HAZ-41,arena,built,Level.GroundContainment,,
+FLOW-47,arena,built,Level.RefugesAndLength; Level.NineSlotGrammar,,
+COM-14,enemies,built,Enemy.ProfilesMatchGdd; Enemy.BrainCycle; Enemy.World.DiesAtZeroHp,,
+COM-15,enemies,built,Enemy.ProfilesMatchGdd; Enemy.BrainCycle; Enemy.World.DiesAtZeroHp,,
+COM-16,enemies,built,Enemy.ProfilesMatchGdd; Enemy.BrainCycle; Enemy.World.DiesAtZeroHp,,
+COM-17,enemies,built,Enemy.CourierPacketLifecycle; Enemy.World.CourierWithdrawsAndRetryRestores,,
+COM-18,enemies,built,Enemy.FiringWindowIsFixedRight,,
+HAZ-24,arena,built,Level.CatalogueHas24Variants,,
+HAZ-25,arena,partial,Level.CatalogueHas24Variants; Level.World.RouteSpawnsNineChunks,"route spawns generic floor/column/trap/enemy cubes per variant; no wind currents and no chunk-specific layout (bridges, shelves, passages)",ORPHAN
+HAZ-26,arena,partial,Level.CatalogueHas24Variants; Level.World.RouteSpawnsNineChunks,"route spawns generic floor/column/trap/enemy cubes per variant; no wind currents and no chunk-specific layout (bridges, shelves, passages)",ORPHAN
+HAZ-27,arena,partial,Level.CatalogueHas24Variants; Level.World.RouteSpawnsNineChunks,"route spawns generic floor/column/trap/enemy cubes per variant; no wind currents and no chunk-specific layout (bridges, shelves, passages)",ORPHAN
+HAZ-28,arena,partial,Level.CatalogueHas24Variants; Level.World.RouteSpawnsNineChunks,"route spawns generic floor/column/trap/enemy cubes per variant; no wind currents and no chunk-specific layout (bridges, shelves, passages)",ORPHAN
+HAZ-29,arena,partial,Level.CatalogueHas24Variants; Level.World.RouteSpawnsNineChunks,"route spawns generic floor/column/trap/enemy cubes per variant; no wind currents and no chunk-specific layout (bridges, shelves, passages)",ORPHAN
+HAZ-30,arena,partial,Level.CatalogueHas24Variants; Level.World.RouteSpawnsNineChunks,"route spawns generic floor/column/trap/enemy cubes per variant; no wind currents and no chunk-specific layout (bridges, shelves, passages)",ORPHAN
+HAZ-31,arena,partial,Level.CatalogueHas24Variants; Level.World.RouteSpawnsNineChunks,"route spawns generic floor/column/trap/enemy cubes per variant; no wind currents and no chunk-specific layout (bridges, shelves, passages)",ORPHAN
+HAZ-32,arena,partial,Level.CatalogueHas24Variants; Level.World.RouteSpawnsNineChunks,"route spawns generic floor/column/trap/enemy cubes per variant; no wind currents and no chunk-specific layout (bridges, shelves, passages)",ORPHAN
+HAZ-33,arena,partial,Level.CatalogueHas24Variants; Level.World.RouteSpawnsNineChunks,"route spawns generic floor/column/trap/enemy cubes per variant; no wind currents and no chunk-specific layout (bridges, shelves, passages)",ORPHAN
+HAZ-34,arena,partial,Level.CatalogueHas24Variants; Level.World.RouteSpawnsNineChunks,"route spawns generic floor/column/trap/enemy cubes per variant; no wind currents and no chunk-specific layout (bridges, shelves, passages)",ORPHAN
+HAZ-35,arena,partial,Level.CatalogueHas24Variants; Level.World.RouteSpawnsNineChunks,"route spawns generic floor/column/trap/enemy cubes per variant; no wind currents and no chunk-specific layout (bridges, shelves, passages)",ORPHAN
+HAZ-36,arena,partial,Level.CatalogueHas24Variants; Level.World.RouteSpawnsNineChunks,"route spawns generic floor/column/trap/enemy cubes per variant; no wind currents and no chunk-specific layout (bridges, shelves, passages)",ORPHAN
+HAZ-37,arena,built,Level.NineSlotGrammar,,
+HAZ-38,arena,partial,Level.ValidateRejectsBadRoutes,bBypass flag only; no bypass geometry or test that reads a bypass path,ORPHAN
+HAZ-39,arena,partial,Level.FallbackAndAvoidRepeat; Level.SameSeedSameRoute,seed 1001 fallback matches the GDD fixture; 1002/1003 proposals not checked,ORPHAN
+HAZ-40,arena,built,Level.FallbackAndAvoidRepeat; Level.SameSeedSameRoute,,
+FLOW-27,arena,built,Level.RefugesAndLength; Level.NineSlotGrammar,,
+FLOW-28,arena,partial,Level.CheckpointsAndHandoff; Flow.World.RetryOnRoutePlacesAtLastCheckpoint; Flow.World.RetryAfterHandoffKeepsEllaInArena,checkpoints and Keeper handoff built; health carry across route checkpoints untested (Health lane); QA-36 not run,playtest
+FLOW-29,progression,built,Progression.World.PurchaseNeedsContext,,
+NAR-02,story,built,Story.StartGameHasNoStory; Story.InPlayCues; Story.World.ReactsToBus,text captions only; voice optional later,
+NAR-03,story,built,Story.CueTable; story_check PASS,"blind story critic failed the ""Mother:"" label; logged as critic defect (requests/storyship.md)",
+NAR-04,story,partial,Story.OpeningOncePerRun; Story.SkipRules,"Flow never calls IsSkipPressForStory/HandleSkipPressed, so the start press is not consumed and skip is not routed (requests/story.md 3)",ORPHAN
+NAR-05,story,partial,Story.InPlayCues,caption stand-in; the light shaft and umbra visual is not built,ORPHAN
+NAR-06,story,partial,Story.ClueOnPhaseStartedWings,caption stand-in; clock-hand and bronze shaft visual clue needs Keeper art,artkeeper
+NAR-07,story,partial,Story.EndingSequence; Flow.WinStoryThenCredits,"Flow and Story run two separate ending/credits timelines; ShowDirectorsCutEnding never called (requests/story.md 2, 7)",ORPHAN
+NAR-08,story,built,Story.OpeningOncePerRun; Story.LateModeSelectedShowsOpeningOnce,"retry sends no ModeSelected, new run sends one",
+FLOW-30,health,built,Health.ClockHudInsideSixteenByNineView; Health.ClockHudTextAtLeast18Px,HUD not seen on screen,
+FLOW-48,progression,partial,Progression.RingFillAndMax,UXpRingWidget drawn and shown in Director's Cut; no test reads the drawing; look not passed,artui
+FLOW-31,health,built,Health.LifeHandAdvancesTowardXIIAndEndsAtXII; Health.World.LastLifeBroadcastsDefeatedOnce,life-hand angles open (requests/health.md),
+FLOW-32,health,built,Health.DrawnHandFollowsWithoutGameplayDelay; Health.World.FullHealthCatchIsValidAndNotHealing,,
+FLOW-33,health,built,Health.DamageScaleByDefenseRank; Health.DamageOverflowCarriesAcrossLives,,
+FLOW-34,flow,built,Flow.TitleStartsPlaying; Flow.StartAndPauseDesignRetained,,
+FLOW-35,flow,built,Flow.PauseCycle; Flow.World.MenuBlocksGameplayInput,"drifting background, not seen on screen",
+FLOW-36,settings,built,Settings.PagesByMode; Settings.SaveAppliesCurrentPage; Settings.BackDiscardsUnsaved; Settings.SliderRange; Settings.Credits,Slate layout not seen on screen,
+FLOW-37,settings,built,Settings.PagesByMode; Settings.SaveAppliesCurrentPage; Settings.BackDiscardsUnsaved; Settings.SliderRange; Settings.Credits,Slate layout not seen on screen,
+FLOW-38,settings,built,Settings.PagesByMode; Settings.SaveAppliesCurrentPage; Settings.BackDiscardsUnsaved; Settings.SliderRange; Settings.Credits,Slate layout not seen on screen,
+FLOW-39,settings,blocked,Settings.Credits,"credit names and roles are ""[... Josh to supply]"" in FlowStoryText.cpp",Josh
+FLOW-40,settings,built,Settings.PagesByMode; Settings.SaveAppliesCurrentPage; Settings.BackDiscardsUnsaved; Settings.SliderRange; Settings.Credits,Slate layout not seen on screen,
+FLOW-49,story,partial,Story.JourneyStatistics,"Journey Complete shows after Story's own timed credits, not Flow's; Try Again / Main Menu buttons not bound (requests/story.md 2)",ORPHAN
+FLOW-41,flow,built,Flow.TitleStartsPlaying; Flow.StartAndPauseDesignRetained,,
+FLOW-42,progression,built,Progression.DraftStagesWithoutChangingLiveValues; Flow.PurchaseScreenReturnsToTitle; Flow.World.LeavingPurchaseDiscardsDraft,layout never seen; level-up widget not wired,
+FLOW-43,settings,built,Settings.PagesByMode; Settings.SaveAppliesCurrentPage; Settings.BackDiscardsUnsaved; Settings.SliderRange; Settings.Credits,Slate layout not seen on screen,
+FLOW-44,settings,partial,Settings.PagesByMode,candidate option names only; contents OPEN in GDD,ORPHAN
+FLOW-45,settings,partial,Settings.World.ReducedFlashReachesVfx,reduced flash now wired; text scale and reduced motion not read by HUD or Flow screens (requests/settings.md 6),ORPHAN
+ART-03,arena,built,Feedback.World.PresenterStandIn,stand-in box when no art,
+ART-04,flow,built,Flow.World.StartGameReachesFight (shared background),,
+ART-05,visuals,partial,,no art-loop pass on main; Ella mode readability is the artella pieces,artella
+ART-06,visuals,partial,,no art-loop pass on main; overall look carried by the scene pieces,artscene
+ART-07,visuals,partial,,camera-scale review and target resolutions/aspect not in any art brief,ORPHAN
+ANIM-02,visuals,partial,Feedback.PresenterStateCoverage,"stand-ins only; family contract (roots, sockets, transitions, missing-asset fallback) in no brief",ORPHAN
+ANIM-03,visuals,partial,Feedback.PresenterStateCoverage; Feedback.PresenterStateMapping,"stand-ins; artella covers 4 static states only, not hop/cartwheel/hit/repair animation",artella
+ANIM-04,visuals,partial,Feedback.World.ArtSwapKeepsCollision,collision stays fixed; health-condition art states (100..0) in no brief,ORPHAN
+ANIM-05,visuals,partial,,"was blocked; option A removed the wait. Placeholder beam and spheres; artshots has wand-shot only, not four weapon families",artshots
+ANIM-06,visuals,partial,Feedback.World.KeeperStandIn,stand-in box; keeper_idle_PH placeholder,artkeeper
+ANIM-07,visuals,partial,,was blocked; stand-in shares hit geometry; no Keeper art passed,artkeeper
+ANIM-08,visuals,partial,Feedback.EnemyPresenterCoverage; Feedback.World.EnemyStandIn,stand-ins; enemy human art in no brief (artshots covers wind fields only),ORPHAN
+ART-08,visuals,partial,,was blocked; flat C++ UI; artui loops every screen,artui
+ART-09,visuals,partial,Health.ClockHudInsideSixteenByNineView,C++ canvas clock HUD; no produced art,artui
+ANIM-09,visuals,partial,Feedback.CueMapping,cues mapped; all 11 sound pieces on main are tracked placeholders after the audio critic failed them,audio
+ANIM-10,visuals,not built,,"no family has gone through source-export-import-reimport-camera review; art loop covers import, not reimport/game-camera review",ORPHAN
+ART-10,visuals,partial,Feedback.EnemyPresenterCoverage,stand-ins; no enemy art brief,ORPHAN
+BG-02,visuals,partial,Feedback.BackdropLoop,stand-in panels,artscene
+BG-03,visuals,partial,Feedback.BackdropLoop; Feedback.World.BackdropLayers,stand-in parallax layers,artscene
+BG-04,visuals,partial,Feedback.BackdropLoop; Feedback.World.BackdropLayers,stand-in parallax layers,artscene
+BG-05,visuals,partial,Feedback.BackdropLoop; Feedback.World.BackdropLayers,stand-in parallax layers,artscene
+BG-06,visuals,partial,Feedback.BackdropLoop; Feedback.World.BackdropLayers,"stand-in layers; clock/water in artscene, wind bands in artshots",artscene
+VFX-02,visuals,partial,Feedback.VfxRules,effect specs; no Unreal VFX assets; no VFX brief,ORPHAN
+VFX-03,visuals,partial,Feedback.VfxMapping; Feedback.World.VfxStandIn,sphere stand-ins; four-weapon VFX in no brief (artshots wand-shot only),ORPHAN
+VFX-04,visuals,partial,Feedback.VfxMapping; Feedback.World.VfxStandIn,sphere stand-ins; owl-bolt and bolt-hit pieces in artshots,artshots
+VFX-05,visuals,partial,Feedback.VfxMapping; Feedback.World.VfxStandIn,sphere stand-ins; Keeper VFX in no brief,ORPHAN
+VFX-06,visuals,built,Feedback.VfxRules; Feedback.World.VfxLayersLightLimits,,
+VFX-07,visuals,partial,Feedback.World.VfxLayersLightLimits,"point-light stand-in, no lit material",ORPHAN
+VFX-08,visuals,partial,Feedback.World.VfxLayersLightLimits,point-light stand-in; lit material policy not resolved,ORPHAN
+VFX-09,visuals,built,Feedback.VfxRules; Feedback.World.VfxLayersLightLimits,,
+VFX-10,visuals,built,Feedback.VfxRules; Feedback.World.VfxLayersLightLimits,reduced-flash toggle not wired from Settings,
+VFX-11,visuals,not built,,was blocked; acceptance needs real VFX; nothing to accept yet,ORPHAN
+CORE-04,move,built,tools/module_check.py,,
+CORE-05,move,built,Move.StateLockWaitsForNeutral; Move.World.LockStopsMotionAndFire,,
+CORE-06,arena,partial,Level.BuildIdentityRevisionAndManifest,Revision and AssetManifest fields read; packaging does not write asset_manifest= to BUILD_INFO (requests/level.md 2),ORPHAN
