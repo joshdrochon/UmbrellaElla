@@ -96,6 +96,7 @@ When the same check fails twice, or a loop goes flat (2 rounds, same gap, no bet
   Spend OK is given for all seven art loops (Nov 12, cap in IMAGE_SPEND_CAP_USD). Load the key in the same command as the
   call, never on its own: `set -a; . ~/.umbrella-ella.env; set +a; python3 tools/assetgen.py image ...` (the file's lines
   have no `export`, so a plain `source` doesn't reach python). Never echo, cat or grep the file.
+  Tiers: default is `--tier draft` (flash). A final candidate must pass `--tier final --image-size 2K` (or the size the card names).
 
 ## Unreal commands (Mac; many workers share this machine, so always through the slot lock)
     tools/build/ue_slot.sh tools/ue/build.sh                 # compile (editor target); must end "build exit: 0"
