@@ -1,0 +1,87 @@
+{
+ "frames": 24,
+ "frame": [
+  964,
+  545
+ ],
+ "pivot": "bottom-centre",
+ "anchor": [
+  540,
+  531
+ ],
+ "fps": 7.78,
+ "cut": "video frames, chroma-keyed, feet-anchor registered",
+ "outputs": [
+  "pipeline/art/proof/videoframes/ella-transition/ella-transition_N24_00.png",
+  "pipeline/art/proof/videoframes/ella-transition/ella-transition_N24_01.png",
+  "pipeline/art/proof/videoframes/ella-transition/ella-transition_N24_02.png",
+  "pipeline/art/proof/videoframes/ella-transition/ella-transition_N24_03.png",
+  "pipeline/art/proof/videoframes/ella-transition/ella-transition_N24_04.png",
+  "pipeline/art/proof/videoframes/ella-transition/ella-transition_N24_05.png",
+  "pipeline/art/proof/videoframes/ella-transition/ella-transition_N24_06.png",
+  "pipeline/art/proof/videoframes/ella-transition/ella-transition_N24_07.png",
+  "pipeline/art/proof/videoframes/ella-transition/ella-transition_N24_08.png",
+  "pipeline/art/proof/videoframes/ella-transition/ella-transition_N24_09.png",
+  "pipeline/art/proof/videoframes/ella-transition/ella-transition_N24_10.png",
+  "pipeline/art/proof/videoframes/ella-transition/ella-transition_N24_11.png",
+  "pipeline/art/proof/videoframes/ella-transition/ella-transition_N24_12.png",
+  "pipeline/art/proof/videoframes/ella-transition/ella-transition_N24_13.png",
+  "pipeline/art/proof/videoframes/ella-transition/ella-transition_N24_14.png",
+  "pipeline/art/proof/videoframes/ella-transition/ella-transition_N24_15.png",
+  "pipeline/art/proof/videoframes/ella-transition/ella-transition_N24_16.png",
+  "pipeline/art/proof/videoframes/ella-transition/ella-transition_N24_17.png",
+  "pipeline/art/proof/videoframes/ella-transition/ella-transition_N24_18.png",
+  "pipeline/art/proof/videoframes/ella-transition/ella-transition_N24_19.png",
+  "pipeline/art/proof/videoframes/ella-transition/ella-transition_N24_20.png",
+  "pipeline/art/proof/videoframes/ella-transition/ella-transition_N24_21.png",
+  "pipeline/art/proof/videoframes/ella-transition/ella-transition_N24_22.png",
+  "pipeline/art/proof/videoframes/ella-transition/ella-transition_N24_23.png"
+ ],
+ "strip": "pipeline/art/proof/videoframes/ella-transition/ella-transition_N24_strip.png",
+ "loop": {
+  "indices": [
+   0,
+   2,
+   3,
+   5,
+   6,
+   8,
+   9,
+   11,
+   12,
+   14,
+   15,
+   17,
+   18,
+   20,
+   22,
+   23,
+   25,
+   26,
+   28,
+   29,
+   31,
+   32,
+   34,
+   35
+  ],
+  "mean_step": 22.95,
+  "max_step": 49.78,
+  "last_to_first": 59.22,
+  "loop_ratio": 2.58,
+  "loops": true
+ },
+ "jitter_before": {
+  "max_anchor_step_px": 1.09,
+  "max_height_step_pct": 5.54,
+  "max_anchor_from_first_px": 4.41,
+  "height_range_pct": 18.88
+ },
+ "jitter_after": {
+  "max_anchor_step_px": 0.94,
+  "max_height_step_pct": 5.54,
+  "max_anchor_from_first_px": 0.59,
+  "height_range_pct": 18.88
+ },
+ "source": "pipeline/art/proof/videoframes/ella-transition/ella-transition.mp4"
+}

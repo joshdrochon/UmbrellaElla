@@ -1,0 +1,81 @@
+{
+ "video": "pipeline/art/proof/videoframes/repeater-turn/repeater-turn.mp4",
+ "fps": 12,
+ "source_frames": 48,
+ "loop_end": 47,
+ "end_candidates": {
+  "28": 98.66,
+  "29": 97.66,
+  "30": 94.98,
+  "31": 92.5,
+  "32": 91.16,
+  "33": 91.06,
+  "34": 91.14,
+  "35": 91.39,
+  "36": 91.75,
+  "37": 91.92,
+  "38": 91.92,
+  "39": 91.95,
+  "40": 91.94,
+  "41": 91.95,
+  "42": 91.9,
+  "43": 91.89,
+  "44": 91.94,
+  "45": 91.83,
+  "46": 91.24,
+  "47": 89.19
+ },
+ "jitter_before": {
+  "max_anchor_step_px": 40.26,
+  "max_height_step_pct": 1.48,
+  "max_anchor_from_first_px": 73.75,
+  "height_range_pct": 4.51
+ },
+ "jitter_after": {
+  "max_anchor_step_px": 0.91,
+  "max_height_step_pct": 1.48,
+  "max_anchor_from_first_px": 0.79,
+  "height_range_pct": 4.51
+ },
+ "green_inside_px_max": 0,
+ "sets": {
+  "24": {
+   "strip": "pipeline/art/proof/videoframes/repeater-turn/repeater-turn_N24_strip.png",
+   "gif": "pipeline/art/proof/videoframes/repeater-turn/repeater-turn_N24_preview.gif",
+   "loop": {
+    "indices": [
+     0,
+     2,
+     4,
+     6,
+     8,
+     10,
+     12,
+     14,
+     16,
+     18,
+     20,
+     22,
+     24,
+     26,
+     28,
+     30,
+     32,
+     34,
+     36,
+     38,
+     40,
+     42,
+     44,
+     46
+    ],
+    "mean_step": 34.92,
+    "max_step": 96.89,
+    "last_to_first": 91.24,
+    "loop_ratio": 2.61,
+    "loops": true
+   },
+   "fps": 6.0
+  }
+ }
+}

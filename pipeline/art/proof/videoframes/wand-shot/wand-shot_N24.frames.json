@@ -1,0 +1,87 @@
+{
+ "frames": 24,
+ "frame": [
+  1809,
+  576
+ ],
+ "pivot": "bottom-centre",
+ "anchor": [
+  848,
+  352
+ ],
+ "fps": 12.0,
+ "cut": "video frames, chroma-keyed, feet-anchor registered",
+ "outputs": [
+  "pipeline/art/proof/videoframes/wand-shot/wand-shot_N24_00.png",
+  "pipeline/art/proof/videoframes/wand-shot/wand-shot_N24_01.png",
+  "pipeline/art/proof/videoframes/wand-shot/wand-shot_N24_02.png",
+  "pipeline/art/proof/videoframes/wand-shot/wand-shot_N24_03.png",
+  "pipeline/art/proof/videoframes/wand-shot/wand-shot_N24_04.png",
+  "pipeline/art/proof/videoframes/wand-shot/wand-shot_N24_05.png",
+  "pipeline/art/proof/videoframes/wand-shot/wand-shot_N24_06.png",
+  "pipeline/art/proof/videoframes/wand-shot/wand-shot_N24_07.png",
+  "pipeline/art/proof/videoframes/wand-shot/wand-shot_N24_08.png",
+  "pipeline/art/proof/videoframes/wand-shot/wand-shot_N24_09.png",
+  "pipeline/art/proof/videoframes/wand-shot/wand-shot_N24_10.png",
+  "pipeline/art/proof/videoframes/wand-shot/wand-shot_N24_11.png",
+  "pipeline/art/proof/videoframes/wand-shot/wand-shot_N24_12.png",
+  "pipeline/art/proof/videoframes/wand-shot/wand-shot_N24_13.png",
+  "pipeline/art/proof/videoframes/wand-shot/wand-shot_N24_14.png",
+  "pipeline/art/proof/videoframes/wand-shot/wand-shot_N24_15.png",
+  "pipeline/art/proof/videoframes/wand-shot/wand-shot_N24_16.png",
+  "pipeline/art/proof/videoframes/wand-shot/wand-shot_N24_17.png",
+  "pipeline/art/proof/videoframes/wand-shot/wand-shot_N24_18.png",
+  "pipeline/art/proof/videoframes/wand-shot/wand-shot_N24_19.png",
+  "pipeline/art/proof/videoframes/wand-shot/wand-shot_N24_20.png",
+  "pipeline/art/proof/videoframes/wand-shot/wand-shot_N24_21.png",
+  "pipeline/art/proof/videoframes/wand-shot/wand-shot_N24_22.png",
+  "pipeline/art/proof/videoframes/wand-shot/wand-shot_N24_23.png"
+ ],
+ "strip": "pipeline/art/proof/videoframes/wand-shot/wand-shot_N24_strip.png",
+ "loop": {
+  "indices": [
+   0,
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11,
+   12,
+   13,
+   14,
+   15,
+   16,
+   17,
+   18,
+   19,
+   20,
+   21,
+   22,
+   23
+  ],
+  "mean_step": 55.61,
+  "max_step": 176.51,
+  "last_to_first": 107.75,
+  "loop_ratio": 1.94,
+  "loops": true
+ },
+ "jitter_before": {
+  "max_anchor_step_px": 590.56,
+  "max_height_step_pct": 37.19,
+  "max_anchor_from_first_px": 607.47,
+  "height_range_pct": 50.35
+ },
+ "jitter_after": {
+  "max_anchor_step_px": 0.8,
+  "max_height_step_pct": 37.19,
+  "max_anchor_from_first_px": 0.67,
+  "height_range_pct": 50.35
+ },
+ "source": "pipeline/art/proof/videoframes/wand-shot/wand-shot-trim.mp4"
+}

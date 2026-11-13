@@ -17,6 +17,11 @@ FString UUiArtSubsystem::VisualIdFor(EFlowScreen Screen)
 	return FString::Printf(TEXT("screen:%s"), *StaticEnum<EFlowScreen>()->GetNameStringByValue(static_cast<int64>(Screen)));
 }
 
+bool UUiArtSubsystem::IsScreenArtAllowedOn(EFlowScreen Screen)
+{
+	return !(UmbrellaUiPieceConst::GameplayScreens & UiScreenBit(Screen));
+}
+
 bool UUiArtSubsystem::IsClickThrough() const
 {
 	return Widget.IsValid() && Widget->GetVisibility() == EVisibility::HitTestInvisible;
@@ -62,10 +67,10 @@ void UUiArtSubsystem::ClearPieces()
 	ShownPieces.Reset();
 }
 
-EArtSlotDraw UUiArtSubsystem::DrawPiece(const FString& Visual, EFlowScreen Screen, UTexture2D* Texture)
+EArtSlotDraw UUiArtSubsystem::DrawPiece(const FString& Visual, EFlowScreen Screen, UTexture2D* Texture, EUmbrellaPlayMode Mode)
 {
 	const UmbrellaUiPieceConst::FUiPiece* Piece = FindPiece(Visual);
-	if (!Piece || !(Piece->Screens & UiScreenBit(Screen)) || !IsValid(Texture) || !IsFeatureEnabled(EFeatureId::ART_08) || ShownPieces.Contains(Visual))
+	if (!Piece || (Piece->bDirectorOnly && Mode != EUmbrellaPlayMode::DirectorsCut) || !(Piece->Screens & UiScreenBit(Screen)) || !IsValid(Texture) || !IsFeatureEnabled(EFeatureId::ART_08) || ShownPieces.Contains(Visual))
 	{
 		return EArtSlotDraw::NoTexture;
 	}
@@ -93,7 +98,7 @@ EArtSlotDraw UUiArtSubsystem::DrawPiece(const FString& Visual, EFlowScreen Scree
 	return EArtSlotDraw::Drawn;
 }
 
-void UUiArtSubsystem::ShowPiecesFor(EFlowScreen Screen)
+void UUiArtSubsystem::ShowPiecesFor(EFlowScreen Screen, EUmbrellaPlayMode Mode)
 {
 	ClearPieces();
 	for (const UmbrellaUiPieceConst::FUiPiece& Piece : UmbrellaUiPieceConst::Pieces)
@@ -104,14 +109,15 @@ void UUiArtSubsystem::ShowPiecesFor(EFlowScreen Screen)
 		}
 		const FArtSlotRow* Row = ArtSlot::Find(Piece.Visual);
 		UTexture2D* Texture = Row ? ArtSlot::LoadTexture(*Row) : nullptr;
-		DrawPiece(Piece.Visual, Screen, Texture);
+		DrawPiece(Piece.Visual, Screen, Texture, Mode);
 	}
 }
 
 void UUiArtSubsystem::ShowScreenArt(EFlowScreen Screen, UTexture2D* Texture)
 {
 	ClearScreenArt();
-	if (!IsValid(Texture) || !IsFeatureEnabled(EFeatureId::ART_08))
+	// A full-frame picture never covers the played world (B2: a black screen:Playing stand-in hid the whole game).
+	if (!IsValid(Texture) || !IsFeatureEnabled(EFeatureId::ART_08) || !IsScreenArtAllowedOn(Screen))
 	{
 		return;
 	}
@@ -150,7 +156,7 @@ void UUiArtSubsystem::Tick(float DeltaTime)
 	const FArtSlotRow* Row = ArtSlot::Find(*VisualIdFor(Screen));
 	UTexture2D* Texture = Row ? ArtSlot::LoadTexture(*Row) : nullptr;
 	ShowScreenArt(Screen, Texture);
-	ShowPiecesFor(Screen);
+	ShowPiecesFor(Screen, Controller->GetPlayMode());
 	bHasTarget = true;
 	TargetScreen = Screen;
 }

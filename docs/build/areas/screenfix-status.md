@@ -1,3 +1,6 @@
+B2 CAUSE (Nov 13, confirmed by image): the screen:Playing stand-in T_Screen_Playing_PH (2b624685, source pipeline/art/proof/standins/ui-hud-clock/capture_r16_hud.png) is a screenshot of a black frame with the HUD clock and 'Preparing Shaders (2)'. UUiArtSubsystem::ShowScreenArt draws it full-screen, opaque, above the game on the Playing screen. Same for Resuming. Fix next: no full-screen screen art on gameplay screens.
+B2 cause (Nov 13): NOT the scene panels. ART_05 off (all USceneArtSubsystem panels off) is still 98% black, windowed 640x360 and offscreen 1280x720 (b2-art05off-*.png). Bisecting next. The 20:20 run had no -SmokeQuitAfter, so no smoke hook loaded and it sat on the title.
+
 # screenfix status
 
 ## Done (commits d87b0e50, bff67883, main merged after)
@@ -56,3 +59,25 @@
 - Python failures seen on clean main (per lead, fixed by the hotfix): test_gdd_check x4, test_area terminal question, story strixon. I did not capture per-test IDs: the re-run of `unittest tests.test_gdd_check tests.test_area` hit the 10 min limit and was killed.
 - affected_tests.py slowness filed in docs/build/requests/screenfix.md.
 - Left: merge origin/main when the hotfix lands, then re-paste build and test lines.
+
+## B2 black gameplay (Nov 13, Opus) - in progress
+- Report: Josh, main aa8ca094, visible 1600x900 window: gameplay black, audio plays, clock glitchy top left; menus fine.
+- Cause: not yet confirmed. Waited 20+ min for an engine slot (keeper, settings2, move held all 3). Source diff
+  e99e1856..aa8ca094 read: new world art since the good capture is USceneArtSubsystem (artslots 953ffb4f/642dfc82:
+  bg:atmosphere/land/water/clocks/start-end panels, scene:gameplay-frame at ForegroundY, full view, in front of
+  gameplay) and WorldArtSubsystem; stand-ins 341e49c8 gave those slots `_PH` textures, so the panels now draw
+  (before, no texture = no panel). scene:gameplay-frame has no texture yet, so it does not draw.
+- Next: build main 21f35a27, capture at 1600x900 visible window and 1280x720, then bisect 341e49c8 / 953ffb4f.
+
+## B2 fix (Nov 13, Opus) - done
+- Cause: screen:Playing stand-in T_Screen_Playing_PH was a screenshot of a black frame; UUiArtSubsystem::ShowScreenArt drew it full-screen, opaque, over gameplay. Same for Resuming.
+- Fix (897f3468): screen:Playing and screen:Resuming stand-ins removed (standins.json entries, _PH textures, art-inventory paths); `ShowScreenArt` draws nothing on Playing, Resuming or Tutorial whatever texture is assigned (`UUiArtSubsystem::IsScreenArtAllowedOn`, `UmbrellaUiPieceConst::GameplayScreens`).
+- Test `UmbrellaElla.ScreenFix.World.NoScreenArtOverGameplay`: every gameplay screen shows no art, every menu screen does.
+- Header: commit=a7d2a8e3 engine=5.8.4 config=Development host=mac run=Standalone (editor -game)
+- Build: `build exit: 0  mode=unity  commit=a7d2a8e3...  warnings: 0` (../logs/screenfix-b2fix-build2.log)
+- Break-check: block removed -> `FAIL tests=4 failed=1 ... UmbrellaElla.ScreenFix.World.NoScreenArtOverGameplay` ("Expected 'screen:Playing never covers the played world' to be false", same for Resuming, Tutorial); restored -> pass (../logs/screenfix-b2break-test.log).
+- Tests: `UmbrellaElla.ScreenFix+UmbrellaElla.Feedback+UmbrellaElla.Smoke` `PASS tests=62 failed=0` (../logs/screenfix-b2fix-test2.log).
+- Capture: visible 640x360 window, `-SmokeQuitAfter=20 -SmokeShotFrames=120`: `pipeline/art/proof/screenfix/b2-fixed-windowed.png`.
+  `SMOKE_SHOT at_s=1.4 frames=120 w=640 h=360`; `SMOKE_VIEW map=L_Graybox ... ella_px=128,66 ella_in_frame=1 arena_px=320,180 arena_in_frame=1`;
+  `frame_check: PASS black=0.089 flat=0.088`. Before (b2-main-windowed.png): `frame_check: FAIL black=0.984 flat=0.984`.
+- Seen in the capture, not in this fix: a cream panel with a lilac square at the right of the frame (a stand-in, not black, not full-screen).

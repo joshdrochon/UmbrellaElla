@@ -43,3 +43,90 @@ Shared test helper for other areas: `Private/Tests/Shared/UmbrellaTestWorld.h` (
 
 ## Settings integration (MOVE-17)
 Adapter applies saved bindings in BindInput via ApplySavedBindings (soft dependency on USettingsMenuSubsystem). Test: UmbrellaElla.Move.World.SavedRemapReachesLiveContext. Move tests: 26 pass.
+
+## Clause audit: every `ii` clause for lane move built (Nov 13)
+Each test was proven by breaking its code on purpose: with the code disabled the test FAILED (round 1: all 8 new tests
+failed; round 2: "only Small cycles" and the smoky face), then PASSED with the code restored
+(`TEST_FILTER=UmbrellaElla.Move+Health+UI+Feedback`: 118/118). Rows in `docs/build/clause-proof.csv`; tags set to `proven`.
+
+| Clause | Code | Test |
+|---|---|---|
+| MOVE-15 hop protection blocks damage in Health (+ i: distinct from post-hit) | `Health/UmbrellaHitProtectionSource.h` (interface, motor implements it), `UmbrellaHealthComponent::IsOwnerHitProtected` | `Move.World.HopProtectionBlocksHealthDamage` |
+| COM-06 fold-ready / snap open + pulse / cock / reset tied to emission | `Attack/SpellPresentation` canopy cycle, stepped and pulsed by the emitter | `Move.World.CanopyCycleTiedToEmission` |
+| COM-11 only Small uses fold/open/cock | same | `Move.SmallCanopyCycle` |
+| COM-07 shoulder-braced Stream; COM-11 RegularFall vs ShoulderFall | `SpellPresentationRules::BodyPoseFor`, `UAttackEmitterComponent::GetBodyPose` | `Move.World.SpellBodyPoses` |
+| COM-07 canopy strands converge around a dark body | `SpellPresentationRules::BeamStrands`, strand parts in `AStreamBeamActor` (dark body, no collision) | `Move.World.StreamStrandsConvergeOnDarkBody` |
+| COM-11 locked-weapon UI shows 1/10/20/30 | `SpellPresentationRules::WheelEntries`, wheel drawn by `AUmbrellaHUD` while open | `Move.WheelShowsUnlockLevels` |
+| FLOW-30 bronze/gold, smoky translucent face, etched rim | `ClockHudRules::BuildDialPlan` (smoky face always under the art; etched ring + 48 fine marks) | `Move.ClockDialLook` |
+| FLOW-32 absorbed energy flows into the clock | HUD listens to PlayerHealthChanged `Heal` only; motes from Ella to the clock (`ClockHudRules::StepEnergy/EnergyPosition`) | `Move.World.HealEnergyFlowsIntoClock` |
+
+Lane note: FLOW-30/32 live in `UI/` and `Health/` (health's files); the lead moved those clauses to lane move (9e65976a).
+Open for the presenter (Feedback lane): read `GetBodyPose()` and `GetCanopyPhase()` to pick the RegularFall/ShoulderFall
+and fold/open/cock pictures; nothing draws them on Ella yet. Strands and the wheel are code-built stand-ins, not passed art.
+Prototype defaults (no GDD number): canopy open 0.06 s + cock 0.08 s, 4 strands, energy flow 0.5 s, wheel label "Lv N".
+Not run: on-screen check of the wheel, motes and dial (no canvas in tests).
+
+## Clause audit: first `i` batch (Nov 13)
+Code existed; added proving tests (`Private/Tests/Move/MoveProofTests.cpp`), Move tests 47/47 pass. Not break-tested this batch.
+MOVE-07 arrow trim + right-stick spells, MOVE-19 right stick, MOVE-12/COM-05 all four spells never run out, MOVE-07 fire right while traveling left.
+Left: 46 `i` clauses for lane move in clause-audit.csv.
+
+## Clause audit: `i` batch 2 (Nov 13, Opus)
+12 clauses proven with 9 new tests (`MoveRideCatchProofTests.cpp`, `MoveHealthProofTests.cpp`). Break-tested: each code path
+broken on purpose -> its test FAILED (3/3 and 6/6), restored -> PASS. `TEST_FILTER=UmbrellaElla.Move`: 56/56.
+
+| Clause | Test | Break used |
+|---|---|---|
+| MOVE-20 Absorb/Free fall end Ride | `Move.World.AbsorbAndFreeFallDisengageRide` | CanRide allowed any non-Shoot state |
+| MOVE-20 remap keeps four combos | `Move.World.RemapKeepsFourCombinations` | saved remap not applied to IMC |
+| UMB-05 no ammo/energy; repair not disabled; COM-05 no charge | `Move.World.CatchGivesNoChargeButRepairs` | catch-driven extra burst shot |
+| SURV-05 Shoot-only fall no auto-catch | `Move.World.ShootFallDoesNotAutoCatch` | absorb pose open in ShootFall |
+| SURV-05 no absorb cooldown | `Move.World.RepeatedCatchesHaveNoCooldown` | every 2nd yellow ignored |
+| FLOW-31 / FLOW-33 handover adds no protection | `Move.World.LifeHandoverAddsNoProtection` | +1 s protection on life loss |
+| FLOW-33 checkpoint passage no heal | `Move.World.CheckpointPassageDoesNotHeal` | CheckpointReached reset health |
+| FLOW-33 ordinary projectile damage 1 | `Move.World.OrdinaryProjectileDamageIsOne` | fallback damage x1.25 |
+| FLOW-32 life hand steady on partial change | `Move.LifeHandSteadyOnPartialChanges` | life hand read Active |
+
+Note: `HealthTuning.PostHitProtectionSeconds` is 0.65; the GDD SURV-05 text says 0.6. Not changed (health's number, not a clause here).
+Env: one test run hung at editor start in UBT `-Mode=ValidatePlatforms` (dotnet idle 10 min); killed, rerun passed.
+Overlap: a `testmove` worker was started on the same lane=move `i` rows. These 12 are done here; it should skip them.
+
+## Keeper clauses routed to move (Nov 13)
+Gate review fixes: `PaintPart` renamed `BeamPaintPart`; clause-proof rows for COM-07 pose and COM-11 pose removed (no consumer draws the pose yet).
+8 `i` clauses proven in `MoveKeeperProofTests.cpp` (real Ella + Encounter Director, both modes). Break-tested: retry broadcast removed,
+extra checkpoint on part break, yellow fallback damage x1.25 -> 3/3 FAILED; restored -> 3/3 PASS.
+| Clause | Test |
+|---|---|
+| FLOW-09 exactly 3 lives on retry, both modes | `Move.World.KeeperRetryGivesThreeLivesInBothModes` |
+| OWL-06 both modes, phase advance carries health; OWL-10 checkpoint per phase, none mid-mechanism, health carried | `Move.World.KeeperPhasesCarryHealthAndCheckpointInBothModes` |
+| OWL-13 yellow contact 1 health, Shoot alone never catches | `Move.World.KeeperYellowContactCostsOneAndShootNeverCatches` |
+
+Not done, and why:
+- FLOW-09 ii "keeps purchased max lives": GDD says retry gives exactly 3 current lives and keeps the bought maximum. Health restores `MaxLives` and ignores
+  the retry unless `Event.Amount == MaxLives` (`UmbrellaHealthComponent.cpp:54-58, 139-144`). With max 4 the retry does nothing. Health lane's bug; not proven.
+- OWL-06/OWL-10 ii capacity/upgrades on retry: same code path, blocked on the above.
+- OWL-16 dash protection: dash grants none in tuning (`MotorTuning.h:42`, dash invulnerability OFF) and no code exists. Needs a decision: build optional dash protection, or reword the clause.
+- OWL-13 absorb during fight (no cooldown/energy) is already proven by `Move.World.RepeatedCatchesHaveNoCooldown`/`CatchGivesNoChargeButRepairs`; aimed shots and 2.3 s cadence are model-level (keeper lane).
+- FLOW-09 rollback ordering / level-checkpoint heal, OWL-09 reach and lift: not started (need the keeper rollback API and a defined "supported owl size").
+
+## Lead answers applied (Nov 13)
+- FLOW-09 keeps purchased max: `UmbrellaHealthComponent::ResetForRetry` now sets Lives to `Health.RetryLives` (3, capped at MaxLives) and keeps MaxLives and Capacity;
+  the retry event is accepted when `Amount == RetryLives` (was `== MaxLives`, so max 4 ignored the retry). `Health.World.RetryRestoresFullLivesAndHealth` updated (3 lives, max 4).
+  Proof: `Move.World.RetryGivesThreeLivesKeepsPurchasedMaximum`. Break-tested (retry set Lives=MaxLives -> FAILED, restored -> PASS).
+- OWL-16 dash protection: not built (GDD baseline OFF). `Move.World.DashGivesNoProtectionByDefault` proves a dash gives none and a hit lands.
+  Break-tested (IsProtectingFromHits true -> FAILED). No toggle exists in code, so none is claimed.
+- Needed from keeper (rollback ordering, level-checkpoint heal, OWL-09 reach/lift): written in `requests/move.md`. Still unproven.
+
+## Clause audit `ii` pass (Nov 13, Opus resume)
+Merged origin/main (beccfa60). `docs/build/clause-audit.csv` has 0 rows tagged `ii` for lane move and 0 untagged: 26 `proven`, 36 `i`.
+Nothing to build under the `ii` brief. The 36 `i` rows (code exists, proof missing) were the testmove lane's; that worker exited
+(`logs/testmove.log`: WORKER_EXIT rc=143 at 11:44) with uncommitted edits in its worktree. Restarting it, or giving the `i` rows to move, is the lead's call.
+One `i` row looks like missing code rather than a missing test: MOVE-15 "qualifying route rejects developer protection setting" (no developer protection setting exists in Source/).
+
+## Agentplay floor blocker (Nov 13)
+Cause: the motor's only lower bound was `PlayBounds`, which nothing in the game sets and the agentplay hook / playtest clear,
+so Shoot-fall had no floor (z = -28063). Fix: `UEllaMotorComponent::GetPlayFloorZ()` = arena bottom + capsule half-height,
+applied every step even with bounds cleared; `IsAtPlayFloor()` reports it. No arena in the world = no floor (unit tests unchanged).
+Test: `Move.World.ArenaBottomHoldsEllaWithBoundsCleared` (30 s Shoot held, 1/30, 1/60, 1/120; still fires; rises off on release),
+`Move.Rules.ClampToPlayFloor`. Break-tested: clamp removed -> FAILED; restored -> PASS. Move suite 63/63 PASS.
+Not done (not move's lane): the bottom is not yet lethal. Nobody listens to `AUmbrellaArena::LethalBottom`; request in `requests/move.md`.

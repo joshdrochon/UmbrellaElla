@@ -1,0 +1,2 @@
+STRIPS repeater-hurt source_frames=48 loop_end=29 jitter 81.85 -> 0.91 px
+  N=24 fps=9.6 loop last->first 113.75 vs mean step 48.07 loops=True -> pipeline/art/proof/videoframes/repeater-hurt/repeater-hurt_N24_strip.png

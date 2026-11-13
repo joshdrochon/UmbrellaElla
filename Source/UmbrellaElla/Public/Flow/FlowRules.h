@@ -96,6 +96,9 @@ struct UMBRELLAELLA_API FFlowRules
 	/** True once Elapsed has reached Duration. */
 	static bool IsTimelineDone(float Elapsed, float Duration);
 
+	/** The looping sound-list row a screen starts (Start and credits share the title track), or NAME_None to leave music as is. */
+	static FName MusicFor(EFlowScreen Screen);
+
 	/** Story Skip keys (opening caption, ending): Enter and the gamepad View button; no gameplay action uses them, so a skip press never reaches play. */
 	static TArray<FKey> StorySkipKeys();
 
@@ -115,5 +118,8 @@ struct UMBRELLAELLA_API FFlowRules
 	static EFlowCommand AfterCredits(EUmbrellaPlayMode Mode, bool bStatisticsOn);
 
 	/** Seconds of neutral input so far: resets to 0 when a key is held. */
+	/** Start screen: the sound-list row the Start screen plays (looped music). */
+	static FName TitleMusicId();
+
 	static float AdvanceNeutral(float NeutralSoFar, float DeltaSeconds, bool bAnyHeld);
 };

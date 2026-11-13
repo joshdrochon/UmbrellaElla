@@ -1,0 +1,39 @@
+{
+ "provider": "gemini",
+ "tier": "draft",
+ "tool": "Gemini API image generation (Google)",
+ "model": "gemini-2.5-flash-image",
+ "openrouter_model": null,
+ "fal_model": null,
+ "model_version": "gemini-2.5-flash-image",
+ "prompt": "EXACTLY FOUR separate frames (count them: four rings, not three) of one effect of one effect for a 2D side-view game, painted side by side on one wide flat green field: the red attack warning (tell) a clockwork owl Keeper shows before it strikes. Only the effect is drawn, no creature. The four frames stand in one row on the same horizontal centre line, centres at exactly one eighth, three eighths, five eighths and seven eighths of the picture width, evenly spaced, never touching each other or the edge. Flat, face-on, game-sprite distance; the largest frame spans about a fifth of the picture width.\n\nThe look: a flat, matte, hand-inked storybook mark. Opaque salmon-coral (#FF7848) and crimson (#FF3658) shapes with a thin dark-red (#8F173C) etched outline and a little crosshatch, like a woodblock print. NO glow, NO soft gradient, NO bullseye, NO crosshair: the ring is a thin broken ring (the band is only about one twelfth of the ring diameter) made of two or three separate long curved arc segments of uneven length with gaps between them, with a small round hub dot in the middle, the dot sitting in a soft flat salmon halo disc (a round disc only, floating directly on the green: NO card, NO square tile, NO box, NO paper background, NO border around any frame).\n\nFrame 1: a clear thin broken ring of two or three arcs, in pale salmon, small coral hub dot. Frame 2: thicker broken ring of three arcs, a larger hub dot with a dark-red outline, one short crimson tick on the ring. Frame 3: tighter ring, a darker crimson tick and one thin dark-red ray from the hub to the ring. Frame 4: the tightest, fullest ring in crimson with a cream (#FFF5DC) hub, a thin ray and two or three small coral specks beside it.\n\nOutside the shapes the picture is one perfectly flat, saturated, fully vivid chroma-key green #00FF00 (RGB 0,255,0), identical everywhere, no texture, no vignette, no paper. No text, labels, grid, frames or watermark.\n\nStyle (required): dark, muted ink on aged paper, like an etched storybook engraving. Etched ink linework with near-black ink outlines; crosshatch and fine line hatching for every shadow and form; visible aged paper grain and fibre texture under all colour; hand-printed, slightly uneven ink. No flat fills, no vector shapes, no smooth digital gradients, no glossy 3D rendering.",
+ "seed": "",
+ "size": "1024x1024",
+ "quality": "medium",
+ "aspect_ratio": "21:9",
+ "image_size": null,
+ "input_images": [],
+ "cost_usd": 0.039172,
+ "reply": {
+  "usage": {
+   "promptTokenCount": 572,
+   "candidatesTokenCount": 1290,
+   "totalTokenCount": 1862,
+   "promptTokensDetails": [
+    {
+     "modality": "TEXT",
+     "tokenCount": 572
+    }
+   ],
+   "candidatesTokensDetails": [
+    {
+     "modality": "IMAGE",
+     "tokenCount": 1290
+    }
+   ],
+   "serviceTier": "standard"
+  },
+  "finish": "STOP"
+ },
+ "date": "2026-11-13T17:10+00:00"
+}
