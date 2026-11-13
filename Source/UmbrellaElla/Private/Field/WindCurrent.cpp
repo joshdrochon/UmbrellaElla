@@ -1,9 +1,11 @@
 #include "Field/WindCurrent.h"
 #include "Components/BoxComponent.h"
+#include "Core/EllaCharacter.h"
 #include "Core/UmbrellaEventBus.h"
 #include "Core/UmbrellaTuning.h"
 #include "GameFramework/Pawn.h"
 #include "Harness/UmbrellaFeatureFlags.h"
+#include "Umbrella/UmbrellaPlayerIds.h"
 
 AWindCurrent::AWindCurrent()
 {
@@ -40,6 +42,21 @@ void AWindCurrent::SetCurrent(const FVector& NewDirection, float NewForce)
 	Force = NewForce;
 }
 
+FName AWindCurrent::TargetIdFor(const AActor* Other)
+{
+	if (!IsValid(Other))
+	{
+		return NAME_None;
+	}
+	// The Motor answers to the player id, not the pawn's actor name: Ella (or any player-controlled pawn) is "Ella".
+	const APawn* Pawn = Cast<APawn>(Other);
+	if (IsFeatureEnabled(EFeatureId::WIND_03) && (Other->IsA<AEllaCharacter>() || (Pawn && Pawn->IsPlayerControlled())))
+	{
+		return UmbrellaPlayerIds::Ella;
+	}
+	return Other->GetFName();
+}
+
 void AWindCurrent::BroadcastEntered(const AActor* Other) const
 {
 	if (!IsFeatureEnabled(EFeatureId::WIND_03) || !IsValid(Other))
@@ -51,7 +68,7 @@ void AWindCurrent::BroadcastEntered(const AActor* Other) const
 		FUmbrellaEvent Event;
 		Event.Type = EUmbrellaEventType::WindEntered;
 		Event.SourceId = GetFName();
-		Event.TargetId = Other->GetFName();
+		Event.TargetId = TargetIdFor(Other);
 		Event.Detail = DirectionLabel(Direction);
 		Event.Value = GetForce();
 		Bus->Broadcast(Event);
@@ -69,7 +86,7 @@ void AWindCurrent::BroadcastExited(const AActor* Other) const
 		FUmbrellaEvent Event;
 		Event.Type = EUmbrellaEventType::WindExited;
 		Event.SourceId = GetFName();
-		Event.TargetId = Other->GetFName();
+		Event.TargetId = TargetIdFor(Other);
 		Event.Detail = DirectionLabel(Direction);
 		Event.Value = GetForce();
 		Bus->Broadcast(Event);

@@ -8,7 +8,7 @@ class UBoxComponent;
 
 /**
  * A harmless wind current volume . On overlap with a pawn it broadcasts WindEntered / WindExited on the
- * event bus: SourceId = this current, TargetId = the pawn, Value = force, Detail = direction label. The Motor applies
+ * event bus: SourceId = this current, TargetId = TargetIdFor(pawn) (the player id "Ella" for Ella), Value = force, Detail = direction label. The Motor applies
  * the motion; this actor never writes velocity and never damages. Lane e.
  */
 UCLASS()
@@ -31,6 +31,9 @@ public:
 	void SetHalfExtent(float HalfX, float HalfZ);
 
 	void SetCurrent(const FVector& NewDirection, float NewForce);
+
+	/** Event target for a pawn: UmbrellaPlayerIds::Ella for Ella or a player-controlled pawn, else the actor name. */
+	static FName TargetIdFor(const AActor* Other);
 
 	/** Broadcast the enter/exit event for a pawn; separate so tests can call it without physics. */
 	void BroadcastEntered(const AActor* Other) const;

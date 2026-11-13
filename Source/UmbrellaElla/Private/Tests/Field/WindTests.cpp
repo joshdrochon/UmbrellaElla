@@ -1,4 +1,8 @@
 #include "Engine/Engine.h"
+#include "Core/EllaCharacter.h"
+#include "Input/EllaInputAdapterComponent.h"
+#include "Tests/Shared/UmbrellaTestWorld.h"
+#include "Umbrella/UmbrellaPlayerIds.h"
 #include "Core/UmbrellaEventBus.h"
 #include "Engine/World.h"
 #include "Field/WindCurrent.h"
@@ -66,6 +70,51 @@ bool FWindWorldEvents::RunTest(const FString& Parameters)
 	GEngine->DestroyWorldContext(World);
 	World->DestroyWorld(false);
 	return bOk;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FWindWorldMovesRealElla, "UmbrellaElla.Field.World.CurrentTargetsEllaAndMovesHer",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+
+bool FWindWorldMovesRealElla::RunTest(const FString& Parameters)
+{
+	// WIND-03 regression: the real current's own broadcast must reach the real Motor (TargetId = the player id).
+	FUmbrellaTestWorld Test;
+	UWorld* World = Test.GetWorld();
+	if (!TestNotNull(TEXT("world"), World))
+	{
+		return false;
+	}
+	const FVector Start(0.0, 0.0, 540.0);
+	AEllaCharacter* Ella = Test.SpawnElla(Start);
+	AWindCurrent* Wind = World->SpawnActor<AWindCurrent>(AWindCurrent::StaticClass(), FTransform(Start));
+	UUmbrellaEventBus* Bus = UUmbrellaEventBus::Get(World);
+	if (!TestNotNull(TEXT("Ella"), Ella) || !TestNotNull(TEXT("wind"), Wind) || !TestNotNull(TEXT("bus"), Bus))
+	{
+		return false;
+	}
+	TestEqual(TEXT("Ella's target id is the player id"), AWindCurrent::TargetIdFor(Ella), UmbrellaPlayerIds::Ella);
+	Wind->SetCurrent(FVector(1.0, 0.0, 0.0), 300.0f);
+	const TSharedRef<FWindProbe> Probe = MakeShared<FWindProbe>();
+	const FDelegateHandle In = Bus->On(EUmbrellaEventType::WindEntered).AddSP(Probe, &FWindProbe::OnEntered);
+	Wind->BroadcastEntered(Ella);
+	TestEqual(TEXT("broadcast names Ella by player id"), Probe->Last.TargetId, UmbrellaPlayerIds::Ella);
+	Ella->GetInputAdapter()->ApplyPress(EUmbrellaInputAction::Ride);
+	const float Dt = 1.0f / 60.0f;
+	for (int32 Frame = 0; Frame < 30; ++Frame)
+	{
+		Test.TickFrames(1, Dt);
+		FVector Location = Ella->GetActorLocation();
+		Location.Z = Start.Z;
+		Ella->SetActorLocation(Location);
+	}
+	const double Moved = Ella->GetActorLocation().X - Start.X;
+	TestTrue(FString::Printf(TEXT("the current carries Ella right (moved %.1f)"), Moved), Moved > 50.0);
+	Wind->BroadcastExited(Ella);
+	const double AtExit = Ella->GetActorLocation().X;
+	Test.TickSeconds(2.0f, Dt);
+	TestTrue(TEXT("leaving the current ends the push (decays, never reverses)"), Ella->GetActorLocation().X >= AtExit - 1.0);
+	Bus->On(EUmbrellaEventType::WindEntered).Remove(In);
+	return true;
 }
 
 #endif
