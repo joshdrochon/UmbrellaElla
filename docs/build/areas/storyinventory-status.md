@@ -39,3 +39,17 @@ Checks: story_check PASS (0 problems, lines=118); story_inventory PASS shipped=1
 Left (settings lane, not mine): SettingsModel.cpp GetCredits still has "Rick Rispoli" with an empty role and "[the executive producer]"; SettingsTests expects the empty role. Not shipped text the check flags, but it disagrees with the new credit.
 
 TOTAL=118 BEFORE=7 NEW=111 PASSED=0 | remaining story_check problems=0
+
+## Story critic run (2026-11-13, tools/build/story_critic_batch.py, 3 fresh Sonnet sessions per batch)
+Record: pipeline/story/critic-results.csv (per line: verdict, text/bible hash, gaps). PASSED=41/118 (measured by `story_critic_batch.py count`).
+Triage of the 77 fails (verdict: mostly CHECK/SOURCE defect, not bad text; no rewrite made, no bar loosened):
+- S8 (promises a mechanic not in F2-F6) on ~45 lines: Dash, Hop, Ride, Absorb, Spell 1-4, points, Level, Lives, Keeper, damage, Missile.
+  These are the real names of controls/settings/upgrades in the code. The bible lists only F2-F6, so a blind critic fails them by design.
+  Rewriting them would change game terms (lead: terms unchanged). Needs a decision: (a) the bible gains facts for these systems, or (b) the systems are cut/hidden, or (c) accepted as fails.
+- S6 (a button names an action) on ~45 lines: stat labels, settings labels, "Paused", "Off". lines.csv gives every UI row surface=button (story_inventory.py surface_of). Most are labels, not buttons: a surface/inventory defect. Moving them to `screen` is a rubric-reading call; not made.
+- S3/S5 wording (gamer words, dev jargon: "Director's Cut", "as tuned", "next slice", "hitbox", "Experience", "Damage taken", "Deaths"): real text fixes, not yet done.
+- Names (S2/S7): credits rows (Josh Rochon, Richard, Rick Rispoli, "[the executive producer]" in SettingsModel.cpp): real people and a placeholder, settings lane/Josh. Title "The Stolen Hour": 5 words vs cap 4 (length exception D-new-title-text).
+- S1: story-ending-page-2 invents "challenged even his understanding of time" (P8). Real fix.
+Not run: rewrite rounds. Not run: UE build/tests (no source changed this session).
+
+PASSED=41/118
