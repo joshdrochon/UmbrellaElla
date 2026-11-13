@@ -1,0 +1,23 @@
+{
+ "provider": "fal",
+ "model": "fal-ai/veo3.1/fast/image-to-video",
+ "prompt": "Ella hovers in place holding her umbrella overhead; a slow gentle idle bob up and down, the scarf and hair and skirt hem sway softly, the umbrella barely tilts. Keep the exact painted ink-and-woodcut style of the input. Flat solid chroma green background (pure #00FF00), the whole frame outside the character stays that one green, no floor, no shadows, no gradient, no text. Static locked camera, no zoom, no pan, no cut. The character stays in place and keeps her size; only a small gentle idle movement. No sound.",
+ "negative_prompt": "camera movement, zoom, cut, text, subtitles, logo, background scenery, shadows on the background, people other than the character, sound",
+ "seed": 7,
+ "duration_s": 4,
+ "generate_audio": false,
+ "resolution": "720p",
+ "aspect_ratio": "16:9",
+ "input_image": "pipeline/art/proof/artvideo/ella-idle/ella-up-open-input.png",
+ "unit_usd_per_s": 0.15,
+ "cost_usd": 0.6,
+ "reply": {
+  "request_id": "01a1d462-1d09-76d1-98de-9dbe89ab6149",
+  "video": {
+   "content_type": "video/mp4",
+   "file_name": "0ad14c1c99054e5bbb69478df6bcdd49.mp4",
+   "file_size": 1667592
+  }
+ },
+ "date": "2026-11-13T10:10+00:00"
+}
