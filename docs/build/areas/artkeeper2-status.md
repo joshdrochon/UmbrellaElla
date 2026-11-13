@@ -52,3 +52,10 @@ NEEDS HUMAN: lead: (1) hide the cube when the slot has art, (2) Blender-vs-paint
 - One flash draft (0.039): sheet.png with front armillary, middle cage cylinder, rear gear ring on chains. Keyed with `assetgen.py clean --chroma 85A272 --grow 2 --hue-tol 30` (flash paints a muted olive, not #00FF00; key on the sampled colour). Cut is clean; 26k enclosed px are the sphere/gear openings (real gaps). Top-left corner has olive residue: crop before use.
 - Not yet run: art_check, art_ref_check, blind panel, context pair. Reasons: parts need slots T_Keeper_MechFront/Middle/Rear imported (editor script), and the panel judges parts as `base: owl reuse`, which needs a verified owl pass first.
 - Next: crop three pieces, check with art_ref_check per piece, import to slots, capture, panel; then wing/talon/clock cover drafts.
+
+## Nov 13 session 18: R1 pieces cropped and checked (fail palette), R2 draft unusable; no piece passes
+- Merged origin/main. Cut R1 keyed sheet into front/middle/rear (pipeline/art/proof/artkeeper2/mech/R1/{front,middle,rear}.png; olive corner residue cleared first, keyed_clean.png).
+- art_check --effect on R1: front on_palette 0.771, off_band ok; middle 0.713 and off_band 0.0144 (> 0.01); rear 0.648. All FAIL the 0.8 on_palette bar (brass reads yellower than the measured umber/taupe palette). Not loosened.
+- R2 flash draft (0.039, spent counter now 34.97 of 33.82 all providers): prompt asked for greyer, desaturated brass. Colour is closer, but the sheet came back on a vignetted olive ground, so `assetgen clean --chroma` refuses it (corners not one key colour), and the gear tilted into perspective. Not used.
+- Not run: art_ref_check, blind panel, context pair (no piece clears the deterministic checks; slots for the three parts are not imported).
+- Next: R3 flash draft with the same desaturated wording plus "perfectly flat uniform #00FF00 background, no vignette, no gradient", then key, cut, art_check; then panel and slots.
