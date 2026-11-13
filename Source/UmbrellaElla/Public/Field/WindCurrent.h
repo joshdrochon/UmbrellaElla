@@ -4,6 +4,12 @@
 #include "GameFramework/Actor.h"
 #include "WindCurrent.generated.h"
 
+namespace WindCurrentConst
+{
+	/** Engine cube edge length in units (the drawn field stand-in). */
+	static constexpr float CubeSize = 100.0f;
+}
+
 class UBoxComponent;
 class UStaticMeshComponent;
 
@@ -18,7 +24,7 @@ enum class EWindKind : uint8
 
 /**
  * A harmless wind current volume . On overlap with a pawn it broadcasts WindEntered / WindExited on the
- * event bus: SourceId = this current, TargetId = the pawn, Value = force, Detail = direction label. The Motor applies
+ * event bus: SourceId = this current, TargetId = TargetIdFor(pawn) (the player id "Ella" for Ella), Value = force, Detail = direction label. The Motor applies
  * the motion; this actor never writes velocity and never damages. Lane e.
  */
 UCLASS()
@@ -42,38 +48,52 @@ public:
 
 	void SetCurrent(const FVector& NewDirection, float NewForce);
 
+	/** Event target for a pawn: UmbrellaPlayerIds::Ella for Ella or a player-controlled pawn, else the actor name. */
+	static FName TargetIdFor(const AActor* Other);
+
+	/** What the current does for the player, from its direction: Transport (right), Descent, Lift (rescue) or Return (left). */
+	static FName RoleLabel(const FVector& Direction);
+
+	/** Stand-in colour of the drawn field for a role label (FieldTuning). */
+	static FLinearColor FieldColourFor(FName Role);
+
+	/** Width of the usable volume (what moves Ella) and of the drawn field (what the player sees), in units. */
+	float GetUsableWidth() const;
+	float GetDrawnWidth() const;
+	UStaticMeshComponent* GetField() const { return Field; }
+
 	/** Optional local vertical field carried on WindEntered (Detail "Dir@gain,centreZ,compensation"):
 	 * the Motor adds Vz = Gain * (CentreZ - RootZ) + Compensation while it rides this current. World z. */
 	void SetLocalVerticalField(float Gain, float CentreZ, float Compensation);
 
 	/** Kind from direction and local field: a local vertical field or an upward push is Rescue, downward is Descent. */
-	/** Edge of the engine plane used to draw a field, in units at scale 1. */
-	static constexpr float PlaneEdge = 100.0f;
-
 	static EWindKind KindFor(const FVector& Direction, bool bHasLocalField);
 	EWindKind GetKind() const { return KindFor(Direction, bHasLocalField); }
-
-	/** Stand-in look per kind (colour, opacity) used until the vfx-gust art slot is painted. */
-	static FLinearColor KindTint(EWindKind Kind);
-	static float KindOpacity(EWindKind Kind);
 
 	/** Width and height (X, Z) of the usable volume and of the drawn field, in world units. Drawn is 0 when nothing is drawn. */
 	FVector2D GetUsableSize() const;
 	FVector2D GetDrawnSize() const;
-	bool IsDrawn() const { return bDrawn; }
+	bool IsDrawn() const { return GetDrawnWidth() > 0.0f; }
 
 	/** Broadcast the enter/exit event for a pawn; separate so tests can call it without physics. */
 	void BroadcastEntered(const AActor* Other) const;
 	void BroadcastExited(const AActor* Other) const;
 
 protected:
-	virtual void PostInitializeComponents() override;
+	virtual void BeginPlay() override;
 	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 	virtual void NotifyActorEndOverlap(AActor* OtherActor) override;
 
 private:
+	/** Size, place and colour the drawn field to match the usable volume. */
+	void RefreshField();
+
 	UPROPERTY(VisibleAnywhere, Category = "Wind")
 	TObjectPtr<UBoxComponent> Volume;
+
+	/** The drawn wind field: a visible, collision-free card the exact width and height of the volume, behind Ella. */
+	UPROPERTY(VisibleAnywhere, Category = "Wind")
+	TObjectPtr<UStaticMeshComponent> Field;
 
 	UPROPERTY(EditAnywhere, Category = "Wind")
 	FVector Direction = FVector(1.0, 0.0, 0.0);
@@ -82,13 +102,6 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Wind")
 	float Force = -1.0f;
 
-	/** Rebuild the drawn field to cover the whole usable volume; called on every shape or kind change. */
-	void RefreshDrawn();
-
-	UPROPERTY(VisibleAnywhere, Category = "Wind")
-	TObjectPtr<UStaticMeshComponent> Drawn;
-
-	bool bDrawn = false;
 	bool bHasLocalField = false;
 	float LocalGain = 0.0f;
 	float LocalCentreZ = 0.0f;

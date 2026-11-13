@@ -69,22 +69,22 @@ struct UMBRELLAELLA_API FFieldTuning
 	UPROPERTY(EditAnywhere, meta = (ClampMin = "0", ClampMax = "0.5"))
 	float RevealEdgeFraction = 0.03f;
 
-	/** Stand-in wind field tints per kind, used until the painted gust slot ships. */
-	UPROPERTY(EditAnywhere)
-	FLinearColor WindTransportTint = FLinearColor(0.60f, 0.85f, 0.95f);
+	/** Drawn wind field stand-in colours by what the current does (art replaces them; readability, not final look). */
+	UPROPERTY(EditAnywhere, Category = "Readability")
+	FLinearColor TransportFieldColour = FLinearColor(0.55f, 0.78f, 0.95f);
 
-	UPROPERTY(EditAnywhere)
-	FLinearColor WindDescentTint = FLinearColor(0.45f, 0.35f, 0.75f);
+	UPROPERTY(EditAnywhere, Category = "Readability")
+	FLinearColor DescentFieldColour = FLinearColor(0.62f, 0.52f, 0.90f);
 
-	UPROPERTY(EditAnywhere)
-	FLinearColor WindRescueTint = FLinearColor(0.95f, 0.78f, 0.30f);
+	/** Lift / rescue / reacquisition currents. */
+	UPROPERTY(EditAnywhere, Category = "Readability")
+	FLinearColor LiftFieldColour = FLinearColor(0.55f, 0.92f, 0.62f);
 
-	UPROPERTY(EditAnywhere, meta = (ClampMin = "0", ClampMax = "1"))
-	float WindTransportOpacity = 0.25f;
+	/** Leftward return / reset currents. */
+	UPROPERTY(EditAnywhere, Category = "Readability")
+	FLinearColor ReturnFieldColour = FLinearColor(0.98f, 0.80f, 0.45f);
 
-	UPROPERTY(EditAnywhere, meta = (ClampMin = "0", ClampMax = "1"))
-	float WindDescentOpacity = 0.45f;
-
-	UPROPERTY(EditAnywhere, meta = (ClampMin = "0", ClampMax = "1"))
-	float WindRescueOpacity = 0.35f;
+	/** Depth scale of the drawn field plane (a thin card behind Ella). */
+	UPROPERTY(EditAnywhere, Category = "Readability", meta = (ClampMin = "0"))
+	float FieldDepthScale = 0.01f;
 };

@@ -1,6 +1,7 @@
 #include "Field/WindCurrent.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Core/EllaCharacter.h"
 #include "Core/UmbrellaDrawOrder.h"
 #include "Core/UmbrellaEventBus.h"
 #include "Engine/StaticMesh.h"
@@ -8,8 +9,18 @@
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Materials/MaterialInterface.h"
 #include "Core/UmbrellaTuning.h"
+#include "Engine/StaticMesh.h"
 #include "GameFramework/Pawn.h"
 #include "Harness/UmbrellaFeatureFlags.h"
+#include "Materials/MaterialInstanceDynamic.h"
+#include "Umbrella/UmbrellaPlayerIds.h"
+
+namespace
+{
+	const TCHAR* WindFieldCubePath = TEXT("/Engine/BasicShapes/Cube.Cube");
+	const TCHAR* WindFieldMaterialPath = TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial");
+	const FName WindFieldColourParameter(TEXT("Color"));
+}
 
 AWindCurrent::AWindCurrent()
 {
@@ -18,33 +29,13 @@ AWindCurrent::AWindCurrent()
 	Volume->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
 	Volume->SetGenerateOverlapEvents(true);
 	RootComponent = Volume;
-
-	Drawn = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Drawn"));
-	Drawn->SetupAttachment(Volume);
-	Drawn->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	Drawn->SetGenerateOverlapEvents(false);
-	Drawn->SetCastShadow(false);
-	Drawn->SetUsingAbsoluteRotation(true);
-	Drawn->SetUsingAbsoluteScale(true);
-	Drawn->SetVisibility(false);
-}
-
-namespace
-{
-	const TCHAR* const WindPlanePath = TEXT("/Engine/BasicShapes/Plane.Plane");
-	const TCHAR* const WindSpillMaterialPath = TEXT("/Game/UmbrellaElla/Art/VFX/M_VFX_Spill_PH.M_VFX_Spill_PH");
-
-	/** The painted slot (T_VFX_Gust, no _PH) when artfx has shipped it; null while only the placeholder exists. */
-	UTexture2D* LoadGustSlot()
-	{
-		return LoadObject<UTexture2D>(nullptr, TEXT("/Game/UmbrellaElla/Art/VFX/T_VFX_Gust.T_VFX_Gust"), nullptr, LOAD_NoWarn | LOAD_Quiet);
-	}
-}
-
-void AWindCurrent::PostInitializeComponents()
-{
-	Super::PostInitializeComponents();
-	RefreshDrawn();
+	Field = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Field"));
+	Field->SetupAttachment(Volume);
+	Field->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Field->SetGenerateOverlapEvents(false);
+	Field->SetCastShadow(false);
+	// Behind Ella in the draw order: the field reads as space she flies through.
+	Field->SetRelativeLocation(FVector(0.0, UmbrellaDrawOrder::HazardY - UmbrellaDrawOrder::EllaY, 0.0));
 }
 
 EWindKind AWindCurrent::KindFor(const FVector& InDirection, bool bInHasLocalField)
@@ -56,28 +47,6 @@ EWindKind AWindCurrent::KindFor(const FVector& InDirection, bool bInHasLocalFiel
 	return DirectionLabel(InDirection) == FName(TEXT("Down")) ? EWindKind::Descent : EWindKind::Transport;
 }
 
-FLinearColor AWindCurrent::KindTint(EWindKind Kind)
-{
-	const FFieldTuning& T = GetDefault<UUmbrellaTuning>()->Field;
-	switch (Kind)
-	{
-	case EWindKind::Descent: return T.WindDescentTint;
-	case EWindKind::Rescue: return T.WindRescueTint;
-	default: return T.WindTransportTint;
-	}
-}
-
-float AWindCurrent::KindOpacity(EWindKind Kind)
-{
-	const FFieldTuning& T = GetDefault<UUmbrellaTuning>()->Field;
-	switch (Kind)
-	{
-	case EWindKind::Descent: return T.WindDescentOpacity;
-	case EWindKind::Rescue: return T.WindRescueOpacity;
-	default: return T.WindTransportOpacity;
-	}
-}
-
 FVector2D AWindCurrent::GetUsableSize() const
 {
 	const FVector Extent = Volume->GetScaledBoxExtent();
@@ -86,61 +55,93 @@ FVector2D AWindCurrent::GetUsableSize() const
 
 FVector2D AWindCurrent::GetDrawnSize() const
 {
-	if (!bDrawn || !IsValid(Drawn) || !Drawn->GetStaticMesh())
+	if (!Field->IsVisible() || !Field->GetStaticMesh())
 	{
 		return FVector2D::ZeroVector;
 	}
-	// The plane lies in XY rotated to face the camera, so its local Y scale is the world Z height.
-	const FVector Scale = Drawn->GetComponentScale();
-	return FVector2D(Scale.X * AWindCurrent::PlaneEdge, Scale.Y * AWindCurrent::PlaneEdge);
+	return FVector2D(2.0 * Field->Bounds.BoxExtent.X, 2.0 * Field->Bounds.BoxExtent.Z);
 }
 
-void AWindCurrent::RefreshDrawn()
+void AWindCurrent::BeginPlay()
 {
-	bDrawn = false;
-	if (!IsValid(Drawn) || !IsFeatureEnabled(EFeatureId::FLOW_25))
+	Super::BeginPlay();
+	RefreshField();
+}
+
+FName AWindCurrent::RoleLabel(const FVector& InDirection)
+{
+	const FName Label = DirectionLabel(InDirection);
+	if (Label == TEXT("Left"))
 	{
+		return TEXT("Return");
+	}
+	if (Label == TEXT("Up"))
+	{
+		return TEXT("Lift");
+	}
+	if (Label == TEXT("Down"))
+	{
+		return TEXT("Descent");
+	}
+	return TEXT("Transport");
+}
+
+FLinearColor AWindCurrent::FieldColourFor(FName Role)
+{
+	const FFieldTuning& T = GetDefault<UUmbrellaTuning>()->Field;
+	if (Role == TEXT("Return"))
+	{
+		return T.ReturnFieldColour;
+	}
+	if (Role == TEXT("Lift"))
+	{
+		return T.LiftFieldColour;
+	}
+	if (Role == TEXT("Descent"))
+	{
+		return T.DescentFieldColour;
+	}
+	return T.TransportFieldColour;
+}
+
+float AWindCurrent::GetUsableWidth() const
+{
+	return 2.0f * Volume->GetScaledBoxExtent().X;
+}
+
+float AWindCurrent::GetDrawnWidth() const
+{
+	return Field->IsVisible() && Field->GetStaticMesh() ? 2.0f * Field->Bounds.BoxExtent.X : 0.0f;
+}
+
+void AWindCurrent::RefreshField()
+{
+	if (!IsFeatureEnabled(EFeatureId::FLOW_25))
+	{
+		Field->SetVisibility(false);
 		return;
 	}
-	UStaticMesh* Plane = Drawn->GetStaticMesh();
-	if (!Plane)
+	if (!Field->GetStaticMesh())
 	{
-		Plane = LoadObject<UStaticMesh>(nullptr, WindPlanePath, nullptr, LOAD_NoWarn | LOAD_Quiet);
-		if (!Plane)
+		if (UStaticMesh* Cube = LoadObject<UStaticMesh>(nullptr, WindFieldCubePath, nullptr, LOAD_NoWarn | LOAD_Quiet))
 		{
-			return;
-		}
-		Drawn->SetStaticMesh(Plane);
-	}
-	const FVector2D Size = GetUsableSize();
-	if (Size.X <= 0.0 || Size.Y <= 0.0)
-	{
-		return;
-	}
-	const EWindKind Kind = GetKind();
-	if (UMaterialInterface* Material = LoadObject<UMaterialInterface>(nullptr, WindSpillMaterialPath, nullptr, LOAD_NoWarn | LOAD_Quiet))
-	{
-		UMaterialInstanceDynamic* Dynamic = Cast<UMaterialInstanceDynamic>(Drawn->GetMaterial(0));
-		if (!Dynamic)
-		{
-			Dynamic = UMaterialInstanceDynamic::Create(Material, this);
-			Drawn->SetMaterial(0, Dynamic);
-		}
-		Dynamic->SetVectorParameterValue(TEXT("Tint"), KindTint(Kind));
-		Dynamic->SetScalarParameterValue(TEXT("Opacity"), KindOpacity(Kind));
-		if (UTexture2D* Painted = LoadGustSlot())
-		{
-			Dynamic->SetTextureParameterValue(TEXT("Sheet"), Painted);
-			Dynamic->SetScalarParameterValue(TEXT("Cols"), 1.0f);
+			Field->SetStaticMesh(Cube);
 		}
 	}
-	// Plane X stays world X; its normal turns to +Y (toward the camera). Covers the full usable box, not a centreline.
-	Drawn->SetWorldRotation(FRotationMatrix::MakeFromXZ(FVector::XAxisVector, FVector::YAxisVector).Rotator());
-	Drawn->SetWorldScale3D(FVector(Size.X / AWindCurrent::PlaneEdge, Size.Y / AWindCurrent::PlaneEdge, 1.0));
-	const FVector At = GetActorLocation();
-	Drawn->SetWorldLocation(FVector(At.X, UmbrellaDrawOrder::VfxY - 1.0f, At.Z));
-	Drawn->SetVisibility(true);
-	bDrawn = true;
+	if (UMaterialInterface* Base = LoadObject<UMaterialInterface>(nullptr, WindFieldMaterialPath, nullptr, LOAD_NoWarn | LOAD_Quiet))
+	{
+		UMaterialInstanceDynamic* Material = Cast<UMaterialInstanceDynamic>(Field->GetMaterial(0));
+		if (!Material || Material->Parent != Base)
+		{
+			Material = UMaterialInstanceDynamic::Create(Base, this);
+			Field->SetMaterial(0, Material);
+		}
+		Material->SetVectorParameterValue(WindFieldColourParameter, FieldColourFor(GetKind() == EWindKind::Rescue ? FName(TEXT("Lift")) : RoleLabel(Direction)));
+	}
+	const FVector Extent = Volume->GetUnscaledBoxExtent();
+	Field->SetRelativeScale3D(FVector(2.0 * Extent.X / WindCurrentConst::CubeSize, GetDefault<UUmbrellaTuning>()->Field.FieldDepthScale, 2.0 * Extent.Z / WindCurrentConst::CubeSize));
+	Field->SetVisibility(true);
+	Field->UpdateBounds();
 }
 
 FName AWindCurrent::DirectionLabel(const FVector& InDirection)
@@ -161,14 +162,29 @@ float AWindCurrent::GetForce() const
 void AWindCurrent::SetHalfExtent(float HalfX, float HalfZ)
 {
 	Volume->SetBoxExtent(FVector(HalfX, Volume->GetUnscaledBoxExtent().Y, HalfZ));
-	RefreshDrawn();
+	RefreshField();
 }
 
 void AWindCurrent::SetCurrent(const FVector& NewDirection, float NewForce)
 {
 	Direction = NewDirection.GetSafeNormal();
 	Force = NewForce;
-	RefreshDrawn();
+	RefreshField();
+}
+
+FName AWindCurrent::TargetIdFor(const AActor* Other)
+{
+	if (!IsValid(Other))
+	{
+		return NAME_None;
+	}
+	// The Motor answers to the player id, not the pawn's actor name: Ella (or any player-controlled pawn) is "Ella".
+	const APawn* Pawn = Cast<APawn>(Other);
+	if (IsFeatureEnabled(EFeatureId::WIND_03) && (Other->IsA<AEllaCharacter>() || (Pawn && Pawn->IsPlayerControlled())))
+	{
+		return UmbrellaPlayerIds::Ella;
+	}
+	return Other->GetFName();
 }
 
 void AWindCurrent::SetLocalVerticalField(float Gain, float CentreZ, float Compensation)
@@ -177,7 +193,7 @@ void AWindCurrent::SetLocalVerticalField(float Gain, float CentreZ, float Compen
 	LocalGain = Gain;
 	LocalCentreZ = CentreZ;
 	LocalCompensation = Compensation;
-	RefreshDrawn();
+	RefreshField();
 }
 
 void AWindCurrent::BroadcastEntered(const AActor* Other) const
@@ -191,7 +207,7 @@ void AWindCurrent::BroadcastEntered(const AActor* Other) const
 		FUmbrellaEvent Event;
 		Event.Type = EUmbrellaEventType::WindEntered;
 		Event.SourceId = GetFName();
-		Event.TargetId = Other->GetFName();
+		Event.TargetId = TargetIdFor(Other);
 		Event.Detail = bHasLocalField
 			? FName(*FString::Printf(TEXT("%s@%g,%g,%g"), *DirectionLabel(Direction).ToString(), LocalGain, LocalCentreZ, LocalCompensation))
 			: DirectionLabel(Direction);
@@ -211,7 +227,7 @@ void AWindCurrent::BroadcastExited(const AActor* Other) const
 		FUmbrellaEvent Event;
 		Event.Type = EUmbrellaEventType::WindExited;
 		Event.SourceId = GetFName();
-		Event.TargetId = Other->GetFName();
+		Event.TargetId = TargetIdFor(Other);
 		Event.Detail = DirectionLabel(Direction);
 		Event.Value = GetForce();
 		Bus->Broadcast(Event);

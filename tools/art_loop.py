@@ -636,7 +636,7 @@ def required_pairs(refs, piece, ours, root=ROOT):
         sheets = [byid[r]["path"] for r in el.get("refs", []) if r in byid and byid[r].get("cell")
                   and byid[r]["path"] in [p for _, p, _ in out]]
         out += [("motion", r, ours) for r in (sheets or [p for k, p, _ in out if k == "reference"])]
-    if piece != "scene":
+    if piece != "scene" and not (refs["elements"].get(piece) or {}).get("ui"):   # a screen's capture is its own context
         out.append(("context", context_ref(refs, root), find_capture(root, ours)))
     return out
 
@@ -800,6 +800,15 @@ def shipped(rel):
     return rel.startswith("Art/") and not rel.startswith("Art/Source/") and rel.lower().endswith(SHIPPED_EXT)
 
 
+def is_screen(root, piece):
+    """A UI screen piece (an element with a ui block): its capture is its own context, so it has no context pair."""
+    try:
+        refs, _ = refs_and_hash(root)
+    except Exception:
+        return False
+    return bool((refs.get("elements", {}).get(piece) or {}).get("ui"))
+
+
 def write_record(root, card, piece, rec, refs_hash, commit):
     """On a passing panel round (every required pair unanimous ours or SAME from PANEL calibrated sessions, every
     check measured PASS), write <stem>.artloop.json next to the file. Returns its path or None. Never for a
@@ -818,7 +827,7 @@ def write_record(root, card, piece, rec, refs_hash, commit):
             and os.path.isfile(full) and not rel_to(full, root).startswith("..") and not not_art(root, full)):
         return None
     need = ["reference", "quality_bar"] + (["motion"] if sheet_info(full) else []) + \
-        (["context"] if piece != "scene" else [])
+        (["context"] if piece != "scene" and not is_screen(root, piece) else [])
     if any(rec["pairs"].get(k) not in ("ours", "same") for k in need):
         return None
     sha = content_sha(full)
@@ -867,7 +876,7 @@ def record_problems(root, rel, refs_hash=None):
         out.append(f"{rel}: its art-loop record has verdict {r.get('verdict')!r}")
     piece = r.get("piece") or ""
     need = ["reference", "quality_bar"] + (["motion"] if sheet_info(full) else []) + \
-        (["context"] if piece != "scene" else [])
+        (["context"] if piece != "scene" and not is_screen(root, piece) else [])
     lost = [k for k in need if (r.get("pairs") or {}).get(k) not in ("ours", "same")]
     if lost:
         out.append(f"{rel}: the art-loop record has no ours/SAME verdict for {', '.join(lost)}")

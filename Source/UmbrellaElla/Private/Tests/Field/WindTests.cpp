@@ -1,7 +1,13 @@
 #include "Engine/Engine.h"
+#include "Core/EllaCharacter.h"
+#include "Input/EllaInputAdapterComponent.h"
+#include "Tests/Shared/UmbrellaTestWorld.h"
+#include "Umbrella/UmbrellaPlayerIds.h"
 #include "Core/UmbrellaEventBus.h"
 #include "Engine/World.h"
 #include "Field/WindCurrent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Level/LevelContracts.h"
 #include "GameFramework/Pawn.h"
 #include "Misc/AutomationTest.h"
 
@@ -68,47 +74,92 @@ bool FWindWorldEvents::RunTest(const FString& Parameters)
 	return bOk;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FWindDrawnWidth, "UmbrellaElla.Field.World.DrawnWidthMatchesUsable",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FWindWorldMovesRealElla, "UmbrellaElla.Field.World.CurrentTargetsEllaAndMovesHer",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
 
-bool FWindDrawnWidth::RunTest(const FString& Parameters)
+bool FWindWorldMovesRealElla::RunTest(const FString& Parameters)
 {
-	TestEqual(TEXT("right is transport"), AWindCurrent::KindFor(FVector(1, 0, 0), false), EWindKind::Transport);
-	TestEqual(TEXT("down is descent"), AWindCurrent::KindFor(FVector(0, 0, -1), false), EWindKind::Descent);
-	TestEqual(TEXT("up is rescue"), AWindCurrent::KindFor(FVector(0, 0, 1), false), EWindKind::Rescue);
-	TestEqual(TEXT("local field is rescue"), AWindCurrent::KindFor(FVector(1, 0, 0), true), EWindKind::Rescue);
-	TestNotEqual(TEXT("transport/descent tint differ"), AWindCurrent::KindTint(EWindKind::Transport), AWindCurrent::KindTint(EWindKind::Descent));
-	TestNotEqual(TEXT("descent/rescue tint differ"), AWindCurrent::KindTint(EWindKind::Descent), AWindCurrent::KindTint(EWindKind::Rescue));
-
-	UWorld* World = UWorld::CreateWorld(EWorldType::Game, false);
+	// WIND-03 regression: the real current's own broadcast must reach the real Motor (TargetId = the player id).
+	FUmbrellaTestWorld Test;
+	UWorld* World = Test.GetWorld();
 	if (!TestNotNull(TEXT("world"), World))
 	{
 		return false;
 	}
-	FWorldContext& Context = GEngine->CreateNewWorldContext(EWorldType::Game);
-	Context.SetCurrentWorld(World);
-	struct FCase { FVector Dir; bool bLocal; float HalfX; float HalfZ; };
-	const FCase Cases[] = { { FVector(1, 0, 0), false, 400.0f, 100.0f }, { FVector(0, 0, -1), false, 100.0f, 500.0f }, { FVector(1, 0, 0), true, 300.0f, 150.0f } };
-	for (const FCase& Case : Cases)
+	const FVector Start(0.0, 0.0, 540.0);
+	AEllaCharacter* Ella = Test.SpawnElla(Start);
+	AWindCurrent* Wind = World->SpawnActor<AWindCurrent>(AWindCurrent::StaticClass(), FTransform(Start));
+	UUmbrellaEventBus* Bus = UUmbrellaEventBus::Get(World);
+	if (!TestNotNull(TEXT("Ella"), Ella) || !TestNotNull(TEXT("wind"), Wind) || !TestNotNull(TEXT("bus"), Bus))
 	{
-		AWindCurrent* Wind = World->SpawnActor<AWindCurrent>();
-		if (!TestNotNull(TEXT("wind"), Wind))
-		{
-			continue;
-		}
-		Wind->SetHalfExtent(Case.HalfX, Case.HalfZ);
-		Wind->SetCurrent(Case.Dir, 200.0f);
-		if (Case.bLocal)
-		{
-			Wind->SetLocalVerticalField(1.0f, 0.0f, 0.0f);
-		}
-		TestTrue(TEXT("drawn"), Wind->IsDrawn());
-		TestEqual(TEXT("usable width"), Wind->GetUsableSize().X, Case.HalfX * 2.0);
-		TestEqual(TEXT("drawn width equals usable"), Wind->GetDrawnSize().X, Wind->GetUsableSize().X);
-		TestEqual(TEXT("drawn height equals usable"), Wind->GetDrawnSize().Y, Wind->GetUsableSize().Y);
+		return false;
 	}
-	GEngine->DestroyWorldContext(World);
-	World->DestroyWorld(false);
+	TestEqual(TEXT("Ella's target id is the player id"), AWindCurrent::TargetIdFor(Ella), UmbrellaPlayerIds::Ella);
+	Wind->SetCurrent(FVector(1.0, 0.0, 0.0), 300.0f);
+	const TSharedRef<FWindProbe> Probe = MakeShared<FWindProbe>();
+	const FDelegateHandle In = Bus->On(EUmbrellaEventType::WindEntered).AddSP(Probe, &FWindProbe::OnEntered);
+	Wind->BroadcastEntered(Ella);
+	TestEqual(TEXT("broadcast names Ella by player id"), Probe->Last.TargetId, UmbrellaPlayerIds::Ella);
+	Ella->GetInputAdapter()->ApplyPress(EUmbrellaInputAction::Ride);
+	const float Dt = 1.0f / 60.0f;
+	for (int32 Frame = 0; Frame < 30; ++Frame)
+	{
+		Test.TickFrames(1, Dt);
+		FVector Location = Ella->GetActorLocation();
+		Location.Z = Start.Z;
+		Ella->SetActorLocation(Location);
+	}
+	const double Moved = Ella->GetActorLocation().X - Start.X;
+	TestTrue(FString::Printf(TEXT("the current carries Ella right (moved %.1f)"), Moved), Moved > 50.0);
+	Wind->BroadcastExited(Ella);
+	const double AtExit = Ella->GetActorLocation().X;
+	Test.TickSeconds(2.0f, Dt);
+	TestTrue(TEXT("leaving the current ends the push (decays, never reverses)"), Ella->GetActorLocation().X >= AtExit - 1.0);
+	Bus->On(EUmbrellaEventType::WindEntered).Remove(In);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FWindWorldDrawsField, "UmbrellaElla.Field.World.CurrentDrawsItsUsableWidth",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+
+bool FWindWorldDrawsField::RunTest(const FString& Parameters)
+{
+	FUmbrellaTestWorld TestWorld;
+	UWorld* World = TestWorld.GetWorld();
+	AWindCurrent* Wind = World ? World->SpawnActor<AWindCurrent>() : nullptr;
+	if (!TestNotNull(TEXT("wind current"), Wind))
+	{
+		return false;
+	}
+	Wind->SetHalfExtent(100.0f, 150.0f);
+	Wind->SetCurrent(FVector(1.0, 0.0, 0.0), 300.0f);
+	const UStaticMeshComponent* Field = Wind->GetField();
+	TestTrue(TEXT("field is drawn"), Field && Field->IsVisible() && Field->GetStaticMesh() != nullptr);
+	TestEqual(TEXT("field never collides"), Field ? Field->GetCollisionEnabled() : ECollisionEnabled::QueryAndPhysics, ECollisionEnabled::NoCollision);
+	TestEqual(TEXT("usable width"), Wind->GetUsableWidth(), 200.0f, 0.5f);
+	TestEqual(TEXT("drawn width equals usable width"), Wind->GetDrawnWidth(), Wind->GetUsableWidth(), 0.5f);
+	TestEqual(TEXT("drawn height equals usable height"), Field ? static_cast<float>(Field->Bounds.BoxExtent.Z) : 0.0f, 150.0f, 0.5f);
+	TestTrue(TEXT("readability contract holds"), LevelContracts::IsWindFieldDrawnTrue(Wind->GetDrawnWidth(), Wind->GetUsableWidth(), 1.0f));
+	TestTrue(TEXT("field is behind Ella"), Field && Field->GetComponentLocation().Y < Wind->GetActorLocation().Y);
+	Wind->SetHalfExtent(40.0f, 150.0f);
+	TestEqual(TEXT("a resized current redraws"), Wind->GetDrawnWidth(), 80.0f, 0.5f);
+	// Transport, descent, lift (rescue) and return read differently.
+	TestEqual(TEXT("right is transport"), AWindCurrent::RoleLabel(FVector(1.0, 0.0, 0.0)), FName(TEXT("Transport")));
+	TestEqual(TEXT("down is descent"), AWindCurrent::RoleLabel(FVector(0.0, 0.0, -1.0)), FName(TEXT("Descent")));
+	TestEqual(TEXT("up is lift"), AWindCurrent::RoleLabel(FVector(0.0, 0.0, 1.0)), FName(TEXT("Lift")));
+	TestEqual(TEXT("left is return"), AWindCurrent::RoleLabel(FVector(-1.0, 0.0, 0.0)), FName(TEXT("Return")));
+	TestEqual(TEXT("right is transport kind"), AWindCurrent::KindFor(FVector(1, 0, 0), false), EWindKind::Transport);
+	TestEqual(TEXT("down is descent kind"), AWindCurrent::KindFor(FVector(0, 0, -1), false), EWindKind::Descent);
+	TestEqual(TEXT("up is rescue kind"), AWindCurrent::KindFor(FVector(0, 0, 1), false), EWindKind::Rescue);
+	TestEqual(TEXT("local field is rescue kind"), AWindCurrent::KindFor(FVector(1, 0, 0), true), EWindKind::Rescue);
+	TestEqual(TEXT("drawn height equals usable via size"), static_cast<float>(Wind->GetDrawnSize().Y), static_cast<float>(Wind->GetUsableSize().Y), 0.5f);
+	TestTrue(TEXT("IsDrawn"), Wind->IsDrawn());
+	TSet<FLinearColor> Colours;
+	for (const TCHAR* Role : {TEXT("Transport"), TEXT("Descent"), TEXT("Lift"), TEXT("Return")})
+	{
+		Colours.Add(AWindCurrent::FieldColourFor(FName(Role)));
+	}
+	TestEqual(TEXT("four distinct role colours"), Colours.Num(), 4);
 	return true;
 }
 
