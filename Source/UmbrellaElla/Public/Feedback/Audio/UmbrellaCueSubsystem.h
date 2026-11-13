@@ -13,6 +13,8 @@
 struct FUmbrellaSoundCue;
 class UAudioComponent;
 class USoundBase;
+class FUmbrellaSoundLabelBoard;
+class FUmbrellaSoundLabelHud;
 
 namespace UmbrellaCueConst
 {
@@ -52,6 +54,13 @@ public:
 	int32 GetSoundCueCount() const { return SoundCueCount; }
 	FName GetLastSoundId() const { return LastSoundId; }
 
+#if UMBRELLAELLA_WORKBENCH
+	/** Dev-only sound labels: every sound that starts, music included. Null in a world without the board. */
+	TSharedPtr<FUmbrellaSoundLabelBoard> GetSoundLabelBoard() const { return SoundLabels; }
+	/** Test seam: the same call both play paths make. */
+	void NoteSoundLabel(FName Id, int32 Take);
+#endif
+
 	UAudioComponent* GetMusicComponent() const { return MusicComponent; }
 	/** How many times music was started; a mode change adds one, the component is reused. */
 	int32 GetMusicStartCount() const { return MusicStartCount; }
@@ -79,4 +88,11 @@ private:
 	UPROPERTY(Transient)
 	TObjectPtr<UAudioComponent> MusicComponent;
 	int32 MusicStartCount = 0;
+
+#if UMBRELLAELLA_WORKBENCH
+	TSharedPtr<FUmbrellaSoundLabelBoard> SoundLabels;
+	TSharedPtr<FUmbrellaSoundLabelHud> SoundLabelHud;
+	/** The bus event being handled, for the label; "Direct" for a play by id. */
+	FString LabelEvent;
+#endif
 };
