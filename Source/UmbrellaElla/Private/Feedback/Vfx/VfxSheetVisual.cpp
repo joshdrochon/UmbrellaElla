@@ -17,10 +17,23 @@ namespace
 	const FName VfxFrameParam(TEXT("Frame"));
 	const FName VfxOpacityParam(TEXT("Opacity"));
 	const FName VfxTintParam(TEXT("Tint"));
-	const TCHAR* const VfxSheetMaterialPath = TEXT("/Game/UmbrellaElla/Art/VFX/M_VFX_Sheet_PH.M_VFX_Sheet_PH");
-	const TCHAR* const VfxSpillMaterialPath = TEXT("/Game/UmbrellaElla/Art/VFX/M_VFX_Spill_PH.M_VFX_Spill_PH");
+	// Slots vfx-material:M_VFX_Sheet and M_VFX_Spill: the real material first, the tracked _PH one as fallback.
+	const TCHAR* const VfxSheetMaterialPaths[] = { TEXT("/Game/UmbrellaElla/Art/VFX/M_VFX_Sheet.M_VFX_Sheet"), TEXT("/Game/UmbrellaElla/Art/VFX/M_VFX_Sheet_PH.M_VFX_Sheet_PH") };
+	const TCHAR* const VfxSpillMaterialPaths[] = { TEXT("/Game/UmbrellaElla/Art/VFX/M_VFX_Spill.M_VFX_Spill"), TEXT("/Game/UmbrellaElla/Art/VFX/M_VFX_Spill_PH.M_VFX_Spill_PH") };
 	const TCHAR* const VfxPlanePath = TEXT("/Engine/BasicShapes/Plane.Plane");
 	const TCHAR* const VfxSpherePath = TEXT("/Engine/BasicShapes/Sphere.Sphere");
+
+	UMaterialInterface* LoadVfxMaterial(const TCHAR* const (&Paths)[2])
+	{
+		for (const TCHAR* Path : Paths)
+		{
+			if (UMaterialInterface* Material = LoadObject<UMaterialInterface>(nullptr, Path, nullptr, LOAD_NoWarn | LOAD_Quiet))
+			{
+				return Material;
+			}
+		}
+		return nullptr;
+	}
 
 	UTexture2D* LoadVfxSheet(const FVfxArtRow& Row)
 	{
@@ -57,7 +70,7 @@ UStaticMeshComponent* VfxSheetVisual::Build(AActor* Owner, const FVfxArtRow& Row
 	UStaticMeshComponent* Mesh = NewObject<UStaticMeshComponent>(Owner, TEXT("VfxVisual"));
 	DisableVfxCollision(Mesh);
 	UTexture2D* Sheet = LoadVfxSheet(Row);
-	UMaterialInterface* Material = Sheet ? LoadObject<UMaterialInterface>(nullptr, VfxSheetMaterialPath, nullptr, LOAD_NoWarn | LOAD_Quiet) : nullptr;
+	UMaterialInterface* Material = Sheet ? LoadVfxMaterial(VfxSheetMaterialPaths) : nullptr;
 	UStaticMesh* Plane = Material ? LoadObject<UStaticMesh>(nullptr, VfxPlanePath) : nullptr;
 	if (Plane)
 	{
@@ -141,7 +154,7 @@ UStaticMeshComponent* VfxSheetVisual::AddSpill(AActor* Owner, const FVfxLightPla
 	{
 		return nullptr;
 	}
-	UMaterialInterface* Material = LoadObject<UMaterialInterface>(nullptr, VfxSpillMaterialPath, nullptr, LOAD_NoWarn | LOAD_Quiet);
+	UMaterialInterface* Material = LoadVfxMaterial(VfxSpillMaterialPaths);
 	UStaticMesh* Plane = Material ? LoadObject<UStaticMesh>(nullptr, VfxPlanePath) : nullptr;
 	if (!Plane)
 	{

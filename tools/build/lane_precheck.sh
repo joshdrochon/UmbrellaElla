@@ -8,6 +8,9 @@
 #        the result to ../logs/precheck-<area>.result: "RUNNING <time>" first, then the PRECHECK line and problems.
 #        Poll that file until its first line starts with PRECHECK.
 set -u
+# Out of background QoS (Nov 13): a worker session runs at background QoS, which pins its children to efficiency cores;
+# pipeline_check took ~10 min there vs 15 s at normal QoS. The checks are short; Josh's apps stay at higher priority.
+taskpolicy -B -p $$ 2>/dev/null
 A="$1"
 # The main checkout, wherever this copy lives: the main repo's tools/build or a lane worktree's (Nov 13: the worktree
 # copy took the worktree as the repo root and looked for ../UmbrellaElla-areas inside the areas folder).

@@ -57,7 +57,7 @@ def gdd_keys(lines):
     moving a value from one to the other, or rewording its owner/missing text, is not a new fail (measured: CAM-05.h.3,
     CAM-05.value.2 moved broken -> NOT_IN_GAME in the hotfix; CAM-05.value changed owner). Every other FAIL line
     (stale, unbindable, not_in_game format errors, mismatches, UNBOUND) is compared as its full line, as before."""
-    out = set()
+    out = {l.strip() for l in lines if l.strip().startswith("GAP ")}   # a baseline written by this function already holds keys
     for l in fails(lines):
         m = GDD_GAP.match(l)
         out.add(("GAP " + (m.group("b") or m.group("n") or m.group("k"))) if m else l)

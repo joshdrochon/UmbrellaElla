@@ -27,6 +27,8 @@
 #include "Harness/UmbrellaFeatureFlags.h"
 #include "Kismet/GameplayStatics.h"
 #include "Camera/PlayerCameraManager.h"
+#include "Camera/CameraComponent.h"
+#include "Arena/UmbrellaArena.h"
 #include "Owl/KeeperOfTime.h"
 #include "Owl/KeeperPartComponent.h"
 #include "Projectile/UmbrellaProjectile.h"
@@ -602,6 +604,18 @@ void UUmbrellaVfxDirectorSubsystem::SpawnDemoBackdrop(const FVector& Around)
 	DemoBackdrop = Actor;
 }
 
+// Art capture only: the effect sits at the middle of the view (the camera's X and Z), so a crop around it is never clipped by the frame edge.
+FVector UUmbrellaVfxDirectorSubsystem::DemoCentre(const AActor* Player) const
+{
+	const APlayerCameraManager* Camera = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
+	if (IsValid(Camera))
+	{
+		const FVector Cam = Camera->GetCameraLocation();
+		return FVector(Cam.X, 0.0f, Cam.Z);
+	}
+	return Player->GetActorLocation() + FVector(UmbrellaVfxDirectorConst::DemoOffsetX, 0.0f, UmbrellaVfxDirectorConst::DemoOffsetZ);
+}
+
 void UUmbrellaVfxDirectorSubsystem::StepDemo()
 {
 	if (DemoKey.IsNone())
@@ -623,6 +637,14 @@ void UUmbrellaVfxDirectorSubsystem::StepDemo()
 	{
 		// The capture is of the effect on paper: Ella's and the Keeper's dark stand-ins would be mistaken for it by the piece locator.
 		Player->SetActorHiddenInGame(true);
+		// Zoomed capture: the camera moves closer (a narrower orthographic view); the effect itself is never scaled.
+		for (TActorIterator<AUmbrellaArena> ArenaIt(GetWorld()); ArenaIt; ++ArenaIt)
+		{
+			if (UCameraComponent* PlayCam = ArenaIt->GetPlayCamera())
+			{
+				PlayCam->SetOrthoWidth(UmbrellaVfxDirectorConst::DemoZoomedOrthoWidth);
+			}
+		}
 		for (TActorIterator<AKeeperOfTime> It(GetWorld()); It; ++It)
 		{
 			It->SetActorHiddenInGame(true);
@@ -630,7 +652,7 @@ void UUmbrellaVfxDirectorSubsystem::StepDemo()
 		// Just behind the effect's own layer: the scene art (bg, arena) now draws at the depths the old backdrop used and would hide it.
 		const FVfxArtRow* DemoRow = VfxCatalog::Find(DemoKey);
 		const float DemoLayerY = DemoRow ? VfxCatalog::LayerY(DemoRow->Layer) : UmbrellaDrawOrder::VfxY;
-		SpawnDemoBackdrop(FVector(Player->GetActorLocation().X, DemoLayerY - UmbrellaVfxDirectorConst::DemoBackdropDepth, Player->GetActorLocation().Z));
+		SpawnDemoBackdrop(FVector(DemoCentre(Player).X, DemoLayerY - UmbrellaVfxDirectorConst::DemoBackdropDepth, DemoCentre(Player).Z));
 	}
 	const int32 LiveOfKey = GetLiveCount(DemoKey);
 	if (!bDemoShotTaken && Now - DemoStartSeconds >= UmbrellaVfxDirectorConst::DemoShotSeconds && LiveOfKey > 0)
@@ -640,7 +662,7 @@ void UUmbrellaVfxDirectorSubsystem::StepDemo()
 	}
 	if (UmbrellaVfxDirectorConst::ShouldPlayDemo(DemoKey, LiveOfKey))
 	{
-		Play(DemoKey, Player->GetActorLocation() + FVector(UmbrellaVfxDirectorConst::DemoOffsetX, 0.0f, UmbrellaVfxDirectorConst::DemoOffsetZ), nullptr);
+		Play(DemoKey, DemoCentre(Player), nullptr);
 	}
 }
 #endif

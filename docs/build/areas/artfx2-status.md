@@ -30,3 +30,53 @@
 ## Slice 5 (Nov 13): still blocked on request 2
 - Merged main (up to date, 074881e9). `references.json` on main and on artfx/artfx3/artslots still has vfx-clock-beat score_min 0.945 from whole-sheet refs; request 2 not applied. No paint, no spend.
 - Left: all 8 pieces, after the lead applies request 2 (shot crops in refs, recalibrate).
+
+## Slice 6 (Nov 13): request 2 applied, clock-beat passes the element judge, panel waits on the capture
+- Merged main (crop refs and recalibration are in). `art_judge element vfx-clock-beat`: sheet3 0.2 (fail), sheet4 0.556 PASS, sheet5 0.605 PASS (min 0.546). The bar is now reachable.
+- Panel round 1 on sheet4 (`pipeline/art/proof/artfx2/ClockBeat/panel1/`): 12 blind sessions prepared, stopped at "cannot judge yet: context (no in-engine capture)". Critics not run.
+- Context capture not made: `import_art_candidate.py sheet5.png vfx-sheet:VFX_ClockBeat` ran 10+ min with no output (the shared Unreal slot lock was held by other workers) and was killed at the background limit. Nothing was imported; no spend this slice.
+- Left: retry the import when the slot is free, capture with run_game.sh in a section where the clock beat plays, run the panel with sheet5, then the other 7 pieces with the same method (clock-beat cut script and prompt are reusable).
+
+## Slice 7 (Nov 13): merged main, keeper-warning first draft, not passed
+- Merged main (conflict in tools/assetgen.py: kept the video command; main dropped it). artslots already merged.
+- Order: art-priority puts vfx-keeper-warning (18) and keeper-strike (19) above clock-beat (47), so I started keeper-warning.
+- vfx-keeper-warning draft 1 (flash, $0.039, 21:9 strip, 4:1 is not offered on flash): `pipeline/art/proof/artfx2/KeeperWarning/` (prompt.txt, strip, sheet). Cut with cut_strip.py (Blender needs absolute paths).
+  `art_judge element`: 0.462 vs min 0.699, closest "bar-casters". Gap: the refs (tell-ring, firing-tell crops) are soft red rings with a thin ray and an arrow; mine is a hard graphic crosshair with ink outline. Next paint: softer glowing ring plus one ray, no crosshair, no spikes.
+- Clock-beat context import (sheet5 -> VFX_ClockBeat_PH) is running in the background (`../logs/artfx2-import.log`); it got an engine slot this time. Capture and panel still to do after it lands.
+- Spend counter: 28.99 of 33.82. Only about 4.8 left for every lane, so paint per piece stays at one draft per round until the lead says more.
+- Left: keeper-warning v2; keeper-strike; clock-beat panel after capture; clock-open, eye-exposed, recovery, departure, restoration.
+
+## Slice 7b (Nov 13): keeper-warning draft 2
+- Draft 2 (soft glowing ring + one ray, flash $0.039, `KeeperWarning/strip2.png`, `sheet2.png`): art_judge 0.568 vs min 0.699, closest is the tell-ring crop (draft 1 0.462). Better, not passed; look is glossy (no ink, no grain), so the blind critic will likely fail it.
+- Clock-beat import: the editor run exited with no import and no error; `T_VFX_ClockBeat_PH.uasset` unchanged. Cause not found yet; no capture, so no panel.
+- Spend 29.16 of 33.82.
+
+## Slice 8 (Nov 13): keeper-warning draft 3, flat, stopping
+- Merged main. Draft 3 (flash $0.039, grain/matte prompt `KeeperWarning/prompt.v3.txt`, sheet3): art_judge 0.515 vs min 0.699, closest bar-casters. Drafts 0.462 / 0.568 / 0.515: flat, no pass, flash does not reach the crop refs' look.
+- Spend 29.29 of 33.82 (shared). Remaining about 4.5 for all lanes, so no more drafts from this lane. Pro finals need a passing draft first (`--from-draft`).
+- Panel still cannot run: no in-engine capture (clock-beat import exits with no output). All 8 pieces remain `_PH`, nothing shipped.
+- Left for lead: (1) why `import_art_candidate.py` exits without importing; (2) more spend or a pro-tier try for keeper-warning/strike; (3) retry-with-Opus decision for this lane per repeat-failure rule (flat 3 rounds).
+
+## Slice 9 (Nov 13): no change, still blocked
+- Merged main and artslots: both up to date. Spend 29.40 of 33.82 (shared). No paint.
+- Blockers for the lead: (1) `import_art_candidate.py` exits without importing, so no in-engine capture and no panel; (2) keeper-warning flat at 3 flash drafts (0.462/0.568/0.515 vs 0.699): Opus retry or a pro-tier try; (3) about 4.4 spend left for all lanes. All 8 pieces remain `_PH`.
+
+## Slice 10 (Nov 13): no change, still blocked
+- Merged main and artslots: both up to date. No paint, no spend. Blockers as in slice 9: (1) `import_art_candidate.py` exits without importing, so no capture and no panel; (2) keeper-warning flat at 3 flash drafts; (3) shared spend nearly at cap. All 8 pieces remain `_PH`.
+
+## Slice 11 (Nov 13): no change, still blocked
+- Merged main and artslots: up to date. No paint, no spend. Blockers as in slice 10 (import_art_candidate exits without importing, so no capture and no panel; keeper-warning flat at 3 flash drafts; shared spend near cap). All 8 pieces remain `_PH`.
+
+## Slice 12 (Nov 13): no change, still blocked
+- Merged main and artslots: up to date. No paint, no spend. Blockers unchanged from slice 11 (import_art_candidate exits without importing, so no capture and no panel; keeper-warning flat at 3 flash drafts; shared spend near cap). All 8 pieces remain `_PH`.
+
+## Slice 13 (Nov 13): merged main, PresenterStandIn passes, keeper-warning draft 4
+- Merged origin/main (conflicts in tools/assetgen.py and tests/test_assetgen_video.py: took main's). 73 untracked artvideo files that blocked the merge were moved to `../logs/artfx2-untracked-backup`. references.json merged clean (bar-casters-vfx kept).
+- PresenterStandIn: build exit 0; `UmbrellaElla.Feedback` PASS 39/39 at the merged tip, including `Feedback.World.PresenterStandIn`. Main's test already skips stand-in checks when Ella idle art exists; no code change needed from this lane.
+- vfx-keeper-warning draft 4 (flash $0.039, `KeeperWarning/prompt.v4.txt`, sheet4): art_judge 0.594 vs min 0.699, best so far (0.462/0.568/0.515/0.594), still no pass. No panel, nothing shipped.
+- Spend 33.57 of 33.82 (shared). About 0.25 left, so I stopped painting instead of draining the cap on a flat piece.
+- Left: all 8 pieces `_PH`. Needs more spend cap (or a pro-tier try) and the in-engine capture (import_art_candidate) for the panel.
+
+## Slice 14 (Nov 13): merged main with the shared style block, keeper-warning draft 5, not passed
+- Merged origin/main (style block now added to every paid prompt). Draft 5 (flash $0.039, `KeeperWarning/prompt.v5.txt`: etched ink edges in dark red, crosshatch, paper grain): art_judge 0.577 vs min 0.699 (drafts 0.462/0.568/0.515/0.594/0.577). Flat across 5 drafts; flash does not reach the crop refs.
+- Spend 33.61 of 33.82. About 0.21 left, so no more paint. Other 7 pieces unpainted, all `_PH`. Needs more cap or a pro-tier try, plus the in-engine capture for the panel.
