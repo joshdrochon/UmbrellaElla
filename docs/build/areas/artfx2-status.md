@@ -16,3 +16,9 @@
 - Merged main and artslots (clean). Re-judged clock-beat sheets 3-5: 0.593 / 0.2 / 0.2 vs min 0.729, same as slice 1. No new paint, no spend.
 - Verdict: check defect (uncalibrated inherited min; offband counts ink-dark pixels). Request in `docs/build/requests/artfx2.md`.
 - Left: all 8 pieces, after the lead calibrates the vfx elements.
+
+## Slice 3 (Nov 13): request 1 done, calibration measured
+- Off-band now measured on source pixels, ink (L* <= 35) ignored; test `tests/test_art_judge_ink.py` (crisp ink-lined crimson passes, flood-filled teal fails). Calibrated all 26 vfx-* elements (D-new-vfx-calibration): refs pass their own element (1.0), crushed copies fail (0.2). One-image elements keep their inherited score_min.
+- Re-judge clock-beat (min now 0.945): sheet3 0.2 (offband gate still fires, 0.02 before), sheet4 0.553, sheet5 0.612. The gap is now the work (shape/edge/value vs the refs), not the check.
+- Open for the lead: the measured mins are 0.93-0.97 because the refs are near-identical to each other; that is a near-clone bar for new paint. If it is too tight, that is a bar decision, not mine.
+- Left: repaint toward the ref silhouette and value, then the other 7 pieces. `pipeline_check` shows 2 problems from main (missing tools/build/agent_play.py), not this lane.
