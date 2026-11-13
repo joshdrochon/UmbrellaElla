@@ -26,3 +26,7 @@
 ## Slice 4 (Nov 13): blocked, calibration bar measures sheet layout
 - Triage: check defect. vfx refs are whole opaque concept sheets (mask 1.0, aspect 1.34-1.49); calibrated min 0.945 is a layout match no sprite can reach. Crops of the shot score each other 0.53-0.73; clock-beat sheet5 scores 0.52-0.55 against them. Details and the exact fix: `docs/build/requests/artfx2.md` request 2.
 - No paint, no spend (spend would be wasted against an unreachable bar). All 8 pieces wait for the lead to add shot crops to the vfx elements' refs and recalibrate.
+
+## Slice 5 (Nov 13): still blocked on request 2
+- Merged main (up to date, 074881e9). `references.json` on main and on artfx/artfx3/artslots still has vfx-clock-beat score_min 0.945 from whole-sheet refs; request 2 not applied. No paint, no spend.
+- Left: all 8 pieces, after the lead applies request 2 (shot crops in refs, recalibrate).
