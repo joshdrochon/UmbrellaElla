@@ -19,6 +19,10 @@ RATE = 48000
 sys.path.insert(0, str(HERE))
 import recipes as _base
 from sndworld_recipes import RECIPES as MINE
+for _r in MINE.values():                         # a layer may reuse another recipe's generated layer: "from": [id, layer, candidate]
+    for _l in _r["layers"].values():
+        if "from" in _l:
+            _l.setdefault("prompt", MINE[_l["from"][0]]["layers"][_l["from"][1]]["prompt"])
 _base.RECIPES.update(MINE)                       # provenance.py and regen.py read the same table
 _src = (HERE / "regen.py").read_text()
 REGEN = {"__file__": str(HERE / "regen.py"), "__name__": "regen"}
@@ -43,6 +47,15 @@ def levels(path, flt="anull"):
     err = ff(["-i", str(path), "-af", flt + ",volumedetect", "-f", "null", "-"], "volumedetect")
     return (float(re.search(r"mean_volume: (-?[\d.]+|-inf)", err).group(1)),
             float(re.search(r"max_volume: (-?[\d.]+|-inf)", err).group(1)))
+
+
+def source(sid, name, spec, n, d):
+    """The generated file for a layer: its own (cached per id), or the one another recipe already paid for."""
+    if "from" in spec:
+        s2, n2, c2 = spec["from"]
+        d2 = d.parent / s2; d2.mkdir(parents=True, exist_ok=True)
+        return REGEN["gen_layer"](s2, n2, MINE[s2]["layers"][n2], c2 + n, d2)
+    return REGEN["gen_layer"](sid, name, spec, n + spec.get("cand", 0), d)
 
 
 def bed(src, spec, L, out):
@@ -72,32 +85,36 @@ def bed(src, spec, L, out):
         "-c:a", "pcm_f32le", str(out)], "bed loop")
 
 
+def pre(spec, si):
+    """Filter chain for one grid sample. cuts: [seconds] = where sample si starts inside one generated file (a
+    generated run of ticks, cut into single ticks); without cuts each sample is its own file, leading silence removed."""
+    head = (f"atrim=start={spec['cuts'][si]},asetpts=N/SR/TB" if "cuts" in spec else
+            f"silenceremove=start_periods=1:start_threshold={spec.get('start_db', -30)}dB")
+    trim, rate = spec.get("trim", 1.0), spec.get("rate", 1.0)   # rate < 1: slower and lower (a heavier, bigger source)
+    return (f"aformat=sample_fmts=flt:sample_rates={RATE}:channel_layouts=mono,{head},atrim=0:{trim * rate},asetpts=N/SR/TB,"
+            f"asetrate={int(RATE * rate)},aresample={RATE},"
+            f"afade=t=in:d=0.002,volume='exp(-t*{spec.get('decay', 0)})':eval=frame,{spec.get('filter', 'anull')},"
+            f"afade=t=out:st={trim - 0.02}:d=0.02")
+
+
 def grid(srcs, spec, L, out):
     """One-shot samples placed at exact times; rendered over two cycles, second kept, so tails wrap the loop point.
-    hits: [seconds, gain dB, sample index]; the sample's peak is set to peak_db first."""
+    hits: [seconds, gain dB, sample index]; each sample's peak is set to peak_db first."""
     ins, chains, labs = [], [], []
-    hits = spec["hits"]
-    for i, s in enumerate(srcs):
+    nsamp = len(spec["cuts"]) if "cuts" in spec else len(srcs)
+    for s in srcs:
         ins += ["-i", str(s)]
+    peak = {si: levels(srcs[0 if "cuts" in spec else si], pre(spec, si))[1] for si in range(nsamp)}
     k = 0
     for cyc in (0, 1):
-        for h in hits:
-            t, g, si = h[0], (h[1] if len(h) > 1 else 0), (h[2] if len(h) > 2 else 0) % len(srcs)
-            _, mx = levels(srcs[si], PRE.format(RATE=RATE, start=spec.get("start_db", -30), trim=spec.get("trim", 1.0),
-                                                 decay=spec.get("decay", 0), flt=spec.get("filter", "anull")))
-            gain = spec.get("peak_db", -12) - mx + g
+        for h in spec["hits"]:
+            t, g, si = h[0], (h[1] if len(h) > 1 else 0), (h[2] if len(h) > 2 else 0) % nsamp
             ms = int(round((t + cyc * L) * 1000))
-            chains.append(f"[{si}:a]" + PRE.format(RATE=RATE, start=spec.get("start_db", -30), trim=spec.get("trim", 1.0),
-                                                   decay=spec.get("decay", 0), flt=spec.get("filter", "anull"))
-                          + f",volume={gain}dB,adelay={ms}:all=1[h{k}]")
+            chains.append(f"[{0 if 'cuts' in spec else si}:a]{pre(spec, si)},volume={spec.get('peak_db', -12) - peak[si] + g}dB,adelay={ms}:all=1[h{k}]")
             labs.append(f"[h{k}]"); k += 1
     g = ";".join(chains) + ";" + "".join(labs) + (f"amix=inputs={k}:normalize=0:duration=longest," if k > 1 else "anull,") + \
         f"apad=whole_len={int(2 * L * RATE)},atrim=start_sample={int(L * RATE)}:end_sample={int(2 * L * RATE)},asetpts=N/SR/TB"
     ff([*ins, "-filter_complex", g, "-c:a", "pcm_f32le", str(out)], "grid")
-
-
-PRE = ("aformat=sample_fmts=flt:sample_rates={RATE}:channel_layouts=mono,silenceremove=start_periods=1:start_threshold={start}dB,"
-       "atrim=0:{trim},asetpts=N/SR/TB,volume='exp(-t*{decay})':eval=frame,{flt},afade=t=out:st={trim}:d=0.01")
 
 
 def build(sid, cand=0):
@@ -110,9 +127,9 @@ def build(sid, cand=0):
         lay = d / f"L_{name}.wav"
         if "hits" in spec:
             n = spec.get("samples", 1)
-            grid([REGEN["gen_layer"](sid, name, spec, cand + j, d) for j in range(n)], spec, L, lay)
+            grid([source(sid, name, spec, cand + j, d) for j in range(n)], spec, L, lay)
         else:
-            bed(REGEN["gen_layer"](sid, name, spec, cand + spec.get("cand", 0), d), spec, L, lay)
+            bed(source(sid, name, spec, cand, d), spec, L, lay)
         p = spec.get("pan", 0.0)                  # -1 left .. 1 right, constant power
         import math
         a = (p + 1) * math.pi / 4
