@@ -128,3 +128,10 @@ place (`preview/<state>/<state>_preview.gif`, `.mp4`, `_strip.png` = paper | dar
 | closed | 107.6 -> 0.6 | 0.1 -> 0.0 |
 Not fixed (source cut, not registration): shield and attack cells clip the figure at the cell edge (umbrella and scarf fragments on
 the left of frames 1-2). Needs a re-cut of the paint with wider cells; no paint done here.
+
+## Round 13 (Nov 13): slot exists, context capture attempts
+Merged main + artslots; the `FB_Ella`/`T_Ella_<State>` loader is now in Source (request #2 answered). Imported the registered up-open frame 00 as
+`Content/UmbrellaElla/Art/Ella/T_Ella_Idle_PH` with `import_art_candidate.py ... ella-state:Idle` (import OK, still `_PH`). Build exit 0.
+`run_game.sh -SmokeShot=<abs path>` runs on a machine saturated by other workers (game fps 0.1 to 0.6): three launches (240 s, 1500 s) hit the
+timeout with no shot file. Note a relative -SmokeShot path wrote nothing under the worktree. Verdict: ours/env (load), not the art. A 2400 s run is queued.
+ella-up-open still has only `context` missing; attack/shield/closed paints unchanged since Round 10.
