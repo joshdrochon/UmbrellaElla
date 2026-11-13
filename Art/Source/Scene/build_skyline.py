@@ -564,7 +564,7 @@ def ground(k):
             z = G - 4 + 30 * e + r.uniform(-4, 16) * (0.6 + e)
             x += r.uniform(2, 6)
         elif kind < 0.6:                             # crag: steep up, broken top, steep down
-            top = G + 30 * e + r.uniform(10, 34) * (0.55 + 0.9 * e)
+            top = G + 30 * e + r.uniform(10, 38) * (0.7 + 0.8 * e)
             x += r.uniform(5, 14)
             prof.append((x, top - r.uniform(0, 6)))
             x += r.uniform(6, 22)
@@ -796,7 +796,10 @@ def finish(p1, p2, p3, seed, far=False):
     soft = np.stack([box(rgb[..., i], 1) for i in range(3)], axis=2)
     rgb = 0.9 * rgb + 0.1 * soft
     bite = np.clip(field(rng, 5, 1.0) + field(rng, 2, 0.8) - 0.9, 0, 1) * 0.5    # the ink edge breaks here and there
-    ragged = a + rng.normal(0, 0.05, a.shape).astype(np.float32) - bite
+    rk = np.clip(box(rock, 3) * 1.4, 0, 1)                                       # rock is torn rougher than masonry
+    tear = np.clip(field(rng, 7, 1.0) + field(rng, 3, 0.9) + field(rng, 2, 0.5) - 0.55, 0, 1) * 0.9
+    rim_zone = np.clip((1 - box(a, 4)) * 2.5, 0, 1)                              # only the outline tears, not the mass
+    ragged = a + rng.normal(0, 0.05, a.shape).astype(np.float32) * (1 + 2.5 * rk * rim_zone) - bite - tear * rk * rim_zone
     a = np.clip((ragged - 0.4) * 5.0, 0, 1) * (a > 0.03)
     skip = np.clip(field(rng, 4, 1.0) + field(rng, 2, 0.8) + 0.15 * white - 1.42, 0, 1) * 2.0   # dry-brush skips: paper shows through
     a = a * (1 - np.clip(skip, 0, 0.5) * (1 - glow))
