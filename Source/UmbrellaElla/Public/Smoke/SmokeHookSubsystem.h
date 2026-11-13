@@ -49,6 +49,8 @@ public:
 	static constexpr float MillisecondsPerSecond = 1000.0f;
 	/** Seconds after the screenshot request before the hook checks the file exists (smoke fallback writes it itself). */
 	static constexpr double ShotWriteWaitSeconds = 1.0;
+	/** Alpha of the read-back window shot (the Slate read leaves it at zero). */
+	static constexpr uint8 OpaqueAlpha = 255;
 
 	/** Input check timeline, seconds after the screenshot moment. Each hold lasts HoldSeconds, then a settle gap. */
 	static constexpr float InputHoldSeconds = 0.5f;

@@ -160,14 +160,14 @@ void USmokeHookSubsystem::Tick(float DeltaTime)
 			Playtest = MakeUnique<FPlaytestRun>();
 		}
 		// Start once the shot is out and the input check is over, so neither disturbs the other.
-		if (!bPlaytestStarted && bShotChecked && InputStep == EInputStep::Done && Flow && Flow->GetScreen() != EFlowScreen::Defeat)
+		if (!bPlaytestStarted && (ShotPath.IsEmpty() || bShotChecked) && InputStep == EInputStep::Done && Flow && Flow->GetScreen() != EFlowScreen::Defeat)
 		{
 			bPlaytestStarted = true;
-			Playtest->Begin(GetWorld());
+			Playtest->Start(GetWorld());
 		}
 		else if (bPlaytestStarted && !Playtest->IsDone())
 		{
-			Playtest->Tick(DeltaTime);
+			Playtest->Advance(DeltaTime);
 		}
 	}
 	const bool bPlaytestSettled = !Playtest || (bPlaytestStarted && Playtest->IsDone());
@@ -205,7 +205,7 @@ void USmokeHookSubsystem::SaveWindowShotDirect()
 	{
 		for (FColor& Color : Bitmap)
 		{
-			Color.A = 255;
+			Color.A = OpaqueAlpha;
 		}
 		const FImageView Image(Bitmap.GetData(), Size.X, Size.Y);
 		FImageUtils::SaveImageByExtension(*ShotPath, Image);

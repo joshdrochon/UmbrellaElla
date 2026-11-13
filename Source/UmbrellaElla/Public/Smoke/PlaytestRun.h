@@ -18,6 +18,24 @@ public:
 	static constexpr float HazRunSeconds = 25.0f;
 	/** Extra wait past the hook grace for the synchronous scenarios and the flow check, seconds. */
 	static constexpr float PlaytestSetupGraceSeconds = 10.0f;
+	/** Fake clock step between scripted hits, seconds (clears the post-hit window). */
+	static constexpr double HitClockStep = 10.0;
+	/** Health left after the scripted "minimum health" damage, health units. */
+	static constexpr float MinHealthLeft = 0.1f;
+	/** Seed of the route the carry-health scenario builds. */
+	static constexpr int64 RouteSeed = 1001;
+	/** Spacing of the camera-lead samples along the route, world units. */
+	static constexpr float LeadSampleStep = 100.0f;
+	/** Room X where the broken-mill run starts Ella, left of the firing column. */
+	static constexpr float RoomStartX = 640.0f;
+	/** Health damage taken before the carry-health measurement. */
+	static constexpr float CarryDamage = 1.0f;
+	/** Clock far past any post-hit window, seconds. */
+	static constexpr double CarryClockStart = 1000000.0;
+	/** The low-health run starts with this share of one life. */
+	static constexpr float LowHealthShare = 0.5f;
+	/** Percent to fraction. */
+	static constexpr float PercentToFraction = 0.01f;
 	/** Fixed step of the synchronous scenarios, seconds. */
 	static constexpr float StepSeconds = 1.0f / 60.0f;
 	/** Length of one CAM measurement, seconds. */
@@ -38,11 +56,11 @@ public:
 	/** Format the key=value tail of a line: PLAYTEST_<Key> then the pairs. */
 	static FString FormatLine(const TCHAR* Key, const TArray<TPair<FString, FString>>& Pairs);
 
-	/** Run the synchronous scenarios (CAM-04, CAM-07, FLOW-25, FLOW-28) and start the HAZ run. Returns false when Ella is missing. */
-	bool Begin(UWorld* World);
+	/** Run the synchronous scenarios (camera, readability, carry-health) and start the broken-mill run. */
+	void Start(UWorld* World);
 
-	/** Advance the real-time HAZ run. Returns true once it has logged its line. */
-	bool Tick(float DeltaSeconds);
+	/** Advance the real-time HAZ run. Check IsDone for the end. */
+	void Advance(float DeltaSeconds);
 
 	bool IsDone() const { return bDone; }
 
@@ -61,6 +79,7 @@ private:
 	float DamageTaken = 0.0f;
 	float HealthAtStart = 0.0f;
 	float StartGuardHp = 0.0f;
+	int32 ShotsAtStart = 0;
 	FVector EllaHome = FVector::ZeroVector;
 	bool bDone = false;
 };

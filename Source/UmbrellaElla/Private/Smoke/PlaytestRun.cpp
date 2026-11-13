@@ -27,18 +27,6 @@
 
 namespace
 {
-	/** Fake clock for post-hit windows, advanced past any protection between hits. */
-	constexpr double PlaytestHitClockStep = 10.0;
-	/** Health that must stay after the "minimum health" damage so the active life is not lost. */
-	constexpr float PlaytestMinHealthLeft = 0.1f;
-	constexpr int64 PlaytestFlow28RouteSeed = 1001;
-	constexpr float PlaytestLeadSampleStep = 100.0f;
-	/** The HAZ run steers Ella to the guard line and ignores errors below this, world units. */
-	constexpr float PlaytestSteerDeadband = 20.0f;
-	constexpr float PlaytestRoomStartX = 640.0f;
-	/** Hits taken before the carry-health measurement, in health units. */
-	constexpr float PlaytestCarryDamage = 1.0f;
-
 	AEllaCharacter* PlaytestFindElla(UWorld* World)
 	{
 		APlayerController* Controller = World ? UGameplayStatics::GetPlayerController(World, 0) : nullptr;
@@ -51,7 +39,7 @@ namespace
 		const float Raw = Health->GetState().Active - LeaveHealth;
 		if (Raw > 0.0f)
 		{
-			Clock += PlaytestHitClockStep;
+			Clock += FPlaytestRun::HitClockStep;
 			Health->TakeHitAt(Raw, FName(TEXT("PlaytestScript")), Clock);
 		}
 	}
@@ -75,7 +63,7 @@ namespace
 void FPlaytestRun::VerticalEnvelope(float Seconds, float& OutMin, float& OutMax)
 {
 	const FMotorTuning& Motor = GetDefault<UUmbrellaTuning>()->Motor;
-	const float TrimShare = 1.0f + Motor.VerticalTrimPct * 0.01f;
+	const float TrimShare = 1.0f + Motor.VerticalTrimPct * PercentToFraction;
 	OutMin = -Motor.FreeFallSpeed * TrimShare * Seconds;
 	OutMax = Motor.RiseSpeed * TrimShare * Seconds;
 }
@@ -95,7 +83,7 @@ FString FPlaytestRun::FormatLine(const TCHAR* Key, const TArray<TPair<FString, F
 	return Line;
 }
 
-bool FPlaytestRun::Begin(UWorld* World)
+void FPlaytestRun::Start(UWorld* World)
 {
 	WorldPtr = World;
 	AEllaCharacter* Ella = PlaytestFindElla(World);
@@ -103,7 +91,7 @@ bool FPlaytestRun::Begin(UWorld* World)
 	{
 		UE_LOG(LogUmbrellaElla, Warning, TEXT("PLAYTEST_ABORT no Ella with Motor, Health, State and Attack"));
 		bDone = true;
-		return false;
+		return;
 	}
 	EllaPtr = Ella;
 	EllaHome = Ella->GetActorLocation();
@@ -114,7 +102,7 @@ bool FPlaytestRun::Begin(UWorld* World)
 	{
 		UE_LOG(LogUmbrellaElla, Warning, TEXT("PLAYTEST_ABORT room did not spawn"));
 		bDone = true;
-		return false;
+		return;
 	}
 	NewRoom->BuildRoom();
 	NewRoom->SetSimulationPaused(true);
@@ -130,18 +118,18 @@ bool FPlaytestRun::Begin(UWorld* World)
 	Ella->GetHealth()->ResetForRetry();
 	if (bLow)
 	{
-		PlaytestHurtTo(Ella, GetDefault<UUmbrellaTuning>()->Health.HitsPerLife * 0.5f, Clock);
+		PlaytestHurtTo(Ella, GetDefault<UUmbrellaTuning>()->Health.HitsPerLife * LowHealthShare, Clock);
 	}
 	HealthAtStart = Ella->GetHealth()->GetState().Active;
 	const FBrokenMillTuning& Mill = NewRoom->GetMillTuning();
-	Ella->SetActorLocation(NewRoom->RoomToWorld(FVector2D(PlaytestRoomStartX, Mill.TargetCentre.Y)));
+	Ella->SetActorLocation(NewRoom->RoomToWorld(FVector2D(FPlaytestRun::RoomStartX, Mill.TargetCentre.Y)));
 	NewRoom->SetTargetActor(Ella);
 	NewRoom->ResetForRestart();
 	NewRoom->SetSimulationPaused(false);
 	StartGuardHp = NewRoom->GetGuardHp();
+	ShotsAtStart = Ella->GetAttack()->GetShotsFired();
 	Ella->GetUmbrellaState()->SetRideHeld(true);
 	Ella->GetUmbrellaState()->SetShootHeld(true);
-	return true;
 }
 
 void FPlaytestRun::MeasureCam04(AEllaCharacter* Ella)
@@ -169,7 +157,7 @@ void FPlaytestRun::MeasureCam04(AEllaCharacter* Ella)
 		Ella->GetHealth()->ResetForRetry();
 		if (bMin)
 		{
-			PlaytestHurtTo(Ella, PlaytestMinHealthLeft, Clock);
+			PlaytestHurtTo(Ella, FPlaytestRun::MinHealthLeft, Clock);
 		}
 		for (const FProfile& Profile : Profiles)
 		{
@@ -179,7 +167,7 @@ void FPlaytestRun::MeasureCam04(AEllaCharacter* Ella)
 			float LiftMin = Motor->GetLiftMultiplier();
 			float LiftMax = LiftMin;
 			const float StartZ = Ella->GetActorLocation().Z;
-			for (float T2 = 0.0f; T2 < CamSeconds; T2 += StepSeconds)
+			for (int32 StepIndex = 0; StepIndex < FMath::RoundToInt(CamSeconds / StepSeconds); ++StepIndex)
 			{
 				Motor->StepMotor(StepSeconds);
 				LiftMin = FMath::Min(LiftMin, Motor->GetLiftMultiplier());
@@ -250,11 +238,11 @@ void FPlaytestRun::MeasureFlow25()
 	const float ViewWidth = GetDefault<UUmbrellaTuning>()->ArenaCamera.ArenaWidth;
 	const float RouteEnd = LevelCatalogue::RouteLength();
 	bool bLeadOk = true;
-	for (float X = 0.0f; X <= RouteEnd; X += PlaytestLeadSampleStep)
+	for (float X = 0.0f; X <= RouteEnd; X += FPlaytestRun::LeadSampleStep)
 	{
 		bLeadOk = bLeadOk && LevelContracts::IsLeadSafeBothDirections(X, ViewWidth, 0.0f, RouteEnd);
 	}
-	const FRoute Route = LevelCatalogue::Generate(PlaytestFlow28RouteSeed);
+	const FRoute Route = LevelCatalogue::Generate(FPlaytestRun::RouteSeed);
 	const UUmbrellaBackdropSubsystem* Backdrop = World->GetSubsystem<UUmbrellaBackdropSubsystem>();
 	const int32 Total = Route.Slots.Num();
 	const int32 Covered = (Backdrop && Backdrop->GetLayerCount() > 0) ? Total : 0;
@@ -263,21 +251,23 @@ void FPlaytestRun::MeasureFlow25()
 		{TEXT("stages_total"), FString::FromInt(Total)}, {TEXT("stages_covered"), FString::FromInt(Covered)}});
 }
 
-bool FPlaytestRun::Tick(float DeltaSeconds)
+void FPlaytestRun::Advance(float DeltaSeconds)
 {
 	AEllaCharacter* Ella = EllaPtr.Get();
 	ABrokenMillRoom* Mill = Room.Get();
 	if (bDone || !Ella || !Mill)
 	{
 		bDone = true;
-		return true;
+		return;
 	}
 	HazElapsed += DeltaSeconds;
 	const FBrokenMillTuning& T = Mill->GetMillTuning();
 	// Natural play, no aids: steer vertical trim toward the guard line, keep the umbrella open and shoot.
 	const float ErrorZ = T.TargetCentre.Y - Mill->WorldToRoom(Ella->GetActorLocation()).Y;
-	const bool bOnLine = FMath::Abs(ErrorZ) <= PlaytestSteerDeadband;
+	const bool bOnLine = FMath::Abs(ErrorZ) <= T.TargetSize.Y * 0.5f;
 	Ella->GetMotor()->SetTrimAxis(bOnLine ? 0.0f : FMath::Sign(ErrorZ));
+	// Shooting closes the umbrella and drops her, so shoot only on the line and ride back up otherwise.
+	Ella->GetUmbrellaState()->SetShootHeld(bOnLine);
 	if (!bOnLine)
 	{
 		IdleSeconds += DeltaSeconds;
@@ -287,7 +277,6 @@ bool FPlaytestRun::Tick(float DeltaSeconds)
 		FinishHaz();
 		bDone = true;
 	}
-	return bDone;
 }
 
 void FPlaytestRun::FinishHaz()
@@ -308,8 +297,8 @@ void FPlaytestRun::FinishHaz()
 	const bool bBoring = IdleShare(IdleSeconds, HazElapsed) > BoringIdleShare;
 	// No aid code exists in this run: no auto-aim call, no invulnerability call, no teleport after the start position.
 	PlaytestLog(TEXT("HAZ16"), {{TEXT("res"), FString::Printf(TEXT("%dx%d"), Res.X, Res.Y)}, {TEXT("debug"), TEXT("0")},
-		{TEXT("health"), bLow ? TEXT("low") : TEXT("healthy")}, {TEXT("attempts"), FString::FromInt(Ella->GetAttack()->GetShotsFired())},
-		{TEXT("useful_hits"), FString::FromInt(UsefulHits)}, {TEXT("damage"), PlaytestNum(Damage)}, {TEXT("reset_s"), PlaytestNum(IdleSeconds)},
+		{TEXT("health"), bLow ? TEXT("low") : TEXT("healthy")}, {TEXT("attempts"), FString::FromInt(Ella->GetAttack()->GetShotsFired() - ShotsAtStart)},
+		{TEXT("useful_hits"), FString::FromInt(UsefulHits)}, {TEXT("damage"), PlaytestNum(Damage)}, {TEXT("reset_s"), PlaytestNum(IdleSeconds)}, {TEXT("run_s"), PlaytestNum(HazElapsed)},
 		{TEXT("warned"), PlaytestBool(Mill->GetEventCount(EMillGuardEvent::WarningStarted) > 0)}, {TEXT("autoaim"), TEXT("0")},
 		{TEXT("invuln"), TEXT("0")}, {TEXT("teleport"), TEXT("0")}, {TEXT("boring"), PlaytestBool(bBoring)},
 		{TEXT("cleared"), PlaytestBool(Mill->GetGuardHp() <= 0.0f)}});
@@ -324,11 +313,11 @@ void FPlaytestRun::MeasureFlow28(AEllaCharacter* Ella)
 		return;
 	}
 	Ella->GetHealth()->ResetForRetry();
-	double Clock = 1.0e6;
-	PlaytestHurtTo(Ella, Ella->GetHealth()->GetState().Active - PlaytestCarryDamage, Clock);
+	double Clock = CarryClockStart;
+	PlaytestHurtTo(Ella, Ella->GetHealth()->GetState().Active - FPlaytestRun::CarryDamage, Clock);
 	const int32 Before = FMath::CeilToInt(Ella->GetHealth()->GetState().Active);
 	AUmbrellaLevelDirector* Director = World->SpawnActor<AUmbrellaLevelDirector>();
-	if (!Director || Director->BuildRoute(PlaytestFlow28RouteSeed) <= 0)
+	if (!Director || Director->BuildRoute(FPlaytestRun::RouteSeed) <= 0)
 	{
 		UE_LOG(LogUmbrellaElla, Warning, TEXT("PLAYTEST_ABORT level director built no route"));
 		return;
