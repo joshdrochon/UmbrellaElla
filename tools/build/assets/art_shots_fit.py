@@ -10,6 +10,7 @@ RAMPS = {"red": ["171614", "8F173C", "FF3658", "FF7848", "FFF5DC"],
          "gold": ["171614", "94611E", "F5AA28", "FFD84A", "FFF5DC"]}
 SNAP = ARGS[5] if len(ARGS) > 5 else ""
 SOFT = float(ARGS[6]) if len(ARGS) > 6 else 0.0
+ERODE = int(ARGS[8]) if len(ARGS) > 8 else 0   # ink thinning passes (the dark share must stay near the references)
 NOISE = float(ARGS[7]) if len(ARGS) > 7 else 0.0   # grain: jitter the tone before snapping, so edges between ramp colours break up
 CW, CH, FRAC = int(CW), int(CH), float(FRAC)
 img = bpy.data.images.load(SRC)
@@ -37,6 +38,17 @@ if SNAP:   # every opaque pixel becomes the nearest ramp colour; alpha kept
         s[..., :3] = np.where(hit[..., None], snapped, s[..., :3])
     else:
         s[..., :3] = snapped
+for _ in range(ERODE if SNAP else 0):   # an ink pixel touching colour takes that colour: one pass thins every line by a pixel
+    ink = (np.abs(s[..., :3] - cols[0]).sum(-1) < 1e-3) & (s[..., 3] > 0.5)
+    new = s.copy()
+    done = np.zeros(ink.shape, bool)
+    for dy, dx in ((0, 1), (0, -1), (1, 0), (-1, 0)):
+        nb = np.roll(s, (dy, dx), (0, 1))
+        nb_ink = (np.abs(nb[..., :3] - cols[0]).sum(-1) < 1e-3)
+        take = ink & ~done & ~nb_ink & (nb[..., 3] > 0.5)
+        new[take] = nb[take]
+        done |= take
+    s = new
 out = np.zeros((CH, CW, 4), np.float32)
 y0, x0 = (CH - nh) // 2, (CW - nw) // 2
 out[y0:y0 + nh, x0:x0 + nw] = s
