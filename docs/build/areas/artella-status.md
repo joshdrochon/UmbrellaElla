@@ -168,3 +168,9 @@ Main and artslots: nothing new. Found a workaround for request #3 with no code c
 N=120: shot landed (640x360) but shows the Defeat screen (Ella died while waiting, no Ella visible). N=35: queued behind the 2-slot
 `ue_slot` (artslots, artenemy hold both), no log in the 30 min limit, no shot. Verdict: ours/env (load and slot wait), not the art.
 Next: retry N=35..60 when a slot is free; then up-open `context` pair. No paint spend (15.08 of 33.82). Note: macOS has no `timeout`.
+
+## Round 22 (Nov 13 late): frame-based shot is in; capture queued behind ~20 ue_slot waiters
+Merged main + artslots. `-SmokeShotFrames=` exists now (request #3 answered). First capture was probably killed by another worker's `pkill -f run_game.sh`
+(no log, no shot). Relaunched via ue_slot with `-SmokeShot=<abs> -SmokeShotFrames=60 -SmokeQuitAfter=20` (log /tmp/artella_cap.log); after 30+ min still waiting for a slot
+(about 20 ue_slot processes queued, load ~35). Verdict: env (slot queue), not the art. No paint spend (15.08 of 33.82).
+Next: when the shot lands, run the up-open panel; then paint shield R3 and closed R3.
