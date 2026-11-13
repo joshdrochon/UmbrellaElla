@@ -1,0 +1,81 @@
+{
+ "video": "pipeline/art/proof/videoframes/sundial-hurt/sundial-hurt.mp4",
+ "fps": 12,
+ "source_frames": 48,
+ "loop_end": 28,
+ "end_candidates": {
+  "28": 108.78,
+  "29": 109.89,
+  "30": 109.59,
+  "31": 109.66,
+  "32": 109.63,
+  "33": 110.73,
+  "34": 110.22,
+  "35": 109.71,
+  "36": 109.64,
+  "37": 109.63,
+  "38": 109.62,
+  "39": 109.65,
+  "40": 109.64,
+  "41": 109.62,
+  "42": 109.65,
+  "43": 109.67,
+  "44": 109.72,
+  "45": 109.38,
+  "46": 110.69,
+  "47": 110.05
+ },
+ "jitter_before": {
+  "max_anchor_step_px": 78.84,
+  "max_height_step_pct": 9.7,
+  "max_anchor_from_first_px": 158.27,
+  "height_range_pct": 68.67
+ },
+ "jitter_after": {
+  "max_anchor_step_px": 0.74,
+  "max_height_step_pct": 9.7,
+  "max_anchor_from_first_px": 0.59,
+  "height_range_pct": 68.67
+ },
+ "green_inside_px_max": 0,
+ "sets": {
+  "24": {
+   "strip": "pipeline/art/proof/videoframes/sundial-hurt/sundial-hurt_N24_strip.png",
+   "gif": "pipeline/art/proof/videoframes/sundial-hurt/sundial-hurt_N24_preview.gif",
+   "loop": {
+    "indices": [
+     0,
+     1,
+     2,
+     4,
+     5,
+     6,
+     7,
+     8,
+     10,
+     11,
+     12,
+     13,
+     14,
+     16,
+     17,
+     18,
+     19,
+     21,
+     22,
+     23,
+     24,
+     25,
+     27,
+     28
+    ],
+    "mean_step": 58.25,
+    "max_step": 109.16,
+    "last_to_first": 108.78,
+    "loop_ratio": 1.87,
+    "loops": true
+   },
+   "fps": 9.93
+  }
+ }
+}

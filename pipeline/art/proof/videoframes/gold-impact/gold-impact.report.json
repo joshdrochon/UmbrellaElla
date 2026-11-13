@@ -1,0 +1,73 @@
+{
+ "video": "pipeline/art/proof/videoframes/gold-impact/gold-impact-trim.mp4",
+ "fps": 12,
+ "source_frames": 30,
+ "loop_end": 18,
+ "end_candidates": {
+  "18": 146.22,
+  "19": 146.64,
+  "20": 149.46,
+  "21": 152.17,
+  "22": 152.86,
+  "23": 152.91,
+  "24": 153.46,
+  "25": 153.37,
+  "26": 152.6,
+  "27": 152.57,
+  "28": 152.67,
+  "29": 153.02
+ },
+ "jitter_before": {
+  "max_anchor_step_px": 461.11,
+  "max_height_step_pct": 34.07,
+  "max_anchor_from_first_px": 401.69,
+  "height_range_pct": 34.07
+ },
+ "jitter_after": {
+  "max_anchor_step_px": 0.61,
+  "max_height_step_pct": 34.07,
+  "max_anchor_from_first_px": 0.68,
+  "height_range_pct": 34.07
+ },
+ "green_inside_px_max": 0,
+ "sets": {
+  "24": {
+   "strip": "pipeline/art/proof/videoframes/gold-impact/gold-impact_N24_strip.png",
+   "gif": "pipeline/art/proof/videoframes/gold-impact/gold-impact_N24_preview.gif",
+   "loop": {
+    "indices": [
+     0,
+     1,
+     2,
+     2,
+     3,
+     4,
+     5,
+     6,
+     6,
+     7,
+     8,
+     9,
+     10,
+     10,
+     11,
+     12,
+     13,
+     13,
+     14,
+     15,
+     16,
+     17,
+     17,
+     18
+    ],
+    "mean_step": 26.51,
+    "max_step": 82.18,
+    "last_to_first": 146.22,
+    "loop_ratio": 5.52,
+    "loops": false
+   },
+   "fps": 15.16
+  }
+ }
+}

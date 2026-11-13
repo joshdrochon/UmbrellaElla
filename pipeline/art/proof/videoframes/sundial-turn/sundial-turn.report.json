@@ -1,0 +1,81 @@
+{
+ "video": "pipeline/art/proof/videoframes/sundial-turn/sundial-turn.mp4",
+ "fps": 12,
+ "source_frames": 48,
+ "loop_end": 47,
+ "end_candidates": {
+  "28": 85.03,
+  "29": 88.39,
+  "30": 88.92,
+  "31": 89.53,
+  "32": 91.02,
+  "33": 92.13,
+  "34": 89.28,
+  "35": 86.46,
+  "36": 82.96,
+  "37": 80.92,
+  "38": 79.22,
+  "39": 77.07,
+  "40": 77.14,
+  "41": 78.88,
+  "42": 78.49,
+  "43": 77.88,
+  "44": 77.8,
+  "45": 76.28,
+  "46": 74.65,
+  "47": 69.24
+ },
+ "jitter_before": {
+  "max_anchor_step_px": 22.27,
+  "max_height_step_pct": 1.51,
+  "max_anchor_from_first_px": 65.5,
+  "height_range_pct": 2.26
+ },
+ "jitter_after": {
+  "max_anchor_step_px": 0.93,
+  "max_height_step_pct": 1.51,
+  "max_anchor_from_first_px": 0.55,
+  "height_range_pct": 2.26
+ },
+ "green_inside_px_max": 0,
+ "sets": {
+  "24": {
+   "strip": "pipeline/art/proof/videoframes/sundial-turn/sundial-turn_N24_strip.png",
+   "gif": "pipeline/art/proof/videoframes/sundial-turn/sundial-turn_N24_preview.gif",
+   "loop": {
+    "indices": [
+     0,
+     2,
+     4,
+     6,
+     8,
+     10,
+     12,
+     14,
+     16,
+     18,
+     20,
+     22,
+     24,
+     26,
+     28,
+     30,
+     32,
+     34,
+     36,
+     38,
+     40,
+     42,
+     44,
+     46
+    ],
+    "mean_step": 46.86,
+    "max_step": 94.4,
+    "last_to_first": 74.65,
+    "loop_ratio": 1.59,
+    "loops": true
+   },
+   "fps": 6.0
+  }
+ }
+}
