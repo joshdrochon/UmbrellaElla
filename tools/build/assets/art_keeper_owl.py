@@ -98,8 +98,10 @@ def build_keeper(m, rnd):
             ln = (2.9 + 1.1 * math.sin(math.pi * (0.15 + 0.8 * t)) - 0.4 * t) * sc + rnd.uniform(-0.08, 0.08)
             cxw, czw = ox + math.cos(a) * ln / 2, oz + math.sin(a) * ln / 2
             yy = y + (-0.012 if bone == "wing_near" else 0.012) * k
-            mat = tone if k % 2 else plate
+            mat = lite if k % 2 else fea
             add("primitive_cube_add", bone, mat, loc=(cxw, yy, czw), rot=(0, -a, 0), size=1, scale=(ln, 0.05, 0.55))
+            px, pz = -math.sin(a) * 0.27, math.cos(a) * 0.27
+            add("primitive_cube_add", bone, ink, loc=(cxw + px, yy - 0.03, czw + pz), rot=(0, -a, 0), size=1, scale=(ln, 0.03, 0.045))
             add("primitive_cone_add", bone, mat, loc=(ox + math.cos(a) * (ln + 0.12), yy, oz + math.sin(a) * (ln + 0.12)),
                 rot=(0, S - a, 0), vertices=4, radius1=0.3, radius2=0.0, depth=0.5, scale=(1, 0.16, 1))
             add("primitive_cube_add", bone, ink, loc=(cxw, yy - 0.035, czw), rot=(0, -a, 0), size=1, scale=(ln * 0.96, 0.02, 0.035))  # rib
@@ -184,6 +186,8 @@ def etched(name, shades, look, hatch=0.3, scale=16.0, bump=0.12):
     """The team toon ramp plus etched hatching (a diagonal wave in object space darkens thin bands) and paper grain."""
     m = si.toon(name, shades, look)
     nt = m.node_tree
+    _rp = next(n for n in nt.nodes if n.bl_idname == "ShaderNodeValToRGB")
+    _rp.color_ramp.elements[1].position, _rp.color_ramp.elements[2].position = 0.22, 0.58
     mul = next(n for n in nt.nodes if n.bl_idname == "ShaderNodeVectorMath")
     src = mul.inputs[0].links[0].from_socket
     for lk in list(mul.inputs[0].links):
@@ -220,9 +224,9 @@ _orig = si.materials
 def materials(colours, look):
     d = _orig(colours, look)
     c = colours.get
-    d["plate"] = etched("plate", ["#6a5a48", "#8a7761", "#aa9984"], look, hatch=0.22)
-    d["feather"] = etched("feather", ["#5a4b3d", "#7a6954", "#9a8873"], look, hatch=0.22)
-    d["lite"] = etched("lite", ["#8a7761", "#aa9a88", "#c6baa6"], look, hatch=0.18)
+    d["plate"] = etched("plate", ["#3f3329", "#85725c", "#b0a08a"], look, hatch=0.22)
+    d["feather"] = etched("feather", ["#2e2620", "#6e5c49", "#9b8a74"], look, hatch=0.22)
+    d["lite"] = etched("lite", ["#5f4f40", "#a39380", "#cfc3ae"], look, hatch=0.18)
     d["aged"] = si.glow("aged", "#9a7434", 0.7)
     d["rust"] = si.glow("rust", c("rust-red", "#743422"))
     return d
