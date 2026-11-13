@@ -20,5 +20,5 @@ The lead's recipe says import the candidate into the piece's `_PH` slot and run 
 `UUmbrellaBackdropSubsystem::BuildLayers` draws every layer (Sky, FarLand, ...) as an untextured `/Engine/BasicShapes/Cube`, and no `T_*Skyline_PH`
 or `T_*Paper_PH` asset exists under Content/ or Art/. A smoke shot today shows grey cubes, not the skyline, so it would not be a context capture.
 Ask (visuals lane, or the build lead on main): per layer, load `/Game/UmbrellaElla/Art/Scene/T_<Piece>_PH` (skyline, paper) if present, and put it on a
-masked/translucent unlit material on the panel (UV tile for paper). Then I import `Art/Source/Scene/Paint/out/skyline_r2_keyed.png` under that name with an
+masked/translucent unlit material on the panel (UV tile for paper). Then I import `pipeline/art/proof/scene/skyline/skyline_r2_keyed.png` under that name with an
 editor script in `tools/build/assets/art_scene_*.py` and make the shot myself.
