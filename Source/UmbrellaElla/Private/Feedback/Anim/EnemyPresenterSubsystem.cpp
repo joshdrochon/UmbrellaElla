@@ -148,6 +148,7 @@ void UEnemyPresenterSubsystem::ShowStandIn(AUmbrellaEnemy* Enemy)
 	Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Mesh->SetGenerateOverlapEvents(false);
 	Mesh->SetupAttachment(Enemy->GetRootComponent());
+	ArtSlot::SetFlatUnlit(Mesh, Enemy, UmbrellaArtSlotConst::StandInEnemyColor);
 	// Art slot enemy:<Family>:<Gender>; the cube stays when no asset exists.
 	if (const FArtSlotRow* Row = ArtSlot::Find(*VisualIdOf(Enemy)))
 	{
