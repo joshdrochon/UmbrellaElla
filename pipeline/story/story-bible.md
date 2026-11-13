@@ -77,7 +77,7 @@ The owl's own name is OPEN (D-new-owl-name). The name floated so far has a trade
 | F12 | Health is three lives of three hits each, shown by one clock. | GDD | S6 SURV-05, SURV-07 | |
 | F13 | Journey Complete is the Director's Cut results screen, shown after a win. It counts enemies defeated, experience earned, deaths, distance flown, shots fired, shots fired at you (enemy shots aimed at Ella), damage taken and health restored. The owl itself is never killed (F3). | GDD | S6 FLOW-49 | |
 | F14 | Beyond the umbrella and shots, the Keeper fight has hostile gusts, enemy shots, wings, three hanging mechanisms, a clock, a three-second eye blackout, and a 1.2 second stun when a mechanism breaks. Basic shots never run out. | GDD | S6 MOVE-05, OWL-06, OWL-30 | |
-| P11 | In Rick's story the owl may only have put off his judgment, or something about Ella has challenged even his understanding of time. | GDD | S6 section 6 (the story text) | |
+| F15 | In Rick's story the owl may only have put off his judgment, or something about Ella has challenged even his understanding of time. | GDD | S6 section 6 (the story text) | |
 | F8 | Story ideas in the GDD (the clockkeeper, a night-to-dawn hour, a stolen clock hand in the umbrella, a mysterious departure, chapter framing) are ideas only. | DEFERRED | S1 Appendix inventory | |
 | P1 | Ella was meant to die. Her mother would not accept it and stole, from the owl, the clock hand that marked Ella's last hour. | CONFIRMED 2026-11-12 (agent default; team may override) | S3 | |
 | P2 | Her mother made the stolen hand into the umbrella. Its umbra, a perfect shadow, hides Ella from the light of truth, and so from death. | CONFIRMED 2026-11-12 (agent default; team may override) | S3 | |

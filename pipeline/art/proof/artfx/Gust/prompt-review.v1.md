@@ -1,0 +1,4 @@
+ROLE: Art Director | session 2026-11-12 (fresh review of prompt.v1.txt, no image call)
+
+Verdict: apply fixes. 'hostile' dropped (invites a menacing face or red tint); the colours stay ash blue #8FA3B0 with cream and slate only, no saturated blue. Ribbons shaped like flowing wind (bar-other-realm), never a flat arrow or box; loop frame 4 to 1 stated already. Ash blue is brighter than the bible's measured #555e60 (6% cap): flagged, not changed.
+Common fixes: aspect stated (wide 16:9, clear green round each frame); ink 'wide relative to the shape' made relative (a tenth of width) with hairline ink for tiny sparks so frame 4 stays coloured; positive phrasing for the tail and perspective clauses. Kept: narrative, pose first, one style block, centres at 1/8..7/8, ink #171614 and palette per art-bible. Risk: judge at gameplay size, hatching may read as a sticker.
