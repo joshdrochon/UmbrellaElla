@@ -12,6 +12,8 @@ import os
 import random
 import sys
 
+import bpy
+
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 sys.path.insert(0, os.path.join(ROOT, "pipeline", "art", "blender"))
 import stand_ins as si  # noqa: E402
@@ -32,10 +34,19 @@ def build_keeper(m, rnd):
     r.bone("wing_far", (-0.1, 0.35, 0.75), (0.5, 0.35, 1.9), "body")
     r.bone("mech", (1.0, -0.5, -0.8), (1.0, -0.5, -1.6), "body")
 
-    add = r.add
+    add0 = r.add
+
+    def add(op, bone, mat, **kw):
+        ob = add0(op, bone, mat, **kw)
+        if op == "primitive_cube_add" and mat in (plate, lite, fea):   # bevel the plates so edges catch light
+            bpy.context.view_layer.objects.active = ob
+            md = ob.modifiers.new("bev", "BEVEL")
+            md.width, md.segments = 0.025, 2
+            bpy.ops.object.modifier_apply(modifier="bev")
+        return ob
     # body: tapered barrel, chest plates overlapping like scales
     add("primitive_uv_sphere_add", "body", plate, loc=(0, 0, 0), segments=24, ring_count=14, radius=1.0, scale=(2.1, 0.85, 1.0))
-    add("primitive_uv_sphere_add", "body", ink, loc=(-0.3, 0.05, -0.35), segments=20, ring_count=10, radius=1.0, scale=(1.9, 0.8, 0.75))
+    add("primitive_uv_sphere_add", "body", fea, loc=(-0.3, 0.05, -0.35), segments=20, ring_count=10, radius=1.0, scale=(1.9, 0.8, 0.75))
     for row in range(3):
         for k in range(7):
             x = -1.0 + k * 0.42 + (0.21 if row % 2 else 0)
@@ -44,6 +55,8 @@ def build_keeper(m, rnd):
                 continue
             add("primitive_cube_add", "body", lite if (k + row) % 2 else plate, loc=(x, -0.62 + 0.03 * row, z),
                 rot=(0, 0.3, 0), size=1, scale=(0.5, 0.06, 0.34))
+    for k in range(14):   # riveted seam along the belly
+        add("primitive_uv_sphere_add", "body", m["rust"], loc=(-1.6 + k * 0.23, -0.5, -0.78 + 0.1 * math.sin(k * 0.45)), segments=6, ring_count=4, radius=0.05)
     # neck + head: angular, crownless, flat brow plate
     add("primitive_cylinder_add", "head", fea, loc=(1.55, 0, 0.45), rot=(0, 0.9, 0), vertices=12, radius=0.55, depth=0.9)
     add("primitive_uv_sphere_add", "head", lite, loc=(2.05, 0, 0.9), segments=20, ring_count=12, radius=0.86, scale=(1.05, 0.8, 0.9))
@@ -85,6 +98,10 @@ def build_keeper(m, rnd):
             add("primitive_cube_add", bone, mat, loc=(cxw, yy, czw), rot=(0, -a, 0), size=1, scale=(ln, 0.05, 0.4))
             add("primitive_cone_add", bone, ink, loc=(ox + math.cos(a) * ln, yy, oz + math.sin(a) * ln),
                 rot=(0, S - a, 0), vertices=3, radius1=0.2, radius2=0.0, depth=0.45, scale=(1, 0.3, 1))
+            add("primitive_cube_add", bone, ink, loc=(cxw, yy - 0.035, czw), rot=(0, -a, 0), size=1, scale=(ln * 0.96, 0.02, 0.035))  # rib
+            for t in (0.42, 0.55, 0.68, 0.81):   # perforation slots
+                add("primitive_cube_add", bone, ink, loc=(ox + math.cos(a) * ln * t, yy - 0.04, oz + math.sin(a) * ln * t),
+                    rot=(0, -a, 0), size=1, scale=(ln * 0.07, 0.02, 0.09))
             for t in (0.3, 0.6):   # rivets
                 add("primitive_uv_sphere_add", bone, m["rust"], loc=(ox + math.cos(a) * ln * t, yy - 0.04, oz + math.sin(a) * ln * t),
                     segments=6, ring_count=4, radius=0.045)
@@ -115,13 +132,15 @@ def build_keeper(m, rnd):
             add("primitive_torus_add", "mech", plate if k % 2 else ink, loc=(x0 + (x1 - x0) * t, y, z0 + (z1 - z0) * t),
                 rot=(S if k % 2 else 0, 0, 0), major_radius=0.1, minor_radius=0.03, major_segments=10, minor_segments=5)
     chain(0.8, -0.85, 1.35, -1.9, -0.55)
-    add("primitive_torus_add", "mech", plate, loc=(1.4, -0.55, -2.15), rot=(S, 0, 0), major_radius=0.28, minor_radius=0.06, major_segments=16, minor_segments=6)
-    add("primitive_torus_add", "mech", ink, loc=(1.4, -0.55, -2.15), rot=(0, 0, 0), major_radius=0.28, minor_radius=0.05, major_segments=16, minor_segments=6)
-    add("primitive_uv_sphere_add", "mech", ink, loc=(1.4, -0.55, -2.15), segments=10, ring_count=6, radius=0.14)
+    for rx, ry in ((S, 0), (0, 0), (0, S)):   # armillary sphere: three rings and a gold core
+        add("primitive_torus_add", "mech", plate if rx else lite, loc=(1.4, -0.55, -2.15), rot=(rx, 0, ry), major_radius=0.3,
+            minor_radius=0.045, major_segments=24, minor_segments=6)
+    add("primitive_uv_sphere_add", "mech", gold, loc=(1.4, -0.58, -2.15), segments=10, ring_count=6, radius=0.11)
     chain(1.8, -0.5, 3.3, -1.5, -0.45)   # lantern cage
     add("primitive_cylinder_add", "mech", ink, loc=(3.4, -0.45, -2.1), vertices=6, radius=0.4, depth=0.9)
-    add("primitive_cylinder_add", "mech", ink, loc=(3.4, -0.45, -1.6), vertices=6, radius=0.46, depth=0.1)
-    add("primitive_cylinder_add", "mech", ink, loc=(3.4, -0.45, -2.6), vertices=6, radius=0.46, depth=0.1)
+    add("primitive_cone_add", "mech", lite, loc=(3.4, -0.45, -1.45), vertices=6, radius1=0.5, radius2=0.12, depth=0.35)
+    add("primitive_torus_add", "mech", lite, loc=(3.4, -0.45, -1.2), major_radius=0.1, minor_radius=0.03, major_segments=12, minor_segments=5)
+    add("primitive_cylinder_add", "mech", lite, loc=(3.4, -0.45, -2.62), vertices=6, radius=0.48, depth=0.12)
     add("primitive_uv_sphere_add", "mech", gold, loc=(3.4, -0.9, -2.1), segments=10, ring_count=6, radius=0.18)
     for k in range(6):
         a = 2 * math.pi * k / 6
@@ -136,15 +155,49 @@ def build_keeper(m, rnd):
     return r.build(), {"mirror_bones": ()}
 
 
+def etched(name, shades, look, hatch=0.3, scale=16.0, bump=0.12):
+    """The team toon ramp plus etched hatching (a diagonal wave in object space darkens thin bands) and paper grain."""
+    m = si.toon(name, shades, look)
+    nt = m.node_tree
+    mul = next(n for n in nt.nodes if n.bl_idname == "ShaderNodeVectorMath")
+    src = mul.inputs[0].links[0].from_socket
+    for lk in list(mul.inputs[0].links):
+        nt.links.remove(lk)
+    coord = nt.nodes.new("ShaderNodeTexCoord")
+    wave = nt.nodes.new("ShaderNodeTexWave")
+    wave.wave_type, wave.bands_direction, wave.wave_profile = "BANDS", "DIAGONAL", "SAW"
+    wave.inputs["Scale"].default_value = scale
+    wave.inputs["Distortion"].default_value = 3.0
+    wave.inputs["Detail"].default_value = 2.0
+    wave.inputs["Detail Scale"].default_value = 3.0
+    thr = nt.nodes.new("ShaderNodeMath")
+    thr.operation = "GREATER_THAN"
+    thr.inputs[1].default_value = 0.72
+    dk = nt.nodes.new("ShaderNodeMath")
+    dk.operation = "MULTIPLY_ADD"
+    dk.inputs[1].default_value = -hatch
+    dk.inputs[2].default_value = 1.0
+    vm = nt.nodes.new("ShaderNodeVectorMath")
+    vm.operation = "SCALE"
+    geo = nt.nodes.new("ShaderNodeNewGeometry")
+    nt.links.new(geo.outputs["Position"], wave.inputs["Vector"])
+    nt.links.new(wave.outputs["Fac"], thr.inputs[0])
+    nt.links.new(thr.outputs[0], dk.inputs[0])
+    nt.links.new(src, vm.inputs[0])
+    nt.links.new(dk.outputs[0], vm.inputs["Scale"])
+    nt.links.new(vm.outputs[0], mul.inputs[0])
+    return m
+
+
 _orig = si.materials
 
 
 def materials(colours, look):
     d = _orig(colours, look)
     c = colours.get
-    d["plate"] = si.toon("plate", [c("owl-feather"), c("paper-stain", "#7b6157"), c("paper-mid", "#93786b")], look)
-    d["feather"] = si.toon("feather", [c("owl-umber"), c("owl-feather"), c("paper-stain", "#7b6157")], look)
-    d["lite"] = si.toon("lite", [c("paper-stain", "#7b6157"), c("paper-mid", "#93786b"), c("paper-light", "#aa8f7f")], look)
+    d["plate"] = etched("plate", [c("paper-stain", "#7b6157"), c("paper-mid", "#93786b"), c("paper-light", "#aa8f7f")], look)
+    d["feather"] = etched("feather", [c("owl-feather"), c("paper-stain", "#7b6157"), c("paper-mid", "#93786b")], look)
+    d["lite"] = etched("lite", [c("paper-mid", "#93786b"), c("paper-light", "#aa8f7f"), c("etch-line", "#c4a999")], look)
     d["rust"] = si.glow("rust", c("rust-red", "#743422"))
     return d
 
