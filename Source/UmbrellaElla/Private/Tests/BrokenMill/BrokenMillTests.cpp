@@ -19,10 +19,10 @@
 #include "Misc/AutomationTest.h"
 #include "Projectile/UmbrellaProjectile.h"
 #include "Trap/UmbrellaTrap.h"
+#include "Tests/BrokenMill/BrokenMillTestFixture.h"
 
 #if WITH_AUTOMATION_TESTS
 
-#define UMBRELLAELLA_MILL_FLAGS (EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
 
 namespace
 {
@@ -46,157 +46,6 @@ namespace
 		return Guard;
 	}
 
-	/** Real Ella plus a built room at an offset; the room's target is Ella. */
-	struct FMillIntegratedFixture
-	{
-		FUmbrellaTestWorld Test;
-		AEllaCharacter* Ella = nullptr;
-		ABrokenMillRoom* Room = nullptr;
-
-		/**
-		 * bNamedElla spawns Ella with the actor name "Ella". The real AWindCurrent puts the pawn's actor name in
-		 * TargetId and the Motor answers only to "Ella" (WIND-03, levelchunks lane); with this name the REAL overlap
-		 * event reaches the Motor unchanged. Remove the name once WIND-03 is fixed on main.
-		 */
-		bool Setup(const FVector2D& EllaRoomPoint, bool bNamedElla = false)
-		{
-			UWorld* World = Test.GetWorld();
-			if (!World)
-			{
-				return false;
-			}
-			Room = World->SpawnActor<ABrokenMillRoom>(ABrokenMillRoom::StaticClass(), FTransform(FVector(10000.0, 0.0, 0.0)));
-			if (!Room)
-			{
-				return false;
-			}
-			Room->BuildRoom();
-			if (bNamedElla)
-			{
-				FActorSpawnParameters Params;
-				Params.Name = UmbrellaPlayerIds::Ella;
-				Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-				Ella = World->SpawnActor<AEllaCharacter>(AEllaCharacter::StaticClass(), FTransform(Room->RoomToWorld(EllaRoomPoint)), Params);
-			}
-			else
-			{
-				Ella = Test.SpawnElla(Room->RoomToWorld(EllaRoomPoint));
-			}
-			if (Ella)
-			{
-				Room->SetTargetActor(Ella);
-			}
-			return Ella != nullptr;
-		}
-
-		/** Tick with Ella's height pinned (a held trim), so only the Motor's sideways motion moves her. */
-		void TickPinnedZ(float Seconds, float Dt)
-		{
-			const double Z = Ella->GetActorLocation().Z;
-			for (int32 Frame = 0; Frame < FMath::RoundToInt(Seconds / Dt); ++Frame)
-			{
-				Test.TickFrames(1, Dt);
-				FVector Location = Ella->GetActorLocation();
-				Location.Z = Z;
-				Ella->SetActorLocation(Location);
-			}
-		}
-
-		int32 CountShots() const { return Test.CountActors<AUmbrellaProjectile>(); }
-		FVector2D EllaRoom() const { return Room->WorldToRoom(Ella->GetActorLocation()); }
-
-		/** Tick until Ella's root falls to Z (or the time runs out); returns the seconds it took. */
-		float TickUntilRootBelow(float Z, float MaxSeconds, float Dt)
-		{
-			float Elapsed = 0.0f;
-			while (EllaRoom().Y > Z && Elapsed < MaxSeconds)
-			{
-				Test.TickFrames(1, Dt);
-				Elapsed += Dt;
-			}
-			return Elapsed;
-		}
-	};
-
-	/** What the bus said about Ella: wind enter/exit by source (TargetId = Ella's name) and shot contacts on her. */
-	struct FMillEllaEventState
-	{
-		TArray<FName> Entered;
-		TArray<FName> Exited;
-		TMap<FName, bool> Inside;
-		int32 ShotContactsOnElla = 0;
-		FName EllaName;
-	};
-
-	/** Subscribes on Attach and unsubscribes when it goes away; the handlers share the state, never 'this'. */
-	struct FMillEllaEventLog
-	{
-		TSharedRef<FMillEllaEventState> State = MakeShared<FMillEllaEventState>();
-		UUmbrellaEventBus* Bus = nullptr;
-		FDelegateHandle EnteredHandle;
-		FDelegateHandle ExitedHandle;
-		FDelegateHandle ContactHandle;
-
-		void Attach(UWorld* World, FName InEllaName)
-		{
-			State->EllaName = InEllaName;
-			Bus = UUmbrellaEventBus::Get(World);
-			if (!Bus)
-			{
-				return;
-			}
-			TSharedRef<FMillEllaEventState> Shared = State;
-			EnteredHandle = Bus->On(EUmbrellaEventType::WindEntered).AddLambda([Shared](const FUmbrellaEvent& Event)
-			{
-				if (Event.TargetId == Shared->EllaName)
-				{
-					Shared->Entered.Add(Event.SourceId);
-					Shared->Inside.Add(Event.SourceId, true);
-				}
-			});
-			ExitedHandle = Bus->On(EUmbrellaEventType::WindExited).AddLambda([Shared](const FUmbrellaEvent& Event)
-			{
-				if (Event.TargetId == Shared->EllaName)
-				{
-					Shared->Exited.Add(Event.SourceId);
-					Shared->Inside.Add(Event.SourceId, false);
-				}
-			});
-			ContactHandle = Bus->On(EUmbrellaEventType::ProjectileContact).AddLambda([Shared](const FUmbrellaEvent& Event)
-			{
-				Shared->ShotContactsOnElla += Event.TargetId == Shared->EllaName ? 1 : 0;
-			});
-		}
-
-		/** True when the last wind event for this source was an enter (an overlap at spawn may precede Attach). */
-		bool IsInside(FName Source) const { return State->Inside.FindRef(Source); }
-
-		int32 ShotContactsOnElla() const { return State->ShotContactsOnElla; }
-
-		~FMillEllaEventLog()
-		{
-			if (Bus)
-			{
-				Bus->On(EUmbrellaEventType::WindEntered).Remove(EnteredHandle);
-				Bus->On(EUmbrellaEventType::WindExited).Remove(ExitedHandle);
-				Bus->On(EUmbrellaEventType::ProjectileContact).Remove(ContactHandle);
-			}
-		}
-	};
-
-	/** Put the Motor at a lift multiplier through the real health event (Value = active hits, Amount = capacity). */
-	void MillSetLiftByHealth(UWorld* World, float ActiveHits, int32 CapacityHits)
-	{
-		if (UUmbrellaEventBus* Bus = UUmbrellaEventBus::Get(World))
-		{
-			FUmbrellaEvent Event;
-			Event.Type = EUmbrellaEventType::PlayerHealthChanged;
-			Event.SourceId = UmbrellaPlayerIds::Ella;
-			Event.Value = ActiveHits;
-			Event.Amount = CapacityHits;
-			Bus->Broadcast(Event);
-		}
-	}
 }
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMillGeometryEstimates, "UmbrellaElla.BrokenMill.GeometryEstimatesMatchGdd", UMBRELLAELLA_MILL_FLAGS)
@@ -436,8 +285,8 @@ bool FMillWorldCancelAbortPause::RunTest(const FString& Parameters)
 	const float Dt = 1.0f / 60.0f;
 	{
 		// Pause: the warning clock stands still, then resumes and the single shot comes.
-		FMillIntegratedFixture F;
-		if (!TestTrue(TEXT("fixture"), F.Setup(FVector2D(600.0, 650.0))))
+		BrokenMillTest::FMillIntegratedFixture F;
+		if (!TestNotNull(TEXT("fixture"), F.Spawn(FVector2D(600.0, 650.0))))
 		{
 			return false;
 		}
@@ -457,8 +306,8 @@ bool FMillWorldCancelAbortPause::RunTest(const FString& Parameters)
 		// Cancel: Ella passes behind the guard during the warning. POSITION-DRIVEN: this proves the room reacts to Ella's
 		// X crossing the muzzle, not that the Motor can carry her there (dashes reach ~85 units per 0.3 s, so no dash chain
 		// covers the ~700 units from the activation region to the muzzle inside the 1.1 s warning).
-		FMillIntegratedFixture F;
-		if (!TestTrue(TEXT("fixture"), F.Setup(FVector2D(600.0, 650.0))))
+		BrokenMillTest::FMillIntegratedFixture F;
+		if (!TestNotNull(TEXT("fixture"), F.Spawn(FVector2D(600.0, 650.0))))
 		{
 			return false;
 		}
@@ -472,8 +321,8 @@ bool FMillWorldCancelAbortPause::RunTest(const FString& Parameters)
 	}
 	{
 		// Abort: the real Motor dashes Ella back (RequestDash) out of shot range before the release; quiet recovery, no shot.
-		FMillIntegratedFixture F;
-		if (!TestTrue(TEXT("fixture"), F.Setup(FVector2D(600.0, 650.0))))
+		BrokenMillTest::FMillIntegratedFixture F;
+		if (!TestNotNull(TEXT("fixture"), F.Spawn(FVector2D(600.0, 650.0))))
 		{
 			return false;
 		}
@@ -512,13 +361,13 @@ bool FMillWorldRealWinds::RunTest(const FString& Parameters)
 	const FMillReopenCase Cases[] = {{420.0f, -1, TEXT("early reopen z 420")}, {270.0f, 1, TEXT("late reopen z 270")}, {345.0f, 0, TEXT("gap reopen z 345")}};
 	for (const FMillReopenCase& Case : Cases)
 	{
-		FMillIntegratedFixture F;
-		if (!TestTrue(TEXT("fixture"), F.Setup(FVector2D(700.0, 600.0), true)) || !TestNotNull(TEXT("reset wind"), F.Room->GetUpperWind()) || !TestNotNull(TEXT("onward wind"), F.Room->GetLowerWind()))
+		BrokenMillTest::FMillIntegratedFixture F;
+		if (!TestNotNull(TEXT("fixture"), F.Spawn(FVector2D(700.0, 600.0), true)) || !TestNotNull(TEXT("reset wind"), F.Room->GetUpperWind()) || !TestNotNull(TEXT("onward wind"), F.Room->GetLowerWind()))
 		{
 			return false;
 		}
 		TestEqual(TEXT("Ella answers to the bus id"), F.Ella->GetFName(), UmbrellaPlayerIds::Ella);
-		FMillEllaEventLog Log;
+		BrokenMillTest::FMillEllaEventLog Log;
 		Log.Attach(F.Test.GetWorld(), F.Ella->GetFName());
 		const FName Upper = F.Room->GetUpperWind()->GetFName();
 		const FName Lower = F.Room->GetLowerWind()->GetFName();
@@ -572,12 +421,12 @@ bool FMillWorldFallingPass::RunTest(const FString& Parameters)
 	// current carries her right while the single snapshot shot flies at where she was and misses.
 	const float Dt = 1.0f / 60.0f;
 	const FVector2D Entry(600.0, 650.0);
-	FMillIntegratedFixture F;
-	if (!TestTrue(TEXT("fixture"), F.Setup(Entry, true)))
+	BrokenMillTest::FMillIntegratedFixture F;
+	if (!TestNotNull(TEXT("fixture"), F.Spawn(Entry, true)))
 	{
 		return false;
 	}
-	FMillEllaEventLog Log;
+	BrokenMillTest::FMillEllaEventLog Log;
 	Log.Attach(F.Test.GetWorld(), F.Ella->GetFName());
 	F.Test.TickFrames(2, Dt);
 	TestEqual(TEXT("warning on entry"), F.Room->GetEventCount(EMillGuardEvent::WarningStarted), 1);
@@ -623,12 +472,12 @@ bool FMillWorldFreeRise::RunTest(const FString& Parameters)
 	// release; the guard still fires once, straight at the captured point, and the shot misses.
 	const float Dt = 1.0f / 60.0f;
 	const FBrokenMillTuning& T = GetDefault<UUmbrellaTuning>()->BrokenMill;
-	FMillIntegratedFixture F;
-	if (!TestTrue(TEXT("fixture"), F.Setup(FVector2D(600.0, T.ActivationZ.X + 10.0f))))
+	BrokenMillTest::FMillIntegratedFixture F;
+	if (!TestNotNull(TEXT("fixture"), F.Spawn(FVector2D(600.0, T.ActivationZ.X + 10.0f))))
 	{
 		return false;
 	}
-	FMillEllaEventLog Log;
+	BrokenMillTest::FMillEllaEventLog Log;
 	Log.Attach(F.Test.GetWorld(), F.Ella->GetFName());
 	F.Test.TickFrames(1, Dt);
 	TestEqual(TEXT("warning on entry"), F.Room->GetEventCount(EMillGuardEvent::WarningStarted), 1);
@@ -679,8 +528,8 @@ bool FMillWorldMissedCurrent::RunTest(const FString& Parameters)
 	// 1. Fall times 270 -> 150 (GDD: 0.364 s ordinary, 0.197 s free fall; nominal, not a recovery guarantee).
 	for (const bool bFreeFall : {false, true})
 	{
-		FMillIntegratedFixture F;
-		if (!TestTrue(TEXT("fixture"), F.Setup(Start, true)))
+		BrokenMillTest::FMillIntegratedFixture F;
+		if (!TestNotNull(TEXT("fixture"), F.Spawn(Start, true)))
 		{
 			return false;
 		}
@@ -702,15 +551,15 @@ bool FMillWorldMissedCurrent::RunTest(const FString& Parameters)
 	const float FloorContactRoot = T.FloorTop + T.MaxHalfHeight;
 	for (const float ReopenZ : {200.0f, 170.0f, 150.0f, 130.0f})
 	{
-		FMillIntegratedFixture F;
-		if (!TestTrue(TEXT("fixture"), F.Setup(Start, true)))
+		BrokenMillTest::FMillIntegratedFixture F;
+		if (!TestNotNull(TEXT("fixture"), F.Spawn(Start, true)))
 		{
 			return false;
 		}
-		FMillEllaEventLog Log;
+		BrokenMillTest::FMillEllaEventLog Log;
 		Log.Attach(F.Test.GetWorld(), F.Ella->GetFName());
 		const FName Lower = F.Room->GetLowerWind()->GetFName();
-		MillSetLiftByHealth(F.Test.GetWorld(), 0.0f, 0);
+		BrokenMillTest::MillSetLiftByHealth(F.Test.GetWorld(), 0.0f, 0);
 		F.Test.TickFrames(1, Dt);
 		TestTrue(TEXT("Motor at minimum lift"), FMath::IsNearlyEqual(F.Ella->GetMotor()->GetLiftMultiplier(), MinLift, 0.001f));
 		UUmbrellaStateComponent* State = F.Ella->GetUmbrellaState();

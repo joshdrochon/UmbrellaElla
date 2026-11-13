@@ -23,6 +23,23 @@ enum class EMillGuardEvent : uint8
 	WarningCancelled
 };
 
+/** The 10 HP introduction, or the 20 HP comparison that changes nothing else. */
+UENUM()
+enum class EMillGuardProfile : uint8
+{
+	Introduction,
+	Comparison
+};
+
+/** What the visible warning tell shows. */
+UENUM()
+enum class EMillTellPose : uint8
+{
+	Hidden,
+	Raised,
+	Lowered
+};
+
 UENUM()
 enum class EMillWind : uint8
 {
@@ -107,6 +124,12 @@ struct UMBRELLAELLA_API FBrokenMillRules
 
 	/** Muzzle ahead/right of Ella, in range, ray clear of rotor and island; descent reachability is the caller's. */
 	static bool IsEngagementValid(const FBrokenMillTuning& Tuning, const FVector2D& Ella, bool bDescentReachable);
+
+	/** Guard HP for a profile: the comparison changes HP only. */
+	static float GetGuardHp(const FBrokenMillTuning& Tuning, EMillGuardProfile Profile);
+
+	/** Raised for the whole warning, lowered for the quiet recovery after an aborted release, else hidden. */
+	static EMillTellPose GetTellPose(EMillGuardState State, bool bLastReleaseAborted, bool bGuardAlive);
 
 	/** Lifetime of the guard shot: range / speed (at most 4.167 s by default). */
 	static float GetGuardShotLifetime(const FBrokenMillTuning& Tuning);
