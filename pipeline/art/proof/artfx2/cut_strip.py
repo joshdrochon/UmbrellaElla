@@ -19,6 +19,30 @@ alpha = np.clip(1.0 - (green - 0.03) / 0.14, 0.0, 1.0)
 alpha[green < 0.03] = 1.0
 g2 = np.minimum(g, np.maximum(r, b) * 0.6)
 rgba = np.stack([r, g2, b, alpha], axis=-1)
+# snap every opaque pixel to the effect palette (art_check effect_style ramps + ink): env PALETTE=red|gold|both
+import os
+RAMPS = {"red": ["#FFF5DC", "#FF7848", "#FF3658", "#8F173C"], "gold": ["#FFF5DC", "#FFD84A", "#E9C46A", "#F5AA28", "#94611E"]}
+INKS = ["#171614", "#292622", "#463C32"]
+def _rgb(h):
+    h = h.lstrip("#"); return [int(h[i:i+2], 16) / 255.0 for i in (0, 2, 4)]
+fams = ["red", "gold"] if os.environ.get("PALETTE", "red") == "both" else [os.environ.get("PALETTE", "red")]
+pal = [_rgb(h) for h in INKS]
+for f in fams:
+    rp = [_rgb(h) for h in RAMPS[f]]
+    pal += rp
+    for a, b2 in zip(rp, rp[1:]):
+        for k in range(1, 4):
+            pal.append([a[j] + (b2[j] - a[j]) * k / 4 for j in range(3)])
+pal = np.array(pal, dtype=np.float32)
+flat = rgba[..., :3].reshape(-1, 3)
+op = (alpha.ravel() > 0.02)
+idx = np.zeros(flat.shape[0], dtype=np.int64)
+sel = np.where(op)[0]
+for i0 in range(0, len(sel), 400000):
+    ch = sel[i0:i0 + 400000]
+    idx[ch] = ((flat[ch][:, None, :] - pal[None, :, :]) ** 2).sum(-1).argmin(1)
+flat2 = flat.copy(); flat2[op] = pal[idx[op]]
+rgba = np.concatenate([flat2.reshape(h, w, 3), alpha[..., None]], axis=-1)
 if keyed_out:
     k = bpy.data.images.new("k", w, h, alpha=True)
     k.pixels = rgba.ravel().tolist()
@@ -62,6 +86,12 @@ for c in crops:
     cell[y0:y0 + nh, x0:x0 + nw] = small
     cells.append(cell)
 sheet = np.concatenate([cells[i // 2] for i in range(8)], axis=1)
+fl = sheet[..., :3].reshape(-1, 3); al = sheet[..., 3].reshape(-1)
+op2 = al > 0.02; sel2 = np.where(op2)[0]; fl2 = fl.copy()
+for i0 in range(0, len(sel2), 400000):
+    ch = sel2[i0:i0 + 400000]
+    fl2[ch] = pal[((fl[ch][:, None, :] - pal[None, :, :]) ** 2).sum(-1).argmin(1)]
+sheet = np.concatenate([fl2.reshape(sheet.shape[0], sheet.shape[1], 3), sheet[..., 3:]], axis=-1)
 s = bpy.data.images.new("s", CELL * 8, CELL, alpha=True)
 s.pixels = sheet.ravel().tolist()
 s.filepath_raw = out
