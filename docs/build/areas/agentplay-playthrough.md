@@ -2,12 +2,12 @@ HANDOFF BAR FAIL: every journey now reaches its end with no crash or soft-lock, 
 
 # Playthrough of the real game (agentplay, handoff bar)
 
-Header: commit=7fb0f680 (origin/main 7da8aba6 merged: screenfix B2 + Ella-visible follow-up d8a48397, settings2 B3,
-move floor, levelchunks walk test) + this commit's journey hook changes, engine=5.8.4, config=Development (editor -game),
+Header: commit=0ded1480 (origin/main 49822b58 merged: screenfix B2 + Ella-visible follow-up d8a48397, settings2 B3,
+move floor, levelchunks walk test, artkeeper Keeper art), engine=5.8.4, config=Development (editor -game),
 host=mac, run=editor -game via `tools/build/run_game.sh`: a **visible 640x360 window**, -nosound. Build: `build exit: 0 warnings: 0`.
 Journeys run one at a time (four windows at once steal mouse focus from each other: Retry and Continue clicks then land on an
 inactive window, `active=0`; not a game fault). Captures + journey.log: `pipeline/qa/playthrough/{lose,pause,win,dc}/`.
-Not merged into this run: artkeeper (Keeper cream box + lilac cube still on screen).
+Final run (all four journeys, one after another) on that tip, after the second merge of main.
 
 ## How it is played
 `-SmokeJourney=<script>` (workbench only, `Private/Smoke/JourneyHookSubsystem.cpp`) presses keys and clicks through
@@ -27,7 +27,7 @@ Test: `UmbrellaElla.Smoke.Journey.*` 3/3 PASS (new `ParsesRouteSteps`).
 |---|---|---|
 | Start screen, title music picked | PASS | `01_start_screen.png`; `picked=MusicTitle` (playback unmeasured under -nosound) |
 | Mouse: Start Game, tutorial by Enter | PASS | 3 taps; `02_tutorial.png` |
-| Playing | PASS | `03_playing_keeper.png` frame_check PASS. Ella drawn (128,15) spread 20: a small figure at the very top edge (she sits at the ceiling z 1036). Keeper drawn (480,145) spread 0 mean 184: the flat cream box + lilac cube placeholder. Arena drawn |
+| Playing | PASS | `03_playing_keeper.png` frame_check PASS. Ella drawn (128,15) spread 20: a small figure at the very top edge (she sits at the ceiling z 1036). Keeper drawn (480,145) spread 60: the owl art (cream box and lilac cube gone). Arena drawn |
 | Natural hit | PASS | standing 8 s cost 1 life (3 to 2) |
 | Defeated | PASS | 5 assisted hits; `04_defeated.png` Defeated / Retry / Quit to Title |
 | Mouse: Retry | PASS | Playing after 0.3 s, retries=1, lives 3/3, health full; `05_after_retry.png` |
@@ -46,9 +46,9 @@ Test: `UmbrellaElla.Smoke.Journey.*` 3/3 PASS (new `ParsesRouteSteps`).
 ## 3. WIN, Start Game: PASS 26/26 (`win/`)
 | Step | Result | Measured |
 |---|---|---|
-| Fight start | PASS | `w01_fight_start.png`: Ella drawn (128,15) top edge; Keeper placeholder drawn; arena drawn |
-| Shoot J, absorb K, hop Space | PASS | z 1036 to 772 (shoot), to 111 (absorb); hop x 384 to 459. `w02_moves.png`: Ella drawn (155,291) spread 19 |
-| Keeper wings, mechanisms, clock to the win | PASS (assisted) | Story 42.4 s after the fight began, 488 part hits |
+| Fight start | PASS | `w01_fight_start.png`: Ella drawn (128,15) top edge; Keeper owl art drawn (480,145) spread 60; arena drawn |
+| Shoot J, absorb K, hop Space | PASS | z 1036 to 734 (shoot 1.5 s), to 73 (absorb); hop x 384 to 457. `w02_moves.png`: Ella drawn (155,306) spread 19 |
+| Keeper wings, mechanisms, clock to the win | PASS (assisted) | Story 42.7 s after the fight began, 490 part hits |
 | Story text, no music | PASS | "Eventually, the owl's pursuit ends, and ..." (`w04_story_text.png`); `picked=SurvivedSting`, music none |
 | Credits with music, back to Start | PASS | Credits after 13.1 s (`w05_credits.png`), `picked=MusicTitle`; Title after 20.8 s |
 | Floor | PASS | lowest Ella z this run 44; she stays in the arena (move floor fix holds) |
@@ -58,14 +58,14 @@ Test: `UmbrellaElla.Smoke.Journey.*` 3/3 PASS (new `ParsesRouteSteps`).
 |---|---|---|
 | Mouse: Director's Cut | PASS | Purchase opens first (5 points earned by an earlier run, `d00_purchase.png`); Escape to the Start screen, Director's Cut again, tutorial, Playing |
 | Route start | PASS flow, **FAIL picture** | `d01_route_start.png`: Ella x -720, projected (-240,136): **off the left edge** (B6). Mother's line on screen. No Keeper (correct: not yet) |
-| Real keys, no trim, 8 s | recorded | Ella rises to z 2 636 and leaves the top of the picture (`d01b_route_untrimmed.png`, ella offscreen (-24,-519)); an earlier 60 s run reached z 14 962. No ceiling on the route (B7) |
-| CP0 to CP1, real keys + trim | **PASS, no assist** | 17.4 s, x -72 to 5 772. `d02_cp1.png`: Ella drawn (320,35), small figure near the top |
-| CP1 to CP2, real keys + trim | FAIL, then assisted | stops at x 11 465 in all 3 runs (60 s each); `routeassist 2` placed her at x 12 720. Not proven a soft-lock: the walker keeps her low and a higher pass may exist (B8) |
+| Real keys, no trim, 8 s | recorded | Ella rises to z 2 639 and leaves the top of the picture (`d01b_route_untrimmed.png`, ella offscreen (-23,-520)); an earlier 60 s run reached z 14 962. No ceiling on the route (B7) |
+| CP0 to CP1, real keys + trim | **PASS, no assist** | 17.4 s, x -70 to 5 775. `d02_cp1.png`: Ella drawn (320,36), small figure near the top |
+| CP1 to CP2, real keys + trim | FAIL, then assisted | stops at x 11 465 in all 4 runs (60 s each); `routeassist 2` placed her at x 12 720. Not proven a soft-lock: the walker keeps her low and a higher pass may exist (B8) |
 | CP2 refuge | PASS | Purchase opens (`d03a_refuge_purchase.png`), Escape leaves; `d03_cp2.png` Ella drawn (320,234) |
-| CP2 to CP3, real keys + trim | **PASS, no assist** | 20.1 s, x 12 778 to 19 218; CP3 refuge Purchase, Escape; `d04_cp3.png` Ella drawn (372,135) |
-| CP3 to the Keeper handoff, real keys | **PASS, no assist** | 1.3 s; encounter active |
-| Keeper fight | PASS flow, **FAIL picture** | `d05_keeper_handoff.png`: **Keeper offscreen (-5 600,145)**, Ella offscreen (514,-46) above the top. The Keeper spawns at the arena's anchor near x -720 while the camera follows Ella at x 19 800 (B5) |
-| Wings to clock to the win | PASS (assisted) | 490 part hits, 44.8 s; 3 LevelUp cards closed by Enter |
+| CP2 to CP3, real keys + trim | **PASS, no assist** | 19.3 s, x 12 863 to 19 218; CP3 refuge Purchase, Escape; `d04_cp3.png` Ella drawn (344,136) |
+| CP3 to the Keeper handoff, real keys | **PASS, no assist** | 1.5 s; encounter active |
+| Keeper fight | PASS flow, **FAIL picture** | `d05_keeper_handoff.png`: **Keeper offscreen (-5 600,145)**, Ella offscreen (544,-44) above the top. The Keeper spawns at the arena's anchor near x -720 while the camera follows Ella at x 19 800 (B5) |
+| Wings to clock to the win | PASS (assisted) | 500 part hits, 45.9 s; LevelUp cards closed by Enter |
 | Director's Cut story, credits | PASS | "The owl's pursuit ends. He goes back ..." (`d07_story_text.png`); Credits after 12.1 s (`d08_credits.png`) |
 | Journey Complete, mouse: Main Menu | PASS | Statistics after 20.8 s (`d09_after_credits.png`), Main Menu to the Start screen (`d10_back_at_start.png`) |
 Mill: not in any run, by D-new-mill-in-route (open with Josh); not a fail. Start Game skipping the route: GDD FLOW-02; not a fail.
@@ -73,11 +73,11 @@ Mill: not in any run, by D-new-mill-in-route (open with Josh); not a fail. Start
 ## Visibility per gameplay capture (measured; 640x360)
 | Capture | Ella | Arena | Keeper |
 |---|---|---|---|
-| lose 03, 03b, 05, 05b; win w01; pause p04 | drawn, top edge (128,15), tiny | drawn | placeholder box, drawn (flat colour) |
-| win w02 | drawn (155,291) | drawn | placeholder, drawn |
+| lose 03, 03b, 05, 05b; win w01; pause p04 | drawn, top edge (128,15), tiny | drawn | owl art, drawn (480,145) spread 60 |
+| win w02 | drawn (155,306) | drawn | owl art, drawn |
 | dc d01 route start | **offscreen left** | drawn | absent (correct) |
 | dc d01b after 8 s of rising | **offscreen top** | drawn | absent |
-| dc d02 CP1 / d03 CP2 / d04 CP3 | drawn (320,35) / (320,234) / (372,135) | offscreen (route scrolls away from the arena: expected) | absent (correct) |
+| dc d02 CP1 / d03 CP2 / d04 CP3 | drawn (320,36) / (320,234) / (344,136) | offscreen (route scrolls away from the arena: expected) | absent (correct) |
 | dc d05 Keeper fight | **offscreen top** | offscreen | **offscreen** |
 
 ## Blockers (ID, owner lane)
@@ -93,8 +93,8 @@ Mill: not in any run, by D-new-mill-in-route (open with Josh); not a fail. Start
   soft-lock; needs one human try or a test that walks it.
 - **B9 (Purchase Done hidden), progression / artui**: at 640x360 the Done button draws under the purchase panel; a mouse click
   lands on `SBorder` and nothing happens (`d00_purchase.png`). Escape and Enter still leave. Other sizes not checked.
-- **B10 (Keeper look), artkeeper**: cream box + lilac cube placeholder in every Start Game fight shot; fix queued, not on main.
 - Minor, not traced: Journey Complete shows "Shots fired 0" after ~45 s of J held (storyflow / progression statistics).
 - Minor: Ella sits at the top edge in Start Game (projected y 15 at the ceiling); small at 640x360 (screenfix follow-up).
-- Closed this run: B2 (black gameplay, screenfix), B3 (Settings picture + Escape, settings2), WIN floor (move). B1 is
+- Closed this run: B2 (black gameplay, screenfix), B3 (Settings picture + Escape, settings2), WIN floor (move), Keeper
+  cream box + lilac cube (artkeeper: the owl art draws). B1 is
   workbench-only (sound label overlay; the hook still sets it click-through).

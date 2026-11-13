@@ -34,3 +34,10 @@
 - 1920x1080: Windows check only (`python3 tools/build/agent_play.py --rule HAZ-16 --res 1920x1080`).
 - Full matrix (1280x720 and 1728x1117, healthy and low, 3 attempts each) not run: the screen is unreadable (above), so every run
   would be a recorded reject. Run it once the room is readable. 20 HP comparison: only after a natural reject by the player.
+
+## Handoff-bar playthrough (Nov 13, lead order, Opus)
+- Journey hook: `route N T [trim]` (real keys only), `routeassist N` (named assist via the director's PlaceAtCheckpoint),
+  `skipunless <Screen> n`, Enter on LevelUp/Story cards and Escape on a refuge Purchase, and a per-shot visibility measure of
+  Ella / Keeper / arena. Test `UmbrellaElla.Smoke.Journey.ParsesRouteSteps` (Journey 3/3 PASS).
+- New script `tools/build/journeys/directors_cut.txt`; `pause_settings.txt` now requires Escape to back out of Settings.
+- Result and blockers B5-B9: `docs/build/areas/agentplay-playthrough.md` (verdict on its first line).
