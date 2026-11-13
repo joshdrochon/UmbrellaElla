@@ -44,3 +44,37 @@ Then bolt-hit detail, then wind pieces once their calibration is fixed.
 - Still blocked as before: `context` pair needs an in-engine capture; bolt-hit/wind-lines/wind-zone fail deterministic checks
   (wind calibration numbers are the lead's to re-measure, see Blockers above).
 - Next real step: a shaded (radial/gradient) shell with a bounded glow mask and finer etched hatch, not more line slivers.
+
+## 12 Nov evening (Fable worker): engraved-print technique, critics on Opus
+Nothing ships yet. All five stay tracked `_PH`. Critic sessions now run `claude-opus-5-5` (main's rule for critics;
+the brief still says Sonnet; Opus is the stricter of the two, calibration 10 to 12 of 12 per round).
+
+New builder: `tools/build/assets/art_shots_etch.py <piece> <out.png> [seed] --blend <file> --mul 2` (Blender, through
+`ue_slot.sh`). The piece is a tone field cut through a hand-cut line screen into the GDD ramp (ink, shadow, shell, hot,
+core), with a broken ink contour and a bounded stippled light. Every opaque pixel is one ramp colour. 8x masters.
+
+| piece | panel folder | render | art_ref (min) | panel: ours wins | gap in the losses |
+|---|---|---|---|---|---|
+| owl-bolt | owl9 | GP9 (flat polygons) | 0.766 (0.729) | 2 of 12 | flat vector fills, no etched line, no paper grain, tail too long |
+| owl-bolt | owl10 | E11 | 0.790 | 7 of 12 | flat untextured ground; tail longer than head; uniform machine stripes |
+| owl-bolt | owl11 | E12 (hand-cut lines, cross-hatch, full ink contour) | 0.817 | 8 of 12 | flat ground; long saw-tooth body |
+| owl-bolt | owl12 | E13 (compact body) | 0.823 | 9 of 12 (red-shot crop 3/3, d-red-shots 3/3, double-beat 2/3, quality bar 1/3) | flat ground (3), no bounded glow (2), tail (1) |
+| wand-shot | wand4 | GP3 | 0.699 (0.334) | 3 of 6 (reference 3/3, quality bar 0/3) | no ink line work, no paper grain, flat ground |
+| wand-shot | wand5 | E6 | 0.687 | 3 of 6 (reference 3/3, quality bar 0/3) | flat ground; flat colour bands in the star |
+| bolt-hit | hit1 | E3 | 0.678 (0.666) | 4 wins + 1 SAME of 9 (quality bar 0/3) | flat ground; long beam tail; posterized fills |
+Deterministic checks (art_ref_check, screen_check, art_check sprite colour rules) pass on every render in the table.
+
+### Critic sanity (three tests, evidence under `Saved/panel/sanity*`, not committed)
+1. Reference as the entry (red-shot crop vs the quality bar, 3 sessions): the bar wins 3 of 3 ("flat vector fills, no
+   etched line or paper grain"). A team reference does not have to beat the top bar, so no defect by itself.
+2. The quality bar's own red shot, cut out and flattened like ours, vs its own sheet (3 sessions): the cut-out wins 2,
+   loses 1 ("cropped so tight no paper is left"). The critic does not reject an isolated shot as such.
+3. Ground test: wand-shot E6 composited on the team paper tile (`SKY_StarPaper_Tile.png`) vs the quality bar, same
+   seeds as wand5: 1 win, 2 losses, and no session names the ground any more (flat ground: 0 of 3, all three name it).
+Verdict: work and check both. Work: remaining gaps are real (hatching inside the wand star, tail lengths) and are being
+fixed. Check defect (packet): our transparent sprite is flattened on a flat cream ground while every reference sits on
+its own textured paper, and most remaining losses name that ground. Request with the diff: `docs/build/requests/artshots.md`.
+
+### Blockers (unchanged)
+- `context` pair: needs an in-engine capture after import (lead's package and smoke). No piece can pass before that.
+- wind-zone `detail_min` fix (area/artcal 7ad7ebd) is not on this branch yet.
