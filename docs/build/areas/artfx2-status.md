@@ -76,3 +76,7 @@
 - vfx-keeper-warning draft 4 (flash $0.039, `KeeperWarning/prompt.v4.txt`, sheet4): art_judge 0.594 vs min 0.699, best so far (0.462/0.568/0.515/0.594), still no pass. No panel, nothing shipped.
 - Spend 33.57 of 33.82 (shared). About 0.25 left, so I stopped painting instead of draining the cap on a flat piece.
 - Left: all 8 pieces `_PH`. Needs more spend cap (or a pro-tier try) and the in-engine capture (import_art_candidate) for the panel.
+
+## Slice 14 (Nov 13): merged main with the shared style block, keeper-warning draft 5, not passed
+- Merged origin/main (style block now added to every paid prompt). Draft 5 (flash $0.039, `KeeperWarning/prompt.v5.txt`: etched ink edges in dark red, crosshatch, paper grain): art_judge 0.577 vs min 0.699 (drafts 0.462/0.568/0.515/0.594/0.577). Flat across 5 drafts; flash does not reach the crop refs.
+- Spend 33.61 of 33.82. About 0.21 left, so no more paint. Other 7 pieces unpainted, all `_PH`. Needs more cap or a pro-tier try, plus the in-engine capture for the panel.
