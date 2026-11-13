@@ -49,10 +49,10 @@ FLOW-06,Telegraphs/recovery/scheduling/projectile speed/safe placement preserved
 FLOW-06,No automatic increase in incoming damage,?,progression
 FLOW-08,Quit reload restores checkpoint upgrades (ranks),?,progression
 FLOW-08,only XP asserted,?,progression
-FLOW-09,Exactly 3 lives on retry in both modes (Start Game not tested),?,keeper
-FLOW-09,"3-life reset keeps purchased max lives (Health.World.RetryRestoresFullLivesAndHealth asserts 4 lives, not 3)",?,keeper
-FLOW-09,Rollback applied before full heal (ordering),?,keeper
-FLOW-09,Level-checkpoint retry fully heals (only event-driven retry tested),?,keeper
+FLOW-09,Exactly 3 lives on retry in both modes (Start Game not tested),i,keeper
+FLOW-09,"3-life reset keeps purchased max lives (Health.World.RetryRestoresFullLivesAndHealth asserts 4 lives, not 3)",ext:health,keeper
+FLOW-09,Rollback applied before full heal (ordering),ext:health,keeper
+FLOW-09,Level-checkpoint retry fully heals (only event-driven retry tested),ext:flow,keeper
 FLOW-10,Upgrades (ranks) retained into next run after win,?,progression
 FLOW-10,Unlocks/weapons retained into next run after win,?,progression
 FLOW-13,Level checkpoint after boss checkpoint does not exempt gains from rollback,?,progression
@@ -78,160 +78,160 @@ FLOW-22,Earned data separate from tuning/bindings,?,progression
 FLOW-22,Two corrupt copies error is recoverable,?,progression
 FLOW-22,Shadow progress restored on relaunch,?,progression
 FLOW-22,Tutorial replay uses shadow progress,?,progression
-OWL-06,Rules apply in BOTH modes (no Director's Cut keeper test),?,keeper
-OWL-06,"Retained/restored capacity, max lives, upgrades on retry",?,keeper
-OWL-06,Normal phase advancement carries Ella's health,?,keeper
-OWL-07,Complete fight contract (OWL-06..35 rows themselves partial),?,keeper
-OWL-07,No player resource system (no test),?,keeper
-OWL-07,"Gameplay state, not animation length, owns damage/transitions",?,keeper
-OWL-08,Crownless metallic owl in side profile (visual),?,keeper
-OWL-08,"Exactly two feet, two wings, central clock (visual)",?,keeper
-OWL-08,Three visually distinct hanging mechanisms,?,keeper
-OWL-08,"Front/middle/rear identity, attachment, reachability through movement",?,keeper
-OWL-08,"Front is armillary/ring, not duplicated",?,keeper
-OWL-09,Wings reachable at supported owl sizes,?,keeper
-OWL-09,Wings damaged from lift,?,keeper
-OWL-09,No new gusts after wing depletion,?,keeper
-OWL-09,Depleted wings remain visible as cover,?,keeper
-OWL-09,Middle/rear break cancels cast and removes attack,?,keeper
-OWL-10,Both modes checkpoint at each phase start,?,keeper
-OWL-10,No mid-mechanism checkpoint after a mechanism breaks,?,keeper
-OWL-10,"Retained/restored capacity, max lives, upgrades on retry",?,keeper
-OWL-10,Initial phase advancement carries Ella's health,?,keeper
-OWL-11,Wings/clock aim at captured positions,?,keeper
-OWL-11,Mechanisms use fixed-left fan,?,keeper
-OWL-11,No homing,?,keeper
-OWL-11,Spacing 0.09s,?,keeper
-OWL-11,Normal interval 1.35s,?,keeper
-OWL-11,One-shot reduced volley (assertion has vacuous OR),?,keeper
-OWL-11,Queued/traveling shots keep counts/paths,?,keeper
-OWL-11,"Recovery: yellow <=0.15s, red >=0.6s, longer red kept",?,keeper
-OWL-11,Four shots (no spec key bound for 4),?,keeper
-OWL-11,Spreads 36/70/48 deg (no test uses spread fields),?,keeper
-OWL-11,Speeds 270/300 (no mechanism/clock speed test),?,keeper
-OWL-12,No separate timed prefire delay,?,keeper
-OWL-12,"Captured lane shown, no hidden tracking",?,keeper
-OWL-12,Player can leave via rise/fall/current/evade,?,keeper
-OWL-12,Traveling missiles continue during electrical stun,?,keeper
-OWL-13,Yellow shots are aimed,?,keeper
-OWL-13,Independent 2.3s cadence,?,keeper
-OWL-13,Keeper yellow ordinary contact deals 1 health,?,keeper
-OWL-13,Shoot alone never auto-catches,?,keeper
-OWL-13,No absorption cooldown or energy reward,?,keeper
-OWL-13,Speeds 195/210 (no mechanism/clock yellow test),?,keeper
-OWL-15,Gust in wing act only,?,keeper
-OWL-15,Shared physical scheduler 6.5s from attack start,?,keeper
-OWL-15,Talon priority over gust,?,keeper
-OWL-15,"Wing gather/load then flap cue, readable direction",?,keeper
-OWL-15,Complete owl warning/strike/recovery animation verified,?,keeper
-OWL-16,Gust damage 1 health (only hit count checked),?,keeper
-OWL-16,Bypasses hop protection,?,keeper
-OWL-16,Dash protection blocks damage not push,?,keeper
-OWL-16,"Speed 350 (bound, but no test exercises speed)",?,keeper
-OWL-16,"Band width 120 (bound, no test exercises it)",?,keeper
-OWL-16,"Lifetime 3s (bound, no test exercises it)",?,keeper
-OWL-17,Wing recovery follows the flap,?,keeper
-OWL-17,Stun clears active gusts,?,keeper
-OWL-17,No new gusts after depletion/stun,?,keeper
-OWL-17,Depleted wing smoke remains (visual),?,keeper
-OWL-17,Hostile fronts distinct from voluntary wind (geometry/motion),?,keeper
-OWL-18,"Empty claw draws back, distinct from carrying claw (visual)",?,keeper
-OWL-18,"Strike direction captured at commitment, no tracking",?,keeper
-OWL-18,Cooldown must be clear to trigger,?,keeper
-OWL-18,No test that talon stays idle outside 270,?,keeper
-OWL-19,Empty space and recovery do no damage,?,keeper
-OWL-19,Vertical-exit check suppresses impossible launches,?,keeper
-OWL-19,"Tip width 48 (bound, no test exercises width)",?,keeper
-OWL-19,Sweep aims at captured target,?,keeper
-OWL-20,Quiet recovery 1s,?,keeper
-OWL-20,Shared scheduling with talon,?,keeper
-OWL-20,Must re-enter <=270 after leaving to rearm,?,keeper
-OWL-20,No rearm on simple exit at attack radius,?,keeper
-OWL-20,"Cooldown 3.5s from commitment (bound, behavior not asserted)",?,keeper
-OWL-21,front head locks Ella's destination (move after lock not tested),?,keeper
-OWL-21,0.9s warning duration,?,keeper
-OWL-21,"closed claw grips armillary outer ring, load/release/follow-through",?,keeper
-OWL-21,original attachments pay out,?,keeper
-OWL-21,no duplicate ring or floating grasp,?,keeper
-OWL-21,choreography does not change lock window or collision,?,keeper
-OWL-22,committed straight outward head path,?,keeper
-OWL-22,reach 800,?,keeper
-OWL-22,speed basis 400 units/s,?,keeper
-OWL-22,head width 32,?,keeper
-OWL-22,only the outward moving head damages,?,keeper
-OWL-22,links harmless,?,keeper
-OWL-22,visible position = shootable target = damaging sweep,?,keeper
-OWL-23,return home is harmless,?,keeper
-OWL-23,return takes 1.2s then settles,?,keeper
-OWL-23,broken part's attack stays removed until explicit reset,?,keeper
-OWL-23,explicit reset restores the attack,?,keeper
-OWL-24,middle cast keeps same endpoint/warning/head/link/return contract,?,keeper
-OWL-24,±80-unit sine offset,?,keeper
-OWL-24,sign uses GLOBAL physical serial (talon counts) in real casts,?,keeper
-OWL-24,no every-cast alternation (talon-intervening case untested),?,keeper
-OWL-25,shown and collides on the actual curved path,?,keeper
-OWL-25,moving middle head shootable on the curve,?,keeper
-OWL-25,timing uses straight-distance basis (not constant 400/s),?,keeper
-OWL-25,telegraph shows enough curve for a viable exit,?,keeper
-OWL-25,destroying the middle cancels its cast (only front tested),?,keeper
-OWL-25,dedicated art follows curved geometry,?,keeper
-OWL-26,0.9s warning before rear stroke,?,keeper
-OWL-26,first stroke stops at half of outward stroke,?,keeper
-OWL-26,"continues to ORIGINAL captured endpoint, no re-aim",?,keeper
-OWL-26,"both strokes share one serial, damage at most once",?,keeper
-OWL-26,chain links harmless,?,keeper
-OWL-26,1.2s return harmless,?,keeper
-OWL-27,second clack / stopped head signals unfinished movement,?,keeper
-OWL-27,destruction cancels either rear stroke or pause immediately,?,keeper
-OWL-27,held-in-claw artwork reconciled to mid-flight pause,?,keeper
-OWL-28,repeat without re-aim (player never moved in test),?,keeper
-OWL-28,0.6s wait after last shot,?,keeper
-OWL-28,at least 0.85s recovery after repeat,?,keeper
-OWL-28,yellow keeps its own timer,?,keeper
-OWL-28,"clock-hand move, tick and path cue mark the reprise",?,keeper
-OWL-28,destroyed hazards not resurrected / world not rewound,?,keeper
-OWL-29,exposure cycle uses unscaled active-gameplay time,?,keeper
-OWL-29,needle never bypasses magic or target order,?,keeper
-OWL-29,clock exposure independent of volley cadence,?,keeper
-OWL-30,mechanism break opens the clock,?,keeper
-OWL-30,break clears gusts,?,keeper
-OWL-30,"new fire stops during stun, traveling missiles continue",?,keeper
-OWL-30,fire pause freezes physical timers and pending emissions,?,keeper
-OWL-30,fire pause is not stun,?,keeper
-OWL-30,blackout cancels the physical move,?,keeper
-OWL-31,hit at 128-HP floor does not start slow,?,keeper
-OWL-31,slow cooldown must be ready,?,keeper
-OWL-31,slow lasts 3s,?,keeper
-OWL-31,3s slow cooldown,?,keeper
-OWL-31,new clock opening resets slow/eye flags and clears eye,?,keeper
-OWL-31,extending an opening does not reset flags,?,keeper
-OWL-31,lethal final-clock hit clears all effects,?,keeper
-OWL-32,eye-when-slow-off enabled by default and works with slow off,?,keeper
-OWL-32,eye window lasts 2s,?,keeper
-OWL-32,eye needs cooldown ready and unused per-opening chance,?,keeper
-OWL-32,eye outlasts clock closing until its timer ends,?,keeper
-OWL-32,new clock opening clears the eye,?,keeper
-OWL-32,5s eye cooldown starts on eye hit,?,keeper
-OWL-32,blackout clears physical moves and gusts,?,keeper
-OWL-32,shaft/clock/fresh-shot cues and ground danger kept,?,keeper
-OWL-32,prior damaged body restored at blackout expiry,?,keeper
-OWL-32,blackout does not extend clock exposure,?,keeper
-OWL-33,slow/eye/cooldowns/stun/blackout/clock timers run unscaled,?,keeper
-OWL-33,physical attack timing scaled at x0.35,?,keeper
-OWL-33,player projectiles stay unscaled,?,keeper
-OWL-33,fire pause suspends physical timers,?,keeper
-OWL-33,traveling missiles continue during fire pause,?,keeper
-OWL-33,"decorative menu clocks may run while paused, no gameplay/VFX advance",?,keeper
-OWL-34,full warning→stroke→recovery→idle sequence asserted,?,keeper
-OWL-34,blackout and presentation locks respected by scheduler,?,keeper
-OWL-34,fire pause freezes pending emissions,?,keeper
-OWL-34,reduced projectile pressure during physical activity (assertion has vacuous OR),?,keeper
-OWL-34,overlapping escape routes tested,?,keeper
-OWL-35,living departure lasts ~2.5s as presentation only,?,keeper
-OWL-35,"retry clears casts, gusts, queued repeats, locks",?,keeper
-OWL-35,new-run reset clears state,?,keeper
-OWL-35,phase reset clears state,?,keeper
-OWL-35,XP policy applied,?,keeper
+OWL-06,Rules apply in BOTH modes (no Director's Cut keeper test),i,keeper
+OWL-06,"Retained/restored capacity, max lives, upgrades on retry",ext:progression,keeper
+OWL-06,Normal phase advancement carries Ella's health,i,keeper
+OWL-07,Complete fight contract (OWL-06..35 rows themselves partial),i,keeper
+OWL-07,No player resource system (no test),i,keeper
+OWL-07,"Gameplay state, not animation length, owns damage/transitions",i,keeper
+OWL-08,Crownless metallic owl in side profile (visual),art,keeper
+OWL-08,"Exactly two feet, two wings, central clock (visual)",art,keeper
+OWL-08,Three visually distinct hanging mechanisms,i,keeper
+OWL-08,"Front/middle/rear identity, attachment, reachability through movement",i,keeper
+OWL-08,"Front is armillary/ring, not duplicated",art,keeper
+OWL-09,Wings reachable at supported owl sizes,i,keeper
+OWL-09,Wings damaged from lift,i,keeper
+OWL-09,No new gusts after wing depletion,i,keeper
+OWL-09,Depleted wings remain visible as cover,i,keeper
+OWL-09,Middle/rear break cancels cast and removes attack,i,keeper
+OWL-10,Both modes checkpoint at each phase start,i,keeper
+OWL-10,No mid-mechanism checkpoint after a mechanism breaks,i,keeper
+OWL-10,"Retained/restored capacity, max lives, upgrades on retry",ext:progression,keeper
+OWL-10,Initial phase advancement carries Ella's health,i,keeper
+OWL-11,Wings/clock aim at captured positions,i,keeper
+OWL-11,Mechanisms use fixed-left fan,i,keeper
+OWL-11,No homing,i,keeper
+OWL-11,Spacing 0.09s,i,keeper
+OWL-11,Normal interval 1.35s,i,keeper
+OWL-11,One-shot reduced volley (assertion has vacuous OR),i,keeper
+OWL-11,Queued/traveling shots keep counts/paths,i,keeper
+OWL-11,"Recovery: yellow <=0.15s, red >=0.6s, longer red kept",i,keeper
+OWL-11,Four shots (no spec key bound for 4),i,keeper
+OWL-11,Spreads 36/70/48 deg (no test uses spread fields),i,keeper
+OWL-11,Speeds 270/300 (no mechanism/clock speed test),i,keeper
+OWL-12,No separate timed prefire delay,i,keeper
+OWL-12,"Captured lane shown, no hidden tracking",i,keeper
+OWL-12,Player can leave via rise/fall/current/evade,i,keeper
+OWL-12,Traveling missiles continue during electrical stun,done,keeper
+OWL-13,Yellow shots are aimed,i,keeper
+OWL-13,Independent 2.3s cadence,i,keeper
+OWL-13,Keeper yellow ordinary contact deals 1 health,i,keeper
+OWL-13,Shoot alone never auto-catches,ext:absorb,keeper
+OWL-13,No absorption cooldown or energy reward,ext:absorb,keeper
+OWL-13,Speeds 195/210 (no mechanism/clock yellow test),i,keeper
+OWL-15,Gust in wing act only,i,keeper
+OWL-15,Shared physical scheduler 6.5s from attack start,i,keeper
+OWL-15,Talon priority over gust,i,keeper
+OWL-15,"Wing gather/load then flap cue, readable direction",art,keeper
+OWL-15,Complete owl warning/strike/recovery animation verified,art,keeper
+OWL-16,Gust damage 1 health (only hit count checked),i,keeper
+OWL-16,Bypasses hop protection,ext:health,keeper
+OWL-16,Dash protection blocks damage not push,ext:health,keeper
+OWL-16,"Speed 350 (bound, but no test exercises speed)",i,keeper
+OWL-16,"Band width 120 (bound, no test exercises it)",i,keeper
+OWL-16,"Lifetime 3s (bound, no test exercises it)",i,keeper
+OWL-17,Wing recovery follows the flap,i,keeper
+OWL-17,Stun clears active gusts,i,keeper
+OWL-17,No new gusts after depletion/stun,i,keeper
+OWL-17,Depleted wing smoke remains (visual),art,keeper
+OWL-17,Hostile fronts distinct from voluntary wind (geometry/motion),art,keeper
+OWL-18,"Empty claw draws back, distinct from carrying claw (visual)",art,keeper
+OWL-18,"Strike direction captured at commitment, no tracking",i,keeper
+OWL-18,Cooldown must be clear to trigger,i,keeper
+OWL-18,No test that talon stays idle outside 270,i,keeper
+OWL-19,Empty space and recovery do no damage,i,keeper
+OWL-19,Vertical-exit check suppresses impossible launches,done,keeper
+OWL-19,"Tip width 48 (bound, no test exercises width)",i,keeper
+OWL-19,Sweep aims at captured target,i,keeper
+OWL-20,Quiet recovery 1s,i,keeper
+OWL-20,Shared scheduling with talon,i,keeper
+OWL-20,Must re-enter <=270 after leaving to rearm,i,keeper
+OWL-20,No rearm on simple exit at attack radius,i,keeper
+OWL-20,"Cooldown 3.5s from commitment (bound, behavior not asserted)",i,keeper
+OWL-21,front head locks Ella's destination (move after lock not tested),i,keeper
+OWL-21,0.9s warning duration,i,keeper
+OWL-21,"closed claw grips armillary outer ring, load/release/follow-through",art,keeper
+OWL-21,original attachments pay out,art,keeper
+OWL-21,no duplicate ring or floating grasp,art,keeper
+OWL-21,choreography does not change lock window or collision,i,keeper
+OWL-22,committed straight outward head path,i,keeper
+OWL-22,reach 800,i,keeper
+OWL-22,speed basis 400 units/s,i,keeper
+OWL-22,head width 32,i,keeper
+OWL-22,only the outward moving head damages,i,keeper
+OWL-22,links harmless,i,keeper
+OWL-22,visible position = shootable target = damaging sweep,i,keeper
+OWL-23,return home is harmless,i,keeper
+OWL-23,return takes 1.2s then settles,i,keeper
+OWL-23,broken part's attack stays removed until explicit reset,i,keeper
+OWL-23,explicit reset restores the attack,i,keeper
+OWL-24,middle cast keeps same endpoint/warning/head/link/return contract,i,keeper
+OWL-24,±80-unit sine offset,i,keeper
+OWL-24,sign uses GLOBAL physical serial (talon counts) in real casts,i,keeper
+OWL-24,no every-cast alternation (talon-intervening case untested),i,keeper
+OWL-25,shown and collides on the actual curved path,i,keeper
+OWL-25,moving middle head shootable on the curve,i,keeper
+OWL-25,timing uses straight-distance basis (not constant 400/s),i,keeper
+OWL-25,telegraph shows enough curve for a viable exit,done,keeper
+OWL-25,destroying the middle cancels its cast (only front tested),i,keeper
+OWL-25,dedicated art follows curved geometry,art,keeper
+OWL-26,0.9s warning before rear stroke,i,keeper
+OWL-26,first stroke stops at half of outward stroke,i,keeper
+OWL-26,"continues to ORIGINAL captured endpoint, no re-aim",i,keeper
+OWL-26,"both strokes share one serial, damage at most once",i,keeper
+OWL-26,chain links harmless,i,keeper
+OWL-26,1.2s return harmless,i,keeper
+OWL-27,second clack / stopped head signals unfinished movement,done,keeper
+OWL-27,destruction cancels either rear stroke or pause immediately,i,keeper
+OWL-27,held-in-claw artwork reconciled to mid-flight pause,art,keeper
+OWL-28,repeat without re-aim (player never moved in test),i,keeper
+OWL-28,0.6s wait after last shot,i,keeper
+OWL-28,at least 0.85s recovery after repeat,i,keeper
+OWL-28,yellow keeps its own timer,i,keeper
+OWL-28,"clock-hand move, tick and path cue mark the reprise",done,keeper
+OWL-28,destroyed hazards not resurrected / world not rewound,i,keeper
+OWL-29,exposure cycle uses unscaled active-gameplay time,i,keeper
+OWL-29,needle never bypasses magic or target order,i,keeper
+OWL-29,clock exposure independent of volley cadence,i,keeper
+OWL-30,mechanism break opens the clock,i,keeper
+OWL-30,break clears gusts,i,keeper
+OWL-30,"new fire stops during stun, traveling missiles continue",done,keeper
+OWL-30,fire pause freezes physical timers and pending emissions,i,keeper
+OWL-30,fire pause is not stun,i,keeper
+OWL-30,blackout cancels the physical move,i,keeper
+OWL-31,hit at 128-HP floor does not start slow,i,keeper
+OWL-31,slow cooldown must be ready,i,keeper
+OWL-31,slow lasts 3s,i,keeper
+OWL-31,3s slow cooldown,i,keeper
+OWL-31,new clock opening resets slow/eye flags and clears eye,i,keeper
+OWL-31,extending an opening does not reset flags,i,keeper
+OWL-31,lethal final-clock hit clears all effects,i,keeper
+OWL-32,eye-when-slow-off enabled by default and works with slow off,i,keeper
+OWL-32,eye window lasts 2s,i,keeper
+OWL-32,eye needs cooldown ready and unused per-opening chance,i,keeper
+OWL-32,eye outlasts clock closing until its timer ends,i,keeper
+OWL-32,new clock opening clears the eye,i,keeper
+OWL-32,5s eye cooldown starts on eye hit,i,keeper
+OWL-32,blackout clears physical moves and gusts,i,keeper
+OWL-32,shaft/clock/fresh-shot cues and ground danger kept,ext:visuals,keeper
+OWL-32,prior damaged body restored at blackout expiry,i,keeper
+OWL-32,blackout does not extend clock exposure,i,keeper
+OWL-33,slow/eye/cooldowns/stun/blackout/clock timers run unscaled,i,keeper
+OWL-33,physical attack timing scaled at x0.35,i,keeper
+OWL-33,player projectiles stay unscaled,i,keeper
+OWL-33,fire pause suspends physical timers,i,keeper
+OWL-33,traveling missiles continue during fire pause,i,keeper
+OWL-33,"decorative menu clocks may run while paused, no gameplay/VFX advance",ext:flow,keeper
+OWL-34,full warning→stroke→recovery→idle sequence asserted,i,keeper
+OWL-34,blackout and presentation locks respected by scheduler,i,keeper
+OWL-34,fire pause freezes pending emissions,i,keeper
+OWL-34,reduced projectile pressure during physical activity (assertion has vacuous OR),i,keeper
+OWL-34,overlapping escape routes tested,i,keeper
+OWL-35,living departure lasts ~2.5s as presentation only,i,keeper
+OWL-35,"retry clears casts, gusts, queued repeats, locks",i,keeper
+OWL-35,new-run reset clears state,i,keeper
+OWL-35,phase reset clears state,i,keeper
+OWL-35,XP policy applied,ext:progression,keeper
 HAZ-02,land is solid and harmless for Ella on contact,?,enemies2
 HAZ-03,"fixed camera at (960,540) (binding is RoomSize/2, no camera checked)",?,enemies2
 HAZ-03,guard is stationary (never moves),?,enemies2

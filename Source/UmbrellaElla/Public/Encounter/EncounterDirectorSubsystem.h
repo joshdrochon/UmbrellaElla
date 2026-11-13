@@ -97,8 +97,10 @@ private:
 	void EnterFailure();
 	void DeliverDamage(FName Source, float Amount) const;
 	FVector2D PlayerPosition() const;
-	/** OWL-19: arena floor/ceiling and Ella's slowest vertical speeds for the talon's vertical-exit check. */
+	/** Arena floor/ceiling and Ella's slowest vertical speeds for the talon's vertical-exit check. */
 	void FillVerticalBounds(FKeeperTickInput& Input) const;
+	/** Percent to fraction (Motor trim is stored in percent). */
+	static constexpr float KeeperPercentScale = 100.0f;
 	float PlayerRadius() const;
 	FVector FindAnchor();
 	AActor* GetPlayerActor() const;

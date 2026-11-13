@@ -82,7 +82,7 @@ enum class EKeeperCommandType : uint8
 	StunStarted,
 	StunEnded,
 	FightWon,
-	/** OWL-28: the double beat's repeat is starting on the original captured paths (clock-hand move, tick, path cue). */
+	/** The double beat's repeat is starting on the original captured paths (clock-hand move, tick, path cue). */
 	BeatReprise
 };
 
@@ -105,7 +105,7 @@ struct UMBRELLAELLA_API FKeeperCommand
 	int32 Serial = 0;
 	/** Physical stage this command opens (warning, stroke, rear pause, recovery). */
 	EKeeperStage Stage = EKeeperStage::Idle;
-	/** Middle cast: signed sine offset of the stroke, shown in the warning (OWL-25). Zero for straight moves. */
+	/** Middle cast: signed sine offset of the stroke, shown in the warning. Zero for straight moves. */
 	float Curve = 0.0f;
 };
 
@@ -131,7 +131,7 @@ struct UMBRELLAELLA_API FKeeperTickInput
 {
 	FVector2D PlayerPos = FVector2D::ZeroVector;
 	float PlayerRadius = 0.0f;
-	/** OWL-19 vertical-exit check: playable floor/ceiling (Z) and Ella's slowest rise and fall speeds. Unset = no check. */
+	/** Talon vertical-exit check: playable floor/ceiling (Z) and Ella's slowest rise and fall speeds. Unset = no check. */
 	bool bHasVerticalBounds = false;
 	float FloorZ = 0.0f;
 	float CeilingZ = 0.0f;
@@ -217,7 +217,7 @@ public:
 	static float MiddleSignForSerial(int32 Serial);
 	/** Fan angle (degrees) of shot Index of Count across Spread degrees around Center. */
 	static float FanAngleDeg(float CenterDeg, float SpreadDeg, int32 Index, int32 Count);
-	/** OWL-19: true when Ella can rise or fall clear of a talon tip band of NeededClearance within Seconds. */
+	/** Talon vertical-exit check: true when Ella can rise or fall clear of a talon tip band of NeededClearance within Seconds. */
 	static bool CanExitVertically(const FKeeperTickInput& Input, float NeededClearance, float Seconds);
 	/** Which of two same-frame outcomes wins: a fatal player hit beats the final clock hit. */
 	static bool ShouldDefeatWin(bool bPlayerDefeated, bool bFightWon);

@@ -21,7 +21,7 @@ namespace
 	const FName KeeperSource(TEXT("KeeperOfTime"));
 	const FName PlayerTarget(TEXT("Ella"));
 	const FName SuccessDetail(TEXT("success"));
-	/** AnimationCue details: the rear second clack (OWL-27) and the double-beat reprise (OWL-28). */
+	/** AnimationCue details: the rear second clack and the double-beat reprise. */
 	const FName KeeperRearClackCue(TEXT("KeeperRearSecondClack"));
 	const FName KeeperBeatRepriseCue(TEXT("KeeperBeatReprise"));
 
@@ -150,8 +150,8 @@ void UEncounterDirectorSubsystem::FillVerticalBounds(FKeeperTickInput& Input) co
 		return;
 	}
 	const FMotorTuning& Motor = GetDefault<UUmbrellaTuning>()->Motor;
-	// Slowest controllable rise and fall: full trim against the move (MOVE-21).
-	const float Trim = 1.0f - Motor.VerticalTrimPct / 100.0f;
+	// Slowest controllable rise and fall: full trim against the move.
+	const float Trim = 1.0f - Motor.VerticalTrimPct / KeeperPercentScale;
 	Input.bHasVerticalBounds = true;
 	Input.FloorZ = Arena->LocalPoint(0.0f, 0.0f).Z;
 	Input.CeilingZ = Arena->LocalPoint(0.0f, 1.0f).Z;
