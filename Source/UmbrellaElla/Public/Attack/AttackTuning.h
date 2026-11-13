@@ -93,11 +93,11 @@ struct UMBRELLAELLA_API FAttackTuning
 
 	/** Player blast collision radius, units (fixed collider data, never read from art). */
 	UPROPERTY(Config, EditAnywhere, Category = "Attack", meta = (ClampMin = "0"))
-	float BlastRadius = 6.0f; // GDD HAZ-10 (D-new-smallblast-fixture)
+	float BlastRadius = 6.0f; // GDD fixture (D-new-smallblast-fixture)
 
 	/** Fixed muzzle anchor relative to Ella's origin (X right, Z up). Stable: never read from the sprite. */
 	UPROPERTY(Config, EditAnywhere, Category = "Attack")
-	FVector MuzzleOffset = FVector(44.0, 0.0, 6.0); // GDD HAZ-10 +44/+6 at HeroSize 1 (D-new-smallblast-fixture)
+	FVector MuzzleOffset = FVector(44.0, 0.0, 6.0); // GDD fixture +44/+6 at HeroSize 1 (D-new-smallblast-fixture)
 
 	/** Director's Cut level that unlocks each spell (Small, Stream, Twin, Needle). */
 	UPROPERTY(Config, EditAnywhere, Category = "Attack", meta = (ClampMin = "1"))
