@@ -516,10 +516,25 @@ def not_art(root, path):
     return f"{rel_to(path, root)} is a {hit[0]} (provenance origin: {row.get('origin')})" if hit else None
 
 
-def sprite_checks(path, root=ROOT):
+EFFECT_PIECES = ("vfx-", "owl-bolt", "bolt-hit", "wand-shot", "umbrella-repair")
+
+
+def is_effect(path, piece=""):
+    """An effect (shot, burst, glow): its sidecar says kind fx, or the piece is a vfx-* / shot element."""
+    try:
+        with open(os.path.splitext(path)[0] + ".sprite.json", encoding="utf-8") as fh:
+            if json.load(fh).get("kind") == "fx":
+                return True
+    except (OSError, ValueError, AttributeError):
+        pass
+    return str(piece).startswith(EFFECT_PIECES)
+
+
+def sprite_checks(path, root=ROOT, effect=False):
     """(screen_check ok, art_check ok, lines) on a sprite or sheet: screen_check's flat/grey/outline rules (its own
-    aspect) and art_check's colour rules. The frame-share rules (dark share, accent caps, paper texture) belong to the
-    full frame: the `scene` piece's art_ref_check runs them on a capture."""
+    aspect) and art_check's colour rules, read on the non-transparent pixels only (art_check.measure_sprite); an
+    effect (effect=True) is read against the effect palette. The frame-share rules (dark share, accent caps, paper
+    texture) belong to the full frame: the `scene` piece's art_ref_check runs them on a capture."""
     import art_check
     import screen_check
     style = os.path.join(root if os.path.isfile(os.path.join(root, "pipeline", "art", "style.json")) else ROOT,
@@ -530,12 +545,11 @@ def sprite_checks(path, root=ROOT):
     with open(style, encoding="utf-8") as fh:
         st = json.load(fh)
     try:
-        fails = [f for f in art_check.evaluate(art_check.measure(path, st), st)
-                 if f.startswith(("on_palette", "off_style", "off_band"))]
+        fails = art_check.sprite_failures(path, st, effect)
     except ValueError as e:
         fails = [str(e)]
     lines = ["  " + screen_check.summary(dict(res, image=os.path.basename(path))),
-             f"  art_check (sprite colour rules): {'PASS' if not fails else 'FAIL'}" +
+             f"  art_check ({'effect' if effect else 'sprite'} colour rules): {'PASS' if not fails else 'FAIL'}" +
              ("" if not fails else " (" + "; ".join(fails[:3]) + ")")]
     return res["pass"], not fails, lines
 
@@ -557,7 +571,7 @@ def measure(root, card, piece, path):
         sc = any(ln.strip().startswith("screen_check: PASS") for ln in lines)
     else:
         rc, lines = art_ref_check.run(card, element_id=piece, files=[path], refs_path=rp, root=root, commit=commit)
-        sc, ac, more = sprite_checks(path, root)
+        sc, ac, more = sprite_checks(path, root, is_effect(path, piece))
         lines = lines + more
     m = re.search(r"score=([\d.]+)", lines[-1] if piece == "scene" else
                   next((ln for ln in lines if ln.startswith("art_ref_check:")), ""))
