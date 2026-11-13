@@ -71,3 +71,15 @@ Minor, from review: freeze or protect Ella during Story/Credits; menu strings mo
 - Purchase: Pause/Back/Escape/F1/B/Menu return to the title; Done takes focus and the Done holder handles Back keys. Layout still not checked by eye.
 - Leaving Purchase calls the widget's `Cancel()` (discards the draft); test `UmbrellaElla.Flow.World.LeavingPurchaseDiscardsDraft`.
 - Done label moved to `FFlowMenuText::DoneLabel`. The level-up widget is not wired by Flow; only the XP ring is.
+
+## Clause audit (Nov 13): the three `ii` clauses for lane flow (two `proven`, one waiting on a request)
+- FLOW-34 title music plays: the title screen plays sound row `MusicTitle` (`FFlowRules::TitleMusicId`) through
+  `UUmbrellaCueSubsystem::PlaySoundById`. Test `UmbrellaElla.Flow.World.TitlePlaysMusic` (failed with the call removed).
+- FLOW-34 second button "Start Director's Cut": NOT done, still `ii`. The label is registered in pipeline/story/lines.csv
+  (story lane), and story_inventory fails any shipped text not there. Exact diff in docs/build/requests/flow.md.
+- MOVE-09 controller button remap: Pause -> Settings -> remap Shoot's controller slot -> Save -> Continue: the live context
+  maps the new face button, not the trigger, and the remap survives Retry. Test
+  `UmbrellaElla.Flow.World.PauseSettingsRemapsControllerButton` (failed with the settings apply step disabled).
+- Not mine, noted: audio's cue table also starts `MusicTitle` on ModeSelected, so the title music keeps playing into the fight.
+- rule-status.csv FLOW-34 note still lists these clauses as unproven; left for the rule-status owner (the i clauses
+  "background moves slowly" and "no characters" are still unproven there).

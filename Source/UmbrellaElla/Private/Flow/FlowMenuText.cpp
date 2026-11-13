@@ -17,6 +17,8 @@ FText FFlowMenuText::LevelUpBody() { return FText::FromString(TEXT("A new point 
 FText FFlowMenuText::DefeatHeading() { return FText::FromString(TEXT("Defeated")); }
 FText FFlowMenuText::RetryLabel() { return FText::FromString(TEXT("Retry")); }
 FText FFlowMenuText::QuitToTitleLabel() { return FText::FromString(TEXT("Quit to Title")); }
+FText FFlowMenuText::ConfirmPrompt(bool bGamepad) { return FText::FromString(bGamepad ? TEXT("A to choose") : TEXT("Click or Enter to choose")); }
+FText FFlowMenuText::BackPrompt(bool bGamepad) { return FText::FromString(bGamepad ? TEXT("B to go back") : TEXT("Esc to go back")); }
 
 TArray<FText> FFlowMenuText::TitleLabels()
 {

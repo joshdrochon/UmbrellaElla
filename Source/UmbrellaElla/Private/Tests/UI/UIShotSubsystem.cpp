@@ -16,6 +16,8 @@
 #include "Core/UmbrellaTuning.h"
 #include "Flow/FlowMenuText.h"
 #include "Styling/CoreStyle.h"
+#include "UI/Menus/FlowMenuWidgets.h"
+#include "UI/Style/UmbrellaUIStyle.h"
 #include "Widgets/Input/SButton.h"
 #include "Widgets/Layout/SBorder.h"
 #include "Widgets/SBoxPanel.h"
@@ -73,6 +75,52 @@ namespace
 	const float UIShotStartDelay = 3.0f;
 	const float UIShotReadyTimeout = 90.0f;
 	const int32 LegacyZOrder = 1000;
+
+	/** Sends the mouse to the middle of the open menu's row Label through Slate's real input path (no OS cursor). */
+	bool UIShotMouseTo(const FText& Label, int32& OutIndex)
+	{
+		const TSharedPtr<SFlowMenu> Menu = SFlowMenu::GetLastOpened();
+		OutIndex = Menu.IsValid() ? Menu->FindItem(Label) : INDEX_NONE;
+		if (!FSlateApplication::IsInitialized() || OutIndex == INDEX_NONE)
+		{
+			return false;
+		}
+		const FGeometry Geometry = Menu->GetItemButton(OutIndex)->GetPaintSpaceGeometry();
+		const FVector2f Center = FVector2f(Geometry.GetAbsolutePositionAtCoordinates(FVector2f(0.5f, 0.5f)));
+		const FPointerEvent Move(FSlateApplication::CursorUserIndex, FSlateApplication::CursorPointerIndex, Center, Center,
+			TSet<FKey>(), EKeys::Invalid, 0.0f, FModifierKeysState());
+		FSlateApplication::Get().ProcessMouseMoveEvent(Move);
+		return Menu->GetSelectedIndex() == OutIndex;
+	}
+
+	/**
+	 * menumouse: hover then click the open menu's row Label like a player. Logs MENU_MOUSE with hover and click results;
+	 * click=1 only when the click changed the screen. When it did not, Fallback runs so the capture walk goes on.
+	 */
+	void UIShotClick(AUmbrellaPlayerController* Controller, const TCHAR* Menu, const FText& Label, TFunction<void()> Fallback)
+	{
+		int32 Index = INDEX_NONE;
+		const bool bHover = UIShotMouseTo(Label, Index);
+		const EFlowScreen Before = Controller->GetScreen();
+		const TSharedPtr<SFlowMenu> Open = SFlowMenu::GetLastOpened();
+		if (Index != INDEX_NONE && Open.IsValid())
+		{
+			const FGeometry Geometry = Open->GetItemButton(Index)->GetPaintSpaceGeometry();
+			const FVector2f Center = FVector2f(Geometry.GetAbsolutePositionAtCoordinates(FVector2f(0.5f, 0.5f)));
+			TSet<FKey> Pressed;
+			Pressed.Add(EKeys::LeftMouseButton);
+			FSlateApplication::Get().ProcessMouseButtonDownEvent(nullptr, FPointerEvent(FSlateApplication::CursorUserIndex,
+				FSlateApplication::CursorPointerIndex, Center, Center, Pressed, EKeys::LeftMouseButton, 0.0f, FModifierKeysState()));
+			FSlateApplication::Get().ProcessMouseButtonUpEvent(FPointerEvent(FSlateApplication::CursorUserIndex,
+				FSlateApplication::CursorPointerIndex, Center, Center, TSet<FKey>(), EKeys::LeftMouseButton, 0.0f, FModifierKeysState()));
+		}
+		const bool bClicked = Controller->GetScreen() != Before;
+		UE_LOG(LogUmbrellaElla, Log, TEXT("MENU_MOUSE menu=%s item=%s hover=%d click=%d"), Menu, *Label.ToString(), bHover ? 1 : 0, bClicked ? 1 : 0);
+		if (!bClicked && Fallback)
+		{
+			Fallback();
+		}
+	}
 
 	bool UIShotJourneyShown()
 	{
@@ -191,19 +239,33 @@ void UUIShotSubsystem::BuildSteps()
 		}
 		LegacyWidget.Reset();
 	});
+	Add(TEXT(""), 0.5f, [](AUmbrellaPlayerController* Controller)
+	{
+		// menumouse: hovering a row moves the mark there; then back to Start Game.
+		int32 Index = INDEX_NONE;
+		const bool bDirectors = UIShotMouseTo(FFlowMenuText::DirectorsCutLabel(), Index);
+		const bool bStart = UIShotMouseTo(FFlowMenuText::StartGameLabel(), Index);
+		UE_LOG(LogUmbrellaElla, Log, TEXT("MENU_MOUSE menu=start hover-directors-cut=%d hover-start-game=%d"), bDirectors ? 1 : 0, bStart ? 1 : 0);
+	});
 	Add(TEXT("tutorial"), 1.5f, [](AUmbrellaPlayerController* Controller)
 	{
 		Controller->KeepTutorialInMemoryOnly();
 		Controller->ClearTutorialSeen();
-		Controller->StartGame();
+		UIShotClick(Controller, TEXT("start"), FFlowMenuText::StartGameLabel(), [Controller]() { Controller->StartGame(); });
 	});
 	Add(TEXT("hud"), 4.0f, Command(EFlowCommand::SkipTutorial));
 	Add(TEXT("pause"), 1.5f, Command(EFlowCommand::Pause));
 	Add(TEXT("settings"), 1.5f, Command(EFlowCommand::OpenSettings));
 	Add(TEXT(""), 1.0f, Command(EFlowCommand::Back));
-	Add(TEXT(""), 1.5f, Command(EFlowCommand::Continue));
+	Add(TEXT(""), 1.5f, [](AUmbrellaPlayerController* Controller)
+	{
+		UIShotClick(Controller, TEXT("pause"), FFlowMenuText::ContinueLabel(), [Controller]() { Controller->ApplyCommand(EFlowCommand::Continue); });
+	});
 	Add(TEXT("defeated"), 1.5f, Command(EFlowCommand::PlayerDefeated));
-	Add(TEXT(""), 1.5f, Command(EFlowCommand::Retry));
+	Add(TEXT(""), 1.5f, [](AUmbrellaPlayerController* Controller)
+	{
+		UIShotClick(Controller, TEXT("defeated"), FFlowMenuText::RetryLabel(), [Controller]() { Controller->ApplyCommand(EFlowCommand::Retry); });
+	});
 	Add(TEXT("story"), 2.5f, Command(EFlowCommand::EncounterCompleted));
 	Add(TEXT("credits"), 12.0f, Command(EFlowCommand::TimelineDone));
 }

@@ -35,6 +35,14 @@ public:
 	float GetWidth() const { return BeamWidth; }
 	FVector GetMuzzle() const { return BeamMuzzle; }
 
+	/** Stand-in strands (two segments each: canopy to body edge, then along the edge). Looks only, no collision. */
+	const TArray<TObjectPtr<UStaticMeshComponent>>& GetStrandParts() const { return StrandParts; }
+
+	/** The dark beam body (sized to the hitbox) and the color it is drawn in. */
+	UStaticMeshComponent* GetBody() const { return Visual; }
+	FLinearColor GetBodyColor() const { return BodyColor; }
+	FLinearColor GetStrandColor() const { return StrandColor; }
+
 	/** One damage tick: hand Tick (damage, source) to every receiver in the box. Returns how many actors were hit. */
 	int32 ApplyTick(const FUmbrellaShotSpec& Tick);
 
@@ -42,6 +50,14 @@ private:
 	UPROPERTY()
 	TObjectPtr<UStaticMeshComponent> Visual;
 
+	void PlaceStrands();
+	UStaticMeshComponent* MakePart(const FName& Name, const FLinearColor& Color);
+
+	UPROPERTY()
+	TArray<TObjectPtr<UStaticMeshComponent>> StrandParts;
+
+	FLinearColor BodyColor = FLinearColor::Black;
+	FLinearColor StrandColor = FLinearColor::White;
 	FVector BeamMuzzle = FVector::ZeroVector;
 	float RequestedLength = 0.0f;
 	float EffectiveLength = 0.0f;

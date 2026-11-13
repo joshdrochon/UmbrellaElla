@@ -13,6 +13,10 @@ namespace UmbrellaUIStyleConstants
 {
 	/** Smallest text size any screen may use (accessibility U1: 18 px at 1080p). */
 	static constexpr int32 MinTextSize = 18;
+	/** Menu control hint: inset from the bottom-right corner, and the gap between the Confirm and Back hints. */
+	static constexpr float PromptInsetX = 64.0f;
+	static constexpr float PromptInsetY = 44.0f;
+	static constexpr float PromptGap = 40.0f;
 
 	static constexpr FColor Cream = FColor(233, 220, 195);
 	static constexpr FColor Dim = FColor(168, 156, 136);
@@ -258,6 +262,11 @@ public:
 	SLATE_ATTRIBUTE(bool, Selected)
 	/** Label colour at rest; cream when unset. */
 	SLATE_ATTRIBUTE(FLinearColor, RestColor)
+	/**
+	 * Lit only by Selected, never by its own focus or hover: for a menu that owns one selection, so exactly one row shows
+	 * the mark whether the player last used the mouse, keys or a pad (SFlowMenu).
+	 */
+	SLATE_ARGUMENT_DEFAULT(bool, LitOnlyWhenSelected) = false;
 	SLATE_END_ARGS()
 
 	void Construct(const FArguments& InArgs);
@@ -269,10 +278,14 @@ public:
 	/** True when the button shows its focus mark (focus, hover or selected). */
 	bool IsLit() const;
 
+	/** Height (local, from the button's top) of the focus diamond and its rule: the middle of the label's line. */
+	static float OrnamentCenterY(float ButtonHeight);
+
 private:
 	FSlateColor GetLabelColor() const;
 
 	bool bOrnament = false;
+	bool bLitOnlyWhenSelected = false;
 	TAttribute<bool> SelectedAttribute;
 	TAttribute<FLinearColor> RestColorAttribute;
 };
