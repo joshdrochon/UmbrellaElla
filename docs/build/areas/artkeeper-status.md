@@ -171,3 +171,7 @@ NEEDS HUMAN: lead: smoke switch to start the Keeper fight, ProjectDir-relative -
 - My own run on R8 graded_1 duplicated that one and was killed at the 2 h background limit with no output; not restarted.
 - Triage: context pair failure is "ours/source": the capture hides the owl behind the cube. Needs the keeper lane to stop drawing the cube mesh when T_Keeper_Owl(_PH) loads (docs/build/requests/artkeeper.md item 3). Until then no round can pass the context pair, so more paid paint is wasted. Spend unchanged.
 NEEDS HUMAN: lead: hide the Keeper cube meshes when the owl slot texture loads (request 3).
+
+## Nov 13 session 14: blocked on request 3, no spend
+- Merged origin/main (523292da): only art_loop tooling changed; KeeperOfTime/KeeperPresenter still draw the cube over the sprite. Wrote the exact 3-step diff in docs/build/requests/artkeeper.md (Update 4). Paint is not the gap, so no paid round run (spend unchanged).
+NEEDS HUMAN: lead: apply request 3 (hide stand-in cubes when the owl slot draws); then artkeeper re-captures and runs the owl panel at once (R8 graded_1 is ready).

@@ -10,3 +10,11 @@ Needed from the gameplay/keeper lane (outside artkeeper): a named slot, e.g. `/G
 
 ## Update Nov 13 (3): capture now starts the fight, but the old cube covers the owl
 Items 1-2 are fixed on main. The -SmokeKeeper capture now shows the Keeper sprite with a flat lilac cube (KeeperOfTime's engine-cube body) drawn over it, plus a grey gradient bar. Needed (keeper lane, Private/Owl/KeeperOfTime.cpp / KeeperPresenterSubsystem.cpp): hide the cube meshes whenever the T_Keeper_Owl or T_Keeper_Owl_PH sprite is loaded, so the in-engine context pair shows the owl alone.
+
+## Update Nov 13 (4): request 3 still open on main (checked after merging origin/main 523292da); exact diff
+Source unchanged since: KeeperOfTime::PlaceVisual (Private/Owl/KeeperOfTime.cpp:101) always SetVisibility(true) on the engine-cube parts, drawn over the sprite.
+Diff (keeper lane; presenter owns the decision, the actor obeys it):
+1. Public/Owl/KeeperOfTime.h: `bool bArtReplacesStandIn = false;` (UPROPERTY not needed).
+2. KeeperOfTime.cpp PlaceVisual: `Visual->SetVisibility(!bArtReplacesStandIn);` (replaces the unconditional `true`; cubes stay for gameplay when no art asset exists).
+3. KeeperPresenterSubsystem.cpp ShowStandIn, after `ArtSlot::ApplyRow(Mesh, *Row, ...)`: if it reports the sprite drew (EArtSlotDraw other than the cube fallback), `Cast<AKeeperOfTime>(Keeper)->bArtReplacesStandIn = true;`.
+Capture and context pair for owl and every keeper-* piece wait on this; no paint round can pass the context pair before it (paint is not the gap).
