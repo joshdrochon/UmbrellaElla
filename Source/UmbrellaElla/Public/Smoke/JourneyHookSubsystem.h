@@ -19,7 +19,7 @@ enum class EJourneyResult : uint8
 /** One line of a journey script (JourneyRules::ParseScript). */
 struct UMBRELLAELLA_API FJourneyStep
 {
-	/** wait, trywait, shot, key, hold, click, music, idle, hits, assistwin, retrycheck, log, end. */
+	/** wait, trywait, shot, key, hold, click, music, idle, hits, assistwin, retrycheck, log, end, route, routeassist. */
 	FString Command;
 	/** Everything after the command word (a label, a key, a screen name). */
 	FString Arg;
@@ -54,7 +54,12 @@ namespace JourneyRules
  * Assists, named in their log lines: `hits` lands raw damage on Ella through her Health component's own hit path until a
  * screen shows (a stand-in for waiting on the Keeper's attacks); `assistwin` holds Shoot (real key) and delivers Ella's
  * basic shot to every Keeper part through the parts' own shot receiver, healing her to full each second, until the
- * Story screen. Nothing else is skipped: every screen and transition is the game's own.
+ * Story screen. Director's Cut route: `route <N> <timeout>` plays it with real keys only (D held, Space hop and E dash
+ * tapped) until the level director reports checkpoint N (4 = the Keeper handoff), logging Ella's X; it does not end the
+ * journey when it fails, so a script can follow it with `routeassist <N>`, which places Ella at checkpoint N's stand
+ * position through the director's own PlaceAtCheckpoint (4: just past the handoff line) and is named in the log.
+ * Each `shot` also measures where Ella, the Keeper and the arena centre land on screen and the picture's contrast there.
+ * Nothing else is skipped: every screen and transition is the game's own.
  */
 UCLASS()
 class UMBRELLAELLA_API UJourneyHookSubsystem : public UGameInstanceSubsystem, public FTickableGameObject
@@ -89,6 +94,18 @@ public:
 	static constexpr double JourneyClickWaitSeconds = 5.0;
 	/** The `texts` step logs at most this many characters of each text. */
 	static constexpr int32 JourneyTextLogChars = 40;
+	/** `route`: real seconds between Space hops, between E dashes, and between JOURNEY_ROUTE progress lines. */
+	static constexpr double JourneyRouteHopSeconds = 0.6;
+	static constexpr double JourneyRouteDashSeconds = 0.9;
+	static constexpr double JourneyRouteLogSeconds = 2.0;
+	/** `route`/`routeassist` checkpoint number that means "the Keeper handoff" (one past the last refuge). */
+	static constexpr int32 JourneyRouteHandoff = 4;
+	/** `route ... 1`: Shoot is held while Ella is this many units above the checkpoint stand height. */
+	static constexpr float JourneyRouteTrimAbove = 300.0f;
+	/** `shot` view measure: half-size of the sampled box around a projected point, as a fraction of the frame height. */
+	static constexpr float JourneyViewBoxFraction = 0.04f;
+	/** A sampled box counts as "drawn" when its luminance spread or its offset from the frame mean reaches this (0-255). */
+	static constexpr float JourneyViewContrastMin = 12.0f;
 
 private:
 	void StartStep();
@@ -109,6 +126,10 @@ private:
 	void MakeOverlayClickThrough(const TSharedRef<SWidget>& Root);
 	void SaveShot(const FString& Name, FString& OutDetail, bool& bOutSaved);
 	FString DescribeState() const;
+	/** Where Ella, the Keeper and the arena centre project in the frame, and the picture's contrast there. */
+	FString MeasureView(const TArray<FColor>& Bitmap, const FIntVector& Size) const;
+	/** The level director's checkpoint progress: 0..3, 4 once the Keeper handoff fired; -1 when there is no route. */
+	int32 RouteProgress() const;
 
 	FString OutDir;
 	FString LogText;
@@ -126,4 +147,11 @@ private:
 	FKey HeldKey;
 	double LastOverlayCheck = 0.0;
 	FString LastKeyFocus;
+	double LastRouteHop = 0.0;
+	double LastRouteDash = 0.0;
+	double LastRouteLog = 0.0;
+	float RouteStartX = 0.0f;
+	float RouteBestX = 0.0f;
+	int32 RouteHeals = 0;
+	bool bRouteSinking = false;
 };

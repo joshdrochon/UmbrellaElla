@@ -22,10 +22,9 @@ wait Paused 5
 shot p03_paused_after_settings
 click Settings
 wait Settings 5
-key Escape                     # GDD menus: Escape backs out
-trywait Paused 3               # a FAIL here is recorded, the run goes on
-click Back
-wait Paused 5
+key Escape                     # GDD menus: Escape backs out (FLOW-36)
+wait Paused 3
+shot p03b_paused_after_escape
 key Escape                     # Escape on the pause menu resumes
 wait Playing 10
 idle 1

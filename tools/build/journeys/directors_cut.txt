@@ -1,0 +1,50 @@
+# Director's Cut WIN path (title menu item 2): route start, walk CP1..CP3 to the Keeper handoff, Keeper fight to the win,
+# Director's Cut story, credits, back to the Start screen. `route` uses real keys only (D held, Space hop, E dash) and is
+# allowed to fail (recorded); `routeassist` then places Ella at that checkpoint through the director's own
+# PlaceAtCheckpoint, named in the log. `route N T 1` holds Shoot (real J) while Ella is high, so she sinks back. `assistwin` as in win.txt. Broken Mill is in no run (D-new-mill-in-route).
+firstrun
+wait Title 60
+idle 1
+click Director's Cut              # menu item 2, by mouse
+trywait Tutorial 5
+keyuntil Playing Enter 0.8 30
+idle 2
+shot d01_route_start
+texts
+route 1 8                         # real input, no altitude trim: D held, Space/E tapped, nothing else held
+shot d01b_route_untrimmed         # where Ella is after 8 s of that (she rises while nothing is held)
+route 1 60 1                      # real input with altitude trim (J held while she is high): walk to CP1
+routeassist 1
+idle 1
+shot d02_cp1
+route 2 60 1
+routeassist 2
+idle 1
+shot d03_cp2
+route 3 60 1
+routeassist 3
+idle 1
+shot d04_cp3
+route 4 60 1                      # past CP3 to the Keeper handoff
+routeassist 4
+idle 3
+shot d05_keeper_handoff
+texts
+assistwin 900
+idle 1
+shot d06_story_hold
+idle 4
+shot d07_story_text
+texts
+wait Credits 180
+idle 3
+shot d08_credits
+texts
+trywait Statistics 60             # Director's Cut Journey Complete, when statistics are on
+shot d09_after_credits
+texts
+click Main Menu                   # Journey Complete: Try Again / Main Menu (FLOW-29)
+wait Title 30
+idle 2
+shot d10_back_at_start
+end
