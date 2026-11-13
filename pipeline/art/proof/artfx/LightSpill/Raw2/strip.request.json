@@ -1,0 +1,36 @@
+{
+ "provider": "gemini",
+ "tool": "Gemini API image generation (Google)",
+ "model": "gemini-3.1-flash-image-preview",
+ "model_version": "gemini-3.1-flash-image-preview",
+ "prompt": "Four animation frames of the warm light that Ella's gold magic spills onto the cloth, metal and clouds around it, painted as a two by two grid of four equal panels in one 16:9 picture, each panel filling its quarter of the picture edge to edge, with no borders or gaps between panels, flat face-on with no perspective. Each panel shows one pool of warm light as a tall narrow oval in the middle of the panel, drawn as concentric engraved rings and fine radial hatch lines in pale cream #FFF5DC, warm gold #E9C46A and amber #F5AA28, brightest at the centre, dissolving into short dashes at the rim. Across the four panels the pool swells a little and the rim dashes shimmer, so the sequence loops smoothly. Style: a dark painterly etched storybook illustration, ink and wash with fine etched cross-hatching and a faint paper grain, every mark engraved and hand-inked, never a smooth airbrushed gradient. The panel background is pure flat black #000000 everywhere outside the rings, with the pool glowing against it. The image contains only the four panels, with text, labels, grid lines, frames and watermark all absent.",
+ "seed": "",
+ "size": "1024x1024",
+ "quality": "medium",
+ "aspect_ratio": "16:9",
+ "image_size": "1K",
+ "input_images": [],
+ "cost_usd": 0.067128,
+ "reply": {
+  "usage": {
+   "promptTokenCount": 255,
+   "candidatesTokenCount": 1541,
+   "totalTokenCount": 1796,
+   "promptTokensDetails": [
+    {
+     "modality": "TEXT",
+     "tokenCount": 255
+    }
+   ],
+   "candidatesTokensDetails": [
+    {
+     "modality": "IMAGE",
+     "tokenCount": 1120
+    }
+   ],
+   "serviceTier": "standard"
+  },
+  "finish": "STOP"
+ },
+ "date": "2026-11-13T08:44+00:00"
+}
