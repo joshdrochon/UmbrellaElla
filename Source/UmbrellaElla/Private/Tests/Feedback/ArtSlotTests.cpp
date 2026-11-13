@@ -929,64 +929,71 @@ bool FArtSlotKeeperStandInHidden::RunTest(const FString& Parameters)
 }
 
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FArtSlotKeeperTalonAlpha, "UmbrellaElla.Feedback.KeeperTalonStandInHasAlpha",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FArtSlotKeeperPaperAlpha, "UmbrellaElla.Feedback.KeeperPaperStandInsHaveAlpha",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
 
-bool FArtSlotKeeperTalonAlpha::RunTest(const FString& Parameters)
+bool FArtSlotKeeperPaperAlpha::RunTest(const FString& Parameters)
 {
 #if WITH_EDITORONLY_DATA
-	// The talon stand-in was talons on cream paper with no alpha, so it drew a cream box over the whole Keeper.
-	// Its keyed source must be transparent at every corner and keep the talons opaque.
-	static const TCHAR* const KeeperTalonPath = TEXT("/Game/UmbrellaElla/Art/Keeper/T_Keeper_Talon_PH.T_Keeper_Talon_PH");
-	UTexture2D* Talon = LoadObject<UTexture2D>(nullptr, KeeperTalonPath);
-	if (!TestNotNull(TEXT("talon stand-in texture"), Talon))
-	{
-		return false;
-	}
-	TestFalse(TEXT("talon texture keeps its alpha channel"), Talon->CompressionNoAlpha);
-	const ETextureSourceFormat Format = Talon->Source.GetFormat();
-	const bool bEight = Format == TSF_BGRA8;
-	if (!TestTrue(TEXT("talon source is 8 or 16 bit RGBA"), bEight || Format == TSF_RGBA16))
-	{
-		return false;
-	}
-	TArray64<uint8> Mip;
-	if (!TestTrue(TEXT("talon source mip reads"), Talon->Source.GetMipData(Mip, 0)))
-	{
-		return false;
-	}
-	const int64 W = Talon->Source.GetSizeX();
-	const int64 H = Talon->Source.GetSizeY();
-	const int64 Bpp = Talon->Source.GetBytesPerPixel();
-	const auto KeeperTalonAlpha = [&](int64 X, int64 Y) -> float
-	{
-		const uint8* Pixel = Mip.GetData() + (Y * W + X) * Bpp;
-		return bEight ? Pixel[3] / 255.0f : *reinterpret_cast<const uint16*>(Pixel + 6) / 65535.0f;
+	// The talon, wing and front-mechanism stand-ins were ink on cream paper with no alpha, so each drew a paper box over
+	// the whole Keeper. Their keyed sources must be transparent at every corner, mostly clear, and keep the drawing.
+	static const TCHAR* const KeeperPaperPaths[] = {
+		TEXT("/Game/UmbrellaElla/Art/Keeper/T_Keeper_Talon_PH.T_Keeper_Talon_PH"),
+		TEXT("/Game/UmbrellaElla/Art/Keeper/T_Keeper_Wing_PH.T_Keeper_Wing_PH"),
+		TEXT("/Game/UmbrellaElla/Art/Keeper/T_Keeper_MechFront_PH.T_Keeper_MechFront_PH"),
 	};
-	if (!TestEqual(TEXT("talon mip size"), Mip.Num(), W * H * Bpp))
+	for (const TCHAR* Path : KeeperPaperPaths)
 	{
-		return false;
-	}
-	const int64 Corners[4][2] = {{0, 0}, {W - 1, 0}, {0, H - 1}, {W - 1, H - 1}};
-	for (const auto& Corner : Corners)
-	{
-		TestTrue(*FString::Printf(TEXT("talon corner (%lld,%lld) is transparent"), Corner[0], Corner[1]), KeeperTalonAlpha(Corner[0], Corner[1]) < 0.05f);
-	}
-	int64 Opaque = 0;
-	int64 Clear = 0;
-	for (int64 Y = 0; Y < H; Y += 4)
-	{
-		for (int64 X = 0; X < W; X += 4)
+		UTexture2D* Picture = LoadObject<UTexture2D>(nullptr, Path);
+		if (!TestNotNull(*FString::Printf(TEXT("%s loads"), Path), Picture))
 		{
-			const float A = KeeperTalonAlpha(X, Y);
-			Opaque += A > 0.5f ? 1 : 0;
-			Clear += A < 0.05f ? 1 : 0;
+			continue;
 		}
+		TestFalse(*FString::Printf(TEXT("%s keeps its alpha channel"), Path), Picture->CompressionNoAlpha);
+		const ETextureSourceFormat Format = Picture->Source.GetFormat();
+		const bool bEight = Format == TSF_BGRA8;
+		TArray64<uint8> Mip;
+		if (!TestTrue(*FString::Printf(TEXT("%s source is 8 or 16 bit RGBA"), Path), bEight || Format == TSF_RGBA16)
+			|| !TestTrue(*FString::Printf(TEXT("%s source mip reads"), Path), Picture->Source.GetMipData(Mip, 0)))
+		{
+			continue;
+		}
+		const int64 W = Picture->Source.GetSizeX();
+		const int64 H = Picture->Source.GetSizeY();
+		const int64 Bpp = Picture->Source.GetBytesPerPixel();
+		if (!TestEqual(*FString::Printf(TEXT("%s mip size"), Path), Mip.Num(), W * H * Bpp))
+		{
+			continue;
+		}
+		const auto KeeperPaperAlpha = [&](int64 X, int64 Y) -> float
+		{
+			const uint8* Pixel = Mip.GetData() + (Y * W + X) * Bpp;
+			return bEight ? Pixel[3] / 255.0f : *reinterpret_cast<const uint16*>(Pixel + 6) / 65535.0f;
+		};
+		const int64 Corners[4][2] = {{0, 0}, {W - 1, 0}, {0, H - 1}, {W - 1, H - 1}};
+		for (const auto& Corner : Corners)
+		{
+			TestTrue(*FString::Printf(TEXT("%s corner (%lld,%lld) is transparent"), Path, Corner[0], Corner[1]), KeeperPaperAlpha(Corner[0], Corner[1]) < 0.05f);
+		}
+		int64 Opaque = 0;
+		int64 Clear = 0;
+		int64 Samples = 0;
+		for (int64 Y = 0; Y < H; Y += 4)
+		{
+			for (int64 X = 0; X < W; X += 4)
+			{
+				const float A = KeeperPaperAlpha(X, Y);
+				Opaque += A > 0.5f ? 1 : 0;
+				Clear += A < 0.05f ? 1 : 0;
+				++Samples;
+			}
+		}
+		const double OpaqueShare = static_cast<double>(Opaque) / Samples;
+		const double ClearShare = static_cast<double>(Clear) / Samples;
+		AddInfo(FString::Printf(TEXT("%s %lldx%lld opaque %.3f clear %.3f"), Path, W, H, OpaqueShare, ClearShare));
+		TestTrue(*FString::Printf(TEXT("%s paper is keyed: over half is clear"), Path), ClearShare > 0.5);
+		TestTrue(*FString::Printf(TEXT("%s drawing stays: over a tenth is opaque"), Path), OpaqueShare > 0.1);
 	}
-	const double Samples = static_cast<double>(((H + 3) / 4) * ((W + 3) / 4));
-	AddInfo(FString::Printf(TEXT("talon %lldx%lld opaque %.3f clear %.3f"), W, H, Opaque / Samples, Clear / Samples));
-	TestTrue(TEXT("the paper is keyed: over half the picture is clear"), Clear / Samples > 0.5);
-	TestTrue(TEXT("the talons stay: over a tenth of the picture is opaque"), Opaque / Samples > 0.1);
 #endif
 	return true;
 }
