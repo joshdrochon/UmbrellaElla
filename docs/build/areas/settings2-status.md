@@ -22,4 +22,4 @@
   does not exist yet (whoever adds it multiplies by `GetShakeScale`); gameplay backdrop parallax under reduced motion
   (visuals lane); flow reads the Tutorial developer toggle.
 
-Evidence: build exit 0 (unity, 0 warnings); `UmbrellaElla.Settings` PASS tests=21 failed=0; module_check 0.
+Evidence (commit 09c76ee): build exit 0 (unity, 0 warnings); `UmbrellaElla.Settings` PASS tests=21 failed=0; full `test.sh` PASS tests=256 failed=0; module_check 0, manifest_check 0, pipeline_check 0, ui_check ci PASS.
