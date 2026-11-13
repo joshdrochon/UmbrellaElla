@@ -11,7 +11,7 @@ RECIPES = {
 
 RECIPES.update({
  "HitOwl": {
-  "seconds": 0.8, "post_gain_db": 3, "lufs": -14, "fade_out": 0.2, "takes": 3,
+  "seconds": 0.8, "post_gain_db": 3, "take_gain_db": {1: -2.5}, "lufs": -14, "fade_out": 0.2, "takes": 3,
   "post": "aecho=0.8:0.6:50|110:0.3|0.15",
   "layers": {
    "thud": {"prompt": "single deep low thud impact, heavy boom of a stone and wood hit, dry, isolated, no other sounds", "secs": 1.0, "filter": "highpass=f=60,lowpass=f=260", "norm_lufs": -20, "gain_db": -3, "trim": 0.8, "decay": 6},

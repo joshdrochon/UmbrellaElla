@@ -65,7 +65,7 @@ def mix(rec, files, out):
     post = rec.get("post", "anull")
     g = ";".join(chains) + ";" + "".join(labels) + f"amix=inputs={len(labels)}:normalize=0:duration=longest," \
         f"apad=whole_dur={total},atrim=0:{total},{post},afade=t=out:st={max(0, total - fade)}:d={fade}," \
-        f"loudnorm=I={rec['lufs']}:TP=-2:LRA=7,atrim=0:{total},aresample=48000,volume={rec.get('post_gain_db', 0)}dB,alimiter=limit=0.85:level=disabled[o]"
+        f"loudnorm=I={rec['lufs']}:TP=-2:LRA=7,atrim=0:{total},aresample=48000,volume={rec.get('post_gain_db', 0) + rec.get('take_gain_db', {}).get(rec.get('_take', 0), 0)}dB,alimiter=limit=0.85:level=disabled[o]"
     r = run(["ffmpeg", "-y", "-loglevel", "error", *ins, "-filter_complex", g, "-map", "[o]", "-ac", "1",
              "-c:a", "pcm_s16le", str(out)])
     if r.returncode:
@@ -88,6 +88,7 @@ def main():
             files = {n: gen_layer(a.sid, n, s, c, d) for n, s in rec["layers"].items()}
             chk = d / "chk"; chk.mkdir(exist_ok=True)
             for old in chk.glob("*.wav"): old.unlink()
+            rec['_take'] = t
             mix(rec, files, chk / f"SW_{a.sid}_{t:02d}.wav")
             r = run(["python3", "tools/audio_style_check.py", "check", str(chk)])
             if r.returncode == 0 or c == t + 3 * (a.tries - 1):
