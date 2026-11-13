@@ -70,3 +70,9 @@ or calibration miss; the tool says "judge again"), never a counted one.
   Art/Source/Scene/Paint/skyline_r1.txt (466 words; 4:1, 2K, text only, green key, 1/8-height ground band, spire 70%, lit windows 1 in 6-7).
 - `assetgen.py image` stops: NO KEY, GEMINI_API_KEY is not set in this shell and worker rules forbid me to read ~/.umbrella-ella.env. Zero spend.
 - Next once a key reaches this shell: run the call in skyline_r1.txt, key green, resize to 3200x720, art_check/art_ref_check, blind panel; then paper and menu-screen the same way.
+
+## Nov 13: context capture blocked (merged main ad9d6d1d)
+- Followed the lead's recipe; step 1 has no target. The backdrop draws untextured cubes and no skyline/paper `_PH` texture exists, so no shot can show
+  the piece. Not faking a capture. Request 3 in requests/artscene.md has the ask. Skyline r2 (Gemini) stays unshipped; `_PH` stays.
+- Panel r2: pairs run but the context pair stays missing for the same reason. Cannot pass skyline, paper or menu-screen until a slot exists.
+- Also committed the provenance rows for skyline r1/r2 raw images.
