@@ -45,9 +45,9 @@ screen:Credits,Source Flow/FlowRules.h EFlowScreen; Content/UmbrellaElla/Art/UI/
 screen:Defeat,Source Flow/FlowRules.h EFlowScreen; Content/UmbrellaElla/Art/UI/T_Screen_Defeat_PH.uasset,ui-defeated,artui,no,/Game/UmbrellaElla/Art/UI/T_Screen_Defeat,UUiArtSubsystem
 screen:LevelUp,Source Flow/FlowRules.h EFlowScreen; Content/UmbrellaElla/Art/UI/T_Screen_LevelUp_PH.uasset,ui-level-up,artui,no,/Game/UmbrellaElla/Art/UI/T_Screen_LevelUp,UUiArtSubsystem
 screen:Paused,Source Flow/FlowRules.h EFlowScreen; Content/UmbrellaElla/Art/UI/T_Screen_Paused_PH.uasset,ui-pause,artui,no,/Game/UmbrellaElla/Art/UI/T_Screen_Paused,UUiArtSubsystem
-screen:Playing,Source Flow/FlowRules.h EFlowScreen; Content/UmbrellaElla/Art/UI/T_Screen_Playing_PH.uasset,ui-hud-clock,artui,no,/Game/UmbrellaElla/Art/UI/T_Screen_Playing,UUiArtSubsystem
+screen:Playing,Source Flow/FlowRules.h EFlowScreen,ui-hud-clock,artui,no,/Game/UmbrellaElla/Art/UI/T_Screen_Playing,UUiArtSubsystem
 screen:Purchase,Source Flow/FlowRules.h EFlowScreen; Content/UmbrellaElla/Art/UI/T_Screen_Purchase_PH.uasset,ui-purchase,artui,no,/Game/UmbrellaElla/Art/UI/T_Screen_Purchase,UUiArtSubsystem
-screen:Resuming,Source Flow/FlowRules.h EFlowScreen; Content/UmbrellaElla/Art/UI/T_Screen_Resuming_PH.uasset,ui-pause,artui,no,/Game/UmbrellaElla/Art/UI/T_Screen_Resuming,UUiArtSubsystem
+screen:Resuming,Source Flow/FlowRules.h EFlowScreen,ui-pause,artui,no,/Game/UmbrellaElla/Art/UI/T_Screen_Resuming,UUiArtSubsystem
 screen:Settings,Source Flow/FlowRules.h EFlowScreen; Content/UmbrellaElla/Art/UI/T_Screen_Settings_PH.uasset,ui-settings,artui,no,/Game/UmbrellaElla/Art/UI/T_Screen_Settings,UUiArtSubsystem
 screen:Statistics,Source Flow/FlowRules.h EFlowScreen; Content/UmbrellaElla/Art/UI/T_Screen_Statistics_PH.uasset,ui-journey-complete,artui,no,/Game/UmbrellaElla/Art/UI/T_Screen_Statistics,UUiArtSubsystem
 screen:Story,Source Flow/FlowRules.h EFlowScreen; Content/UmbrellaElla/Art/UI/T_Screen_Story_PH.uasset,ui-story-text,artui,no,/Game/UmbrellaElla/Art/UI/T_Screen_Story,UUiArtSubsystem

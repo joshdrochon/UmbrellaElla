@@ -7,6 +7,10 @@
 #include "Engine/World.h"
 #include "Feedback/Art/ArtSlot.h"
 #include "Feedback/Background/UmbrellaBackdropSubsystem.h"
+#include "Feedback/Ui/UiArtSubsystem.h"
+#include "Flow/FlowRules.h"
+#include "Algo/Find.h"
+#include "Engine/Texture2D.h"
 #include "GameFramework/Actor.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Misc/AutomationTest.h"
@@ -106,6 +110,46 @@ bool FScreenFixUnlit::RunTest(const FString& Parameters)
 		FLinearColor Tint;
 		TestTrue(TEXT("tint set"), Dynamic->GetVectorParameterValue(FName(TEXT("Tint")), Tint));
 		TestEqual(TEXT("tint is the stand-in colour"), Tint, UmbrellaArtSlotConst::StandInEllaColor);
+	}
+	ScreenFixTestEnd(World);
+	return true;
+}
+
+// B2 (Nov 13): the screen:Playing stand-in was a screenshot of a black frame, drawn full-screen above the game, so
+// gameplay was black with only a clock. No full-frame screen picture may sit over the played world.
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FScreenFixNoScreenArtOverGameplay, "UmbrellaElla.ScreenFix.World.NoScreenArtOverGameplay",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+
+bool FScreenFixNoScreenArtOverGameplay::RunTest(const FString& Parameters)
+{
+	UWorld* World = ScreenFixTestWorld();
+	if (!TestNotNull(TEXT("world"), World))
+	{
+		return false;
+	}
+	UUiArtSubsystem* Ui = World->GetSubsystem<UUiArtSubsystem>();
+	if (TestNotNull(TEXT("ui art subsystem"), Ui))
+	{
+		UTexture2D* Texture = UTexture2D::CreateTransient(4, 4);
+		Texture->AddToRoot();
+		const EFlowScreen Gameplay[] = { EFlowScreen::Playing, EFlowScreen::Resuming, EFlowScreen::Tutorial };
+		for (int32 Value = 0; Value <= static_cast<int32>(EFlowScreen::Statistics); ++Value)
+		{
+			const EFlowScreen Screen = static_cast<EFlowScreen>(Value);
+			const bool bGameplay = Algo::Find(Gameplay, Screen) != nullptr;
+			Ui->ShowScreenArt(Screen, Texture);
+			const FString What = UUiArtSubsystem::VisualIdFor(Screen);
+			if (bGameplay)
+			{
+				TestFalse(*FString::Printf(TEXT("%s never covers the played world"), *What), Ui->IsShowingArt());
+			}
+			else
+			{
+				TestTrue(*FString::Printf(TEXT("%s shows on a menu screen"), *What), Ui->IsShowingArt());
+			}
+		}
+		Ui->ClearScreenArt();
+		Texture->RemoveFromRoot();
 	}
 	ScreenFixTestEnd(World);
 	return true;
