@@ -57,3 +57,6 @@ Merged main 3e2c0b2a; SmokeShotFrames is on main now, paid calls work (draft mod
 
 ## 2026-11-13 (stream-sustain draft4)
 Fixed `cut_strip.py` (the graded path crashed: `hp` was only defined under NOGRADE). Repainted vfx-stream-sustain: `StreamSustain/draft4.png`, cut to `sheet8.png`. Whole strip 0.468 against 0.73: still a placeholder. Cost $0.10. Shared counter $31.22 of $33.82, so about $2.6 is left for every lane; no pass is reachable on that for eight pieces. Request written in docs/build/requests/artfx3.md. Per-frame judge needs PIL, which is not installed here (Blender can crop instead).
+
+## 2026-11-13 (blocked: cap)
+Merged main. Committed the six unjudged draft4 candidates (NeedleChannel, NeedlePierce, NeedleSliver, StreamStart, PartBreak, PartHit). Shared counter is $46.59 against IMAGE_SPEND_CAP_USD $33.82, so no paid call can run. Per-piece spend is $0.14 each ($0.24 stun), under the $0.50 piece cap, so the block is the shared cap only. art_pass_verify: 4 verified passes, none of them mine. All eight pieces stay tracked `_PH` placeholders. Next once the cap is raised: cut draft4 into sheets (needs PIL), per-frame art_judge, then 3-pro-image finals for the closest pieces, context capture, blind panel.
