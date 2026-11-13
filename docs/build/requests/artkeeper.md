@@ -1,0 +1,4 @@
+# artkeeper requests
+## Owl sprite slot and loader (blocks the in-engine context capture)
+Content/UmbrellaElla/Art has only VFX; no owl `_PH` asset exists, and `Private/Owl/KeeperOfTime.cpp` builds the Keeper from engine cube meshes (LoadObject StaticMesh/BasicMaterial), `KeeperPresenterSubsystem.cpp` loads no owl texture or flipbook. So importing a candidate into a `_PH` slot (docs/build/art-image-model.md "Context capture" step 1) changes nothing on screen.
+Needed from the gameplay/keeper lane (outside artkeeper): a named slot, e.g. `/Game/UmbrellaElla/Art/Keeper/T_Keeper_Owl_PH` (or a 4-frame flipbook `FB_Keeper_Owl_PH`), that KeeperOfTime/KeeperPresenter displays as a Paper2D sprite. artkeeper will then import the candidate into that name with a committed editor script and take the -SmokeShot capture.

@@ -13,10 +13,15 @@
 set -u
 A="${1#area/}"; C="${2:-area/$A}"; ROOT="$(cd "$(dirname "$0")/../.." && pwd)"; BASE="$(dirname "$ROOT")/UmbrellaElla-areas"
 G="$BASE/gate"; L="$BASE/logs"; mkdir -p "$L"; T0=$(date +%s); fail=0
+# A head the gate failed or held is never gated again; the lane needs new commits (Josh, Nov 12). Lane verdicts are
+# recorded on exit (1 FAIL, 3 HOLD); exits that are not the lane's fault set NORECORD=1 first.
+TIP="$(git -C "$ROOT" rev-parse "$C" 2>/dev/null)"; NORECORD=0
+python3 "$ROOT/tools/build/gate_seen.py" check "$L" "$A" "$TIP" || exit 4
+trap 'rc=$?; if [ "$NORECORD" = 0 ]; then case $rc in 1) python3 "$ROOT/tools/build/gate_seen.py" record "$L" "$A" "$TIP" FAIL;; 3) python3 "$ROOT/tools/build/gate_seen.py" record "$L" "$A" "$TIP" HOLD;; esac; fi' EXIT
 step() { echo "[gate $A] $1 ($(( $(date +%s) - T1 )) s)"; }
 # Art lanes wait for the pass-record verifier (Josh, Nov 12): no art-loop pass merges until main can re-verify it.
 if [ "$A" != artinventory ] && { git -C "$ROOT" diff --name-only "main...$C" 2>/dev/null | grep -q '^pipeline/art/critic/' || [[ "$A" == art* ]]; }; then
-  git -C "$ROOT" cat-file -e main:tools/build/art_pass_verify.py 2>/dev/null || { echo "GATE FAIL: area/$A waits for tools/build/art_pass_verify.py on main (pass records must be re-verified)"; exit 1; }
+  git -C "$ROOT" cat-file -e main:tools/build/art_pass_verify.py 2>/dev/null || { NORECORD=1; echo "GATE FAIL: area/$A waits for tools/build/art_pass_verify.py on main (pass records must be re-verified)"; exit 1; }
 fi
 cd "$ROOT"; git fetch -q origin
 [ -d "$G" ] || git worktree add -q "$G" -B gate main
@@ -101,7 +106,7 @@ cd "$ROOT"
 if ! git merge -q --ff-only gate 2>/dev/null; then
   base=$(git merge-base main gate)
   if git diff --name-only "$base" main | grep -q -E '^(Source|Config|Content|Plugins)/|\.uproject$'; then
-    echo "GATE FAIL: main moved with game-file changes during the gate; rerun"; exit 1
+    NORECORD=1; echo "GATE FAIL: main moved with game-file changes during the gate; rerun"; exit 1
   fi
   git -c core.hooksPath=/dev/null merge -q --no-edit -m "Merge gate result for area/$A" gate || { git merge --abort; echo "GATE FAIL: merge"; exit 1; }
 fi

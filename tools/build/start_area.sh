@@ -28,6 +28,12 @@ export IMAGE_SPEND_FILE="$BASE/logs/image-spend.json"
 export AUDIO_SPEND_FILE="$BASE/logs/audio-spend.json"
 [ -f "$BASE/logs/audio-cap.txt" ] && export AUDIO_SPEND_CAP="$(cat "$BASE/logs/audio-cap.txt")"
 cd "$WT"
+# A new lane started from a lead brief has no area file; write it from the brief so the worker has a definition of
+# done and status files that cite it resolve (pipeline_check). Committed by the worker with its first slice.
+if [ ! -f "docs/build/areas/$A.md" ] && [ -n "${2:-}" ]; then
+  mkdir -p docs/build/areas
+  { echo "# Area: $A"; echo; echo "Started by the build lead from this brief ($(date +%Y-%m-%d)). It is the definition of done."; echo; echo "$2"; } > "docs/build/areas/$A.md"
+fi
 # Own session (setsid): a worker must never die with the shell, tool call or helper script that started it
 # (Nov 12 20:29: ~10 workers died silently together). The exit line records how each worker ended.
 export WORKER_PROMPT="$PROMPT" WORKER_MODEL_ID="$MODEL" WORKER_LOG="$BASE/logs/$A.log"
