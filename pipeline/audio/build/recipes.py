@@ -18,64 +18,64 @@ RECIPES.update({
    "clank": {"prompt": "one heavy brass clank struck once, pitched metallic ring with a bell partial, dry, isolated", "secs": 1.0, "filter": "highpass=f=400", "norm_lufs": -20, "gain_db": 0, "trim": 0.8, "decay": 5},
   }},
  "OwlBoltLaunch": {
-  "seconds": 0.8, "lufs": -19, "fade_out": 0.25, "takes": 3,
+  "post_gain_db": 3, "seconds": 0.8, "lufs": -19, "fade_out": 0.25, "takes": 3,
   "post": "aecho=0.8:0.5:40|90:0.3|0.15",
   "layers": {
-   "thunk": {"prompt": "single low clockwork spring release thunk, heavy and dark, dry, isolated", "secs": 1.0, "filter": "lowpass=f=700", "trim": 0.6, "decay": 6},
-   "clank": {"prompt": "one iron gear clank, pitched metal strike, dry, isolated", "secs": 1.0, "filter": "highpass=f=500", "gain_db": -3, "delay_ms": 15, "trim": 0.6, "decay": 6},
-   "ratchet": {"prompt": "fast clock ratchet whirring and slowing down, metallic clicks, dry", "secs": 1.0, "filter": "highpass=f=800", "gain_db": -8, "delay_ms": 70, "trim": 0.7, "decay": 3},
+   "thunk": {"prompt": "single low clockwork spring release thunk, heavy and dark, dry, isolated", "secs": 1.0, "filter": "lowpass=f=700", "norm_lufs": -20, "gain_db": -9, "trim": 0.6, "decay": 6},
+   "clank": {"prompt": "one iron gear clank, pitched metal strike, dry, isolated", "secs": 1.0, "filter": "highpass=f=500", "norm_lufs": -20, "gain_db": 0, "delay_ms": 15, "trim": 0.6, "decay": 6},
+   "ratchet": {"prompt": "fast clock ratchet whirring and slowing down, metallic clicks, dry", "secs": 1.0, "filter": "highpass=f=800", "norm_lufs": -20, "gain_db": -3, "delay_ms": 70, "trim": 0.7, "decay": 3},
   }},
  "PlayerHurt": {
-  "seconds": 0.5, "lufs": -17, "fade_out": 0.12, "takes": 3,
-  "post": "aecho=0.8:0.5:30|70:0.25|0.12",
+  "post_gain_db": 9, "seconds": 0.5, "lufs": -17, "fade_out": 0.12, "takes": 3,
+  "post": "aecho=0.9:0.6:13|19|27|37|51:0.35|0.3|0.25|0.2|0.15",
   "layers": {
-   "crack": {"prompt": "one sharp wooden crack, a thin wooden rib snapping, dry, isolated", "secs": 1.0, "filter": "highpass=f=700", "trim": 0.4, "decay": 12},
-   "thud": {"prompt": "one deep sub thud, low heavy drop, dry, isolated, no other sounds", "secs": 1.0, "filter": "lowpass=f=200", "gain_db": 3, "trim": 0.5, "decay": 7},
+   "crack": {"prompt": "one sharp wooden crack, a thin wooden rib snapping, dry, isolated", "secs": 1.0, "filter": "highpass=f=700", "norm_lufs": -20, "gain_db": 8, "start_db": -24, "trim": 0.4, "decay": 12},
+   "thud": {"prompt": "one deep sub thud, low heavy drop, dry, isolated, no other sounds", "secs": 1.0, "filter": "lowpass=f=200", "norm_lufs": -20, "gain_db": -11, "start_db": -24, "trim": 0.5, "decay": 7},
   }},
  "ShieldCatch": {
-  "seconds": 0.56, "lufs": -21, "fade_out": 0.15, "takes": 3,
+  "post_gain_db": 3, "seconds": 0.56, "lufs": -21, "fade_out": 0.15, "takes": 3,
   "post": "aecho=0.8:0.4:25|55:0.2|0.1",
   "layers": {
-   "thump": {"prompt": "a deep soft thump of a heavy ball swallowed by taut canvas, dry, isolated", "secs": 1.0, "filter": "lowpass=f=450", "trim": 0.5, "decay": 7},
-   "click": {"prompt": "one sharp wooden rib click, short dry tick, isolated", "secs": 1.0, "filter": "highpass=f=1200,lowpass=f=5000", "gain_db": -4, "trim": 0.3, "decay": 18},
-   "canvas": {"prompt": "waxed canvas fabric snapping taut, short, dry, isolated", "secs": 1.0, "filter": "highpass=f=500,lowpass=f=3000", "gain_db": -5, "trim": 0.4, "decay": 9},
+   "thump": {"prompt": "a deep soft thump of a heavy ball swallowed by taut canvas, dry, isolated", "secs": 1.0, "filter": "lowpass=f=450", "norm_lufs": -20, "gain_db": -9, "trim": 0.5, "decay": 7},
+   "click": {"prompt": "one sharp wooden rib click, short dry tick, isolated", "secs": 1.0, "filter": "highpass=f=1200,lowpass=f=5000", "norm_lufs": -20, "gain_db": 0, "trim": 0.3, "decay": 18},
+   "canvas": {"prompt": "waxed canvas fabric snapping taut, short, dry, isolated", "secs": 1.0, "filter": "highpass=f=500,lowpass=f=3000", "norm_lufs": -20, "gain_db": -2, "trim": 0.4, "decay": 9},
   }},
  "KeeperHoot": {
   "seconds": 3.0, "lufs": -25, "fade_out": 0.8, "takes": 3,
   "post": "aecho=0.8:0.6:120|250:0.3|0.2",
   "layers": {
-   "thump": {"prompt": "one single huge slow wingbeat, low heavy thump of a giant wing, dry, isolated", "secs": 2.0, "filter": "lowpass=f=500", "trim": 2.0, "decay": 1.5},
-   "whoosh": {"prompt": "slow heavy leathery whoosh of a giant wing sweeping air, smooth, isolated", "secs": 2.5, "filter": "lowpass=f=2500,highpass=f=120", "gain_db": -5, "delay_ms": 120, "trim": 2.4, "decay": 1.0},
-   "creak": {"prompt": "slow creak of old brass joints, deep and low, isolated", "secs": 2.5, "filter": "lowpass=f=3000,highpass=f=150", "gain_db": -10, "delay_ms": 300, "trim": 2.4, "decay": 1.0},
+   "thump": {"prompt": "one single huge slow wingbeat, low heavy thump of a giant wing, dry, isolated", "secs": 2.0, "filter": "lowpass=f=500", "norm_lufs": -20, "trim": 2.0, "decay": 1.5},
+   "whoosh": {"prompt": "slow heavy leathery whoosh of a giant wing sweeping air, smooth, isolated", "secs": 2.5, "filter": "lowpass=f=2500,highpass=f=120", "norm_lufs": -20, "gain_db": -5, "delay_ms": 120, "trim": 2.4, "decay": 1.0},
+   "creak": {"prompt": "slow creak of old brass joints, deep and low, isolated", "secs": 2.5, "filter": "lowpass=f=3000,highpass=f=150", "norm_lufs": -20, "gain_db": -10, "delay_ms": 300, "trim": 2.4, "decay": 1.0},
   }},
  "EndEvent": {
   "seconds": 4.0, "lufs": -18, "fade_out": 1.2, "takes": 3,
   "post": "aecho=0.8:0.7:150|330:0.3|0.2",
   "layers": {
-   "strike": {"prompt": "single deep church tower bell strike, clean tonal ring with a long decay, dry, isolated", "secs": 4.0, "filter": "highpass=f=80", "trim": 4.0},
-   "hum": {"prompt": "very low deep bell hum, sustained resonant drone, smooth, isolated", "secs": 4.0, "filter": "lowpass=f=300", "gain_db": -4, "trim": 4.0},
+   "strike": {"prompt": "single deep church tower bell strike, clean tonal ring with a long decay, dry, isolated", "secs": 4.0, "filter": "highpass=f=80", "norm_lufs": -20, "trim": 4.0},
+   "hum": {"prompt": "very low deep bell hum, sustained resonant drone, smooth, isolated", "secs": 4.0, "filter": "lowpass=f=300", "norm_lufs": -20, "gain_db": -4, "trim": 4.0},
   }},
  "FailSting": {
   "seconds": 5.0, "lufs": -17, "fade_out": 1.5, "takes": 1,
   "post": "aecho=0.8:0.7:150|330:0.3|0.2",
   "layers": {
-   "brass": {"prompt": "low brass section playing a slow falling descending note, sombre and heavy, isolated", "secs": 3.0, "filter": "lowpass=f=1500", "trim": 3.0},
-   "bell": {"prompt": "one dull muffled low bell strike, short ring, isolated", "secs": 2.5, "filter": "lowpass=f=1200", "gain_db": -2, "delay_ms": 800, "trim": 2.5},
-   "choir": {"prompt": "wordless low choir singing a sustained dark chord that slowly drops in pitch and fades away, isolated", "secs": 4.0, "filter": "lowpass=f=2500", "gain_db": -3, "delay_ms": 1200, "trim": 3.8},
+   "brass": {"prompt": "low brass section playing a slow falling descending note, sombre and heavy, isolated", "secs": 3.0, "filter": "lowpass=f=1500", "norm_lufs": -20, "trim": 3.0},
+   "bell": {"prompt": "one dull muffled low bell strike, short ring, isolated", "secs": 2.5, "filter": "lowpass=f=1200", "norm_lufs": -20, "gain_db": -2, "delay_ms": 800, "trim": 2.5},
+   "choir": {"prompt": "wordless low choir singing a sustained dark chord that slowly drops in pitch and fades away, isolated", "secs": 4.0, "filter": "lowpass=f=2500", "norm_lufs": -20, "gain_db": -3, "delay_ms": 1200, "trim": 3.8},
   }},
  "SurvivedSting": {
   "seconds": 6.0, "lufs": -17, "fade_out": 2.0, "takes": 1,
   "post": "aecho=0.8:0.7:150|330:0.3|0.2",
   "layers": {
-   "bell": {"prompt": "one bright clear church bell toll, clean tonal ring, isolated", "secs": 4.0, "filter": "highpass=f=200", "trim": 4.0},
-   "choir": {"prompt": "wordless warm choir singing a bright resolved major chord, swelling and sustained, isolated", "secs": 5.0, "filter": "highpass=f=150", "gain_db": -3, "delay_ms": 300, "trim": 5.0},
-   "wind": {"prompt": "soft gentle wind settling to calm, quiet, isolated", "secs": 4.0, "filter": "lowpass=f=1500", "gain_db": -12, "delay_ms": 1500, "trim": 4.0},
+   "bell": {"prompt": "one bright clear church bell toll, clean tonal ring, isolated", "secs": 4.0, "filter": "highpass=f=200", "norm_lufs": -20, "trim": 4.0},
+   "choir": {"prompt": "wordless warm choir singing a bright resolved major chord, swelling and sustained, isolated", "secs": 5.0, "filter": "highpass=f=150", "norm_lufs": -20, "gain_db": -3, "delay_ms": 300, "trim": 5.0},
+   "wind": {"prompt": "soft gentle wind settling to calm, quiet, isolated", "secs": 4.0, "filter": "lowpass=f=1500", "norm_lufs": -20, "gain_db": -12, "delay_ms": 1500, "trim": 4.0},
   }},
  "LevelUpClock": {
   "seconds": 0.477, "lufs": -26, "fade_out": 0.12, "takes": 1,
   "post": "aecho=0.8:0.3:20|45:0.15|0.08",
   "layers": {
-   "tick": {"prompt": "single crisp clock escapement tick, very short clean click, dry, isolated", "secs": 0.5, "filter": "highpass=f=1500", "trim": 0.25, "decay": 30},
-   "ping": {"prompt": "one tiny clear small bell ping, high and clean, isolated", "secs": 1.0, "filter": "highpass=f=2000", "gain_db": -8, "delay_ms": 100, "trim": 0.4, "decay": 8},
+   "tick": {"prompt": "single crisp clock escapement tick, very short clean click, dry, isolated", "secs": 0.5, "filter": "highpass=f=1500", "norm_lufs": -20, "trim": 0.25, "decay": 30},
+   "ping": {"prompt": "one tiny clear small bell ping, high and clean, isolated", "secs": 1.0, "filter": "highpass=f=2000", "norm_lufs": -20, "gain_db": -8, "delay_ms": 100, "trim": 0.4, "decay": 8},
   }},
 })

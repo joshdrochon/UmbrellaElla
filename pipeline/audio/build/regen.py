@@ -54,8 +54,8 @@ def mix(rec, files, out):
         dur = spec.get("trim")
         chain = f"[{i}:a]aformat=sample_rates=48000:channel_layouts=mono,"
         if dur: chain += f"atrim=0:{dur},"
-        chain += (f"silenceremove=start_periods=1:start_threshold=-42dB,volume='exp(-t*{spec['decay']})':eval=frame,{f},volume={spec.get('gain_db', 0)}dB" if "decay" in spec else
-                  f"silenceremove=start_periods=1:start_threshold=-42dB,{f},volume={spec.get('gain_db', 0)}dB")
+        chain += (f"silenceremove=start_periods=1:start_threshold={spec.get("start_db", -42)}dB,volume='exp(-t*{spec['decay']})':eval=frame,{f},volume={spec.get('gain_db', 0)}dB" if "decay" in spec else
+                  f"silenceremove=start_periods=1:start_threshold={spec.get("start_db", -42)}dB,{f},volume={spec.get('gain_db', 0)}dB")
         if "norm_lufs" in spec:   # opt-in: equalise this layer's loudness so candidates mix to the same balance
             chain += f",loudnorm=I={spec['norm_lufs']}:TP=-2:LRA=11,volume={spec.get('gain_db', 0)}dB"
         if delay: chain += f",adelay={delay}|{delay}"
