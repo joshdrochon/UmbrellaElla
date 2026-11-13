@@ -4,6 +4,7 @@
 #include "Engine/Texture2D.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Materials/MaterialInterface.h"
+#include "Materials/Material.h"
 
 namespace
 {
@@ -11,6 +12,7 @@ namespace
 	const FName ArtSlotParam(TEXT("Art"));
 	const FName ArtSlotColsParam(TEXT("Cols"));
 	const FName ArtSlotFrameParam(TEXT("Frame"));
+	const FName ArtSlotTintParam(TEXT("Tint"));
 	const FName ArtSlotTileUParam(TEXT("TileU"));
 	const FName ArtSlotTileVParam(TEXT("TileV"));
 
@@ -123,6 +125,33 @@ EArtSlotDraw ArtSlot::Apply(UStaticMeshComponent* Mesh, UTexture2D* Texture, con
 	return EArtSlotDraw::Drawn;
 }
 
+void ArtSlot::SetFlatUnlit(UStaticMeshComponent* Mesh, UObject* Outer, const FLinearColor& Color)
+{
+	if (!IsValid(Mesh))
+	{
+		return;
+	}
+	UMaterialInterface* Material = LoadObject<UMaterialInterface>(nullptr, UmbrellaArtSlotConst::MaterialPath, nullptr, LOAD_NoWarn | LOAD_Quiet);
+	UTexture2D* White = LoadObject<UTexture2D>(nullptr, UmbrellaArtSlotConst::WhiteTexturePath, nullptr, LOAD_NoWarn | LOAD_Quiet);
+	if (!Material || !White)
+	{
+		return;
+	}
+	UMaterialInstanceDynamic* Dynamic = UMaterialInstanceDynamic::Create(Material, IsValid(Outer) ? Outer : Mesh);
+	Dynamic->SetTextureParameterValue(ArtSlotParam, White);
+	Dynamic->SetVectorParameterValue(ArtSlotTintParam, Color);
+	Mesh->SetMaterial(0, Dynamic);
+	Mesh->ComponentTags.Remove(ArtSlotTag);
+	Mesh->SetCastShadow(false);
+}
+
+bool ArtSlot::IsUnlit(const UStaticMeshComponent* Mesh)
+{
+	const UMaterialInterface* Material = IsValid(Mesh) ? Mesh->GetMaterial(0) : nullptr;
+	const UMaterial* Base = Material ? Material->GetMaterial() : nullptr;
+	return Base && Base->GetShadingModels().HasOnlyShadingModel(MSM_Unlit);
+}
+
 int32 ArtSlot::LoadCallCount()
 {
 	return ArtSlotLoadCalls;
@@ -144,7 +173,8 @@ void ArtSlot::SetTexture(UStaticMeshComponent* Mesh, UTexture2D* Texture)
 bool ArtSlot::IsDrawingArt(const UStaticMeshComponent* Mesh)
 {
 	const UMaterialInstanceDynamic* Dynamic = IsValid(Mesh) ? Cast<UMaterialInstanceDynamic>(Mesh->GetMaterial(0)) : nullptr;
-	return Dynamic && Dynamic->Parent && Dynamic->Parent->GetPathName() == UmbrellaArtSlotConst::MaterialPath;
+	// The flat unlit stand-in uses the same material; only Apply tags a component as drawing a picture.
+	return Dynamic && Mesh->ComponentHasTag(ArtSlotTag) && Dynamic->Parent && Dynamic->Parent->GetPathName() == UmbrellaArtSlotConst::MaterialPath;
 }
 
 void ArtSlot::SetFrame(UStaticMeshComponent* Mesh, int32 Frame)

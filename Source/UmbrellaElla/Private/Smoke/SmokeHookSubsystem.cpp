@@ -1,4 +1,5 @@
 #include "Smoke/SmokeHookSubsystem.h"
+#include "Enemy/EnemyTypes.h"
 #include "Core/UmbrellaLog.h"
 #include "Core/UmbrellaTuning.h"
 #include "Core/EllaCharacter.h"
@@ -22,6 +23,15 @@
 #include "SceneView.h"
 #include "SceneView.h"
 #include "UObject/UnrealType.h"
+#include "Misc/Paths.h"
+#include "Encounter/EncounterDirectorSubsystem.h"
+#include "Core/UmbrellaGameMode.h"
+#include "Enemy/UmbrellaEnemy.h"
+#include "Arena/UmbrellaArena.h"
+#include "Projectile/UmbrellaShotSpec.h"
+#include "ShaderCompiler.h"
+#include "ContentStreaming.h"
+#include "AssetCompilingManager.h"
 
 #ifndef UMBRELLAELLA_BUILD_COMMIT
 #define UMBRELLAELLA_BUILD_COMMIT "unknown"
@@ -48,6 +58,104 @@ void USmokeHookSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	InitTime = FApp::GetCurrentTime();
 	FParse::Value(FCommandLine::Get(), TEXT("-SmokeQuitAfter="), QuitAfterSeconds);
 	FParse::Value(FCommandLine::Get(), TEXT("-SmokeShot="), ShotPath);
+	if (!ShotPath.IsEmpty())
+	{
+		ShotPath = ResolveShotPath(ShotPath, FPaths::ProjectDir());
+	}
+	int32 RequestedFrames = 0;
+	FParse::Value(FCommandLine::Get(), TEXT("-SmokeShotFrames="), RequestedFrames);
+	ShotFrames = ResolveShotFrames(RequestedFrames);
+}
+
+bool USmokeHookSubsystem::IsShotDue(bool bLevelReady, int32 FramesSinceReady, int32 RequiredFrames)
+{
+	return bLevelReady && FramesSinceReady >= RequiredFrames;
+}
+
+bool USmokeHookSubsystem::IsShotReady(int32 PendingShaderJobs, int32 StreamingResources, int32 PendingAssets, bool bPlayerAlive)
+{
+	return PendingShaderJobs <= 0 && StreamingResources <= 0 && PendingAssets <= 0 && bPlayerAlive;
+}
+
+FString USmokeHookSubsystem::ResolveShotPath(const FString& Path, const FString& ProjectDir)
+{
+	if (Path.IsEmpty() || !FPaths::IsRelative(Path))
+	{
+		return Path;
+	}
+	return FPaths::ConvertRelativePathToFull(ProjectDir, Path);
+}
+
+bool USmokeHookSubsystem::HasEnemyFamilyName(const FString& Name, EEnemyType& OutType)
+{
+	if (Name.Equals(TEXT("Roadwarden"), ESearchCase::IgnoreCase))
+	{
+		OutType = EEnemyType::Roadwarden;
+		return true;
+	}
+	if (Name.Equals(TEXT("Floodstrider"), ESearchCase::IgnoreCase))
+	{
+		OutType = EEnemyType::Floodstrider;
+		return true;
+	}
+	if (Name.Equals(TEXT("SkyCourier"), ESearchCase::IgnoreCase))
+	{
+		OutType = EEnemyType::SkyCourier;
+		return true;
+	}
+	return false;
+}
+
+int32 USmokeHookSubsystem::ResolveShotFrames(int32 Requested)
+{
+	return Requested >= 1 ? Requested : DefaultShotFrames;
+}
+
+void USmokeHookSubsystem::ApplySceneSwitches()
+{
+#if UMBRELLAELLA_WORKBENCH
+	bSceneApplied = true;
+	UWorld* World = GetGameInstance() ? GetGameInstance()->GetWorld() : nullptr;
+	AUmbrellaPlayerController* Flow = FindFlowController(GetGameInstance());
+	if (!World || !Flow)
+	{
+		return;
+	}
+	if (FParse::Param(FCommandLine::Get(), TEXT("SmokeKeeper")))
+	{
+		UEncounterDirectorSubsystem* Director = World->GetSubsystem<UEncounterDirectorSubsystem>();
+		if (Director && Director->GetState() != EEncounterState::Active)
+		{
+			if (AUmbrellaGameMode* Mode = World->GetAuthGameMode<AUmbrellaGameMode>())
+			{
+				Mode->BeginFight(Flow);
+			}
+		}
+		UE_LOG(LogUmbrellaElla, Log, TEXT("SMOKE_SCENE keeper=%d"), Director && Director->GetState() == EEncounterState::Active ? 1 : 0);
+	}
+	FString Family;
+	if (FParse::Value(FCommandLine::Get(), TEXT("-SmokeEnemy="), Family))
+	{
+		EEnemyType Type = EEnemyType::Roadwarden;
+		const APawn* Ella = Flow->GetPawn();
+		if (HasEnemyFamilyName(Family, Type) && Ella)
+		{
+			const FVector At = Ella->GetActorLocation() + FVector(SmokeEnemyOffsetX, 0.0, 0.0);
+			AUmbrellaEnemy* Enemy = World->SpawnActor<AUmbrellaEnemy>(AUmbrellaEnemy::StaticClass(), FTransform(At));
+			if (Enemy)
+			{
+				Enemy->Configure(Type, EEnemyGender::Male, EUmbrellaShotKind::EnemyRed);
+			}
+			UE_LOG(LogUmbrellaElla, Log, TEXT("SMOKE_SCENE enemy=%s spawned=%d"), *Family, Enemy ? 1 : 0);
+		}
+		else
+		{
+			UE_LOG(LogUmbrellaElla, Warning, TEXT("SMOKE_SCENE enemy=%s unknown family or no player"), *Family);
+		}
+	}
+#else
+	bSceneApplied = true;
+#endif
 }
 
 bool USmokeHookSubsystem::IsTickable() const
@@ -106,7 +214,6 @@ USmokeHookSubsystem::EInputStep USmokeHookSubsystem::NextInputStep(EInputStep St
 
 void USmokeHookSubsystem::Tick(float DeltaTime)
 {
-	const FFlowTuning& Tuning = GetDefault<UUmbrellaTuning>()->Flow;
 	AUmbrellaPlayerController* Flow = FindFlowController(GetGameInstance());
 
 	if (Stage == EStage::WaitingForStart)
@@ -128,15 +235,41 @@ void USmokeHookSubsystem::Tick(float DeltaTime)
 
 	FrameSeconds.Add(DeltaTime);
 	const float Elapsed = static_cast<float>(FApp::GetCurrentTime() - StartTime);
+	if (!bSceneApplied)
+	{
+		ApplySceneSwitches();
+	}
+	{
+		const int32 ShaderJobs = GShaderCompilingManager ? GShaderCompilingManager->GetNumRemainingJobs() : 0;
+		const int32 Streaming = IStreamingManager::Get().GetTextureStreamingManager().GetNumWantingResources();
+		const int32 Assets = FAssetCompilingManager::Get().GetNumRemainingAssets();
+		const APawn* Pawn = Flow ? Flow->GetPawn() : nullptr;
+		const bool bAlive = Pawn && IsValid(Pawn) && Flow->GetScreen() == EFlowScreen::Playing;
+		if (IsShotReady(ShaderJobs, Streaming, Assets, bAlive))
+		{
+			++FramesSinceReady;
+			if (!bShotReadyLogged)
+			{
+				bShotReadyLogged = true;
+				UE_LOG(LogUmbrellaElla, Log, TEXT("SMOKE_SHOT_READY at_s=%.1f"), Elapsed);
+			}
+		}
+		else
+		{
+			// Anything pending again restarts the count: the frames must be consecutive and settled.
+			FramesSinceReady = 0;
+		}
+	}
+	const bool bShotPending = !ShotPath.IsEmpty() && !bShotChecked && Elapsed < QuitAfterSeconds + ShotMaxWaitSeconds;
 
-	if (!bShotTaken && !ShotPath.IsEmpty() && Elapsed >= Tuning.SmokeShotDelaySeconds)
+	if (!bShotTaken && !ShotPath.IsEmpty() && IsShotDue(true, FramesSinceReady, ShotFrames))
 	{
 		bShotTaken = true;
 		// Whole window (bars and UI): bShowUI=true takes the Slate window, not the bare scene render target.
 		FScreenshotRequest::RequestScreenshot(ShotPath, true, false);
 		ShotRequestedAt = FApp::GetCurrentTime();
 		const FVector2D Size = GEngine && GEngine->GameViewport ? FVector2D(GEngine->GameViewport->Viewport->GetSizeXY()) : FVector2D::ZeroVector;
-		UE_LOG(LogUmbrellaElla, Log, TEXT("SMOKE_SHOT at_s=%.1f w=%d h=%d"), Elapsed, static_cast<int32>(Size.X), static_cast<int32>(Size.Y));
+		UE_LOG(LogUmbrellaElla, Log, TEXT("SMOKE_SHOT at_s=%.1f frames=%d w=%d h=%d"), Elapsed, FramesSinceReady, static_cast<int32>(Size.X), static_cast<int32>(Size.Y));
 	}
 
 	if (bShotTaken && !bShotChecked && FApp::GetCurrentTime() - ShotRequestedAt >= ShotWriteWaitSeconds)
@@ -151,7 +284,10 @@ void USmokeHookSubsystem::Tick(float DeltaTime)
 			IFileManager::Get().FileSize(*ShotPath));
 	}
 
-	TickInputCheck(Flow);
+	if (!bShotPending)
+	{
+		TickInputCheck(Flow);
+	}
 
 	if (FParse::Param(FCommandLine::Get(), TEXT("SmokePlaytest")))
 	{
@@ -182,7 +318,7 @@ void USmokeHookSubsystem::Tick(float DeltaTime)
 	{
 		LogEnd(TEXT("survived"));
 	}
-	else if (Elapsed >= QuitAfterSeconds && (bInputSettled || Elapsed >= QuitAfterSeconds + GraceSeconds))
+	else if (Elapsed >= QuitAfterSeconds && !bShotPending && (bInputSettled || Elapsed >= QuitAfterSeconds + GraceSeconds))
 	{
 		LogEnd(TEXT("quit"));
 	}

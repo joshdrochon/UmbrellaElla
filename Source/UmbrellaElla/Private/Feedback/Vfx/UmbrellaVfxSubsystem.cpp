@@ -228,6 +228,7 @@ void UUmbrellaVfxSubsystem::PlayForEvent(const FUmbrellaEvent& Event)
 	Mesh->SetGenerateOverlapEvents(false);
 	const float Shrink = (bReducedFlash && Spec.bFlashing && IsFeatureEnabled(EFeatureId::VFX_10)) ? UmbrellaVfxConst::ReducedFlashScale : 1.0f;
 	Mesh->SetRelativeScale3D(FVector(Spec.Scale * Shrink));
+	ArtSlot::SetFlatUnlit(Mesh, Flash, UmbrellaArtSlotConst::StandInDefaultColor);
 	Flash->SetRootComponent(Mesh);
 	Mesh->RegisterComponent();
 	Flash->SetActorLocation(Location);

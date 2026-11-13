@@ -210,6 +210,16 @@ class SpriteCheckTests(unittest.TestCase):
         with redirect_stdout(io.StringIO()):
             self.assertEqual(sprite_check.main(["--scan", os.path.join(self.tmp, "Art")]), 1)
 
+    def test_only_changed_scans_just_the_named_art(self):
+        art = os.path.join(self.tmp, "Art", "Source", "Ella", "Export")
+        os.makedirs(art)
+        a, b = os.path.join(art, "A.png"), os.path.join(art, "B.png")
+        write_png(a, 64, 64, blob()); write_png(b, 64, 64, blob())
+        full, _ = sprite_check.scan(os.path.join(self.tmp, "Art"), STYLE)
+        part, _ = sprite_check.scan(os.path.join(self.tmp, "Art"), STYLE, only={os.path.normpath(b)})
+        self.assertEqual(len(full), 2)
+        self.assertEqual([r["files"] for r in part], [[b]])
+
     def test_lfs_pointer_without_sidecar_still_fails(self):
         art = os.path.join(self.tmp, "Art")
         os.makedirs(art)

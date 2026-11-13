@@ -13,6 +13,23 @@
 #include "Core/UmbrellaTuning.h"
 #include "Level/LevelCatalogue.h"
 
+namespace
+{
+	/** Unlit stand-in colour for a backdrop layer with no art. */
+	FLinearColor BackdropStandInColor(FName LayerName)
+	{
+		if (LayerName == TEXT("Sky"))
+		{
+			return UmbrellaBackdropConst::SkyStandInColor;
+		}
+		if (LayerName == TEXT("FarLand"))
+		{
+			return UmbrellaBackdropConst::FarLandStandInColor;
+		}
+		return UmbrellaBackdropConst::NearStandInColor;
+	}
+}
+
 bool UUmbrellaBackdropSubsystem::IsLayerEnabled(FName LayerName)
 {
 	if (LayerName == TEXT("Sky"))
@@ -108,6 +125,7 @@ int32 UUmbrellaBackdropSubsystem::BuildLayers()
 		}
 		Panel->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		Panel->SetGenerateOverlapEvents(false);
+		ArtSlot::SetFlatUnlit(Panel, Layer, BackdropStandInColor(Spec.Name));
 		const float Unit = UmbrellaBackdropConst::EngineCubeSize;
 		Panel->SetRelativeScale3D(FVector(UmbrellaBackdropConst::PanelWidth / Unit, UmbrellaBackdropConst::PanelThickness, UmbrellaBackdropConst::PanelHeight / Unit));
 		Layer->SetRootComponent(Panel);

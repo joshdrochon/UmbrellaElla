@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Engine/Scene.h"
 #include "GameFramework/Actor.h"
 #include "UmbrellaArena.generated.h"
 
@@ -12,6 +13,10 @@ namespace UmbrellaArenaConst
 	static constexpr float CubeSize = 100.0f;
 	static constexpr double PlaneThickness = 0.01;
 	static constexpr double KeeperDepthScale = 0.1;
+	/** Min = max auto-exposure brightness: exposure never adapts, so a flat unlit frame keeps its authored values. */
+	static constexpr float FixedExposureBrightness = 1.0f;
+	/** Unlit colour of the arena's own background stand-in panels (dark paper, behind all gameplay). */
+	static const FLinearColor BackgroundStandInColor(0.10f, 0.095f, 0.085f, 1.0f);
 }
 
 class UCameraComponent;
@@ -91,6 +96,9 @@ public:
 
 	/** Create the placeholder visuals (also called from BeginPlay). */
 	void BuildPlaceholders();
+
+	/** The unlit 2D look for the play camera: fixed exposure, no bloom, motion blur, vignette or grain. Pure settings. */
+	static void ApplyFlatLookPostProcess(FPostProcessSettings& Settings);
 
 private:
 	float FarOffset = 0.0f;
