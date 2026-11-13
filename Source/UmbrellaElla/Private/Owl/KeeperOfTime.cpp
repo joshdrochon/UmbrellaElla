@@ -1,4 +1,5 @@
 #include "Owl/KeeperOfTime.h"
+#include "Feedback/Art/ArtSlot.h"
 
 #include "Components/StaticMeshComponent.h"
 #include "Core/UmbrellaDrawOrder.h"
@@ -74,7 +75,8 @@ void AKeeperOfTime::BeginPlay()
 		if (Visual && Cube)
 		{
 			Visual->SetStaticMesh(Cube);
-			if (Material)
+			ArtSlot::SetFlatUnlit(Visual, this, UmbrellaArtSlotConst::StandInKeeperColor);
+			if (!ArtSlot::IsUnlit(Visual) && Material)
 			{
 				Visual->SetMaterial(0, Material);
 			}

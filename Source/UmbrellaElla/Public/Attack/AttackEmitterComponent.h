@@ -11,6 +11,7 @@ class UEnhancedInputComponent;
 class UUmbrellaStateComponent;
 class AStreamBeamActor;
 struct FAttackTuning;
+struct FMotorTuning;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnEquippedSpellChanged, EUmbrellaSpell);
 
@@ -70,6 +71,7 @@ public:
 	/** Tests pass their own tuning copy by const reference; the class default is never written. */
 	void SetTuningOverride(const FAttackTuning& InTuning) { TuningOverride = &InTuning; }
 	void ClearTuningOverride() { TuningOverride = nullptr; }
+	void SetMotorTuningOverride(const FMotorTuning& InTuning) { MotorOverride = &InTuning; }
 
 	/** Test only: behave as if the burst-shot feature flag were switched off (the flag table is a constant). */
 	void SetCom06OffForTest(bool bOff) { bCom06OffForTest = bOff; }
@@ -86,6 +88,9 @@ protected:
 
 private:
 	const FAttackTuning& ActiveTuning() const;
+	const FMotorTuning& ActiveMotor() const;
+	FVector SizedMuzzle(const FAttackTuning& Tuning) const;
+	const FMotorTuning* MotorOverride = nullptr;
 	/** Borrowed from the caller (a test); must outlive its use. */
 	const FAttackTuning* TuningOverride = nullptr;
 	void FireVolley();
