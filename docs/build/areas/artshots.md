@@ -1,7 +1,7 @@
 # Art loop: owl-bolt, bolt-hit, wand-shot, wind-zone, wind-lines. Branch area/artshots. Read docs/build/worker-rules.md first.
 Josh, Nov 11: Blender only, reference bar enforced (option A). Nobody reviews by hand: you build to the bar and do not
 stop until each piece passes. Pieces (cards "0.10c" and "0.10b"; list them with python3 tools/art_loop.py pieces --card "0.10c"): owl-bolt, bolt-hit, wand-shot, wind-zone, wind-lines.
-Loop per piece (tools/art_loop.py --help, pipeline/art/README.md, pipeline/art/art-bible.md, pipeline/art/references.json):
+Loop per piece (tools/art_loop.py --help, pipeline/art/import-rules.md, pipeline/art/art-bible.md, pipeline/art/references.json):
 1. Build or revise the piece in Blender: /Applications/Blender.app/Contents/MacOS/Blender -b (scripts under
    Art/Source/<Asset>/, committed; run renders through tools/build/ue_slot.sh so they share the machine's slots).
 2. Deterministic checks: tools/art_check.py, tools/screen_check.py, tools/art_ref_check.py (and tools/hitbox_check.py for
@@ -14,7 +14,7 @@ Loop per piece (tools/art_loop.py --help, pipeline/art/README.md, pipeline/art/a
 4. Only a passing piece replaces its _PH: shipped image under Art/<Asset>/ (outside Art/Source), its .artloop.json record,
    provenance row in pipeline/art/provenance.csv, imported into Content/UmbrellaElla/Art/<Asset>/ by a committed editor
    script (UnrealEditor-Cmd ... -run=pythonscript ... -unattended -nullrhi -nosplash -nocrashreports). Until then the _PH stays.
-Commit after each round that improves a piece; log piece, round, verdict and gap in docs/build/areas/artshots-status.md.
+Commit after each round that improves a piece; log piece, round, verdict and gap in your status file (artshots-status.md next to this brief).
 Critic sanity (Josh): if the critic looks defective (the same piece failing for different reasons each round, reasons that contradict the GDD or the references, reasons it cannot judge, a piece that measurably meets every number but keeps failing, calibration drift), test the critic: it must pass the reference itself, fail a known-bad sample, and agree with itself on the same piece twice. Fix a real defect in its prompt, packet or calibration and write the fix and the evidence in docs/build/areas/<you>-status.md (the lead copies it to the build log). Never loosen the bar.
 Lane: Art/Source/<these assets>/**, Art/<these assets>/**, Content/UmbrellaElla/Art/<these assets>/**,
 tools/build/assets/art_shots*.py, pipeline/art/provenance.csv (append your rows only). Never gameplay code.
