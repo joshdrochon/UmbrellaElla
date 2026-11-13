@@ -95,8 +95,25 @@ fi
 if [ $fail = 0 ] && [ "$STORY" = 1 ]; then chk story_critic "$ROOT/tools/build/critic.sh" story "$L/critic-$A.txt"; fi
 if [ $fail = 0 ] && [ "$ENCOUNTER" = 1 ]; then chk encounter_critic "$ROOT/tools/build/critic.sh" encounter "$L/critic-$A.txt"; fi
 if [ $fail = 1 ]; then echo "GATE FAIL: area/$A $(git rev-parse --short HEAD) (main unchanged, $(( $(date +%s) - T0 )) s)"; exit 1; fi
+if [ "$A" = batch ]; then
+  # Batch (Josh, Nov 12): one independent review per lane on that lane's own diff, in parallel; any lane asking for
+  # changes in its first round holds the batch, and that lane's tip is recorded so it needs new commits.
+  T1=$(date +%s); LANES=$(git log --format=%s "$MAIN..HEAD" | sed -n 's/^Merge area\/\([a-z0-9]*\) .* into batch$/\1/p')
+  for b in $LANES; do REVIEW_RANGE="$MAIN...area/$b" "$ROOT/tools/build/review.sh" "$b" "$EV" "$L/review-$b.txt" & done; wait
+  held=""; for b in $LANES; do
+    grep -q "VERDICT: approve" "$L/review-$b.txt" && { echo 0 > "$L/review-$b.round"; continue; }
+    nb=$(cat "$L/review-$b.round" 2>/dev/null || echo 0)
+    if [ "$nb" = 0 ]; then echo 1 > "$L/review-$b.round"; held="$held $b"
+      python3 "$ROOT/tools/build/gate_seen.py" record "$L" "$b" "$(git -C "$ROOT" rev-parse "area/$b")" HOLD
+    else echo "review changes for $b after the one round: follow-ups in $L/review-$b.txt"; fi
+  done
+  step "review per lane:$(for b in $LANES; do grep -q 'VERDICT: approve' "$L/review-$b.txt" && echo -n " $b=approve" || echo -n " $b=changes"; done)"
+  [ -n "$held" ] && { NORECORD=1; echo "GATE HOLD: review asks for changes in:$held (send $L/review-<lane>.txt to each)"; exit 3; }
+  rv=0; ROUND="$L/review-batch.round"; n=1
+else
 T1=$(date +%s); "$ROOT/tools/build/review.sh" "$A" "$EV" "$L/review-$A.txt"; rv=$?; step "review $( [ $rv = 0 ] && echo approve || echo changes/none )"
 ROUND="$L/review-$A.round"; n=$(cat "$ROUND" 2>/dev/null || echo 0)
+fi
 if [ $rv != 0 ] && [ "$n" = 0 ]; then
   echo 1 > "$ROUND"; echo "GATE HOLD: review asks for changes; send $L/review-$A.txt to the $A worker once, then rerun"; exit 3
 fi
