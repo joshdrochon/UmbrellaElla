@@ -127,3 +127,12 @@ Merged main 4c3dea15. Capture with an ini override of the shot delay never got a
 
 ## Nov 13 (main 4e1e6aff merged): still blocked, zero spend
 No `-SmokeShotDelay=` flag yet, load average 45. Context pair for skyline, paper, menu-screen still needs a capture with the shot delay raised or an idle machine. Every `_PH` stays. Request 3 stands.
+
+## Nov 13: skyline r3 repainted with the shared style block (main 3e2c0b2a merged)
+- Prompt skyline_r3.txt (= r2 text; assetgen appends the style block). Gemini 3.1 flash draft, $0.101, shared spend now $29.88 of $33.82. Keyed with art_scene_key.py, 3200x720.
+- Checks PASS (art_ref 0.802, screen_check, art_check). Panel round 16, calibration 7/9: reference and quality-bar pairs still reference.
+  Gap: mid-tone brick and dome shading dilute the near-black silhouette; ground band is a flat black slab (no rock edge/texture); little rust/gold accent.
+- Context pair still missing (no `-SmokeShotDelay=`, load average 66). Not passable either way. Paper and menu-screen not repainted: only about $3.9 of cap left,
+  and without the context capture a repaint cannot pass. Next paint (if the lead wants it): darker flat silhouette, textured ground band, rust accent in the prompt.
+- Tool defect (ours, tools/art_loop.py, not my lane): `panel` stores `ours` as an absolute path when --ours is absolute-resolved, then `verdict` refuses
+  ("every folder of one panel judges the same file"). Worked around by hand-editing the temp panel.json to the relative path. Fix: store the relative path.
