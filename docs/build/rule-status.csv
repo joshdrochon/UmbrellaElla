@@ -83,7 +83,7 @@ OWL-33,keeper,built,Keeper.SlowStretchesWorldTimersNotClockTimers,,
 OWL-34,keeper,built,Keeper.PhysicalSchedulerSerialisesMoves,,
 OWL-35,keeper,built,Keeper.FinalClockHitEndsFight; Keeper.World.FinalClockHitEndsInSuccess,,
 FLOW-24,arena,built,Level.RefugesAndLength; Level.NineSlotGrammar,,
-FLOW-25,arena,partial,Level.ContractsReadabilityCatchCheckpoint; Field.World.CurrentDrawsItsUsableWidth,wind fields now drawn at full usable width with distinct transport/descent/rescue stand-in colours (rescue has its own); painted gust art left; backdrop coverage goes to artslots; QA-36 re-measure left,playtest
+FLOW-25,arena,partial,Level.ContractsReadabilityCatchCheckpoint; Field.World.CurrentDrawsItsUsableWidth,wind fields now drawn at full usable width with distinct transport/descent/rescue stand-in colours (rescue has its own); painted gust art left; backdrop coverage goes to artslots; QA-36 re-measure left | QA-36 Nov 13: FAIL backdrop covers 0 of 9 route stages (drawn width 200=200),playtest
 FLOW-26,arena,blocked,,"GDD row says the design is authored, not implemented; nothing to build until the GDD changes",ORPHAN
 HAZ-02,enemies,built,BrokenMill.GeometryEstimatesMatchGdd; BrokenMill.ActivationAndEngagement; BrokenMill.GuardOneShotPerPass; BrokenMill.TwoWindsNeverSteal,rule layer; BrokenMillRoom.cpp spawns both wind bands,
 HAZ-03,enemies,built,BrokenMill.GeometryEstimatesMatchGdd; BrokenMill.ActivationAndEngagement; BrokenMill.GuardOneShotPerPass; BrokenMill.TwoWindsNeverSteal,rule layer; BrokenMillRoom.cpp spawns both wind bands,
@@ -99,14 +99,14 @@ HAZ-12,enemies,partial,BrokenMill.World.MeasureOnwardRideBends; BrokenMill.World
 HAZ-13,enemies,partial,BrokenMill.World.MeasureOnwardRideBends; BrokenMill.World.MeasureRedRayPaths; BrokenMill.World.MeasureFiringFixture; BrokenMill.World.MeasureFiringWindow; BrokenMill.World.MeasureEmissionsPerPass; BrokenMill.World.MeasureDelayedImpact,"measured: first contact 1.017 s vs 1.014 s MATCH; delayed impact alive/visible MATCH; wind 360 no longer clamped (clamp 360), carried 311.3/s after 0.67 s riding, residual drift 23.4 vs about 30 (GDD 360/decay 12 estimate assumes full speed; wind accel 3/s does not reach it, GDD forbids tuning); contact 0.981 vs 0.971 s; HeroSize not built",millmeasure
 HAZ-14,enemies,partial,BrokenMill.World.GuardChecksWithRealElla; BrokenMill.World.WindCarriesEllaPastOneShotPerPass,"real Ella and Motor; island solid now stops shots at IslandTop + IslandShotMargin 402 (island side tests: friendly ended x 1335.7, red 1338.0, island left 1350); the test wind broadcast still uses TargetId=Ella, real-name path covered by Move.World.RideCurrentFromVolume",enemies2
 HAZ-15,enemies,partial,BrokenMill.World.GuardChecksWithRealElla; BrokenMill.World.WindCarriesEllaPastOneShotPerPass,"free-rise miss and minimum-lift rescue now tested (FreeRiseLeavesRegionShotMisses, MissedCurrentFallsAndMinimumLiftRescue); remaining: tests still use the Ella-named workaround (WIND-03 now fixed on main), Ella capsule is not the GDD hurtbox (requests/enemies2.md), missed-current low assist not built",enemies2
-HAZ-16,agentplay,partial,Smoke.AgentPlay.*; tests/test_agent_play.py; tests/test_playtest_check.py,"agent play-tester built (hook + tools/build/agent_play.py + checker); no passing agent run yet: the room renders unreadable on this Mac (grey surface, Ella/guard not visible) and the live Sonnet attempt could not start under machine load; 1920x1080 is the Windows check",playtest
+HAZ-16,agentplay,partial,Smoke.AgentPlay.*; tests/test_agent_play.py; tests/test_playtest_check.py,"agent play-tester built (hook + tools/build/agent_play.py + checker); no passing agent run yet: the room renders unreadable on this Mac (grey surface, Ella/guard not visible) and the live Sonnet attempt could not start under machine load; 1920x1080 is the Windows check" | QA-36 Nov 13: FAIL 1280x720 low-health run boring; 1728x1117 and healthy pass; 1 attempt each,playtest
 HAZ-17,enemies,built,BrokenMill.ShotLogAndPoolGate,,
 HAZ-18,enemies,partial,BrokenMill.World.RoomFiresOneShotAndDies,collision-aligned cube proxies; no wind-band art passed (artcal fixing wind calibration),artshots
 CAM-03,arena,built,Arena.World.CameraAndAnchors; Arena.BackgroundLoopWraps,,
-CAM-04,arena,partial,Level.ContractsReadabilityCatchCheckpoint,rule functions only; QA-36 calibration measurement not run,playtest
+CAM-04,arena,partial,Level.ContractsReadabilityCatchCheckpoint,rule functions only; QA-36 calibration measurement not run | QA-36 Nov 13: PASS (mill_lower_v2),playtest
 CAM-05,arena,built,Level.ClearanceAndInterface,,
 CAM-06,arena,built,Level.ClearanceAndInterface,,
-CAM-07,arena,partial,Level.ContractsReadabilityCatchCheckpoint,"rule functions only; the route spawns no wind currents, so catch flow cannot be measured yet",playtest
+CAM-07,arena,partial,Level.ContractsReadabilityCatchCheckpoint,"rule functions only; the route spawns no wind currents, so catch flow cannot be measured yet" | QA-36 Nov 13: PASS (currents live while guard lived),playtest
 CAM-08,arena,built,Level.CameraLeadAndReveal; Level.World.CameraFollowsAndCheckpoints,level director tick now calls FollowEllaX; 1 s cue target is a GDD proposal,
 HAZ-19,enemies,built,Trap.* ; Trap.World.EachTrapHurtsOnContact,,
 HAZ-20,enemies,built,Trap.* ; Trap.World.EachTrapHurtsOnContact,,
@@ -141,7 +141,7 @@ HAZ-38,arena,partial,Level.ValidateRejectsBadRoutes,bBypass flag only; no bypass
 HAZ-39,arena,partial,Level.FallbackAndAvoidRepeat; Level.SameSeedSameRoute,seed 1001 fallback matches the GDD fixture; 1002/1003 proposals not checked,levelchunks
 HAZ-40,arena,built,Level.FallbackAndAvoidRepeat; Level.SameSeedSameRoute,,
 FLOW-27,arena,built,Level.RefugesAndLength; Level.NineSlotGrammar,,
-FLOW-28,arena,partial,Level.CheckpointsAndHandoff; Flow.World.RetryOnRoutePlacesAtLastCheckpoint; Flow.World.RetryAfterHandoffKeepsEllaInArena,"checkpoints and Keeper handoff built and tested (Level.CheckpointsAndHandoff, Flow.World.Retry*); Health.World.CheckpointRetryRestoresFullHealthAndLives passes; carry of partial health across route checkpoints not shown; QA-36 not run",playtest
+FLOW-28,arena,partial,Level.CheckpointsAndHandoff; Flow.World.RetryOnRoutePlacesAtLastCheckpoint; Flow.World.RetryAfterHandoffKeepsEllaInArena,"checkpoints and Keeper handoff built and tested (Level.CheckpointsAndHandoff, Flow.World.Retry*); Health.World.CheckpointRetryRestoresFullHealthAndLives passes; carry of partial health across route checkpoints not shown; QA-36 not run" | QA-36 Nov 13: PASS (health carries, handoff, threats=0),playtest
 FLOW-29,progression,built,Progression.World.PurchaseNeedsContext,,
 NAR-02,story,built,Story.StartGameHasNoStory; Story.InPlayCues; Story.World.ReactsToBus,text captions only; voice optional later,
 NAR-03,story,built,Story.CueTable; story_check PASS,"blind story critic failed the ""Mother:"" label; logged as critic defect (requests/storyship.md)",
@@ -160,7 +160,7 @@ FLOW-35,flow,built,Flow.PauseCycle; Flow.World.MenuBlocksGameplayInput,"drifting
 FLOW-36,settings,built,Settings.PagesByMode; Settings.SaveAppliesCurrentPage; Settings.BackDiscardsUnsaved; Settings.SliderRange; Settings.Credits,Slate layout not seen on screen,
 FLOW-37,settings,built,Settings.PagesByMode; Settings.SaveAppliesCurrentPage; Settings.BackDiscardsUnsaved; Settings.SliderRange; Settings.Credits,Slate layout not seen on screen,
 FLOW-38,settings,built,Settings.PagesByMode; Settings.SaveAppliesCurrentPage; Settings.BackDiscardsUnsaved; Settings.SliderRange; Settings.Credits,Slate layout not seen on screen,
-FLOW-39,settings,blocked,Settings.Credits,"credit names and roles are ""[... Josh to supply]"" in FlowStoryText.cpp",Josh
+FLOW-39,settings,built,Settings.Credits,"Rick Rispoli is Executive Producer (D-new-credits-ep)",
 FLOW-40,settings,built,Settings.PagesByMode; Settings.SaveAppliesCurrentPage; Settings.BackDiscardsUnsaved; Settings.SliderRange; Settings.Credits,Slate layout not seen on screen,
 FLOW-49,story,built,Story.JourneyStatistics; Flow.World.DirectorsCutEndingOneTimeline,Journey Complete follows Flow credits; Try Again / Main Menu bound (dcb08d4); keyboard focus on the widget is an artui follow-up,
 FLOW-41,flow,built,Flow.TitleStartsPlaying; Flow.StartAndPauseDesignRetained,,

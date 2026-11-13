@@ -1,4 +1,5 @@
 #include "Arena/UmbrellaArena.h"
+#include "Feedback/Art/ArtSlot.h"
 #include "Camera/CameraComponent.h"
 #include "Components/BoxComponent.h"
 #include "Core/UmbrellaCollision.h"
@@ -66,9 +67,39 @@ AUmbrellaArena::AUmbrellaArena()
 	PlayCamera->SetProjectionMode(ECameraProjectionMode::Orthographic);
 	PlayCamera->SetOrthoWidth(T.ArenaWidth);
 	PlayCamera->SetConstraintAspectRatio(true);
+	PlayCamera->bAutoCalculateOrthoPlanes = false;
 	PlayCamera->SetAspectRatio(T.CameraAspectRatio);
 	PlayCamera->SetRelativeLocation(FVector(HalfW, T.CameraDistance, HalfH));
 	PlayCamera->SetRelativeRotation(FRotator(0.0, UmbrellaArenaConst::CameraYaw, 0.0));
+	ApplyFlatLookPostProcess(PlayCamera->PostProcessSettings);
+	PlayCamera->PostProcessBlendWeight = 1.0f;
+}
+
+void AUmbrellaArena::ApplyFlatLookPostProcess(FPostProcessSettings& Settings)
+{
+	// Unlit 2D look: a fixed exposure (no eye adaptation brightening a dark frame), no bloom, blur or vignette.
+	Settings.bOverride_AutoExposureMethod = true;
+	Settings.AutoExposureMethod = AEM_Histogram;
+	Settings.bOverride_AutoExposureMinBrightness = true;
+	Settings.AutoExposureMinBrightness = UmbrellaArenaConst::FixedExposureBrightness;
+	Settings.bOverride_AutoExposureMaxBrightness = true;
+	Settings.AutoExposureMaxBrightness = UmbrellaArenaConst::FixedExposureBrightness;
+	Settings.bOverride_AutoExposureBias = true;
+	Settings.AutoExposureBias = 0.0f;
+	Settings.bOverride_BloomIntensity = true;
+	Settings.BloomIntensity = 0.0f;
+	Settings.bOverride_MotionBlurAmount = true;
+	Settings.MotionBlurAmount = 0.0f;
+	Settings.bOverride_VignetteIntensity = true;
+	Settings.VignetteIntensity = 0.0f;
+	Settings.bOverride_AmbientOcclusionIntensity = true;
+	Settings.AmbientOcclusionIntensity = 0.0f;
+	Settings.bOverride_SceneFringeIntensity = true;
+	Settings.SceneFringeIntensity = 0.0f;
+	Settings.bOverride_FilmGrainIntensity = true;
+	Settings.FilmGrainIntensity = 0.0f;
+	Settings.bOverride_LensFlareIntensity = true;
+	Settings.LensFlareIntensity = 0.0f;
 }
 
 FVector AUmbrellaArena::LocalPoint(float XFraction, float ZFraction) const
@@ -123,6 +154,7 @@ void AUmbrellaArena::BuildPlaceholders()
 		Mesh->SetupAttachment(RootComponent);
 		Mesh->SetRelativeLocation(Location);
 		Mesh->SetRelativeScale3D(Scale);
+		ArtSlot::SetFlatUnlit(Mesh, this, FCString::Strstr(Name, TEXT("Keeper")) ? UmbrellaArtSlotConst::StandInKeeperColor : UmbrellaArenaConst::BackgroundStandInColor);
 		Mesh->RegisterComponent();
 		return Mesh;
 	};

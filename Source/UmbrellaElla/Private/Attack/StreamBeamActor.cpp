@@ -1,4 +1,5 @@
 #include "Attack/StreamBeamActor.h"
+#include "Feedback/Art/ArtSlot.h"
 #include "Attack/SpellRules.h"
 #include "Components/StaticMeshComponent.h"
 #include "Core/UmbrellaDrawOrder.h"
@@ -98,7 +99,11 @@ void AStreamBeamActor::SetBeam(const FVector& Muzzle, float Length, float Width)
 		if (UStaticMesh* Mesh = LoadObject<UStaticMesh>(nullptr, BeamCubePath, nullptr, LOAD_NoWarn | LOAD_Quiet))
 		{
 			Visual->SetStaticMesh(Mesh);
-			if (UMaterialInterface* Base = LoadObject<UMaterialInterface>(nullptr, BeamMaterialPath, nullptr, LOAD_NoWarn | LOAD_Quiet))
+			ArtSlot::SetFlatUnlit(Visual, this, Tuning.StreamPlaceholderColor);
+			if (ArtSlot::IsUnlit(Visual))
+			{
+			}
+			else if (UMaterialInterface* Base = LoadObject<UMaterialInterface>(nullptr, BeamMaterialPath, nullptr, LOAD_NoWarn | LOAD_Quiet))
 			{
 				UMaterialInstanceDynamic* Material = UMaterialInstanceDynamic::Create(Base, this);
 				Material->SetVectorParameterValue(BeamColorParameter, Tuning.StreamPlaceholderColor);

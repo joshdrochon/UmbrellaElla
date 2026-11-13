@@ -102,10 +102,9 @@ TArray<FName> SettingsRules::GetDeveloperOptionNames(EUmbrellaPlayMode Mode)
 
 TArray<FSettingsCreditLine> SettingsRules::GetCredits()
 {
-	// Supplied by Rick (GDD section 7). Rick's role is OPEN, so it stays empty.
+	// Supplied by Rick (GDD section 7); his role is Executive Producer (D-new-credits-ep).
 	TArray<FSettingsCreditLine> Lines;
-	Lines.Add({TEXT("Rick Rispoli"), FString()});
-	Lines.Add({TEXT("[the executive producer]"), TEXT("Executive Producer")});
+	Lines.Add({TEXT("Rick Rispoli"), TEXT("Executive Producer")});
 	Lines.Add({TEXT("Richard"), TEXT("Producer")});
 	Lines.Add({TEXT("Josh Rochon"), TEXT("Technical Lead")});
 	return Lines;
@@ -192,7 +191,7 @@ FText SettingsRules::ActionDisplayName(EUmbrellaInputAction Action)
 	switch (Action)
 	{
 	case EUmbrellaInputAction::Shoot:
-		return LOCTEXT("Shoot", "Shoot");
+		return LOCTEXT("Shoot", "Small Blasts");
 	case EUmbrellaInputAction::Absorb:
 		return LOCTEXT("Absorb", "Absorb");
 	case EUmbrellaInputAction::Hop:
@@ -206,7 +205,7 @@ FText SettingsRules::ActionDisplayName(EUmbrellaInputAction Action)
 	case EUmbrellaInputAction::Trim:
 		return LOCTEXT("Trim", "Trim (up/down)");
 	case EUmbrellaInputAction::MoveX:
-		return LOCTEXT("MoveX", "Move (left/right)");
+		return LOCTEXT("MoveX", "Movement (left/right)");
 	case EUmbrellaInputAction::Spell1:
 		return LOCTEXT("Spell1", "Spell 1");
 	case EUmbrellaInputAction::Spell2:

@@ -31,6 +31,7 @@ also wait for NAR-01 to be authorised in `docs/feature-manifest.json`.
 | S2 | GDD B1.0 (`docs/gdd/GDD-B1.0.md`) | "The Last Hour" as a provisional encounter or chapter title |
 | S3 | Discord #story, one post by Ricky, 2026-11-09 19:43 PST, titled "nUMBeR ELLA" | The premise, the world, the owl's motive and the ending (rows P1-P9) |
 | S4 | Ricky's Ella study (mask, glowing eyes), shared with the team | A look for Ella (row P10) |
+| S6 | GDD SH1.0 (`docs/gdd/GDD-SH1.0.md`) | The current design: controls (MOVE-05, MOVE-06, MOVE-08), weapons (MOVE-12), health (SURV-05, SURV-07), growth (FLOW-15, SURV-06), credits |
 | S5 | `pipeline/art/art-bible.md` | Visual tone: ink on aged paper, near-black silhouettes, gold/amber and rust accents only |
 
 ## Names
@@ -40,10 +41,22 @@ also wait for NAR-01 to be authorised in `docs/feature-manifest.json`.
 | the owl | opponent | GDD | S1 sections 1, 7A | Huge, clockwork, a clock in its chest. Always "the owl" in text until a name is CONFIRMED. |
 | Keeper of Time | epithet for the owl | PROPOSED | S1 "clockkeeper"; S3 "an ancient keeper of time and death" | A title, not a name. Needs a human trademark search before it ships. |
 | Mother | Ella's mother (no given name) | CONFIRMED 2026-11-12 (agent default; team may override) | S3 | Never on screen yet. Write "her mother" in text; "Mother" only if Ella speaks to her, or as the speaker label on a caption she speaks (GDD NAR-04: "Mother: Keep it open."). |
-| Umbrella Ella | game title candidate | OPEN | repo working name | D-new-story-canon picks the title. |
+| Umbrella Ella | game title (start of "Umbrella Ella The Stolen Hour") | CONFIRMED 2026-11-12 (agent default; Josh decided the title, D-new-title-text) | repo working name | `docs/decisions.md` D-new-title-text. |
 | nUMBeR ELLA | game title candidate | PROPOSED | S3 | Wordplay on umbra, umbrella and the hour's number. Mixed case is part of it. |
 | The Last Hour | chapter or encounter title | DEFERRED | S2 | Provisional only. |
 | UMBRELLA / OWL | design document title | GDD | S1 cover | The GDD's own title, not a game title. |
+| Absorb | control name | GDD | S6 MOVE-05 | Hold to catch yellow shots while dropping; they heal. Shown in controls. |
+| Hop, Dash, Ride | control names | GDD | S6 MOVE-06 | Hop rises overhead; Dash moves back or forward while falling; Ride holds on to a harmless wind current. |
+| Small Blasts, Streamed Blast, Twin Stars, Needle Spell | spell names (Spell 1 to 4) | GDD | S6 MOVE-08, MOVE-12 | The four weapons of Director's Cut. Start Game has only Small Blasts. Text never says what they are in the story (Q4). |
+| Keeper | the owl, as the GDD names the encounter | GDD | S6 section 1, OWL-06 | In settings and tuning labels ("Keeper part health"). Story text still says "the owl". It has wings, three hanging mechanisms and a clock (phases 1 to 3). |
+| Trim | control name | GDD | S6 MOVE-05 area, Vertical trim | Left stick up or down, W or S: rise a little more or less while dropping. |
+| Suction | absorb reach | GDD | S6 Absorb section, SURV-06 | The range and cone in which Absorb catches yellow shots. |
+| Lives | health count | GDD | S6 SURV-05, SURV-07 | Three lives, each three hits; one clock shows them. |
+| Points, Level, Experience | growth terms | GDD | S6 FLOW-15, FLOW-49 | Director's Cut: a level gives one point, spent at a refuge or between runs. |
+| Director's Cut | game mode | GDD | S6 section 1, FLOW-49 | The airborne journey with growth. Title menu item (D-new-title-text). |
+| Rick Rispoli | real person, credit | CONFIRMED 2026-11-12 (agent default; team may override) | GDD SH1.0 credits; jam brief | Executive Producer. A team member named in the credits with their consent as entrants; not a story name. |
+| Richard | real person, credit | CONFIRMED 2026-11-12 (agent default; team may override) | GDD SH1.0 credits | Producer. Team member named in the credits. |
+| Josh Rochon | real person, credit | CONFIRMED 2026-11-12 (agent default; team may override) | jam brief people table | Technical Lead. Team member named in the credits. |
 
 The owl's own name is OPEN (D-new-owl-name). The name floated so far has a trademark risk and is on the deny list
 (`## Never use` below): never write it in any text a player sees.
@@ -59,6 +72,12 @@ The owl's own name is OPEN (D-new-owl-name). The name floated so far has a trade
 | F6 | The player character fires small gold shots while the umbrella is lowered. | GDD | S1 COM-01 | |
 | F7 | The tone is gothic storybook and clockwork; play needs no story. | GDD | S1 section 1 Tone | |
 | F9 | On the keeper's arrival the player sees the clock's single remaining hand and an empty place beside it, with a matching bronze shaft detail. It is a clue to look at, not an explanation. | GDD | S1 NAR-06 | |
+| F10 | Absorb, Hop, Dash and Ride are the controls: hold Absorb to catch yellow shots and heal; Hop rises; Dash moves while falling; Ride holds on to a harmless wind current. | GDD | S6 MOVE-05, MOVE-06 | |
+| F11 | Director's Cut has four spells (Small Blasts, Streamed Blast, Twin Stars, Needle Spell) and growth: each level gives a point spent at a refuge or between runs on hits per life, lives, recovery, damage reduction, suction range, suction cone or the damage of each of the four spells. Director's Cut cycles spells with [ and ] or the D-pad, or keys 1 to 4. | GDD | S6 MOVE-08, MOVE-12, FLOW-15, SURV-06, SURV-07 | |
+| F12 | Health is three lives of three hits each, shown by one clock. | GDD | S6 SURV-05, SURV-07 | |
+| F13 | Journey Complete is the Director's Cut results screen, shown after a win. It counts enemies defeated, experience earned, deaths, distance flown, shots fired, shots fired at you (enemy shots aimed at Ella), damage taken and health restored. The owl itself is never killed (F3). | GDD | S6 FLOW-49 | |
+| F14 | Beyond the umbrella and shots, the Keeper fight has hostile gusts, enemy shots, wings, three hanging mechanisms, a clock, a three-second eye blackout, and a 1.2 second stun when a mechanism breaks. Basic shots never run out. | GDD | S6 MOVE-05, OWL-06, OWL-30 | |
+| P11 | In Rick's story the owl may only have put off his judgment, or something about Ella has challenged even his understanding of time. | GDD | S6 section 6 (the story text) | |
 | F8 | Story ideas in the GDD (the clockkeeper, a night-to-dawn hour, a stolen clock hand in the umbrella, a mysterious departure, chapter framing) are ideas only. | DEFERRED | S1 Appendix inventory | |
 | P1 | Ella was meant to die. Her mother would not accept it and stole, from the owl, the clock hand that marked Ella's last hour. | CONFIRMED 2026-11-12 (agent default; team may override) | S3 | |
 | P2 | Her mother made the stolen hand into the umbrella. Its umbra, a perfect shadow, hides Ella from the light of truth, and so from death. | CONFIRMED 2026-11-12 (agent default; team may override) | S3 | |
