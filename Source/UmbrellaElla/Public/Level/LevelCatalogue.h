@@ -65,7 +65,7 @@ namespace LevelCatalogue
 	/** one candidate from the seed's separate layout stream (may be invalid). */
 	UMBRELLAELLA_API FRoute BuildCandidate(int64 Seed, int32 Attempt);
 
-	/** first valid candidate within MaxCandidateAttempts, else the verified fallback. Same seed, same route. */
+	/** the first valid candidate within MaxCandidateAttempts, else the verified fallback. Same seed, same route. */
 	UMBRELLAELLA_API FRoute Generate(int64 Seed);
 
 	/** the named fallback route (seed 1001 layout, verified by ValidateRoute at call time). */

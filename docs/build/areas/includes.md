@@ -17,4 +17,4 @@ declare what they use only by pointer). No logic, no renames. Any file under `So
 include lines only.
 
 ## Done
-Non-unity build exit 0, unity build exit 0, `tools/build/ue_slot.sh tools/ue/test.sh` PASS, `module_check` 0. Commit, stop.
+Non-unity build exit 0, unity build exit 0, targeted tests PASS (`TEST_FILTER` from `tools/build/gate_plan.py`, plus `tools/affected_tests.py --run`), `module_check` 0. Commit, stop.
