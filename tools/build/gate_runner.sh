@@ -3,7 +3,10 @@
 #   tools/build/gate_runner.sh add <area> [<area>...]   append to the queue (../UmbrellaElla-areas/logs/gate-queue)
 #   tools/build/gate_runner.sh run                      process the queue until empty (one runner only; lock dir)
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"; L="$(dirname "$ROOT")/UmbrellaElla-areas/logs"; Q="$L/gate-queue"; mkdir -p "$L"; touch "$Q"
-if [ "${1:-}" = add ]; then shift; for a in "$@"; do grep -qx "$a" "$Q" || echo "$a" >> "$Q"; done; cat "$Q"; exit 0; fi
+if [ "${1:-}" = add ]; then shift; for a in "$@"; do grep -qx "$a" "$Q" || echo "$a" >> "$Q"; done; cat "$Q"
+  # Adding always makes sure a runner is draining the queue (Nov 12: the runner exited on an empty queue and later adds sat).
+  [ -d "$L/gate-runner.lock" ] || nohup "$0" run >> "$L/gate-runner.out" 2>&1 &
+  exit 0; fi
 mkdir "$L/gate-runner.lock" 2>/dev/null || { echo "a runner is already running"; exit 0; }
 trap 'rmdir "$L/gate-runner.lock"' EXIT
 while a=$(head -1 "$Q") && [ -n "$a" ]; do
