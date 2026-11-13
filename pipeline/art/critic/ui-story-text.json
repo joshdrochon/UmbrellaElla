@@ -45,47 +45,6 @@
   },
   {
    "piece": "ui-story-text",
-   "round": 2,
-   "verdict": "same",
-   "checks": true,
-   "results": {
-    "art_check": "pass",
-    "screen_check": "pass",
-    "art_ref_check": "pass"
-   },
-   "pairs": {
-    "quality_bar": "ours",
-    "reference": "same"
-   },
-   "panel": 3,
-   "calibration": {
-    "sessions": 8,
-    "passed": 6
-   },
-   "missing": [],
-   "critic_sessions": [
-    "ui-story-text-r2-00-reference-c1",
-    "ui-story-text-r2-00-reference-c2",
-    "ui-story-text-r2-00-reference-c3",
-    "ui-story-text-r2-01-quality_bar-c1",
-    "ui-story-text-r2-01-quality_bar-c2",
-    "ui-story-text-r2-01-quality_bar-c3",
-    "ui-story-text-r2-00-reference-c4",
-    "ui-story-text-r2-01-quality_bar-c4"
-   ],
-   "manifest": "",
-   "evidence": "",
-   "prompt": "",
-   "files": "3a6400def0f92f8a4794bec579f7255c6daaee2ff59985e3d5f5c89a3b0f5e3b",
-   "file": "pipeline/art/proof/artui2/ui-story-text/capture_story.png",
-   "card": "artui",
-   "refs": "669f6f2ac14d",
-   "commit": "e27951e626ba",
-   "gap": "Both are the same title screen, and its lettering is a little soft and its scene a little smooth, with no truly etched ink line.",
-   "at": "2026-11-13T08:15:48Z"
-  },
-  {
-   "piece": "ui-story-text",
    "round": 3,
    "verdict": "reference",
    "checks": true,
