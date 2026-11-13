@@ -22,6 +22,13 @@ onset or tail by design. Test: `tests/test_audio_loop.py::test_loop_packet_has_n
 is unchanged: no range was widened, the style check is untouched. Round 2 on the same bytes: both pass.
 This edit is outside the lane (tools/); every loop in every sound lane needs it at the gate.
 
-## Left
-P1: ClockTickLoop, AirMillLoop, RefugeLoop, WindBed. P2: MusicIntro, MusicContest, MusicDesperation, MillAmbience,
-BossApproach, RealmClocks. Import into Content/UmbrellaElla/Audio/<Id>/ (arena_audio_import.py has a fixed cue map today).
+## Also done (commits fd01ede..161dd4c, each with blind critic pass + scan + style)
+ClockTickLoop, AirMillLoop, RefugeLoop, WindBed, MillAmbience, BossApproach, RealmClocks, MusicIntro, MusicContest,
+MusicDesperation. All 12 sounds have a passing take and a provenance row. Re-checked now: audio_check --scan and
+audio_style_check show PASS for all 12 files.
+
+## Import done
+Cause of the earlier exit 1: the game module was not compiled in this worktree ("The game module 'UmbrellaElla' could not
+be found"). After `ue_slot.sh tools/ue/build.sh` (build exit: 0), `sndworld_import.py` ran: `sndworld_import done: 12 sounds`.
+Assets are in Content/UmbrellaElla/Audio/<Id>/<Id>.uasset, all set looping (all 12 are loops in sound-list.csv).
+Nothing is left in this lane. The cue map that plays these ids is the arena lane's.
