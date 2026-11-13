@@ -20,7 +20,7 @@ from sndtele_recipes import RECIPES  # noqa: E402
 CARD = "SNDTELE"
 HELPERS = ("regen.py", "critic.sh", "provenance.py")
 PROV = ROOT / "pipeline/art/provenance.csv"
-XFADE_S = 0.5          # loop wrap crossfade; the mix is rendered this much longer than the loop
+XFADE_S = 0.5          # default loop tail: the mix is rendered this much longer than the loop, then folded
 
 
 def helper_dir():
@@ -48,34 +48,56 @@ def recipes_module(recipes):
 
 
 def loopify(path, loop_s):
-    """Seamless loop: the first XFADE_S of the take is an equal-power blend with what follows the loop end, so the
-    last sample runs straight into the first."""
+    """Seamless loop by folding: whatever the mix holds after loop_s (event tails, the hall, the fade-out half of
+    every bed layer) is added back onto the start, so the last sample runs straight into the first. Bed layers carry
+    matching fades (sndtele_synth.bed, the recipes' BED filter); event layers only place events inside the loop."""
     with wave.open(str(path), "rb") as w:
         rate, n, ch, sw = w.getframerate(), w.getnframes(), w.getnchannels(), w.getsampwidth()
         raw = w.readframes(n)
     if ch != 1 or sw != 2:
         sys.exit(f"{path}: loopify wants 16-bit mono")
     s = struct.unpack(f"<{n}h", raw)
-    keep = int(round(loop_s * rate)); x = n - keep
-    if x < 64:
+    keep = int(round(loop_s * rate))
+    if n - keep < 64:
         sys.exit(f"{path}: {n / rate:.2f} s is too short for a {loop_s} s loop")
     out = list(s[:keep])
-    for i in range(x):
-        p = 0.5 * math.pi * i / x
-        out[i] = int(max(-32767, min(32767, s[i] * math.sin(p) + s[keep + i] * math.cos(p))))
+    for i in range(min(keep, n - keep)):
+        out[i] += s[keep + i]
+    peak = max(1, max(abs(v) for v in out))
+    g = min(1.0, 0.84 * 32767 / peak)                     # audio_check: peak under -1 dBFS
     with wave.open(str(path), "wb") as w:
         w.setnchannels(1); w.setsampwidth(2); w.setframerate(rate)
-        w.writeframes(struct.pack(f"<{keep}h", *out))
+        w.writeframes(struct.pack(f"<{keep}h", *[int(v * g) for v in out]))
+
+
+def render_py_layers(sid, rec):
+    """`py` layers (sndtele_synth sources) are rendered into the regen cache as candidate 0; regen.py then finds the
+    file and mixes it like a generated layer."""
+    import sndtele_synth
+    d = Path(os.environ["REGEN_DIR"]) / sid
+    d.mkdir(parents=True, exist_ok=True)
+    layers = {}
+    for name, spec in rec["layers"].items():
+        spec = dict(spec)
+        fn = spec.pop("fn", None)
+        if spec.get("kind") == "py":
+            sndtele_synth.write(d / f"{name}_0.wav", fn())
+            spec.setdefault("start_db", -90)
+        layers[name] = spec
+    rec["layers"] = layers
+    return any(s.get("kind") == "py" for s in layers.values())
 
 
 def build(sid, fresh=False, tries=4):
     rec = dict(RECIPES[sid])
     loop_s = rec.pop("loop_s", None)
     if loop_s:
-        rec["seconds"] = loop_s + XFADE_S
+        rec["seconds"] = loop_s + rec.pop("loop_tail", XFADE_S)
         rec["fade_out"] = 0.001
-    recipes_module({sid: rec})
     os.environ.setdefault("REGEN_DIR", str(ROOT / "Saved/sndtele/gen"))
+    if render_py_layers(sid, rec):
+        tries = 1                                          # a py layer has one candidate; vary it in the recipe
+    recipes_module({sid: rec})
     argv = sys.argv
     sys.argv = ["regen.py", sid, "--tries", str(tries)] + (["--fresh"] if fresh else [])
     try:
@@ -124,7 +146,11 @@ def critic(sid, event=False):
         sh = ROOT / "Saved/sndtele/build/critic_event.sh"
         sh.parent.mkdir(parents=True, exist_ok=True)
         sh.write_text(src.replace(anchor, anchor + f'\npython3 "$ROOT/tools/build/assets/sndtele_audio.py" event-line "$PIECE" "$D/brief.md" || exit 2', 1))
-    return subprocess.run(["bash", str(sh), sid, CARD], cwd=ROOT).returncode
+    card = f"{CARD}-{sid}" + ("-EV" if event else "")      # one loop state per piece: pieces can run side by side
+    if not (ROOT / "Saved/AudioLoop" / card / "state.json").is_file():
+        subprocess.run([sys.executable, "tools/audio_loop.py", "start", "--card", card, "--issue", "0", "--ids", sid,
+                        "--builder", "sndtele-builder"], cwd=ROOT, capture_output=True)
+    return subprocess.run(["bash", str(sh), sid, card], cwd=ROOT).returncode
 
 
 def place_sorted(rows, sid):
@@ -146,7 +172,12 @@ def place_sorted(rows, sid):
 
 def prov(cmd, sid, gap=""):
     mod = runpy.run_path(str(helper_dir() / "provenance.py"), run_name="provenance")
-    recipes_module({sid: RECIPES[sid]})
+    rec = dict(RECIPES[sid])
+    rec["layers"] = {n: {k: v for k, v in s.items() if k != "fn"} for n, s in rec["layers"].items()}
+    api = any(s.get("kind") not in ("py", "synth") for s in rec["layers"].values())
+    if not api:                                            # no generated layer: provenance.py's synth row
+        rec["layers"] = {n: dict(s, kind="synth") for n, s in rec["layers"].items()}
+    recipes_module({sid: rec})
     with open(PROV, newline="", encoding="utf-8") as fh:
         rows = list(csv.reader(fh))
     mod["ROOT"] = ROOT

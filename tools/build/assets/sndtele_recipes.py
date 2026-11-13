@@ -1,300 +1,509 @@
 """sndtele lane recipes: one per sound id, in the format of pipeline/audio/build/regen.py (layers -> ffmpeg mix).
-Extra key read by sndtele_audio.py: loop_s (a seamless loop of that length). Edit between critic rounds.
-Levels: the sound-list telegraph family sits near -18 LUFS and the motion family near -22 LUFS, so every take is
+Layer kinds: an ElevenLabs layer (prompt, secs), or `py`: a function that renders the layer from sndtele_synth.py
+sources (struck metal and wood, moving air, creaks). Extra recipe keys read by sndtele_audio.py: loop_s (a seamless
+loop of that length) and loop_tail (how much longer the mix is rendered before it is folded). Edit between critic rounds.
+Levels: the sound-list telegraph family sits near -18 LUFS and the motion family near -21 LUFS, so every take is
 inside its style family's range and within 3 dB RMS of its sound-list family (audio_check --scan)."""
+import math
+import random
+
+from sndtele_synth import (BAR, BAR2, BELL, KNOCK, PLATE, SR, accel, add, air, bed, buf, burst, creak, nrm, ramp,
+                           rotate, strike, swell, teeth)
+
+TOP = "lowpass=f=9500,lowpass=f=9500,lowpass=f=11000"      # generator layers carry a thin 15-16 kHz line
+DARK = "lowpass=f=6000,lowpass=f=8000"
+HALL = {"rt60": 1.0, "wet_db": -8, "damp_hz": 5000, "predelay_ms": 12}      # owl tells: medium stone hall
+BIGHALL = {"rt60": 0.9, "wet_db": -9, "damp_hz": 3000, "predelay_ms": 20}   # enemies: large stone hall
+ROOM = {"rt60": 0.6, "wet_db": -12, "damp_hz": 5000, "predelay_ms": 8}      # clockwork: medium room
+NEAR = {"rt60": 0.35, "wet_db": -14, "damp_hz": 5000, "predelay_ms": 5}     # the umbrella and Ella are close
 
 
-
-def clk(f, d=0.0, a=1.0, k=40, parts=((1, 0.6, 1), (2.76, 0.4, 1.4), (5.4, 0.25, 1.8)), rise=600, nz=0.0, nk=350, slot=0):
-    """ffmpeg aevalsrc term: one struck-metal click at d seconds. Bar partials (ratio, weight, decay factor) with
-    their own exponential decay and a few-ms rise, so the strike is sharp but never a 0 ms digital click. nz adds the
-    strike's broadband contact noise (a few ms), which is what makes a click read as a hit and not a tone."""
-    T = f"(t-{d})"
-    body = "+".join(f"{w}*exp(-{round(k * m, 2)}*{T})*sin(2*PI*{round(f * r, 1)}*{T})" for r, w, m in parts)
-    if nz:
-        body += f"+{nz}*exp(-{nk}*{T})*(random({slot})*2-1)"
-    return f"{a}*gt(t\\,{d})*(1-exp(-{T}*{rise}))*({body})"
+def build_env(dur, floor=0.2, power=2):
+    """ffmpeg volume filter for a generated bed under a build: audible from the first sample, rising to dur, then out."""
+    return (f"volume='min(1,{floor}+{1 - floor}*pow(t/{dur},{power}))':eval=frame,"
+            f"afade=t=out:st={dur}:d=0.08")
 
 
-P2 = ((1, 0.6, 1), (2.76, 0.4, 1.4))
+def loop_bed(loop_s, tail):
+    """ffmpeg fades for a generated bed in a folded loop (equal power, like sndtele_synth.bed)."""
+    return f"afade=t=in:d={tail}:curve=qsin,afade=t=out:st={loop_s}:d={tail}:curve=qsin"
 
 
-def clicks(*terms):
-    return "+".join(terms)
+# ---------------------------------------------------------------- owl tells
+# One shape: a 0.66 s build that ends on its loudest moment, then the hall rings out. Each differs in what builds and
+# what ends it: air heaves into a wing snap (gust), a metal scrape and knuckles into a catch (talon), a slowing
+# escapement into a two-part latch (cast), a dry clack then a ratchet that is cut off mid-wind (rear midpoint),
+# a quickening tick-tock into a clipped ting (double beat).
+def gust_py():
+    s = buf(1.0)
+    for i, (t0, d, lv) in enumerate(((0.0, 0.2, 0.45), (0.2, 0.2, 0.7), (0.4, 0.27, 1.0))):
+        up = ramp(d, 0.15, 1.0, 1.5, 0.04)
+        flut = lambda t, up=up: up(t) * (0.72 + 0.28 * math.sin(2 * math.pi * 27 * t))     # feathers
+        add(s, nrm(air(d, lambda t, i=i, d=d: 500 + 140 * i + (1900 + 500 * i) * t / d, 1.6, flut, seed=10 + i)), t0, lv)
+        add(s, nrm(air(d, lambda t, i=i, d=d: 1100 + 300 * i + (3200 + 700 * i) * t / d, 1.8, flut, seed=20 + i)), t0, lv * 0.6)
+    add(s, strike(1100, 45, BAR2, nz=1.8, nz_decay=120), 0.67, 1.3)                      # the wing locks back
+    add(s, nrm(air(0.09, 600, 0.9, burst(0.09, 0.003, 45), seed=31)), 0.67, 1.2)
+    return s
 
 
-def ratchet(times, f, a0, a1, k=110, nz=0.8, slot=0, parts=P2):
-    """A row of ratchet ticks at the given times, level rising from a0 to a1."""
-    n = max(1, len(times) - 1)
-    return clicks(*[clk(f, round(t, 4), round(a0 + (a1 - a0) * i / n, 3), k, parts, nz=nz, slot=slot) for i, t in enumerate(times)])
+def talon_py():
+    s = buf(1.0)
+    add(s, nrm(creak(0.64, 1400, 2600, ((1, 0.6), (1.48, 0.35), (2.2, 0.2)), rough=120,
+                     amp=ramp(0.64, 0.15, 1.0, 1.6, 0.03), seed=3)), 0.0, 0.55)             # iron drawn across iron
+    for i, t in enumerate((0.08, 0.26, 0.4, 0.5, 0.575)):                                 # knuckles spreading
+        add(s, strike(1900 + 160 * i, 160, BAR2, nz=1.2, seed=i), t, 0.3 + 0.09 * i)
+    add(s, strike(2700, 60, BAR2, nz=2.2, nz_decay=160), 0.66, 1.4)                       # the claw catches open
+    add(s, strike(640, 50, PLATE, nz=0), 0.66, 0.5)
+    return s
 
 
-def accel(n, dur, ratio=3.0):
-    """n tick times over dur seconds, the gaps shrinking by `ratio` from first to last (a ratchet speeding up)."""
-    gaps = [ratio ** (-i / max(1, n - 2)) for i in range(n - 1)]
-    k = dur / sum(gaps); out = [0.0]
-    for g in gaps:
-        out.append(out[-1] + g * k)
-    return out
+def cast_py():
+    s = buf(1.0)
+    for i, t in enumerate(accel(8, 0.54, 1 / 3.0)):                                       # the escapement slows
+        add(s, strike(2400 - 100 * i, 130, BAR2, nz=1.2, seed=i), t, 0.3 + 0.07 * i)
+    add(s, strike(420, 30, BAR, nz=2.0, nz_decay=90), 0.66, 1.2)                          # bolt-throw clunk
+    add(s, strike(140, 30, KNOCK, nz=0), 0.66, 0.6)
+    add(s, strike(3300, 14, BELL, nz=0.4), 0.74, 0.5)                                     # locked: a small bell ping
+    return s
 
 
-def train(rate, f, k, a=1.0, parts=P2, ph=0.0, nz=0.0, slot=0, rise=900):
-    """ffmpeg aevalsrc term: the same struck click repeated `rate` times a second (a gear train, steps, blades).
-    ph shifts the row in seconds. Pick a rate with a whole number of periods in the loop."""
-    T = f"mod(t+{ph}\\,{round(1 / rate, 6)})"
-    body = "+".join(f"{w}*exp(-{round(k * m, 2)}*{T})*sin(2*PI*{round(f * r, 1)}*{T})" for r, w, m in parts)
-    if nz:
-        body += f"+{nz}*exp(-{4 * k}*{T})*(random({slot})*2-1)"
-    return f"{a}*(1-exp(-{T}*{rise}))*({body})"
+def rear_py():
+    s = buf(1.0)
+    add(s, strike(900, 90, PLATE, nz=1.0, nz_decay=200), 0.0, 0.4)                        # the dry midpoint clack
+    for i, t in enumerate(accel(11, 0.54)):                                               # it winds again and is cut off
+        add(s, strike(1500 + 100 * i, 120, BAR2, nz=1.2, seed=i), 0.12 + t, 0.3 + 0.11 * i)
+    return s
 
 
-LOW = ((1, 1, 1), (2.1, 0.4, 1.5))          # a knock: wood or a heavy body
+def clockbeat_py():
+    s = buf(1.0)
+    for i, t in enumerate(accel(8, 0.56, 1.8)):                                           # tick-tock, quickening
+        if i % 2 == 0:
+            add(s, strike(2300, 110, BAR2, nz=1.0, seed=i), t, 0.4 + 0.06 * i)
+        else:
+            add(s, strike(1300, 80, BAR2, nz=0.9, seed=i), t, 0.5 + 0.06 * i)
+            add(s, strike(380, 70, KNOCK, nz=0), t, 0.4)
+    add(s, strike(3300, 55, ((1, 0.7, 1), (2.4, 0.3, 1.5)), nz=1.0, nz_decay=250), 0.67, 1.3)   # a clipped ting
+    return s
 
-
-def air(f0, f1, dur, slot, jit=0.7, shape="lin"):
-    """ffmpeg aevalsrc term: a band of moving air whose centre glides f0 -> f1 Hz over dur seconds (a sine carrier
-    with a random-walk phase, i.e. narrow-band noise). shape "u": f0 at both ends, f1 in the middle (a swing)."""
-    if shape == "u":   # f(t) = f1 + (f0-f1)*(1-2t/dur)^2
-        ph = f"({f1}*t-({f0}-{f1})*{dur}/6*(pow(1-2*t/{dur}\\,3)-1))"
-    else:
-        ph = f"({f0}*t+({f1}-{f0})*t*t/(2*{dur}))"
-    return f"sin(2*PI*{ph}+st({slot + 5}\\,ld({slot + 5})+(random({slot})-0.5)*{jit}))"
-
-
-# every mix: nothing above the upper-mid register survives (generator layers carry a thin 15-16 kHz line)
-TOP = "lowpass=f=9500,lowpass=f=9500,lowpass=f=11000"
-HALL = {"rt60": 1.0, "wet_db": -8, "damp_hz": 5000, "predelay_ms": 12}     # owl tells: medium stone hall
 
 RECIPES = {
- # The five owl tells share one shape: a 0.6 s build that ends on its loudest moment, one hard strike, then the hall
- # rings out for 0.7 s. They differ in what builds and what strikes: air into a wing snap (gust), a low swing into
- # one iron talon (talon), a quickening rising ratchet into a bright lock (cast), a ratchet running down into a heavy
- # clack that keeps ticking (rear midpoint), even clock ticks into a chime (double beat).
- # OWL-15: wing gather and load. Air drawn in: one rising rush, then the wing locks back with a hard snap. No ratchet.
+ # OWL-15: wing gather and load. Three slowing heaves of air drawn in, each bigger, then the wing locks back.
  "GustWindup": {
   "seconds": 1.35, "lufs": -16, "post_gain_db": 3, "fade_out": 0.3, "takes": 1, "reverb": HALL, "post": TOP,
   "layers": {
-   "intake": {"kind": "synth", "prompt": "synthesised wing-air intake: three bands of moving air gliding up together (0.5 to 2.6 kHz, 0.9 to 4.4 kHz, 1.4 to 6 kHz) over 0.66 s, swelling",
-              "secs": 0.74, "expr": f"(0.2+0.8*pow(t/0.66\\,1.5))*(0.5*{air(500, 2600, 0.66, 0)}+0.4*{air(900, 4400, 0.66, 1)}+0.25*{air(1400, 6000, 0.66, 2)})",
-              "filter": "afade=t=out:st=0.62:d=0.12", "gain_db": -1, "trim": 0.74, "start_db": -90},
+   "wing": {"kind": "py", "fn": gust_py, "prompt": "synthesised wing gather: three slowing heaves of air drawn in, each higher and bigger with a feather flutter (two gliding air bands, 0.5-2.9 kHz and 1.1-5 kHz), then a hard canvas-and-brass wing lock (struck 1.1 kHz bar partials, a burst of air)"},
    "heave": {"prompt": "one huge wing drawing back, heavy air sucked inward, slow rising whoosh that swells, dry, isolated, no other sounds",
-             "secs": 1.5, "trim": 0.74, "norm_lufs": -20, "gain_db": -9, "filter": "highpass=f=500,lowpass=f=5000,lowpass=f=5000,volume='min(1,0.2+0.8*pow(t/0.62,1.5))':eval=frame,afade=t=out:st=0.62:d=0.12"},
-   "snap": {"kind": "synth", "prompt": "synthesised wing lock: a hard canvas-and-brass snap, a burst of air over struck 1.1 kHz brass bar partials, fast decay",
-            "secs": 0.3, "expr": clk(1100, 0.0, 1.0, 45, P2, nz=1.8, nk=120, slot=3),
-            "filter": "highpass=f=600,lowpass=f=9000", "gain_db": 3, "delay_ms": 640, "trim": 0.3, "start_db": -90},
+             "secs": 1.5, "trim": 0.75, "norm_lufs": -20, "gain_db": -12, "filter": "highpass=f=500,lowpass=f=5000,lowpass=f=5000," + build_env(0.64, 0.2, 1.5)},
   }},
- # OWL-18: the EMPTY claw draws back and spreads. A low swing of air down and up again (the arm), ending on one dry
- # iron talon strike.
+ # OWL-18: the EMPTY claw draws back and spreads. Iron scrapes upward, five knuckles click open faster and faster,
+ # and the claw catches open with one hard high click.
  "TalonWarning": {
   "seconds": 1.35, "lufs": -16, "post_gain_db": 3, "fade_out": 0.3, "takes": 1, "reverb": HALL, "post": TOP,
   "layers": {
-   "swing": {"kind": "synth", "prompt": "synthesised pendulum swoop: two bands of moving air swinging down and back up (1.8 kHz to 0.6 kHz to 1.8 kHz, and 3.0 to 1.0 to 3.0 kHz) over 0.62 s",
-             "secs": 0.7, "expr": f"(0.25+0.75*pow(t/0.62\\,1.5))*(0.55*{air(1800, 600, 0.62, 0, shape='u')}+0.35*{air(3000, 1000, 0.62, 1, shape='u')})",
-             "filter": "afade=t=out:st=0.6:d=0.1", "gain_db": -1, "trim": 0.7, "start_db": -90},
+   "claw": {"kind": "py", "fn": talon_py, "prompt": "synthesised empty claw drawing back: a rising iron scrape (three rough partials gliding 1.4 to 2.6 kHz), five knuckle clicks quickening and rising (1.9 to 2.5 kHz), then one hard high catch click (2.7 kHz bar partials over a damped plate, contact noise)"},
    "scrape": {"prompt": "iron talons scraping slowly against metal, a rising metallic shing that sharpens, dry, isolated, no other sounds",
-              "secs": 1.2, "trim": 0.7, "norm_lufs": -20, "gain_db": -6, "filter": "highpass=f=1500,lowpass=f=8000,lowpass=f=8000,volume='min(1,0.25+0.75*pow(t/0.6,1.5))':eval=frame,afade=t=out:st=0.6:d=0.1"},
-   "talon": {"kind": "synth", "prompt": "synthesised iron talon strike: one dry struck-iron click at 2.4 kHz with a second bar partial and contact noise, very fast decay",
-             "secs": 0.3, "expr": clk(2400, 0.0, 1.0, 70, P2, nz=2.4, nk=160, slot=3), "gain_db": 4, "delay_ms": 620, "trim": 0.3, "start_db": -90},
+              "secs": 1.2, "trim": 0.75, "norm_lufs": -20, "gain_db": -12, "filter": "highpass=f=1500,lowpass=f=8000,lowpass=f=8000," + build_env(0.62, 0.25, 1.5)},
   }},
- # OWL-21: a mechanism cast locks its destination. The ratchet winds faster and higher into one bright lock click.
+ # OWL-21: a mechanism cast locks its destination. The escapement slows as it settles on the target, then a
+ # two-part latch: a heavy bolt-throw clunk and a small bell ping.
  "CastWarning": {
-  "seconds": 1.35, "lufs": -16, "post_gain_db": 3, "fade_out": 0.3, "takes": 1, "reverb": HALL, "post": TOP,
+  "seconds": 1.35, "lufs": -16, "post_gain_db": 5, "fade_out": 0.3, "takes": 1, "reverb": HALL, "post": TOP,
   "layers": {
-   "ratchet": {"kind": "synth", "prompt": "synthesised ratchet: 12 struck-steel teeth speeding up over 0.58 s (gaps shrinking threefold), each tooth a little higher (1.5 to 2.6 kHz) and louder, dry with contact noise",
-               "secs": 0.66, "expr": clicks(*[clk(round(1500 + 100 * i), round(t, 4), round(0.3 + 0.045 * i, 3), 100, P2, nz=1.2, slot=0) for i, t in enumerate(accel(12, 0.58))]),
-               "gain_db": 2, "trim": 0.66},
-   "wind": {"prompt": "heavy clockwork ratchet winding up fast, accelerating metal clicks, dry, isolated",
-            "secs": 1.0, "trim": 0.7, "norm_lufs": -20, "gain_db": -1, "filter": "highpass=f=1000,lowpass=f=7000,lowpass=f=7000,volume='min(1,0.2+0.8*pow(t/0.6,2))':eval=frame,afade=t=out:st=0.6:d=0.1"},
-   "lock": {"kind": "synth", "prompt": "synthesised lock click: one bright struck-brass click at 3.1 kHz with bar partials and a burst of contact noise, short",
-            "secs": 0.3, "expr": clk(3100, 0.0, 1.0, 50, P2, nz=2.0, nk=140, slot=3), "gain_db": 3, "delay_ms": 640, "trim": 0.3, "start_db": -90},
+   "latch": {"kind": "py", "fn": cast_py, "prompt": "synthesised lock-on: eight escapement ticks slowing and falling in pitch (2.4 to 1.7 kHz) while rising in level, then a heavy bolt-throw clunk (420 Hz bar partials over a 140 Hz knock, contact noise) and a small bell ping (3.3 kHz bell partials) 80 ms later"},
+   "chain": {"prompt": "iron chain links pulled taut, short rattle of a tightening chain, dry, isolated, no other sounds",
+             "secs": 1.0, "trim": 0.75, "norm_lufs": -20, "gain_db": -8, "filter": "highpass=f=900,lowpass=f=8000," + build_env(0.62, 0.2, 2)},
   }},
- # OWL-27: the midpoint clack of the rear cast: the safe pause, it must not sound finished. The ratchet runs down,
- # one heavy low clack lands (the loudest moment), and a soft escapement keeps ticking through the tail.
+ # OWL-27: the midpoint clack of the rear cast: the safe pause, it must not sound finished. One dry clack, then the
+ # ratchet winds again, faster and higher, and is cut off mid-wind. No release, no resolved ring.
  "RearMidpointClack": {
   "seconds": 1.35, "lufs": -16, "post_gain_db": 3, "fade_out": 0.3, "takes": 1, "reverb": HALL, "post": TOP,
   "layers": {
-   "rundown": {"kind": "synth", "prompt": "synthesised ratchet running down: 7 struck-brass teeth slowing over 0.5 s (gaps growing threefold), each a little lower (1.9 to 1.3 kHz), rising in level, dry with contact noise",
-               "secs": 0.6, "expr": clicks(*[clk(round(1900 - 100 * i), round(t, 4), round(0.3 + 0.06 * i, 3), 150, P2, nz=1.2, slot=0) for i, t in enumerate(accel(7, 0.5, 1 / 3.0))]),
-               "gain_db": 2, "trim": 0.6},
+   "clack": {"kind": "py", "fn": rear_py, "prompt": "synthesised midpoint clack: one dry damped clack (900 Hz plate partials, contact noise), then eleven ratchet teeth winding faster, higher (1.5 to 2.5 kHz) and louder, cut off on the last tooth with no release strike"},
    "tension": {"prompt": "a wound clock spring creaking tighter and tighter, rising strained metal tension that does not release, dry, isolated",
-               "secs": 1.0, "trim": 0.7, "norm_lufs": -20, "gain_db": -7, "filter": "highpass=f=900,lowpass=f=7000,volume='min(1,0.2+0.8*pow(t/0.6,2))':eval=frame,afade=t=out:st=0.6:d=0.1"},
-   "clack": {"kind": "synth", "prompt": "synthesised heavy clack: struck brass at 1.0 kHz with bar partials over a 380 Hz knock and a burst of contact noise; then four soft even 2 kHz escapement ticks 0.12 s apart",
-             "secs": 0.7, "expr": clicks(clk(1000, 0.0, 1.0, 30, nz=2.0, nk=120, slot=3), clk(380, 0.0, 0.6, 36, LOW),
-                                         ratchet([0.14, 0.26, 0.38, 0.5], 2000, 0.13, 0.07, k=160, slot=4)), "gain_db": 3, "delay_ms": 640, "trim": 0.7},
+               "secs": 1.0, "trim": 0.75, "norm_lufs": -20, "gain_db": -11, "filter": "highpass=f=900,lowpass=f=7000," + build_env(0.64, 0.2, 2)},
   }},
- # OWL-28: the first volley of the double beat (hand XII to III). Four even escapement ticks, a quarter turn of the
- # hand, landing on a chiming tock that rings.
+ # OWL-28: the first volley of the double beat (hand XII to III). A quickening tick-tock, two pitches, landing on
+ # a short clipped ting: the first of two.
  "ClockBeat": {
-  "seconds": 1.35, "lufs": -16, "post_gain_db": 3, "fade_out": 0.3, "takes": 1, "reverb": HALL, "post": "lowpass=f=11000",
+  "seconds": 1.35, "lufs": -16, "post_gain_db": 5, "fade_out": 0.3, "takes": 1, "reverb": HALL, "post": TOP,
   "layers": {
-   "ticks": {"kind": "synth", "prompt": "synthesised escapement: four even ticks 0.16 s apart, rising in level (3 kHz bar partials with contact noise, dry)",
-             "secs": 0.62, "expr": ratchet([0.0, 0.16, 0.32, 0.48], 3000, 0.4, 0.8, k=160, nz=1.8), "gain_db": 2, "trim": 0.62},
+   "beat": {"kind": "py", "fn": clockbeat_py, "prompt": "synthesised clock beat: a quickening tick-tock, eight alternating strikes (a 2.3 kHz tick, a 1.3 kHz tock on a 380 Hz knock) rising in level, landing on a short clipped ting (3.3 kHz, fast decay)"},
    "gear": {"prompt": "heavy brass clock gear train advancing a quarter turn, whirring clock hand mechanism, dry, isolated",
-            "secs": 1.0, "trim": 0.72, "norm_lufs": -20, "gain_db": -10, "filter": "highpass=f=1500,lowpass=f=7000,volume='min(1,0.2+0.8*pow(t/0.6,2))':eval=frame,afade=t=out:st=0.6:d=0.12"},
-   "chime": {"kind": "synth", "prompt": "synthesised clock chime tock: a struck bell at 1.32 kHz with bell partials (2.0, 2.4, 3.0, 4.2) and contact noise, ringing 0.4 s",
-             "secs": 0.6, "expr": clk(1320, 0.0, 1.0, 8, ((1, 0.6, 1), (2.0, 0.3, 1.3), (2.4, 0.2, 1.6), (3.0, 0.15, 2), (4.2, 0.1, 3)), nz=1.8, nk=160, slot=3),
-             "gain_db": 3, "delay_ms": 640, "trim": 0.6, "start_db": -90},
+            "secs": 1.0, "trim": 0.75, "norm_lufs": -20, "gain_db": -8, "filter": "highpass=f=1000,lowpass=f=6000," + build_env(0.62, 0.2, 2)},
   }},
 }
 
-# ---------------------------------------------------------------- motion loops (seamless; sndtele_audio.py loopify)
-NEAR = {"rt60": 0.35, "wet_db": -14, "damp_hz": 5000, "predelay_ms": 5}     # the umbrella and Ella are close
+
+# ---------------------------------------------------------------- enemy and hazard tells
+# The enemy family starts sharp (attack under 25 ms) and is dark and metallic. Each warning opens on a brace strike,
+# builds, and ends on a catch a little louder than the opening, so the end is the loudest moment and the hall tail
+# dies inside the file.
+def warden_py():
+    s = buf(1.2)
+    add(s, strike(520, 26, BAR, nz=1.4, nz_decay=120, rise=0.0008), 0.0, 0.95)            # the brace
+    add(s, strike(130, 28, KNOCK, nz=0, rise=0.0008), 0.0, 0.6)
+    for i, t in enumerate(accel(7, 0.66, 2.5)):                                           # the crank tightens
+        add(s, strike(700 + 65 * i, 70, BAR2, nz=1.0, seed=i), 0.18 + t, 0.3 + 0.07 * i)
+    add(s, strike(620, 22, BAR, nz=1.8, nz_decay=100), 0.95, 1.1)                         # the catch: aimed
+    add(s, strike(150, 26, KNOCK, nz=0), 0.95, 0.75)
+    return s
+
+
+def flood_py():
+    s = buf(1.2)
+    add(s, strike(300, 30, BAR, nz=2.6, nz_decay=160, rise=0.0008), 0.0, 1.2)            # two stilts land
+    add(s, strike(110, 28, KNOCK, nz=0, rise=0.0008), 0.0, 0.75)
+    add(s, strike(380, 30, BAR, nz=1.2, nz_decay=120), 0.14, 0.75)
+    add(s, strike(140, 28, KNOCK, nz=0), 0.14, 0.45)
+    add(s, nrm(creak(0.7, 240, 430, ((1, 0.6), (1.5, 0.35), (2.4, 0.25), (3.3, 0.15)), rough=35,
+                     amp=ramp(0.7, 0.1, 1.0, 1.4, 0.03), seed=5)), 0.24, 0.5)              # the frame groans upward
+    for i, t in enumerate(accel(4, 0.5, 2.0)):
+        add(s, strike(900 + 80 * i, 90, BAR2, nz=1.0, seed=i), 0.4 + t, 0.25 + 0.07 * i)
+    add(s, strike(260, 24, PLATE, nz=1.8, nz_decay=80), 0.95, 1.15)                       # braced: a wooden thock
+    add(s, strike(820, 40, BAR2, nz=0.5), 0.95, 0.5)
+    add(s, strike(105, 26, KNOCK, nz=0), 0.95, 0.65)
+    return s
+
+
+def courier_warn_py():
+    s = buf(1.2)
+    add(s, strike(700, 40, BAR2, nz=1.5, rise=0.0008), 0.0, 1.0)                          # hover catch
+    add(s, strike(170, 35, KNOCK, nz=0, rise=0.0008), 0.0, 0.5)
+    t, i = 0.1, 0
+    while t < 0.93:                                                                       # the propeller spins up
+        u = (t - 0.1) / 0.83
+        add(s, nrm(air(0.03, 300 + 500 * u, 1.0, burst(0.03, 0.004, 90), seed=40 + i)), t, 0.25 + 0.45 * u)
+        add(s, strike(round(380 + 420 * u), 170, KNOCK, nz=0.3, seed=i % 3), t, 0.2 + 0.4 * u)
+        t += 1 / (10 + 34 * u)
+        i += 1
+    add(s, strike(900, 35, BAR, nz=2.0, nz_decay=110), 0.96, 1.2)                         # ratchet catch: aimed
+    add(s, strike(180, 30, KNOCK, nz=0), 0.96, 0.65)
+    return s
+
+
+def shutter_py():
+    body = ((1, 0.6, 1), (2.76, 0.4, 1.4), (0.15, 0.5, 0.8))
+    s = buf(1.0)
+    add(s, strike(1600, 60, body, nz=1.4, rise=0.0006), 0.0, 1.0)                         # the crank bites
+    for i, t in enumerate(accel(10, 0.66, 3.0)):                                          # and speeds up
+        add(s, strike(1500 + 85 * i, 120, BAR2, nz=1.2, seed=i), 0.1 + t, 0.35 + 0.05 * i)
+    add(s, nrm(creak(0.74, 480, 900, rough=45, amp=ramp(0.74, 0.1, 1.0, 1.6, 0.03), seed=7)), 0.08, 0.35)   # spring strain
+    add(s, strike(2000, 50, ((1, 0.6, 1), (2.76, 0.4, 1.4), (0.15, 0.6, 0.8)), nz=1.8), 0.86, 1.15)   # full tension
+    return s
+
+
+def bellows_py():
+    s = buf(1.1)
+    add(s, nrm(air(0.07, 300, 0.8, burst(0.07, 0.004, 40), seed=1)), 0.0, 0.6)             # the bag jerks open
+    add(s, strike(95, 30, KNOCK, nz=0.5, nz_decay=80, rise=0.003), 0.0, 0.6)
+    add(s, nrm(creak(0.88, 105, 150, ((1, 0.6), (2, 0.4), (3, 0.3), (4.1, 0.2)), rough=22,
+                     amp=ramp(0.88, 0.2, 1.0, 1.4, 0.04), seed=2)), 0.02, 0.8)             # the low core of the nozzle
+    add(s, nrm(air(0.88, lambda t: 900 + 1700 * (t / 0.88) ** 1.5, 7.0, ramp(0.88, 0.15, 1.0, 1.6, 0.04), seed=3)), 0.02, 0.7)
+    add(s, nrm(air(0.88, lambda t: 420 + 700 * (t / 0.88) ** 1.5, 3.0, ramp(0.88, 0.2, 1.0, 1.4, 0.04), seed=4)), 0.02, 0.6)
+    add(s, strike(420, 50, KNOCK, nz=1.0, nz_decay=150), 0.9, 0.9)                         # the valve shuts: held
+    return s
+
+
 RECIPES.update({
- # MOVE-21 rise: the open canopy flutters in the steady updraft.
- "UmbrellaFlap": {
-  "loop_s": 3.0, "seconds": 3.0, "lufs": -22, "post_gain_db": 3, "takes": 1, "reverb": NEAR, "post": TOP,
+ # COM-14 Roadwarden brace / aim: an iron brace clank, the crank tightens (seven ticks, quickening, rising), a catch.
+ "WardenWarning": {
+  "seconds": 2.2, "lufs": -18, "post_gain_db": 2, "fade_out": 0.6, "takes": 1, "reverb": BIGHALL, "post": DARK,
   "layers": {
-   "flutter": {"prompt": "cloth umbrella canopy fluttering in a steady updraft, soft waxed canvas flapping gently and continuously, close, dry, no other sounds",
-               "secs": 4.0, "trim": 3.5, "norm_lufs": -20, "filter": "highpass=f=250,lowpass=f=6000"},
-   "air": {"prompt": "soft steady current of rising air, gentle continuous wind, no gusts, dry",
-           "secs": 4.0, "trim": 3.5, "norm_lufs": -20, "gain_db": -10, "filter": "highpass=f=200,lowpass=f=2500"},
+   "brace": {"kind": "py", "fn": warden_py, "prompt": "synthesised brace and aim: a struck-iron brace clank (520 Hz bar partials over a 130 Hz knock), seven crank ticks quickening and rising (700 to 1090 Hz), then a heavier catch clank (620 Hz over 150 Hz)"},
+   "iron": {"prompt": "a heavy iron crossbow mechanism braced and cranked slowly, dark metal creak and strain, dry, isolated, no other sounds",
+            "secs": 1.5, "trim": 1.0, "norm_lufs": -20, "gain_db": -11, "filter": "highpass=f=150,lowpass=f=3000,afade=t=out:st=0.9:d=0.1"},
   }},
- # MOVE-21 fall: air past a small body, the coat flutters.
- "EllaFallLoop": {
-  "loop_s": 3.0, "seconds": 3.0, "lufs": -22, "takes": 1, "reverb": NEAR, "post": TOP,
+ # COM-15 Floodstrider settle / brace: two stilts land, the frame groans upward under four tightening ticks, and it
+ # braces with a wooden thock.
+ "FloodWarning": {
+  "seconds": 2.2, "lufs": -18, "post_gain_db": 2, "fade_out": 0.6, "takes": 1, "reverb": BIGHALL, "post": DARK,
   "layers": {
-   "rush": {"prompt": "air rushing softly past a small falling figure, steady smooth wind rush, continuous, dry, no other sounds",
-            "secs": 4.0, "trim": 3.5, "norm_lufs": -20, "filter": "highpass=f=120,lowpass=f=4000"},
-   "coat": {"prompt": "a small cloth coat fluttering quickly in falling air, light fabric flapping, continuous, close, dry",
-            "secs": 4.0, "trim": 3.5, "norm_lufs": -20, "gain_db": -7, "filter": "highpass=f=400,lowpass=f=5000"},
+   "settle": {"kind": "py", "fn": flood_py, "prompt": "synthesised settle and brace: two stilt clunks 0.14 s apart (300 and 380 Hz bar partials over low knocks), a frame groan gliding up (four rough partials from 240 to 430 Hz) under four tightening ticks, then a wooden brace thock (260 Hz plate over a 105 Hz knock)"},
+   "creak": {"prompt": "tall wooden and iron stilts creaking as they settle under a heavy weight, low strained groan, dry, isolated, no other sounds",
+             "secs": 1.5, "trim": 1.0, "norm_lufs": -20, "gain_db": -11, "filter": "highpass=f=150,lowpass=f=3000,afade=t=out:st=0.9:d=0.1"},
   }},
- # MOVE-05 fast free fall: both held. A hard roar of air with a thin whistle on top and cloth snapping.
- "FreeFallRush": {
-  "loop_s": 3.0, "seconds": 3.0, "lufs": -21, "takes": 1, "reverb": NEAR, "post": TOP,
+ # COM-16 Courier hover / aim: a hover catch, the propeller spins up (blade beats 10 to 44 a second, rising), a
+ # ratchet catch.
+ "CourierWarning": {
+  "seconds": 2.2, "lufs": -18, "post_gain_db": 2, "fade_out": 0.6, "takes": 1, "reverb": BIGHALL, "post": DARK,
   "layers": {
-   "roar": {"prompt": "fast free fall, a strong roaring rush of air tearing past, intense and steady, continuous, dry, no other sounds",
-            "secs": 4.0, "trim": 3.5, "norm_lufs": -20, "filter": "highpass=f=100,lowpass=f=5000"},
-   "whistle": {"prompt": "thin airy wind whistle of fast air past an edge, steady, continuous, dry",
-               "secs": 4.0, "trim": 3.5, "norm_lufs": -20, "gain_db": -11, "filter": "highpass=f=1200,lowpass=f=5000"},
-   "snap": {"prompt": "cloth snapping rapidly in violent wind, fast fabric flapping, continuous, close, dry",
-            "secs": 4.0, "trim": 3.5, "norm_lufs": -20, "gain_db": -8, "filter": "highpass=f=400,lowpass=f=6000"},
+   "spinup": {"kind": "py", "fn": courier_warn_py, "prompt": "synthesised hover and aim: a hover catch (700 Hz bar partials over a knock), a propeller spinning up (blade beats quickening from 10 to 44 a second, each a chop of air and a wooden tick rising 380 to 800 Hz), then a hard ratchet catch (900 Hz bar partials over a 180 Hz knock)"},
+   "prop": {"prompt": "a small wooden propeller spinning up faster and faster, rising clockwork whirr, dry, isolated, no other sounds",
+            "secs": 1.5, "trim": 1.0, "norm_lufs": -20, "gain_db": -11, "filter": "highpass=f=200,lowpass=f=3500,afade=t=out:st=0.9:d=0.1"},
   }},
- # ANIM-06 hover: huge slow wingbeats, felt more than heard, a brass joint creak on each stroke.
- "OwlWingLoop": {
-  "loop_s": 4.0, "seconds": 4.0, "lufs": -25, "takes": 1, "post": TOP,
-  "reverb": {"rt60": 1.5, "wet_db": -10, "damp_hz": 2500, "predelay_ms": 20},
+ # HAZ-20 shutter crank / tension: the crank bites, ten teeth speed up and climb while the spring groans upward,
+ # and it stops at full tension on the hardest click.
+ "ShutterWarning": {
+  "seconds": 1.5, "lufs": -19, "post_gain_db": 3, "fade_out": 0.3, "takes": 1, "reverb": ROOM, "post": TOP,
   "layers": {
-   "wings": {"prompt": "slow heavy wing flaps of a very large bird, a feathery whoosh and soft whump of air on each beat, steady slow rhythm, close, dry, no other sounds",
-             "secs": 5.0, "trim": 4.5, "norm_lufs": -20, "gain_db": -4, "filter": "highpass=f=100,highshelf=f=300:g=7,lowpass=f=2200"},
-   "creak": {"prompt": "quiet old brass joints creaking slowly, soft low mechanical creak, steady, dry",
-             "secs": 5.0, "trim": 4.5, "norm_lufs": -20, "gain_db": -2, "filter": "highpass=f=350,lowpass=f=3000"},
+   "crank": {"kind": "py", "fn": shutter_py, "prompt": "synthesised crank under tension: a first heavy escapement click (1.6 kHz bar partials over a 240 Hz body), ten ratchet teeth speeding up and climbing (1.5 to 2.3 kHz), a spring groan gliding up under them (rough partials from 480 to 900 Hz), and a last, hardest click at full tension (2 kHz over 300 Hz)"},
+   "spring": {"prompt": "an old iron crank being wound against a stiff spring, strained metal creak, dry, isolated, no other sounds",
+              "secs": 1.5, "trim": 0.9, "norm_lufs": -20, "gain_db": -16, "filter": "highpass=f=600,lowpass=f=6000,afade=t=out:st=0.8:d=0.08"},
   }},
- # OWL-22: the chain pays out. Rattling links over a pulley, each link a sharp clink.
- "ChainTravel": {
-  "loop_s": 2.0, "seconds": 2.0, "lufs": -22, "post_gain_db": 2.5, "takes": 1, "post": TOP,
-  "reverb": {"rt60": 0.7, "wet_db": -13, "damp_hz": 5000, "predelay_ms": 10},
+ # HAZ-21 bellows nozzle pressure: the bag jerks open, a low resonant core and a narrow hiss climb in the nozzle,
+ # and the valve shuts on the held breath.
+ "BellowsWarning": {
+  "seconds": 1.6, "lufs": -19, "post_gain_db": 1, "fade_out": 0.4, "takes": 1, "post": "lowpass=f=5000,lowpass=f=6000",
+  "reverb": {"rt60": 1.0, "wet_db": -10, "damp_hz": 3000, "predelay_ms": 15},
   "layers": {
-   "chain": {"prompt": "heavy iron chain paying out fast over a metal pulley, rattling links, steady, continuous, dry, no other sounds",
-             "secs": 3.0, "trim": 2.5, "norm_lufs": -20, "filter": "highpass=f=500,lowpass=f=8000"},
-   "links": {"kind": "synth", "prompt": "synthesised chain links: struck-iron clinks 12 per second, alternating 1.9 and 2.3 kHz bar partials, very fast decay",
-             "secs": 2.5, "expr": "(1-exp(-mod(t\\,1/6)*900))*exp(-120*mod(t\\,1/6))*(0.6*sin(2*PI*1900*t)+0.4*sin(2*PI*5244*t))"
-                                  "+(1-exp(-mod(t+1/12\\,1/6)*900))*exp(-120*mod(t+1/12\\,1/6))*(0.5*sin(2*PI*2300*t)+0.35*sin(2*PI*6348*t))",
-             "gain_db": -6, "trim": 2.5, "start_db": -90},
+   "nozzle": {"kind": "py", "fn": bellows_py, "prompt": "synthesised nozzle pressure: a leather jerk (a thump of air on a 95 Hz knock), a low resonant core rising 105 to 150 Hz with harmonics, a narrow hiss tightening from 0.9 to 2.6 kHz and a wider air band from 420 Hz to 1.1 kHz, all swelling to a peak, then a valve knock (420 Hz)"},
+   "leather": {"prompt": "large leather forge bellows slowly filling with air, deep breath in, creaking leather, dry, isolated, no other sounds",
+               "secs": 1.5, "trim": 0.95, "norm_lufs": -20, "gain_db": -10, "filter": "highpass=f=120,lowpass=f=3000," + build_env(0.86, 0.3, 1.2)},
   }},
 })
 
-# ---------------------------------------------------------------- P1: red travel, enemies, hazards
-BIGHALL = {"rt60": 1.0, "wet_db": -11, "damp_hz": 3000, "predelay_ms": 20}  # enemies and red shots: large stone hall
-ROOM = {"rt60": 0.6, "wet_db": -13, "damp_hz": 5000, "predelay_ms": 8}      # clockwork: medium room
-DARK = "lowpass=f=6000,lowpass=f=8000"
+
+# ---------------------------------------------------------------- motion loops (folded; sndtele_audio.py loopify)
+def flutter(loop_s, rate_lo, rate_hi, fc_lo, fc_hi, dlen, seed, decay=(60, 110)):
+    """Cloth in moving air: irregular short bursts, each its own pitch, length and level."""
+    r = random.Random(seed)
+    s = buf(loop_s)
+    t = 0.02
+    while t < loop_s - 0.01:
+        d = r.uniform(*dlen)
+        add(s, nrm(air(d, r.uniform(fc_lo, fc_hi), 1.2, burst(d, 0.003, r.uniform(*decay)), seed=r.randrange(10 ** 6))), t, r.uniform(0.4, 1.0))
+        t += 1.0 / r.uniform(rate_lo, rate_hi)
+    return s
+
+
+def air_bed(loop_s, tail, bands, seed):
+    """Steady broad air: a few resonant bands (centre Hz, q, level, sway Hz), each swaying a little."""
+    n = loop_s + tail
+    s = buf(n)
+    for i, (fc, q, lv, wf) in enumerate(bands):
+        add(s, nrm(air(n, fc, q, lambda t, wf=wf, i=i: 0.6 + 0.4 * math.sin(2 * math.pi * wf * t + i), seed=seed + i)), 0.0, lv)
+    return bed(s, loop_s, tail)
+
+
+def umbrella_flaps_py():
+    r = random.Random(11)
+    s = buf(3.0)
+    t = 0.05
+    while t < 2.98:                                                                       # canvas panels flapping
+        d, lv, fc = r.uniform(0.07, 0.12), r.uniform(0.45, 1.0), r.uniform(380, 900)
+        add(s, nrm(air(d, fc, 1.1, burst(d, 0.005, r.uniform(28, 45)), seed=r.randrange(10 ** 6))), t, lv)
+        add(s, nrm(air(d * 0.6, fc * 2.6, 1.4, burst(d * 0.6, 0.003, 60), seed=r.randrange(10 ** 6))), t, lv * 0.5)
+        t += r.uniform(0.12, 0.30)
+    return s
+
+
+def umbrella_ribs_py():
+    s = buf(3.0)
+    add(s, nrm(creak(0.5, 470, 560, rough=30, amp=swell(0.2, 0.5, 1.5, 6), seed=1)), 0.45, 0.8)   # ribs strain
+    add(s, nrm(creak(0.6, 640, 540, rough=26, amp=swell(0.25, 0.6, 1.5, 5), seed=2)), 1.85, 0.7)
+    add(s, strike(1900, 120, BAR2, nz=0.8), 1.25, 0.5)                                    # a brass rib ticks
+    add(s, strike(2250, 120, BAR2, nz=0.8), 2.6, 0.4)
+    return s
+
+
+def umbrella_lift_py():
+    win = lambda t: math.sin(math.pi * t / 3.0) ** 2                                      # air that keeps climbing
+    a = air(3.0, lambda t: 450 * 3.2 ** (t / 3.0), 2.5, win, seed=5)
+    b = rotate(air(3.0, lambda t: 450 * 3.2 ** (t / 3.0), 2.5, win, seed=6), 1.5)
+    return [x + y for x, y in zip(a, b)]
+
+
+def wing_strokes_py():
+    s = buf(4.0)
+    for t0, f_hi, sd in ((0.15, 720, 1), (2.15, 640, 2)):                                 # two slow strokes
+        env = swell(0.28, 1.25, 2.0, 3.4)
+        add(s, nrm(air(1.25, lambda t, f=f_hi: 110 + (f - 250) * math.exp(-3.5 * t), 1.3, env, seed=sd)), t0, 1.0)
+        add(s, nrm(air(1.25, 95, 1.5, env, seed=sd + 20)), t0, 0.7)
+        add(s, nrm(air(1.25, lambda t, f=f_hi: 340 + (2 * f - 340) * math.exp(-3.0 * t), 1.5,
+                       lambda t, env=env: env(t) * (0.7 + 0.3 * math.sin(2 * math.pi * 22 * t)), seed=sd + 10)), t0, 0.45)
+    return s
+
+
+def wing_joints_py():
+    parts = ((1, 0.6), (1.52, 0.4), (2.3, 0.25), (3.1, 0.15))
+    s = buf(4.0)
+    add(s, nrm(creak(0.55, 300, 390, parts, rough=28, amp=swell(0.2, 0.55, 1.5, 5), seed=3)), 0.3, 1.0)
+    add(s, nrm(creak(0.6, 400, 320, parts, rough=24, amp=swell(0.22, 0.6, 1.5, 5), seed=4)), 2.3, 0.9)
+    for k, t0 in enumerate((0.3, 2.3)):                                                   # the joint ratchets back
+        for j, dt in enumerate((0.55, 0.68, 0.84)):
+            add(s, strike(900 + 60 * k, 90, BAR2, nz=0.8, seed=j), t0 + dt, 0.35 - 0.08 * j)
+    return s
+
+
+def chain_py():
+    r = random.Random(5)
+    s = buf(2.0)
+    for i in range(24):                                                                   # twelve links a second
+        t = i / 12 + r.uniform(-0.006, 0.006) + 0.008
+        lv, hi = r.uniform(0.75, 1.0), i % 2
+        add(s, strike(2300 if hi else 1900, 110, BAR2, nz=0.9, seed=i % 4), t, 0.7 * lv)
+        add(s, strike(260 if hi else 210, 55, KNOCK, nz=0.4, nz_decay=120, seed=i % 4), t, 0.32 * lv)
+        if i % 6 == 0:                                                                    # a pulley tooth
+            add(s, strike(140, 35, KNOCK, nz=0.3, nz_decay=80), t, 0.35)
+    return s
+
+
+def bolt_gear_py():
+    s = buf(2.0)
+    for i in range(44):                                                                   # 22 ringing teeth a second
+        ph = i * 2.0 / 44
+        t = ph + 0.012 * math.sin(2 * math.pi * ph) + 0.013                               # the spin wobbles
+        add(s, strike(520, 45, BAR, nz=0.5, seed=i % 3), t, 0.6 + 0.2 * math.sin(math.pi * ph))
+        add(s, strike(170, 60, KNOCK, nz=0, rise=0.003), t, 0.3)
+        if i % 11 == 0:
+            add(s, strike(300, 30, BAR2, nz=0.8), t, 0.9)
+            add(s, strike(120, 30, KNOCK, nz=0), t, 0.7)
+    return s
+
+
+def warden_steps_py():
+    s = buf(2.4)
+
+    def heavy(t, f, fk, sd):
+        add(s, strike(fk, 24, KNOCK, nz=0.6, nz_decay=60, seed=sd), t, 0.5)
+        add(s, strike(f, 34, BAR, nz=0.8, seed=sd), t + 0.035, 0.9)
+
+    def light(t, f, fk, sd):
+        add(s, strike(fk, 30, KNOCK, nz=0.4, nz_decay=80, seed=sd), t, 0.28)
+        add(s, strike(f, 60, BAR2, nz=0.6, seed=sd), t + 0.03, 0.6)
+
+    heavy(0.02, 560, 85, 1)
+    light(0.72, 840, 115, 2)
+    heavy(1.22, 610, 92, 3)
+    light(1.92, 760, 120, 4)
+    add(s, strike(1500, 150, BAR2, nz=0.6), 0.84, 0.2)                                    # a strap
+    for j, dt in enumerate((0.1, 0.16, 0.21)):                                            # a buckle jingle
+        add(s, strike(2200 + 150 * j, 170, BAR2, nz=0.6, seed=j), 1.92 + dt, 0.22)
+    return s
+
+
+def flood_steps_py():
+    s = buf(3.0)
+    add(s, strike(300, 30, PLATE, nz=1.0, nz_decay=90, seed=1), 0.02, 1.0)                # heavy footfall
+    add(s, strike(100, 26, KNOCK, nz=0.4, seed=1), 0.02, 0.9)
+    add(s, nrm(creak(0.4, 430, 500, rough=34, amp=swell(0.15, 0.4, 1.5, 6), seed=6)), 0.3, 0.35)
+    add(s, strike(410, 40, PLATE, nz=0.8, seed=2), 0.82, 0.6)                             # light, two ratchet ticks
+    add(s, strike(150, 30, KNOCK, nz=0.3, seed=2), 0.82, 0.45)
+    for j, dt in enumerate((0.14, 0.24)):
+        add(s, strike(1300 + 120 * j, 120, BAR2, nz=0.9, seed=j), 0.82 + dt, 0.3)
+    add(s, strike(340, 28, PLATE, nz=1.0, nz_decay=90, seed=3), 1.52, 0.95)               # heavy, a joint groans
+    add(s, strike(118, 26, KNOCK, nz=0.4, seed=3), 1.52, 0.85)
+    add(s, nrm(creak(0.45, 520, 410, rough=30, amp=swell(0.15, 0.45, 1.5, 6), seed=4)), 1.7, 0.4)
+    add(s, strike(460, 42, PLATE, nz=0.8, seed=5), 2.3, 0.55)                             # light, three falling ticks
+    add(s, strike(160, 30, KNOCK, nz=0.3, seed=5), 2.3, 0.4)
+    for j, dt in enumerate((0.12, 0.2, 0.3)):
+        add(s, strike(1500 - 110 * j, 120, BAR2, nz=0.9, seed=j), 2.3 + dt, 0.3 - 0.05 * j)
+    return s
+
+
+def courier_blades_py():
+    loop_s, tail, rate = 2.0, 0.8, 13
+    s = buf(loop_s + tail)
+    for i in range(int((loop_s + tail) * rate)):                                          # 13 blade chops a second
+        t, alt = i / rate, i % 2
+        lv = (1.0 if alt else 0.85) * (0.85 + 0.15 * math.sin(math.pi * t))
+        add(s, nrm(air(0.06, 360 if alt else 300, 1.0, burst(0.06, 0.008, 38), seed=50 + i % 26)), t, lv)
+        add(s, strike(230 if alt else 205, 60, KNOCK, nz=0, rise=0.004), t, 0.5 * lv)
+    return bed(s[:int((loop_s + tail) * SR)], loop_s, tail, periodic=True)
+
+
 RECIPES.update({
- # OWL-11 red travel: a low spinning gear, 24 teeth a second, dark and metallic.
+ # MOVE-21 rise: lifted under the open umbrella. Canvas panels flap, the ribs strain, the air keeps climbing.
+ "UmbrellaFlap": {
+  "loop_s": 3.0, "loop_tail": 0.6, "seconds": 3.0, "lufs": -21, "post_gain_db": 1, "takes": 1, "reverb": NEAR, "post": TOP,
+  "layers": {
+   "flaps": {"kind": "py", "fn": umbrella_flaps_py, "prompt": "synthesised canvas flaps: irregular soft whumps of air four to eight a second (380-900 Hz with a lighter band above), each its own length and level"},
+   "ribs": {"kind": "py", "fn": umbrella_ribs_py, "gain_db": -9, "prompt": "synthesised rib strain: two slow wooden creaks (rough partials near 500 and 600 Hz) and two small brass rib ticks"},
+   "lift": {"kind": "py", "fn": umbrella_lift_py, "gain_db": -8, "prompt": "synthesised rising air: two overlapping bands that keep climbing from 450 Hz to 1.4 kHz, one fading in as the other fades out"},
+   "flutter": {"prompt": "cloth umbrella canopy fluttering in a steady updraft, soft waxed canvas flapping gently and continuously, close, dry, no other sounds",
+               "secs": 4.0, "trim": 3.6, "norm_lufs": -20, "gain_db": -9, "filter": "highpass=f=250,lowpass=f=6000," + loop_bed(3.0, 0.6)},
+  }},
+ # MOVE-21 fall: a small body falling. Broad, bright air and a quick coat flutter close to the ear.
+ "EllaFallLoop": {
+  "loop_s": 3.0, "loop_tail": 0.5, "seconds": 3.0, "lufs": -21, "takes": 1, "reverb": NEAR, "post": TOP,
+  "layers": {
+   "air": {"kind": "py", "fn": lambda: air_bed(3.0, 0.5, ((800, 0.8, 1.0, 1 / 3), (1700, 0.9, 0.7, 2 / 3), (3200, 1.0, 0.35, 1 / 3)), 60),
+           "prompt": "synthesised broad air rushing past: three swaying bands at 0.8, 1.7 and 3.2 kHz"},
+   "coat": {"kind": "py", "fn": lambda: flutter(3.0, 10, 15, 700, 2400, (0.03, 0.055), 61, (45, 80)), "gain_db": 3,
+            "prompt": "synthesised coat flutter: irregular quick cloth flicks 10 to 15 a second (0.7-2.4 kHz)"},
+   "cloth": {"prompt": "a small cloth coat fluttering quickly in falling air, light fabric flapping, continuous, close, dry",
+             "secs": 4.0, "trim": 3.5, "norm_lufs": -20, "gain_db": -8, "filter": "highpass=f=400,lowpass=f=3000,lowpass=f=3000," + loop_bed(3.0, 0.5)},
+  }},
+ # MOVE-05 fast free fall: both held. Hard, fast air with a thin whistle on top and cloth snapping twice as fast.
+ "FreeFallRush": {
+  "loop_s": 3.0, "loop_tail": 0.5, "seconds": 3.0, "lufs": -20, "takes": 1, "reverb": NEAR, "post": TOP,
+  "layers": {
+   "hiss": {"kind": "py", "fn": lambda: air_bed(3.0, 0.5, ((1000, 0.8, 1.0, 2 / 3), (1900, 0.9, 0.9, 1 / 3), (3300, 1.0, 0.45, 2 / 3)), 70),
+            "prompt": "synthesised fast air: three strong swaying bands at 1.0, 1.9 and 3.3 kHz"},
+   "whistle": {"kind": "py", "fn": lambda: bed(nrm(air(3.5, lambda t: 2900 + 150 * math.sin(2 * math.pi * 2 / 3 * t), 30.0, None, seed=71)), 3.0, 0.5),
+               "gain_db": -13, "prompt": "synthesised edge whistle: a thin wavering band of air near 2.9 kHz"},
+   "snap": {"kind": "py", "fn": lambda: flutter(3.0, 18, 26, 1000, 3000, (0.015, 0.03), 72, (80, 140)), "gain_db": 2,
+            "prompt": "synthesised cloth snapping in fast air: irregular sharp flicks 18 to 26 a second (1-3 kHz)"},
+   "cloth": {"prompt": "cloth snapping rapidly in violent wind, fast fabric flapping, continuous, close, dry",
+             "secs": 4.0, "trim": 3.5, "norm_lufs": -20, "gain_db": -9, "filter": "highpass=f=500,lowpass=f=3500,lowpass=f=3500," + loop_bed(3.0, 0.5)},
+  }},
+ # ANIM-06 hover: two huge slow wing strokes every 4 s. Each is a feathered whoosh that falls in pitch, with a brass
+ # joint creak and three ratchet ticks as the wing turns. Felt more than heard.
+ "OwlWingLoop": {
+  "loop_s": 4.0, "loop_tail": 0.8, "seconds": 4.0, "lufs": -24, "post_gain_db": 2, "takes": 1, "post": "lowpass=f=4000,lowpass=f=6000",
+  "reverb": {"rt60": 1.5, "wet_db": -12, "damp_hz": 2500, "predelay_ms": 20},
+  "layers": {
+   "strokes": {"kind": "py", "fn": wing_strokes_py, "prompt": "synthesised wing strokes, one every 2 s: a low band of air that swells and falls from 700 to 160 Hz with a fluttering feather band above it"},
+   "joints": {"kind": "py", "fn": wing_joints_py, "gain_db": -6, "prompt": "synthesised brass joints: on each stroke a rough creak (partials near 300-400 Hz, one rising, one falling) and three soft ratchet ticks"},
+   "wings": {"prompt": "slow heavy wing flaps of a very large bird, a feathery whoosh and soft whump of air on each beat, steady slow rhythm, close, dry, no other sounds",
+             "secs": 5.0, "trim": 4.8, "norm_lufs": -20, "gain_db": -12, "filter": "highpass=f=100,highshelf=f=300:g=7,lowpass=f=2200," + loop_bed(4.0, 0.8)},
+  }},
+ # OWL-22: the chain pays out. Twelve heavy iron links a second, each a click on a low iron body, a pulley tooth
+ # every sixth link, silence between them.
+ "ChainTravel": {
+  "loop_s": 2.0, "loop_tail": 0.6, "seconds": 2.0, "lufs": -21, "post_gain_db": 1, "takes": 1, "post": TOP,
+  "reverb": {"rt60": 0.6, "wet_db": -11, "damp_hz": 5000, "predelay_ms": 10},
+  "layers": {
+   "links": {"kind": "py", "fn": chain_py, "prompt": "synthesised chain paying out: twelve struck-iron links a second with small timing and level differences, alternating 1.9 and 2.3 kHz bar partials over 210 and 260 Hz bodies, and a 140 Hz pulley tooth every sixth link"},
+  }},
+ # OWL-11 red travel: a heavy gear spinning through the belfry: 22 ringing iron teeth a second, the spin wobbling,
+ # a heavier tooth four times a turn, air moving round it.
  "OwlBoltTravelLoop": {
-  "loop_s": 2.0, "seconds": 2.0, "lufs": -21, "post_gain_db": -1.5, "takes": 1, "post": DARK,
-  "reverb": {"rt60": 0.8, "wet_db": -14, "damp_hz": 3000, "predelay_ms": 12},
+  "loop_s": 2.0, "loop_tail": 0.8, "seconds": 2.0, "lufs": -21, "takes": 1, "post": DARK,
+  "reverb": {"rt60": 1.3, "wet_db": -8, "damp_hz": 3000, "predelay_ms": 15},
   "layers": {
-   "teeth": {"kind": "synth", "prompt": "synthesised spinning gear: 24 dark struck-iron teeth a second (380 Hz and 1.05 kHz bar partials), with a slow 2 Hz wobble",
-             "secs": 2.5, "expr": f"(0.8+0.2*sin(2*PI*2*t))*({train(24, 380, 150, 1.0, nz=0.3)})", "gain_db": 0, "trim": 2.5, "start_db": -90},
+   "gear": {"kind": "py", "fn": bolt_gear_py, "prompt": "synthesised spinning gear: 22 ringing struck-iron teeth a second (520 Hz bar partials) with a once-a-second speed wobble and a heavier 300 Hz tooth every eleventh"},
+   "air": {"kind": "py", "fn": lambda: bed(nrm(air(2.8, lambda t: 480 + 160 * math.sin(math.pi * t), 1.5, None, seed=9)), 2.0, 0.8),
+           "gain_db": -12, "prompt": "synthesised air moving round the shot: a low swaying band near 480 Hz"},
    "whirr": {"prompt": "low spinning clockwork gear whirr, dark metallic hum of a heavy flywheel, steady, continuous, dry, no other sounds",
-             "secs": 3.0, "trim": 2.5, "norm_lufs": -20, "gain_db": -8, "filter": "highpass=f=120,lowpass=f=2500"},
+             "secs": 3.0, "trim": 2.8, "norm_lufs": -20, "gain_db": -12, "filter": "highpass=f=120,lowpass=f=2500," + loop_bed(2.0, 0.8)},
   }},
- # COM-14 Roadwarden brace / aim: a heavy iron brace clank, then four slow crank ticks, rising.
- "WardenWarning": {
-  "seconds": 1.3, "lufs": -18, "post_gain_db": 4, "fade_out": 0.3, "takes": 1, "reverb": BIGHALL, "post": DARK,
-  "layers": {
-   "brace": {"kind": "synth", "prompt": "synthesised brace clank: struck iron at 520 Hz with bar partials over a 130 Hz knock, contact noise; then four slow crank ticks at 800 Hz, 0.2 s apart, rising",
-             "secs": 1.1, "expr": clicks(clk(520, 0.0, 1.0, 22, rise=1500, nz=1.2, nk=120, slot=3), clk(130, 0.0, 0.6, 25, LOW, rise=1500),
-                                         ratchet([0.2, 0.4, 0.6, 0.8], 800, 0.35, 0.6, k=60, slot=4)), "gain_db": 0, "trim": 1.1},
-   "iron": {"prompt": "a heavy iron crossbow mechanism braced and cranked slowly, dark metal creak and strain, dry, isolated, no other sounds",
-            "secs": 1.5, "trim": 1.0, "norm_lufs": -20, "gain_db": -9, "filter": "highpass=f=150,lowpass=f=3000"},
-  }},
- # COM-14 Roadwarden movement: slow armoured steps, a low thud and an iron buckle on each.
+ # COM-14 Roadwarden movement: a heavy-light armoured gait, a different clank on every step, a low gear turning under it.
  "WardenMove": {
-  "loop_s": 2.4, "seconds": 2.4, "lufs": -21, "takes": 1, "post": DARK,
-  "reverb": {"rt60": 0.9, "wet_db": -13, "damp_hz": 3000, "predelay_ms": 15},
+  "loop_s": 2.4, "loop_tail": 0.8, "seconds": 2.4, "lufs": -21, "takes": 1, "post": DARK,
+  "reverb": {"rt60": 0.9, "wet_db": -11, "damp_hz": 3000, "predelay_ms": 15},
   "layers": {
-   "steps": {"kind": "synth", "prompt": "synthesised armoured steps every 0.6 s: a 95 Hz boot thud with an iron buckle clank (640 Hz bar partials) 40 ms after it",
-             "secs": 2.9, "expr": clicks(train(1 / 0.6, 95, 28, 0.45, LOW, nz=0.5), train(1 / 0.6, 640, 40, 0.9, P2, ph=-0.04 + 0.6, nz=0.5, slot=1)),
-             "gain_db": 0, "trim": 2.9, "start_db": -90},
+   "steps": {"kind": "py", "fn": warden_steps_py, "prompt": "synthesised armoured gait: heavy, light, heavy, light (0.7 s then 0.5 s apart): boot thuds at 85-120 Hz with a different iron clank on each (560, 840, 610, 760 Hz), a strap tick and a three-note buckle jingle"},
+   "gear": {"kind": "py", "fn": lambda: teeth(2.4, 0.8, 36, 260, 80, KNOCK, nz=0.3), "gain_db": -13,
+            "prompt": "synthesised low gear turning: 15 soft 260 Hz teeth a second"},
    "kit": {"prompt": "iron armour and equipment rattling on a slowly marching soldier, buckles and plates shifting, steady, dry, no voice",
-           "secs": 3.5, "trim": 2.9, "norm_lufs": -20, "gain_db": -5, "filter": "highpass=f=300,lowpass=f=4000"},
+           "secs": 3.5, "trim": 3.2, "norm_lufs": -20, "gain_db": -11, "filter": "highpass=f=300,lowpass=f=4000," + loop_bed(2.4, 0.8)},
   }},
- # COM-15 Floodstrider settle / brace: two stilts land one after the other, the frame groans down as it takes the weight.
- "FloodWarning": {
-  "seconds": 1.4, "lufs": -18, "post_gain_db": 2, "fade_out": 0.3, "takes": 1, "reverb": BIGHALL, "post": DARK,
-  "layers": {
-   "settle": {"kind": "synth", "prompt": "synthesised stilts settling: two wooden-iron clunks 0.16 s apart (300 Hz and 380 Hz bar partials over low knocks), then a groan of three partials sliding down a fourth over 0.8 s",
-              "secs": 1.2, "expr": clicks(clk(300, 0.0, 1.0, 26, rise=1500, nz=1.0, nk=120, slot=3), clk(110, 0.0, 0.6, 25, LOW, rise=1500),
-                                          clk(380, 0.16, 0.9, 26, nz=1.0, nk=120, slot=3), clk(140, 0.16, 0.5, 25, LOW),
-                                          "0.22*gt(t\\,0.25)*exp(-2.2*(t-0.25))*(0.5*sin(2*PI*(640*t-100*t*t))+0.3*sin(2*PI*(1010*t-158*t*t))+0.2*sin(2*PI*(1490*t-233*t*t)))*(0.7+0.3*sin(2*PI*23*t))"),
-              "gain_db": 0, "trim": 1.2},
-   "creak": {"prompt": "tall wooden and iron stilts creaking as they settle under a heavy weight, low strained groan, dry, isolated, no other sounds",
-             "secs": 1.5, "trim": 1.1, "norm_lufs": -20, "gain_db": -9, "filter": "highpass=f=150,lowpass=f=3000"},
-  }},
- # COM-15 Floodstrider movement: four stilts walking, alternating wooden knocks with a joint creak between.
+ # COM-15 Floodstrider movement: a striding machine. Heavy and light stilt footfalls, each different, ratchet ticks
+ # and joint groans between them, a low gear turning under the whole stride.
  "FloodStiltMove": {
-  "loop_s": 3.0, "seconds": 3.0, "lufs": -21, "takes": 1, "post": DARK,
-  "reverb": {"rt60": 0.9, "wet_db": -13, "damp_hz": 3000, "predelay_ms": 15},
+  "loop_s": 3.0, "loop_tail": 0.8, "seconds": 3.0, "lufs": -21, "takes": 1, "post": DARK,
+  "reverb": {"rt60": 0.9, "wet_db": -11, "damp_hz": 3000, "predelay_ms": 15},
   "layers": {
-   "stilts": {"kind": "synth", "prompt": "synthesised stilt steps every 0.75 s, alternating 330 Hz and 410 Hz wooden-iron knocks over low thuds",
-              "secs": 3.5, "expr": clicks(train(1 / 1.5, 330, 30, 1.0, P2, nz=0.5), train(1 / 1.5, 120, 28, 0.6, LOW),
-                                          train(1 / 1.5, 410, 30, 0.9, P2, ph=0.75, nz=0.5, slot=1), train(1 / 1.5, 150, 28, 0.5, LOW, ph=0.75)),
-              "gain_db": 0, "trim": 3.5, "start_db": -90},
+   "stride": {"kind": "py", "fn": flood_steps_py, "prompt": "synthesised stilt stride: four different footfalls (heavy 300 Hz, light 410 Hz with two ratchet ticks, heavy 340 Hz, light 460 Hz with three falling ticks, each a wooden plate over a low knock), and two joint groans"},
+   "gear": {"kind": "py", "fn": lambda: teeth(3.0, 0.8, 42, 180, 70, KNOCK, nz=0.3), "gain_db": -12,
+            "prompt": "synthesised low gear turning: 14 soft 180 Hz teeth a second"},
    "joints": {"prompt": "slow walking machine on tall wooden stilts, iron joints creaking between heavy steps, steady, dry, no other sounds",
-              "secs": 4.0, "trim": 3.5, "norm_lufs": -20, "gain_db": -9, "filter": "highpass=f=250,lowpass=f=3500"},
+              "secs": 4.0, "trim": 3.8, "norm_lufs": -20, "gain_db": -11, "filter": "highpass=f=250,lowpass=f=3500," + loop_bed(3.0, 0.8)},
   }},
- # COM-16 Sky Courier flight: propeller blades, 32 soft low beats a second, a wooden flutter on top.
+ # COM-16 Sky Courier flight: wooden blades beating air, 13 chops a second, alternate blades a little different,
+ # a fast small gear and moving wind under them, washed in the hall.
  "CourierFlightLoop": {
-  "loop_s": 2.0, "seconds": 2.0, "lufs": -21, "post_gain_db": -1.5, "takes": 1, "post": DARK,
-  "reverb": {"rt60": 0.7, "wet_db": -15, "damp_hz": 3000, "predelay_ms": 12},
+  "loop_s": 2.0, "loop_tail": 0.8, "seconds": 2.0, "lufs": -21, "takes": 1, "post": DARK,
+  "reverb": {"rt60": 1.2, "wet_db": -8, "damp_hz": 3000, "predelay_ms": 15},
   "layers": {
-   "blades": {"kind": "synth", "prompt": "synthesised propeller: 32 soft blade beats a second (260 Hz and 720 Hz partials), with a slow 1.5 Hz sway",
-              "secs": 2.5, "expr": f"(0.8+0.2*sin(2*PI*1.5*t))*({train(32, 260, 120, 1.0, nz=0.6)})", "gain_db": 0, "trim": 2.5, "start_db": -90},
+   "blades": {"kind": "py", "fn": courier_blades_py, "prompt": "synthesised propeller: 13 blade chops a second, each a soft thump of air (300 or 360 Hz, alternate blades) on a wooden 205-230 Hz tone, swaying once a loop"},
+   "gear": {"kind": "py", "fn": lambda: teeth(2.0, 0.8, 78, 700, 200, BAR2, nz=0.3), "gain_db": -16,
+            "prompt": "synthesised small fast gear: 39 light 700 Hz teeth a second"},
+   "wind": {"kind": "py", "fn": lambda: bed(nrm(air(2.8, lambda t: 800 + 300 * math.sin(math.pi * t), 1.2, None, seed=8)), 2.0, 0.8),
+            "gain_db": -11, "prompt": "synthesised wind round the blades: a swaying band near 800 Hz"},
    "prop": {"prompt": "small wooden propellers spinning steadily, soft fluttering whirr of a clockwork flying machine, continuous, dry, no other sounds",
-            "secs": 3.0, "trim": 2.5, "norm_lufs": -20, "gain_db": -7, "filter": "highpass=f=200,lowpass=f=3500"},
-  }},
- # COM-16 Courier hover / aim: a catch clicks and the propeller spins up, blade beats quickening from 14 to 46 a second.
- "CourierWarning": {
-  "seconds": 1.3, "lufs": -18, "fade_out": 0.3, "takes": 1, "reverb": BIGHALL, "post": DARK,
-  "layers": {
-   "spinup": {"kind": "synth", "prompt": "synthesised hover catch (struck brass at 700 Hz, contact noise), then a propeller spinning up: blade beats quickening from 14 to 46 a second over 0.9 s (300 Hz and 830 Hz partials), rising",
-              "secs": 1.0, "expr": clicks(clk(700, 0.0, 0.9, 30, rise=1500, nz=1.2, nk=140, slot=3),
-                                          "(0.3+0.7*t)*exp(-5*mod(14*t+17.8*t*t\\,1))*(0.5*sin(2*PI*300*t)+0.35*sin(2*PI*830*t)+0.5*sin(2*PI*150*t))"),
-              "filter": "afade=t=out:st=0.94:d=0.06", "gain_db": 0, "trim": 1.0},
-   "prop": {"prompt": "a small wooden propeller spinning up faster and faster, rising clockwork whirr, dry, isolated, no other sounds",
-            "secs": 1.5, "trim": 1.0, "norm_lufs": -20, "gain_db": -9, "filter": "highpass=f=200,lowpass=f=3500,afade=t=out:st=0.94:d=0.06"},
-  }},
- # HAZ-20 shutter crank / tension: one heavy crank clack, then the pawl rattles down six quick teeth as the spring
- # takes the load. The first strike is the loudest (the clockwork family starts sharp and dies fast).
- "ShutterWarning": {
-  "seconds": 1.0, "lufs": -19, "post_gain_db": 4, "fade_out": 0.25, "takes": 1, "reverb": ROOM, "post": TOP,
-  "layers": {
-   "crank": {"kind": "synth", "prompt": "synthesised crank: one heavy escapement clack (1.6 kHz bar partials over a 240 Hz body, contact noise), then six quick pawl ticks 0.07 s apart, each softer and a little higher",
-             "secs": 0.7, "expr": clicks(clk(1600, 0.0, 1.0, 60, ((1, 0.6, 1), (2.76, 0.4, 1.4), (0.15, 0.5, 0.8)), rise=2500, nz=1.4),
-                                         *[clk(1700 + 60 * i, round(0.07 * (i + 1), 3), round(0.5 - 0.065 * i, 3), 120, P2, nz=1.2, slot=1) for i in range(6)]),
-             "gain_db": 0, "trim": 0.7},
-   "spring": {"prompt": "an old iron crank being wound against a stiff spring, strained metal creak, dry, isolated, no other sounds",
-              "secs": 1.5, "trim": 0.6, "decay": 5, "norm_lufs": -20, "gain_db": -12, "filter": "highpass=f=600,lowpass=f=6000"},
-  }},
- # HAZ-21 bellows nozzle pressure: the leather bag fills, air climbing in the nozzle, then holds its breath.
- "BellowsWarning": {
-  "seconds": 1.3, "lufs": -19, "fade_out": 0.35, "takes": 1, "post": "lowpass=f=5000,lowpass=f=6000",
-  "reverb": {"rt60": 1.0, "wet_db": -12, "damp_hz": 3000, "predelay_ms": 15},
-  "layers": {
-   "fill": {"kind": "synth", "prompt": "synthesised bellows filling: two low bands of moving air climbing over 0.85 s (220 to 900 Hz and 420 to 1700 Hz), swelling",
-            "secs": 0.85, "expr": f"(0.3+0.7*pow(t/0.85\\,1.2))*(0.6*{air(220, 900, 0.85, 0, jit=0.5)}+0.4*{air(420, 1700, 0.85, 1, jit=0.5)})",
-            "filter": "afade=t=out:st=0.77:d=0.08", "gain_db": -3, "trim": 0.85, "start_db": -90},
-   "leather": {"prompt": "large leather forge bellows slowly filling with air, deep breath in, creaking leather, dry, isolated, no other sounds",
-               "secs": 1.5, "trim": 0.85, "norm_lufs": -20, "gain_db": -6, "filter": "highpass=f=120,lowpass=f=3000,volume='min(1,0.3+0.7*pow(t/0.78,1.2))':eval=frame,afade=t=out:st=0.77:d=0.08"},
+            "secs": 3.0, "trim": 2.8, "norm_lufs": -20, "gain_db": -11, "filter": "highpass=f=200,lowpass=f=3500," + loop_bed(2.0, 0.8)},
   }},
 })
