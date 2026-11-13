@@ -8,3 +8,11 @@ not have event_text yet. Until the build lead applies it, every take stays a tra
 Next: after the request lands, run audio_loop round + fresh-session critic per piece, P0 first; flip provenance origin
 on each pass.
 Not mine, left uncommitted: tools/ue/smoke.sh, tools/ue_run.py (other lane's edits in this worktree).
+
+## Update (after audio-critic/3, event named; ElevenLabs out of credits, synth only)
+Pass (blind critic + audio_check + style): all 19 except below. Latest passes this round: TalonWarning, CourierWarning, FloodStiltMove (rebuilt from synth; provenance generated).
+Tracked placeholders:
+- BellowsWarning: critic A5 failed 4 rounds on the same gap (reads as a wind swell next to the wind family's gust whooshes). Triage: possibly a
+  family-target/neighbour defect (wind target has no telegraph kind); work side tried: one 650 ms swell, rising narrow whistle, valve knock, open tail.
+  Needs fresh takes or a telegraph line in the wind family target.
+- WardenMove: blocked on request 2 in docs/build/requests/sndtele.md (style.json `enemy` target describes only the owl's projectiles).

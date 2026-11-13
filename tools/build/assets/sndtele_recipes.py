@@ -52,7 +52,7 @@ def talon_py():
                      amp=ramp(0.64, 0.15, 1.0, 1.6, 0.03), seed=3)), 0.0, 0.5)             # iron drawn across iron
     for i, t in enumerate(accel(5, 0.5, 1 / 2.5)):                                        # knuckles slow and fall as it pulls away
         add(s, strike(2600 - 220 * i, 160, BAR2, nz=1.2, seed=i), 0.06 + t, 0.5 - 0.05 * i)
-    add(s, nrm(air(0.2, lambda t: 1800 - 1200 * t / 0.2, 1.4, burst(0.2, 0.012, 70), seed=41)), 0.64, 1.1)   # hollow breath: the claw is empty
+    add(s, nrm(air(0.2, lambda t: 1800 - 1200 * t / 0.2, 1.4, burst(0.2, 0.012, 70), seed=41)), 0.64, 0.6)   # hollow breath: the claw is empty
     return s
 
 
@@ -194,15 +194,17 @@ def shutter_py():
 
 
 def bellows_py():
-    s = buf(1.1)
-    add(s, nrm(air(0.07, 300, 0.8, burst(0.07, 0.004, 40), seed=1)), 0.0, 0.6)             # the bag jerks open
-    add(s, strike(95, 30, KNOCK, nz=0.5, nz_decay=80, rise=0.003), 0.0, 0.6)
-    for k, (t0, d, lv) in enumerate(((0.02, 0.4, 0.7), (0.44, 0.46, 1.0))):                # two quick, climbing gust pulses
-        add(s, nrm(creak(d, 105 + 25 * k, 150 + 30 * k, ((1, 0.6), (2, 0.4), (3, 0.3), (4.1, 0.2)), rough=22,
-                         amp=ramp(d, 0.2, 1.0, 1.4, 0.04), seed=2 + k)), t0, 0.8 * lv)
-        add(s, nrm(air(d, lambda t, k=k: 1000 + 600 * k + 1700 * (t / 0.4) ** 1.2, 7.0, ramp(d, 0.2, 1.0, 1.6, 0.04), seed=3 + k)), t0, 0.7 * lv)
-        add(s, nrm(air(d, lambda t, k=k: 420 + 700 * (t / 0.4) ** 1.2, 3.0, ramp(d, 0.2, 1.0, 1.4, 0.04), seed=5 + k)), t0, 0.6 * lv)
-    add(s, nrm(air(0.25, lambda t: 2600 - 1600 * t / 0.25, 3.0, burst(0.25, 0.01, 40), seed=9)), 0.92, 0.5)   # the pressure lets go
+    s = buf(1.7)
+    add(s, nrm(air(0.07, 300, 0.8, burst(0.07, 0.004, 40), seed=1)), 0.0, 0.45)            # the bag jerks open
+    add(s, strike(95, 30, KNOCK, nz=0.5, nz_decay=80, rise=0.003), 0.0, 0.45)
+    d = 0.65                                                                                 # one long swell: pressure builds in the nozzle
+    add(s, nrm(creak(d, 100, 165, ((1, 0.6), (2, 0.4), (3, 0.3), (4.1, 0.2)), rough=22,
+                     amp=ramp(d, 0.05, 1.0, 2.2, 0.05), seed=2)), 0.08, 0.8)
+    add(s, nrm(air(d, lambda t: 900 + 2200 * (t / d) ** 1.4, 8.0, ramp(d, 0.04, 1.0, 2.4, 0.05), seed=3)), 0.08, 0.8)
+    add(s, nrm(air(d, lambda t: 400 + 800 * (t / d) ** 1.2, 3.0, ramp(d, 0.05, 1.0, 2.0, 0.05), seed=5)), 0.08, 0.6)
+    add(s, nrm(air(d, lambda t: 700 + 2000 * (t / d) ** 1.3, 40.0, ramp(d, 0.1, 1.0, 1.8, 0.03), seed=11)), 0.08, 0.9)   # narrow rising whistle through the stone gap
+    add(s, strike(430, 40, KNOCK, nz=0.3), 0.74, 0.9)                                          # valve knock at the peak
+    add(s, nrm(air(0.55, lambda t: 2800 - 2000 * t / 0.55, 3.0, burst(0.55, 0.01, 6), seed=9)), 0.78, 0.5)   # the pressure lets go, an open-air tail
     return s
 
 
@@ -227,7 +229,7 @@ RECIPES.update({
  # COM-16 Courier hover / aim: a hover catch, the propeller spins up (blade beats 10 to 44 a second, rising), a
  # ratchet catch.
  "CourierWarning": {
-  "seconds": 1.5, "lufs": -18, "post_gain_db": 2, "fade_out": 0.3, "takes": 1, "reverb": BIGHALL, "post": DARK,
+  "seconds": 1.8, "lufs": -18, "post_gain_db": 2, "fade_out": 0.7, "takes": 1, "reverb": BIGHALL, "post": DARK,
   "layers": {
    "spinup": {"kind": "py", "fn": courier_warn_py, "prompt": "synthesised hover and aim: a hover catch (700 Hz bar partials over a knock), a propeller spinning up (blade beats quickening from 10 to 44 a second, each a chop of air and a wooden tick rising 380 to 800 Hz), then a hard ratchet catch (900 Hz bar partials over a 180 Hz knock)"},
    "prop": {"prompt": "a small wooden propeller spinning up faster and faster, rising clockwork whirr, dry, isolated, no other sounds",
@@ -245,7 +247,7 @@ RECIPES.update({
  # HAZ-21 bellows nozzle pressure: the bag jerks open, a low resonant core and a narrow hiss climb in the nozzle,
  # and the valve shuts on the held breath.
  "BellowsWarning": {
-  "seconds": 1.6, "lufs": -19, "post_gain_db": 1, "fade_out": 0.4, "takes": 1, "post": "lowpass=f=5000,lowpass=f=6000",
+  "seconds": 2.2, "lufs": -19, "post_gain_db": 1, "fade_out": 0.8, "takes": 1, "post": "lowpass=f=5000,lowpass=f=6000",
   "reverb": {"rt60": 1.0, "wet_db": -10, "damp_hz": 3000, "predelay_ms": 15},
   "layers": {
    "nozzle": {"kind": "py", "fn": bellows_py, "prompt": "synthesised nozzle pressure: a leather jerk (a thump of air on a 95 Hz knock), a low resonant core rising 105 to 150 Hz with harmonics, a narrow hiss tightening from 0.9 to 2.6 kHz and a wider air band from 420 Hz to 1.1 kHz, all swelling to a peak, then a valve knock (420 Hz)"},
