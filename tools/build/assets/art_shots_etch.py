@@ -224,16 +224,17 @@ def save(rgba):
 # ---------------------------------------------------------------- owl-bolt
 def bolt_body(k, ox, Y):
     """Tone and mask of the bolt's body (no flecks): k = px per design unit, ox = x offset in px."""
-    top = [(30, 0), (215, 64), (175, 33), (288, 66), (246, 32), (362, 52), (315, 24), (410, 12), (530, 1.6)]
-    bot = [(530, 1.6), (418, 10), (392, 28), (362, 15), (338, 48), (298, 24), (275, 62), (236, 31), (198, 56),
-           (165, 29)]
-    notches = [(175, -33), (246, -32), (315, -24), (165, 29), (236, 31), (298, 24), (362, 15)]
+    # compact: the head (tip to the last barb) and the tail are about the same length (GDD: tail about one head long)
+    top = [(30, 0), (196, 66), (160, 34), (258, 68), (220, 33), (318, 54), (278, 25), (352, 12), (470, 1.6)]
+    bot = [(470, 1.6), (360, 10), (338, 29), (312, 15), (292, 50), (258, 25), (240, 64), (206, 32), (180, 58),
+           (150, 30)]
+    notches = [(160, -34), (220, -33), (278, -25), (150, 30), (206, 32), (258, 25), (312, 15)]
     outline = [(ox + x * k, Y - d * k) for x, d in top] + [(ox + x * k, Y + d * k) for x, d in bot]
     OUTLINES.append(("silhouette", outline))
     n = 11
     tone = np.zeros(XS.shape)
     mask = poly_mask(outline)
-    cx = ox + 235 * k
+    cx = ox + 205 * k
     for i in range(n):
         f = i / (n - 1)
         sx = 1 - 0.34 * f
@@ -249,10 +250,10 @@ def bolt_body(k, ox, Y):
     lit = (up - 0.5) * 0.20
     core_w = sstep(0.75, 0.95, tone)
     tone = tone + lit * (1 - core_w)
-    tone = tone * (1 - 0.55 * sstep(ox + 300 * k, ox + 510 * k, XS))
+    tone = tone * (1 - 0.55 * sstep(ox + 270 * k, ox + 455 * k, XS))
     # the crease behind each barb: a dark wedge from the notch toward the core
     for nx, nd in notches:
-        ax, ay, bx, by = ox + nx * k, Y + nd * k, ox + (nx - 60) * k, Y + nd * 0.3 * k
+        ax, ay, bx, by = ox + nx * k, Y + nd * k, ox + (nx - 52) * k, Y + nd * 0.3 * k
         t = np.clip(((XS - ax) * (bx - ax) + (YS - ay) * (by - ay)) / ((bx - ax) ** 2 + (by - ay) ** 2), 0, 1)
         dist = np.hypot(XS - (ax + t * (bx - ax)), YS - (ay + t * (by - ay)))
         tone = tone - 0.24 * (1 - t) * np.exp(-(dist / (3.2 * k)) ** 2) * (1 - core_w)
@@ -265,12 +266,14 @@ def bolt(ramp):
     layers from the magenta-red shadow edge in to the pale core, a narrow tail about one head long, square flecks."""
     Y = H / 2.0
     k = W / 640.0
-    tone, mask = bolt_body(k, 0.0, Y)
+    kb = 1.22 * k                       # the compact body drawn larger in the same frame
+    ox = 30 * k - 30 * kb + 6 * k
+    tone, mask = bolt_body(kb, ox, Y)
     # square flecks on short dashed lines beside the tail (tidy, sparse)
     flecks = []
     no_ink = np.zeros(XS.shape, bool)
-    for (fx, fy, s, t, rot) in ((452, -30, 6.5, 0.40, 0.2), (500, 24, 6.0, 0.28, -0.15), (528, -17, 4.8, 0.28, 0.1),
-                                (470, 38, 4.8, 0.40, 0.3)):
+    for (fx, fy, s, t, rot) in ((492, -36, 7.5, 0.40, 0.2), (546, 29, 6.8, 0.28, -0.15), (572, -21, 5.4, 0.28, 0.1),
+                                (514, 46, 5.4, 0.40, 0.3)):
         sq = [((fx + math.cos(rot + q * math.pi / 2 + math.pi / 4) * s) * k,
                Y + (fy + math.sin(rot + q * math.pi / 2 + math.pi / 4) * s) * k) for q in range(4)]
         flecks.append((sq, t))
@@ -302,12 +305,14 @@ def burst(ramp):
     crimson starburst of thin rays of uneven length around a pale core where the head struck, the rest of the shot
     still driving into it from behind, engraved along the rays and the blades."""
     k = W / 512.0
-    cx, cy = 150 * k, H / 2.0
+    cx, cy = 142 * k, H / 2.0
     rays = []
     nr = 16
     for i in range(nr):
         a = i * 2 * math.pi / nr + RNG.uniform(-0.07, 0.07)
-        L = (RNG.uniform(118, 140) if i % 4 == 0 else RNG.uniform(86, 106) if i % 2 == 0 else RNG.uniform(60, 76))
+        L = (RNG.uniform(128, 142) if i % 4 == 0 else RNG.uniform(112, 126) if i % 2 == 0 else RNG.uniform(92, 104))
+        if i in (4, 12):   # the upright rays run longest (the release burst's cross)
+            L = RNG.uniform(150, 158)
         rays.append((a, L * k))
 
     def star(scale_l, inner, wid):
@@ -320,33 +325,33 @@ def burst(ramp):
             out.append((cx + math.cos(a + wid) * inner, cy + math.sin(a + wid) * inner))
             out.append((cx + math.cos(a2) * inner * 0.86, cy + math.sin(a2) * inner * 0.86))
         return out
-    hub = 40 * k
+    hub = 64 * k
     # the shot behind the burst: the same body as owl-bolt, smaller, its head buried in the flash
-    kb = 0.60 * k
-    b_tone, b_mask = bolt_body(kb, cx - 55 * kb, cy)
+    kb = 0.80 * k
+    b_tone, b_mask = bolt_body(kb, cx - 92 * kb, cy)
     n = 10
     tone = np.zeros(XS.shape)
-    outline = star(1.0, hub, 0.17)
+    outline = star(1.0, hub, 0.22)
     OUTLINES.append(("burst", outline))
     rr = np.hypot(XS - cx, YS - cy)
-    s_mask = poly_mask(outline) | (rr < hub * 0.94)
+    s_mask = poly_mask(outline) | (rr < hub * 1.04)
     for i in range(n):
         f = i / (n - 1)
-        p = star(1.0 - 0.70 * f, hub * (1 - 0.7 * f), 0.17 * (1 - 0.35 * f))
-        m = poly_mask(p) | (rr < hub * 0.94 * (1 - 0.7 * f))
+        p = star(1.0 - 0.70 * f, hub * (1 - 0.7 * f), 0.22 * (1 - 0.35 * f))
+        m = poly_mask(p) | (rr < hub * 1.04 * (1 - 0.7 * f))
         if i in (4, 9):
             OUTLINES.append((f"burst_layer{i}", p))
         tone = np.where(m, 0.20 + 0.80 * f ** 0.85, tone)
     tone = blur(tone, 1.1 * SS * k)
     tone = tone + 0.30 * np.exp(-(rr / (14 * k)) ** 2)           # the flash at the centre
-    tone = tone - 0.12 * sstep(-4 * k, 4 * k, YS - cy) * (rr > 20 * k)   # under side in shadow
+    tone = tone - 0.20 * sstep(-4 * k, 4 * k, YS - cy) * (rr > 20 * k)   # under side in shadow
     tone = np.where(s_mask, np.clip(tone, 0.06, 1.0), 0.0)
     tone = np.maximum(tone, b_tone)                              # burst and shot fuse where they overlap
     mask = s_mask | b_mask
     # flecks thrown outward
     no_ink = np.zeros(XS.shape, bool)
-    for j, (a, r, sz) in enumerate(((2.2, 150, 6.5), (3.6, 135, 5.0), (4.4, 150, 6.0), (1.35, 142, 5.0),
-                                    (5.1, 128, 4.5))):
+    for j, (a, r, sz) in enumerate(((2.35, 112, 6.0), (3.5, 118, 4.8), (4.25, 116, 5.5), (1.3, 108, 4.8),
+                                    (5.05, 104, 4.5))):
         s = sz * k
         x, y = cx + math.cos(a) * r * k, cy + math.sin(a) * r * k
         sq = [(x + math.cos(a + q * math.pi / 2 + 0.5) * s, y + math.sin(a + q * math.pi / 2 + 0.5) * s)
@@ -363,8 +368,9 @@ def burst(ramp):
     swept = (0.30 * XF - 0.954 * np.abs(YF - cy)) / (5.2 * kb * (1.0 if MUL > 1 else 1.6))
     in_burst = down((s_mask & ~(b_mask & (rr > hub * 1.1))).astype(float)) > 0.5
     phase = np.where(in_burst, radial, swept) + (vnoise(40 * MUL) - 0.5) * 0.5
+    phase2 = (0.80 * XF + 0.60 * np.abs(YF - cy)) / (4.6 * kb)
     return finish(tone, mask, phase, ramp, stops, halo_rgb=hx(ramp[2][1]), halo_r=11 * k, halo_a=0.44,
-                  ink_w=max(1, int(round(1.5 * k))), no_ink=no_ink)
+                  ink_w=max(1, int(round(2.5 * k))), no_ink=no_ink, phase2=phase2)
 
 
 # ---------------------------------------------------------------- wand-shot
