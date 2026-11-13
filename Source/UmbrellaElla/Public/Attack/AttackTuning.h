@@ -22,6 +22,18 @@ struct UMBRELLAELLA_API FAttackTuning
 	UPROPERTY(Config, EditAnywhere, Category = "Attack", meta = (ClampMin = "1"))
 	float SmallRange = 1500.0f; // bake: COM-06.range
 
+	/** Small Blasts burst option: shots per trigger, 1 to SmallBurstMax. Default one (GDD Small Blasts row). */
+	UPROPERTY(Config, EditAnywhere, Category = "Attack", meta = (ClampMin = "1"))
+	int32 SmallBurstCount = 1;
+
+	/** Largest burst the option allows (GDD: 1 to 5). */
+	UPROPERTY(Config, EditAnywhere, Category = "Attack", meta = (ClampMin = "1"))
+	int32 SmallBurstMax = 5;
+
+	/** Seconds between the shots of a burst (GDD: 0.08). */
+	UPROPERTY(Config, EditAnywhere, Category = "Attack", meta = (ClampMin = "0.01"))
+	float SmallBurstSpacing = 0.08f;
+
 	/** Streamed Blast damage ticks per second. */
 	UPROPERTY(Config, EditAnywhere, Category = "Attack", meta = (ClampMin = "0.1"))
 	float StreamTicksPerSecond = 10.0f; // bake: COM-07.ticks_per_s
@@ -70,6 +82,14 @@ struct UMBRELLAELLA_API FAttackTuning
 	/** Needle size relative to a Small Blast. */
 	UPROPERTY(Config, EditAnywhere, Category = "Attack", meta = (ClampMin = "0.1"))
 	float NeedleSizeMultiplier = 0.7f; // bake: COM-09.size_multiplier
+
+	/** Streamed Blast beam box half depth (Y, the projectile plane thickness), units. */
+	UPROPERTY(Config, EditAnywhere, Category = "Attack", meta = (ClampMin = "0"))
+	float StreamDepthHalfExtent = 12.0f;
+
+	/** Placeholder beam tint (art never changes the hitbox). */
+	UPROPERTY(Config, EditAnywhere, Category = "Attack")
+	FLinearColor StreamPlaceholderColor = FLinearColor(0.55f, 0.85f, 1.0f);
 
 	/** Player blast collision radius, units (fixed collider data, never read from art). */
 	UPROPERTY(Config, EditAnywhere, Category = "Attack", meta = (ClampMin = "0"))

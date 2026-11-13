@@ -124,6 +124,26 @@ float SpellRules::StreamLength(float HeldSeconds, const FAttackTuning& Tuning)
 	return FMath::Clamp(Tuning.StreamGrowthSpeed * FMath::Max(HeldSeconds, 0.0f), 0.0f, Tuning.StreamMaxRange);
 }
 
+int32 SpellRules::BurstShots(EUmbrellaSpell Spell, const FAttackTuning& Tuning)
+{
+	if (Spell != EUmbrellaSpell::SmallBlasts || !IsFeatureEnabled(EFeatureId::COM_06))
+	{
+		return 1;
+	}
+	return FMath::Clamp(Tuning.SmallBurstCount, 1, FMath::Max(Tuning.SmallBurstMax, 1));
+}
+
+float SpellRules::BurstDelay(int32 Index, const FAttackTuning& Tuning)
+{
+	return FMath::Max(Index, 0) * Tuning.SmallBurstSpacing;
+}
+
+float SpellRules::BeamClippedLength(float Length, const TOptional<float>& SolidStopDistance)
+{
+	const float Clamped = FMath::Max(0.0f, Length);
+	return SolidStopDistance.IsSet() ? FMath::Min(Clamped, FMath::Max(0.0f, SolidStopDistance.GetValue())) : Clamped;
+}
+
 FName SpellRules::SpellName(EUmbrellaSpell Spell)
 {
 	switch (Spell)
