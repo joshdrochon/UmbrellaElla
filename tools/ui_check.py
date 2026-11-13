@@ -28,8 +28,13 @@ Subcommands (exit 0 = pass, 1 = fail, 2 = input missing or bad arguments):
   widgets [SRC]                   no NativeTick in UUserWidget subclasses (HUD updates from events)
   tests [--tier P0,MVP8,P1,P2|all] print the required UI automation test names (for check_automation_report.py --require);
                                   default P0 only (card 0.21). A P1/P2 setting's own card asks for its tier
-  ci [--release]                  signals + strings + fonts + config + widgets + shake + quit; inputs not created yet are
-                                  skipped and listed (--release: a skipped input or a PENDING sound fails, for the G-gates)
+  screens [--src DIR] [--refs F]  every UI screen is an art-loop piece: each widget class (UUserWidget, Slate S-widget,
+                                  AHUD) and each E...Screen value declared under a UI/ or Flow/ folder of the Source tree
+                                  is named by a screen element of pipeline/art/references.json (its "ui" block:
+                                  "widgets", "screens"), so a new screen cannot skip the visual bar. An element naming
+                                  a widget or screen that no longer exists fails too. Tests/ folders are not scanned
+  ci [--release]                  signals + strings + fonts + config + widgets + screens + shake + quit; inputs not created
+                                  yet are skipped and listed (--release: a skipped input or a PENDING sound fails, for the G-gates)
 """
 import argparse
 import csv
@@ -138,6 +143,16 @@ UI_TIERS = ("P0", "MVP8", "P1", "P2")
 
 def ui_tests(tiers=("P0",)):
     return [n for n, t in UI_TEST_TIERS if t in tiers]
+
+# ---- screens: every shipped screen is an art-loop piece (Josh, 12 Nov: the flat Defeated screen had no bar check) ----
+REFERENCES_JSON = "pipeline/art/references.json"
+SCREEN_DIRS = ("UI", "Flow")            # a Source path with one of these folders holds screens
+SCREEN_SKIP_DIRS = ("Tests",)
+CLASS_DECL = re.compile(r"^[ \t]*class\s+(?:\w+_API\s+)?(\w+)(?:\s+final)?\s*:\s*([^{;]+)\{", re.M)
+BASE_NAME = re.compile(r"(?:public|protected|private)?\s*(?:virtual\s+)?(\w+)")
+# A widget base: a UMG widget class, a Slate widget (S + capital, the engine's naming rule) or the HUD actor.
+WIDGET_BASE_NAME = re.compile(r"^(U\w*Widget|S[A-Z]\w*|AHUD)$")
+SCREEN_ENUM = re.compile(r"enum\s+class\s+(E\w*Screen)\b[^{]*\{([^}]*)\}", re.S)
 
 WIDGET_BASES = re.compile(r"class\s+\w+(?:_API)?\s+(U\w+)\s*:\s*public\s+(UUserWidget|UCommonUserWidget|UCommonActivatableWidget)\b")
 NATIVE_TICK = re.compile(r"\bNativeTick\s*\(")
@@ -683,6 +698,85 @@ def widget_problems(src):
     return out
 
 
+def _strip_comments(text):
+    return re.sub(r"//[^\n]*", "", re.sub(r"/\*.*?\*/", "", text, flags=re.S))
+
+
+def find_screens(src):
+    """(widgets, screens) declared under a UI/ or Flow/ folder of src: {class name: file}, {"EEnum::Value": file}.
+    A class counts when a base is a widget base, or a class found the same way (so a subclass of our own widget counts)."""
+    decls, screens = [], {}
+    for d, dirs, fs in os.walk(src):
+        dirs[:] = sorted(x for x in dirs if x not in SCREEN_SKIP_DIRS)
+        parts = os.path.relpath(d, src).split(os.sep)
+        if not any(p in SCREEN_DIRS for p in parts):
+            continue
+        for f in sorted(fs):
+            if not f.endswith((".h", ".cpp")):
+                continue
+            path = os.path.join(d, f)
+            rel = os.path.relpath(path, src).replace(os.sep, "/")
+            text = _strip_comments(_read(path))
+            for m in CLASS_DECL.finditer(text):
+                bases = [b.group(1) for b in (BASE_NAME.match(x.strip()) for x in m.group(2).split(",")) if b]
+                decls.append((m.group(1), bases, rel))
+            for m in SCREEN_ENUM.finditer(text):
+                for v in m.group(2).split(","):
+                    name = v.split("=")[0].strip()
+                    if re.fullmatch(r"\w+", name or ""):
+                        screens[f"{m.group(1)}::{name}"] = rel
+    widgets, grew = {}, True
+    while grew:
+        grew = False
+        for name, bases, rel in decls:
+            if name not in widgets and any(WIDGET_BASE_NAME.match(b) or b in widgets for b in bases):
+                widgets[name] = rel
+                grew = True
+    return widgets, screens
+
+
+def screen_elements(refs):
+    """{element id: its "ui" block} for the screen elements of references.json."""
+    return {eid: el["ui"] for eid, el in (refs.get("elements") or {}).items() if isinstance(el.get("ui"), dict)}
+
+
+def screen_problems(src, refs):
+    out = []
+    widgets, screens = find_screens(src)
+    els = screen_elements(refs)
+    ref_ids = {r.get("id") for r in refs.get("references") or []}
+    qb = refs.get("quality_bar") or {}
+    named_w, named_s = {}, {}
+    for eid, ui in sorted(els.items()):
+        el = refs["elements"][eid]
+        if not (ui.get("widgets") or ui.get("screens")):
+            out.append(f"screen element {eid} names no widget and no screen")
+        for w in ui.get("widgets") or []:
+            named_w.setdefault(w, eid)
+        for sc in ui.get("screens") or []:
+            if sc in named_s:
+                out.append(f"screen {sc} is named by two elements ({named_s[sc]}, {eid}); one screen is one piece")
+            named_s.setdefault(sc, eid)
+        if not [r for r in el.get("refs") or [] if r in ref_ids]:
+            out.append(f"screen element {eid} has no reference to be judged against")
+        if (qb.get("by_piece") or {}).get(eid, qb.get("default")) not in set(qb.get("refs") or []):
+            out.append(f"screen element {eid} has no quality-bar image")
+    fix = f"add it to a screen element's \"ui\" block in {REFERENCES_JSON} (the screen is then judged by the art loop)"
+    for w, rel in sorted(widgets.items()):
+        if w not in named_w:
+            out.append(f"{rel}: widget class {w} is no art-loop piece; {fix}")
+    for sc, rel in sorted(screens.items()):
+        if sc not in named_s:
+            out.append(f"{rel}: screen {sc} is no art-loop piece; {fix}")
+    for w, eid in sorted(named_w.items()):
+        if w not in widgets:
+            out.append(f"screen element {eid} names widget class {w}, which is not declared under a UI/ or Flow/ folder")
+    for sc, eid in sorted(named_s.items()):
+        if sc not in screens:
+            out.append(f"screen element {eid} names screen {sc}, which is not declared under a UI/ or Flow/ folder")
+    return out
+
+
 # ---------------------------------------------------------------- cli
 def _load_json(path):
     with open(path, encoding="utf-8") as fh:
@@ -762,6 +856,11 @@ def run_ci(root, release=False):
     src = os.path.join(root, SOURCE_DIR)
     if os.path.isdir(src):
         problems += [f"widgets: {p}" for p in widget_problems(src)]
+        refs = os.path.join(root, REFERENCES_JSON)
+        if os.path.exists(refs):
+            problems += [f"screens: {p}" for p in screen_problems(src, _load_json(refs))]
+        else:
+            skipped.append(REFERENCES_JSON)
     else:
         skipped.append(SOURCE_DIR + "/")
     try:
@@ -820,6 +919,9 @@ def main(argv=None):
     ts = sub.add_parser("tests")
     ts.add_argument("--tier", default="P0", help="comma list of P0, MVP8, P1, P2, or all (default P0)")
     sub.add_parser("quit")
+    scr = sub.add_parser("screens")
+    scr.add_argument("--src")
+    scr.add_argument("--refs")
     ci = sub.add_parser("ci")
     ci.add_argument("--release", action="store_true", help="a skipped input fails (G-gates)")
     a = ap.parse_args(argv)
@@ -917,6 +1019,11 @@ def main(argv=None):
                 return 2
             return _finish(quit_problems(read_strings(st) if os.path.exists(st) else None,
                                          src if os.path.isdir(src) else None), None, a.json, "quit")
+        if a.cmd == "screens":
+            src, refs = a.src or os.path.join(root, SOURCE_DIR), a.refs or os.path.join(root, REFERENCES_JSON)
+            if not (need(src) and need(refs)):
+                return 2
+            return _finish(screen_problems(src, _load_json(refs)), None, a.json, "screens")
         if a.cmd == "ci":
             # The two modes print different names, so a gate record cannot pass the plain run off as --release
             # (final-7 dry run B H6): `ui_check ci --release: PASS (0 problem(s))` vs `ui_check ci: PASS ...`
