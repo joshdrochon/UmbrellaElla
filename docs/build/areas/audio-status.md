@@ -101,3 +101,18 @@ Not run: audio_dump / `audio_check --ue-dump` on the new assets, packaged smoke 
 - StartMusic asset re-imported from the approved SW_MusicTitle_00.wav with arena_audio_import.py. Read back in the editor:
   StartMusic ch=2 dur=40.040 s looping=True (source: 2 ch, 48 kHz, 40.04 s). Other cues re-imported unchanged-bytes.
 Not run: packaged smoke (build lead).
+
+## Every listed sound has a cue mapping (Nov 12 2026, night)
+- `pipeline/audio/build/cue_table.py write` generates `Public/Feedback/Audio/UmbrellaCueData.h` from sound-list.csv (non-cut rows),
+  audio-rules.json (concurrency asset, class) and its ROUTES (bus event + Detail/Target match). Rows with no bus event yet are
+  Direct (`UUmbrellaCueSubsystem::PlaySoundById`, for the lane that owns the trigger): HopWhoosh, DashWhoosh, OutOfBounds, UI sounds, ambience,
+  health-state loops, stems, enemy and hazard sounds.
+- `UUmbrellaCueSubsystem` subscribes to every routed event, plays a random take `SW_<Id>_NN` from `/Game/UmbrellaElla/Audio/<Id>/`
+  with the row's pitch jitter, SCON_* concurrency and SCL_* class; loops are persistent components, one group ("move", "wind") at a time;
+  `WindExited` stops the wind group; music rows go through the one music component. When no per-sound take is imported the old flat cue
+  asset (Shot, Hit...) still plays, so nothing goes quiet before the lanes import.
+- `arena_audio_import.py` now also imports every take in Audio/Source into that folder (loop rows get the looping flag).
+- Tests (pass, `UmbrellaElla.Audio` tests=4): `EveryListedSoundHasACueMapping` (reads the csv), `BusEventsRouteToTheirSounds`;
+  python `tests/test_audio_cue_table.py` (table is current, every live row mapped, every sound with a non-failing take mapped,
+  class/concurrency/loop/takes match the rules, events exist in the manifest).
+- Not run: the import in the editor (new takes are not on this branch), packaged smoke.

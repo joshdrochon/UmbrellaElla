@@ -1,5 +1,8 @@
 #include "Feedback/Audio/UmbrellaCueSubsystem.h"
 #include "Core/UmbrellaEvent.h"
+#include "Feedback/Audio/UmbrellaCueTable.h"
+#include "Sound/SoundClass.h"
+#include "Sound/SoundConcurrency.h"
 #include "Subsystems/SubsystemCollection.h"
 #include "Subsystems/SubsystemCollection.h"
 #include "Core/UmbrellaEventBus.h"
@@ -9,6 +12,22 @@
 
 namespace
 {
+	// Takes are SW_<Id>_NN under /Game/UmbrellaElla/Audio/<Id>/ (tools/build/assets/arena_audio_import.py).
+	TArray<USoundBase*> LoadTakes(const FUmbrellaSoundCue& Cue)
+	{
+		TArray<USoundBase*> Takes;
+		for (int32 Take = 0; Take < Cue.Takes; ++Take)
+		{
+			const FString Name = FString::Printf(TEXT("SW_%s_%02d"), Cue.Id, Take);
+			const FString Path = FString::Printf(TEXT("/Game/UmbrellaElla/Audio/%s/%s.%s"), Cue.Id, *Name, *Name);
+			if (USoundBase* Sound = LoadObject<USoundBase>(nullptr, *Path, nullptr, LOAD_Quiet | LOAD_NoWarn))
+			{
+				Takes.Add(Sound);
+			}
+		}
+		return Takes;
+	}
+
 	const EUmbrellaEventType CuedEvents[] = {
 		EUmbrellaEventType::ProjectileSpawned,
 		EUmbrellaEventType::ProjectileContact,
@@ -32,9 +51,14 @@ void UUmbrellaCueSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	{
 		return;
 	}
+	TArray<EUmbrellaEventType> Listened = UmbrellaCueTable::ListenedEvents();
 	for (const EUmbrellaEventType Type : CuedEvents)
 	{
-		Handles.Add(Bus->On(Type).AddUObject(this, &UUmbrellaCueSubsystem::HandleEvent));
+		Listened.AddUnique(Type);
+	}
+	for (const EUmbrellaEventType Type : Listened)
+	{
+		Handles.Emplace(Type, Bus->On(Type).AddUObject(this, &UUmbrellaCueSubsystem::HandleEvent));
 	}
 }
 
@@ -43,12 +67,20 @@ void UUmbrellaCueSubsystem::Deinitialize()
 	UUmbrellaEventBus* Bus = UUmbrellaEventBus::Get(this);
 	if (IsValid(Bus))
 	{
-		for (int32 Index = 0; Index < Handles.Num(); ++Index)
+		for (const TPair<EUmbrellaEventType, FDelegateHandle>& Handle : Handles)
 		{
-			Bus->On(CuedEvents[Index]).Remove(Handles[Index]);
+			Bus->On(Handle.Key).Remove(Handle.Value);
 		}
 	}
 	Handles.Reset();
+	for (TPair<FName, TObjectPtr<UAudioComponent>>& Loop : ActiveLoops)
+	{
+		if (IsValid(Loop.Value))
+		{
+			Loop.Value->Stop();
+		}
+	}
+	ActiveLoops.Reset();
 	StopMusic();
 	MusicComponent = nullptr;
 	Super::Deinitialize();
@@ -86,6 +118,31 @@ FName UUmbrellaCueSubsystem::CueForEvent(const FUmbrellaEvent& Event)
 
 void UUmbrellaCueSubsystem::HandleEvent(const FUmbrellaEvent& Event)
 {
+	const FName PrevDetail = PrevDetails.FindRef(Event.Type);
+	for (const FUmbrellaLoopGroupStop& Stop : UmbrellaCueTable::GroupStops())
+	{
+		if (Stop.Event == Event.Type)
+		{
+			StopLoopGroup(Stop.Group);
+		}
+	}
+	bool bPlayedFromTable = false;
+	for (const FUmbrellaSoundCue* Row : UmbrellaCueTable::ForEvent(Event, PrevDetail))
+	{
+		bool bRowPlayed = false;
+		PlayRow(*Row, bRowPlayed);
+		bPlayedFromTable |= bRowPlayed;
+	}
+	// Only Details some row matches on are remembered (UmbrellaConfigChanged also carries spell equips).
+	for (const FUmbrellaSoundCue& Row : UmbrellaCueTable::All())
+	{
+		if (Row.Event == Event.Type && (Row.Match == EUmbrellaCueMatch::Detail || Row.Match == EUmbrellaCueMatch::LeftDetail)
+			&& Event.Detail == FName(Row.Value))
+		{
+			PrevDetails.Add(Event.Type, Event.Detail);
+			break;
+		}
+	}
 	const FName Cue = CueForEvent(Event);
 	if (Cue.IsNone())
 	{
@@ -93,6 +150,11 @@ void UUmbrellaCueSubsystem::HandleEvent(const FUmbrellaEvent& Event)
 	}
 	LastCue = Cue;
 	++CueCount;
+	if (bPlayedFromTable)
+	{
+		// The per-sound takes played; the flat placeholder cue asset stays silent.
+		return;
+	}
 	// Sound assets live at /Game/UmbrellaElla/Audio/<Cue>; absent until generated, so a miss is silent.
 	const FString Path = FString::Printf(TEXT("/Game/UmbrellaElla/Audio/%s.%s"), *Cue.ToString(), *Cue.ToString());
 	if (USoundBase* Sound = LoadObject<USoundBase>(nullptr, *Path, nullptr, LOAD_Quiet | LOAD_NoWarn))
@@ -146,5 +208,87 @@ void UUmbrellaCueSubsystem::RestartMusic(USoundBase* Sound)
 	{
 		MusicComponent->Play();
 		++MusicStartCount;
+	}
+}
+
+void UUmbrellaCueSubsystem::PlaySoundById(FName Id)
+{
+	if (const FUmbrellaSoundCue* Row = UmbrellaCueTable::Find(Id))
+	{
+		bool bPlayed = false;
+		PlayRow(*Row, bPlayed);
+	}
+}
+
+bool UUmbrellaCueSubsystem::CanPlaySound(FName Id) const
+{
+	const FUmbrellaSoundCue* Row = UmbrellaCueTable::Find(Id);
+	return Row && HasTakes(*Row);
+}
+
+void UUmbrellaCueSubsystem::StopLoopGroup(const FString& Group)
+{
+	for (const FUmbrellaSoundCue& Row : UmbrellaCueTable::All())
+	{
+		if (Group == Row.LoopGroup)
+		{
+			if (TObjectPtr<UAudioComponent>* Loop = ActiveLoops.Find(FName(Row.Id)))
+			{
+				if (IsValid(*Loop))
+				{
+					(*Loop)->Stop();
+				}
+				ActiveLoops.Remove(FName(Row.Id));
+			}
+		}
+	}
+}
+
+bool UUmbrellaCueSubsystem::HasTakes(const FUmbrellaSoundCue& Cue) const
+{
+	return !LoadTakes(Cue).IsEmpty();
+}
+
+void UUmbrellaCueSubsystem::PlayRow(const FUmbrellaSoundCue& Cue, bool& bOutPlayed)
+{
+	bOutPlayed = false;
+	// Takes are SW_<Id>_NN under /Game/UmbrellaElla/Audio/<Id>/ (tools/build/assets/arena_audio_import.py).
+	const TArray<USoundBase*> Takes = LoadTakes(Cue);
+	if (Takes.IsEmpty())
+	{
+		return;
+	}
+	if (FCString::Strlen(Cue.LoopGroup) > 0)
+	{
+		StopLoopGroup(Cue.LoopGroup);
+	}
+	USoundBase* Sound = Takes[CueRandom.RandHelper(Takes.Num())];
+	bOutPlayed = true;
+	LastSoundId = FName(Cue.Id);
+	++SoundCueCount;
+	if (Cue.SoundClass == EUmbrellaCueClass::Music && Cue.bLoop)
+	{
+		RestartMusic(Sound);
+		return;
+	}
+	const float Pitch = 1.0f + CueRandom.FRandRange(-Cue.PitchJitter, Cue.PitchJitter);
+	USoundConcurrency* Concurrency = nullptr;
+	if (FCString::Strlen(Cue.Concurrency) > 0)
+	{
+		const FString Path = FString::Printf(TEXT("/Game/UmbrellaElla/Audio/Core/%s.%s"), Cue.Concurrency, Cue.Concurrency);
+		Concurrency = LoadObject<USoundConcurrency>(nullptr, *Path, nullptr, LOAD_Quiet | LOAD_NoWarn);
+	}
+	UAudioComponent* Component = UGameplayStatics::CreateSound2D(this, Sound, 1.0f, Pitch, 0.0f, Concurrency, false, !Cue.bLoop);
+	if (!IsValid(Component))
+	{
+		return;
+	}
+	const FString ClassName = UmbrellaCueTable::ClassAssetName(Cue.SoundClass);
+	Component->SoundClassOverride = LoadObject<USoundClass>(
+		nullptr, *FString::Printf(TEXT("/Game/UmbrellaElla/Audio/Core/%s.%s"), *ClassName, *ClassName), nullptr, LOAD_Quiet | LOAD_NoWarn);
+	Component->Play();
+	if (Cue.bLoop)
+	{
+		ActiveLoops.Add(FName(Cue.Id), Component);
 	}
 }
