@@ -9,7 +9,8 @@ Build, with no paid calls (no key yet):
 2. GDD ART-03 / BG-02 guard: refuse any input image that is pre-jam (provenance date before the jam start, or a file under
    pipeline/art/reference/, or a quality-bar image) with a clear message; in-jam images we made may be inputs.
 3. A per-run spend counter: every image call adds its cost (from the provider's published price per image, recorded in
-   asset-tools.json) to a counter in Saved/; at a hard cap (env IMAGE_SPEND_CAP_USD, no default: no cap means no paid call)
+   asset-tools.json) to ONE counter shared by every worker (the file named by env IMAGE_SPEND_FILE, written with a lock; tools/build/start_area.sh
+   sets it); at the hard TOTAL cap (env IMAGE_SPEND_CAP_USD, no default: no cap means no paid call)
    every further image call stops with a clear message. The cap comes from the lead with Josh's Spend OK.
 4. Tests with a fake client (no network): provenance row complete, prompt logged, a pre-jam input refused, an in-jam input
    accepted, the cap stops calls, no key -> a clear "no key" result (no placeholder pretending to be art).
