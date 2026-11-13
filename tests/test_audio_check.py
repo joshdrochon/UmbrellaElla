@@ -202,6 +202,66 @@ class WavScan(unittest.TestCase):
     def test_repo_ledger_has_one_row_per_take(self):
         self.assertEqual(audio_check.duplicate_provenance(audio_check.DEFAULT_PROV), [])
 
+    # Provenance matches the critic (pipeline/audio/critic/<Id>.json holds the verdicts, keyed by the takes' hash).
+    def critic_case(self, verdict, origin, style_pass=True, stale=False, later=None):
+        src, prov, root = self.build()
+        d = os.path.join(src, "WandBolt")
+        h = audio_check.takes_hash([os.path.join(d, f) for f in os.listdir(d)])
+        recs = [{"files": "0" * 64 if stale else h, "verdict": verdict, "style_pass": style_pass, "card": "T-1",
+                 "round": 1, "at": "2026-11-13T01:00Z"}]
+        if later:
+            recs.append({"files": h, "verdict": later, "style_pass": True, "card": "GATE", "round": 1,
+                         "at": "2026-11-13T02:00Z"})
+        os.makedirs(os.path.join(root, audio_check.CRITIC_DIR))
+        with open(os.path.join(root, audio_check.CRITIC_DIR, "WandBolt.json"), "w") as f:
+            json.dump({"id": "WandBolt", "records": recs}, f)
+        with open(prov) as f:
+            text = f.read()
+        with open(prov, "w") as f:
+            f.write(re.sub(r"(SW_WandBolt_\d\d\.wav,Rick,)hand-made", lambda m: m.group(1) + origin, text))
+        p = audio_check.scan(src, RULES, ROWS, prov, root=root)[0]
+        return [x for x in p if "blind critic" in x]
+
+    def test_passed_take_marked_placeholder_fails(self):
+        p = self.critic_case("pass", "placeholder: audio critic fail (x)")
+        self.assertEqual(len(p), 3, p)
+        self.assertTrue(all("marked placeholder, but the blind critic passed these bytes" in x for x in p), p)
+
+    def test_passed_take_with_generated_origin_passes(self):
+        self.assertEqual(self.critic_case("pass", "generated in jam"), [])
+
+    def test_placeholder_is_fine_when_the_pass_was_on_other_bytes_or_missed_the_numbers(self):
+        self.assertEqual(self.critic_case("pass", "placeholder: audio critic fail (x)", stale=True), [])
+        self.assertEqual(self.critic_case("pass", "placeholder: audio critic fail (x)", style_pass=False), [])
+
+    def test_a_later_fail_on_the_same_bytes_wins(self):
+        self.assertEqual(self.critic_case("pass", "placeholder: audio critic fail (x)", later="fail"), [])
+        p = self.critic_case("pass", "generated in jam", later="fail")
+        self.assertTrue(p and all("the blind critic failed these bytes" in x for x in p), p)
+
+    def test_failed_take_marked_generated_fails_and_an_approved_take_is_left_alone(self):
+        self.assertEqual(len(self.critic_case("fail", "generated in jam")), 3)
+        self.assertEqual(self.critic_case("fail", "generated in jam; approved by Josh (listened) 2026-11-12"), [])
+
+    def test_repo_ledger_matches_the_critic_records(self):
+        prov = audio_check.provenance_rows(audio_check.DEFAULT_PROV)
+        takes = {}
+        for rel in prov:
+            full = os.path.join(ROOT, rel)
+            if rel.startswith("Audio/Source/") and rel.endswith(".wav") and os.path.isfile(full):
+                with open(full, "rb") as f:
+                    if f.read(len(audio_check.LFS_POINTER)) != audio_check.LFS_POINTER:   # CI has no LFS bytes
+                        takes.setdefault(rel.split("/")[2], []).append(rel)
+        self.assertEqual(audio_check.critic_mismatch(takes, prov, ROOT), [])
+
+    def test_loop_and_check_hash_the_takes_the_same_way(self):
+        import audio_loop
+        src, _, _ = self.build()
+        d = os.path.join(src, "WandBolt")
+        files = [os.path.join(d, f) for f in os.listdir(d)]
+        self.assertEqual(audio_loop.files_hash(files), audio_check.takes_hash(files))
+        self.assertEqual(len(audio_check.takes_hash(files)), 64)
+
     def test_bad_name_and_unknown_id_fail(self):
         files = dict(GOOD)
         files["SW_EnemyDefeat_00.wav"] = {}

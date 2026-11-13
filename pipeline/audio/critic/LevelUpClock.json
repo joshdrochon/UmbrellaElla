@@ -1,0 +1,15 @@
+{
+ "id": "LevelUpClock",
+ "records": [
+  {
+   "files": "3903360f2f9cf90044554d2a172b91aa58d9b86dc49ff01681ef7682fd2ffd44",
+   "verdict": "pass",
+   "style_pass": true,
+   "gap": "none",
+   "card": "AUDIO-1",
+   "round": 5,
+   "critic": "critic-LevelUpClock-1794531058-21930",
+   "at": "2026-11-13T00:51Z"
+  }
+ ]
+}

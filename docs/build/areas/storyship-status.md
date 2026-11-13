@@ -14,3 +14,10 @@ PROPOSED negative; NAR-* records authorize). `unittest tests.test_story_check` 2
 `nar_authorized` now needs NAR-04..07 all authorized.
 
 No Unreal code or tests changed in this slice (text data only).
+
+Panel round (Nov 12, after lead's 3-critic panel): Status words now define "CONFIRMED (agent default; team may override)"
+per D-new-story-canon. F8 (stolen hand) is DEFERRED, so story-keeper-arrival and story-shaft-clue no longer state it:
+"The clock keeps one hand. Beside it is an empty place." and "The umbrella's shaft matches the bronze of the clock."
+(cue table, StoryRules.cpp, StoryTests.cpp synced). New GDD fact F9 (NAR-06 clue) backs both. Critic reasons fixed:
+"mounting" was jargon (S5), bronze had no bible source (S1). Results: story_check PASS, --calibrate PASS rows=22,
+test_story_check OK, `critic.sh story` panel 3/3 PASS (bible=4789a3d2). Unreal tests not rerun (text-only strings; one test string changed).
