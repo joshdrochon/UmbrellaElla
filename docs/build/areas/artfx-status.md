@@ -148,3 +148,6 @@ No gameplay timing, collision or state is written by any of it (tests check the 
 
 ## Slice 19 (Nov 13): merged main (imagetiers, art-priority); still blocked on request 7
 - No change to art_loop.py, references or art-image-model.md for the effect quality bar or context reference. No paint, spend unchanged. All slots stay `_PH`.
+
+## Slice 20 (Nov 13): main unchanged since slice 19; still blocked on request 7
+- Merge main: already up to date. No change to art_loop.py, references or art-image-model.md for the effect bar or context reference. No paint, spend unchanged. All slots stay `_PH`.
