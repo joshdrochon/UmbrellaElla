@@ -119,6 +119,7 @@ namespace UmbrellaUIStyleConstants
 	static constexpr float HeadPausedHeight = 272.0f * 0.3f;
 	static constexpr float HeadSettingsWidth = 1086.0f * 0.3f;
 	static constexpr float HeadSettingsHeight = 323.0f * 0.3f;
+	static constexpr float HeadSettingsWidgetHeight = 60.0f;
 	static constexpr int32 LockupNameSize = 74;
 	static constexpr int32 LockupSubtitleSize = 38;
 	static constexpr int32 LockupSubtitleSpacing = 260;

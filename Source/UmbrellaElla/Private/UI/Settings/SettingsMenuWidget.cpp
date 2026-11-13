@@ -1,3 +1,6 @@
+#include "Widgets/Layout/SScaleBox.h"
+#include "Widgets/Images/SImage.h"
+#include "Widgets/Layout/SBox.h"
 #include "UI/Settings/SettingsMenuWidget.h"
 #include "Framework/Application/SlateApplication.h"
 #include "GameFramework/PlayerController.h"
@@ -181,8 +184,16 @@ TSharedRef<SWidget> USettingsMenuWidget::RebuildWidget()
 					SNew(SVerticalBox)
 					+ SVerticalBox::Slot().AutoHeight().Padding(SettingsLayout::RowPadding)
 					[
-						SNew(STextBlock).Text(LOCTEXT("Title", "Settings")).Font(FUmbrellaUIStyle::DisplayFont(ScaledFont(SettingsLayout::TitleFontSize)))
-							.ColorAndOpacity(FUmbrellaUIStyle::Cream())
+						FUmbrellaUIStyle::HeadingBrush(TEXT("Settings")) ?
+							StaticCastSharedRef<SWidget>(SNew(SBox).HAlign(HAlign_Left).HeightOverride(UmbrellaUI::HeadSettingsWidgetHeight)
+							[
+								SNew(SScaleBox).Stretch(EStretch::ScaleToFit).HAlign(HAlign_Left)
+								[
+									SNew(SImage).Image(FUmbrellaUIStyle::HeadingBrush(TEXT("Settings")))
+								]
+							]) :
+							StaticCastSharedRef<SWidget>(SNew(STextBlock).Text(LOCTEXT("Title", "Settings")).Font(FUmbrellaUIStyle::DisplayFont(ScaledFont(SettingsLayout::TitleFontSize)))
+								.ColorAndOpacity(FUmbrellaUIStyle::Cream()))
 					]
 					+ SVerticalBox::Slot().AutoHeight().Padding(SettingsLayout::RowPadding)
 					[
