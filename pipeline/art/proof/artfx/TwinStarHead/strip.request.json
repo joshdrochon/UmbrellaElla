@@ -1,0 +1,37 @@
+{
+ "provider": "gemini",
+ "tool": "Gemini API image generation (Google)",
+ "model": "gemini-3-pro-image-preview",
+ "model_version": "gemini-3-pro-image-preview",
+ "prompt": "A horizontal strip of four equal cells, left to right, showing four animation frames of one small magic projectile for a\n2D side-view game: a compact gold star head flying to the right, trailing a short tapered tail to the left. All four\nframes sit on the same horizontal centre line, each centred in its own cell, evenly spaced with wide empty gaps of flat\ngreen between them, so no frame touches another or the edge of the picture. The star head is the same size in all four\nframes. The picture is seen directly from the side, at the distance of a game sprite, with the projectile occupying about\na third of its cell.\n\nThe head is a sharp, angular eight-point star in the shape of a faceted compass star. Four long points lie on the\nhorizontal and vertical axes, and four shorter points lie between them. The long point on the right, the direction of\ntravel, is the longest and sharpest, and the left point flows straight into the tail. Every point is a thin, pointed\nblade with straight edges, like a cut spear tip. The tail is short: a tapered gold streak that narrows to a point on the\nleft, ending in a few broken dashes and two or three tiny pointed diamond sparks. It reaches back about as far as one and\na half star widths and never reaches the neighbouring cell.\n\nThe head is built in three layers. At its centre is a small bright core of pale cream #FFF5DC. Around the core is a\nshell of warm gold #E9C46A. The lower half of the shell is shaded with a few fine etched hatching lines in amber #F5AA28,\nand the lower edge is darkened with deep bronze #94611E. The tail uses the same gold and amber, getting paler and thinner\ntoward its tip. The only colours in the whole effect are these gold, amber, bronze and cream tones plus the near-black\nink outline, so the star reads as one warm gold family.\n\nLighting comes from one source, in front of the star and slightly above, so the upper edges are brighter and the lower\nedges are shaded. The glow stays inside the star: the core is the brightest point, and the light fades to the ink outline\ninside the shape. Outside the outline the picture is only the flat green.\n\nFrame 1: the star at rest, core small, points at their normal length, tail at normal length. Frame 2: the core brighter and\nlarger, the points a little longer, the tail a little longer. Frame 3: back to frame 1, the core small, the points a\nlittle shorter, the tail a little shorter. Frame 4: the core brighter again, the points and tail at normal length. The\nstar does not rotate: only the core, point length and tail length change from frame to frame.\n\nStyle: a dark painterly etched storybook illustration, ink and wash with fine etched cross-hatching and a faint paper\ngrain inside the shapes only. Each shape has a clean near-black ink outline #171614 about 3 px wide at this size. The\nbackground is one perfectly flat, even, uniform pure green #00FF00 filling the canvas edge to edge, with the shapes cut\ncleanly against it and the green identical in every cell. Nothing in the effect is green. The image contains only the\nfour projectiles on green: no text, labels, numbers, grid lines, frames or watermark.",
+ "seed": "",
+ "size": "1024x1024",
+ "quality": "medium",
+ "aspect_ratio": "21:9",
+ "image_size": "2K",
+ "input_images": [],
+ "cost_usd": 0.140322,
+ "reply": {
+  "usage": {
+   "promptTokenCount": 737,
+   "candidatesTokenCount": 1868,
+   "totalTokenCount": 3009,
+   "promptTokensDetails": [
+    {
+     "modality": "TEXT",
+     "tokenCount": 737
+    }
+   ],
+   "candidatesTokensDetails": [
+    {
+     "modality": "IMAGE",
+     "tokenCount": 1120
+    }
+   ],
+   "thoughtsTokenCount": 404,
+   "serviceTier": "standard"
+  },
+  "finish": "STOP"
+ },
+ "date": "2026-11-13T04:00+00:00"
+}
