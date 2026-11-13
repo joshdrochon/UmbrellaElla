@@ -40,3 +40,8 @@ NEEDS HUMAN: lead: (1) add a Veo step to assetgen (counter-guarded, 1 USD/piece)
 - Request unchanged: docs/build/requests/artkeeper2.md (hide cube when ArtSlot::HasArt; Feedback/Anim + Owl lane, not mine). Every context pair fails on the cube, not on the paint.
 - Spend: 29.57 of 33.82 shared; about 4.2 left is too little to paint six parts plus rounds on a base stuck at the R6-R10 plateau, so I paid nothing.
 NEEDS HUMAN: lead: (1) hide the stand-in cube when the slot has art, (2) Blender-vs-paint decision for the Keeper base, (3) say who may spend the last ~4 USD.
+
+## Nov 13 session 16: merged main (3aa4272d), blocked, no paint, spend unchanged (29.57 of 33.82)
+- Main's only change since last session is tools/art_loop.py + its test. KeeperPresenterSubsystem::ShowStandIn still always adds the lilac cube (no HasArt check), so the cube request in docs/build/requests/artkeeper2.md is still open.
+- None of my six pieces has won both blind pairs, so there is nothing to capture and gate. A paid draft also needs the fresh-session prompt review first (art-image-model.md), and the Keeper body base is still at the R6-R10 plateau; with about 4.2 USD left (0.50 per final) I did not start a paint round.
+NEEDS HUMAN: lead: (1) hide the cube when the slot has art, (2) Blender-vs-paint for the Keeper base, (3) who may spend the last ~4 USD.
