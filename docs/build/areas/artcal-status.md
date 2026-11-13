@@ -55,3 +55,11 @@ All outside this lane; for the build lead.
   wand-shot folders (seeds 1-3, Opus): all three got both calibration pairs right (team image beats crude, SAME on the
   shifted copy). "3 runs in a row" = these 3 sessions; not the full panel.
 - Left: artshots requests 2 and 4 are not in this lane.
+
+## art_check off_band triage (12 Nov, Gemini proof)
+Verdict: work, not check defect. The off_band gate (hue 20-95, chroma > 18) already holds every canonical warm colour:
+palette bronze/umber/ink/paper, GDD SH1.0 golds #E9C46A (hue 87), #FFC76A (80), #FFD84A (91), #F5AA28 (76),
+#94611e (71), ivory #FFF5DC (93), #FFF3D6 (92). The failing pixels (0.126-0.142) are pale greenish yellow, about
+(224,224,160), hue 95-110, chroma 20-50: R equals G, so it reads lemon/olive, not warm ivory (R > G > B). No band widened.
+Test `HueBandCanonTest` (tests/test_art_check.py): canon passes, greenish pale yellow fails, key art off_band 0.0.
+Fix belongs to imagegen: warm the rim light (more red than green) in the prompt or grade.
