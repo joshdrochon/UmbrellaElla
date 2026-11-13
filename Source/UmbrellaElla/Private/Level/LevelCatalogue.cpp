@@ -13,21 +13,21 @@ namespace
 
 	TArray<FChunkVariant> BuildAll()
 	{
-		using M = EChunkMechanic;
+		using ECatMech = EChunkMechanic;
 		// mechanics per authored chunk (A and B share the set; arrangement differs).
-		const TArray<TArray<M>> PerChunk = {
-			{M::Column},				// CH01 drop and catch
-			{M::Warden},				// CH02 rooftop line
-			{M::Courier},				// CH03 yellow crossing
-			{M::Stilt},					// CH04 underbridge
-			{M::Mill},					// CH05 over and under
-			{M::Mill},					// CH06 countercurrent mill
-			{M::Shutter},				// CH07 shutter pocket
-			{M::Bellows},				// CH08 bellows lane
-			{M::BridgeTooth},			// CH09 eave transfer
-			{M::Column},				// CH10 switchback
-			{M::Warden, M::Mill},		// CH11 warden and mill
-			{M::Stilt, M::Courier}		// CH12 stilt and courier
+		const TArray<TArray<ECatMech>> PerChunk = {
+			{ECatMech::Column},				// CH01 drop and catch
+			{ECatMech::Warden},				// CH02 rooftop line
+			{ECatMech::Courier},				// CH03 yellow crossing
+			{ECatMech::Stilt},					// CH04 underbridge
+			{ECatMech::Mill},					// CH05 over and under
+			{ECatMech::Mill},					// CH06 countercurrent mill
+			{ECatMech::Shutter},				// CH07 shutter pocket
+			{ECatMech::Bellows},				// CH08 bellows lane
+			{ECatMech::BridgeTooth},			// CH09 eave transfer
+			{ECatMech::Column},				// CH10 switchback
+			{ECatMech::Warden, ECatMech::Mill},		// CH11 warden and mill
+			{ECatMech::Stilt, ECatMech::Courier}		// CH12 stilt and courier
 		};
 		TArray<FChunkVariant> Out;
 		for (int32 I = 0; I < PerChunk.Num(); ++I)
@@ -44,13 +44,22 @@ namespace
 		return Out;
 	}
 
-	FRoute FromLabels(int64 Seed, const TArray<FString>& Labels)
+	/** Route from a fixture text: labels like "01A" separated by "," or ";". */
+	FRoute FromLabels(int64 Seed, const FString& Text)
 	{
+		TArray<FString> Labels;
+		Text.Replace(TEXT(";"), TEXT(",")).ParseIntoArray(Labels, TEXT(","));
 		FRoute R;
 		R.Seed = Seed;
 		for (const FString& L : Labels)
 		{
-			if (const FChunkVariant* V = LevelCatalogue::Find(FCString::Atoi(*L.Left(2)), L[2]))
+			const FString Label = L.TrimStartAndEnd();
+			const int32 LabelDigits = Label.Len() - 1;
+			if (LabelDigits < 1)
+			{
+				continue;
+			}
+			if (const FChunkVariant* V = LevelCatalogue::Find(FCString::Atoi(*Label.Left(LabelDigits)), Label[LabelDigits]))
 			{
 				R.Slots.Add(*V);
 			}
@@ -176,7 +185,8 @@ namespace LevelCatalogue
 
 	FRoute FallbackRoute()
 	{
-		return FromLabels(Tuning().FallbackSeed, {TEXT("01A"), TEXT("02A"), TEXT("03A"), TEXT("04A"), TEXT("05A"), TEXT("07A"), TEXT("09A"), TEXT("08A"), TEXT("11A")});
+		// The named fallback is the seed 1001 layout (the first fixture).
+		return FromLabels(Tuning().FallbackSeed, LevelGrammar::FixtureRoutes[0]);
 	}
 
 	FRoute Generate(int64 Seed)

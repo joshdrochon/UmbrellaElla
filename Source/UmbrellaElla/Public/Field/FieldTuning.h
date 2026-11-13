@@ -68,4 +68,23 @@ struct UMBRELLAELLA_API FFieldTuning
 	/** margin inside the view a hazard must clear to count as revealed, fraction of view width. */
 	UPROPERTY(EditAnywhere, meta = (ClampMin = "0", ClampMax = "0.5"))
 	float RevealEdgeFraction = 0.03f;
+
+	/** Drawn wind field stand-in colours by what the current does (art replaces them; readability, not final look). */
+	UPROPERTY(EditAnywhere, Category = "Readability")
+	FLinearColor TransportFieldColour = FLinearColor(0.55f, 0.78f, 0.95f);
+
+	UPROPERTY(EditAnywhere, Category = "Readability")
+	FLinearColor DescentFieldColour = FLinearColor(0.62f, 0.52f, 0.90f);
+
+	/** Lift / rescue / reacquisition currents. */
+	UPROPERTY(EditAnywhere, Category = "Readability")
+	FLinearColor LiftFieldColour = FLinearColor(0.55f, 0.92f, 0.62f);
+
+	/** Leftward return / reset currents. */
+	UPROPERTY(EditAnywhere, Category = "Readability")
+	FLinearColor ReturnFieldColour = FLinearColor(0.98f, 0.80f, 0.45f);
+
+	/** Depth scale of the drawn field plane (a thin card behind Ella). */
+	UPROPERTY(EditAnywhere, Category = "Readability", meta = (ClampMin = "0"))
+	float FieldDepthScale = 0.01f;
 };

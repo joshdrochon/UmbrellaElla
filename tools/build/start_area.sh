@@ -18,7 +18,8 @@ Read docs/build/worker-rules.md, then docs/build/areas/$A.md, and docs/build/are
 what is already done). Build your area to its definition of done: G1 Rule IDs first, then the later list.
 Commit after each working slice (git -c core.hooksPath=/dev/null commit). Never push, never touch main or another lane.
 Keep working until your area is done or you are truly blocked. $EXTRA"
-# Model: Sonnet by default (Josh, Nov 12 evening); WORKER_MODEL overrides (repeat-failure escalation).
+# Model: Sonnet by default (Josh, Nov 12 evening); WORKER_MODEL overrides: claude-opus-5-5 for repeat-failure escalation,
+# claude-fable-5-2 only by an explicit emergency call that is reported to Josh (worker-rules.md).
 DEFAULT_MODEL=claude-sonnet-5-5   # Josh, Nov 12 evening: Sonnet by default; escalation per worker-rules.md
 MODEL="${WORKER_MODEL:-$DEFAULT_MODEL}"
 # Image spend (Josh Spend OK): one counter shared by every worker on this Mac, one hard total cap set by the lead.
