@@ -76,3 +76,9 @@ or calibration miss; the tool says "judge again"), never a counted one.
   the piece. Not faking a capture. Request 3 in requests/artscene.md has the ask. Skyline r2 (Gemini) stays unshipped; `_PH` stays.
 - Panel r2: pairs run but the context pair stays missing for the same reason. Cannot pass skyline, paper or menu-screen until a slot exists.
 - Also committed the provenance rows for skyline r1/r2 raw images.
+
+## Nov 13: r2 (Gemini) panel re-judged ("judge again")
+- Round 14, skyline_r2_keyed.png: checks PASS (art_ref 0.781), calibration 8/9. Reference pair and quality-bar pair: reference still wins.
+  Gap: lit grey-green bodies instead of near-black silhouettes; tidy regular roofline. Context pair still missing (no backdrop texture slot).
+- area/artslots has no slot commit yet (only "merge artinventory"). Waiting; then merge it, import skyline_r2_keyed.png with its script, make the shot.
+- Next paint: darker value structure (near-black walls, amber only in windows), ragged roofline. Needs GEMINI_API_KEY in this shell.
