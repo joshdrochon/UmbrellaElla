@@ -1,7 +1,7 @@
 """Ella paint post-process: recolour the outer outline band of a keyed (transparent) sprite to warm candle-cream.
 
 The model paints the 3 px outline lemon-lime (hue ~100, outside the art_check gold/rust band). Keep each pixel's
-lightness, move its hue to spark-white #FFF3D6. Only pixels within BAND px of transparency change.
+lightness, move its hue to spark-white #FFE6C4. Only pixels within BAND px of transparency change.
 Usage: python3 tools/build/assets/art_ella_post.py IN.png OUT.png [BAND]
 """
 import colorsys
@@ -11,7 +11,7 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 import png  # noqa: E402
 
-CREAM = (255, 243, 214)
+CREAM = (255, 230, 196)
 
 
 def edge_depth(rows, w, h, band):
@@ -45,7 +45,7 @@ def recolour(rows, w, h, band=4):
             r, g, b, a = rows[y][x]
             if a > 8 and d[y][x] <= band:
                 hh, ss, vv = colorsys.rgb_to_hsv(r / 255, g / 255, b / 255)
-                if ss > 0.12:
+                if ss > 0.12 and vv > 0.6:   # only the bright outline, never the cloth
                     # keep lightness (value), take cream hue, cap saturation at cream's
                     r2, g2, b2 = colorsys.hsv_to_rgb(ch, min(ss, cs * 1.4), vv)
                     r, g, b = round(r2 * 255), round(g2 * 255), round(b2 * 255)
