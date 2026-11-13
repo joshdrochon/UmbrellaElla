@@ -871,6 +871,15 @@ class Screens(unittest.TestCase):
                     "ui-journey-complete", "ui-purchase", "ui-level-up", "ui-tutorial", "ui-hud-clock", "ui-xp-ring"):
             self.assertIn(eid, els)
 
+    def test_repo_screen_elements_can_go_to_the_blind_critic(self):
+        """The element's `what` is the critic's whole brief: a word that leaks the builder's side would stop the panel."""
+        import art_loop
+        with open(os.path.join(ROOT, "pipeline", "art", "references.json"), encoding="utf-8") as fh:
+            refs = json.load(fh)
+        for eid in ui_check.screen_elements(refs):
+            prompt = art_loop.critic_prompt(refs["elements"][eid]["what"])
+            self.assertEqual(art_loop.critic_prompt_problems(prompt), [], eid)
+
 
 if __name__ == "__main__":
     unittest.main()

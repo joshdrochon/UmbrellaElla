@@ -28,6 +28,7 @@
 #include "Widgets/Input/SButton.h"
 #include "Flow/FlowStoryText.h"
 #include "UI/Menus/FlowMenuWidgets.h"
+#include "UI/Style/UmbrellaUIStyle.h"
 #include "Widgets/Layout/SBox.h"
 #include "Widgets/Text/STextBlock.h"
 #include "Widgets/SCompoundWidget.h"
@@ -277,10 +278,8 @@ void AUmbrellaPlayerController::ShowPurchaseScreen()
 	PurchaseDoneButton = SNew(SFlowPurchaseDoneBox).OnBack(FSimpleDelegate::CreateWeakLambda(this, [this]() { ApplyCommand(EFlowCommand::Back); }))
 		.Padding(FMargin(0.0f, 0.0f, 0.0f, GetDefault<UUmbrellaTuning>()->Flow.PurchaseDoneBottomMargin))
 	[
-		SAssignNew(DoneButton, SButton).OnClicked_Lambda([this]() { ApplyCommand(EFlowCommand::Continue); return FReply::Handled(); })
-		[
-			SNew(STextBlock).Text(FFlowMenuText::DoneLabel())
-		]
+		SAssignNew(DoneButton, SUmbrellaButton).Text(FFlowMenuText::DoneLabel()).FontSize(GetDefault<UUmbrellaTuning>()->Flow.MenuFontSize)
+			.OnClicked_Lambda([this]() { ApplyCommand(EFlowCommand::Continue); return FReply::Handled(); })
 	];
 	if (UGameViewportClient* Viewport = GetWorld() ? GetWorld()->GetGameViewport() : nullptr)
 	{
@@ -695,7 +694,7 @@ void AUmbrellaPlayerController::ShowScreenWidget()
 		TArray<FFlowMenuItem> Items;
 		Items.Add({ FFlowMenuText::RetryLabel(), FSimpleDelegate::CreateWeakLambda(this, [this]() { ApplyCommand(EFlowCommand::Retry); }) });
 		Items.Add({ FFlowMenuText::QuitToTitleLabel(), FSimpleDelegate::CreateUObject(this, &AUmbrellaPlayerController::ReturnToTitle) });
-		Menu = SNew(SFlowMenu).WasdNavigation(IsFeatureEnabled(EFeatureId::MOVE_09)).Tuning(Tuning).Heading(FFlowMenuText::DefeatHeading()).Items(Items);
+		Menu = SNew(SFlowMenu).WasdNavigation(IsFeatureEnabled(EFeatureId::MOVE_09)).Tuning(Tuning).Heading(FFlowMenuText::DefeatHeading()).HeadingColor(FUmbrellaUIStyle::Warn()).Items(Items);
 		break;
 	}
 	case EFlowScreen::Story:
@@ -713,7 +712,9 @@ void AUmbrellaPlayerController::ShowScreenWidget()
 			ScreenWidget = SNew(SBox).HAlign(HAlign_Center).VAlign(VAlign_Top).Visibility(EVisibility::HitTestInvisible)
 			[
 				SNew(STextBlock).Text(FText::FromString(TEXT("Director's Cut")))
-					.Font(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"), Tuning.MenuFontSize)).ColorAndOpacity(Tuning.TextColor)
+					.Font(FUmbrellaUIStyle::DisplayFont(Tuning.MenuFontSize)).ColorAndOpacity(FUmbrellaUIStyle::Gold())
+					.ShadowOffset(FVector2D(UmbrellaUIStyleConstants::ShadowOffset, UmbrellaUIStyleConstants::ShadowOffset))
+					.ShadowColorAndOpacity(FUmbrellaUIStyle::Shadow())
 			];
 			AddViewportWidget(ScreenWidget.ToSharedRef());
 		}

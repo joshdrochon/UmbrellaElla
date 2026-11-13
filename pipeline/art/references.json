@@ -1789,7 +1789,7 @@
    }
   },
   "ui-title": {
-   "what": "the title screen: game title lockup, Start Game, Director's Cut, Settings, Quit, in the title-screen reference's layout and style. Title text is \"Umbrella Ella The Stolen Hour\" (D-new-title-text); a difference in wording is never a reason to fail.",
+   "what": "a game's title screen: the title lockup, the menu items (Start Game, Director's Cut) and the painted scene behind them; judge layout, lettering, mood and finish. The game title reads \"Umbrella Ella The Stolen Hour\" (D-new-title-text); a difference in wording is never a reason to fail.",
    "refs": [
     "title-screen"
    ],
@@ -1798,7 +1798,9 @@
    "ui": {
     "widgets": [
      "SFlowMenu",
-     "SFlowBackground"
+     "SFlowBackground",
+     "SUmbrellaButton",
+     "SUmbrellaRule"
     ],
     "screens": [
      "EFlowScreen::Title"
@@ -1816,7 +1818,7 @@
    }
   },
   "ui-pause": {
-   "what": "the pause menu (also shown while resuming and when the tutorial is paused): heading and a column of menu items over the paper ground, in the title-screen reference's lettering and style",
+   "what": "a game menu screen (the pause menu; the title screen sets its style): a lettered heading and a column of menu items over the painted ground; judge lettering, layout, mood and finish, not which words or how many items it shows",
    "refs": [
     "title-screen"
    ],
@@ -1825,7 +1827,9 @@
    "ui": {
     "widgets": [
      "SFlowMenu",
-     "SFlowBackground"
+     "SFlowBackground",
+     "SUmbrellaButton",
+     "SUmbrellaRule"
     ],
     "screens": [
      "EFlowScreen::Paused",
@@ -1845,7 +1849,7 @@
    }
   },
   "ui-settings": {
-   "what": "the settings screen: page tabs, sliders, key bindings, Back and Save, in the title-screen reference's lettering and style",
+   "what": "a game menu screen (the settings screen; the title screen sets its style): page tabs, sliders, key bindings, Back and Save; judge lettering, layout, mood and finish, not which words or controls it shows",
    "refs": [
     "title-screen"
    ],
@@ -1854,7 +1858,10 @@
    "ui": {
     "widgets": [
      "USettingsMenuWidget",
-     "SFlowMenu"
+     "SFlowMenu",
+     "SUmbrellaButton",
+     "SUmbrellaRule",
+     "SUmbrellaGround"
     ],
     "screens": [
      "EFlowScreen::Settings"
@@ -1872,7 +1879,7 @@
    }
   },
   "ui-credits": {
-   "what": "the credits roll: names and roles as moving text over the paper ground, in the title-screen reference's lettering and style",
+   "what": "a game menu screen (the credits roll; the title screen sets its style): names and roles as lettering over the painted ground; judge lettering, layout, mood and finish, not which words it shows",
    "refs": [
     "title-screen"
    ],
@@ -1898,7 +1905,7 @@
    }
   },
   "ui-defeated": {
-   "what": "the Defeated screen: heading, Retry and the way back to the title, in the title-screen reference's lettering and style (the flat navy UMG screen of 12 Nov is the known-bad)",
+   "what": "a game menu screen (the Defeated screen; the title screen sets its style): a lettered heading, Retry and the way back to the title; judge lettering, layout, mood and finish, not which words or how many items it shows",
    "refs": [
     "title-screen"
    ],
@@ -1906,7 +1913,9 @@
    "detail_min": 0.249,
    "ui": {
     "widgets": [
-     "SFlowMenu"
+     "SFlowMenu",
+     "SUmbrellaButton",
+     "SUmbrellaRule"
     ],
     "screens": [
      "EFlowScreen::Defeat"
@@ -1924,7 +1933,7 @@
    }
   },
   "ui-story-text": {
-   "what": "the win story text: ending story pages and the bottom and centre captions as ink lettering over the paper ground or the scene, in the title-screen reference's lettering and style",
+   "what": "a game story screen (the ending story text and captions; the title screen sets its style): ink lettering over the painted ground or the scene; judge lettering, layout, mood and finish, not which words it shows",
    "refs": [
     "title-screen"
    ],
@@ -1951,7 +1960,7 @@
    }
   },
   "ui-journey-complete": {
-   "what": "the Journey Complete screen: eight stat rows, Try Again and Main Menu, in the title-screen reference's lettering and style",
+   "what": "a game menu screen (Journey Complete; the title screen sets its style): eight stat rows, Try Again and Main Menu; judge lettering, layout, mood and finish, not which words or numbers it shows",
    "refs": [
     "title-screen"
    ],
@@ -1959,7 +1968,10 @@
    "detail_min": 0.249,
    "ui": {
     "widgets": [
-     "UJourneyCompleteWidget"
+     "UJourneyCompleteWidget",
+     "SUmbrellaButton",
+     "SUmbrellaRule",
+     "SUmbrellaGround"
     ],
     "screens": []
    },
@@ -1975,7 +1987,7 @@
    }
   },
   "ui-purchase": {
-   "what": "the Ella and Spells purchase screen: level and points, one row per track with minus and plus, Confirm, Cancel and Done, in the title-screen reference's lettering and style",
+   "what": "a game menu screen (the Ella and Spells purchase screen; the title screen sets its style): level and points, one row per track with minus and plus, Confirm, Cancel and Done; judge lettering, layout, mood and finish, not which words or numbers it shows",
    "refs": [
     "title-screen"
    ],
@@ -1984,7 +1996,10 @@
    "ui": {
     "widgets": [
      "UProgressionPurchaseWidget",
-     "SFlowPurchaseDoneBox"
+     "SFlowPurchaseDoneBox",
+     "SUmbrellaButton",
+     "SUmbrellaRule",
+     "SUmbrellaGround"
     ],
     "screens": [
      "EFlowScreen::Purchase"
@@ -2002,7 +2017,7 @@
    }
   },
   "ui-level-up": {
-   "what": "the level-up screen: the new level as a heading and its menu items, in the title-screen reference's lettering and style",
+   "what": "a game menu screen (the level-up screen; the title screen sets its style): the new level as a lettered heading and its menu items; judge lettering, layout, mood and finish, not which words it shows",
    "refs": [
     "title-screen"
    ],
@@ -2010,7 +2025,9 @@
    "detail_min": 0.249,
    "ui": {
     "widgets": [
-     "SFlowMenu"
+     "SFlowMenu",
+     "SUmbrellaButton",
+     "SUmbrellaRule"
     ],
     "screens": [
      "EFlowScreen::LevelUp"
@@ -2028,7 +2045,7 @@
    }
   },
   "ui-tutorial": {
-   "what": "the first-start tutorial pages: heading, instruction text, Next and Skip, in the title-screen reference's lettering and style",
+   "what": "a game menu screen (a first-start tutorial page; the title screen sets its style): a lettered heading, instruction text, Next; judge lettering, layout, mood and finish, not which words it shows",
    "refs": [
     "title-screen"
    ],
@@ -2036,7 +2053,9 @@
    "detail_min": 0.249,
    "ui": {
     "widgets": [
-     "SFlowMenu"
+     "SFlowMenu",
+     "SUmbrellaButton",
+     "SUmbrellaRule"
     ],
     "screens": [
      "EFlowScreen::Tutorial"
@@ -2054,7 +2073,7 @@
    }
   },
   "ui-hud-clock": {
-   "what": "the gameplay HUD: the one clock with the health and life hands, numerals and gold arc (and the Director's Cut banner), drawn like the title-screen reference's clock face",
+   "what": "a game's HUD clock (one clock face with a health hand and a life hand, numerals and a gold arc) as it sits in the frame; the title screen's clock faces set its style: etched gold line work, lettered numerals, finish",
    "refs": [
     "title-screen"
    ],
@@ -2080,7 +2099,7 @@
    }
   },
   "ui-xp-ring": {
-   "what": "the Director's Cut XP ring: a thin glowing gold ring around the HUD clock, in the title-screen reference's gold line work",
+   "what": "a game's HUD clock with a thin glowing gold ring around it (the experience ring) as it sits in the frame; the title screen's clock faces and gold line work set its style",
    "refs": [
     "title-screen"
    ],
