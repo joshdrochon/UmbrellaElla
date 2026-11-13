@@ -35,3 +35,25 @@ Also missing for any pass: the `context` pair needs an in-engine capture after i
 Nothing shipped under `Art/`, no `.artloop.json`, no Content import. ella-attack, ella-closed, ella-shield not paneled: same rig, same gap, a certain fail.
 NEEDS HUMAN: Josh, Blender primitives with toon shading cannot reach painted-sculpt references (Rehearsal Ella, bar-casters). Choices: (a) hand-sculpted / imported model (needs a provenance-clean source), (b) an image-generation path for Ella frames (rule BG-02/ART-03 says references are not generation inputs), (c) accept `_PH` for the jam build.
 Lean: (c) now, (b) only if rules allow it.
+
+## Round 6 (Nov 12, evening): rerun on main 4ed1d35 (critic-packet fix: transparent renders on one paper ground)
+Earlier rounds are invalid evidence; this is the first panel after the fix. Renders: `gp_ella.py` (Grease Pencil drawing),
+`Art/Source/Ella/Raw/GP_PH/Ella_{up-open,attack,shield,closed}_GP_PH.png` (600x700). All stay tracked `_PH`.
+| Piece | art_ref_check | screen/art_check | Panel (3 sessions per pair) | Critic gap |
+|---|---|---|---|---|
+| ella-up-open | 0.737 PASS (min 0.398) | PASS | ref wins 2/3, bar wins 2/3 | crude cartoon, blocky shapes, thick uniform outlines, no paper grain or tonal depth, mitten hands |
+| ella-attack | 0.2 FAIL (min 0.448) | PASS | ref wins, bar wins | canopy detached from shaft, no two-hand grip, no gold spell, flat angular skirt |
+| ella-shield | 0.624 PASS (min 0.586) | PASS | ref wins, bar wins | blocky stacked dress, stiff upright pose, wrong canopy shape, no finish |
+| ella-closed | 0.2 FAIL (min 0.749) | PASS | ref wins, bar wins | reads as a grounded figure with a staff, not a closed umbrella; no airborne pose |
+No piece passes. `context` pair cannot run until a piece is imported (circular: import only after a pass), so it blocks any pass today; lead should confirm how a first pass can get an in-engine capture.
+Critic sanity (run before declaring stuck):
+- Reference passes itself: Ella-Rising-02 as "ours" got SAME on all 3 reference-pair sessions and beat the bar image in the bar pair. OK.
+- Known-bad fails: our drawings lose to the references in every round; the Roadwarden calibration folders were answered correctly (known winner Y/X, known SAME = SAME) in the sessions read.
+- Self-agreement: 3 sessions per pair give the same gap each time; gaps match the references and GDD (airborne, umbrella, etched finish). Calibration scored 3/6 to 7/9, so some calibration sessions are noisy (the panel refused one round on 3/6), but no verdict contradicted the images.
+- Side effect: the sanity run logged a "round 4" refused entry for ella-up-open in art-loop.jsonl; ignore it.
+No defect found; the bar stands.
+Concrete misses I can see in my own images: attack and closed poses are wrong in the drawing (detached canopy, staff instead of folded umbrella, grounded), and the up-open drawing still has flat tiered boxes for the dress. These are fixable drawing errors, but the finish gap (painted sculpt vs scripted strokes) is unlikely to reach SAME in this tool.
+
+## State: STUCK for the same reason as before (finish gap), NEEDS HUMAN unchanged. Nothing shipped, no `.artloop.json`, no Content import.
+Choices for Josh: (a) provenance-clean sculpted/painted source, (b) image-generation path if rules allow, (c) keep `_PH` for the jam build.
+Lean: (c).
