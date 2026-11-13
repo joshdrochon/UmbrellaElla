@@ -21,7 +21,8 @@ public:
 	ABrokenMillIsland();
 
 	/** Size the solid box (half extents X, depth, Z) and its placeholder cube. */
-	void ConfigureBox(const FVector& HalfExtent, const FLinearColor& Color, float CubeSize, float DepthScale);
+	/** TopMargin raises only the solid shot stop above the drawn top (the shot margin); the cube keeps its size. */
+	void ConfigureBox(const FVector& HalfExtent, const FLinearColor& Color, float CubeSize, float DepthScale, float TopMargin = 0.0f);
 
 	UBoxComponent* GetBox() const { return Box; }
 	UStaticMeshComponent* GetVisual() const { return Visual; }
