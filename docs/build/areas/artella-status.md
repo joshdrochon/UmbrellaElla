@@ -174,3 +174,6 @@ Merged main + artslots. `-SmokeShotFrames=` exists now (request #3 answered). Fi
 (no log, no shot). Relaunched via ue_slot with `-SmokeShot=<abs> -SmokeShotFrames=60 -SmokeQuitAfter=20` (log /tmp/artella_cap.log); after 30+ min still waiting for a slot
 (about 20 ue_slot processes queued, load ~35). Verdict: env (slot queue), not the art. No paint spend (15.08 of 33.82).
 Next: when the shot lands, run the up-open panel; then paint shield R3 and closed R3.
+
+## Round 23 (Nov 13 late): duplicate session, did nothing
+Merged main + artslots (clean). Another artella session (pid 69829) is already running the ella-attack and ella-shield panels (pids 64847/64848) and the up-open capture is queued on ue_slot. A second worker would collide on the same pieces and spend. No paint (15.08 of 33.82), no panel. Resume after those finish: up-open panel on the capture, then shield R3 and closed R3.
