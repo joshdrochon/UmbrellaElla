@@ -525,7 +525,12 @@ def etch_post(path, seed, mode):
     cross = ((xx * -0.8 + yy * 1.0) % 7.0 < 0.9).astype(np.float32)
     inkc = np.array([0.045, 0.034, 0.027])
     base = inkc[None, None, :] * tone[..., None]
-    lines = (0.55 * hatch + 0.35 * cross)[..., None] * np.array([0.10, 0.075, 0.058])[None, None, :]
+    glow_near = _blur(gold.astype(np.float32), 14)                  # light thrown by the windows
+    glow_near = np.clip(glow_near * 6.0, 0, 1)
+    yrel = np.clip((yy - 40) / (h - 40.0), 0, 1)
+    light = np.clip(0.25 + 0.9 * glow_near + 0.35 * (1 - yrel) * (a > 0.5), 0, 1)   # engraving value: lit near windows and roofs
+    fine = ((xx * 0.55 + yy * 1.0) % 3.0 < 0.9).astype(np.float32)
+    lines = ((0.55 * hatch + 0.35 * cross) * (0.5 + 0.8 * light) + fine * light * 0.9)[..., None] * np.array([0.16, 0.115, 0.085])[None, None, :]
     dark = base + lines * (0.6 + 0.4 * np.clip(blot + 0.5, 0, 1))[..., None]
     # 5. rim light: warm edge on inner top boundary of ink
     up = np.zeros_like(a)
