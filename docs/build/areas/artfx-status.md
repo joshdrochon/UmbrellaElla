@@ -37,3 +37,11 @@ No gameplay timing, collision or state is written by any of it (tests check the 
 - VFX-10 numerical budgets stay OPEN in the GDD; the cap (40 live effects) and flash gap (0.34 s) are this build's values.
 - Reduced-flash toggle is not wired from Settings to the director (request 2).
 - Blackout veil opacity (0.55) is my value; the GDD gives none.
+
+## Slice 2 (Nov 13): first Gemini-painted effect, Twin Star head (VFX-03)
+- Prompt reviewed by a fresh Art Director session before the call (`Art/Source/VFX/Paint/TwinStarHead/prompt-review.md`); its corrected block is `prompt.final.txt`. Applied: side view, head plus short tail, 8-point faceted star, named palette colours, shell/shadow, no rotation. One call, 3 Pro 21:9 2K, $0.14 (shared counter 1.81 of 33.82).
+- Cut: clean + frames (4 frames, spread 16.8% by design: frame 2 is the bright, larger beat). `art_ref_check` wand-shot PASS 0.53-0.63 (min 0.334).
+- art_check colour rules FAIL on a single frame (off_band 0.24, on_palette 0.62, accent_area): these are full-frame rules, and bronze/amber shading counts as off-band. Same rule/style disagreement imagegen logged. Not fixed here.
+- Blind probe, 1 fresh Sonnet session per pair, not a panel: reference pair ours wins (calibration 2/2 right); quality-bar pair ours wins but that session missed calibration A, so it does not count. No motion or context pair run, so no pass. Not shipped: stays a `_PH` slot, no `.artloop.json`.
+- Ours vs model: panel-coloured green boxes appeared behind each cell (prompt said "green identical in every cell"; model drew darker cell panels). The HSV key removed them, but drop that sentence next time. Glow on frames 2 and 4 spills onto the panel; keyed edge looks clean.
+- Left: panel of 3 per pair, motion pair, in-engine context capture; paint release/impact/fade and Keeper warning/strike with the same method; import to `Content/.../Art/VFX` only after a pass.
