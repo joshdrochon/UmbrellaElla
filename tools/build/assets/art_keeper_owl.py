@@ -692,6 +692,16 @@ def keeper_scene_look(scene, job):
     ls.select_silhouette = ls.select_border = ls.select_crease = True
     ls.linestyle.thickness = KEEPER_LINE_PX
     scene.render.line_thickness = KEEPER_LINE_PX
+    try:                                                    # a heavier pen for the outer contour
+        outer = fs.linesets.new("keeper_contour")
+        outer.select_by_visibility = True
+        outer.select_silhouette = outer.select_border = outer.select_crease = False
+        outer.select_external_contour = True
+        outer.linestyle = bpy.data.linestyles.new("keeper_contour")
+        outer.linestyle.color = ls.linestyle.color
+        outer.linestyle.thickness = KEEPER_LINE_PX * 1.7
+    except (AttributeError, TypeError, RuntimeError):
+        pass
 
 
 _keeper_base_setup = si.setup
@@ -746,9 +756,9 @@ def keeper_paint(path, seed=7):
     lifted = 0.3 + 0.7 * v                                               # the plate tone between the lines
     v = KEEPER_ETCH * (lifted * (1.0 - 0.62 * ink)) + (1.0 - KEEPER_ETCH) * v
     # paper tooth: fibres and specks in the ink, so no tone is a flat fill
-    fibre = 0.5 * noise(2) + 0.5 * rng.random((h, w)).astype(np.float32)
-    v = v * (0.9 + 0.2 * fibre)
-    v = np.where(rng.random((h, w)) > 0.992, v * 1.25 + 0.05, v)         # worn specks
+    fibre = 0.7 * noise(2) + 0.3 * rng.random((h, w)).astype(np.float32)
+    v = v * (0.94 + 0.12 * fibre)
+    v = np.where(rng.random((h, w)) > 0.996, v * 1.2 + 0.04, v)          # worn specks
     v = np.clip(v, 0, 1)
     stops = np.array(KEEPER_STOPS, dtype=np.float32)
     cols = np.array([[int(c[i:i + 2], 16) / 255.0 for i in (1, 3, 5)] for c in KEEPER_PALETTE], dtype=np.float32)
