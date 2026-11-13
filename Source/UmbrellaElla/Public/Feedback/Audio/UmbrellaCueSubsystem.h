@@ -13,6 +13,7 @@
 struct FUmbrellaSoundCue;
 class UAudioComponent;
 class USoundBase;
+class USoundClass;
 class FUmbrellaSoundLabelBoard;
 class FUmbrellaSoundLabelHud;
 
@@ -29,6 +30,8 @@ class UMBRELLAELLA_API UUmbrellaCueSubsystem final : public UWorldSubsystem
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;
+	/** D-new-music-at-launch: the title music starts when the game world begins, before the Start screen widget exists. */
+	virtual void OnWorldBeginPlay(UWorld& InWorld) override;
 
 	/** The cue name an event maps to, or NAME_None when it has no sound. */
 	static FName CueForEvent(const FUmbrellaEvent& Event);
@@ -42,6 +45,16 @@ public:
 	/** Stops the current music component, then starts Sound on the one persistent component (null Sound = stop only). */
 	void RestartMusic(USoundBase* Sound);
 	void StopMusic();
+
+	/**
+	 * Makes the looping music row Id the music. When Id is already the music and still playing, nothing restarts
+	 * (the Start screen's track carries on into the run). Silent when the row has no imported take.
+	 */
+	void EnsureMusic(FName Id);
+	/** The music row now playing, or NAME_None. */
+	FName GetMusicId() const;
+	/** The sound class music plays through: the settings Music class when the game instance has one, else the engine's. */
+	USoundClass* ResolveMusicClass() const;
 
 	/**
 	 * Plays one sound-list row by id (the rows with no bus event yet, and the lanes that own their own trigger).
@@ -88,6 +101,8 @@ private:
 	UPROPERTY(Transient)
 	TObjectPtr<UAudioComponent> MusicComponent;
 	int32 MusicStartCount = 0;
+	/** The sound-list row the music component plays; set by PlayRow, cleared by StopMusic. */
+	FName MusicId;
 
 #if UMBRELLAELLA_WORKBENCH
 	TSharedPtr<FUmbrellaSoundLabelBoard> SoundLabels;
