@@ -60,6 +60,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from png import read_png  # noqa: E402
+import frame_register  # noqa: E402
 from art_check import DEFAULT_STYLE, delta_e, rgb_to_lab  # noqa: E402
 
 LFS_POINTER = b"version https://git-lfs"
@@ -252,6 +253,23 @@ def check(paths, style, kind="silhouette", grid=None, size=None, frames=None, po
             if max(dx, dy) > lim:
                 fl.append(f"pivot: feet point (bottom-center of the lowest {n_rows} opaque rows) drifts {dx:g} px in x, "
                           f"{dy:g} px in y across frames (limit {lim}; the feet will jump)")
+    if (loop or (anim is not None and kind == "silhouette")) and len(frame_rows) > 1:
+        # jitter: anchor offset (px) and scale drift (%) between consecutive frames, limits measured on the team's
+        # reference animations (tools/frame_register.py JITTER_LIMITS). One-shots are not wrapped; loops are.
+        live = [(w_, h_, r) for (n_, r), (_, m) in zip(frame_rows, measured) if m["visible"]
+                for w_, h_ in [(len(r[0]) if r else 0, len(r))]]
+        jit = frame_register.jitter(live, clear=sp["alpha_clear_max"], band=feet_rows if feet_rows is not None else
+                                    sp["pivot_feet_rows"], loop=loop)
+        report["jitter"] = {k_: round(v, 2) for k_, v in jit.items() if k_ != "worst"}
+        lim = dict(frame_register.JITTER_LIMITS)
+        if drift_max is not None and (drift_reason or "").strip():   # the sidecar's reasoned pivot override covers this too
+            lim["offset_px"] = max(lim["offset_px"], drift_max)
+        if jit["offset_px"] > lim["offset_px"]:
+            fl.append(f"jitter: anchor moves {jit['offset_px']:g} px between frames {jit['worst'][0]} and "
+                      f"{jit['worst'][0] + 1} (limit {lim['offset_px']:g}; register the strip: assetgen frames)")
+        if jit["scale_pct"] > lim["scale_pct"]:
+            fl.append(f"jitter: figure scale drifts {jit['scale_pct']:.1f}% between frames {jit['worst'][1]} and "
+                      f"{jit['worst'][1] + 1} (limit {lim['scale_pct']:g}%; register the strip: assetgen frames)")
     if anim is not None:
         table = style.get("anims", {})
         row = table.get(anim) if anim != "note" else None

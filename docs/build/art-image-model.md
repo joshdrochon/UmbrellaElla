@@ -61,3 +61,15 @@ Raw paints, keyed cuts and every round's candidate go under `pipeline/art/proof/
 checked as game art). `Art/Source/` holds only what the game ships: the tracked `_PH` placeholder or a piece whose panel
 passed, each with its sidecar. The gate's sprite_check, art_inventory and prejam checks read `Art/Source/` as shipped,
 so a candidate left there fails the merge.
+
+## Frame registration and jitter
+A painted strip jitters when each pose lands a few pixels off its neighbour or a size off. `tools/assetgen.py frames` now
+registers every cut through `tools/frame_register.py`: the anchor is the bottom-centre of the lowest 8 mask rows (feet or
+umbrella handle; `--anchor-band N` per element), the scale is the width of the lowest 14% of the mask (`--span height|width|N`
+to change it; it ignores a raised arm or a wing beat), each frame is scaled about its anchor to the strip's median (a pose
+change beyond 0.8-1.25x is left alone) and moved so every anchor sits on one pixel. The anchor goes into `<stem>.frames.json`
+and the sheet's `.sprite.json` (`anchor`, `anchor_band`, `span_mode`); `--no-register` skips it. The check is in
+`sprite_check` and `art_loop.sprite_checks`: anchor offset and scale drift between consecutive frames (a loop also last to first)
+FAIL above `frame_register.JITTER_LIMITS` (3 px, 2%), measured once on the team's reference animations
+(`pipeline/art/reference/Test_Assets`: Witch Cast and Owl Flap loops 0 px / 0%, the Witch Guard Transition 2.5 px as the largest
+real motion; the numbers and source are in that file). Lanes cut with `frames` and need no script of their own.
