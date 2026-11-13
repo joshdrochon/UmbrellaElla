@@ -191,3 +191,8 @@ Nothing new on main or artslots. The up-open capture (pid 85916, since 1:15 AM) 
 
 ## Round 26 (Nov 13 late): merged main, relaunched the capture with frame 600
 Both queued captures used -SmokeShotFrames=60, which Round 22 showed lands on "Preparing Shaders". Killed them and queued one with -SmokeShotFrames=600 (log /tmp/artella_cap.log). Load ~28. No paint, no panel, no spend (15.08 of 33.82). Next: when the shot lands, up-open panel; then shield R3 and closed R3.
+
+## Round 27 (Nov 13 late): the frame-600 capture landed; it has no Ella, so no panel
+The Round 26 capture (pid 935, `-SmokeShotFrames=600`, 1280x720) waited for a slot and wrote `Saved/Logs/pipeline/ella-up-open-shot.png` at 03:01. Shaders are done (no "Preparing Shaders"), but the frame is black with only the HUD clock top-left: no Ella, no ground. Game log: map L_Graybox, `SMOKE_OK` fps=15.5 worst_ms=953.8, `SMOKE_EFFECTIVE outcome=fail` (Ella was hit to defeat at frame 147 of the log clock, shots and PlayerDefeated events just before the shot).
+Verdict: env/ours (smoke run is a fail run on a loaded machine; Ella is defeated or off-screen at the shot), not the art. A shot with no Ella cannot be a `context` pair, so the up-open panel was not run. No paint, no spend (15.08 of 33.82). Shield R3 and closed R3 not started: they need a context pair too.
+Next (needs a lane I do not own): a shot taken while Ella is alive and on screen (shot frame earlier than defeat but after shaders, or a no-damage smoke mode). I will not retry the same command.
