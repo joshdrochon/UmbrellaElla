@@ -1345,13 +1345,18 @@ def api_error(e):
     """One line for an audio API failure: the HTTP status and the vendor's message (e.g. ElevenLabs
     `quota_exceeded` when the credits ran out), never the key or the request body."""
     code = getattr(e, "code", None)
-    msg = ""
-    try:
-        msg = e.read().decode("utf-8", "replace") if hasattr(e, "read") else ""
-    except Exception:   # noqa: BLE001  the body is a courtesy; the status is enough
-        msg = ""
+    msg = getattr(e, "_assetgen_body", None)   # read once: the second call (counter, then the FAIL line) sees it too
+    if msg is None:
+        try:
+            msg = e.read().decode("utf-8", "replace") if hasattr(e, "read") else ""
+        except Exception:   # noqa: BLE001  the body is a courtesy; the status is enough
+            msg = ""
+        try:
+            e._assetgen_body = msg
+        except Exception:   # noqa: BLE001
+            pass
     msg = re.sub(r"\s+", " ", msg or str(e)).strip()
-    return (f"HTTP {code} " if code else f"{type(e).__name__} ") + msg[:120]
+    return (f"HTTP {code} " if code else f"{type(e).__name__} ") + msg[:400]
 
 
 def audio_placeholder(a, root, sid, reason):

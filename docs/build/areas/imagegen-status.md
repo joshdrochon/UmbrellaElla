@@ -20,14 +20,21 @@
   `affected_tests.py --run`: one failure, `test_assetgen.AudioSteps.test_no_credits_left_...`. It fails the same
   way on plain `main` (checked in a detached main worktree): it counts main's 6 real audio placeholders. Not this area.
 
-## Blocked: the proof (3 paid calls) needs GEMINI_API_KEY in the generating shell
-`python3 tools/keys.py status`: GEMINI_API_KEY missing (env and keychain). worker-rules.md says only the arena area may
-source `~/.umbrella-ella.env`, so this worker did not. Cap and counter are set (IMAGE_SPEND_CAP_USD=33.82,
-logs/image-spend.json, no calls yet). Needs from the lead, one of:
-- run the commands below in one shell that sources the key file (lean: the key never enters a worker session), or
-- tell this worker it may source `~/.umbrella-ella.env` in the one generating shell, like the audio areas.
-Not run because of this: image-models, the 3 calls, art_ref_check, the blind panel, the consistency verdict,
-the cost per image.
+## Blocked: the key's Google project has no paid quota (Nov 13 01:57 UTC; cause `env`)
+Lead unblocked the key (worker-rules.md ae9ad62). Done since: main merged; `tools/keys.py` strips whitespace and one
+pair of matching quotes (test `KeyAsPasted`); the key loads (53 chars, env) with `set -a; . ~/.umbrella-ella.env`
+(the file's GEMINI line has no `export`, so a plain `source` does not reach python). The FAIL line now carries the
+vendor's message (it read the body twice before and lost it; test added).
+- `image-models` (free) works: 6 image models. Priced: gemini-2.5-flash-image, gemini-3-pro-image-preview,
+  gemini-3.1-flash-image-preview. UNPRICED (refused until priced): gemini-3-pro-image, gemini-3.1-flash-image,
+  gemini-3.1-flash-lite-image (GA names; price them in asset-tools.json before use).
+- Call 1 (turnaround, gemini-3-pro-image-preview 21:9 2K) failed twice, same error, refunded, $0.00 spent:
+  `HTTP 429 ... Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0`.
+  The key's project is on the free tier: the prepaid credits are not attached to it, and the free tier gives 0 for
+  this model. Stopped per the same-failure-twice rule; calls 2 and 3 not tried (they depend on call 1).
+- Needs (Josh): in AI Studio, link the key's project to the billing account that holds the prepaid credits (or make
+  a key in the project that has them). Then rerun the runbook below unchanged.
+Not run: the 3 images, art_ref_check, the blind panel, the consistency verdict, ours-vs-model notes, cost per image.
 
 ## Proof runbook (exact; outputs under Art/Source/ImageProof/, not the Ella art lane)
 Locked style block and identity block, the same words in all three prompts; set them in the shell first:

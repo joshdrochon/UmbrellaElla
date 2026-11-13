@@ -181,9 +181,11 @@ class GeminiCall(ImageWork):
         rc, o = self.paint("Art/Source/Ella/bad.png", STUB_FAIL="400")
         self.assertEqual(rc, 1, o)
         self.assertIn("HTTP 400", o)
+        self.assertIn('"message":"bad"', o, "the FAIL line carries the vendor's message (e.g. a quota limit)")
         self.assertIn("refunded", o)
         self.assertEqual(self.counter()["spent_usd"], 0.0)
         self.assertEqual(self.counter()["calls"][0]["status"], "failed")
+        self.assertIn('"message":"bad"', self.counter()["calls"][0]["error"])
         self.assertFalse(os.path.exists(os.path.join(self.repo, "Art/Source/Ella/bad.png")))
 
     def test_server_error_keeps_its_cost(self):
