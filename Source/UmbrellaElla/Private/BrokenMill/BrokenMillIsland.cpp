@@ -16,8 +16,10 @@ ABrokenMillIsland::ABrokenMillIsland()
 	Visual->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
-void ABrokenMillIsland::ConfigureBox(const FVector& HalfExtent, const FLinearColor& Color, float CubeSize, float DepthScale)
+void ABrokenMillIsland::ConfigureBox(const FVector& HalfExtent, const FLinearColor& Color, float CubeSize, float DepthScale, float TopMargin)
 {
-	Box->SetBoxExtent(HalfExtent);
+	// The box root sits TopMargin/2 higher than the drawn centre (the room spawns it there); the cube drops back down.
+	Box->SetBoxExtent(FVector(HalfExtent.X, HalfExtent.Y, HalfExtent.Z + TopMargin * 0.5f));
 	BrokenMillPlaceholder::ApplyCube(Visual, this, FVector2D(HalfExtent.X * 2.0, HalfExtent.Z * 2.0), Color, CubeSize, DepthScale);
+	Visual->SetRelativeLocation(FVector(0.0, 0.0, -TopMargin * 0.5f));
 }

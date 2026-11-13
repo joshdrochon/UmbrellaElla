@@ -61,6 +61,10 @@ struct UMBRELLAELLA_API FMotorTuning
 	UPROPERTY(Config, EditAnywhere, Category = "Motor", meta = (ClampMin = "0"))
 	float WindAcceleration = 3.0f; // bake: MOVE-22.wind_acceleration
 
+	/** Largest wind velocity the Motor carries, units/s (GDD wind 360); Ella's own horizontal maximum stays 290. */
+	UPROPERTY(Config, EditAnywhere, Category = "Motor", meta = (ClampMin = "0"))
+	float WindMaxSpeed = 360.0f;
+
 	/** Wind momentum decay while overhead and not riding, 1/s. */
 	UPROPERTY(Config, EditAnywhere, Category = "Motor", meta = (ClampMin = "0"))
 	float WindOpenDecay = 1.5f; // bake: MOVE-22.wind_open_decay
