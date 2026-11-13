@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Motor/MotorTuning.h"
 #include "Components/ActorComponent.h"
 #include "Motor/MotorModel.h"
 #include "Umbrella/UmbrellaAction.h"
@@ -48,6 +49,9 @@ public:
 
 	/** Test seam: advance the motor by a fixed delta without a world tick. */
 	void StepMotor(float DeltaSeconds);
+
+	/** Applies actor scale and hurtbox from this tuning (BeginPlay passes the live one; tests pass their own copy, the class default is never written). */
+	void ApplyHeroSize(const FMotorTuning& Size);
 
 protected:
 	virtual void BeginPlay() override;

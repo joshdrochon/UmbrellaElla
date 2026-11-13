@@ -49,24 +49,30 @@ void UEllaMotorComponent::BeginPlay()
 		WindExitedHandle = Bus->On(EUmbrellaEventType::WindExited).AddUObject(this, &UEllaMotorComponent::OnWindExited);
 		HealthHandle = Bus->On(EUmbrellaEventType::PlayerHealthChanged).AddUObject(this, &UEllaMotorComponent::OnHealthChanged);
 	}
-	if (Owner)
+	ApplyHeroSize(GetDefault<UUmbrellaTuning>()->Motor);
+}
+
+void UEllaMotorComponent::ApplyHeroSize(const FMotorTuning& Size)
+{
+	AActor* Owner = GetOwner();
+	if (!Owner)
 	{
-		// HAZ-10/13/14: actor scale 0.5 x HeroSize; the hurtbox capsule shrinks by the hitbox scale on top.
-		const FMotorTuning& Size = GetDefault<UUmbrellaTuning>()->Motor;
-		const bool bHeroSize = IsFeatureEnabled(EFeatureId::HAZ_10) && IsFeatureEnabled(EFeatureId::HAZ_13) && IsFeatureEnabled(EFeatureId::HAZ_14);
-		if (bHeroSize)
+		return;
+	}
+	// HAZ-10/13/14: actor scale 0.5 x HeroSize; the hurtbox capsule shrinks by the hitbox scale on top.
+	const bool bHeroSize = IsFeatureEnabled(EFeatureId::HAZ_10) && IsFeatureEnabled(EFeatureId::HAZ_13) && IsFeatureEnabled(EFeatureId::HAZ_14);
+	if (bHeroSize)
+	{
+		Owner->SetActorScale3D(FVector(HeroSizeRules::ActorScale(Size)));
+	}
+	if (const ACharacter* SizedCharacter = bHeroSize ? Cast<ACharacter>(Owner) : nullptr)
+	{
+		if (UCapsuleComponent* Capsule = SizedCharacter->GetCapsuleComponent())
 		{
-			Owner->SetActorScale3D(FVector(HeroSizeRules::ActorScale(Size)));
-		}
-		if (const ACharacter* SizedCharacter = bHeroSize ? Cast<ACharacter>(Owner) : nullptr)
-		{
-			if (UCapsuleComponent* Capsule = SizedCharacter->GetCapsuleComponent())
+			const float Hitbox = HeroSizeRules::ClampedHitboxScale(Size);
+			if (Hitbox < 1.0f)
 			{
-				const float Hitbox = HeroSizeRules::ClampedHitboxScale(Size);
-				if (Hitbox < 1.0f)
-				{
-					Capsule->SetCapsuleSize(Capsule->GetUnscaledCapsuleRadius() * Hitbox, Capsule->GetUnscaledCapsuleHalfHeight() * Hitbox);
-				}
+				Capsule->SetCapsuleSize(Capsule->GetUnscaledCapsuleRadius() * Hitbox, Capsule->GetUnscaledCapsuleHalfHeight() * Hitbox);
 			}
 		}
 	}

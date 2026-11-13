@@ -380,25 +380,6 @@ namespace
 		return Base;
 	}
 
-	/** Sets HeroSize and hitbox scale for one test and restores the live tuning on exit. */
-	struct FMoveHeroSizeScope
-	{
-		FMotorTuning Saved;
-		FMoveHeroSizeScope(float HeroSize, float Hitbox)
-		{
-#if UMBRELLAELLA_WORKBENCH
-			FMotorTuning& Motor = GetMutableDefault<UUmbrellaTuning>()->Motor;
-			Saved = Motor;
-			Motor = MoveTuningWithHeroSize(Motor, HeroSize, Hitbox);
-#endif
-		}
-		~FMoveHeroSizeScope()
-		{
-#if UMBRELLAELLA_WORKBENCH
-			GetMutableDefault<UUmbrellaTuning>()->Motor = Saved;
-#endif
-		}
-	};
 }
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMoveHeroSizeRuleTest, "UmbrellaElla.Move.HeroSizeRules", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
@@ -426,26 +407,30 @@ bool FMoveWorldHeroSizeTest::RunTest(const FString& Parameters)
 {
 	float RefHalfHeight = 0.0f;
 	{
-		FMoveHeroSizeScope Scope(1.0f, 1.0f);
 		FUmbrellaTestWorld Test;
 		AEllaCharacter* Ella = Test.SpawnElla();
 		if (!TestNotNull(TEXT("Ella spawned"), Ella))
 		{
 			return false;
 		}
+		const FMotorTuning Tuned = MoveTuningWithHeroSize(GetDefault<UUmbrellaTuning>()->Motor, 1.0f, 1.0f);
+		Ella->GetMotor()->ApplyHeroSize(Tuned);
+		Ella->GetAttack()->SetMotorTuningOverride(Tuned);
 		TestEqual(TEXT("actor scale 0.5 at HeroSize 1"), static_cast<float>(Ella->GetActorScale3D().X), 0.5f, 0.0001f);
 		RefHalfHeight = Ella->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
 	}
 	const float Cases[][2] = {{0.75f, 1.0f}, {1.3f, 1.0f}, {1.0f, 0.75f}, {1.3f, 0.75f}};
 	for (const float (&Case)[2] : Cases)
 	{
-		FMoveHeroSizeScope Scope(Case[0], Case[1]);
 		FUmbrellaTestWorld Test;
 		AEllaCharacter* Ella = Test.SpawnElla();
 		if (!TestNotNull(TEXT("Ella spawned"), Ella))
 		{
 			return false;
 		}
+		const FMotorTuning Tuned = MoveTuningWithHeroSize(GetDefault<UUmbrellaTuning>()->Motor, Case[0], Case[1]);
+		Ella->GetMotor()->ApplyHeroSize(Tuned);
+		Ella->GetAttack()->SetMotorTuningOverride(Tuned);
 		TestEqual(TEXT("actor scale 0.5 x HeroSize"), static_cast<float>(Ella->GetActorScale3D().X), 0.5f * Case[0], 0.0001f);
 		TestEqual(TEXT("hurtbox follows HeroSize and hitbox scale"), Ella->GetCapsuleComponent()->GetScaledCapsuleHalfHeight(), RefHalfHeight * Case[0] * Case[1], 0.01f);
 
