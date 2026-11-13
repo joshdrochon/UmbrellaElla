@@ -8,7 +8,7 @@ bool FUmbrellaSettingsData::operator==(const FUmbrellaSettingsData& Other) const
 {
 	if (MasterVolume != Other.MasterVolume || SfxVolume != Other.SfxVolume || MusicVolume != Other.MusicVolume
 		|| TextScalePercent != Other.TextScalePercent || bReducedMotion != Other.bReducedMotion || bReducedFlash != Other.bReducedFlash
-		|| Bindings.Num() != Other.Bindings.Num())
+		|| Bindings.Num() != Other.Bindings.Num() || DeveloperValues != Other.DeveloperValues)
 	{
 		return false;
 	}
@@ -34,6 +34,7 @@ FUmbrellaSettingsData SettingsRules::MakeDefaults()
 	Data.bReducedMotion = false;
 	Data.bReducedFlash = false;
 	Data.Bindings = UmbrellaInputBindings::BuildDefaults();
+	Data.DeveloperValues = DeveloperOptionRules::MakeDefaultValues();
 	return Data;
 }
 
@@ -91,15 +92,10 @@ TArray<FName> SettingsRules::GetDeveloperOptionNames(EUmbrellaPlayMode Mode)
 	{
 		return Names;
 	}
-	// FLOW-44 candidates, in the GDD's order. Contents and cleanup stay OPEN; no ammunition or energy controls.
-	const TCHAR* Candidates[] = {
-		TEXT("EntryRetries"), TEXT("Movement"), TEXT("Hop"), TEXT("Dash"), TEXT("VoluntaryCurrents"),
-		TEXT("HostileGusts"), TEXT("Missiles"), TEXT("Absorption"), TEXT("HealthGround"), TEXT("FourWeapons"),
-		TEXT("ProgressionScarf"), TEXT("OwlParts"), TEXT("Clock"), TEXT("Stun"), TEXT("Slow"),
-		TEXT("EyesBlackout"), TEXT("Tutorial"), TEXT("Remapping"), TEXT("SizeHitbox"), TEXT("Background")};
-	for (const TCHAR* Candidate : Candidates)
+	// FLOW-44 candidates, in the GDD's order (DeveloperOptionRules). No ammunition or energy controls.
+	for (const FDeveloperOptionSpec& Spec : DeveloperOptionRules::AllSpecs())
 	{
-		Names.Add(FName(Candidate));
+		Names.Add(Spec.Name);
 	}
 	return Names;
 }
@@ -275,6 +271,24 @@ void FSettingsSession::SetReducedFlash(bool bEnabled)
 	Draft.bReducedFlash = bEnabled;
 }
 
+void FSettingsSession::SetDeveloperOption(EDeveloperOption Option, int32 Value)
+{
+	const int32 Index = static_cast<int32>(Option);
+	if (Draft.DeveloperValues.Num() != static_cast<int32>(EDeveloperOption::Count))
+	{
+		Draft.DeveloperValues = DeveloperOptionRules::MakeDefaultValues();
+	}
+	if (Draft.DeveloperValues.IsValidIndex(Index))
+	{
+		Draft.DeveloperValues[Index] = DeveloperOptionRules::ClampValue(Option, Value);
+	}
+}
+
+void FSettingsSession::ResetDeveloperOptions()
+{
+	Draft.DeveloperValues = DeveloperOptionRules::MakeDefaultValues();
+}
+
 bool FSettingsSession::CanRemap(EUmbrellaInputAction Action, int32 Slot, const FKey& NewKey) const
 {
 	return NewKey.IsValid() && SettingsRules::FindBindingIndex(Draft.Bindings, Action, Slot) != INDEX_NONE;
@@ -325,6 +339,9 @@ namespace
 			break;
 		case ESettingsPage::Controller:
 			Target.Bindings = Source.Bindings;
+			break;
+		case ESettingsPage::GameOptions:
+			Target.DeveloperValues = Source.DeveloperValues;
 			break;
 		default:
 			break;

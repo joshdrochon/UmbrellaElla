@@ -4,6 +4,7 @@
 #include "Core/UmbrellaPlayMode.h"
 #include "Settings/SettingsResult.h"
 #include "Input/UmbrellaInputBindings.h"
+#include "Settings/DeveloperOptions.h"
 
 /** The settings pages. GameOptions is the developer menu and exists only in Director's Cut. */
 enum class ESettingsPage : uint8
@@ -47,6 +48,8 @@ struct UMBRELLAELLA_API FUmbrellaSettingsData
 	/** Accessibility: shrink flashing effects. */
 	bool bReducedFlash = false;
 	TArray<FUmbrellaDefaultBinding> Bindings;
+	/** Director's Cut developer options, one value per EDeveloperOption. Applied for this session only, never written to the file. */
+	TArray<int32> DeveloperValues;
 
 	bool operator==(const FUmbrellaSettingsData& Other) const;
 };
@@ -119,7 +122,7 @@ public:
 
 	bool IsDirty() const;
 
-	/** Unsaved changes on one page only (Sound page: volumes and accessibility; Controller page: bindings). */
+	/** Unsaved changes on one page only (Sound: volumes and accessibility; Controller: bindings; Game Options: developer values). */
 	bool IsPageDirty(ESettingsPage Page) const;
 
 	void SetMasterVolume(int32 Value);
@@ -128,6 +131,12 @@ public:
 	void SetTextScalePercent(int32 Percent);
 	void SetReducedMotion(bool bEnabled);
 	void SetReducedFlash(bool bEnabled);
+
+	/** Set one developer option in the draft (clamped to its range). */
+	void SetDeveloperOption(EDeveloperOption Option, int32 Value);
+
+	/** All developer options back to "as tuned" in the draft. */
+	void ResetDeveloperOptions();
 
 	/** True when the Slot-th binding entry of Action exists and Key is a valid key. */
 	bool CanRemap(EUmbrellaInputAction Action, int32 Slot, const FKey& NewKey) const;
