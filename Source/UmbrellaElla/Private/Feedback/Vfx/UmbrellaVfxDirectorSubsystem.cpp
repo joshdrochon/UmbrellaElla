@@ -3,6 +3,9 @@
 #include "Components/PointLightComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Misc/App.h"
+#include "Engine/StaticMesh.h"
+#include "Engine/Texture.h"
+#include "Materials/MaterialInstanceDynamic.h"
 #include "Core/EllaCharacter.h"
 #include "Core/UmbrellaEvent.h"
 #include "Core/UmbrellaEventBus.h"
@@ -571,6 +574,33 @@ void UUmbrellaVfxDirectorSubsystem::StepEffects(float DeltaSeconds)
 }
 
 #if !UE_BUILD_SHIPPING
+void UUmbrellaVfxDirectorSubsystem::SpawnDemoBackdrop(const FVector& Around)
+{
+	UWorld* World = GetWorld();
+	UMaterialInterface* Material = LoadObject<UMaterialInterface>(nullptr, TEXT("/Game/UmbrellaElla/Materials/M_ArtSlot_Unlit.M_ArtSlot_Unlit"), nullptr, LOAD_NoWarn | LOAD_Quiet);
+	UStaticMesh* Plane = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Plane.Plane"), nullptr, LOAD_NoWarn | LOAD_Quiet);
+	UTexture* White = LoadObject<UTexture>(nullptr, TEXT("/Engine/EngineResources/WhiteSquareTexture.WhiteSquareTexture"), nullptr, LOAD_NoWarn | LOAD_Quiet);
+	if (!World || !Material || !Plane || !White)
+	{
+		DemoBackdrop = World ? World->SpawnActor<AActor>() : nullptr;   // nothing to draw; do not retry every step
+		return;
+	}
+	AActor* Actor = World->SpawnActor<AActor>(Around - FVector(0.0f, UmbrellaVfxDirectorConst::DemoBackdropDepth, 0.0f), FRotator::ZeroRotator);
+	UStaticMeshComponent* Mesh = NewObject<UStaticMeshComponent>(Actor, TEXT("DemoBackdrop"));
+	Mesh->SetStaticMesh(Plane);
+	Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Mesh->SetCastShadow(false);
+	UMaterialInstanceDynamic* Dynamic = UMaterialInstanceDynamic::Create(Material, Mesh);
+	Dynamic->SetTextureParameterValue(TEXT("Art"), White);
+	Dynamic->SetVectorParameterValue(TEXT("Tint"), UmbrellaVfxDirectorConst::DemoBackdropColour);
+	Mesh->SetMaterial(0, Dynamic);
+	Mesh->SetRelativeRotation(VfxSheetVisual::FacingCamera());
+	Mesh->SetRelativeScale3D(FVector(UmbrellaVfxDirectorConst::DemoBackdropWidth, UmbrellaVfxDirectorConst::DemoBackdropHeight, 1.0f) / VfxSheetVisual::ShapeEdge);
+	Actor->SetRootComponent(Mesh);
+	Mesh->RegisterComponent();
+	DemoBackdrop = Actor;
+}
+
 void UUmbrellaVfxDirectorSubsystem::StepDemo()
 {
 	if (DemoKey.IsNone())
@@ -587,6 +617,16 @@ void UUmbrellaVfxDirectorSubsystem::StepDemo()
 	if (DemoStartSeconds < 0.0)
 	{
 		DemoStartSeconds = Now;
+	}
+	if (!DemoBackdrop.IsValid())
+	{
+		// The capture is of the effect on paper: Ella's and the Keeper's dark stand-ins would be mistaken for it by the piece locator.
+		Player->SetActorHiddenInGame(true);
+		for (TActorIterator<AKeeperOfTime> It(GetWorld()); It; ++It)
+		{
+			It->SetActorHiddenInGame(true);
+		}
+		SpawnDemoBackdrop(Player->GetActorLocation());
 	}
 	const int32 LiveOfKey = GetLiveCount(DemoKey);
 	if (!bDemoShotTaken && Now - DemoStartSeconds >= UmbrellaVfxDirectorConst::DemoShotSeconds && LiveOfKey > 0)

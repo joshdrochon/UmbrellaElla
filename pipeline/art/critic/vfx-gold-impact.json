@@ -68,6 +68,191 @@
    "commit": "b67788a777d5",
    "gap": "Y is a near-black frame with a blank grey pillar and a soft glow, with no paper texture, etched line work, or ink-and-gold finish.; X has thin, small, flat-lit star frames with little paper texture or value depth, and no rust red accent or rich etched finish",
    "at": "2026-11-13T04:26:26Z"
+  },
+  {
+   "piece": "vfx-gold-impact",
+   "round": 3,
+   "verdict": "reference",
+   "checks": false,
+   "results": {
+    "art_check": "fail",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "context": "reference",
+    "quality_bar": "ours",
+    "reference": "ours"
+   },
+   "panel": 3,
+   "calibration": {
+    "sessions": 10,
+    "passed": 9
+   },
+   "missing": [
+    "context:pipeline/art/reference/target-keyart.png"
+   ],
+   "critic_sessions": [
+    "vfx-gold-impact-r3-00-reference-c1",
+    "vfx-gold-impact-r3-00-reference-c2",
+    "vfx-gold-impact-r3-00-reference-c3",
+    "vfx-gold-impact-r3-01-quality_bar-c1",
+    "vfx-gold-impact-r3-01-quality_bar-c2",
+    "vfx-gold-impact-r3-01-quality_bar-c3",
+    "vfx-gold-impact-r3-02-context-c1",
+    "vfx-gold-impact-r3-02-context-c2",
+    "vfx-gold-impact-r3-02-context-c3",
+    "vfx-gold-impact-r3-01-quality_bar-c4"
+   ],
+   "manifest": "",
+   "evidence": "",
+   "prompt": "",
+   "files": "af2c93dafa6f9292ddaf09e88d6cb42fd021716e9759c124316f6c4ac2faf77d",
+   "file": "pipeline/art/proof/artfx/GoldImpact/sheet.png",
+   "card": "artfx",
+   "refs": "96bdbb99413f",
+   "commit": "900cb924a95c",
+   "gap": "X is an almost entirely black frame with no burst, no gold or rust, no etched lines and no paper texture.; Y is a black field with no burst, no gold or rust, no paper texture and no linework.; Y is a black frame with no drawn burst, no gold or rust, no paper texture and no etched line.",
+   "at": "2026-11-13T06:18:00Z"
+  },
+  {
+   "piece": "vfx-gold-impact",
+   "round": 4,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "context": "reference",
+    "quality_bar": "reference",
+    "reference": "ours"
+   },
+   "panel": 3,
+   "calibration": {
+    "sessions": 9,
+    "passed": 9
+   },
+   "missing": [
+    "context:pipeline/art/reference/target-keyart.png",
+    "quality_bar:pipeline/art/reference/discord/20261111-0319_Ricky_roadwarden-sundial-casters.png"
+   ],
+   "critic_sessions": [
+    "vfx-gold-impact-r4-00-reference-c1",
+    "vfx-gold-impact-r4-00-reference-c2",
+    "vfx-gold-impact-r4-00-reference-c3",
+    "vfx-gold-impact-r4-01-quality_bar-c1",
+    "vfx-gold-impact-r4-01-quality_bar-c2",
+    "vfx-gold-impact-r4-01-quality_bar-c3",
+    "vfx-gold-impact-r4-02-context-c1",
+    "vfx-gold-impact-r4-02-context-c2",
+    "vfx-gold-impact-r4-02-context-c3"
+   ],
+   "manifest": "",
+   "evidence": "",
+   "prompt": "",
+   "files": "4fc8c24538f4f62829e6ed88bb65b22da469dd6adfc28dba69c4b48a377249b1",
+   "file": "pipeline/art/proof/artfx/GoldImpact/sheet.snap.png",
+   "card": "artfx",
+   "refs": "96bdbb99413f",
+   "commit": "900cb924a95c",
+   "gap": "X is a flat, empty grey field with only a tiny clipped gold disc in the corner. It has no burst, no etched lines, no paper texture and no ink structure.; X is a flat empty grey field with a tiny coin stuck in the corner, and it has no burst, etching or paper texture.; X is a flat, empty grey field with only a tiny cropped emblem in the corner. It has no burst, no etched rays and no paper texture.; X is a row of small, plain starbursts with thin outlines and flat gold fills, and it lacks Y's value range, layered detail, glow and finish.",
+   "at": "2026-11-13T06:50:29Z"
+  },
+  {
+   "piece": "vfx-gold-impact",
+   "round": 5,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "context": "reference",
+    "quality_bar": "reference",
+    "reference": "ours"
+   },
+   "panel": 3,
+   "calibration": {
+    "sessions": 10,
+    "passed": 9
+   },
+   "missing": [
+    "context:pipeline/art/reference/target-keyart.png",
+    "quality_bar:pipeline/art/reference/discord/20261111-0319_Ricky_roadwarden-sundial-casters.png"
+   ],
+   "critic_sessions": [
+    "vfx-gold-impact-r5-00-reference-c1",
+    "vfx-gold-impact-r5-00-reference-c2",
+    "vfx-gold-impact-r5-00-reference-c3",
+    "vfx-gold-impact-r5-01-quality_bar-c1",
+    "vfx-gold-impact-r5-01-quality_bar-c2",
+    "vfx-gold-impact-r5-01-quality_bar-c3",
+    "vfx-gold-impact-r5-02-context-c1",
+    "vfx-gold-impact-r5-02-context-c2",
+    "vfx-gold-impact-r5-02-context-c3",
+    "vfx-gold-impact-r5-00-reference-c4"
+   ],
+   "manifest": "",
+   "evidence": "",
+   "prompt": "",
+   "files": "4fc8c24538f4f62829e6ed88bb65b22da469dd6adfc28dba69c4b48a377249b1",
+   "file": "pipeline/art/proof/artfx/GoldImpact/sheet.snap.png",
+   "card": "artfx",
+   "refs": "96bdbb99413f",
+   "commit": "900cb924a95c",
+   "gap": "X is a lone black dot on flat, smooth paper, with no gold burst, no etched lines and no texture.; X is a single black dot on flat gradient paper, with no burst, no etched lines and no gold or rust accents.; X is one flat black dot on smooth paper, with no gold or rust burst, no etched lines and no texture.; Y is thin, uniform star-spike shapes with little ink weight, no dark silhouette mass and a barely varied paper texture, and its frames hold no shape or value structure as an impact.",
+   "at": "2026-11-13T06:55:45Z"
+  },
+  {
+   "piece": "vfx-gold-impact",
+   "round": 6,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "context": "reference",
+    "quality_bar": "reference",
+    "reference": "ours"
+   },
+   "panel": 3,
+   "calibration": {
+    "sessions": 9,
+    "passed": 9
+   },
+   "missing": [
+    "context:pipeline/art/reference/target-keyart.png",
+    "quality_bar:pipeline/art/reference/discord/20261111-0319_Ricky_roadwarden-sundial-casters.png"
+   ],
+   "critic_sessions": [
+    "vfx-gold-impact-r6-00-reference-c1",
+    "vfx-gold-impact-r6-00-reference-c2",
+    "vfx-gold-impact-r6-00-reference-c3",
+    "vfx-gold-impact-r6-01-quality_bar-c1",
+    "vfx-gold-impact-r6-01-quality_bar-c2",
+    "vfx-gold-impact-r6-01-quality_bar-c3",
+    "vfx-gold-impact-r6-02-context-c1",
+    "vfx-gold-impact-r6-02-context-c2",
+    "vfx-gold-impact-r6-02-context-c3"
+   ],
+   "manifest": "",
+   "evidence": "",
+   "prompt": "",
+   "files": "4fc8c24538f4f62829e6ed88bb65b22da469dd6adfc28dba69c4b48a377249b1",
+   "file": "pipeline/art/proof/artfx/GoldImpact/sheet.snap.png",
+   "card": "artfx",
+   "refs": "96bdbb99413f",
+   "commit": "900cb924a95c",
+   "gap": "X is a blank flat gradient with no burst, linework or texture.; Y is a flat, untextured beige fill with no burst, no etched lines and no gold or rust accents.; Y is an empty flat gradient with no burst, no etched lines and no paper texture.; X is a few small, simple star bursts with thin outlines. It lacks Y's layered value structure, etched detail and finished rendering.; Y is a thin, small starburst with plain gradient fills and little etched line or texture, so it looks like a sticker next to X's fully rendered, textured paper sheet.; X is a thin, flat-vector star with a uniform outline and no etched shading or tonal depth, and its frames only scale and fade.",
+   "at": "2026-11-13T06:59:41Z"
   }
  ]
 }
