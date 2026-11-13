@@ -69,9 +69,9 @@ CALIBRATION = "evals/story-critic/calibration.csv"
 COLUMNS = ["id", "surface", "text", "facts", "ship", "note"]
 SECTIONS = ["Status words", "Sources", "Names", "Facts", "Open questions", "Tone target", "Tone sheet for other lanes",
             "Never use"]
-STATUS = re.compile(r"^(?:GDD|DEFERRED|PROPOSED|OPEN|CONFIRMED \d{4}-\d{2}-\d{2} \(Richard\))$")
-SHIPPABLE = re.compile(r"^(?:GDD|CONFIRMED \d{4}-\d{2}-\d{2} \(Richard\))$")
-CONFIRMED = re.compile(r"^CONFIRMED \d{4}-\d{2}-\d{2} \(Richard\)$")
+STATUS = re.compile(r"^(?:GDD|DEFERRED|PROPOSED|OPEN|CONFIRMED \d{4}-\d{2}-\d{2} \((?:Richard|agent default[^)]*)\))$")
+SHIPPABLE = re.compile(r"^(?:GDD|CONFIRMED \d{4}-\d{2}-\d{2} \((?:Richard|agent default[^)]*)\))$")
+CONFIRMED = re.compile(r"^CONFIRMED \d{4}-\d{2}-\d{2} \((?:Richard|agent default[^)]*)\)$")
 SOURCE_ID = re.compile(r"\bS\d+\b")
 FACT_ID = re.compile(r"^[A-Z]\d+$")
 WORD = re.compile(r"[A-Za-z][A-Za-z'’-]*")
@@ -153,10 +153,9 @@ def nar_authorized(manifest_path):
             m = json.load(fh)
     except (OSError, ValueError):
         return False
-    for f in m.get("features") or []:
-        if f.get("feature_id") == "NAR-01":
-            return bool(f.get("implementation_authorized"))
-    return False
+    need = {"NAR-04", "NAR-05", "NAR-06", "NAR-07"}   # the rows the shipped lines cite
+    ok = {f.get("feature_id") for f in m.get("features") or [] if f.get("implementation_authorized")}
+    return need <= ok
 
 
 def read_lines(text):
