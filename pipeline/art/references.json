@@ -2732,10 +2732,15 @@
    "score_min": 0.334,
    "detail_min": 0.077,
    "calibration": {
-    "method": "inherits the thresholds of wand-shot until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
     "margin": 0.02,
-    "measured": "2026-11-12",
-    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+    "measured": "2026-11-13",
+    "loo": {
+     "wand-star": 0.354
+    },
+    "detail": {
+     "wand-star": 0.097
+    }
    }
   },
   "vfx-gold-fade": {
@@ -2750,10 +2755,15 @@
    "score_min": 0.334,
    "detail_min": 0.077,
    "calibration": {
-    "method": "inherits the thresholds of wand-shot until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
     "margin": 0.02,
-    "measured": "2026-11-12",
-    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+    "measured": "2026-11-13",
+    "loo": {
+     "wand-star": 0.354
+    },
+    "detail": {
+     "wand-star": 0.097
+    }
    }
   },
   "vfx-stream-start": {
@@ -2765,12 +2775,16 @@
    ],
    "owner": "artfx",
    "score_min": 0.334,
-   "detail_min": 0.077,
+   "detail_min": 0.212,
    "calibration": {
-    "method": "inherits the thresholds of wand-shot until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "method": "no team image: leave-one-out and detail on the element's own references under pipeline/art/reference/ (quality bar included) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
     "margin": 0.02,
-    "measured": "2026-11-12",
-    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+    "measured": "2026-11-13",
+    "loo": {},
+    "detail": {
+     "bar-casters": 0.232
+    },
+    "note": "one image and nothing to compare it with: score_min not measurable (kept)"
    }
   },
   "vfx-stream-sustain": {
@@ -2782,12 +2796,16 @@
    ],
    "owner": "artfx",
    "score_min": 0.334,
-   "detail_min": 0.077,
+   "detail_min": 0.212,
    "calibration": {
-    "method": "inherits the thresholds of wand-shot until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "method": "no team image: leave-one-out and detail on the element's own references under pipeline/art/reference/ (quality bar included) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
     "margin": 0.02,
-    "measured": "2026-11-12",
-    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+    "measured": "2026-11-13",
+    "loo": {},
+    "detail": {
+     "bar-casters": 0.232
+    },
+    "note": "one image and nothing to compare it with: score_min not measurable (kept)"
    }
   },
   "vfx-needle-channel": {
@@ -2799,12 +2817,16 @@
    ],
    "owner": "artfx",
    "score_min": 0.334,
-   "detail_min": 0.077,
+   "detail_min": 0.212,
    "calibration": {
-    "method": "inherits the thresholds of wand-shot until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "method": "no team image: leave-one-out and detail on the element's own references under pipeline/art/reference/ (quality bar included) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
     "margin": 0.02,
-    "measured": "2026-11-12",
-    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+    "measured": "2026-11-13",
+    "loo": {},
+    "detail": {
+     "bar-casters": 0.232
+    },
+    "note": "one image and nothing to compare it with: score_min not measurable (kept)"
    }
   },
   "vfx-needle-sliver": {
@@ -2816,12 +2838,16 @@
    ],
    "owner": "artfx",
    "score_min": 0.334,
-   "detail_min": 0.077,
+   "detail_min": 0.212,
    "calibration": {
-    "method": "inherits the thresholds of wand-shot until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "method": "no team image: leave-one-out and detail on the element's own references under pipeline/art/reference/ (quality bar included) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
     "margin": 0.02,
-    "measured": "2026-11-12",
-    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+    "measured": "2026-11-13",
+    "loo": {},
+    "detail": {
+     "bar-casters": 0.232
+    },
+    "note": "one image and nothing to compare it with: score_min not measurable (kept)"
    }
   },
   "vfx-needle-pierce": {
@@ -2833,12 +2859,16 @@
    ],
    "owner": "artfx",
    "score_min": 0.334,
-   "detail_min": 0.077,
+   "detail_min": 0.212,
    "calibration": {
-    "method": "inherits the thresholds of wand-shot until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "method": "no team image: leave-one-out and detail on the element's own references under pipeline/art/reference/ (quality bar included) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
     "margin": 0.02,
-    "measured": "2026-11-12",
-    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+    "measured": "2026-11-13",
+    "loo": {},
+    "detail": {
+     "bar-casters": 0.232
+    },
+    "note": "one image and nothing to compare it with: score_min not measurable (kept)"
    }
   },
   "vfx-blocked": {
@@ -2853,10 +2883,15 @@
    "score_min": 0.334,
    "detail_min": 0.077,
    "calibration": {
-    "method": "inherits the thresholds of wand-shot until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
     "margin": 0.02,
-    "measured": "2026-11-12",
-    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+    "measured": "2026-11-13",
+    "loo": {
+     "wand-star": 0.354
+    },
+    "detail": {
+     "wand-star": 0.097
+    }
    }
   },
   "vfx-keeper-warning": {
@@ -2869,13 +2904,20 @@
     "d-talon-rake"
    ],
    "owner": "artfx",
-   "score_min": 0.729,
-   "detail_min": 0.281,
+   "score_min": 0.93,
+   "detail_min": 0.425,
    "calibration": {
-    "method": "inherits the thresholds of owl-bolt until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
     "margin": 0.02,
-    "measured": "2026-11-12",
-    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+    "measured": "2026-11-13",
+    "loo": {
+     "d-red-shots": 0.95,
+     "d-talon-rake": 0.95
+    },
+    "detail": {
+     "d-red-shots": 0.445,
+     "d-talon-rake": 0.456
+    }
    }
   },
   "vfx-keeper-strike": {
@@ -2888,13 +2930,20 @@
     "d-talon-rake"
    ],
    "owner": "artfx",
-   "score_min": 0.729,
-   "detail_min": 0.281,
+   "score_min": 0.93,
+   "detail_min": 0.425,
    "calibration": {
-    "method": "inherits the thresholds of owl-bolt until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
     "margin": 0.02,
-    "measured": "2026-11-12",
-    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+    "measured": "2026-11-13",
+    "loo": {
+     "d-red-shots": 0.95,
+     "d-talon-rake": 0.95
+    },
+    "detail": {
+     "d-red-shots": 0.445,
+     "d-talon-rake": 0.456
+    }
    }
   },
   "vfx-keeper-recovery": {
@@ -2907,13 +2956,20 @@
     "d-talon-rake"
    ],
    "owner": "artfx",
-   "score_min": 0.729,
-   "detail_min": 0.281,
+   "score_min": 0.93,
+   "detail_min": 0.425,
    "calibration": {
-    "method": "inherits the thresholds of owl-bolt until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
     "margin": 0.02,
-    "measured": "2026-11-12",
-    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+    "measured": "2026-11-13",
+    "loo": {
+     "d-red-shots": 0.95,
+     "d-talon-rake": 0.95
+    },
+    "detail": {
+     "d-red-shots": 0.445,
+     "d-talon-rake": 0.456
+    }
    }
   },
   "vfx-clock-beat": {
@@ -2926,13 +2982,20 @@
     "d-clock-double-beat"
    ],
    "owner": "artfx",
-   "score_min": 0.729,
-   "detail_min": 0.281,
+   "score_min": 0.945,
+   "detail_min": 0.378,
    "calibration": {
-    "method": "inherits the thresholds of owl-bolt until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
     "margin": 0.02,
-    "measured": "2026-11-12",
-    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+    "measured": "2026-11-13",
+    "loo": {
+     "d-red-shots": 0.965,
+     "d-clock-double-beat": 0.965
+    },
+    "detail": {
+     "d-red-shots": 0.445,
+     "d-clock-double-beat": 0.398
+    }
    }
   },
   "vfx-clock-open": {
@@ -2944,13 +3007,22 @@
     "bar-casters"
    ],
    "owner": "artfx",
-   "score_min": 0.729,
-   "detail_min": 0.281,
+   "score_min": 0.934,
+   "detail_min": 0.364,
    "calibration": {
-    "method": "inherits the thresholds of owl-bolt until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
     "margin": 0.02,
-    "measured": "2026-11-12",
-    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+    "measured": "2026-11-13",
+    "loo": {
+     "d-clock-double-beat": 0.954,
+     "d-clock-damage": 0.963,
+     "d-yellow-shots": 0.963
+    },
+    "detail": {
+     "d-clock-double-beat": 0.398,
+     "d-clock-damage": 0.491,
+     "d-yellow-shots": 0.384
+    }
    }
   },
   "vfx-part-hit": {
@@ -2961,13 +3033,20 @@
     "bar-casters"
    ],
    "owner": "artfx",
-   "score_min": 0.666,
-   "detail_min": 0.362,
+   "score_min": 0.973,
+   "detail_min": 0.444,
    "calibration": {
-    "method": "inherits the thresholds of bolt-hit until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
     "margin": 0.02,
-    "measured": "2026-11-12",
-    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+    "measured": "2026-11-13",
+    "loo": {
+     "d-gear-break": 0.993,
+     "d-clock-damage": 0.993
+    },
+    "detail": {
+     "d-gear-break": 0.464,
+     "d-clock-damage": 0.491
+    }
    }
   },
   "vfx-part-break": {
@@ -2978,13 +3057,20 @@
     "bar-casters"
    ],
    "owner": "artfx",
-   "score_min": 0.666,
-   "detail_min": 0.362,
+   "score_min": 0.973,
+   "detail_min": 0.444,
    "calibration": {
-    "method": "inherits the thresholds of bolt-hit until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
     "margin": 0.02,
-    "measured": "2026-11-12",
-    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+    "measured": "2026-11-13",
+    "loo": {
+     "d-gear-break": 0.993,
+     "d-clock-damage": 0.993
+    },
+    "detail": {
+     "d-gear-break": 0.464,
+     "d-clock-damage": 0.491
+    }
    }
   },
   "vfx-eye-exposed": {
@@ -2995,13 +3081,20 @@
     "bar-casters"
    ],
    "owner": "artfx",
-   "score_min": 0.666,
-   "detail_min": 0.362,
+   "score_min": 0.943,
+   "detail_min": 0.364,
    "calibration": {
-    "method": "inherits the thresholds of bolt-hit until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
     "margin": 0.02,
-    "measured": "2026-11-12",
-    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+    "measured": "2026-11-13",
+    "loo": {
+     "d-clock-damage": 0.963,
+     "d-yellow-shots": 0.963
+    },
+    "detail": {
+     "d-clock-damage": 0.491,
+     "d-yellow-shots": 0.384
+    }
    }
   },
   "vfx-stun": {
@@ -3011,13 +3104,18 @@
     "bar-casters"
    ],
    "owner": "artfx",
-   "score_min": 0.666,
-   "detail_min": 0.362,
+   "score_min": 0.716,
+   "detail_min": 0.444,
    "calibration": {
-    "method": "inherits the thresholds of bolt-hit until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
     "margin": 0.02,
-    "measured": "2026-11-12",
-    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+    "measured": "2026-11-13",
+    "loo": {
+     "d-gear-break": 0.736
+    },
+    "detail": {
+     "d-gear-break": 0.464
+    }
    }
   },
   "vfx-slow": {
@@ -3027,13 +3125,18 @@
     "bar-other-realm"
    ],
    "owner": "artfx",
-   "score_min": 0.582,
-   "detail_min": 0.079,
+   "score_min": 0.715,
+   "detail_min": 0.378,
    "calibration": {
-    "method": "inherits the thresholds of wind-zone until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
     "margin": 0.02,
-    "measured": "2026-11-12",
-    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+    "measured": "2026-11-13",
+    "loo": {
+     "d-clock-double-beat": 0.735
+    },
+    "detail": {
+     "d-clock-double-beat": 0.398
+    }
    }
   },
   "vfx-gust": {
@@ -3043,13 +3146,18 @@
     "bar-other-realm"
    ],
    "owner": "artfx",
-   "score_min": 0.582,
-   "detail_min": 0.408,
+   "score_min": 0.721,
+   "detail_min": 0.462,
    "calibration": {
-    "method": "inherits the thresholds of wind-lines until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
     "margin": 0.02,
-    "measured": "2026-11-12",
-    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+    "measured": "2026-11-13",
+    "loo": {
+     "d-wing-gust": 0.741
+    },
+    "detail": {
+     "d-wing-gust": 0.482
+    }
    }
   },
   "vfx-gust-puff": {
@@ -3059,13 +3167,18 @@
     "bar-other-realm"
    ],
    "owner": "artfx",
-   "score_min": 0.582,
-   "detail_min": 0.408,
+   "score_min": 0.721,
+   "detail_min": 0.462,
    "calibration": {
-    "method": "inherits the thresholds of wind-lines until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
     "margin": 0.02,
-    "measured": "2026-11-12",
-    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+    "measured": "2026-11-13",
+    "loo": {
+     "d-wing-gust": 0.741
+    },
+    "detail": {
+     "d-wing-gust": 0.482
+    }
    }
   },
   "vfx-blackout": {
@@ -3076,12 +3189,16 @@
    ],
    "owner": "artfx",
    "score_min": 0.5,
-   "detail_min": 0.085,
+   "detail_min": 0.079,
    "calibration": {
-    "method": "inherits the thresholds of paper until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "method": "no team image: leave-one-out and detail on the element's own references under pipeline/art/reference/ (quality bar included) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
     "margin": 0.02,
-    "measured": "2026-11-12",
-    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+    "measured": "2026-11-13",
+    "loo": {},
+    "detail": {
+     "bar-other-realm": 0.099
+    },
+    "note": "one image and nothing to compare it with: score_min not measurable (kept)"
    }
   },
   "vfx-restoration": {
@@ -3092,12 +3209,16 @@
    ],
    "owner": "artfx",
    "score_min": 0.5,
-   "detail_min": 0.085,
+   "detail_min": 0.079,
    "calibration": {
-    "method": "inherits the thresholds of paper until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "method": "no team image: leave-one-out and detail on the element's own references under pipeline/art/reference/ (quality bar included) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
     "margin": 0.02,
-    "measured": "2026-11-12",
-    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+    "measured": "2026-11-13",
+    "loo": {},
+    "detail": {
+     "bar-other-realm": 0.099
+    },
+    "note": "one image and nothing to compare it with: score_min not measurable (kept)"
    }
   },
   "vfx-departure": {
@@ -3107,13 +3228,18 @@
     "bar-casters"
    ],
    "owner": "artfx",
-   "score_min": 0.729,
-   "detail_min": 0.281,
+   "score_min": 0.754,
+   "detail_min": 0.471,
    "calibration": {
-    "method": "inherits the thresholds of owl-bolt until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
     "margin": 0.02,
-    "measured": "2026-11-12",
-    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+    "measured": "2026-11-13",
+    "loo": {
+     "d-clock-damage": 0.774
+    },
+    "detail": {
+     "d-clock-damage": 0.491
+    }
    }
   },
   "vfx-light-shaft": {
@@ -3124,12 +3250,16 @@
    ],
    "owner": "artfx",
    "score_min": 0.5,
-   "detail_min": 0.085,
+   "detail_min": 0.079,
    "calibration": {
-    "method": "inherits the thresholds of paper until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "method": "no team image: leave-one-out and detail on the element's own references under pipeline/art/reference/ (quality bar included) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
     "margin": 0.02,
-    "measured": "2026-11-12",
-    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+    "measured": "2026-11-13",
+    "loo": {},
+    "detail": {
+     "bar-other-realm": 0.099
+    },
+    "note": "one image and nothing to compare it with: score_min not measurable (kept)"
    }
   },
   "vfx-umbra": {
@@ -3140,12 +3270,16 @@
    ],
    "owner": "artfx",
    "score_min": 0.5,
-   "detail_min": 0.085,
+   "detail_min": 0.079,
    "calibration": {
-    "method": "inherits the thresholds of paper until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "method": "no team image: leave-one-out and detail on the element's own references under pipeline/art/reference/ (quality bar included) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
     "margin": 0.02,
-    "measured": "2026-11-12",
-    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+    "measured": "2026-11-13",
+    "loo": {},
+    "detail": {
+     "bar-other-realm": 0.099
+    },
+    "note": "one image and nothing to compare it with: score_min not measurable (kept)"
    }
   },
   "vfx-light-spill": {
@@ -3160,10 +3294,15 @@
    "score_min": 0.334,
    "detail_min": 0.077,
    "calibration": {
-    "method": "inherits the thresholds of wand-shot until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
     "margin": 0.02,
-    "measured": "2026-11-12",
-    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+    "measured": "2026-11-13",
+    "loo": {
+     "wand-star": 0.354
+    },
+    "detail": {
+     "wand-star": 0.097
+    }
    }
   }
  },
