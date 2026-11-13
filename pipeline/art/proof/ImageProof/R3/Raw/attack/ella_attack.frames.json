@@ -1,0 +1,26 @@
+{
+ "frames": 3,
+ "frame": [
+  1072,
+  1292
+ ],
+ "figure_heights": [
+  1264,
+  1276,
+  1264
+ ],
+ "figure_widths": [
+  1015,
+  1056,
+  1023
+ ],
+ "height_spread_pct": 0.9,
+ "pivot": "bottom-centre",
+ "cut": "equal cells, inset 0 px",
+ "source": "Art/Source/ImageProof/R3/ella_attack_keyed.png",
+ "outputs": [
+  "Art/Source/ImageProof/R3/Raw/attack/ella_attack_00.png",
+  "Art/Source/ImageProof/R3/Raw/attack/ella_attack_01.png",
+  "Art/Source/ImageProof/R3/Raw/attack/ella_attack_02.png"
+ ]
+}

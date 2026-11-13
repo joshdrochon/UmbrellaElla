@@ -20,7 +20,7 @@ import mcp_config  # noqa: E402
 import stubbins  # noqa: E402
 
 PY = sys.executable
-KEYS = ("OPENAI_API_KEY", "BLENDER_STUB_LOG", "ASSETGEN_NO_APP_DIRS", "ELEVENLABS_API_KEY", "STABILITY_API_KEY", "JAM_OUTBOX", "JAM_ROLE", "ASSETGEN_FULFIL")
+KEYS = ("OPENAI_API_KEY", "GEMINI_API_KEY", "IMAGE_SPEND_FILE", "IMAGE_SPEND_CAP_USD", "BLENDER_STUB_LOG", "ASSETGEN_NO_APP_DIRS", "ELEVENLABS_API_KEY", "STABILITY_API_KEY", "JAM_OUTBOX", "JAM_ROLE", "ASSETGEN_FULFIL")
 
 
 class Work(unittest.TestCase):
@@ -109,7 +109,7 @@ class ArtSteps(Work):
     def test_image_renders_a_still_in_session_and_never_queues(self):
         box = os.path.join(self.d, "outbox")
         rc, o = self.ag("image", "--prompt", "the owl bolt", "--out", "Art/Source/Bolt/bolt.png", "--element",
-                        "effects", JAM_OUTBOX=box, JAM_ROLE="asset-specialist")
+                        "effects", "--provider", "blender", JAM_OUTBOX=box, JAM_ROLE="asset-specialist")
         self.assertEqual(rc, 0, o)
         self.assertIn("via=blender character=bolt anim=Still", o)
         self.assertFalse(os.path.exists(os.path.join(box, "asset-requests.jsonl")), "art needs no key: no queue")
@@ -119,7 +119,8 @@ class ArtSteps(Work):
         self.assertEqual(self.calls(), [], "no network call for art")
 
     def test_no_blender_gives_labelled_placeholders(self):
-        rc, o = self.ag("image", "--prompt", "Owl", "--out", "Art/Source/Owl/o.png", **self.noblender())
+        rc, o = self.ag("image", "--prompt", "Owl", "--out", "Art/Source/Owl/o.png", "--provider", "blender",
+                        **self.noblender())
         self.assertEqual(rc, 0, o)
         self.assertIn("PLACEHOLDER", o)
         self.assertIn("placeholder", self.prov()["Art/Source/Owl/o.png"]["origin"])
@@ -154,16 +155,15 @@ class ArtSteps(Work):
         rc, o = self.tool("tools/sprite_check.py", "--scan", "Art/Sprites")
         self.assertEqual(rc, 1, "an opaque paper background is not cut out:\n" + o)
 
-    def test_no_image_api_or_art_key_is_left(self):
-        src = open(os.path.join(ROOT, "tools", "assetgen.py"), encoding="utf-8").read().lower()
-        self.assertNotIn("openai", src)
+    def test_image_model_keys_are_listed_and_never_reach_a_session(self):
+        """D-new-art-image-model: the image keys are in the inventory and keys.py, and scrub strips them."""
         inv = json.load(open(os.path.join(ROOT, "pipeline", "agent-ops", "asset-tools.json")))
-        self.assertNotIn("openai-images", [t["id"] for t in inv["tools"]])
-        self.assertNotIn("OPENAI_API_KEY", inv["keys"])
+        self.assertIn("GEMINI_API_KEY", inv["keys"])
+        self.assertIn("OPENAI_API_KEY", inv["keys"])
         import keys
-        self.assertNotIn("OPENAI_API_KEY", keys.KEYS)
-        self.assertEqual(keys.scrub({"OPENAI_API_KEY": "x", "HOME": "h"}), {"HOME": "h"},
-                         "a stray OpenAI key still never reaches a session")
+        self.assertEqual(set(keys.IMAGE_KEYS), {"GEMINI_API_KEY", "OPENAI_API_KEY"})
+        self.assertEqual(keys.scrub({"OPENAI_API_KEY": "x", "GEMINI_API_KEY": "y", "ELEVENLABS_API_KEY": "z",
+                                     "HOME": "h"}), {"HOME": "h"}, "no key ever reaches a session")
 
 
 class PracticeReferenceArt(Work):
@@ -205,7 +205,7 @@ class PracticeReferenceArt(Work):
                 row = self.prov()[out]
                 self.assertIn("source=reference (practice)", row["origin"])
                 self.assertIn(want, row["input_images"])
-        rc, o = self.ag("image", "--prompt", "Owl", "--out", "Art/Source/Owl/nokey.png",
+        rc, o = self.ag("image", "--prompt", "Owl", "--out", "Art/Source/Owl/nokey.png", "--provider", "blender",
                         **self.noblender())   # no Blender: reference, not a placeholder
         self.assertEqual(rc, 0, o)
         self.assertIn("REFERENCE", o)
@@ -224,7 +224,7 @@ class PracticeReferenceArt(Work):
         self.assertEqual(rc, 1, o)
         self.assertIn("practice-repo stand-in only", o)
         self.assertFalse(os.path.exists(os.path.join(self.repo, "Art/Source/Owl/owl.png")))
-        rc, o = self.ag("image", "--prompt", "Owl", "--out", "Art/Source/Owl/o.png",
+        rc, o = self.ag("image", "--prompt", "Owl", "--out", "Art/Source/Owl/o.png", "--provider", "blender",
                         **self.noblender())   # no Blender, not practice
         self.assertEqual(rc, 0, o)
         self.assertIn("PLACEHOLDER", o)
