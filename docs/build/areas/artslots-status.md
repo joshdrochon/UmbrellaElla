@@ -20,3 +20,11 @@ Run: build exit 0; `TEST_FILTER=UmbrellaElla.Feedback` PASS tests=32 failed=0; a
 2. Sheet frames (VFX-02/03): the effect director already drove frames (`StepLive`, artfx); my "no frame driver" note was wrong. Added `World.ArtSlotSheetFrames`, which reads the sheet material's Frame and shows it advancing. No VFX sheet sidecar exists: columns come from the catalogue row (8 cells, one row).
 3. Wind (FLOW-25): new `UWindPresenterSubsystem` (outside Field/, which is another lane): wind:current-field replaces the colour card, wind:decor-lines and the vfx-sheet:VFX_Gust sheet are overlays that exist only when their asset does; the picture is re-applied after the current refreshes its card. The card stays as fallback. Test `World.ArtSlotWind` fails if a wind slot asset exists and the wind does not draw it. No T_WindZone/T_WindLines asset exists yet; the _PH gust sheet draws today.
 Left: 4 Roadwarden variant slots, 5 loader caching, 6 UI slots.
+
+## Session 3 (Nov 12): UI screen slots
+Rule IDs: ART-08, ART-05 (screen:* slots), FLOW-25 context.
+- New `UUiArtSubsystem` (Feedback/Ui/): draws `screen:<Screen>` as a click-through full-frame overlay above the flow menus when the asset exists; menus stay the fallback. One lookup per screen change (loader cache).
+- Test `UmbrellaElla.Feedback.World.ArtSlotUiScreens` (a row and asset per screen, click-through, swap, clear).
+- Run: build exit 0; `TEST_FILTER=UmbrellaElla.Feedback` PASS tests=35 failed=0; art_slots check PASS (100); `tests.test_art_slots` OK; module_check 0.
+- Not run: in-game capture (no T_Screen_* asset exists yet).
+- Left: nothing in the brief.
