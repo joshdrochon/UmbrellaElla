@@ -69,7 +69,7 @@ bool FFlowRetainedDesignTest::RunTest(const FString& Parameters)
 	const TArray<FText> Title = FFlowMenuText::TitleLabels();
 	TestEqual(TEXT("two Start buttons"), Title.Num(), 2);
 	TestEqual(TEXT("first Start Game"), Title[0].ToString(), FString(TEXT("Start Game")));
-	TestEqual(TEXT("then Start Director's Cut (GDD FLOW-34 wording)"), Title[1].ToString(), FString(TEXT("Start Director's Cut")));
+	TestEqual(TEXT("then Director's Cut"), Title[1].ToString(), FString(TEXT("Director's Cut")));
 	const TArray<FText> Pause = FFlowMenuText::PauseLabels();
 	TestEqual(TEXT("three pause entries"), Pause.Num(), 3);
 	TestEqual(TEXT("Continue"), Pause[0].ToString(), FString(TEXT("Continue")));
