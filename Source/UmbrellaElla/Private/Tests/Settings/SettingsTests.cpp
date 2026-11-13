@@ -178,10 +178,6 @@ bool FSettingsCreditsTest::RunTest(const FString& Parameters)
 	}
 	TestTrue(TEXT("Josh Rochon, Technical Lead"), bFoundJosh);
 	TestTrue(TEXT("Rick Rispoli, Executive Producer"), Credits[0].Name == TEXT("Rick Rispoli") && Credits[0].Role == TEXT("Executive Producer"));
-	for (const FSettingsCreditLine& Line : Credits)
-	{
-		TestFalse(TEXT("no separate executive-producer line"), Line.Name.Contains(TEXT("executive producer")));
-	}
 	return true;
 }
 

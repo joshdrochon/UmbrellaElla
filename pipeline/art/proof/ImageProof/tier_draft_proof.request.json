@@ -1,0 +1,38 @@
+{
+ "provider": "gemini",
+ "tier": "draft",
+ "tool": "Gemini API image generation (Google)",
+ "model": "gemini-2.5-flash-image",
+ "openrouter_model": null,
+ "model_version": "gemini-2.5-flash-image",
+ "prompt": "a small paper umbrella, flat colour, plain background",
+ "seed": "",
+ "size": "1024x1024",
+ "quality": "medium",
+ "aspect_ratio": "1:1",
+ "image_size": null,
+ "input_images": [],
+ "cost_usd": 0.039003,
+ "reply": {
+  "usage": {
+   "promptTokenCount": 11,
+   "candidatesTokenCount": 1290,
+   "totalTokenCount": 1301,
+   "promptTokensDetails": [
+    {
+     "modality": "TEXT",
+     "tokenCount": 11
+    }
+   ],
+   "candidatesTokensDetails": [
+    {
+     "modality": "IMAGE",
+     "tokenCount": 1290
+    }
+   ],
+   "serviceTier": "standard"
+  },
+  "finish": "STOP"
+ },
+ "date": "2026-11-13T06:52+00:00"
+}

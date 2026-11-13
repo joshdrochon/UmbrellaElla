@@ -19,7 +19,7 @@ p = open("tools/story_critic_prompt.md").read().split("---", 1)[-1]
 sj = json.load(open("pipeline/story/story.json"))
 sc = subprocess.run([sys.executable, "tools/story_check.py"], capture_output=True, text=True)
 p = p.replace("{story_bible}", open("pipeline/story/story-bible.md").read())
-p = p.replace("{story_json_surfaces_deny_banned}", json.dumps({k: sj[k] for k in sj if k in ("surfaces", "deny", "banned", "banned_words")}, indent=1))
+p = p.replace("{story_json_surfaces_deny_banned}", json.dumps({k: sj[k] for k in sj if k in ("surfaces", "deny", "banned", "banned_words", "length_exceptions")}, indent=1))
 p = p.replace("{story_check_output}", (sc.stdout + sc.stderr).strip())
 rows = [(r["id"], r["surface"], r["text"]) for r in csv.DictReader(open("pipeline/story/lines.csv"))
         if r.get("text") and (r.get("ship") or "").strip().lower() != "no"]   # held lines (ship=no) never reach a player

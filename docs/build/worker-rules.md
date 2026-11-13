@@ -96,6 +96,7 @@ When the same check fails twice, or a loop goes flat (2 rounds, same gap, no bet
   Spend OK is given for all seven art loops (Nov 12, cap in IMAGE_SPEND_CAP_USD). Load the key in the same command as the
   call, never on its own: `set -a; . ~/.umbrella-ella.env; set +a; python3 tools/assetgen.py image ...` (the file's lines
   have no `export`, so a plain `source` doesn't reach python). Never echo, cat or grep the file.
+  Tiers: default is `--tier draft` (flash). A final candidate must pass `--tier final --image-size 2K` (or the size the card names).
 
 ## Unreal commands (Mac; many workers share this machine, so always through the slot lock)
     tools/build/ue_slot.sh tools/ue/build.sh                 # compile (editor target); must end "build exit: 0"
@@ -144,3 +145,9 @@ run `TEST_FILTER=UmbrellaElla.<YourArea> tools/build/ue_slot.sh tools/ue/test.sh
 ## Contract changes
 If a Core contract blocks you, do not edit it. Write the request (file, exact change, why) in
 `docs/build/requests/<area>.md`, commit, and continue with a local workaround. The build lead applies it on main.
+
+## Pre-check before every commit you want gated (Nov 13)
+Run it from your own worktree, in the background (your commands stop at 10 min):
+`bash tools/build/lane_precheck.sh <your-lane> --bg`, then poll `../logs/precheck-<your-lane>.result` until its first
+line starts with `PRECHECK` (`RUNNING <time>` means it is still going). Fix every line under `PRECHECK FAIL` and
+run it again; only a `PRECHECK PASS` tip is worth gating. `PRECHECK_FAST=1` skips the Python tests.
