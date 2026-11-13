@@ -145,3 +145,6 @@ No gameplay timing, collision or state is written by any of it (tests check the 
 
 ## Slice 18 (Nov 13): main merged (already up to date); still blocked on request 7
 - Main has artshare (shared-layer judging) and artjitter since slice 14, both already in this branch. Neither changes the effect quality-bar image or the effect context reference. No paint, spend unchanged. All slots stay `_PH`.
+
+## Slice 19 (Nov 13): merged main (imagetiers, art-priority); still blocked on request 7
+- No change to art_loop.py, references or art-image-model.md for the effect quality bar or context reference. No paint, spend unchanged. All slots stay `_PH`.
