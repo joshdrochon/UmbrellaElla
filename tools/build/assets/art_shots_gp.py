@@ -39,6 +39,8 @@ RNG = random.Random(SEED)
 SIZES = {"owl-bolt": (640, 320), "wand-shot": (512, 256), "bolt-hit": (512, 512)}
 W, H = SIZES[PIECE]
 S = 0.01   # blender units per drawing px
+S_PX = W / 640.0 if W >= H else W / 512.0   # drawing px per layout px x 4
+WOBBLE = 0.9   # hand-drawn edge amplitude, px at 4x
 
 
 def hx(h):
@@ -95,6 +97,12 @@ def P(x, y):
 
 
 def add(points, radii, rgb, alpha=1.0, kind="line"):
+    if kind == "fill" and (alpha if not isinstance(alpha, (list, tuple)) else min(alpha)) >= 1.0 and WOBBLE:
+        points = wobble(points, WOBBLE * S_PX)
+    elif kind == "lens" and (alpha if not isinstance(alpha, (list, tuple)) else min(alpha)) >= 1.0 and WOBBLE:
+        m_ = len(points) // 2
+        points = [(x, y + RNG.uniform(-1, 1) * WOBBLE * S_PX * (0 if i in (0, m_ - 1, m_, len(points) - 1) else 1))
+                  for i, (x, y) in enumerate(points)]
     n = len(points)
     if n < 2 and kind == "line":
         return
@@ -191,6 +199,41 @@ def grain(poly, n, rgb, spread=7.0, size=(0.7, 1.6), alpha=(0.75, 1.0)):
         placed += 1
 
 
+def tooth(poly, n, rgb, alpha=(0.06, 0.3)):
+    """Paper tooth in the light spill: translucent specks (alpha under 0.5), so the glow is mottled like light on
+    laid paper, not an airbrush halo."""
+    x0, y0, x1, y1 = bbox(poly)
+    placed = tries = 0
+    while placed < n and tries < n * 8:
+        tries += 1
+        x, y = RNG.uniform(x0, x1), RNG.uniform(y0, y1)
+        if not inside(poly, x, y):
+            continue
+        r = RNG.uniform(0.6, 1.5)
+        ang = RNG.uniform(0, math.pi)
+        d = RNG.uniform(0.5, 2.2)
+        add([(x, y), (x + math.cos(ang) * d, y + math.sin(ang) * d)], [r, r * 0.6], rgb, RNG.uniform(*alpha))
+        placed += 1
+
+
+def wobble(poly, amp, seg=7.0, closed=True):
+    """A hand-drawn edge: long edges split into short runs, each point nudged sideways by up to amp px."""
+    out = []
+    n = len(poly)
+    for i in range(n if closed else n - 1):
+        a, b = poly[i], poly[(i + 1) % n]
+        L = math.hypot(b[0] - a[0], b[1] - a[1])
+        k = max(1, int(L / seg))
+        nx, ny = (-(b[1] - a[1]) / (L or 1), (b[0] - a[0]) / (L or 1))
+        for j in range(k):
+            t = j / k
+            j_ = 0.0 if j == 0 else RNG.uniform(-amp, amp)
+            out.append((a[0] + (b[0] - a[0]) * t + nx * j_, a[1] + (b[1] - a[1]) * t + ny * j_))
+    if not closed:
+        out.append(poly[-1])
+    return out
+
+
 def contour(poly, rgb, w, closed=True, light=(0.0, -1.0), skip=0.0, alpha=1.0):
     """Broken ink line with pressure: heavy on the shadow side (away from `light`), lifting off on the lit side."""
     pts = poly + [poly[0]] if closed else poly
@@ -251,9 +294,9 @@ def bolt():
     Y = H / 2.0
     sc = W / 640.0
     tipx = 22 * sc
-    head_end = 175 * sc
-    body_end = 430 * sc
-    tail_end = 575 * sc
+    head_end = 160 * sc
+    body_end = 370 * sc
+    tail_end = 490 * sc
     emax = 100 * sc
 
     def env(x):   # spike-tip envelope from the axis
@@ -291,9 +334,9 @@ def bolt():
                 out.append(blade(xf, side, L, e_tip, a0, b0, Y, back=rng.uniform(0.55, 0.7)))
         return out
 
-    shadow_bl = blades(SEED * 13 + 1, 1.0, 8 * sc, 70 * sc, 360 * sc, 7, 1.0)
-    shell_bl = blades(SEED * 13 + 2, 0.95, 0.0, 60 * sc, 340 * sc, 8, 0.86)
-    hot_bl = blades(SEED * 13 + 3, 0.8, -6 * sc, 55 * sc, 260 * sc, 6, 0.55)
+    shadow_bl = blades(SEED * 13 + 1, 0.85, 8 * sc, 65 * sc, 300 * sc, 7, 1.0)
+    shell_bl = blades(SEED * 13 + 2, 0.8, 0.0, 55 * sc, 290 * sc, 8, 0.86)
+    hot_bl = blades(SEED * 13 + 3, 0.7, -6 * sc, 50 * sc, 230 * sc, 6, 0.55)
     body_poly = lens(xs, body, Y)
 
     # ---- 1. bounded glow (light spill): a smooth lens, alpha stays under 0.5, so it is light, not body
@@ -307,9 +350,11 @@ def bolt():
         t = (x - gx_s[i]) / (gx_s[1] - gx_s[0])
         return smooth[i] * (1 - t) + smooth[i + 1] * t
     for k in range(16):
-        f = 0.8 + 0.03 * k
-        add(lens(gx_s, lambda x, f=f, k=k: glow_env(x) * f + (1 + 1.1 * k) * sc * min(1.0, glow_env(x) / (8 * sc)),
-                 Y), 1.0, PAL["glow"], 0.026, "lens")
+        f = 0.85 + 0.015 * k
+        add(lens(gx_s, lambda x, f=f, k=k: glow_env(x) * f + (1 + 0.75 * k) * sc * min(1.0, glow_env(x) / (8 * sc)),
+                 Y), 1.0, PAL["glow"], 0.03, "lens")
+    tooth(lens(gx_s, lambda x: glow_env(x) * 1.05 + 10 * sc * min(1.0, glow_env(x) / (8 * sc)), Y),
+          int(5200 * sc * sc), PAL["glow"])
     for k in range(6):   # brief hot bloom at the head
         d = (2 + k * 4) * sc
         hp = lens([tipx + (head_end + 60 * sc - tipx) * j / 20 for j in range(21)],
@@ -317,7 +362,7 @@ def bolt():
         add(hp, 1.0, PAL["hot"], 0.03, "lens")
 
     # ---- 2. trail: thin dashed speed lines carrying tiny square flecks, a small clockwork arc
-    for side, yo, x0, x1 in ((-1, 26, 360, 610), (1, 24, 380, 620), (-1, 9, 470, 632), (1, 44, 320, 500)):
+    for side, yo, x0, x1 in ((-1, 24, 330, 560), (1, 22, 345, 575), (-1, 8, 430, 585), (1, 40, 300, 450)):
         y_a = Y + side * yo * sc
         x = x0 * sc
         while x < x1 * sc:
@@ -325,14 +370,14 @@ def bolt():
             yy = y_a + side * (x - x0 * sc) * 0.06
             tapered((x, yy), (min(x + L, x1 * sc), yy + side * L * 0.06), 1.6 * sc, PAL["shell"], 0.95)
             x += L + RNG.uniform(7, 16) * sc
-    for (fx, fy, s, c) in ((452, -33, 8, "shadow"), (530, -42, 6, "shell"), (505, 35, 7, "shadow"),
-                           (590, 42, 5, "shell"), (612, -18, 5, "shadow")):
+    for (fx, fy, s, c) in ((410, -31, 8, "shadow"), (480, -38, 6, "shell"), (460, 33, 7, "shadow"),
+                           (545, 38, 5, "shell"), (575, -14, 5, "shadow")):
         x, y, s = fx * sc, Y + fy * sc, s * sc
         a = RNG.uniform(-0.25, 0.25)
         sq = [(x + math.cos(a + k * math.pi / 2 + math.pi / 4) * s * 0.7,
                y + math.sin(a + k * math.pi / 2 + math.pi / 4) * s * 0.7) for k in range(4)]
         add(sq, 1.0, PAL[c], 1.0, "fill")
-    gx, gy, gr = 596 * sc, Y - 62 * sc, 14 * sc
+    gx, gy, gr = 545 * sc, Y - 58 * sc, 13 * sc
     arc = [(gx + math.cos(a) * gr, gy + math.sin(a) * gr) for a in [math.pi + i * math.pi / 14 for i in range(15)]]
     add(arc, [2.4 * sc] * len(arc), PAL["shell"], 1.0)
     for i in range(1, 14, 3):
@@ -362,13 +407,25 @@ def bolt():
     for k in range(10):   # long speed lines converging on the head point
         off = RNG.uniform(-0.8, 0.8)
         x0 = RNG.uniform(140, 230) * sc
-        x1 = RNG.uniform(360, 520) * sc
+        x1 = RNG.uniform(320, 430) * sc
         tapered((x0, Y + off * body(x0) * 0.7), (x1, Y + off * body(x1) * 0.6 + RNG.uniform(-2, 2) * sc),
                 RNG.uniform(0.7, 1.3) * sc, PAL["shadow"], 1.0, head=0.3)
+    # engraved cross-contour hatching: dense on the lower (shadow) side, sparse on top, thinning toward the head
+    x = 95 * sc
+    while x < body_end - 10 * sc:
+        k = (x - 95 * sc) / (body_end - 105 * sc)
+        for side, dens in ((1, 0.9), (-1, 0.35)):
+            if RNG.random() > dens * (0.4 + 0.6 * k):
+                continue
+            b0 = body(x)
+            p0 = (x, Y + side * b0 * RNG.uniform(0.25, 0.4))
+            p1 = (x + RNG.uniform(5, 9) * sc, Y + side * (b0 * RNG.uniform(0.8, 1.0)))
+            tapered(p0, p1, RNG.uniform(0.55, 0.85) * sc, PAL["shadow"], 1.0, head=0.5, bow=0.6 * sc)
+        x += RNG.uniform(4.0, 6.0) * sc
     for b in hot_bl:
         add(b, 1.0, PAL["hot"], 1.0, "fill")
-    hot_union = lens([tipx + (360 * sc - tipx) * j / 40 for j in range(41)],
-                     lambda x: body(x) * 0.62 * min(1.0, max(0.0, (360 * sc - x) / (110 * sc))) ** 0.8, Y)
+    hot_union = lens([tipx + (320 * sc - tipx) * j / 40 for j in range(41)],
+                     lambda x: body(x) * 0.62 * min(1.0, max(0.0, (320 * sc - x) / (100 * sc))) ** 0.8, Y)
     add(hot_union, 1.0, PAL["hot"], 1.0, "lens")
     grain(hot_union, int(900 * sc * sc), PAL["hot"], spread=7)
     for b in hot_bl:
@@ -379,13 +436,13 @@ def bolt():
     def core_env(x):
         if x <= 130 * sc:
             return 19 * sc * (x - tipx - 16 * sc) / (130 * sc - tipx - 16 * sc)
-        u = min(1.0, (x - 130 * sc) / (320 * sc - 130 * sc))
+        u = min(1.0, (x - 130 * sc) / (290 * sc - 130 * sc))
         return 19 * sc * (1 - u) ** 1.3
-    core = lens([tipx + 16 * sc + (320 * sc - tipx - 16 * sc) * j / 40 for j in range(41)],
+    core = lens([tipx + 16 * sc + (290 * sc - tipx - 16 * sc) * j / 40 for j in range(41)],
                 lambda x: max(0.0, core_env(x)), Y)
     add(core, 1.0, PAL["core"], 1.0, "lens")
     for k in range(30):
-        x0 = RNG.uniform(160, 300) * sc
+        x0 = RNG.uniform(150, 270) * sc
         yy = Y + RNG.uniform(-0.8, 0.8) * core_env(x0)
         tapered((x0, yy), (x0 + RNG.uniform(30, 70) * sc, Y + (yy - Y) * 0.3), RNG.uniform(1.0, 2.2) * sc,
                 PAL["hot"], RNG.uniform(0.3, 0.55), head=0.3)
@@ -405,6 +462,94 @@ def bolt():
     tapered((tipx + 4 * sc, Y + 1 * sc), (head_end, Y + body(head_end) + 1 * sc), 1.6 * sc, PAL["shadow"], 1.0,
             head=0.7)
     return body_poly
+
+
+def star(cx, cy, rays, inner):
+    """A star outline: rays = [(angle, length)], inner = notch radius between rays."""
+    out = []
+    n = len(rays)
+    for i, (a, L) in enumerate(rays):
+        out.append((cx + math.cos(a) * L, cy + math.sin(a) * L))
+        a2 = (a + rays[(i + 1) % n][0] + (2 * math.pi if i == n - 1 else 0)) / 2
+        out.append((cx + math.cos(a2) * inner, cy + math.sin(a2) * inner))
+    return out
+
+
+def pulse():
+    """wand-shot: Ella's compact gold pulse (GDD SH1.0 COM-06 Small Blasts VFX, Twin Stars VFX): a four-point star
+    head with short secondary points, a pale core, a short finite tapered tail of slivers, faces right. Gold #E9C46A
+    family, so it never reads as the Keeper's angular yellow shot (OWL-14 geometry)."""
+    Y = H / 2.0
+    sc = W / 512.0
+    hx_, tail0 = 400 * sc, 150 * sc
+    G = {"core": hx("FFF5DC"), "gold": hx("E9C46A"), "amber": hx("F5AA28"), "shadow": hx("94611E"),
+         "ink": hx("171614"), "spark": hx("FFF3D6")}
+
+    def tail_env(x):
+        if x >= hx_:
+            return 0.0
+        u = (x - tail0) / (hx_ - tail0)
+        return max(0.0, 15 * sc * u ** 1.4)
+    xs = [tail0 + (hx_ + 10 * sc - tail0) * j / 60 for j in range(61)]
+
+    # glow: soft gold lens around tail and head, and a round bloom on the head (alpha under 0.5)
+    for k in range(14):
+        f = 1.0 + 0.12 * k
+        add(lens(xs, lambda x, f=f, k=k: tail_env(x) * f + (1 + 1.2 * k) * sc * min(1.0, tail_env(x) / (4 * sc)), Y),
+            1.0, G["gold"], 0.026, "lens")
+    for k in range(12):
+        r = (14 + k * 5.5) * sc
+        add([(hx_ + math.cos(t * math.pi / 16) * r * 1.15, Y + math.sin(t * math.pi / 16) * r) for t in range(32)],
+            1.0, G["gold"], 0.03, "fill")
+    # tail: overlapping tapered slivers (shadow under gold under core), short and finite
+    tail = lens(xs, tail_env, Y)
+    add(tail, 1.0, G["shadow"], 1.0, "lens")
+    add(lens(xs, lambda x: tail_env(x) * 0.78, Y), 1.0, G["gold"], 1.0, "lens")
+    grain(tail, int(500 * sc * sc), G["gold"], spread=8)
+    for k in range(12):
+        off = RNG.uniform(-0.7, 0.7)
+        x0 = RNG.uniform(tail0 + 20 * sc, 300 * sc)
+        x1 = hx_ - RNG.uniform(10, 40) * sc
+        tapered((x0, Y + off * tail_env(x0)), (x1, Y + off * tail_env(x1) * 0.8), RNG.uniform(0.7, 1.3) * sc,
+                G["shadow"] if k % 3 else G["amber"], 1.0, head=0.75)
+    add(lens(xs, lambda x: tail_env(x) * 0.3 if x > 250 * sc else 0.0, Y), 1.0, G["core"], 1.0, "lens")
+    # sparse sparks behind (tiny four-point stars), on thin broken trail lines
+    for side, yo in ((-1, 26), (1, 22)):
+        x = 170 * sc
+        while x < 360 * sc:
+            L = RNG.uniform(12, 26) * sc
+            tapered((x, Y + side * yo * sc), (x + L, Y + side * (yo - 3) * sc), 1.2 * sc, G["gold"], 0.95)
+            x += L + RNG.uniform(10, 20) * sc
+    for (fx, fy, s) in ((120, -14, 7), (205, 30, 6), (280, -34, 5), (90, 8, 5)):
+        add(star(fx * sc, Y + fy * sc, [(k * math.pi / 2, s * sc * (1.6 if k % 2 == 0 else 1.0)) for k in range(4)],
+                 s * sc * 0.28), 1.0, G["gold"], 1.0, "fill")
+    # the star head: shadow star, gold star, secondary diagonal points, pale core star, etched rays
+    main = [(0.0, 96), (math.pi / 2, 52), (math.pi, 70), (3 * math.pi / 2, 52)]
+    diag = [(math.pi / 4, 30), (3 * math.pi / 4, 26), (5 * math.pi / 4, 26), (7 * math.pi / 4, 30)]
+    allr = sorted(main + diag)
+    add(star(hx_, Y, [(a, (L + 6) * sc) for a, L in allr], 15 * sc), 1.0, G["shadow"], 1.0, "fill")
+    add(star(hx_, Y, [(a, L * sc) for a, L in allr], 12 * sc), 1.0, G["gold"], 1.0, "fill")
+    head_poly = star(hx_, Y, [(a, L * sc) for a, L in allr], 12 * sc)
+    grain(head_poly, int(500 * sc * sc), G["gold"], spread=8)
+    for a, L in allr:   # each point lit on its upper face, shadowed on the lower (an engraved bevel)
+        tip = (hx_ + math.cos(a) * L * sc, Y + math.sin(a) * L * sc)
+        for o, c in ((-0.16, G["amber"]), (0.12, G["shadow"])):
+            base = (hx_ + math.cos(a + o * 3) * 9 * sc, Y + math.sin(a + o * 3) * 9 * sc)
+            tapered(base, tip, (1.1 if c == G["shadow"] else 1.6) * sc * (L / 60), c, 1.0, head=0.3)
+    add(star(hx_, Y, [(a, L * 0.55 * sc) for a, L in main], 6 * sc), 1.0, G["core"], 1.0, "fill")
+    grain(star(hx_, Y, [(a, L * 0.55 * sc) for a, L in main], 6 * sc), int(150 * sc * sc), G["core"], spread=7,
+          alpha=(0.6, 0.9))
+    for d, a, c in ((7, 1.0, "spark"),):
+        add([(hx_ + math.cos(t * math.pi / 8) * d * sc, Y + math.sin(t * math.pi / 8) * d * sc) for t in range(16)],
+            1.0, G[c], a, "fill")
+    # ink: fine broken line under the lower points and the tail's underside
+    for a, L in allr:
+        if math.sin(a) > 0.2:
+            tip = (hx_ + math.cos(a) * (L + 6) * sc, Y + math.sin(a) * (L + 6) * sc)
+            base = (hx_ + math.cos(a + 0.35) * 16 * sc, Y + math.sin(a + 0.35) * 16 * sc)
+            tapered(base, tip, 1.2 * sc, G["ink"], 1.0, head=0.7)
+    tapered((300 * sc, Y + tail_env(300 * sc) + 0.5 * sc), (hx_ - 30 * sc, Y + tail_env(hx_ - 30 * sc) + 0.5 * sc),
+            1.0 * sc, G["ink"], 0.9, head=0.8)
 
 
 def burst():
@@ -464,13 +609,11 @@ def burst():
 
 if PIECE == "bolt-hit":
     burst()
+elif PIECE == "wand-shot":
+    pulse()
 else:
     bolt()
-    if PIECE == "wand-shot":   # Ella's gold shot faces right: mirror the drawing
-        for st in drawing.strokes:
-            for p in st.points:
-                p.position = ((W * S) - p.position[0], p.position[1], p.position[2])
-        STROKES[:] = [([(W - x, y) for x, y in pts], r, c, a, k) for pts, r, c, a, k in STROKES]
+
 
 # ---------------------------------------------------------------- palette discipline (after the render)
 def palette_discipline(path):
