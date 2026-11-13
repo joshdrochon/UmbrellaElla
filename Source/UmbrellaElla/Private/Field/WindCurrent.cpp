@@ -19,6 +19,7 @@ namespace
 	const TCHAR* WindFieldCubePath = TEXT("/Engine/BasicShapes/Cube.Cube");
 	const TCHAR* WindFieldMaterialPath = TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial");
 	const FName WindFieldColourParameter(TEXT("Color"));
+	const FName WindFieldTintParameter(TEXT("Tint"));
 }
 
 AWindCurrent::AWindCurrent()
@@ -113,6 +114,10 @@ FLinearColor AWindCurrent::GetDrawnColour() const
 	if (const UMaterialInstanceDynamic* Material = Cast<UMaterialInstanceDynamic>(Field->GetMaterial(0)))
 	{
 		Material->GetVectorParameterValue(FMaterialParameterInfo(WindFieldColourParameter), Colour);
+		if (Colour == FLinearColor::Transparent)
+		{
+			Material->GetVectorParameterValue(FMaterialParameterInfo(WindFieldTintParameter), Colour);
+		}
 	}
 	return Colour;
 }
@@ -131,20 +136,21 @@ void AWindCurrent::RefreshField()
 			Field->SetStaticMesh(Cube);
 		}
 	}
-	ArtSlot::SetFlatUnlit(Field, this, FieldColourFor(RoleLabel(Direction)));
-	if (ArtSlot::IsUnlit(Field))
+	const FName ColourRole = GetKind() == EWindKind::Rescue ? FName(TEXT("Rescue")) : RoleLabel(Direction);
+	// Flat unlit first (no level light needed); the lit basic-shape material only when the slot material is missing.
+	ArtSlot::SetFlatUnlit(Field, this, FieldColourFor(ColourRole));
+	if (!ArtSlot::IsUnlit(Field))
 	{
-		return;
-	}
-	if (UMaterialInterface* Base = LoadObject<UMaterialInterface>(nullptr, WindFieldMaterialPath, nullptr, LOAD_NoWarn | LOAD_Quiet))
-	{
-		UMaterialInstanceDynamic* Material = Cast<UMaterialInstanceDynamic>(Field->GetMaterial(0));
-		if (!Material || Material->Parent != Base)
+		if (UMaterialInterface* Base = LoadObject<UMaterialInterface>(nullptr, WindFieldMaterialPath, nullptr, LOAD_NoWarn | LOAD_Quiet))
 		{
-			Material = UMaterialInstanceDynamic::Create(Base, this);
-			Field->SetMaterial(0, Material);
+			UMaterialInstanceDynamic* Material = Cast<UMaterialInstanceDynamic>(Field->GetMaterial(0));
+			if (!Material || Material->Parent != Base)
+			{
+				Material = UMaterialInstanceDynamic::Create(Base, this);
+				Field->SetMaterial(0, Material);
+			}
+			Material->SetVectorParameterValue(WindFieldColourParameter, FieldColourFor(ColourRole));
 		}
-		Material->SetVectorParameterValue(WindFieldColourParameter, FieldColourFor(GetKind() == EWindKind::Rescue ? FName(TEXT("Rescue")) : RoleLabel(Direction)));
 	}
 	const FVector Extent = Volume->GetUnscaledBoxExtent();
 	Field->SetRelativeScale3D(FVector(2.0 * Extent.X / WindCurrentConst::CubeSize, GetDefault<UUmbrellaTuning>()->Field.FieldDepthScale, 2.0 * Extent.Z / WindCurrentConst::CubeSize));
