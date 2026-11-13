@@ -73,11 +73,10 @@ class CheckTests(unittest.TestCase):
             lines, _ = t.check()
             self.assertFalse([l for l in fail_lines(lines) if "COM-06.damage" in l])
 
-    def test_main_has_exactly_the_known_hazard_ten_drift(self):
+    def test_current_tree_has_no_mismatch_fail(self):
         with Tree() as t:
             lines, _ = t.check()
-            self.assertEqual(sorted(l.split(" GDD=")[0] for l in fail_lines(lines) if "NOT_IN_GAME" not in l),
-                             ["FAIL HAZ-10.radius", "FAIL HAZ-10.value", "FAIL HAZ-10.yields_muzzle"])
+            self.assertEqual([l for l in fail_lines(lines) if "NOT_IN_GAME" not in l], [])
 
     def test_changed_tuning_value_fails_and_names_both_values(self):
         with Tree() as t:
@@ -110,9 +109,11 @@ class CheckTests(unittest.TestCase):
 
     def test_vector_component_binding(self):
         with Tree() as t:
-            t.edit("Source/UmbrellaElla/Public/Attack/AttackTuning.h", "FVector(60.0, 0.0, 0.0)", "FVector(44.0, 0.0, 6.0)")
             lines, _ = t.check()
             self.assertFalse([l for l in fail_lines(lines) if "MuzzleOffset" in l])
+            t.edit("Source/UmbrellaElla/Public/Attack/AttackTuning.h", "FVector(44.0, 0.0, 6.0)", "FVector(60.0, 0.0, 0.0)")
+            lines, _ = t.check()
+            self.assertTrue([l for l in fail_lines(lines) if "MuzzleOffset" in l])
 
     def test_stale_binding_and_broken_binding_fail(self):
         with Tree() as t:

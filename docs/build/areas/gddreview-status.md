@@ -6,10 +6,10 @@ Independent review of the 471 `unbindable` entries from area/gddcheck (merged `o
 - `tools/build/gdd_check.py`: two binding kinds that were missing. `expr` (arithmetic over tuning defaults; `floor min max abs xp_to(level, base)`; only plain arithmetic is evaluated) and `const` with `index` (nth literal of `Symbol(a, b)`). Tests added in `tests/test_gdd_check.py` (21 pass); the test tree now copies files that `const` bindings read.
 - 239 entries moved to a real binding: 237 compare today, 2 are `playtest` bindings no log reports yet (`HAZ-09.value`, `HAZ-09.radius_leaves`, UNMEASURED).
   Worked arithmetic: Broken Mill clearances, windows and first-contact times now follow the tuning (mirrors `FBrokenMillRules`). XP totals 916/1981/3096/7000 follow `XpCurveBase` via `xp_to`. Point totals 61/16/42/3/121 follow `LevelCap`, ranks, caps. Healing/defense/suction/cone ladders follow the rank tuning. Unlock levels, slider/text-scale limits, HUD aspect, ending hold, lift weight 0.7, keeper protected reserve 40%, reduced interval x1.6.
-- 232 stay unbindable, each with a reason that names its own number and wording (218 distinct reasons; the rest share a reason because they are the same fact, e.g. the three example builds).
+- 232 were left unbindable at review; 24 of them later moved to `not_in_game`, so the checker prints UNBINDABLE=208 and NOT_IN_GAME_P0=24; each with a reason that names its own number and wording (218 distinct reasons; the rest share a reason because they are the same fact, e.g. the three example builds).
 
 ## New mismatches (Rule ID, GDD value, game value)
-None. The 3 known HAZ-10 mismatches remain (muzzle X 44 vs 60, muzzle Z 6 vs 0, radius 6 vs 12).
+None. `gdd_check` reports MISMATCH=0 on the merged tree (main fixed HAZ-10 in b0c80e58).
 
 ## Found while reviewing (not mismatches, need an owner)
 | Key | GDD | Game | Note |
@@ -35,3 +35,10 @@ None. The 3 known HAZ-10 mismatches remain (muzzle X 44 vs 60, muzzle Z 6 vs 0, 
 - Left in `unbindable` on purpose: HAZ-08.inside_eligibility/value.4 (GDD sentence conflicts with HAZ-06), HAZ-13.wind 360 vs 300 (game has the field; a mismatch to reconcile), retired fixtures, labels, ordinals, examples.
 
 MISMATCH=3 BOUND=597 UNBINDABLE=208 NOT_IN_GAME_P0=24 NOT_IN_GAME_P1P2=0 UNBOUND_P0=0
+
+
+## Review fixes (Nov 12)
+- Tests start from current header text (muzzle 44/0/6, radius 6). `test_current_tree_has_no_mismatch_fail` replaces the stale HAZ-10 drift test; `test_vector_component_binding` edits 44/0/6 to 60/0/0 and expects a MuzzleOffset fail.
+- `python3 -m unittest tests.test_gdd_check tests.test_build_gate_ports`: 28 tests, OK.
+- `gdd_check`: MISMATCH=0 BOUND=597 UNBINDABLE=208 NOT_IN_GAME_P0=24 NOT_IN_GAME_P1P2=0 UNBOUND_P0=0 UNBOUND_P1P2=0
+- Not done: AST walker for `EXPR_OK` (minor; bindings are hand-written).
