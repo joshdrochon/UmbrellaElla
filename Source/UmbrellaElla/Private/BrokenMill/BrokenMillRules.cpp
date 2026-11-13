@@ -245,6 +245,41 @@ float FBrokenMillRules::GetReturnMargin(const FBrokenMillTuning& Tuning)
 	return Tuning.RayEndX - (Tuning.ProtectedCoreX.Y + Tuning.MaxHalfWidth + Tuning.ShotRadius);
 }
 
+FVector2D FBrokenMillRules::GetGuardFeet(const FBrokenMillTuning& Tuning)
+{
+	return FVector2D(Tuning.GuardFeetX, Tuning.TargetCentre.Y - Tuning.TargetSize.Y * 0.5f);
+}
+
+FVector2D FBrokenMillRules::GetLoweredStepEnvelope(const FBrokenMillTuning& Tuning)
+{
+	return Tuning.LoweredStepEnvelope;
+}
+
+bool FBrokenMillRules::IsInAscent(const FBrokenMillTuning& Tuning, const FVector2D& Ella)
+{
+	return Ella.X >= Tuning.AscentStartX;
+}
+
+bool FBrokenMillRules::IsAscentStartClear(const FBrokenMillTuning& Tuning)
+{
+	return Tuning.AscentStartX >= Tuning.IslandXRange.Y + Tuning.MaxHalfWidth + Tuning.AscentStartMargin;
+}
+
+bool FBrokenMillRules::IsInProtectedCore(const FBrokenMillTuning& Tuning, const FVector2D& Root)
+{
+	return Root.X >= Tuning.ProtectedCoreX.X && Root.X <= Tuning.ProtectedCoreX.Y && Root.Y >= Tuning.ProtectedCoreZ.X && Root.Y <= Tuning.ProtectedCoreZ.Y;
+}
+
+bool FBrokenMillRules::IsInVerticalLift(const FBrokenMillTuning& Tuning, const FVector2D& Root)
+{
+	return FMath::Abs(Root.X - Tuning.VerticalLiftEnd.X) <= Tuning.VerticalLiftHalfWidth && Root.Y <= Tuning.VerticalLiftEnd.Y;
+}
+
+bool FBrokenMillRules::IsRootAtReopen(const FBrokenMillTuning& Tuning, float RootZ)
+{
+	return RootZ <= Tuning.RootReopenZ;
+}
+
 FVector2D FBrokenMillRules::GetFiringWindowRoot(const FBrokenMillTuning& Tuning)
 {
 	const float TargetBottom = Tuning.TargetCentre.Y - Tuning.TargetSize.Y * 0.5f;

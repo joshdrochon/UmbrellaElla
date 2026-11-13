@@ -24,6 +24,7 @@ DEFAULT_MODEL=claude-sonnet-5-5   # Josh, Nov 12 evening: Sonnet by default; esc
 MODEL="${WORKER_MODEL:-$DEFAULT_MODEL}"
 # Image spend (Josh Spend OK): one counter shared by every worker on this Mac, one hard total cap set by the lead.
 export UE_SLOTS="${UE_SLOTS:-2}"   # workers share 2 engine slots even through a lane's older ue_slot.sh copy (the gate has its own)
+export CRITIC_CONTEXT=full   # Josh, Nov 13: critics run with full context
 export IMAGE_SPEND_FILE="$BASE/logs/image-spend.json"
 [ -f "$BASE/logs/image-cap-usd.txt" ] && export IMAGE_SPEND_CAP_USD="$(cat "$BASE/logs/image-cap-usd.txt")"
 export AUDIO_SPEND_FILE="$BASE/logs/audio-spend.json"
@@ -39,6 +40,10 @@ fi
 # (Nov 12 20:29: ~10 workers died silently together). The exit line records how each worker ended.
 export WORKER_PROMPT="$PROMPT" WORKER_MODEL_ID="$MODEL" WORKER_LOG="$BASE/logs/$A.log" WORKER_STOP="$BASE/.stop-$A"
 rm -f "$BASE/.stop-$A"   # an intentional stop (lead, switch, pause) touches this file before killing; then no resume
+# One live launch per lane: an older wrapper whose worker is killed resumes only while its launch id is still the lane's
+# current one, so it can never run alongside this launch (Nov 13: duplicates when a stop file was cleared too early).
+WORKER_LAUNCH_ID="$(date +%s)-$$-$RANDOM"; echo "$WORKER_LAUNCH_ID" > "$BASE/.launch-$A"
+export WORKER_LAUNCH_ID WORKER_LAUNCH_FILE="$BASE/.launch-$A"
 # Workers carry none of the launching session's CLAUDE_* variables (session id, PID, messaging socket): three mass
 # SIGTERMs (20:29, 22:15, 01:35) hit every worker tied to the lead's session at once.
 env $(env | sed -n 's/^\(CLAUDE[A-Z_]*\)=.*/-u \1/p' | tr '\n' ' ') nohup python3 -c '
@@ -54,11 +59,17 @@ for attempt in range(3):
     rc = p.wait()
     log.write("\nWORKER_EXIT rc=%s signal=%s at %s\n" % (rc, -rc if rc < 0 else 0, time.strftime("%H:%M:%S"))); log.flush()
     # Killed from outside (SIGTERM 143 / signal) mid-work: resume once more, up to 3 runs (Nov 12: mass SIGTERM 20:29, 22:15).
-    if (rc not in (143, 137) and rc >= 0) or os.path.exists(os.environ["WORKER_STOP"]):
+    current = ""
+    try:
+        current = open(os.environ["WORKER_LAUNCH_FILE"]).read().strip()
+    except OSError:
+        pass
+    if (rc not in (143, 137) and rc >= 0) or os.path.exists(os.environ["WORKER_STOP"]) or current != os.environ["WORKER_LAUNCH_ID"]:
         break
     log.write("WORKER_RESUME after outside kill (run %d)\n" % (attempt + 2)); log.flush(); time.sleep(20)
-    prompt = ("Lead: your previous session was killed from outside mid-work. Resume exactly where your status file and git log "
-              "say you were; commit anything finished first. Original brief follows.\n\n" + os.environ["WORKER_PROMPT"])
+    # the brief stays first, so every liveness check (it matches the opening of the brief) still sees the worker
+    prompt = (os.environ["WORKER_PROMPT"] + "\n\nLead: your previous session was killed from outside mid-work. Resume exactly "
+              "where your status file and git log say you were; commit anything finished first.")
 log.close()
 ' >/dev/null 2>&1 &
 echo "$A worker ($MODEL) pid $! worktree $WT log $BASE/logs/$A.log"
