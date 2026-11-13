@@ -59,3 +59,8 @@ NEEDS HUMAN: lead: (1) hide the cube when the slot has art, (2) Blender-vs-paint
 - R2 flash draft (0.039, spent counter now 34.97 of 33.82 all providers): prompt asked for greyer, desaturated brass. Colour is closer, but the sheet came back on a vignetted olive ground, so `assetgen clean --chroma` refuses it (corners not one key colour), and the gear tilted into perspective. Not used.
 - Not run: art_ref_check, blind panel, context pair (no piece clears the deterministic checks; slots for the three parts are not imported).
 - Next: R3 flash draft with the same desaturated wording plus "perfectly flat uniform #00FF00 background, no vignette, no gradient", then key, cut, art_check; then panel and slots.
+
+## Nov 13 session 19: merged main; blocked on the spend cap (no paint)
+- Counter ../logs/image-spend.json: 34.97 USD spent, cap 33.82 (IMAGE_SPEND_CAP_USD). Over the cap, so assetgen refuses any paid call; no R3 draft possible.
+- No piece passes (R1 mech fails on_palette 0.65 to 0.77 against the 0.8 bar; R2 unusable). The per-piece 1.00 cap rule does not apply: no piece is within 0.05 of score_min, and the shared cap is exhausted anyway.
+NEEDS HUMAN: lead: raise IMAGE_SPEND_CAP_USD (R3 flash drafts at ~0.04 each) or confirm the six Keeper parts stay tracked placeholders.
