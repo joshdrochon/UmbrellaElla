@@ -148,3 +148,8 @@ All 150 rows that were `built` on main at 56a187ec are audited; 119 moved to par
 Number clauses count as proven when gdd_check binds the GDD value (MISMATCH=0) and a test exercises that tuning field.
 Code gap beyond tests: FLOW-05 run scaling (`UProgressionSubsystem::GetRunScaling`) has no consumer outside Progression.
 Label: title button reads "Director's Cut"; GDD section 7 says "Start Director's Cut" (FLOW-34 note).
+
+## Clause tagging (Nov 13, lead change)
+Every unproven clause is tagged in its row note, `unproven(i)` code exists / only a test missing, `unproven(ii)` code missing.
+Machine-readable list: `docs/build/areas/ruleaudit-clauses.csv` (rule,area,clause,tag,code_pointer).
+Bound GDD numbers that gdd_check reports as matching count as proven by gdd_check (noted as "proven by gdd_check"), not downgraded. No row was re-promoted: each still has a behaviour clause with no test.
