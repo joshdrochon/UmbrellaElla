@@ -57,3 +57,15 @@
 - BLOCKED (not the work): needs the lead. (a) a capture at 1280x720 or larger through run_game.sh (e.g. honour an env
   `RUN_GAME_RES`), (b) `artui` added to the `cards` of the references the screen elements use (`references.json`
   reference entries are outside my "screen elements only" lane), (c) request 1. No paint spend this round ($0).
+
+## Round 2/3 (12 Nov, after merging main and ad9d6d1d context capture)
+- Context capture made: `run_game.sh -SmokeShot=... -SmokeQuitAfter=15`. A relative -SmokeShot path lands under the
+  editor's own folder (Engine/Binaries/Mac/Saved/...), not the worktree: pass an absolute path or copy it. Needs a
+  prior `ue_slot.sh tools/ue/build.sh` or the launch dies on the UBT mutex.
+- `art_ref_check --card artui --element ui-title` now PASSES (0.971). `required_pairs` for `ui-title` is now only
+  reference + quality_bar (no context pair), so requests 1 and the cards gap are closed on main.
+- Panel round on `ui-title` (6 sonnet critics run by me, `art_loop.py panel` makes folders only): calibration 5/6, 2 of 3
+  sessions per pair counted, verdict `reference`. Every critic gives the same gap: our frame is "low-resolution and
+  soft" with thin lettering and paper texture, next to a full-res reference. Same as round 1: capture size, 640x360.
+- STILL BLOCKED on one thing: a capture larger than 640x360 through run_game.sh (e.g. env `RUN_GAME_RES` read into
+  ResX/ResY, lead-owned file). Without it no screen can beat a 1080p reference on detail. No paint spend ($0).
