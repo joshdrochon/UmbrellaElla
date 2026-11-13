@@ -3,6 +3,8 @@
 # never with crash-reporter windows (Josh, Nov 12: playtest runs took over his screen with buzzing audio).
 # Usage: tools/build/run_game.sh [--packaged <exe>] [extra game args...]   (editor -game on this checkout by default)
 set -u
+# Every game launch (playtests, screenshots) takes an engine slot like a build (Josh: at most 3 Unreal-heavy jobs).
+[ -z "${UE_SLOT_HELD:-}" ] && exec "$(cd "$(dirname "$0")" && pwd)/ue_slot.sh" "$0" "$@"
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"; UE_ROOT="${UE_ROOT:-/Users/Shared/Epic Games/UE_5.8}"
 SAFE=(-nosound -windowed -ResX=640 -ResY=360 -unattended -nocrashreports -nosplash)
 # RUN_RES=WxH: a larger capture (e.g. 1280x720, 1920x1080) renders offscreen, so no window takes over the screen.
