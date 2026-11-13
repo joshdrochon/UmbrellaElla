@@ -49,11 +49,10 @@ def gust_py():
 def talon_py():
     s = buf(1.0)
     add(s, nrm(creak(0.64, 1400, 2600, ((1, 0.6), (1.48, 0.35), (2.2, 0.2)), rough=120,
-                     amp=ramp(0.64, 0.15, 1.0, 1.6, 0.03), seed=3)), 0.0, 0.55)             # iron drawn across iron
-    for i, t in enumerate((0.08, 0.26, 0.4, 0.5, 0.575)):                                 # knuckles spreading
-        add(s, strike(1900 + 160 * i, 160, BAR2, nz=1.2, seed=i), t, 0.3 + 0.09 * i)
-    add(s, strike(2700, 60, BAR2, nz=2.2, nz_decay=160), 0.66, 1.4)                       # the claw catches open
-    add(s, strike(640, 50, PLATE, nz=0), 0.66, 0.5)
+                     amp=ramp(0.64, 0.15, 1.0, 1.6, 0.03), seed=3)), 0.0, 0.5)             # iron drawn across iron
+    for i, t in enumerate(accel(5, 0.5, 1 / 2.5)):                                        # knuckles slow and fall as it pulls away
+        add(s, strike(2600 - 220 * i, 160, BAR2, nz=1.2, seed=i), 0.06 + t, 0.5 - 0.05 * i)
+    add(s, nrm(air(0.2, lambda t: 1800 - 1200 * t / 0.2, 1.4, burst(0.2, 0.012, 70), seed=41)), 0.64, 1.1)   # hollow breath: the claw is empty
     return s
 
 
@@ -69,9 +68,10 @@ def cast_py():
 
 def rear_py():
     s = buf(1.0)
-    add(s, strike(900, 90, PLATE, nz=1.0, nz_decay=200), 0.0, 0.4)                        # the dry midpoint clack
-    for i, t in enumerate(accel(11, 0.54)):                                               # it winds again and is cut off
-        add(s, strike(1500 + 100 * i, 120, BAR2, nz=1.2, seed=i), 0.12 + t, 0.3 + 0.11 * i)
+    add(s, nrm(air(0.66, lambda t: 700 + 500 * t / 0.66, 1.2, ramp(0.66, 0.3, 1.0, 1.2, 0.02), seed=51)), 0.0, 0.6)   # air held tight
+    add(s, strike(2900, 14, BELL, nz=0.3), 0.2, 0.35)                                     # a hanging partial that never resolves
+    for i in range(9):                                                                    # slow even ticks, then nothing
+        add(s, strike(1700 + 40 * (i % 3), 110, BAR2, nz=1.0, seed=i), 0.05 + 0.07 * i * 1.6, 0.35 + 0.05 * i)
     return s
 
 
@@ -197,11 +197,12 @@ def bellows_py():
     s = buf(1.1)
     add(s, nrm(air(0.07, 300, 0.8, burst(0.07, 0.004, 40), seed=1)), 0.0, 0.6)             # the bag jerks open
     add(s, strike(95, 30, KNOCK, nz=0.5, nz_decay=80, rise=0.003), 0.0, 0.6)
-    add(s, nrm(creak(0.88, 105, 150, ((1, 0.6), (2, 0.4), (3, 0.3), (4.1, 0.2)), rough=22,
-                     amp=ramp(0.88, 0.2, 1.0, 1.4, 0.04), seed=2)), 0.02, 0.8)             # the low core of the nozzle
-    add(s, nrm(air(0.88, lambda t: 900 + 1700 * (t / 0.88) ** 1.5, 7.0, ramp(0.88, 0.15, 1.0, 1.6, 0.04), seed=3)), 0.02, 0.7)
-    add(s, nrm(air(0.88, lambda t: 420 + 700 * (t / 0.88) ** 1.5, 3.0, ramp(0.88, 0.2, 1.0, 1.4, 0.04), seed=4)), 0.02, 0.6)
-    add(s, strike(420, 50, KNOCK, nz=1.0, nz_decay=150), 0.9, 0.9)                         # the valve shuts: held
+    for k, (t0, d, lv) in enumerate(((0.02, 0.4, 0.7), (0.44, 0.46, 1.0))):                # two quick, climbing gust pulses
+        add(s, nrm(creak(d, 105 + 25 * k, 150 + 30 * k, ((1, 0.6), (2, 0.4), (3, 0.3), (4.1, 0.2)), rough=22,
+                         amp=ramp(d, 0.2, 1.0, 1.4, 0.04), seed=2 + k)), t0, 0.8 * lv)
+        add(s, nrm(air(d, lambda t, k=k: 1000 + 600 * k + 1700 * (t / 0.4) ** 1.2, 7.0, ramp(d, 0.2, 1.0, 1.6, 0.04), seed=3 + k)), t0, 0.7 * lv)
+        add(s, nrm(air(d, lambda t, k=k: 420 + 700 * (t / 0.4) ** 1.2, 3.0, ramp(d, 0.2, 1.0, 1.4, 0.04), seed=5 + k)), t0, 0.6 * lv)
+    add(s, nrm(air(0.25, lambda t: 2600 - 1600 * t / 0.25, 3.0, burst(0.25, 0.01, 40), seed=9)), 0.92, 0.5)   # the pressure lets go
     return s
 
 
@@ -226,11 +227,11 @@ RECIPES.update({
  # COM-16 Courier hover / aim: a hover catch, the propeller spins up (blade beats 10 to 44 a second, rising), a
  # ratchet catch.
  "CourierWarning": {
-  "seconds": 2.2, "lufs": -18, "post_gain_db": 2, "fade_out": 0.6, "takes": 1, "reverb": BIGHALL, "post": DARK,
+  "seconds": 1.5, "lufs": -18, "post_gain_db": 2, "fade_out": 0.3, "takes": 1, "reverb": BIGHALL, "post": DARK,
   "layers": {
    "spinup": {"kind": "py", "fn": courier_warn_py, "prompt": "synthesised hover and aim: a hover catch (700 Hz bar partials over a knock), a propeller spinning up (blade beats quickening from 10 to 44 a second, each a chop of air and a wooden tick rising 380 to 800 Hz), then a hard ratchet catch (900 Hz bar partials over a 180 Hz knock)"},
    "prop": {"prompt": "a small wooden propeller spinning up faster and faster, rising clockwork whirr, dry, isolated, no other sounds",
-            "secs": 1.5, "trim": 1.0, "norm_lufs": -20, "gain_db": -11, "filter": "highpass=f=200,lowpass=f=3500,afade=t=out:st=0.9:d=0.1"},
+            "secs": 1.5, "trim": 1.45, "norm_lufs": -20, "gain_db": -11, "filter": "highpass=f=200,lowpass=f=3500,afade=t=out:st=0.9:d=0.5"},
   }},
  # HAZ-20 shutter crank / tension: the crank bites, ten teeth speed up and climb while the spring groans upward,
  # and it stops at full tension on the hardest click.
@@ -375,20 +376,14 @@ def warden_steps_py():
 
 def flood_steps_py():
     s = buf(3.0)
-    add(s, strike(300, 30, PLATE, nz=1.0, nz_decay=90, seed=1), 0.02, 1.0)                # heavy footfall
-    add(s, strike(100, 26, KNOCK, nz=0.4, seed=1), 0.02, 0.9)
-    add(s, nrm(creak(0.4, 430, 500, rough=34, amp=swell(0.15, 0.4, 1.5, 6), seed=6)), 0.3, 0.35)
-    add(s, strike(410, 40, PLATE, nz=0.8, seed=2), 0.82, 0.6)                             # light, two ratchet ticks
-    add(s, strike(150, 30, KNOCK, nz=0.3, seed=2), 0.82, 0.45)
-    for j, dt in enumerate((0.14, 0.24)):
-        add(s, strike(1300 + 120 * j, 120, BAR2, nz=0.9, seed=j), 0.82 + dt, 0.3)
-    add(s, strike(340, 28, PLATE, nz=1.0, nz_decay=90, seed=3), 1.52, 0.95)               # heavy, a joint groans
-    add(s, strike(118, 26, KNOCK, nz=0.4, seed=3), 1.52, 0.85)
-    add(s, nrm(creak(0.45, 520, 410, rough=30, amp=swell(0.15, 0.45, 1.5, 6), seed=4)), 1.7, 0.4)
-    add(s, strike(460, 42, PLATE, nz=0.8, seed=5), 2.3, 0.55)                             # light, three falling ticks
-    add(s, strike(160, 30, KNOCK, nz=0.3, seed=5), 2.3, 0.4)
-    for j, dt in enumerate((0.12, 0.2, 0.3)):
-        add(s, strike(1500 - 110 * j, 120, BAR2, nz=0.9, seed=j), 2.3 + dt, 0.3 - 0.05 * j)
+    for k in range(4):                                                                    # an even, heavy stride: 0.75 s a step
+        t0 = 0.02 + (0.0, 0.72, 1.55, 2.25)[k]
+        add(s, strike((150, 128, 165, 118)[k], 30, KNOCK, nz=0.5, nz_decay=70, seed=k), t0, 0.7)     # footfall thump
+        add(s, strike(230, 40, PLATE, nz=0.8, seed=k), t0 + 0.01, 0.7)
+        for j, dt in enumerate(((0.09, 0.15, 0.21, 0.30), (0.1, 0.19), (0.08, 0.14, 0.2), (0.12, 0.17, 0.26, 0.33))[k]):                                  # strap and buckle rattle
+            add(s, strike(1700 + 140 * ((j + k) % 3), 120, BAR2, nz=0.8, seed=j + k), t0 + dt, 0.65 - 0.08 * j)
+        if k % 2:
+            add(s, nrm(creak(0.35, 520, 410, rough=30, amp=swell(0.12, 0.35, 1.5, 6), seed=k)), t0 + 0.25, 0.35)
     return s
 
 
@@ -487,7 +482,7 @@ RECIPES.update({
   "reverb": {"rt60": 0.9, "wet_db": -11, "damp_hz": 3000, "predelay_ms": 15},
   "layers": {
    "stride": {"kind": "py", "fn": flood_steps_py, "prompt": "synthesised stilt stride: four different footfalls (heavy 300 Hz, light 410 Hz with two ratchet ticks, heavy 340 Hz, light 460 Hz with three falling ticks, each a wooden plate over a low knock), and two joint groans"},
-   "gear": {"kind": "py", "fn": lambda: teeth(3.0, 0.8, 42, 180, 70, KNOCK, nz=0.3), "gain_db": -12,
+   "gear": {"kind": "py", "fn": lambda: teeth(3.0, 0.8, 42, 180, 70, KNOCK, nz=0.3), "gain_db": -20,
             "prompt": "synthesised low gear turning: 14 soft 180 Hz teeth a second"},
    "joints": {"prompt": "slow walking machine on tall wooden stilts, iron joints creaking between heavy steps, steady, dry, no other sounds",
               "secs": 4.0, "trim": 3.8, "norm_lufs": -20, "gain_db": -11, "filter": "highpass=f=250,lowpass=f=3500," + loop_bed(3.0, 0.8)},

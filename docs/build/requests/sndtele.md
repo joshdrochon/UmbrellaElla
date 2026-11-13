@@ -61,3 +61,14 @@ critic (`tools/build/critic.sh audio`) still sends the stock packet, so it will 
 `audio_loop.neighbours` fills R1..R3 with whatever takes are in `Audio/Source`. On branches cut from main before
 area/audio merged, those are the 11 placeholder takes the critic already failed, shown to the critic as "sounds already
 approved for this game". Suggested: skip takes whose provenance origin is `placeholder:` when picking neighbours.
+
+## 2. style.json `enemy` family target describes only the owl's projectiles (check defect)
+
+File: `pipeline/audio/style.json`, family `enemy` (`character`, `instruments`). Owner: build lead / audio lane.
+Defect: members include WardenMove, FloodStiltMove (movement loops) and the Courier/Warden/Flood warnings, but the
+target text is "The owl's projectiles. Launch... Travel... Fade...". With audio-critic/3 (event now named) the critic
+fails WardenMove: "the event row (Roadwarden movement loop) and the family target (owl projectile) describe different
+sounds". Fix: add one line per event kind to `character`, e.g. "Movement loops (Warden, Floodstrider): an even
+armoured or stilted gait, heavy low footfalls with strap and buckle rattle, no projectile whirr. Warnings: a brace
+strike, a tightening ratchet or spin-up, ending on a catch." No bar or range changes. Until applied WardenMove stays
+a tracked placeholder.
