@@ -1,0 +1,29 @@
+{
+ "frames": 4,
+ "frame": [
+  808,
+  1197
+ ],
+ "figure_heights": [
+  1179,
+  928,
+  1177,
+  1181
+ ],
+ "figure_widths": [
+  755,
+  792,
+  792,
+  653
+ ],
+ "height_spread_pct": 21.4,
+ "pivot": "bottom-centre",
+ "cut": "equal cells, inset 0 px",
+ "source": "Art/Source/Ella/Paint/R1/attack_post.png",
+ "outputs": [
+  "Art/Source/Ella/Paint/R1/frames_attack/Ella_attack_00.png",
+  "Art/Source/Ella/Paint/R1/frames_attack/Ella_attack_01.png",
+  "Art/Source/Ella/Paint/R1/frames_attack/Ella_attack_02.png",
+  "Art/Source/Ella/Paint/R1/frames_attack/Ella_attack_03.png"
+ ]
+}

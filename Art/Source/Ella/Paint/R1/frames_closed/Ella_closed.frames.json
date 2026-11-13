@@ -1,0 +1,29 @@
+{
+ "frames": 4,
+ "frame": [
+  808,
+  1231
+ ],
+ "figure_heights": [
+  1120,
+  1212,
+  1179,
+  1215
+ ],
+ "figure_widths": [
+  701,
+  792,
+  792,
+  672
+ ],
+ "height_spread_pct": 7.8,
+ "pivot": "bottom-centre",
+ "cut": "equal cells, inset 0 px",
+ "source": "Art/Source/Ella/Paint/R1/closed_post.png",
+ "outputs": [
+  "Art/Source/Ella/Paint/R1/frames_closed/Ella_closed_00.png",
+  "Art/Source/Ella/Paint/R1/frames_closed/Ella_closed_01.png",
+  "Art/Source/Ella/Paint/R1/frames_closed/Ella_closed_02.png",
+  "Art/Source/Ella/Paint/R1/frames_closed/Ella_closed_03.png"
+ ]
+}
