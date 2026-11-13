@@ -59,8 +59,8 @@ private:
 	};
 
 	void TickInputCheck(class AUmbrellaPlayerController* Flow);
-	bool SendKey(class APlayerController* Controller, const FKey& Key, EInputEvent Event, float Amount) const;
-	bool ReadMotor(FVector& OutVelocity) const;
+	bool CanSendKey(class APlayerController* Controller, const FKey& Key, EInputEvent Event, float Amount) const;
+	bool HasMotor(FVector& OutVelocity) const;
 
 	EInputStep InputStep = EInputStep::Idle;
 	double InputStepStart = 0.0;
@@ -79,6 +79,5 @@ private:
 	float QuitAfterSeconds = 0.0f;
 	float LoadMs = 0.0f;
 	bool bShotTaken = false;
-	FDelegateHandle ShotHandle;
 	bool bSelectedStart = false;
 };

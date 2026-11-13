@@ -4,10 +4,7 @@
 #include "Core/EllaCharacter.h"
 #include "Engine/Engine.h"
 #include "GameFramework/PlayerController.h"
-#include "HAL/FileManager.h"
-#include "ImageUtils.h"
 #include "InputKeyEventArgs.h"
-#include "Misc/FileHelper.h"
 #include "Motor/EllaMotorComponent.h"
 #include "Engine/GameInstance.h"
 #include "Engine/GameViewportClient.h"
@@ -105,24 +102,7 @@ void USmokeHookSubsystem::Tick(float DeltaTime)
 	if (!bShotTaken && !ShotPath.IsEmpty() && Elapsed >= Tuning.SmokeShotDelaySeconds)
 	{
 		bShotTaken = true;
-		// The packaged Mac build does not write the file RequestScreenshot names, so the hook takes the pixels from the
-		// capture delegate and writes the PNG itself (whole window, UI and bars included).
-		ShotHandle = UGameViewportClient::OnScreenshotCaptured().AddWeakLambda(this, [this](int32 Width, int32 Height, const TArray<FColor>& Colors)
-		{
-			TArray<FColor> Opaque = Colors;
-			for (FColor& Pixel : Opaque)
-			{
-				Pixel.A = 255;
-			}
-			TArray64<uint8> Png;
-			FImageView Image(Opaque.GetData(), Width, Height, ERawImageFormat::BGRA8);
-			if (FImageUtils::CompressImage(Png, TEXT("png"), Image))
-			{
-				IFileManager::Get().MakeDirectory(*FPaths::GetPath(ShotPath), true);
-				FFileHelper::SaveArrayToFile(Png, *ShotPath);
-			}
-			UGameViewportClient::OnScreenshotCaptured().Remove(ShotHandle);
-		});
+		// [VERIFY] 5.8.4 packaged Mac: the request fires but no PNG is written (see docs/build/areas/smoke-status.md).
 		FScreenshotRequest::RequestScreenshot(ShotPath, true, false);
 		const FVector2D Size = GEngine && GEngine->GameViewport ? FVector2D(GEngine->GameViewport->Viewport->GetSizeXY()) : FVector2D::ZeroVector;
 		UE_LOG(LogUmbrellaElla, Log, TEXT("SMOKE_SHOT at_s=%.1f w=%d h=%d"), Elapsed, static_cast<int32>(Size.X), static_cast<int32>(Size.Y));
@@ -215,7 +195,7 @@ FString USmokeHookSubsystem::BuildEffectiveLine(const TCHAR* At, const TCHAR* Ou
 	return Line;
 }
 
-bool USmokeHookSubsystem::ReadMotor(FVector& OutVelocity) const
+bool USmokeHookSubsystem::HasMotor(FVector& OutVelocity) const
 {
 	UWorld* World = GetGameInstance() ? GetGameInstance()->GetWorld() : nullptr;
 	const AEllaCharacter* Ella = World ? Cast<AEllaCharacter>(UGameplayStatics::GetPlayerPawn(World, 0)) : nullptr;
@@ -227,7 +207,7 @@ bool USmokeHookSubsystem::ReadMotor(FVector& OutVelocity) const
 	return true;
 }
 
-bool USmokeHookSubsystem::SendKey(APlayerController* Controller, const FKey& Key, EInputEvent Event, float Amount) const
+bool USmokeHookSubsystem::CanSendKey(APlayerController* Controller, const FKey& Key, EInputEvent Event, float Amount) const
 {
 	if (!Controller)
 	{
@@ -248,7 +228,7 @@ void USmokeHookSubsystem::TickInputCheck(AUmbrellaPlayerController* Flow)
 	const double Now = FApp::GetCurrentTime();
 	const double InStep = Now - InputStepStart;
 	FVector Velocity = FVector::ZeroVector;
-	const bool bHasMotor = ReadMotor(Velocity);
+	const bool bHasMotor = HasMotor(Velocity);
 	APlayerController* Controller = Flow;
 
 	switch (InputStep)
@@ -264,7 +244,7 @@ void USmokeHookSubsystem::TickInputCheck(AUmbrellaPlayerController* Flow)
 			InputStep = EInputStep::Done;
 			break;
 		}
-		SendKey(Controller, EKeys::J, IE_Pressed, 1.0f);
+		CanSendKey(Controller, EKeys::J, IE_Pressed, 1.0f);
 		InputStep = EInputStep::KeyHold;
 		InputStepStart = Now;
 		break;
@@ -273,7 +253,7 @@ void USmokeHookSubsystem::TickInputCheck(AUmbrellaPlayerController* Flow)
 		{
 			InputVz = static_cast<float>(Velocity.Z);
 			bInputOk = InputVz < 0.0f;
-			SendKey(Controller, EKeys::J, IE_Released, 0.0f);
+			CanSendKey(Controller, EKeys::J, IE_Released, 0.0f);
 			InputStep = EInputStep::KeyGap;
 			InputStepStart = Now;
 			UE_LOG(LogUmbrellaElla, Log, TEXT("SMOKE_INPUT key=J action=Shoot vz=%.1f"), InputVz);
@@ -282,8 +262,8 @@ void USmokeHookSubsystem::TickInputCheck(AUmbrellaPlayerController* Flow)
 	case EInputStep::KeyGap:
 		if (InStep >= InputGapSeconds)
 		{
-			SendKey(Controller, EKeys::Gamepad_RightTrigger, IE_Pressed, 1.0f);
-			SendKey(Controller, EKeys::Gamepad_LeftX, IE_Axis, 1.0f);
+			CanSendKey(Controller, EKeys::Gamepad_RightTrigger, IE_Pressed, 1.0f);
+			CanSendKey(Controller, EKeys::Gamepad_LeftX, IE_Axis, 1.0f);
 			InputStep = EInputStep::PadHold;
 			InputStepStart = Now;
 		}
@@ -292,9 +272,9 @@ void USmokeHookSubsystem::TickInputCheck(AUmbrellaPlayerController* Flow)
 		if (InStep >= InputHoldSeconds)
 		{
 			PadAttackVz = static_cast<float>(Velocity.Z);
-			// Falling, stick right: Hop is a dash by input direction (MOVE-06), so it must move her right.
-			SendKey(Controller, EKeys::Gamepad_FaceButton_Bottom, IE_Pressed, 1.0f);
-			SendKey(Controller, EKeys::Gamepad_FaceButton_Bottom, IE_Released, 0.0f);
+			// Falling, stick right: Hop is a dash by input direction, so it must move her right.
+			CanSendKey(Controller, EKeys::Gamepad_FaceButton_Bottom, IE_Pressed, 1.0f);
+			CanSendKey(Controller, EKeys::Gamepad_FaceButton_Bottom, IE_Released, 0.0f);
 			InputStep = EInputStep::PadDash;
 			InputStepStart = Now;
 		}
@@ -303,8 +283,8 @@ void USmokeHookSubsystem::TickInputCheck(AUmbrellaPlayerController* Flow)
 		PadPeakVx = FMath::Max(PadPeakVx, static_cast<float>(Velocity.X));
 		if (InStep >= InputHoldSeconds)
 		{
-			SendKey(Controller, EKeys::Gamepad_LeftX, IE_Axis, 0.0f);
-			SendKey(Controller, EKeys::Gamepad_RightTrigger, IE_Released, 0.0f);
+			CanSendKey(Controller, EKeys::Gamepad_LeftX, IE_Axis, 0.0f);
+			CanSendKey(Controller, EKeys::Gamepad_RightTrigger, IE_Released, 0.0f);
 			bGamepadOk = PadAttackVz < 0.0f && PadPeakVx > 0.0f;
 			InputStep = EInputStep::PadGap;
 			InputStepStart = Now;
@@ -318,6 +298,7 @@ void USmokeHookSubsystem::TickInputCheck(AUmbrellaPlayerController* Flow)
 		}
 		break;
 	case EInputStep::Done:
+	default:
 		break;
 	}
 }
