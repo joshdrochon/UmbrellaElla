@@ -23,6 +23,7 @@ Keep working until your area is done or you are truly blocked. $EXTRA"
 DEFAULT_MODEL=claude-sonnet-5-5   # Josh, Nov 12 evening: Sonnet by default; escalation per worker-rules.md
 MODEL="${WORKER_MODEL:-$DEFAULT_MODEL}"
 # Image spend (Josh Spend OK): one counter shared by every worker on this Mac, one hard total cap set by the lead.
+export UE_SLOTS="${UE_SLOTS:-2}"   # workers share 2 engine slots even through a lane's older ue_slot.sh copy (the gate has its own)
 export IMAGE_SPEND_FILE="$BASE/logs/image-spend.json"
 [ -f "$BASE/logs/image-cap-usd.txt" ] && export IMAGE_SPEND_CAP_USD="$(cat "$BASE/logs/image-cap-usd.txt")"
 export AUDIO_SPEND_FILE="$BASE/logs/audio-spend.json"
