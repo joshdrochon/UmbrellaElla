@@ -1,0 +1,32 @@
+{
+ "element": "vfx-stream-start",
+ "note": "crops of the effect cut from the concept sheets; originals untouched",
+ "crops": [
+  {
+   "file": "release-burst.png",
+   "source": "pipeline/art/reference/discord/20261110-0328_Ricky_1.png",
+   "box": [
+    245,
+    455,
+    330,
+    515
+   ],
+   "key": "gold",
+   "pieces": "all",
+   "opaque_px": 1695
+  },
+  {
+   "file": "fall-flame.png",
+   "source": "pipeline/art/reference/discord/20261110-0328_Ricky_1.png",
+   "box": [
+    995,
+    825,
+    1070,
+    860
+   ],
+   "key": "gold",
+   "pieces": "all",
+   "opaque_px": 939
+  }
+ ]
+}

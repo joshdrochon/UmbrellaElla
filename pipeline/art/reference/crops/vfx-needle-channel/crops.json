@@ -1,0 +1,32 @@
+{
+ "element": "vfx-needle-channel",
+ "note": "crops of the effect cut from the concept sheets; originals untouched",
+ "crops": [
+  {
+   "file": "tell-ring.png",
+   "source": "pipeline/art/reference/discord/20261110-0328_Ricky_1.png",
+   "box": [
+    85,
+    465,
+    130,
+    510
+   ],
+   "key": "gold",
+   "pieces": "all",
+   "opaque_px": 451
+  },
+  {
+   "file": "lit-flame.png",
+   "source": "pipeline/art/reference/discord/20261110-0328_Ricky_1.png",
+   "box": [
+    650,
+    825,
+    725,
+    860
+   ],
+   "key": "gold",
+   "pieces": "all",
+   "opaque_px": 920
+  }
+ ]
+}
