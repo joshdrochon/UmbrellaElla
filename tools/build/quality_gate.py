@@ -48,17 +48,19 @@ def fails(lines, pattern=FAIL_LINE):
     return {re.sub(r":\d+(:\d+)?\b", "", l.strip()) for l in lines if re.match(pattern, l)}
 
 
-GDD_KEY = re.compile(r"^\s*FAIL\s+(?:broken\s+|NOT_IN_GAME\s+P\d\s+|mismatch\s+)?([A-Z]+-\d+[\w.]*)")
+GDD_GAP = re.compile(r"^\s*FAIL\s+(?:broken\s+(?P<b>[A-Z]+-\d+[\w.]*):|NOT_IN_GAME\s+P\d\s+(?P<n>[A-Z]+-\d+[\w.]*)\s|(?P<k>[A-Z]+-\d+[\w.]*)$)")   # bare "FAIL <key>": baselines cached by af58e9dd
 
 
 def gdd_keys(lines):
-    """gdd_check fails compared by GDD key (Nov 13): a value that moves from a broken binding to the not_in_game list,
-    or whose owner text changes, is the same open GDD gap, not a new fail. A new key still counts as new."""
+    """gdd_check fails for the no-new-FAIL compare (Nov 13). Only two forms name the same open gap and are compared by GDD
+    key: a broken binding (the value's source vanished) and a NOT_IN_GAME P0 row (the value is listed as missing). So
+    moving a value from one to the other, or rewording its owner/missing text, is not a new fail (measured: CAM-05.h.3,
+    CAM-05.value.2 moved broken -> NOT_IN_GAME in the hotfix; CAM-05.value changed owner). Every other FAIL line
+    (stale, unbindable, not_in_game format errors, mismatches, UNBOUND) is compared as its full line, as before."""
     out = set()
-    for l in lines:
-        m = GDD_KEY.match(l)
-        if m:
-            out.add("FAIL " + m.group(1))
+    for l in fails(lines):
+        m = GDD_GAP.match(l)
+        out.add(("GAP " + (m.group("b") or m.group("n") or m.group("k"))) if m else l)
     return out
 
 
@@ -109,8 +111,8 @@ def main():
     if os.path.exists(basefile):
         for row in open(basefile):
             n, _, l = row.rstrip("\n").partition("\t"); before.setdefault(n, set()).add(l)
-    if "gdd_check" in before:   # a baseline written before key comparison holds full lines: compare by key too
-        before["gdd_check"] = gdd_keys(before["gdd_check"]) | {l for l in before["gdd_check"] if l.startswith("FAIL ") and " " not in l[5:]}
+    if "gdd_check" in before:   # a cached baseline holds the full lines: normalise them the same way
+        before["gdd_check"] = gdd_keys(before["gdd_check"])
     for n, ls in baseline_for_new_checks(base).items():
         before[n] = before.get(n, set()) | ls
     problems = []
