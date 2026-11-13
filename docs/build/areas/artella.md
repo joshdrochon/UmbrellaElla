@@ -18,3 +18,5 @@ Commit after each round that improves a piece; log piece, round, verdict and gap
 Critic sanity (Josh): if the critic looks defective (the same piece failing for different reasons each round, reasons that contradict the GDD or the references, reasons it cannot judge, a piece that measurably meets every number but keeps failing, calibration drift), test the critic: it must pass the reference itself, fail a known-bad sample, and agree with itself on the same piece twice. Fix a real defect in its prompt, packet or calibration and write the fix and the evidence in docs/build/areas/<you>-status.md (the lead copies it to the build log). Never loosen the bar.
 Lane: Art/Source/<these assets>/**, Art/<these assets>/**, Content/UmbrellaElla/Art/<these assets>/**,
 tools/build/assets/art_ella*.py, pipeline/art/provenance.csv (append your rows only). Never gameplay code.
+
+Image model: read docs/build/art-image-model.md; it applies once the lead says Spend OK.

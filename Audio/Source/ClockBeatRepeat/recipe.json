@@ -1,0 +1,55 @@
+{
+ "seconds": 0.9,
+ "lufs": -17,
+ "static_level": true,
+ "fade_out": 0.3,
+ "takes": 3,
+ "post": "anull",
+ "post_gain_db": 0,
+ "reverb": {
+  "rt60": 0.5,
+  "wet_db": -14,
+  "damp_hz": 5000,
+  "predelay_ms": 10,
+  "hp_hz": 300
+ },
+ "layers": {
+  "tick": {
+   "kind": "synth",
+   "prompt": "synthesised heavy brass escapement tick: pallet striking the escape wheel, inharmonic partials at 1x, 1.62x and 2.45x, dry, very fast decay",
+   "secs": 0.12,
+   "freqs": [
+    2100,
+    2250,
+    1980
+   ],
+   "expr": "(1-exp(-4000*t))*(0.4*exp(-85*t)*sin(2*PI*1*{f}*t)+0.3*exp(-100*t)*sin(2*PI*1*1.62*{f}*t)+0.2*exp(-120*t)*sin(2*PI*1*2.45*{f}*t))",
+   "gain_db": 0,
+   "trim": 0.12,
+   "filter": "anull,apad=whole_dur=0.9"
+  },
+  "clunk": {
+   "kind": "synth",
+   "prompt": "synthesised short low mechanism clunk under the beat: partials at 1x and 1.5x, 40 ms",
+   "secs": 0.12,
+   "freqs": [
+    250,
+    265,
+    240
+   ],
+   "expr": "0.5*exp(-45*t)*sin(2*PI*{f}*t)+0.3*exp(-55*t)*sin(2*PI*1.5*{f}*t)",
+   "gain_db": 5,
+   "trim": 0.12,
+   "filter": "anull,apad=whole_dur=0.9"
+  },
+  "brass": {
+   "prompt": "single heavy antique clock escapement tick, large brass mechanism, close and exact, dry, isolated",
+   "secs": 0.5,
+   "filter": "highpass=f=500,lowpass=f=7000,apad=whole_dur=0.9",
+   "gain_db": -5,
+   "start_db": -26,
+   "trim": 0.5,
+   "decay": 40
+  }
+ }
+}

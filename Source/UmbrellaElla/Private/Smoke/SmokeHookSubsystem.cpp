@@ -1,7 +1,11 @@
 #include "Smoke/SmokeHookSubsystem.h"
 #include "Core/UmbrellaLog.h"
 #include "Core/UmbrellaTuning.h"
+#include "Core/EllaCharacter.h"
 #include "Engine/Engine.h"
+#include "GameFramework/PlayerController.h"
+#include "InputKeyEventArgs.h"
+#include "Motor/EllaMotorComponent.h"
 #include "Engine/GameInstance.h"
 #include "Engine/GameViewportClient.h"
 #include "Engine/LocalPlayer.h"
@@ -11,6 +15,10 @@
 #include "Misc/App.h"
 #include "Misc/CommandLine.h"
 #include "UnrealClient.h"
+#include "Framework/Application/SlateApplication.h"
+#include "HAL/FileManager.h"
+#include "ImageUtils.h"
+#include "Widgets/SWindow.h"
 #include "SceneView.h"
 #include "SceneView.h"
 #include "UObject/UnrealType.h"
@@ -70,6 +78,32 @@ float USmokeHookSubsystem::ComputeLowFps(const TArray<float>& Frames, float LowS
 	return MeanSlow > 0.0 ? static_cast<float>(1.0 / MeanSlow) : 0.0f;
 }
 
+USmokeHookSubsystem::EInputStep USmokeHookSubsystem::NextInputStep(EInputStep Step, double InStepSeconds, double SinceStartSeconds, float ShotDelaySeconds, bool bHasMotor, bool bHasController)
+{
+	switch (Step)
+	{
+	case EInputStep::Idle:
+		if (!bHasController || SinceStartSeconds < ShotDelaySeconds + InputGapSeconds)
+		{
+			return Step;
+		}
+		return bHasMotor ? EInputStep::KeyHold : EInputStep::Done;
+	case EInputStep::KeyHold:
+		return InStepSeconds >= InputHoldSeconds ? EInputStep::KeyGap : Step;
+	case EInputStep::KeyGap:
+		return InStepSeconds >= InputGapSeconds ? EInputStep::PadHold : Step;
+	case EInputStep::PadHold:
+		return InStepSeconds >= InputHoldSeconds ? EInputStep::PadDash : Step;
+	case EInputStep::PadDash:
+		return InStepSeconds >= InputHoldSeconds ? EInputStep::PadGap : Step;
+	case EInputStep::PadGap:
+		return InStepSeconds >= InputGapSeconds ? EInputStep::Done : Step;
+	case EInputStep::Done:
+	default:
+		return EInputStep::Done;
+	}
+}
+
 void USmokeHookSubsystem::Tick(float DeltaTime)
 {
 	const FFlowTuning& Tuning = GetDefault<UUmbrellaTuning>()->Flow;
@@ -98,22 +132,83 @@ void USmokeHookSubsystem::Tick(float DeltaTime)
 	if (!bShotTaken && !ShotPath.IsEmpty() && Elapsed >= Tuning.SmokeShotDelaySeconds)
 	{
 		bShotTaken = true;
-		FScreenshotRequest::RequestScreenshot(ShotPath, false, false);
+		// Whole window (bars and UI): bShowUI=true takes the Slate window, not the bare scene render target.
+		FScreenshotRequest::RequestScreenshot(ShotPath, true, false);
+		ShotRequestedAt = FApp::GetCurrentTime();
 		const FVector2D Size = GEngine && GEngine->GameViewport ? FVector2D(GEngine->GameViewport->Viewport->GetSizeXY()) : FVector2D::ZeroVector;
 		UE_LOG(LogUmbrellaElla, Log, TEXT("SMOKE_SHOT at_s=%.1f w=%d h=%d"), Elapsed, static_cast<int32>(Size.X), static_cast<int32>(Size.Y));
 	}
 
-	if (Flow && Flow->GetScreen() == EFlowScreen::Defeat)
+	if (bShotTaken && !bShotChecked && FApp::GetCurrentTime() - ShotRequestedAt >= ShotWriteWaitSeconds)
+	{
+		bShotChecked = true;
+		if (!IFileManager::Get().FileExists(*ShotPath))
+		{
+			// The engine request wrote nothing (packaged Mac): read the Slate window back ourselves.
+			SaveWindowShotDirect();
+		}
+		UE_LOG(LogUmbrellaElla, Log, TEXT("SMOKE_SHOT_FILE written=%d path_bytes=%lld"), IFileManager::Get().FileExists(*ShotPath) ? 1 : 0,
+			IFileManager::Get().FileSize(*ShotPath));
+	}
+
+	TickInputCheck(Flow);
+
+	if (FParse::Param(FCommandLine::Get(), TEXT("SmokePlaytest")))
+	{
+		if (!Playtest)
+		{
+			Playtest = MakeUnique<FPlaytestRun>();
+		}
+		// Start once the shot is out and the input check is over, so neither disturbs the other.
+		if (!bPlaytestStarted && (ShotPath.IsEmpty() || bShotChecked) && InputStep == EInputStep::Done && Flow && Flow->GetScreen() != EFlowScreen::Defeat)
+		{
+			bPlaytestStarted = true;
+			Playtest->Start(GetWorld());
+		}
+		else if (bPlaytestStarted && !Playtest->IsDone())
+		{
+			Playtest->Advance(DeltaTime);
+		}
+	}
+	const bool bPlaytestSettled = !Playtest || (bPlaytestStarted && Playtest->IsDone());
+
+	const bool bInputSettled = InputStep == EInputStep::Done && bPlaytestSettled;
+	const float GraceSeconds = Playtest ? InputGraceSeconds + FPlaytestRun::HazRunSeconds + FPlaytestRun::PlaytestSetupGraceSeconds : InputGraceSeconds;
+	if (Flow && Flow->GetScreen() == EFlowScreen::Defeat && (bInputSettled || Elapsed >= QuitAfterSeconds + GraceSeconds))
 	{
 		LogEnd(TEXT("fail"));
 	}
-	else if (Flow && (Flow->GetScreen() == EFlowScreen::Story || Flow->GetScreen() == EFlowScreen::Credits))
+	else if (Flow && (Flow->GetScreen() == EFlowScreen::Story || Flow->GetScreen() == EFlowScreen::Credits) && (bInputSettled || Elapsed >= QuitAfterSeconds + GraceSeconds))
 	{
 		LogEnd(TEXT("survived"));
 	}
-	else if (Elapsed >= QuitAfterSeconds)
+	else if (Elapsed >= QuitAfterSeconds && (bInputSettled || Elapsed >= QuitAfterSeconds + GraceSeconds))
 	{
 		LogEnd(TEXT("quit"));
+	}
+}
+
+void USmokeHookSubsystem::SaveWindowShotDirect()
+{
+	if (!GEngine || !GEngine->GameViewport || !FSlateApplication::IsInitialized())
+	{
+		return;
+	}
+	TSharedPtr<SWindow> Window = GEngine->GameViewport->GetWindow();
+	if (!Window.IsValid())
+	{
+		return;
+	}
+	TArray<FColor> Bitmap;
+	FIntVector Size;
+	if (FSlateApplication::Get().TakeScreenshot(Window.ToSharedRef(), Bitmap, Size) && Bitmap.Num() > 0)
+	{
+		for (FColor& Color : Bitmap)
+		{
+			Color.A = OpaqueAlpha;
+		}
+		const FImageView Image(Bitmap.GetData(), Size.X, Size.Y);
+		FImageUtils::SaveImageByExtension(*ShotPath, Image);
 	}
 }
 
@@ -146,11 +241,10 @@ void USmokeHookSubsystem::LogEnd(const TCHAR* Outcome)
 	}
 	const float Aspect = View.Y > 0 ? static_cast<float>(View.X) / View.Y : 0.0f;
 
-	// input= and gamepad= need the Motor and Attack actions of other lanes; reported as none until they exist.
 	UE_LOG(LogUmbrellaElla, Log,
-		TEXT("SMOKE_OK map=%s fps=%.1f worst_ms=%.1f commit=%s input=none input_vz=0 gamepad=none gp_vx=0 gp_attack_vz=0 res=%dx%d win=%s textpx=%d load_ms=%.0f workbench=%d view=%dx%d aspect=%.3f debugdraw=0"),
+		TEXT("SMOKE_OK map=%s fps=%.1f worst_ms=%.1f commit=%s input=%s input_vz=%.1f gamepad=%s gp_vx=%.1f gp_attack_vz=%.1f res=%dx%d win=%s textpx=%d load_ms=%.0f workbench=%d view=%dx%d aspect=%.3f debugdraw=0"),
 		*UGameplayStatics::GetCurrentLevelName(this), ComputeLowFps(FrameSeconds, Tuning.SmokeLowShare), WorstSeconds * MillisecondsPerSecond,
-		ANSI_TO_TCHAR(UMBRELLAELLA_BUILD_COMMIT), Window.X, Window.Y, bFullscreen ? TEXT("fullscreen") : TEXT("windowed"),
+		ANSI_TO_TCHAR(UMBRELLAELLA_BUILD_COMMIT), bInputOk ? TEXT("ok") : TEXT("none"), InputVz, bGamepadOk ? TEXT("ok") : TEXT("none"), PadPeakVx, PadAttackVz, Window.X, Window.Y, bFullscreen ? TEXT("fullscreen") : TEXT("windowed"),
 		Tuning.MenuFontSize, LoadMs, UMBRELLAELLA_WORKBENCH, View.X, View.Y, Aspect);
 
 	if (QuitAfterSeconds > 0.0f)
@@ -187,4 +281,90 @@ FString USmokeHookSubsystem::BuildEffectiveLine(const TCHAR* At, const TCHAR* Ou
 		Line += FString::Printf(TEXT(" %s.enabled=%d"), GetFeatureRuleId(Id), IsFeatureEnabled(Id) ? 1 : 0);
 	}
 	return Line;
+}
+
+bool USmokeHookSubsystem::HasMotor(FVector& OutVelocity) const
+{
+	UWorld* World = GetGameInstance() ? GetGameInstance()->GetWorld() : nullptr;
+	const AEllaCharacter* Ella = World ? Cast<AEllaCharacter>(UGameplayStatics::GetPlayerPawn(World, 0)) : nullptr;
+	if (!Ella || !Ella->GetMotor())
+	{
+		return false;
+	}
+	OutVelocity = Ella->GetMotor()->GetVelocity();
+	return true;
+}
+
+bool USmokeHookSubsystem::CanSendKey(APlayerController* Controller, const FKey& Key, EInputEvent Event, float Amount) const
+{
+	if (!Controller)
+	{
+		return false;
+	}
+	FViewport* Viewport = GEngine && GEngine->GameViewport ? GEngine->GameViewport->Viewport : nullptr;
+	const FInputDeviceId Device = FInputDeviceId::CreateFromInternalId(0);
+	if (Event == IE_Axis)
+	{
+		return Controller->InputKey(FInputKeyEventArgs(Viewport, Device, Key, Amount, 0.0f, 1, 0));
+	}
+	return Controller->InputKey(FInputKeyEventArgs(Viewport, Device, Key, Event, 0));
+}
+
+void USmokeHookSubsystem::TickInputCheck(AUmbrellaPlayerController* Flow)
+{
+	const FFlowTuning& Tuning = GetDefault<UUmbrellaTuning>()->Flow;
+	const double Now = FApp::GetCurrentTime();
+	const double InStep = Now - InputStepStart;
+	FVector Velocity = FVector::ZeroVector;
+	const bool bHasMotor = HasMotor(Velocity);
+	APlayerController* Controller = Flow;
+
+	const double SinceStart = Now - StartTime;
+	const EInputStep Next = NextInputStep(InputStep, InStep, SinceStart, Tuning.SmokeShotDelaySeconds, bHasMotor, Controller != nullptr);
+	if (InputStep == EInputStep::PadDash)
+	{
+		PadPeakVx = FMath::Max(PadPeakVx, static_cast<float>(Velocity.X));
+	}
+	if (Next == InputStep)
+	{
+		return;
+	}
+
+	switch (InputStep)
+	{
+	case EInputStep::Idle:
+		if (Next == EInputStep::KeyHold)
+		{
+			CanSendKey(Controller, EKeys::J, IE_Pressed, 1.0f);
+		}
+		break;
+	case EInputStep::KeyHold:
+		InputVz = static_cast<float>(Velocity.Z);
+		bInputOk = InputVz < 0.0f;
+		CanSendKey(Controller, EKeys::J, IE_Released, 0.0f);
+		UE_LOG(LogUmbrellaElla, Log, TEXT("SMOKE_INPUT key=J action=Shoot vz=%.1f"), InputVz);
+		break;
+	case EInputStep::KeyGap:
+		CanSendKey(Controller, EKeys::Gamepad_RightTrigger, IE_Pressed, 1.0f);
+		CanSendKey(Controller, EKeys::Gamepad_LeftX, IE_Axis, 1.0f);
+		break;
+	case EInputStep::PadHold:
+		PadAttackVz = static_cast<float>(Velocity.Z);
+		// Falling, stick right: Hop is a dash by input direction, so it must move her right.
+		CanSendKey(Controller, EKeys::Gamepad_FaceButton_Bottom, IE_Pressed, 1.0f);
+		CanSendKey(Controller, EKeys::Gamepad_FaceButton_Bottom, IE_Released, 0.0f);
+		break;
+	case EInputStep::PadDash:
+		CanSendKey(Controller, EKeys::Gamepad_LeftX, IE_Axis, 0.0f);
+		CanSendKey(Controller, EKeys::Gamepad_RightTrigger, IE_Released, 0.0f);
+		bGamepadOk = PadAttackVz < 0.0f && PadPeakVx > 0.0f;
+		UE_LOG(LogUmbrellaElla, Log, TEXT("SMOKE_GAMEPAD attack_vz=%.1f peak_vx=%.1f"), PadAttackVz, PadPeakVx);
+		break;
+	case EInputStep::PadGap:
+	case EInputStep::Done:
+	default:
+		break;
+	}
+	InputStep = Next;
+	InputStepStart = Now;
 }

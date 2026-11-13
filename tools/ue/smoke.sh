@@ -34,7 +34,11 @@ if [ -n "${SMOKE_CRASH_DIRS:-}" ]; then IFS=: read -r -a X <<< "$SMOKE_CRASH_DIR
 SNAP="${GAMELOG%.log}-crashes-before.txt"
 "$PY" "$REPO/tools/ue_run.py" crash-list "${CRASH[@]}" --out "$SNAP"
 SHOT="${GAMELOG%.log}-shot.png"
-ARGS=(-SmokeShot="$SHOT"); EXPECT=(--min-fps "${SMOKE_MIN_FPS:-55}" --max-frame-ms "${SMOKE_MAX_FRAME_MS:-33}" --max-load-ms "${SMOKE_MAX_LOAD_MS:-10000}" --shot "$SHOT")
+ARGS=(-SmokeShot="$SHOT")
+# Automated runs never take over the screen or the speakers (Josh, Nov 12): no sound, small window, unless the quiet
+# release smoke asks for sound (SMOKE_SOUND=1) or a display run sets SMOKE_RES.
+[ "${SMOKE_SOUND:-0}" = "1" ] || ARGS+=(-nosound)
+[ -n "${SMOKE_RES:-}" ] || ARGS+=(-windowed -ResX=640 -ResY=360); EXPECT=(--min-fps "${SMOKE_MIN_FPS:-55}" --max-frame-ms "${SMOKE_MAX_FRAME_MS:-33}" --max-load-ms "${SMOKE_MAX_LOAD_MS:-10000}" --shot "$SHOT")
 [ -n "${SMOKE_NO_PLAYER_MAPS:-}" ] && EXPECT+=(--no-player-maps "$SMOKE_NO_PLAYER_MAPS")
 [ "${SMOKE_REQUIRE_INPUT:-1}" = "0" ] && EXPECT+=(--no-input-check)
 [ "${SMOKE_REQUIRE_GAMEPAD:-1}" = "0" ] && EXPECT+=(--no-gamepad-check)
@@ -58,7 +62,7 @@ if [ "${SMOKE_MODE:-}" = "alive" ]; then
   "$PY" "$REPO/tools/ue_run.py" alive --seconds "${SMOKE_ALIVE_SECONDS:-15}" --max-boot-s "${SMOKE_MAX_BOOT_S:-0}" --log "$OUTLOG" -- "$EXE" -unattended -nocrashreports ${ARGS[@]+"${ARGS[@]}"} || rc=$?
 else
   "$PY" "$REPO/tools/ue_run.py" run --timeout "${SMOKE_TIMEOUT:-120}" --log "$OUTLOG" -- \
-    "$EXE" -SmokeQuitAfter=15 -log -abslog="$GAMELOG" -unattended -nocrashreports ${ARGS[@]+"${ARGS[@]}"} >/dev/null || rc=$?   # -abslog [VERIFY]
+    "$EXE" -SmokeQuitAfter=15 -log -abslog="$GAMELOG" -stdout -FullStdOutLogOutput -unattended -nocrashreports ${ARGS[@]+"${ARGS[@]}"} >/dev/null || rc=$?   # 5.8.4 Mac packaged: Log-verbosity lines (LogUmbrellaElla) reach stdout only with -stdout -FullStdOutLogOutput, and -abslog writes no file, so $OUTLOG is the game log
   LOGS=("$OUTLOG"); [ -f "$GAMELOG" ] && LOGS+=("$GAMELOG")
   echo "smoke logs: ${LOGS[*]}"
   if [ -f "$INFO/BUILD_INFO.txt" ]; then EXPECT+=(--expect-commit "$(sed -n 's/^commit=//p' "$INFO/BUILD_INFO.txt")"); fi

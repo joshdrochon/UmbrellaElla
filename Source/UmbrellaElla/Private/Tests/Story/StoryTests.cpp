@@ -54,7 +54,7 @@ bool FStoryCueTableTest::RunTest(const FString& Parameters)
 {
 	const TArray<FStoryCue> Cues = StoryCueTable::Parse(StoryCueTable::DefaultText());
 	TestEqual(TEXT("seven cues"), Cues.Num(), 7);
-	TestEqual(TEXT("opening text"), Cues[0].Text, FString(TEXT("Keep it open. It will protect you from the owl.")));
+	TestEqual(TEXT("opening text"), Cues[0].Text, FString(TEXT("Mother: Keep it open, Ella. It'll protect you from the owl.")));
 	FString OnDisk;
 	const FString Path = FPaths::Combine(FPaths::ProjectContentDir(), TEXT("UmbrellaElla/UI/Story/StoryCues.tsv"));
 	if (FFileHelper::LoadFileToString(OnDisk, *Path))
@@ -79,7 +79,7 @@ bool FStoryOpeningTest::RunTest(const FString& Parameters)
 	FStoryModel Model = NewModel();
 	Model.OnEvent(Make(EUmbrellaEventType::ModeSelected, DirectorsCut));
 	Model.Advance(0.1f);
-	TestTrue(TEXT("mother caption shows"), ActiveText(Model).StartsWith(TEXT("Keep it open")));
+	TestTrue(TEXT("mother caption shows"), ActiveText(Model).StartsWith(TEXT("Mother: Keep it open")));
 	Run(Model, 3.0f);
 	TestTrue(TEXT("still showing at 3 s"), Model.GetActiveCue() != nullptr);
 	Run(Model, 1.5f);
@@ -91,7 +91,7 @@ bool FStoryOpeningTest::RunTest(const FString& Parameters)
 	Model.OnEvent(Make(EUmbrellaEventType::ModeSelected, DirectorsCut));
 	Run(Model, 0.2f);
 	TestEqual(TEXT("a new run shows it once"), Model.CountShown(FName(TEXT("OpeningMother"))), 1);
-	TestTrue(TEXT("and it is on screen"), ActiveText(Model).StartsWith(TEXT("Keep it open")));
+	TestTrue(TEXT("and it is on screen"), ActiveText(Model).StartsWith(TEXT("Mother: Keep it open")));
 	return true;
 }
 
@@ -158,7 +158,7 @@ bool FStoryInPlayCuesTest::RunTest(const FString& Parameters)
 	Model.OnEvent(Make(EUmbrellaEventType::PhaseStarted, TEXT("wings")));
 	Model.OnEvent(Make(EUmbrellaEventType::CheckpointReached, TEXT("wings")));
 	Run(Model, 0.2f);
-	TestEqual(TEXT("clock hand clue on arrival"), ActiveText(Model), FString(TEXT("The owl is huge, and made of clockwork.")));
+	TestEqual(TEXT("clock hand clue on arrival"), ActiveText(Model), FString(TEXT("The clock keeps one hand. Beside it is an empty place.")));
 	Run(Model, 6.0f);
 	Model.OnEvent(Make(EUmbrellaEventType::PhaseStarted, TEXT("wings")));
 	Run(Model, 6.0f);
@@ -177,21 +177,59 @@ bool FStoryEndingTest::RunTest(const FString& Parameters)
 	FStoryModel Model = NewModel();
 	Model.OnEvent(Make(EUmbrellaEventType::ModeSelected, DirectorsCut));
 	Run(Model, 1.0f);
+	Model.EnterEndingStage(EStoryEndingStage::Credits);
+	TestTrue(TEXT("no ending before the win"), Model.GetEndingStage() == EStoryEndingStage::None);
+	Model.OnEvent(Make(EUmbrellaEventType::XPAwarded, TEXT(""), 10));
 	Model.OnEvent(Make(EUmbrellaEventType::EncounterCompleted));
 	TestTrue(TEXT("hold first"), Model.GetEndingStage() == EStoryEndingStage::Hold);
-	Run(Model, 2.0f);
-	TestTrue(TEXT("still holding at 2 s"), Model.GetEndingStage() == EStoryEndingStage::Hold);
-	TestTrue(TEXT("no statistics yet"), !Model.ShouldShowStatistics());
-	Run(Model, 1.0f);
-	TestTrue(TEXT("story text after the hold"), Model.GetEndingStage() == EStoryEndingStage::StoryText);
-	Run(Model, 0.2f);
-	TestTrue(TEXT("ending line on screen"), ActiveText(Model).Contains(TEXT("pursuit ends")));
+	TestTrue(TEXT("in-play caption cleared by the win"), Model.GetActiveCue() == nullptr);
 	Run(Model, 20.0f);
+	TestTrue(TEXT("story keeps no ending clock of its own: still holding"), Model.GetEndingStage() == EStoryEndingStage::Hold);
+	Model.OnEvent(Make(EUmbrellaEventType::XPAwarded, TEXT(""), 50));
+	Model.OnEvent(Make(EUmbrellaEventType::ProjectileSpawned, TEXT("EnemyRed")));
+	TestEqual(TEXT("nothing counted after the win"), Model.GetStats().XpEarned, 10);
+	TestEqual(TEXT("no shot counted after the win"), Model.GetStats().ShotsFiredAtYou, 0);
+
+	const TArray<FString> Lines = Model.GetEndingLines();
+	TestEqual(TEXT("three ending lines"), Lines.Num(), 3);
+	TestTrue(TEXT("first ending line"), Lines.Num() > 0 && Lines[0].Contains(TEXT("pursuit ends")));
+
+	Model.EnterEndingStage(EStoryEndingStage::StoryText);
+	TestTrue(TEXT("flow moves it to the story text"), Model.GetEndingStage() == EStoryEndingStage::StoryText);
+	TestTrue(TEXT("ending lines are flow's pages, not a caption"), Model.GetActiveCue() == nullptr);
+	Model.EnterEndingStage(EStoryEndingStage::Hold);
+	TestTrue(TEXT("forward only"), Model.GetEndingStage() == EStoryEndingStage::StoryText);
+	Model.EnterEndingStage(EStoryEndingStage::Credits);
 	TestTrue(TEXT("credits after the story"), Model.GetEndingStage() == EStoryEndingStage::Credits);
-	Run(Model, 10.0f);
+	TestTrue(TEXT("no statistics during credits"), !Model.ShouldShowStatistics());
+	Model.EnterEndingStage(EStoryEndingStage::Statistics);
 	TestTrue(TEXT("statistics after the credits"), Model.ShouldShowStatistics());
 	TestTrue(TEXT("first win saved"), Model.GetProgress().bFirstWinSeen);
 	TestTrue(TEXT("first win flag is a save request"), Model.HasProgressToSave());
+
+	FStoryModel StartGame = NewModel();
+	StartGame.OnEvent(Make(EUmbrellaEventType::ModeSelected, TEXT("StartGame")));
+	StartGame.OnEvent(Make(EUmbrellaEventType::EncounterCompleted));
+	StartGame.EnterEndingStage(EStoryEndingStage::Statistics);
+	TestFalse(TEXT("Start Game never reaches statistics"), StartGame.ShouldShowStatistics());
+	TestFalse(TEXT("Start Game win sets no flag"), StartGame.GetProgress().bFirstWinSeen);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FStoryLightShaftTest, "UmbrellaElla.Story.LightShaftTrigger", UMBRELLAELLA_STORY_TEST_FLAGS)
+
+bool FStoryLightShaftTest::RunTest(const FString& Parameters)
+{
+	FStoryModel Model = NewModel();
+	TestFalse(TEXT("off before a run"), Model.IsLightShaftOn());
+	Model.OnEvent(Make(EUmbrellaEventType::ModeSelected, TEXT("StartGame")));
+	TestFalse(TEXT("off in Start Game"), Model.IsLightShaftOn());
+	Model.OnEvent(Make(EUmbrellaEventType::ModeSelected, DirectorsCut));
+	TestTrue(TEXT("on in Director's Cut play"), Model.IsLightShaftOn());
+	Model.OnEvent(Make(EUmbrellaEventType::EncounterCompleted));
+	TestTrue(TEXT("still on during the hold on Ella (light still falls)"), Model.IsLightShaftOn());
+	Model.EnterEndingStage(EStoryEndingStage::StoryText);
+	TestFalse(TEXT("off once the ending background shows"), Model.IsLightShaftOn());
 	return true;
 }
 
@@ -215,7 +253,7 @@ bool FStorySkipTest::RunTest(const FString& Parameters)
 	TestFalse(TEXT("later start can skip"), Model.IsOpeningShowing());
 
 	Model.OnEvent(Make(EUmbrellaEventType::EncounterCompleted));
-	Run(Model, 3.0f);
+	Model.EnterEndingStage(EStoryEndingStage::StoryText);
 	TestFalse(TEXT("first win cannot skip"), Model.CanSkipEnding());
 	Model.SkipEnding();
 	TestFalse(TEXT("still no statistics"), Model.ShouldShowStatistics());
@@ -226,7 +264,8 @@ bool FStorySkipTest::RunTest(const FString& Parameters)
 	Second.SetProgress(Prior);
 	Second.OnEvent(Make(EUmbrellaEventType::ModeSelected, DirectorsCut));
 	Second.OnEvent(Make(EUmbrellaEventType::EncounterCompleted));
-	Run(Second, 3.0f);
+	TestFalse(TEXT("no skip during the hold, even after a prior win"), Second.CanSkipEnding());
+	Second.EnterEndingStage(EStoryEndingStage::StoryText);
 	TestTrue(TEXT("prior win allows skip"), Second.CanSkipEnding());
 	Second.SkipEnding();
 	TestTrue(TEXT("skip goes to statistics"), Second.ShouldShowStatistics());
@@ -308,7 +347,7 @@ bool FStoryWorldTest::RunTest(const FString& Parameters)
 		Bus->Broadcast(Make(EUmbrellaEventType::ModeSelected, DirectorsCut));
 		Story->Tick(0.1f);
 		const FStoryCue* Cue = Story->GetModel().GetActiveCue();
-		TestTrue(TEXT("opening shown from the bus"), Cue && Cue->Text.StartsWith(TEXT("Keep it open")));
+		TestTrue(TEXT("opening shown from the bus"), Cue && Cue->Text.StartsWith(TEXT("Mother: Keep it open")));
 		Bus->Broadcast(Make(EUmbrellaEventType::EncounterCompleted));
 		TestTrue(TEXT("ending started from the bus"), Story->GetModel().GetEndingStage() == EStoryEndingStage::Hold);
 	}

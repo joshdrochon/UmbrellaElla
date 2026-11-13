@@ -43,6 +43,12 @@ public:
 	/** Controller page Reset button: shipped default bindings in the draft. */
 	void PressResetBindings();
 
+	/** Game Options control: set one developer option in the draft (ignored where the options cannot be edited). */
+	void SetDeveloperOption(EDeveloperOption Option, int32 Value);
+
+	/** Game Options Reset button: every developer option back to "as tuned" in the draft. */
+	void PressResetDeveloperOptions();
+
 	/** Public so tests can feed a click; runs before Slate buttons, so mouse buttons bind over a button. */
 	virtual FReply NativeOnPreviewMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 

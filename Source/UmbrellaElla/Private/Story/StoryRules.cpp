@@ -45,12 +45,12 @@ const FString& StoryCueTable::DefaultText()
 {
 	static const FString Text(
 		TEXT("# id\ttrigger\tdelay_seconds\tduration_seconds\ttext   (tab separated; duration 0 = tuning value; ending lines show in file order)\n")
-		TEXT("OpeningMother\tModeSelected.DirectorsCut\t0\t0\tKeep it open. It will protect you from the owl.\n")
-		TEXT("LightShadow\tModeSelected.DirectorsCut\t5\t5\tThe open umbrella lifts her. Its shadow follows.\n")
-		TEXT("KeeperArrival\tPhaseStarted.wings\t0\t5\tThe owl is huge, and made of clockwork.\n")
-		TEXT("ShaftClue\tBossPartDestroyed\t0\t5\tA piece of the owl's wing falls away.\n")
+		TEXT("OpeningMother\tModeSelected.DirectorsCut\t0\t0\tMother: Keep it open, Ella. It'll protect you from the owl.\n")
+		TEXT("LightShadow\tModeSelected.DirectorsCut\t5\t5\tThe abyss is endless. The open umbrella's shadow follows her.\n")
+		TEXT("KeeperArrival\tPhaseStarted.wings\t0\t5\tThe clock keeps one hand. Beside it is an empty place.\n")
+		TEXT("ShaftClue\tBossPartDestroyed\t0\t5\tThe umbrella's shaft matches the bronze of the clock.\n")
 		TEXT("EndingStory1\tEnding.Story\t0\t0\tThe owl's pursuit ends. He goes back into the darkness.\n")
-		TEXT("EndingStory2\tEnding.Story\t0\t0\tShe is alive, but still suspended between worlds.\n")
+		TEXT("EndingStory2\tEnding.Story\t0\t0\tElla is alive, but still suspended between worlds.\n")
 		TEXT("EndingStory3\tEnding.Story\t0\t0\tPerhaps the owl has only postponed his judgment.\n"));
 	return Text;
 }
@@ -137,8 +137,6 @@ void FStoryModel::BeginRunState()
 	bHasActive = false;
 	ActiveRemaining = 0.0f;
 	Stage = EStoryEndingStage::None;
-	StageRemaining = 0.0f;
-	EndingLine = 0;
 	bHaveLocation = false;
 	bHaveHealth = false;
 	bRunLive = true;
@@ -216,8 +214,9 @@ void FStoryModel::OnEvent(const FUmbrellaEvent& Event)
 			BeginNewRun(Selected);
 		}
 	}
-	if (!IsDirectorsCut() || !bRunLive)
+	if (!IsDirectorsCut() || !bRunLive || Stage != EStoryEndingStage::None)
 	{
+		// After the win the run is over: nothing more is counted or captioned (NAR-07; Journey Complete shows current-run stats).
 		return;
 	}
 
@@ -238,7 +237,7 @@ void FStoryModel::OnEvent(const FUmbrellaEvent& Event)
 		HandleHealth(Event);
 		break;
 	case EUmbrellaEventType::EncounterCompleted:
-		if (Stage == EStoryEndingStage::None && IsFeatureEnabled(EFeatureId::NAR_07))
+		if (IsFeatureEnabled(EFeatureId::NAR_07))
 		{
 			EnterStage(EStoryEndingStage::Hold);
 		}
@@ -302,26 +301,15 @@ void FStoryModel::SampleLocation(const FVector& Location)
 
 void FStoryModel::EnterStage(EStoryEndingStage Next)
 {
-	const FStoryTuning& Tuning = GetDefault<UUmbrellaTuning>()->Story;
 	Stage = Next;
 	switch (Next)
 	{
 	case EStoryEndingStage::Hold:
+		// Authoritative success: no more in-play captions; the stats are frozen from here.
 		Pending.Reset();
 		FinishActive();
-		StageRemaining = Tuning.EndingHoldSeconds;
-		break;
-	case EStoryEndingStage::StoryText:
-		EndingLine = 0;
-		StageRemaining = 0.0f;
-		break;
-	case EStoryEndingStage::Credits:
-		FinishActive();
-		StageRemaining = Tuning.CreditsSeconds;
 		break;
 	case EStoryEndingStage::Statistics:
-		FinishActive();
-		StageRemaining = 0.0f;
 		if (!Progress.bFirstWinSeen)
 		{
 			Progress.bFirstWinSeen = true;
@@ -334,18 +322,45 @@ void FStoryModel::EnterStage(EStoryEndingStage Next)
 	}
 }
 
-void FStoryModel::Advance(float DeltaSeconds)
+void FStoryModel::EnterEndingStage(EStoryEndingStage Next)
 {
-	if (!StoryOn() || !bRunLive || DeltaSeconds <= 0.0f)
+	// Flow owns the one ending clock (NAR-07); story only follows it, forward only, once the win started it.
+	if (!IsDirectorsCut() || Stage == EStoryEndingStage::None || Next <= Stage)
 	{
 		return;
 	}
-	if (Stage == EStoryEndingStage::None)
+	EnterStage(Next);
+}
+
+TArray<FString> FStoryModel::GetEndingLines() const
+{
+	TArray<FString> Lines;
+	for (const FStoryCue& Cue : Cues)
 	{
-		for (int32 Index = Pending.Num() - 1; Index >= 0; --Index)
+		if (Cue.Trigger == EndingTrigger)
 		{
-			Pending[Index].Remaining -= DeltaSeconds;
+			Lines.Add(Cue.Text);
 		}
+	}
+	return Lines;
+}
+
+bool FStoryModel::IsLightShaftOn() const
+{
+	// NAR-05: light falls through the whole Director's Cut run and the ending hold, until the ending background.
+	const bool bStageLit = Stage == EStoryEndingStage::None || Stage == EStoryEndingStage::Hold;
+	return IsFeatureEnabled(EFeatureId::NAR_05) && StoryOn() && IsDirectorsCut() && bRunLive && bStageLit;
+}
+
+void FStoryModel::Advance(float DeltaSeconds)
+{
+	if (!StoryOn() || !bRunLive || DeltaSeconds <= 0.0f || Stage != EStoryEndingStage::None)
+	{
+		return;
+	}
+	for (int32 Index = Pending.Num() - 1; Index >= 0; --Index)
+	{
+		Pending[Index].Remaining -= DeltaSeconds;
 	}
 	if (bHasActive)
 	{
@@ -355,7 +370,7 @@ void FStoryModel::Advance(float DeltaSeconds)
 			FinishActive();
 		}
 	}
-	if (Stage == EStoryEndingStage::None && !bHasActive)
+	if (!bHasActive)
 	{
 		for (int32 Index = 0; Index < Pending.Num(); ++Index)
 		{
@@ -367,52 +382,6 @@ void FStoryModel::Advance(float DeltaSeconds)
 				break;
 			}
 		}
-		return;
-	}
-
-	switch (Stage)
-	{
-	case EStoryEndingStage::Hold:
-		StageRemaining -= DeltaSeconds;
-		if (StageRemaining <= 0.0f)
-		{
-			EnterStage(EStoryEndingStage::StoryText);
-		}
-		break;
-	case EStoryEndingStage::StoryText:
-		if (!bHasActive)
-		{
-			int32 Seen = 0;
-			bool bStarted = false;
-			for (const FStoryCue& Cue : Cues)
-			{
-				if (Cue.Trigger != EndingTrigger)
-				{
-					continue;
-				}
-				if (Seen++ == EndingLine)
-				{
-					StartCue(Cue);
-					++EndingLine;
-					bStarted = true;
-					break;
-				}
-			}
-			if (!bStarted)
-			{
-				EnterStage(EStoryEndingStage::Credits);
-			}
-		}
-		break;
-	case EStoryEndingStage::Credits:
-		StageRemaining -= DeltaSeconds;
-		if (StageRemaining <= 0.0f)
-		{
-			EnterStage(EStoryEndingStage::Statistics);
-		}
-		break;
-	default:
-		break;
 	}
 }
 
