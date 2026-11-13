@@ -136,7 +136,7 @@ int32 AUmbrellaLevelDirector::BuildRoute(int64 Seed)
 
 int32 AUmbrellaLevelDirector::PlaceAtCheckpoint(AActor* Actor, int32 Checkpoint) const
 {
-	if (!Actor || Checkpoint < 1 || Checkpoint > LevelPlanConst::MaxCheckpoint || !IsFeatureEnabled(EFeatureId::FLOW_28))
+	if (!Actor || Checkpoint < 0 || Checkpoint > LevelPlanConst::MaxCheckpoint || !IsFeatureEnabled(EFeatureId::FLOW_28))
 	{
 		return 0;
 	}
@@ -184,6 +184,16 @@ void AUmbrellaLevelDirector::StepFollow(float EllaX, int32 TravelDirection)
 	if (!bHandedOff && SlotsSpawned > 0 && EllaX >= LevelPlan::KeeperHandoffX())
 	{
 		bHandedOff = true;
+		// FLOW-28: the route's enemies and traps are gone once the Keeper fight begins.
+		for (int32 i = Spawned.Num() - 1; i >= 0; --i)
+		{
+			AActor* A = Spawned[i];
+			if (IsValid(A) && (A->IsA<AUmbrellaEnemy>() || A->IsA<AUmbrellaTrap>()))
+			{
+				A->Destroy();
+				Spawned.RemoveAtSwap(i);
+			}
+		}
 		if (UEncounterDirectorSubsystem* Encounter = GetWorld() ? GetWorld()->GetSubsystem<UEncounterDirectorSubsystem>() : nullptr)
 		{
 			Encounter->BeginKeeperFight();
