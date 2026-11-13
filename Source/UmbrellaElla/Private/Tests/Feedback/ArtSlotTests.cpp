@@ -181,6 +181,21 @@ bool FArtSlotElla::RunTest(const FString& Parameters)
 		TestEqual(TEXT("art keeps the state footprint"), Presenter->GetStandIn()->GetRelativeScale3D(), Down);
 		TestEqual(TEXT("art has no collision"), static_cast<int32>(Presenter->GetStandIn()->GetCollisionEnabled()), static_cast<int32>(ECollisionEnabled::NoCollision));
 	}
+	// A state with its own art and no Idle art still draws (review item 2).
+	AActor* Owner2 = World->SpawnActor<AActor>();
+	USceneComponent* Root2 = NewObject<USceneComponent>(Owner2, TEXT("Root"));
+	Owner2->SetRootComponent(Root2);
+	Root2->RegisterComponent();
+	UEllaAnimPresenterComponent* NoIdle = NewObject<UEllaAnimPresenterComponent>(Owner2);
+	NoIdle->RegisterComponent();
+	NoIdle->BuildVisual();
+	if (TestNotNull(TEXT("no-idle stand-in"), NoIdle->GetStandIn()) && !NoIdle->IsShowingArt())
+	{
+		UTexture2D* ShootOnly = ArtSlotTestTexture();
+		NoIdle->SetStateTexture(EEllaVisualState::Shoot, ShootOnly);
+		TestTrue(TEXT("shoot-only art draws"), NoIdle->IsShowingArt());
+		TestTrue(TEXT("shoot-only picture shown"), ArtSlotParamTexture(NoIdle->GetStandIn()) == ShootOnly);
+	}
 	ArtSlotTestEnd(World);
 	return true;
 }
@@ -193,8 +208,8 @@ bool FArtSlotEllaFlipbookPaths::RunTest(const FString& Parameters)
 	const TArray<FString> Open = UEllaAnimPresenterComponent::FlipbookSlotPaths(EEllaVisualState::Idle);
 	if (TestEqual(TEXT("two paths per state"), Open.Num(), 2))
 	{
-		TestEqual(TEXT("placeholder first"), Open[0], FString(TEXT("/Game/UmbrellaElla/Art/Ella/FB_Ella_Open_PH.FB_Ella_Open_PH")));
-		TestEqual(TEXT("shipped second"), Open[1], FString(TEXT("/Game/UmbrellaElla/Art/Ella/FB_Ella_Open.FB_Ella_Open")));
+		TestEqual(TEXT("passed asset first"), Open[0], FString(TEXT("/Game/UmbrellaElla/Art/Ella/FB_Ella_Open.FB_Ella_Open")));
+		TestEqual(TEXT("placeholder second"), Open[1], FString(TEXT("/Game/UmbrellaElla/Art/Ella/FB_Ella_Open_PH.FB_Ella_Open_PH")));
 	}
 	TestEqual(TEXT("shoot is Attack"), UEllaAnimPresenterComponent::FlipbookSlotName(EEllaVisualState::Shoot), FString(TEXT("Attack")));
 	TestEqual(TEXT("absorb is Shield"), UEllaAnimPresenterComponent::FlipbookSlotName(EEllaVisualState::Absorb), FString(TEXT("Shield")));

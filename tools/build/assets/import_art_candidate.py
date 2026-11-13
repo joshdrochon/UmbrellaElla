@@ -43,7 +43,7 @@ def resolve(slot):
         raise SystemExit("import_art_candidate: %r is not a slot under %s/<Folder>/<Asset>" % (path, GAME_ROOT))
     folder, asset = path.rsplit("/", 1)
     if not asset.startswith("T_"):
-        raise SystemExit("import_art_candidate: %s is not a texture slot (T_ prefix)" % path)
+        raise SystemExit("import_art_candidate: %s is not a texture slot (T_ prefix); vfx-material rows are materials, not images, so there is nothing to import" % path)
     return folder, asset + PLACEHOLDER, tiled
 
 
