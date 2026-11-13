@@ -498,7 +498,7 @@
         "BellowsRecover",
         "WindBed"
       ],
-      "character": "Air over a belfry. Bed: a low moaning wind with slow swells, always there. Safe current: a rising, lifting airflow, brighter and kinder than the gust. Gust: a hard buffeting wall of wind with flapping. Enter and exit: a short whoosh in, a falling whoosh out.",
+      "character": "Air over a belfry. Bed: a low moaning wind with slow swells, always there. Safe current: a rising, lifting airflow, brighter and kinder than the gust. Gust: a hard buffeting wall of wind with flapping. Enter and exit: a short whoosh in, a falling whoosh out. Bellows warning (GDD HAZ-21, nozzle pressure warning): a short pressure build from a nozzle, a tightening hiss and wheeze that rises to the blast point, clearly a warning tell and not a wind swell; the bellows gust and recover follow it.",
       "instruments": "wind, air through stone arches, canvas flap in gusts",
       "register": "broad noise, weight below 1 kHz, no harsh hiss",
       "reverb": "open air with stone reflections, RT60 about 0.5-2 s",
