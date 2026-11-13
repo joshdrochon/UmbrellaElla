@@ -64,3 +64,9 @@ or calibration miss; the tool says "judge again"), never a counted one.
   as the gap. That is the paper piece, not the skyline. Request filed (same textured ground for both sides); not worked around in the art.
 - Defect 2, format: Sonnet critics often write "A: SAME | GAP" instead of "A: WINNER: SAME"; the tool refuses the session. Re-judged in a fresh session.
 - Defect 3, one r16 session picked a letter that contradicts its own gap text. Treated as a loss.
+
+## Gemini rollout (Nov 12-13): blocked on the key
+- Merged main. Skyline prompt written (Art/Source/Scene/Paint/prompt.md), reviewed by a fresh Sonnet session (prompt-review.md), corrected prompt in
+  Art/Source/Scene/Paint/skyline_r1.txt (466 words; 4:1, 2K, text only, green key, 1/8-height ground band, spire 70%, lit windows 1 in 6-7).
+- `assetgen.py image` stops: NO KEY, GEMINI_API_KEY is not set in this shell and worker rules forbid me to read ~/.umbrella-ella.env. Zero spend.
+- Next once a key reaches this shell: run the call in skyline_r1.txt, key green, resize to 3200x720, art_check/art_ref_check, blind panel; then paper and menu-screen the same way.
