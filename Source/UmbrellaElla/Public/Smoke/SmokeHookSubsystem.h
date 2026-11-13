@@ -27,6 +27,8 @@ public:
 	static float ComputeLowFps(const TArray<float>& FrameSeconds, float LowShare);
 
 	static constexpr float MillisecondsPerSecond = 1000.0f;
+	/** Seconds after the screenshot request before the hook checks the file exists (smoke fallback writes it itself). */
+	static constexpr double ShotWriteWaitSeconds = 1.0;
 
 private:
 	enum class EStage : uint8
@@ -38,6 +40,7 @@ private:
 
 	FString BuildEffectiveLine(const TCHAR* At, const TCHAR* Outcome) const;
 	void LogEnd(const TCHAR* Outcome);
+	void SaveWindowShotDirect();
 
 	EStage Stage = EStage::WaitingForStart;
 	TArray<float> FrameSeconds;
@@ -47,5 +50,7 @@ private:
 	float QuitAfterSeconds = 0.0f;
 	float LoadMs = 0.0f;
 	bool bShotTaken = false;
+	bool bShotChecked = false;
+	double ShotRequestedAt = 0.0;
 	bool bSelectedStart = false;
 };
