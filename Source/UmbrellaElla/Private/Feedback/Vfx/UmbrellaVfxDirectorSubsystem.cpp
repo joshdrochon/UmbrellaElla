@@ -1,6 +1,7 @@
 #include "Feedback/Vfx/UmbrellaVfxDirectorSubsystem.h"
 #include "Attack/StreamBeamActor.h"
 #include "Components/PointLightComponent.h"
+#include "Core/UmbrellaDrawOrder.h"
 #include "Components/StaticMeshComponent.h"
 #include "Misc/App.h"
 #include "Engine/StaticMesh.h"
@@ -585,7 +586,7 @@ void UUmbrellaVfxDirectorSubsystem::SpawnDemoBackdrop(const FVector& Around)
 		DemoBackdrop = World ? World->SpawnActor<AActor>() : nullptr;   // nothing to draw; do not retry every step
 		return;
 	}
-	AActor* Actor = World->SpawnActor<AActor>(Around - FVector(0.0f, UmbrellaVfxDirectorConst::DemoBackdropDepth, 0.0f), FRotator::ZeroRotator);
+	AActor* Actor = World->SpawnActor<AActor>(Around, FRotator::ZeroRotator);
 	UStaticMeshComponent* Mesh = NewObject<UStaticMeshComponent>(Actor, TEXT("DemoBackdrop"));
 	Mesh->SetStaticMesh(Plane);
 	Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -626,7 +627,10 @@ void UUmbrellaVfxDirectorSubsystem::StepDemo()
 		{
 			It->SetActorHiddenInGame(true);
 		}
-		SpawnDemoBackdrop(Player->GetActorLocation());
+		// Just behind the effect's own layer: the scene art (bg, arena) now draws at the depths the old backdrop used and would hide it.
+		const FVfxArtRow* DemoRow = VfxCatalog::Find(DemoKey);
+		const float DemoLayerY = DemoRow ? VfxCatalog::LayerY(DemoRow->Layer) : UmbrellaDrawOrder::VfxY;
+		SpawnDemoBackdrop(FVector(Player->GetActorLocation().X, DemoLayerY - UmbrellaVfxDirectorConst::DemoBackdropDepth, Player->GetActorLocation().Z));
 	}
 	const int32 LiveOfKey = GetLiveCount(DemoKey);
 	if (!bDemoShotTaken && Now - DemoStartSeconds >= UmbrellaVfxDirectorConst::DemoShotSeconds && LiveOfKey > 0)

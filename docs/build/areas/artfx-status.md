@@ -158,3 +158,9 @@ No gameplay timing, collision or state is written by any of it (tests check the 
 - Request 7 still open, so `vfx-gold-impact` (default bar-casters) cannot pass. Gust, gust-puff, light-shaft, umbra, blackout, slow use bar-other-realm, so they are not blocked by it.
 - Gust capture (`-VfxDemo=GustTravel`, 1920x1080, `Saved/Logs/pipeline/vfx-gust-shot.png`): the shot shows the graybox, clock and a red dot, no gust and no demo backdrop. The `-VfxDemo` path takes effect keys that the demo recognises (`SmallBlastImpact` worked); `GustTravel` does not draw. Not run: panel (a capture without the piece would only judge the scene).
 - Next: make the demo accept the Keeper-family keys (or find which key draws VFX_Gust), recapture, then panel gust. No paint, spend unchanged.
+
+## Slice 22 (Nov 13): merged main (artslots), demo backdrop moved, gust capture still shows no effect
+- Merged origin/main (642dfc82). Conflicts in `ArtSlotTests.cpp` and `tools/assetgen.py` (outside my lane): took main's versions (main's tests kept; main dropped `video` from assetgen). Build exit 0, `UmbrellaElla.Feedback` 39/39 PASS.
+- `-VfxDemo` backdrop now sits just behind the effect's own layer (was Y -400, the same depth as the new scene art, which hid it).
+- Gust capture (`-VfxDemo=GustTravel`, 1920x1080) after rebuild: byte-for-byte the same picture in three runs (graybox, clock, red dot, no backdrop, no gust), so the shot is not showing the demo actors. The shot is requested only when the effect is live, so the read-back is returning a frame without them (suspect: offscreen read-back of an early frame). Not diagnosed further; not run: panel (a capture without the piece would only judge the scene).
+- Next: find why the offscreen read-back misses actors spawned after the first frame (try `-SmokeShot` path or the windowed 640x360 run), recapture, panel gust. No paint, spend unchanged. All slots stay tracked `_PH`.

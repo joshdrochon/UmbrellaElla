@@ -28,7 +28,7 @@ namespace UmbrellaVfxDirectorConst
 	static constexpr int32 DemoHoldFrame = 2;
 	/** Art capture only: the paper-coloured quad behind the demo effect (the key art's ground), so the context crop is not a black graybox. */
 	inline const FLinearColor DemoBackdropColour(0.16f, 0.13f, 0.11f, 1.0f);
-	static constexpr float DemoBackdropDepth = 400.0f;
+	static constexpr float DemoBackdropDepth = 5.0f;
 	static constexpr float DemoBackdropWidth = 3000.0f;
 	static constexpr float DemoBackdropHeight = 1800.0f;
 	/** The demo replays its effect only when a key is set and none of that key is live. */
