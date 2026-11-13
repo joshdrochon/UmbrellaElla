@@ -117,3 +117,9 @@ Lesson: ink-heavy art must keep the dark share near the references or art_judge'
 
 ## 13 Nov: candidates moved (lead's "Where candidates live" rule)
 All paints, keyed cuts, renders, prompts and job files moved from Art/Source/<Asset>/ to pipeline/art/proof/artshots/<piece>/ (owl-bolt, wand-shot, bolt-hit, wind-lines, wind-zone). Provenance and critic-record paths updated; art_shots.py default out-dir now the proof folder. Art/Source holds nothing of mine (all five still untracked-_PH, no piece has passed). Merged main.
+
+## 13 Nov (late): stopped, real blocker for the lead
+Merged main and area/artslots. No new paint (spend by me unchanged; shared 8.52 of 33.82). The `context` pair cannot be made:
+the shot and wind slots have DrawnBy `-` in art-inventory.csv, so no capture can show a candidate. Request 5 in
+`docs/build/requests/artshots.md`. All five pieces stay tracked `_PH`; none has passed. After the drawer exists: import, capture, panel;
+the quality-bar gap (flat fills, no etched line) is the remaining art work.

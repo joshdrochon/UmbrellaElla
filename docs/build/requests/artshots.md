@@ -28,3 +28,11 @@ pulse in `tests/fixtures/art/crude/` for `wand-shot` would fix it.
 ## 4. references.json: `discord-crop-red-release` does not list card 0.10b
 `art_ref_check --card 0.10b --element bolt-hit` therefore scores bolt-hit only against the two whole sheets (fill share
 of the bounding box). The stored `score_min` was measured the same way, so it is consistent, but the crop is never used.
+
+## 5. (13 Nov) Nothing draws the shot slots, so no `context` capture can exist (lead)
+`docs/build/art-inventory.csv` rows 57-61, 97-98 (T_WandShot, T_OwlBolt, T_BoltHit, T_StreamBeam, T_YellowShot, T_WindZone,
+T_WindLines) have DrawnBy `-`: no class loads them, so importing a candidate into the `_PH` slot changes nothing on screen and
+`run_game.sh -SmokeShot` cannot show it. The `context` pair therefore cannot be made from my lane (no gameplay code allowed).
+Needed from the lead: a drawer for the shot slots (Projectile/Hazard visuals read `ArtSlot` rows for the shots and wind zone),
+then I import the candidate by `import_art_candidate.py`, capture, and run the context sessions.
+Separate, still mine: owl-bolt, wand-shot, bolt-hit lose the quality-bar pair (flat posterized fills, no etched line).
