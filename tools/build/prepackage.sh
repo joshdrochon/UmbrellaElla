@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Before each packaged build (Josh, Nov 12): the full suites that per-merge gates skip, then package and smoke on Mac.
-#   1 full Unreal automation suite (tools/ue/test.sh)   2 game-facing Python checks (feel, encounter, manifest,
+#   1 full Unreal automation suite (tools/ue/test.sh)   2 game-facing Python checks (feel, encounter, manifest, GDD conformance,
 #     bake_preset defaults, submission_check prejam/assets). The pipeline's own Python suite belongs in the pipeline
 #     repos' CI, not here (Josh, Nov 12).
 #   3 non-unity build (NONUNITY=1 tools/ue/build.sh)    4 tools/ue/package.sh (Development)
@@ -15,7 +15,7 @@ xcodebuild -checkFirstLaunchStatus || { echo "prepackage: run sudo xcodebuild -r
 [ -z "$(git status --porcelain -- Source Config Content UmbrellaElla.uproject)" ] || { echo "prepackage: commit Source/Config/Content changes first"; exit 1; }
 t; "$S" tools/ue/build.sh 2>&1 | tail -1; s build
 t; "$S" tools/ue/test.sh 2>&1 | tail -3 | tee "$L/prepackage-tests.txt"; grep -q "^PASS" "$L/prepackage-tests.txt" || fail=1; s "full Unreal tests"
-for c in "feel_check.py" "encounter_check.py" "manifest_check.py" "bake_preset.py defaults" "submission_check.py prejam" "submission_check.py assets"; do
+for c in "feel_check.py" "encounter_check.py" "manifest_check.py" "bake_preset.py defaults" "submission_check.py prejam" "submission_check.py assets" "build/gdd_spec.py --check" "build/gdd_check.py"; do
   # Reported, not blocking the package: the per-merge gate blocks regressions; a test package must still come out.
   t; python3 tools/$c > "$L/prepackage-py.txt" 2>&1 && s "$c PASS" || { s "$c WARN: $(tail -1 "$L/prepackage-py.txt")"; warn=1; }
 done
