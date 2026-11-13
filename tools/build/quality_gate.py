@@ -48,12 +48,27 @@ def fails(lines, pattern=FAIL_LINE):
     return {re.sub(r":\d+(:\d+)?\b", "", l.strip()) for l in lines if re.match(pattern, l)}
 
 
+GDD_KEY = re.compile(r"^\s*FAIL\s+(?:broken\s+|NOT_IN_GAME\s+P\d\s+|mismatch\s+)?([A-Z]+-\d+[\w.]*)")
+
+
+def gdd_keys(lines):
+    """gdd_check fails compared by GDD key (Nov 13): a value that moves from a broken binding to the not_in_game list,
+    or whose owner text changes, is the same open GDD gap, not a new fail. A new key still counts as new."""
+    out = set()
+    for l in lines:
+        m = GDD_KEY.match(l)
+        if m:
+            out.add("FAIL " + m.group(1))
+    return out
+
+
 def blocking_lines():
     # The checks are independent, so they run in parallel (Nov 12: a serial baseline took ~10 min per gate run).
     from concurrent.futures import ThreadPoolExecutor
     with ThreadPoolExecutor(max_workers=len(BLOCKING)) as ex:
         res = dict(zip(BLOCKING, ex.map(lambda a: run(a)[1], BLOCKING.values())))
-    return {name: fails(res[name], FAIL_LINES.get(name, FAIL_LINE)) for name in BLOCKING}
+    return {name: (gdd_keys(res[name]) if name == "gdd_check" else fails(res[name], FAIL_LINES.get(name, FAIL_LINE)))
+            for name in BLOCKING}
 
 
 def on_base(base, path):
@@ -75,7 +90,8 @@ def baseline_for_new_checks(base):
             subprocess.run(["tar", "-x", "-C", tmp], input=tar, capture_output=True)
         for n, a in new.items():
             p = subprocess.run([sys.executable] + a, cwd=tmp, capture_output=True, text=True)
-            out[n] = fails((p.stdout + p.stderr).splitlines(), FAIL_LINES.get(n, FAIL_LINE))
+            ls = (p.stdout + p.stderr).splitlines()
+            out[n] = gdd_keys(ls) if n == "gdd_check" else fails(ls, FAIL_LINES.get(n, FAIL_LINE))
     return out
 
 
@@ -93,6 +109,8 @@ def main():
     if os.path.exists(basefile):
         for row in open(basefile):
             n, _, l = row.rstrip("\n").partition("\t"); before.setdefault(n, set()).add(l)
+    if "gdd_check" in before:   # a baseline written before key comparison holds full lines: compare by key too
+        before["gdd_check"] = gdd_keys(before["gdd_check"]) | {l for l in before["gdd_check"] if l.startswith("FAIL ") and " " not in l[5:]}
     for n, ls in baseline_for_new_checks(base).items():
         before[n] = before.get(n, set()) | ls
     problems = []
