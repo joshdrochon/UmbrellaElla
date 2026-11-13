@@ -80,6 +80,28 @@ class Loop(unittest.TestCase):
         self.assertIn("a soft escapement tick", brief)
         self.assertTrue(os.path.isfile(os.path.join(os.path.dirname(pk), "key.json")), "the key stays outside")
 
+    def test_loop_packet_has_no_one_shot_ranges(self):
+        """A loop is never judged on attack_ms / decay_s: audio_style_check does not apply them to a loop, so the
+        packet neither lists those ranges nor prints those numbers, and says the sound is a loop. A one-shot keeps them."""
+        self.take("WindZoneLoop", 600, rt=2.0)       # sound-list kind loop, style family wind (ranges attack_ms, decay_s)
+        self.take("UiMove", 2500)
+        rc, o = self.run_loop("start", "--issue", "40", "--ids", "WindZoneLoop,UiMove", "--builder", "builder-1")
+        self.assertEqual(rc, 0, o)
+        briefs = {}
+        for sid in ("WindZoneLoop", "UiMove"):
+            rc, o = self.run_loop("round", "--piece", sid)
+            self.assertEqual(rc, 0, o)
+            briefs[sid] = open(os.path.join(re.search(r"CRITIC PACKET: (\S+)", o).group(1), "brief.md")).read()
+        loop = briefs["WindZoneLoop"]
+        self.assertIn("Kind: a seamless loop", loop)
+        self.assertNotIn("attack_ms", loop.split("Kind: a seamless loop")[0])
+        self.assertNotRegex(loop, r"(attack_ms|decay_s)\s*[=\d-]")       # no range, no measured number
+        self.assertRegex(loop, r"centroid_hz 150\.\.2800")                # the ranges that do apply are still there
+        self.assertNotIn("WindZoneLoop", loop)
+        self.assertRegex(briefs["UiMove"], r"decay_s 0\.2\.\.2\.0")
+        self.assertRegex(briefs["UiMove"], r"decay_s=")
+        self.assertNotIn("seamless loop", briefs["UiMove"].split("Brand rules")[0])
+
     def test_full_loop_closes_and_check_pr_accepts_it(self):
         self.take("UiMove", 400)                      # too dark: fails the measured check
         self.start()

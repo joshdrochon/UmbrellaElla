@@ -161,11 +161,19 @@ def neighbours(audio, sid, fam, style, k):
     return out
 
 
-def family_text(fam, style):
+LOOP_NOTE = ("Kind: a seamless loop. It plays end to start with no gap, so it has no onset and no tail by design: a "
+             "level that runs to the last frame is correct, and a fade in or out would be a defect. attack_ms and decay_s "
+             "are one-shot measures; they are not measured or ranged for a loop.")
+
+
+def family_text(fam, style, kind="oneshot", stem=False):
+    """The written target. Only the ranges tools/audio_style_check.py applies to this kind of sound are listed
+    (asc.applies: attack_ms and decay_s for one-shots only, tempo_bpm and lra_db for music stems only), so the critic
+    never fails a loop on a one-shot range the measured check does not use."""
     f = style["families"][fam]
-    rng = "; ".join(f"{k} {lo}..{hi}" for k, (lo, hi) in sorted(f.get("ranges", {}).items()))
+    rng = "; ".join(f"{k} {lo}..{hi}" for k, (lo, hi) in sorted(f.get("ranges", {}).items()) if asc.applies(k, kind, stem))
     return (f"Character: {f['character']}\nInstruments: {f['instruments']}\nRegister: {f['register']}\n"
-            f"Space: {f['reverb']}\nMeasured ranges: {rng}")
+            f"Space: {f['reverb']}\nMeasured ranges: {rng}" + (f"\n{LOOP_NOTE}" if kind == "loop" else ""))
 
 
 def brand_text(style):
@@ -173,7 +181,7 @@ def brand_text(style):
     return (f"{b['world']}\nAlways: " + "; ".join(b["always"]) + "\nNever: " + "; ".join(b["never"]))
 
 
-def write_packet(rdir, files, near, results, fam, style):
+def write_packet(rdir, files, near, results, fam, style, kind="oneshot", stem=False):
     pk = os.path.join(rdir, "packet")
     if os.path.isdir(pk):
         shutil.rmtree(pk)
@@ -186,7 +194,7 @@ def write_packet(rdir, files, near, results, fam, style):
         asc.spectrogram_png(f, os.path.join(pk, name + ".png"))
         key[name] = os.path.basename(f)
         m = results.get(f, {}).get("metrics", {})
-        nums.append(f"{name}: " + asc.summary(m, sorted(k for k in m if k != "silent")))
+        nums.append(f"{name}: " + asc.summary(m, sorted(k for k in m if k != "silent" and asc.applies(k, kind, stem))))
     for i, f in enumerate(near, 1):
         name = f"R{i}"
         shutil.copyfile(f, os.path.join(pk, name + ".wav"))
@@ -194,7 +202,7 @@ def write_packet(rdir, files, near, results, fam, style):
         key[name] = os.path.basename(f)
     with open(PROMPT, encoding="utf-8") as fh:
         tpl = fh.read().split("---", 1)[1]
-    brief = (tpl.replace("{family_target}", family_text(fam, style)).replace("{brand}", brand_text(style))
+    brief = (tpl.replace("{family_target}", family_text(fam, style, kind, stem)).replace("{brand}", brand_text(style))
              .replace("{numbers}", "\n".join(nums)))
     with open(os.path.join(pk, "brief.md"), "w", encoding="utf-8") as fh:
         fh.write(brief.lstrip())
@@ -237,7 +245,9 @@ def cmd_round(a):
     n = len(pc["rounds"]) + 1
     rdir = os.path.join(sdir, a.piece, f"round-{n}")
     near = neighbours(audio, a.piece, pc["family"], style, style.get("loop", {}).get("critic_packet_neighbours", 3))
-    pk = write_packet(rdir, files, near, results, pc["family"], style)
+    kind = next((r["kind"] for r in rows if r["id"] == a.piece), "oneshot")
+    pk = write_packet(rdir, files, near, results, pc["family"], style, kind,
+                      a.piece in style.get("music", {}).get("stems", []))
     pc["rounds"].append({"n": n, "files": files_hash(files), "paths": [os.path.relpath(f, root).replace(os.sep, "/") for f in files],
                          "style_pass": not probs, "problems": probs, "distance": dist, "at": now()})
     save_state(sdir, st)
