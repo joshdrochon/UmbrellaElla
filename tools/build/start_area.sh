@@ -20,5 +20,5 @@ Commit after each working slice (git -c core.hooksPath=/dev/null commit). Never 
 Keep working until your area is done or you are truly blocked. $EXTRA"
 cd "$WT"
 env -u CLAUDECODE -u CLAUDE_CODE_ENTRYPOINT nohup claude -p "$PROMPT" --permission-mode bypassPermissions \
-  --disallowedTools "Bash(git push:*)" --model "${WORKER_MODEL:-claude-sonnet-5-5}" >> "$BASE/logs/$A.log" 2>&1 &
+  --disallowedTools "Bash(git push:*)" --model "${WORKER_MODEL:-claude-opus-5-5}" >> "$BASE/logs/$A.log" 2>&1 &
 echo "$A worker pid $! worktree $WT log $BASE/logs/$A.log"

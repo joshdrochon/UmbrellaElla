@@ -12,7 +12,8 @@ split a big area when its later list has independent parts (new area file + `doc
 exactly one area, lanes disjoint).
 
 ## When a worker moves to Opus (Josh, Nov 12)
-A worker runs Sonnet. When it fails the same gate check twice, or a builder/critic loop goes 2 rounds with the same gap
+Default model (Josh, Nov 12 evening): Opus for every worker, reviewer and critic (`tools/build/start_area.sh`,
+`review.sh`, `critic.sh`); `WORKER_MODEL=claude-sonnet-5-5` only when usage is tight. Earlier rule, kept for tight usage: a worker runs Sonnet. When it fails the same gate check twice, or a builder/critic loop goes 2 rounds with the same gap
 and no better score, the build lead restarts that one worker with `WORKER_MODEL=claude-opus-5-5 tools/build/start_area.sh
 <area> "..."` and logs it in the build log (area, failing check, before/after). Others stay on Sonnet.
 
