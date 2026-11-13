@@ -119,6 +119,7 @@ FILE_RULES = [
     (r"^Content/[^/]+/Art/VFX/T_(VFX_\w+?)(?:_PH)?\.uasset$", "vfx-sheet:{1}"),
     (r"^Content/[^/]+/Art/VFX/(M_VFX_\w+?)(?:_PH)?\.uasset$", "vfx-material:{1}"),
     (r"^Art/Source/Keeper/", "keeper:body-hover-flap"),
+    (r"^Content/[^/]+/Art/Keeper/T_Keeper_Owl(?:_PH)?\.uasset$", "keeper:body-hover-flap"),
 ]
 NOT_ART = (".json", ".py", ".md", ".txt", ".csv", ".meta", ".sh", ".blend1", ".log")
 
