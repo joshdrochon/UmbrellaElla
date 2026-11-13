@@ -1,0 +1,23 @@
+{
+ "card": "artfx",
+ "piece": "vfx-clock-beat",
+ "ours": "pipeline/art/proof/artfx2/ClockBeat/sheet4.png",
+ "round": 1,
+ "folders": [
+  "pipeline/art/proof/artfx2/ClockBeat/panel1/vfx-clock-beat-r1-00-reference-c1",
+  "pipeline/art/proof/artfx2/ClockBeat/panel1/vfx-clock-beat-r1-00-reference-c2",
+  "pipeline/art/proof/artfx2/ClockBeat/panel1/vfx-clock-beat-r1-00-reference-c3",
+  "pipeline/art/proof/artfx2/ClockBeat/panel1/vfx-clock-beat-r1-01-reference-c1",
+  "pipeline/art/proof/artfx2/ClockBeat/panel1/vfx-clock-beat-r1-01-reference-c2",
+  "pipeline/art/proof/artfx2/ClockBeat/panel1/vfx-clock-beat-r1-01-reference-c3",
+  "pipeline/art/proof/artfx2/ClockBeat/panel1/vfx-clock-beat-r1-02-reference-c1",
+  "pipeline/art/proof/artfx2/ClockBeat/panel1/vfx-clock-beat-r1-02-reference-c2",
+  "pipeline/art/proof/artfx2/ClockBeat/panel1/vfx-clock-beat-r1-02-reference-c3",
+  "pipeline/art/proof/artfx2/ClockBeat/panel1/vfx-clock-beat-r1-03-quality_bar-c1",
+  "pipeline/art/proof/artfx2/ClockBeat/panel1/vfx-clock-beat-r1-03-quality_bar-c2",
+  "pipeline/art/proof/artfx2/ClockBeat/panel1/vfx-clock-beat-r1-03-quality_bar-c3"
+ ],
+ "missing": [
+  "context (no in-engine capture made after the piece: import it and run the smoke, whose screenshot is the capture)"
+ ]
+}

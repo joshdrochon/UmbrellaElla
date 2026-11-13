@@ -67,6 +67,9 @@ public:
 	/** First panel of a slot, or null. */
 	UStaticMeshComponent* FindPanel(const FString& Visual, int32 Index = 0) const;
 
+	/** True when the flag a visual is built behind is on (sky, water and clocks; land; frame and route ends each have their own). */
+	static bool IsVisualEnabled(const FString& Visual);
+
 	/** World X a panel sits at for a camera X. Pure. */
 	static float PanelX(const FSceneArtSpec& Spec, float CameraX);
 
