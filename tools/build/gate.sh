@@ -50,6 +50,7 @@ if python3 tools/build/provenance_dedupe.py | grep -q "rows -> 1"; then
   step "provenance rows deduplicated"
 fi
 eval "$(python3 tools/build/gate_plan.py "$MAIN" HEAD)"
+export CRITIC_CONTEXT=full   # Josh, Nov 13: critics run with full context
 export UE_SLOT_GATE=1   # the gate always gets its reserved engine slot
 SLOT="$ROOT/tools/build/ue_slot.sh"; EV="$L/gate-$A-evidence.txt"; : > "$EV"
 chk() { local name="$1"; shift; T1=$(date +%s); out=$("$@" 2>&1); rc=$?; echo "$out" | tail -3 >> "$EV"
