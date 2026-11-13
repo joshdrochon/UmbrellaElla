@@ -146,3 +146,6 @@ Round 14 result: the capture landed (640x360) but shows "Preparing Shaders (3)" 
 ## Round 15 (Nov 13 late): re-checked, still blocked on a reliable context capture
 Merged main and artslots. The frame-based shot is still not in: `SmokeHookSubsystem.cpp:132` fires on `Elapsed >= SmokeShotDelaySeconds` (5 s, tuning), with no command-line override. Machine load ~27.
 The Round 14 capture showed "Preparing Shaders" on black. No paint spend (counter unchanged, 15.08 of 33.82); a new paint could not pass without `context`.
+
+## Round 16 (Nov 13 late): merged main and artslots, nothing new; still blocked on request #3
+`SmokeHookSubsystem.cpp:132` still fires at a fixed 5 s; no `-SmokeShotDelay` override. Load ~27. No paint spend (15.08 of 33.82). Stopped on request #3.
