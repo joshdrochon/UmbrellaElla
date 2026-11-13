@@ -1,0 +1,2 @@
+STRIPS wand-shot source_frames=30 loop_end=23 jitter 590.56 -> 0.8 px
+  N=24 fps=12.0 loop last->first 107.75 vs mean step 55.61 loops=True -> pipeline/art/proof/videoframes/wand-shot/wand-shot_N24_strip.png

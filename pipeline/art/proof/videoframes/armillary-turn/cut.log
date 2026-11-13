@@ -1,0 +1,2 @@
+STRIPS armillary-turn source_frames=48 loop_end=43 jitter 31.32 -> 0.94 px
+  N=24 fps=6.55 loop last->first 84.35 vs mean step 43.5 loops=True -> pipeline/art/proof/videoframes/armillary-turn/armillary-turn_N24_strip.png

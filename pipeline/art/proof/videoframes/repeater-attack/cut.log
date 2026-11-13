@@ -1,0 +1,2 @@
+STRIPS repeater-attack source_frames=48 loop_end=40 jitter 13.66 -> 0.89 px
+  N=24 fps=7.02 loop last->first 87.79 vs mean step 30.24 loops=True -> pipeline/art/proof/videoframes/repeater-attack/repeater-attack_N24_strip.png

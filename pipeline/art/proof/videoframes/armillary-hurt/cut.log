@@ -1,0 +1,2 @@
+STRIPS armillary-hurt source_frames=48 loop_end=28 jitter 53.58 -> 0.9 px
+  N=24 fps=9.93 loop last->first 103.44 vs mean step 49.22 loops=True -> pipeline/art/proof/videoframes/armillary-hurt/armillary-hurt_N24_strip.png
