@@ -56,3 +56,12 @@
 - Python failures seen on clean main (per lead, fixed by the hotfix): test_gdd_check x4, test_area terminal question, story strixon. I did not capture per-test IDs: the re-run of `unittest tests.test_gdd_check tests.test_area` hit the 10 min limit and was killed.
 - affected_tests.py slowness filed in docs/build/requests/screenfix.md.
 - Left: merge origin/main when the hotfix lands, then re-paste build and test lines.
+
+## B2 black gameplay (Nov 13, Opus) - in progress
+- Report: Josh, main aa8ca094, visible 1600x900 window: gameplay black, audio plays, clock glitchy top left; menus fine.
+- Cause: not yet confirmed. Waited 20+ min for an engine slot (keeper, settings2, move held all 3). Source diff
+  e99e1856..aa8ca094 read: new world art since the good capture is USceneArtSubsystem (artslots 953ffb4f/642dfc82:
+  bg:atmosphere/land/water/clocks/start-end panels, scene:gameplay-frame at ForegroundY, full view, in front of
+  gameplay) and WorldArtSubsystem; stand-ins 341e49c8 gave those slots `_PH` textures, so the panels now draw
+  (before, no texture = no panel). scene:gameplay-frame has no texture yet, so it does not draw.
+- Next: build main 21f35a27, capture at 1600x900 visible window and 1280x720, then bisect 341e49c8 / 953ffb4f.
