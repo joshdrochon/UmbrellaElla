@@ -827,7 +827,15 @@ void UUmbrellaVfxDirectorSubsystem::StepLive()
 			At = FVector(Target.X, At.Y, Target.Z);
 		}
 		Actor->SetActorLocation(At);
-		VfxSheetVisual::SetFrame(Cast<UStaticMeshComponent>(Actor->GetRootComponent()), VfxCatalog::FrameAt(*Effect.Row, Elapsed));
+		int32 ShownFrame = VfxCatalog::FrameAt(*Effect.Row, Elapsed);
+#if !UE_BUILD_SHIPPING
+		if (!DemoKey.IsNone() && Effect.Key == DemoKey)
+		{
+			// Art capture only: hold one frame so the shot never lands on a faded or empty one.
+			ShownFrame = FMath::Min(UmbrellaVfxDirectorConst::DemoHoldFrame, FMath::Max(Effect.Row->Frames - 1, 0));
+		}
+#endif
+		VfxSheetVisual::SetFrame(Cast<UStaticMeshComponent>(Actor->GetRootComponent()), ShownFrame);
 		// The light fades with the effect and leaves with it: surfaces return to their normal look.
 		const float Fade = VfxLightPolicy::FadeAt(*Effect.Row, Elapsed);
 		if (UPointLightComponent* Light = Effect.Light.Get())

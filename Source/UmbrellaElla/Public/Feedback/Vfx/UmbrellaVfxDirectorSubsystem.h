@@ -24,6 +24,8 @@ namespace UmbrellaVfxDirectorConst
 	static constexpr float DemoOffsetZ = 30.0f;
 	/** Art capture only: wall seconds into the demo when the scene (no UI) is written to Saved/Screenshots. */
 	static constexpr float DemoShotSeconds = 4.0f;
+	/** Art capture only: the sheet cell the demo effect holds while shown (the bright, readable beat of a doubled four-frame sheet). */
+	static constexpr int32 DemoHoldFrame = 2;
 	/** Art capture only: the paper-coloured quad behind the demo effect (the key art's ground), so the context crop is not a black graybox. */
 	inline const FLinearColor DemoBackdropColour(0.16f, 0.13f, 0.11f, 1.0f);
 	static constexpr float DemoBackdropDepth = 400.0f;
