@@ -116,3 +116,9 @@ Not done, and why:
 - OWL-16 dash protection: not built (GDD baseline OFF). `Move.World.DashGivesNoProtectionByDefault` proves a dash gives none and a hit lands.
   Break-tested (IsProtectingFromHits true -> FAILED). No toggle exists in code, so none is claimed.
 - Needed from keeper (rollback ordering, level-checkpoint heal, OWL-09 reach/lift): written in `requests/move.md`. Still unproven.
+
+## Clause audit `ii` pass (Nov 13, Opus resume)
+Merged origin/main (beccfa60). `docs/build/clause-audit.csv` has 0 rows tagged `ii` for lane move and 0 untagged: 26 `proven`, 36 `i`.
+Nothing to build under the `ii` brief. The 36 `i` rows (code exists, proof missing) were the testmove lane's; that worker exited
+(`logs/testmove.log`: WORKER_EXIT rc=143 at 11:44) with uncommitted edits in its worktree. Restarting it, or giving the `i` rows to move, is the lead's call.
+One `i` row looks like missing code rather than a missing test: MOVE-15 "qualifying route rejects developer protection setting" (no developer protection setting exists in Source/).
