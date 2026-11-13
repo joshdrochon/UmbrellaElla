@@ -2,295 +2,733 @@
 
   blender -b --factory-startup -P tools/build/assets/art_keeper_owl.py -- --job Art/Source/Keeper/Raw/Owl_Flap/Owl_Flap.job.json
 
-GDD SH1.0 OWL-08 / ART-06: a crownless fabricated metal owl, left-facing side profile, rigid vane wings, two feet,
-chest clock, three hanging mechanisms (lantern cage, ring gimbal, gear) on chains. Registers the `keeper` builder in
-pipeline/art/blender/stand_ins.py's table and runs the shared sprite renderer, so the look (toon ramps, ink lines,
-grain, light, camera) stays the team's. Built facing +X; the renderer mirrors for faces=left.
+GDD SH1.0 OWL-08 / ART-06: a crownless fabricated metal owl, left-facing side profile, rigid perforated vane wings on
+articulated spars, two short mechanical legs, a chest clock (aged face, Roman markers, one hand) and three hanging
+mechanisms, each on its own chain: front armillary sphere, middle ribbed cage, rear gear ring.
+
+Registers the `keeper` builder in pipeline/art/blender/stand_ins.py's table and runs the shared sprite renderer
+(camera, pivot, poses, .blend). The look is this file's: modelled sheet-metal plates (ridged, veined, riveted,
+perforated) lit as worn metal in Cycles, Freestyle ink lines, then a paint pass that maps values onto the Keeper
+palette (ink, soot, umber, bronze, taupe, paper), etches hatching into the shadows and adds paper tooth.
+Built facing +X; the renderer mirrors it for faces=left.
 """
 import math
 import os
 import random
 import sys
 
+import bmesh
 import bpy
+from mathutils import Matrix, Vector
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 sys.path.insert(0, os.path.join(ROOT, "pipeline", "art", "blender"))
 import stand_ins as si  # noqa: E402
 
-S = math.pi / 2
+HALF = math.pi / 2
+KEEPER_SCALE = 0.88          # whole figure, so the raised wing stays inside the frame
+KEEPER_PALETTE = ("#0f0d0b", "#171614", "#292622", "#463C32", "#695640", "#918173", "#B0A294", "#cdbfa9")
+KEEPER_STOPS = (0.0, 0.07, 0.2, 0.36, 0.52, 0.72, 0.9, 1.0)
+KEEPER_LINE_PX = 0.9
+KEEPER_GAIN = 0.37            # linear render value that maps to the lightest paper tone
+
+
+def rad(deg):
+    return math.radians(deg)
+
+
+class KeeperKit:
+    """Accumulates geometry into one mesh per (bone, material, shading) and hands the objects to the rig."""
+
+    def __init__(self, rig, mats):
+        self.rig, self.mats, self.bms = rig, mats, {}
+        self.scale = Matrix.Scale(KEEPER_SCALE, 4)
+
+    def bm(self, bone, mat, smooth=False, solid=0.0):
+        key = (bone, mat, smooth, solid)
+        if key not in self.bms:
+            b = bmesh.new()
+            b.loops.layers.uv.new("uv")
+            self.bms[key] = b
+        return self.bms[key]
+
+    @staticmethod
+    def place(x, z, y, a=0.0, tilt=0.0, pitch=0.0):
+        """Local +X along picture-plane angle a (degrees), local Z across, local -Y toward the camera."""
+        return (Matrix.Translation((x, y, z)) @ Matrix.Rotation(-rad(a), 4, "Y") @ Matrix.Rotation(tilt, 4, "X")
+                @ Matrix.Rotation(-pitch, 4, "Z"))
+
+    def blade(self, bone, mat, x, z, y, a, ln, wd, tilt=0.0, pitch=0.0, ridge=0.05, skew=0.0, tip=1.0, slots=0,
+              thick=0.03, base=0.55):
+        """One sheet-metal vane: pointed, ridged down the middle, optional perforation slots. UV: u along, v across."""
+        b = self.bm(bone, mat, False, thick)
+        uv = b.loops.layers.uv.active
+        m = self.scale @ self.place(x, z, y, a, tilt, pitch)
+        ts = (0.0, 0.06, 0.2, 0.42, 0.64, 0.8, 0.91, 1.0)
+        hw = (base, 0.82, 1.0, 1.0, 0.9, 0.68 * tip + 0.3 * (1 - tip), 0.4 * tip + 0.25 * (1 - tip), 0.012)
+        rows = []
+        for t, h in zip(ts, hw):
+            c = skew * wd * t * t
+            h2 = h * wd / 2
+            rows.append([(b.verts.new(m @ Vector((ln * t, 0.0, c - h2))), (t, 0.0)),
+                         (b.verts.new(m @ Vector((ln * t, 0.0, c - h2 * 0.5))), (t, 0.25)),
+                         (b.verts.new(m @ Vector((ln * t, -ridge * h, c))), (t, 0.5)),
+                         (b.verts.new(m @ Vector((ln * t, 0.0, c + h2 * 0.5))), (t, 0.75)),
+                         (b.verts.new(m @ Vector((ln * t, 0.0, c + h2))), (t, 1.0))])
+        hole = set()
+        if slots:   # perforations: skip the quads next to the ridge on alternate stations
+            for k in range(slots):
+                hole.add((2 + k, 1 if k % 2 else 2))
+        for i in range(len(rows) - 1):
+            for j in range(4):
+                if (i, j) in hole:
+                    continue
+                q = (rows[i][j], rows[i + 1][j], rows[i + 1][j + 1], rows[i][j + 1])
+                f = b.faces.new([v for v, _ in q])
+                for lp, (_, u) in zip(f.loops, q):
+                    lp[uv].uv = u
+        return m
+
+    def prim(self, bone, mat, kind, m, smooth=True, **kw):
+        b = self.bm(bone, mat, smooth, 0.0)
+        m = self.scale @ m
+        if kind == "sphere":
+            bmesh.ops.create_uvsphere(b, u_segments=kw.get("seg", 14), v_segments=kw.get("ring", 8), radius=1.0, matrix=m)
+        elif kind == "cube":
+            bmesh.ops.create_cube(b, size=1.0, matrix=m)
+        elif kind == "cone":
+            bmesh.ops.create_cone(b, cap_ends=True, segments=kw.get("seg", 20), radius1=kw.get("r1", 1.0),
+                                  radius2=kw.get("r2", 1.0), depth=1.0, matrix=m)
+
+    def sphere(self, bone, mat, x, z, y, r, sc=(1, 1, 1), a=0.0, seg=14):
+        self.prim(bone, mat, "sphere", self.place(x, z, y, a) @ Matrix.Diagonal((r * sc[0], r * sc[1], r * sc[2], 1)),
+                  seg=seg, ring=max(6, seg // 2))
+
+    def box(self, bone, mat, x, z, y, a, sx, sy, sz, tilt=0.0):
+        self.prim(bone, mat, "cube", self.place(x, z, y, a, tilt) @ Matrix.Diagonal((sx, sy, sz, 1)), smooth=False)
+
+    def bar(self, bone, mat, p0, p1, y, wd, th=0.1):
+        """A flat strut from p0 to p1 (picture-plane points)."""
+        dx, dz = p1[0] - p0[0], p1[1] - p0[1]
+        self.box(bone, mat, (p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2, y, math.degrees(math.atan2(dz, dx)),
+                 math.hypot(dx, dz), th, wd)
+
+    def disc(self, bone, mat, x, z, y, r, depth=0.08, seg=28, r2=None):
+        """A cylinder facing the camera (axis along Y)."""
+        m = Matrix.Translation((x, y, z)) @ Matrix.Rotation(HALF, 4, "X") @ Matrix.Diagonal((1, 1, depth, 1))
+        self.prim(bone, mat, "cone", m, smooth=False, seg=seg, r1=r, r2=r if r2 is None else r2)
+
+    def ring(self, bone, mat, x, z, y, r, r_in, depth=0.08, seg=32):
+        """An annulus facing the camera."""
+        b = self.bm(bone, mat, False, 0.0)
+        m = self.scale
+        for k in range(seg):
+            a0, a1 = 2 * math.pi * k / seg, 2 * math.pi * (k + 1) / seg
+            for yy0, flip in ((y - depth / 2, False),):
+                o0 = Vector((x + r * math.cos(a0), yy0, z + r * math.sin(a0)))
+                o1 = Vector((x + r * math.cos(a1), yy0, z + r * math.sin(a1)))
+                i0 = Vector((x + r_in * math.cos(a0), yy0, z + r_in * math.sin(a0)))
+                i1 = Vector((x + r_in * math.cos(a1), yy0, z + r_in * math.sin(a1)))
+                back = Vector((0, depth, 0))
+                vs = [b.verts.new(m @ p) for p in (i0, o0, o1, i1, i0 + back, o0 + back, o1 + back, i1 + back)]
+                b.faces.new((vs[0], vs[1], vs[2], vs[3]))          # front
+                b.faces.new((vs[1], vs[5], vs[6], vs[2]))          # outer wall
+                b.faces.new((vs[3], vs[7], vs[4], vs[0]))          # inner wall
+
+    def gear(self, bone, mat, x, z, y, r, teeth, depth=0.1, tooth=0.14, r_in=None, phase=0.0):
+        if r_in:
+            self.ring(bone, mat, x, z, y, r, r_in, depth)
+        else:
+            self.disc(bone, mat, x, z, y, r, depth)
+        for k in range(teeth):
+            a = 360.0 * k / teeth + phase
+            self.box(bone, mat, x + (r + tooth * 0.35) * math.cos(rad(a)), z + (r + tooth * 0.35) * math.sin(rad(a)), y, a,
+                     tooth, depth, 2 * math.pi * r / teeth * 0.5)
+
+    def tube(self, bone, mat, pts, radii, seg=8, flat=1.0, closed=False):
+        """A round bar through 3D points (x, y, z); flat squashes it along Y."""
+        b = self.bm(bone, mat, True, 0.0)
+        n = len(pts)
+        P = [Vector(p) for p in pts]
+        rings = []
+        for i in range(n):
+            if closed:
+                t = (P[(i + 1) % n] - P[i - 1]).normalized()
+            else:
+                t = (P[min(i + 1, n - 1)] - P[max(i - 1, 0)]).normalized()
+            u = t.cross(Vector((0, 1, 0)))
+            if u.length < 1e-4:
+                u = t.cross(Vector((1, 0, 0)))
+            u.normalize()
+            v = t.cross(u).normalized()
+            r = radii[i] if isinstance(radii, (list, tuple)) else radii
+            ringv = []
+            for k in range(seg):
+                a = 2 * math.pi * k / seg
+                off = u * math.cos(a) * r + v * math.sin(a) * r
+                off.y *= flat
+                ringv.append(b.verts.new(self.scale @ (P[i] + off)))
+            rings.append(ringv)
+        last = n if closed else n - 1
+        for i in range(last):
+            r0, r1 = rings[i], rings[(i + 1) % n]
+            for k in range(seg):
+                f = b.faces.new((r0[k], r0[(k + 1) % seg], r1[(k + 1) % seg], r1[k]))
+                f.smooth = True
+        if not closed:
+            b.faces.new(rings[0][::-1])
+            b.faces.new(rings[-1])
+
+    def link(self, bone, mat, x, z, y, a, face_on, ln=0.2, wd=0.13, r=0.02):
+        """One chain link: an oval seen face-on, or its edge."""
+        pts = []
+        ca, sa = math.cos(rad(a)), math.sin(rad(a))
+        for k in range(12):
+            t = 2 * math.pi * k / 12
+            lx, lw = math.cos(t) * ln / 2, math.sin(t) * wd / 2
+            if face_on:
+                pts.append((x + lx * ca - lw * sa, y, z + lx * sa + lw * ca))
+            else:
+                pts.append((x + lx * ca, y + lw, z + lx * sa))
+        self.tube(bone, mat, pts, r, seg=6, closed=True)
+
+    def chain(self, bone, mat, p0, p1, y, sag=0.0, step=0.15):
+        """Links along a sagging line from p0 to p1; returns the end point."""
+        n = max(3, int(math.hypot(p1[0] - p0[0], p1[1] - p0[1]) * (1 + abs(sag)) / step))
+        pts = []
+        for k in range(n + 1):
+            t = k / n
+            pts.append((p0[0] + (p1[0] - p0[0]) * t, p0[1] + (p1[1] - p0[1]) * t - sag * 4 * t * (1 - t)))
+        for k in range(n):
+            (xa, za), (xb, zb) = pts[k], pts[k + 1]
+            self.link(bone, mat, (xa + xb) / 2, (za + zb) / 2, y - 0.01 * (k % 2), math.degrees(math.atan2(zb - za, xb - xa)),
+                      k % 2 == 0, ln=math.hypot(xb - xa, zb - za) * 1.45)
+        return p1
+
+    def rivet(self, bone, mat, x, z, y, r=0.04):
+        self.sphere(bone, mat, x, z, y, r, sc=(1, 0.6, 1), seg=8)
+
+    def finish(self):
+        for (bone, mat, smooth, solid), b in self.bms.items():
+            me = bpy.data.meshes.new(f"keeper_{bone}_{mat}")
+            bmesh.ops.recalc_face_normals(b, faces=b.faces) if not solid else None
+            b.to_mesh(me)
+            b.free()
+            ob = bpy.data.objects.new(me.name, me)
+            bpy.context.scene.collection.objects.link(ob)
+            me.materials.append(self.mats[mat])
+            if smooth:
+                for p in me.polygons:
+                    p.use_smooth = True
+            if solid:
+                md = ob.modifiers.new("sheet", "SOLIDIFY")
+                md.thickness, md.offset = solid * KEEPER_SCALE, -1.0
+            self.rig.parts.append((ob, bone))
+
+
+def keeper_wing(k, bone, y, sh, tone, dark, rnd, far=False, swing=0.0):
+    """One rigid vane wing hung from an articulated arm: shoulder -> elbow -> wrist, primaries fanned from the wrist,
+    secondaries along the forearm, two covert rows, riveted spars on top. y is the nearest layer; far wings step away."""
+    d = 1.0 if far else -1.0          # depth direction of 'on top'
+    sx, sz = sh
+    cs, sn = math.cos(rad(swing)), math.sin(rad(swing))
+
+    def turn(px, pz):
+        return (sx + px * cs - pz * sn, sz + px * sn + pz * cs)
+    el = turn(-1.15, 0.95)
+    wr = turn(-2.35, 1.3)
+    fe, sp, iron = tone
+    # primaries: long perforated vanes from the wrist
+    n = 9
+    for i in range(n):
+        t = i / (n - 1.0)
+        a = 152 + 56 * t + rnd.uniform(-1.5, 1.5) + swing
+        ln = 3.05 - 0.75 * t + rnd.uniform(-0.08, 0.08)
+        bx, bz = wr[0] + 0.5 * t, wr[1] - 0.12 * t
+        k.blade(bone, fe if i % 3 else dark, bx, bz, y - d * (0.30 + 0.012 * i), a, ln, 0.6, tilt=d * 0.16,
+                ridge=0.07, skew=-0.22, slots=2 if i % 3 == 0 else 0, base=0.5)
+        k.rivet(bone, iron, bx + 0.22 * math.cos(rad(a)), bz + 0.22 * math.sin(rad(a)), y - d * (0.36 + 0.012 * i), 0.04)
+    # secondaries: along forearm then humerus, turning down toward the body
+    n = 11
+    for i in range(n):
+        t = i / (n - 1.0)
+        if t < 0.55:
+            u = t / 0.55
+            bx, bz = wr[0] + (el[0] - wr[0]) * u + 0.35, wr[1] + (el[1] - wr[1]) * u - 0.1
+        else:
+            u = (t - 0.55) / 0.45
+            bx, bz = el[0] + (sx - el[0]) * u + 0.3, el[1] + (sz - el[1]) * u - 0.12
+        a = 208 + 40 * t + rnd.uniform(-2, 2) + swing * (1 - 0.6 * t)
+        ln = 2.5 - 0.95 * t + rnd.uniform(-0.1, 0.1)
+        k.blade(bone, fe if i % 2 else sp, bx, bz, y - d * (0.42 + 0.012 * i), a, ln, 0.58, tilt=d * 0.14, ridge=0.06,
+                skew=-0.15, slots=1 if i % 4 == 1 else 0, base=0.6)
+    # greater coverts: short broad plates over the vane roots
+    n = 13
+    for i in range(n):
+        t = i / (n - 1.0)
+        if t < 0.5:
+            u = t / 0.5
+            bx, bz = wr[0] + (el[0] - wr[0]) * u + 0.1, wr[1] + (el[1] - wr[1]) * u
+        else:
+            u = (t - 0.5) / 0.5
+            bx, bz = el[0] + (sx - el[0]) * u + 0.1, el[1] + (sz - el[1]) * u
+        a = 196 + 44 * t + rnd.uniform(-3, 3) + swing * (1 - 0.6 * t)
+        ln = 1.25 - 0.3 * t + rnd.uniform(-0.06, 0.06)
+        k.blade(bone, sp if i % 2 else fe, bx, bz, y - d * (0.60 + 0.01 * i), a, ln, 0.5, tilt=d * 0.12, ridge=0.06,
+                skew=-0.1, base=0.7)
+        k.rivet(bone, iron, bx + 0.16 * math.cos(rad(a)), bz + 0.16 * math.sin(rad(a)), y - d * (0.66 + 0.01 * i), 0.035)
+    # lesser coverts: small scales along the arm
+    n = 15
+    for i in range(n):
+        t = i / (n - 1.0)
+        if t < 0.5:
+            u = t / 0.5
+            bx, bz = wr[0] + (el[0] - wr[0]) * u, wr[1] + (el[1] - wr[1]) * u + 0.05
+        else:
+            u = (t - 0.5) / 0.5
+            bx, bz = el[0] + (sx - el[0]) * u, el[1] + (sz - el[1]) * u + 0.05
+        a = 200 + 40 * t + rnd.uniform(-4, 4) + swing * (1 - 0.6 * t)
+        k.blade(bone, fe if i % 2 else sp, bx, bz, y - d * (0.74 + 0.008 * i), a, 0.62, 0.36, tilt=d * 0.1, ridge=0.05,
+                base=0.8)
+    # the arm: two riveted spars, a brace, hinge discs with bolts
+    ya = y - d * 0.92
+    k.bar(bone, iron, (sx, sz), el, ya, 0.2, 0.1)
+    k.bar(bone, iron, el, wr, ya, 0.17, 0.1)
+    k.bar(bone, iron, (sx - 0.25, sz + 0.5), (el[0] - 0.55, el[1] + 0.3), ya + d * 0.03, 0.07, 0.06)   # brace
+    for (px, pz), (qx, qz) in (((sx, sz), el), (el, wr)):
+        for u in (0.25, 0.5, 0.75):
+            k.rivet(bone, sp, px + (qx - px) * u, pz + (qz - pz) * u, ya - d * 0.06, 0.035)
+    for (jx, jz), r in (((sx, sz), 0.3), (el, 0.24), (wr, 0.2)):
+        k.disc(bone, sp, jx, jz, ya - d * 0.04, r, 0.1, seg=20)
+        k.ring(bone, iron, jx, jz, ya - d * 0.1, r * 0.72, r * 0.5, 0.05, seg=20)
+        k.sphere(bone, iron, jx, jz, ya - d * 0.12, r * 0.3, sc=(1, 0.6, 1), seg=10)
+        for q in range(5):
+            k.rivet(bone, iron, jx + r * 0.86 * math.cos(q * 1.257), jz + r * 0.86 * math.sin(q * 1.257), ya - d * 0.1, 0.022)
+
+
+def keeper_roman(k, bone, mat, cx, cz, y, r, hour, size):
+    """One Roman marker, top toward the rim. Built mirrored (the renderer flips the figure to face left)."""
+    glyphs = {1: "I", 2: "II", 3: "III", 4: "IV", 5: "V", 6: "VI", 7: "VII", 8: "VIII", 9: "IX", 10: "X", 11: "XI", 12: "XII"}[hour]
+    ang = 90 + 30 * hour                      # mirrored dial: clockwise once flipped
+    wds = {"I": 0.34, "V": 0.74, "X": 0.74}
+    total = sum(wds[g] for g in glyphs) * size
+    ux, uz = math.cos(rad(ang)), math.sin(rad(ang))          # up (outward)
+    tx, tz = math.cos(rad(ang + 90)), math.sin(rad(ang + 90))   # along the marker (mirrored reading direction)
+    pos = -total / 2
+    st = size * 0.1
+    for g in glyphs:
+        w = wds[g] * size
+        mx, mz = cx + ux * r + tx * (pos + w / 2), cz + uz * r + tz * (pos + w / 2)
+        if g == "I":
+            k.box(bone, mat, mx, mz, y, ang, size, 0.02, st)
+        elif g == "V":
+            for s in (-1, 1):
+                k.box(bone, mat, mx + tx * s * w * 0.2, mz + tz * s * w * 0.2, y, ang + s * 17, size * 1.04, 0.02, st)
+        else:
+            for s in (-1, 1):
+                k.box(bone, mat, mx, mz, y, ang + s * 30, size * 1.12, 0.02, st)
+        pos += w
 
 
 def build_keeper(m, rnd):
-    pal = si.hex_rgb
-    plate = m["plate"]
-    lite = m["lite"]
-    ink, fea, gold, amber = m["ink"], m["feather"], m["gold"], m["amber"]
-    aged = m["aged"]
     r = si.Rig("Keeper")
     r.bone("body", (0, 0, -0.6), (0, 0, 0.8))
-    r.bone("head", (1.7, 0, 0.5), (2.5, 0, 0.9), "body")
-    r.bone("tail", (-1.7, 0, 0.0), (-3.2, 0, -0.5), "body")
-    r.bone("wing_near", (-0.1, -0.35, 0.75), (0.5, -0.35, 1.9), "body")
-    r.bone("wing_far", (-0.1, 0.35, 0.75), (0.5, 0.35, 1.9), "body")
-    r.bone("mech", (1.0, -0.5, -0.8), (1.0, -0.5, -1.6), "body")
+    r.bone("head", (0.95, 0, 0.9), (1.5, 0, 1.6), "body")
+    r.bone("tail", (-1.5, 0, -0.1), (-3.0, 0, -0.7), "body")
+    r.bone("wing_near", (-0.25, -0.5, 0.75), (-0.9, -0.5, 1.9), "body")
+    r.bone("wing_far", (-0.1, 0.5, 0.85), (-0.7, 0.5, 2.0), "body")
+    r.bone("mech", (0.6, -0.5, -0.9), (0.6, -0.5, -1.8), "body")
+    k = KeeperKit(r, m)
+    P, S, D, I, F = "k_plate", "k_spar", "k_dark", "k_iron", "k_face"
 
-    add0 = r.add
+    # ---- far wing (behind everything), a touch higher so it shows over the near one
+    keeper_wing(k, "wing_far", 1.6, (0.1, 1.0), ("k_far", "k_far2", I), "k_far2", rnd, far=True, swing=5.0)
 
-    def add(op, bone, mat, **kw):
-        ob = add0(op, bone, mat, **kw)
-        if op == "primitive_cube_add" and mat in (plate, lite, fea):   # bevel the plates so edges catch light
-            bpy.context.view_layer.objects.active = ob
-            md = ob.modifiers.new("bev", "BEVEL")
-            md.width, md.segments = 0.025, 2
-            bpy.ops.object.modifier_apply(modifier="bev")
-        return ob
-    # body: tapered barrel, chest plates overlapping like scales
-    add("primitive_uv_sphere_add", "body", plate, loc=(0, 0, 0), segments=12, ring_count=7, radius=1.0, scale=(2.1, 0.85, 1.0))
-    add("primitive_uv_sphere_add", "body", fea, loc=(-0.3, 0.05, -0.35), segments=20, ring_count=10, radius=1.0, scale=(1.9, 0.8, 0.75))
-    for row in range(3):
-        for k in range(7):
-            x = -1.0 + k * 0.42 + (0.21 if row % 2 else 0)
-            z = -0.55 + row * 0.38
-            if x > 1.45:
-                continue
-            add("primitive_cube_add", "body", lite if (k + row) % 2 else plate, loc=(x, -0.62 + 0.03 * row, z),
-                rot=(0, 0.3, 0), size=1, scale=(0.5, 0.06, 0.34))
-    for k in range(14):   # riveted seam along the belly
-        add("primitive_uv_sphere_add", "body", m["rust"], loc=(-1.6 + k * 0.23, -0.5, -0.78 + 0.1 * math.sin(k * 0.45)), segments=6, ring_count=4, radius=0.05)
-    # neck + head: angular, crownless, flat brow plate
-    add("primitive_cylinder_add", "head", fea, loc=(1.55, 0, 0.45), rot=(0, 0.9, 0), vertices=12, radius=0.55, depth=0.9)
-    add("primitive_uv_sphere_add", "head", lite, loc=(2.05, 0, 0.9), segments=10, ring_count=6, radius=0.86, scale=(1.05, 0.8, 0.9))
-    add("primitive_cube_add", "head", ink, loc=(2.2, -0.2, 1.38), rot=(0, -0.15, 0), size=1, scale=(0.9, 0.5, 0.1))  # flat brow, no tufts
-    for k in range(5):  # facial disc feather plates
-        add("primitive_cube_add", "head", fea if k % 2 else plate, loc=(1.7 + k * 0.15, -0.55, 0.65 + 0.05 * k),
-            rot=(0, 0.2 * k, 0), size=1, scale=(0.35, 0.05, 0.22))
-    add("primitive_uv_sphere_add", "head", ink, loc=(2.3, -0.55, 1.0), segments=12, ring_count=8, radius=0.27, scale=(1, 0.4, 1))
-    add("primitive_uv_sphere_add", "head", aged, loc=(2.32, -0.66, 1.0), segments=12, ring_count=8, radius=0.19, scale=(1, 0.35, 1))
-    add("primitive_cone_add", "head", ink, loc=(2.92, -0.1, 0.7), rot=(0, S + 0.7, 0), vertices=5, radius1=0.2, radius2=0.0, depth=0.7)  # hooked beak
-    add("primitive_cone_add", "head", ink, loc=(3.05, -0.1, 0.45), rot=(0, S + 1.7, 0), vertices=4, radius1=0.1, radius2=0.0, depth=0.3)
-    # chest clock: gear-toothed bezel, gold face, ticks, hands
-    cx, cy, cz = 1.0, -0.84, 0.0
-    add("primitive_cylinder_add", "body", ink, loc=(cx, cy, cz), rot=(S, 0, 0), vertices=32, radius=0.98, depth=0.12)
-    for k in range(18):
-        a = 2 * math.pi * k / 18
-        add("primitive_cube_add", "body", ink, loc=(cx + 1.03 * math.cos(a), cy, cz + 1.03 * math.sin(a)), rot=(0, -a, 0),
-            size=1, scale=(0.14, 0.12, 0.12))
-    add("primitive_cylinder_add", "body", plate, loc=(cx, cy - 0.05, cz), rot=(S, 0, 0), vertices=32, radius=0.84, depth=0.08)
-    add("primitive_cylinder_add", "body", aged, loc=(cx, cy - 0.1, cz), rot=(S, 0, 0), vertices=32, radius=0.7, depth=0.06)
-    for k in range(12):
-        a = 2 * math.pi * k / 12
-        add("primitive_cube_add", "body", ink, loc=(cx + 0.58 * math.cos(a), cy - 0.15, cz + 0.58 * math.sin(a)), rot=(0, -a, 0),
-            size=1, scale=(0.2 if k % 3 == 0 else 0.12, 0.02, 0.07))
-    add("primitive_cube_add", "body", ink, loc=(cx + 0.05, cy - 0.17, cz + 0.27), rot=(0, -0.2, 0), size=1, scale=(0.06, 0.02, 0.56))
-    add("primitive_cube_add", "body", ink, loc=(cx + 0.2, cy - 0.17, cz - 0.05), rot=(0, 1.1, 0), size=1, scale=(0.05, 0.02, 0.4))
-    add("primitive_uv_sphere_add", "body", ink, loc=(cx, cy - 0.18, cz), segments=10, ring_count=6, radius=0.07)
-    # wings: rigid vane plates fanned from a jointed shoulder strut, near one in front and bigger
-    for bone, y, sc, tone in (("wing_near", -0.4, 1.0, lite), ("wing_far", 0.45, 0.88, plate)):
-        add("primitive_uv_sphere_add", bone, ink, loc=(-0.05, y, 0.8), segments=12, ring_count=8, radius=0.3)
-        n = 14
-        for k in range(n):   # primary feathers hang from the arm: parallel-ish blades staggered along the leading spar
-            t = k / (n - 1.0)
-            ar0 = math.radians(116)
-            ox = -0.05 + math.cos(ar0) * 3.9 * t * sc
-            oz = 0.8 + math.sin(ar0) * 3.9 * t * sc
-            a = math.radians(186 + 32 * t + 4 * math.sin(k * 1.7))
-            ln = (2.9 + 1.1 * math.sin(math.pi * (0.15 + 0.8 * t)) - 0.4 * t) * sc + rnd.uniform(-0.08, 0.08)
-            cxw, czw = ox + math.cos(a) * ln / 2, oz + math.sin(a) * ln / 2
-            yy = y + (-0.012 if bone == "wing_near" else 0.012) * k
-            mat = lite if k % 2 else fea
-            add("primitive_cube_add", bone, mat, loc=(cxw, yy, czw), rot=(0, -a, 0), size=1, scale=(ln, 0.05, 0.55))
-            px, pz = -math.sin(a) * 0.27, math.cos(a) * 0.27
-            add("primitive_cube_add", bone, ink, loc=(cxw + px, yy - 0.03, czw + pz), rot=(0, -a, 0), size=1, scale=(ln, 0.03, 0.045))
-            add("primitive_cone_add", bone, mat, loc=(ox + math.cos(a) * (ln + 0.12), yy, oz + math.sin(a) * (ln + 0.12)),
-                rot=(0, S - a, 0), vertices=4, radius1=0.3, radius2=0.0, depth=0.5, scale=(1, 0.16, 1))
-            add("primitive_cube_add", bone, ink, loc=(cxw, yy - 0.035, czw), rot=(0, -a, 0), size=1, scale=(ln * 0.96, 0.02, 0.035))  # rib
-            for t in (0.42, 0.55, 0.68, 0.81):   # perforation slots
-                add("primitive_cube_add", bone, ink, loc=(ox + math.cos(a) * ln * t, yy - 0.04, oz + math.sin(a) * ln * t),
-                    rot=(0, -a, 0), size=1, scale=(ln * 0.07, 0.02, 0.09))
-            for t in (0.3, 0.6):   # rivets
-                add("primitive_uv_sphere_add", bone, m["rust"], loc=(ox + math.cos(a) * ln * t, yy - 0.04, oz + math.sin(a) * ln * t),
-                    segments=6, ring_count=4, radius=0.045)
-        for k in range(11):   # covert row: short broad plates overlapping the feather roots along the arm
-            t = k / 10.0
-            ar0 = math.radians(116)
-            ox = -0.05 + math.cos(ar0) * 3.7 * t * sc
-            oz = 0.8 + math.sin(ar0) * 3.7 * t * sc
-            a = math.radians(182 + 30 * t)
-            ln = (2.0 - 0.5 * t) * sc
-            yy = y + (0.02 if bone == "wing_near" else -0.02)
-            add("primitive_cube_add", bone, lite if k % 2 else plate, loc=(ox + math.cos(a) * ln / 2, yy, oz + math.sin(a) * ln / 2),
-                rot=(0, -a, 0), size=1, scale=(ln, 0.05, 0.55))
-            for t2 in (0.35, 0.75):
-                add("primitive_uv_sphere_add", bone, m["rust"], loc=(ox + math.cos(a) * ln * t2, yy - 0.04, oz + math.sin(a) * ln * t2),
-                    segments=6, ring_count=4, radius=0.05)
-        for j, (t0, t1, aa) in enumerate(((0.0, 1.9, 150.0), (1.9, 3.7, 160.0))):   # humerus + forearm spars
-            ar = math.radians(aa)
-            mx, mz = -0.05 + math.cos(ar) * (t0 + t1) / 2 * sc, 0.8 + math.sin(ar) * (t0 + t1) / 2 * sc
-            add("primitive_cube_add", bone, ink, loc=(mx, y - 0.07, mz), rot=(0, -ar, 0), size=1, scale=((t1 - t0) * sc, 0.12, 0.2))
-            hx, hz = -0.05 + math.cos(ar) * t1 * sc, 0.8 + math.sin(ar) * t1 * sc
-            add("primitive_cylinder_add", bone, plate, loc=(hx, y - 0.1, hz), rot=(S, 0, 0), vertices=12, radius=0.22, depth=0.1)
-            add("primitive_uv_sphere_add", bone, ink, loc=(hx, y - 0.16, hz), segments=8, ring_count=5, radius=0.08)
-        a0 = math.radians(146)   # jointed leading-edge strut
-        add("primitive_cube_add", bone, ink, loc=(-0.05 + math.cos(a0) * 1.3 * sc, y - 0.05, 0.8 + math.sin(a0) * 1.3 * sc),
-            rot=(0, -a0, 0), size=1, scale=(2.6 * sc, 0.1, 0.12))
-    # tail: five hard plates
-    for k in range(5):
-        a = math.radians(188 + (k - 2) * 9)
-        ln = 2.0 - 0.1 * abs(k - 2)
-        add("primitive_cube_add", "tail", fea if k % 2 else plate, loc=(-1.7 + math.cos(a) * ln / 2, 0.03 * k, math.sin(a) * ln / 2 - 0.1),
-            rot=(0, -a, 0), size=1, scale=(ln, 0.05, 0.36))
-    # legs: two, hocked, three-toed
-    for lx, ly in ((0.35, -0.38), (-0.35, 0.38)):
-        add("primitive_cylinder_add", "body", plate, loc=(lx + 0.15, ly, -1.25), rot=(0, 0.35, 0), vertices=8, radius=0.16, depth=1.0)
-        add("primitive_cylinder_add", "body", fea, loc=(lx - 0.15, ly, -2.05), rot=(0, -0.3, 0), vertices=8, radius=0.13, depth=0.95)
-        add("primitive_uv_sphere_add", "body", ink, loc=(lx + 0.3, ly, -0.8), segments=10, ring_count=6, radius=0.22)
-        add("primitive_uv_sphere_add", "body", ink, loc=(lx + 0.0, ly, -1.68), segments=10, ring_count=6, radius=0.17)
-        for t in (-0.18, 0.0, 0.18):
-            add("primitive_cone_add", "body", ink, loc=(lx - 0.45, ly + t * 0.4, -2.5), rot=(0, S + 0.15 + t, 0), vertices=4,
-                radius1=0.09, radius2=0.0, depth=0.7)
-        add("primitive_cone_add", "body", ink, loc=(lx + 0.18, ly, -2.5), rot=(0, -S + 0.15, 0), vertices=4, radius1=0.09, radius2=0.0, depth=0.5)
-    # three hanging mechanisms on chains from the belly
-    def chain(x0, z0, x1, z1, y):
-        n = 7
-        for k in range(n):
-            t = (k + 0.5) / n
-            add("primitive_torus_add", "mech", plate if k % 2 else ink, loc=(x0 + (x1 - x0) * t, y, z0 + (z1 - z0) * t),
-                rot=(S if k % 2 else 0, 0, 0), major_radius=0.1, minor_radius=0.03, major_segments=10, minor_segments=5)
-    chain(0.8, -0.85, 1.35, -1.9, -0.55)
-    for rx, ry in ((S, 0), (0, 0), (0, S)):   # armillary sphere: three rings and a gold core
-        add("primitive_torus_add", "mech", plate if rx else lite, loc=(1.4, -0.55, -2.15), rot=(rx, 0, ry), major_radius=0.3,
-            minor_radius=0.045, major_segments=24, minor_segments=6)
-    add("primitive_uv_sphere_add", "mech", gold, loc=(1.4, -0.58, -2.15), segments=10, ring_count=6, radius=0.11)
-    chain(1.8, -0.5, 3.3, -1.5, -0.45)   # lantern cage
-    add("primitive_cone_add", "mech", lite, loc=(3.4, -0.45, -1.45), vertices=6, radius1=0.5, radius2=0.12, depth=0.35)
-    add("primitive_torus_add", "mech", lite, loc=(3.4, -0.45, -1.2), major_radius=0.1, minor_radius=0.03, major_segments=12, minor_segments=5)
-    add("primitive_cylinder_add", "mech", lite, loc=(3.4, -0.45, -2.62), vertices=6, radius=0.48, depth=0.12)
-    add("primitive_uv_sphere_add", "mech", aged, loc=(3.4, -0.9, -2.1), segments=10, ring_count=6, radius=0.18)
-    for k in range(6):
-        a = 2 * math.pi * k / 6
-        add("primitive_cube_add", "mech", ink, loc=(3.4 + 0.44 * math.cos(a), -0.45 + 0.44 * math.sin(a), -2.1), size=1, scale=(0.09, 0.09, 0.9))
-    for zz in (-1.75, -2.1, -2.45):   # cage hoops
-        add("primitive_torus_add", "mech", plate, loc=(3.4, -0.45, zz), major_radius=0.44, minor_radius=0.04, major_segments=16, minor_segments=5)
-    chain(-0.3, -0.85, -0.9, -1.9, -0.5)   # gear
-    add("primitive_cylinder_add", "mech", plate, loc=(-0.95, -0.55, -2.25), rot=(S, 0, 0), vertices=20, radius=0.36, depth=0.1)
-    for k in range(10):
-        a = 2 * math.pi * k / 10
-        add("primitive_cube_add", "mech", ink, loc=(-0.95 + 0.4 * math.cos(a), -0.58, -2.25 + 0.4 * math.sin(a)), rot=(0, -a, 0),
-            size=1, scale=(0.14, 0.1, 0.12))
-    add("primitive_uv_sphere_add", "mech", ink, loc=(-0.95, -0.62, -2.25), segments=8, ring_count=5, radius=0.1)
+    # ---- tail: plated fan
+    for i in range(7):
+        a = 186 + 9 * i + rnd.uniform(-1.5, 1.5)
+        k.blade("tail", P if i % 2 else D, -1.25 - 0.05 * i, -0.2 - 0.08 * i, 0.35 - 0.02 * i, a, 2.7 - 0.12 * i, 0.5,
+                tilt=-0.12, ridge=0.06, skew=-0.12, slots=2 if i % 2 else 0)
+    # ---- far leg, then body core
+    keeper_leg(k, (-0.35, -0.85), 0.45, P, S, I, D)
+    k.sphere("body", D, -0.25, 0.0, 0.0, 1.0, sc=(1.75, 0.72, 1.08), a=12, seg=24)
+    k.sphere("head", D, 0.9, 0.95, 0.0, 0.55, sc=(1.1, 0.9, 1.3), a=55, seg=16)      # neck
+    # body plating: staggered scale rows over the barrel, front rows on top
+    row = 0
+    z = 0.95
+    while z > -1.05:
+        x = -1.85 + (0.16 if row % 2 else 0.0)
+        col = 0
+        while x < 1.5:
+            e = ((x + 0.25) / 1.75) ** 2 + (z / 1.08) ** 2
+            if e < 1.0:
+                ys = -0.72 * math.sqrt(max(0.0, 1.0 - e)) - 0.05 - 0.02 * (x + 2.0)
+                k.blade("body", (P, S, D)[(col + row) % 3], x + 0.2, z + 0.03 * math.sin(col), ys, 192 + 14 * (z < -0.3) + rnd.uniform(-5, 5),
+                        0.56, 0.36, tilt=-0.12, pitch=0.08, ridge=0.05, base=0.85, thick=0.025)
+            x += 0.33
+            col += 1
+        z -= 0.25
+        row += 1
+    # rump plates and a riveted belly keel
+    for i in range(6):
+        k.blade("body", P if i % 2 else S, -1.35 - 0.06 * i, 0.5 - 0.22 * i, -0.45, 186 + 6 * i, 1.1, 0.42, tilt=-0.1, ridge=0.05)
+    k.tube("body", I, [(-1.6, -0.5, -0.75), (-0.8, -0.62, -1.02), (0.1, -0.66, -1.08), (0.9, -0.6, -0.92)], 0.07, seg=8)
+    for i in range(9):
+        t = i / 8.0
+        k.rivet("body", S, -1.5 + 2.3 * t, -1.0 + 0.22 * (2 * t - 1) ** 2 - 0.02, -0.72, 0.035)
+    for ex in (0.72, 0.05, -0.85):   # the three underside body eyes the chains hang from
+        k.ring("body", I, ex, -1.16, -0.6, 0.11, 0.055, 0.05, seg=14)
+
+    # ---- near leg
+    keeper_leg(k, (0.2, -0.9), -0.62, P, S, I, D)
+
+    # ---- hanging mechanisms, each on its own chain
+    # front: armillary sphere (solid rim, intersecting hoops, central ball)
+    ax, az = 1.0, -2.25
+    k.chain("mech", I, (0.72, -1.25), (ax, az + 0.5), -0.6, sag=0.03)
+    k.ring("mech", S, ax, az, -0.6, 0.42, 0.33, 0.1, seg=28)
+    k.tube("mech", I, [(ax + 0.34 * math.cos(t), -0.6 + 0.34 * math.sin(t) * 0.9, az + 0.12 * math.sin(t))
+                       for t in [2 * math.pi * q / 20 for q in range(20)]], 0.028, seg=6, closed=True)
+    k.tube("mech", I, [(ax + 0.14 * math.sin(t), -0.6 + 0.3 * math.cos(t), az + 0.34 * math.sin(t))
+                       for t in [2 * math.pi * q / 20 for q in range(20)]], 0.028, seg=6, closed=True)
+    k.bar("mech", I, (ax - 0.4, az), (ax + 0.4, az), -0.58, 0.035, 0.04)
+    k.sphere("mech", P, ax, az, -0.62, 0.15, seg=14)
+    k.sphere("mech", I, ax, az + 0.46, -0.6, 0.06)
+    k.tube("mech", S, [(ax, -0.6, az - 0.42), (ax, -0.6, az - 0.55), (ax, -0.6, az - 0.62)], [0.07, 0.05, 0.01], seg=8)
+    # middle: ribbed cage cylinder, swung out front on its long chain
+    lx, lz = 3.55, -0.75
+    k.chain("mech", I, (0.05, -1.25), (1.9, -1.02), -0.55, sag=0.2)
+    k.chain("mech", I, (1.9, -1.02), (lx, lz + 0.92), -0.55, sag=-0.06)
+    k.ring("mech", I, lx, lz + 0.8, -0.55, 0.1, 0.055, 0.04, seg=14)
+    k.tube("mech", P, [(lx, -0.55, lz + 0.72), (lx, -0.55, lz + 0.62), (lx, -0.55, lz + 0.5), (lx, -0.55, lz + 0.42)],
+           [0.06, 0.2, 0.4, 0.44], seg=14)                                                           # cap
+    k.tube("mech", S, [(lx, -0.55, lz + 0.42), (lx, -0.55, lz + 0.36)], [0.46, 0.46], seg=14)
+    k.tube("mech", I, [(lx, -0.3, lz + 0.36), (lx, -0.3, lz - 0.5)], [0.2, 0.2], seg=12)           # dark core
+    for q in range(9):
+        a = 2 * math.pi * q / 9 + 0.2
+        k.tube("mech", S, [(lx + 0.4 * math.cos(a), -0.55 + 0.4 * math.sin(a), lz + 0.38),
+                                           (lx + 0.43 * math.cos(a), -0.55 + 0.43 * math.sin(a), lz - 0.05),
+                                           (lx + 0.4 * math.cos(a), -0.55 + 0.4 * math.sin(a), lz - 0.5)], 0.042, seg=6)
+    for zz in (0.12, -0.2):
+        k.tube("mech", P, [(lx + 0.44 * math.cos(t), -0.55 + 0.44 * math.sin(t), lz + zz)
+                           for t in [2 * math.pi * q / 16 for q in range(16)]], 0.035, seg=6, closed=True)
+    k.tube("mech", S, [(lx, -0.55, lz - 0.48), (lx, -0.55, lz - 0.56), (lx, -0.55, lz - 0.62), (lx, -0.55, lz - 0.74)],
+           [0.46, 0.48, 0.3, 0.05], seg=14)                                                          # base + finial
+    # rear: gear ring
+    gx, gz = -1.05, -2.2
+    k.chain("mech", I, (-0.85, -1.25), (gx, gz + 0.45), -0.6, sag=0.02)
+    k.gear("mech", P, gx, gz, -0.6, 0.36, 10, 0.1, 0.15, r_in=0.2)
+    k.ring("mech", I, gx, gz, -0.66, 0.2, 0.13, 0.05, seg=16)
+    for q in range(4):
+        k.bar("mech", S, (gx, gz), (gx + 0.22 * math.cos(q * HALF + 0.4), gz + 0.22 * math.sin(q * HALF + 0.4)), -0.6, 0.05, 0.05)
+    k.sphere("mech", I, gx, gz, -0.64, 0.06)
+
+    # ---- near wing
+    keeper_wing(k, "wing_near", -0.75, (-0.25, 0.75), (P, S, I), D, rnd, swing=18.0)
+
+    # ---- head: small, angular, crownless; swept-back plates, heavy brow, hooked beak, muted eye
+    hx, hz = 1.45, 1.62
+    k.sphere("head", D, hx, hz, 0.0, 0.62, sc=(1.08, 0.85, 0.95), seg=18)
+    for row_i, rr in enumerate((0.56, 0.4, 0.24)):                 # plates radiating back from the face
+        n = 9 - 2 * row_i
+        for i in range(n):
+            ph = 95 + 190 * i / (n - 1.0)                          # around the back of the head
+            px, pz = hx + rr * math.cos(rad(ph)) * 0.9 - 0.05, hz + rr * math.sin(rad(ph)) * 0.85
+            k.blade("head", (P, S, P)[(i + row_i) % 3], px, pz, -0.5 - 0.06 * row_i - 0.004 * i, 150 + 0.42 * (ph - 95) + rnd.uniform(-4, 4),
+                    0.5 - 0.05 * row_i, 0.3, tilt=-0.1, pitch=0.06, ridge=0.05, base=0.85, thick=0.025)
+    for i in range(5):                                             # neck ruff down to the clock
+        k.blade("head", S if i % 2 else P, hx - 0.5 + 0.2 * i, hz - 0.52 - 0.04 * i, -0.62, 236 + 9 * i, 0.62, 0.34, tilt=-0.1,
+                ridge=0.05, base=0.8)
+    k.disc("head", I, hx + 0.2, hz + 0.05, -0.74, 0.22, 0.05, seg=20)                 # eye socket
+    k.ring("head", S, hx + 0.2, hz + 0.05, -0.78, 0.2, 0.13, 0.04, seg=20)           # muted eye ring
+    k.sphere("head", F, hx + 0.2, hz + 0.05, -0.78, 0.115, sc=(1, 0.5, 1), seg=12)
+    k.sphere("head", I, hx + 0.215, hz + 0.045, -0.83, 0.06, sc=(1, 0.5, 1), seg=10)
+    k.blade("head", D, hx + 0.56, hz + 0.1, -0.86, 158, 1.05, 0.3, tilt=-0.25, ridge=0.07, skew=0.25, base=0.6)   # brow
+    k.blade("head", P, hx + 0.5, hz + 0.24, -0.82, 150, 0.95, 0.26, tilt=-0.2, ridge=0.06, skew=0.2, base=0.6)
+    k.tube("head", S, [(hx + 0.4, -0.3, hz - 0.02), (hx + 0.6, -0.3, hz - 0.03), (hx + 0.76, -0.3, hz - 0.14),
+                       (hx + 0.83, -0.3, hz - 0.32), (hx + 0.8, -0.3, hz - 0.5)], [0.2, 0.19, 0.15, 0.09, 0.008], seg=10, flat=0.7)
+    k.tube("head", I, [(hx + 0.4, -0.25, hz - 0.2), (hx + 0.58, -0.25, hz - 0.26), (hx + 0.7, -0.25, hz - 0.36)],
+           [0.11, 0.08, 0.01], seg=8, flat=0.7)
+    k.sphere("head", I, hx + 0.56, hz + 0.0, -0.46, 0.03)                              # nostril
+
+    # ---- chest clock: toothed back gear, riveted bezel, aged face, Roman markers, one long hand on one pivot
+    cx, cz, cy = 0.78, 0.2, -1.4
+    k.gear("body", I, cx - 0.12, cz - 0.1, cy + 0.14, 1.04, 22, 0.1, 0.16, phase=4)
+    k.gear("body", S, cx - 0.75, cz - 0.7, cy + 0.2, 0.36, 10, 0.08, 0.13, r_in=0.16)
+    k.disc("body", S, cx, cz, cy, 1.0, 0.16, seg=40)
+    k.ring("body", P, cx, cz, cy - 0.1, 1.0, 0.86, 0.06, seg=40)
+    k.ring("body", I, cx, cz, cy - 0.12, 0.86, 0.8, 0.05, seg=40)
+    for q in range(16):
+        a = 2 * math.pi * q / 16
+        k.rivet("body", I, cx + 0.93 * math.cos(a), cz + 0.93 * math.sin(a), cy - 0.14, 0.03)
+    k.disc("body", F, cx, cz, cy - 0.09, 0.8, 0.02, seg=40)
+    k.ring("body", "k_facedark", cx, cz, cy - 0.105, 0.5, 0.485, 0.01, seg=40)
+    k.ring("body", "k_facedark", cx, cz, cy - 0.105, 0.785, 0.76, 0.01, seg=40)
+    for h in range(1, 13):
+        keeper_roman(k, "body", "k_numeral", cx, cz, cy - 0.11, 0.62, h, 0.2)
+    for q in range(60):
+        if q % 5:
+            a = rad(6 * q)
+            k.box("body", "k_numeral", cx + 0.745 * math.cos(a), cz + 0.745 * math.sin(a), cy - 0.11, 6 * q, 0.03, 0.02, 0.012)
+    ha = 62                                                         # the one hand
+    k.blade("body", "k_numeral", cx - 0.14 * math.cos(rad(ha)), cz - 0.14 * math.sin(rad(ha)), cy - 0.14, ha, 0.82, 0.1,
+            ridge=0.02, base=0.7, thick=0.01)
+    k.disc("body", I, cx, cz, cy - 0.15, 0.07, 0.04, seg=14)
+    k.sphere("body", S, cx, cz, cy - 0.18, 0.035)
+    k.finish()
     return r.build(), {"mirror_bones": ()}
 
 
-def etched(name, shades, look, hatch=0.3, scale=16.0, bump=0.12):
-    """The team toon ramp plus etched hatching (a diagonal wave in object space darkens thin bands) and paper grain."""
-    m = si.toon(name, shades, look)
+def keeper_leg(k, hip, y, P, S, I, D):
+    """A short mechanical leg: plated thigh, hinge, banded shank, four hooked talons."""
+    hx, hz = hip
+    kn = (hx + 0.36, hz - 0.8)
+    an = (hx + 0.0, hz - 1.6)
+    for i in range(4):                                             # thigh plates
+        k.blade("body", P if i % 2 else S, hx - 0.2 + 0.14 * i, hz + 0.28, y - 0.03 - 0.004 * i, 268 + 7 * i, 0.95, 0.36, tilt=-0.1,
+                ridge=0.05, base=0.8)
+    k.tube("body", S, [(hx + 0.05, y, hz), (kn[0], y, kn[1])], [0.2, 0.15], seg=10)
+    k.tube("body", P, [(kn[0], y, kn[1]), (an[0], y, an[1])], [0.13, 0.11], seg=10)
+    for u in (0.3, 0.55, 0.8):                                     # shank bands
+        bx, bz = kn[0] + (an[0] - kn[0]) * u, kn[1] + (an[1] - kn[1]) * u
+        k.tube("body", I, [(bx - 0.012, y, bz - 0.028), (bx + 0.012, y, bz + 0.028)], [0.15, 0.15], seg=10)
+    k.tube("body", I, [(kn[0] - 0.2, y - 0.14, kn[1] - 0.15), (an[0] + 0.05, y - 0.14, an[1] + 0.3)], 0.03, seg=6)   # piston
+    for (jx, jz), jr in ((kn, 0.19), (an, 0.15)):
+        k.disc("body", S, jx, jz, y - 0.14, jr, 0.08, seg=18)
+        k.ring("body", I, jx, jz, y - 0.19, jr * 0.7, jr * 0.45, 0.03, seg=18)
+        k.sphere("body", I, jx, jz, y - 0.2, jr * 0.3, sc=(1, 0.6, 1), seg=8)
+    for i, (da, ln) in enumerate(((-30, 0.8), (-62, 0.86), (-95, 0.78), (-155, 0.6))):   # talons: three forward, one back
+        pts, rr = [], []
+        for q in range(6):
+            t = q / 5.0
+            a = rad(da - 62 * t * t * (1 if da > -120 else -1))
+            pts.append((an[0] + math.cos(rad(da)) * ln * t * 0.8 + math.cos(a) * ln * 0.2 * t,
+                        y - 0.02 * i, an[1] - 0.05 + math.sin(rad(da)) * ln * t * 0.55 + math.sin(a) * ln * 0.45 * t - 0.25 * t * t))
+            rr.append(0.095 * (1 - t) ** 0.7 + 0.006)
+        k.tube("body", I if i % 2 else D, pts, rr, seg=8)
+        k.sphere("body", S, pts[1][0], pts[1][2], y - 0.02 * i - 0.03, 0.06, seg=8)
+
+
+# ---------- look: worn metal in Cycles ----------
+def keeper_metal(name, base, vary=0.25, rough=0.55, veins=0.0, metallic=0.4):
+    """Aged sheet metal: mottled value, fine scratches, optional barb veins from the UV (u along the vane, v across)."""
+    m = bpy.data.materials.new(name)
+    m.use_nodes = True
     nt = m.node_tree
-    _rp = next(n for n in nt.nodes if n.bl_idname == "ShaderNodeValToRGB")
-    _rp.color_ramp.elements[1].position, _rp.color_ramp.elements[2].position = 0.22, 0.58
-    mul = next(n for n in nt.nodes if n.bl_idname == "ShaderNodeVectorMath")
-    src = mul.inputs[0].links[0].from_socket
-    for lk in list(mul.inputs[0].links):
-        nt.links.remove(lk)
-    coord = nt.nodes.new("ShaderNodeTexCoord")
-    wave = nt.nodes.new("ShaderNodeTexWave")
-    wave.wave_type, wave.bands_direction, wave.wave_profile = "BANDS", "DIAGONAL", "SAW"
-    wave.inputs["Scale"].default_value = scale
-    wave.inputs["Distortion"].default_value = 3.0
-    wave.inputs["Detail"].default_value = 2.0
-    wave.inputs["Detail Scale"].default_value = 3.0
-    thr = nt.nodes.new("ShaderNodeMath")
-    thr.operation = "GREATER_THAN"
-    thr.inputs[1].default_value = 0.72
-    dk = nt.nodes.new("ShaderNodeMath")
-    dk.operation = "MULTIPLY_ADD"
-    dk.inputs[1].default_value = -hatch
-    dk.inputs[2].default_value = 1.0
-    vm = nt.nodes.new("ShaderNodeVectorMath")
-    vm.operation = "SCALE"
-    geo = nt.nodes.new("ShaderNodeNewGeometry")
-    nt.links.new(geo.outputs["Position"], wave.inputs["Vector"])
-    nt.links.new(wave.outputs["Fac"], thr.inputs[0])
-    nt.links.new(thr.outputs[0], dk.inputs[0])
-    nt.links.new(src, vm.inputs[0])
-    nt.links.new(dk.outputs[0], vm.inputs["Scale"])
-    nt.links.new(vm.outputs[0], mul.inputs[0])
+    nt.nodes.clear()
+    N = nt.nodes.new
+    L = nt.links.new
+    out = N("ShaderNodeOutputMaterial")
+    bsdf = N("ShaderNodeBsdfPrincipled")
+    bsdf.inputs["Metallic"].default_value = metallic
+    bsdf.inputs["Roughness"].default_value = rough
+    geo = N("ShaderNodeNewGeometry")
+    big = N("ShaderNodeTexNoise")
+    big.inputs["Scale"].default_value = 2.2
+    big.inputs["Detail"].default_value = 5.0
+    fine = N("ShaderNodeTexNoise")
+    fine.inputs["Scale"].default_value = 38.0
+    fine.inputs["Detail"].default_value = 3.0
+    scr_map = N("ShaderNodeMapping")
+    scr_map.inputs["Scale"].default_value = (2.0, 2.0, 46.0)
+    scr_map.inputs["Rotation"].default_value = (0.0, 0.5, 0.0)
+    scr = N("ShaderNodeTexNoise")
+    scr.inputs["Scale"].default_value = 9.0
+    scr.inputs["Detail"].default_value = 2.0
+    L(geo.outputs["Position"], big.inputs["Vector"])
+    L(geo.outputs["Position"], fine.inputs["Vector"])
+    L(geo.outputs["Position"], scr_map.inputs["Vector"])
+    L(scr_map.outputs["Vector"], scr.inputs["Vector"])
+
+    def math_node(op, a=None, b=None, c=None, clamp=False):
+        n = N("ShaderNodeMath")
+        n.operation, n.use_clamp = op, clamp
+        for i, v in enumerate((a, b, c)):
+            if v is None:
+                continue
+            if isinstance(v, (int, float)):
+                n.inputs[i].default_value = v
+            else:
+                L(v, n.inputs[i])
+        return n.outputs[0]
+
+    val = math_node("MULTIPLY_ADD", big.outputs["Fac"], vary * 2.0, 1.0 - vary)        # mottled plate value
+    val = math_node("MULTIPLY", val, math_node("MULTIPLY_ADD", fine.outputs["Fac"], 0.3, 0.85))
+    scratch = math_node("GREATER_THAN", scr.outputs["Fac"], 0.7)
+    val = math_node("MULTIPLY", val, math_node("MULTIPLY_ADD", scratch, 0.22, 1.0))
+    bump_h = math_node("MULTIPLY_ADD", fine.outputs["Fac"], 0.4, math_node("MULTIPLY", scratch, 0.3))
+    if veins:
+        uv = N("ShaderNodeUVMap")
+        sep = N("ShaderNodeSeparateXYZ")
+        L(uv.outputs["UV"], sep.inputs[0])
+        vabs = math_node("ABSOLUTE", math_node("SUBTRACT", sep.outputs["Y"], 0.5))       # 0 on the ridge, 0.5 at the edge
+        ph = math_node("ADD", math_node("MULTIPLY", sep.outputs["X"], veins), math_node("MULTIPLY", vabs, 9.0))
+        barb = math_node("LESS_THAN", math_node("FRACT", ph), 0.2)
+        barb = math_node("MULTIPLY", barb, math_node("GREATER_THAN", vabs, 0.04))
+        ridge = math_node("LESS_THAN", vabs, 0.03)
+        edge = math_node("GREATER_THAN", vabs, 0.455)
+        root = math_node("SUBTRACT", 1.0, math_node("MULTIPLY", math_node("SUBTRACT", 1.0, sep.outputs["X"]), 0.45))   # darker at the root
+        val = math_node("MULTIPLY", val, math_node("SUBTRACT", 1.0, math_node("MULTIPLY", barb, 0.3)))
+        val = math_node("MULTIPLY", val, math_node("MULTIPLY_ADD", ridge, 0.5, 1.0))
+        val = math_node("MULTIPLY", val, math_node("MULTIPLY_ADD", edge, 0.45, 1.0))
+        val = math_node("MULTIPLY", val, root)
+        bump_h = math_node("SUBTRACT", bump_h, math_node("MULTIPLY", barb, 0.8))
+    col = N("ShaderNodeMixRGB")
+    col.blend_type = "MULTIPLY"
+    col.inputs["Fac"].default_value = 1.0
+    col.inputs["Color1"].default_value = si.hex_rgb(base)
+    comb = N("ShaderNodeCombineColor")
+    for i in range(3):
+        L(val, comb.inputs[i])
+    L(comb.outputs[0], col.inputs["Color2"])
+    L(col.outputs["Color"], bsdf.inputs["Base Color"])
+    bev = N("ShaderNodeBevel")
+    bev.samples = 4
+    bev.inputs["Radius"].default_value = 0.018
+    bump = N("ShaderNodeBump")
+    bump.inputs["Strength"].default_value = 0.35
+    bump.inputs["Distance"].default_value = 0.02
+    L(bump_h, bump.inputs["Height"])
+    L(bev.outputs["Normal"], bump.inputs["Normal"])
+    L(bump.outputs["Normal"], bsdf.inputs["Normal"])
+    L(bsdf.outputs["BSDF"], out.inputs["Surface"])
     return m
 
 
-_orig = si.materials
+_keeper_base_materials = si.materials
 
 
-def materials(colours, look):
-    d = _orig(colours, look)
-    c = colours.get
-    d["plate"] = etched("plate", ["#3f3329", "#85725c", "#b0a08a"], look, hatch=0.22)
-    d["feather"] = etched("feather", ["#2e2620", "#6e5c49", "#9b8a74"], look, hatch=0.22)
-    d["lite"] = etched("lite", ["#5f4f40", "#a39380", "#cfc3ae"], look, hatch=0.18)
-    d["aged"] = si.glow("aged", "#9a7434", 0.7)
-    d["rust"] = si.glow("rust", c("rust-red", "#743422"))
+def keeper_materials(colours, look):
+    d = _keeper_base_materials(colours, look)
+    d["k_plate"] = keeper_metal("k_plate", "#7d6b57", veins=7.0)
+    d["k_spar"] = keeper_metal("k_spar", "#b9a78e", veins=7.0, rough=0.5)
+    d["k_dark"] = keeper_metal("k_dark", "#57483b", veins=7.0, rough=0.6)
+    d["k_far"] = keeper_metal("k_far", "#4c4035", veins=7.0, rough=0.7)
+    d["k_far2"] = keeper_metal("k_far2", "#352c25", veins=7.0, rough=0.7)
+    d["k_iron"] = keeper_metal("k_iron", "#332b25", rough=0.5, vary=0.2)
+    d["k_face"] = keeper_metal("k_face", "#d8ccb6", rough=0.8, vary=0.14, metallic=0.0)
+    d["k_facedark"] = keeper_metal("k_facedark", "#4a3d32", rough=0.8, vary=0.1, metallic=0.0)
+    d["k_numeral"] = keeper_metal("k_numeral", "#1d1814", rough=0.7, vary=0.1, metallic=0.0)
     return d
 
 
-si.materials = materials
+def keeper_scene_look(scene, job):
+    """Cycles, a key sun from the upper front, soft warm sky fill for the metal to reflect, thin ink lines."""
+    scene.render.engine = "CYCLES"
+    look = job["look"]
+    scene.cycles.samples = int(look.get("cycles_samples", 96))
+    scene.cycles.use_denoising = True
+    scene.cycles.seed = int(look.get("seed", 11))
+    scene.cycles.use_animated_seed = False
+    try:
+        scene.cycles.device = "CPU"
+    except TypeError:
+        pass
+    for ob in list(scene.objects):
+        if ob.type == "LIGHT":
+            bpy.data.objects.remove(ob)
+    sun = bpy.data.objects.new("key", bpy.data.lights.new("key", "SUN"))
+    sun.data.energy = 5.5
+    sun.data.angle = rad(6)
+    sun.rotation_euler = (rad(58), rad(0), rad(-28))       # from the upper front-left of the final picture
+    scene.collection.objects.link(sun)
+    rim = bpy.data.objects.new("rim", bpy.data.lights.new("rim", "SUN"))
+    rim.data.energy = 0.7
+    rim.rotation_euler = (rad(110), rad(0), rad(150))
+    scene.collection.objects.link(rim)
+    w = scene.world or bpy.data.worlds.new("world")
+    scene.world = w
+    w.use_nodes = True
+    nt = w.node_tree
+    nt.nodes.clear()
+    out = nt.nodes.new("ShaderNodeOutputWorld")
+    bg = nt.nodes.new("ShaderNodeBackground")
+    grad = nt.nodes.new("ShaderNodeTexGradient")
+    tc = nt.nodes.new("ShaderNodeTexCoord")
+    mp = nt.nodes.new("ShaderNodeMapping")
+    mp.inputs["Rotation"].default_value = (0.0, -HALF, 0.0)   # gradient along world Z: dark ground, light sky
+    ramp = nt.nodes.new("ShaderNodeValToRGB")
+    ramp.color_ramp.elements[0].position, ramp.color_ramp.elements[0].color = 0.35, (0.03, 0.028, 0.025, 1)
+    ramp.color_ramp.elements[1].position, ramp.color_ramp.elements[1].color = 0.75, (0.75, 0.72, 0.66, 1)
+    nt.links.new(tc.outputs["Generated"], mp.inputs["Vector"])
+    nt.links.new(mp.outputs["Vector"], grad.inputs["Vector"])
+    nt.links.new(grad.outputs["Fac"], ramp.inputs["Fac"])
+    nt.links.new(ramp.outputs["Color"], bg.inputs["Color"])
+    bg.inputs["Strength"].default_value = 0.8
+    nt.links.new(bg.outputs["Background"], out.inputs["Surface"])
+    scene.render.film_transparent = True
+    scene.render.filter_size = 1.1
+    try:                                                    # the paint pass below owns the grain
+        if hasattr(scene, "compositing_node_group"):
+            scene.compositing_node_group = None
+        else:
+            scene.use_nodes = False
+    except (AttributeError, TypeError):
+        pass
+    fs = scene.view_layers[0].freestyle_settings
+    fs.crease_angle = rad(128)
+    ls = fs.linesets[0]
+    ls.select_silhouette = ls.select_border = ls.select_crease = True
+    ls.linestyle.thickness = KEEPER_LINE_PX
+    scene.render.line_thickness = KEEPER_LINE_PX
+
+
+_keeper_base_setup = si.setup
+
+
+def keeper_setup(job):
+    scene, arm, extra, rep = _keeper_base_setup(job)
+    if job.get("builder") == "keeper":
+        keeper_scene_look(scene, job)
+        rep["engine"] = "CYCLES"
+    return scene, arm, extra, rep
+
+
+si.materials = keeper_materials
+si.setup = keeper_setup
 si.BUILDERS["keeper"] = build_keeper
 
-def painted_pass(path, seed=7):
-    """Compositor pass on the rendered frame: bronze/iron value remap, etched hatching in the shadows, edge-darkened
-    ink, scratches and paper mottle. Alpha untouched. Keeps the palette inside ink/soot/umber/bronze/taupe + accents."""
+
+# ---------- paint pass ----------
+def keeper_paint(path, seed=7):
+    """On the rendered frame: map value onto the Keeper palette (ink .. paper), etch hatching into the shadows and
+    half-tones, add paper tooth and a soft ink edge. Alpha untouched; the same seed for every frame (no boil)."""
     import numpy as np
     img = bpy.data.images.load(path)
     w, h = img.size
-    a = np.array(img.pixels[:], dtype=np.float32).reshape(h, w, 4)
+    px = np.array(img.pixels[:], dtype=np.float32).reshape(h, w, 4)
     rng = np.random.default_rng(seed)
-    al = a[..., 3]
-    rgb = a[..., :3]
-    lum = rgb @ np.array([0.3, 0.59, 0.11], dtype=np.float32)
+    al = px[..., 3]
+    rgb = px[..., :3]
+    un = np.where(al[..., None] > 1e-4, rgb / np.maximum(al[..., None], 1e-4), 0.0)   # un-premultiply the edge pixels
+    lum = np.clip(un @ np.array([0.3, 0.59, 0.11], dtype=np.float32), 0, 1)
     yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
 
-    def smooth_noise(sc):
+    def noise(sc):
         g = rng.random((h // sc + 2, w // sc + 2)).astype(np.float32)
-        gy = np.arange(h, dtype=np.float32) / sc
-        gx = np.arange(w, dtype=np.float32) / sc
+        gy, gx = np.arange(h, dtype=np.float32) / sc, np.arange(w, dtype=np.float32) / sc
         y0, x0 = gy.astype(int), gx.astype(int)
         fy, fx = (gy - y0)[:, None], (gx - x0)[None, :]
-        top = g[y0][:, x0] * (1 - fx) + g[y0][:, x0 + 1] * fx   # bilinear: no blocky cells
+        top = g[y0][:, x0] * (1 - fx) + g[y0][:, x0 + 1] * fx
         bot = g[y0 + 1][:, x0] * (1 - fx) + g[y0 + 1][:, x0 + 1] * fx
         return top * (1 - fy) + bot * fy
-    mottle = 0.5 * smooth_noise(24) + 0.3 * smooth_noise(8) + 0.2 * smooth_noise(3)
-    # hatching: two families of diagonal etched lines, denser as the value drops
-    d1 = ((xx + yy) % 5.0) < 1.15
-    d2 = ((xx - yy) % 6.0) < 1.0
-    shade = np.clip((0.42 - lum) / 0.3, 0, 1)            # 0 in light, 1 in deep shadow
-    mid = np.clip((0.62 - lum) / 0.3, 0, 1)
-    wob = (smooth_noise(6) - 0.5) * 2.2
-    h1 = (((xx + yy + wob * 3) % 4.0) < 1.0) & (mid > 0.2)
-    h2 = (((xx - yy + wob * 3) % 6.0) < 1.0) & (shade > 0.35)
-    hatch = np.where(h1, 0.18, 0.0) + np.where(h2, 0.2, 0.0)
-    # light etched highlights on the lit plates (thin paper-tone lines)
-    hl = (((xx * 0.6 + yy) % 7.0) < 0.9) & (lum > 0.38)
-    out = rgb * (1.0 - hatch[..., None])
-    out = out * (0.86 + 0.28 * mottle[..., None])
-    
-    # scratches: sparse short dark strokes
-    sc = np.zeros((h, w), dtype=np.float32)
-    for _ in range(120):
-        x0, y0 = rng.integers(0, w), rng.integers(0, h)
-        ln = rng.integers(5, 14)
-        for t in range(ln):
-            x, y = int(x0 + t * 0.9), int(y0 + t * 0.45)
-            if 0 <= x < w and 0 <= y < h:
-                sc[y, x] = 1.0
-    out = out * (1.0 - 0.45 * sc[..., None] * (al[..., None] > 0.5))
-    # edge darkening: pixels near transparent get inked
-    solid = (al > 0.5).astype(np.float32)
-    er = solid.copy()
-    for dy, dx in ((1, 0), (-1, 0), (0, 1), (0, -1), (2, 0), (-2, 0), (0, 2), (0, -2)):
-        er = np.minimum(er, np.roll(np.roll(solid, dy, 0), dx, 1))
-    edge = (solid - er)[..., None]
-    out = out * (1.0 - 0.7 * edge)
-    a[..., :3] = np.clip(out, 0, 1)
-    img.pixels[:] = a.ravel()
+
+    v = np.clip((lum - 0.008) / float(KEEPER_GAIN), 0, 1) ** 0.55                     # tone curve: open the half-tones
+    wob = (noise(9) - 0.5) * 5.0
+    h1 = (np.abs(((xx + yy + wob) % 3.6) - 1.8) > 1.25).astype(np.float32)      # etched hatch, one direction
+    h2 = (np.abs(((xx - yy * 0.6 + wob) % 4.4) - 2.2) > 1.7).astype(np.float32)   # cross hatch for deep shadow
+    half = np.clip((0.6 - v) / 0.35, 0, 1)
+    deep = np.clip((0.34 - v) / 0.25, 0, 1)
+    v = v * (1.0 - 0.2 * h1 * half) * (1.0 - 0.24 * h2 * deep)
+    v = v * (0.94 + 0.12 * (0.5 * noise(14) + 0.5 * noise(3)))            # tooth and mottle
+    v = v + (rng.random((h, w)).astype(np.float32) - 0.5) * 0.035
+    v = np.clip(v, 0, 1)
+    stops = np.array(KEEPER_STOPS, dtype=np.float32)
+    cols = np.array([[int(c[i:i + 2], 16) / 255.0 for i in (1, 3, 5)] for c in KEEPER_PALETTE], dtype=np.float32)
+    lin = np.where(cols <= 0.04045, cols / 12.92, ((cols + 0.055) / 1.055) ** 2.4)     # the image buffer is linear
+    out = np.stack([np.interp(v, stops, lin[:, i]) for i in range(3)], axis=-1)
+    px[..., :3] = out * al[..., None]
+    img.pixels[:] = px.ravel()
     img.filepath_raw = path
     img.file_format = "PNG"
     img.save()
@@ -303,4 +741,4 @@ if __name__ == "__main__":
     render_sprite.main()
     _job = json.load(open(render_sprite.args(), encoding="utf-8"))
     for _f in _job["frames"]:
-        painted_pass(os.path.abspath(_f))
+        keeper_paint(os.path.abspath(_f))
