@@ -5,3 +5,5 @@ contract: roots, sockets, transitions), ANIM-04 (health-condition art states 100
 review). Blender only; each piece judged by the blind panel (same loop and critic-sanity rules as artella.md).
 Lane: Art/Source/Enemy/**, Art/Enemy/**, Content/UmbrellaElla/Art/Enemy/**, Feedback/Anim/** enemy presenter mapping only,
 pipeline/art/references.json enemy elements only, provenance rows for them.
+
+Image model: read docs/build/art-image-model.md; it applies once the lead says Spend OK.
