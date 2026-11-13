@@ -45,9 +45,11 @@ while :; do
         echo "ue_slot: exclusive for $$: $*" >&2
         "$@"; exit $?
       fi
-    elif [ "$have" -lt "$max" ]; then
+    # The merge gate gets one reserved slot above the cap (Nov 12: a gate test run starved for 43 min behind art loops).
+    elif [ "$have" -lt "$max" ] || { [ -n "${UE_SLOT_GATE:-}" ] && [ "$max" -gt 0 ] && [ ! -d "$DIR/gate-held" ] && [ "$have" -lt $((max + 1)) ]; }; then
+      [ -n "${UE_SLOT_GATE:-}" ] && { mkdir -p "$DIR/gate-held"; trap 'rm -rf "$DIR/gate-held"' EXIT; }
       s="$DIR/slot$$"; mkdir "$s"; echo "$$ $(pwd)" > "$s/owner"; rmdir "$DIR/.mutex"
-      trap 'rm -rf "$s"' EXIT INT TERM
+      trap 'rm -rf "$s" "$DIR/gate-held"' EXIT INT TERM
       echo "ue_slot: slot taken by $$ ($((have + 1))/$max, used $(used_gb) GB) for: $*" >&2
       "$@"; exit $?
     fi
