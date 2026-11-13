@@ -27,10 +27,8 @@ ClockTickLoop, AirMillLoop, RefugeLoop, WindBed, MillAmbience, BossApproach, Rea
 MusicDesperation. All 12 sounds have a passing take and a provenance row. Re-checked now: audio_check --scan and
 audio_style_check show PASS for all 12 files.
 
-## Left / blocked
-Import into Content/UmbrellaElla/Audio/<Id>/: `pipeline/audio/build/sndworld_import.py` is written (own file, does not
-touch arena_audio_import.py), but the headless run
-(`ue_slot.sh UnrealEditor-Cmd <uproject> -run=pythonscript -script=... -unattended -nullrhi -nosplash -nocrashreports`)
-exits 1 after shader autogen with no import log line and no assets written. Cause not found (config/plugin: the
-PythonScriptPlugin may not be enabled in the .uproject, which is outside this lane). The build lead can run it, or
-enable the plugin. Nothing in game code references these ids yet (the cue map is in the arena lane).
+## Import done
+Cause of the earlier exit 1: the game module was not compiled in this worktree ("The game module 'UmbrellaElla' could not
+be found"). After `ue_slot.sh tools/ue/build.sh` (build exit: 0), `sndworld_import.py` ran: `sndworld_import done: 12 sounds`.
+Assets are in Content/UmbrellaElla/Audio/<Id>/<Id>.uasset, all set looping (all 12 are loops in sound-list.csv).
+Nothing is left in this lane. The cue map that plays these ids is the arena lane's.
