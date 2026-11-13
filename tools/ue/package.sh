@@ -43,6 +43,13 @@ NOW="$(git -C "$REPO" rev-parse HEAD 2>/dev/null || echo unknown)"
 if [ "$NOW" != "$COMMIT" ]; then echo "FAIL: HEAD moved from $COMMIT to $NOW during packaging; the binary is $COMMIT's. Package again."; rc=1; fi
 if [ "$DIRTY" = "no" ] && [ -n "$(git -C "$REPO" status --porcelain 2>/dev/null)" ]; then echo "FAIL: the tree changed during packaging. Package again."; rc=1; fi
 if [ "$rc" = "0" ]; then "${UE_RUN[@]}" build-info --out "$OUT" --config "$CFG" --target "$TARGET" --workbench "$WB" --commit "$COMMIT" || rc=$?; fi
+# CORE-06 asset manifest: one id for the tracked assets (Content, Art, Audio) at the stamped commit, appended to every
+# BUILD_INFO.txt build-info wrote; FBuildIdentity reads asset_manifest= from it. Same commit, same id.
+if [ "$rc" = "0" ]; then
+  ASSET_MANIFEST="$(git -C "$REPO" ls-tree -r "$COMMIT" -- Content Art Audio 2>/dev/null | shasum -a 256 | cut -c1-16)"
+  for f in "$OUT/BUILD_INFO.txt" "$OUT"/*/BUILD_INFO.txt; do [ -f "$f" ] && echo "asset_manifest=$ASSET_MANIFEST" >> "$f"; done
+  echo "asset_manifest=$ASSET_MANIFEST"
+fi
 # One summary line; tools/check_pr.py reads exactly `package exit: <rc>  commit=<sha>  dirty=<yes|no>` (final-7 B H7, M8)
 # and platform= (a card that asks for package.ps1 needs platform=Win64; final-9 A H5).
 echo "package exit: $rc  commit=$COMMIT  dirty=$DIRTY  target=$TARGET  platform=Mac  log: $LOG"
