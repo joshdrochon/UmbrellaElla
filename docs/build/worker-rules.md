@@ -11,6 +11,21 @@ Re-check whenever a worker finishes, an area merges, or new work unblocks: start
 split a big area when its later list has independent parts (new area file + `docs/build/areas.py`, every Rule ID in
 exactly one area, lanes disjoint).
 
+## When a worker moves to Opus (Josh, Nov 12)
+A worker runs Sonnet. When it fails the same gate check twice, or a builder/critic loop goes 2 rounds with the same gap
+and no better score, the build lead restarts that one worker with `WORKER_MODEL=claude-opus-5-5 tools/build/start_area.sh
+<area> "..."` and logs it in the build log (area, failing check, before/after). Others stay on Sonnet.
+
+## Repeat failures: triage before any retry or escalation (Josh, Nov 12)
+When the same check fails twice, or a loop goes flat (2 rounds, same gap, no better score):
+1. Triage first. Is the failure in the work, or in the rule, check or source? Test the check on a known-good input
+   (a reference image, an approved track, the GDD text) and a known-bad one, and check the rule against the GDD and the
+   decisions (source order: GDD, decisions, then the pipeline docs). Write the verdict in the build log: "work" or
+   "check defect: <what>".
+2. Check defect: fix the check with a test (never a loosening of the bar), add a row to the lessons inbox, then rerun.
+   Work: escalate that worker to Opus (rule above).
+3. Every 30 minutes the build lead scans the logs for any area or check with 3 or more attempts and triages it the same way.
+
 ## Read first (in this order, only what you need)
 1. Your area file `docs/build/areas/<name>.md` (Rule IDs, GDD sections, file lane, done).
 2. `docs/jam-brief.md` (MVP and gates), the GDD sections your area file names (`docs/gdd/GDD-SH1.0.md`), and your
