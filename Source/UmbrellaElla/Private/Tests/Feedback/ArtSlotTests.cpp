@@ -61,6 +61,12 @@ namespace
 		return World;
 	}
 
+	/** Test-only empty state: put the flat stand-in material back, so the slot holds no art (HasArt false). */
+	void ArtSlotTestClearArt(UStaticMeshComponent* Mesh, UObject* Outer)
+	{
+		ArtSlot::SetFlatUnlit(Mesh, Outer, UmbrellaArtSlotConst::StandInDefaultColor);
+	}
+
 	void ArtSlotTestEnd(UWorld* World)
 	{
 		GEngine->DestroyWorldContext(World);
@@ -248,26 +254,28 @@ bool FArtSlotKeeperEnemy::RunTest(const FString& Parameters)
 	if (TestNotNull(TEXT("keeper presenter"), KeeperPresenter) && TestNotNull(TEXT("keeper"), Keeper))
 	{
 		UTexture2D* Texture = ArtSlotTestTexture();
-		// When the slot's own asset exists (T_Keeper_Owl_PH is on main), the stand-in already shows it at spawn, so a
-		// second picture is refused; without the asset the first picture is drawn and the second refused.
-		const UStaticMeshComponent* KeeperMesh = FindObjectFast<UStaticMeshComponent>(Keeper, FName(TEXT("KeeperStandIn")));
-		if (KeeperMesh && ArtSlot::HasArt(KeeperMesh))
+		UStaticMeshComponent* KeeperMesh = FindObjectFast<UStaticMeshComponent>(Keeper, FName(TEXT("KeeperStandIn")));
+		const FArtSlotRow* KeeperRow = ArtSlot::Find(TEXT("keeper:body-hover-flap"));
+		if (TestNotNull(TEXT("keeper stand-in"), KeeperMesh) && TestNotNull(TEXT("keeper row"), KeeperRow))
 		{
-			TestTrue(TEXT("keeper already shows its slot art"), ArtSlot::HasArt(KeeperMesh));
-		}
-		else
-		{
+			// Filled: the slot's stand-in texture is drawn at spawn, and a second picture is refused.
+			UTexture2D* SlotArt = ArtSlot::LoadTexture(*KeeperRow);
+			TestTrue(TEXT("keeper shows its slot stand-in texture"), SlotArt && ArtSlot::HasArt(KeeperMesh) && ArtSlotParamTexture(KeeperMesh) == SlotArt);
+			TestTrue(TEXT("a filled keeper refuses a picture"), KeeperPresenter->ShowArt(Keeper, Texture) != EArtSlotDraw::Drawn);
+			// Empty: with the slot's art cleared, the first picture is drawn and the second refused.
+			ArtSlotTestClearArt(KeeperMesh, Keeper);
+			TestFalse(TEXT("cleared keeper has no art"), ArtSlot::HasArt(KeeperMesh));
 			TestTrue(TEXT("keeper takes a picture"), KeeperPresenter->ShowArt(Keeper, Texture) == EArtSlotDraw::Drawn);
+			TestTrue(TEXT("keeper shows the picture"), ArtSlot::HasArt(KeeperMesh) && ArtSlotParamTexture(KeeperMesh) == Texture);
+			TestTrue(TEXT("a second picture is refused"), KeeperPresenter->ShowArt(Keeper, Texture) != EArtSlotDraw::Drawn);
 		}
-		TestTrue(TEXT("a second picture is refused"), KeeperPresenter->ShowArt(Keeper, Texture) != EArtSlotDraw::Drawn);
 	}
 	UEnemyPresenterSubsystem* EnemyPresenter = World->GetSubsystem<UEnemyPresenterSubsystem>();
 	AUmbrellaEnemy* Enemy = World->SpawnActor<AUmbrellaEnemy>();
 	if (TestNotNull(TEXT("enemy presenter"), EnemyPresenter) && TestNotNull(TEXT("enemy"), Enemy))
 	{
 		UTexture2D* Texture = ArtSlotTestTexture();
-		TestTrue(TEXT("enemy takes a picture"), EnemyPresenter->ShowArt(Enemy, Texture) == EArtSlotDraw::Drawn);
-		const UStaticMeshComponent* Mesh = nullptr;
+		UStaticMeshComponent* Mesh = nullptr;
 		TInlineComponentArray<UStaticMeshComponent*> Meshes(Enemy);
 		for (UStaticMeshComponent* Candidate : Meshes)
 		{
@@ -276,8 +284,17 @@ bool FArtSlotKeeperEnemy::RunTest(const FString& Parameters)
 				Mesh = Candidate;
 			}
 		}
-		if (TestNotNull(TEXT("enemy stand-in"), Mesh))
+		const FArtSlotRow* EnemyRow = ArtSlot::Find(*EnemyPresenter->VisualIdOf(Enemy));
+		if (TestNotNull(TEXT("enemy stand-in"), Mesh) && TestNotNull(TEXT("enemy row"), EnemyRow))
 		{
+			// Filled: the slot's stand-in texture is drawn at spawn, and a picture is refused.
+			UTexture2D* SlotArt = ArtSlot::LoadTexture(*EnemyRow);
+			TestTrue(TEXT("enemy shows its slot stand-in texture"), SlotArt && ArtSlot::HasArt(Mesh) && ArtSlotParamTexture(Mesh) == SlotArt);
+			TestTrue(TEXT("a filled enemy refuses a picture"), EnemyPresenter->ShowArt(Enemy, Texture) != EArtSlotDraw::Drawn);
+			// Empty: with the slot's art cleared, the picture is drawn.
+			ArtSlotTestClearArt(Mesh, Enemy);
+			TestFalse(TEXT("cleared enemy has no art"), ArtSlot::HasArt(Mesh));
+			TestTrue(TEXT("enemy takes a picture"), EnemyPresenter->ShowArt(Enemy, Texture) == EArtSlotDraw::Drawn);
 			TestTrue(TEXT("enemy shows the picture"), ArtSlot::HasArt(Mesh) && ArtSlotParamTexture(Mesh) == Texture);
 			TestEqual(TEXT("enemy art has no collision"), static_cast<int32>(Mesh->GetCollisionEnabled()), static_cast<int32>(ECollisionEnabled::NoCollision));
 		}
@@ -315,11 +332,26 @@ bool FArtSlotLoaderCache::RunTest(const FString& Parameters)
 			ArtSlot::Apply(MakeMesh(), Texture, *Row, FVector::OneVector);
 		}
 		TestEqual(TEXT("five more draws load nothing"), ArtSlot::LoadCallCount(), After);
-		ArtSlot::LoadTexture(*Row);
+		// Hits are cached, misses are retried (an asset imported later is still found): a repeat load costs exactly
+		// one try per path before the first that resolves.
+		const TArray<FString> Paths = ArtSlot::TexturePaths(*Row);
+		int32 HitIndex = INDEX_NONE;
+		for (int32 Index = 0; Index < Paths.Num() && HitIndex == INDEX_NONE; ++Index)
+		{
+			HitIndex = LoadObject<UTexture2D>(nullptr, *Paths[Index], nullptr, LOAD_NoWarn | LOAD_Quiet) ? Index : INDEX_NONE;
+		}
+		// Filled: the slot's stand-in texture exists, loads once, and later loads return it without reloading it.
+		UTexture2D* SlotArt = ArtSlot::LoadTexture(*Row);
 		const int32 AfterTexture = ArtSlot::LoadCallCount();
-		ArtSlot::LoadTexture(*Row);
-		const bool bFound = ArtSlot::LoadTexture(*Row) != nullptr;
-		TestTrue(TEXT("a texture that exists loads once"), !bFound || ArtSlot::LoadCallCount() == AfterTexture);
+		TestTrue(TEXT("the filled slot has its stand-in texture"), SlotArt != nullptr && HitIndex != INDEX_NONE);
+		TestTrue(TEXT("a repeat load returns the same texture"), ArtSlot::LoadTexture(*Row) == SlotArt);
+		TestEqual(TEXT("a texture that exists loads once"), ArtSlot::LoadCallCount() - AfterTexture, HitIndex);
+		// Empty: a test-only row with no asset finds nothing and retries every path.
+		const FArtSlotRow EmptyRow = { TEXT("test:empty"), TEXT("Test"), TEXT("T_ArtSlotTestNoSuchArt"), 1, false, TEXT("-") };
+		const int32 BeforeEmpty = ArtSlot::LoadCallCount();
+		TestNull(TEXT("an empty slot loads no texture"), ArtSlot::LoadTexture(EmptyRow));
+		TestEqual(TEXT("an empty slot tries every path"), ArtSlot::LoadCallCount() - BeforeEmpty, ArtSlot::TexturePaths(EmptyRow).Num());
+		TestEqual(TEXT("an empty slot draws nothing"), static_cast<int32>(ArtSlot::ApplyRow(MakeMesh(), EmptyRow, FVector::OneVector)), static_cast<int32>(EArtSlotDraw::NoTexture));
 	}
 	ArtSlotTestEnd(World);
 	return true;
@@ -484,8 +516,16 @@ bool FArtSlotShots::RunTest(const FString& Parameters)
 		if (TestNotNull(TEXT("impact effect"), Hit))
 		{
 			UTexture2D* Texture = ArtSlotTestTexture();
+			UStaticMeshComponent* HitMesh = Cast<UStaticMeshComponent>(Hit->GetRootComponent());
+			const FArtSlotRow* ImpactRow = ArtSlot::Find(TEXT("shot:red-impact"));
+			// Filled: the impact slot's stand-in texture is drawn when the effect plays, and a picture is refused.
+			UTexture2D* SlotArt = ImpactRow ? ArtSlot::LoadTexture(*ImpactRow) : nullptr;
+			TestTrue(TEXT("bolt hit shows its slot stand-in texture"), SlotArt && HitMesh && ArtSlot::HasArt(HitMesh) && ArtSlotParamTexture(HitMesh) == SlotArt);
+			TestTrue(TEXT("a filled bolt hit refuses a picture"), Vfx->ShowImpactArt(Hit, Texture) != EArtSlotDraw::Drawn);
+			// Empty: with the slot's art cleared, the picture is drawn.
+			ArtSlotTestClearArt(HitMesh, Hit);
+			TestFalse(TEXT("cleared bolt hit has no art"), HitMesh && ArtSlot::HasArt(HitMesh));
 			TestTrue(TEXT("bolt hit takes a picture"), Vfx->ShowImpactArt(Hit, Texture) == EArtSlotDraw::Drawn);
-			const UStaticMeshComponent* HitMesh = Cast<UStaticMeshComponent>(Hit->GetRootComponent());
 			TestTrue(TEXT("bolt hit shows the picture"), HitMesh && ArtSlot::HasArt(HitMesh) && ArtSlotParamTexture(HitMesh) == Texture);
 		}
 	}
