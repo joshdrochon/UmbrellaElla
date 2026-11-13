@@ -1,8 +1,55 @@
-# Rule ID status (audit, from main plus the area status files)
+# Rule ID status (audit re-run on main at 7a4d354, after the Dev Lead review)
 
-Source of truth: `rule-status.csv`. Judged from code, tests and status files; no code was run.
+Source of truth: `rule-status.csv` (id, area, status, evidence, note, owner). The `owner` column is an addition to the
+brief's schema: the brief (docs/build/areas/*.md) that covers the remaining work, `ORPHAN` when none does, empty when built.
+Judged from code, tests and the area status files on main; no Unreal build or test was run in this audit. Every cited
+test name exists in `Private/Tests`. Main moved from fd1bbdd to 7a4d354 with no `Source/` change, so statuses stand
+except the review fixes below.
 
-- **built: 137** - FLOW-02, FLOW-03, FLOW-04, MOVE-04, MOVE-05, MOVE-06, MOVE-07, MOVE-08, MOVE-09, MOVE-10, MOVE-11, MOVE-12, MOVE-13, MOVE-14, MOVE-15, MOVE-16, MOVE-17, MOVE-18, MOVE-19, MOVE-20, MOVE-21, SURV-05, UMB-05, WIND-03, MOVE-22, COM-05, COM-08, COM-09, COM-10, COM-11, FLOW-05, FLOW-06, FLOW-07, FLOW-08, FLOW-09, FLOW-10, FLOW-11, FLOW-12, FLOW-13, FLOW-14, FLOW-15, FLOW-16, SURV-06, SURV-07, FLOW-17, FLOW-18, FLOW-19, FLOW-20, FLOW-21, FLOW-22, FLOW-23, OWL-06, OWL-07, OWL-08, OWL-09, OWL-10, OWL-11, OWL-12, OWL-13, OWL-15, OWL-16, OWL-17, OWL-18, OWL-19, OWL-20, OWL-21, OWL-22, OWL-23, OWL-24, OWL-25, OWL-26, OWL-27, OWL-28, OWL-29, OWL-30, OWL-31, OWL-32, OWL-33, OWL-34, OWL-35, FLOW-24, HAZ-02, HAZ-03, HAZ-04, HAZ-05, HAZ-06, HAZ-07, HAZ-08, HAZ-09, HAZ-10, HAZ-11, HAZ-12, HAZ-13, HAZ-17, CAM-03, CAM-05, CAM-06, HAZ-19, HAZ-20, HAZ-21, HAZ-22, HAZ-23, COM-12, COM-13, FLOW-46, HAZ-41, FLOW-47, COM-14, COM-15, COM-16, COM-17, COM-18, HAZ-24, HAZ-37, HAZ-40, FLOW-27, FLOW-29, FLOW-30, FLOW-31, FLOW-32, FLOW-33, FLOW-34, FLOW-35, FLOW-36, FLOW-37, FLOW-38, FLOW-40, FLOW-41, FLOW-42, FLOW-43, ART-03, ART-04, VFX-06, VFX-09, VFX-10, CORE-04, CORE-05
-- **partial: 49** - COM-06, COM-07, OWL-14, FLOW-25, HAZ-14, HAZ-15, CAM-04, CAM-07, CAM-08, HAZ-25, HAZ-26, HAZ-27, HAZ-28, HAZ-29, HAZ-30, HAZ-31, HAZ-32, HAZ-33, HAZ-34, HAZ-35, HAZ-36, HAZ-38, HAZ-39, FLOW-28, NAR-07, FLOW-48, FLOW-39, FLOW-44, FLOW-45, ANIM-02, ANIM-03, ANIM-04, ANIM-06, ANIM-08, ART-09, ANIM-09, ART-10, BG-02, BG-03, BG-04, BG-05, BG-06, VFX-02, VFX-03, VFX-04, VFX-05, VFX-07, VFX-08, CORE-06
-- **blocked: 11** - FLOW-26, HAZ-16, HAZ-18, ART-05, ART-06, ART-07, ANIM-05, ANIM-07, ART-08, ANIM-10, VFX-11
-- **not built: 7** - NAR-02, NAR-03, NAR-04, NAR-05, NAR-06, NAR-08, FLOW-49
+## Counts (previous audit in brackets)
+
+- **built: 133** (142)
+- **partial: 66** (57) - WIND-03, OWL-14, FLOW-25, HAZ-06, HAZ-07, HAZ-08, HAZ-09, HAZ-10, HAZ-11, HAZ-12, HAZ-13, HAZ-14, HAZ-15, HAZ-18, CAM-04, CAM-07, HAZ-25, HAZ-26, HAZ-27, HAZ-28, HAZ-29, HAZ-30, HAZ-31, HAZ-32, HAZ-33, HAZ-34, HAZ-35, HAZ-36, HAZ-38, HAZ-39, FLOW-28, NAR-04, NAR-05, NAR-06, NAR-07, FLOW-48, FLOW-49, FLOW-44, FLOW-45, ART-05, ART-06, ART-07, ANIM-02, ANIM-03, ANIM-04, ANIM-05, ANIM-06, ANIM-07, ANIM-08, ART-08, ART-09, ANIM-09, ART-10, BG-02, BG-03, BG-04, BG-05, BG-06, VFX-02, VFX-03, VFX-04, VFX-05, VFX-07, VFX-08, VFX-10, CORE-06
+- **not built: 3** (3) - HAZ-16, ANIM-10, VFX-11
+- **blocked: 2** (2) - FLOW-26, FLOW-39
+
+## What changed since the last audit (Dev Lead review, one round)
+- HAZ-02..05: dropped the false "Mill wind volumes not spawned" note; `BrokenMillRoom.cpp` spawns both bands. Still built.
+- HAZ-06/07 built -> partial: the bands spawn, but the WIND-03 TargetId bug means they cannot move Ella in play.
+- HAZ-08..13 built -> partial: only the estimate arithmetic is tested; the GDD rows ask for measured bends, transients and motion.
+- VFX-10 built -> partial: target devices and frame-time/memory/overdraw budgets are OPEN and nothing is profiled on
+  hardware. Reduced flash is wired (`Settings.World.ReducedFlashReachesVfx`); the old "not wired" note was stale.
+- Owner column now points at the briefs on main (levelchunks, enemies2, storyflow, settings2, artfx, artenemy, artui,
+  the six snd* lanes, imagegen). 36 of the 37 former ORPHAN IDs have a brief.
+
+## Owner of the remaining work
+
+- levelchunks: WIND-03, HAZ-06, HAZ-07, HAZ-25, HAZ-26, HAZ-27, HAZ-28, HAZ-29, HAZ-30, HAZ-31, HAZ-32, HAZ-33, HAZ-34, HAZ-35, HAZ-36, HAZ-38, HAZ-39, CORE-06
+- enemies2: HAZ-14, HAZ-15
+- storyflow: NAR-04, NAR-07, FLOW-49; artfx + storyflow: NAR-05 (artfx builds the light shaft/umbra visual, storyflow wires its trigger)
+- settings2: FLOW-44, FLOW-45, VFX-10
+- artfx: VFX-02, VFX-03, VFX-05, VFX-07, VFX-08, VFX-11
+- artenemy: ART-07, ANIM-02, ANIM-04, ANIM-08, ANIM-10, ART-10
+- playtest: FLOW-25, HAZ-16, CAM-04, CAM-07, FLOW-28
+- artella: ART-05, ANIM-03
+- artkeeper: NAR-06, ANIM-06, ANIM-07
+- artscene: ART-06, BG-03, BG-04, BG-05, BG-06; artscene + imagegen: BG-02 (imagegen builds the pre-jam input guard)
+- artshots: OWL-14, HAZ-18, ANIM-05, VFX-04
+- artui: FLOW-48, ART-08, ART-09
+- audio + sndhit, sndlaunch, sndstate, sndtele, sndui, sndworld: ANIM-09
+- Josh: FLOW-39
+- artcal: none directly; its wind calibration fix unblocks artshots wind-zone/wind-lines (HAZ-18, BG-06).
+
+## ORPHAN (no brief on main covers it)
+
+- FLOW-26: GDD row says the design is authored, not implemented; nothing to build until the GDD changes
+- HAZ-08..13: estimates checked as arithmetic only; GDD asks to measure actual bends, transients and motion; not measured. New this round. Closest brief: playtest (it already drives the Broken Mill run for
+  HAZ-16), but its brief does not name these rows.
+
+## Partly covered (owner named, but part of the rule is in no brief)
+- ANIM-03 (artella: 4 static states, not the animation set), ANIM-05 (artshots: wand-shot, not four weapon families),
+  NAR-06 (artkeeper owl piece must show the one-hand clock and shaft clue),
+  FLOW-28 (playtest measures it; health carry across route checkpoints is in no brief),
+  VFX-10 (settings2 covers reduced motion; target-device profiling and budgets are in no brief),
+  HAZ-06/07 (levelchunks fixes WIND-03; no test yet drives Ella through the Mill bands with the real current).
+- CAM-07: playtest can measure catch flow only once levelchunks spawns currents on the route.
