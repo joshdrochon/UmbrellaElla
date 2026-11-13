@@ -50,3 +50,9 @@
 - Draft 2 (soft glowing ring + one ray, flash $0.039, `KeeperWarning/strip2.png`, `sheet2.png`): art_judge 0.568 vs min 0.699, closest is the tell-ring crop (draft 1 0.462). Better, not passed; look is glossy (no ink, no grain), so the blind critic will likely fail it.
 - Clock-beat import: the editor run exited with no import and no error; `T_VFX_ClockBeat_PH.uasset` unchanged. Cause not found yet; no capture, so no panel.
 - Spend 29.16 of 33.82.
+
+## Slice 8 (Nov 13): keeper-warning draft 3, flat, stopping
+- Merged main. Draft 3 (flash $0.039, grain/matte prompt `KeeperWarning/prompt.v3.txt`, sheet3): art_judge 0.515 vs min 0.699, closest bar-casters. Drafts 0.462 / 0.568 / 0.515: flat, no pass, flash does not reach the crop refs' look.
+- Spend 29.29 of 33.82 (shared). Remaining about 4.5 for all lanes, so no more drafts from this lane. Pro finals need a passing draft first (`--from-draft`).
+- Panel still cannot run: no in-engine capture (clock-beat import exits with no output). All 8 pieces remain `_PH`, nothing shipped.
+- Left for lead: (1) why `import_art_candidate.py` exits without importing; (2) more spend or a pro-tier try for keeper-warning/strike; (3) retry-with-Opus decision for this lane per repeat-failure rule (flat 3 rounds).
