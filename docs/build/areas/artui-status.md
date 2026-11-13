@@ -147,3 +147,9 @@ missing the agent-play script on main (not my lane).
 - Screen-context blocker is fixed on main (`required_pairs` skips context for `ui` elements). Inventory: artui 25, 2 passed (tutorial).
 - BLOCKED (lead): no `-SmokeScreen` capture switch exists, so 10 screens cannot be captured; written as request 4. Host load ~26.
 - Only ui-title can be re-captured; it needs painting spend plus 12+ min captures at this load. Held until the switch lands.
+
+## Resume 3 (13 Nov, artui worker, after third kill)
+- Tree was clean; r18 panel records already committed. Main merged. Inventory: artui 25, 2 passed (tutorial).
+- r18 (1920x1080, 7 screens): credits, defeated, hud-clock, pause, settings lose the reference pair (gap: "smoother digital finish, plain lettering, no etched grain"); story-text r4 was a refused panel (no verdict). None pass.
+- Still BLOCKED (lead): `-SmokeScreen` capture switch (request 4) for purchase, level-up, statistics and re-captures after any fix. No image spend this session.
+- Next once unblocked: paint the lettering/headings per screen (as done for title and settings), re-capture, re-panel.
