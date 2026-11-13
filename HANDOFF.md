@@ -21,6 +21,9 @@ another active worker, bounded by the machine (memory-adaptive Unreal slots, `to
 usage (Sonnet workers). Re-check whenever a worker finishes, an area merges or new work unblocks; split a big area when
 its later list has independent parts (`docs/build/areas.py` must still show every Rule ID in exactly one area).
 
+Escalation: a worker that fails the same gate check twice, or loops 2 rounds on the same gap with no better score,
+restarts on Fable (`WORKER_MODEL=claude-fable-5-2 tools/build/start_area.sh <area>`). Default models: Fable for art and audio, Opus for the rest.
+
 ## Area branches
 | Area | Branch | G1 Rule IDs | Later | Status / last commit |
 |---|---|---|---|---|

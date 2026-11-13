@@ -11,7 +11,7 @@ set -u
 K="$1"; OUT="$2"; ROOT="$(git rev-parse --show-toplevel)"; cd "$ROOT"   # the checkout it is run in (the gate)
 W=$(mktemp -d "${TMPDIR:-/tmp}/critic.XXXXXX")
 ask() { (cd "$W" && env -u CLAUDECODE -u CLAUDE_CODE_ENTRYPOINT claude -p "$(cat "$1")" --permission-mode bypassPermissions \
-  --disallowedTools "Bash" Edit Write --model "${CRITIC_MODEL:-claude-sonnet-5-5}") ; }
+  --disallowedTools "Bash" Edit Write --model "${CRITIC_MODEL:-claude-opus-5-5}") ; }
 if [ "$K" = story ]; then
   python3 - "$W/packet.md" <<'P'
 import csv, json, random, subprocess, sys
@@ -60,7 +60,7 @@ if [ "$K" = audio ]; then
     (cd "$D" && env -u CLAUDECODE -u CLAUDE_CODE_ENTRYPOINT claude -p "$(cat "$ROOT/tools/audio_critic_prompt.md")
 
 The packet for this sound is the files in the current folder. Read them (the text files and the spectrogram images)." \
-      --permission-mode bypassPermissions --disallowedTools "Bash" Edit Write --model "${CRITIC_MODEL:-claude-sonnet-5-5}") > "$D/reply.txt" 2>&1
+      --permission-mode bypassPermissions --disallowedTools "Bash" Edit Write --model "${CRITIC_MODEL:-claude-opus-5-5}") > "$D/reply.txt" 2>&1
     python3 -c "import json,re,sys;t=open(sys.argv[1]).read();m=re.search(r'\{.*\}',t,re.S);json.dump(json.loads(m.group(0)),open(sys.argv[2],'w'))" "$D/reply.txt" "$D/reply.json" 2>/dev/null
     v=$(python3 -c "import json,sys;r=json.load(open(sys.argv[1]));print(r['verdict']+'|'+r.get('biggest_gap','').replace('|','/'))" "$D/reply.json" 2>/dev/null || echo "fail|critic reply unreadable")
     python3 tools/audio_loop.py verdict --card "$CARD" --piece "$id" --critic "gate-critic-$id-$$" --reply "$D/reply.json" >/dev/null 2>&1
