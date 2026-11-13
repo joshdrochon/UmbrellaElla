@@ -74,6 +74,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -140,6 +141,10 @@ RECORD = ".artloop.json"   # the pass record next to a shipped file: <stem>.artl
 NOT_ART = ("placeholder", "source=reference (practice)")   # provenance origins that never pass
 CHECKS = ("art_check", "screen_check", "art_ref_check")
 LFS_OID = re.compile(rb"^version https://git-lfs\.github\.com/spec/v1\s*\noid sha256:([0-9a-f]{64})")
+
+
+def refs_hash_of(root):
+    return refs_and_hash(root)[1]
 
 
 def refs_and_hash(root=ROOT):
@@ -717,29 +722,13 @@ def run_piece(build, critic, checks, make_pair, log, stuck_rounds=STUCK_ROUNDS):
             refs, _ = refs_and_hash(root)
             base = os.path.dirname(pairs[0][0].rstrip("/\\"))
             folders, missing = panel_folders(refs, card, piece, ours, base, len(history) + 1, root)
-            answers = []
-            sessions = []
+            items = []
             for d, key in folders:
                 got = critic(d)
-                text, sid = got if isinstance(got, tuple) else (got, os.path.basename(d))
-                sessions.append(str(sid))
-                try:
-                    winner, g = judge(text, key, root, os.path.basename(d))
-                    answers.append((key, outcome(winner, key), g))
-                except ValueError as e:
-                    answers.append((key, None, f"refused critic session: {e}"))
-            req = sorted({f"{k}:{o}" for k, o, m in required_pairs(refs, piece, ours, root) if m is not None})
-            summ = summarise(answers, req, missing)
-            mok, mscore, _, results = measure(root, card, piece, ours)
-            rec.update(summ, checks=ok and mok, score=mscore or score, results=results, sheet=bool(sheet_info(ours)),
-                       sessions=sessions,
-                       verdict="reference" if summ["missing"] else combine(list(summ["pairs"].values())),
-                       refs_judged=[c.split(":", 1)[1] for c in req if c.startswith("reference:")])
-            if os.path.isfile(ours):
-                rec["sha"] = content_sha(ours)
-            cap = [k for k in folders if k[1].get("kind") == "context"]
-            if cap:
-                rec["context"] = cap[0][1]["ours_file"]
+                items.append((d, key, (got[0] if isinstance(got, tuple) else got) or ""))
+            rec["round"] = unique_round(root, piece, rec["round"])
+            rec.update(finish_round(root, card, piece, ours, items, missing, rec["round"], ok))
+            attach_evidence(root, card, piece, rec, items, refs_hash_of(root))
         else:
             verdicts, gaps = [], []
             for pair, key in pairs:
@@ -801,13 +790,19 @@ def critic_entry(root, card, piece, rec, refs_hash="", commit=""):
             "pairs": rec.get("pairs") or {}, "panel": rec.get("panel", 0),
             "calibration": rec.get("calibration") or {}, "missing": rec.get("missing") or [],
             "critic_sessions": list(rec.get("sessions") or []),
+            "manifest": rec.get("manifest", ""), "evidence": rec.get("evidence", ""), "prompt": rec.get("prompt", ""),
             "files": sha, "file": rel_to(full, root) if f else "", "card": card, "refs": refs_hash, "commit": commit,
             "gap": rec.get("gap", ""),
             "at": rec.get("at") or datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}
 
 
 def write_critic_record(root, card, piece, rec, refs_hash="", commit="", entry=None):
-    """Append the round to pipeline/art/critic/<piece>.json (same card/round replaces). Returns the path."""
+    """Append the round to pipeline/art/critic/<piece>.json (same card/round replaces). Returns the path.
+    Only the panel run's own process writes it: an agent session (JAM_ROLE set) is refused (None)."""
+    if agent_session():
+        print("art_loop: an agent session never writes pipeline/art/critic (JAM_ROLE is set): the panel run does",
+              file=sys.stderr)
+        return None
     entry = entry or critic_entry(root, card, piece, rec, refs_hash, commit)
     path = os.path.join(root, CRITIC_DIR, piece + ".json")
     data = {"id": piece, "records": []}
@@ -823,6 +818,240 @@ def write_critic_record(root, card, piece, rec, refs_hash="", commit="", entry=N
         json.dump(data, fh, indent=1)
         fh.write("\n")
     return path
+
+
+# ---------- the panel's raw evidence: a pass record is the panel run's output, never an agent's text ----------
+def agent_session():
+    return bool((os.environ.get("JAM_ROLE") or "").strip())
+
+
+def prompt_id():
+    """Which critic prompt judged: a name and the first 12 hex of the sha256 of both prompt templates."""
+    h = hashlib.sha256((PANEL_PROMPT + "\0" + CRITIC_PROMPT).encode("utf-8")).hexdigest()[:12]
+    return f"art_loop PANEL_PROMPT {h}"
+
+
+def file_sha256(path):
+    h = hashlib.sha256()
+    with open(path, "rb") as fh:
+        for chunk in iter(lambda: fh.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def panel_passed(rec):
+    """The one pass test for a panel round (write_record, the evidence and the gate's re-run share it)."""
+    cal = rec.get("calibration") or {}
+    return bool(rec.get("verdict") in ("ours", "same") and rec.get("checks") and "combos" in rec
+                and not missing_pairs(rec) and rec.get("panel", 0) >= PANEL
+                and cal.get("sessions", 0) > 0 and cal.get("passed") == cal.get("sessions")
+                and all((rec.get("results") or {}).get(c) == "pass" for c in CHECKS))
+
+
+def evidence_dir(root, piece, rnd):
+    return os.path.join(root, CRITIC_DIR, piece, str(rnd))
+
+
+def unique_round(root, piece, n):
+    """A round number no evidence folder of this piece already uses (a fresh tree restarts the Saved/ log at 1)."""
+    base = os.path.join(root, CRITIC_DIR, piece)
+    used = [int(x) for x in (os.listdir(base) if os.path.isdir(base) else []) if x.isdigit()]
+    try:
+        with open(os.path.join(base + ".json"), encoding="utf-8") as fh:
+            used += [int(r.get("round") or 0) for r in json.load(fh).get("records", [])]
+    except (OSError, ValueError, TypeError):
+        pass
+    return max(n, max(used, default=0) + 1) if n in used else n
+
+
+def clean_key(key, root):
+    """The key as kept in the repo: no absolute path (the packet is the folder that was judged)."""
+    k = dict(key)
+    k.pop("root", None)
+    k["combo"] = f"{k['kind']}:{k['reference']}"
+    for f in ("ours_file",):
+        if k.get(f):
+            r = rel_to(k[f], root)
+            k[f] = os.path.basename(k[f]) if r.startswith("..") else r
+    return k
+
+
+def save_evidence(root, card, piece, rec, items, refs_hash):
+    """Write the panel's raw evidence next to the record, pipeline/art/critic/<piece>/<round>/:
+    sessions/<name>.answer.md (the critic's text exactly as it answered), packets/<name>/ (the images and prompt it
+    judged), keys/<name>.key.json, and manifest.json (sha256 of every file, the shipped image's sha256, the prompt id).
+    Returns (sha256 of manifest.json, evidence folder relative to root); None in an agent session."""
+    if agent_session():
+        return None
+    d = evidence_dir(root, piece, rec["round"])
+    if os.path.isdir(d):
+        shutil.rmtree(d)
+    for sub in ("sessions", "keys", "packets"):
+        os.makedirs(os.path.join(d, sub))
+    names = []
+    for folder, key, text in items:
+        name = os.path.basename(folder.rstrip("/\\"))
+        names.append(name)
+        with open(os.path.join(d, "sessions", name + ".answer.md"), "w", encoding="utf-8", newline="") as fh:
+            fh.write(text or "")
+        with open(os.path.join(d, "keys", name + ".key.json"), "w", encoding="utf-8") as fh:
+            json.dump(clean_key(key, root), fh, indent=1, sort_keys=True)
+            fh.write("\n")
+        shutil.copytree(folder, os.path.join(d, "packets", name))
+    files = {}
+    for dirpath, _, fnames in os.walk(d):
+        for fn in fnames:
+            full = os.path.join(dirpath, fn)
+            files[rel_to(full, d)] = file_sha256(full)
+    f = rec.get("file") or ""
+    full = f if os.path.isabs(f) else os.path.join(root, f)
+    ctxf = rec.get("context")
+    man = {"piece": piece, "round": rec["round"], "card": card, "refs": refs_hash, "prompt": prompt_id(),
+           "shipped": {"file": rel_to(full, root), "sha256": content_sha(full)},
+           "context": rel_to(ctxf, root) if ctxf else None, "sheet": bool(rec.get("sheet")),
+           "sessions": sorted(names), "required": sorted(rec.get("combos") or []),
+           "missing_in": [m for m in rec.get("missing") or [] if "calibrated sessions" not in m],
+           "results": rec.get("results") or {}, "files": dict(sorted(files.items()))}
+    mp = os.path.join(d, "manifest.json")
+    with open(mp, "w", encoding="utf-8") as fh:
+        json.dump(man, fh, indent=1, sort_keys=True)
+        fh.write("\n")
+    return file_sha256(mp), rel_to(d, root)
+
+
+def rederive(root, ev):
+    """Re-derive a round from the raw evidence in folder `ev` with the parser the panel run uses (judge, outcome,
+    summarise, combine). Returns the record fields the evidence supports."""
+    with open(os.path.join(ev, "manifest.json"), encoding="utf-8") as fh:
+        man = json.load(fh)
+    answers = []
+    for name in man["sessions"]:
+        with open(os.path.join(ev, "keys", name + ".key.json"), encoding="utf-8") as fh:
+            key = json.load(fh)
+        with open(os.path.join(ev, "sessions", name + ".answer.md"), encoding="utf-8", newline="") as fh:
+            text = fh.read()
+        try:
+            winner, gap = judge(text, key)
+            answers.append((key, outcome(winner, key), gap))
+        except ValueError as ex:
+            answers.append((key, None, f"refused critic session: {ex}"))
+    summ = summarise(answers, man["required"], man.get("missing_in") or [])
+    verdict = "reference" if summ["missing"] else combine(list(summ["pairs"].values()))
+    return dict(summ, verdict=verdict, sessions=sorted(man["sessions"])), man
+
+
+def judge_items(root, items, record=True):
+    """[(folder, key, critic text)] -> ([(key, outcome|None, gap)], [session names]). A refused answer counts for
+    nothing (None)."""
+    answers, names = [], []
+    for d, key, text in items:
+        key = dict(key)
+        key["combo"] = f"{key['kind']}:{key['reference']}"
+        name = os.path.basename(d.rstrip("/\\"))
+        names.append(name)
+        try:
+            winner, gap = judge(text, key, root if record else None, name)
+            answers.append((key, outcome(winner, key), gap))
+        except ValueError as ex:
+            answers.append((key, None, f"refused critic session: {ex}"))
+    return answers, names
+
+
+def finish_round(root, card, piece, ours_file, items, missing, rnd, checks_ok=True, record=True):
+    """One panel round from its sessions [(folder, key, critic text)]: judge them, summarise, measure the checks.
+    Returns the round record (not yet logged)."""
+    refs, _ = refs_and_hash(root)
+    answers, names = judge_items(root, items, record)
+    req = sorted({f"{k}:{o}" for k, o, m in required_pairs(refs, piece, ours_file, root) if m is not None}
+                 | {a[0]["combo"] for a in answers})
+    summ = summarise(answers, req, missing)
+    ok, score, lines, results = measure(root, card, piece, ours_file)
+    rec = dict(summ, round=rnd, checks=ok and checks_ok, score=score, file=ours_file, results=results,
+               sheet=bool(sheet_info(ours_file)), sessions=names, measure_lines=lines,
+               verdict="reference" if summ["missing"] else combine(list(summ["pairs"].values())),
+               refs_judged=[c.split(":", 1)[1] for c in req if c.startswith("reference:")])
+    ctxk = [k for k, _, _ in answers if k.get("kind") == "context"]
+    if ctxk:
+        rec["context"] = ctxk[0]["ours_file"]
+    if os.path.isfile(ours_file):
+        rec["sha"] = content_sha(ours_file)
+    return rec
+
+
+def attach_evidence(root, card, piece, rec, items, refs_hash):
+    """On a passing round, save the raw evidence and cite it in the record (manifest hash, folder, prompt id)."""
+    if not panel_passed(rec):
+        return rec
+    got = save_evidence(root, card, piece, rec, items, refs_hash)
+    if got:
+        rec.update(manifest=got[0], evidence=got[1], prompt=prompt_id())
+    return rec
+
+
+def claude_ask(folder):
+    """One fresh blind critic session in `folder` (the claude CLI, no shell or edit tools). Returns its stdout."""
+    with open(os.path.join(folder, "prompt.md"), encoding="utf-8") as fh:
+        prompt = fh.read() + "\nThe folders are in the current folder. Look at the images with your file tools."
+    env = {k: v for k, v in os.environ.items() if k not in ("CLAUDECODE", "CLAUDE_CODE_ENTRYPOINT")}
+    p = subprocess.run(["claude", "-p", prompt, "--permission-mode", "bypassPermissions", "--disallowedTools",
+                        "Bash", "Edit", "Write", "--model", os.environ.get("CRITIC_MODEL", "claude-sonnet-5-5")],
+                       cwd=folder, env=env, capture_output=True, text=True)
+    return p.stdout
+
+
+def ask_all(folders, ask, jobs=None):
+    """Run every critic session (fresh each, at most `jobs` at once). Returns the texts in folder order."""
+    import concurrent.futures
+    jobs = jobs or int(os.environ.get("CRITIC_JOBS") or 4)
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max(1, jobs)) as ex:
+        return list(ex.map(lambda d: ask(d) or "", folders))
+
+
+def panel_run(root, card, piece, ours, base, rnd, ask=claude_ask, checks_ok=True, record=True, refs=None):
+    """The panel run itself: build every critic folder of the round, run one fresh session per folder, judge, measure.
+    Returns (round record, items). Nothing is written to the repo here."""
+    refs = refs or refs_and_hash(root)[0]
+    folders, missing = panel_folders(refs, card, piece, ours, base, rnd, root)
+    texts = ask_all([d for d, _ in folders], ask)
+    items = [(d, k, t) for (d, k), t in zip(folders, texts)]
+    return finish_round(root, card, piece, ours, items, missing, rnd, checks_ok, record), items
+
+
+def newest_record(root, piece):
+    try:
+        with open(os.path.join(root, CRITIC_DIR, piece + ".json"), encoding="utf-8") as fh:
+            recs = json.load(fh).get("records") or []
+    except (OSError, ValueError):
+        return None
+    return recs[-1] if recs else None
+
+
+def rerun(root, piece, base, ask=claude_ask):
+    """The gate's proof that the panel really ran: judge the piece's shipped image again with fresh blind sessions on the
+    same packets (the round's seeds; the in-engine context pair is the saved, hash-checked packet because the gate tree
+    has no smoke capture). Returns (passed, rec). Writes nothing to the repo."""
+    r = newest_record(root, piece)
+    if not r or not r.get("file") or not r.get("evidence"):
+        raise ValueError(f"{piece}: no record with evidence to re-run")
+    refs, _ = refs_and_hash(root)
+    ours = os.path.join(root, r["file"])
+    saved = os.path.join(root, r["evidence"])
+    folders, missing = panel_folders(refs, r.get("card") or "", piece, ours, base, int(r["round"]), root)
+    missing = [m for m in missing if not m.startswith("context")]
+    if not any(k.get("kind") == "context" for _, k in folders):   # no capture here: the saved context packet
+        for name in sorted(os.listdir(os.path.join(saved, "keys"))):
+            with open(os.path.join(saved, "keys", name), encoding="utf-8") as fh:
+                key = json.load(fh)
+            if key.get("kind") == "context":
+                stem = name[:-len(".key.json")]
+                d = os.path.join(base, "ctx-" + stem)
+                shutil.copytree(os.path.join(saved, "packets", stem), d)
+                key["ours_file"] = os.path.join(root, key["ours_file"])
+                folders.append((d, key))
+    texts = ask_all([d for d, _ in folders], ask)
+    items = [(d, k, t) for (d, k), t in zip(folders, texts)]
+    rec = finish_round(root, r.get("card") or "", piece, ours, items, missing, int(r["round"]), True, False)
+    return panel_passed(rec), rec
 
 
 # ---------- the ship gate's record ----------
@@ -849,18 +1078,15 @@ def write_record(root, card, piece, rec, refs_hash, commit):
     """On a passing panel round (every required pair unanimous ours or SAME from PANEL calibrated sessions, every
     check measured PASS), write <stem>.artloop.json next to the file. Returns its path or None. Never for a
     placeholder, a stand-in, a file outside the repo or a round without the full panel."""
-    if (os.environ.get("JAM_ROLE") or "").strip():
+    if agent_session():
         print("art_loop: an agent session never writes a pass record (JAM_ROLE is set): kickoff's art loop does",
               file=sys.stderr)
         return None
     f = rec.get("file") or ""
     full = f if os.path.isabs(f) else os.path.join(root, f)
     cal = rec.get("calibration") or {}
-    if not (rec.get("verdict") in ("ours", "same") and rec.get("checks") and "combos" in rec
-            and not missing_pairs(rec) and rec.get("panel", 0) >= PANEL
-            and cal.get("sessions", 0) > 0 and cal.get("passed") == cal.get("sessions")
-            and all((rec.get("results") or {}).get(c) == "pass" for c in CHECKS)
-            and os.path.isfile(full) and not rel_to(full, root).startswith("..") and not not_art(root, full)):
+    if not (panel_passed(rec) and os.path.isfile(full) and not rel_to(full, root).startswith("..")
+            and not not_art(root, full)):
         return None
     need = ["reference", "quality_bar"] + (["motion"] if sheet_info(full) else []) + \
         (["context"] if piece != "scene" and not is_screen(root, piece) else [])
@@ -873,7 +1099,7 @@ def write_record(root, card, piece, rec, refs_hash, commit):
     ctxf = rec.get("context")
     data = {"file": rel_to(full, root), "sha256": sha, "card": card, "piece": piece, "verdict": rec["verdict"],
             "pairs": rec["pairs"], "panel": rec["panel"], "calibration": cal,
-            "critic_sessions": list(rec.get("sessions") or []),
+            "critic_sessions": list(rec.get("sessions") or []), "manifest": rec.get("manifest", ""),
             "refs_judged": rec.get("refs_judged", []),
             "context": rel_to(ctxf, root) if ctxf else None,
             "checks": {c: rec["results"][c] for c in CHECKS}, "rounds": rec.get("round"),
@@ -1042,6 +1268,33 @@ def evidence(root, card):
     return lines, missing
 
 
+def cmd_run(a, refs, rh):
+    """The panel run: fresh blind critic sessions judge the shipped image, the raw answers and packets are saved next to
+    the record and the record cites their manifest. Refused in an agent session (JAM_ROLE): kickoff or the gate runs it."""
+    if agent_session():
+        print("art_loop: run refused: an agent session never runs the panel that writes a record (JAM_ROLE is set)",
+              file=sys.stderr)
+        return 2
+    tmp = tempfile.mkdtemp(prefix="art-panel-")
+    try:
+        prior = (newest_record(a.root, a.piece) or {}).get("round") or 0
+        rnd = unique_round(a.root, a.piece, int(prior) + 1)
+        rec, items = panel_run(a.root, a.card, a.piece, a.ours, tmp, rnd, claude_ask, a.checks == "pass", True, refs)
+        attach_evidence(a.root, a.card, a.piece, rec, items, rh)
+        for ln in rec.pop("measure_lines", []):
+            print(ln)
+        log_round(a.root, a.card, a.piece, rec, rh, head(a.root))
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+    state = "pass" if panel_passed(rec) else "continue"
+    print(f"art_loop: round {rec['round']} piece={a.piece} verdict={rec['verdict']} pairs="
+          + ",".join(f"{k}:{v}" for k, v in rec["pairs"].items())
+          + f" panel={rec['panel']} calibration={rec['calibration']['passed']}/{rec['calibration']['sessions']} "
+          f"checks={'pass' if rec['checks'] else 'fail'} -> {state}"
+          + (f" | GAP: {rec['gap']}" if rec["gap"] else "") + (f" | manifest {rec['manifest']}" if rec.get("manifest") else ""))
+    return 0 if state == "pass" else 1
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--root", default=ROOT)
@@ -1062,6 +1315,12 @@ def main(argv=None):
         v.add_argument(k, required=True)
     v.add_argument("--checks", choices=["pass", "fail"], default="pass",
                    help="fail forces a failed round; pass is never taken on trust (the checks are measured)")
+    r = sub.add_parser("run")
+    for k in ("--card", "--piece", "--ours"):
+        r.add_argument(k, required=True)
+    r.add_argument("--checks", choices=["pass", "fail"], default="pass")
+    g = sub.add_parser("gate-rerun")
+    g.add_argument("--piece", required=True)
     e = sub.add_parser("evidence")
     e.add_argument("--card", required=True)
     a = ap.parse_args(argv)
@@ -1094,25 +1353,19 @@ def main(argv=None):
                 print(f"art_loop: panel {a.panel} is for {pj['card']}/{pj['piece']}", file=sys.stderr)
                 return 2
             ours_file = pj["ours"]
-            answers = []
+            items = []
             for d in pj["folders"]:
                 with open(d.rstrip("/\\") + ".key.json", encoding="utf-8") as fh:
                     key = json.load(fh)
                 if key.get("ours_file") not in (ours_file, None) and key.get("kind") != "context":
                     print("art_loop: every folder of one panel judges the same file", file=sys.stderr)
                     return 2
-                key["combo"] = f"{key['kind']}:{key['reference']}"
                 try:
-                    with open(d.rstrip("/\\") + ".answer.md", encoding="utf-8") as fh:
+                    with open(d.rstrip("/\\") + ".answer.md", encoding="utf-8", newline="") as fh:
                         text = fh.read()
-                    winner, gap = judge(text, key, a.root, os.path.basename(d))
-                    answers.append((key, outcome(winner, key), gap))
-                except (OSError, ValueError) as ex:
-                    answers.append((key, None, f"refused critic session: {ex}"))
-            req = sorted({f"{k}:{o}" for k, o, m in required_pairs(refs, a.piece, ours_file, a.root) if m is not None})
-            summ = summarise(answers, req, pj.get("missing") or [])
-            ok, score, lines, results = measure(a.root, a.card, a.piece, ours_file)
-            ok = ok and a.checks == "pass"
+                except OSError:
+                    text = ""
+                items.append((d, key, text))
             commit = head(a.root)
             prior = []
             try:
@@ -1121,15 +1374,12 @@ def main(argv=None):
             except (OSError, ValueError):
                 pass
             hist = [r for r in prior if r.get("card") == a.card and r.get("piece") == a.piece]
-            verdict = "reference" if summ["missing"] else combine(list(summ["pairs"].values()))
-            rec = dict(summ, round=len(hist) + 1, verdict=verdict, checks=ok, score=score, file=ours_file,
-                       results=results, sheet=bool(sheet_info(ours_file)),
-                       refs_judged=[c.split(":", 1)[1] for c in req if c.startswith("reference:")])
-            ctxk = [k for k, _, _ in answers if k.get("kind") == "context"]
-            if ctxk:
-                rec["context"] = ctxk[0]["ours_file"]
-            if os.path.isfile(ours_file):
-                rec["sha"] = content_sha(ours_file)
+            rnd = unique_round(a.root, a.piece, len(hist) + 1)
+            rec = finish_round(a.root, a.card, a.piece, ours_file, items, pj.get("missing") or [], rnd,
+                               a.checks == "pass")
+            attach_evidence(a.root, a.card, a.piece, rec, items, rh)
+            ok, score, verdict, summ = rec["checks"], rec["score"], rec["verdict"], rec
+            lines = rec.pop("measure_lines", [])
             for ln in lines:
                 print(ln)
             log_round(a.root, a.card, a.piece, rec, rh, commit)
@@ -1147,6 +1397,21 @@ def main(argv=None):
                 if shipped(rel):
                     print(f"art_loop: record {rel_to(record_path(ours_file), a.root)} written: commit it with the file")
             return 0 if state == "pass" else 1
+        if a.cmd == "run":
+            return cmd_run(a, refs, rh)
+        if a.cmd == "gate-rerun":
+            tmp = tempfile.mkdtemp(prefix="art-rerun-")
+            try:
+                good, rec = rerun(a.root, a.piece, tmp)
+            finally:
+                shutil.rmtree(tmp, ignore_errors=True)
+            print(f"art_loop: gate re-run piece={a.piece} verdict={rec['verdict']} pairs="
+                  + ",".join(f"{k}:{v}" for k, v in rec["pairs"].items())
+                  + f" panel={rec['panel']} calibration={rec['calibration']['passed']}/{rec['calibration']['sessions']}"
+                  f" checks={'pass' if rec['checks'] else 'fail'} -> {'PASS' if good else 'FAIL'}"
+                  + (f" | GAP: {rec['gap']}" if rec.get("gap") else "")
+                  + (f" | missing: {'; '.join(rec['missing'][:4])}" if rec["missing"] else ""))
+            return 0 if good else 1
         lines, missing = evidence(a.root, a.card)
         print("\n".join(lines))
         for m in missing:
