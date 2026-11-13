@@ -1885,8 +1885,6 @@
   "ART-05.intended_audience": "13 in \"intended audience 13+\": an audience age, not a game value",
   "ART-07.gameplay_context": "2 in \"2D side-plane view\": a dimension word",
   "ART-10.value": "1 = the yellow side of the level-wide 2-red:1-yellow target; the game holds only the red count per yellow (FEnemyTuning.RedPerYellow=2, bound under COM-14), the yellow 1 is implicit in it",
-  "CAM-05.value": "0.3 = lower internal band \"near 0.3H\", an authoring guide; the game has no matching field (FFieldTuning.MinClearanceHeightFraction=0.3 is the clearance rule, bound under CAM-05.h.2, a different concept)",
-  "CAM-06.h.2": "0.15 = recovery climb \"about 0.15H\" in the camera guideline; an authoring guide with no field",
   "CAM-06.height": "2 = coefficient in \"height >= 2rz+2m\"; formula operand",
   "CAM-06.opening_width": "2 = coefficient in \"opening width >= 2rx+2m\"; formula operand",
   "CAM-06.rx": "2 = coefficient of rx in the opening-width formula",
@@ -1941,39 +1939,17 @@
   "FLOW-46.mix": "2 in mix label MIX02; identifier",
   "HAZ-02.approved_p": "the 0 in the label \"P0\"; a priority label, not a quantity",
   "HAZ-02.value": "24 = 12 chunks x 2 variants of the catalogue; the game holds it only as the length of the LevelCatalogue table (LevelCatalogue.h \"12 chunks x 2 variants\"), with no named constant a check can read",
-  "HAZ-03.guard_feet": "x of the guard feet (1450,390): FBrokenMillTuning has no feet field; the guard mesh is centred on TargetCentre.X=1440, which is not the same point, so a binding would be a guess. Z 390 equals TargetCentre.Y-TargetSize.Y/2 (see HAZ-11.proxy_atz).",
-  "HAZ-06.after": "z 400 where the root reopens after the useful firing window: an approximate design height (\"near\") next to the 402 window floor (HAZ-11.root_band, bound); the game has no field for it",
-  "HAZ-06.before": "45 = half-width of the lowered step 230 +/- 45; see HAZ-06.lowers_toz: no tuning field",
-  "HAZ-06.lowers_toz": "230 = centre of the lowered underpass step (envelope 185-285 is 230 +/- 45); the game holds the resulting envelope as a test literal (HAZ-06.root_envelopez, bound) but not the centre/half-width pair",
-  "HAZ-06.toward": "x 1640 where the ascent toward the exit starts (\"Rise after x 1640\"): a design coordinate with no field in FBrokenMillTuning and no test literal; HAZ-08 says to measure it",
-  "HAZ-06.value.10": "z 300 lower edge of the protected root core (x 260-360 is FBrokenMillTuning.ProtectedCoreX); no field for the core z range",
-  "HAZ-06.value.11": "z 780 upper edge of the protected root core; see HAZ-06.value.10",
-  "HAZ-06.value.6": "x 330 of the vertical-lift end point (330,680); no field holds the lift end",
-  "HAZ-06.value.7": "z 680 of the vertical-lift end point (330,680); also the entry height of BrokenMillMeasureTests (Entry z 680), but not a named constant",
-  "HAZ-06.vertical_lift": "30 = half-width of the vertical lift ending at (330,680); no field holds it",
-  "HAZ-08.above_centre": "230 = centre of the lowered underpass step; see HAZ-06.lowers_toz (no field)",
-  "HAZ-08.choosex": "x 1640 chosen start of the ascent; a design coordinate with no field or test literal (\"Measure actual bends\"); same value as HAZ-06.toward",
   "HAZ-08.equilibrium": "+47 = equilibrium offset at the superseded gain 1.4 ((144-78)/1.4); the game holds gain 2.4, whose offsets +27.5/-20.5 are bound",
   "HAZ-08.gain": "1.4 is the earlier restoring gain that the GDD replaces with the proposed 2.4 (FBrokenMillTuning.LocalRestoringGain, bound under HAZ-07); the game never holds 1.4",
   "HAZ-08.inside_eligibility": "185 = lower end of the \"eligibility 185-275\" band quoted in this sentence; the game holds LowerOnwardZ 210-330 (bound under HAZ-06), so 185-275 may be a GDD inconsistency, flagged in the status file",
-  "HAZ-08.margin": "24 = margin added to 1570+23.4 to choose x 1640; a design margin with no field",
-  "HAZ-08.value.2": "45 = half-width of the lowered step 230 +/- 45; see HAZ-06.before (no field)",
   "HAZ-08.value.4": "275 = upper end of the \"eligibility 185-275\" band; see HAZ-08.inside_eligibility",
-  "HAZ-10.actor_scale": "0.5 = Ella actor scale at HeroSize 1; no tuning field holds it (the muzzle offset it yields, +44/+6, is bound and currently mismatches)",
-  "HAZ-10.herosize": "1 = HeroSize of the reference muzzle offset; a test input, not a tuning field",
   "HAZ-12.occur_atz": "z 680 = first emission height of the worked case; see HAZ-12.value.7",
   "HAZ-12.value.7": "z 680 start of the worked case (\"From root z 680\"); held only as the Entry height literal in BrokenMillMeasureTests (not a named constant) - the emission heights derived from it are bound",
   "HAZ-12.value.8": "the 0 in \"emissions at 0/.2/.4/.6/.8/1 s\": the first emission time of the worked case, a sequence origin",
-  "HAZ-13.herosize": "1.3 = upper HeroSize of the supported range; HeroSize is a test-matrix input (BrokenMillTests GetMuzzleOffset(T, 1.3f)), not a tuning field",
   "HAZ-13.wind": "360 = wind strength in the residual-drift estimate; the game holds 300 (FBrokenMillTuning.WindSpeed and FFieldTuning.DefaultWindForce), so 360 is not reconciled; flagged in the status file",
-  "HAZ-14.across": "1 = upper hitbox scale of \"hitbox 0.75/1\"; a test-matrix input, no tuning field",
-  "HAZ-14.herosize": "1 = HeroSize of the lowest-matrix pair in \"HeroSize 0.75/1.3\"; HeroSize is a test input (see HAZ-13.herosize)",
-  "HAZ-14.herosize.2": "0.75 = lower HeroSize of the supported range; a test input (see HAZ-13.herosize)",
-  "HAZ-14.hitbox": "0.75 = lower hitbox scale of \"hitbox 0.75/1\"; a test-matrix input, no tuning field",
   "HAZ-14.prior": "1 = the \"prior 1 HP\" health fixture the GDD retires; the game no longer holds it",
   "HAZ-14.trim": "-1 = lowest trim step of the test matrix \"trim -1/0/+1\"; a test input",
   "HAZ-14.value": "0 = the neutral trim in the test matrix \"trim -1/0/+1\"; VerticalTrim is a test input, the +/-20% trim is bound (FMotorTuning.VerticalTrimPct)",
-  "HAZ-14.value.2": "1.3 = upper HeroSize of the supported range; a test input (see HAZ-13.herosize)",
   "HAZ-14.value.3": "100 = the \"prior 100 HP\" health fixture the GDD retires; the game no longer holds it",
   "HAZ-16.healthy": "1080 = vertical resolution of the acceptance run 1920x1080; a display setting for the human check, not a game value",
   "HAZ-16.value": "720 = vertical resolution of the 1280x720 acceptance run; a display setting",
@@ -2101,5 +2077,127 @@
   "SURV-07.value.2": "150 = old player HP list; see SURV-07.do",
   "SURV-07.value.6": "0 = rank 0 of the other-track ladder \"0 -> I -> II -> III\"; a rank index",
   "VFX-11.approved_p": "0 in “d implementation is approved P0; no generated asset, com”: art/animation/narrative spec in prose (review state, mask or ordinal), no game field"
+ },
+ "not_in_game": {
+  "CAM-05.value": {
+   "owner": "arena (FFieldTuning)",
+   "missing": "a lower internal camera band 'near 0.3H' (the clearance rule 0.3 is a different field)",
+   "was": "0.3 = lower internal band \"near 0.3H\", an authoring guide; the game has no matching field (FFieldTuning.MinClearanceHeightFraction=0.3 is the clearance rule, bound under CAM-05.h.2, a different concept)"
+  },
+  "CAM-06.h.2": {
+   "owner": "arena (FFieldTuning)",
+   "missing": "a recovery-climb guide 'about 0.15H'",
+   "was": "0.15 = recovery climb \"about 0.15H\" in the camera guideline; an authoring guide with no field"
+  },
+  "HAZ-03.guard_feet": {
+   "owner": "enemies2 (Broken Mill, FBrokenMillTuning)",
+   "missing": "guard feet x (1450); only the mesh centre x 1440 exists",
+   "was": "x of the guard feet (1450,390): FBrokenMillTuning has no feet field; the guard mesh is centred on TargetCentre.X=1440, which is not the same point, so a binding would be a guess. Z 390 equals TargetCentre.Y-TargetSize.Y/2 (see HAZ-11.proxy_atz)."
+  },
+  "HAZ-06.lowers_toz": {
+   "owner": "enemies2 (Broken Mill, FBrokenMillTuning)",
+   "missing": "centre 230 of the lowered step (only the 185-285 envelope is a test literal)",
+   "was": "230 = centre of the lowered underpass step (envelope 185-285 is 230 +/- 45); the game holds the resulting envelope as a test literal (HAZ-06.root_envelopez, bound) but not the centre/half-width pair"
+  },
+  "HAZ-06.after": {
+   "owner": "enemies2 (Broken Mill, FBrokenMillTuning)",
+   "missing": "root reopen height z 400",
+   "was": "z 400 where the root reopens after the useful firing window: an approximate design height (\"near\") next to the 402 window floor (HAZ-11.root_band, bound); the game has no field for it"
+  },
+  "HAZ-06.before": {
+   "owner": "enemies2 (Broken Mill, FBrokenMillTuning)",
+   "missing": "lowered-step half-width 45",
+   "was": "45 = half-width of the lowered step 230 +/- 45; see HAZ-06.lowers_toz: no tuning field"
+  },
+  "HAZ-06.toward": {
+   "owner": "enemies2 (Broken Mill, FBrokenMillTuning)",
+   "missing": "ascent start x 1640",
+   "was": "x 1640 where the ascent toward the exit starts (\"Rise after x 1640\"): a design coordinate with no field in FBrokenMillTuning and no test literal; HAZ-08 says to measure it"
+  },
+  "HAZ-06.value.10": {
+   "owner": "enemies2 (Broken Mill, FBrokenMillTuning)",
+   "missing": "protected root core lower z 300",
+   "was": "z 300 lower edge of the protected root core (x 260-360 is FBrokenMillTuning.ProtectedCoreX); no field for the core z range"
+  },
+  "HAZ-06.value.11": {
+   "owner": "enemies2 (Broken Mill, FBrokenMillTuning)",
+   "missing": "protected root core upper z 780",
+   "was": "z 780 upper edge of the protected root core; see HAZ-06.value.10"
+  },
+  "HAZ-06.value.6": {
+   "owner": "enemies2 (Broken Mill, FBrokenMillTuning)",
+   "missing": "vertical-lift end x 330",
+   "was": "x 330 of the vertical-lift end point (330,680); no field holds the lift end"
+  },
+  "HAZ-06.value.7": {
+   "owner": "enemies2 (Broken Mill, FBrokenMillTuning)",
+   "missing": "vertical-lift end z 680 (only a test literal)",
+   "was": "z 680 of the vertical-lift end point (330,680); also the entry height of BrokenMillMeasureTests (Entry z 680), but not a named constant"
+  },
+  "HAZ-06.vertical_lift": {
+   "owner": "enemies2 (Broken Mill, FBrokenMillTuning)",
+   "missing": "vertical-lift half-width 30",
+   "was": "30 = half-width of the vertical lift ending at (330,680); no field holds it"
+  },
+  "HAZ-08.above_centre": {
+   "owner": "enemies2 (Broken Mill, FBrokenMillTuning)",
+   "missing": "lowered-step centre 230",
+   "was": "230 = centre of the lowered underpass step; see HAZ-06.lowers_toz (no field)"
+  },
+  "HAZ-08.choosex": {
+   "owner": "enemies2 (Broken Mill, FBrokenMillTuning)",
+   "missing": "chosen ascent start x 1640",
+   "was": "x 1640 chosen start of the ascent; a design coordinate with no field or test literal (\"Measure actual bends\"); same value as HAZ-06.toward"
+  },
+  "HAZ-08.margin": {
+   "owner": "enemies2 (Broken Mill, FBrokenMillTuning)",
+   "missing": "ascent start margin 24",
+   "was": "24 = margin added to 1570+23.4 to choose x 1640; a design margin with no field"
+  },
+  "HAZ-08.value.2": {
+   "owner": "enemies2 (Broken Mill, FBrokenMillTuning)",
+   "missing": "lowered-step half-width 45",
+   "was": "45 = half-width of the lowered step 230 +/- 45; see HAZ-06.before (no field)"
+  },
+  "HAZ-10.actor_scale": {
+   "owner": "motor (Core UmbrellaTuning request for a HeroSize field)",
+   "missing": "Ella actor scale 0.5 at HeroSize 1",
+   "was": "0.5 = Ella actor scale at HeroSize 1; no tuning field holds it (the muzzle offset it yields, +44/+6, is bound and currently mismatches)"
+  },
+  "HAZ-10.herosize": {
+   "owner": "motor (Core UmbrellaTuning request for a HeroSize field)",
+   "missing": "HeroSize field (reference value 1)",
+   "was": "1 = HeroSize of the reference muzzle offset; a test input, not a tuning field"
+  },
+  "HAZ-13.herosize": {
+   "owner": "motor (Core UmbrellaTuning request for a HeroSize field)",
+   "missing": "HeroSize field (upper range 1.3)",
+   "was": "1.3 = upper HeroSize of the supported range; HeroSize is a test-matrix input (BrokenMillTests GetMuzzleOffset(T, 1.3f)), not a tuning field"
+  },
+  "HAZ-14.herosize": {
+   "owner": "motor (Core UmbrellaTuning request for a HeroSize field)",
+   "missing": "HeroSize field (range 0.75-1.3)",
+   "was": "1 = HeroSize of the lowest-matrix pair in \"HeroSize 0.75/1.3\"; HeroSize is a test input (see HAZ-13.herosize)"
+  },
+  "HAZ-14.herosize.2": {
+   "owner": "motor (Core UmbrellaTuning request for a HeroSize field)",
+   "missing": "HeroSize field (lower range 0.75)",
+   "was": "0.75 = lower HeroSize of the supported range; a test input (see HAZ-13.herosize)"
+  },
+  "HAZ-14.value.2": {
+   "owner": "motor (Core UmbrellaTuning request for a HeroSize field)",
+   "missing": "HeroSize field (upper range 1.3)",
+   "was": "1.3 = upper HeroSize of the supported range; a test input (see HAZ-13.herosize)"
+  },
+  "HAZ-14.across": {
+   "owner": "motor (hitbox scale field)",
+   "missing": "hitbox scale field (upper 1)",
+   "was": "1 = upper hitbox scale of \"hitbox 0.75/1\"; a test-matrix input, no tuning field"
+  },
+  "HAZ-14.hitbox": {
+   "owner": "motor (hitbox scale field)",
+   "missing": "hitbox scale field (lower 0.75)",
+   "was": "0.75 = lower hitbox scale of \"hitbox 0.75/1\"; a test-matrix input, no tuning field"
+  }
  }
 }

@@ -47,6 +47,29 @@ def blocking_lines():
     return out
 
 
+def on_base(base, path):
+    return subprocess.run(["git", "cat-file", "-e", f"{base}:{path}"], cwd=ROOT, capture_output=True).returncode == 0
+
+
+def baseline_for_new_checks(base):
+    """A check whose script main does not have yet has an empty baseline, so every fail already in the game would count as
+    new and block the merge that adds the check. For those checks only, run the merged tree's script (and docs/tools) over
+    main's game files (Source, Config), so the baseline is what main would have failed. New fails still block."""
+    new = {n: a for n, a in BLOCKING.items() if not on_base(base, a[0])}
+    out = {}
+    if not new:
+        return out
+    import tempfile
+    with tempfile.TemporaryDirectory() as tmp:
+        for ref, paths in (("HEAD", ["tools", "docs", "tests"]), (base, ["Source", "Config"])):
+            tar = subprocess.run(["git", "archive", ref, "--"] + paths, cwd=ROOT, capture_output=True).stdout
+            subprocess.run(["tar", "-x", "-C", tmp], input=tar, capture_output=True)
+        for n, a in new.items():
+            p = subprocess.run([sys.executable] + a, cwd=tmp, capture_output=True, text=True)
+            out[n] = fails((p.stdout + p.stderr).splitlines(), FAIL_LINES.get(n, FAIL_LINE))
+    return out
+
+
 def main():
     if len(sys.argv) >= 3 and sys.argv[1] == "baseline":
         with open(sys.argv[2], "w") as fh:
@@ -61,6 +84,8 @@ def main():
     if os.path.exists(basefile):
         for row in open(basefile):
             n, _, l = row.rstrip("\n").partition("\t"); before.setdefault(n, set()).add(l)
+    for n, ls in baseline_for_new_checks(base).items():
+        before[n] = before.get(n, set()) | ls
     problems = []
     for name, now in blocking_lines().items():
         new = sorted(now - before.get(name, set()))

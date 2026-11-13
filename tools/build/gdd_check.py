@@ -20,10 +20,14 @@ Lines (stable across runs, no line numbers):
   FAIL UNBOUND P0 rule=<ID> n=<n> keys=...  P0 spec values with no binding and no `unbindable` entry (a silent hole)
   WARN UNBOUND rule=<ID> n=<n> keys=...  the same for P1/P2 (or priority-less) rows (counted; --list prints one line each)
   FAIL unbindable ...                    an `unbindable` entry with no reason, a key the spec lacks, or one that is also bound
-  MISMATCH=<n> BOUND=<n> UNBINDABLE=<n> UNBOUND_P0=<n> UNBOUND_P1P2=<n>   last line.  Exit 1 on any FAIL.
+  FAIL NOT_IN_GAME P0 ... / WARN NOT_IN_GAME ...  a `not_in_game` entry: the GDD value is real but the game has no home for it
+                                         (no tuning field, no test literal); the line names the owner lane and what is missing
+  MISMATCH=<n> BOUND=<n> UNBINDABLE=<n> NOT_IN_GAME_P0=<n> NOT_IN_GAME_P1P2=<n> UNBOUND_P0=<n> UNBOUND_P1P2=<n>   last line.  Exit 1 on any FAIL.
 
 Every GDD number is bound in gdd-bindings.json, or listed in its top-level "unbindable" object {key: reason}
-(prose, a worked example, a history note: not a game value). Priority comes from the GDD row (`APPROVED_P0` -> P0).
+(prose, a worked example, a history note: not a game value). A real value the game cannot hold yet goes in the
+top-level "not_in_game" object {key: {"owner": lane, "missing": what, ...}}: it is a game gap, not unbindable, and
+fails (P0) or warns (P1/P2) like an unbound value until the game gets a field. Priority comes from the GDD row (`APPROVED_P0` -> P0).
 """
 import glob, json, math, os, re, sys
 
@@ -170,7 +174,8 @@ def check(root=ROOT, spec_path=None, check_fresh=True):
     spec = json.loads(_read(spec_path))["values"]
     raw = json.loads(_read(os.path.join(root, "docs", "build", "gdd-bindings.json")))
     unbindable = raw.get("unbindable", {})
-    bindings = {k: v for k, v in raw.items() if not k.startswith("_") and k != "unbindable"}
+    not_in_game = raw.get("not_in_game", {})
+    bindings = {k: v for k, v in raw.items() if not k.startswith("_") and k not in ("unbindable", "not_in_game")}
     lines, fails, mism, bound = [], 0, 0, 0
     if check_fresh and root == ROOT and gdd_spec.render() != _read(spec_path):
         lines.append("FAIL stale docs/build/gdd-spec.json differs from a fresh generation (run tools/build/gdd_spec.py)")
@@ -214,8 +219,21 @@ def check(root=ROOT, spec_path=None, check_fresh=True):
             lines.append(f"FAIL unbindable {k}: also bound; remove one"); fails += 1
         elif not (isinstance(why, str) and why.strip()):
             lines.append(f"FAIL unbindable {k}: needs a reason"); fails += 1
-    listed = {k for k in unbindable if k in spec and k not in bindings}
-    unbound = [k for k in spec if k not in bindings and k not in listed]
+    nig0 = nig12 = 0
+    for k in sorted(not_in_game):
+        e = not_in_game[k]
+        if k not in spec:
+            lines.append(f"FAIL not_in_game {k}: names a value the GDD spec no longer has"); fails += 1
+        elif k in bindings or k in unbindable:
+            lines.append(f"FAIL not_in_game {k}: also bound or unbindable; keep one"); fails += 1
+        elif not (isinstance(e, dict) and str(e.get("owner", "")).strip() and str(e.get("missing", "")).strip()):
+            lines.append(f"FAIL not_in_game {k}: needs owner and missing"); fails += 1
+        elif spec[k].get("priority") == "P0":
+            nig0 += 1; lines.append(f"FAIL NOT_IN_GAME P0 {k} GDD={fmt(spec[k]['value'])}{spec[k]['unit']} owner={e['owner']} missing={e['missing']}"); fails += 1
+        else:
+            nig12 += 1; lines.append(f"WARN NOT_IN_GAME {k} GDD={fmt(spec[k]['value'])}{spec[k]['unit']} owner={e['owner']} missing={e['missing']}")
+    listed = {k for k in unbindable if k in spec and k not in bindings and k not in not_in_game}
+    unbound = [k for k in spec if k not in bindings and k not in listed and k not in not_in_game]
     by_rule = {}
     for k in unbound:
         by_rule.setdefault(spec[k]["rule"], []).append(k)
@@ -230,7 +248,7 @@ def check(root=ROOT, spec_path=None, check_fresh=True):
             lines.append(f"FAIL UNBOUND P0 rule={rule} n={n0} keys={names}"); fails += 1
         if len(keys) > n0 or not is_p0:
             lines.append(f"WARN UNBOUND rule={rule} n={len(keys) - n0 if is_p0 else len(keys)} keys={names}")
-    lines.append(f"MISMATCH={mism} BOUND={bound} UNBINDABLE={len(listed)} UNBOUND_P0={p0} UNBOUND_P1P2={p12}")
+    lines.append(f"MISMATCH={mism} BOUND={bound} UNBINDABLE={len(listed)} NOT_IN_GAME_P0={nig0} NOT_IN_GAME_P1P2={nig12} UNBOUND_P0={p0} UNBOUND_P1P2={p12}")
     return lines, fails
 
 

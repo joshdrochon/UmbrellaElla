@@ -26,4 +26,12 @@ None. The 3 known HAZ-10 mismatches remain (muzzle X 44 vs 60, muzzle Z 6 vs 0, 
 - Playtest names `PLAYTEST_MILL_HAZ09.*` are proposed; the playtest runner does not emit them yet.
 - Range-end targets (5-8 min, 600-800 XP, 10 runs) stay unbindable: the check compares one value, and no log line reports first-run minutes.
 
-REVIEWED=471 MOVED_TO_BOUND=239 MISMATCH=3 BOUND=597 UNBINDABLE=232 UNBOUND_P0=0
+
+## Lead fix: `not_in_game` (Nov 12)
+- 24 entries moved out of `unbindable` into a new top-level `not_in_game` list in `docs/build/gdd-bindings.json` (each: owner lane, what is missing, the old reason in `was`). They are real GDD values the game has no home for: Broken Mill coordinates (enemies2: lowered-step centre/half-width, ascent x 1640 + margin, root reopen z 400, protected core z 300-780, lift end 330/680 + half-width 30, guard feet x 1450), HeroSize and hitbox-scale fields (motor: HAZ-10/13/14, actor scale 0.5), camera guides CAM-05.value 0.3 and CAM-06.h.2 0.15 (arena).
+- `gdd_check` prints `FAIL NOT_IN_GAME P0 <key> ... owner= missing=` (P0) or `WARN NOT_IN_GAME` (P1/P2). A malformed entry, a key the spec lacks, or one also bound/unbindable fails. Summary line now carries NOT_IN_GAME_P0 and NOT_IN_GAME_P1P2.
+- Gate baseline: main has no `gdd_check.py`, so its baseline was empty and every fail already in the game (3 HAZ-10 mismatches + 24 NOT_IN_GAME) would have counted as new and blocked the merge that adds the check. `quality_gate.py check` now builds the baseline for any blocking check whose script is missing on main by running the merged tree's script over main's `Source/` and `Config/`. Fails already there pass; fails the merge adds still block. Once main has the script, the normal baseline applies.
+- Tests: `tests/test_gdd_check.py` (P0 fails, P1 warns, malformed entry fails), `tests/test_build_gate_ports.py` (old fails not new, added fail new).
+- Left in `unbindable` on purpose: HAZ-08.inside_eligibility/value.4 (GDD sentence conflicts with HAZ-06), HAZ-13.wind 360 vs 300 (game has the field; a mismatch to reconcile), retired fixtures, labels, ordinals, examples.
+
+MISMATCH=3 BOUND=597 UNBINDABLE=208 NOT_IN_GAME_P0=24 NOT_IN_GAME_P1P2=0 UNBOUND_P0=0

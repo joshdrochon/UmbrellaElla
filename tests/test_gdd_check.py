@@ -76,7 +76,7 @@ class CheckTests(unittest.TestCase):
     def test_main_has_exactly_the_known_hazard_ten_drift(self):
         with Tree() as t:
             lines, _ = t.check()
-            self.assertEqual(sorted(l.split(" GDD=")[0] for l in fail_lines(lines)),
+            self.assertEqual(sorted(l.split(" GDD=")[0] for l in fail_lines(lines) if "NOT_IN_GAME" not in l),
                              ["FAIL HAZ-10.radius", "FAIL HAZ-10.value", "FAIL HAZ-10.yields_muzzle"])
 
     def test_changed_tuning_value_fails_and_names_both_values(self):
@@ -127,12 +127,12 @@ class CheckTests(unittest.TestCase):
     def test_every_spec_value_is_bound_listed_or_counted(self):
         with Tree() as t:
             lines, _ = t.check()
-            m = re.fullmatch(r"MISMATCH=(\d+) BOUND=(\d+) UNBINDABLE=(\d+) UNBOUND_P0=(\d+) UNBOUND_P1P2=(\d+)", lines[-1])
+            m = re.fullmatch(r"MISMATCH=(\d+) BOUND=(\d+) UNBINDABLE=(\d+) NOT_IN_GAME_P0=(\d+) NOT_IN_GAME_P1P2=(\d+) UNBOUND_P0=(\d+) UNBOUND_P1P2=(\d+)", lines[-1])
             self.assertTrue(m, lines[-1])
             spec = json.loads(gdd_check._read(t.path("docs/build/gdd-spec.json")))["values"]
             unmeasured = len([l for l in lines if l.startswith("UNMEASURED")])
             self.assertEqual(sum(int(x) for x in m.groups()[1:]) + unmeasured, len(spec))
-            self.assertEqual((m.group(4), m.group(5)), ("0", "0"))
+            self.assertEqual((m.group(6), m.group(7)), ("0", "0"))
 
     def _bindings(self, t):
         return json.loads(gdd_check._read(t.path("docs/build/gdd-bindings.json")))
@@ -214,6 +214,35 @@ class CheckTests(unittest.TestCase):
             self.assertEqual(gdd_check.const_value(t.dir, "Source/X.cpp:Envelope", 1), 285.0)
             self.assertEqual(gdd_check.const_value(t.dir, "Source/X.cpp:Envelope"), 185.0)
             self.assertIsNone(gdd_check.const_value(t.dir, "Source/X.cpp:Envelope", 2))
+
+    def test_not_in_game_p0_fails_p1_warns_and_is_not_unbindable(self):
+        with Tree() as t:
+            spec = json.loads(gdd_check._read(t.path("docs/build/gdd-spec.json")))["values"]
+            b = self._bindings(t)
+            self.assertNotIn("HAZ-10.actor_scale", b["unbindable"])
+            self.assertEqual(b["not_in_game"]["HAZ-10.actor_scale"]["owner"].split()[0], "motor")
+            lines, fails = t.check()
+            p0 = [l for l in lines if l.startswith("FAIL NOT_IN_GAME P0 HAZ-10.actor_scale")]
+            self.assertTrue(p0 and "owner=motor" in p0[0] and "missing=" in p0[0], p0)
+            self.assertGreater(fails, 0)
+            # a P1/P2 value only warns (every spec value is P0 today, so demote one)
+            k = "HAZ-10.actor_scale"
+            spec[k]["priority"] = "P1"
+            t.write("docs/build/gdd-spec.json", json.dumps({"values": spec}))
+            lines, _ = gdd_check.check(t.dir, check_fresh=False)
+            self.assertTrue([l for l in lines if l.startswith(f"WARN NOT_IN_GAME {k} ")])
+            self.assertFalse([l for l in lines if l.startswith("FAIL") and k in l])
+            self.assertRegex(lines[-1], r"NOT_IN_GAME_P0=23 NOT_IN_GAME_P1P2=1 UNBOUND_P0=0")
+
+    def test_not_in_game_needs_owner_missing_and_a_spec_key(self):
+        with Tree() as t:
+            b = self._bindings(t)
+            b["not_in_game"]["HAZ-10.actor_scale"] = {"owner": "motor"}
+            b["not_in_game"]["ZZZ-01.gone"] = {"owner": "a", "missing": "b"}
+            t.write("docs/build/gdd-bindings.json", json.dumps(b))
+            lines = fail_lines(t.check()[0])
+            self.assertTrue([l for l in lines if l.startswith("FAIL not_in_game HAZ-10.actor_scale: needs owner and missing")])
+            self.assertTrue([l for l in lines if l.startswith("FAIL not_in_game ZZZ-01.gone")])
 
 
 if __name__ == "__main__":
