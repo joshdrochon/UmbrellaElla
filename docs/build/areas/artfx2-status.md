@@ -56,3 +56,7 @@
 - Spend 29.29 of 33.82 (shared). Remaining about 4.5 for all lanes, so no more drafts from this lane. Pro finals need a passing draft first (`--from-draft`).
 - Panel still cannot run: no in-engine capture (clock-beat import exits with no output). All 8 pieces remain `_PH`, nothing shipped.
 - Left for lead: (1) why `import_art_candidate.py` exits without importing; (2) more spend or a pro-tier try for keeper-warning/strike; (3) retry-with-Opus decision for this lane per repeat-failure rule (flat 3 rounds).
+
+## Slice 9 (Nov 13): no change, still blocked
+- Merged main and artslots: both up to date. Spend 29.40 of 33.82 (shared). No paint.
+- Blockers for the lead: (1) `import_art_candidate.py` exits without importing, so no in-engine capture and no panel; (2) keeper-warning flat at 3 flash drafts (0.462/0.568/0.515 vs 0.699): Opus retry or a pro-tier try; (3) about 4.4 spend left for all lanes. All 8 pieces remain `_PH`.
