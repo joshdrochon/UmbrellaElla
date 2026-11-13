@@ -30,3 +30,9 @@
 ## Slice 5 (Nov 13): still blocked on request 2
 - Merged main (up to date, 074881e9). `references.json` on main and on artfx/artfx3/artslots still has vfx-clock-beat score_min 0.945 from whole-sheet refs; request 2 not applied. No paint, no spend.
 - Left: all 8 pieces, after the lead applies request 2 (shot crops in refs, recalibrate).
+
+## Slice 6 (Nov 13): request 2 applied, clock-beat passes the element judge, panel waits on the capture
+- Merged main (crop refs and recalibration are in). `art_judge element vfx-clock-beat`: sheet3 0.2 (fail), sheet4 0.556 PASS, sheet5 0.605 PASS (min 0.546). The bar is now reachable.
+- Panel round 1 on sheet4 (`pipeline/art/proof/artfx2/ClockBeat/panel1/`): 12 blind sessions prepared, stopped at "cannot judge yet: context (no in-engine capture)". Critics not run.
+- Context capture not made: `import_art_candidate.py sheet5.png vfx-sheet:VFX_ClockBeat` ran 10+ min with no output (the shared Unreal slot lock was held by other workers) and was killed at the background limit. Nothing was imported; no spend this slice.
+- Left: retry the import when the slot is free, capture with run_game.sh in a section where the clock beat plays, run the panel with sheet5, then the other 7 pieces with the same method (clock-beat cut script and prompt are reusable).
