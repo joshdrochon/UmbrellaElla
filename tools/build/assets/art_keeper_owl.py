@@ -46,7 +46,7 @@ def build_keeper(m, rnd):
             bpy.ops.object.modifier_apply(modifier="bev")
         return ob
     # body: tapered barrel, chest plates overlapping like scales
-    add("primitive_uv_sphere_add", "body", plate, loc=(0, 0, 0), segments=24, ring_count=14, radius=1.0, scale=(2.1, 0.85, 1.0))
+    add("primitive_uv_sphere_add", "body", plate, loc=(0, 0, 0), segments=12, ring_count=7, radius=1.0, scale=(2.1, 0.85, 1.0))
     add("primitive_uv_sphere_add", "body", fea, loc=(-0.3, 0.05, -0.35), segments=20, ring_count=10, radius=1.0, scale=(1.9, 0.8, 0.75))
     for row in range(3):
         for k in range(7):
@@ -60,7 +60,7 @@ def build_keeper(m, rnd):
         add("primitive_uv_sphere_add", "body", m["rust"], loc=(-1.6 + k * 0.23, -0.5, -0.78 + 0.1 * math.sin(k * 0.45)), segments=6, ring_count=4, radius=0.05)
     # neck + head: angular, crownless, flat brow plate
     add("primitive_cylinder_add", "head", fea, loc=(1.55, 0, 0.45), rot=(0, 0.9, 0), vertices=12, radius=0.55, depth=0.9)
-    add("primitive_uv_sphere_add", "head", lite, loc=(2.05, 0, 0.9), segments=20, ring_count=12, radius=0.86, scale=(1.05, 0.8, 0.9))
+    add("primitive_uv_sphere_add", "head", lite, loc=(2.05, 0, 0.9), segments=10, ring_count=6, radius=0.86, scale=(1.05, 0.8, 0.9))
     add("primitive_cube_add", "head", ink, loc=(2.2, -0.2, 1.38), rot=(0, -0.15, 0), size=1, scale=(0.9, 0.5, 0.1))  # flat brow, no tufts
     for k in range(5):  # facial disc feather plates
         add("primitive_cube_add", "head", fea if k % 2 else plate, loc=(1.7 + k * 0.15, -0.55, 0.65 + 0.05 * k),
@@ -97,8 +97,8 @@ def build_keeper(m, rnd):
             yy = y + (-0.012 if bone == "wing_near" else 0.012) * k
             mat = tone if k % 2 else plate
             add("primitive_cube_add", bone, mat, loc=(cxw, yy, czw), rot=(0, -a, 0), size=1, scale=(ln, 0.05, 0.55))
-            add("primitive_cone_add", bone, ink, loc=(ox + math.cos(a) * ln, yy, oz + math.sin(a) * ln),
-                rot=(0, S - a, 0), vertices=3, radius1=0.2, radius2=0.0, depth=0.45, scale=(1, 0.3, 1))
+            add("primitive_cone_add", bone, mat, loc=(ox + math.cos(a) * (ln + 0.12), yy, oz + math.sin(a) * (ln + 0.12)),
+                rot=(0, S - a, 0), vertices=4, radius1=0.3, radius2=0.0, depth=0.5, scale=(1, 0.16, 1))
             add("primitive_cube_add", bone, ink, loc=(cxw, yy - 0.035, czw), rot=(0, -a, 0), size=1, scale=(ln * 0.96, 0.02, 0.035))  # rib
             for t in (0.42, 0.55, 0.68, 0.81):   # perforation slots
                 add("primitive_cube_add", bone, ink, loc=(ox + math.cos(a) * ln * t, yy - 0.04, oz + math.sin(a) * ln * t),
@@ -116,6 +116,13 @@ def build_keeper(m, rnd):
             for t in (0.35, 0.75):
                 add("primitive_uv_sphere_add", bone, m["rust"], loc=(ox + math.cos(a) * ln * t, yy - 0.04, oz + math.sin(a) * ln * t),
                     segments=6, ring_count=4, radius=0.05)
+        for j, (t0, t1, aa) in enumerate(((0.0, 1.9, 150.0), (1.9, 3.7, 160.0))):   # humerus + forearm spars
+            ar = math.radians(aa)
+            mx, mz = -0.05 + math.cos(ar) * (t0 + t1) / 2 * sc, 0.8 + math.sin(ar) * (t0 + t1) / 2 * sc
+            add("primitive_cube_add", bone, ink, loc=(mx, y - 0.07, mz), rot=(0, -ar, 0), size=1, scale=((t1 - t0) * sc, 0.12, 0.2))
+            hx, hz = -0.05 + math.cos(ar) * t1 * sc, 0.8 + math.sin(ar) * t1 * sc
+            add("primitive_cylinder_add", bone, plate, loc=(hx, y - 0.1, hz), rot=(S, 0, 0), vertices=12, radius=0.22, depth=0.1)
+            add("primitive_uv_sphere_add", bone, ink, loc=(hx, y - 0.16, hz), segments=8, ring_count=5, radius=0.08)
         a0 = math.radians(146)   # jointed leading-edge strut
         add("primitive_cube_add", bone, ink, loc=(-0.05 + math.cos(a0) * 1.3 * sc, y - 0.05, 0.8 + math.sin(a0) * 1.3 * sc),
             rot=(0, -a0, 0), size=1, scale=(2.6 * sc, 0.1, 0.12))
