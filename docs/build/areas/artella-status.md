@@ -140,3 +140,5 @@ ella-up-open still has only `context` missing; attack/shield/closed paints uncha
 My pieces now: ella-up-open, ella-attack, ella-shield, ella-closed, ella-motion. Merged main: assetgen still has no tiers and the frame-based smoke shot
 (screenfix) is not in yet. Spend counter 15.08 of 33.82. No paint this round: no piece can pass without `context`, and the machine load is ~31.
 A context capture launch via ue_slot/run_game.sh is running (T_Ella_Idle_PH = up-open frame 00); result below if it lands.
+Round 14 result: the capture landed (640x360) but shows "Preparing Shaders (3)" on black, no Ella: the time-based shot (5 s) fires before shaders finish on a loaded machine
+(ours/env, not the art). Discarded, so no `context` pair. Needs the frame-based shot from screenfix. ella-up-open still blocked only on `context`.
