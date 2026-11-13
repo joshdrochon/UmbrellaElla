@@ -82,3 +82,9 @@
 - Next: darker r3 ground (keep the r1 value structure, add grain and gold edges), and a rougher inked title lettering pass
   (Art/Source/UI/Font/build_font.py: pen-wobble/distress). Then panel the other 11 screens; none judged yet.
 - Note: UE import saves fail silently on read-only `.uasset` (LFS lockable); `chmod u+w` before `import_ui_art.py`.
+
+## Candidates moved (12 Nov, lead rule "Where candidates live")
+Ground paints r1/r2 (+ requests, prompts) now under `pipeline/art/proof/artui/ui-title/`; provenance paths updated.
+`Art/Source/UI` holds only the font and the tracked `_PH` ground/clock-face. Main merged (references.json taken from main;
+all 12 screen elements plus `ui-spell-wheel` present); `ui_check.py ci` PASS. `pipeline_check` has 2 problems, both
+missing `tools/build/agent_play.py` on main (not my lane).
