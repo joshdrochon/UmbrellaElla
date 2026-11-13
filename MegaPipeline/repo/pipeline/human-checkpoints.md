@@ -23,11 +23,11 @@ untagged person step, and any other kind. Everything else on a card is the owner
 
 No person on a Day-0 card does these any more; the tools do them, and the guardrails stay enforced by tools and CI:
 - Gate patches: kickoff applies a session's `$JAM_OUTBOX/gate.patch` itself (`python3 tools/git_gate.py apply UE-<id> --auto`,
-  `GATE EDIT: by=kickoff`). It refuses a patch with a path outside the card's lane, a change to a guardrail enforcer
+  commit trailer `GATE EDIT: by=kickoff`). It refuses a patch with a path outside the card's lane, a change to a guardrail enforcer
   (`git_gate.py` GUARD_CORE: the hooks, `check_pr.py`, `kickoff.py`, `secrets_check.py`), or a loosened guardrail file
   (gates.json or `.claude/settings*.json`: a deny entry dropped, an allow entry added, `mcp_enabled` or
-  `native_windows_shell` opened). CI's `check_pr.py` rule gate re-runs those checks, and kickoff's merge gate runs this
-  checkout's rule gate too. A refused patch goes back to the builder; a loosening never goes through the pipeline.
+  `native_windows_shell` opened). CI's `check_pr.py` rule gate finds that commit in the PR's git history and re-runs those
+  checks, and kickoff's merge gate runs this checkout's rule gate too. A refused patch goes back to the builder; a loosening never goes through the pipeline.
 - Repo settings: after cards 0.16 and 0.17 merge, kickoff sets the variables, branch protection and the Actions setting
   itself with fixed commands (`tools/kickoff.py` repo_settings) and posts the read-back.
 - Machine work: a card that says `Runs on: the Windows packaging machine` is built by the kickoff running there, and

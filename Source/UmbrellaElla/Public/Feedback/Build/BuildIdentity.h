@@ -34,8 +34,19 @@ struct UMBRELLAELLA_API FBuildIdentity
 	UPROPERTY()
 	FString Packaging;
 
+	/** Source revision compiled in (UMBRELLAELLA_BUILD_COMMIT, "unknown" outside a stamped build). */
+	UPROPERTY()
+	FString Revision;
+
+	/** asset_manifest= value from the package's BUILD_INFO.txt, "unknown" when absent. */
+	UPROPERTY()
+	FString AssetManifest;
+
 	/** Plain text record, one key=value per line. */
 	FString ToText() const;
+
+	/** The value of key= on its own line in BUILD_INFO text; empty when the key is missing. */
+	static FString ParseBuildInfoValue(const FString& Text, const FString& Key);
 
 	/** Fill from the running build and the arena tuning. */
 	static FBuildIdentity Capture();

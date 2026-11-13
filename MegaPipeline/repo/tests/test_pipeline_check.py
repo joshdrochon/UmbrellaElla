@@ -468,7 +468,13 @@ class CiProfile(unittest.TestCase):
         return hits[0]
 
     def test_source_repo_has_the_marker(self):
-        self.assertTrue(os.path.isfile(os.path.join(ROOT, pipeline_check.CI_FULL)))
+        # the pipeline source keeps the full profile; an installed game repo (.pipeline-installed.json) never gets the
+        # marker, so its CI runs the fast game checks only
+        has = os.path.isfile(os.path.join(ROOT, pipeline_check.CI_FULL))
+        if os.path.isfile(os.path.join(ROOT, ".pipeline-installed.json")):
+            self.assertFalse(has, "installed game repo: the installer never ships the full-CI marker")
+        else:
+            self.assertTrue(has, "pipeline source repo: the full-CI marker is committed")
 
     def test_profile_job_reads_the_marker(self):
         self.assertIn("if [ -f .pipeline-ci-full ]; then full=true; else full=false; fi", self.jobs["profile"])
@@ -503,3 +509,130 @@ class CiProfile(unittest.TestCase):
         for name, block in self.jobs.items():
             with self.subTest(job=name):
                 self.assertRegex(block, r"(?m)^    timeout-minutes: ")
+
+
+class InstalledGameRepoSkipsTheExport(unittest.TestCase):
+    """12 Nov: in an installed game repo MegaPipeline/ is the update bundle. Card PRs must not be asked to regenerate it:
+    the export stamps the commit into ~38 files, so two parallel PRs that regenerate it always conflict."""
+
+    def test_installed_repo_skips_the_package_check_and_the_pipeline_repo_keeps_it(self):
+        d = tempfile.mkdtemp()
+        try:
+            os.makedirs(os.path.join(d, "MegaPipeline"))
+            os.makedirs(os.path.join(d, "tools"))
+            with open(os.path.join(d, "tools", "export_package.py"), "w") as fh:
+                fh.write("def check(root):\n    return [('MegaPipeline/x.md', 'stale')]\n")
+            self.assertEqual(len(pipeline_check.package(d)), 1, "pipeline repo: the stale export is a problem")
+            open(os.path.join(d, ".pipeline-installed.json"), "w").close()
+            self.assertEqual(pipeline_check.package(d), [], "installed game repo: never regenerate the bundle")
+        finally:
+            shutil.rmtree(d, ignore_errors=True)
+
+
+class DirectBuildMode(unittest.TestCase):
+    """12 Nov: the team builds directly (a build lead merges area/* into main after tools/build/gate.sh and pushes).
+    While docs/build/MODE says `direct` (or there is no MODE file and HANDOFF.md exists) CI skips the card-only jobs and
+    the main-red auto-revert, keeps the fast checks, and never runs the Unreal build on a GitHub runner."""
+
+    FAST = ("tools/pipeline_check.py", "tools/manifest_check.py", "tools/module_check.py", "tools/encounter_check.py",
+            "tools/feel_check.py", "submission_check.py wiring", "submission_check.py rules", "tools/editor_mcp.py check",
+            "tools/secrets_check.py", "audio_check.py --list", "story_check.py")
+    CARD_ONLY = ("tools/ui_check.py ci", "tools/bake_preset.py", "audio_check.py --scan", "audio_style_check.py",
+                 "tools/check_pr.py", "tools/check_card.py", "git lfs ls-files", "actions/cache@v4",
+                 "git lfs pull --include='pipeline/art/reference/**,Assets/**,Mockups/**,docs/gdd/**'")
+
+    @classmethod
+    def setUpClass(cls):
+        cls.wf = {}
+        for f in ("pipeline-checks.yml", "main-red.yml", "blocked-report.yml"):
+            with open(os.path.join(ROOT, ".github", "workflows", f), encoding="utf-8") as fh:
+                cls.wf[f] = fh.read()
+        parts = re.split(r"\n  ([a-z]+):\n", "\n" + cls.wf["pipeline-checks.yml"].split("\njobs:\n", 1)[1])
+        cls.jobs = dict(zip(parts[1::2], parts[2::2]))
+        cls.steps = {}
+        for name, block in re.findall(r"- name: (.*?)\n((?:        .*\n|\n)*?)(?=      - |\Z)", cls.jobs["checks"] + "\n"):
+            cls.steps[name.strip().strip('"')] = block
+
+    def step(self, needle):
+        hits = [b for b in self.steps.values() if needle in b]
+        self.assertEqual(len(hits), 1, needle)
+        return hits[0]
+
+    def mode_of(self, files):
+        """Run the workflows' mode snippet in a folder holding `files` ({path: text})."""
+        line = next(l.strip() for l in self.jobs["profile"].splitlines() if "docs/build/MODE" in l and "then" in l)
+        for wf in ("main-red.yml", "blocked-report.yml"):
+            self.assertIn(line, self.wf[wf], f"{wf} reads the mode the same way")
+        d = tempfile.mkdtemp()
+        try:
+            for rel, text in files.items():
+                os.makedirs(os.path.dirname(os.path.join(d, rel)) or d, exist_ok=True)
+                with open(os.path.join(d, rel), "w") as fh:
+                    fh.write(text)
+            return subprocess.run(["bash", "-c", line + '\necho "$mode"'], cwd=d, capture_output=True, text=True,
+                                  check=True).stdout.strip()
+        finally:
+            shutil.rmtree(d, ignore_errors=True)
+
+    def test_mode_file_then_handoff_fallback(self):
+        self.assertEqual(self.mode_of({}), "cards", "the pipeline source repo: no MODE, no HANDOFF.md")
+        self.assertEqual(self.mode_of({"HANDOFF.md": "x\n"}), "direct")
+        self.assertEqual(self.mode_of({"docs/build/MODE": "direct\n"}), "direct")
+        self.assertEqual(self.mode_of({"docs/build/MODE": "cards\n", "HANDOFF.md": "x\n"}), "cards")
+
+    def test_profile_job_exports_the_mode_for_every_event(self):
+        self.assertIn("direct: ${{ steps.mode.outputs.direct }}", self.jobs["profile"])
+        self.assertNotIn("    if:", self.jobs["profile"].split("steps:", 1)[0])
+        self.assertIn("DIRECT: ${{ needs.profile.outputs.direct }}", self.jobs["checks"].split("steps:", 1)[0])
+
+    def test_card_jobs_and_auto_revert_skip_in_direct_mode(self):
+        self.assertRegex(self.jobs["card"], r"\n    if: .*needs\.profile\.outputs\.direct != 'true'")
+        self.assertRegex(self.jobs["windows"], r"\n    if: .*needs\.profile\.outputs\.direct != 'true'")
+        self.assertRegex(self.wf["main-red.yml"], r"\n  revert-first:\n    needs: mode\n    if: needs\.mode\.outputs\.direct != 'true'\n")
+        self.assertRegex(self.wf["blocked-report.yml"], r"\n  blocked:\n    needs: mode\n    if: .*needs\.mode\.outputs\.direct != 'true'\n")
+
+    def test_fast_checks_run_and_card_only_steps_skip(self):
+        for needle in self.FAST:
+            with self.subTest(fast=needle):
+                self.assertNotIn("DIRECT", self.step(needle))
+        for needle in self.CARD_ONLY:
+            with self.subTest(card_only=needle):
+                self.assertIn("env.DIRECT != 'true'", self.step(needle))
+        self.assertIn("env.DIRECT == 'true'", self.step("submission_check.py prejam"))
+
+    def test_no_unreal_build_on_github_runners(self):
+        for f, text in self.wf.items():
+            with self.subTest(wf=f):
+                code = "\n".join(l for l in text.splitlines() if not l.strip().startswith("#"))
+                self.assertNotRegex(code, r"tools[/\\]ue[/\\](build|test|package)|RunUAT|UnrealEditor")
+
+
+
+class DirectBuildChecks(unittest.TestCase):
+    """pipeline_check in the direct build: the game's own play-mode type is not a Unity leak in C++, and a path in an
+    area card's File lane is a planned output of that area branch (each test breaks one thing on purpose)."""
+
+    def test_playmode_in_game_code_passes_and_in_docs_fails(self):
+        r = Repo()
+        try:
+            r.add("Source/Ella/Ella.h", "EUmbrellaPlayMode PlayMode = EUmbrellaPlayMode::StartGame;\n")
+            self.assertEqual(r.kinds(), [])
+            r.add("AGENTS.md", "Run the tests in PlayMode.\n")
+            self.assertEqual(r.kinds().count("leak"), 1)
+        finally:
+            r.close()
+
+    def test_area_file_lane_paths_are_planned(self):
+        d = tempfile.mkdtemp()
+        try:
+            files = {"docs/build/areas/flow.md": "# flow\n## File lane (only these)\n- `docs/build/areas/flow-status.md`\n"
+                                                 "## GDD sections\n2\n",
+                     "HANDOFF.md": "Status: `docs/build/areas/flow-status.md`. Missing: `docs/build/areas/x-status.md`.\n"}
+            for rel, text in files.items():
+                os.makedirs(os.path.dirname(os.path.join(d, rel)) or d, exist_ok=True)
+                with open(os.path.join(d, rel), "w") as fh:
+                    fh.write(text)
+            got = [why for _, _, why in pipeline_check.consistency(d, sorted(files))]
+            self.assertEqual(got, ["path docs/build/areas/x-status.md does not exist"])
+        finally:
+            shutil.rmtree(d, ignore_errors=True)

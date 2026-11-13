@@ -50,6 +50,23 @@ EFlowScreen FFlowRules::Next(EFlowScreen From, EFlowCommand Command)
 			return EFlowScreen::Defeat;
 		case EFlowCommand::EncounterCompleted:
 			return EFlowScreen::Story;
+		case EFlowCommand::OpenLevelUp:
+			return EFlowScreen::LevelUp;
+		default:
+			return From;
+		}
+	case EFlowScreen::LevelUp:
+		// Back, Confirm and Pause (Escape, F1, Menu, B) close it; control returns once the keys are released.
+		switch (Command)
+		{
+		case EFlowCommand::Back:
+		case EFlowCommand::Continue:
+		case EFlowCommand::Pause:
+			return EFlowScreen::Resuming;
+		case EFlowCommand::PlayerDefeated:
+			return EFlowScreen::Defeat;
+		case EFlowCommand::EncounterCompleted:
+			return EFlowScreen::Story;
 		default:
 			return From;
 		}
@@ -92,7 +109,7 @@ bool FFlowRules::IsInputBlockedOn(EFlowScreen Screen)
 bool FFlowRules::IsWorldPausedOn(EFlowScreen Screen)
 {
 	return Screen == EFlowScreen::Paused || Screen == EFlowScreen::Settings || Screen == EFlowScreen::Resuming
-		|| Screen == EFlowScreen::Defeat;
+		|| Screen == EFlowScreen::Defeat || Screen == EFlowScreen::LevelUp;
 }
 
 bool FFlowRules::HasTutorialPageAfter(int32 Page, int32 PageCount)

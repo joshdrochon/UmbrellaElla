@@ -396,14 +396,15 @@ class ArtGateTests(unittest.TestCase):
             spec = json.load(fh)
         pics = [p for p in spec["references"] if p["kind"] == "image"]
         # Josh: the team's 21 reference pictures, Ricky's 13 #art-direction posts, the 2 quality-bar images and Ricky's
-        # title-screen DM (11 Nov) and the 4 key-art crops (keyart-crops/, 11 Nov), all in this repo; plus 16
+        # title-screen DM (11 Nov), the 4 key-art crops (keyart-crops/, 11 Nov) and the 3 crops of Ricky's sheets that
+        # carry the GDD SH1.0 Keeper and red shot (discord-crops/, 12 Nov), all in this repo; plus 16
         # described team-art studies (in Assets/Art/), optional because each repo has only some of them. 11 Nov: 9 studies left the list as copies of a listed picture (the
         # 5 concept-ella-* = study-ella-*, 3 study-keeper-* and the eye-trace study = Ricky's posts; team_art.same_as)
         curated = [p for p in pics if "team art" not in p["role"]]
         team = [p for p in pics if "team art" in p["role"]]
-        self.assertEqual(len(curated), 41)
+        self.assertEqual(len(curated), 44)
         self.assertEqual(len(team), 16)
-        self.assertEqual(len({p["path"] for p in pics}), 57)
+        self.assertEqual(len({p["path"] for p in pics}), 60)
         for p in curated:
             with self.subTest(ref=p["path"]):
                 self.assertTrue(p["path"].startswith("pipeline/art/reference/"), "all in this repo")

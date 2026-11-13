@@ -7,6 +7,7 @@
 #include "SettingsMenuSubsystem.generated.h"
 
 class APlayerController;
+class UWorld;
 class USettingsMenuWidget;
 class UInputMappingContext;
 class USoundClass;
@@ -47,6 +48,19 @@ public:
 	/** Drop unsaved changes on one page. */
 	void DiscardChanges(ESettingsPage Page);
 
+	/** Push reduced flash to the Vfx subsystem of this game instance's world (and any world that starts later). */
+	void ApplyReducedFlash();
+
+	/** What the world-init hook runs: apply the saved reduced flash to a world owned by this game instance. */
+	void HandleWorldInit(UWorld* World);
+
+	/** Saved accessibility reads for screens outside Settings (HUD, XP ring). Text size is a percent; motion is off when true. */
+	int32 GetSavedTextScalePercent() const { return Session.GetSaved().TextScalePercent; }
+	bool IsReducedMotionSaved() const { return Session.GetSaved().bReducedMotion; }
+
+	/** Set reduced flash on one world's Vfx subsystem. Does nothing when the world has none. */
+	static void ApplyReducedFlashToWorld(UWorld* World, const FUmbrellaSettingsData& Data);
+
 	/** Set the volumes of the three sound classes from data. */
 	void ApplyVolumes(const FUmbrellaSettingsData& Data);
 
@@ -69,6 +83,7 @@ public:
 private:
 	void LoadDefaultSoundClasses();
 
+	FDelegateHandle WorldInitHandle;
 	FSettingsSession Session;
 	FString StorePath;
 	EUmbrellaPlayMode PlayMode = EUmbrellaPlayMode::StartGame;

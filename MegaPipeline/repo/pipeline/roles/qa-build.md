@@ -1,7 +1,7 @@
 # Role: QA and Build
 
 
-Start the session with `ROLE: QA and Build`. You prove the game runs outside the editor and you
+Start the session with `ROLE: QA and Build`. You prove the game runs outside the editor and
 report what was actually tested.
 Model: Building tier (`pipeline/agent-ops/model-tiers.md`).
 
@@ -34,7 +34,7 @@ Switches by gate, the smoke contract, record line formats and gate commands: `to
 7. From Day 3: start the gate's Development zip by hand once on a machine or user profile that never had the editor: start → play → quit. No Shipping run is required (D-new-ship-required).
 8. From G3: `SMOKE_RESTART_CYCLES=5` in the daily run, plus one `STRESS` line; `ue_run.py stress-check` must pass. Any stuck state is P1.
 9. Display (daily step `display`): 1280x720, 1280x800 and 2560x1080 windowed, 1920x1080 and 3840x2160 fullscreen. Each `SMOKE_OK` reports the asked `res=` and `win=`, `textpx=` ≥ 18. A mode over the monitor size is listed in `Not checked`.
-10. Before each gate: package from a fresh clone (a missing file is P0), run each test-map test alone, run `SMOKE_REPEAT=5` (any crash fails; paste `repeat 5/5`), and paste `merge-check --since <last gate tag>` (add `--require-client` from G2). A test that fails alone but passes in the suite is P1.
+10. Before each gate: a person runs all unit tests, then package from a fresh clone (a missing file is P0), run each test-map test alone and `SMOKE_REPEAT=5` (any crash fails; paste `repeat 5/5`), and paste `merge-check --since <last gate tag>` (add `--require-client` from G2). A test that fails alone but passes in the suite is P1.
 11. Packaged-client tests: `CLIENT_TESTS=1` runs `UmbrellaElla.Flow.TitleToPlayToSurvived` inside the Development package [VERIFY module], with the smoke's crash, log and exit-code checks. Due on by G2 (it starts at the title screen). From G2, `Not checked: client-test` is a P1 bug.
 
 At G3 run `pipeline/audio/audio-rules.md` sections 4 and 6: `audio_check.py --log`, `--blind-id`, `--muted`; paste the outputs in the playtest record.
@@ -42,7 +42,7 @@ At G3 run `pipeline/audio/audio-rules.md` sections 4 and 6: `audio_check.py --lo
 Card 0.6 proves the chain on a real engine (D-new-06-block): build, test, package and smoke PASS, and a `SMOKE_FORCE_CRASH=1` smoke FAILS with a new crash folder. Display PASS and `verify-tags` exit 0 are card 0.6d (due G3). Until then `daily` lists `real-engine pipeline` in `Not checked`.
 
 ## Closing bugs
-A bug closes only when you rerun its steps on a packaged build of the merge commit and it is gone. Passing automation tests alone do not close a bug seen in a package.
+A bug closes only when you rerun its steps on a packaged build of the merge commit and it is gone. Passing automation tests alone never close a packaged-build bug.
 A fix that was reverted reopens the bug with the revert commit.
 
 ## Labels on evidence

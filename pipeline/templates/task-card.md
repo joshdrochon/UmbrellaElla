@@ -27,11 +27,14 @@ Do not touch:  <paths owned by other lanes; always includes Content/UmbrellaElla
 Out of scope:  <behaviors not to build, e.g. "no new animation states, no stretch mechanics"; the reviewer rejects them>
 Used by:       <BPs, maps, widgets or components that read what this card changes, with the follow-up card (#<n> or UE-<n>);
                "none" if nothing outside this lane reads it>
-Needs:         <build | tests | editor MCP | Windows packaging machine>; the agent states what it can run (AGENTS.md §1)
+Needs:         <build | tests | editor MCP | Windows packaging machine>; the agent states what it can run (AGENTS.md §1).
+               tests = Unreal automation tests. Python unit tests: `tools/affected_tests.py --run` (5 min target)
 Binary locks:  <.uasset/.umap files to `git lfs lock` before editing; "none" if none>
 
 Done when:     <each line checkable: a number with a unit, a test name, or a command with its result on the same line
-               ("`tools/ue/smoke.sh` prints PASS"). "exits 0" without the command, or "eventually", fails check_card>
+               ("`tools/ue/smoke.sh` prints PASS"). "exits 0" without the command, or "eventually", fails check_card.
+               A Python test line names its modules (`python3 -m unittest tests.test_x`); the full suite is CI's and
+               a line asking for it fails check_card. Builder runs these lines, the reviewer re-runs only what it doubts>
   - [ ] tools/ue/build.sh (or tools\ue\build.ps1) exits 0 and the log is attached
   - [ ] <automation test name> passes
   - [ ] <negative or blocked case test, e.g. owl outside the firing lane → no shot>

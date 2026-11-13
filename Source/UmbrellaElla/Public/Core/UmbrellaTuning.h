@@ -17,6 +17,7 @@
 #include "Trap/TrapTuning.h"
 #include "BrokenMill/BrokenMillTuning.h"
 #include "Progression/ProgressionTuning.h"
+#include "Story/StoryTuning.h"
 #include "UmbrellaTuning.generated.h"
 
 /**
@@ -73,4 +74,7 @@ public:
 
 	UPROPERTY(Config, EditAnywhere, Category = "Progression")
 	FProgressionTuning Progression;
+
+	UPROPERTY(Config, EditAnywhere, Category = "Story")
+	FStoryTuning Story;
 };

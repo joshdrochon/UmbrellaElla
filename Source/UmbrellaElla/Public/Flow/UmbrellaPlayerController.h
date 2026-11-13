@@ -28,6 +28,9 @@ public:
 
 	EFlowScreen GetScreen() const { return Screen; }
 
+	/** The level the level-up screen shows (0 before the first). */
+	int32 GetLevelUpShown() const { return LevelUpShown; }
+
 	EUmbrellaPlayMode GetPlayMode() const { return PlayMode; }
 
 	/** True while a menu or end screen holds the input (gameplay contexts are off). */
@@ -105,6 +108,7 @@ private:
 	void OnPausePressed();
 	void HandlePlayerDefeated(const FUmbrellaEvent& Event);
 	void HandleEncounterCompleted(const FUmbrellaEvent& Event);
+	void HandleLevelGained(const FUmbrellaEvent& Event);
 	void RefreshTimedText();
 
 	UPROPERTY()
@@ -129,6 +133,8 @@ private:
 	TSharedPtr<SFlowTextScreen> TextScreen;
 	FDelegateHandle DefeatHandle;
 	FDelegateHandle CompletedHandle;
+	FDelegateHandle LevelHandle;
+	int32 LevelUpShown = 0;
 	float StoryElapsed = 0.0f;
 	float CreditsElapsed = 0.0f;
 	float NeutralSeconds = 0.0f;

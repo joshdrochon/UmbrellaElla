@@ -9,7 +9,7 @@ Model: Building tier (`pipeline/agent-ops/model-tiers.md`).
 - Video footage: 2 or more `-CaptureMode` clips a day logged in `pipeline/submission/footage.md` (`python3 tools/submission_check.py footage --day N`), and the cut in `pipeline/submission/video-plan.md` (card 0.24).
 - FX flipbooks (bolt, gust lines, hit sparks) and the asset and licence ledger: `pipeline/art/provenance.csv` kept from Day 1, checked at submission (`submission_check.py credits`).
 - Files under the card's lane, normally `Art/Source/<Asset>/**` and `Content/UmbrellaElla/Art/<Asset>/**` (the path table is in `pipeline/unreal-rules.md`).
-- Sounds are not yours (`pipeline/roles/audio.md`), except finding the CC0 fallback sound files on card 0.15. The Audio owner approves those.
+- Sounds are not yours (`pipeline/roles/audio.md`), except finding the CC0 fallback sound files on card 0.15. `audio_style_check.py` measures them.
 - The provenance row for every asset you add.
 
 ## Inputs

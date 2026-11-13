@@ -1,4 +1,5 @@
 #include "Story/StorySubsystem.h"
+#include "Core/UmbrellaTuning.h"
 #include "Core/UmbrellaEventBus.h"
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
@@ -159,7 +160,7 @@ void UStorySubsystem::HandleMainMenu()
 void UStorySubsystem::EnsureWidgets()
 {
 	APlayerController* Owner = GetWorld() ? GetWorld()->GetFirstPlayerController() : nullptr;
-	if (!Owner)
+	if (!Owner || !Owner->IsLocalController())
 	{
 		return;
 	}
@@ -168,7 +169,7 @@ void UStorySubsystem::EnsureWidgets()
 		Caption = CreateWidget<UStoryCaptionWidget>(Owner);
 		if (Caption)
 		{
-			Caption->AddToViewport(FStoryTuning::Get().CaptionZOrder);
+			Caption->AddToViewport(GetDefault<UUmbrellaTuning>()->Story.CaptionZOrder);
 		}
 	}
 }
@@ -190,13 +191,13 @@ void UStorySubsystem::Refresh()
 	if (Model.ShouldShowStatistics() && !bStatisticsShown && IsFeatureEnabled(EFeatureId::FLOW_49))
 	{
 		APlayerController* Owner = GetWorld() ? GetWorld()->GetFirstPlayerController() : nullptr;
-		Statistics = Owner ? CreateWidget<UJourneyCompleteWidget>(Owner) : nullptr;
+		Statistics = (Owner && Owner->IsLocalController()) ? CreateWidget<UJourneyCompleteWidget>(Owner) : nullptr;
 		if (Statistics)
 		{
 			Statistics->SetStats(Model.GetStats());
 			Statistics->GetTryAgainDelegate().AddUObject(this, &UStorySubsystem::HandleTryAgain);
 			Statistics->GetMainMenuDelegate().AddUObject(this, &UStorySubsystem::HandleMainMenu);
-			Statistics->AddToViewport(FStoryTuning::Get().StatisticsZOrder);
+			Statistics->AddToViewport(GetDefault<UUmbrellaTuning>()->Story.StatisticsZOrder);
 			bStatisticsShown = true;
 		}
 	}
