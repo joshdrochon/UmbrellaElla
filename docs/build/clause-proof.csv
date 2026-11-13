@@ -36,6 +36,9 @@ FLOW-06,Exact text 'Your borrowed time has run its course...' shown,test:Umbrell
 OWL-06,"Retained/restored capacity, max lives, upgrades on retry",test:UmbrellaElla.Progression.World.KeeperRetryRestoresEllaCapacity
 OWL-10,"Retained/restored capacity, max lives, upgrades on retry",test:UmbrellaElla.Progression.World.KeeperRetryRestoresEllaCapacity
 OWL-35,XP policy applied,test:UmbrellaElla.Progression.World.KeeperEventStringsDriveXpAndCheckpoints
+FLOW-34,title music plays,test:UmbrellaElla.Flow.World.TitlePlaysMusic
+MOVE-09,controller button remap,test:UmbrellaElla.Flow.World.PauseSettingsRemapsControllerButton
+MOVE-09,mouse click selects in menus,test:UmbrellaElla.Flow.MenuMouse.ClickChoosesEachItem
 MOVE-15,hop protection actually blocks damage in Health,test:UmbrellaElla.Move.World.HopProtectionBlocksHealthDamage
 MOVE-15,hop vs post-hit protection asserted distinct,test:UmbrellaElla.Move.World.HopProtectionBlocksHealthDamage
 COM-06,"fold-ready, snap open, pulse, cock, reset cycle tied to emission",test:UmbrellaElla.Move.World.CanopyCycleTiedToEmission

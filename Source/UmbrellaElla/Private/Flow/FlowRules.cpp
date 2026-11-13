@@ -250,3 +250,8 @@ TArray<FKey> FFlowRules::StorySkipKeys()
 	Keys.Add(EKeys::Gamepad_Special_Left);
 	return Keys;
 }
+
+FName FFlowRules::TitleMusicId()
+{
+	return FName(TEXT("MusicTitle"));
+}

@@ -126,5 +126,5 @@ ui-FinalHourIntroWidget-her-time-has-run,screen,"Her time has run its course. Th
 ui-purchase-review-0-points-in-total,screen,Review: {0} points in total,,yes,screen=purchase; where=ProgressionPurchaseWidget.cpp
 ui-purchase-point,label,point,,yes,screen=purchase; where=ProgressionPurchaseWidget.cpp
 ui-purchase-points,label,points,,yes,screen=purchase; where=ProgressionPurchaseWidget.cpp
-ui-purchase-costs,label,costs,,yes,screen=purchase; where=ProgressionPurchaseWidget.cpp
-ui-purchase-reallocates,label,reallocation,,yes,screen=purchase; where=ProgressionPurchaseWidget.cpp; GDD FLOW-11 / FLOW-18 reallocation, run 2 onward
+ui-purchase-costs,label,Cost,,yes,screen=purchase; where=ProgressionPurchaseWidget.cpp
+ui-purchase-reallocates,label,Reallocation,,yes,screen=purchase; where=ProgressionPurchaseWidget.cpp; GDD FLOW-11 / FLOW-18 reallocation, run 2 onward

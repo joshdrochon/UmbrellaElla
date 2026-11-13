@@ -324,7 +324,7 @@ FLOW-29,'Active' eligibility condition,i,progression
 FLOW-29,CP0 alone is not a purchase zone,i,progression
 NAR-04,start confirmation consumed so it cannot also fire/hop,i,settings2
 NAR-07,Keeper withdraws alive into darkness,i,settings2
-FLOW-34,title music plays,ii,flow
+FLOW-34,title music plays,proven,flow
 FLOW-34,background moves slowly,i,flow
 FLOW-34,background art contains no characters,i,flow
 FLOW-34,"second button label is 'Director's Cut', GDD says 'Start Director's Cut'",ii,flow
@@ -358,7 +358,7 @@ MOVE-08,right-stick directions select spells,i,flow
 MOVE-08,Escape/Menu opens pause during play,i,flow
 MOVE-08,Cross/A/Enter triggers retry on defeat screen,i,flow
 MOVE-09,mouse click selects in menus,i,flow
-MOVE-09,controller button remap,ii,flow
+MOVE-09,controller button remap,proven,flow
 MOVE-10,controller (gamepad) button remap in Controller menu,i,settings2
 MOVE-17,controller (gamepad) button remap in Controller menu,i,settings2
 SURV-05,clock HUD actually drawn in game,i,move

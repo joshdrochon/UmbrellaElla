@@ -38,6 +38,7 @@ else python3 tools/build/quality_gate.py baseline "$QB.tmp" 2>/dev/null && mv "$
 T1=$(date +%s)
 if ! git -c core.hooksPath=/dev/null merge -q --no-ff -m "Merge area/$A ($(git rev-parse --short "$C")) into main" "$C" 2>/dev/null; then
   if git diff --name-only --diff-filter=U | grep -qx docs/build/rule-status.csv; then python3 tools/build/rule_status_merge.py || true; fi
+  if git diff --name-only --diff-filter=U | grep -qxE "docs/build/clause-(audit|proof)\.csv"; then python3 tools/build/clause_csv_merge.py || true; fi
   # The inventory CSV is generated: a conflict there is resolved by regenerating it from the merged tree.
   if git diff --name-only --diff-filter=U | grep -qx docs/build/art-inventory.csv; then git checkout --ours docs/build/art-inventory.csv && python3 tools/build/art_inventory.py write >/dev/null 2>&1; git add docs/build/art-inventory.csv; fi
   bad=$(git diff --name-only --diff-filter=U | grep -v -E '^docs/build/(areas/[a-z]+\.md|worker-rules\.md|areas\.py)$')

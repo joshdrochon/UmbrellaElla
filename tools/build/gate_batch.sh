@@ -30,6 +30,7 @@ $files"
     # a rule-status-only conflict is resolved row by row, anything else drops the lane from the batch
     u=$(git diff --name-only --diff-filter=U)
     echo "$u" | grep -qx docs/build/rule-status.csv && python3 "$ROOT/tools/build/rule_status_merge.py" >/dev/null
+    echo "$u" | grep -qxE "docs/build/clause-(audit|proof)\.csv" && python3 "$ROOT/tools/build/clause_csv_merge.py" >/dev/null
     echo "$u" | grep -qx docs/build/art-inventory.csv && { git checkout --ours docs/build/art-inventory.csv && python3 tools/build/art_inventory.py write >/dev/null 2>&1; git add docs/build/art-inventory.csv; }
     if [ -z "$(git diff --name-only --diff-filter=U)" ]; then
       git -c core.hooksPath=/dev/null commit -q --no-edit && { picked+=("$a"); seen="$seen
