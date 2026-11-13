@@ -88,3 +88,13 @@ Logs: `run-2026-11-12h-guard20.log`, `-h-720p.log`, `-h-1080p.log` (commit 8b1c9
 3. Resolutions: `RUN_RES=WxH` added to `run_game.sh` (-RenderOffscreen -ResX -ResY, no window, no sound). 1280x720 offscreen renders at exactly 1280x720 (log: res=1280x720). 1920x1080 does NOT: the Mac display clamps the viewport to 1728x1117 even offscreen. Stopped on that point; 1920x1080 needs a larger display or a packaged/fullscreen path.
 4. FLOW-28 waits on levelchunks (gate queue). FLOW-25 (drawn wind width, backdrop) and CAM-07 (route current live in the HAZ run) belong to other lanes. Not touched.
 Still failing: FLOW-25, CAM-07, FLOW-28, HAZ-16.
+
+## QA-36 run with levelchunks (9e10e083) merged (Nov 12 20:3x; run_game.sh, 640x360, no sound)
+Log: `docs/build/playtest-logs/run-2026-11-12i.log` (commit 10959f90, `-SmokePlaytest -SmokeQuitAfter=20`). Build exit 0.
+| Row | Result | Why |
+|---|---|---|
+| CAM-04 | PASS | mill_lower_v2 ranges. |
+| FLOW-28 | PASS | health 2 to 2, threats=0 at handoff, framing settled, Keeper began (route_s 3.97). |
+| CAM-07 | FAIL | Reopen cases caught, but the required mill current is live on 0 of 955 ticks in the HAZ run (`case=persist`). Route/mill current not active there; not in the playtest lane. |
+| FLOW-25 | FAIL | Drawn width 200 = usable 200 now. Backdrop covers 0 of 9 stages (field/art lane). |
+| HAZ-16 | FAIL | Unchanged: 1920x1080 impossible on this display, guard one-shot, designer call. |
