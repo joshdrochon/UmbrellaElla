@@ -22,3 +22,11 @@ or `T_*Paper_PH` asset exists under Content/ or Art/. A smoke shot today shows g
 Ask (visuals lane, or the build lead on main): per layer, load `/Game/UmbrellaElla/Art/Scene/T_<Piece>_PH` (skyline, paper) if present, and put it on a
 masked/translucent unlit material on the panel (UV tile for paper). Then I import `pipeline/art/proof/scene/skyline/skyline_r2_keyed.png` under that name with an
 editor script in `tools/build/assets/art_scene_*.py` and make the shot myself.
+
+## 3 update (Nov 12 evening): slot now exists, capture still blocked by the smoke shot timing
+Merged main + artslots. `bg-layer:FarLand` / `bg-layer:Sky` now map to T_Skyline / T_Paper; I imported skyline_r2_keyed.png and paper_r3.png as `_PH`
+with import_art_candidate.py (works; Content/UmbrellaElla/Art/Scene/*_PH.uasset left untracked, not committed).
+`run_game.sh -SmokeShot=...` x3 (640x360 and default): shot is taken at 5 s wall clock, written (7431 bytes), but the frame is black except the HUD clock.
+The game ran at fps 0.1-3.2 (worst frame 34 s) while the gate and other workers use the machine, so no backdrop frame is drawn by 5 s.
+Ask (lead): make the shot wait for the first N rendered frames (or `-SmokeShotDelay=<s>` / tuning `Flow.SmokeShotDelaySeconds` readable from the command line), or
+run my capture when the machine is idle. Not faking a capture. Until then no piece in my lane can pass the context pair; every `_PH` stays.
