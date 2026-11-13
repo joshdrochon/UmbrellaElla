@@ -78,3 +78,12 @@ its own textured paper, and most remaining losses name that ground. Request with
 ### Blockers (unchanged)
 - `context` pair: needs an in-engine capture after import (lead's package and smoke). No piece can pass before that.
 - wind-zone `detail_min` fix (area/artcal 7ad7ebd) is not on this branch yet.
+
+## 13 Nov: Gemini rollout (blocked on key)
+Merged main. Prompts for owl-bolt, bolt-hit, wand-shot written and reviewed by a fresh Art Director session
+(`Art/Source/<Asset>/prompt.md`, `prompt-review.md`; its corrected prompt, used word for word, is `prompt.final.txt`).
+Review changes: no ink outline (light contour), no painted glow (light is a separate layer), sparse hatch only, tail per reference.
+Open for the lead: one call = one frame; how the loop frames are made (scale/thin the peak frame) is decided after the panel.
+BLOCKED: `tools/assetgen.py image` refuses, `GEMINI_API_KEY is not set` in this shell. Worker rules forbid me reading
+`~/.umbrella-ella.env`. Spend so far by me: 0. Next: run the three calls (about $0.42; commands in prompt.final.txt, 21:9/1:1/21:9, 2K,
+`--element effects`), `assetgen clean --chroma 00FF00`, art_ref_check, panel.
