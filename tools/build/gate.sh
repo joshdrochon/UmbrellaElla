@@ -4,7 +4,7 @@
 # Josh, Nov 12: no PR/CI ceremony, every quality check kept, and per-merge checks run only what the change touches
 # (tools/build/gate_plan.py). The full Unreal and Python suites run before each package (tools/build/prepackage.sh).
 # Steps (each prints a line and its seconds):
-#   merge (docs/build conflicts resolve to main's copy) -> build -> targeted automation tests -> module/manifest/feel/
+#   merge (docs/build conflicts resolve to main's copy; art pass records verify and the gate re-runs the panel) -> build -> targeted automation tests -> module/manifest/feel/
 #   encounter checks that apply -> quality_gate.py (art and audio ship only on pass; UI incl. flow-check and story
 #   blocking vs main) -> submission_check prejam (+ assets when content changed) -> independent review session
 #   (tools/build/review.sh; one round: "changes" holds the merge once, exit 3, then becomes follow-ups) -> critics
@@ -48,6 +48,15 @@ fi
 [ "$FEEL" = 1 ] && chk feel_check python3 tools/feel_check.py
 [ "$ENCOUNTER" = 1 ] && chk encounter_check python3 tools/encounter_check.py
 chk quality_gate python3 tools/build/quality_gate.py check "$MAIN" "$L/quality-base.txt"
+chk art_pass_verify python3 tools/build/art_pass_verify.py check --base "$MAIN"
+if [ $fail = 0 ]; then
+  # The proof the panel really ran (Josh, Nov 12): every piece whose pass record is new in this merge is judged again by
+  # fresh blind critic sessions on the same packets; the gate's panel must pass it too, or the merge fails.
+  for pc in $(python3 tools/build/art_pass_verify.py newly-passed "$MAIN"); do
+    T1=$(date +%s); out=$(python3 tools/art_loop.py gate-rerun --piece "$pc" 2>&1); rc=$?; echo "$out" | tail -2 >> "$EV"
+    if [ $rc -eq 0 ]; then step "art panel re-run $pc PASS"; else step "art panel re-run $pc FAIL"; echo "$out" | tail -6; fail=1; fi
+  done
+fi
 chk prejam python3 tools/submission_check.py prejam
 [ "$ASSETS" = 1 ] && chk assets python3 tools/submission_check.py assets
 if [ $fail = 0 ] && [ "$AUDIO" = 1 ]; then
