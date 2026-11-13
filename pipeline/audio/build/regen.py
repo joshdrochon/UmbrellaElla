@@ -17,6 +17,12 @@ def gen_layer(sid, name, spec, n, d):
     out = d / f"{name}_{n}.wav"
     if out.exists() and out.stat().st_size > 2000:
         return out
+    if spec.get("kind") == "synth":   # deterministic ffmpeg synthesis (aevalsrc), no API: sharp, pitched, clean sources
+        r = run(["ffmpeg", "-y", "-loglevel", "error", "-f", "lavfi", "-i",
+                 f"aevalsrc={spec['expr']}:s=48000:d={spec['secs']}", "-c:a", "pcm_s16le", str(out)])
+        if r.returncode:
+            raise SystemExit(r.stderr[-300:])
+        return out
     key = os.environ.get("ELEVENLABS_API_KEY")
     if not key:
         raise SystemExit("no ELEVENLABS_API_KEY: source ~/.umbrella-ella.env in this shell")
