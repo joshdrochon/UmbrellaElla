@@ -6,3 +6,116 @@ story-shaft-clue,clue,The umbrella's shaft matches the bronze of the clock.,F1;F
 story-ending-1,end_card,The owl's pursuit ends. He goes back into the darkness.,F3,yes,NAR-07 draft from the team story
 story-ending-2,end_card,"Ella is alive, but still suspended between worlds.",P8,yes,NAR-07 draft
 story-ending-3,end_card,Perhaps the owl has only postponed his judgment.,P8,yes,NAR-07 draft
+ui-settings-sound,button,Sound,,yes,screen=settings; where=SettingsMenuWidget.cpp
+ui-settings-controller,button,Controller,,yes,screen=settings; where=SettingsMenuWidget.cpp
+ui-settings-credits,button,Credits,,yes,screen=settings; where=SettingsMenuWidget.cpp
+ui-settings-game-options,button,Game Options,,yes,screen=settings; where=SettingsMenuWidget.cpp
+ui-settings-settings,button,Settings,,yes,screen=settings; where=SettingsMenuWidget.cpp
+ui-settings-could-not-save-your-settings,screen,Could not save your settings.,,yes,screen=settings; where=SettingsMenuWidget.cpp
+ui-settings-unsaved-changes,button,Unsaved changes.,,yes,screen=settings; where=SettingsMenuWidget.cpp
+ui-settings-save,button,Save,,yes,screen=settings; where=SettingsMenuWidget.cpp
+ui-settings-discard,button,Discard,,yes,screen=settings; where=SettingsMenuWidget.cpp
+ui-settings-keep-editing,button,Keep Editing,,yes,screen=settings; where=SettingsMenuWidget.cpp
+ui-settings-back,button,Back,,yes,screen=settings; where=SettingsMenuWidget.cpp
+ui-settings-master-volume,button,Master Volume,,yes,screen=settings; where=SettingsMenuWidget.cpp
+ui-settings-sound-effects,button,Sound Effects,,yes,screen=settings; where=SettingsMenuWidget.cpp
+ui-settings-music,button,Music,,yes,screen=settings; where=SettingsMenuWidget.cpp
+ui-settings-text-size,button,Text Size %,,yes,screen=settings; where=SettingsMenuWidget.cpp
+ui-settings-reduced-motion,button,Reduced motion,,yes,screen=settings; where=SettingsMenuWidget.cpp
+ui-settings-reduced-flash,button,Reduced flash,,yes,screen=settings; where=SettingsMenuWidget.cpp
+ui-settings-shoot-and-absorb-share-a,screen,Shoot and Absorb share a key. The four flight modes need them apart. Reset bindings to recover.,,yes,screen=settings; where=SettingsMenuWidget.cpp
+ui-settings-reset-bindings,button,Reset bindings,,yes,screen=settings; where=SettingsMenuWidget.cpp
+ui-settings-developer-options-director-s-cut,screen,Developer options (Director's Cut only). Save applies them to this session; 100% is as tuned.,,yes,screen=settings; where=SettingsMenuWidget.cpp
+ui-settings-developer-options-director-s-cut-2,screen,Developer options (Director's Cut only). They can be changed in the tester build.,,yes,screen=settings; where=SettingsMenuWidget.cpp
+ui-settings-open-controller-page,button,Open Controller page,,yes,screen=settings; where=SettingsMenuWidget.cpp
+ui-settings-reset-to-as-tuned,screen,Reset to as tuned,,yes,screen=settings; where=SettingsMenuWidget.cpp
+ui-purchase-hits-per-life,button,Hits per life,,yes,screen=purchase; where=ProgressionPurchaseWidget.cpp
+ui-purchase-lives,button,Lives,,yes,screen=purchase; where=ProgressionPurchaseWidget.cpp
+ui-purchase-recovery-per-yellow,button,Recovery per yellow,,yes,screen=purchase; where=ProgressionPurchaseWidget.cpp
+ui-purchase-damage-reduction,button,Damage reduction,,yes,screen=purchase; where=ProgressionPurchaseWidget.cpp
+ui-purchase-suction-range,button,Suction range,,yes,screen=purchase; where=ProgressionPurchaseWidget.cpp
+ui-purchase-suction-cone,button,Suction cone,,yes,screen=purchase; where=ProgressionPurchaseWidget.cpp
+ui-purchase-small-blasts-damage,button,Small Blasts damage,,yes,screen=purchase; where=ProgressionPurchaseWidget.cpp
+ui-purchase-streamed-blast-damage,button,Streamed Blast damage,,yes,screen=purchase; where=ProgressionPurchaseWidget.cpp
+ui-purchase-twin-stars-damage,button,Twin Stars damage,,yes,screen=purchase; where=ProgressionPurchaseWidget.cpp
+ui-purchase-needle-spell-damage,button,Needle Spell damage,,yes,screen=purchase; where=ProgressionPurchaseWidget.cpp
+ui-purchase-level-0-points-left-1,screen,Level {0}   Points left {1},,yes,screen=purchase; where=ProgressionPurchaseWidget.cpp
+ui-purchase-inspection-only-spend-points-at,screen,Inspection only. Spend points at a refuge or between runs.,,yes,screen=purchase; where=ProgressionPurchaseWidget.cpp
+ui-purchase-confirm-0-points,button,Confirm ({0} points),,yes,screen=purchase; where=ProgressionPurchaseWidget.cpp
+ui-purchase-cancel,button,Cancel,,yes,screen=purchase; where=ProgressionPurchaseWidget.cpp
+ui-journey-complete-journey-complete,button,Journey Complete,,yes,screen=journey-complete; where=StoryWidgets.cpp
+ui-journey-complete-try-again,button,Try Again,,yes,screen=journey-complete; where=StoryWidgets.cpp
+ui-journey-complete-main-menu,button,Main Menu,,yes,screen=journey-complete; where=StoryWidgets.cpp
+ui-settings-game-options-entry-and-retries-lives,screen,Entry and retries (lives),,yes,screen=settings-game-options; where=DeveloperOptions.cpp
+ui-settings-game-options-movement-speed,button,Movement speed,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
+ui-settings-game-options-hop-distance,button,Hop distance,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
+ui-settings-game-options-dash-distance,button,Dash distance,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
+ui-settings-game-options-wind-current-strength,button,Wind current strength,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
+ui-settings-game-options-hostile-gust-push-and-damage,screen,Hostile gust push and damage,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
+ui-settings-game-options-missile-speed,button,Missile speed,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
+ui-settings-game-options-absorb-range-and-pull,screen,Absorb range and pull,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
+ui-settings-game-options-all-four-weapons-unlocked,screen,All four weapons unlocked,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
+ui-settings-game-options-experience-gained,button,Experience gained,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
+ui-settings-game-options-keeper-part-health,button,Keeper part health,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
+ui-settings-game-options-keeper-clock-health,button,Keeper clock health,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
+ui-settings-game-options-part-break-stun-time,button,Part-break stun time,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
+ui-settings-game-options-keeper-slow-attack,button,Keeper slow attack,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
+ui-settings-game-options-eye-blackout-time,button,Eye blackout time,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
+ui-settings-game-options-first-play-tutorials,button,First-play tutorials,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
+ui-settings-game-options-remap-controls,button,Remap controls,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
+ui-settings-game-options-ella-hitbox-size,button,Ella hitbox size,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
+ui-settings-game-options-menu-background-motion,button,Menu background motion,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
+ui-settings-game-options-off,button,Off,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
+ui-settings-game-options-open,button,Open,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
+ui-settings-controller-shoot,button,Shoot,,yes,screen=settings-controller; where=SettingsModel.cpp
+ui-settings-controller-absorb,button,Absorb,,yes,screen=settings-controller; where=SettingsModel.cpp
+ui-settings-controller-hop,button,Hop,,yes,screen=settings-controller; where=SettingsModel.cpp
+ui-settings-controller-dash-back,button,Dash back,,yes,screen=settings-controller; where=SettingsModel.cpp
+ui-settings-controller-dash-forward,button,Dash forward,,yes,screen=settings-controller; where=SettingsModel.cpp
+ui-settings-controller-ride,button,Ride,,yes,screen=settings-controller; where=SettingsModel.cpp
+ui-settings-controller-trim-up-down,button,Trim (up/down),,yes,screen=settings-controller; where=SettingsModel.cpp
+ui-settings-controller-move-left-right,button,Move (left/right),,yes,screen=settings-controller; where=SettingsModel.cpp
+ui-settings-controller-spell-1,button,Spell 1,,yes,screen=settings-controller; where=SettingsModel.cpp
+ui-settings-controller-spell-2,button,Spell 2,,yes,screen=settings-controller; where=SettingsModel.cpp
+ui-settings-controller-spell-3,button,Spell 3,,yes,screen=settings-controller; where=SettingsModel.cpp
+ui-settings-controller-spell-4,button,Spell 4,,yes,screen=settings-controller; where=SettingsModel.cpp
+ui-settings-controller-next-spell,button,Next spell,,yes,screen=settings-controller; where=SettingsModel.cpp
+ui-settings-controller-previous-spell,button,Previous spell,,yes,screen=settings-controller; where=SettingsModel.cpp
+credit-rick-rispoli,button,Rick Rispoli,,yes,screen=credits; where=SettingsModel.cpp
+credit-the-executive-producer-executive-produce,screen,[the executive producer] - Executive Producer,,yes,screen=credits; where=SettingsModel.cpp
+credit-richard-producer,button,Richard - Producer,,yes,screen=credits; where=SettingsModel.cpp
+credit-josh-rochon-technical-lead,screen,Josh Rochon - Technical Lead,,yes,screen=credits; where=SettingsModel.cpp
+ui-journey-complete-enemies-defeated,button,Enemies defeated,,yes,screen=journey-complete; where=StoryRules.cpp
+ui-journey-complete-xp-earned,button,XP earned,,yes,screen=journey-complete; where=StoryRules.cpp
+ui-journey-complete-deaths,button,Deaths,,yes,screen=journey-complete; where=StoryRules.cpp
+ui-journey-complete-distance-flown,button,Distance flown,,yes,screen=journey-complete; where=StoryRules.cpp
+ui-journey-complete-shots-fired,button,Shots fired,,yes,screen=journey-complete; where=StoryRules.cpp
+ui-journey-complete-shots-fired-at-you,screen,Shots fired at you,,yes,screen=journey-complete; where=StoryRules.cpp
+ui-journey-complete-damage-taken,button,Damage taken,,yes,screen=journey-complete; where=StoryRules.cpp
+ui-journey-complete-health-restored,button,Health restored,,yes,screen=journey-complete; where=StoryRules.cpp
+ui-title-umbrella-ella-the-stolen-hour,title,"Umbrella Ella
+The Stolen Hour",,yes,screen=title; where=FlowMenuText.cpp
+ui-title-start-game,button,Start Game,,yes,screen=title; where=FlowMenuText.cpp
+ui-title-director-s-cut,button,Director's Cut,,yes,screen=title; where=FlowMenuText.cpp
+ui-pause-paused,button,Paused,,yes,screen=pause; where=FlowMenuText.cpp
+ui-pause-continue,button,Continue,,yes,screen=pause; where=FlowMenuText.cpp
+ui-pause-quit,button,Quit,,yes,screen=pause; where=FlowMenuText.cpp
+ui-level-up-skip,button,Skip,,yes,screen=level-up; where=FlowMenuText.cpp
+ui-level-up-done,button,Done,,yes,screen=level-up; where=FlowMenuText.cpp
+ui-settings-sound-controller-and-credits-arrive,screen,"Sound, Controller and Credits arrive in the next slice.",,yes,screen=settings; where=FlowMenuText.cpp
+ui-level-up-a-new-point-to-spend,screen,A new point to spend at the next refuge.,,yes,screen=level-up; where=FlowMenuText.cpp
+ui-defeat-defeated,button,Defeated,,yes,screen=defeat; where=FlowMenuText.cpp
+ui-defeat-retry,button,Retry,,yes,screen=defeat; where=FlowMenuText.cpp
+ui-defeat-quit-to-title,button,Quit to Title,,yes,screen=defeat; where=FlowMenuText.cpp
+story-ending-page-1,end_card,"Eventually, the owl's pursuit ends, and he retreats into the darkness, leaving Ella alive but still suspended between worlds.",F3;P8,yes,screen=ending; where=FlowStoryText.cpp
+story-ending-page-2,end_card,"She has survived, yet neither her fate nor the owl's intentions are resolved. Perhaps the owl has merely postponed his judgment, or perhaps something about Ella has challenged even his understanding of time.",F3;P8,yes,screen=ending; where=FlowStoryText.cpp
+credit-umbrella-ella-the-stolen-hour,screen,Umbrella Ella The Stolen Hour,,yes,screen=credits; where=FlowStoryText.cpp
+credit-role-josh-to-supply,screen,[ROLE - Josh to supply],,yes,screen=credits; where=FlowStoryText.cpp
+credit-executive-producer-name-josh-to,screen,[EXECUTIVE PRODUCER NAME - Josh to supply],,yes,screen=credits; where=FlowStoryText.cpp
+ui-tutorial-ella-drops-under-her-umbrella,screen,Ella drops under her umbrella. Hop with Space or A to rise. Trim with W and S or the left stick.,,yes,screen=tutorial; where=FlowTutorialText.cpp
+ui-tutorial-while-dropping-shoot-with-j,screen,"While dropping, shoot with J or the left mouse button. Shots always fly right. Basic shots never run out.",,yes,screen=tutorial; where=FlowTutorialText.cpp
+ui-tutorial-absorb-yellow-shots-with-k,screen,Absorb yellow shots with K or the right mouse button to heal. Dash with Q and E or the bumpers.,,yes,screen=tutorial; where=FlowTutorialText.cpp
+ui-tutorial-a-long-way-down-lies,screen,A long way down lies ahead. Hop with Space or A to rise. Trim with W and S or the left stick.,,yes,screen=tutorial; where=FlowTutorialText.cpp
+ui-tutorial-shoot-with-j-or-the,screen,"Shoot with J or the left mouse button while dropping. Cycle spells with [ and ] or the D-pad, or press 1 to 4.",,yes,screen=tutorial; where=FlowTutorialText.cpp
+ui-tutorial-next,button,Next,,yes,screen=tutorial; where=UmbrellaPlayerController.cpp
+ui-tutorial-begin,button,Begin,,yes,screen=tutorial; where=UmbrellaPlayerController.cpp
