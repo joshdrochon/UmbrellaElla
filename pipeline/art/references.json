@@ -3291,17 +3291,21 @@
     "crop-gold-impact-umbrella-glow"
    ],
    "owner": "artfx",
-   "score_min": 0.334,
-   "detail_min": 0.077,
+   "score_min": 0.361,
+   "detail_min": 0.296,
    "calibration": {
-    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
     "margin": 0.02,
     "measured": "2026-11-13",
     "loo": {
-     "wand-star": 0.354
+     "crop-gold-impact-gold-shot-a": 0.901,
+     "crop-gold-impact-gold-shot-b": 0.901,
+     "crop-gold-impact-umbrella-glow": 0.381
     },
     "detail": {
-     "wand-star": 0.097
+     "crop-gold-impact-gold-shot-a": 0.528,
+     "crop-gold-impact-gold-shot-b": 0.519,
+     "crop-gold-impact-umbrella-glow": 0.316
     }
    },
    "context": [
@@ -3318,17 +3322,19 @@
     "crop-gold-fade-gold-shot-b"
    ],
    "owner": "artfx",
-   "score_min": 0.334,
-   "detail_min": 0.077,
+   "score_min": 0.881,
+   "detail_min": 0.499,
    "calibration": {
-    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
     "margin": 0.02,
     "measured": "2026-11-13",
     "loo": {
-     "wand-star": 0.354
+     "crop-gold-fade-gold-shot-a": 0.901,
+     "crop-gold-fade-gold-shot-b": 0.901
     },
     "detail": {
-     "wand-star": 0.097
+     "crop-gold-fade-gold-shot-a": 0.528,
+     "crop-gold-fade-gold-shot-b": 0.519
     }
    },
    "context": [
@@ -3450,17 +3456,19 @@
     "crop-blocked-umbrella-glow"
    ],
    "owner": "artfx",
-   "score_min": 0.334,
-   "detail_min": 0.077,
+   "score_min": 0.361,
+   "detail_min": 0.296,
    "calibration": {
-    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
     "margin": 0.02,
     "measured": "2026-11-13",
     "loo": {
-     "wand-star": 0.354
+     "crop-blocked-gold-shot-b": 0.381,
+     "crop-blocked-umbrella-glow": 0.381
     },
     "detail": {
-     "wand-star": 0.097
+     "crop-blocked-gold-shot-b": 0.519,
+     "crop-blocked-umbrella-glow": 0.316
     }
    },
    "context": [
@@ -3742,17 +3750,19 @@
     "crop-slow-reload-arc"
    ],
    "owner": "artfx",
-   "score_min": 0.715,
-   "detail_min": 0.378,
+   "score_min": 0.542,
+   "detail_min": 0.204,
    "calibration": {
-    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
     "margin": 0.02,
     "measured": "2026-11-13",
     "loo": {
-     "d-clock-double-beat": 0.735
+     "crop-slow-clock-face": 0.562,
+     "crop-slow-reload-arc": 0.562
     },
     "detail": {
-     "d-clock-double-beat": 0.398
+     "crop-slow-clock-face": 0.224,
+     "crop-slow-reload-arc": 0.298
     }
    },
    "context": [
@@ -3767,17 +3777,19 @@
     "crop-gust-flow-ribbon"
    ],
    "owner": "artfx",
-   "score_min": 0.721,
-   "detail_min": 0.462,
+   "score_min": 0.371,
+   "detail_min": 0.254,
    "calibration": {
-    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
     "margin": 0.02,
     "measured": "2026-11-13",
     "loo": {
-     "d-wing-gust": 0.741
+     "crop-gust-damaging-gust": 0.391,
+     "crop-gust-flow-ribbon": 0.391
     },
     "detail": {
-     "d-wing-gust": 0.482
+     "crop-gust-damaging-gust": 0.274,
+     "crop-gust-flow-ribbon": 0.418
     }
    },
    "context": [
@@ -3792,17 +3804,19 @@
     "crop-gust-puff-gust-front"
    ],
    "owner": "artfx",
-   "score_min": 0.721,
-   "detail_min": 0.462,
+   "score_min": 0.594,
+   "detail_min": 0.253,
    "calibration": {
-    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
     "margin": 0.02,
     "measured": "2026-11-13",
     "loo": {
-     "d-wing-gust": 0.741
+     "crop-gust-puff-flap": 0.614,
+     "crop-gust-puff-gust-front": 0.614
     },
     "detail": {
-     "d-wing-gust": 0.482
+     "crop-gust-puff-flap": 0.39,
+     "crop-gust-puff-gust-front": 0.273
     }
    },
    "context": [
@@ -3817,17 +3831,20 @@
     "crop-blackout-fog-arch"
    ],
    "owner": "artfx",
-   "score_min": 0.5,
-   "detail_min": 0.079,
+   "score_min": 0.873,
+   "detail_min": 0.005,
    "calibration": {
-    "method": "no team image: leave-one-out and detail on the element's own references under pipeline/art/reference/ (quality bar included) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
     "margin": 0.02,
     "measured": "2026-11-13",
-    "loo": {},
-    "detail": {
-     "bar-other-realm": 0.099
+    "loo": {
+     "crop-blackout-fog-low": 0.893,
+     "crop-blackout-fog-arch": 0.893
     },
-    "note": "one image and nothing to compare it with: score_min not measurable (kept)"
+    "detail": {
+     "crop-blackout-fog-low": 0.025,
+     "crop-blackout-fog-arch": 0.035
+    }
    },
    "context": [
     "study-environment",
@@ -3896,17 +3913,20 @@
     "crop-light-shaft-flow-ribbon"
    ],
    "owner": "artfx",
-   "score_min": 0.5,
-   "detail_min": 0.079,
+   "score_min": 0.468,
+   "detail_min": 0.296,
    "calibration": {
-    "method": "no team image: leave-one-out and detail on the element's own references under pipeline/art/reference/ (quality bar included) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
     "margin": 0.02,
     "measured": "2026-11-13",
-    "loo": {},
-    "detail": {
-     "bar-other-realm": 0.099
+    "loo": {
+     "crop-light-shaft-umbrella-glow": 0.488,
+     "crop-light-shaft-flow-ribbon": 0.488
     },
-    "note": "one image and nothing to compare it with: score_min not measurable (kept)"
+    "detail": {
+     "crop-light-shaft-umbrella-glow": 0.316,
+     "crop-light-shaft-flow-ribbon": 0.418
+    }
    },
    "context": [
     "study-environment",
@@ -3920,17 +3940,20 @@
     "crop-umbra-fog-arch"
    ],
    "owner": "artfx",
-   "score_min": 0.5,
-   "detail_min": 0.079,
+   "score_min": 0.873,
+   "detail_min": 0.005,
    "calibration": {
-    "method": "no team image: leave-one-out and detail on the element's own references under pipeline/art/reference/ (quality bar included) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
     "margin": 0.02,
     "measured": "2026-11-13",
-    "loo": {},
-    "detail": {
-     "bar-other-realm": 0.099
+    "loo": {
+     "crop-umbra-fog-low": 0.893,
+     "crop-umbra-fog-arch": 0.893
     },
-    "note": "one image and nothing to compare it with: score_min not measurable (kept)"
+    "detail": {
+     "crop-umbra-fog-low": 0.025,
+     "crop-umbra-fog-arch": 0.035
+    }
    },
    "context": [
     "study-environment",
@@ -3944,17 +3967,19 @@
     "crop-light-spill-gold-shot-a"
    ],
    "owner": "artfx",
-   "score_min": 0.334,
-   "detail_min": 0.077,
+   "score_min": 0.348,
+   "detail_min": 0.296,
    "calibration": {
-    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
     "margin": 0.02,
     "measured": "2026-11-13",
     "loo": {
-     "wand-star": 0.354
+     "crop-light-spill-umbrella-glow": 0.368,
+     "crop-light-spill-gold-shot-a": 0.368
     },
     "detail": {
-     "wand-star": 0.097
+     "crop-light-spill-umbrella-glow": 0.316,
+     "crop-light-spill-gold-shot-a": 0.528
     }
    },
    "context": [
