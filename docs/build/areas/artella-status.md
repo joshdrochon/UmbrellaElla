@@ -182,3 +182,6 @@ Merged main + artslots (clean). Another artella session (pid 69829) is already r
 Merged main (screenfix in). Checks: ella-up-open art_ref_check PASS 0.728, ella-attack PASS 0.649 (art_check up-open PASS). Panel not run: no `context` pair.
 `RUN_RES=1280x720 run_game.sh -SmokeShot=<abs> -SmokeShotFrames=60 -SmokeQuitAfter=300` waited for a slot, then wrote a 640x360 shot of "Preparing Shaders (3)" on black, no Ella
 (frame 60 is before shaders finish at load ~60). Discarded. Verdict: ours/env (load), not the art. Next: retry with a larger -SmokeShotFrames (e.g. 600) when load drops.
+
+## Round 24 (Nov 13 late): merged main, capture still queued
+Merged main (artslots had nothing new). Two earlier up-open capture launches (pids 85916, 88232, from 1:15 AM) are still waiting on ue_slot; no shot file yet. Load ~29. No paint, no panel, no spend (15.08 of 33.82). Verdict: env (slot queue), not the art. Next: when the shot lands, run the up-open panel; then shield R3 and closed R3.
