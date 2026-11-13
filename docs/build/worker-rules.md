@@ -145,3 +145,9 @@ run `TEST_FILTER=UmbrellaElla.<YourArea> tools/build/ue_slot.sh tools/ue/test.sh
 ## Contract changes
 If a Core contract blocks you, do not edit it. Write the request (file, exact change, why) in
 `docs/build/requests/<area>.md`, commit, and continue with a local workaround. The build lead applies it on main.
+
+## Pre-check before every commit you want gated (Nov 13)
+Run it from your own worktree, in the background (your commands stop at 10 min):
+`bash tools/build/lane_precheck.sh <your-lane> --bg`, then poll `../logs/precheck-<your-lane>.result` until its first
+line starts with `PRECHECK` (`RUNNING <time>` means it is still going). Fix every line under `PRECHECK FAIL` and
+run it again; only a `PRECHECK PASS` tip is worth gating. `PRECHECK_FAST=1` skips the Python tests.
