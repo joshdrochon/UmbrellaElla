@@ -28,16 +28,21 @@ def run(args):
     return p.returncode, (p.stdout + p.stderr).splitlines()
 
 
-def fails(lines):
+FAIL_LINE = r"\s*(FAIL|\[FAIL\]|ERROR)"
+# tools/pipeline_check.py prints each problem as `[<kind>] <where>: <what>`, never FAIL (ported from the pipeline, 1ef10dc)
+FAIL_LINES = {"pipeline_check": r"\[[a-z][\w-]*\] "}
+
+
+def fails(lines, pattern=FAIL_LINE):
     # Line numbers are dropped so a fail that only moved (an include added above it) is not "new".
-    return {re.sub(r":\d+(:\d+)?\b", "", l.strip()) for l in lines if re.match(r"\s*(FAIL|\[FAIL\]|ERROR)", l)}
+    return {re.sub(r":\d+(:\d+)?\b", "", l.strip()) for l in lines if re.match(pattern, l)}
 
 
 def blocking_lines():
     out = {}
     for name, args in BLOCKING.items():
         _, lines = run(args)
-        out[name] = fails(lines)
+        out[name] = fails(lines, FAIL_LINES.get(name, FAIL_LINE))
     return out
 
 
