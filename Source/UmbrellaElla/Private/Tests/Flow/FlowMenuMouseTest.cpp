@@ -38,12 +38,12 @@ namespace FlowMenuMouseTest
 		TArray<FFlowMenuItem> Items;
 		for (int32 Index = 0; Index < Case.Labels.Num(); ++Index)
 		{
-			Items.Add({ Case.Labels[Index], FSimpleDelegate::CreateLambda([&Chosen, Index]() { Chosen = Index; }) });
+			Items.Add({ Case.Labels[Index], FSimpleDelegate::CreateLambda([ChosenOut = &Chosen, Index]() { *ChosenOut = Index; }) });
 		}
 		FSimpleDelegate Back;
 		if (Case.bHasBack)
 		{
-			Back = FSimpleDelegate::CreateLambda([&bBack]() { bBack = true; });
+			Back = FSimpleDelegate::CreateLambda([BackOut = &bBack]() { *BackOut = true; });
 		}
 		return SNew(SFlowMenu).Tuning(GetDefault<UUmbrellaTuning>()->Flow).Heading(FText::FromString(TEXT("Paused"))).Items(Items).OnBack(Back);
 	}

@@ -23,9 +23,9 @@ namespace
 
 	/** The control hint: small, dim, set in from the bottom-right corner, Confirm then Back with a gap between. */
 	constexpr int32 PromptTextSize = UmbrellaUI::MinTextSize + 2;
-	constexpr float PromptInsetX = 64.0f;
-	constexpr float PromptInsetY = 44.0f;
-	constexpr float PromptGap = 40.0f;
+	constexpr float PromptInsetX = UmbrellaUI::PromptInsetX;
+	constexpr float PromptInsetY = UmbrellaUI::PromptInsetY;
+	constexpr float PromptGap = UmbrellaUI::PromptGap;
 
 	TWeakPtr<SFlowMenu> LastOpenedMenu;
 }
@@ -193,7 +193,7 @@ void SFlowMenu::Construct(const FArguments& InArgs)
 			.OnClicked_Lambda([this, Index]()
 			{
 				SelectedIndex = Index;
-				ChooseSelected();
+				ConfirmSelection();
 				return FReply::Handled();
 			});
 		Button->SetOnHovered(FSimpleDelegate::CreateSP(this, &SFlowMenu::HandleHovered, Index));
@@ -273,15 +273,20 @@ void SFlowMenu::SelectItem(int32 Index)
 	}
 }
 
-bool SFlowMenu::ChooseSelected()
+bool SFlowMenu::CanConfirmSelection() const
 {
-	if (!Choices.IsValidIndex(SelectedIndex))
+	return Choices.IsValidIndex(SelectedIndex) && Choices[SelectedIndex].IsBound();
+}
+
+void SFlowMenu::ConfirmSelection()
+{
+	if (!CanConfirmSelection())
 	{
-		return false;
+		return;
 	}
 	// Copy first: the action usually closes this menu, which destroys the array.
 	const FSimpleDelegate Chosen = Choices[SelectedIndex];
-	return Chosen.ExecuteIfBound();
+	Chosen.ExecuteIfBound();
 }
 
 void SFlowMenu::MoveSelection(int32 Step)
@@ -375,7 +380,12 @@ FReply SFlowMenu::OnKeyDown(const FGeometry& MyGeometry, const FKeyEvent& InKeyE
 	// Confirm reaching the menu itself (no row held focus): choose the selected row, as the mark shows.
 	if (Intent == EFlowMenuIntent::Confirm && !InKeyEvent.IsRepeat())
 	{
-		return ChooseSelected() ? FReply::Handled() : FReply::Unhandled();
+		if (!CanConfirmSelection())
+		{
+			return FReply::Unhandled();
+		}
+		ConfirmSelection();
+		return FReply::Handled();
 	}
 	const bool bWasdKey = Key == EKeys::W || Key == EKeys::A || Key == EKeys::S || Key == EKeys::D;
 	// Up and Down move the selection here, not through Slate's focus walk, so they work whatever holds focus.

@@ -91,7 +91,8 @@ public:
 	void SelectItem(int32 Index);
 
 	/** Run the selected row's action, as Confirm or a click does. False when there is nothing to choose. */
-	bool ChooseSelected();
+	bool CanConfirmSelection() const;   // a valid, bound option is selected
+	void ConfirmSelection();   // runs the selected option's action
 
 	/** True while the hint shows the pad wording (the last key came from a pad). */
 	bool IsShowingGamepadPrompts() const { return bGamepadPrompts; }
