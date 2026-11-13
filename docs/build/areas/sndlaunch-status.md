@@ -22,5 +22,12 @@ critic reads as even gear ticks, and the brief does not say the piece is the lau
 launch + travel + fade in one file. A redrawn packet with the event named got a judged, concrete verdict (still fail,
 one gap); the official packet then asked for the opposite. Bar not loosened; nothing in tools/ changed by me.
 
+## Nov 12 late: takes for all 16 ids on disk
+All 16 ids have 1 to 3 takes in Audio/Source/<Id>/ with recipe.json, provenance rows (origin `placeholder: audio critic fail
+(critic not yet run)`), `audio_style_check` PASS and `audio_check --scan` clean for these ids (FloodShot, RearCastLaunch,
+WardenShot got a 30 ms end fade for the end-click check; the cached-layer regen needs the key shell, not run).
+Critic ran for ClockBeatRepeat, GustRelease, NeedleFire, StreamLoop/Release/Start, TwinStarsFire (packets in Saved/AudioLoop/SNDLAUNCH);
+not recorded as passes here. Not done: critic for the rest, Unreal import (request 3). Blocked on: request 1 for owl_attack/enemy ids.
+
 ## Left
 The other 15 ids; Unreal import (request 3: the import script has a fixed cue table).
