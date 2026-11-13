@@ -44,12 +44,12 @@ def run(cmd):
         raise ValueError("ffmpeg failed: " + r.stderr[-400:])
 
 
-def extract(video, out_dir, fps, height, trim_start=0.0):
+def extract(video, out_dir, fps, height, trim_start=0.0, crop=None):
     os.makedirs(out_dir, exist_ok=True)
     for old in glob.glob(os.path.join(out_dir, "raw_*.png")):
         os.remove(old)
     run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-ss", str(trim_start), "-i", video,
-         "-vf", f"fps={fps},scale=-2:{height}:flags=lanczos", os.path.join(out_dir, "raw_%03d.png")])
+         "-vf", f"fps={fps},scale=-2:{height}:flags=lanczos" + (f",crop={crop}" if crop else ""), os.path.join(out_dir, "raw_%03d.png")])
     return sorted(glob.glob(os.path.join(out_dir, "raw_*.png")))
 
 
@@ -184,7 +184,25 @@ def strip_rows(frames):
     return w * len(frames), h, rows
 
 
-def write_set(out_dir, stem, frames, idx, fps, anchor, extra):
+def grid_rows(frames, cols):
+    """Sheet of frames left to right, then top to bottom (the order sprite_check cuts), cols per row."""
+    w, h = frames[0][0], frames[0][1]
+    nrows = -(-len(frames) // cols)
+    rows = []
+    for r in range(nrows):
+        for y in range(h):
+            row = []
+            for c in range(cols):
+                i = r * cols + c
+                if i < len(frames):
+                    row.extend(frames[i][2][y])
+                else:
+                    row.extend([(0, 0, 0, 0)] * w)
+            rows.append(row)
+    return w * cols, h * nrows, rows
+
+
+def write_set(out_dir, stem, frames, idx, fps, anchor, extra, cols=0):
     picked = [frames[i] for i in idx]
     names = []
     for i, f in enumerate(picked):
@@ -200,6 +218,19 @@ def write_set(out_dir, stem, frames, idx, fps, anchor, extra):
     with open(os.path.join(out_dir, f"{stem}.frames.json"), "w", encoding="utf-8") as fh:
         json.dump(side, fh, indent=1)
         fh.write("\n")
+    with open(os.path.splitext(strip)[0] + ".sprite.json", "w", encoding="utf-8") as fh:   # what tools/art_loop.py reads
+        json.dump({"frames": len(picked), "grid": [picked[0][0], picked[0][1]], "fps": side["fps"], "loop": True,
+                   "pivot": "bottom-centre"}, fh, indent=1)
+        fh.write("\n")
+    if cols:
+        gw, gh, grows = grid_rows(picked, cols)
+        grid = os.path.join(out_dir, f"{stem}_grid.png")
+        png.write_png(grid, gw, gh, grows)
+        with open(os.path.splitext(grid)[0] + ".sprite.json", "w", encoding="utf-8") as fh:
+            json.dump({"kind": "silhouette", "frames": len(picked), "grid": [picked[0][0], picked[0][1]], "fps": side["fps"],
+                       "loop": True, "pivot": "bottom-centre"}, fh, indent=1)
+            fh.write("\n")
+        side["grid_sheet"] = grid
     return names, strip, side
 
 
@@ -221,19 +252,27 @@ def gif(frames_dir, stem, count, fps, out, paper=None):
         ["-filter_complex", fc, "-map", "[o]", "-frames:v", str(count), "-loop", "0", out])
 
 
-def convert(video, out_dir, stem, counts, fps, height, trim_start=0.0, paper=None, key_fn=None):
+def convert(video, out_dir, stem, counts, fps, height, trim_start=0.0, paper=None, crop=None, keyed=None, cols=0):
     ag = _assetgen()
     os.makedirs(out_dir, exist_ok=True)
-    raws = extract(video, os.path.join(out_dir, "raw"), fps, height, trim_start)
-    if len(raws) < 4:
-        raise ValueError(f"only {len(raws)} frames at {fps} fps; need at least 4")
-    keyed_dir = os.path.join(out_dir, "keyed")
-    os.makedirs(keyed_dir, exist_ok=True)
-    frames, key_stats = [], []
-    for i, r in enumerate(raws):
-        k = os.path.join(keyed_dir, "keyed_%03d.png" % i)
-        key_stats.append(ag.chroma_key(r, k))
-        frames.append(png.read_png(k))
+    key_stats = []
+    if keyed:
+        names_k = sorted(f for f in os.listdir(keyed) if f.startswith("keyed_") and f.endswith(".png"))
+        if len(names_k) < 4:
+            raise ValueError(f"only {len(names_k)} keyed frames in {keyed}")
+        frames = [png.read_png(os.path.join(keyed, f)) for f in names_k]
+        key_stats = [{"green_inside_px": 0}]
+    else:
+        raws = extract(video, os.path.join(out_dir, "raw"), fps, height, trim_start, crop)
+        if len(raws) < 4:
+            raise ValueError(f"only {len(raws)} frames at {fps} fps; need at least 4")
+        keyed_dir = os.path.join(out_dir, "keyed")
+        os.makedirs(keyed_dir, exist_ok=True)
+        frames = []
+        for i, r in enumerate(raws):
+            k = os.path.join(keyed_dir, "keyed_%03d.png" % i)
+            key_stats.append(ag.chroma_key(r, k))
+            frames.append(png.read_png(k))
     reg, before, after, anchor = register(frames)
     e, ends = loop_window(reg)
     result = {"video": video, "fps": fps, "source_frames": len(reg), "loop_end": e, "end_candidates": ends,
@@ -244,7 +283,7 @@ def convert(video, out_dir, stem, counts, fps, height, trim_start=0.0, paper=Non
         lp = loop_report(reg, idx)
         out_stem = f"{stem}_N{n}"
         names, strip, side = write_set(out_dir, out_stem, reg, idx, round(n / ((e + 1) / fps), 2), anchor,
-                                       {"loop": lp, "jitter_before": before, "jitter_after": after, "source": video})
+                                       {"loop": lp, "jitter_before": before, "jitter_after": after, "source": video}, cols)
         g = os.path.join(out_dir, f"{out_stem}_preview.gif")
         gif(out_dir, out_stem, n, side["fps"], g, paper)
         result["sets"][str(n)] = {"strip": strip, "gif": g, "loop": lp, "fps": side["fps"]}
@@ -264,9 +303,13 @@ def main(argv=None):
     ap.add_argument("--height", type=int, default=540)
     ap.add_argument("--trim-start", type=float, default=0.0)
     ap.add_argument("--paper")
+    ap.add_argument("--keyed", help="reuse already keyed frames (keyed_NNN.png) from this dir; skips ffmpeg and keying")
+    ap.add_argument("--crop", help="ffmpeg crop w:h:x:y after scaling (pure-Python keying is slow: crop to the figure)")
+    ap.add_argument("--grid-cols", type=int, default=0,
+                    help="also write <stem>_N<n>_grid.png (+ .sprite.json), this many cells per row; use when a strip passes 8192 px")
     a = ap.parse_args(argv)
     try:
-        r = convert(a.video, a.out, a.stem, a.counts, a.fps, a.height, a.trim_start, a.paper)
+        r = convert(a.video, a.out, a.stem, a.counts, a.fps, a.height, a.trim_start, a.paper, a.crop, a.keyed, a.grid_cols)
     except (ValueError, subprocess.CalledProcessError) as e:
         print(f"FAIL: video_to_strip: {e}")
         return 1
