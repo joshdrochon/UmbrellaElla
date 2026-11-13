@@ -11,3 +11,10 @@ Critic sanity: the calibration pairs in every folder behaved (SAME pair -> SAME,
 
 Result: owl does NOT pass the blind panel. It stays the tracked `_PH` placeholder; nothing shipped, no provenance row, no Content import. The new Blender builder and renders are committed under the lane as work in progress.
 Stuck rule: critic gap unchanged 3 rounds (deterministic score best 0.716): NEEDS HUMAN: Art Director / Josh. Next step that could move it: a painted-texture pass (hand-authored etching/grain image textures or a compositor hatch layer) rather than more geometry.
+
+## Gemini rollout, round 1 (Nov 13)
+- Merged main. Prompt for a 4-pose flap grid written and reviewed by a fresh session: Art/Source/Keeper/Paint/R1/{prompt.md,prompt-review.md,final_prompt.txt}. Review applied: 2x2 grid at 16:9 (a 21:9 row makes the owl too small), one hand on the clock, mechanism eyes and left/right anchors, palette hexes, no-patina bronze.
+- Input is our Blender render Owl_Flap_00.png; added provenance rows for Owl_Flap_00-05 so assetgen accepts it as an in-jam input.
+- BLOCKED: no paid call made. GEMINI_API_KEY is not set in this shell (tools/keys.py status), and worker rules forbid reading ~/.umbrella-ella.env. Spend so far by us: 0.
+- To continue: run from a shell that has the key: python3 tools/assetgen.py image --provider gemini --aspect 16:9 --image-size 2K --input Art/Source/Keeper/Raw/Owl_Flap/Owl_Flap_00.png --out pipeline/art/proof/ImageProof/Keeper_R1/keeper_grid.png --prompt "$(cat Art/Source/Keeper/Paint/R1/final_prompt.txt)"; then cut the 2x2 cells, key green, run art_check/art_ref_check, blind panel.
+- Open for Josh: GDD says each mechanism's chain runs to the head's top eye; the prompt leaves that route out.
