@@ -68,3 +68,16 @@ B2 cause (Nov 13): NOT the scene panels. ART_05 off (all USceneArtSubsystem pane
   gameplay) and WorldArtSubsystem; stand-ins 341e49c8 gave those slots `_PH` textures, so the panels now draw
   (before, no texture = no panel). scene:gameplay-frame has no texture yet, so it does not draw.
 - Next: build main 21f35a27, capture at 1600x900 visible window and 1280x720, then bisect 341e49c8 / 953ffb4f.
+
+## B2 fix (Nov 13, Opus) - done
+- Cause: screen:Playing stand-in T_Screen_Playing_PH was a screenshot of a black frame; UUiArtSubsystem::ShowScreenArt drew it full-screen, opaque, over gameplay. Same for Resuming.
+- Fix (897f3468): screen:Playing and screen:Resuming stand-ins removed (standins.json entries, _PH textures, art-inventory paths); `ShowScreenArt` draws nothing on Playing, Resuming or Tutorial whatever texture is assigned (`UUiArtSubsystem::IsScreenArtAllowedOn`, `UmbrellaUiPieceConst::GameplayScreens`).
+- Test `UmbrellaElla.ScreenFix.World.NoScreenArtOverGameplay`: every gameplay screen shows no art, every menu screen does.
+- Header: commit=a7d2a8e3 engine=5.8.4 config=Development host=mac run=Standalone (editor -game)
+- Build: `build exit: 0  mode=unity  commit=a7d2a8e3...  warnings: 0` (../logs/screenfix-b2fix-build2.log)
+- Break-check: block removed -> `FAIL tests=4 failed=1 ... UmbrellaElla.ScreenFix.World.NoScreenArtOverGameplay` ("Expected 'screen:Playing never covers the played world' to be false", same for Resuming, Tutorial); restored -> pass (../logs/screenfix-b2break-test.log).
+- Tests: `UmbrellaElla.ScreenFix+UmbrellaElla.Feedback+UmbrellaElla.Smoke` `PASS tests=62 failed=0` (../logs/screenfix-b2fix-test2.log).
+- Capture: visible 640x360 window, `-SmokeQuitAfter=20 -SmokeShotFrames=120`: `pipeline/art/proof/screenfix/b2-fixed-windowed.png`.
+  `SMOKE_SHOT at_s=1.4 frames=120 w=640 h=360`; `SMOKE_VIEW map=L_Graybox ... ella_px=128,66 ella_in_frame=1 arena_px=320,180 arena_in_frame=1`;
+  `frame_check: PASS black=0.089 flat=0.088`. Before (b2-main-windowed.png): `frame_check: FAIL black=0.984 flat=0.984`.
+- Seen in the capture, not in this fix: a cream panel with a lilac square at the right of the frame (a stand-in, not black, not full-screen).
