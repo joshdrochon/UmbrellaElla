@@ -161,3 +161,10 @@ The Round 14 capture showed "Preparing Shaders" on black. No paint spend (counte
 
 ## Round 20 (Nov 13 late): merged main and artslots, nothing new; still blocked on request #3
 `SmokeHookSubsystem.cpp:132` still a fixed 5 s delay, no command-line override. No paint spend (15.08 of 33.82). Stopped on request #3.
+
+## Round 21 (Nov 13 late): ini override for the shot delay works, capture window not found yet
+Main and artslots: nothing new. Found a workaround for request #3 with no code change: `UmbrellaTuning` is a config class, so
+`run_game.sh -SmokeShot=<abs> -SmokeQuitAfter=240 "-ini:Game:[/Script/UmbrellaElla.UmbrellaTuning]:Flow=(SmokeShotDelaySeconds=N)"` sets the delay.
+N=120: shot landed (640x360) but shows the Defeat screen (Ella died while waiting, no Ella visible). N=35: queued behind the 2-slot
+`ue_slot` (artslots, artenemy hold both), no log in the 30 min limit, no shot. Verdict: ours/env (load and slot wait), not the art.
+Next: retry N=35..60 when a slot is free; then up-open `context` pair. No paint spend (15.08 of 33.82). Note: macOS has no `timeout`.

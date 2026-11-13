@@ -25,3 +25,4 @@
 ## 3. Context capture fires before shaders are ready on a loaded machine (Nov 13 late)
 - Need (smoke/screenfix lane): make `-SmokeShot` frame-based or wait until shaders are done, or accept `-SmokeShotDelay=<s>` on the command line. Today it is a fixed 5 s (`SmokeHookSubsystem.cpp:132`) and the only capture made showed "Preparing Shaders" on black.
 - Until then no Ella piece can get a `context` pair. Waiting on it: import up-open as T_Ella_Idle_PH (already done), capture, finish panel; paint shield R3 and closed R3.
+- Round 21: workaround exists (`-ini:Game:[/Script/UmbrellaElla.UmbrellaTuning]:Flow=(SmokeShotDelaySeconds=N)`), but N=120 hits Defeat (Ella dies) and N=35 waits on slots. A frame-based shot (after first gameplay frame + shaders ready) is still the fix.
