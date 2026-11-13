@@ -309,15 +309,42 @@ def near_copy(src, root):
     return out
 
 
+# Critic packets show images on a plain paper ground (Nov 12 critic-defect fix): a transparent sprite was shown over black,
+# so its ink mass vanished and only the outline read, while the references are opaque on paper. Every image, ours and the
+# reference alike, is flattened onto the same ground, so neither side gains from it.
+PACKET_GROUND = (238, 229, 210)
+
+
+def flatten_on_ground(src):
+    """A copy of src composited over PACKET_GROUND when it has any transparency, else src itself (cached by content)."""
+    import tempfile
+    from png import read_png, write_png
+    w, h, rows = read_png(src)
+    if all(px[3] == 255 for row in rows for px in row):
+        return src
+    cache = os.path.join(tempfile.gettempdir(), "art-loop-cache")
+    os.makedirs(cache, exist_ok=True)
+    out = os.path.join(cache, "ground-" + content_sha(src)[:16] + ".png")
+    if not os.path.isfile(out):
+        g = PACKET_GROUND
+        flat = [[tuple((c * a + gc * (255 - a)) // 255 for c, gc in zip(px[:3], g)) + (255,) for px in row
+                 for a in (px[3],)] for row in rows]
+        write_png(out, w, h, flat)
+    return out
+
+
 def _pair(folder, mine, other, rnd, frame_src=None, frame=None):
     os.makedirs(folder)
     mine_x = rnd.random() < 0.5
     a, b = (os.path.join(folder, "X.png"), os.path.join(folder, "Y.png"))
     if frame_src is not None:
-        frame_of(frame_src, frame, a if mine_x else b)
+        cell = (a if mine_x else b) + ".cell.png"
+        frame_of(frame_src, frame, cell)
+        shutil.copy(flatten_on_ground(cell), a if mine_x else b)
+        os.remove(cell)
     else:
-        shutil.copy(mine, a if mine_x else b)
-    shutil.copy(other, b if mine_x else a)
+        shutil.copy(flatten_on_ground(mine), a if mine_x else b)
+    shutil.copy(flatten_on_ground(other), b if mine_x else a)
     return "X" if mine_x else "Y"
 
 
