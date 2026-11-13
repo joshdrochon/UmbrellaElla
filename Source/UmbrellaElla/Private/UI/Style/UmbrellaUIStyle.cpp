@@ -35,7 +35,14 @@ namespace
 {
 	UUmbrellaUIStyleAssets* UmbrellaUIAssets()
 	{
-		return GetMutableDefault<UUmbrellaUIStyleAssets>();
+		// Own rooted instance (the class default stays read-only); its constructor finds the same textures.
+		static UUmbrellaUIStyleAssets* Instance = nullptr;
+		if (Instance == nullptr)
+		{
+			Instance = NewObject<UUmbrellaUIStyleAssets>(GetTransientPackage(), TEXT("UmbrellaUIStyleAssetsInstance"), RF_Transient);
+			Instance->AddToRoot();
+		}
+		return Instance;
 	}
 
 	FUmbrellaUIStyleData& UmbrellaUIStyleData()

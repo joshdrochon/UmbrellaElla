@@ -1892,7 +1892,8 @@
      "SFlowTextScreen"
     ],
     "screens": [
-     "EFlowScreen::Credits"
+     "EFlowScreen::Credits",
+     "EFlowScreen::Statistics"
     ]
    },
    "calibration": {

@@ -3,7 +3,7 @@ numpy inside Blender's Python (D-new-art-blender: Blender only; no outside image
 
   /Applications/Blender.app/Contents/MacOS/Blender -b --python Art/Source/UI/Ground/build_ground.py -- [--out DIR] [--only ground|clock]
   (Windows/Linux: the same with your Blender 5.2 binary.)
-Writes Art/Source/UI/Ground/T_UI_Ground_PH.png (1920x1080) and T_UI_ClockFace_PH.png (512x512, transparent).
+Writes Art/Source/UI/Ground/Raw/T_UI_Ground_PH.png (1920x1080) and T_UI_ClockFace_PH.png (512x512, transparent).
 Layout follows the title-screen reference (references.json `title-screen`): a dark left third for the title lockup and
 the menu, a clock arc top-left, floating islands and far ruins in mist on the right, a lit cottage and windmill on
 the near island, ash-blue wind ribbons, gold embers. Fixed seed: the same bytes every run.
@@ -583,7 +583,7 @@ def write_png(path, rgb, alpha=None):
 
 
 def main(argv):
-    out = HERE
+    out = os.path.join(HERE, "Raw")
     only = None
     if "--out" in argv:
         out = argv[argv.index("--out") + 1]

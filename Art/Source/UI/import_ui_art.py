@@ -1,4 +1,4 @@
-"""Import the UI art as textures (rebuildable). Sources: Art/Source/UI/Ground/*.png (build_ground.py).
+"""Import the UI art as textures (rebuildable). Sources: Art/Source/UI/Ground/Raw/*.png (build_ground.py).
 Run: UnrealEditor-Cmd UmbrellaElla.uproject -run=pythonscript -script=Art/Source/UI/import_ui_art.py -unattended -nullrhi -nosplash -nocrashreports
 Destination /Game/UmbrellaElla/UI. `_PH`: tracked placeholders until the art loop passes them (docs/build/worker-rules.md)."""
 import os
@@ -10,7 +10,7 @@ NAMES = ["T_UI_Ground_PH", "T_UI_ClockFace_PH"]
 
 tasks = []
 for name in NAMES:
-    src = os.path.join(ROOT, "Art", "Source", "UI", "Ground", name + ".png")
+    src = os.path.join(ROOT, "Art", "Source", "UI", "Ground", "Raw", name + ".png")
     if not os.path.isfile(src):
         unreal.log_warning("import_ui_art: missing %s" % src)
         continue
