@@ -1,0 +1,81 @@
+{
+ "video": "pipeline/art/proof/videoframes/ella-down/ella-down.mp4",
+ "fps": 12,
+ "source_frames": 48,
+ "loop_end": 47,
+ "end_candidates": {
+  "28": 89.65,
+  "29": 89.81,
+  "30": 90.05,
+  "31": 89.74,
+  "32": 89.66,
+  "33": 89.71,
+  "34": 89.7,
+  "35": 89.37,
+  "36": 88.75,
+  "37": 88.43,
+  "38": 87.91,
+  "39": 87.5,
+  "40": 87.05,
+  "41": 86.82,
+  "42": 86.92,
+  "43": 86.33,
+  "44": 85.66,
+  "45": 85.12,
+  "46": 84.78,
+  "47": 84.22
+ },
+ "jitter_before": {
+  "max_anchor_step_px": 18.45,
+  "max_height_step_pct": 7.45,
+  "max_anchor_from_first_px": 17.71,
+  "height_range_pct": 36.8
+ },
+ "jitter_after": {
+  "max_anchor_step_px": 0.85,
+  "max_height_step_pct": 7.45,
+  "max_anchor_from_first_px": 0.49,
+  "height_range_pct": 36.8
+ },
+ "green_inside_px_max": 1,
+ "sets": {
+  "24": {
+   "strip": "pipeline/art/proof/videoframes/ella-down/ella-down_N24_strip.png",
+   "gif": "pipeline/art/proof/videoframes/ella-down/ella-down_N24_preview.gif",
+   "loop": {
+    "indices": [
+     0,
+     2,
+     4,
+     6,
+     8,
+     10,
+     12,
+     14,
+     16,
+     18,
+     20,
+     22,
+     24,
+     26,
+     28,
+     30,
+     32,
+     34,
+     36,
+     38,
+     40,
+     42,
+     44,
+     46
+    ],
+    "mean_step": 31.01,
+    "max_step": 70.22,
+    "last_to_first": 84.78,
+    "loop_ratio": 2.73,
+    "loops": true
+   },
+   "fps": 6.0
+  }
+ }
+}
