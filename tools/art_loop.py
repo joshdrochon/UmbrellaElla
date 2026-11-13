@@ -313,10 +313,23 @@ def near_copy(src, root):
 # so its ink mass vanished and only the outline read, while the references are opaque on paper. Every image, ours and the
 # reference alike, is flattened onto the same ground, so neither side gains from it.
 PACKET_GROUND = (238, 229, 210)
+# The game draws sprites on this paper tile (artshots, Nov 12: on a flat colour critics named a "flat, untextured ground"
+# in most losses; on the tile nobody does). The flat colour stays only as the fallback when the tile is missing.
+PAPER_TILE = "pipeline/art/reference/Test_Assets/SKY_StarPaper_Tile.png"
+_PAPER = []
+
+
+def packet_paper():
+    """(w, h, rows) of the game's paper tile, or None when it is missing (read once)."""
+    if not _PAPER:
+        from png import read_png
+        p = os.path.join(ROOT, PAPER_TILE)
+        _PAPER.append(read_png(p) if os.path.isfile(p) else None)
+    return _PAPER[0]
 
 
 def flatten_on_ground(src):
-    """A copy of src composited over PACKET_GROUND when it has any transparency, else src itself (cached by content)."""
+    """A copy of src composited over the game's paper tile when it has any transparency, else src itself (cached by content)."""
     import tempfile
     from png import read_png, write_png
     w, h, rows = read_png(src)
@@ -324,11 +337,15 @@ def flatten_on_ground(src):
         return src
     cache = os.path.join(tempfile.gettempdir(), "art-loop-cache")
     os.makedirs(cache, exist_ok=True)
-    out = os.path.join(cache, "ground-" + content_sha(src)[:16] + ".png")
+    out = os.path.join(cache, "paper-" + content_sha(src)[:16] + ".png")
     if not os.path.isfile(out):
-        g = PACKET_GROUND
-        flat = [[tuple((c * a + gc * (255 - a)) // 255 for c, gc in zip(px[:3], g)) + (255,) for px in row
-                 for a in (px[3],)] for row in rows]
+        paper = packet_paper()
+        if paper is None:
+            pw, ph, prow = 1, 1, [[PACKET_GROUND + (255,)]]
+        else:
+            pw, ph, prow = paper
+        flat = [[tuple((c * px[3] + gc * (255 - px[3])) // 255 for c, gc in zip(px[:3], prow[y % ph][x % pw]))
+                 + (255,) for x, px in enumerate(row)] for y, row in enumerate(rows)]
         write_png(out, w, h, flat)
     return out
 
