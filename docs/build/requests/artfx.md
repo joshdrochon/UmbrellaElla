@@ -44,3 +44,9 @@ Until these land no `vfx-*` piece can pass; more paint would only add `_PH` cand
 
 ## 6. (withdrawn) `artfx` in `cards` of the 19 refs
 Allowed by `docs/build/art-image-model.md` "Shared references" on main (additions only, in-lane). Edit restored; no lead action.
+
+## 7. Quality bar image for effect pieces (check defect candidate, Nov 13)
+Gold impact round 7 (counted, calibration 8/9): reference pair ours, quality-bar and context pairs go to the other image.
+The quality-bar image the panel uses for `vfx-*` pieces is a sundial-casters picture, not a burst, so the pair compares a
+small effect sprite to a full illustration. Needed: confirm which bar image applies to effect pieces (or add an effect bar
+image / bar crop), and a context reference that is a crop of the burst at game scale. Not loosened by me.

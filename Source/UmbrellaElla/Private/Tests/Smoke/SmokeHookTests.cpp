@@ -76,6 +76,21 @@ bool FSmokeShotReadiness::RunTest(const FString& Parameters)
 	return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FSmokeViewPixelInFrame, "UmbrellaElla.Smoke.ViewPixelInFrame",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+bool FSmokeViewPixelInFrame::RunTest(const FString& Parameters)
+{
+	const FVector2D SmokeViewSize(1280.0, 720.0);
+	TestTrue(TEXT("centre is in frame"), USmokeHookSubsystem::IsPixelInFrame(true, FVector2D(640.0, 360.0), SmokeViewSize));
+	TestTrue(TEXT("top-left corner is in frame"), USmokeHookSubsystem::IsPixelInFrame(true, FVector2D(0.0, 0.0), SmokeViewSize));
+	TestFalse(TEXT("right edge is outside"), USmokeHookSubsystem::IsPixelInFrame(true, FVector2D(1280.0, 10.0), SmokeViewSize));
+	TestFalse(TEXT("below the frame"), USmokeHookSubsystem::IsPixelInFrame(true, FVector2D(10.0, 900.0), SmokeViewSize));
+	TestFalse(TEXT("left of the frame"), USmokeHookSubsystem::IsPixelInFrame(true, FVector2D(-5.0, 10.0), SmokeViewSize));
+	TestFalse(TEXT("projection failed (behind the camera)"), USmokeHookSubsystem::IsPixelInFrame(false, FVector2D(640.0, 360.0), SmokeViewSize));
+	TestFalse(TEXT("no viewport"), USmokeHookSubsystem::IsPixelInFrame(true, FVector2D(0.0, 0.0), FVector2D::ZeroVector));
+	return true;
+}
+
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FSmokeShotPathAndSwitches, "UmbrellaElla.Smoke.ShotPathAndSceneSwitches",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
 bool FSmokeShotPathAndSwitches::RunTest(const FString& Parameters)

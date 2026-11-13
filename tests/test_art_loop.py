@@ -305,3 +305,19 @@ class PacketGroundFlattens(unittest.TestCase):
         _, _, rows = read_png(art_loop.flatten_on_ground(f))
         colours = {px for row in rows for px in row}
         self.assertGreater(len(colours), 1)
+
+
+class CalibrationGatesVotesNotRounds(unittest.TestCase):
+    """A session that missed a calibration pair is not counted and is redrawn; the round passes when every pair still
+    has PANEL calibrated, unanimous votes (Nov 13). Fewer than PANEL calibrated sessions still fails."""
+    def rec(self, passed, sessions, panel):
+        return {"verdict": "ours", "checks": True, "combos": ["reference:r", "quality_bar:q"], "missing": [],
+                "panel": panel, "calibration": {"passed": passed, "sessions": sessions},
+                "results": {c: "pass" for c in art_loop.CHECKS}}
+
+    def test_one_missed_session_redrawn_still_passes(self):
+        self.assertTrue(art_loop.panel_passed(self.rec(passed=9, sessions=10, panel=art_loop.PANEL)))
+
+    def test_too_few_calibrated_votes_fails(self):
+        self.assertFalse(art_loop.panel_passed(self.rec(passed=9, sessions=10, panel=art_loop.PANEL - 1)))
+        self.assertFalse(art_loop.panel_passed(self.rec(passed=0, sessions=4, panel=art_loop.PANEL)))

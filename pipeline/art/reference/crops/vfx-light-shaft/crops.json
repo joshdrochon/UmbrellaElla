@@ -1,0 +1,32 @@
+{
+ "element": "vfx-light-shaft",
+ "note": "crops of the effect cut from the concept sheets; originals untouched",
+ "crops": [
+  {
+   "file": "umbrella-glow.png",
+   "source": "pipeline/art/reference/discord/20261111-0318_Ricky_other-realm.png",
+   "box": [
+    380,
+    320,
+    600,
+    450
+   ],
+   "key": "dark",
+   "pieces": "all",
+   "opaque_px": 5632
+  },
+  {
+   "file": "flow-ribbon.png",
+   "source": "pipeline/art/reference/discord/20261111-0318_Ricky_other-realm.png",
+   "box": [
+    1000,
+    140,
+    1672,
+    260
+   ],
+   "key": "dark",
+   "pieces": "all",
+   "opaque_px": 10166
+  }
+ ]
+}

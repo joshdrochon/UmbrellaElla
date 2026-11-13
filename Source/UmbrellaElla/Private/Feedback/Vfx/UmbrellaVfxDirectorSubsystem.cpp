@@ -1,8 +1,12 @@
 #include "Feedback/Vfx/UmbrellaVfxDirectorSubsystem.h"
 #include "Attack/StreamBeamActor.h"
 #include "Components/PointLightComponent.h"
+#include "Core/UmbrellaDrawOrder.h"
 #include "Components/StaticMeshComponent.h"
 #include "Misc/App.h"
+#include "Engine/StaticMesh.h"
+#include "Engine/Texture.h"
+#include "Materials/MaterialInstanceDynamic.h"
 #include "Core/EllaCharacter.h"
 #include "Core/UmbrellaEvent.h"
 #include "Core/UmbrellaEventBus.h"
@@ -571,6 +575,33 @@ void UUmbrellaVfxDirectorSubsystem::StepEffects(float DeltaSeconds)
 }
 
 #if !UE_BUILD_SHIPPING
+void UUmbrellaVfxDirectorSubsystem::SpawnDemoBackdrop(const FVector& Around)
+{
+	UWorld* World = GetWorld();
+	UMaterialInterface* Material = LoadObject<UMaterialInterface>(nullptr, TEXT("/Game/UmbrellaElla/Materials/M_ArtSlot_Unlit.M_ArtSlot_Unlit"), nullptr, LOAD_NoWarn | LOAD_Quiet);
+	UStaticMesh* Plane = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Plane.Plane"), nullptr, LOAD_NoWarn | LOAD_Quiet);
+	UTexture* White = LoadObject<UTexture>(nullptr, TEXT("/Engine/EngineResources/WhiteSquareTexture.WhiteSquareTexture"), nullptr, LOAD_NoWarn | LOAD_Quiet);
+	if (!World || !Material || !Plane || !White)
+	{
+		DemoBackdrop = World ? World->SpawnActor<AActor>() : nullptr;   // nothing to draw; do not retry every step
+		return;
+	}
+	AActor* Actor = World->SpawnActor<AActor>(Around, FRotator::ZeroRotator);
+	UStaticMeshComponent* Mesh = NewObject<UStaticMeshComponent>(Actor, TEXT("DemoBackdrop"));
+	Mesh->SetStaticMesh(Plane);
+	Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Mesh->SetCastShadow(false);
+	UMaterialInstanceDynamic* Dynamic = UMaterialInstanceDynamic::Create(Material, Mesh);
+	Dynamic->SetTextureParameterValue(TEXT("Art"), White);
+	Dynamic->SetVectorParameterValue(TEXT("Tint"), UmbrellaVfxDirectorConst::DemoBackdropColour);
+	Mesh->SetMaterial(0, Dynamic);
+	Mesh->SetRelativeRotation(VfxSheetVisual::FacingCamera());
+	Mesh->SetRelativeScale3D(FVector(UmbrellaVfxDirectorConst::DemoBackdropWidth, UmbrellaVfxDirectorConst::DemoBackdropHeight, 1.0f) / VfxSheetVisual::ShapeEdge);
+	Actor->SetRootComponent(Mesh);
+	Mesh->RegisterComponent();
+	DemoBackdrop = Actor;
+}
+
 void UUmbrellaVfxDirectorSubsystem::StepDemo()
 {
 	if (DemoKey.IsNone())
@@ -587,6 +618,19 @@ void UUmbrellaVfxDirectorSubsystem::StepDemo()
 	if (DemoStartSeconds < 0.0)
 	{
 		DemoStartSeconds = Now;
+	}
+	if (!DemoBackdrop.IsValid())
+	{
+		// The capture is of the effect on paper: Ella's and the Keeper's dark stand-ins would be mistaken for it by the piece locator.
+		Player->SetActorHiddenInGame(true);
+		for (TActorIterator<AKeeperOfTime> It(GetWorld()); It; ++It)
+		{
+			It->SetActorHiddenInGame(true);
+		}
+		// Just behind the effect's own layer: the scene art (bg, arena) now draws at the depths the old backdrop used and would hide it.
+		const FVfxArtRow* DemoRow = VfxCatalog::Find(DemoKey);
+		const float DemoLayerY = DemoRow ? VfxCatalog::LayerY(DemoRow->Layer) : UmbrellaDrawOrder::VfxY;
+		SpawnDemoBackdrop(FVector(Player->GetActorLocation().X, DemoLayerY - UmbrellaVfxDirectorConst::DemoBackdropDepth, Player->GetActorLocation().Z));
 	}
 	const int32 LiveOfKey = GetLiveCount(DemoKey);
 	if (!bDemoShotTaken && Now - DemoStartSeconds >= UmbrellaVfxDirectorConst::DemoShotSeconds && LiveOfKey > 0)
@@ -787,7 +831,15 @@ void UUmbrellaVfxDirectorSubsystem::StepLive()
 			At = FVector(Target.X, At.Y, Target.Z);
 		}
 		Actor->SetActorLocation(At);
-		VfxSheetVisual::SetFrame(Cast<UStaticMeshComponent>(Actor->GetRootComponent()), VfxCatalog::FrameAt(*Effect.Row, Elapsed));
+		int32 ShownFrame = VfxCatalog::FrameAt(*Effect.Row, Elapsed);
+#if !UE_BUILD_SHIPPING
+		if (!DemoKey.IsNone() && Effect.Key == DemoKey)
+		{
+			// Art capture only: hold one frame so the shot never lands on a faded or empty one.
+			ShownFrame = FMath::Min(UmbrellaVfxDirectorConst::DemoHoldFrame, FMath::Max(Effect.Row->Frames - 1, 0));
+		}
+#endif
+		VfxSheetVisual::SetFrame(Cast<UStaticMeshComponent>(Actor->GetRootComponent()), ShownFrame);
 		// The light fades with the effect and leaves with it: surfaces return to their normal look.
 		const float Fade = VfxLightPolicy::FadeAt(*Effect.Row, Elapsed);
 		if (UPointLightComponent* Light = Effect.Light.Get())

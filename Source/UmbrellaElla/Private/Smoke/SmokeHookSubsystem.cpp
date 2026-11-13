@@ -32,6 +32,8 @@
 #include "ShaderCompiler.h"
 #include "ContentStreaming.h"
 #include "AssetCompilingManager.h"
+#include "EngineUtils.h"
+#include "Camera/PlayerCameraManager.h"
 
 #ifndef UMBRELLAELLA_BUILD_COMMIT
 #define UMBRELLAELLA_BUILD_COMMIT "unknown"
@@ -212,6 +214,38 @@ USmokeHookSubsystem::EInputStep USmokeHookSubsystem::NextInputStep(EInputStep St
 	}
 }
 
+bool USmokeHookSubsystem::IsPixelInFrame(bool bProjected, const FVector2D& Pixel, const FVector2D& ViewSize)
+{
+	return bProjected && ViewSize.X > 0.0 && ViewSize.Y > 0.0 && Pixel.X >= 0.0 && Pixel.Y >= 0.0 && Pixel.X < ViewSize.X && Pixel.Y < ViewSize.Y;
+}
+
+void USmokeHookSubsystem::LogShotView(AUmbrellaPlayerController* Flow) const
+{
+	UWorld* World = GetGameInstance() ? GetGameInstance()->GetWorld() : nullptr;
+	if (!Flow || !World)
+	{
+		UE_LOG(LogUmbrellaElla, Log, TEXT("SMOKE_VIEW controller=0"));
+		return;
+	}
+	int32 ViewW = 0;
+	int32 ViewH = 0;
+	Flow->GetViewportSize(ViewW, ViewH);
+	const FVector2D ViewSize(ViewW, ViewH);
+	const AActor* Target = Flow->GetViewTarget();
+	const FVector Cam = Flow->PlayerCameraManager ? Flow->PlayerCameraManager->GetCameraLocation() : FVector::ZeroVector;
+	const APawn* Pawn = Flow->GetPawn();
+	FVector2D EllaPx(-1.0, -1.0);
+	const bool bEllaProjected = Pawn && Flow->ProjectWorldLocationToScreen(Pawn->GetActorLocation(), EllaPx);
+	TActorIterator<AUmbrellaArena> ArenaIt(World);
+	const AUmbrellaArena* Arena = ArenaIt ? *ArenaIt : nullptr;
+	FVector2D ArenaPx(-1.0, -1.0);
+	const bool bArenaProjected = Arena && Flow->ProjectWorldLocationToScreen(Arena->LocalPoint(0.5f, 0.5f), ArenaPx);
+	UE_LOG(LogUmbrellaElla, Log, TEXT("SMOKE_VIEW map=%s view_target=%s cam=%s ella=%d ella_px=%.0f,%.0f ella_in_frame=%d arena=%d arena_px=%.0f,%.0f arena_in_frame=%d w=%d h=%d"),
+		*World->GetMapName(), Target ? *Target->GetName() : TEXT("none"), *Cam.ToCompactString(), Pawn ? 1 : 0, EllaPx.X, EllaPx.Y,
+		IsPixelInFrame(bEllaProjected, EllaPx, ViewSize) ? 1 : 0, Arena ? 1 : 0, ArenaPx.X, ArenaPx.Y,
+		IsPixelInFrame(bArenaProjected, ArenaPx, ViewSize) ? 1 : 0, ViewW, ViewH);
+}
+
 void USmokeHookSubsystem::Tick(float DeltaTime)
 {
 	AUmbrellaPlayerController* Flow = FindFlowController(GetGameInstance());
@@ -270,6 +304,7 @@ void USmokeHookSubsystem::Tick(float DeltaTime)
 		ShotRequestedAt = FApp::GetCurrentTime();
 		const FVector2D Size = GEngine && GEngine->GameViewport ? FVector2D(GEngine->GameViewport->Viewport->GetSizeXY()) : FVector2D::ZeroVector;
 		UE_LOG(LogUmbrellaElla, Log, TEXT("SMOKE_SHOT at_s=%.1f frames=%d w=%d h=%d"), Elapsed, FramesSinceReady, static_cast<int32>(Size.X), static_cast<int32>(Size.Y));
+		LogShotView(Flow);
 	}
 
 	if (bShotTaken && !bShotChecked && FApp::GetCurrentTime() - ShotRequestedAt >= ShotWriteWaitSeconds)

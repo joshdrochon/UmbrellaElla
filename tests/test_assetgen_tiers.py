@@ -52,7 +52,7 @@ FAL_STUB = textwrap.dedent('''
         with open(os.environ["HTTP_STUB_LOG"], "a") as fh:
             fh.write(json.dumps({{"url": url, "model": url.split("fal.run/")[1], "key_sent": {key!r} in json.dumps(headers),
                                  "inputs": 0}}) + "\\n")
-        data = base64.b64encode(base._png()).decode()
+        data = base64.b64encode(base.base._png()).decode()
         return json.dumps({{"images": [{{"url": "data:image/png;base64," + data}}]}}).encode()
 
     def get(url, headers):

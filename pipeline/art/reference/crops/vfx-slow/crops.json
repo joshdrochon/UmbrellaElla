@@ -1,0 +1,32 @@
+{
+ "element": "vfx-slow",
+ "note": "crops of the effect cut from the concept sheets; originals untouched",
+ "crops": [
+  {
+   "file": "clock-face.png",
+   "source": "pipeline/art/reference/discord/20261110-0800_Ricky_1.png",
+   "box": [
+    130,
+    165,
+    400,
+    430
+   ],
+   "key": "ellipse",
+   "pieces": "all",
+   "opaque_px": 56354
+  },
+  {
+   "file": "reload-arc.png",
+   "source": "pipeline/art/reference/discord/20261110-0800_Ricky_1.png",
+   "box": [
+    290,
+    450,
+    420,
+    600
+   ],
+   "key": "red",
+   "pieces": "all",
+   "opaque_px": 5583
+  }
+ ]
+}

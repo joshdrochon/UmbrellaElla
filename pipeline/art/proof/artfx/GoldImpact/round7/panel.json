@@ -1,0 +1,18 @@
+{
+ "card": "artfx",
+ "piece": "vfx-gold-impact",
+ "ours": "pipeline/art/proof/artfx/GoldImpact/sheet3.snap.png",
+ "round": 7,
+ "folders": [
+  "pipeline/art/proof/artfx/GoldImpact/round7/vfx-gold-impact-r7-00-reference-c1",
+  "pipeline/art/proof/artfx/GoldImpact/round7/vfx-gold-impact-r7-00-reference-c2",
+  "pipeline/art/proof/artfx/GoldImpact/round7/vfx-gold-impact-r7-00-reference-c3",
+  "pipeline/art/proof/artfx/GoldImpact/round7/vfx-gold-impact-r7-01-quality_bar-c1",
+  "pipeline/art/proof/artfx/GoldImpact/round7/vfx-gold-impact-r7-01-quality_bar-c2",
+  "pipeline/art/proof/artfx/GoldImpact/round7/vfx-gold-impact-r7-01-quality_bar-c3",
+  "pipeline/art/proof/artfx/GoldImpact/round7/vfx-gold-impact-r7-02-context-c1",
+  "pipeline/art/proof/artfx/GoldImpact/round7/vfx-gold-impact-r7-02-context-c2",
+  "pipeline/art/proof/artfx/GoldImpact/round7/vfx-gold-impact-r7-02-context-c3"
+ ],
+ "missing": []
+}
