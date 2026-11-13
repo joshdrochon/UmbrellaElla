@@ -38,3 +38,29 @@ Procedural Blender geometry does not reach the painted/etched look of the key ar
 - r6 (cleaner edges, palette gold #e9c46a-ish, etched strands survive the ink pass, stone courses): calibration 9/9, checks all PASS (art_ref 0.749),
   quality_bar pair ours, reference pair still reference. Gap: repetitive same-height gabled houses, uniform window grids, flat ground band, no clock/domes/arches.
 - Next r7: architectural variety (clock tower, flying buttresses, wide manors, irregular window patterns, conservatory dome), ground-band tone.
+
+## Round log, skyline (Nov 12 evening, new generator `Art/Source/Scene/build_skyline.py`; `build_scene.py` keeps paper only)
+Technique change: the town is built from an architecture kit (gable and hip houses, dormers, chimneys, cresting, clock tower, cathedral with rose
+window and flying buttresses, domed hall, conservatory, viaducts) as flat meshes, one mesh per ink class. Blender renders the classes as colour
+channels (4 emission passes per layer); a numpy finish inside Blender turns class weights into ink: near-black walls, tiled roofs, muted amber
+glass, etched frames, eave shadow, window bounce, rim light, torn rock edge. Render 8 s. Panel runner re-judges refused sessions only (format slip
+or calibration miss; the tool says "judge again"), never a counted one.
+- r7-r10 (old generator, commits only): panel rounds logged in art-loop.jsonl, reference pair lost every time. Abandoned.
+- r12: checks PASS (art_ref 0.766). Tile 0/3, key art 0/3, bar 3/3. Gap, all critics: soft, smudged, muddy brown, weak black-to-amber contrast.
+- r13 (crisp edges, darker ink): checks PASS. Tile 0/3 (gappy, bare arcades, thin etched detail), key art 1/3, bar 3/3.
+- r14 (rock shelf, lit wall faces, richer viaducts, denser rows): checks PASS 0.776. Ours picked in tile 3/3, key art 2/3, bar 3/3, but only 5/9
+  sessions counted (3 format slips "A: SAME" without "WINNER:", 1 calibration miss).
+- r15 (torn rock edge): 9/9 counted. Tile 2/3 (loss: wavy rock band with little structure), key art 1/3 (flat cream ground, muddy rock band), bar 3/3.
+- r16 (key-art style buttes with lit facets, lights clustered per house): checks PASS 0.771. Key art 3/3 ours, bar 3/3 ours, tile 2 counted wins
+  and one session refused three times. Not a pass: one tile "win" has a gap text that describes the tile as the better image (the critic swapped
+  X and Y in its wording), so I do not count it. Gap from that text: tile has finer etched detail and fuller lit windows; our rock band muddier.
+- r17 (bigger front houses and windows, more lit windows, tighter line, cleaner rock): rendering.
+- Still missing for any pass: the context pair (in-engine capture with the piece, against the key art). It needs the piece imported and on screen in a
+  smoke capture; the arena/flow lanes own that. See docs/build/requests/artscene.md.
+
+## Critic sanity (skyline)
+- Passes the reference itself: not run as its own test; calibration folders (crude vs team image, crude vs shifted copy) pass 8-9 of 9 per round.
+- Defect 1, packet: a transparent layer is flattened on a flat cream fill. In r12-r15 six key-art sessions named "flat cream ground, no paper grain"
+  as the gap. That is the paper piece, not the skyline. Request filed (same textured ground for both sides); not worked around in the art.
+- Defect 2, format: Sonnet critics often write "A: SAME | GAP" instead of "A: WINNER: SAME"; the tool refuses the session. Re-judged in a fresh session.
+- Defect 3, one r16 session picked a letter that contradicts its own gap text. Treated as a loss.
