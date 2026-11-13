@@ -32,7 +32,7 @@ open a blind panel for them. Needed: elements (refs + calibration) for at least 
 Until then every sheet stays a tracked `_PH`.
 
 ## 5. Check defects that stop every VFX piece (triage verdict: "check defect", Nov 13; main e10efbd9 still has all three)
-Evidence: gold impact v2 (`Art/Source/VFX/Paint/GoldImpact/sheet.png`), 9-session panel: verdict=reference, calibration 3/9, score 0.526.
+Evidence: gold impact v2 (`pipeline/art/proof/artfx/GoldImpact/sheet.png`), 9-session panel: verdict=reference, calibration 3/9, score 0.526.
 1. `tools/art_check.py` colour rules (on_palette, off_style, off_band) are full-frame rules. A gold sprite with bronze/amber shading
    fails them (on_palette 0.55, off_style 0.32, off_band 0.15). Needed: a sprite/effect mode that reads only the non-transparent
    pixels against the effect palette, with a test on a known-good and a known-bad sprite.

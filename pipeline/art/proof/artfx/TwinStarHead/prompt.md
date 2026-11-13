@@ -1,5 +1,5 @@
 # Twin Stars head, painted strip (VFX_TwinStarHead, VFX-03)
-Model: gemini-3-pro-image-preview, 21:9, 2K, text only, no input image. Output: Art/Source/VFX/Paint/TwinStarHead/strip.png
+Model: gemini-3-pro-image-preview, 21:9, 2K, text only, no input image. Output: pipeline/art/proof/artfx/TwinStarHead/strip.png
 
 ## Prompt
 Style: dark painterly etched storybook illustration for a 2D side-view game effect sprite; ink and wash with fine etched

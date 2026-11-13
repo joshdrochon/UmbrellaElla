@@ -1,5 +1,5 @@
 """Cut a painted 4-frame strip on flat green into an 8 x 1 sheet of 128 px cells (art lane artfx).
-  Blender -b --factory-startup -P Art/Source/VFX/Paint/cut_strip.py -- <strip.png> <out_sheet.png> [<out_keyed.png>]
+  Blender -b --factory-startup -P pipeline/art/proof/artfx/cut_strip.py -- <strip.png> <out_sheet.png> [<out_keyed.png>]
 Fixed geometry, no cell boxes: the green key (alpha from greenness, despill), the four bursts found as the four runs of
 non-empty columns, one common scale for all four (sizes stay relative), each centred in its cell; frames doubled to 8 cells."""
 import sys

@@ -62,7 +62,7 @@
    ],
    "critic_sessions": [],
    "files": "af2c93dafa6f9292ddaf09e88d6cb42fd021716e9759c124316f6c4ac2faf77d",
-   "file": "Art/Source/VFX/Paint/GoldImpact/sheet.png",
+   "file": "pipeline/art/proof/artfx/GoldImpact/sheet.png",
    "card": "artfx",
    "refs": "96bdbb99413f",
    "commit": "b67788a777d5",

@@ -47,7 +47,7 @@ What the references show (words only)
 12. Style block unchanged from the reviewed TwinStarHead block (same wording) except the outline width: keep it as one block.
 
 ## Corrected full prompt block
-Model: gemini-3-pro-image-preview, 21:9, 2K, text only, no input image. Output: Art/Source/VFX/Paint/GoldImpact/strip.png
+Model: gemini-3-pro-image-preview, 21:9, 2K, text only, no input image. Output: pipeline/art/proof/artfx/GoldImpact/strip.png
 The corrected text is `prompt.final.txt` next to this file (use it verbatim).
 
 ## Builder notes

@@ -67,7 +67,7 @@ Style and format
 
 ## Corrected full prompt block
 
-Model: gemini-3-pro-image-preview, 21:9, 2K, text only, no input image. Output: Art/Source/VFX/Paint/TwinStarHead/strip.png
+Model: gemini-3-pro-image-preview, 21:9, 2K, text only, no input image. Output: pipeline/art/proof/artfx/TwinStarHead/strip.png
 
 ```
 A horizontal strip of four equal cells, left to right, showing four animation frames of one small magic projectile for a

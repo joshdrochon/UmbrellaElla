@@ -76,3 +76,8 @@ No gameplay timing, collision or state is written by any of it (tests check the 
 
 ## Slice 8 (Nov 13): merged main and artslots (both up to date), still blocked
 - Main (e90abdd5) has not moved since slice 7. `art_check.py` has no sprite/effect mode, `art_loop.py` has no re-draw for uncalibrated sessions, the context pair is unchanged. Request 5 stands. No paint, spend stays 4.56 of 33.82.
+
+## Slice 9 (Nov 13): candidates moved to pipeline/art/proof/artfx
+- Per art-image-model "Where candidates live": `Art/Source/VFX/Paint/*` (TwinStarHead, GoldImpact, cut_strip.py) is now `pipeline/art/proof/artfx/`. Provenance, request 5 and the critic json paths updated. Earlier slice text above keeps the old paths.
+- `VFX_GoldImpact_PH.png` and `T_VFX_GoldImpact_PH.uasset` restored to the generated placeholder (the painted sheet is a candidate, not shipped). `Art/Source/VFX` now holds only tracked `_PH` sheets.
+- Merged main. Still blocked on request 5; no paint.
