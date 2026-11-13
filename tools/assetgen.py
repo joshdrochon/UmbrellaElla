@@ -784,6 +784,20 @@ def provider_spent(d):
     return round(orr, 6), round(max(0.0, d["spent_usd"] - orr - fal), 6), round(fal, 6)
 
 
+def by_provider(d, cap):
+    """Each provider's spend against its own cap (Nov 13: lanes read the all-provider spent_usd against the Gemini cap
+    and stopped painting with about 11 USD of Gemini cap left). spent_usd stays the total of every provider."""
+    orr, other, fal = provider_spent(d)
+    return {"gemini": {"spent_usd": other, "cap_usd": cap, "left_usd": round(cap - other, 6)},
+            "openrouter": {"spent_usd": orr, "cap_usd": openrouter_cap(), "left_usd": round(openrouter_cap() - orr, 6)},
+            "fal": {"spent_usd": fal, "cap_usd": fal_cap(), "left_usd": round(fal_cap() - fal, 6)}}
+
+
+def spend_line(d, cap):
+    """One status line: 'gemini $x/$y | openrouter $x/$y | fal $x/$y' (each against its own cap)."""
+    return " | ".join(f"{k} ${v['spent_usd']:.2f}/${v['cap_usd']:.2f}" for k, v in by_provider(d, cap).items())
+
+
 PIECE_CAP_USD = 0.50   # Josh, Nov 13: per-piece image spend cap, both providers, keyed by piece in the counter
 SMOKE_SHOT_MARK = "SmokeShotFrames"
 SMOKE_HOOK = "Source/UmbrellaElla/Private/Smoke/SmokeHookSubsystem.cpp"
@@ -915,6 +929,7 @@ def spend_reserve(cost, entry):
         d["openrouter_cap_usd"] = openrouter_cap()
         d["fal_cap_usd"] = fal_cap()
         d["calls"].append(dict(entry, cost_usd=cost, status="reserved", ts=now_iso()))
+        d["by_provider"] = by_provider(d, cap)
         _write_spend(path, d)
         return len(d["calls"]) - 1, spent + cost, limit
 
@@ -1286,6 +1301,12 @@ def cmd_image_model(a, argv, root, provider):
     print(f"IMAGE {rel(a.out, root)} via={provider} tier={tier} model={version} {w}x{h} inputs={len(inputs)} "
           f"aspect={aspect or a.size} image_size={image_size or '-'} thinking_tokens={thoughts} cost=${cost:.3f} "
           f"spent=${spent:.3f} of ${cap:.2f} ({how})")
+    try:
+        sp, gcap = spend_settings()
+        print("SPEND by provider (each against its own cap; spent_usd in the counter is the total): "
+              + spend_line(_read_spend(sp), gcap))
+    except (ImageRefused, OSError, ValueError, KeyError):
+        pass
     return 0
 
 
