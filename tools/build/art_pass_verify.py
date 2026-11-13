@@ -270,8 +270,10 @@ def check(root, base=None, remeasure=True):
 
 
 def newly_passed(root, base, remeasure=False):
+    """Panel-verified pieces new in this merge. Owner approvals (approvals.json) have no panel to re-run, by Josh's
+    decision (Nov 13: the gate failed artvideo with "ella-up-open: no record with evidence to re-run")."""
     out = []
-    for piece in sorted(verified_pieces(root, remeasure=remeasure)):
+    for piece in sorted(verified_pieces(root, records=load_piece_records(root), remeasure=remeasure)):
         new = load_piece_records(root)[piece][-1]
         old = base_records(root, base, piece)
         if not (old and old[-1] == new):
