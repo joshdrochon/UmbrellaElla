@@ -194,3 +194,59 @@ Ours vs model:
   in sprite mode and passes. Not a defect in the art.
 
 ROUND2: not improved
+
+## Round 3 (Nov 13; outputs under Art/Source/ImageProof/R3/)
+Lead's list applied: idle with no figure input (text + open-umbrella crop, pose first); attack with the identity block
+first, short frame text, 295 words assembled; rim light and outline named by art-bible values (spark-white #FFF3D6,
+gold #E9C46A, "more red than green"); finial in one sentence as the key art draws it (a short dark stem on a small
+collar ending in a small bead with a tiny point). Prompt review: fresh Sonnet session in an empty /tmp folder (Bash/
+Edit/Write disallowed), R3/prompt-review.md; its corrected S, I and calls used word for word. Two of its leans not
+taken (R3/prompt.md says why): drop the side input on attack too, drop the pulse.
+New tool step (commit "frames --cells"): `frames --cells [--inset N]` cuts a strip into N equal cells (thirds) for
+touching or boxed poses; 3 tests. Needed: the round 3 attack poses touch, so the gap cut found 2 figures.
+`python3 -m unittest tests.test_assetgen_image_method tests.test_assetgen_image`: 35 OK.
+
+Calls (3 Pro, 21:9, 2K): sheet $0.141, idle $0.139, attack $0.141 = $0.421. Shared counter $1.261 of $33.82.
+
+| | round 2 | round 3 |
+|---|---|---|
+| Sheet identity | hat, mask, long hair, scarf | same; side view faces left (asked right) |
+| Finial (all images) | spike + collar | spike + collar (4th wording, still not the key art's bead) |
+| Idle pose | one hand, walking under the umbrella | top hand raised overhead on the shaft, body hangs below; legs still walk in poses 2-3 |
+| Idle identity | kept, long hair | hat, mask, scarf, dress kept; hair now shoulder-length (not long) |
+| Idle height spread | 0.1% | 0.3% |
+| Idle art_ref_check | PASS 0.729-0.744 | PASS 0.740-0.755 |
+| Attack identity | bare face, no hat | hat, mask, eye glint, long hair all kept |
+| Attack layout | each pose in a drawn box | no boxes; poses touch (cut by thirds) |
+| Attack pose | shaft at hip, legs walking | shaft at hip, legs bent forward as if seated; pulse is a gold comet ahead of the diamond |
+| Attack height spread | 12.5% (box lines) | 0.9% |
+| Attack art_ref_check | FAIL 0.2 | FAIL 0.2 |
+| art_check off_band (max 0.01) | 0.070 / 0.084 | 0.080 / 0.073 (FAIL) |
+| art_check dark_share (max 0.45) | 0.571 / 0.656 (FAIL, not reported in round 2) | 0.527 / 0.600 (FAIL) |
+| screen_check (sprite mode, in verdict) | PASS | PASS |
+| Panel idle: vs reference (counted) | reference won | ours 2/2 (1 session refused: missed calibration) |
+| Panel idle: vs quality bar (counted) | - | ours 1, bar 1 (see note) |
+| Panel attack: vs reference (counted) | reference won | ours 1/1 (2 refused: "A: SAME" without "WINNER:") |
+| Panel attack: vs quality bar (counted) | ours beat it | ours 2, bar 1 (see note) |
+| art_loop verdict | reference, continue | reference, continue (idle cal 4/6, attack cal 4/6) |
+| Cost | $0.424 | $0.421 |
+
+Panel note: the two counted quality-bar votes against ours (idle c1, attack c1, same seed) say "WINNER: Y" while their
+GAP says X (ours) is "a layout sheet of a different character", which describes Y. The letter and the reason
+disagree; art_loop counts the letter. Not reinterpreted. Answers: R3/Panel/*/*.answer.md.
+
+Consistency verdict: FAIL for the set, closer than round 2. Sheet and attack are one character (hat, mask, long hair,
+scarf, dress, boots). Idle keeps everything except the hair length (shoulder-length).
+
+Ours vs model:
+- Colour, ours partly: naming #FFF3D6 did not change the paint. The raw outline is lemon-lime, median (237,245,133);
+  our despill pulls G down to about (246,236,155), still hue ~100, outside the band. About 90% of the off-band pixels
+  sit in the outer 6 px (idle 22549 of 24315, attack 33844 of 38268): it is the outline, not the rim light inside.
+  Next to try (no spend): a grade in `clean` that recolours the outline band to #FFF3D6, keeping its lightness.
+- Idle walk: model mostly. With no figure input the arm-overhead hang appeared for the first time, so the round 2
+  side-profile input was part of the cause (ours). The walking legs stayed through three wordings.
+- Attack identity: ours fixed it (identity first, short prompt). The seated legs are new.
+- Finial: model; four wordings, always a spike.
+- Hair on idle: model (no figure input now carries the hair; text alone said long).
+
+ROUND3: improved

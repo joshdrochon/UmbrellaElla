@@ -1,0 +1,17 @@
+{
+ "card": "0.10b",
+ "piece": "ella-up-open",
+ "ours": "/Users/joanmiguel/Desktop/Developer/UmbrellaElla-areas/imagegen/Art/Source/ImageProof/R3/Raw/idle/ella_idle_01.png",
+ "round": 3,
+ "folders": [
+  "Art/Source/ImageProof/R3/Panel/idle/ella-up-open-r3-00-reference-c1",
+  "Art/Source/ImageProof/R3/Panel/idle/ella-up-open-r3-00-reference-c2",
+  "Art/Source/ImageProof/R3/Panel/idle/ella-up-open-r3-00-reference-c3",
+  "Art/Source/ImageProof/R3/Panel/idle/ella-up-open-r3-01-quality_bar-c1",
+  "Art/Source/ImageProof/R3/Panel/idle/ella-up-open-r3-01-quality_bar-c2",
+  "Art/Source/ImageProof/R3/Panel/idle/ella-up-open-r3-01-quality_bar-c3"
+ ],
+ "missing": [
+  "context (no in-engine capture made after the piece: import it and run the smoke, whose screenshot is the capture)"
+ ]
+}
