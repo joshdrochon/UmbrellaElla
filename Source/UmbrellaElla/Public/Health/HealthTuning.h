@@ -17,6 +17,10 @@ struct UMBRELLAELLA_API FHealthTuning
 	UPROPERTY(Config, EditAnywhere, meta = (ClampMin = "1", ClampMax = "11"))
 	int32 MaxLives = 3;
 
+	/** Current lives after a death retry (GDD death retry: exactly 3; the purchased maximum is kept, units: lives). */
+	UPROPERTY(Config, EditAnywhere, meta = (ClampMin = "1", ClampMax = "11"))
+	int32 RetryLives = 3;
+
 	/** Lift multiplier at zero active health (units: x). */
 	UPROPERTY(Config, EditAnywhere, meta = (ClampMin = "0.0", ClampMax = "1.0"))
 	float MinLift = 0.3f; // bake: SURV-05.min_lift

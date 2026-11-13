@@ -108,3 +108,11 @@ Not done, and why:
 - OWL-16 dash protection: dash grants none in tuning (`MotorTuning.h:42`, dash invulnerability OFF) and no code exists. Needs a decision: build optional dash protection, or reword the clause.
 - OWL-13 absorb during fight (no cooldown/energy) is already proven by `Move.World.RepeatedCatchesHaveNoCooldown`/`CatchGivesNoChargeButRepairs`; aimed shots and 2.3 s cadence are model-level (keeper lane).
 - FLOW-09 rollback ordering / level-checkpoint heal, OWL-09 reach and lift: not started (need the keeper rollback API and a defined "supported owl size").
+
+## Lead answers applied (Nov 13)
+- FLOW-09 keeps purchased max: `UmbrellaHealthComponent::ResetForRetry` now sets Lives to `Health.RetryLives` (3, capped at MaxLives) and keeps MaxLives and Capacity;
+  the retry event is accepted when `Amount == RetryLives` (was `== MaxLives`, so max 4 ignored the retry). `Health.World.RetryRestoresFullLivesAndHealth` updated (3 lives, max 4).
+  Proof: `Move.World.RetryGivesThreeLivesKeepsPurchasedMaximum`. Break-tested (retry set Lives=MaxLives -> FAILED, restored -> PASS).
+- OWL-16 dash protection: not built (GDD baseline OFF). `Move.World.DashGivesNoProtectionByDefault` proves a dash gives none and a hit lands.
+  Break-tested (IsProtectingFromHits true -> FAILED). No toggle exists in code, so none is claimed.
+- Needed from keeper (rollback ordering, level-checkpoint heal, OWL-09 reach/lift): written in `requests/move.md`. Still unproven.

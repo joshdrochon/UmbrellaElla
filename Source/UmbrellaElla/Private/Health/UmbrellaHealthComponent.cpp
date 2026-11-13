@@ -53,7 +53,7 @@ void UUmbrellaHealthComponent::EndPlay(const EEndPlayReason::Type Reason)
 
 void UUmbrellaHealthComponent::OnCheckpointRetried(const FUmbrellaEvent& Event)
 {
-	if (Event.TargetId == UmbrellaPlayerIds::Ella && Event.Amount == State.MaxLives)
+	if (Event.TargetId == UmbrellaPlayerIds::Ella && Event.Amount == GetDefault<UUmbrellaTuning>()->Health.RetryLives)
 	{
 		ResetForRetry();
 	}
@@ -138,7 +138,9 @@ FHealthHealOutcome UUmbrellaHealthComponent::HealFromYellow(FName SourceId)
 
 void UUmbrellaHealthComponent::ResetForRetry()
 {
+	// Retry: exactly RetryLives current lives, the purchased maximum and capacity stay.
 	State = HealthRules::MakeFull(State.Capacity, State.MaxLives);
+	State.Lives = FMath::Min(GetDefault<UUmbrellaTuning>()->Health.RetryLives, State.MaxLives);
 	ProtectedUntil = -1.0;
 	BroadcastHealth(NAME_None, ResetDetail);
 }
