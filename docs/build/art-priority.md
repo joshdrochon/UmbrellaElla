@@ -98,7 +98,7 @@ hard high-rank one. Log the reason in your status when you deviate.
 | 86 | ui-credits | credits |
 
 ## Animation bar (Josh, Nov 13)
-The Ella idle video is the animation bar. Once its owner approval is recorded (pipeline/art/approvals.json, the
+The Ella idle video is the animation bar. Once its owner approval is recorded (the lead-only owner-approvals file read by art_pass_verify, for the
 24-frame strip), that strip and its GIF preview become the motion quality reference in every animated piece's panel:
 motion smoothness, frame-to-frame consistency and style. The lead wires it in after the approval lands.
 
