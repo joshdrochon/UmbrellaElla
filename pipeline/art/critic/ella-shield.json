@@ -34,6 +34,40 @@
    "commit": "25dd62a1f1fb",
    "gap": "Y has crude block-built shapes with scratchy hatching, little value modelling, a stiff pose and no separate magic.; X is a single stiff, flat-shaded figure with a wrongly shaped, open umbrella. It has no hand-etched finish, no pierced diamond terminal, and no flowing cloth or boots.; Y is built from crude blocky shapes (stacked trapezoid dress, slab legs, disc head) with no layered cloth, stockings or boots, no pierced diamond terminal and a stiff upright pose, so the figure has no finished form or flight.; Y is a flat, textureless, grounded silhouette with no etched lines, no paper texture, no scarf or eye glints and no airborne pose.; Y is a crude flat-cut figure with a faceless blob head, boxy tiered dress and scribbly hatching. It has no etched finish, no scarf or mask detail and no pierced clock-hand terminal.",
    "at": "2026-11-13T00:34:56Z"
+  },
+  {
+   "piece": "ella-shield",
+   "round": 2,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "reference",
+    "reference": "reference"
+   },
+   "panel": 2,
+   "calibration": {
+    "sessions": 9,
+    "passed": 7
+   },
+   "missing": [
+    "context (no in-engine capture made after the piece: import it and run the smoke, whose screenshot is the capture)",
+    "quality_bar:pipeline/art/reference/discord/20261111-0319_Ricky_roadwarden-sundial-casters.png (2/3 calibrated sessions)",
+    "reference:pipeline/art/reference/Rehearsal/Ella/Ella-Absorbing-04.png",
+    "reference:pipeline/art/reference/discord/20261110-0328_Ricky_1.png (2/3 calibrated sessions)"
+   ],
+   "critic_sessions": [],
+   "files": "24762fcb4a3abfd82f67b1d58b6779d8432308e0341cb88ade5398bfb87282d0",
+   "file": "Art/Source/Ella/Paint/R2/frames_shield/Ella_shield_00.png",
+   "card": "MVP 15",
+   "refs": "d1afca932485",
+   "commit": "5a8af2ca2683",
+   "gap": "Y has no pierced diamond terminal, no crown finial, and no mask.",
+   "at": "2026-11-13T04:34:59Z"
   }
  ]
 }

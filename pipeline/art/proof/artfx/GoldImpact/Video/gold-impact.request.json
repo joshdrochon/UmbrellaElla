@@ -1,0 +1,23 @@
+{
+ "provider": "fal",
+ "model": "fal-ai/veo3.1/fast/image-to-video",
+ "prompt": "A small gold magic impact burst, a faceted eight-point star with a bright cream core, starts exactly as in the input, then breaks apart: the points separate from the centre and fly outward as small solid gold blades, then thin pale sparks scatter and fade to nothing, leaving empty green. Keep the exact painted ink-and-woodcut look and heavy black outlines. The burst stays centred and in place, no camera movement. Flat solid chroma green background (pure #00FF00), the whole frame outside the character stays that one green, no floor, no shadows, no gradient, no text. Static locked camera, no zoom, no pan, no cut. The character stays in place and keeps her size; only a small gentle idle movement. No sound.",
+ "negative_prompt": "camera movement, zoom, cut, text, subtitles, logo, background scenery, shadows on the background, people other than the character, sound",
+ "seed": 7,
+ "duration_s": 4,
+ "generate_audio": false,
+ "resolution": "720p",
+ "aspect_ratio": "16:9",
+ "input_image": "pipeline/art/proof/artfx/GoldImpact/Video/input.png",
+ "unit_usd_per_s": 0.15,
+ "cost_usd": 0.6,
+ "reply": {
+  "request_id": "01a1d47c-5a69-7410-9e93-a74431267666",
+  "video": {
+   "content_type": "video/mp4",
+   "file_name": "667ab776b09248deb5162350123a5ec0.mp4",
+   "file_size": 1428187
+  }
+ },
+ "date": "2026-11-13T10:39+00:00"
+}
