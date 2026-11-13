@@ -2,11 +2,15 @@
 #include "Components/StaticMeshComponent.h"
 #include "Core/UmbrellaDrawOrder.h"
 #include "Engine/StaticMesh.h"
+#include "Engine/Texture2D.h"
+#include "Feedback/Art/ArtSlot.h"
 #include "Engine/World.h"
 #include "GameFramework/Actor.h"
 #include "GameFramework/PlayerController.h"
 #include "Camera/PlayerCameraManager.h"
 #include "Harness/UmbrellaFeatureFlags.h"
+#include "Core/UmbrellaTuning.h"
+#include "Level/LevelCatalogue.h"
 
 bool UUmbrellaBackdropSubsystem::IsLayerEnabled(FName LayerName)
 {
@@ -110,8 +114,92 @@ int32 UUmbrellaBackdropSubsystem::BuildLayers()
 		Layer->SetActorLocation(FVector(0.0, Spec.Depth, 0.0));
 		Layers.Add(Layer);
 		BuiltSpecs.Add(Spec);
+		// Art slot: the layer's picture when its asset exists; the stand-in panel otherwise.
+		ApplyLayerArt(Layers.Num() - 1, nullptr);
 	}
 	return Layers.Num();
+}
+
+FString UUmbrellaBackdropSubsystem::LayerVisualId(FName LayerName)
+{
+	return FString::Printf(TEXT("bg-layer:%s"), *LayerName.ToString());
+}
+
+EArtSlotDraw UUmbrellaBackdropSubsystem::ApplyLayerArt(int32 Index, UTexture2D* Texture)
+{
+	if (!Layers.IsValidIndex(Index) || !IsValid(Layers[Index]))
+	{
+		return EArtSlotDraw::NoTexture;
+	}
+	UStaticMeshComponent* Panel = Cast<UStaticMeshComponent>(Layers[Index]->GetRootComponent());
+	const FString Visual = LayerVisualId(BuiltSpecs[Index].Name);
+	const FArtSlotRow* Row = ArtSlot::Find(*Visual);
+	if (!Panel || !Row)
+	{
+		return EArtSlotDraw::NoTexture;
+	}
+	const float Unit = UmbrellaBackdropConst::EngineCubeSize;
+	const FVector Box(UmbrellaBackdropConst::PanelWidth / Unit, UmbrellaBackdropConst::PanelThickness, UmbrellaBackdropConst::PanelHeight / Unit);
+	return ArtSlot::Apply(Panel, Texture ? Texture : ArtSlot::LoadTexture(*Row), *Row, Box);
+}
+
+bool UUmbrellaBackdropSubsystem::IsLayerDrawnWithArt(int32 Index) const
+{
+	return Layers.IsValidIndex(Index) && IsValid(Layers[Index]) && ArtSlot::HasArt(Cast<UStaticMeshComponent>(Layers[Index]->GetRootComponent()));
+}
+
+FBox2D UUmbrellaBackdropSubsystem::LayerFootprint(float CameraX, float Parallax)
+{
+	const float X = LayerXForCamera(CameraX, Parallax);
+	const float HalfWidth = UmbrellaBackdropConst::PanelWidth * 0.5f;
+	const float HalfHeight = UmbrellaBackdropConst::PanelHeight * 0.5f;
+	return FBox2D(FVector2D(X - HalfWidth, -HalfHeight), FVector2D(X + HalfWidth, HalfHeight));
+}
+
+float UUmbrellaBackdropSubsystem::StageCameraX(int32 Slot)
+{
+	const int32 Count = GetDefault<UUmbrellaTuning>()->Field.RouteSlotCount;
+	const float Start = LevelCatalogue::SlotStartX(Slot);
+	const float End = Slot + 1 < Count ? LevelCatalogue::SlotStartX(Slot + 1) : LevelCatalogue::RouteLength();
+	return (Start + End) * 0.5f;
+}
+
+bool UUmbrellaBackdropSubsystem::IsRouteStageCovered(int32 Slot) const
+{
+	const FArenaCameraTuning& Camera = GetDefault<UUmbrellaTuning>()->ArenaCamera;
+	const float CameraX = StageCameraX(Slot);
+	const float ViewMinX = CameraX - Camera.ArenaWidth * 0.5f;
+	const float ViewMaxX = CameraX + Camera.ArenaWidth * 0.5f;
+	TArray<FBox2D> Usable;
+	for (int32 Index = 0; Index < Layers.Num() && Index < BuiltSpecs.Num(); ++Index)
+	{
+		const FBox2D Box = LayerFootprint(CameraX, BuiltSpecs[Index].Parallax);
+		if (IsValid(Layers[Index]) && Box.Min.Y <= 0.0 && Box.Max.Y >= Camera.ArenaHeight)
+		{
+			Usable.Add(Box);
+		}
+	}
+	Usable.Sort([](const FBox2D& A, const FBox2D& B) { return A.Min.X < B.Min.X; });
+	double Reach = ViewMinX;
+	for (const FBox2D& Box : Usable)
+	{
+		if (Box.Min.X > Reach)
+		{
+			break;
+		}
+		Reach = FMath::Max(Reach, Box.Max.X);
+	}
+	return Reach >= ViewMaxX;
+}
+
+int32 UUmbrellaBackdropSubsystem::CountCoveredStages() const
+{
+	int32 Covered = 0;
+	for (int32 Slot = 0; Slot < GetDefault<UUmbrellaTuning>()->Field.RouteSlotCount; ++Slot)
+	{
+		Covered += IsRouteStageCovered(Slot) ? 1 : 0;
+	}
+	return Covered;
 }
 
 void UUmbrellaBackdropSubsystem::ScrollTo(float CameraX)

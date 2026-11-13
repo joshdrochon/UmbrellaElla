@@ -4,6 +4,9 @@
 #include "Subsystems/WorldSubsystem.h"
 #include "UmbrellaBackdropSubsystem.generated.h"
 
+class UTexture2D;
+enum class EArtSlotDraw : uint8;
+
 namespace UmbrellaBackdropConst
 {
 	/** Layer width and height in world units (placeholder panels behind the play camera). */
@@ -73,6 +76,27 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual TStatId GetStatId() const override;
 	virtual bool IsTickableInEditor() const override { return false; }
+
+	/** Art slot id of a layer ("bg-layer:Sky"). Pure. */
+	static FString LayerVisualId(FName LayerName);
+
+	/** Draw layer Index with Texture (null = load the layer's slot asset). Anything but Drawn keeps the stand-in. */
+	EArtSlotDraw ApplyLayerArt(int32 Index, UTexture2D* Texture);
+
+	/** True when the layer shows art, not the stand-in panel. */
+	bool IsLayerDrawnWithArt(int32 Index) const;
+
+	/** World-space (X, Z) box a layer panel covers when the camera is at CameraX. Pure; independent of the mesh, so art does not change it. */
+	static FBox2D LayerFootprint(float CameraX, float Parallax);
+
+	/** Camera X at the middle of route stage Slot (0..8): the span the LevelDirector gives that stage. Pure. */
+	static float StageCameraX(int32 Slot);
+
+	/** True when the built layers together cover the whole camera view (width ArenaWidth, height 0..ArenaHeight) with the camera at the middle of route stage Slot. */
+	bool IsRouteStageCovered(int32 Slot) const;
+
+	/** Number of route stages (of RouteSlotCount) the backdrop covers. Route-stage backdrop coverage. */
+	int32 CountCoveredStages() const;
 
 	/** Specs parallel to GetLayers(). */
 	const TArray<FBackdropLayerSpec>& GetBuiltSpecs() const { return BuiltSpecs; }

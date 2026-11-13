@@ -1,5 +1,6 @@
 """Tests for tools/build/art_inventory.py: a shipped visual with no art-loop piece must FAIL."""
 import json
+from unittest import mock
 import os
 import shutil
 import sys
@@ -106,6 +107,14 @@ class Rules(FakeTree):
 
 class Passed(FakeTree):
     PAIRS = {"reference": "ours", "quality_bar": "same"}
+
+    def setUp(self):
+        super().setUp()
+        # these tests are about which round counts; the raw-evidence check has its own tests (test_art_pass_verify.py)
+        import art_pass_verify
+        p = mock.patch.object(art_pass_verify, "verify_record", lambda *a, **k: [])
+        p.start()
+        self.addCleanup(p.stop)
 
     def shipped(self, data=b"png-bytes"):
         put(self.root, "Art/Title.png", "x")
