@@ -1,5 +1,6 @@
 # Painting art with the image model (D-new-art-image-model; active only after the lead says "Spend OK")
-- Paint 2D sprites and screens with `tools/assetgen.py image --provider openai` (gpt-image). The blind panel, the quality
+- Paint 2D sprites and screens with `tools/assetgen.py image` (default provider gemini, Josh's prepaid Gemini credits; openai optional); every run stops at the
+  hard spend cap IMAGE_SPEND_CAP_USD the lead gives with Josh's Spend OK. The blind panel, the quality
   bar and art_ref_check are unchanged: a painted piece ships only when the panel passes it.
 - Prompts are text only for anything pre-jam (GDD ART-03, BG-02): describe the key art's look in words (pipeline/art/
   art-bible.md, the references' `what` notes); never pass the key art, pipeline/art/reference/ or a quality-bar image as an
