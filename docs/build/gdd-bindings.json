@@ -1,0 +1,769 @@
+{
+ "_note": "Hand-written, reviewed. Spec key (docs/build/gdd-spec.json) -> where the game holds the value. Read by tools/build/gdd_check.py. A key the spec no longer has fails as stale; a spec key not listed is UNBOUND (reported).",
+ "_kinds": "tuning: FStruct.Field[.X|.Y|.Z] default in a *Tuning.h; const: path:Symbol; playtest: {line,match,field}; scale: game*scale = GDD unit",
+ "COM-06.burst_option": {
+  "tuning": "FAttackTuning.SmallBurstCount"
+ },
+ "COM-06.damage": {
+  "tuning": "FAttackTuning.SmallDamage"
+ },
+ "COM-06.range": {
+  "tuning": "FAttackTuning.SmallRange"
+ },
+ "COM-06.shots": {
+  "tuning": "FAttackTuning.SmallBurstMax"
+ },
+ "COM-06.spacing": {
+  "tuning": "FAttackTuning.SmallBurstSpacing"
+ },
+ "COM-06.speed": {
+  "tuning": "FAttackTuning.SmallSpeed"
+ },
+ "COM-06.traveling_shots": {
+  "tuning": "FAttackTuning.SmallShotsPerSecond"
+ },
+ "COM-07.continuous_beam": {
+  "tuning": "FAttackTuning.StreamTicksPerSecond"
+ },
+ "COM-07.damage": {
+  "tuning": "FAttackTuning.StreamTickDamage"
+ },
+ "COM-07.growth": {
+  "tuning": "FAttackTuning.StreamGrowthSpeed"
+ },
+ "COM-07.range": {
+  "tuning": "FAttackTuning.StreamMaxRange"
+ },
+ "COM-07.width": {
+  "tuning": "FAttackTuning.StreamWidth"
+ },
+ "COM-08.damage": {
+  "tuning": "FAttackTuning.TwinDamage"
+ },
+ "COM-08.range": {
+  "tuning": "FAttackTuning.TwinRange"
+ },
+ "COM-08.speed": {
+  "tuning": "FAttackTuning.TwinSpeed"
+ },
+ "COM-08.units": {
+  "tuning": "FAttackTuning.TwinSeparation"
+ },
+ "COM-08.units.2": {
+  "tuning": "FAttackTuning.TwinVolleysPerSecond"
+ },
+ "COM-09.damage": {
+  "tuning": "FAttackTuning.NeedleDamage"
+ },
+ "COM-09.range": {
+  "tuning": "FAttackTuning.NeedleRange"
+ },
+ "COM-09.shots": {
+  "tuning": "FAttackTuning.NeedleShotsPerSecond"
+ },
+ "COM-09.size_multiplier": {
+  "tuning": "FAttackTuning.NeedleSizeMultiplier"
+ },
+ "COM-09.speed": {
+  "tuning": "FAttackTuning.NeedleSpeed"
+ },
+ "COM-14.adjustable_baseline": {
+  "tuning": "FEnemyTuning.RoadwardenHp"
+ },
+ "COM-14.aim": {
+  "tuning": "FEnemyTuning.RoadwardenAimSeconds"
+ },
+ "COM-14.cycle": {
+  "tuning": "FEnemyTuning.RoadwardenCycleSeconds"
+ },
+ "COM-14.incoming_damage": {
+  "tuning": "FEnemyTuning.IncomingDamage"
+ },
+ "COM-14.patrol_span": {
+  "tuning": "FEnemyTuning.RoadwardenPatrolSpan"
+ },
+ "COM-14.recovery": {
+  "tuning": "FEnemyTuning.RoadwardenRecoverySeconds"
+ },
+ "COM-14.shot_speed": {
+  "tuning": "FEnemyTuning.RoadwardenShotSpeed"
+ },
+ "COM-14.units": {
+  "tuning": "FEnemyTuning.RoadwardenPatrolSpeed"
+ },
+ "COM-14.value": {
+  "tuning": "FEnemyTuning.RoadwardenTorso.Y"
+ },
+ "COM-14.x": {
+  "tuning": "FEnemyTuning.RoadwardenTorso.X"
+ },
+ "COM-15.adjustable_baseline": {
+  "tuning": "FEnemyTuning.FloodstriderHp"
+ },
+ "COM-15.brace": {
+  "tuning": "FEnemyTuning.FloodstriderAimSeconds"
+ },
+ "COM-15.cycle": {
+  "tuning": "FEnemyTuning.FloodstriderCycleSeconds"
+ },
+ "COM-15.incoming_damage": {
+  "tuning": "FEnemyTuning.IncomingDamage"
+ },
+ "COM-15.patrol_span": {
+  "tuning": "FEnemyTuning.FloodstriderPatrolSpan"
+ },
+ "COM-15.recovery": {
+  "tuning": "FEnemyTuning.FloodstriderRecoverySeconds"
+ },
+ "COM-15.settle": {
+  "tuning": "FEnemyTuning.FloodstriderPatrolSpeed"
+ },
+ "COM-15.shot_speed": {
+  "tuning": "FEnemyTuning.FloodstriderShotSpeed"
+ },
+ "COM-15.target_torso": {
+  "tuning": "FEnemyTuning.FloodstriderTorso.X"
+ },
+ "COM-15.value": {
+  "tuning": "FEnemyTuning.FloodstriderTorso.Y"
+ },
+ "COM-15.value.2": {
+  "tuning": "FEnemyTuning.FloodstriderStiltHeight"
+ },
+ "COM-16.adjustable_baseline": {
+  "tuning": "FEnemyTuning.CourierHp"
+ },
+ "COM-16.aim": {
+  "tuning": "FEnemyTuning.CourierAimSeconds"
+ },
+ "COM-16.cycle": {
+  "tuning": "FEnemyTuning.CourierCycleSeconds"
+ },
+ "COM-16.hover": {
+  "tuning": "FEnemyTuning.CourierPatrolSpeed"
+ },
+ "COM-16.incoming_damage": {
+  "tuning": "FEnemyTuning.IncomingDamage"
+ },
+ "COM-16.patrol_span": {
+  "tuning": "FEnemyTuning.CourierPatrolSpan"
+ },
+ "COM-16.recovery": {
+  "tuning": "FEnemyTuning.CourierRecoverySeconds"
+ },
+ "COM-16.shot_speed": {
+  "tuning": "FEnemyTuning.CourierShotSpeed"
+ },
+ "COM-16.value": {
+  "tuning": "FEnemyTuning.CourierBody.Y"
+ },
+ "COM-16.x": {
+  "tuning": "FEnemyTuning.CourierBody.X"
+ },
+ "FLOW-05.c": {
+  "tuning": "FProgressionTuning.HpMultiplierStep"
+ },
+ "FLOW-05.c.2": {
+  "tuning": "FProgressionTuning.CadenceMultiplierStep"
+ },
+ "FLOW-05.c.3": {
+  "tuning": "FProgressionTuning.CountMultiplierStep"
+ },
+ "FLOW-05.value": {
+  "tuning": "FProgressionTuning.HpMultiplierCap"
+ },
+ "FLOW-05.value.3": {
+  "tuning": "FProgressionTuning.CadenceMultiplierCap"
+ },
+ "FLOW-05.value.5": {
+  "tuning": "FProgressionTuning.CountMultiplierCap"
+ },
+ "FLOW-06.eligible": {
+  "tuning": "FProgressionTuning.FinalHourCadenceMultiplier"
+ },
+ "FLOW-06.ordinary": {
+  "tuning": "FProgressionTuning.FinalHourHpMultiplier"
+ },
+ "FLOW-06.value": {
+  "tuning": "FProgressionTuning.FinalHourCountMultiplier"
+ },
+ "FLOW-15.assumes_roughly": {
+  "tuning": "FProgressionTuning.TargetXpPerRun"
+ },
+ "FLOW-15.hits": {
+  "tuning": "FProgressionTuning.StartHitsPerLife"
+ },
+ "FLOW-15.hits.2": {
+  "tuning": "FProgressionTuning.StartHitsPerLife"
+ },
+ "FLOW-15.hits.3": {
+  "tuning": "FProgressionTuning.MaxHitsPerLife"
+ },
+ "FLOW-15.l_costs": {
+  "tuning": "FProgressionTuning.XpCurveBase"
+ },
+ "FLOW-15.level_cap": {
+  "tuning": "FProgressionTuning.LevelCap"
+ },
+ "FLOW-15.lives": {
+  "tuning": "FProgressionTuning.StartLives"
+ },
+ "FLOW-15.lives.2": {
+  "tuning": "FProgressionTuning.MaxLivesCap"
+ },
+ "FLOW-15.recovery": {
+  "tuning": "FProgressionTuning.RecoveryRanks"
+ },
+ "FLOW-15.total": {
+  "tuning": "FProgressionTuning.StartLives"
+ },
+ "FLOW-16.level": {
+  "tuning": "FProgressionTuning.UnlockLevelSmall"
+ },
+ "FLOW-16.level.2": {
+  "tuning": "FProgressionTuning.UnlockLevelStreamed"
+ },
+ "FLOW-16.level.3": {
+  "tuning": "FProgressionTuning.UnlockLevelTwin"
+ },
+ "FLOW-16.level.4": {
+  "tuning": "FProgressionTuning.UnlockLevelNeedle"
+ },
+ "FLOW-19.ordinary_courier": {
+  "tuning": "FProgressionTuning.XpRoadwarden"
+ },
+ "FLOW-19.value": {
+  "tuning": "FProgressionTuning.XpFloodstrider"
+ },
+ "FLOW-19.value.2": {
+  "tuning": "FProgressionTuning.XpWings"
+ },
+ "FLOW-19.value.3": {
+  "tuning": "FProgressionTuning.XpFront"
+ },
+ "FLOW-19.value.4": {
+  "tuning": "FProgressionTuning.XpMiddle"
+ },
+ "FLOW-19.value.5": {
+  "tuning": "FProgressionTuning.XpRear"
+ },
+ "FLOW-19.value.6": {
+  "tuning": "FProgressionTuning.XpClock"
+ },
+ "FLOW-19.xp": {
+  "tuning": "FProgressionTuning.XpCourier"
+ },
+ "FLOW-33.healing_retains": {
+  "tuning": "FHealthTuning.HealPerYellow"
+ },
+ "FLOW-33.hp": {
+  "tuning": "FKeeperTuning.GustDamage"
+ },
+ "FLOW-33.independently_reach": {
+  "tuning": "FProgressionTuning.MaxHitsPerLife"
+ },
+ "FLOW-33.modes_start": {
+  "tuning": "FProgressionTuning.StartHitsPerLife"
+ },
+ "FLOW-33.pct": {
+  "tuning": "FProgressionTuning.DamageReductionRankIII",
+  "scale": 100
+ },
+ "FLOW-33.talon_damage": {
+  "tuning": "FKeeperTuning.TalonDamage"
+ },
+ "FLOW-33.value": {
+  "tuning": "FHealthTuning.TrapDamage"
+ },
+ "FLOW-33.value.18": {
+  "tuning": "FProgressionTuning.StartLives"
+ },
+ "FLOW-33.value.2": {
+  "tuning": "FKeeperTuning.ChainDamage"
+ },
+ "FLOW-33.value.4": {
+  "tuning": "FHealthTuning.OldDamageDivisor"
+ },
+ "FLOW-33.value.7": {
+  "tuning": "FProgressionTuning.DamageReductionRankI",
+  "scale": 100
+ },
+ "FLOW-33.value.8": {
+  "tuning": "FProgressionTuning.DamageReductionRankII",
+  "scale": 100
+ },
+ "HAZ-03.compare": {
+  "tuning": "FBrokenMillTuning.GuardHpComparison"
+ },
+ "HAZ-03.contact_damage": {
+  "tuning": "FBrokenMillTuning.ContactDamage"
+ },
+ "HAZ-03.introductory_guard": {
+  "tuning": "FBrokenMillTuning.GuardHp"
+ },
+ "HAZ-03.muzzle": {
+  "tuning": "FBrokenMillTuning.GuardMuzzle.X"
+ },
+ "HAZ-03.proposed": {
+  "tuning": "FBrokenMillTuning.RoomSize.X"
+ },
+ "HAZ-03.room": {
+  "tuning": "FBrokenMillTuning.RoomSize.Y"
+ },
+ "HAZ-03.rotor_centre": {
+  "tuning": "FBrokenMillTuning.RotorCentre.X"
+ },
+ "HAZ-03.shared": {
+  "tuning": "FBrokenMillTuning.TargetSize.X"
+ },
+ "HAZ-03.swept_radius": {
+  "tuning": "FBrokenMillTuning.RotorRadius"
+ },
+ "HAZ-03.target": {
+  "tuning": "FBrokenMillTuning.TargetSize.Y"
+ },
+ "HAZ-03.target_centred": {
+  "tuning": "FBrokenMillTuning.TargetCentre.X"
+ },
+ "HAZ-03.top": {
+  "tuning": "FBrokenMillTuning.IslandXRange.Y"
+ },
+ "HAZ-03.top.2": {
+  "tuning": "FBrokenMillTuning.IslandTop"
+ },
+ "HAZ-03.underside": {
+  "tuning": "FBrokenMillTuning.IslandUnderside"
+ },
+ "HAZ-03.value.2": {
+  "tuning": "FBrokenMillTuning.RotorCentre.Y"
+ },
+ "HAZ-03.value.3": {
+  "tuning": "FBrokenMillTuning.IslandTop"
+ },
+ "HAZ-03.value.4": {
+  "tuning": "FBrokenMillTuning.IslandXRange.X"
+ },
+ "HAZ-03.value.5": {
+  "tuning": "FBrokenMillTuning.GuardMuzzle.Y"
+ },
+ "HAZ-03.value.6": {
+  "tuning": "FBrokenMillTuning.TargetCentre.Y"
+ },
+ "HAZ-04.value": {
+  "tuning": "FBrokenMillTuning.ActivationX.X"
+ },
+ "HAZ-04.value.2": {
+  "tuning": "FBrokenMillTuning.ActivationX.Y"
+ },
+ "HAZ-04.value.3": {
+  "tuning": "FBrokenMillTuning.ActivationZ.X"
+ },
+ "HAZ-04.value.4": {
+  "tuning": "FBrokenMillTuning.ActivationZ.Y"
+ },
+ "HAZ-04.warning": {
+  "tuning": "FBrokenMillTuning.WarningSeconds"
+ },
+ "HAZ-05.enemy_bullets": {
+  "tuning": "FBrokenMillTuning.MaxActiveEnemyBullets"
+ },
+ "HAZ-05.incoming_damage": {
+  "tuning": "FBrokenMillTuning.ShotDamage"
+ },
+ "HAZ-05.projectile_speed": {
+  "tuning": "FBrokenMillTuning.ShotSpeed"
+ },
+ "HAZ-05.radius": {
+  "tuning": "FBrokenMillTuning.ShotRadius"
+ },
+ "HAZ-05.range": {
+  "tuning": "FBrokenMillTuning.ShotRange"
+ },
+ "HAZ-05.recovery": {
+  "tuning": "FBrokenMillTuning.RecoverySeconds"
+ },
+ "HAZ-06.eligiblez": {
+  "tuning": "FBrokenMillTuning.UpperResetZ.X"
+ },
+ "HAZ-06.eligiblez.2": {
+  "tuning": "FBrokenMillTuning.LowerOnwardZ.X"
+ },
+ "HAZ-06.toward_exit": {
+  "tuning": "FBrokenMillTuning.ExitPoint.X"
+ },
+ "HAZ-06.value": {
+  "tuning": "FBrokenMillTuning.FiringColumnX.X"
+ },
+ "HAZ-06.value.14": {
+  "tuning": "FBrokenMillTuning.LowerOnwardZ.Y"
+ },
+ "HAZ-06.value.19": {
+  "tuning": "FBrokenMillTuning.ExitPoint.Y"
+ },
+ "HAZ-06.value.2": {
+  "tuning": "FBrokenMillTuning.FiringColumnX.Y"
+ },
+ "HAZ-06.value.5": {
+  "tuning": "FBrokenMillTuning.UpperResetZ.Y"
+ },
+ "HAZ-06.value.8": {
+  "tuning": "FBrokenMillTuning.ProtectedCoreX.X"
+ },
+ "HAZ-06.value.9": {
+  "tuning": "FBrokenMillTuning.ProtectedCoreX.Y"
+ },
+ "HAZ-07.falling": {
+  "playtest": {
+   "line": "PLAYTEST_CAM07",
+   "field": "decision_height"
+  }
+ },
+ "HAZ-07.restoring_gain": {
+  "tuning": "FBrokenMillTuning.LocalRestoringGain"
+ },
+ "HAZ-07.sends": {
+  "tuning": "FBrokenMillTuning.MissedCurrentAssistPoint.Y"
+ },
+ "HAZ-07.value": {
+  "tuning": "FBrokenMillTuning.MissedCurrentAssistPoint.X"
+ },
+ "HAZ-07.vertical_compensation": {
+  "tuning": "FBrokenMillTuning.LocalVerticalCompensation"
+ },
+ "HAZ-08.floor": {
+  "tuning": "FBrokenMillTuning.FloorTop"
+ },
+ "HAZ-08.island_right": {
+  "tuning": "FBrokenMillTuning.IslandXRange.Y"
+ },
+ "HAZ-08.proposed": {
+  "tuning": "FBrokenMillTuning.LocalRestoringGain"
+ },
+ "HAZ-08.value": {
+  "tuning": "FBrokenMillTuning.MaxHalfHeight"
+ },
+ "HAZ-08.value.3": {
+  "tuning": "FBrokenMillTuning.LocalVerticalCompensation"
+ },
+ "HAZ-08.value.6": {
+  "tuning": "FBrokenMillTuning.MaxHalfWidth"
+ },
+ "HAZ-09.bullet": {
+  "tuning": "FBrokenMillTuning.ShotRadius"
+ },
+ "HAZ-09.radius": {
+  "tuning": "FBrokenMillTuning.ShotRadius"
+ },
+ "HAZ-09.radius.2": {
+  "tuning": "FBrokenMillTuning.FriendlyShotRadius"
+ },
+ "HAZ-09.rotor": {
+  "tuning": "FBrokenMillTuning.RotorRadius"
+ },
+ "HAZ-09.value.2": {
+  "tuning": "FBrokenMillTuning.RayEndX"
+ },
+ "HAZ-09.value.3": {
+  "tuning": "FBrokenMillTuning.MaxHalfWidth"
+ },
+ "HAZ-10.burst": {
+  "tuning": "FAttackTuning.SmallBurstCount"
+ },
+ "HAZ-10.effective_damage": {
+  "tuning": "FAttackTuning.SmallDamage"
+ },
+ "HAZ-10.fall": {
+  "tuning": "FMotorTuning.FallSpeed"
+ },
+ "HAZ-10.lift": {
+  "tuning": "FHealthTuning.MinLift"
+ },
+ "HAZ-10.pct": {
+  "tuning": "FMotorTuning.VerticalTrimPct"
+ },
+ "HAZ-10.radius": {
+  "tuning": "FAttackTuning.BlastRadius"
+ },
+ "HAZ-10.range": {
+  "tuning": "FAttackTuning.SmallRange"
+ },
+ "HAZ-10.rise": {
+  "tuning": "FMotorTuning.RiseSpeed"
+ },
+ "HAZ-10.small_blasts": {
+  "tuning": "FAttackTuning.SmallShotsPerSecond"
+ },
+ "HAZ-10.speed": {
+  "tuning": "FAttackTuning.SmallSpeed"
+ },
+ "HAZ-10.value": {
+  "tuning": "FAttackTuning.MuzzleOffset.Z"
+ },
+ "HAZ-10.yields_muzzle": {
+  "tuning": "FAttackTuning.MuzzleOffset.X"
+ },
+ "MOVE-21.cooldown": {
+  "tuning": "FMotorTuning.HopCooldownSeconds"
+ },
+ "MOVE-21.cooldown.2": {
+  "tuning": "FMotorTuning.DashCooldownSeconds"
+ },
+ "MOVE-21.falling_dash": {
+  "tuning": "FMotorTuning.DashDistance"
+ },
+ "MOVE-21.free_fall": {
+  "tuning": "FMotorTuning.RiseSpeed"
+ },
+ "MOVE-21.hop": {
+  "tuning": "FMotorTuning.HopDistance"
+ },
+ "MOVE-21.protection": {
+  "tuning": "FMotorTuning.HopProtectionSeconds"
+ },
+ "MOVE-21.s": {
+  "tuning": "FMotorTuning.HopDurationSeconds"
+ },
+ "MOVE-21.s.2": {
+  "tuning": "FMotorTuning.DashDurationSeconds"
+ },
+ "MOVE-21.units": {
+  "tuning": "FMotorTuning.FreeFallSpeed"
+ },
+ "MOVE-21.units.2": {
+  "tuning": "FMotorTuning.HorizontalMaxSpeed"
+ },
+ "MOVE-21.value": {
+  "tuning": "FMotorTuning.FallSpeed"
+ },
+ "MOVE-21.value.2": {
+  "tuning": "FMotorTuning.FreeFallDashMultiplier"
+ },
+ "MOVE-21.vertical_trim": {
+  "tuning": "FMotorTuning.VerticalTrimPct"
+ },
+ "MOVE-22.acceleration": {
+  "tuning": "FMotorTuning.WindAcceleration"
+ },
+ "MOVE-22.falling_decay": {
+  "tuning": "FMotorTuning.WindFallingDecay"
+ },
+ "MOVE-22.open_decay": {
+  "tuning": "FMotorTuning.WindOpenDecay"
+ },
+ "OWL-08.clock": {
+  "tuning": "FKeeperTuning.ClockHp"
+ },
+ "OWL-08.rear": {
+  "tuning": "FKeeperTuning.FrontHp"
+ },
+ "OWL-08.reserve": {
+  "tuning": "FKeeperTuning.ClockReserveHp"
+ },
+ "OWL-08.shared_wings": {
+  "tuning": "FKeeperTuning.WingsHp"
+ },
+ "OWL-08.value": {
+  "tuning": "FKeeperTuning.MiddleHp"
+ },
+ "OWL-08.value.2": {
+  "tuning": "FKeeperTuning.RearHp"
+ },
+ "OWL-11.clock_spreads": {
+  "tuning": "FKeeperTuning.RedSpreadWingsDeg"
+ },
+ "OWL-11.deg": {
+  "tuning": "FKeeperTuning.RedSpreadClockDeg"
+ },
+ "OWL-11.effective": {
+  "tuning": "FKeeperTuning.RedSpreadMechanismsDeg"
+ },
+ "OWL-11.incoming_damage": {
+  "tuning": "FKeeperTuning.ProjectileDamage"
+ },
+ "OWL-11.least": {
+  "tuning": "FKeeperTuning.RedRecoveryMinSeconds"
+ },
+ "OWL-11.most": {
+  "tuning": "FKeeperTuning.YellowRecoveryMaxSeconds"
+ },
+ "OWL-11.normal": {
+  "tuning": "FKeeperTuning.RedSpeedClock"
+ },
+ "OWL-11.normal_interval": {
+  "tuning": "FKeeperTuning.RedIntervalSeconds"
+ },
+ "OWL-11.spacing": {
+  "tuning": "FKeeperTuning.RedSpacingSeconds"
+ },
+ "OWL-11.speeds": {
+  "tuning": "FKeeperTuning.RedSpeedWings"
+ },
+ "OWL-11.value": {
+  "tuning": "FKeeperTuning.RedSpeedMechanisms"
+ },
+ "OWL-11.world": {
+  "tuning": "FKeeperTuning.ReducedIntervalSeconds"
+ },
+ "OWL-13.independent": {
+  "tuning": "FKeeperTuning.YellowIntervalSeconds"
+ },
+ "OWL-13.prototype_damage": {
+  "tuning": "FKeeperTuning.ProjectileDamage"
+ },
+ "OWL-13.size": {
+  "tuning": "FKeeperTuning.YellowSize"
+ },
+ "OWL-13.speeds": {
+  "tuning": "FKeeperTuning.YellowSpeedWings"
+ },
+ "OWL-13.value": {
+  "tuning": "FKeeperTuning.YellowSpeedMechanisms"
+ },
+ "OWL-13.value.2": {
+  "tuning": "FKeeperTuning.YellowSpeedClock"
+ },
+ "OWL-15.physical_scheduler": {
+  "tuning": "FKeeperTuning.PhysicalIntervalSeconds"
+ },
+ "OWL-15.warning": {
+  "tuning": "FKeeperTuning.GustWarningSeconds"
+ },
+ "OWL-16.band_width": {
+  "tuning": "FKeeperTuning.GustBandWidth"
+ },
+ "OWL-16.lifetime": {
+  "tuning": "FKeeperTuning.GustLifetimeSeconds"
+ },
+ "OWL-16.prototype_damage": {
+  "tuning": "FKeeperTuning.GustDamage"
+ },
+ "OWL-16.push": {
+  "tuning": "FKeeperTuning.GustPush"
+ },
+ "OWL-16.units": {
+  "tuning": "FKeeperTuning.GustSpeed"
+ },
+ "OWL-18.warning": {
+  "tuning": "FKeeperTuning.TalonWarningSeconds"
+ },
+ "OWL-18.within": {
+  "tuning": "FKeeperTuning.TalonReach"
+ },
+ "OWL-19.prototype_damage": {
+  "tuning": "FKeeperTuning.TalonDamage"
+ },
+ "OWL-19.s": {
+  "tuning": "FKeeperTuning.TalonStrikeSeconds"
+ },
+ "OWL-19.tip_width": {
+  "tuning": "FKeeperTuning.TalonTipWidth"
+ },
+ "OWL-20.cooldown": {
+  "tuning": "FKeeperTuning.TalonCooldownSeconds"
+ },
+ "OWL-20.distance": {
+  "tuning": "FKeeperTuning.TalonReach"
+ },
+ "OWL-20.leaving_beyond": {
+  "tuning": "FKeeperTuning.TalonRearmExit"
+ },
+ "OWL-20.quiet_recovery": {
+  "tuning": "FKeeperTuning.TalonRecoverySeconds"
+ },
+ "OWL-21.destination_during": {
+  "tuning": "FKeeperTuning.CastWarningSeconds"
+ },
+ "OWL-22.full_width": {
+  "tuning": "FKeeperTuning.ChainHeadWidth"
+ },
+ "OWL-22.reach": {
+  "tuning": "FKeeperTuning.ChainReach"
+ },
+ "OWL-22.speed_basis": {
+  "tuning": "FKeeperTuning.ChainSpeed"
+ },
+ "OWL-23.s": {
+  "tuning": "FKeeperTuning.ChainReturnSeconds"
+ },
+ "OWL-24.value": {
+  "tuning": "FKeeperTuning.MiddleOffset"
+ },
+ "OWL-26.safe": {
+  "tuning": "FKeeperTuning.RearPauseSeconds"
+ },
+ "OWL-28.least": {
+  "tuning": "FKeeperTuning.BeatRecoverySeconds"
+ },
+ "OWL-28.shot_wait": {
+  "tuning": "FKeeperTuning.BeatRepeatWaitSeconds"
+ },
+ "OWL-29.cycle_attempts": {
+  "tuning": "FKeeperTuning.FinalExposureSeconds"
+ },
+ "OWL-29.exposure_every": {
+  "tuning": "FKeeperTuning.FinalExposureCycleSeconds"
+ },
+ "OWL-29.protection": {
+  "tuning": "FKeeperTuning.ClockProtectRecoverySeconds"
+ },
+ "OWL-29.s": {
+  "tuning": "FKeeperTuning.ClockOpenSeconds"
+ },
+ "OWL-29.value": {
+  "tuning": "FKeeperTuning.ClockReserveHp"
+ },
+ "OWL-30.causes": {
+  "tuning": "FKeeperTuning.BreakStunSeconds"
+ },
+ "OWL-30.freezes": {
+  "tuning": "FKeeperTuning.FirePauseSeconds"
+ },
+ "OWL-31.cooldown": {
+  "tuning": "FKeeperTuning.SlowCooldownSeconds"
+ },
+ "OWL-31.start": {
+  "tuning": "FKeeperTuning.SlowSeconds"
+ },
+ "OWL-31.value": {
+  "tuning": "FKeeperTuning.SlowWorldScale"
+ },
+ "OWL-32.blackout": {
+  "tuning": "FKeeperTuning.BlackoutSeconds"
+ },
+ "OWL-32.eye": {
+  "tuning": "FKeeperTuning.EyeCooldownSeconds"
+ },
+ "OWL-35.lasts_roughly": {
+  "tuning": "FKeeperTuning.DepartureSeconds"
+ },
+ "SURV-05.before": {
+  "tuning": "FHealthTuning.MaxLives"
+ },
+ "SURV-05.initial_capacity": {
+  "tuning": "FHealthTuning.HitsPerLife"
+ },
+ "SURV-05.lift": {
+  "tuning": "FHealthTuning.MinLift"
+ },
+ "SURV-05.protection": {
+  "tuning": "FHealthTuning.PostHitProtectionSeconds"
+ },
+ "UMB-05.capture_distance": {
+  "tuning": "FUmbrellaFlightTuning.CaptureDistance"
+ },
+ "UMB-05.forward_range": {
+  "tuning": "FUmbrellaFlightTuning.AbsorbRange"
+ },
+ "UMB-05.full_cone": {
+  "tuning": "FUmbrellaFlightTuning.AbsorbConeDegrees"
+ },
+ "UMB-05.pull_speed": {
+  "tuning": "FUmbrellaFlightTuning.PullSpeed"
+ },
+ "UMB-05.value": {
+  "tuning": "FHealthTuning.HealPerYellow"
+ },
+ "UMB-05.value.2": {
+  "tuning": "FHealthTuning.HealPerRecoveryRank"
+ }
+}
