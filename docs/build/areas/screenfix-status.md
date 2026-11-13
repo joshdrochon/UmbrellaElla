@@ -9,3 +9,9 @@
 
 ## Left
 - Nothing. Post-merge: build exit 0, UmbrellaElla.ScreenFix PASS tests=3 failed=0.
+
+## Smoke shot (frames, path, scene switches) - done
+- c9f317b4: -SmokeShot after level ready + N rendered frames (-SmokeShotFrames, default 60); relative path resolves against project dir; -SmokeKeeper, -SmokeEnemy=<family> (workbench).
+- Build exit 0, warnings 0. `UmbrellaElla.Smoke` PASS tests=12 failed=0.
+- Captures under load (load avg ~25-36, 14-16 fps, worst frame ~1 s): `pipeline/art/proof/screenfix/shot-{plain,SmokeKeeper,SmokeEnemy_Roadwarden}.png`, all `frame_check: PASS` (black=0.000). Log: `SMOKE_SHOT frames=60`, `SMOKE_SCENE keeper=1`, `SMOKE_SCENE enemy=Roadwarden spawned=1`.
+- Caveat: -SmokeKeeper frame looks the same as plain (owl stand-in and backdrop already show in L_Graybox); fight state is proven by the log line, not the picture. Enemy stand-in (pink cube) is visible.
