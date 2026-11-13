@@ -80,3 +80,10 @@
 ## Slice 14 (Nov 13): merged main with the shared style block, keeper-warning draft 5, not passed
 - Merged origin/main (style block now added to every paid prompt). Draft 5 (flash $0.039, `KeeperWarning/prompt.v5.txt`: etched ink edges in dark red, crosshatch, paper grain): art_judge 0.577 vs min 0.699 (drafts 0.462/0.568/0.515/0.594/0.577). Flat across 5 drafts; flash does not reach the crop refs.
 - Spend 33.61 of 33.82. About 0.21 left, so no more paint. Other 7 pieces unpainted, all `_PH`. Needs more cap or a pro-tier try, plus the in-engine capture for the panel.
+
+## Slice 15 (Nov 13): keying fixed, keeper-warning 0.669 best clean draft, keeper-strike first drafts
+- Merged origin/main. Check on my side: the model paints a muted green, not #00FF00, so the old fixed key left paper-coloured grounds. `cut_strip.py` now has `KEY_TOL=0.22` (colour distance from the border median); frames cut clean.
+- vfx-keeper-warning (flash, 7 more drafts, piece spend about 0.47 of the 0.50 piece cap): flat matte broken-ring prompt (v6-v8) scores 0.601 / 0.669 / 0.668 / 0.632 / 0.477 vs min 0.699. Draft 9 scored 0.931 (PASS) but it painted square framed paper tiles behind each frame: the score came from the paper-coloured ground, not the effect. Not shippable, not used for a pro final. v10 (disc only, no tile) filled the disc solid: 0.2.
+- vfx-keeper-strike (flash, 2 drafts, `KeeperStrike/`): clean spiky starburst + red streak frames, 0.667 and 0.624 vs min 0.728. Not passed.
+- Nothing passes honestly yet; all 8 pieces remain `_PH`. No pro final (needs a passing draft). Panel still blocked on the in-engine capture.
+- Left: keeper-warning is at its piece cap (lead: raise `IMAGE_SPEND_PIECE_CAP_USD` for it, or accept 0.669); strike needs 1-2 more drafts; the other 6 pieces unpainted.
