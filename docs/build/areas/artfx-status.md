@@ -132,3 +132,6 @@ No gameplay timing, collision or state is written by any of it (tests check the 
 ## Slice 14 (Nov 13): merged main and artslots; blocked on request 7
 - Main up to date. Merged origin/area/artslots (one conflict in `ArtSlotTests.cpp`, outside my lane: took artslots' version).
 - Blocker for the lead: request 7 (quality-bar image for effect pieces, burst-scale context reference). Without it no `vfx-*` piece can pass the bar pair. No paint, spend unchanged. Every slot stays a tracked `_PH`.
+
+## Slice 15 (Nov 13): merged main and artslots (both up to date), still blocked on request 7
+- Nothing new on main since slice 14 (no change to `art_loop.py`, `art-image-model.md` or references for effect bar/context). No paint, spend unchanged. All slots stay `_PH`.
