@@ -8,3 +8,9 @@ Exact change: replace the Origin/Extent block with
 `Boxes.Add(UUmbrellaBackdropSubsystem::LayerFootprint(CameraX, Specs[Index].Parallax));`
 (or drop the loop: `Covered = Backdrop->CountCoveredStages();`). Both are on this branch and tested by
 `UmbrellaElla.Feedback.World.BackdropCoversRoute`.
+
+## Roadwarden equipment is not stored on the enemy (request 2)
+File: `Source/UmbrellaElla/Public/Enemy/UmbrellaEnemy.h`. Add `UPROPERTY(EditAnywhere) ERoadwardenEquipment Equipment` plus
+`ERoadwardenEquipment GetEquipment() const`. Until then the presenter keeps the variant itself:
+`UEnemyPresenterSubsystem::SetEquipment(Enemy, Equipment)` (default SundialCaster). When the getter exists, call
+`SetEquipment` from `ShowStandIn` with it.

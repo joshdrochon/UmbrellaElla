@@ -8,6 +8,7 @@
 #include "Harness/UmbrellaFeatureFlags.h"
 #include "Health/UmbrellaHealthComponent.h"
 #include "UI/ClockHudModel.h"
+#include "UI/Style/UmbrellaUIStyle.h"
 
 namespace
 {
@@ -38,20 +39,33 @@ void AUmbrellaHUD::DrawHUD()
 	DrawnHealthDegrees = DrawnHealthDegrees < 0.0f ? HealthTarget : ClockHudRules::FollowAngle(DrawnHealthDegrees, HealthTarget, Dt, Tuning);
 	DrawnLifeDegrees = DrawnLifeDegrees < 0.0f ? LifeTarget : ClockHudRules::FollowAngle(DrawnLifeDegrees, LifeTarget, Dt, Tuning);
 
-	// Face (translucent so the scene shows through) and rim.
-	Canvas->K2_DrawPolygon(nullptr, Layout.Center, FVector2D(Layout.Radius, Layout.Radius), Tuning.RimSegments, Tuning.FaceColor);
-	DrawCircleOutline(Layout.Center, Layout.Radius, Tuning.RimSegments, Tuning.RimThickness, Tuning.RimColor);
-
-	// Hour ticks.
-	for (float Degrees = 0.0f; Degrees < ClockHudConstants::FullTurnDegrees; Degrees += ClockHudConstants::TickStepDegrees)
+	// Face and rim: the etched dial of the shared UI style; the plain drawn dial only while that art is not imported.
+	if (UTexture2D* Dial = FUmbrellaUIStyle::ClockFaceTexture())
 	{
-		const FVector2D Outer = ClockHudRules::PointOnFace(Layout.Center, Layout.Radius, Degrees);
-		const FVector2D Inner = ClockHudRules::PointOnFace(Layout.Center, Layout.Radius * (1.0f - ClockHudConstants::TickLengthFraction), Degrees);
-		DrawLine(Outer.X, Outer.Y, Inner.X, Inner.Y, Tuning.RimColor, ClockHudConstants::TickThickness);
+		const float Half = Layout.Radius / UmbrellaUIStyleConstants::ClockFaceRimShare;
+		DrawTexture(Dial, Layout.Center.X - Half, Layout.Center.Y - Half, Half * 2.0f, Half * 2.0f, 0.0f, 0.0f, 1.0f, 1.0f, FLinearColor::White, BLEND_Translucent);
+	}
+	else
+	{
+		Canvas->K2_DrawPolygon(nullptr, Layout.Center, FVector2D(Layout.Radius, Layout.Radius), Tuning.RimSegments, Tuning.FaceColor);
+		DrawCircleOutline(Layout.Center, Layout.Radius, Tuning.RimSegments, Tuning.RimThickness, Tuning.RimColor);
+
+		// Hour ticks.
+		for (float Degrees = 0.0f; Degrees < ClockHudConstants::FullTurnDegrees; Degrees += ClockHudConstants::TickStepDegrees)
+		{
+			const FVector2D Outer = ClockHudRules::PointOnFace(Layout.Center, Layout.Radius, Degrees);
+			const FVector2D Inner = ClockHudRules::PointOnFace(Layout.Center, Layout.Radius * (1.0f - ClockHudConstants::TickLengthFraction), Degrees);
+			DrawLine(Outer.X, Outer.Y, Inner.X, Inner.Y, Tuning.RimColor, ClockHudConstants::TickThickness);
+		}
 	}
 
 	// Numerals, at least the minimum text size.
-	UFont* Font = GEngine ? GEngine->GetMediumFont() : nullptr;
+	// Lettered in the game's display face; the engine font only if that face is missing.
+	UFont* Font = FUmbrellaUIStyle::DisplayCanvasFont();
+	if (!Font)
+	{
+		Font = GEngine ? GEngine->GetMediumFont() : nullptr;
+	}
 	if (Font)
 	{
 		const float ViewHeight = static_cast<float>(Layout.View.GetSize().Y);
@@ -80,13 +94,31 @@ void AUmbrellaHUD::DrawHUD()
 	if (IsFeatureEnabled(EFeatureId::FLOW_31))
 	{
 		const FVector2D Tip = ClockHudRules::PointOnFace(Layout.Center, Layout.Radius * Tuning.LifeHandLength, DrawnLifeDegrees);
-		DrawLine(Layout.Center.X, Layout.Center.Y, Tip.X, Tip.Y, Tuning.LifeHandColor, Tuning.LifeHandThickness);
+		DrawHandBlade(Layout.Center, Tip, Tuning.LifeHandThickness * UmbrellaUI::HandBladeWidthShare, Tuning.LifeHandColor);
 		DrawRect(Tuning.LifeHandColor, Tip.X - ClockHudConstants::LifeTipSize * 0.5f, Tip.Y - ClockHudConstants::LifeTipSize * 0.5f, ClockHudConstants::LifeTipSize, ClockHudConstants::LifeTipSize);
 	}
 
 	// Health hand: long and thin.
 	const FVector2D HealthTip = ClockHudRules::PointOnFace(Layout.Center, Layout.Radius * Tuning.HealthHandLength, DrawnHealthDegrees);
-	DrawLine(Layout.Center.X, Layout.Center.Y, HealthTip.X, HealthTip.Y, Tuning.HealthHandColor, Tuning.HealthHandThickness);
+	DrawHandBlade(Layout.Center, HealthTip, Tuning.HealthHandThickness * UmbrellaUI::HandBladeWidthShare, Tuning.HealthHandColor);
+}
+
+void AUmbrellaHUD::DrawHandBlade(const FVector2D& Center, const FVector2D& Tip, float Width, const FLinearColor& Color)
+{
+	// A tapered blade, as the hands on the painted clocks of the menus: two triangles.
+	const FUmbrellaHandBlade Blade = FUmbrellaUIStyle::HandBlade(Center, Tip, Width);
+	TArray<FCanvasUVTri> Triangles;
+	for (const FVector2D& Outer : { Blade.Tail, Blade.Tip })
+	{
+		FCanvasUVTri& Triangle = Triangles.AddDefaulted_GetRef();
+		Triangle.V0_Pos = Blade.Left;
+		Triangle.V1_Pos = Outer;
+		Triangle.V2_Pos = Blade.Right;
+		Triangle.V0_Color = Color;
+		Triangle.V1_Color = Color;
+		Triangle.V2_Color = Color;
+	}
+	Canvas->K2_DrawTriangle(nullptr, Triangles);
 }
 
 void AUmbrellaHUD::DrawCircleOutline(const FVector2D& Center, float Radius, int32 Segments, float Thickness, const FLinearColor& Color)

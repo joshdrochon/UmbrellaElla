@@ -28,7 +28,7 @@ fi
 cd "$ROOT"; git fetch -q origin
 [ -d "$G" ] || git worktree add -q "$G" -B "$GB" main
 mkdir -p "$G/Saved/Config/MacEditor"; cp -n "$ROOT/Saved/Config/MacEditor/GameUserSettings.ini" "$G/Saved/Config/MacEditor/" 2>/dev/null
-cd "$G"; git reset -q --hard main; MAIN=$(git rev-parse HEAD)
+cd "$G"; git reset -q --hard main; git clean -qfd; MAIN=$(git rev-parse HEAD)   # untracked leftovers from a killed run must not reach the checks
 # The baseline depends only on main, so it is computed once per main SHA and reused (Nov 12: ~10 min per gate run).
 T1=$(date +%s); QB="$L/quality-base-$MAIN.txt"
 if [ -s "$QB" ]; then cp "$QB" "$L/quality-base.txt"; step "baseline (cached for $(git rev-parse --short HEAD))"
@@ -36,10 +36,13 @@ else python3 tools/build/quality_gate.py baseline "$QB.tmp" 2>/dev/null && mv "$
 T1=$(date +%s)
 if ! git -c core.hooksPath=/dev/null merge -q --no-ff -m "Merge area/$A ($(git rev-parse --short "$C")) into main" "$C" 2>/dev/null; then
   if git diff --name-only --diff-filter=U | grep -qx docs/build/rule-status.csv; then python3 tools/build/rule_status_merge.py || true; fi
+  # The inventory CSV is generated: a conflict there is resolved by regenerating it from the merged tree.
+  if git diff --name-only --diff-filter=U | grep -qx docs/build/art-inventory.csv; then git checkout --ours docs/build/art-inventory.csv && python3 tools/build/art_inventory.py write >/dev/null 2>&1; git add docs/build/art-inventory.csv; fi
   bad=$(git diff --name-only --diff-filter=U | grep -v -E '^docs/build/(areas/[a-z]+\.md|worker-rules\.md|areas\.py)$')
   if [ -n "$bad" ]; then echo "GATE FAIL: merge conflict in: $bad"; git merge --abort; exit 1; fi
   git diff --name-only --diff-filter=U | xargs git checkout --ours -- && git add -A docs/build && git -c core.hooksPath=/dev/null commit -q --no-edit
 fi
+git merge-base --is-ancestor "$TIP" HEAD || { NORECORD=1; echo "GATE FAIL: the merge of area/$A did not happen (git refused it; see the merge output above)"; exit 1; }
 step "merge $(git rev-parse --short HEAD)"
 # Branches that each kept a row for the same take merge into duplicates; collapse them to the row the critic record backs.
 if python3 tools/build/provenance_dedupe.py | grep -q "rows -> 1"; then

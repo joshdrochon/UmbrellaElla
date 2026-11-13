@@ -9,11 +9,22 @@
 #include "Feedback/Anim/EllaAnimPresenterComponent.h"
 #include "Feedback/Anim/EnemyPresenterSubsystem.h"
 #include "Feedback/Anim/KeeperPresenterSubsystem.h"
+#include "Feedback/Anim/ShotPresenterSubsystem.h"
+#include "Feedback/Anim/WindPresenterSubsystem.h"
+#include "Field/WindCurrent.h"
+#include "Feedback/Vfx/UmbrellaVfxDirectorSubsystem.h"
+#include "Feedback/Vfx/VfxCatalog.h"
+#include "Feedback/Vfx/VfxSheetVisual.h"
+#include "Tests/Shared/UmbrellaTestWorld.h"
+#include "Feedback/Vfx/UmbrellaVfxSubsystem.h"
+#include "Core/UmbrellaEvent.h"
+#include "Projectile/UmbrellaProjectile.h"
 #include "Feedback/Background/UmbrellaBackdropSubsystem.h"
 #include "GameFramework/Actor.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Misc/AutomationTest.h"
 #include "Owl/KeeperOfTime.h"
+#include "Feedback/Ui/UiArtSubsystem.h"
 
 #if WITH_AUTOMATION_TESTS
 
@@ -261,6 +272,123 @@ bool FArtSlotKeeperEnemy::RunTest(const FString& Parameters)
 	return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FArtSlotLoaderCache, "UmbrellaElla.Feedback.World.ArtSlotLoaderCache",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+
+bool FArtSlotLoaderCache::RunTest(const FString& Parameters)
+{
+	// Apply loads the material and plane once; later draws, and a row whose asset exists, load nothing again.
+	UWorld* World = ArtSlotTestWorld();
+	if (!TestNotNull(TEXT("world"), World))
+	{
+		return false;
+	}
+	const FArtSlotRow* Row = ArtSlot::Find(TEXT("ella-state:Down"));
+	AActor* Owner = World->SpawnActor<AActor>();
+	if (TestNotNull(TEXT("row"), Row) && TestNotNull(TEXT("owner"), Owner))
+	{
+		UTexture2D* Texture = ArtSlotTestTexture();
+		auto MakeMesh = [Owner]()
+		{
+			UStaticMeshComponent* Mesh = NewObject<UStaticMeshComponent>(Owner);
+			Mesh->RegisterComponent();
+			return Mesh;
+		};
+		TestTrue(TEXT("first draw"), ArtSlot::Apply(MakeMesh(), Texture, *Row, FVector::OneVector) == EArtSlotDraw::Drawn);
+		const int32 After = ArtSlot::LoadCallCount();
+		for (int32 Index = 0; Index < 5; ++Index)
+		{
+			ArtSlot::Apply(MakeMesh(), Texture, *Row, FVector::OneVector);
+		}
+		TestEqual(TEXT("five more draws load nothing"), ArtSlot::LoadCallCount(), After);
+		ArtSlot::LoadTexture(*Row);
+		const int32 AfterTexture = ArtSlot::LoadCallCount();
+		ArtSlot::LoadTexture(*Row);
+		const bool bFound = ArtSlot::LoadTexture(*Row) != nullptr;
+		TestTrue(TEXT("a texture that exists loads once"), !bFound || ArtSlot::LoadCallCount() == AfterTexture);
+	}
+	ArtSlotTestEnd(World);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FArtSlotUiScreens, "UmbrellaElla.Feedback.World.ArtSlotUiScreens",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+
+bool FArtSlotUiScreens::RunTest(const FString& Parameters)
+{
+	// Every flow screen has its own slot row; a picture shows click-through, swaps with the screen, and clears.
+	TSet<FString> Assets;
+	for (int32 Value = 0; Value <= static_cast<int32>(EFlowScreen::Statistics); ++Value)
+	{
+		const FString Id = UUiArtSubsystem::VisualIdFor(static_cast<EFlowScreen>(Value));
+		const FArtSlotRow* Row = ArtSlot::Find(*Id);
+		if (TestNotNull(*Id, Row))
+		{
+			Assets.Add(ArtSlot::SlotPath(*Row));
+		}
+	}
+	TestEqual(TEXT("one asset per screen"), Assets.Num(), static_cast<int32>(EFlowScreen::Statistics) + 1);
+	UWorld* World = ArtSlotTestWorld();
+	if (!TestNotNull(TEXT("world"), World))
+	{
+		return false;
+	}
+	UUiArtSubsystem* Ui = World->GetSubsystem<UUiArtSubsystem>();
+	if (TestNotNull(TEXT("ui art subsystem"), Ui))
+	{
+		UTexture2D* Texture = ArtSlotTestTexture();
+		Ui->ShowScreenArt(EFlowScreen::Title, nullptr);
+		TestFalse(TEXT("nothing shown without a picture"), Ui->IsShowingArt());
+		Ui->ShowScreenArt(EFlowScreen::Title, Texture);
+		TestTrue(TEXT("shown for Title"), Ui->IsShowingArt() && Ui->GetShownScreen() == EFlowScreen::Title && Ui->GetShownTexture() == Texture);
+		TestTrue(TEXT("clicks go through to the menu"), Ui->IsClickThrough());
+		Ui->ShowScreenArt(EFlowScreen::Paused, Texture);
+		TestTrue(TEXT("paused picture replaces it"), Ui->IsShowingArt() && Ui->GetShownScreen() == EFlowScreen::Paused);
+		Ui->ClearScreenArt();
+		TestFalse(TEXT("cleared"), Ui->IsShowingArt());
+	}
+	ArtSlotTestEnd(World);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FArtSlotRoadwardenVariants, "UmbrellaElla.Feedback.World.ArtSlotRoadwardenVariants",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+
+bool FArtSlotRoadwardenVariants::RunTest(const FString& Parameters)
+{
+	// Each Roadwarden equipment variant has its own slot row and path.
+	TSet<FString> Slots;
+	for (const ERoadwardenEquipment Equipment : { ERoadwardenEquipment::SundialCaster, ERoadwardenEquipment::ArmillaryLauncher, ERoadwardenEquipment::EscapementRepeater })
+	{
+		for (const EEnemyGender Gender : { EEnemyGender::Male, EEnemyGender::Female })
+		{
+			const FString Id = UEnemyPresenterSubsystem::VisualIdFor(EEnemyType::Roadwarden, Gender, Equipment);
+			const FArtSlotRow* Row = ArtSlot::Find(*Id);
+			if (TestNotNull(*Id, Row))
+			{
+				Slots.Add(ArtSlot::TexturePaths(*Row)[0]);
+			}
+		}
+	}
+	TestEqual(TEXT("six variants, six distinct assets"), Slots.Num(), 6);
+	TestEqual(TEXT("equipment is ignored off Roadwarden"), UEnemyPresenterSubsystem::VisualIdFor(EEnemyType::Floodstrider, EEnemyGender::Male, ERoadwardenEquipment::ArmillaryLauncher), FString(TEXT("enemy:Floodstrider:Male")));
+	UWorld* World = ArtSlotTestWorld();
+	if (!TestNotNull(TEXT("world"), World))
+	{
+		return false;
+	}
+	UEnemyPresenterSubsystem* Presenter = World->GetSubsystem<UEnemyPresenterSubsystem>();
+	AUmbrellaEnemy* Enemy = World->SpawnActor<AUmbrellaEnemy>();
+	if (TestNotNull(TEXT("presenter"), Presenter) && TestNotNull(TEXT("enemy"), Enemy))
+	{
+		TestEqual(TEXT("default variant"), Presenter->VisualIdOf(Enemy), UEnemyPresenterSubsystem::VisualIdFor(EEnemyType::Roadwarden, Enemy->GetGender(), ERoadwardenEquipment::SundialCaster));
+		Presenter->SetEquipment(Enemy, ERoadwardenEquipment::EscapementRepeater);
+		TestEqual(TEXT("stored variant"), Presenter->VisualIdOf(Enemy), UEnemyPresenterSubsystem::VisualIdFor(EEnemyType::Roadwarden, Enemy->GetGender(), ERoadwardenEquipment::EscapementRepeater));
+	}
+	ArtSlotTestEnd(World);
+	return true;
+}
+
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FBackdropCoversRoute, "UmbrellaElla.Feedback.World.BackdropCoversRoute",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
 
@@ -292,6 +420,171 @@ bool FBackdropCoversRoute::RunTest(const FString& Parameters)
 		{
 			const FBox2D Box = UUmbrellaBackdropSubsystem::LayerFootprint(EndCamera, Backdrop->GetBuiltSpecs()[Index].Parallax);
 			TestTrue(TEXT("panel actor is at its footprint centre"), FMath::IsNearlyEqual(static_cast<float>(Backdrop->GetLayers()[Index]->GetActorLocation().X), static_cast<float>(Box.GetCenter().X), 1.0f));
+		}
+	}
+	ArtSlotTestEnd(World);
+	return true;
+}
+
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FArtSlotShots, "UmbrellaElla.Feedback.World.ArtSlotShots",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+
+bool FArtSlotShots::RunTest(const FString& Parameters)
+{
+	UWorld* World = ArtSlotTestWorld();
+	if (!TestNotNull(TEXT("world"), World))
+	{
+		return false;
+	}
+	TestEqual(TEXT("player shot slot"), UShotPresenterSubsystem::VisualIdFor(EUmbrellaShotKind::PlayerBlast), FString(TEXT("shot:gold")));
+	TestEqual(TEXT("owl bolt slot"), UShotPresenterSubsystem::VisualIdFor(EUmbrellaShotKind::EnemyRed), FString(TEXT("shot:red")));
+	TestEqual(TEXT("yellow shot slot"), UShotPresenterSubsystem::VisualIdFor(EUmbrellaShotKind::EnemyYellow), FString(TEXT("shot:yellow")));
+	UShotPresenterSubsystem* Presenter = World->GetSubsystem<UShotPresenterSubsystem>();
+	FUmbrellaShotSpec Spec;
+	Spec.Kind = EUmbrellaShotKind::EnemyRed;
+	Spec.Velocity = FVector(100.0, 0.0, 0.0);
+	AUmbrellaProjectile* Shot = AUmbrellaProjectile::Fire(World, Spec);
+	if (TestNotNull(TEXT("shot presenter"), Presenter) && TestNotNull(TEXT("shot"), Shot))
+	{
+		UStaticMeshComponent* Mesh = Cast<UStaticMeshComponent>(Shot->GetRootComponent());
+		const FVector SphereScale = Mesh ? Mesh->GetRelativeScale3D() : FVector::ZeroVector;
+		UTexture2D* Texture = ArtSlotTestTexture();
+		TestTrue(TEXT("shot takes a picture"), Presenter->ShowArt(Shot, Texture) == EArtSlotDraw::Drawn);
+		TestTrue(TEXT("second picture refused"), Presenter->ShowArt(Shot, Texture) != EArtSlotDraw::Drawn);
+		if (TestNotNull(TEXT("shot visual"), Mesh))
+		{
+			TestTrue(TEXT("shot shows the picture"), ArtSlot::HasArt(Mesh) && ArtSlotParamTexture(Mesh) == Texture);
+			TestEqual(TEXT("shot art keeps the sphere width"), Mesh->GetRelativeScale3D().X, SphereScale.X);
+			TestEqual(TEXT("shot art keeps the sphere height"), Mesh->GetRelativeScale3D().Y, SphereScale.Z);
+			TestEqual(TEXT("shot art has no collision"), static_cast<int32>(Mesh->GetCollisionEnabled()), static_cast<int32>(ECollisionEnabled::NoCollision));
+		}
+	}
+	UUmbrellaVfxSubsystem* Vfx = World->GetSubsystem<UUmbrellaVfxSubsystem>();
+	if (TestNotNull(TEXT("vfx"), Vfx))
+	{
+		FUmbrellaEvent Event;
+		Event.Type = EUmbrellaEventType::ProjectileContact;
+		Vfx->PlayForEvent(Event);
+		AActor* Hit = Vfx->GetLastActor();
+		if (TestNotNull(TEXT("impact effect"), Hit))
+		{
+			UTexture2D* Texture = ArtSlotTestTexture();
+			TestTrue(TEXT("bolt hit takes a picture"), Vfx->ShowImpactArt(Hit, Texture) == EArtSlotDraw::Drawn);
+			const UStaticMeshComponent* HitMesh = Cast<UStaticMeshComponent>(Hit->GetRootComponent());
+			TestTrue(TEXT("bolt hit shows the picture"), HitMesh && ArtSlot::HasArt(HitMesh) && ArtSlotParamTexture(HitMesh) == Texture);
+		}
+	}
+	ArtSlotTestEnd(World);
+	return true;
+}
+
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FArtSlotSheetFrames, "UmbrellaElla.Feedback.World.ArtSlotSheetFrames",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+
+bool FArtSlotSheetFrames::RunTest(const FString& Parameters)
+{
+	FUmbrellaTestWorld Harness;
+	UWorld* World = Harness.GetWorld();
+	UUmbrellaVfxDirectorSubsystem* Director = World ? World->GetSubsystem<UUmbrellaVfxDirectorSubsystem>() : nullptr;
+	const FVfxArtRow* Row = VfxCatalog::Find(TEXT("SmallBlastTravel"));
+	if (!TestNotNull(TEXT("effect director"), Director) || !TestNotNull(TEXT("sheet row"), Row))
+	{
+		return false;
+	}
+	TestTrue(TEXT("effect plays"), Director->Play(TEXT("SmallBlastTravel"), FVector(0.0, 0.0, 300.0), nullptr) > 0);
+	UStaticMeshComponent* Visual = Cast<UStaticMeshComponent>(IsValid(Director->GetLiveActor(TEXT("SmallBlastTravel"))) ? Director->GetLiveActor(TEXT("SmallBlastTravel"))->GetRootComponent() : nullptr);
+	if (!TestNotNull(TEXT("effect visual"), Visual) || !TestTrue(TEXT("the sheet is drawn, not the stand-in"), VfxSheetVisual::HasArt(Visual)))
+	{
+		return false;
+	}
+	const UMaterialInstanceDynamic* Dynamic = Cast<UMaterialInstanceDynamic>(Visual->GetMaterial(0));
+	if (!TestNotNull(TEXT("sheet material"), Dynamic))
+	{
+		return false;
+	}
+	float Frame = -1.0f;
+	Dynamic->GetScalarParameterValue(FName(TEXT("Frame")), Frame);
+	TestEqual(TEXT("starts on the first frame"), Frame, 0.0f);
+	const float Elapsed = 3.5f / Row->Fps;
+	Director->StepEffects(Elapsed);
+	Dynamic->GetScalarParameterValue(FName(TEXT("Frame")), Frame);
+	TestTrue(TEXT("frame advanced with game time"), Frame > 0.0f);
+	TestEqual(TEXT("frame is the catalogue frame at that time"), static_cast<int32>(Frame), VfxCatalog::FrameAt(*Row, Elapsed));
+	Director->StepEffects(Elapsed);
+	float Later = -1.0f;
+	Dynamic->GetScalarParameterValue(FName(TEXT("Frame")), Later);
+	TestTrue(TEXT("frame keeps advancing"), Later > Frame);
+	return true;
+}
+
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FArtSlotWind, "UmbrellaElla.Feedback.World.ArtSlotWind",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+
+bool FArtSlotWind::RunTest(const FString& Parameters)
+{
+	UWorld* World = ArtSlotTestWorld();
+	if (!TestNotNull(TEXT("world"), World))
+	{
+		return false;
+	}
+	TestEqual(TEXT("gust starts on frame 0"), UWindPresenterSubsystem::GustFrameAt(0.0f, 8), 0);
+	TestTrue(TEXT("gust advances"), UWindPresenterSubsystem::GustFrameAt(0.5f, 8) > 0);
+	TestTrue(TEXT("gust wraps inside the sheet"), UWindPresenterSubsystem::GustFrameAt(99.0f, 8) < 8);
+	UWindPresenterSubsystem* Presenter = World->GetSubsystem<UWindPresenterSubsystem>();
+	AWindCurrent* Wind = World->SpawnActor<AWindCurrent>();
+	if (TestNotNull(TEXT("wind presenter"), Presenter) && TestNotNull(TEXT("wind"), Wind))
+	{
+		Wind->SetHalfExtent(300.0f, 200.0f);
+		UStaticMeshComponent* Field = Wind->GetField();
+		UTexture2D* Texture = ArtSlotTestTexture();
+		const FString FieldId = UmbrellaWindPresenterConst::FieldVisual;
+		TestTrue(TEXT("field takes the picture"), Presenter->ShowArt(Wind, FieldId, Texture) == EArtSlotDraw::Drawn);
+		TestTrue(TEXT("second field picture refused"), Presenter->ShowArt(Wind, FieldId, Texture) != EArtSlotDraw::Drawn);
+		TestTrue(TEXT("field shows the picture"), ArtSlot::IsDrawingArt(Field) && ArtSlotParamTexture(Field) == Texture);
+		TestEqual(TEXT("picture is the field width"), Field->GetRelativeScale3D().X, 6.0);
+		TestEqual(TEXT("picture is the field height"), Field->GetRelativeScale3D().Y, 4.0);
+		TestEqual(TEXT("picture has no collision"), static_cast<int32>(Field->GetCollisionEnabled()), static_cast<int32>(ECollisionEnabled::NoCollision));
+
+		// The current refreshes its colour card when resized; the presenter puts the picture back at the new size.
+		Wind->SetHalfExtent(400.0f, 200.0f);
+		TestFalse(TEXT("refresh put the card back"), ArtSlot::IsDrawingArt(Field));
+		Presenter->Tick(0.0f);
+		TestTrue(TEXT("picture is back after refresh"), ArtSlot::IsDrawingArt(Field) && ArtSlotParamTexture(Field) == Texture);
+		TestEqual(TEXT("picture follows the new width"), Field->GetRelativeScale3D().X, 8.0);
+
+		for (const FString& Overlay : { FString(UmbrellaWindPresenterConst::LinesVisual), FString(UmbrellaWindPresenterConst::GustVisual) })
+		{
+			// The shipped _PH gust sheet may already be drawn by the tick above; then the transient picture is refused.
+			const bool bAlready = UWindPresenterSubsystem::FindOverlay(Wind, Overlay) != nullptr;
+			const EArtSlotDraw OverlayResult = bAlready ? EArtSlotDraw::Drawn : Presenter->ShowArt(Wind, Overlay, Texture);
+			TestTrue(*FString::Printf(TEXT("overlay %s is drawn (result %d)"), *Overlay, static_cast<int32>(OverlayResult)), OverlayResult == EArtSlotDraw::Drawn);
+			const UStaticMeshComponent* Mesh = UWindPresenterSubsystem::FindOverlay(Wind, Overlay);
+			if (TestNotNull(TEXT("overlay component"), Mesh))
+			{
+				TestTrue(TEXT("overlay shows a picture"), ArtSlot::IsDrawingArt(Mesh) && (bAlready || ArtSlotParamTexture(Mesh) == Texture));
+				TestEqual(TEXT("overlay matches the field width"), Mesh->GetRelativeScale3D().X, 8.0);
+				TestEqual(TEXT("overlay has no collision"), static_cast<int32>(Mesh->GetCollisionEnabled()), static_cast<int32>(ECollisionEnabled::NoCollision));
+			}
+		}
+
+		// A wind slot asset that exists must be drawn by a fresh current.
+		AWindCurrent* Fresh = World->SpawnActor<AWindCurrent>();
+		if (TestNotNull(TEXT("fresh wind"), Fresh))
+		{
+			Fresh->SetHalfExtent(300.0f, 200.0f);
+			Presenter->Tick(0.0f);
+			for (const TCHAR* Visual : { UmbrellaWindPresenterConst::FieldVisual, UmbrellaWindPresenterConst::LinesVisual, UmbrellaWindPresenterConst::GustVisual })
+			{
+				const FArtSlotRow* Row = ArtSlot::Find(Visual);
+				if (TestNotNull(TEXT("wind slot row"), Row) && ArtSlot::LoadTexture(*Row))
+				{
+					const bool bDrawn = FString(Visual) == UmbrellaWindPresenterConst::FieldVisual ? ArtSlot::IsDrawingArt(Fresh->GetField()) : UWindPresenterSubsystem::FindOverlay(Fresh, Visual) != nullptr;
+					TestTrue(*FString::Printf(TEXT("%s asset exists, so the wind draws it"), Visual), bDrawn);
+				}
+			}
 		}
 	}
 	ArtSlotTestEnd(World);

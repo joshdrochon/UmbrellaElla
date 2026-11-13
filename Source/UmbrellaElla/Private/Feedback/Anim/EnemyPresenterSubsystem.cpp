@@ -44,19 +44,45 @@ FName UEnemyPresenterSubsystem::ArtKeyFor(EEnemyType Type, EEnemyGender Gender, 
 		*StaticEnum<EEnemyState>()->GetNameStringByValue(static_cast<int64>(State))));
 }
 
-FString UEnemyPresenterSubsystem::VisualIdFor(EEnemyType Type, EEnemyGender Gender)
+FString UEnemyPresenterSubsystem::VisualIdFor(EEnemyType Type, EEnemyGender Gender, ERoadwardenEquipment Equipment)
 {
-	// The enemy does not store its Roadwarden equipment yet, so a Roadwarden shows the first one (request artslots 2).
-	const FString Family = Type == EEnemyType::Roadwarden ? FString(TEXT("SundialCaster"))
+	const FString Family = Type == EEnemyType::Roadwarden
+		? StaticEnum<ERoadwardenEquipment>()->GetNameStringByValue(static_cast<int64>(Equipment))
 		: StaticEnum<EEnemyType>()->GetNameStringByValue(static_cast<int64>(Type));
 	return FString::Printf(TEXT("enemy:%s:%s"), *Family,
 		*StaticEnum<EEnemyGender>()->GetNameStringByValue(static_cast<int64>(Gender)));
 }
 
+ERoadwardenEquipment UEnemyPresenterSubsystem::GetEquipment(const AUmbrellaEnemy* Enemy) const
+{
+	const ERoadwardenEquipment* Found = EquipmentByEnemy.Find(Enemy);
+	return Found ? *Found : ERoadwardenEquipment::SundialCaster;
+}
+
+FString UEnemyPresenterSubsystem::VisualIdOf(const AUmbrellaEnemy* Enemy) const
+{
+	return VisualIdFor(Enemy->GetEnemyType(), Enemy->GetGender(), GetEquipment(Enemy));
+}
+
+void UEnemyPresenterSubsystem::SetEquipment(AUmbrellaEnemy* Enemy, ERoadwardenEquipment Equipment)
+{
+	if (!IsValid(Enemy))
+	{
+		return;
+	}
+	EquipmentByEnemy.Add(Enemy, Equipment);
+	UStaticMeshComponent* Mesh = FindStandIn(Enemy);
+	const FArtSlotRow* Row = Mesh ? ArtSlot::Find(*VisualIdOf(Enemy)) : nullptr;
+	if (Row && !ArtSlot::HasArt(Mesh))
+	{
+		ArtSlot::ApplyRow(Mesh, *Row, StandInScaleFor(Enemy->GetEnemyState(), Enemy->GetGender()));
+	}
+}
+
 EArtSlotDraw UEnemyPresenterSubsystem::ShowArt(AUmbrellaEnemy* Enemy, UTexture2D* Texture)
 {
 	UStaticMeshComponent* Mesh = IsValid(Enemy) ? FindStandIn(Enemy) : nullptr;
-	const FArtSlotRow* Row = IsValid(Enemy) ? ArtSlot::Find(*VisualIdFor(Enemy->GetEnemyType(), Enemy->GetGender())) : nullptr;
+	const FArtSlotRow* Row = IsValid(Enemy) ? ArtSlot::Find(*VisualIdOf(Enemy)) : nullptr;
 	if (!Mesh || !Row || ArtSlot::HasArt(Mesh))
 	{
 		return EArtSlotDraw::NoTexture;
@@ -124,7 +150,7 @@ void UEnemyPresenterSubsystem::ShowStandIn(AUmbrellaEnemy* Enemy)
 	Mesh->SetupAttachment(Enemy->GetRootComponent());
 	ArtSlot::SetFlatUnlit(Mesh, Enemy, UmbrellaArtSlotConst::StandInEnemyColor);
 	// Art slot enemy:<Family>:<Gender>; the cube stays when no asset exists.
-	if (const FArtSlotRow* Row = ArtSlot::Find(*VisualIdFor(Enemy->GetEnemyType(), Enemy->GetGender())))
+	if (const FArtSlotRow* Row = ArtSlot::Find(*VisualIdOf(Enemy)))
 	{
 		ArtSlot::ApplyRow(Mesh, *Row, StandInScaleFor(Enemy->GetEnemyState(), Enemy->GetGender()));
 	}
