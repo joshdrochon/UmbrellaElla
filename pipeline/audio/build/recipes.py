@@ -129,3 +129,17 @@ RECIPES["SurvivedSting"]["layers"]["bell"].update({"decay": 2.5})
 RECIPES["SurvivedSting"]["layers"]["bell"].update({"decay": 4})
 RECIPES["SurvivedSting"]["layers"]["choir"].update({"gain_db": -12, "trim": 3.2, "delay_ms": 300})
 RECIPES["SurvivedSting"].update({"seconds": 5.6})
+# Sting tails (critic round 1): loudnorm lifted the faded tail back up, so regen.py now fades again after it; 8 s files
+# so the cathedral tail (measured decay under the file length) rings out to silence.
+RECIPES["FailSting"].update({"seconds": 8.0, "fade_out": 3.5})
+RECIPES["FailSting"]["reverb"].update({"rt60": 3.0, "wet_db": -10})
+RECIPES["SurvivedSting"].update({"seconds": 8.0, "fade_out": 3.5})
+RECIPES["SurvivedSting"]["layers"]["wind"].update({"filter": "highpass=f=200,lowpass=f=1500"})
+RECIPES["PlayerHurt"]["take_gain_db"] = {2: 1.5}   # audio_check: take 02 sat 3.1 dB under the hit family median (max 3.0)
+RECIPES["SurvivedSting"]["layers"]["choir"].update({"trim": 2.4})
+RECIPES["SurvivedSting"]["layers"]["wind"].update({"trim": 3.0, "delay_ms": 1200})
+RECIPES["FailSting"]["channels"] = 2       # sound-list.csv: the stings are 2-channel Music class files
+RECIPES["SurvivedSting"]["channels"] = 2
+# PlayerHurt level: the 1.5 s tail dropped its RMS 3+ dB under the hit family median; a wetter hall and a 1.3 s file bring it back.
+RECIPES["PlayerHurt"].update({"seconds": 1.3, "fade_out": 0.45, "take_gain_db": {}, "post_gain_db": 5})
+RECIPES["PlayerHurt"]["reverb"].update({"wet_db": -5})

@@ -95,8 +95,9 @@ def mix(rec, files, out):
                  f"volume={rv.get('wet_db', -10) - 12}dB[wet];[dry][wet]amix=inputs=2:normalize=0:duration=longest")
     g = ";".join(chains) + ";" + "".join(labels) + f"amix=inputs={len(labels)}:normalize=0:duration=longest," \
         f"apad=whole_dur={total},atrim=0:{total},{post},afade=t=out:st={max(0, total - fade)}:d={fade}," \
-        f"loudnorm=I={rec['lufs']}:TP=-2:LRA=7,atrim=0:{total},aresample=48000,volume={rec.get('post_gain_db', 0) + rec.get('take_gain_db', {}).get(rec.get('_take', 0), 0)}dB,alimiter=limit=0.85:level=disabled[o]"
-    r = run(["ffmpeg", "-y", "-loglevel", "error", *ins, "-filter_complex", g, "-map", "[o]", "-ac", "1",
+        f"loudnorm=I={rec['lufs']}:TP=-2:LRA=7,atrim=0:{total},aresample=48000,afade=t=out:st={max(0, total - fade)}:d={fade}:curve=qsin," \
+        f"volume={rec.get('post_gain_db', 0) + rec.get('take_gain_db', {}).get(rec.get('_take', 0), 0)}dB,alimiter=limit=0.85:level=disabled[o]"
+    r = run(["ffmpeg", "-y", "-loglevel", "error", *ins, "-filter_complex", g, "-map", "[o]", "-ac", str(rec.get("channels", 1)),
              "-c:a", "pcm_s16le", str(out)])
     if r.returncode:
         raise SystemExit(r.stderr[-800:])
