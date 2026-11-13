@@ -14,6 +14,23 @@ namespace
 	const FName ArtSlotTileUParam(TEXT("TileU"));
 	const FName ArtSlotTileVParam(TEXT("TileV"));
 
+	// Loader cache: engine assets and textures are looked up once. Weak pointers, so a garbage-collected or reimported asset reloads.
+	TWeakObjectPtr<UMaterialInterface> ArtSlotCachedMaterial;
+	TWeakObjectPtr<UStaticMesh> ArtSlotCachedPlane;
+	TMap<FString, TWeakObjectPtr<UTexture2D>> ArtSlotCachedTextures;
+	int32 ArtSlotLoadCalls = 0;
+
+	template <typename T>
+	T* ArtSlotCachedLoad(TWeakObjectPtr<T>& Cache, const TCHAR* Path)
+	{
+		if (!Cache.IsValid())
+		{
+			++ArtSlotLoadCalls;
+			Cache = LoadObject<T>(nullptr, Path, nullptr, LOAD_NoWarn | LOAD_Quiet);
+		}
+		return Cache.Get();
+	}
+
 	const FArtSlotRow ArtSlotRows[] = {
 #include "Feedback/Art/ArtSlotCatalog.inc"
 	};
@@ -50,11 +67,18 @@ TArray<FString> ArtSlot::TexturePaths(const FArtSlotRow& Row)
 
 UTexture2D* ArtSlot::LoadTexture(const FArtSlotRow& Row)
 {
+	// Hits are cached per path; a miss is not, so an asset imported later in the session is still found.
 	for (const FString& Path : TexturePaths(Row))
 	{
-		if (UTexture2D* Texture = LoadObject<UTexture2D>(nullptr, *Path, nullptr, LOAD_NoWarn | LOAD_Quiet))
+		TWeakObjectPtr<UTexture2D>& Cached = ArtSlotCachedTextures.FindOrAdd(Path);
+		if (!Cached.IsValid())
 		{
-			return Texture;
+			++ArtSlotLoadCalls;
+			Cached = LoadObject<UTexture2D>(nullptr, *Path, nullptr, LOAD_NoWarn | LOAD_Quiet);
+		}
+		if (Cached.IsValid())
+		{
+			return Cached.Get();
 		}
 	}
 	return nullptr;
@@ -72,8 +96,8 @@ EArtSlotDraw ArtSlot::Apply(UStaticMeshComponent* Mesh, UTexture2D* Texture, con
 	{
 		return EArtSlotDraw::NoTexture;
 	}
-	UMaterialInterface* Material = LoadObject<UMaterialInterface>(nullptr, UmbrellaArtSlotConst::MaterialPath, nullptr, LOAD_NoWarn | LOAD_Quiet);
-	UStaticMesh* Plane = Material ? LoadObject<UStaticMesh>(nullptr, UmbrellaArtSlotConst::PlanePath, nullptr, LOAD_NoWarn | LOAD_Quiet) : nullptr;
+	UMaterialInterface* Material = ArtSlotCachedLoad(ArtSlotCachedMaterial, UmbrellaArtSlotConst::MaterialPath);
+	UStaticMesh* Plane = Material ? ArtSlotCachedLoad(ArtSlotCachedPlane, UmbrellaArtSlotConst::PlanePath) : nullptr;
 	if (!Plane)
 	{
 		return EArtSlotDraw::NoMaterial;
@@ -99,6 +123,11 @@ EArtSlotDraw ArtSlot::Apply(UStaticMeshComponent* Mesh, UTexture2D* Texture, con
 	return EArtSlotDraw::Drawn;
 }
 
+int32 ArtSlot::LoadCallCount()
+{
+	return ArtSlotLoadCalls;
+}
+
 EArtSlotDraw ArtSlot::ApplyRow(UStaticMeshComponent* Mesh, const FArtSlotRow& Row, const FVector& BoxScale)
 {
 	return Apply(Mesh, LoadTexture(Row), Row, BoxScale);
@@ -109,6 +138,20 @@ void ArtSlot::SetTexture(UStaticMeshComponent* Mesh, UTexture2D* Texture)
 	if (UMaterialInstanceDynamic* Dynamic = IsValid(Mesh) && IsValid(Texture) ? Cast<UMaterialInstanceDynamic>(Mesh->GetMaterial(0)) : nullptr)
 	{
 		Dynamic->SetTextureParameterValue(ArtSlotParam, Texture);
+	}
+}
+
+bool ArtSlot::IsDrawingArt(const UStaticMeshComponent* Mesh)
+{
+	const UMaterialInstanceDynamic* Dynamic = IsValid(Mesh) ? Cast<UMaterialInstanceDynamic>(Mesh->GetMaterial(0)) : nullptr;
+	return Dynamic && Dynamic->Parent && Dynamic->Parent->GetPathName() == UmbrellaArtSlotConst::MaterialPath;
+}
+
+void ArtSlot::SetFrame(UStaticMeshComponent* Mesh, int32 Frame)
+{
+	if (UMaterialInstanceDynamic* Dynamic = IsValid(Mesh) ? Cast<UMaterialInstanceDynamic>(Mesh->GetMaterial(0)) : nullptr)
+	{
+		Dynamic->SetScalarParameterValue(ArtSlotFrameParam, static_cast<float>(Frame));
 	}
 }
 

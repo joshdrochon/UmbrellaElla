@@ -2,6 +2,7 @@
 #include "Attack/StreamBeamActor.h"
 #include "Components/PointLightComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Misc/App.h"
 #include "Core/EllaCharacter.h"
 #include "Core/UmbrellaEvent.h"
 #include "Core/UmbrellaEventBus.h"
@@ -9,6 +10,9 @@
 #include "Core/UmbrellaTuning.h"
 #include "Encounter/EncounterDirectorSubsystem.h"
 #include "Engine/World.h"
+#include "UnrealClient.h"
+#include "Misc/CommandLine.h"
+#include "Misc/Parse.h"
 #include "EngineUtils.h"
 #include "Feedback/Vfx/LightShaftRules.h"
 #include "Feedback/Vfx/UmbrellaVfxSubsystem.h"
@@ -77,6 +81,13 @@ void UUmbrellaVfxDirectorSubsystem::Initialize(FSubsystemCollectionBase& Collect
 {
 	Collection.InitializeDependency<UUmbrellaEventBus>();
 	Super::Initialize(Collection);
+#if !UE_BUILD_SHIPPING
+	FString DemoValue;
+	if (FParse::Value(FCommandLine::Get(), TEXT("VfxDemo="), DemoValue))
+	{
+		DemoKey = FName(*DemoValue);
+	}
+#endif
 	if (UUmbrellaEventBus* Bus = UUmbrellaEventBus::Get(this))
 	{
 		Handles.Add(Bus->On(EUmbrellaEventType::ProjectileSpawned).AddUObject(this, &UUmbrellaVfxDirectorSubsystem::HandleProjectileSpawned));
@@ -553,8 +564,42 @@ void UUmbrellaVfxDirectorSubsystem::StepEffects(float DeltaSeconds)
 	StepNeedleChannel();
 	StepKeeper();
 	StepShaft(DeltaSeconds);
+#if !UE_BUILD_SHIPPING
+	StepDemo();
+#endif
 	StepLive();
 }
+
+#if !UE_BUILD_SHIPPING
+void UUmbrellaVfxDirectorSubsystem::StepDemo()
+{
+	if (DemoKey.IsNone())
+	{
+		return;
+	}
+	AActor* Player = FindElla();
+	if (!Player)
+	{
+		return;
+	}
+	// Wall time on purpose: art capture only, non-shipping; game time crawls while shaders compile.
+	const double Now = FApp::GetCurrentTime();
+	if (DemoStartSeconds < 0.0)
+	{
+		DemoStartSeconds = Now;
+	}
+	const int32 LiveOfKey = GetLiveCount(DemoKey);
+	if (!bDemoShotTaken && Now - DemoStartSeconds >= UmbrellaVfxDirectorConst::DemoShotSeconds && LiveOfKey > 0)
+	{
+		bDemoShotTaken = true;
+		FScreenshotRequest::RequestScreenshot(FString(), false, false);
+	}
+	if (UmbrellaVfxDirectorConst::ShouldPlayDemo(DemoKey, LiveOfKey))
+	{
+		Play(DemoKey, Player->GetActorLocation() + FVector(UmbrellaVfxDirectorConst::DemoOffsetX, 0.0f, UmbrellaVfxDirectorConst::DemoOffsetZ), nullptr);
+	}
+}
+#endif
 
 void UUmbrellaVfxDirectorSubsystem::StepShots()
 {

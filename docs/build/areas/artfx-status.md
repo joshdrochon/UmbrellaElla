@@ -37,3 +37,57 @@ No gameplay timing, collision or state is written by any of it (tests check the 
 - VFX-10 numerical budgets stay OPEN in the GDD; the cap (40 live effects) and flash gap (0.34 s) are this build's values.
 - Reduced-flash toggle is not wired from Settings to the director (request 2).
 - Blackout veil opacity (0.55) is my value; the GDD gives none.
+
+## Slice 2 (Nov 13): first Gemini-painted effect, Twin Star head (VFX-03)
+- Prompt reviewed by a fresh Art Director session before the call (`Art/Source/VFX/Paint/TwinStarHead/prompt-review.md`); its corrected block is `prompt.final.txt`. Applied: side view, head plus short tail, 8-point faceted star, named palette colours, shell/shadow, no rotation. One call, 3 Pro 21:9 2K, $0.14 (shared counter 1.81 of 33.82).
+- Cut: clean + frames (4 frames, spread 16.8% by design: frame 2 is the bright, larger beat). `art_ref_check` wand-shot PASS 0.53-0.63 (min 0.334).
+- art_check colour rules FAIL on a single frame (off_band 0.24, on_palette 0.62, accent_area): these are full-frame rules, and bronze/amber shading counts as off-band. Same rule/style disagreement imagegen logged. Not fixed here.
+- Blind probe, 1 fresh Sonnet session per pair, not a panel: reference pair ours wins (calibration 2/2 right); quality-bar pair ours wins but that session missed calibration A, so it does not count. No motion or context pair run, so no pass. Not shipped: stays a `_PH` slot, no `.artloop.json`.
+- Ours vs model: panel-coloured green boxes appeared behind each cell (prompt said "green identical in every cell"; model drew darker cell panels). The HSV key removed them, but drop that sentence next time. Glow on frames 2 and 4 spills onto the panel; keyed edge looks clean.
+- Left: panel of 3 per pair, motion pair, in-engine context capture; paint release/impact/fade and Keeper warning/strike with the same method; import to `Content/.../Art/VFX` only after a pass.
+
+## Slice 3 (Nov 13): blocked, no new paint
+- Merged main (d3cf6ee5). Re-checked request 4: `pipeline/art/references.json` still has no judge element for the VFX pieces, and `art_loop.py pieces --card artfx` lists none. `wand-shot` belongs to the artshots lane (card 0.10b).
+- So no blind panel can open for any artfx piece and nothing can ship. More Gemini calls would only add `_PH` candidates that cannot pass, so I made none (spend stays 1.81 of 33.82).
+- Verdict: "check/source gap, not the work". Needs the lead to add elements (spell-small-blasts, spell-stream, spell-twin-stars, spell-needle, keeper-warning, keeper-strike, clock-beat, light-shaft) with refs and calibration, or to rule that artshots' `wand-shot` pass covers the four spell heads.
+- Once that lands: paint release/impact/fade and Keeper warning/strike with the Twin Star method (drop "green identical in every cell" from the prompt), run a panel of 3 per pair plus motion and in-engine context pairs.
+
+## Slice 4 (Nov 13): inventory merged, refs wired, second painted candidate
+- Merged `origin/area/artinventory`: the 26 `vfx-*` judge elements are in `pipeline/art/references.json`. They still did not list for `artfx` (`art_loop.py pieces` reads the references' `cards`), so I added `artfx` to the `cards` of the 19 refs those elements use (additions only). `art_loop.py pieces --card artfx` now lists all 26 `vfx-*` pieces (plus other lanes' elements that share those refs).
+- Gold impact (`vfx-gold-impact`): prompt reviewed by a fresh Art Director session (`Art/Source/VFX/Paint/GoldImpact/prompt-review.md`, `prompt.final.txt`), one 3 Pro 21:9 2K call, $0.139 (shared counter 4.14 of 33.82). Raw `Raw/strip.png`, keyed `keyed.png`.
+- Verdict on the output, "ours: prompt": the word "cell" made the model draw dark panel boxes with black borders again (second time); the key leaves the 1 px borders, and frame 2 reaches across its box. Next prompt: no "cells" or "gaps": ask for four bursts on one flat green field, spaced by a stated fraction of width, and cut frames by fixed geometry.
+- Not judged, not shipped: no panel run. Reason: every full round needs the `context` pair (an in-engine capture newer than the piece, `Saved/Logs/pipeline/*-shot.png`), and this lane has no rendered capture (headless `-nullrhi`). Without it `verdict` reports "reference" by rule, so no piece can pass from here. Needs the lead or QA to produce a smoke capture after the sheets are imported.
+- Spend stays tiny; I made no further calls because more candidates cannot pass without the capture.
+
+## Slice 5 (Nov 13): own in-engine capture, prompt fix, painted gold impact v2, full panel round
+- Merged main (art-image-model "Context capture"). Prompt fixed as the lead said (no "cells"/"gaps": four bursts on one flat green field, centres at 1/8, 3/8, 5/8, 7/8 of the width): `Art/Source/VFX/Paint/GoldImpact/prompt.v2.txt`. One 3 Pro 21:9 2K call, $0.140 (shared counter 4.56 of 33.82). Result: clean bursts on flat green, no dark boxes ("ours: prompt" is fixed).
+- Cut by fixed geometry (`Art/Source/VFX/Paint/cut_strip.py`, Blender): key, four bursts split at the emptiest columns near 1/4, 1/2, 3/4, one common scale, centred in 128 px cells, each frame doubled to 8 cells. `Paint/GoldImpact/sheet.png`; provenance row added. Installed in the `_PH` slot (`Raw/VFX_GoldImpact_PH.png`, reimported `T_VFX_GoldImpact_PH`; stays a tracked `_PH`).
+- In-engine capture: new `-VfxDemo=<EffectKey>` flag in the director (replays the effect beside Ella; art capture only) writes a scene-only shot to `Saved/Screenshots`. The smoke `-SmokeShot` window read-back is black for the 3D scene on this Mac (only the Slate UI), and the run needs `-SmokeQuitAfter=90` (frames run at about 0.1-0.5 fps while shaders compile, so game time is slow). Command: `tools/build/run_game.sh /Game/UmbrellaElla/Maps/L_Graybox -VfxDemo=SmallBlastImpact -SmokeQuitAfter=90`, then copy `Saved/Screenshots/MacEditor/ScreenShot.png` to `Saved/Logs/pipeline/vfx-gold-impact-shot.png`. The capture shows the burst at game scale.
+- Panel round on sheet.png (9 fresh Sonnet sessions): verdict=reference, calibration 3/9, score 0.526 (art_ref_check PASS, screen_check PASS), art_check colour rules FAIL (on_palette 0.55, off_style 0.32, off_band 0.15), no pass.
+- Triage: not the sheet alone. (1) art_check's colour rules are full-frame rules; they fail any gold sprite with bronze/amber shading (same defect as Slice 2). (2) Critic sessions miss calibration folder C (a clearly different pair) and answer SAME: 3/9 calibrated. (3) The context pair puts a near-black graybox capture against the key art, so it judges the scene, not the burst. Verdict: "check defect", needs the lead (a calibrated-session count, a sprite colour rule that reads the effect only, a context pair for effects). Not loosened by me.
+- Left: same method for the other 25 `vfx-*` pieces; none is run, because each would stop at the same three checks.
+
+## Slice 6 (Nov 13): merged main, still blocked
+- Merged main (b43ca5ae). Only change touching art_loop was the UI-screen context rule; the three check defects in Slice 5 are unchanged. Written up as request 5 in `docs/build/requests/artfx.md`. No paint, spend stays 4.56 of 33.82.
+
+## Slice 7 (Nov 13): merged main and origin/area/artslots, still blocked
+- Re-checked the three defects of request 5 on main: `art_check.py` still has no sprite/effect colour mode, `art_loop.py` still counts only fully calibrated sessions with no re-draw, and the context pair is unchanged for effects. artslots brought nothing for them.
+- No paint, spend stays 4.56 of 33.82. Blocker is only the lead's: request 5 in `docs/build/requests/artfx.md`.
+
+## Slice 8 (Nov 13): merged main and artslots (both up to date), still blocked
+- Main (e90abdd5) has not moved since slice 7. `art_check.py` has no sprite/effect mode, `art_loop.py` has no re-draw for uncalibrated sessions, the context pair is unchanged. Request 5 stands. No paint, spend stays 4.56 of 33.82.
+
+## Slice 9 (Nov 13): candidates moved to pipeline/art/proof/artfx
+- Per art-image-model "Where candidates live": `Art/Source/VFX/Paint/*` (TwinStarHead, GoldImpact, cut_strip.py) is now `pipeline/art/proof/artfx/`. Provenance, request 5 and the critic json paths updated. Earlier slice text above keeps the old paths.
+- `VFX_GoldImpact_PH.png` and `T_VFX_GoldImpact_PH.uasset` restored to the generated placeholder (the painted sheet is a candidate, not shipped). `Art/Source/VFX` now holds only tracked `_PH` sheets.
+- Merged main. Still blocked on request 5; no paint.
+
+## Review fix (Nov 13, review-artfx round 1)
+- Reverted the `cards` additions in `pipeline/art/references.json` (outside the lane); the exact diff is request 6 in `docs/build/requests/artfx.md`. The slice 4 line above describing the edit as done is superseded.
+- `-VfxDemo` is compiled out of shipping builds (`#if !UE_BUILD_SHIPPING`, header and cpp), `StepDemo` returns early with no key, and its timer is wall time. Rule test `UmbrellaElla.Feedback.VfxDemoRules`.
+- Not run: UE build and the new test (the lead's slot).
+
+## Review fix round 2 (Nov 13)
+- Lead ruling: the `cards` additions in `pipeline/art/references.json` (19 refs, additions only) are in-lane per `docs/build/art-image-model.md` "Shared references" on main. Restored; request 6 withdrawn. `art_loop.py pieces --card artfx` lists the 26 `vfx-*` pieces again.
+- Demo test `UmbrellaElla.Feedback.VfxDemoRules` kept (uses `FName(TEXT(...))`); `StepDemo` early-returns with no key and times on wall time.
+- Ran: build exit 0, `UmbrellaElla.Feedback` 30/30 PASS, module_check 0 problems. Demo timer uses `FApp::GetCurrentTime()` (wall time, non-shipping art capture only) because rule N flags `FPlatformTime`.
