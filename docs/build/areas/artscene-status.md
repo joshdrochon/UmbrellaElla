@@ -100,3 +100,10 @@ or calibration miss; the tool says "judge again"), never a counted one.
 - Panel (tool-written round 2): calibration 3/6, quality-bar pair ours, reference pair reference-leaning but 0/3 calibrated sessions; "judge again". Context pair missing.
 - Merged main and area/artslots again: still no backdrop texture slot (grep Source for T_*_PH finds nothing). Request 3 stands; it is the only thing
   stopping a pass for skyline, paper and menu-screen. No more paid calls until the slot exists (spend is wasted without the context pair). Nothing ships; `_PH` stays.
+
+## Nov 13: re-check after merging main (e817898a) and area/artslots (ab25ac21)
+- Backdrop still draws untextured cubes (UmbrellaBackdropSubsystem.cpp:87); no T_*_PH slot exists. Skyline r2 and paper r3 cannot get a context pair.
+- menu-screen: on main it has no `ui` block, so it needs a context capture too. area/artui adds ui-title/ui-pause/... elements and paints those screens
+  (ground r1, ui-title round 4: reference still wins). menu-screen overlaps that lane; I am not painting it in parallel (shared spend, double work).
+- Zero spend this round. Blocker for the lead, in requests/artscene.md item 3: give the backdrop a texture slot (or merge artui's `ui` elements and
+  retire menu-screen). Nothing ships; every `_PH` stays. Stopping here until the slot lands.
