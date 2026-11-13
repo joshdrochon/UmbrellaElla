@@ -1,0 +1,2 @@
+STRIPS sundial-attack source_frames=48 loop_end=40 jitter 5.0 -> 0.97 px
+  N=24 fps=7.02 loop last->first 36.52 vs mean step 10.95 loops=True -> pipeline/art/proof/videoframes/sundial-attack/sundial-attack_N24_strip.png

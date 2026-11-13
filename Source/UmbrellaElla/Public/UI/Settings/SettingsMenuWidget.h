@@ -52,10 +52,15 @@ public:
 	/** Public so tests can feed a click; runs before Slate buttons, so mouse buttons bind over a button. */
 	virtual FReply NativeOnPreviewMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 
+	/**
+	 * Public so tests can feed a key. A pending remap takes the key. Otherwise a menu Back key (Escape, B, Start, as the
+	 * flow menus read it) backs out like the Back button; with the Save / Discard / Keep Editing prompt up it keeps editing.
+	 */
+	virtual FReply NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
+
 protected:
 	virtual TSharedRef<SWidget> RebuildWidget() override;
 	virtual void ReleaseSlateResources(bool bReleaseChildren) override;
-	virtual FReply NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
 	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 
 private:

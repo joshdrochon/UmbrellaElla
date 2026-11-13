@@ -113,7 +113,8 @@ EArtSlotDraw ArtSlot::Apply(UStaticMeshComponent* Mesh, UTexture2D* Texture, con
 	const float RepeatsU = Row.bTile ? FMath::Max(1.0f, static_cast<float>(Plane3.X) * UmbrellaArtSlotConst::PlaneEdge / UmbrellaArtSlotConst::TileWorldSize) : 1.0f;
 	const float RepeatsV = Row.bTile ? FMath::Max(1.0f, static_cast<float>(Plane3.Y) * UmbrellaArtSlotConst::PlaneEdge / UmbrellaArtSlotConst::TileWorldSize) : 1.0f;
 	Dynamic->SetScalarParameterValue(ArtSlotTileUParam, RepeatsU);
-	Dynamic->SetScalarParameterValue(ArtSlotTileVParam, RepeatsV);
+	// A packed sheet shows one cell: U is cut by Cols in the material, V by Rows here (the top row; V runs down the picture).
+	Dynamic->SetScalarParameterValue(ArtSlotTileVParam, RepeatsV / static_cast<float>(FMath::Max(1, Row.Rows)));
 	Mesh->SetMaterial(0, Dynamic);
 	Mesh->ComponentTags.AddUnique(ArtSlotTag);
 	// Plane X stays world X (screen right); the plane's normal turns to +Y, toward the camera.
@@ -168,6 +169,28 @@ void ArtSlot::SetTexture(UStaticMeshComponent* Mesh, UTexture2D* Texture)
 	{
 		Dynamic->SetTextureParameterValue(ArtSlotParam, Texture);
 	}
+}
+
+void ArtSlot::SetTexture(UStaticMeshComponent* Mesh, UTexture2D* Texture, const FArtSlotRow& Row)
+{
+	if (UMaterialInstanceDynamic* Dynamic = IsValid(Mesh) && IsValid(Texture) ? Cast<UMaterialInstanceDynamic>(Mesh->GetMaterial(0)) : nullptr)
+	{
+		Dynamic->SetTextureParameterValue(ArtSlotParam, Texture);
+		Dynamic->SetScalarParameterValue(ArtSlotColsParam, static_cast<float>(FMath::Max(1, Row.Cols)));
+		Dynamic->SetScalarParameterValue(ArtSlotFrameParam, 0.0f);
+		if (!Row.bTile)
+		{
+			Dynamic->SetScalarParameterValue(ArtSlotTileUParam, 1.0f);
+			Dynamic->SetScalarParameterValue(ArtSlotTileVParam, 1.0f / static_cast<float>(FMath::Max(1, Row.Rows)));
+		}
+	}
+}
+
+float ArtSlot::CellAspect(const UTexture2D* Texture, const FArtSlotRow& Row)
+{
+	const float Width = IsValid(Texture) ? static_cast<float>(Texture->GetSizeX()) / FMath::Max(1, Row.Cols) : 0.0f;
+	const float Height = IsValid(Texture) ? static_cast<float>(Texture->GetSizeY()) / FMath::Max(1, Row.Rows) : 0.0f;
+	return (Width > 0.0f && Height > 0.0f) ? Width / Height : 1.0f;
 }
 
 bool ArtSlot::IsDrawingArt(const UStaticMeshComponent* Mesh)

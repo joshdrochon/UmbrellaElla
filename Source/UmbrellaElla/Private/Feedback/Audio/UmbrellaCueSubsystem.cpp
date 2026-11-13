@@ -1,5 +1,6 @@
 #include "Feedback/Audio/UmbrellaCueSubsystem.h"
 #include "Core/UmbrellaEvent.h"
+#include "Harness/UmbrellaFeatureFlags.h"
 #include "Feedback/Audio/UmbrellaCueTable.h"
 #include "Sound/SoundClass.h"
 #include "Sound/SoundConcurrency.h"
@@ -10,6 +11,8 @@
 #include "Sound/SoundBase.h"
 #include "Components/AudioComponent.h"
 #include "Misc/ScopeExit.h"
+#include "Engine/GameInstance.h"
+#include "Settings/SettingsMenuSubsystem.h"
 #if UMBRELLAELLA_WORKBENCH
 #include "Feedback/Audio/SoundLabelBoard.h"
 #include "Feedback/Audio/SoundLabelHud.h"
@@ -18,6 +21,9 @@
 namespace
 {
 	// Takes are SW_<Id>_NN under /Game/UmbrellaElla/Audio/<Id>/ (tools/build/assets/arena_audio_import.py).
+	// The class the Music slider scales when no settings subsystem is running (the same default it loads).
+	const TCHAR* const CueEngineMusicClassPath = TEXT("/Engine/EngineSounds/Music.Music");
+
 	TArray<USoundBase*> LoadTakes(const FUmbrellaSoundCue& Cue)
 	{
 		TArray<USoundBase*> Takes;
@@ -45,6 +51,17 @@ namespace
 		EUmbrellaEventType::ModeSelected,
 		EUmbrellaEventType::LevelGained,
 	};
+}
+
+void UUmbrellaCueSubsystem::OnWorldBeginPlay(UWorld& InWorld)
+{
+	Super::OnWorldBeginPlay(InWorld);
+	// D-new-music-at-launch (Josh, 13 Nov): MusicTitle plays from the first frame, with no wait for the Start screen.
+	// EnsureMusic never restarts a track already playing, so the flow controller's own call and the mode pick add nothing.
+	if (InWorld.IsGameWorld() && IsFeatureEnabled(EFeatureId::FLOW_34))
+	{
+		EnsureMusic(TEXT("MusicTitle"));
+	}
 }
 
 void UUmbrellaCueSubsystem::Initialize(FSubsystemCollectionBase& Collection)
@@ -217,10 +234,40 @@ bool UUmbrellaCueSubsystem::IsMusicCue(FName Cue)
 
 void UUmbrellaCueSubsystem::StopMusic()
 {
+	MusicId = NAME_None;
 	if (IsValid(MusicComponent))
 	{
 		MusicComponent->Stop();
 	}
+}
+
+FName UUmbrellaCueSubsystem::GetMusicId() const
+{
+	return IsValid(MusicComponent) && MusicComponent->IsPlaying() ? MusicId : NAME_None;
+}
+
+void UUmbrellaCueSubsystem::EnsureMusic(FName Id)
+{
+	const FUmbrellaSoundCue* Row = UmbrellaCueTable::Find(Id);
+	if (Row && Row->SoundClass == EUmbrellaCueClass::Music && Row->bLoop)
+	{
+		bool bPlayed = false;
+		PlayRow(*Row, bPlayed);
+	}
+}
+
+USoundClass* UUmbrellaCueSubsystem::ResolveMusicClass() const
+{
+	const UWorld* World = GetWorld();
+	const UGameInstance* Instance = World ? World->GetGameInstance() : nullptr;
+	if (const USettingsMenuSubsystem* Settings = Instance ? Instance->GetSubsystem<USettingsMenuSubsystem>() : nullptr)
+	{
+		if (USoundClass* Music = Settings->GetMusicClass())
+		{
+			return Music;
+		}
+	}
+	return LoadObject<USoundClass>(nullptr, CueEngineMusicClassPath, nullptr, LOAD_Quiet | LOAD_NoWarn);
 }
 
 void UUmbrellaCueSubsystem::RestartMusic(USoundBase* Sound)
@@ -234,6 +281,11 @@ void UUmbrellaCueSubsystem::RestartMusic(USoundBase* Sound)
 	{
 		// One persistent, non-auto-destroy component: a mode change reuses it instead of orphaning a fire-and-forget sound.
 		MusicComponent = UGameplayStatics::CreateSound2D(this, Sound, 1.0f, 1.0f, 0.0f, nullptr, true, false);
+		if (IsValid(MusicComponent))
+		{
+			// The Music volume slider scales this class; without it the music ignored the setting.
+			MusicComponent->SoundClassOverride = ResolveMusicClass();
+		}
 	}
 	else
 	{
@@ -293,6 +345,13 @@ void UUmbrellaCueSubsystem::PlayRow(const FUmbrellaSoundCue& Cue, bool& bOutPlay
 	{
 		return;
 	}
+	const bool bLoopedMusic = Cue.SoundClass == EUmbrellaCueClass::Music && Cue.bLoop;
+	if (bLoopedMusic && GetMusicId() == FName(Cue.Id))
+	{
+		// Already the music: carry on, never restart or stack a second copy.
+		bOutPlayed = true;
+		return;
+	}
 	if (FCString::Strlen(Cue.LoopGroup) > 0)
 	{
 		StopLoopGroup(Cue.LoopGroup);
@@ -304,9 +363,10 @@ void UUmbrellaCueSubsystem::PlayRow(const FUmbrellaSoundCue& Cue, bool& bOutPlay
 #endif
 	LastSoundId = FName(Cue.Id);
 	++SoundCueCount;
-	if (Cue.SoundClass == EUmbrellaCueClass::Music && Cue.bLoop)
+	if (bLoopedMusic)
 	{
 		RestartMusic(Sound);
+		MusicId = FName(Cue.Id);
 		return;
 	}
 	const float Pitch = 1.0f + CueRandom.FRandRange(-Cue.PitchJitter, Cue.PitchJitter);

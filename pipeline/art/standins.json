@@ -1,0 +1,948 @@
+{
+ "_about": "Stand-ins: best existing candidate per drawn slot, imported as _PH. Not a pass.",
+ "slots": {
+  "bg-layer:Base": {
+   "art_ref_check": "not run",
+   "calibration": null,
+   "copy": "pipeline/art/proof/standins/bg-base/move_final2.png",
+   "lane": "move",
+   "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
+   "panel_pairs": null,
+   "piece": "bg-base",
+   "round": "final2",
+   "score": null,
+   "sha256": "feefcff5df7c9b8923e2f01107d32a9d89f02617339b17e736d53ae2097cdaa2",
+   "source": "move/pipeline/art/proof/firstdrafts/bg-base/final2.png",
+   "status": "best-so-far (not passed)"
+  },
+  "bg-layer:ClockWaterWind": {
+   "art_ref_check": "pass",
+   "calibration": {
+    "passed": 6,
+    "sessions": 6
+   },
+   "copy": "pipeline/art/proof/standins/bg-clock-water-wind/r1_keyed.png",
+   "lane": "artscene2",
+   "note": "",
+   "panel_pairs": {
+    "quality_bar": "ours",
+    "reference": "reference"
+   },
+   "piece": "bg-clock-water-wind",
+   "round": 1,
+   "sha256": "9db270557b4a617a0b959d674e3a8fdb3df5005f64ac53334ba27a9dca7d7452",
+   "source": "artscene2/pipeline/art/proof/artscene2/bg-clock-water-wind/r1_keyed.png",
+   "status": "best-so-far (not passed)"
+  },
+  "bg-layer:FarLand": {
+   "art_ref_check": "pass",
+   "calibration": {
+    "passed": 9,
+    "sessions": 9
+   },
+   "copy": "pipeline/art/proof/standins/skyline/skyline.png",
+   "lane": "artscene",
+   "note": "",
+   "panel_pairs": {
+    "quality_bar": "ours",
+    "reference": "reference"
+   },
+   "piece": "skyline",
+   "round": 11,
+   "sha256": "76fa14ea7103e755ac61420ed710beb5eb04f1c983945a82583c20d7f2e6448f",
+   "source": "artscene/Saved/art/r15/skyline.png",
+   "status": "best-so-far (not passed)"
+  },
+  "bg-layer:NearArchitecture": {
+   "art_ref_check": "pass",
+   "calibration": {
+    "passed": 6,
+    "sessions": 6
+   },
+   "copy": "pipeline/art/proof/standins/bg-architecture/r2_keyed.png",
+   "lane": "artscene2",
+   "note": "",
+   "panel_pairs": {
+    "quality_bar": "ours",
+    "reference": "ours"
+   },
+   "piece": "bg-architecture",
+   "round": 2,
+   "sha256": "84b24b31d73105224079cc193759de753488bd29d7e49a2cca1e2f02c81bf4a8",
+   "source": "artscene2/pipeline/art/proof/artscene2/bg-architecture/r2_keyed.png",
+   "status": "best-so-far (not passed)"
+  },
+  "bg-layer:Sky": {
+   "art_ref_check": "pass",
+   "calibration": {
+    "passed": 4,
+    "sessions": 6
+   },
+   "copy": "pipeline/art/proof/standins/paper/paper_r1.png",
+   "lane": "artella",
+   "note": "",
+   "panel_pairs": {
+    "quality_bar": "ours",
+    "reference": "reference"
+   },
+   "piece": "paper",
+   "round": 1,
+   "sha256": "c777a2e345efcf66678aa5831070af8d5f7bc52b45c3f2dd432fe15da6a1b21b",
+   "source": "artella/pipeline/art/proof/scene/paper/paper_r1.png",
+   "status": "best-so-far (not passed)"
+  },
+  "bg:atmosphere": {
+   "art_ref_check": "not run",
+   "calibration": null,
+   "copy": "pipeline/art/proof/standins/bg-atmosphere/move_final2.png",
+   "lane": "move",
+   "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
+   "panel_pairs": null,
+   "piece": "bg-atmosphere",
+   "round": "final2",
+   "score": null,
+   "sha256": "ef2ff24aa9d23fdfa6f0d65d2b0a66187d4ebbbc7c74c64fff9521a1abb979d7",
+   "source": "move/pipeline/art/proof/firstdrafts/bg-atmosphere/final2.png",
+   "status": "best-so-far (not passed)"
+  },
+  "bg:clocks": {
+   "art_ref_check": "pass",
+   "calibration": {
+    "passed": 9,
+    "sessions": 9
+   },
+   "copy": "pipeline/art/proof/standins/bg-clock/r2_keyed.png",
+   "lane": "artscene2",
+   "note": "",
+   "panel_pairs": {
+    "quality_bar": "ours",
+    "reference": "reference"
+   },
+   "piece": "bg-clock",
+   "round": 2,
+   "sha256": "fc5593f3e69f678d375b0119a096d94a2e0c9d853172bfefdecba15dff2f1582",
+   "source": "artscene2/pipeline/art/proof/artscene2/bg-clock/r2_keyed.png",
+   "status": "best-so-far (not passed)"
+  },
+  "bg:land": {
+   "art_ref_check": "pass",
+   "calibration": {
+    "passed": 6,
+    "sessions": 6
+   },
+   "copy": "pipeline/art/proof/standins/bg-land/r4_keyed.png",
+   "lane": "artscene2",
+   "note": "",
+   "panel_pairs": {
+    "quality_bar": "ours",
+    "reference": "ours"
+   },
+   "piece": "bg-land",
+   "round": 4,
+   "sha256": "824298b92572ebd7f7c04e53e10bdfea5edc432d917231a287c60c818083ed7c",
+   "source": "artscene2/pipeline/art/proof/artscene2/bg-land/r4_keyed.png",
+   "status": "best-so-far (not passed)"
+  },
+  "bg:start-end": {
+   "art_ref_check": "not run",
+   "calibration": null,
+   "copy": "pipeline/art/proof/standins/bg-start-end/artella_final1.png",
+   "lane": "artella",
+   "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
+   "panel_pairs": null,
+   "piece": "bg-start-end",
+   "round": "final1",
+   "score": null,
+   "sha256": "7a0a3945108e7ef0e3a81f1bce90e8087bce76c45161e36f30546ef35ae5724d",
+   "source": "artella/pipeline/art/proof/firstdrafts/bg-start-end/final1.png",
+   "status": "best-so-far (not passed)"
+  },
+  "bg:water": {
+   "art_ref_check": "not run",
+   "calibration": null,
+   "copy": "pipeline/art/proof/standins/bg-water/artscene2_r4_keyed.png",
+   "lane": "artscene2",
+   "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
+   "panel_pairs": null,
+   "piece": "bg-water",
+   "round": "r4_keyed",
+   "score": null,
+   "sha256": "687d8fa28a0c51b57e7dbbf14161b1dd263cae69f70017db67df487a84042621",
+   "source": "artscene2/pipeline/art/proof/artscene2/bg-water/r4_keyed.png",
+   "status": "best-so-far (not passed)"
+  },
+  "ella-state:Down": {
+   "art_ref_check": "fail",
+   "calibration": {
+    "passed": 3,
+    "sessions": 3
+   },
+   "copy": "pipeline/art/proof/standins/ella-down/ella-down_N24_grid.png",
+   "lane": "artella2",
+   "note": "",
+   "panel_pairs": {
+    "quality_bar": "ours",
+    "reference": "reference"
+   },
+   "piece": "ella-down",
+   "round": 1,
+   "sha256": "6f4386148d2accacde1ca5bc87536baab0e440c9bf057f6aef12d69fc004f21d",
+   "source": "artella2/pipeline/art/proof/artella2/video/ella-down/ella-down_N24_grid.png",
+   "status": "best-so-far (not passed)"
+  },
+  "ella-state:Hurt": {
+   "art_ref_check": "fail",
+   "calibration": {
+    "passed": 6,
+    "sessions": 6
+   },
+   "copy": "pipeline/art/proof/standins/ella-hurt/ella-hurt_N24_strip.png",
+   "lane": "artella2",
+   "note": "",
+   "panel_pairs": {
+    "quality_bar": "ours",
+    "reference": "reference"
+   },
+   "piece": "ella-hurt",
+   "round": 2,
+   "sha256": "00137685189128bd3e4293342e2fbcc0ef25aeba2601baf2a437f0ae0a4ebf3c",
+   "source": "artella2/pipeline/art/proof/artella2/video/ella-hurt/ella-hurt_N24_strip.png",
+   "status": "best-so-far (not passed)"
+  },
+  "ella-state:Idle": {
+   "art_ref_check": null,
+   "calibration": null,
+   "copy": "pipeline/art/proof/standins/ella-up-open/Ella_idle_N24_grid.png",
+   "lane": "artvideo",
+   "note": "Josh-approved 24-frame idle grid (approvals.json); piece already counts as passed, imported as _PH for the game to draw",
+   "panel_pairs": null,
+   "piece": "ella-up-open",
+   "round": null,
+   "sha256": "b128aec4bbb9505626d218302568e065173fa3e0b539104fb9cafd8bfc80e4b5",
+   "source": "artvideo/pipeline/art/proof/artvideo/ella-idle/Ella_idle_N24_grid.png",
+   "status": "best-so-far (not passed)"
+  },
+  "enemy:ArmillaryLauncher:Female": {
+   "art_ref_check": "fail",
+   "calibration": {
+    "passed": 30,
+    "sessions": 43
+   },
+   "copy": "pipeline/art/proof/standins/enemy-armillary/ArmillaryF_motion.png",
+   "lane": "artenemy",
+   "note": "",
+   "panel_pairs": {
+    "context": "reference",
+    "motion": "reference",
+    "quality_bar": "ours",
+    "reference": "reference"
+   },
+   "piece": "enemy-armillary",
+   "round": 1,
+   "sha256": "163b2c1e6d9fd8465147b7fb4a47513e339259b421a846e33aef0cfc6a904e71",
+   "source": "artenemy/pipeline/art/proof/enemy/ArmillaryF/video/ArmillaryF_motion.png",
+   "status": "best-so-far (not passed)"
+  },
+  "enemy:ArmillaryLauncher:Male": {
+   "art_ref_check": "fail",
+   "calibration": {
+    "passed": 30,
+    "sessions": 43
+   },
+   "copy": "pipeline/art/proof/standins/enemy-armillary/ArmillaryF_motion.png",
+   "lane": "artenemy",
+   "note": "",
+   "panel_pairs": {
+    "context": "reference",
+    "motion": "reference",
+    "quality_bar": "ours",
+    "reference": "reference"
+   },
+   "piece": "enemy-armillary",
+   "round": 1,
+   "sha256": "163b2c1e6d9fd8465147b7fb4a47513e339259b421a846e33aef0cfc6a904e71",
+   "source": "artenemy/pipeline/art/proof/enemy/ArmillaryF/video/ArmillaryF_motion.png",
+   "status": "best-so-far (not passed)"
+  },
+  "enemy:EscapementRepeater:Female": {
+   "art_ref_check": "not run",
+   "calibration": null,
+   "copy": "pipeline/art/proof/standins/enemy-repeater/repeater-attack_N24_grid.png",
+   "lane": "videoframes",
+   "note": "only candidate for this slot (Veo clip cut to a 24-frame grid; for the repeater the attack clip). No panel record.",
+   "panel_pairs": null,
+   "piece": "enemy-repeater",
+   "round": "N24 cut",
+   "score": null,
+   "sha256": "d909d4238752ac579a05db4aa8300842edc07fb54046f494cc571d09360effd3",
+   "source": "videoframes/pipeline/art/proof/videoframes/repeater-attack/repeater-attack_N24_grid.png",
+   "status": "best-so-far (not passed)"
+  },
+  "enemy:EscapementRepeater:Male": {
+   "art_ref_check": "not run",
+   "calibration": null,
+   "copy": "pipeline/art/proof/standins/enemy-repeater/repeater-attack_N24_grid.png",
+   "lane": "videoframes",
+   "note": "only candidate for this slot (Veo clip cut to a 24-frame grid; for the repeater the attack clip). No panel record.",
+   "panel_pairs": null,
+   "piece": "enemy-repeater",
+   "round": "N24 cut",
+   "score": null,
+   "sha256": "d909d4238752ac579a05db4aa8300842edc07fb54046f494cc571d09360effd3",
+   "source": "videoframes/pipeline/art/proof/videoframes/repeater-attack/repeater-attack_N24_grid.png",
+   "status": "best-so-far (not passed)"
+  },
+  "enemy:Floodstrider:Female": {
+   "art_ref_check": "not run",
+   "calibration": null,
+   "copy": "pipeline/art/proof/standins/enemy-floodstrider/move_draft3_clean.png",
+   "lane": "move",
+   "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
+   "panel_pairs": null,
+   "piece": "enemy-floodstrider",
+   "round": "draft3_clean",
+   "score": null,
+   "sha256": "6872e5a2df00893b44cd5199dd0008f278c07cf0f5d88ecb306c16ebc40c02cc",
+   "source": "move/pipeline/art/proof/firstdrafts/enemy-floodstrider/draft3_clean.png",
+   "status": "best-so-far (not passed)"
+  },
+  "enemy:Floodstrider:Male": {
+   "art_ref_check": "not run",
+   "calibration": null,
+   "copy": "pipeline/art/proof/standins/enemy-floodstrider/move_draft3_clean.png",
+   "lane": "move",
+   "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
+   "panel_pairs": null,
+   "piece": "enemy-floodstrider",
+   "round": "draft3_clean",
+   "score": null,
+   "sha256": "6872e5a2df00893b44cd5199dd0008f278c07cf0f5d88ecb306c16ebc40c02cc",
+   "source": "move/pipeline/art/proof/firstdrafts/enemy-floodstrider/draft3_clean.png",
+   "status": "best-so-far (not passed)"
+  },
+  "enemy:SkyCourier:Female": {
+   "art_ref_check": "fail",
+   "calibration": {
+    "passed": 13,
+    "sessions": 15
+   },
+   "copy": "pipeline/art/proof/standins/enemy-courier/sheet.png",
+   "lane": "artenemy2",
+   "note": "",
+   "panel_pairs": {
+    "quality_bar": "reference",
+    "reference": "reference"
+   },
+   "piece": "enemy-courier",
+   "round": 1,
+   "sha256": "0990fce486f7bf02d3d3fef3dde57f5f37f7e55212a5cf30841603e040a93ee5",
+   "source": "artenemy2/pipeline/art/proof/enemy/CourierF/Design_D1/sheet.png",
+   "status": "best-so-far (not passed)"
+  },
+  "enemy:SkyCourier:Male": {
+   "art_ref_check": "fail",
+   "calibration": {
+    "passed": 13,
+    "sessions": 15
+   },
+   "copy": "pipeline/art/proof/standins/enemy-courier/sheet.png",
+   "lane": "artenemy2",
+   "note": "",
+   "panel_pairs": {
+    "quality_bar": "reference",
+    "reference": "reference"
+   },
+   "piece": "enemy-courier",
+   "round": 1,
+   "sha256": "0990fce486f7bf02d3d3fef3dde57f5f37f7e55212a5cf30841603e040a93ee5",
+   "source": "artenemy2/pipeline/art/proof/enemy/CourierF/Design_D1/sheet.png",
+   "status": "best-so-far (not passed)"
+  },
+  "enemy:SundialCaster:Female": {
+   "art_ref_check": "pass",
+   "calibration": {
+    "passed": 18,
+    "sessions": 20
+   },
+   "copy": "pipeline/art/proof/standins/enemy-sundial/aim_g0.75_scaled.png",
+   "lane": "artenemy",
+   "note": "",
+   "panel_pairs": {
+    "context": "ours",
+    "quality_bar": "ours",
+    "reference": "reference"
+   },
+   "piece": "enemy-sundial",
+   "round": 9,
+   "sha256": "6cbbd8d113bd9c1738f8f259b1ab8371035fd4b98a3ff9c7b4430ef8d3f90b59",
+   "source": "artenemy/pipeline/art/proof/enemy/SundialF/Enemy_SundialF_R25/f3/aim_g0.75_scaled.png",
+   "status": "best-so-far (not passed)"
+  },
+  "enemy:SundialCaster:Male": {
+   "art_ref_check": "pass",
+   "calibration": {
+    "passed": 18,
+    "sessions": 20
+   },
+   "copy": "pipeline/art/proof/standins/enemy-sundial/aim_g0.75_scaled.png",
+   "lane": "artenemy",
+   "note": "",
+   "panel_pairs": {
+    "context": "ours",
+    "quality_bar": "ours",
+    "reference": "reference"
+   },
+   "piece": "enemy-sundial",
+   "round": 9,
+   "sha256": "6cbbd8d113bd9c1738f8f259b1ab8371035fd4b98a3ff9c7b4430ef8d3f90b59",
+   "source": "artenemy/pipeline/art/proof/enemy/SundialF/Enemy_SundialF_R25/f3/aim_g0.75_scaled.png",
+   "status": "best-so-far (not passed)"
+  },
+  "keeper:body-hover-flap": {
+   "art_ref_check": "pass",
+   "calibration": {
+    "passed": 21,
+    "sessions": 27
+   },
+   "copy": "pipeline/art/proof/standins/owl/keyed_3.png",
+   "lane": "artella",
+   "note": "",
+   "panel_pairs": {
+    "quality_bar": "reference",
+    "reference": "reference"
+   },
+   "piece": "owl",
+   "round": 1,
+   "sha256": "a54a52ccb4d0194672e46d1230fa50b1447588d4c902d61a7945a54126caa265",
+   "source": "artella/pipeline/art/proof/Keeper/owl/Keeper_R7/keyed_3.png",
+   "status": "best-so-far (not passed)"
+  },
+  "keeper:clock-cover-glass-hands": {
+   "art_ref_check": "not run",
+   "calibration": null,
+   "copy": "pipeline/art/proof/standins/keeper-clock/move_draft3_clean.png",
+   "lane": "move",
+   "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
+   "panel_pairs": null,
+   "piece": "keeper-clock",
+   "round": "draft3_clean",
+   "score": null,
+   "sha256": "6a7231de925fbee4fafc4901b928a145758d9681b8ecd72398b92d050e705d21",
+   "source": "move/pipeline/art/proof/firstdrafts/keeper-clock/draft3_clean.png",
+   "status": "best-so-far (not passed)"
+  },
+  "keeper:mechanism-front": {
+   "art_ref_check": "not run",
+   "calibration": null,
+   "copy": "pipeline/art/proof/standins/keeper-mech-front/move_final2.png",
+   "lane": "move",
+   "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
+   "panel_pairs": null,
+   "piece": "keeper-mech-front",
+   "round": "final2",
+   "score": null,
+   "sha256": "a1d4e62a32e65ea6c0ed1173c67cfef4632fd3189f8706ed4d58a904b67ebf64",
+   "source": "move/pipeline/art/proof/firstdrafts/keeper-mech-front/final2.png",
+   "status": "best-so-far (not passed)"
+  },
+  "keeper:mechanism-middle": {
+   "art_ref_check": "not run",
+   "calibration": null,
+   "copy": "pipeline/art/proof/standins/keeper-mech-middle/move_draft3_clean.png",
+   "lane": "move",
+   "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
+   "panel_pairs": null,
+   "piece": "keeper-mech-middle",
+   "round": "draft3_clean",
+   "score": null,
+   "sha256": "3d6ad306395b4b15c43064664e7f3326eb2220d11c79f103a4227aaa3f335724",
+   "source": "move/pipeline/art/proof/firstdrafts/keeper-mech-middle/draft3_clean.png",
+   "status": "best-so-far (not passed)"
+  },
+  "keeper:mechanism-rear": {
+   "art_ref_check": "not run",
+   "calibration": null,
+   "copy": "pipeline/art/proof/standins/keeper-mech-rear/move_draft3_clean.png",
+   "lane": "move",
+   "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
+   "panel_pairs": null,
+   "piece": "keeper-mech-rear",
+   "round": "draft3_clean",
+   "score": null,
+   "sha256": "1d88caae92398879c0f9ca7193a320d78833d77f21e2015d2b5e89eb13877ffa",
+   "source": "move/pipeline/art/proof/firstdrafts/keeper-mech-rear/draft3_clean.png",
+   "status": "best-so-far (not passed)"
+  },
+  "keeper:talon-empty-and-closed": {
+   "art_ref_check": "not run",
+   "calibration": null,
+   "copy": "pipeline/art/proof/standins/keeper-talon/move_final2.png",
+   "lane": "move",
+   "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
+   "panel_pairs": null,
+   "piece": "keeper-talon",
+   "round": "final2",
+   "score": null,
+   "sha256": "db84546cac9611ed2022133d58a041dced61c799dcf056937390254d662bd2c0",
+   "source": "move/pipeline/art/proof/firstdrafts/keeper-talon/final2.png",
+   "status": "best-so-far (not passed)"
+  },
+  "keeper:wings-gust-wear": {
+   "art_ref_check": "not run",
+   "calibration": null,
+   "copy": "pipeline/art/proof/standins/keeper-wing/move_final2.png",
+   "lane": "move",
+   "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
+   "panel_pairs": null,
+   "piece": "keeper-wing",
+   "round": "final2",
+   "score": null,
+   "sha256": "4c11e441b6da637352811d9301b32934e236aea0eb3e9591f8f0798fc2dc8701",
+   "source": "move/pipeline/art/proof/firstdrafts/keeper-wing/final2.png",
+   "status": "best-so-far (not passed)"
+  },
+  "screen:Credits": {
+   "art_ref_check": "pass",
+   "calibration": {
+    "passed": 6,
+    "sessions": 6
+   },
+   "copy": "pipeline/art/proof/standins/ui-credits/capture_credits_r22_1568.png",
+   "lane": "artui",
+   "note": "",
+   "panel_pairs": {
+    "quality_bar": "ours",
+    "reference": "reference"
+   },
+   "piece": "ui-credits",
+   "round": 5,
+   "sha256": "d979933a336a98e7a7b23cd113f6e8261a283aa4b1ba068408a542d9f1c2551e",
+   "source": "artui/pipeline/art/proof/artui/ui-credits/capture_credits_r22_1568.png",
+   "status": "best-so-far (not passed)"
+  },
+  "screen:Defeat": {
+   "art_ref_check": "pass",
+   "calibration": {
+    "passed": 6,
+    "sessions": 6
+   },
+   "copy": "pipeline/art/proof/standins/ui-defeated/capture_defeated_r21_1568.png",
+   "lane": "artui",
+   "note": "",
+   "panel_pairs": {
+    "quality_bar": "ours",
+    "reference": "ours"
+   },
+   "piece": "ui-defeated",
+   "round": 5,
+   "sha256": "43e6908a46c185058b4de6783552c5493f31f7b994226df12ef7072d96714e0d",
+   "source": "artui/pipeline/art/proof/artui/ui-defeated/capture_defeated_r21_1568.png",
+   "status": "best-so-far (not passed)"
+  },
+  "screen:LevelUp": {
+   "art_ref_check": "not run",
+   "calibration": null,
+   "copy": "pipeline/art/proof/standins/ui-level-up/move_final2.png",
+   "lane": "move",
+   "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
+   "panel_pairs": null,
+   "piece": "ui-level-up",
+   "round": "final2",
+   "score": null,
+   "sha256": "979c19e72f118db7f85aff6e3316a47961870191000f076391bd35706a4b37f9",
+   "source": "move/pipeline/art/proof/firstdrafts/ui-level-up/final2.png",
+   "status": "best-so-far (not passed)"
+  },
+  "screen:Paused": {
+   "art_ref_check": "pass",
+   "calibration": {
+    "passed": 6,
+    "sessions": 6
+   },
+   "copy": "pipeline/art/proof/standins/ui-pause/capture_pause_r21_1568.png",
+   "lane": "artui",
+   "note": "",
+   "panel_pairs": {
+    "quality_bar": "ours",
+    "reference": "reference"
+   },
+   "piece": "ui-pause",
+   "round": 5,
+   "sha256": "36aa87c679268823f97f92eefb34c91035f6e22f13536079f5ff6796bb1860ab",
+   "source": "artui/pipeline/art/proof/artui/ui-pause/capture_pause_r21_1568.png",
+   "status": "best-so-far (not passed)"
+  },
+  "screen:Purchase": {
+   "art_ref_check": "not run",
+   "calibration": null,
+   "copy": "pipeline/art/proof/standins/ui-purchase/artella_draft2.png",
+   "lane": "artella",
+   "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
+   "panel_pairs": null,
+   "piece": "ui-purchase",
+   "round": "draft2",
+   "score": null,
+   "sha256": "c807c919d85b52482df1687e7fdb37d62aca7334157596fd54660cbb1dbfd309",
+   "source": "artella/pipeline/art/proof/firstdrafts/ui-purchase/draft2.png",
+   "status": "best-so-far (not passed)"
+  },
+  "screen:Settings": {
+   "art_ref_check": "pass",
+   "calibration": {
+    "passed": 6,
+    "sessions": 6
+   },
+   "copy": "pipeline/art/proof/standins/ui-settings/capture_settings_r21_1568.png",
+   "lane": "artui",
+   "note": "",
+   "panel_pairs": {
+    "quality_bar": "ours",
+    "reference": "reference"
+   },
+   "piece": "ui-settings",
+   "round": 5,
+   "sha256": "dd57278fc944ed3072e99cc702a74819dda22075fa44af29719eee4731d85ee1",
+   "source": "artui/pipeline/art/proof/artui/ui-settings/capture_settings_r21_1568.png",
+   "status": "best-so-far (not passed)"
+  },
+  "screen:Statistics": {
+   "art_ref_check": "not run",
+   "calibration": null,
+   "copy": "pipeline/art/proof/standins/ui-journey-complete/artella_final2.png",
+   "lane": "artella",
+   "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
+   "panel_pairs": null,
+   "piece": "ui-journey-complete",
+   "round": "final2",
+   "score": null,
+   "sha256": "0765ac438661fc740c037d13d4bb62ba0fb1f8890bd22590c8888158fd1b8680",
+   "source": "artella/pipeline/art/proof/firstdrafts/ui-journey-complete/final2.png",
+   "status": "best-so-far (not passed)"
+  },
+  "screen:Story": {
+   "art_ref_check": "pass",
+   "calibration": {
+    "passed": 6,
+    "sessions": 6
+   },
+   "copy": "pipeline/art/proof/standins/ui-story-text/capture_story.png",
+   "lane": "artella",
+   "note": "",
+   "panel_pairs": {
+    "quality_bar": "ours",
+    "reference": "reference"
+   },
+   "piece": "ui-story-text",
+   "round": 3,
+   "sha256": "3a6400def0f92f8a4794bec579f7255c6daaee2ff59985e3d5f5c89a3b0f5e3b",
+   "source": "artella/pipeline/art/proof/artui2/ui-story-text/capture_story.png",
+   "status": "best-so-far (not passed)"
+  },
+  "screen:Title": {
+   "art_ref_check": "pass",
+   "calibration": {
+    "passed": 6,
+    "sessions": 6
+   },
+   "copy": "pipeline/art/proof/standins/ui-title/capture_title_r21_1568.png",
+   "lane": "artui",
+   "note": "",
+   "panel_pairs": {
+    "quality_bar": "ours",
+    "reference": "ours"
+   },
+   "piece": "ui-title",
+   "round": 19,
+   "sha256": "e742a618cfa4c7b22a3aeb6dfc40a4f02f23adbaa8f4109047d0d36c7a208151",
+   "source": "artui/pipeline/art/proof/artui/ui-title/capture_title_r21_1568.png",
+   "status": "best-so-far (not passed)"
+  },
+  "shot:gold": {
+   "art_ref_check": "pass",
+   "calibration": {
+    "passed": 6,
+    "sessions": 6
+   },
+   "copy": "pipeline/art/proof/standins/wand-shot/g3_fit.png",
+   "lane": "artshots",
+   "note": "",
+   "panel_pairs": {
+    "quality_bar": "ours",
+    "reference": "ours"
+   },
+   "piece": "wand-shot",
+   "round": 7,
+   "sha256": "eaef11645b14566053bc7d15fdcc1fe40b419608acadd2709bbba23115bb3d14",
+   "source": "artshots/pipeline/art/proof/artshots/wand-shot/Paint/g3_fit.png",
+   "status": "best-so-far (not passed)"
+  },
+  "shot:red": {
+   "art_ref_check": "pass",
+   "calibration": {
+    "passed": 12,
+    "sessions": 12
+   },
+   "copy": "pipeline/art/proof/standins/owl-bolt/OwlBolt_Still_00.png",
+   "lane": "artella",
+   "note": "",
+   "panel_pairs": {
+    "quality_bar": "reference",
+    "reference": "reference"
+   },
+   "piece": "owl-bolt",
+   "round": 11,
+   "sha256": "45b698b16564e55679522597c6558266cd36743e09c23603897ec3781a33e5c7",
+   "source": "artella/pipeline/art/proof/artshots/owl-bolt/Raw/E13/OwlBolt_Still_00.png",
+   "status": "best-so-far (not passed)"
+  },
+  "shot:red-impact": {
+   "art_ref_check": "pass",
+   "calibration": {
+    "passed": 8,
+    "sessions": 9
+   },
+   "copy": "pipeline/art/proof/standins/bolt-hit/BoltHit_Still_00.png",
+   "lane": "artella",
+   "note": "",
+   "panel_pairs": {
+    "quality_bar": "reference",
+    "reference": "reference"
+   },
+   "piece": "bolt-hit",
+   "round": 1,
+   "sha256": "5dd1b0483982307b8e1da4f79517a958ba4bfcc7210257df6cad6710e52d2044",
+   "source": "artella/pipeline/art/proof/artshots/bolt-hit/Raw/E3/BoltHit_Still_00.png",
+   "status": "best-so-far (not passed)"
+  },
+  "shot:stream-beam": {
+   "art_ref_check": "not run",
+   "calibration": null,
+   "copy": "pipeline/art/proof/standins/stream-beam/move_final2.png",
+   "lane": "move",
+   "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
+   "panel_pairs": null,
+   "piece": "stream-beam",
+   "round": "final2",
+   "score": null,
+   "sha256": "e27b7afffddd771f7503ab326e9888417ed78c9d19c789f6a4203c834fef9158",
+   "source": "move/pipeline/art/proof/firstdrafts/stream-beam/final2.png",
+   "status": "best-so-far (not passed)"
+  },
+  "shot:yellow": {
+   "art_ref_check": "not run",
+   "calibration": null,
+   "copy": "pipeline/art/proof/standins/yellow-shot/move_draft3_clean.png",
+   "lane": "move",
+   "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
+   "panel_pairs": null,
+   "piece": "yellow-shot",
+   "round": "draft3_clean",
+   "score": null,
+   "sha256": "c8372acd3acf0dda2fb476484832f57cfc621fe7ccdcb59364e4740fbb58cc9b",
+   "source": "move/pipeline/art/proof/firstdrafts/yellow-shot/draft3_clean.png",
+   "status": "best-so-far (not passed)"
+  },
+  "vfx-sheet:VFX_ClockBeat": {
+   "art_ref_check": "fail",
+   "calibration": {
+    "passed": 9,
+    "sessions": 9
+   },
+   "copy": "pipeline/art/proof/standins/vfx-clock-beat/sheet4.png",
+   "lane": "artella",
+   "note": "",
+   "panel_pairs": {
+    "quality_bar": "reference",
+    "reference": "reference"
+   },
+   "piece": "vfx-clock-beat",
+   "round": 4,
+   "sha256": "8460bdb3f889af8887cedf328bebe46dccb2152ace93261d82398c89f2ac72db",
+   "source": "artella/pipeline/art/proof/artfx2/ClockBeat/sheet4.png",
+   "status": "best-so-far (not passed)"
+  },
+  "vfx-sheet:VFX_ClockOpen": {
+   "art_ref_check": "not run",
+   "calibration": null,
+   "copy": "pipeline/art/proof/standins/vfx-clock-open/move_draft3_clean.png",
+   "lane": "move",
+   "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
+   "panel_pairs": null,
+   "piece": "vfx-clock-open",
+   "round": "draft3_clean",
+   "score": null,
+   "sha256": "9807ff859de757138d2e004c9e3a5231a777baa3efd878fc38158e98120a4962",
+   "source": "move/pipeline/art/proof/firstdrafts/vfx-clock-open/draft3_clean.png",
+   "status": "best-so-far (not passed)"
+  },
+  "vfx-sheet:VFX_Departure": {
+   "art_ref_check": "not run",
+   "calibration": null,
+   "copy": "pipeline/art/proof/standins/vfx-departure/move_final3.png",
+   "lane": "move",
+   "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
+   "panel_pairs": null,
+   "piece": "vfx-departure",
+   "round": "final3",
+   "score": null,
+   "sha256": "4725cb1d7b68b7c0074d8f3aa5683fbbad1ee95cb64da419c7276f539f9a35d6",
+   "source": "move/pipeline/art/proof/firstdrafts/vfx-departure/final3.png",
+   "status": "best-so-far (not passed)"
+  },
+  "vfx-sheet:VFX_EyeExposed": {
+   "art_ref_check": "not run",
+   "calibration": null,
+   "copy": "pipeline/art/proof/standins/vfx-eye-exposed/move_draft3_clean.png",
+   "lane": "move",
+   "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
+   "panel_pairs": null,
+   "piece": "vfx-eye-exposed",
+   "round": "draft3_clean",
+   "score": null,
+   "sha256": "e30b0063e11d0c135f657e000ac3657aa16acb5d36da8846abe4e2899af5cc77",
+   "source": "move/pipeline/art/proof/firstdrafts/vfx-eye-exposed/draft3_clean.png",
+   "status": "best-so-far (not passed)"
+  },
+  "vfx-sheet:VFX_GoldImpact": {
+   "art_ref_check": "not run",
+   "calibration": null,
+   "copy": "pipeline/art/proof/standins/gold-impact/gold-impact_N24_grid.png",
+   "lane": "videoframes",
+   "note": "only candidate for this slot (Veo clip cut to a 24-frame grid; for the repeater the attack clip). No panel record.",
+   "panel_pairs": null,
+   "piece": "gold-impact",
+   "round": "N24 cut",
+   "score": null,
+   "sha256": "35c2a7fc9db8f9a4e47b94b0a47334a115e4d13d5e399e4fc75af858225fc49e",
+   "source": "videoframes/pipeline/art/proof/videoframes/gold-impact/gold-impact_N24_grid.png",
+   "status": "best-so-far (not passed)"
+  },
+  "vfx-sheet:VFX_GoldRelease": {
+   "art_ref_check": "pass",
+   "calibration": {
+    "passed": 6,
+    "sessions": 6
+   },
+   "copy": "pipeline/art/proof/standins/wand-shot/g3_fit.png",
+   "lane": "artshots",
+   "note": "",
+   "panel_pairs": {
+    "quality_bar": "ours",
+    "reference": "ours"
+   },
+   "piece": "wand-shot",
+   "round": 7,
+   "sha256": "eaef11645b14566053bc7d15fdcc1fe40b419608acadd2709bbba23115bb3d14",
+   "source": "artshots/pipeline/art/proof/artshots/wand-shot/Paint/g3_fit.png",
+   "status": "best-so-far (not passed)"
+  },
+  "vfx-sheet:VFX_GoldTravel": {
+   "art_ref_check": "pass",
+   "calibration": {
+    "passed": 6,
+    "sessions": 6
+   },
+   "copy": "pipeline/art/proof/standins/wand-shot/g3_fit.png",
+   "lane": "artshots",
+   "note": "",
+   "panel_pairs": {
+    "quality_bar": "ours",
+    "reference": "ours"
+   },
+   "piece": "wand-shot",
+   "round": 7,
+   "sha256": "eaef11645b14566053bc7d15fdcc1fe40b419608acadd2709bbba23115bb3d14",
+   "source": "artshots/pipeline/art/proof/artshots/wand-shot/Paint/g3_fit.png",
+   "status": "best-so-far (not passed)"
+  },
+  "vfx-sheet:VFX_KeeperRecovery": {
+   "art_ref_check": "not run",
+   "calibration": null,
+   "copy": "pipeline/art/proof/standins/vfx-keeper-recovery/move_draft3_clean.png",
+   "lane": "move",
+   "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
+   "panel_pairs": null,
+   "piece": "vfx-keeper-recovery",
+   "round": "draft3_clean",
+   "score": null,
+   "sha256": "e621d5d1721c86ac39a80f9ab2e890286a7644c50b5db6ad2e011ffb7e4dfd1f",
+   "source": "move/pipeline/art/proof/firstdrafts/vfx-keeper-recovery/draft3_clean.png",
+   "status": "best-so-far (not passed)"
+  },
+  "vfx-sheet:VFX_KeeperStrike": {
+   "art_ref_check": "not run",
+   "calibration": null,
+   "copy": "pipeline/art/proof/standins/vfx-keeper-strike/move_draft3_clean.png",
+   "lane": "move",
+   "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
+   "panel_pairs": null,
+   "piece": "vfx-keeper-strike",
+   "round": "draft3_clean",
+   "score": null,
+   "sha256": "6917464ac6b78d04dfdbc9201d2577a4dae0b39aa771badaf38a55f0e0f8a102",
+   "source": "move/pipeline/art/proof/firstdrafts/vfx-keeper-strike/draft3_clean.png",
+   "status": "best-so-far (not passed)"
+  },
+  "vfx-sheet:VFX_Restoration": {
+   "art_ref_check": "not run",
+   "calibration": null,
+   "copy": "pipeline/art/proof/standins/vfx-restoration/move_draft3_clean.png",
+   "lane": "move",
+   "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
+   "panel_pairs": null,
+   "piece": "vfx-restoration",
+   "round": "draft3_clean",
+   "score": null,
+   "sha256": "f953e0cc326aefa82540e7165e2eb444d4ad09cd20293da7593bf4a6e56e8055",
+   "source": "move/pipeline/art/proof/firstdrafts/vfx-restoration/draft3_clean.png",
+   "status": "best-so-far (not passed)"
+  },
+  "vfx-sheet:VFX_TwinStarHead": {
+   "art_ref_check": "pass",
+   "calibration": {
+    "passed": 6,
+    "sessions": 6
+   },
+   "copy": "pipeline/art/proof/standins/wand-shot/g3_fit.png",
+   "lane": "artshots",
+   "note": "",
+   "panel_pairs": {
+    "quality_bar": "ours",
+    "reference": "ours"
+   },
+   "piece": "wand-shot",
+   "round": 7,
+   "sha256": "eaef11645b14566053bc7d15fdcc1fe40b419608acadd2709bbba23115bb3d14",
+   "source": "artshots/pipeline/art/proof/artshots/wand-shot/Paint/g3_fit.png",
+   "status": "best-so-far (not passed)"
+  },
+  "wind:current-field": {
+   "art_ref_check": "not run",
+   "calibration": null,
+   "copy": "pipeline/art/proof/standins/wind-zone/artella_WindZone_Still_00.png",
+   "lane": "artella",
+   "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
+   "panel_pairs": null,
+   "piece": "wind-zone",
+   "round": "WindZone_Still_00",
+   "score": null,
+   "sha256": "cb1ab749cb50e012ddf4e2e68517f4c5811f1dc570fc0e46375583714c9adf11",
+   "source": "artella/pipeline/art/proof/artshots/wind-zone/Raw/Still2/WindZone_Still_00.png",
+   "status": "best-so-far (not passed)"
+  },
+  "wind:decor-lines": {
+   "art_ref_check": "not run",
+   "calibration": null,
+   "copy": "pipeline/art/proof/standins/wind-lines/artella_WindLines_Still_00.png",
+   "lane": "artella",
+   "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
+   "panel_pairs": null,
+   "piece": "wind-lines",
+   "round": "WindLines_Still_00",
+   "score": null,
+   "sha256": "f2fbb5694754ba9fa25c2ed86d02b7dcebe65d3d26b36b282668b7fbd8f40706",
+   "source": "artella/pipeline/art/proof/artshots/wind-lines/Raw/Still2/WindLines_Still_00.png",
+   "status": "best-so-far (not passed)"
+  }
+ }
+}

@@ -425,7 +425,16 @@ bool FFeedbackEnemyStandIn::RunTest(const FString& Parameters)
 					bFound = true;
 					TestEqual(TEXT("stand-in never collides"), static_cast<int32>(Mesh->GetCollisionEnabled()), static_cast<int32>(ECollisionEnabled::NoCollision));
 					TestEqual(TEXT("stand-in is on the character layer"), static_cast<float>(Mesh->GetComponentLocation().Y), UmbrellaDrawOrder::KeeperY);
-					TestEqual(TEXT("patrol shape"), Mesh->GetComponentScale(), UEnemyPresenterSubsystem::StandInScaleFor(EEnemyState::Patrol, Enemy->GetGender()));
+					const FVector PatrolBox = UEnemyPresenterSubsystem::StandInScaleFor(EEnemyState::Patrol, Enemy->GetGender());
+					// Filled: the slot's stand-in texture is drawn on a plane that keeps the patrol footprint.
+					const FArtSlotRow* Row = ArtSlot::Find(*Presenter->VisualIdOf(Enemy));
+					TestTrue(TEXT("stand-in shows its slot texture"), Row && ArtSlot::LoadTexture(*Row) && ArtSlot::HasArt(Mesh));
+					TestEqual(TEXT("patrol shape with art"), Mesh->GetComponentScale(), ArtSlot::PlaneScaleFor(PatrolBox));
+					// Empty: with the slot's art cleared, the stand-in keeps the patrol box shape.
+					ArtSlot::SetFlatUnlit(Mesh, Enemy, UmbrellaArtSlotConst::StandInEnemyColor);
+					Presenter->Refresh(Enemy);
+					TestFalse(TEXT("cleared stand-in has no art"), ArtSlot::HasArt(Mesh));
+					TestEqual(TEXT("patrol shape"), Mesh->GetComponentScale(), PatrolBox);
 				}
 			}
 			TestTrue(TEXT("stand-in exists"), bFound);

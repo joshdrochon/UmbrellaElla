@@ -1,0 +1,81 @@
+{
+ "video": "pipeline/art/proof/videoframes/repeater-hurt/repeater-hurt.mp4",
+ "fps": 12,
+ "source_frames": 48,
+ "loop_end": 29,
+ "end_candidates": {
+  "28": 113.75,
+  "29": 113.75,
+  "30": 114.4,
+  "31": 114.0,
+  "32": 114.33,
+  "33": 114.5,
+  "34": 114.45,
+  "35": 114.49,
+  "36": 114.43,
+  "37": 114.77,
+  "38": 114.74,
+  "39": 114.68,
+  "40": 114.24,
+  "41": 114.11,
+  "42": 114.05,
+  "43": 113.89,
+  "44": 114.08,
+  "45": 114.26,
+  "46": 114.41,
+  "47": 114.32
+ },
+ "jitter_before": {
+  "max_anchor_step_px": 81.85,
+  "max_height_step_pct": 8.15,
+  "max_anchor_from_first_px": 108.83,
+  "height_range_pct": 61.65
+ },
+ "jitter_after": {
+  "max_anchor_step_px": 0.91,
+  "max_height_step_pct": 8.15,
+  "max_anchor_from_first_px": 0.9,
+  "height_range_pct": 61.65
+ },
+ "green_inside_px_max": 0,
+ "sets": {
+  "24": {
+   "strip": "pipeline/art/proof/videoframes/repeater-hurt/repeater-hurt_N24_strip.png",
+   "gif": "pipeline/art/proof/videoframes/repeater-hurt/repeater-hurt_N24_preview.gif",
+   "loop": {
+    "indices": [
+     0,
+     1,
+     2,
+     4,
+     5,
+     6,
+     8,
+     9,
+     10,
+     11,
+     12,
+     14,
+     15,
+     16,
+     18,
+     19,
+     20,
+     21,
+     22,
+     24,
+     25,
+     26,
+     28,
+     29
+    ],
+    "mean_step": 48.07,
+    "max_step": 94.56,
+    "last_to_first": 113.75,
+    "loop_ratio": 2.37,
+    "loops": true
+   },
+   "fps": 9.6
+  }
+ }
+}

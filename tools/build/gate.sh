@@ -38,6 +38,7 @@ else python3 tools/build/quality_gate.py baseline "$QB.tmp" 2>/dev/null && mv "$
 T1=$(date +%s)
 if ! git -c core.hooksPath=/dev/null merge -q --no-ff -m "Merge area/$A ($(git rev-parse --short "$C")) into main" "$C" 2>/dev/null; then
   if git diff --name-only --diff-filter=U | grep -qx docs/build/rule-status.csv; then python3 tools/build/rule_status_merge.py || true; fi
+  if git diff --name-only --diff-filter=U | grep -qxE "docs/build/clause-(audit|proof)\.csv"; then python3 tools/build/clause_csv_merge.py || true; fi
   # The inventory CSV is generated: a conflict there is resolved by regenerating it from the merged tree.
   if git diff --name-only --diff-filter=U | grep -qx docs/build/art-inventory.csv; then git checkout --ours docs/build/art-inventory.csv && python3 tools/build/art_inventory.py write >/dev/null 2>&1; git add docs/build/art-inventory.csv; fi
   bad=$(git diff --name-only --diff-filter=U | grep -v -E '^docs/build/(areas/[a-z]+\.md|worker-rules\.md|areas\.py)$')
@@ -57,8 +58,21 @@ export UE_SLOT_GATE=1   # the gate always gets its reserved engine slot
 SLOT="$ROOT/tools/build/ue_slot.sh"; EV="$L/gate-$A-evidence.txt"; : > "$EV"
 chk() { local name="$1"; shift; T1=$(date +%s); out=$("$@" 2>&1); rc=$?; echo "$out" | tail -3 >> "$EV"
   if [ $rc -eq 0 ]; then step "$name PASS"; else step "$name FAIL"; echo "$out" | tail -15; fail=1; fi; }
+# Rows turning built must have their proving tests run here (clause_check, Nov 13): add them to this merge's tests.
+CLAUSE_TESTS=$(python3 tools/build/clause_check.py tests "$MAIN" 2>/dev/null)
+CT_UE=$(echo "$CLAUSE_TESTS" | sed -n 's/^UE //p' | paste -sd+ -); CT_PY=$(echo "$CLAUSE_TESTS" | sed -n 's/^PY //p')
+if [ -n "$CT_UE" ]; then SRC=1; TESTS="${TESTS:+$TESTS+}$CT_UE"; fi
+for f in $CT_PY; do chk "clause py ${f##*/}" python3 -m unittest "$(echo "${f%.py}" | tr / .)"; done
 if [ "$SRC" = 1 ]; then
   T1=$(date +%s); b=$("$SLOT" tools/ue/build.sh 2>&1 | tail -1); echo "$b" >> "$EV"
+  # exit 6 = another UnrealBuildTool held UBT's machine-wide mutex (Nov 13, twice): wait for it, retry once.
+  # Only when the log has no compiler error: exit 6 is also UBT's code for a plain compile failure (Nov 13 10:06).
+  blog=$(echo "$b" | sed -n 's/.*log: //p')
+  if echo "$b" | grep -q "build exit: 6" && ! grep -qE "error:|Result: Failed \(OtherCompilationError\)" "$blog" 2>/dev/null; then
+    step "build exit 6 (another UBT running): waiting, then one retry"
+    while pgrep -f "UnrealBuildTool.dll" >/dev/null; do sleep 5; done
+    b=$("$SLOT" tools/ue/build.sh 2>&1 | tail -1); echo "retry: $b" >> "$EV"
+  fi
   if echo "$b" | grep -q "build exit: 0"; then step "build PASS"; else step "build FAIL: $b"; fail=1; fi
   if [ $fail = 0 ]; then
     T1=$(date +%s); t=$(TEST_FILTER="$TESTS" "$SLOT" tools/ue/test.sh 2>&1 | tail -6); echo "$t" >> "$EV"
@@ -71,6 +85,7 @@ fi
 [ "$ENCOUNTER" = 1 ] && chk encounter_check python3 tools/encounter_check.py
 chk quality_gate python3 tools/build/quality_gate.py check "$MAIN" "$L/quality-base.txt"
 chk art_pass_verify python3 tools/build/art_pass_verify.py check --base "$MAIN"
+chk clause_check python3 tools/build/clause_check.py "$MAIN"   # a row may become built only with every GDD clause proven (Nov 13)
 if [ $fail = 0 ]; then
   # The proof the panel really ran (Josh, Nov 12): every piece whose pass record is new in this merge is judged again by
   # fresh blind critic sessions on the same packets; the gate's panel must pass it too, or the merge fails.

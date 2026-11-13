@@ -299,6 +299,97 @@
    "commit": "16dba0a2e2d4",
    "gap": "X is a flat-filled clock UI with no etched lines, paper texture or burst energy; Y is a flat vector clock UI with plain fills, no etched lines, no paper texture and no burst energy; X is a flat, clean vector clock face with flat fills, no etched lines, no ink-on-paper texture and no burst",
    "at": "2026-11-13T11:28:55Z"
+  },
+  {
+   "piece": "vfx-gold-impact",
+   "round": 8,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "context": "reference",
+    "quality_bar": "reference",
+    "reference": "ours"
+   },
+   "panel": 3,
+   "calibration": {
+    "sessions": 9,
+    "passed": 9
+   },
+   "missing": [
+    "context:pipeline/art/reference/target-keyart.png",
+    "quality_bar:pipeline/art/reference/discord-crops/bar-casters-shot-sequence.png"
+   ],
+   "critic_sessions": [
+    "vfx-gold-impact-r8-00-reference-c1",
+    "vfx-gold-impact-r8-00-reference-c2",
+    "vfx-gold-impact-r8-00-reference-c3",
+    "vfx-gold-impact-r8-01-quality_bar-c1",
+    "vfx-gold-impact-r8-01-quality_bar-c2",
+    "vfx-gold-impact-r8-01-quality_bar-c3",
+    "vfx-gold-impact-r8-02-context-c1",
+    "vfx-gold-impact-r8-02-context-c2",
+    "vfx-gold-impact-r8-02-context-c3"
+   ],
+   "manifest": "",
+   "evidence": "",
+   "prompt": "",
+   "files": "a6522f06ec9f5ff58f37c36a26fe575de8600a324da6fd3a9d15fcb2f29be5dc",
+   "file": "pipeline/art/proof/artfx/GoldImpact/sheet3.snap.png",
+   "card": "artfx",
+   "refs": "b953286b9565",
+   "commit": "2e1707c012a6",
+   "gap": "X is a clean, vector-like star with smooth gradient fills, no crosshatch, no paper grain and no ink linework.; X is a clean, flat, symmetric star with smooth fills, with no etched hatching, paper texture or burst energy.; Y is flat grey fills with a clean digital clock face and a white vector hand, with no ink linework, paper texture or burst.; Y is a tiny, blurry, low-resolution streak with no etched outline, no crosshatch and no readable frame sequence.",
+   "at": "2026-11-13T16:52:36Z"
+  },
+  {
+   "piece": "vfx-gold-impact",
+   "round": 9,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "context": "reference",
+    "quality_bar": "ours",
+    "reference": "ours"
+   },
+   "panel": 3,
+   "calibration": {
+    "sessions": 9,
+    "passed": 9
+   },
+   "missing": [
+    "context:pipeline/art/reference/target-keyart.png"
+   ],
+   "critic_sessions": [
+    "vfx-gold-impact-r9-00-reference-c1",
+    "vfx-gold-impact-r9-00-reference-c2",
+    "vfx-gold-impact-r9-00-reference-c3",
+    "vfx-gold-impact-r9-01-quality_bar-c1",
+    "vfx-gold-impact-r9-01-quality_bar-c2",
+    "vfx-gold-impact-r9-01-quality_bar-c3",
+    "vfx-gold-impact-r9-02-context-c1",
+    "vfx-gold-impact-r9-02-context-c2",
+    "vfx-gold-impact-r9-02-context-c3"
+   ],
+   "manifest": "",
+   "evidence": "",
+   "prompt": "",
+   "files": "a6522f06ec9f5ff58f37c36a26fe575de8600a324da6fd3a9d15fcb2f29be5dc",
+   "file": "pipeline/art/proof/artfx/GoldImpact/sheet3.snap.png",
+   "card": "artfx",
+   "refs": "b953286b9565",
+   "commit": "5c49c50ed15d",
+   "gap": "X is a clean but flat-filled star on a plain grey ground, with no etched line, paper grain or ink-on-paper texture.",
+   "at": "2026-11-13T17:01:13Z"
   }
  ]
 }

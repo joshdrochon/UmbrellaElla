@@ -45,3 +45,20 @@ Rule IDs: ART-05, ANIM-05, ANIM-06, BG-02..BG-06 (scene), FLOW-25 (frame).
 - Run: build exit 0; `TEST_FILTER=UmbrellaElla.Feedback` PASS tests=38 failed=0; `tests.test_art_slots` OK; module_check 0.
 - Not run: in-game capture (no Scene/Shots/Keeper part asset exists yet; the panels are untested with real art). Unsure of the art aspect: backdrop-sized panels are 4800x2400 like bg-layer panels.
 - Still no consumer (need another lane or a design call): ella:free-fall/hop-cartwheel-dash/mode-transition/condition/living-critical (need Motor/Health state events), umbrella:prop/repair (no prop in Ella's shell), keeper:part-masks-7-6-4-0 and living-departure (need part-health and departure events), menu-backdrop:Clocks/Drift (SFlowBackground is in UI/Menus, another lane), ui:* pieces (HUD/menu widgets in the UI lane), world:* (level geometry), vfx-material rows (materials, nothing to import).
+
+## Session 6 (Nov 13): priority order Ella, menus, world
+Rule IDs: ART-05..ART-10, ANIM-02..ANIM-08, BG-02..BG-06, VFX-02/03, FLOW-25.
+- Review fix: each scene panel gated on its own flag (BG-03, BG-04, FLOW-25); includes sorted (d4a04375).
+- Ella overlays (free-fall, motion, mode-transition, condition, living-critical, umbrella prop and repair) draw as layers (1667c8a5).
+- Keeper part slots, mask and departure layers (6693ef92, a793e2b0).
+- Menus: `UUiArtSubsystem` piece table (ui:*), menu-backdrop:Clocks/Drift (Pause/Drift screens). World pieces: `UWorldArtSubsystem`. vfx-material rows fall back to the material.
+- Run (at a793e2b0/efdf7bd7): Feedback PASS 41/41; module_check 0; `art_slots.py check` PASS (107 slots).
+- Not run: in-game capture with real art (assets for several slots do not exist yet).
+- Left: nothing in the brief with an asset-independent consumer missing.
+
+## Session 7 (Nov 13): review round 1 fixes
+- ui:clock-face now top-left; ui:xp-ring shows only in Director's Cut (`bDirectorOnly`, mode read from the controller).
+- ella:mode-transition no longer driven by ModeSelected (that is the menu pick). It stays unconsumed until a rise/fall/fire/absorb mode-change event exists.
+- Keeper masks: a single layer shown while any part is destroyed; reset on spawn and on CheckpointRetried. It is a single-layer approximation of the 7/6/4/0 steps (no per-part count event).
+- WorldArt: a piece joins `Done` only after Apply draws it. Overlay depth constant renamed `OverlayDepthStep`.
+- Open: `CriticalFraction` (1/3) is a visual trigger only, not a gameplay threshold (ANIM-04). `ui:spell-wheel` stays on Purchase/LevelUp: no spell-wheel screen exists, those are the nearest screens (call for the Producer).

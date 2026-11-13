@@ -1,0 +1,2 @@
+STRIPS clock-beat source_frames=48 loop_end=33 jitter 582.39 -> 0.9 px
+  N=24 fps=8.47 loop last->first 140.26 vs mean step 26.52 loops=True -> pipeline/art/proof/videoframes/clock-beat/clock-beat_N24_strip.png

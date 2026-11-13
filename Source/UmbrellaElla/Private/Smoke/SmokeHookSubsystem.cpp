@@ -34,6 +34,14 @@
 #include "AssetCompilingManager.h"
 #include "EngineUtils.h"
 #include "Camera/PlayerCameraManager.h"
+#include "Components/PrimitiveComponent.h"
+#include "Materials/MaterialInterface.h"
+#include "Engine/Texture.h"
+
+/** Texture parameter every art slot and stand-in material uses (ArtSlot.cpp). */
+static const FName SmokeDrawArtParam(TEXT("Art"));
+/** Texture parameter of the VFX sheet material (VfxSheetVisual.cpp). */
+static const FName SmokeDrawSheetParam(TEXT("Sheet"));
 
 #ifndef UMBRELLAELLA_BUILD_COMMIT
 #define UMBRELLAELLA_BUILD_COMMIT "unknown"
@@ -244,6 +252,69 @@ void USmokeHookSubsystem::LogShotView(AUmbrellaPlayerController* Flow) const
 		*World->GetMapName(), Target ? *Target->GetName() : TEXT("none"), *Cam.ToCompactString(), Pawn ? 1 : 0, EllaPx.X, EllaPx.Y,
 		IsPixelInFrame(bEllaProjected, EllaPx, ViewSize) ? 1 : 0, Arena ? 1 : 0, ArenaPx.X, ArenaPx.Y,
 		IsPixelInFrame(bArenaProjected, ArenaPx, ViewSize) ? 1 : 0, ViewW, ViewH);
+	LogShotDraws(Flow, ViewSize);
+}
+
+void USmokeHookSubsystem::LogShotDraws(AUmbrellaPlayerController* Flow, const FVector2D& ViewSize) const
+{
+	UWorld* World = Flow ? Flow->GetWorld() : nullptr;
+	if (!World)
+	{
+		return;
+	}
+	for (TActorIterator<AActor> It(World); It; ++It)
+	{
+		const AActor* Actor = *It;
+		if (!Actor || Actor->IsHidden())
+		{
+			continue;
+		}
+		TInlineComponentArray<UPrimitiveComponent*> Prims(Actor);
+		for (const UPrimitiveComponent* Prim : Prims)
+		{
+			if (!Prim || !Prim->IsRegistered() || !Prim->IsVisible() || Prim->bHiddenInGame)
+			{
+				continue;
+			}
+			const FBox Box = Prim->Bounds.GetBox();
+			FVector2D Min(TNumericLimits<double>::Max(), TNumericLimits<double>::Max());
+			FVector2D Max(-TNumericLimits<double>::Max(), -TNumericLimits<double>::Max());
+			bool bAny = false;
+			for (const double X : { Box.Min.X, Box.Max.X })
+			{
+				for (const double Y : { Box.Min.Y, Box.Max.Y })
+				{
+					for (const double Z : { Box.Min.Z, Box.Max.Z })
+					{
+						FVector2D Px;
+						if (Flow->ProjectWorldLocationToScreen(FVector(X, Y, Z), Px))
+						{
+							bAny = true;
+							Min = FVector2D::Min(Min, Px);
+							Max = FVector2D::Max(Max, Px);
+						}
+					}
+				}
+			}
+			if (!bAny || Max.X < 0.0 || Max.Y < 0.0 || Min.X >= ViewSize.X || Min.Y >= ViewSize.Y)
+			{
+				continue;
+			}
+			const UMaterialInterface* Mat = Prim->GetNumMaterials() > 0 ? Prim->GetMaterial(0) : nullptr;
+			UTexture* ArtTexture = nullptr;
+			if (Mat)
+			{
+				if (!Mat->GetTextureParameterValue(FHashedMaterialParameterInfo(SmokeDrawArtParam), ArtTexture))
+				{
+					Mat->GetTextureParameterValue(FHashedMaterialParameterInfo(SmokeDrawSheetParam), ArtTexture);
+				}
+			}
+			const FString TextureNames = ArtTexture ? ArtTexture->GetName() : FString(TEXT("none"));
+			UE_LOG(LogUmbrellaElla, Log, TEXT("SMOKE_DRAW actor=%s class=%s comp=%s y=%.0f..%.0f px=%.0f,%.0f..%.0f,%.0f mat=%s tex=%s"),
+				*Actor->GetName(), *Actor->GetClass()->GetName(), *Prim->GetName(), Box.Min.Y, Box.Max.Y, Min.X, Min.Y, Max.X, Max.Y,
+				Mat ? *Mat->GetName() : TEXT("none"), *TextureNames);
+		}
+	}
 }
 
 void USmokeHookSubsystem::Tick(float DeltaTime)

@@ -1,0 +1,2 @@
+STRIPS sundial-hurt source_frames=48 loop_end=28 jitter 78.84 -> 0.74 px
+  N=24 fps=9.93 loop last->first 108.78 vs mean step 58.25 loops=True -> pipeline/art/proof/videoframes/sundial-hurt/sundial-hurt_N24_strip.png

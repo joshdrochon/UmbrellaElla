@@ -62,6 +62,9 @@ public:
 	int32 GetDefenseRank() const { return DefenseRank; }
 	int32 GetRecoveryRank() const { return RecoveryRank; }
 
+	/** True while a component of the owner (the motor's hop) protects from ordinary hits. Separate from the post-hit window. */
+	bool IsOwnerHitProtected() const;
+
 	/** Seconds of post-hit protection left at the given clock. */
 	float GetProtectionRemaining(double NowSeconds) const;
 

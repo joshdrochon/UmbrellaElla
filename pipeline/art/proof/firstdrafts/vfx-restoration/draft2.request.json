@@ -1,0 +1,39 @@
+{
+ "provider": "gemini",
+ "tier": "draft",
+ "tool": "Gemini API image generation (Google)",
+ "model": "gemini-2.5-flash-image",
+ "openrouter_model": null,
+ "fal_model": null,
+ "model_version": "gemini-2.5-flash-image",
+ "prompt": "A very wide 21:9 picture for a 2D game, piece vfx-restoration. The restoration after blackout: four stages in a row, warm gold light blooming from a point and spreading as a soft ring, small sparks. The subject is drawn alone on a plain aged cream paper ground with visible paper grain and fibre, in dark muted ink with etched crosshatch shading and near-black outlines, no green, no text.  Style: a dark painterly etched storybook illustration, ink and wash with fine etched cross-hatching and a faint paper grain inside the shapes only. Large shapes have a clean near-black ink outline #171614 about 2 px wide at this size. One light source sits in front and slightly above: upper edges brighter, lower edges shaded with fine hatching. Palette: charcoal and ash-blue darks, muted sepia, bone ivory #FFF5DC, warm gold #E9C46A, bronze #94611E, with only tiny accents of crimson #FF3658. Seed variation 2: a fresh composition. \n\nStyle (required): dark, muted ink on aged paper, like an etched storybook engraving. Etched ink linework with near-black ink outlines; crosshatch and fine line hatching for every shadow and form; visible aged paper grain and fibre texture under all colour; hand-printed, slightly uneven ink. No flat fills, no vector shapes, no smooth digital gradients, no glossy 3D rendering.",
+ "seed": "",
+ "size": "1024x1024",
+ "quality": "medium",
+ "aspect_ratio": "21:9",
+ "image_size": null,
+ "input_images": [],
+ "cost_usd": 0.039096,
+ "reply": {
+  "usage": {
+   "promptTokenCount": 319,
+   "candidatesTokenCount": 1290,
+   "totalTokenCount": 1609,
+   "promptTokensDetails": [
+    {
+     "modality": "TEXT",
+     "tokenCount": 319
+    }
+   ],
+   "candidatesTokensDetails": [
+    {
+     "modality": "IMAGE",
+     "tokenCount": 1290
+    }
+   ],
+   "serviceTier": "standard"
+  },
+  "finish": "STOP"
+ },
+ "date": "2026-11-13T17:01+00:00"
+}
