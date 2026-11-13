@@ -14,7 +14,7 @@ import math
 import random
 
 import bpy  # noqa: F401  (Blender only)
-from mathutils import Quaternion, Vector
+from mathutils import Matrix, Quaternion, Vector
 
 AXIS = Vector((0.0, -1.0, 0.0))   # the picture-plane normal toward the camera: positive angle = counter-clockwise
 
@@ -83,8 +83,8 @@ def materials(colours, look):
     return {
         "ink": toon("ink", shades, look),
         "feather": toon("feather", [c("silhouette"), c("owl-umber"), c("owl-feather")], look),
-        "cloth": toon("cloth", [c("owl-umber"), c("paper-stain"), c("paper-mid")], look),
-        "hair": toon("hair", [c("ink"), c("owl-umber"), c("paper-stain")], look),
+        "cloth": toon("cloth", [c("paper-stain"), c("paper-mid"), c("paper-light")], dict(look, grain=0.38)),
+        "hair": toon("hair", [c("owl-umber"), c("paper-stain"), c("paper-mid")], dict(look, grain=0.38)),
         "stripe": toon("stripe", [c("ink"), c("ink"), c("silhouette")], look),
         "gold": glow("gold", c("gold", "#e9b04a")),
         "amber": glow("amber", c("amber-eye", "#c8862a")),
@@ -283,6 +283,12 @@ def build_ella(m, rnd):
     # the free arm: sleeve and hand, lifted behind the body
     r.add("primitive_cylinder_add", "wand_arm", ink, loc=(0.05, 0, 0.3), vertices=8, radius=0.05, depth=0.42)
     r.add("primitive_uv_sphere_add", "wand_arm", feather, loc=(0.05, 0, 0.08), segments=8, ring_count=6, radius=0.055)
+    lean = 0.2   # airborne lean: the figure hangs diagonally from the raised umbrella, not upright
+    rot = Matrix.Rotation(lean, 3, "Y")
+    for name, (h, t, par) in list(r.bones.items()):
+        r.bones[name] = (rot @ h, rot @ t, par)
+    for ob, _ in r.parts:
+        ob.data.transform(rot.to_4x4())
     return r.build(), {}
 
 
