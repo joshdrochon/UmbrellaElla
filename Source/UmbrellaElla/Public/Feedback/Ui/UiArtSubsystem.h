@@ -41,7 +41,7 @@ namespace UmbrellaUiPieceConst
 		EHorizontalAlignment Horizontal;
 		EVerticalAlignment Vertical;
 		bool bBelowMenu;
-		/** Shown only in Director's Cut (ART-08, FLOW-48: Start Game has no XP ring). */
+		/** Shown only in Director's Cut only (Start Game has no XP ring). */
 		bool bDirectorOnly = false;
 	};
 	/** Back to front. Pieces without a screen of their own sit at their native size, aligned to the frame. */
