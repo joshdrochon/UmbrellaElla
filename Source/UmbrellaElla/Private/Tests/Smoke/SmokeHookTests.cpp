@@ -50,4 +50,32 @@ bool FSmokeInputTimeline::RunTest(const FString& Parameters)
 	return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FSmokeShotFrameCount, "UmbrellaElla.Smoke.ShotWaitsForRenderedFrames",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+bool FSmokeShotFrameCount::RunTest(const FString& Parameters)
+{
+	TestFalse(TEXT("level not ready: no shot however many frames"), USmokeHookSubsystem::IsShotDue(false, 1000, 60));
+	TestFalse(TEXT("59 frames is early"), USmokeHookSubsystem::IsShotDue(true, 59, 60));
+	TestTrue(TEXT("60 frames is due"), USmokeHookSubsystem::IsShotDue(true, 60, 60));
+	TestEqual(TEXT("default frames"), USmokeHookSubsystem::ResolveShotFrames(0), USmokeHookSubsystem::DefaultShotFrames);
+	TestEqual(TEXT("negative falls back"), USmokeHookSubsystem::ResolveShotFrames(-3), USmokeHookSubsystem::DefaultShotFrames);
+	TestEqual(TEXT("explicit N wins"), USmokeHookSubsystem::ResolveShotFrames(7), 7);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FSmokeShotPathAndSwitches, "UmbrellaElla.Smoke.ShotPathAndSceneSwitches",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+bool FSmokeShotPathAndSwitches::RunTest(const FString& Parameters)
+{
+	TestEqual(TEXT("relative path resolves against the project"), USmokeHookSubsystem::ResolveShotPath(TEXT("pipeline/a.png"), TEXT("/proj/")), FString(TEXT("/proj/pipeline/a.png")));
+	TestEqual(TEXT("absolute path stays"), USmokeHookSubsystem::ResolveShotPath(TEXT("/tmp/a.png"), TEXT("/proj/")), FString(TEXT("/tmp/a.png")));
+	EEnemyType Type = EEnemyType::Roadwarden;
+	TestTrue(TEXT("floodstrider parses"), USmokeHookSubsystem::ParseEnemyFamily(TEXT("floodstrider"), Type));
+	TestEqual(TEXT("floodstrider type"), static_cast<int32>(Type), static_cast<int32>(EEnemyType::Floodstrider));
+	TestTrue(TEXT("sky courier parses"), USmokeHookSubsystem::ParseEnemyFamily(TEXT("SkyCourier"), Type));
+	TestEqual(TEXT("sky courier type"), static_cast<int32>(Type), static_cast<int32>(EEnemyType::SkyCourier));
+	TestFalse(TEXT("unknown family"), USmokeHookSubsystem::ParseEnemyFamily(TEXT("owl"), Type));
+	return true;
+}
+
 #endif

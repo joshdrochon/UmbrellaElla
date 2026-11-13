@@ -1,4 +1,5 @@
 #include "Projectile/UmbrellaProjectile.h"
+#include "Feedback/Art/ArtSlot.h"
 #include "Components/StaticMeshComponent.h"
 #include "Core/EllaCharacter.h"
 #include "Core/UmbrellaCollision.h"
@@ -242,11 +243,6 @@ void AUmbrellaProjectile::ApplyPlaceholderVisual()
 	}
 	Visual->SetStaticMesh(Mesh);
 	Visual->SetWorldScale3D(FVector(Spec.Radius / Tuning.PlaceholderMeshRadius));
-	UMaterialInterface* Base = LoadObject<UMaterialInterface>(nullptr, ShapeMaterialPath, nullptr, LOAD_NoWarn | LOAD_Quiet);
-	if (!Base)
-	{
-		return;
-	}
 	FLinearColor Tint = Tuning.PlayerColor;
 	if (Spec.Kind == EUmbrellaShotKind::EnemyRed)
 	{
@@ -256,7 +252,15 @@ void AUmbrellaProjectile::ApplyPlaceholderVisual()
 	{
 		Tint = Tuning.YellowColor;
 	}
-	UMaterialInstanceDynamic* Material = UMaterialInstanceDynamic::Create(Base, this);
-	Material->SetVectorParameterValue(ColorParameter, Tint);
-	Visual->SetMaterial(0, Material);
+	ArtSlot::SetFlatUnlit(Visual, this, Tint);
+	if (ArtSlot::IsUnlit(Visual))
+	{
+		return;
+	}
+	if (UMaterialInterface* Base = LoadObject<UMaterialInterface>(nullptr, ShapeMaterialPath, nullptr, LOAD_NoWarn | LOAD_Quiet))
+	{
+		UMaterialInstanceDynamic* Material = UMaterialInstanceDynamic::Create(Base, this);
+		Material->SetVectorParameterValue(ColorParameter, Tint);
+		Visual->SetMaterial(0, Material);
+	}
 }
