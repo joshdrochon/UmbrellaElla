@@ -85,5 +85,9 @@ Tests: `BrokenMill.World.MeasureOnwardRideBends`, `MeasureRedRayPaths`, `Measure
   same band-choice behavior; the earlier room-gate tests still pass).
 - Test: `BrokenMill.World.CurrentsLiveWhileGuardLives` (reset band, onward band, gap, outside the column): both currents
   live on every sampled tick via `FPlaytestRun::IsCurrentLive`, and only the eligible band overlaps Ella.
-- Evidence: build exit 0, 0 warnings; `TEST_FILTER=UmbrellaElla.BrokenMill` PASS 25/25. Not run: module_check (hung twice
-  on this machine, no output), and a new `-SmokePlaytest` HAZ run (playtest lane); CAM-07 `persist` should now read live on all ticks.
+- Evidence: build exit 0, 0 warnings; `TEST_FILTER=UmbrellaElla.BrokenMill` PASS 26/26 after the review fixes; the gate ran module_check clean. Not run: a new `-SmokePlaytest` HAZ run (playtest lane); CAM-07 `persist` should now read live on all ticks.
+
+### Review fixes (round 1)
+- Wind volumes are found once in `BuildWinds` and cached (`UpperVolume`/`LowerVolume`); `ApplyWindEligibility` no longer calls `FindComponentByClass` per tick.
+- Removed `IsInAscent` from `bInNoWarningPhase` (outside HAZ-14/15 and CAM-07; no test or decision row backed it).
+- Build exit 0, 0 warnings; `UmbrellaElla.BrokenMill` PASS 26/26.

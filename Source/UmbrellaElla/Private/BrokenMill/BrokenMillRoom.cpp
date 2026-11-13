@@ -107,6 +107,8 @@ void ABrokenMillRoom::BuildWinds()
 	};
 	UpperWind = SpawnBand(T.UpperResetZ, FVector(-1.0, 0.0, 0.0));
 	LowerWind = SpawnBand(T.LowerOnwardZ, FVector(1.0, 0.0, 0.0));
+	UpperVolume = IsValid(UpperWind) ? UpperWind->FindComponentByClass<UBoxComponent>() : nullptr;
+	LowerVolume = IsValid(LowerWind) ? LowerWind->FindComponentByClass<UBoxComponent>() : nullptr;
 	if (IsValid(LowerWind))
 	{
 		// Local restoring field: pulls the root toward the onward centre z 230 while Ella rides this band.
@@ -221,7 +223,7 @@ EMillGuardEvent ABrokenMillRoom::StepSeconds(float DeltaSeconds)
 		Inputs.bEngagementValid = FBrokenMillRules::IsEngagementValid(Tuning(), Ella, true);
 		Inputs.bPassedBehind = Ella.X > Tuning().GuardMuzzle.X;
 		// Assist and exit are the no-warning phases of the room (reset is the upper band, which stays warned).
-		Inputs.bInNoWarningPhase = FBrokenMillRules::IsInMissedCurrentAssist(Tuning(), Ella) || Ella.X >= Tuning().ExitPoint.X || FBrokenMillRules::IsInAscent(Tuning(), Ella);
+		Inputs.bInNoWarningPhase = FBrokenMillRules::IsInMissedCurrentAssist(Tuning(), Ella) || Ella.X >= Tuning().ExitPoint.X;
 		if (IsFeatureEnabled(EFeatureId::HAZ_07))
 		{
 			ApplyWindEligibility(FBrokenMillRules::GetEligibleWind(Tuning(), Ella));
@@ -251,7 +253,7 @@ void ABrokenMillRoom::ApplyWindEligibility(EMillWind Eligible)
 	// so the wind actor itself sends WindExited (and WindEntered when it comes back with Ella inside). The Motor
 	// still only rides while overhead with Ride held.
 	const bool bBothLive = IsFeatureEnabled(EFeatureId::CAM_07);
-	auto Gate = [bBothLive](AWindCurrent* Wind, bool bEligible)
+	auto Gate = [bBothLive](AWindCurrent* Wind, UBoxComponent* Volume, bool bEligible)
 	{
 		if (!IsValid(Wind))
 		{
@@ -262,7 +264,7 @@ void ABrokenMillRoom::ApplyWindEligibility(EMillWind Eligible)
 			Wind->SetActorEnableCollision(bEligible);
 			return;
 		}
-		if (UBoxComponent* Volume = Wind->FindComponentByClass<UBoxComponent>())
+		if (IsValid(Volume))
 		{
 			const ECollisionResponse Wanted = bEligible ? ECR_Overlap : ECR_Ignore;
 			if (Volume->GetCollisionResponseToChannel(ECC_Pawn) != Wanted)
@@ -271,8 +273,8 @@ void ABrokenMillRoom::ApplyWindEligibility(EMillWind Eligible)
 			}
 		}
 	};
-	Gate(UpperWind, Eligible == EMillWind::UpperReset);
-	Gate(LowerWind, Eligible == EMillWind::LowerOnward);
+	Gate(UpperWind, UpperVolume, Eligible == EMillWind::UpperReset);
+	Gate(LowerWind, LowerVolume, Eligible == EMillWind::LowerOnward);
 }
 
 void ABrokenMillRoom::ReleaseShot()
