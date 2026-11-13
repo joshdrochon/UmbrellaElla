@@ -38,7 +38,7 @@ bible row (F1, P3, Tone target) or rule it breaks. A `true` needs no quote. No s
 | S5 | A 13-year-old understands it on one read; teen-rated (no gore, no swearing) | Official Rules section 8 |
 | S6 | Does its surface's job: a button names an action, a `label` surface line names a thing (a stat, setting or menu item), not an action, a tooltip says what the setting changes, a card tells one beat | `pipeline/ui/menus.md`; bible Tone target |
 | S7 | Names no trademark, real person, brand or another work's character | Official Rules 15(d); story.json deny |
-| S8 | Promises no mechanic the player will not find (only bible Facts marked GDD: F2-F6 lift, fall, wear, shield, shots, the owl departs; F10-F12 controls, spells, growth, lives) | bible Facts |
+| S8 | Promises no mechanic the player will not find (only bible Facts marked GDD: F2-F6 lift, fall, wear, shield, shots, the owl departs; F10-F14 controls, spells, growth, lives, results screen, Keeper fight) | bible Facts |
 
 For a revision pair (`X` and `Y`, the same id), also answer: which is closer to the standard, `X`, `Y` or `tie`.
 The runner asks twice with the order swapped; both answers must agree, or the pair goes to a human.

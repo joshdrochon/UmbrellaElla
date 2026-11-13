@@ -19,7 +19,7 @@ def packet(rows):
     sj = json.load(open("pipeline/story/story.json"))
     sc = subprocess.run([sys.executable, "tools/story_check.py"], capture_output=True, text=True)
     p = p.replace("{story_bible}", open("pipeline/story/story-bible.md").read())
-    p = p.replace("{story_json_surfaces_deny_banned}", json.dumps({k: sj[k] for k in sj if k in ("surfaces", "deny", "banned", "banned_words")}, indent=1))
+    p = p.replace("{story_json_surfaces_deny_banned}", json.dumps({k: sj[k] for k in sj if k in ("surfaces", "length_exceptions", "deny", "banned", "banned_words")}, indent=1))
     p = p.replace("{story_check_output}", (sc.stdout + sc.stderr).strip())
     rows = list(rows); random.shuffle(rows)
     return p + "\n\nLines to judge (id | surface | text), cycle=1, builder=area-worker:\n" + "\n".join(

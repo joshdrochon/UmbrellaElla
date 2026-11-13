@@ -82,7 +82,7 @@ TArray<FDeveloperOptionSpec> DeveloperOptionRules::AllSpecs()
 	Specs.Add(MakeDevSpec(EDeveloperOption::Missiles, TEXT("Missiles"), LOCTEXT("Missiles", "Enemy shot speed"), EKind::Percent, Low));
 	Specs.Add(MakeDevSpec(EDeveloperOption::Absorption, TEXT("Absorption"), LOCTEXT("Absorption", "Absorb range and pull"), EKind::Percent, Low));
 	Specs.Add(MakeDevSpec(EDeveloperOption::HealthGround, TEXT("HealthGround"), LOCTEXT("HealthGround", "Hits per life"), EKind::Offset, 0));
-	Specs.Add(MakeDevSpec(EDeveloperOption::FourWeapons, TEXT("FourWeapons"), LOCTEXT("FourWeapons", "All four weapons unlocked"), EKind::Toggle, DeveloperOptionLimits::ToggleOff));
+	Specs.Add(MakeDevSpec(EDeveloperOption::FourWeapons, TEXT("FourWeapons"), LOCTEXT("FourWeapons", "All four spells unlocked"), EKind::Toggle, DeveloperOptionLimits::ToggleOff));
 	Specs.Add(MakeDevSpec(EDeveloperOption::ProgressionScarf, TEXT("ProgressionScarf"), LOCTEXT("ProgressionScarf", "Experience gained"), EKind::Percent, Off));
 	Specs.Add(MakeDevSpec(EDeveloperOption::OwlParts, TEXT("OwlParts"), LOCTEXT("OwlParts", "Keeper part health"), EKind::Percent, Low));
 	Specs.Add(MakeDevSpec(EDeveloperOption::Clock, TEXT("Clock"), LOCTEXT("Clock", "Keeper clock health"), EKind::Percent, Low));
