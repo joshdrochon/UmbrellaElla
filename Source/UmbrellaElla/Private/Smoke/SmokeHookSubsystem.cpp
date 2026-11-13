@@ -1,4 +1,5 @@
 #include "Smoke/SmokeHookSubsystem.h"
+#include "Enemy/EnemyTypes.h"
 #include "Core/UmbrellaLog.h"
 #include "Core/UmbrellaTuning.h"
 #include "Core/EllaCharacter.h"
@@ -85,7 +86,7 @@ FString USmokeHookSubsystem::ResolveShotPath(const FString& Path, const FString&
 	return FPaths::ConvertRelativePathToFull(ProjectDir, Path);
 }
 
-bool USmokeHookSubsystem::ParseEnemyFamily(const FString& Name, EEnemyType& OutType)
+bool USmokeHookSubsystem::HasEnemyFamilyName(const FString& Name, EEnemyType& OutType)
 {
 	if (Name.Equals(TEXT("Roadwarden"), ESearchCase::IgnoreCase))
 	{
@@ -137,7 +138,7 @@ void USmokeHookSubsystem::ApplySceneSwitches()
 	{
 		EEnemyType Type = EEnemyType::Roadwarden;
 		const APawn* Ella = Flow->GetPawn();
-		if (ParseEnemyFamily(Family, Type) && Ella)
+		if (HasEnemyFamilyName(Family, Type) && Ella)
 		{
 			const FVector At = Ella->GetActorLocation() + FVector(SmokeEnemyOffsetX, 0.0, 0.0);
 			AUmbrellaEnemy* Enemy = World->SpawnActor<AUmbrellaEnemy>(AUmbrellaEnemy::StaticClass(), FTransform(At));

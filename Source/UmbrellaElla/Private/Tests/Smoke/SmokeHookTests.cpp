@@ -1,6 +1,7 @@
 #include "Misc/AutomationTest.h"
 #include "Core/UmbrellaTuning.h"
 #include "Smoke/SmokeHookSubsystem.h"
+#include "Enemy/EnemyTypes.h"
 
 #if WITH_AUTOMATION_TESTS
 
@@ -82,11 +83,11 @@ bool FSmokeShotPathAndSwitches::RunTest(const FString& Parameters)
 	TestEqual(TEXT("relative path resolves against the project"), USmokeHookSubsystem::ResolveShotPath(TEXT("pipeline/a.png"), TEXT("/proj/")), FString(TEXT("/proj/pipeline/a.png")));
 	TestEqual(TEXT("absolute path stays"), USmokeHookSubsystem::ResolveShotPath(TEXT("/tmp/a.png"), TEXT("/proj/")), FString(TEXT("/tmp/a.png")));
 	EEnemyType Type = EEnemyType::Roadwarden;
-	TestTrue(TEXT("floodstrider parses"), USmokeHookSubsystem::ParseEnemyFamily(TEXT("floodstrider"), Type));
+	TestTrue(TEXT("floodstrider parses"), USmokeHookSubsystem::HasEnemyFamilyName(TEXT("floodstrider"), Type));
 	TestEqual(TEXT("floodstrider type"), static_cast<int32>(Type), static_cast<int32>(EEnemyType::Floodstrider));
-	TestTrue(TEXT("sky courier parses"), USmokeHookSubsystem::ParseEnemyFamily(TEXT("SkyCourier"), Type));
+	TestTrue(TEXT("sky courier parses"), USmokeHookSubsystem::HasEnemyFamilyName(TEXT("SkyCourier"), Type));
 	TestEqual(TEXT("sky courier type"), static_cast<int32>(Type), static_cast<int32>(EEnemyType::SkyCourier));
-	TestFalse(TEXT("unknown family"), USmokeHookSubsystem::ParseEnemyFamily(TEXT("owl"), Type));
+	TestFalse(TEXT("unknown family"), USmokeHookSubsystem::HasEnemyFamilyName(TEXT("owl"), Type));
 	return true;
 }
 

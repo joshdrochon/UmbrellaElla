@@ -20,3 +20,8 @@
 - The shot counts -SmokeShotFrames only on frames where no shader jobs, no streaming textures, no compiling assets, and Ella's pawn is alive on the Playing screen. Any pending item resets the count. Log: `SMOKE_SHOT_READY at_s=`.
 - Test `UmbrellaElla.Smoke.ShotWaitsForShadersTexturesAndPlayer`. Build exit 0, `UmbrellaElla.Smoke` PASS tests=13 failed=0.
 - Not run: a new loaded capture (artella's -SmokeShotFrames=3000 re-shoot). module_check shows 2 older problems in SmokeHookSubsystem.h (ParseEnemyFamily name, EnemyTypes include), not from this change.
+
+## module_check fixes (Opus escalation) - done
+- `ParseEnemyFamily` renamed `HasEnemyFamilyName` (same signature; family through the out parameter), caller and test updated.
+- `SmokeHookSubsystem.h` no longer includes `Enemy/EnemyTypes.h`; forward-declares `enum class EEnemyType : uint8;`. The .cpp and SmokeHookTests.cpp include it.
+- Build exit 0 (warnings 0). `UmbrellaElla.Smoke+UmbrellaElla.Feedback` PASS tests=48 failed=0. `module_check: 0 problem(s)`.

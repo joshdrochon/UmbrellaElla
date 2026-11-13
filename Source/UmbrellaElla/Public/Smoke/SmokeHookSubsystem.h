@@ -5,8 +5,9 @@
 #include "InputCoreTypes.h"
 #include "Tickable.h"
 #include "Smoke/PlaytestRun.h"
-#include "Enemy/EnemyTypes.h"
 #include "SmokeHookSubsystem.generated.h"
+
+enum class EEnemyType : uint8;
 
 /**
  * The smoke hook (pipeline/unreal-rules.md "Smoke hook contract"). Exists only when the game is launched with
@@ -63,8 +64,8 @@ public:
 	/** -SmokeShot path: absolute paths stay, a relative one resolves against ProjectDir. */
 	static FString ResolveShotPath(const FString& Path, const FString& ProjectDir);
 
-	/** -SmokeEnemy=<family>: Roadwarden, Floodstrider or SkyCourier (case-insensitive). False for anything else. */
-	static bool ParseEnemyFamily(const FString& Name, EEnemyType& OutType);
+	/** -SmokeEnemy=<family>: true for Roadwarden, Floodstrider or SkyCourier (case-insensitive), the family in OutType. False for anything else. */
+	static bool HasEnemyFamilyName(const FString& Name, EEnemyType& OutType);
 
 	/** The -SmokeShotFrames=N value: N when it is at least 1, else the default. */
 	static int32 ResolveShotFrames(int32 Requested);
