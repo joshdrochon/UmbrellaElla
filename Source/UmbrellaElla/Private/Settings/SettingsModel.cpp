@@ -7,7 +7,7 @@
 bool FUmbrellaSettingsData::operator==(const FUmbrellaSettingsData& Other) const
 {
 	if (MasterVolume != Other.MasterVolume || SfxVolume != Other.SfxVolume || MusicVolume != Other.MusicVolume
-		|| TextScalePercent != Other.TextScalePercent || bReducedMotion != Other.bReducedMotion
+		|| TextScalePercent != Other.TextScalePercent || bReducedMotion != Other.bReducedMotion || bReducedFlash != Other.bReducedFlash
 		|| Bindings.Num() != Other.Bindings.Num())
 	{
 		return false;
@@ -32,6 +32,7 @@ FUmbrellaSettingsData SettingsRules::MakeDefaults()
 	Data.MusicVolume = SettingsConstants::DefaultVolume;
 	Data.TextScalePercent = SettingsConstants::TextScaleMin;
 	Data.bReducedMotion = false;
+	Data.bReducedFlash = false;
 	Data.Bindings = UmbrellaInputBindings::BuildDefaults();
 	return Data;
 }
@@ -269,6 +270,11 @@ void FSettingsSession::SetReducedMotion(bool bEnabled)
 	Draft.bReducedMotion = bEnabled;
 }
 
+void FSettingsSession::SetReducedFlash(bool bEnabled)
+{
+	Draft.bReducedFlash = bEnabled;
+}
+
 bool FSettingsSession::CanRemap(EUmbrellaInputAction Action, int32 Slot, const FKey& NewKey) const
 {
 	return NewKey.IsValid() && SettingsRules::FindBindingIndex(Draft.Bindings, Action, Slot) != INDEX_NONE;
@@ -315,6 +321,7 @@ namespace
 			Target.MusicVolume = Source.MusicVolume;
 			Target.TextScalePercent = Source.TextScalePercent;
 			Target.bReducedMotion = Source.bReducedMotion;
+			Target.bReducedFlash = Source.bReducedFlash;
 			break;
 		case ESettingsPage::Controller:
 			Target.Bindings = Source.Bindings;

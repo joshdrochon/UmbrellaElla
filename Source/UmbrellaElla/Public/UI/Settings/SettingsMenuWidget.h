@@ -31,6 +31,7 @@ public:
 	void PressSave();
 	void ChooseBack(ESettingsBackChoice Choice);
 	bool IsBackPromptShown() const { return bBackPrompt; }
+	bool IsSaveFailedShown() const { return bSaveFailed; }
 
 	/** Start waiting for the next key for Action's Slot-th binding. */
 	void BeginRemap(EUmbrellaInputAction Action, int32 Slot);
@@ -64,6 +65,7 @@ private:
 	EUmbrellaPlayMode Mode = EUmbrellaPlayMode::StartGame;
 	ESettingsPage Page = ESettingsPage::Sound;
 	bool bBackPrompt = false;
+	bool bSaveFailed = false;
 	bool bCapturing = false;
 	EUmbrellaInputAction CaptureAction = EUmbrellaInputAction::Shoot;
 	int32 CaptureSlot = 0;

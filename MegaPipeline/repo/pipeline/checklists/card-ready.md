@@ -15,6 +15,7 @@ A card that fails a line is not ready. `pipeline/templates/task-card.md` lists t
 - A stretch card names which open-vs-close decision it changes. One that changes none goes to the end of the stretch order.
 - When a new GDD revision lands, run `tools/gdd_impact.py` (`docs/gdd/README.md`); every open card it lists is re-checked, and `check_card.py` fails a card whose Features changed since its `GDD revision`.
 - Features are authorized in `docs/feature-manifest.json`, or the card is `Hook only` for an OPEN or PROPOSED ID (check_card enforces).
+- A Python test line names its modules (`python3 -m unittest tests.test_x`) or `tools/affected_tests.py --run`; the full suite is CI's, never a card's.
 - Done-when has at least one blocked, negative or interrupted check besides the normal path (owl outside the firing lane: no shot; a hit during invulnerability does no damage).
 - `Out of scope`, `Used by` and `Needs` are filled. If `Used by` names something in another lane, the follow-up card (usually Integrator) is filed now and its number is in `Used by` (check_card enforces). For an Asset Specialist card, that Integrator card is open with a Budget, so `--hours` counts its human time on the same day (`--hours` fails the asset card otherwise).
 - A card that creates tests named in `pipeline/qa/test-map.md` has a Done-when line that writes its issue number and `merged` in that row (the file is row-scoped; `--lanes` ignores it).

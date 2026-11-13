@@ -64,7 +64,8 @@ FName UUmbrellaCueSubsystem::CueForEvent(const FUmbrellaEvent& Event)
 	case EUmbrellaEventType::CatchFailed:
 		return TEXT("AbsorbFail");
 	case EUmbrellaEventType::BossTargetHit:
-		return TEXT("KeeperHit");
+		// Regular enemy hits share the event; only Keeper hits get the Keeper cue.
+		return Event.Detail == TEXT("Enemy") ? FName(TEXT("Hit")) : FName(TEXT("KeeperHit"));
 	case EUmbrellaEventType::BossAttackTelegraphed:
 		return TEXT("KeeperAttack");
 	case EUmbrellaEventType::PlayerDefeated:

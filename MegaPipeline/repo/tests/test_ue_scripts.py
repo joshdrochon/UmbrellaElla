@@ -169,6 +169,37 @@ class UeRunUnitTests(unittest.TestCase):
         self.assertEqual(rc, ue_run.TIMEOUT_RC)
         self.assertIn("TIMEOUT", read(log))
 
+    def test_run_returns_when_a_forked_child_keeps_the_pipe_open(self):
+        # The Mac editor forks UnrealTraceServer, which holds the inherited stdout until its sponsor is reaped
+        # (card 0.3 dry run): run() must return the command's code, not wait for the pipe's EOF.
+        log = os.path.join(self.tmp, "l.log")
+        child = ("import subprocess,sys; subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(60)'], "
+                 "start_new_session=True); print('parent done', flush=True); raise SystemExit(4)")
+        old = os.environ.get("RUN_DRAIN_S")
+        os.environ["RUN_DRAIN_S"] = "1"
+        try:
+            import time
+            t0 = time.monotonic()
+            rc, out = quiet(ue_run.run, [PY, "-c", child], 30, log)
+            took = time.monotonic() - t0
+        finally:
+            if old is None:
+                os.environ.pop("RUN_DRAIN_S", None)
+            else:
+                os.environ["RUN_DRAIN_S"] = old
+        self.assertEqual(rc, 4)
+        self.assertLess(took, 15)
+        self.assertIn("parent done", read(log))
+        self.assertIn("pipe still held open", read(log))
+
+    def test_run_timeout_with_a_forked_child_still_returns_124(self):
+        log = os.path.join(self.tmp, "l.log")
+        child = ("import subprocess,sys,time; subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(60)'], "
+                 "start_new_session=True); time.sleep(30)")
+        rc, out = quiet(ue_run.run, [PY, "-c", child], 1, log)
+        self.assertEqual(rc, ue_run.TIMEOUT_RC)
+        self.assertIn("TIMEOUT", read(log))
+
     def test_run_fast_command_is_not_timed_out(self):
         rc, _ = quiet(ue_run.run, [PY, "-c", "pass"], 30, os.path.join(self.tmp, "l.log"))
         self.assertEqual(rc, 0)

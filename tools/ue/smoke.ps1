@@ -58,11 +58,11 @@ if ($Res) {
 if ($Alive -or $env:SMOKE_MODE -eq "alive") {
   $AliveS = if ($env:SMOKE_ALIVE_SECONDS) { $env:SMOKE_ALIVE_SECONDS } else { "15" }
   $BootS = if ($env:SMOKE_MAX_BOOT_S) { $env:SMOKE_MAX_BOOT_S } else { "0" }
-  & $Py $UERunPy alive --seconds $AliveS --max-boot-s $BootS --log $OutLog -- $Exe -unattended @GameArgs
+  & $Py $UERunPy alive --seconds $AliveS --max-boot-s $BootS --log $OutLog -- $Exe -unattended -nocrashreports @GameArgs
   $rc = $LASTEXITCODE
 } else {
   & $Py $UERunPy run --timeout $Timeout --log $OutLog -- `
-    $Exe -SmokeQuitAfter=15 -log "-abslog=$GameLog" -unattended @GameArgs | Out-Null   # -abslog [VERIFY]
+    $Exe -SmokeQuitAfter=15 -log "-abslog=$GameLog" -unattended -nocrashreports @GameArgs | Out-Null   # -abslog [VERIFY]
   $run = $LASTEXITCODE
   $Logs = @($OutLog); if (Test-Path $GameLog) { $Logs += $GameLog }
   Write-Host "smoke logs: $($Logs -join ' ')"

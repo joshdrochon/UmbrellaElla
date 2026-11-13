@@ -1,4 +1,4 @@
-> Generated from `pipeline/roles/technical-director.md`, `.claude/agents/technical-director.md` at `a11903f` — edit the sources, not this file.
+> Generated from `pipeline/roles/technical-director.md`, `.claude/agents/technical-director.md` at `b201a66` — edit the sources, not this file.
 > Rebuild: `python3 tools/export_package.py`. Check: `python3 tools/export_package.py --check`.
 
 # Role: Technical Director
@@ -57,7 +57,7 @@ Model: Hard calls tier (`pipeline/agent-ops/model-tiers.md`).
 - Every item above is also in card 0.3's Done-when (`pipeline/day0-cards.md`), so the card and this list ask for the same things.
 - `UmbrellaElla.Flow.World.MenuBlocksGameplayInput` passes in `check_automation_report.py` output before the first menu card merges.
 - A Mac teammate opens it and compiles it (if any Mac teammate works in C++, D24).
-- `tools/pipeline_check.py` and the unit tests pass.
+- `tools/pipeline_check.py` and `tools/affected_tests.py --run` pass (the full unit suite is CI's).
 
 ## Never
 - Never write gameplay features. That is Gameplay Dev.

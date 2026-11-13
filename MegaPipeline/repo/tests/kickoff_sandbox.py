@@ -18,7 +18,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 FIX = os.path.join(HERE, "fixtures", "kickoff")
 GAME_PATHS = ("Source/", "Content/", "Config/", "Plugins/", "UmbrellaElla.uproject", "pipeline/qa/baked.json",
-              "Packaged", "Saved/", ".github/workflows/clock.yml", ".pipeline-practice")
+              "Packaged", "Saved/", ".github/workflows/clock.yml", ".pipeline-practice",
+              "docs/build/MODE")   # build mode: these sandboxes test the card flow
 PY = sys.executable
 
 
@@ -46,6 +47,9 @@ class KickoffSandbox:
                 shutil.copy2(src, dst)
         hermetic.reference_stand_ins(ROOT, self.repo)   # pointer checkout (CI runner): drawn stand-ins, not pointers
         fill_people(os.path.join(self.repo, "docs", "jam-brief.md"), people_md)
+        os.makedirs(os.path.join(self.repo, "docs", "build"), exist_ok=True)
+        with open(os.path.join(self.repo, "docs", "build", "MODE"), "w", encoding="utf-8") as fh:
+            fh.write("cards\n")   # these sandboxes test the card flow (no MODE file = direct)
         self.git("init", "-q", "-b", "main")
         self.git("config", "user.email", "t@t")
         self.git("config", "user.name", "t")
@@ -75,7 +79,7 @@ class KickoffSandbox:
                           "CODEX_THREAD_ID", "OPENAI_API_KEY", "ELEVENLABS_API_KEY", "STABILITY_API_KEY")}
         e.update(FAKE_GH_STATE=self.state, FAKE_GH_ORIGIN=self.origin, KICKOFF_GH=os.path.join(FIX, "fake_gh.py"),
                  KICKOFF_AGENT_CMD=shlex.join([PY, os.path.join(FIX, "stub_agent.py")]), KICKOFF_NOW="2026-11-09T12:00Z",
-                 KICKOFF_SKIP_CHECK="1", KICKOFF_PACKAGING_MACHINE="1", KICKOFF_MAC_MACHINE="1", JOURNAL_DB=os.path.join(self.base, "journal.db"), STUB_LOG=self.log,
+                 KICKOFF_SKIP_CHECK="1", KICKOFF_CLAIM_SETTLE="0", KICKOFF_PACKAGING_MACHINE="1", KICKOFF_MAC_MACHINE="1", JOURNAL_DB=os.path.join(self.base, "journal.db"), STUB_LOG=self.log,
                  STUB_STATE=self.stub_state, KEYS_NO_KEYCHAIN="1", PYTHONDONTWRITEBYTECODE="1")
         e.update(extra)
         return e
@@ -84,6 +88,35 @@ class KickoffSandbox:
         p = subprocess.run([PY, "tools/kickoff.py", *args], cwd=self.repo, capture_output=True, text=True,
                            env=self.env(**extra), timeout=1200, input=stdin_text)
         return p.returncode, p.stdout + p.stderr
+
+    def second_machine(self, name):
+        """A clone of the same origin for a second kickoff machine (its own checkout, journal and stub state; the
+        same fake GitHub and origin). The LFS objects come along, as a teammate's `git lfs pull` would fetch them."""
+        repo = os.path.join(self.base, name)
+        env = dict(os.environ, GIT_LFS_SKIP_SMUDGE="1")
+        subprocess.run(["git", "clone", "-q", self.origin, repo], check=True, env=env, capture_output=True)
+        self.git("config", "user.email", f"{name}@t", cwd=repo)
+        self.git("config", "user.name", name, cwd=repo)
+        lfs = os.path.join(self.repo, ".git", "lfs", "objects")
+        if os.path.isdir(lfs):
+            shutil.copytree(lfs, os.path.join(repo, ".git", "lfs", "objects"), dirs_exist_ok=True)
+        subprocess.run(["git", "-c", "core.hooksPath=/dev/null", "checkout", "-f", "HEAD", "--", "."], cwd=repo,
+                       check=True, capture_output=True)
+        return repo
+
+    def machine_env(self, name, **extra):
+        """env() for one of several kickoff machines: its own journal, stub log and stub state, KICKOFF_MACHINE=name."""
+        d = os.path.join(self.base, "machine-" + name)
+        os.makedirs(os.path.join(d, "stub"), exist_ok=True)
+        return self.env(KICKOFF_MACHINE=name, JOURNAL_DB=os.path.join(d, "journal.db"),
+                        STUB_LOG=os.path.join(d, "stub.log"), STUB_STATE=os.path.join(d, "stub"), **extra)
+
+    def machine_sessions(self, name):
+        p = os.path.join(self.base, "machine-" + name, "stub.log")
+        if not os.path.exists(p):
+            return []
+        with open(p, encoding="utf-8") as fh:
+            return [json.loads(ln) for ln in fh if ln.strip()]
 
     def gh(self):
         with open(self.state, encoding="utf-8") as fh:
