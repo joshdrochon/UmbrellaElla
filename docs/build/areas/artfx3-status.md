@@ -60,3 +60,6 @@ Fixed `cut_strip.py` (the graded path crashed: `hp` was only defined under NOGRA
 
 ## 2026-11-13 (blocked: cap)
 Merged main. Committed the six unjudged draft4 candidates (NeedleChannel, NeedlePierce, NeedleSliver, StreamStart, PartBreak, PartHit). Shared counter is $46.59 against IMAGE_SPEND_CAP_USD $33.82, so no paid call can run. Per-piece spend is $0.14 each ($0.24 stun), under the $0.50 piece cap, so the block is the shared cap only. art_pass_verify: 4 verified passes, none of them mine. All eight pieces stay tracked `_PH` placeholders. Next once the cap is raised: cut draft4 into sheets (needs PIL), per-frame art_judge, then 3-pro-image finals for the closest pieces, context capture, blind panel.
+
+## 2026-11-13 (recheck 6)
+Still blocked: shared counter $46.59 vs cap $33.82 (../logs/image-spend.json); main merged, nothing new. No paid call made. Request in docs/build/requests/artfx3.md stands.
