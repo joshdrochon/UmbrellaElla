@@ -203,3 +203,35 @@ class Prompts(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class SpectrogramLowBand(unittest.TestCase):
+    ROWS_N = 120
+
+    def _grid(self, x):
+        return asc.spectrogram_grid(x, R, cols=60, rows=self.ROWS_N)
+
+    def _low_rows(self):
+        fmax = R / 2 - 1
+        return [r for r in range(self.ROWS_N) if 40.0 * (fmax / 40.0) ** (r / self.ROWS_N) < 500.0 and r > 8]
+
+    def _jitter(self, grid, rows):
+        d = [abs(grid[c + 1][r] - grid[c][r]) for r in rows for c in range(1, len(grid) - 2)]
+        return sum(d) / len(d)
+
+    def test_reverb_tail_low_band_has_frequency_detail(self):
+        # one coarse 47 Hz bin per several rows made a column read as a flat stripe (old grid: ~10 values here)
+        g = self._grid(decaying_noise(2.0, 2.0))
+        rows = self._low_rows()
+        distinct = [len({round(g[c][r], 6) for r in rows}) for c in range(5, 55)]
+        self.assertGreater(min(distinct), 25)
+
+    def test_dc_bin_is_not_row_zero(self):
+        g = self._grid([0.3 + v for v in sine(1000, 0.5)])
+        self.assertLess(g[30][0], max(g[30]) - 50)   # the old grid read the DC bin (the 0.3 offset) in row 0
+
+    def test_real_tick_train_still_shows_ticks(self):
+        g = self._grid(clicks(120, 4.0))
+        r = 100   # a high row, where clicks are broadband
+        col = [g[c][r] for c in range(len(g))]
+        self.assertGreater(max(col) - min(col), 20)
