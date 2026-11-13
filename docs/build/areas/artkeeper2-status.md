@@ -7,3 +7,10 @@
 - Blocker 3 (base): all six pieces reference the Keeper body, which stayed at the plateau of artkeeper R6-R10 (panel: reference wins, organic/feathered read). Painting parts on that base would repeat the same gap.
 - No paid call made. Nothing shipped; all six stay tracked placeholders.
 NEEDS HUMAN: lead: (1) smoke switch to start the Keeper fight, (2) art slots for the six pieces, (3) Blender-articulated vs paint decision for the Keeper.
+
+## Nov 13 session: still blocked (no paint, spend unchanged)
+- Merged main and area/artslots (slot catalog now lists keeper clock, departure, mechanism-front/middle in ArtSlotCatalog.inc, so blocker 2 is mostly cleared).
+- Blocker 1 stands: Source has no -SmokeKeeper/-SmokeSection handling, so no in-engine capture shows the Keeper and the context pair cannot be made (docs/build/requests/artkeeper.md items 1-2, outside my lane).
+- Blocker 3 stands: the Keeper body base is at the artkeeper R6-R10 plateau; painting parts on it repeats the gap.
+- Nothing shipped; all six pieces stay tracked placeholders.
+NEEDS HUMAN: lead: (1) smoke switch to start the Keeper fight, (2) Blender-articulated vs paint decision for the Keeper.
