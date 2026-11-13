@@ -42,6 +42,23 @@ namespace
 		return Texture;
 	}
 
+	UTexture2D* ArtSlotSizedTestTexture(int32 Width, int32 Height)
+	{
+		UTexture2D* Texture = UTexture2D::CreateTransient(Width, Height);
+		Texture->AddToRoot();
+		return Texture;
+	}
+
+	float ArtSlotParamScalar(const UStaticMeshComponent* Mesh, const TCHAR* Name)
+	{
+		float Out = -1.0f;
+		if (const UMaterialInstanceDynamic* Dynamic = Cast<UMaterialInstanceDynamic>(Mesh->GetMaterial(0)))
+		{
+			Dynamic->GetScalarParameterValue(FName(Name), Out);
+		}
+		return Out;
+	}
+
 	UTexture2D* ArtSlotParamTexture(const UStaticMeshComponent* Mesh)
 	{
 		UTexture* Out = nullptr;
@@ -188,7 +205,8 @@ bool FArtSlotElla::RunTest(const FString& Parameters)
 	{
 		TestTrue(TEXT("no asset keeps the stand-in"), Presenter->IsShowingStandIn());
 		UTexture2D* Idle = ArtSlotTestTexture();
-		UTexture2D* Hurt = ArtSlotTestTexture();
+		// Hurt is a 24x1 strip (2x2 cells), Idle a 6x4 grid: different cell shapes, so per-state sizing shows.
+		UTexture2D* Hurt = ArtSlotSizedTestTexture(48, 2);
 		Presenter->SetStateTexture(EEllaVisualState::Idle, Idle);
 		TestTrue(TEXT("idle picture draws art"), Presenter->IsShowingArt());
 		TestFalse(TEXT("art is not the stand-in"), Presenter->IsShowingStandIn());
@@ -198,9 +216,27 @@ bool FArtSlotElla::RunTest(const FString& Parameters)
 		TestTrue(TEXT("hurt picture shown"), ArtSlotParamTexture(Presenter->GetStandIn()) == Hurt);
 		Presenter->SetVisualState(EEllaVisualState::Shoot);
 		TestTrue(TEXT("a state without a picture shows idle"), ArtSlotParamTexture(Presenter->GetStandIn()) == Idle);
-		const FVector Down = ArtSlot::PlaneScaleFor(UEllaAnimPresenterComponent::StandInScaleFor(EEllaVisualState::Down));
-		Presenter->SetVisualState(EEllaVisualState::Down);
-		TestEqual(TEXT("art keeps the state footprint"), Presenter->GetStandIn()->GetRelativeScale3D(), Down);
+		// screenfix B2: a picture is drawn at its own cell size (art bible height, cell aspect), not the stand-in box.
+		// Each state uses its own sheet layout: Hurt (24x1 strip) and Idle (6x4 grid) differ.
+		const FArtSlotRow* IdleRow = ArtSlot::Find(TEXT("ella-state:Idle"));
+		const FArtSlotRow* HurtRow = ArtSlot::Find(TEXT("ella-state:Hurt"));
+		if (TestNotNull(TEXT("idle row"), IdleRow) && TestNotNull(TEXT("hurt row"), HurtRow))
+		{
+			TestEqual(TEXT("hurt row is a 24x1 strip"), FIntPoint(HurtRow->Cols, HurtRow->Rows), FIntPoint(24, 1));
+			TestEqual(TEXT("idle row is a 6x4 grid"), FIntPoint(IdleRow->Cols, IdleRow->Rows), FIntPoint(6, 4));
+			const FVector IdleScale = ArtSlot::PlaneScaleFor(UEllaAnimPresenterComponent::ArtBoxScaleFor(Idle, *IdleRow));
+			const FVector HurtScale = ArtSlot::PlaneScaleFor(UEllaAnimPresenterComponent::ArtBoxScaleFor(Hurt, *HurtRow));
+			TestFalse(TEXT("hurt and idle cells have different shapes"), HurtScale.Equals(IdleScale));
+			Presenter->SetVisualState(EEllaVisualState::Hurt);
+			TestEqual(TEXT("hurt art is drawn at the hurt cell size"), Presenter->GetStandIn()->GetRelativeScale3D(), HurtScale);
+			TestEqual(TEXT("hurt strip draws its one row"), ArtSlotParamScalar(Presenter->GetStandIn(), TEXT("TileV")), 1.0f);
+			TestEqual(TEXT("hurt strip is cut in 24 columns"), ArtSlotParamScalar(Presenter->GetStandIn(), TEXT("Cols")), 24.0f);
+			Presenter->SetVisualState(EEllaVisualState::Down);
+			TestTrue(TEXT("down without its own picture shows idle"), ArtSlotParamTexture(Presenter->GetStandIn()) == Idle);
+			TestEqual(TEXT("down falls back to the idle cell size"), Presenter->GetStandIn()->GetRelativeScale3D(), IdleScale);
+			TestEqual(TEXT("idle grid draws one of its 4 rows"), ArtSlotParamScalar(Presenter->GetStandIn(), TEXT("TileV")), 0.25f);
+			TestEqual(TEXT("idle grid is cut in 6 columns"), ArtSlotParamScalar(Presenter->GetStandIn(), TEXT("Cols")), 6.0f);
+		}
 		TestEqual(TEXT("art has no collision"), static_cast<int32>(Presenter->GetStandIn()->GetCollisionEnabled()), static_cast<int32>(ECollisionEnabled::NoCollision));
 	}
 	// A state with its own art and no Idle art still draws (review item 2).
