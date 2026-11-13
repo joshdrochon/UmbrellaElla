@@ -60,7 +60,7 @@ BRASS = [(1, 0.5, 5), (2.41, 0.3, 7), (3.9, 0.2, 10), (5.3, 0.1, 14)]         # 
 RECIPES = {
  # ---- hit family (style: hit) ----
  "EllaDown": {
-  "seconds": 2.6, "static_level": True, "lufs": -17, "fade_out": 1.0, "takes": 3, "reverb": dict(HALL, rt60=1.8, wet_db=-7),
+  "seconds": 2.6, "static_level": True, "lufs": -17, "fade_out": 1.0, "takes": 3, "reverb": dict(HALL, rt60=1.8, wet_db=-12, damp_hz=2400),
   "layers": {
    "crack": api("one sharp wooden crack, a thin wooden rib snapping", 1.0,
                 "highpass=f=600,lowpass=f=6000", 0, trim=1.0, decay=12, start_db=-24),
@@ -73,7 +73,7 @@ RECIPES = {
                 "highpass=f=250,lowpass=f=2200", -7, trim=2.0, decay=1.2, delay_ms=350),
   }},
  "OutOfBounds": {
-  "seconds": 1.6, "static_level": True, "lufs": -19, "fade_out": 0.6, "takes": 3, "reverb": dict(HALL, rt60=1.6, wet_db=-6, damp_hz=2400),
+  "seconds": 1.6, "static_level": True, "lufs": -19, "fade_out": 0.6, "takes": 3, "reverb": dict(HALL, rt60=1.6, wet_db=-12, damp_hz=2000),
   "layers": {
    "boom": thud(48, 70, 6, -19, secs=1.2),
    "stone": api("one heavy dull impact of a body of cloth and wood landing on a stone floor far below, deep and dark", 1.2,
@@ -94,8 +94,8 @@ RECIPES = {
   "seconds": 1.1, "static_level": True, "lufs": -16, "fade_out": 0.4, "takes": 3, "reverb": dict(HALL, rt60=1.1),
   "layers": {
    "clank": api("one bright brass clank struck once on a heavy clock face plate, pitched metallic ring", 1.0,
-                "highpass=f=450,lowpass=f=6500", 0, trim=0.8, decay=5, start_db=-24),
-   "bell": bell([830, 932, 784], BRASS, -8, secs=1.0, what="brass bell partial"),
+                "highpass=f=900,lowpass=f=6500", -6, trim=0.45, decay=12, start_db=-24),
+   "bell": bell([830, 932, 784], BRASS, -3, secs=1.0, what="brass bell partial"),
    "thud": thud(85, 60, 16, -7),
   }},
  "HitProtected": {
@@ -110,7 +110,8 @@ RECIPES = {
   "seconds": 1.1, "static_level": True, "lufs": -16, "fade_out": 0.4, "takes": 3, "reverb": dict(HALL, rt60=1.0, damp_hz=4500),
   "layers": {
    "crack": api("one sharp crack of a thick glass pane splitting, then a short splintering crackle running across it", 1.0,
-                "highpass=f=700,lowpass=f=7500", 0, trim=0.8, decay=5, start_db=-24),
+                "highpass=f=1200,lowpass=f=7500", -6, trim=0.35, decay=14, start_db=-24),
+   "shards": bell([1760, 2093, 1568], [(1, 0.5, 7), (2.76, 0.3, 11), (5.4, 0.15, 17)], -9, secs=0.9, what="glass shard ring"),
    "thud": thud(75, 60, 13, -15),
    "frame": bell([523, 587, 494], [(1, 0.5, 9), (2.41, 0.25, 13), (3.9, 0.12, 18)], -13, secs=0.8, what="brass bezel ring"),
   }},
