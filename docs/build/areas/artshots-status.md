@@ -87,3 +87,9 @@ Open for the lead: one call = one frame; how the loop frames are made (scale/thi
 BLOCKED: `tools/assetgen.py image` refuses, `GEMINI_API_KEY is not set` in this shell. Worker rules forbid me reading
 `~/.umbrella-ella.env`. Spend so far by me: 0. Next: run the three calls (about $0.42; commands in prompt.final.txt, 21:9/1:1/21:9, 2K,
 `--element effects`), `assetgen clean --chroma 00FF00`, art_ref_check, panel.
+
+## 13 Nov: Gemini painted (gemini-3-pro-image-preview, 2K, $0.139 each, 3 calls = $0.42; shared spend 3.209 of 33.82)
+Calls from `prompt.final.txt`, outputs `Art/Source/<Asset>/Paint/g1.png`. The default model (2.5 flash) refuses `--image-size`; pass `--model gemini-3-pro-image-preview`.
+Post: `assetgen clean --chroma 00FF00 --grow 1`, then `tools/build/assets/art_shots_fit.py` (Blender: crop, scale to 0.9 of canvas, snap each pixel to the GDD ramp with 0.1 tone jitter as grain) -> `g1_fit.png`.
+Deterministic (art_loop.measure): owl-bolt PASS 0.732, wand-shot PASS 0.664, bolt-hit PASS 0.688 (art_check, screen_check, art_ref_check all pass).
+Triage: unsnapped paint drifts off palette (off_style 0.11 to 0.25): ours (post), fixed by snap. Hard snap flattened bolt-hit detail (0.2 cap): ours, fixed by jitter. Next: blind panel.

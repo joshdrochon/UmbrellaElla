@@ -1,0 +1,37 @@
+{
+ "provider": "gemini",
+ "tool": "Gemini API image generation (Google)",
+ "model": "gemini-3-pro-image-preview",
+ "model_version": "gemini-3-pro-image-preview",
+ "prompt": "A single small gold magic shot, drawn as a flat 2D game effect sprite, flying to the right along the horizontal centre line of a wide 21:9 landscape canvas, in pure side view with no perspective. The whole shot sits in the middle of the canvas at about 35% of the canvas width, with generous empty flat green above, below and at both ends. The head leads on the right: a compact four-pointed star, sharp and angular, in warm gold #E9C46A with a bright pale spark-white core #FFF5DC at its centre and deeper bronze #A87C2E along its lower and rear facets; its four points are thin and razor-sharp, the vertical pair a little longer than the horizontal pair. Behind the star trails a short, slim, smooth tail shaped like a thin tapering blade, about two and a half star-widths long, in soft gold with a paler line along its centre, ending in a fine point on the left; two or three tiny solid gold square flecks float just behind and beside it. The whole shot is finished as clean layered facets with crisp colour, a few fine engraved ink hatch lines only inside the bronze shadow facets, and a faint hand-printed grain inside the shapes, in the dark etched storybook look of the game. The outermost edge of the shot is a crisp 2 to 3 pixel contour in pale gold #FFF5DC, and every edge drops straight onto the background, so the silhouette stays sharp at tiny size. The background is one perfectly even, flat, pure chroma-key green #00FF00 filling the canvas edge to edge, smooth and evenly lit, so the shot casts no shadow on it. Every colour in the shot is gold, bronze or warm white; the green belongs only to the background. The canvas holds only this one shot.",
+ "seed": "",
+ "size": "1024x1024",
+ "quality": "medium",
+ "aspect_ratio": "21:9",
+ "image_size": "2K",
+ "input_images": [],
+ "cost_usd": 0.138758,
+ "reply": {
+  "usage": {
+   "promptTokenCount": 387,
+   "candidatesTokenCount": 1546,
+   "totalTokenCount": 2265,
+   "promptTokensDetails": [
+    {
+     "modality": "TEXT",
+     "tokenCount": 387
+    }
+   ],
+   "candidatesTokensDetails": [
+    {
+     "modality": "IMAGE",
+     "tokenCount": 1120
+    }
+   ],
+   "thoughtsTokenCount": 332,
+   "serviceTier": "standard"
+  },
+  "finish": "STOP"
+ },
+ "date": "2026-11-13T04:02+00:00"
+}
