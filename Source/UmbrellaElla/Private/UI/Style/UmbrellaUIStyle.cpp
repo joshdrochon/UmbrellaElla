@@ -20,6 +20,8 @@ struct FUmbrellaUIStyleData
 	bool bGroundValid = false;
 	FSlateBrush TitleLockupBrush;
 	bool bTitleLockupValid = false;
+	FSlateBrush GrainBrush;
+	bool bGrainValid = false;
 	TUniquePtr<FSlateRoundedBoxBrush> Panel;
 	TUniquePtr<FSlateRoundedBoxBrush> SliderBar;
 	TUniquePtr<FSlateRoundedBoxBrush> SliderThumb;
@@ -88,6 +90,15 @@ namespace
 			Data->bGroundValid = true;
 		}
 
+		if (UTexture2D* Grain = Assets->GetGrain())
+		{
+			Data->GrainBrush.SetResourceObject(Grain);
+			Data->GrainBrush.ImageSize = FVector2D(UmbrellaUI::GrainTileSize, UmbrellaUI::GrainTileSize);
+			Data->GrainBrush.DrawAs = ESlateBrushDrawType::Image;
+			Data->GrainBrush.Tiling = ESlateBrushTileType::Both;
+			Data->bGrainValid = true;
+		}
+
 		if (UTexture2D* Lockup = Assets->GetTitleLockup())
 		{
 			Data->TitleLockupBrush.SetResourceObject(Lockup);
@@ -135,6 +146,8 @@ UUmbrellaUIStyleAssets::UUmbrellaUIStyleAssets()
 	static ConstructorHelpers::FObjectFinderOptional<UTexture2D> LockupFinder(TEXT("/Game/UmbrellaElla/UI/T_UI_TitleLockup_PH.T_UI_TitleLockup_PH"));
 	Ground = GroundFinder.Get();
 	TitleLockup = LockupFinder.Get();
+	static ConstructorHelpers::FObjectFinderOptional<UTexture2D> GrainFinder(TEXT("/Game/UmbrellaElla/UI/T_UI_Grain_PH.T_UI_Grain_PH"));
+	Grain = GrainFinder.Get();
 	ClockFace = ClockFinder.Get();
 }
 
@@ -231,6 +244,11 @@ int32 FUmbrellaUIStyle::PaintGround(const FGeometry& Geometry, FSlateWindowEleme
 	if (const FSlateBrush* Ground = GroundBrush())
 	{
 		FSlateDrawElement::MakeBox(Elements, Layer + 1, Geometry.ToPaintGeometry(), Ground, ESlateDrawEffect::None, FLinearColor::White);
+	}
+	const FUmbrellaUIStyleData& Style = UmbrellaUIStyleData();
+	if (Style.bGrainValid)
+	{
+		FSlateDrawElement::MakeBox(Elements, Layer + 1, Geometry.ToPaintGeometry(), &Style.GrainBrush, ESlateDrawEffect::None, FLinearColor(1.0f, 1.0f, 1.0f, UmbrellaUI::GrainOpacity));
 	}
 	return Layer + 1;
 }

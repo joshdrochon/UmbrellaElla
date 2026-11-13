@@ -31,6 +31,9 @@ public:
 	/** The painted title lockup (Art/Source/UI/Lockup/build_lockup.py), transparent. Null when not imported. */
 	UTexture2D* GetTitleLockup() const { return TitleLockup; }
 
+	/** The seamless paper and ink grain tile drawn over the ground (Art/Source/UI/Grain/build_grain.py). Null when not imported. */
+	UTexture2D* GetGrain() const { return Grain; }
+
 	UFontFace* GetDisplayFace() const { return DisplayFace; }
 	UFont* GetDisplayCanvasFont() const { return DisplayCanvasFont; }
 	void SetDisplayFonts(UFontFace* InFace, UFont* InCanvasFont);
@@ -48,6 +51,9 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<UTexture2D> TitleLockup;
+
+	UPROPERTY()
+	TObjectPtr<UTexture2D> Grain;
 
 	/** The display face, made at first use from the bytes in UmbrellaStorybookFont.inl. */
 	UPROPERTY(Transient)

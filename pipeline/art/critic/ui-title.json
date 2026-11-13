@@ -123,6 +123,47 @@
    "commit": "118c41d8840a",
    "gap": "Y is smooth and digital, with no etched ink linework or grain, and its plain lettering lacks the aged, distressed finish.; Y has plain typeset lettering and smoother, digital-looking rendering, so it lacks X's etched ink linework and gritty paper texture.",
    "at": "2026-11-13T05:02:46Z"
+  },
+  {
+   "piece": "ui-title",
+   "round": 11,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "ours",
+    "reference": "reference"
+   },
+   "panel": 3,
+   "calibration": {
+    "sessions": 6,
+    "passed": 6
+   },
+   "missing": [
+    "reference:pipeline/art/reference/discord/20261112-0443_Ricky_title-screen.png"
+   ],
+   "critic_sessions": [
+    "ui-title-r11-00-reference-c1",
+    "ui-title-r11-00-reference-c2",
+    "ui-title-r11-00-reference-c3",
+    "ui-title-r11-01-quality_bar-c1",
+    "ui-title-r11-01-quality_bar-c2",
+    "ui-title-r11-01-quality_bar-c3"
+   ],
+   "manifest": "",
+   "evidence": "",
+   "prompt": "",
+   "files": "a590608b42bf0694f74633fba27a8cd183c4e2ae445b2ad968a03cd0c6f93fdd",
+   "file": "../../../../../../tmp/uishots5/title.png",
+   "card": "artui",
+   "refs": "669f6f2ac14d",
+   "commit": "72489fe3a036",
+   "gap": "X is cleaner and more digital, with no etched line work, grain or paper texture, and its clock hands cut through the title lettering.; X looks smooth and digital. It lacks Y's grainy aged-paper texture, etched ink linework and worn lettering, and its clean fills and bright amber sky break the near-black, restrained value structure.; X is cleaner and more digital, with smooth gradients, no paper grain and no distressed ink in the lettering or scene.",
+   "at": "2026-11-13T05:11:25Z"
   }
  ]
 }

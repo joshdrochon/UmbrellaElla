@@ -98,6 +98,9 @@ namespace UmbrellaUIStyleConstants
 	static constexpr int32 PurchaseStepTextSize = 24;
 
 	/** The title lockup: its first line is the name, lettered large; the lines under it are the subtitle. */
+	/** The grain tile is drawn at its painted size, over the whole ground, at this strength. */
+	static constexpr float GrainTileSize = 512.0f;
+	static constexpr float GrainOpacity = 0.6f;
 	/** The painted lockup is drawn this wide (it is 1584 x 672 painted, 21:9). */
 	static constexpr float LockupImageWidth = 820.0f;
 	static constexpr float LockupImageHeight = 820.0f * 672.0f / 1584.0f;
