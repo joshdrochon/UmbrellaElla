@@ -1,0 +1,44 @@
+{
+ "seconds": 0.5,
+ "lufs": -21,
+ "static_level": true,
+ "fade_out": 0.25,
+ "takes": 3,
+ "reverb": {
+  "rt60": 0.25,
+  "wet_db": -15,
+  "damp_hz": 8000,
+  "predelay_ms": 8,
+  "hp_hz": 800
+ },
+ "layers": {
+  "needle": {
+   "kind": "synth",
+   "prompt": "synthesised needle pluck: one thin high music-box tine, fundamental with a strong 2x partial and a 5.4x tine partial, 1 ms rise, very fast decay",
+   "secs": 0.5,
+   "freqs": [
+    2637,
+    2794,
+    2960
+   ],
+   "expr": "(1-exp(-3000*t))*(0.5*exp(-20*t)*sin(2*PI*{f}*t)+0.3*exp(-26*t)*sin(2*PI*2*{f}*t)+0.14*exp(-45*t)*sin(2*PI*5.4*{f}*t))",
+   "gain_db": 0,
+   "trim": 0.5,
+   "filter": "anull,apad=whole_dur=0.5"
+  },
+  "shimmer": {
+   "kind": "synth",
+   "prompt": "synthesised high shimmer at the onset, under 100 ms",
+   "secs": 0.15,
+   "freqs": [
+    2637,
+    2794,
+    2960
+   ],
+   "expr": "(1-exp(-3000*t))*0.3*exp(-55*t)*sin(2*PI*2.6*{f}*t)",
+   "gain_db": -12,
+   "trim": 0.15,
+   "filter": "anull,apad=whole_dur=0.5"
+  }
+ }
+}

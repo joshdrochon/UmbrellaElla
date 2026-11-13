@@ -1,0 +1,25 @@
+{
+ "frames": 3,
+ "frame": [
+  705,
+  1263
+ ],
+ "figure_heights": [
+  1247,
+  1169,
+  1246
+ ],
+ "figure_widths": [
+  676,
+  689,
+  675
+ ],
+ "height_spread_pct": 6.3,
+ "pivot": "bottom-centre",
+ "source": "Art/Source/ImageProof/ella_idle_keyed.png",
+ "outputs": [
+  "Art/Source/ImageProof/Raw/Idle/ella_idle_00.png",
+  "Art/Source/ImageProof/Raw/Idle/ella_idle_01.png",
+  "Art/Source/ImageProof/Raw/Idle/ella_idle_02.png"
+ ]
+}

@@ -6,6 +6,7 @@
 #include "Attack/AttackEmitterComponent.h"
 #include "Core/EllaCharacter.h"
 #include "Core/UmbrellaEventBus.h"
+#include "Field/WindCurrent.h"
 #include "EngineUtils.h"
 #include "Input/EllaInputAdapterComponent.h"
 #include "InputMappingContext.h"
@@ -218,6 +219,33 @@ bool FMoveWorldWindTest::RunTest(const FString& Parameters)
 		Test.TickSeconds(1.0f, Delta);
 		TestEqual(TEXT("no push after exit"), static_cast<float>(Ella->GetActorLocation().X), static_cast<float>(XAfter), 1.0f);
 	}
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMoveWorldWindVolumeTest, "UmbrellaElla.Move.World.RideCurrentFromVolume", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FMoveWorldWindVolumeTest::RunTest(const FString& Parameters)
+{
+	FUmbrellaTestWorld Test;
+	AEllaCharacter* Ella = Test.SpawnElla(FVector(-5000.0, 0.0, 0.0));
+	AWindCurrent* Wind = Test.GetWorld()->SpawnActor<AWindCurrent>(FVector::ZeroVector, FRotator::ZeroRotator);
+	if (!TestNotNull(TEXT("Ella spawned"), Ella) || !TestNotNull(TEXT("current spawned"), Wind))
+	{
+		return false;
+	}
+	Wind->SetHalfExtent(10000.0f, 10000.0f);
+	Wind->SetCurrent(FVector(1.0, 0.0, 0.0), 200.0f);
+	Test.TickFrames(2, 1.0f / 60.0f);
+	TestFalse(TEXT("outside: not riding"), Ella->GetMotor()->IsRiding());
+
+	// Move Ella into the volume, as the player does; the real overlap event carries the actor name as TargetId.
+	Ella->SetActorLocation(FVector(0.0, 0.0, 0.0), false, nullptr, ETeleportType::TeleportPhysics);
+	Test.TickFrames(2, 1.0f / 60.0f);
+	Ella->GetInputAdapter()->ApplyPress(EUmbrellaInputAction::Ride);
+	const double XStart = Ella->GetActorLocation().X;
+	Test.TickSeconds(1.0f, 1.0f / 60.0f);
+	TestTrue(TEXT("riding the volume current"), Ella->GetMotor()->IsRiding());
+	TestTrue(TEXT("positive X velocity"), Ella->GetMotor()->GetVelocity().X > 0.0);
+	TestTrue(TEXT("carried right"), Ella->GetActorLocation().X > XStart + 50.0);
 	return true;
 }
 

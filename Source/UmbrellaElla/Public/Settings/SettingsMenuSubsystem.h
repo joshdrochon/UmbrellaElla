@@ -2,6 +2,10 @@
 
 #include "CoreMinimal.h"
 #include "Core/UmbrellaPlayMode.h"
+#include "Containers/Ticker.h"
+#if UMBRELLAELLA_WORKBENCH
+#include "Settings/SettingsLiveTuning.h"
+#endif
 #include "Settings/SettingsModel.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "SettingsMenuSubsystem.generated.h"
@@ -54,9 +58,36 @@ public:
 	/** What the world-init hook runs: apply the saved reduced flash to a world owned by this game instance. */
 	void HandleWorldInit(UWorld* World);
 
-	/** Saved accessibility reads for screens outside Settings (HUD, XP ring). Text size is a percent; motion is off when true. */
+	/** Saved accessibility reads for screens outside Settings (HUD, XP ring). Text size is a percent; motion is off when true.
+	 *  Readers outside Settings use UmbrellaAccessibility (Settings/UmbrellaAccessibility.h), which finds this subsystem. */
 	int32 GetSavedTextScalePercent() const { return Session.GetSaved().TextScalePercent; }
 	bool IsReducedMotionSaved() const { return Session.GetSaved().bReducedMotion; }
+	bool IsReducedFlashSaved() const { return Session.GetSaved().bReducedFlash; }
+
+	/** Fires after every Save, so screens that cache text size or motion can re-read them. */
+	FSimpleMulticastDelegate& OnSettingsSaved() { return SettingsSavedEvent; }
+
+	/** Saved value of a developer option (its default outside Director's Cut or when the options cannot be edited). */
+	int32 GetDeveloperOption(EDeveloperOption Option) const;
+
+	/** True when the developer options take effect: Director's Cut, and a build that allows them. */
+	bool IsDeveloperTuningActive() const;
+
+	/** Write the live tuning: the baseline plus the saved developer options (when active) and reduced motion. Runs on
+	 *  Save, on a play-mode change and at startup; restores the baseline when nothing is active. */
+	void RefreshLiveTuning();
+
+	/** True while the settings hold a composed copy in the live tuning (the baseline is restored when it ends). */
+	bool IsLiveTuningApplied() const { return bLiveTuningApplied; }
+
+	/** The tuning captured before the settings first changed it (what "as tuned" means on the Game Options page). */
+	void GetBaselineLifeCounts(int32& OutRetryLives, int32& OutHitsPerLife) const;
+
+	/** Follow the play mode of the first local player's controller (flow does not call SetPlayMode). */
+	void SyncPlayModeFromPlayer();
+
+	/** Tests: pretend the build is (or is not) a workbench build. */
+	void SetWorkbenchBuildForTest(bool bWorkbench) { bWorkbenchBuild = bWorkbench; }
 
 	/** Set reduced flash on one world's Vfx subsystem. Does nothing when the world has none. */
 	static void ApplyReducedFlashToWorld(UWorld* World, const FUmbrellaSettingsData& Data);
@@ -82,8 +113,19 @@ public:
 
 private:
 	void LoadDefaultSoundClasses();
+#if UMBRELLAELLA_WORKBENCH
+	void RestoreBaselineTuning();
+#endif
+	void ApplyReducedMotionToRings();
 
 	FDelegateHandle WorldInitHandle;
+	FTSTicker::FDelegateHandle PlayModeTicker;
+	FSimpleMulticastDelegate SettingsSavedEvent;
+#if UMBRELLAELLA_WORKBENCH
+	FSettingsLiveTuning BaselineTuning;
+#endif
+	bool bLiveTuningApplied = false;
+	bool bWorkbenchBuild = DeveloperOptionRules::IsWorkbenchBuild();
 	FSettingsSession Session;
 	FString StorePath;
 	EUmbrellaPlayMode PlayMode = EUmbrellaPlayMode::StartGame;
