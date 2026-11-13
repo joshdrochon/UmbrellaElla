@@ -1,0 +1,43 @@
+{
+ "provider": "gemini",
+ "tool": "Gemini API image generation (Google)",
+ "model": "gemini-3-pro-image-preview",
+ "model_version": "gemini-3-pro-image-preview",
+ "prompt": "Use the attached image only as the design reference for the owl's body, clock, legs, tail and the three hanging mechanisms; copy its shapes and materials, not its wing pose. Paint a new picture of the Keeper of Time, a large crownless mechanical owl, mysterious rather than monstrous, hovering and flapping slowly.\n\nThe picture is a 2x2 grid of four equal cells separated only by plain green, with no dividing lines, read left to right, top row then bottom row, each cell holding one whole owl. Every owl is in pure side view facing left, level camera, the same scale, filling about 80% of its cell height, with its body centre on the same spot in every cell and wide empty space around it. Body, head, clock, legs, tail and the three hanging mechanisms keep the same size and place in all four; only the wings move. Both wings show: the near wing in front, the far wing just behind and slightly darker.\nCell 1: both wings raised high above the back, tips pointing up.\nCell 2: wings on the downstroke, spread back, tips a little above level.\nCell 3: wings swept down and back behind the body, tips pointing down and well behind the mechanisms, leaving the three mechanisms in clear view.\nCell 4: wings on the upstroke, tips trailing a little below level, bent at the elbow.\n\nThe owl: a compact round torso centred on an aged clock face with Roman numerals, glass and exactly one long hand on a pivot. A small angular owl head with a heavy brow, a short hooked beak, one dull, muted glass eye on the face, and a second small dull glass eye set on the very top of the head. Two very broad wings built only from rigid, straight-edged, tapered flat metal vane plates with squared-off angular tips, in overlapping rows, each plate perforated or ridged and fixed with rivets, with no feather shapes, no rounded plumage and no barbs, joined to the torso by bevelled shoulder spars and hinges. Two short mechanical legs ending in exactly two clawed feet, hanging in the air with no ground. A plated tail. Below the body hang exactly three separate mechanisms, each with one small dull eye on its underside, and each hanging from its own independent thin chain that runs up from that underside eye, past the body and tail without touching them, to the small eye on top of the head (three separate chains meeting only at that top eye, no branching): at the front, on the beak side at the left, a small armillary sphere with a solid rim and crossing hoops; in the middle, a ribbed cylinder with solid dark bronze side walls, so no background shows through it; at the rear, on the tail side at the right, a toothed gear ring. The three hang well apart: the armillary far forward under the beak, the gear far back under the tail, the cylinder between them, each clearly visible with open space around it, the gear fully in view and not behind the torso. All three are different shapes and none touches the wings, neck or feet, and no chain starts from a wing, the neck or a foot.\n\nStyle: a dark etched storybook engraving for a 2D game sprite. Brown-black ink line #171614 with a heavy dark outer contour, sepia wash, fine cross-hatching and visible paper tooth on the owl only. Metal in quiet dark iron, steel and dull bronze, a warm brown bronze with no patina, in the tones #3A2C25, #5C473E and #1D1713, with warm ivory highlights and dark-on-dark interior detail. Just inside the contour runs a thin rim light in warm candle-cream #FFF3D6 (leaning red-orange, never lemon or lime). Only the clock face glows, a soft gold #E9C46A. Every colour on the owl is a warm brown, gold or cream.\n\nBackground: one flat, perfectly even, pure green #00FF00 filling the whole picture edge to edge, clear of any marks, texture, gradient, smoke, text or shadow, with the owls floating freely on it.",
+ "seed": "",
+ "size": "1024x1024",
+ "quality": "medium",
+ "aspect_ratio": "16:9",
+ "image_size": "2K",
+ "input_images": [
+  "pipeline/art/proof/Keeper/owl/Owl_Flap/Owl_Flap_00.png"
+ ],
+ "cost_usd": 0.13999,
+ "reply": {
+  "usage": {
+   "promptTokenCount": 1141,
+   "candidatesTokenCount": 1553,
+   "totalTokenCount": 3003,
+   "promptTokensDetails": [
+    {
+     "modality": "TEXT",
+     "tokenCount": 883
+    },
+    {
+     "modality": "IMAGE",
+     "tokenCount": 258
+    }
+   ],
+   "candidatesTokensDetails": [
+    {
+     "modality": "IMAGE",
+     "tokenCount": 1120
+    }
+   ],
+   "thoughtsTokenCount": 309,
+   "serviceTier": "standard"
+  },
+  "finish": "STOP"
+ },
+ "date": "2026-11-13T04:01+00:00"
+}
