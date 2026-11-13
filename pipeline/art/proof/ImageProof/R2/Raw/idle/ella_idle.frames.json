@@ -1,0 +1,28 @@
+{
+ "frames": 4,
+ "frame": [
+  631,
+  1187
+ ],
+ "figure_heights": [
+  1171,
+  1170,
+  1171,
+  1171
+ ],
+ "figure_widths": [
+  581,
+  615,
+  614,
+  586
+ ],
+ "height_spread_pct": 0.1,
+ "pivot": "bottom-centre",
+ "source": "Art/Source/ImageProof/R2/ella_idle_keyed.png",
+ "outputs": [
+  "Art/Source/ImageProof/R2/Raw/idle/ella_idle_00.png",
+  "Art/Source/ImageProof/R2/Raw/idle/ella_idle_01.png",
+  "Art/Source/ImageProof/R2/Raw/idle/ella_idle_02.png",
+  "Art/Source/ImageProof/R2/Raw/idle/ella_idle_03.png"
+ ]
+}

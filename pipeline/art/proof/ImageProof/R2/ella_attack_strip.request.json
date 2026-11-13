@@ -1,0 +1,44 @@
+{
+ "provider": "gemini",
+ "tool": "Gemini API image generation (Google)",
+ "model": "gemini-3-pro-image-preview",
+ "model_version": "gemini-3-pro-image-preview",
+ "prompt": "Ella is slowly falling, her torso upright and vertical with the hips directly below the shoulders, facing right, seen in pure side view. She holds her umbrella horizontally and low at her hip, level with her belt, both gloved hands on the one shaft, elbows bent and tucked against her sides, forearms horizontal. The crown finial is the rear tip of the umbrella at the far left of the image, behind her; the shaft points straight forward to the right, and the diamond clock-hand terminal is the free front tip at the far right. Her legs hang down with the knees slightly bent and the boots dangling, toes down, high above any surface; her hair, scarf tails and skirt hems drift gently upward. Layout: one horizontal strip on a 21:9 canvas holding 3 frames, in one row, each frame centred in its own third of the canvas with a margin of flat green at each side, each frame containing only its own single figure with the whole umbrella inside the frame, the gaps between frames empty. The camera is level and at the same distance in every frame; scale and line weight are identical in every frame, and her hips stay at the same spot in all three. Frame 1, ready: the canopy is furled into a slim bundle on the rear third of the shaft, behind her. Frame 2, fire: the canopy has snapped open behind her, flaring like a bowl with its crown point on the shaft at the far left and its scalloped rim facing right, ending a hand's width behind her back; her torso leans back a little, her front arm pushes the shaft forward, her legs swing slightly forward in counterbalance, and the hair, scarf tails and skirt flick backward; one small separate gold #E9C46A magic pulse, a crisp-edged round bead with a short tapered tail trailing behind it and no halo, travels to the right just ahead of the diamond terminal and well clear of her body. Frame 3, recover: the canopy is half closed and folding back toward the shaft, her rear hand slides the collar along the shaft while the front hand holds the shaft still, her torso and legs settling back toward frame 1, and the air ahead of the diamond terminal is empty green. The gold pulse is the only bright thing in the strip. The two attached images are reference only for her identity: the first shows Ella in side profile, the second shows her umbrella open. Copy her face covering, hat, hair length and colour, scarf, dress, boots and the umbrella design. Do not copy the first image's pose, scale, framing or closed upright umbrella hold; the pose and the layout are the ones described above. Style: a dark painterly etched storybook illustration for a 2D side-view game sprite, drawn like an old engraving in brown-black ink with a thin sepia wash and fine etched cross-hatching in the shadows. The figure is a near-black silhouette that reads by shape alone: charcoal, soot and umber darks, the darkest tone ink #171614, with interior detail dark on dark. Subdued bronze and warm ivory appear only as thin rim light on edges and small highlights on metal. Cloth edges are ragged, torn into jagged points. Shapes are bold and simple enough to read when the figure is shown only about 90 pixels tall. The light is soft, even and unlit-looking, from the front and slightly above; the figure casts no shadow and no part of the body glows, apart from the gold elements named below. A clean warm ivory #EDE3CF outline, about 3 px at 2K, follows the outer edge of the whole figure and of every separate piece. The background is one perfectly flat, uniform pure green #00FF00 filling the canvas edge to edge, identical everywhere and completely empty: no ground, no shadow, no gradient, no grain or paper texture, no glow or light spill. Every part of the figure is charcoal, umber, bronze, ivory or gold; nothing in it or reflected on it is green. The image is wordless: no text, labels, numbers, grid lines, frames or watermark. Ella is an adult woman of slender build, about seven and a half heads tall, always airborne and never touching the ground. On her head is a wide-brimmed, tall pointed witch hat of soft dark cloth with a band, bent a third of the way up so its tip folds over backwards. Her hair is dark brown, a shade lighter than her clothes, long and straight: it falls from under the brim past her shoulders to the middle of her back with loose strands lifting in the air, and from the front two long locks hang forward over her shoulders to her chest. It is never short and never a bob. Her whole face, from brim to chin, is hidden under a dark cloth or mesh mask; two small separate gold #E9C46A glints, one per eye (only the near eye in profile), are the only light on her. A long ragged scarf, a separate piece of cloth clearly apart from the hair and the dress, wraps her neck and trails two ragged tails behind her. She wears a fully covering, layered, worn dark dress: long sleeves, high collar, a wide sash at the waist, and a skirt of several ragged jagged-edged layers ending below the knee, over opaque dark stockings and laced ankle boots with low heels, and dark gloves, so no skin shows. She carries one slender umbrella and no wand. Opened, its canopy is a shallow dome about three quarters as wide as she is tall, with a scalloped hem and eight gores of alternating broad black and muted warm taupe bands radiating from the top, over eight slender dark metal ribs whose small pointed tips show at the hem. At the very top of the canopy sits a small pointed crown finial: a tiny dark bronze coronet of three to five upward points on a small collar, clearly wider than the shaft, with a thin ivory highlight on its points. A long thin straight dark shaft runs down from it, with a small sliding collar on it. At the free end of the shaft hangs a separate narrow pierced diamond (lozenge) clock-hand terminal of dark bronze. From crown to terminal the umbrella is about two thirds of her height; closed, the canopy furls into a slim bundle. Both of her gloved hands grip the one shaft. Her body, hands, cloth and metal stay dark.",
+ "seed": "",
+ "size": "1024x1024",
+ "quality": "medium",
+ "aspect_ratio": "21:9",
+ "image_size": "2K",
+ "input_images": [
+  "Art/Source/ImageProof/R2/ref_side.png",
+  "Art/Source/ImageProof/R2/ref_umbrella.png"
+ ],
+ "cost_usd": 0.141102,
+ "reply": {
+  "usage": {
+   "promptTokenCount": 1853,
+   "candidatesTokenCount": 1652,
+   "totalTokenCount": 3788,
+   "promptTokensDetails": [
+    {
+     "modality": "TEXT",
+     "tokenCount": 1337
+    },
+    {
+     "modality": "IMAGE",
+     "tokenCount": 516
+    }
+   ],
+   "candidatesTokensDetails": [
+    {
+     "modality": "IMAGE",
+     "tokenCount": 1120
+    }
+   ],
+   "thoughtsTokenCount": 283,
+   "serviceTier": "standard"
+  },
+  "finish": "STOP"
+ },
+ "date": "2026-11-13T02:54+00:00"
+}

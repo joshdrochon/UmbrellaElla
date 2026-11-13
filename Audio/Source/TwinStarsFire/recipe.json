@@ -1,0 +1,44 @@
+{
+ "seconds": 0.6,
+ "lufs": -21,
+ "static_level": true,
+ "fade_out": 0.25,
+ "takes": 3,
+ "reverb": {
+  "rt60": 0.3,
+  "wet_db": -15,
+  "damp_hz": 8000,
+  "predelay_ms": 8,
+  "hp_hz": 800
+ },
+ "layers": {
+  "twin": {
+   "kind": "synth",
+   "prompt": "synthesised paired celesta plucks: two notes a major third apart, 45 ms apart, the second softer, 1 ms rise, partials at 2x, 3.01x and 4.2x, gone inside 0.4 s",
+   "secs": 0.6,
+   "freqs": [
+    1480,
+    1661,
+    1865
+   ],
+   "expr": "(1-exp(-3000*t))*(0.510*exp(-18*t)*sin(2*PI*1*{f}*t)+0.212*exp(-22*t)*sin(2*PI*2*{f}*t)+0.102*exp(-27*t)*sin(2*PI*3.010*{f}*t)+0.043*exp(-35*t)*sin(2*PI*4.200*{f}*t))+gte(t\\,0.045)*((1-exp(-3000*(t-0.045)))*(0.204*exp(-16*(t-0.045))*sin(2*PI*1.26*{f}*(t-0.045))+0.085*exp(-20*(t-0.045))*sin(2*PI*2.52*{f}*(t-0.045))+0.041*exp(-25*(t-0.045))*sin(2*PI*3.793*{f}*(t-0.045))+0.017*exp(-33*(t-0.045))*sin(2*PI*5.292*{f}*(t-0.045))))",
+   "gain_db": 0,
+   "trim": 0.6,
+   "filter": "anull,apad=whole_dur=0.6"
+  },
+  "spark": {
+   "kind": "synth",
+   "prompt": "synthesised twin chime pings an octave above each pluck",
+   "secs": 0.4,
+   "freqs": [
+    1480,
+    1661,
+    1865
+   ],
+   "expr": "(1-exp(-3000*t))*0.4*exp(-28*t)*sin(2*PI*4*{f}*t)+gte(t\\,0.045)*(1-exp(-3000*(t-0.045)))*0.4*exp(-28*(t-0.045))*sin(2*PI*5.04*{f}*(t-0.045))",
+   "gain_db": -16,
+   "trim": 0.4,
+   "filter": "anull,apad=whole_dur=0.6"
+  }
+ }
+}

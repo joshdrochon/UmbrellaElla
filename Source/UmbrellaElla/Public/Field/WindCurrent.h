@@ -53,6 +53,10 @@ public:
 	float GetDrawnWidth() const;
 	UStaticMeshComponent* GetField() const { return Field; }
 
+	/** Optional local vertical field carried on WindEntered (Detail "Dir@gain,centreZ,compensation"):
+	 * the Motor adds Vz = Gain * (CentreZ - RootZ) + Compensation while it rides this current. World z. */
+	void SetLocalVerticalField(float Gain, float CentreZ, float Compensation);
+
 	/** Broadcast the enter/exit event for a pawn; separate so tests can call it without physics. */
 	void BroadcastEntered(const AActor* Other) const;
 	void BroadcastExited(const AActor* Other) const;
@@ -79,4 +83,9 @@ private:
 	/** Negative = use tuning DefaultWindForce. */
 	UPROPERTY(EditAnywhere, Category = "Wind")
 	float Force = -1.0f;
+
+	bool bHasLocalField = false;
+	float LocalGain = 0.0f;
+	float LocalCentreZ = 0.0f;
+	float LocalCompensation = 0.0f;
 };

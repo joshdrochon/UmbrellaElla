@@ -129,8 +129,8 @@ FVector2D MotorModel::Step(FMotorModelState& State, const FMotorInput& Input, co
 			const float Decay = UmbrellaActionRules::IsFalling(Input.Action) ? Tuning.WindFallingDecay : Tuning.WindOpenDecay;
 			State.Wind *= 1.0f - BlendFactor(Decay, DeltaSeconds);
 		}
-		State.Wind.X = FMath::Clamp<double>(State.Wind.X, -Tuning.HorizontalMaxSpeed, Tuning.HorizontalMaxSpeed);
-		State.Wind.Y = FMath::Clamp<double>(State.Wind.Y, -Tuning.HorizontalMaxSpeed, Tuning.HorizontalMaxSpeed);
+		State.Wind.X = FMath::Clamp<double>(State.Wind.X, -Tuning.WindMaxSpeed, Tuning.WindMaxSpeed);
+		State.Wind.Y = FMath::Clamp<double>(State.Wind.Y, -Tuning.WindMaxSpeed, Tuning.WindMaxSpeed);
 		WindNow = State.Wind;
 	}
 	else
@@ -155,7 +155,7 @@ FVector2D MotorModel::Step(FMotorModelState& State, const FMotorInput& Input, co
 		}
 	}
 
-	const FVector2D Base(0.0f, BaseVerticalSpeed(Input, Tuning));
+	const FVector2D Base(0.0f, BaseVerticalSpeed(Input, Tuning) + (State.bRiding ? Input.LocalVerticalVelocity : 0.0f));
 	// Hostile forced push: no ride blend, no decay, not cancelled by action or defense.
 	const FVector2D Forced = Input.ForcedVelocity;
 	State.Velocity = Base + WindNow + BurstNow + Forced;
@@ -172,9 +172,40 @@ bool MotorModel::IsForcedSource(FName SourceId)
 	return SourceId == UmbrellaSourceIds::GustBand();
 }
 
+bool MotorModel::HasLocalField(FName Detail, float& OutGain, float& OutCentreZ, float& OutCompensation)
+{
+	FString Head;
+	FString Tail;
+	if (!Detail.ToString().Split(TEXT("@"), &Head, &Tail))
+	{
+		return false;
+	}
+	TArray<FString> Parts;
+	Tail.ParseIntoArray(Parts, TEXT(","));
+	if (Parts.Num() != LocalFieldValueCount)
+	{
+		return false;
+	}
+	OutGain = FCString::Atof(*Parts[0]);
+	OutCentreZ = FCString::Atof(*Parts[1]);
+	OutCompensation = FCString::Atof(*Parts[2]);
+	return true;
+}
+
+float MotorModel::LocalVerticalTerm(float Gain, float CentreZ, float Compensation, float RootZ)
+{
+	return Gain * (CentreZ - RootZ) + Compensation;
+}
+
 FVector2D MotorModel::ParseCurrentDirection(FName Detail)
 {
-	const FString Text = Detail.ToString().TrimStartAndEnd();
+	FString Text = Detail.ToString();
+	int32 FieldAt = INDEX_NONE;
+	if (Text.FindChar(TEXT('@'), FieldAt))
+	{
+		Text.LeftInline(FieldAt);
+	}
+	Text = Text.TrimStartAndEnd();
 	if (Text.Equals(TEXT("Right"), ESearchCase::IgnoreCase))
 	{
 		return FVector2D(1.0f, 0.0f);

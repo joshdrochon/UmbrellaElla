@@ -53,6 +53,8 @@ struct UMBRELLAELLA_API FMotorInput
 	/** Summed velocity of hostile forced pushes (GUST_Band). Applies at once, whatever the action or Ride. */
 	FVector2D ForcedVelocity = FVector2D::ZeroVector;
 	float LiftMultiplier = 1.0f;
+	/** Summed local vertical field term of the overlapped currents (Gain * (CentreZ - RootZ) + Compensation). Applies while riding. */
+	float LocalVerticalVelocity = 0.0f;
 };
 
 /** Plain rule functions for the Player Motor. No engine objects, so tests call them at any delta. */
@@ -60,6 +62,9 @@ namespace MotorModel
 {
 	/** Tuning percents divide by this. */
 	static constexpr float PercentScale = 100.0f;
+
+	/** Number of values in a local field: gain, centre z, compensation. */
+	static constexpr int32 LocalFieldValueCount = 3;
 
 	/** Queue a hop/dash press (held for ToggleBufferSeconds if it cannot start yet). */
 	UMBRELLAELLA_API void Request(FMotorModelState& State, EMotorRequest Request, const FMotorTuning& Tuning);
@@ -78,4 +83,10 @@ namespace MotorModel
 
 	/** Current direction from an event Detail: Right, Left, Up, Down, or "x,z". Zero when unreadable. */
 	UMBRELLAELLA_API FVector2D ParseCurrentDirection(FName Detail);
+
+	/** Local vertical field after '@' in a current's Detail: "gain,centreZ,compensation". False when absent. */
+	UMBRELLAELLA_API bool HasLocalField(FName Detail, float& OutGain, float& OutCentreZ, float& OutCompensation);
+
+	/** Vertical term of one local field for a root at RootZ. */
+	UMBRELLAELLA_API float LocalVerticalTerm(float Gain, float CentreZ, float Compensation, float RootZ);
 }
