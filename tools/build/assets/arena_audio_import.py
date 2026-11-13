@@ -1,5 +1,5 @@
 """Import the arena cue sounds as USoundWave assets (rebuildable).
-Run: UnrealEditor-Cmd UmbrellaElla.uproject -run=pythonscript -script=tools/build/assets/arena_audio_import.py
+Run: UnrealEditor-Cmd UmbrellaElla.uproject -run=pythonscript -script=tools/build/assets/arena_audio_import.py -unattended -nullrhi -nosplash -nocrashreports
 Cue name -> source take (Audio/Source/<Id>/SW_<Id>_00.wav). Cue names match UUmbrellaCueSubsystem::CueForEvent."""
 import os
 import unreal
