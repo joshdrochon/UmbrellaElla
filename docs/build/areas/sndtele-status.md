@@ -20,3 +20,6 @@ Tracked placeholders:
 ## Update (wind family target now describes the bellows warning, main fff114d)
 BellowsWarning passes: blind critic round 8 (fresh session, A1-A8 true, same take as before, no new ElevenLabs), style PASS, provenance generated.
 Round 1-7 failure was a check defect (wind target never described a warning). Still blocked: WardenMove (request 2).
+
+## Update (main critic fixes merged)
+WardenMove passes: blind critic round 1 (fresh session, A1-A8 true), style PASS, provenance generated. All 19 sounds now pass; no tracked placeholders left in this lane.
