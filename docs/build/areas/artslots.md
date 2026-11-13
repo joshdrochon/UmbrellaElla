@@ -1,0 +1,6 @@
+# Area: artslots
+
+Started by the build lead from this brief (2026-11-12). It is the definition of done.
+
+Area artslots (visuals code). Goal: every visual in docs/build/art-inventory.csv draws its real art in the game when the asset exists (load-if-present ArtSlot, stand-in fallback, collision fixed per ANIM-04), so art lanes can make in-engine context captures. Rule IDs: ART-05..ART-10, ANIM-02..ANIM-08, BG-02..BG-06, VFX-02/03, FLOW-25 (backdrop on all 9 route stages). Tools: tools/build/art_slots.py check, tools/build/assets/import_art_candidate.py.
+Lead, top priority now: gate HOLD, review says changes: read ../UmbrellaElla-areas/logs/review-artslots.txt and fix items 1-4 plus the minors: (1) flipbook loader must prefer the passed asset over _PH, like textures; (2) draw each state's own art even if Idle has none; (3) commit this area file (docs/build/areas/artslots.md, written for you from this brief) and cite the Rule IDs; (4) run and record UmbrellaElla.Feedback ArtSlot tests and tests/test_art_slots.py in your status; drop the stale /Art/Slots/ skip in art_inventory.py; say honestly that vfx-sheet frames have no frame driver yet; clearer import error for vfx-material rows. Targeted tests only. Merge main first. Commit, STOP.
