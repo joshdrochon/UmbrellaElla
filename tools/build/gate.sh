@@ -65,7 +65,9 @@ for f in $CT_PY; do chk "clause py ${f##*/}" python3 -m unittest "$(echo "${f%.p
 if [ "$SRC" = 1 ]; then
   T1=$(date +%s); b=$("$SLOT" tools/ue/build.sh 2>&1 | tail -1); echo "$b" >> "$EV"
   # exit 6 = another UnrealBuildTool held UBT's machine-wide mutex (Nov 13, twice): wait for it, retry once.
-  if echo "$b" | grep -q "build exit: 6"; then
+  # Only when the log has no compiler error: exit 6 is also UBT's code for a plain compile failure (Nov 13 10:06).
+  blog=$(echo "$b" | sed -n 's/.*log: //p')
+  if echo "$b" | grep -q "build exit: 6" && ! grep -qE "error:|Result: Failed \(OtherCompilationError\)" "$blog" 2>/dev/null; then
     step "build exit 6 (another UBT running): waiting, then one retry"
     while pgrep -f "UnrealBuildTool.dll" >/dev/null; do sleep 5; done
     b=$("$SLOT" tools/ue/build.sh 2>&1 | tail -1); echo "retry: $b" >> "$EV"
