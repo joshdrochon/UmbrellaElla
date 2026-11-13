@@ -278,3 +278,12 @@ class Wiring(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class NearCopySkipsOurOwnWork(unittest.TestCase):
+    """The near-copy guard is for pre-jam reference art; our own passed bases and captures under pipeline/art/proof/
+    are shared on purpose (UI screens share the passed background), so they are never near-copy sources (Nov 13)."""
+    def test_proof_paths_are_ours_reference_paths_are_not(self):
+        self.assertTrue(art_pass_verify._our_work("pipeline/art/proof/artui2/ui-tutorial/capture_tutorial.png"))
+        self.assertFalse(art_pass_verify._our_work("pipeline/art/reference/discord/20261111-0319_Ricky_roadwarden-sundial-casters.png"))
+        self.assertFalse(art_pass_verify._our_work("pipeline/art/reference/keyart-crops/owl-bolt.png"))
