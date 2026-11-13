@@ -12,3 +12,5 @@ Still failing (tracked placeholders in provenance.csv):
 
 Tried for EllaDown/OutOfBounds: quieter API noise layers and lower reverb wet; the candidates then failed the style check (attack, low_share, level). Recipes are reverted to the originals plus lower reverb wet; the committed placeholder takes are kept. ElevenLabs returned 429 (concurrent limit) at times.
 Not done: import into Content/UmbrellaElla/Audio (the importer is the arena lane's); new recipes for the 3 above.
+
+BLOCKED (ElevenLabs): `quota_exceeded` (HTTP 401) on new layer generation. EllaDown, OutOfBounds, WingsBreak recipes now add synthesized metal/brass ring layers (untested; only cached API layers could be mixed), takes stay committed placeholders. Resume: when credits return, `sndhit.py regen <Id>` for these three, then `sndhit.py critic <Id>` / new loop round and a fresh critic.

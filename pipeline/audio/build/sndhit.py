@@ -67,6 +67,7 @@ RECIPES = {
    "ribs": api("umbrella collapsing: thin wooden ribs snapping and waxed canvas crumpling in one short crunch", 1.5,
                "highpass=f=350,lowpass=f=5000", 0, trim=1.2, decay=2, start_db=-24, delay_ms=15),
    "thud": thud(60, 50, 9, -16, secs=0.8),
+   "ring": bell([660, 740, 587], [(1, 0.4, 14), (2.76, 0.25, 22), (5.4, 0.1, 34)], -14, secs=0.8, delay_ms=5, what="metal rib partial"),
    "drop": {"kind": "synth", "prompt": "synthesised sub drop: sine falling from 110 to 38 Hz over a second, slow decay", "secs": 2.2,
             "expr": "(1-exp(-t*40))*0.8*exp(-1.6*t)*sin(2*PI*(38*t+36*(1-exp(-2*t))))", "gain_db": -21, "delay_ms": 120, "trim": 2.2},
    "cloth": api("heavy cloth falling away and fluttering down into a deep shaft, soft, fading", 2.0,
@@ -76,6 +77,7 @@ RECIPES = {
   "seconds": 1.6, "static_level": True, "lufs": -19, "fade_out": 0.6, "takes": 3, "reverb": dict(HALL, rt60=1.6, wet_db=-12, damp_hz=2000),
   "layers": {
    "boom": thud(48, 70, 6, -19, secs=1.2),
+   "brass": bell([196, 220, 175], [(1, 0.5, 6), (2.41, 0.3, 9), (3.9, 0.15, 14)], -11, secs=1.0, delay_ms=3, what="brass partial"),
    "stone": api("one heavy dull impact of a body of cloth and wood landing on a stone floor far below, deep and dark", 1.2,
                 "highpass=f=70,lowpass=f=1400", 0, trim=1.2, decay=5, start_db=-24),
    "iron": api("one dull iron clank struck once, low pitched, short dead ring", 1.0,
@@ -132,6 +134,8 @@ RECIPES = {
    "plates": api("large brass plates and rods collapsing in a short heavy clatter", 1.5,
                  "highpass=f=300,lowpass=f=5000", -5, trim=1.3, decay=2.5, delay_ms=90),
    "thud": thud(80, 60, 12, -12),
+   "ring": bell([1245, 1109, 1397], [(1, 0.5, 10), (2.76, 0.3, 16), (5.4, 0.12, 26)], -10, secs=0.9, delay_ms=4, what="resonant spring ring"),
+   "tick": bell([2400, 2700, 2200], [(1, 0.6, 60), (1.9, 0.3, 80)], -9, secs=0.4, delay_ms=140, what="escapement tick"),
   }},
  "MechanismBreak": {
   "seconds": 1.1, "static_level": True, "lufs": -18.1, "fade_out": 0.35, "takes": 3, "reverb": dict(ROOM, rt60=0.45, wet_db=-14),
