@@ -726,6 +726,32 @@ def not_art(root, path):
     return f"{rel_to(path, root)} is a {hit[0]} (provenance origin: {row.get('origin')})" if hit else None
 
 
+
+def jitter_problems(path):
+    """Frame jitter of an animation sheet (its sidecar has 2+ frames and "anim" or "loop"): anchor offset (px) and
+    scale drift (%) between consecutive frames over the limits in frame_register.JITTER_LIMITS. [] for anything else."""
+    import frame_register
+    info = sheet_info(path)
+    try:
+        with open(os.path.splitext(path)[0] + ".sprite.json", encoding="utf-8") as fh:
+            side = json.load(fh)
+    except (OSError, ValueError):
+        return []
+    if not info or not (side.get("anim") or side.get("loop")):
+        return []
+    n, fw, fh_ = info
+    frames = frame_register.sheet_frames(path, (fw, fh_), n)
+    j = frame_register.jitter(frames, band=side.get("anchor_band") or frame_register.BAND,
+                           span_mode=side.get("span_mode") or "base", loop=bool(side.get("loop")))
+    lim = frame_register.JITTER_LIMITS
+    out = []
+    if j["offset_px"] > lim["offset_px"]:
+        out.append(f"jitter: anchor moves {j['offset_px']:g} px between consecutive frames (limit {lim['offset_px']:g})")
+    if j["scale_pct"] > lim["scale_pct"]:
+        out.append(f"jitter: figure scale drifts {j['scale_pct']:.1f}% between consecutive frames (limit {lim['scale_pct']:g}%)")
+    return out
+
+
 EFFECT_PIECES = ("vfx-", "owl-bolt", "bolt-hit", "wand-shot", "umbrella-repair")
 
 
@@ -758,6 +784,8 @@ def sprite_checks(path, root=ROOT, effect=False):
         fails = art_check.sprite_failures(path, st, effect)
     except ValueError as e:
         fails = [str(e)]
+    jit = jitter_problems(path)
+    fails += jit
     lines = ["  " + screen_check.summary(dict(res, image=os.path.basename(path))),
              f"  art_check ({'effect' if effect else 'sprite'} colour rules): {'PASS' if not fails else 'FAIL'}" +
              ("" if not fails else " (" + "; ".join(fails[:3]) + ")")]
