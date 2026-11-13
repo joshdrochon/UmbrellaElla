@@ -429,6 +429,39 @@
    "commit": "f4fbb53ae9c9",
    "gap": "Y's buildings are lit grey-green bodies instead of near-black silhouettes, so the black band and value structure are lost; Y reads as a mid-tone grey-green illustration rather than a near-black silhouette, with a tidy, regular roofline and little ragged silhouette character",
    "at": "2026-11-13T04:13:40Z"
+  },
+  {
+   "piece": "skyline",
+   "round": 15,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "reference",
+    "reference": "reference"
+   },
+   "panel": 2,
+   "calibration": {
+    "sessions": 9,
+    "passed": 7
+   },
+   "missing": [
+    "context (no in-engine capture made after the piece: import it and run the smoke, whose screenshot is the capture)",
+    "quality_bar:pipeline/art/reference/discord/20261111-0318_Ricky_other-realm.png (2/3 calibrated sessions)",
+    "reference:pipeline/art/reference/Test_Assets/ENV_GothicSkyline_Tile.png (2/3 calibrated sessions)"
+   ],
+   "critic_sessions": [],
+   "files": "89ab415c8698d0e8aa76ad486ad0747fd5629c0d2c3c8093cc4f7881fa80bede",
+   "file": "Art/Source/Scene/Paint/out/skyline_r2_keyed.png",
+   "card": "MVP 15",
+   "refs": "d1afca932485",
+   "commit": "20faf20a3a8f",
+   "gap": "critic sessions refused (calibration missed or no answer): judge again",
+   "at": "2026-11-13T04:20:13Z"
   }
  ]
 }
