@@ -1,0 +1,137 @@
+{
+ "character": "owl",
+ "anim": "Flap",
+ "builder": "keeper",
+ "asset": "Owl",
+ "frame_size": [
+  640,
+  512
+ ],
+ "pivot_px": [
+  296.0,
+  280.0
+ ],
+ "faces": "left",
+ "px_per_unit": 62.0,
+ "fps": 10,
+ "loop": true,
+ "layout": "CHR_Owl_Flap_Damage.png",
+ "poses": [
+  {
+   "index": 0,
+   "rot": {
+    "wing_near": 20.0,
+    "wing_far": 18.0,
+    "head": -0.0,
+    "tail": 0.0,
+    "mech": -2.0
+   },
+   "lift": -0.0
+  },
+  {
+   "index": 1,
+   "rot": {
+    "wing_near": 5.0,
+    "wing_far": 4.5,
+    "head": -1.0,
+    "tail": 1.6666666666666665,
+    "mech": -0.6666666666666667
+   },
+   "lift": -2.0
+  },
+  {
+   "index": 2,
+   "rot": {
+    "wing_near": -10.0,
+    "wing_far": -9.0,
+    "head": -2.0,
+    "tail": 3.333333333333333,
+    "mech": 0.6666666666666665
+   },
+   "lift": -4.0
+  },
+  {
+   "index": 3,
+   "rot": {
+    "wing_near": -25.0,
+    "wing_far": -22.5,
+    "head": -3.0,
+    "tail": 5.0,
+    "mech": 2.0
+   },
+   "lift": -6.0
+  },
+  {
+   "index": 4,
+   "rot": {
+    "wing_near": -10.0,
+    "wing_far": -9.0,
+    "head": -2.0,
+    "tail": 3.333333333333333,
+    "mech": 0.6666666666666665
+   },
+   "lift": -4.0
+  },
+  {
+   "index": 5,
+   "rot": {
+    "wing_near": 5.0,
+    "wing_far": 4.5,
+    "head": -1.0,
+    "tail": 1.6666666666666665,
+    "mech": -0.6666666666666667
+   },
+   "lift": -2.0
+  }
+ ],
+ "colours": {
+  "paper-light": "#aa8f7f",
+  "paper-mid": "#93786b",
+  "paper-stain": "#7b6157",
+  "etch-line": "#c4a999",
+  "owl-umber": "#3a2c25",
+  "owl-feather": "#5c473e",
+  "silhouette": "#1d1713",
+  "spark-white": "#fff3d6",
+  "gold": "#e9b04a",
+  "amber-eye": "#c8862a",
+  "rust-red": "#743422",
+  "ink": "#171614",
+  "wind-ash-blue": "#555e60",
+  "rust": "#723929",
+  "rust shadow": "#5b2519",
+  "rust high": "#79331f",
+  "yellow": "#ffd84a",
+  "amber": "#f5aa28",
+  "yellow shadow": "#94611e",
+  "core": "#fff5dc"
+ },
+ "look": {
+  "shades": [
+   "ink",
+   "silhouette",
+   "owl-umber"
+  ],
+  "ink": "ink",
+  "line_px": 1.6,
+  "grain": 0.06,
+  "grain_scale": 180.0,
+  "seed": 11,
+  "light_deg": [
+   62,
+   0,
+   18
+  ],
+  "samples": 16
+ },
+ "out_dir": "Art/Source/Keeper/Raw/Owl_Flap",
+ "frames": [
+  "Art/Source/Keeper/Raw/Owl_Flap/Owl_Flap_00.png",
+  "Art/Source/Keeper/Raw/Owl_Flap/Owl_Flap_01.png",
+  "Art/Source/Keeper/Raw/Owl_Flap/Owl_Flap_02.png",
+  "Art/Source/Keeper/Raw/Owl_Flap/Owl_Flap_03.png",
+  "Art/Source/Keeper/Raw/Owl_Flap/Owl_Flap_04.png",
+  "Art/Source/Keeper/Raw/Owl_Flap/Owl_Flap_05.png"
+ ],
+ "blend": "Art/Source/Keeper/Raw/Owl_Flap/Owl_Flap.blend"
+}
