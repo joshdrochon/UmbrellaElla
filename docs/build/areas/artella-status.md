@@ -149,3 +149,6 @@ The Round 14 capture showed "Preparing Shaders" on black. No paint spend (counte
 
 ## Round 16 (Nov 13 late): merged main and artslots, nothing new; still blocked on request #3
 `SmokeHookSubsystem.cpp:132` still fires at a fixed 5 s; no `-SmokeShotDelay` override. Load ~27. No paint spend (15.08 of 33.82). Stopped on request #3.
+
+## Round 17 (Nov 13 late): merged main and artslots, nothing new; still blocked on request #3
+`SmokeHookSubsystem.cpp:132` still a fixed 5 s delay, no command-line override. Load ~25. No paint spend (15.08 of 33.82). Stopped on request #3.
