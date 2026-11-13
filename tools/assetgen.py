@@ -19,8 +19,25 @@ Blender headless; scripts and recipes in pipeline/art/blender/)
           No Blender (PATH, $BLENDER, or the usual install folder): labelled placeholder frames, which can never
           pass the art loop (tools/art_loop.py) or ship (check_pr.py, submission_check.py art).
   blender --script PY --out PNG [-- args]   any other Blender script, headless
-  image   --prompt P --out Art/Source/<name>.png [--element owl|character|effects|background|frame]
-          [--character <id>] [--anim <Anim>] [--provider blender|placeholder|reference]
+  image   --prompt P --out pipeline/art/proof/ImageProof/<name>.png (proof images; shipped art goes under Art/) [--provider gemini|openai] [--input OURS.png ...] [--model M]
+          [--size WxH] [--aspect 4:1] [--image-size 0.5K|1K|2K|4K] [--seed S] [--quality low|medium|high]
+          Image model (D-new-art-image-model; default gemini, key GEMINI_API_KEY; openai optional, OPENAI_API_KEY):
+          one still from the prompt. Order: every --input is guarded first (GDD ART-03 / BG-02: a file under
+          pipeline/art/reference/ or Assets/, a references.json or quality-bar image, the same bytes as one, an image
+          with no provenance row or one dated before the jam start is REFUSED; our in-jam images may be inputs), then
+          the key (none: NO KEY, exit 2, no placeholder; in a kickoff session it is queued), then the price from
+          asset-tools.json price_usd_per_image, then the shared spend counter (env IMAGE_SPEND_FILE, locked): the
+          cost is reserved before the call and the call is REFUSED when it would pass the hard total cap
+          IMAGE_SPEND_CAP_USD (no cap or no counter set: no paid call). A request the provider rejects (HTTP 4xx)
+          is refunded; any other failure keeps its cost. Writes the PNG, <stem>.request.json (full prompt, model,
+          seed, inputs, cost, usage), the provenance row and a prompt line in Saved/agent-log/<day>.jsonl.
+          Gemini: the aspect ratio is always sent (--aspect, else the nearest to --size; 1:4, 4:1, 1:8, 8:1 only on
+          3.1 flash); a gemini 3.x model needs an explicit --image-size (it sets the price). Thinking tokens: the
+          counter reserves asset-tools.json `thinking` reserve_fraction before the call and settles the reply's
+          thoughtsTokenCount and promptTokenCount after it (docs/build/art-image-model.md).
+  image-models   the image models on the Gemini key (models.list, free), each marked priced or UNPRICED
+          [--element owl|character|effects|background|frame] [--character <id>] [--anim <Anim>]
+          [--provider blender|placeholder|reference]
           One still: the element's (or --character's) recipe rendered by Blender, frame 0 of --anim (default
           its Still row, else its first). Fallback `--provider placeholder` (and no Blender): a labelled dark
           placeholder so the build never waits, never accepted as art. PRACTICE repos only (.pipeline-practice):
@@ -31,6 +48,14 @@ Blender headless; scripts and recipes in pipeline/art/blender/)
           submission_check.py assets fails such a row too)
   clean   --in PNG --out PNG [--xcf XCF]   GimpCLI, else GIMP 3 batch, else a Python colour-key cut: the corner
           colour becomes transparent (cut out for sprite_check)
+  clean   --in PNG --out PNG --chroma 00FF00 [--grow 2] [--hue-tol 40]   image-model output painted on flat chroma:
+          HSV key, the mask grown 1-2 px, the cut edge despilled; FAILs when the corners are not the key colour and
+          WARNs on green inside the subject or key colour enclosed by it. --via rembg: the rembg cut-out fallback
+  frames  --in KEYED_STRIP --count N --out-dir DIR [--frame WxH] [--pad 8] [--stem S]   one painted strip of N poses
+          cut into N equal frames, each figure at its own scale on one bottom-centre baseline; <stem>.frames.json
+          records the figure heights and their spread (scale drift). Then `sheet` assembles them
+  crop    --in SHEET --mask KEYED_SHEET --count N --figure K --out PNG [--pad 24]   figure K of N cut out of a painted
+          sheet on its own background: the single-figure input for a strip (a whole sheet makes the model copy it)
   sheet   --frames F1 F2 ... --out Art/Sprites/<name>.png --anim <Anim> --fps N [--kind silhouette]
           Aseprite CLI (horizontal sheet + JSON data), else a Python strip; writes the .sprite.json sidecar
 Audio
@@ -54,7 +79,7 @@ Video and package
 Kickoff
   fulfil  --outbox DIR   run the queued API requests of an agent session (tools/kickoff.py calls it with the keys)
 
-API steps (audio only; art needs no key) need a key (tools/keys.py: env or OS keychain). Inside an agent session
+API steps (audio, and the image model's paid calls) need a key (tools/keys.py: env or OS keychain). Inside an agent session
 (JAM_OUTBOX set) there is never a key, so an API step is QUEUED to $JAM_OUTBOX/asset-requests.jsonl and exits 3; kickoff
 runs it with the key after the session and starts the next session with the files in place. With no key at fulfil
 time the offline fallback runs (procedural audio) and the provenance row says so.
@@ -171,6 +196,10 @@ def role_author():
     return f"{role} (agent session via tools/assetgen.py)" if role != "human" else "team (tools/assetgen.py)"
 
 
+PY_TOOL = {"name": "tools/assetgen.py (pure Python)",
+           "licence": "team code (no third-party application); output belongs to the team"}
+
+
 def write_provenance(root, out, tid, prompt="", model="", inputs=(), origin="generated in jam", note="", info=None,
                      seed=""):
     """Add or replace the row for `out` (one row per asset path). info: {name, licence} for a source that is not
@@ -207,6 +236,19 @@ def http_post(url, headers, body):
     import urllib.request
     req = urllib.request.Request(url, data=body, headers=headers, method="POST")
     with urllib.request.urlopen(req, timeout=300) as r:   # noqa: S310  vendor API from asset-tools.json
+        return r.read()
+
+
+def http_get(url, headers):
+    stub = os.environ.get("ASSETGEN_HTTP_STUB")
+    if stub:
+        spec = importlib.util.spec_from_file_location("assetgen_http_stub", stub)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod.get(url, headers)
+    import urllib.request
+    req = urllib.request.Request(url, headers=headers, method="GET")
+    with urllib.request.urlopen(req, timeout=60) as r:   # noqa: S310  vendor API from asset-tools.json
         return r.read()
 
 
@@ -426,6 +468,12 @@ def render(a, root, character, anim, out_dir, frames=None):
 
 def cmd_image(a, argv, root):
     provider = a.provider
+    if provider in IMAGE_PROVIDERS:
+        try:
+            return cmd_image_model(a, argv, root, provider)
+        except ImageRefused as e:
+            print(f"REFUSED: image: {e}")
+            return 2
     if provider == "reference":
         rc = place_reference(a, root, "asked for")
         if rc is not None:
@@ -465,6 +513,599 @@ def cmd_image(a, argv, root):
     return 0
 
 
+# ---------- image model providers (D-new-art-image-model) ----------
+IMAGE_PROVIDERS = {"gemini": ("gemini-image", "GEMINI_API_KEY"), "openai": ("openai-image", "OPENAI_API_KEY")}
+GEMINI_RATIOS = ("1:1", "2:3", "3:2", "3:4", "4:3", "4:5", "5:4", "9:16", "16:9", "21:9")
+GEMINI_IMAGE_SIZES = ("0.5K", "1K", "2K", "4K")
+OPENAI_SIZES = {"1024x1024": 1.0, "1024x1536": 1.5, "1536x1024": 1.5}
+SPEND_LOCK_TRIES = 600   # 0.05 s apart: half a minute for another worker's counter write
+
+
+class ImageRefused(Exception):
+    """The image call must not run (no key, no cap, the cap reached, a pre-jam input). Never a placeholder."""
+
+
+def _sha(path):
+    import hashlib
+    with open(path, "rb") as fh:
+        return hashlib.sha256(fh.read()).hexdigest()
+
+
+def prejam_images(root):
+    """{repo path: sha256} of every pre-jam picture: anything under pipeline/art/reference/ or Assets/ (the team's
+    key art, references, studies and quality-bar images) and every image path pipeline/art/references.json names."""
+    out = {}
+    paths = set()
+    for top in (os.path.join(root, "pipeline", "art", "reference"), os.path.join(root, "Assets")):
+        for d, _, fs in os.walk(top):
+            paths.update(os.path.join(d, f) for f in fs if f.lower().endswith((".png", ".jpg", ".jpeg", ".webp")))
+    try:
+        with open(os.path.join(root, "pipeline", "art", "references.json"), encoding="utf-8") as fh:
+            spec = json.load(fh)
+        paths.update(os.path.join(root, r["path"]) for r in spec.get("references", []) if r.get("path"))
+    except (OSError, ValueError):
+        pass
+    for f in paths:
+        if os.path.isfile(f):
+            try:
+                out[rel(f, root)] = _sha(f)
+            except OSError:
+                continue
+    return out
+
+
+def provenance_row(root, path):
+    p = os.path.join(root, PROVENANCE)
+    if not os.path.isfile(p):
+        return None
+    with open(p, encoding="utf-8", newline="") as fh:
+        for r in csv.DictReader(fh):
+            if r.get("asset_path") == rel(path, root):
+                return r
+    return None
+
+
+def jam_start():
+    import submission_check
+    return submission_check.JAM_START
+
+
+def refuse_prejam_input(root, path):
+    """None when `path` may be an image-model input, else why not (GDD ART-03, BG-02: no pre-jam image is ever an
+    input; an in-jam image we made, with its provenance row dated after the jam start, may be)."""
+    if not os.path.isfile(path):
+        return f"{path}: no such file"
+    r = rel(path, root)
+    pre = prejam_images(root)
+    if r.startswith(("pipeline/art/reference/", "Assets/")) or r in pre:
+        return f"{r} is pre-jam team art (a reference, key art, study or quality-bar image)"
+    sha = _sha(path)
+    same = [p for p, h in pre.items() if h == sha]
+    if same:
+        return f"{r} has the same bytes as the pre-jam image {same[0]}"
+    row = provenance_row(root, path)
+    if not row:
+        return f"{r} has no provenance row, so nothing shows it was made in the jam"
+    try:
+        made = dt.datetime.fromisoformat((row.get("date") or "").replace("Z", "+00:00"))
+    except ValueError:
+        return f"{r}: provenance date {row.get('date')!r} is not ISO 8601"
+    if made.tzinfo is None or made < jam_start():
+        return f"{r}: provenance date {row.get('date')} is before the jam start {jam_start().isoformat()}"
+    if REFERENCE_SOURCE in (row.get("origin") or "") or PLACEHOLDER_ORIGIN in (row.get("origin") or ""):
+        return f"{r}: provenance origin {row.get('origin')!r} is a reference stand-in or a placeholder, not our art"
+    return None
+
+
+def sized_by_image_size(t, model):
+    """True when the model is priced (and so asked) by imageConfig.imageSize: gemini 3.x image models."""
+    return t["id"] == "gemini-image" and isinstance((t.get("price_usd_per_image") or {}).get(model), dict)
+
+
+def gemini_ratios(t, model):
+    return tuple(t.get("aspect_ratios") or GEMINI_RATIOS) + tuple((t.get("aspect_ratios_extra") or {}).get(model) or ())
+
+
+def image_price(t, model, quality, size, n_inputs, image_size=None):
+    """USD for one output image from asset-tools.json's published price (price_usd_per_image), plus the input images
+    at price_usd_per_input_image. Gemini 3.x prices by image_size, openai by quality and size."""
+    table = t.get("price_usd_per_image") or {}
+    price = table.get(model)
+    if price is None:
+        raise ImageRefused(f"no published price for model {model} in asset-tools.json ({t['id']} "
+                           f"price_usd_per_image): an unpriced call cannot be counted against the cap")
+    if isinstance(price, dict) and t["id"] == "gemini-image":
+        if image_size not in price:
+            raise ImageRefused(f"no published price for {model} at image size {image_size} (asset-tools.json; "
+                               f"priced: {', '.join(price)}): pass --image-size")
+        price = price[image_size]
+    elif isinstance(price, dict):
+        if quality not in price:
+            raise ImageRefused(f"no published price for {model} quality {quality} (asset-tools.json)")
+        price = price[quality]
+        price *= OPENAI_SIZES.get(size, 1.5)
+    return round(float(price) + n_inputs * float(t.get("price_usd_per_input_image") or 0), 6)
+
+
+def thinking_rate(t, model):
+    """(usd per thinking token, reserve fraction). A model with no row that still reports thinking tokens is billed
+    at the highest rate in the table, so the counter never under-counts."""
+    table = t.get("thinking") or {}
+    row = table.get(model)
+    if row:
+        return float(row["usd_per_token"]), float(row.get("reserve_fraction") or 0)
+    rates = [float(r["usd_per_token"]) for r in table.values()] or [0.0]
+    return max(rates), 0.0
+
+
+def settled_cost(t, model, image_cost, n_inputs, usage):
+    """The real cost of a finished call: the published image price, the input tokens (prompt text and input images)
+    and the thinking tokens, from the reply's usageMetadata. With no usage the reserve stands."""
+    usage = usage or {}
+    cost = image_cost
+    in_rate = (t.get("usd_per_input_token") or {}).get(model)
+    if in_rate is not None and usage.get("promptTokenCount") is not None:
+        cost += float(usage["promptTokenCount"]) * float(in_rate)
+    else:
+        cost += n_inputs * float(t.get("price_usd_per_input_image") or 0)
+    thoughts = int(usage.get("thoughtsTokenCount") or 0)
+    if thoughts:
+        cost += thoughts * thinking_rate(t, model)[0]
+    return round(cost, 6)
+
+
+class _SpendLock:
+    """An exclusive lock on <counter>.lock shared by every worker process (fcntl, else msvcrt, else O_EXCL)."""
+
+    def __init__(self, path):
+        self.path = path + ".lock"
+        self.fh = None
+
+    def __enter__(self):
+        os.makedirs(os.path.dirname(os.path.abspath(self.path)), exist_ok=True)
+        self.fh = open(self.path, "a+")
+        try:
+            import fcntl
+            fcntl.flock(self.fh, fcntl.LOCK_EX)
+            return self
+        except ImportError:
+            pass
+        import msvcrt
+        for _ in range(SPEND_LOCK_TRIES):
+            try:
+                self.fh.seek(0)
+                msvcrt.locking(self.fh.fileno(), msvcrt.LK_NBLCK, 1)
+                return self
+            except OSError:
+                time.sleep(0.05)
+        raise ImageRefused(f"the spend counter {self.path} stayed locked; no call made")
+
+    def __exit__(self, *exc):
+        try:
+            import fcntl
+            fcntl.flock(self.fh, fcntl.LOCK_UN)
+        except ImportError:
+            import msvcrt
+            self.fh.seek(0)
+            msvcrt.locking(self.fh.fileno(), msvcrt.LK_UNLCK, 1)
+        self.fh.close()
+
+
+def spend_settings():
+    """(counter file, cap USD). Both are required: no shared counter or no cap means no paid call."""
+    cap_s = (os.environ.get("IMAGE_SPEND_CAP_USD") or "").strip()
+    path = (os.environ.get("IMAGE_SPEND_FILE") or "").strip()
+    if not cap_s:
+        raise ImageRefused("NO CAP: IMAGE_SPEND_CAP_USD is not set, so no paid image call runs (the cap comes from "
+                           "the build lead with Josh's Spend OK; tools/build/start_area.sh sets it)")
+    try:
+        cap = float(cap_s)
+    except ValueError:
+        raise ImageRefused(f"NO CAP: IMAGE_SPEND_CAP_USD={cap_s!r} is not a number")
+    if not path:
+        raise ImageRefused("NO COUNTER: IMAGE_SPEND_FILE is not set, so this call could not be counted with every "
+                           "other worker's (tools/build/start_area.sh sets it)")
+    return path, cap
+
+
+def _read_spend(path):
+    if not os.path.isfile(path):
+        return {"spent_usd": 0.0, "calls": []}
+    with open(path, encoding="utf-8") as fh:
+        d = json.load(fh)
+    d.setdefault("calls", [])
+    d["spent_usd"] = float(d.get("spent_usd") or 0)
+    return d
+
+
+def _write_spend(path, d):
+    tmp = path + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as fh:
+        json.dump(d, fh, indent=1)
+        fh.write("\n")
+    os.replace(tmp, path)
+
+
+def spend_reserve(cost, entry):
+    """Add `cost` to the shared counter before the call, under the lock; ImageRefused when it would pass the cap.
+    Returns the call's index in the counter (spend_settle updates it)."""
+    path, cap = spend_settings()
+    with _SpendLock(path):
+        d = _read_spend(path)
+        if d["spent_usd"] + cost > cap + 1e-9:
+            raise ImageRefused(f"CAP REACHED: spent ${d['spent_usd']:.3f} of the ${cap:.2f} total image cap "
+                               f"(IMAGE_SPEND_CAP_USD); this call (${cost:.3f}) would pass it. No call made. "
+                               f"Every further image call stops here (counter {path})")
+        d["spent_usd"] = round(d["spent_usd"] + cost, 6)
+        d["cap_usd"] = cap
+        d["calls"].append(dict(entry, cost_usd=cost, status="reserved", ts=now_iso()))
+        _write_spend(path, d)
+        return len(d["calls"]) - 1, d["spent_usd"], cap
+
+
+def spend_settle(index, status, refund=False, cost=None, **extra):
+    """Mark a reserved call done or failed; refund=True gives its cost back (the provider refused the request, so it
+    was not billed); cost= replaces the reserve with the real cost (thinking and input tokens from the reply), which
+    may be above the reserve: the counter shows the overrun and the next call sees it."""
+    path, _ = spend_settings()
+    with _SpendLock(path):
+        d = _read_spend(path)
+        c = d["calls"][index]
+        c.update(extra, status=status)
+        if refund and not c.get("refunded"):
+            c["refunded"] = True
+            d["spent_usd"] = round(max(0.0, d["spent_usd"] - float(c.get("cost_usd") or 0)), 6)
+        elif cost is not None and not c.get("refunded"):
+            reserved = float(c.get("cost_usd") or 0)
+            c["reserved_usd"] = reserved
+            c["cost_usd"] = round(cost, 6)
+            d["spent_usd"] = round(max(0.0, d["spent_usd"] - reserved + cost), 6)
+        _write_spend(path, d)
+        return d["spent_usd"]
+
+
+def log_image_prompt(root, prompt, provider, model, out, cost):
+    """One `prompt` line in Saved/agent-log/<day>.jsonl, the log tools/prompt_log.py reads and exports."""
+    ts = dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")
+    host = os.environ.get("JAM_HOST")
+    if host:
+        host = re.sub(r"[^A-Za-z0-9_-]", "-", host)[:32]
+    else:
+        import hashlib
+        import socket
+        host = "host-" + hashlib.sha256(socket.gethostname().encode()).hexdigest()[:6]
+    rec = {"ts": ts, "event": "prompt", "kind": "image", "role": os.environ.get("JAM_ROLE"), "card": None,
+           "host": host, "session": None, "tool": provider, "model": model, "out": rel(out, root), "cost_usd": cost,
+           "prompt": prompt}
+    d = os.path.join(root, "Saved", "agent-log")
+    os.makedirs(d, exist_ok=True)
+    with open(os.path.join(d, ts[:10] + ".jsonl"), "a", encoding="utf-8") as fh:
+        fh.write(json.dumps(rec, sort_keys=True) + "\n")
+
+
+def _ratio(size, ratios=GEMINI_RATIOS):
+    w, h = (int(v) for v in size.lower().split("x"))
+    want = w / h
+    return min(ratios, key=lambda r: abs(int(r.split(":")[0]) / int(r.split(":")[1]) - want))
+
+
+def gemini_shape(t, model, a):
+    """(aspect ratio, image size or None), both checked against the model before any spend. The aspect ratio is
+    always sent (from --aspect, else the nearest the model has to --size); a model priced by size needs
+    --image-size, and a model without imageSize refuses one."""
+    ratios = gemini_ratios(t, model)
+    aspect = a.aspect or _ratio(a.size, ratios)
+    if aspect not in ratios:
+        raise ImageRefused(f"{model} has no aspect ratio {aspect} (asset-tools.json aspect_ratios: {', '.join(ratios)})")
+    if sized_by_image_size(t, model):
+        if not a.image_size:
+            raise ImageRefused(f"{model} needs an explicit --image-size ({', '.join(t['price_usd_per_image'][model])}): "
+                               f"the size sets the price and the detail")
+        return aspect, a.image_size
+    if a.image_size:
+        raise ImageRefused(f"{model} takes no imageSize (it paints about 1K); drop --image-size or pick a gemini 3.x "
+                           f"image model")
+    return aspect, None
+
+
+def _mime(path):
+    with open(path, "rb") as fh:
+        head = fh.read(12)
+    if head[:8] == b"\x89PNG\r\n\x1a\n":
+        return "image/png"
+    if head[:3] == b"\xff\xd8\xff":
+        return "image/jpeg"
+    if head[:4] == b"RIFF" and head[8:12] == b"WEBP":
+        return "image/webp"
+    raise ValueError(f"{path}: not a PNG, JPEG or WebP image")
+
+
+def gemini_request(t, model, prompt, inputs, aspect, image_size, seed, key):
+    import base64
+    parts = [{"text": prompt}]
+    for f in inputs:
+        with open(f, "rb") as fh:
+            parts.append({"inline_data": {"mime_type": _mime(f), "data": base64.b64encode(fh.read()).decode()}})
+    image_cfg = {"aspectRatio": aspect}
+    if image_size:
+        image_cfg["imageSize"] = image_size
+    cfg = {"responseModalities": ["IMAGE"], "imageConfig": image_cfg}
+    if seed is not None:
+        cfg["seed"] = int(seed)
+    body = json.dumps({"contents": [{"role": "user", "parts": parts}], "generationConfig": cfg}).encode()
+    raw = http_post(t["endpoint"].format(model=model), {"x-goog-api-key": key, "Content-Type": "application/json"},
+                    body)
+    reply = json.loads(raw)
+    for cand in reply.get("candidates") or []:
+        for part in (cand.get("content") or {}).get("parts") or []:
+            data = part.get("inlineData") or part.get("inline_data")
+            if data and data.get("data"):
+                return (base64.b64decode(data["data"]), reply.get("modelVersion") or model,
+                        {"usage": reply.get("usageMetadata"), "finish": cand.get("finishReason")})
+    why = [c.get("finishReason") for c in reply.get("candidates") or []] or reply.get("promptFeedback")
+    texts = [p.get("text") for c in reply.get("candidates") or [] for p in (c.get("content") or {}).get("parts") or []
+             if p.get("text")]
+    raise RuntimeError(f"gemini returned no image (finish={why}; text={' '.join(texts)[:160]!r})")
+
+
+def _multipart(fields, files):
+    import uuid
+    b = "----assetgen" + uuid.uuid4().hex
+    out = io.BytesIO()
+    for k, v in fields.items():
+        out.write(f"--{b}\r\nContent-Disposition: form-data; name=\"{k}\"\r\n\r\n{v}\r\n".encode())
+    for k, f in files:
+        with open(f, "rb") as fh:
+            data = fh.read()
+        out.write(f"--{b}\r\nContent-Disposition: form-data; name=\"{k}\"; filename=\"{os.path.basename(f)}\"\r\n"
+                  f"Content-Type: {_mime(f)}\r\n\r\n".encode() + data + b"\r\n")
+    out.write(f"--{b}--\r\n".encode())
+    return out.getvalue(), f"multipart/form-data; boundary={b}"
+
+
+def openai_request(t, model, prompt, inputs, size, quality, key):
+    import base64
+    auth = {"Authorization": f"Bearer {key}"}
+    fields = {"model": model, "prompt": prompt, "size": size if size in OPENAI_SIZES else "auto", "quality": quality,
+              "n": "1"}
+    if inputs:
+        body, ctype = _multipart(fields, [("image[]", f) for f in inputs])
+        raw = http_post(t["edit_endpoint"], dict(auth, **{"Content-Type": ctype}), body)
+    else:
+        fields["n"] = 1
+        raw = http_post(t["endpoint"], dict(auth, **{"Content-Type": "application/json"}), json.dumps(fields).encode())
+    reply = json.loads(raw)
+    data = (reply.get("data") or [{}])[0].get("b64_json")
+    if not data:
+        raise RuntimeError(f"openai returned no image ({str(reply)[:160]})")
+    return base64.b64decode(data), model, {"usage": reply.get("usage")}
+
+
+def to_png(data, out):
+    """Write the model's bytes as a PNG (macOS sips or ffmpeg convert a JPEG or WebP reply)."""
+    os.makedirs(os.path.dirname(os.path.abspath(out)), exist_ok=True)
+    if data[:8] == b"\x89PNG\r\n\x1a\n":
+        with open(out, "wb") as fh:
+            fh.write(data)
+        return "png"
+    tmp = out + ".src"
+    with open(tmp, "wb") as fh:
+        fh.write(data)
+    try:
+        if shutil.which("sips"):
+            run(["sips", "-s", "format", "png", tmp, "--out", out])
+        else:
+            run(command("ffmpeg") + ["-y", "-i", tmp, out])
+    finally:
+        os.remove(tmp)
+    return "converted"
+
+
+def cmd_image_model(a, argv, root, provider):
+    """One paid still from an image model. Order: inputs guarded, key, price, cap reserved, call, provenance, log."""
+    tid, key_name = IMAGE_PROVIDERS[provider]
+    t = tool(tid)
+    model = a.model or t["model"]
+    inputs = list(a.input or [])
+    for f in inputs:
+        why = refuse_prejam_input(root, f)
+        if why:
+            raise ImageRefused(f"PRE-JAM INPUT REFUSED: {why}. GDD ART-03 / BG-02: describe pre-jam art in words "
+                               f"(pipeline/art/art-bible.md, the references' notes); only in-jam images we made may "
+                               f"be inputs")
+    k = keys.get(key_name)
+    if not k:
+        if os.environ.get("JAM_OUTBOX") and not os.environ.get("ASSETGEN_FULFIL"):
+            queue_or_key(argv, key_name)
+        raise ImageRefused(f"NO KEY: {key_name} is not set (tools/keys.py status), so no image was made and no "
+                           f"placeholder stands in for it. {keys.how_to_set(key_name)}")
+    aspect, image_size = gemini_shape(t, model, a) if provider == "gemini" else (None, None)
+    base_cost = image_price(t, model, a.quality, a.size, len(inputs), image_size)
+    image_cost = image_price(t, model, a.quality, a.size, 0, image_size)
+    think = round(image_cost * thinking_rate(t, model)[1], 6) if provider == "gemini" else 0.0
+    cost = round(base_cost + think, 6)
+    entry = {"provider": provider, "model": model, "out": rel(a.out, root), "inputs": len(inputs),
+             "worker": os.path.basename(root), "role": os.environ.get("JAM_ROLE"), "aspect": aspect,
+             "image_size": image_size, "thinking_reserve_usd": think}
+    idx, spent, cap = spend_reserve(cost, entry)
+    try:
+        if provider == "gemini":
+            data, version, meta = gemini_request(t, model, a.prompt, inputs, aspect, image_size, a.seed, k)
+        else:
+            data, version, meta = openai_request(t, model, a.prompt, inputs, a.size, a.quality, k)
+    except Exception as e:   # noqa: BLE001  the call failed: settle the counter, report, never a placeholder
+        code = getattr(e, "code", None)
+        refused = isinstance(code, int) and 400 <= code < 500   # rejected before generation: not billed
+        spent = spend_settle(idx, "failed", refund=refused, error=api_error(e) if code else str(e)[:200])
+        print(f"FAIL: image {provider} {model}: {api_error(e) if code else e}; counter ${spent:.3f} of ${cap:.2f}"
+              + (" (refunded: the provider refused the request)" if refused else " (cost kept: it may be billed)"))
+        return 1
+    how = to_png(data, a.out)
+    if provider == "gemini":
+        cost = settled_cost(t, model, image_cost, len(inputs), meta.get("usage"))
+    spent = spend_settle(idx, "done", cost=cost, usage=meta.get("usage"), model_version=version)
+    seed = a.seed if (provider == "gemini" and a.seed is not None) else ("none (no seed parameter)"
+                                                                         if provider == "openai" else "")
+    with open(os.path.splitext(a.out)[0] + ".request.json", "w", encoding="utf-8") as fh:
+        json.dump({"provider": provider, "tool": t["name"], "model": model, "model_version": version,
+                   "prompt": a.prompt, "seed": seed, "size": a.size, "quality": a.quality, "aspect_ratio": aspect,
+                   "image_size": image_size,
+                   "input_images": [rel(f, root) for f in inputs], "cost_usd": cost, "reply": meta,
+                   "date": now_iso()}, fh, indent=1)
+        fh.write("\n")
+    write_provenance(root, a.out, tid, a.prompt, version, inputs=inputs, origin="generated in jam",
+                     note=f"image model {provider}; ${cost:.3f} counted against the shared image cap; full prompt in "
+                          f"{rel(os.path.splitext(a.out)[0] + '.request.json', root)}", seed=seed)
+    log_image_prompt(root, a.prompt, provider, version, a.out, cost)
+    w, h, _ = png.read_png(a.out)
+    thoughts = ((meta.get("usage") or {}).get("thoughtsTokenCount") or 0) if provider == "gemini" else 0
+    print(f"IMAGE {rel(a.out, root)} via={provider} model={version} {w}x{h} inputs={len(inputs)} "
+          f"aspect={aspect or a.size} image_size={image_size or '-'} thinking_tokens={thoughts} cost=${cost:.3f} "
+          f"spent=${spent:.3f} of ${cap:.2f} ({how})")
+    return 0
+
+
+def cmd_image_models(a, argv, root):
+    """The image models on the Gemini key (models.list: free, not counted), marked priced or not in asset-tools.json.
+    An unpriced model can only be used after its published price is added there."""
+    t = tool("gemini-image")
+    k = keys.get("GEMINI_API_KEY")
+    if not k:
+        print(f"NO KEY: GEMINI_API_KEY is not set (tools/keys.py status). {keys.how_to_set('GEMINI_API_KEY')}")
+        return 2
+    try:
+        reply = json.loads(http_get(t["models_endpoint"], {"x-goog-api-key": k}))
+    except Exception as e:   # noqa: BLE001  report, never print the key
+        print(f"FAIL: image-models: {api_error(e) if getattr(e, 'code', None) else e}")
+        return 1
+    priced = t.get("price_usd_per_image") or {}
+    rows = []
+    for m in reply.get("models") or []:
+        mid = (m.get("name") or "").split("/", 1)[-1]
+        if "image" not in mid and "imagen" not in mid:
+            continue
+        rows.append((mid, m.get("displayName") or "", ",".join(m.get("supportedGenerationMethods") or []),
+                     "priced" if mid in priced else "UNPRICED"))
+    for r in sorted(rows):
+        print("MODEL " + " | ".join(r))
+    print(f"IMAGE-MODELS {len(rows)} image models on the key; priced in asset-tools.json: "
+          f"{', '.join(sorted(m for m in priced if m in {r[0] for r in rows})) or 'none'}")
+    return 0
+
+
+# ---------- chroma key, despill, strip cutting (art-image-model.md method) ----------
+def _hex_rgb(h):
+    h = h.lstrip("#")
+    if not re.fullmatch(r"[0-9a-fA-F]{6}", h):
+        raise ValueError(f"--chroma {h!r}: give a hex colour like 00FF00")
+    return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
+
+
+def _hue_dist(h1, h2):
+    d = abs(h1 - h2) % 1.0
+    return min(d, 1.0 - d)
+
+
+def chroma_key(src, dst, key="00FF00", grow=2, hue_tol=40, s_min=0.30, v_min=0.25, despill_band=4):
+    """HSV chroma key. A pixel is background when its hue is within hue_tol degrees of the key's and it is saturated
+    and bright enough; the background mask then grows `grow` px into the subject (eats the green fringe the light
+    outline sits on), and pixels within `despill_band` px of the cut lose their green spill (g clamped to max(r, b)).
+    Returns stats; ValueError when the corners are not the key colour (the background is not a flat chroma)."""
+    import colorsys
+    kr, kg, kb = _hex_rgb(key)
+    kh, ks, kv = colorsys.rgb_to_hsv(kr / 255, kg / 255, kb / 255)
+    w, h, rows = png.read_png(src)
+    tol = hue_tol / 360.0
+    cache = {}
+
+    def is_key(r, g, b):
+        c = (r, g, b)
+        hit = cache.get(c)
+        if hit is None:
+            hh, ss, vv = colorsys.rgb_to_hsv(r / 255, g / 255, b / 255)
+            hit = _hue_dist(hh, kh) <= tol and ss >= s_min and vv >= v_min
+            if len(cache) < 200000:
+                cache[c] = hit
+        return hit
+
+    corners = [rows[0][0], rows[0][w - 1], rows[h - 1][0], rows[h - 1][w - 1]]
+    bad = [c[:3] for c in corners if c[3] and not is_key(*c[:3])]
+    if len(bad) > 1:
+        raise ValueError(f"{src}: the corners {bad} are not the key colour #{key.lstrip('#')}: the background is not a "
+                         f"flat chroma (check our prompt first; else cut out with --via rembg)")
+    bg = bytearray(w * h)
+    for y, row in enumerate(rows):
+        base = y * w
+        for x, (r, g, b, al) in enumerate(row):
+            if al == 0 or is_key(r, g, b):
+                bg[base + x] = 1
+    keyed = sum(bg)
+    reached = bytearray(w * h)   # key colour reached from the border; the rest is enclosed by the subject
+    stack = [i for i in list(range(w)) + list(range((h - 1) * w, h * w)) + list(range(0, w * h, w))
+             + list(range(w - 1, w * h, w)) if bg[i]]
+    for i in stack:
+        reached[i] = 1
+    while stack:
+        i = stack.pop()
+        y, x = divmod(i, w)
+        for j in (i - 1 if x else -1, i + 1 if x < w - 1 else -1, i - w if y else -1, i + w if y < h - 1 else -1):
+            if j >= 0 and bg[j] and not reached[j]:
+                reached[j] = 1
+                stack.append(j)
+    enclosed = keyed - sum(reached)
+    edge = [i for i in range(w * h) if not bg[i] and _touches(bg, i, w, h)]
+    grown = 0
+    for _ in range(grow):
+        nxt = []
+        for i in edge:
+            if not bg[i]:
+                bg[i] = 2
+                grown += 1
+        for i in edge:
+            y, x = divmod(i, w)
+            for j in (i - 1 if x else -1, i + 1 if x < w - 1 else -1, i - w if y else -1, i + w if y < h - 1 else -1):
+                if j >= 0 and not bg[j]:
+                    nxt.append(j)
+        edge = list(set(nxt))
+    band = set(edge)
+    frontier = list(band)
+    for _ in range(max(0, despill_band - 1)):
+        nxt = []
+        for i in frontier:
+            y, x = divmod(i, w)
+            for j in (i - 1 if x else -1, i + 1 if x < w - 1 else -1, i - w if y else -1, i + w if y < h - 1 else -1):
+                if j >= 0 and not bg[j] and j not in band:
+                    band.add(j)
+                    nxt.append(j)
+        frontier = nxt
+    out, despilled, green_inside = [], 0, 0
+    for y, row in enumerate(rows):
+        orow = []
+        for x, (r, g, b, al) in enumerate(row):
+            i = y * w + x
+            if bg[i]:
+                orow.append((0, 0, 0, 0))
+                continue
+            lim = max(r, b)
+            if g > lim:
+                if i in band:
+                    g = lim
+                    despilled += 1
+                elif is_key(r, g, b) or (g > lim + 40):
+                    green_inside += 1
+            orow.append((r, g, b, 255))
+        out.append(orow)
+    os.makedirs(os.path.dirname(os.path.abspath(dst)), exist_ok=True)
+    png.write_png(dst, w, h, out)
+    return {"size": [w, h], "keyed_px": keyed, "grown_px": grown, "despilled_px": despilled,
+            "green_inside_px": green_inside, "enclosed_key_px": enclosed, "opaque_px": w * h - keyed - grown}
+
+
+def _touches(bg, i, w, h):
+    y, x = divmod(i, w)
+    return ((x and bg[i - 1]) or (x < w - 1 and bg[i + 1]) or (y and bg[i - w]) or (y < h - 1 and bg[i + w]))
+
+
 def key_out(src, dst, tol=40):
     """Python cut: pixels near the corner colour become transparent."""
     w, h, rows = png.read_png(src)
@@ -479,6 +1120,27 @@ def key_out(src, dst, tol=40):
 
 def cmd_clean(a, argv, root):
     os.makedirs(os.path.dirname(os.path.abspath(a.out)), exist_ok=True)
+    if a.via == "rembg":
+        run(command("rembg") + ["i", "-m", a.rembg_model, a.inp, a.out])
+        write_provenance(root, a.out, "rembg", inputs=[a.inp], origin="edited in jam",
+                         note=f"rembg cut-out, model {a.rembg_model}", model=a.rembg_model)
+        print(f"CLEAN {rel(a.out, root)} via=rembg model={a.rembg_model}")
+        return 0
+    if a.chroma:
+        st = chroma_key(a.inp, a.out, a.chroma, grow=a.grow, hue_tol=a.hue_tol)
+        write_provenance(root, a.out, "python", info=PY_TOOL, inputs=[a.inp], origin="edited in jam",
+                         note=f"python HSV chroma key #{a.chroma.lstrip('#')}, mask grown {a.grow} px, despilled "
+                              f"(tools/assetgen.py clean --chroma)")
+        warn = ""
+        if st["green_inside_px"]:
+            warn += (f" WARN: {st['green_inside_px']} green px inside the subject (check our prompt: no green in the "
+                     f"subject)")
+        if st["enclosed_key_px"]:
+            warn += (f" WARN: {st['enclosed_key_px']} key-colour px enclosed by the subject were cut: a real gap "
+                     f"(arm and body) or green in the subject; look at the cut")
+        print(f"CLEAN {rel(a.out, root)} via=chroma key=#{a.chroma.lstrip('#')} " +
+              " ".join(f"{k}={v}" for k, v in st.items() if k != "size") + warn)
+        return 0
     if have("gimpcli"):
         run(command("gimpcli") + ["clean", a.inp, a.out] + (["--xcf", a.xcf] if a.xcf else []))
         used = "gimpcli"
@@ -491,10 +1153,156 @@ def cmd_clean(a, argv, root):
     else:
         key_out(a.inp, a.out)
         used = "python"
-    tid = "gimp" if used == "python" else used
-    write_provenance(root, a.out, tid, inputs=[a.inp], origin="edited in jam",
+    write_provenance(root, a.out, used, info=PY_TOOL if used == "python" else None, inputs=[a.inp],
+                     origin="edited in jam",
                      note="python colour-key cut (no GIMP on PATH)" if used == "python" else "")
     print(f"CLEAN {rel(a.out, root)} via={used}")
+    return 0
+
+
+def _segments(occ, min_gap):
+    """[(start, end)] runs of occupied indices, gaps shorter than min_gap bridged."""
+    segs = []
+    for i, v in enumerate(occ):
+        if not v:
+            continue
+        if segs and i - segs[-1][1] <= min_gap:
+            segs[-1][1] = i
+        else:
+            segs.append([i, i])
+    return segs
+
+
+def figure_boxes(src, count, min_gap=6, min_px=50, cells=False, inset=0):
+    """The bounding boxes (x0, y0, x1, y1) of the `count` separate figures in a keyed strip, in strip order.
+    cells=True: cut the strip into `count` equal cells instead of looking for gaps (figures that touch, or a strip
+    the model drew inside boxes); `inset` px at every cell edge are dropped (the box lines)."""
+    w, h, rows = png.read_png(src)
+    vertical = h > w
+    n_long = h if vertical else w
+    if cells:
+        n_short = w if vertical else h
+        boxes = []
+        for k in range(count):
+            a0, a1 = k * n_long // count + inset, (k + 1) * n_long // count - 1 - inset
+            xs, ys = [], []
+            for y, row in enumerate(rows):
+                for x, px in enumerate(row):
+                    along, across = (y, x) if vertical else (x, y)
+                    if px[3] and a0 <= along <= a1 and inset <= across < n_short - inset:
+                        xs.append(x)
+                        ys.append(y)
+            if len(xs) < min_px:
+                raise ValueError(f"{src}: cell {k + 1} of {count} is empty (the strip does not hold {count} poses)")
+            boxes.append((min(xs), min(ys), max(xs), max(ys)))
+        return w, h, rows, boxes
+    occ = [0] * n_long
+    for y, row in enumerate(rows):
+        for x, px in enumerate(row):
+            if px[3]:
+                occ[y if vertical else x] += 1
+    segs = [s for s in _segments([c > 0 for c in occ], min_gap) if sum(occ[s[0]:s[1] + 1]) >= min_px]
+    while len(segs) > count:   # bridge the narrowest gap (a loose umbrella tip, a stray drop)
+        k = min(range(len(segs) - 1), key=lambda j: segs[j + 1][0] - segs[j][1])
+        segs[k:k + 2] = [[segs[k][0], segs[k + 1][1]]]
+    if len(segs) != count:
+        raise ValueError(f"{src}: found {len(segs)} separate figures, wanted {count} (the figures touch or one is "
+                         f"missing: check the prompt asks for {count} separated poses with a gap)")
+    boxes = []
+    for a0, a1 in segs:
+        xs, ys = [], []
+        for y, row in enumerate(rows):
+            for x, px in enumerate(row):
+                if px[3] and a0 <= (y if vertical else x) <= a1:
+                    xs.append(x)
+                    ys.append(y)
+        boxes.append((min(xs), min(ys), max(xs), max(ys)))
+    return w, h, rows, boxes
+
+
+def split_strip(src, count, min_gap=6, pad=8, frame=None, min_px=50, cells=False, inset=0):
+    """Cut a keyed strip (transparent background) of `count` figures side by side (or stacked when the strip is
+    taller than wide) into `count` equal frames. Each figure keeps its scale and is placed bottom-centre on one
+    baseline (fixed pivot). Returns (frames as (w, h, rows), stats)."""
+    w, h, rows, boxes = figure_boxes(src, count, min_gap, min_px, cells=cells, inset=inset)
+    bw = max(b[2] - b[0] + 1 for b in boxes)
+    bh = max(b[3] - b[1] + 1 for b in boxes)
+    fw, fh = frame or (bw + 2 * pad, bh + 2 * pad)
+    if bw > fw or bh > fh:
+        raise ValueError(f"{src}: the largest figure is {bw}x{bh}, larger than --frame {fw}x{fh}")
+    frames = []
+    for x0, y0, x1, y1 in boxes:
+        cw, ch = x1 - x0 + 1, y1 - y0 + 1
+        ox, oy = (fw - cw) // 2, fh - pad - ch if fh - pad - ch >= 0 else fh - ch
+        out = [[(0, 0, 0, 0)] * fw for _ in range(fh)]
+        for y in range(ch):
+            src_row = rows[y0 + y]
+            dst_row = out[oy + y]
+            for x in range(cw):
+                px = src_row[x0 + x]
+                if px[3]:
+                    dst_row[ox + x] = px
+        frames.append((fw, fh, out))
+    heights = [b[3] - b[1] + 1 for b in boxes]
+    widths = [b[2] - b[0] + 1 for b in boxes]
+    stats = {"frames": count, "frame": [fw, fh], "figure_heights": heights, "figure_widths": widths,
+             "height_spread_pct": round(100.0 * (max(heights) - min(heights)) / max(heights), 1),
+             "pivot": "bottom-centre", "cut": f"equal cells, inset {inset} px" if cells else "gaps"}
+    return frames, stats
+
+
+def cmd_frames(a, argv, root):
+    frame = tuple(int(v) for v in a.frame.lower().split("x")) if a.frame else None
+    try:
+        frames, st = split_strip(a.inp, a.count, pad=a.pad, frame=frame, cells=a.cells, inset=a.inset)
+    except ValueError as e:
+        print(f"FAIL: frames: {e}")
+        return 1
+    os.makedirs(a.out_dir, exist_ok=True)
+    stem = a.stem or os.path.splitext(os.path.basename(a.inp))[0]
+    outs = []
+    for i, (fw, fh, rows) in enumerate(frames):
+        out = os.path.join(a.out_dir, f"{stem}_{i:02d}.png")
+        png.write_png(out, fw, fh, rows)
+        write_provenance(root, out, "python", info=PY_TOOL, inputs=[a.inp], origin="edited in jam",
+                         note=f"frame {i} of {a.count} cut from the strip, bottom-centre pivot "
+                              f"(tools/assetgen.py frames)")
+        outs.append(rel(out, root))
+    with open(os.path.join(a.out_dir, f"{stem}.frames.json"), "w", encoding="utf-8") as fh_:
+        json.dump(dict(st, source=rel(a.inp, root), outputs=outs), fh_, indent=1)
+        fh_.write("\n")
+    print(f"FRAMES {a.count} from {rel(a.inp, root)} frame={st['frame'][0]}x{st['frame'][1]} "
+          f"heights={st['figure_heights']} spread={st['height_spread_pct']}% -> {rel(a.out_dir, root)}")
+    return 0
+
+
+def cmd_crop(a, argv, root):
+    """One figure out of a painted sheet, on its own key-colour background: the image-model input for a strip (a
+    whole sheet as the input makes the model copy the sheet's layout into the strip). The keyed sheet (--mask) finds
+    the figure; the crop is taken from the unkeyed sheet (--in) so the model sees the same flat background."""
+    try:
+        _, _, _, boxes = figure_boxes(a.mask, a.count)
+    except ValueError as e:
+        print(f"FAIL: {e}")
+        return 1
+    if not 1 <= a.figure <= a.count:
+        print(f"FAIL: --figure {a.figure} is not in 1..{a.count}")
+        return 2
+    w, h, rows = png.read_png(a.inp)
+    mw, mh = png.read_png(a.mask)[:2]
+    if (w, h) != (mw, mh):
+        print(f"FAIL: --in is {w}x{h}, --mask is {mw}x{mh}: the mask must be the keyed copy of the same sheet")
+        return 1
+    x0, y0, x1, y1 = boxes[a.figure - 1]
+    x0, y0, x1, y1 = max(0, x0 - a.pad), max(0, y0 - a.pad), min(w - 1, x1 + a.pad), min(h - 1, y1 + a.pad)
+    out = [list(rows[y][x0:x1 + 1]) for y in range(y0, y1 + 1)]
+    os.makedirs(os.path.dirname(os.path.abspath(a.out)), exist_ok=True)
+    png.write_png(a.out, x1 - x0 + 1, y1 - y0 + 1, out)
+    write_provenance(root, a.out, "python", info=PY_TOOL, inputs=[a.inp, a.mask], origin="edited in jam",
+                     note=f"figure {a.figure} of {a.count} cropped from the sheet, box {x0},{y0},{x1},{y1} "
+                          f"(tools/assetgen.py crop)")
+    print(f"CROP {rel(a.out, root)} figure={a.figure}/{a.count} box={x0},{y0},{x1},{y1} "
+          f"size={x1 - x0 + 1}x{y1 - y0 + 1}")
     return 0
 
 
@@ -601,13 +1409,18 @@ def api_error(e):
     """One line for an audio API failure: the HTTP status and the vendor's message (e.g. ElevenLabs
     `quota_exceeded` when the credits ran out), never the key or the request body."""
     code = getattr(e, "code", None)
-    msg = ""
-    try:
-        msg = e.read().decode("utf-8", "replace") if hasattr(e, "read") else ""
-    except Exception:   # noqa: BLE001  the body is a courtesy; the status is enough
-        msg = ""
+    msg = getattr(e, "_assetgen_body", None)   # read once: the second call (counter, then the FAIL line) sees it too
+    if msg is None:
+        try:
+            msg = e.read().decode("utf-8", "replace") if hasattr(e, "read") else ""
+        except Exception:   # noqa: BLE001  the body is a courtesy; the status is enough
+            msg = ""
+        try:
+            e._assetgen_body = msg
+        except Exception:   # noqa: BLE001
+            pass
     msg = re.sub(r"\s+", " ", msg or str(e)).strip()
-    return (f"HTTP {code} " if code else f"{type(e).__name__} ") + msg[:120]
+    return (f"HTTP {code} " if code else f"{type(e).__name__} ") + msg[:400]
 
 
 def audio_placeholder(a, root, sid, reason):
@@ -872,7 +1685,13 @@ def parser():
     p.add_argument("--prompt", required=True)
     p.add_argument("--out", required=True)
     p.add_argument("--size", default="1024x1024")
-    p.add_argument("--provider", choices=("blender", "placeholder", "reference"), default="blender")
+    p.add_argument("--provider", choices=("gemini", "openai", "blender", "placeholder", "reference"), default="gemini")
+    p.add_argument("--input", action="append", help="an in-jam image of ours as an image-model input (repeatable; "
+                   "pre-jam images are refused)")
+    p.add_argument("--model", help="image model (default: the provider's model in asset-tools.json)")
+    p.add_argument("--quality", default="medium", choices=("low", "medium", "high"), help="openai quality")
+    p.add_argument("--aspect", help="gemini aspect ratio, e.g. 1:1, 16:9, 4:1 (default: nearest to --size)")
+    p.add_argument("--image-size", choices=GEMINI_IMAGE_SIZES, help="gemini 3.x output size (required for them)")
     p.add_argument("--element", choices=tuple(ELEMENT_ROLE))
     p.add_argument("--character", help="a recipe in pipeline/art/blender/characters.json (default: by element)")
     p.add_argument("--anim", help="the recipe row (default: Still, else the first)")
@@ -881,6 +1700,29 @@ def parser():
     p.add_argument("--in", dest="inp", required=True)
     p.add_argument("--out", required=True)
     p.add_argument("--xcf")
+    p.add_argument("--chroma", help="HSV chroma key on this hex colour (e.g. 00FF00): key, grow the mask, despill")
+    p.add_argument("--grow", type=int, default=2, help="px the background mask grows into the subject (1-2)")
+    p.add_argument("--hue-tol", type=float, default=40.0, help="degrees of hue around the key colour")
+    p.add_argument("--via", choices=("auto", "rembg"), default="auto", help="rembg: the fallback cut-out")
+    p.add_argument("--rembg-model", default="birefnet-general")
+    p = sub.add_parser("frames")
+    p.add_argument("--in", dest="inp", required=True, help="a keyed strip (transparent background)")
+    p.add_argument("--count", type=int, required=True, help="figures in the strip (2-4 per state)")
+    p.add_argument("--out-dir", required=True)
+    p.add_argument("--frame", help="WxH of every frame (default: the largest figure plus --pad)")
+    p.add_argument("--pad", type=int, default=8)
+    p.add_argument("--stem")
+    p.add_argument("--cells", action="store_true",
+                   help="cut into --count equal cells (thirds for 3), not at gaps: touching figures or a boxed strip")
+    p.add_argument("--inset", type=int, default=0, help="with --cells: px dropped at every cell edge (box lines)")
+    p = sub.add_parser("image-models")
+    p = sub.add_parser("crop")
+    p.add_argument("--in", dest="inp", required=True, help="the painted sheet (key-colour background)")
+    p.add_argument("--mask", required=True, help="the keyed copy of the same sheet (clean --chroma)")
+    p.add_argument("--count", type=int, required=True, help="separate items on the sheet")
+    p.add_argument("--figure", type=int, required=True, help="which one, 1-based, left to right")
+    p.add_argument("--out", required=True)
+    p.add_argument("--pad", type=int, default=24)
     p = sub.add_parser("sheet")
     p.add_argument("--frames", nargs="+", required=True)
     p.add_argument("--out", required=True)
@@ -931,6 +1773,7 @@ def parser():
 
 
 CMDS = {"image": cmd_image, "clean": cmd_clean, "sheet": cmd_sheet, "blender": cmd_blender,
+        "frames": cmd_frames, "image-models": cmd_image_models, "crop": cmd_crop,
         "sfx": lambda a, v, r: cmd_audio(a, v, r), "music": lambda a, v, r: cmd_audio(a, v, r, music=True),
         "edit": cmd_edit, "capture": cmd_capture, "cut": cmd_cut, "zip": cmd_zip, "fulfil": cmd_fulfil}
 

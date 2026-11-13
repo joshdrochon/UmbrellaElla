@@ -92,6 +92,10 @@ struct UMBRELLAELLA_API FBrokenMillTuning
 	UPROPERTY(EditAnywhere, Category = "Winds")
 	FVector2D LowerOnwardZ = FVector2D(210.0, 330.0);
 
+	/** Centre z the onward ride lowers to before the island (the local restoring field pulls toward it). */
+	UPROPERTY(EditAnywhere, Category = "Winds")
+	float LowerOnwardCentreZ = 230.0f;
+
 	UPROPERTY(EditAnywhere, Category = "Winds")
 	FVector2D ExitPoint = FVector2D(1780.0, 500.0);
 
@@ -99,9 +103,9 @@ struct UMBRELLAELLA_API FBrokenMillTuning
 	UPROPERTY(EditAnywhere, Category = "Winds")
 	FVector2D ProtectedCoreX = FVector2D(260.0, 360.0);
 
-	/** Speed of both mill currents, units/s (prototype default; the GDD gives no number). */
+	/** Speed of both mill currents, units/s (GDD wind 360 with decay 12). */
 	UPROPERTY(EditAnywhere, Category = "Winds")
-	float WindSpeed = 300.0f;
+	float WindSpeed = 360.0f;
 
 	/** Local restoring gain and vertical compensation (not global tuning). */
 	UPROPERTY(EditAnywhere, Category = "Winds")

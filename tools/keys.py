@@ -3,7 +3,8 @@
 never printed. Stdlib only.
 
 Keys (pipeline/agent-ops/asset-tools.json `keys`): ELEVENLABS_API_KEY (ElevenLabs Sound Effects / Music),
-STABILITY_API_KEY (Stable Audio). Art needs no key (Blender, pipeline/art/blender/). Lookup order:
+STABILITY_API_KEY (Stable Audio); image model keys (D-new-art-image-model, tools/assetgen.py image): GEMINI_API_KEY
+(default provider), OPENAI_API_KEY (optional). Blender art needs no key. Lookup order:
   1. the environment variable of that name;
   2. macOS Keychain: `security find-generic-password -s umbrella-ella -a <NAME> -w`
      (set once: `security add-generic-password -s umbrella-ella -a ELEVENLABS_API_KEY -w`);
@@ -23,6 +24,12 @@ SERVICE = "umbrella-ella"
 KEYS = {
     "ELEVENLABS_API_KEY": "ElevenLabs Sound Effects / Music",
     "STABILITY_API_KEY": "Stability AI (Stable Audio)",
+}
+# Image model keys (D-new-art-image-model). Kept apart from KEYS so tools/connections.py --live (which pings every
+# KEYS entry) is not handed a key it has no ping for (docs/build/requests/imagegen.md); status and scrub cover both.
+IMAGE_KEYS = {
+    "GEMINI_API_KEY": "Gemini API image generation (default image provider)",
+    "OPENAI_API_KEY": "OpenAI Images (optional image provider)",
 }
 
 
@@ -44,12 +51,20 @@ def _keychain(name):
         return None
 
 
+def clean(v):
+    """A key as pasted: surrounding whitespace (CR, newline) and one pair of matching quotes removed."""
+    v = (v or "").strip()
+    if len(v) >= 2 and v[0] == v[-1] and v[0] in "\"'":
+        v = v[1:-1].strip()
+    return v
+
+
 def lookup(name):
     """(value, where) with where 'env' | 'keychain', or (None, None). The value is never printed."""
-    v = (os.environ.get(name) or "").strip()
+    v = clean(os.environ.get(name))
     if v:
         return v, "env"
-    v = _keychain(name)
+    v = clean(_keychain(name))
     return (v, "keychain") if v else (None, None)
 
 
@@ -64,14 +79,14 @@ def how_to_set(name):
 
 def status_lines():
     out = []
-    for name, what in KEYS.items():
+    for name, what in {**KEYS, **IMAGE_KEYS}.items():
         _, where = lookup(name)
         out.append(f"{name} ({what}): " + (f"present ({where})" if where else "missing -> " + how_to_set(name)))
     return out
 
 
-# Not a pipeline key any more, still never handed to a session (a machine may hold one for other work)
-SCRUB_ALSO = ("OPENAI_API_KEY",)
+# Never handed to a session either: the image keys, and any other vendor key a machine may hold
+SCRUB_ALSO = tuple(IMAGE_KEYS)
 
 
 def scrub(env):

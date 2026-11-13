@@ -1,0 +1,37 @@
+{
+ "provider": "gemini",
+ "tool": "Gemini API image generation (Google)",
+ "model": "gemini-3-pro-image-preview",
+ "model_version": "gemini-3-pro-image-preview",
+ "prompt": "Style: dark painterly etched storybook illustration for a 2D side-view game sprite; ink and wash with fine etched cross-hatching; a near-black silhouette that reads by shape alone (charcoal, soot and umber darks, interior detail dark-on-dark), subdued bronze and warm ivory only as thin rim light; a clean 2-3 px warm ivory #EDE3CF outline around the whole figure. Background: one perfectly flat solid pure green #00FF00 filling the canvas edge to edge: no gradient, no paper texture, no grain, no vignette, no ground, no cast or drop shadow, no glow or light spill on the background. Nothing in the figure is green: no green cloth, light, reflection or tint. No text, labels, numbers, grid lines, frames or watermark. Ella: an adult woman, slim, airborne (never standing on ground), wearing a bent pointed witch hat, long dark brown hair, a separate scarf, a layered worn dark dress, dark stockings and boots. Her face is fully concealed under a dark cloth / mesh mask; two small separate gold #E9C46A eye glints are the only light on her. One slender umbrella: black canopy with thin light ivory stripes, a small pointed crown finial at the canopy tip, and a separate narrow pierced diamond (lozenge) clock-hand terminal at the free end of the shaft. Both hands grip the one shaft. No wand. Body, hands, cloth and metal stay dark. A character turnaround sheet of Ella: five items in one row, evenly spaced with wide green gaps, same height and scale, feet on one shared invisible baseline, toes pointing down as she floats: front view, three-quarter view, side profile facing right, back view, each holding the closed umbrella upright in both hands; then on the far right the same umbrella alone, open, seen from the side.",
+ "seed": "",
+ "size": "1024x1024",
+ "quality": "medium",
+ "aspect_ratio": "21:9",
+ "image_size": "2K",
+ "input_images": [],
+ "cost_usd": 0.138312,
+ "reply": {
+  "usage": {
+   "promptTokenCount": 398,
+   "candidatesTokenCount": 1429,
+   "totalTokenCount": 2120,
+   "promptTokensDetails": [
+    {
+     "modality": "TEXT",
+     "tokenCount": 398
+    }
+   ],
+   "candidatesTokensDetails": [
+    {
+     "modality": "IMAGE",
+     "tokenCount": 1120
+    }
+   ],
+   "thoughtsTokenCount": 293,
+   "serviceTier": "standard"
+  },
+  "finish": "STOP"
+ },
+ "date": "2026-11-13T02:33+00:00"
+}
