@@ -32,7 +32,15 @@ A clause counts only when a test body asserts it. Unproven clause -> row `partia
 - FLOW-49 | settings2 | title text 'Journey Complete'; Main Menu button; approved Gothic storybook look; readable controller/keyboard focus
 - FLOW-43 | settings2 | dirty Back 'Save' choice saves; named setups independent of earned character state; HP-max tuning requires explicit encounter restart; reset never erases the earned profile
 - ART-04 | titlemusic | credits/End screen uses the Start background (only Story+Title flag tested); background moves slowly; background art contains no characters
+- HAZ-31 | levelchunks | neither variant requires a timed dash
+- HAZ-32 | levelchunks | bellows source and whole path visible
+- HAZ-33 | levelchunks | no hidden roof-face collision
+- HAZ-34 | levelchunks | net progress right (no test asserts it); sequence order low->reset->upper not asserted
+- HAZ-35 | levelchunks | A Warden fire starts only after crossing clears
+- HAZ-36 | levelchunks | A alternate attack windows; B stilt and Courier on the right (X not checked); no unavoidable simultaneous lanes; B bypass specifically avoids the stilt
+- HAZ-37 | levelchunks | refuge CP2 placed after group B; once-only journey clue at CP2; refuge CP3 after group C; quiet arrival before Keeper; recovery/story ordering stays fixed
+- HAZ-40 | levelchunks | separate layout, cosmetic and story random streams; new run saves seed and generator/catalog/profile versions; saved variants immutable and ordered; retry preserves resolved layout; route check: minimum lift, gun windows, pressure; route check: story/recovery order; at most 32 attempts then named verified fallback; fallback failure branch force-tested
 
-### Audited so far: 19 rows
-FLOW-34 ART-04 FLOW-02 FLOW-03 FLOW-04 FLOW-35 FLOW-36 FLOW-37 FLOW-38 FLOW-39 FLOW-40 FLOW-41 FLOW-43 FLOW-49 NAR-04 NAR-07 NAR-08 NAR-02 NAR-03
+### Audited so far: 33 rows
+FLOW-34 ART-04 FLOW-02 FLOW-03 FLOW-04 FLOW-35 FLOW-36 FLOW-37 FLOW-38 FLOW-39 FLOW-40 FLOW-41 FLOW-43 FLOW-49 NAR-04 NAR-07 NAR-08 NAR-02 NAR-03 HAZ-25 HAZ-26 HAZ-27 HAZ-28 HAZ-29 HAZ-30 HAZ-31 HAZ-32 HAZ-33 HAZ-34 HAZ-35 HAZ-36 HAZ-37 HAZ-40
 
