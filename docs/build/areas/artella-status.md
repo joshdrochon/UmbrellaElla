@@ -218,3 +218,7 @@ Blocked until screenfix ships a shot that waits for texture streaming and keeps 
 Finished the pending artslots merge (ArtSlotTests.cpp conflict, took main's version, not my lane). Main had nothing newer. Relaunched the up-open capture
 with the ready-shot wait: `-SmokeShotFrames=30` counts frames after shaders, textures and a live Ella are ready (log /tmp/artella_cap_ready.log). No paint, no spend (15.08 of 33.82).
 Next: if the shot shows Ella, run the up-open context pair and panel; then shield R3 and closed R3.
+
+Round 33 result: the ready-shot capture landed (05:51, 1280x720, `-SmokeShotFrames=30`). No "Preparing" text any more, but the frame is black with only the HUD clock: no Ella, no ground, no sky.
+Ready-wait passed (so shaders, textures and a live player were reported ready), yet the world draws nothing. run_game.sh keeps no game log under Saved/Logs, so I cannot see SMOKE_SHOT_READY, the map or the camera. Verdict: smoke/screenfix lane (world not rendered in the shot, or camera not on Ella), not the art.
+Ask for screenfix: keep the game log from run_game.sh, and check why a ready shot shows only the HUD. Not retrying the same command. Up-open still lacks only `context`. No paint, no spend (15.08 of 33.82).
