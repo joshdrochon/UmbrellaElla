@@ -1,4 +1,5 @@
 #include "Feedback/Vfx/UmbrellaVfxSubsystem.h"
+#include "Feedback/Art/ArtSlot.h"
 #include "Feedback/Vfx/UmbrellaVfxDirectorSubsystem.h"
 #include "Components/PointLightComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -166,6 +167,18 @@ void UUmbrellaVfxSubsystem::HandleBusEvent(const FUmbrellaEvent& Event)
 	}
 }
 
+EArtSlotDraw UUmbrellaVfxSubsystem::ShowImpactArt(AActor* Effect, UTexture2D* Texture)
+{
+	UStaticMeshComponent* Mesh = IsValid(Effect) ? Cast<UStaticMeshComponent>(Effect->GetRootComponent()) : nullptr;
+	const FArtSlotRow* Row = ArtSlot::Find(TEXT("shot:red-impact"));
+	if (!Mesh || !Row || ArtSlot::HasArt(Mesh))
+	{
+		return EArtSlotDraw::NoTexture;
+	}
+	// The stand-in sphere's scale is the effect size / 100; the picture keeps that width and height.
+	return ArtSlot::Apply(Mesh, Texture, *Row, Mesh->GetRelativeScale3D());
+}
+
 void UUmbrellaVfxSubsystem::PlayForEvent(const FUmbrellaEvent& Event)
 {
 	const FName Effect = EffectForEvent(Event);
@@ -218,6 +231,13 @@ void UUmbrellaVfxSubsystem::PlayForEvent(const FUmbrellaEvent& Event)
 	Flash->SetRootComponent(Mesh);
 	Mesh->RegisterComponent();
 	Flash->SetActorLocation(Location);
+	if (Effect == TEXT("ShotImpact"))
+	{
+		if (const FArtSlotRow* ImpactRow = ArtSlot::Find(TEXT("shot:red-impact")))
+		{
+			ShowImpactArt(Flash, ArtSlot::LoadTexture(*ImpactRow));
+		}
+	}
 
 	// Nearby surface illumination only for effects that declare a lit material (the stand-in's default material is lit).
 	if (Spec.bLit && IsFeatureEnabled(EFeatureId::VFX_07) && IsFeatureEnabled(EFeatureId::VFX_08))
