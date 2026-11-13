@@ -44,13 +44,22 @@ namespace
 		return Out;
 	}
 
-	FRoute FromLabels(int64 Seed, const TArray<FString>& Labels)
+	/** Route from a fixture text: labels like "01A" separated by "," or ";". */
+	FRoute FromLabels(int64 Seed, const FString& Text)
 	{
+		TArray<FString> Labels;
+		Text.Replace(TEXT(";"), TEXT(",")).ParseIntoArray(Labels, TEXT(","));
 		FRoute R;
 		R.Seed = Seed;
 		for (const FString& L : Labels)
 		{
-			if (const FChunkVariant* V = LevelCatalogue::Find(FCString::Atoi(*L.Left(2)), L[2]))
+			const FString Label = L.TrimStartAndEnd();
+			const int32 LabelDigits = Label.Len() - 1;
+			if (LabelDigits < 1)
+			{
+				continue;
+			}
+			if (const FChunkVariant* V = LevelCatalogue::Find(FCString::Atoi(*Label.Left(LabelDigits)), Label[LabelDigits]))
 			{
 				R.Slots.Add(*V);
 			}
@@ -174,9 +183,33 @@ namespace LevelCatalogue
 		return R;
 	}
 
+	bool HasFixtureRoute(int64 Seed, FRoute& OutRoute)
+	{
+		if (!IsFeatureEnabled(EFeatureId::HAZ_39))
+		{
+			return false;
+		}
+		for (int32 I = 0; I < LevelGrammar::FixtureCount; ++I)
+		{
+			if (LevelGrammar::FixtureSeeds[I] == Seed)
+			{
+				FRoute R = FromLabels(Seed, LevelGrammar::FixtureRoutes[I]);
+				if (!ValidateRoute(R).IsEmpty())
+				{
+					return false;
+				}
+				R.Attempts = 1;
+				OutRoute = R;
+				return true;
+			}
+		}
+		return false;
+	}
+
 	FRoute FallbackRoute()
 	{
-		return FromLabels(Tuning().FallbackSeed, {TEXT("01A"), TEXT("02A"), TEXT("03A"), TEXT("04A"), TEXT("05A"), TEXT("07A"), TEXT("09A"), TEXT("08A"), TEXT("11A")});
+		// The named fallback is the seed 1001 layout (the first fixture).
+		return FromLabels(Tuning().FallbackSeed, LevelGrammar::FixtureRoutes[0]);
 	}
 
 	FRoute Generate(int64 Seed)
@@ -186,6 +219,11 @@ namespace LevelCatalogue
 
 	FRoute GenerateAvoiding(int64 Seed, const FString& PreviousSignature)
 	{
+		FRoute Fixture;
+		if (HasFixtureRoute(Seed, Fixture) && (PreviousSignature.IsEmpty() || Fixture.Signature() != PreviousSignature))
+		{
+			return Fixture;
+		}
 		const int32 Max = Tuning().MaxCandidateAttempts;
 		for (int32 Attempt = 0; Attempt < Max; ++Attempt)
 		{

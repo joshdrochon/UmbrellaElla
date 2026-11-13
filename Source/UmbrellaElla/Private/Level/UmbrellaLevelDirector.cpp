@@ -9,6 +9,7 @@
 #include "Engine/World.h"
 #include "Enemy/UmbrellaEnemy.h"
 #include "EngineUtils.h"
+#include "Field/WindCurrent.h"
 #include "GameFramework/Pawn.h"
 #include "Harness/UmbrellaFeatureFlags.h"
 #include "Kismet/GameplayStatics.h"
@@ -52,7 +53,8 @@ AActor* AUmbrellaLevelDirector::SpawnBlock(const FLevelPlacement& P)
 	}
 	Mesh->SetWorldLocation(P.Location);
 	Mesh->SetWorldScale3D(P.Size / LevelPlanConst::CubeSize);
-	Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	// Land blocks Ella; a checkpoint marker is only a sign she flies through.
+	Mesh->SetCollisionEnabled(P.Kind == ELevelPlacementKind::Checkpoint ? ECollisionEnabled::NoCollision : ECollisionEnabled::QueryAndPhysics);
 	return Block;
 }
 
@@ -95,6 +97,16 @@ void AUmbrellaLevelDirector::SpawnMechanic(const FLevelPlacement& P)
 			Made = Enemy;
 		}
 	}
+	else if (P.Kind == ELevelPlacementKind::Wind)
+	{
+		AWindCurrent* Wind = GetWorld()->SpawnActor<AWindCurrent>(AWindCurrent::StaticClass(), FTransform(P.Location));
+		if (Wind)
+		{
+			Wind->SetHalfExtent(0.5f * P.Size.X, 0.5f * P.Size.Z);
+			Wind->SetCurrent(FVector(P.WindDirection.X, 0.0, P.WindDirection.Y), GetDefault<UUmbrellaTuning>()->Field.DefaultWindForce);
+			Made = Wind;
+		}
+	}
 	else
 	{
 		Made = SpawnBlock(P);
@@ -116,12 +128,7 @@ int32 AUmbrellaLevelDirector::BuildRoute(int64 Seed)
 	Plan = LevelPlan::Build(Route);
 	for (const FLevelPlacement& P : Plan)
 	{
-		if (P.Kind == ELevelPlacementKind::Floor || P.Kind == ELevelPlacementKind::Column
-			|| P.Kind == ELevelPlacementKind::Refuge || P.Kind == ELevelPlacementKind::Checkpoint
-			|| P.Kind == ELevelPlacementKind::Trap || P.Kind == ELevelPlacementKind::Enemy)
-		{
-			SpawnMechanic(P);
-		}
+		SpawnMechanic(P);
 	}
 	SlotsSpawned = Route.Slots.Num();
 	return SlotsSpawned;

@@ -6,6 +6,8 @@
 #include "Core/UmbrellaEventBus.h"
 #include "Engine/World.h"
 #include "Field/WindCurrent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Level/LevelContracts.h"
 #include "GameFramework/Pawn.h"
 #include "Misc/AutomationTest.h"
 
@@ -114,6 +116,44 @@ bool FWindWorldMovesRealElla::RunTest(const FString& Parameters)
 	Test.TickSeconds(2.0f, Dt);
 	TestTrue(TEXT("leaving the current ends the push (decays, never reverses)"), Ella->GetActorLocation().X >= AtExit - 1.0);
 	Bus->On(EUmbrellaEventType::WindEntered).Remove(In);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FWindWorldDrawsField, "UmbrellaElla.Field.World.CurrentDrawsItsUsableWidth",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+
+bool FWindWorldDrawsField::RunTest(const FString& Parameters)
+{
+	FUmbrellaTestWorld TestWorld;
+	UWorld* World = TestWorld.GetWorld();
+	AWindCurrent* Wind = World ? World->SpawnActor<AWindCurrent>() : nullptr;
+	if (!TestNotNull(TEXT("wind current"), Wind))
+	{
+		return false;
+	}
+	Wind->SetHalfExtent(100.0f, 150.0f);
+	Wind->SetCurrent(FVector(1.0, 0.0, 0.0), 300.0f);
+	const UStaticMeshComponent* Field = Wind->GetField();
+	TestTrue(TEXT("field is drawn"), Field && Field->IsVisible() && Field->GetStaticMesh() != nullptr);
+	TestEqual(TEXT("field never collides"), Field ? Field->GetCollisionEnabled() : ECollisionEnabled::QueryAndPhysics, ECollisionEnabled::NoCollision);
+	TestEqual(TEXT("usable width"), Wind->GetUsableWidth(), 200.0f, 0.5f);
+	TestEqual(TEXT("drawn width equals usable width"), Wind->GetDrawnWidth(), Wind->GetUsableWidth(), 0.5f);
+	TestEqual(TEXT("drawn height equals usable height"), Field ? static_cast<float>(Field->Bounds.BoxExtent.Z) : 0.0f, 150.0f, 0.5f);
+	TestTrue(TEXT("readability contract holds"), LevelContracts::IsWindFieldDrawnTrue(Wind->GetDrawnWidth(), Wind->GetUsableWidth(), 1.0f));
+	TestTrue(TEXT("field is behind Ella"), Field && Field->GetComponentLocation().Y < Wind->GetActorLocation().Y);
+	Wind->SetHalfExtent(40.0f, 150.0f);
+	TestEqual(TEXT("a resized current redraws"), Wind->GetDrawnWidth(), 80.0f, 0.5f);
+	// Transport, descent, lift (rescue) and return read differently.
+	TestEqual(TEXT("right is transport"), AWindCurrent::RoleLabel(FVector(1.0, 0.0, 0.0)), FName(TEXT("Transport")));
+	TestEqual(TEXT("down is descent"), AWindCurrent::RoleLabel(FVector(0.0, 0.0, -1.0)), FName(TEXT("Descent")));
+	TestEqual(TEXT("up is lift"), AWindCurrent::RoleLabel(FVector(0.0, 0.0, 1.0)), FName(TEXT("Lift")));
+	TestEqual(TEXT("left is return"), AWindCurrent::RoleLabel(FVector(-1.0, 0.0, 0.0)), FName(TEXT("Return")));
+	TSet<FLinearColor> Colours;
+	for (const TCHAR* Role : {TEXT("Transport"), TEXT("Descent"), TEXT("Lift"), TEXT("Return")})
+	{
+		Colours.Add(AWindCurrent::FieldColourFor(FName(Role)));
+	}
+	TestEqual(TEXT("four distinct role colours"), Colours.Num(), 4);
 	return true;
 }
 
