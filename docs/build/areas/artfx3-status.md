@@ -63,3 +63,6 @@ Merged main. Committed the six unjudged draft4 candidates (NeedleChannel, Needle
 
 ## 2026-11-13 (recheck 6)
 Still blocked: shared counter $46.59 vs cap $33.82 (../logs/image-spend.json); main merged, nothing new. No paid call made. Request in docs/build/requests/artfx3.md stands.
+
+## 2026-11-13 (recheck 7)
+Still blocked: shared counter $46.59 vs cap (../logs/image-cap-usd.txt); main up to date. No paid call made. Request in docs/build/requests/artfx3.md stands.
