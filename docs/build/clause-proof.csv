@@ -29,3 +29,9 @@ COM-11,RegularFall vs ShoulderFall poses per spell,test:UmbrellaElla.Move.World.
 COM-11,only Small uses fold/open/cock,test:UmbrellaElla.Move.SmallCanopyCycle
 FLOW-30,"antique bronze/gold look, smoky translucent face, etched rim",test:UmbrellaElla.Move.ClockDialLook
 FLOW-32,absorbed energy visibly flows into the clock,test:UmbrellaElla.Move.World.HealEnergyFlowsIntoClock
+MOVE-12,"no ammo/energy for Stream, Twin, Needle (only Small tested)",test:UmbrellaElla.Move.World.AllSpellsNeverRunOut
+MOVE-19,right stick selects a spell,test:UmbrellaElla.Move.ArrowTrimAndRightStickSpells
+COM-05,Stream/Twin/Needle never run out (only Small tested),test:UmbrellaElla.Move.World.AllSpellsNeverRunOut
+MOVE-07,arrow-key trim aliases,test:UmbrellaElla.Move.ArrowTrimAndRightStickSpells
+MOVE-07,fire goes right while traveling left,test:UmbrellaElla.Move.World.FireGoesRightWhileTravelingLeft
+MOVE-07,right stick selects spells,test:UmbrellaElla.Move.ArrowTrimAndRightStickSpells

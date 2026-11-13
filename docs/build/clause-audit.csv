@@ -7,12 +7,12 @@ FLOW-04,credits roll with music,i,flow
 FLOW-04,credits use the Start screen background,i,flow
 MOVE-11,same movement/controls asserted inside a boss encounter,i,move
 MOVE-11,same rules asserted inside a level route,i,move
-MOVE-12,"no ammo/energy for Stream, Twin, Needle (only Small tested)",i,move
+MOVE-12,"no ammo/energy for Stream, Twin, Needle (only Small tested)",proven,move
 MOVE-13,same profile asserted in every level/boss encounter,i,move
 MOVE-15,hop protection actually blocks damage in Health,proven,move
 MOVE-15,hop vs post-hit protection asserted distinct,proven,move
 MOVE-15,qualifying route rejects developer protection setting,i,move
-MOVE-19,right stick selects a spell,i,move
+MOVE-19,right stick selects a spell,proven,move
 MOVE-20,Absorb/Free fall disengage Ride (only Shoot tested),i,move
 MOVE-20,remapped controls keep the four combinations,i,move
 UMB-05,catch gives no ammo/stored-energy reward,i,move
@@ -21,7 +21,7 @@ WIND-03,riding a current deals zero damage,i,levelchunks
 WIND-03,safe supports/solids/lethal bottoms explicitly tagged,ii,levelchunks
 MOVE-22,effective profile recorded before qualifying play,i,move
 MOVE-22,encounter display vs collision scale tested independently,i,move
-COM-05,Stream/Twin/Needle never run out (only Small tested),i,move
+COM-05,Stream/Twin/Needle never run out (only Small tested),proven,move
 COM-05,catch gives no weapon charge,i,move
 COM-06,"fold-ready, snap open, pulse, cock, reset cycle tied to emission",proven,move
 COM-07,canopy strands converge around dark body (art),proven,move
@@ -349,9 +349,9 @@ FLOW-43,reset never erases the earned profile,i,settings2
 ART-04,credits/End screen uses the Start background (only Story+Title flag tested),i,flow
 ART-04,background moves slowly,i,flow
 ART-04,background art contains no characters,i,flow
-MOVE-07,arrow-key trim aliases,i,move
-MOVE-07,fire goes right while traveling left,i,move
-MOVE-07,right stick selects spells,i,move
+MOVE-07,arrow-key trim aliases,proven,move
+MOVE-07,fire goes right while traveling left,proven,move
+MOVE-07,right stick selects spells,proven,move
 MOVE-08,D-pad left/right and [ cycle spells,i,flow
 MOVE-08,keys 2/3 bound to Stream/Twin,i,flow
 MOVE-08,right-stick directions select spells,i,flow

@@ -65,3 +65,8 @@ Open for the presenter (Feedback lane): read `GetBodyPose()` and `GetCanopyPhase
 and fold/open/cock pictures; nothing draws them on Ella yet. Strands and the wheel are code-built stand-ins, not passed art.
 Prototype defaults (no GDD number): canopy open 0.06 s + cock 0.08 s, 4 strands, energy flow 0.5 s, wheel label "Lv N".
 Not run: on-screen check of the wheel, motes and dial (no canvas in tests).
+
+## Clause audit: first `i` batch (Nov 13)
+Code existed; added proving tests (`Private/Tests/Move/MoveProofTests.cpp`), Move tests 47/47 pass. Not break-tested this batch.
+MOVE-07 arrow trim + right-stick spells, MOVE-19 right stick, MOVE-12/COM-05 all four spells never run out, MOVE-07 fire right while traveling left.
+Left: 46 `i` clauses for lane move in clause-audit.csv.
