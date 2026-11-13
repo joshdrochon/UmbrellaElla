@@ -43,7 +43,12 @@ namespace UmbrellaUIStyleConstants
 	static constexpr float PanelBorderAlpha = 0.85f;
 	static constexpr float PanelCornerRadius = 3.0f;
 	static constexpr float PanelBorderWidth = 1.5f;
-	static constexpr float PanelPadding = 28.0f;
+	static constexpr float PanelPadding = 44.0f;
+	/** Painted panel card as a nine-slice: drawn size of the whole card image and the border share kept unstretched. */
+	static constexpr float PanelArtWidth = 460.0f;
+	static constexpr float PanelArtHeight = 253.0f;
+	static constexpr float PanelArtMarginX = 0.078f;
+	static constexpr float PanelArtMarginY = 0.14f;
 
 	/** Menu button: the focus mark is a short gold rule with a diamond, left of the label, and a rule under it. */
 	static constexpr float ButtonPadX = 10.0f;
@@ -109,6 +114,11 @@ namespace UmbrellaUIStyleConstants
 	static constexpr float LockupImageHeight = 820.0f * 672.0f / 1584.0f;
 	static constexpr float LockupImagePixelWidth = 1584.0f;
 	static constexpr float LockupImagePixelHeight = 672.0f;
+	/** Painted screen headings, drawn at 0.3 of their pixel size (1085x272 and 1086x323). */
+	static constexpr float HeadPausedWidth = 1085.0f * 0.3f;
+	static constexpr float HeadPausedHeight = 272.0f * 0.3f;
+	static constexpr float HeadSettingsWidth = 1086.0f * 0.3f;
+	static constexpr float HeadSettingsHeight = 323.0f * 0.3f;
 	static constexpr int32 LockupNameSize = 74;
 	static constexpr int32 LockupSubtitleSize = 38;
 	static constexpr int32 LockupSubtitleSpacing = 260;
@@ -168,6 +178,8 @@ public:
 	static UTexture2D* ClockFaceTexture();
 	/** The painted title lockup; null when the texture is not imported (the menu then letters the title in the display face). */
 	static const FSlateBrush* TitleLockupBrush();
+	/** The painted heading for a screen name ("Paused", "Settings"); null when none is painted or imported. */
+	static const FSlateBrush* HeadingBrush(const FString& Heading);
 
 	/** The display face as a font the HUD canvas can draw with; null when the face is missing. */
 	static class UFont* DisplayCanvasFont();
