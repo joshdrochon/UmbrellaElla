@@ -124,9 +124,11 @@ FILE_RULES = [
     (r"^Art/Source/UI/Ground/Raw/T_UI_(Ground|Grain)_PH\.png$", "ui:ground-{1}"),
     (r"^Art/Source/UI/Ground/Raw/T_UI_ClockFace_PH\.png$", "ui:clock-face"),
     (r"^Art/Source/UI/Ground/Raw/T_UI_TitleLockup_PH\.png$", "ui:title-lockup"),
+    (r"^Art/Source/UI/Ground/Raw/T_UI_Head(\w+?)_PH\.png$", "ui:head-{1}"),
+    (r"^Art/Source/UI/Ground/Raw/T_UI_Panel_PH\.png$", "ui:panel"),
 ]
 UI_FILE_PIECE = {"ui:font": "ui-title", "ui:ground-Ground": "ui-title", "ui:ground-Grain": "ui-title",
-                 "ui:clock-face": "ui-hud-clock", "ui:title-lockup": "ui-title"}
+                 "ui:clock-face": "ui-hud-clock", "ui:title-lockup": "ui-title", "ui:panel": "ui-settings"}
 NOT_ART = (".json", ".py", ".md", ".txt", ".csv", ".meta", ".sh", ".blend1", ".log", ".pyc")
 
 
@@ -217,7 +219,7 @@ def discover():
                 elif visual.startswith("vfx-sheet:"):
                     put(visual, rel, VFX_SHEET.get(m.group(1)))
                 else:
-                    put(visual, rel, UI_FILE_PIECE.get(visual, rows.get(visual, [None, None])[1]))
+                    put(visual, rel, UI_FILE_PIECE.get(visual, SCREEN.get(visual[len("ui:head-"):]) if visual.startswith("ui:head-") else rows.get(visual, [None, None])[1]))
                 break
         else:
             put("file:" + rel, rel, None)
