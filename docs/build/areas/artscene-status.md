@@ -124,3 +124,6 @@ or calibration miss; the tool says "judge again"), never a counted one.
 
 ## Nov 13 02:50: still blocked, zero spend
 Merged main 4c3dea15. Capture with an ini override of the shot delay never got an engine slot in 10 min (killed). Details in requests/artscene.md item 3. Every `_PH` stays.
+
+## Nov 13 (main 4e1e6aff merged): still blocked, zero spend
+No `-SmokeShotDelay=` flag yet, load average 45. Context pair for skyline, paper, menu-screen still needs a capture with the shot delay raised or an idle machine. Every `_PH` stays. Request 3 stands.
