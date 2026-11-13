@@ -83,7 +83,25 @@ def check(root, base):
     return out
 
 
+def proof_tests(root, base):
+    """(automation test names, python test files) proving the rows that become built in this merge: the gate runs them."""
+    old = {r["id"]: r for r in read_csv(at(root, base, STATUS))}
+    new = {r["id"]: r for r in read_csv(at(root, None, STATUS))}
+    became = {i for i, r in new.items() if (r.get("status") or "").strip() == "built"
+              and (old.get(i, {}).get("status") or "").strip() != "built"}
+    ue, py = set(), set()
+    for p in read_csv(at(root, None, PROOF)):
+        if p.get("rule") in became:
+            kind, _, name = (p.get("proof") or "").partition(":")
+            (ue if kind == "test" else py if kind == "py" else set()).add(name.strip())
+    return sorted(ue), sorted(py)
+
+
 def main(argv):
+    if len(argv) >= 3 and argv[1] == "tests":   # clause_check.py tests BASE -> 'UE <name>' / 'PY <file>' lines for the gate
+        ue, py = proof_tests(ROOT, argv[2])
+        print("\n".join([f"UE {n}" for n in ue] + [f"PY {n}" for n in py]))
+        return 0
     if len(argv) < 2:
         print(__doc__)
         return 2

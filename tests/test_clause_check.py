@@ -47,5 +47,12 @@ class ClauseCheck(unittest.TestCase):
         self.assertEqual(clause_check.check(self.d, "HEAD"), [])
 
 
+    def test_the_gate_gets_the_proving_tests_of_new_built_rows(self):
+        self.set_built()
+        self.write("docs/build/clause-proof.csv", "rule,clause,proof\nFLOW-34,Start screen plays music,test:UmbrellaElla.Flow.TitleMusicAtLaunch\n"
+                   "FLOW-34,Volume,py:tests/test_x.py\n")
+        self.assertEqual(clause_check.proof_tests(self.d, "HEAD"), (["UmbrellaElla.Flow.TitleMusicAtLaunch"], ["tests/test_x.py"]))
+
+
 if __name__ == "__main__":
     unittest.main()

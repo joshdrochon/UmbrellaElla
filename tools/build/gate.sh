@@ -57,6 +57,11 @@ export UE_SLOT_GATE=1   # the gate always gets its reserved engine slot
 SLOT="$ROOT/tools/build/ue_slot.sh"; EV="$L/gate-$A-evidence.txt"; : > "$EV"
 chk() { local name="$1"; shift; T1=$(date +%s); out=$("$@" 2>&1); rc=$?; echo "$out" | tail -3 >> "$EV"
   if [ $rc -eq 0 ]; then step "$name PASS"; else step "$name FAIL"; echo "$out" | tail -15; fail=1; fi; }
+# Rows turning built must have their proving tests run here (clause_check, Nov 13): add them to this merge's tests.
+CLAUSE_TESTS=$(python3 tools/build/clause_check.py tests "$MAIN" 2>/dev/null)
+CT_UE=$(echo "$CLAUSE_TESTS" | sed -n 's/^UE //p' | paste -sd+ -); CT_PY=$(echo "$CLAUSE_TESTS" | sed -n 's/^PY //p')
+if [ -n "$CT_UE" ]; then SRC=1; TESTS="${TESTS:+$TESTS+}$CT_UE"; fi
+for f in $CT_PY; do chk "clause py ${f##*/}" python3 -m unittest "$(echo "${f%.py}" | tr / .)"; done
 if [ "$SRC" = 1 ]; then
   T1=$(date +%s); b=$("$SLOT" tools/ue/build.sh 2>&1 | tail -1); echo "$b" >> "$EV"
   if echo "$b" | grep -q "build exit: 0"; then step "build PASS"; else step "build FAIL: $b"; fail=1; fi
