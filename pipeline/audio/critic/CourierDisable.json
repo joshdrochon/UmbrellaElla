@@ -1,0 +1,35 @@
+{
+ "id": "CourierDisable",
+ "records": [
+  {
+   "files": "24526056983752d688bbfb94037cb740f5c333aaed8176788388b4e46f5e4127",
+   "verdict": "fail",
+   "style_pass": true,
+   "gap": "Add a defined, heavy low-mid spring-release and gear-clank transient at the start, and replace the broadband noise wash with a distinct, darker spinning-gear whirr that winds down into separate ticks in a stone-hall tail.",
+   "card": "SNDHIT",
+   "round": 1,
+   "critic": "critic-r1-CourierDisable",
+   "at": "2026-11-13T02:06Z"
+  },
+  {
+   "files": "24526056983752d688bbfb94037cb740f5c333aaed8176788388b4e46f5e4127",
+   "verdict": "pass",
+   "style_pass": true,
+   "gap": "none",
+   "card": "SNDHIT",
+   "round": 2,
+   "critic": "wf-critic-CourierDisable",
+   "at": "2026-11-13T02:11Z"
+  },
+  {
+   "files": "24526056983752d688bbfb94037cb740f5c333aaed8176788388b4e46f5e4127",
+   "verdict": "pass",
+   "style_pass": true,
+   "gap": "none",
+   "card": "SNDHIT",
+   "round": 3,
+   "critic": "critic-CourierDisable-1794537910-11612",
+   "at": "2026-11-13T02:45Z"
+  }
+ ]
+}

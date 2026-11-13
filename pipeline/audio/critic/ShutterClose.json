@@ -1,0 +1,25 @@
+{
+ "id": "ShutterClose",
+ "records": [
+  {
+   "files": "466c42c0ee8af5e7463fde032247843e31cb751a9bc328b77b002ddaab404ff5",
+   "verdict": "fail",
+   "style_pass": true,
+   "gap": "Replace the noise burst with a sharp wooden or metal shutter clack: a dry, heavy impact plus a short spring or latch ring with distinct resonant partials, instead of broadband noise.",
+   "card": "SNDHIT",
+   "round": 1,
+   "critic": "critic-r1-ShutterClose",
+   "at": "2026-11-13T02:06Z"
+  },
+  {
+   "files": "466c42c0ee8af5e7463fde032247843e31cb751a9bc328b77b002ddaab404ff5",
+   "verdict": "pass",
+   "style_pass": true,
+   "gap": "none",
+   "card": "SNDHIT",
+   "round": 2,
+   "critic": "wf-critic-ShutterClose",
+   "at": "2026-11-13T02:11Z"
+  }
+ ]
+}

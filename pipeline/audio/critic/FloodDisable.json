@@ -1,0 +1,35 @@
+{
+ "id": "FloodDisable",
+ "records": [
+  {
+   "files": "a26b2cfcef01dffc528db51b3bdf0a886159a30b032dc2fca87dd040cd75d511",
+   "verdict": "fail",
+   "style_pass": true,
+   "gap": "Replace the diffuse noise body with articulated clockwork content: a sharp spring-release and gear-clank hit, then a pitched low gear whirr that winds down into distinct ticks, inside a stone-hall reverb.",
+   "card": "SNDHIT",
+   "round": 1,
+   "critic": "critic-r1-FloodDisable",
+   "at": "2026-11-13T02:06Z"
+  },
+  {
+   "files": "a26b2cfcef01dffc528db51b3bdf0a886159a30b032dc2fca87dd040cd75d511",
+   "verdict": "pass",
+   "style_pass": true,
+   "gap": "none",
+   "card": "SNDHIT",
+   "round": 2,
+   "critic": "wf-critic-FloodDisable",
+   "at": "2026-11-13T02:11Z"
+  },
+  {
+   "files": "a26b2cfcef01dffc528db51b3bdf0a886159a30b032dc2fca87dd040cd75d511",
+   "verdict": "pass",
+   "style_pass": true,
+   "gap": "none",
+   "card": "SNDHIT",
+   "round": 3,
+   "critic": "critic-FloodDisable-1794537872-12093",
+   "at": "2026-11-13T02:44Z"
+  }
+ ]
+}

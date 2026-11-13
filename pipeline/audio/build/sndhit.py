@@ -41,6 +41,17 @@ def bell(freqs, partials, gain_db, secs=0.8, delay_ms=0, what="bell partial"):
     return spec
 
 
+def falling(freqs, drop, gain_db, secs=1.5, delay_ms=0, what="falling tone"):
+    """Synth harmonic tone whose pitch falls to 1/(1+drop) of the start over the sound: 3 harmonics, slow attack, decay."""
+    ph = f"({{f}}*t-{{f}}*{drop/(1+drop):.4f}*t*t/(2*{secs}))"
+    expr = f"(1-exp(-t*400))*exp(-{1.6/secs:.3f}*t)*(sin(2*PI*{ph})+0.4*sin(4*PI*{ph})+0.2*sin(6*PI*{ph}))"
+    spec = {"kind": "synth", "prompt": f"synthesised {what}: three harmonics, pitch falling over {secs} s", "secs": secs,
+            "freqs": freqs, "expr": expr, "gain_db": gain_db, "trim": secs}
+    if delay_ms:
+        spec["delay_ms"] = delay_ms
+    return spec
+
+
 def api(prompt, secs, filt, gain_db, trim=None, decay=None, delay_ms=0, start_db=-30, influence=None):
     spec = {"prompt": prompt + DRY, "secs": secs, "filter": filt, "gain_db": gain_db,
             "start_db": start_db, "trim": trim or secs}
@@ -60,7 +71,7 @@ BRASS = [(1, 0.5, 5), (2.41, 0.3, 7), (3.9, 0.2, 10), (5.3, 0.1, 14)]         # 
 RECIPES = {
  # ---- hit family (style: hit) ----
  "EllaDown": {
-  "seconds": 2.6, "static_level": True, "lufs": -17, "fade_out": 1.0, "takes": 3, "reverb": dict(HALL, rt60=1.8, wet_db=-12, damp_hz=2400),
+  "seconds": 2.6, "static_level": True, "lufs": -17, "fade_out": 0.9, "takes": 3, "reverb": dict(HALL, rt60=1.4, wet_db=-12, damp_hz=2400),
   "layers": {
    "crack": api("one sharp wooden crack, a thin wooden rib snapping", 1.0,
                 "highpass=f=600,lowpass=f=6000", 0, trim=1.0, decay=12, start_db=-24),
@@ -69,9 +80,11 @@ RECIPES = {
    "thud": thud(60, 50, 9, -16, secs=0.8),
    "ring": bell([660, 740, 587], [(1, 0.4, 14), (2.76, 0.25, 22), (5.4, 0.1, 34)], -14, secs=0.8, delay_ms=5, what="metal rib partial"),
    "drop": {"kind": "synth", "prompt": "synthesised sub drop: sine falling from 110 to 38 Hz over a second, slow decay", "secs": 2.2,
-            "expr": "(1-exp(-t*40))*0.8*exp(-1.6*t)*sin(2*PI*(38*t+36*(1-exp(-2*t))))", "gain_db": -21, "delay_ms": 120, "trim": 2.2},
+            "expr": "(1-exp(-t*40))*0.8*exp(-1.6*t)*sin(2*PI*(38*t+36*(1-exp(-2*t))))", "gain_db": -15, "delay_ms": 120, "trim": 1.6},
    "cloth": api("heavy cloth falling away and fluttering down into a deep shaft, soft, fading", 2.0,
-                "highpass=f=250,lowpass=f=2200", -7, trim=2.0, decay=1.2, delay_ms=350),
+                "highpass=f=250,lowpass=f=2200", -14, trim=2.0, decay=1.8, delay_ms=350),
+   "swell": falling([247, 262, 233], 1.5, -17, secs=1.3, delay_ms=40, what="brass swell falling in pitch"),
+   "chime": bell([392, 349, 440], [(1, 0.5, 4), (2.0, 0.2, 5), (3.0, 0.1, 7)], -14, secs=1.2, delay_ms=60, what="low clock-chime partial"),
   }},
  "OutOfBounds": {
   "seconds": 1.6, "static_level": True, "lufs": -19, "fade_out": 0.6, "takes": 3, "reverb": dict(HALL, rt60=1.6, wet_db=-12, damp_hz=2000),
@@ -82,6 +95,9 @@ RECIPES = {
                 "highpass=f=70,lowpass=f=1400", 0, trim=1.2, decay=5, start_db=-24),
    "iron": api("one dull iron clank struck once, low pitched, short dead ring", 1.0,
                "highpass=f=350,lowpass=f=2600", -5, trim=0.8, decay=6, delay_ms=25),
+   "fall": falling([440, 392, 466], 3.0, -19, secs=1.2, what="tone falling steeply in pitch"),
+   "wind": {"kind": "synth", "prompt": "synthesised wind rush: low-passed noise fading out", "secs": 1.4,
+            "expr": "random(0)*0.5*exp(-1.8*t)*(1-exp(-t*200))", "gain_db": -26, "trim": 1.4, "filter": "highpass=f=200,lowpass=f=1800"},
   }},
  "HitWing": {
   "seconds": 0.9, "static_level": True, "lufs": -16, "fade_out": 0.3, "takes": 3, "reverb": dict(HALL, rt60=1.0),
@@ -130,9 +146,13 @@ RECIPES = {
   "seconds": 1.6, "static_level": True, "lufs": -19, "fade_out": 0.5, "takes": 3, "reverb": ROOM,
   "layers": {
    "snap": api("a heavy clock spring snapping with a sharp metallic crack, then gear teeth skipping", 1.5,
-               "highpass=f=400,lowpass=f=7000", 0, trim=1.2, decay=3, start_db=-24),
+               "highpass=f=400,lowpass=f=7000", 0, trim=0.5, decay=9, start_db=-24),
    "plates": api("large brass plates and rods collapsing in a short heavy clatter", 1.5,
-                 "highpass=f=300,lowpass=f=5000", -5, trim=1.3, decay=2.5, delay_ms=90),
+                 "highpass=f=300,lowpass=f=5000", -12, trim=0.8, decay=5, delay_ms=90),
+   "t2": bell([2100, 2500, 1900], [(1, 0.6, 70), (1.9, 0.3, 90)], -8, secs=0.3, delay_ms=260, what="escapement tick"),
+   "t3": bell([2300, 2000, 2100], [(1, 0.6, 70), (1.9, 0.3, 90)], -9, secs=0.3, delay_ms=420, what="escapement tick"),
+   "t4": bell([1800, 2200, 2000], [(1, 0.6, 70), (1.9, 0.3, 90)], -11, secs=0.3, delay_ms=640, what="escapement tick"),
+   "lurch": falling([700, 620, 780], 1.2, -12, secs=0.5, delay_ms=150, what="spring lurch falling in pitch"),
    "thud": thud(80, 60, 12, -12),
    "ring": bell([1245, 1109, 1397], [(1, 0.5, 10), (2.76, 0.3, 16), (5.4, 0.12, 26)], -10, secs=0.9, delay_ms=4, what="resonant spring ring"),
    "tick": bell([2400, 2700, 2200], [(1, 0.6, 60), (1.9, 0.3, 80)], -9, secs=0.4, delay_ms=140, what="escapement tick"),
@@ -164,8 +184,12 @@ RECIPES = {
    "clank": api("one iron gear clank, a pitched strike on a small iron plate", 0.8,
                 "highpass=f=300,lowpass=f=3200", 0, trim=0.5, decay=8, start_db=-24),
    "spring": api("one short clock spring twang, a stiff steel spring released once", 0.8,
-                 "highpass=f=400,lowpass=f=3000", -8, trim=0.5, decay=7, delay_ms=20),
+                 "highpass=f=400,lowpass=f=3000", -14, trim=0.5, decay=12, delay_ms=20),
    "thud": thud(95, 60, 16, -4),
+   "strike": {"kind": "synth", "prompt": "synthesised metal strike: 8 ms broadband burst", "secs": 0.05,
+              "expr": "random(0)*exp(-90*t)*(1-exp(-t*3000))", "gain_db": 4, "trim": 0.05},
+   "p1": bell([880, 784, 932], [(1, 0.5, 9)], -8, secs=0.7, what="gear partial, slow decay"),
+   "p2": bell([1318, 1175, 1397], [(1, 0.4, 30)], -9, secs=0.4, what="gear partial, fast decay"),
   }},
  "WardenDisable": {
   "seconds": 1.8, "static_level": True, "lufs": -17, "fade_out": 0.6, "takes": 3, "reverb": dict(HALL, rt60=1.3),
