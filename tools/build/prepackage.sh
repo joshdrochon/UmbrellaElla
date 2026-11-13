@@ -15,6 +15,7 @@ xcodebuild -checkFirstLaunchStatus || { echo "prepackage: run sudo xcodebuild -r
 [ -z "$(git status --porcelain -- Source Config Content UmbrellaElla.uproject)" ] || { echo "prepackage: commit Source/Config/Content changes first"; exit 1; }
 t; "$S" tools/ue/build.sh 2>&1 | tail -1; s build
 t; "$S" tools/ue/test.sh 2>&1 | tail -3 | tee "$L/prepackage-tests.txt"; grep -q "^PASS" "$L/prepackage-tests.txt" || fail=1; s "full Unreal tests"
+t; python3 tools/build/art_pass_verify.py check > "$L/prepackage-artpass.txt" 2>&1 && s "art_pass_verify PASS" || { tail -5 "$L/prepackage-artpass.txt"; s "art_pass_verify FAIL"; fail=1; }
 for c in "feel_check.py" "encounter_check.py" "manifest_check.py" "bake_preset.py defaults" "submission_check.py prejam" "submission_check.py assets" "build/gdd_spec.py --check" "build/gdd_check.py"; do
   # Reported, not blocking the package: the per-merge gate blocks regressions; a test package must still come out.
   t; python3 tools/$c > "$L/prepackage-py.txt" 2>&1 && s "$c PASS" || { s "$c WARN: $(tail -1 "$L/prepackage-py.txt")"; warn=1; }

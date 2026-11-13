@@ -10,7 +10,7 @@ art_check, screen_check, art_ref_check on these bytes), unless it is a tracked p
 A changed WAV under Audio/Source must pass tools/audio_check.py --scan and tools/audio_style_check.py, unless it is a
 tracked placeholder take (provenance origin `placeholder: <reason>`, audio_check --placeholders). Anything below the
 bar fails the merge with a message to keep it a tracked placeholder; gameplay never waits for it.
-UI (tools/ui_check.py ci) and story (tools/story_check.py) are blocking: the merge may not add a FAIL line main lacks.
+UI (tools/ui_check.py ci), story (tools/story_check.py) and the art inventory (tools/build/art_inventory.py) are blocking: the merge may not add a FAIL line main lacks.
 Exit 0 = pass, 1 = fail.
 """
 import os, re, subprocess, sys
@@ -21,6 +21,8 @@ BLOCKING = {"ui_check": ["tools/ui_check.py", "ci"], "story_check": ["tools/stor
             "pipeline_check": ["tools/pipeline_check.py"],
             "gdd_check": ["tools/build/gdd_check.py"],   # the game must hold the GDD's numbers; no new FAIL against main
             "sprite_check": ["tools/sprite_check.py", "--scan", "Art"],
+            "art_inventory": ["tools/build/art_inventory.py", "check"],   # a shipped visual with no art-loop piece is a FAIL line
+            "art_pass_verify": ["tools/build/art_pass_verify.py", "check"],   # a pass record without verifying panel evidence
             "audio_scan": ["tools/audio_check.py", "--scan", "Audio/Source"]}   # a sound in the list with no file is a FAIL line
 
 

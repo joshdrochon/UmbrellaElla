@@ -1,0 +1,168 @@
+{
+ "id": "ella-attack",
+ "records": [
+  {
+   "piece": "ella-attack",
+   "round": 1,
+   "verdict": "reference",
+   "checks": false,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "fail"
+   },
+   "pairs": {
+    "quality_bar": "reference",
+    "reference": "reference"
+   },
+   "panel": 2,
+   "calibration": {
+    "sessions": 6,
+    "passed": 5
+   },
+   "missing": [
+    "context (no in-engine capture made after the piece: import it and run the smoke, whose screenshot is the capture)",
+    "quality_bar:pipeline/art/reference/discord/20261111-0319_Ricky_roadwarden-sundial-casters.png (2/3 calibrated sessions)",
+    "reference:pipeline/art/reference/Rehearsal/Ella/Ella-Shooting-03.png"
+   ],
+   "critic_sessions": [],
+   "files": "19840e184c0802e0eab08cd78b6c9448f2c02e48bc1a198be3319d7dc9e70161",
+   "file": "Art/Source/Ella/Raw/GP_PH/Ella_attack_GP_PH.png",
+   "card": "MVP 15",
+   "refs": "5abdd1644674",
+   "commit": "25dd62a1f1fb",
+   "gap": "X's umbrella floats detached from the figure, with no single shaft held in two hands, no finials and no spell. Its hair and dress are also only loosely hatched.; Y is a crude cartoon with a detached canopy and a stiff blocky dress, and it has no stockings, scarf, mask or pierced terminal.; Y's canopy is detached from the shaft and there is no gold magic leaving the canopy or terminal. Its flat angular skirt, tube legs and stripes also look like a cartoon cutout, not ink etching.",
+   "at": "2026-11-13T00:34:48Z"
+  },
+  {
+   "piece": "ella-attack",
+   "round": 2,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "reference",
+    "reference": "reference"
+   },
+   "panel": 1,
+   "calibration": {
+    "sessions": 6,
+    "passed": 3
+   },
+   "missing": [
+    "context (no in-engine capture made after the piece: import it and run the smoke, whose screenshot is the capture)",
+    "quality_bar:pipeline/art/reference/discord/20261111-0319_Ricky_roadwarden-sundial-casters.png (1/3 calibrated sessions)",
+    "reference:pipeline/art/reference/Rehearsal/Ella/Ella-Shooting-03.png (2/3 calibrated sessions)"
+   ],
+   "critic_sessions": [],
+   "files": "a23a273243aafff6b3d37bf5bdb376375b52d05c3641b9f5436b3318d706867c",
+   "file": "Art/Source/Ella/Raw/GP_PH/Ella_attack_GP_PH.png",
+   "card": "MVP 15",
+   "refs": "5abdd1644674",
+   "commit": "98556bab2e75",
+   "gap": "Y is stiff with a rigid column body and a flat gold blob that looks like a wand shot. It also has no separate eye glints, a thin line, and a canopy that doesn't read as a single umbrella.; X has crude, sketchy scribble texture and a blobby, unfinished silhouette, with no fine etched detail on the hat, dress, boots, hands or canopy ribs",
+   "at": "2026-11-13T00:47:44Z"
+  },
+  {
+   "piece": "ella-attack",
+   "round": 1,
+   "verdict": "reference",
+   "checks": false,
+   "results": {
+    "art_check": "fail",
+    "screen_check": "pass",
+    "art_ref_check": "fail"
+   },
+   "pairs": {
+    "quality_bar": "ours",
+    "reference": "reference"
+   },
+   "panel": 3,
+   "calibration": {
+    "sessions": 6,
+    "passed": 6
+   },
+   "missing": [
+    "context (no in-engine capture made after the piece: import it and run the smoke, whose screenshot is the capture)",
+    "reference:pipeline/art/reference/Rehearsal/Ella/Ella-Shooting-03.png"
+   ],
+   "critic_sessions": [],
+   "files": "d8a4bf3fffbd5a52c6283592ab4b2327730a1a42c85b56d66d207e448b0262cc",
+   "file": "Art/Source/ImageProof/Raw/Attack/ella_attack_01.png",
+   "card": "0.10b",
+   "refs": "5abdd1644674",
+   "commit": "028308f7edfa",
+   "gap": "X is a loose concept sheet with a dissolving, broken canopy and head, floating hat pieces and a pale halo outline, so it has no coherent figure or frame-to-frame identity.; Y has stray floating hats, a dissolved and corrupted canopy edge, and a yellow glow halo around the whole figure, which breaks the rule that only the magic emits light.; X is a pose sheet with detached floating hats, ragged dissolving edges and a glowing yellow halo outline, so the figure is not consistent or clean.",
+   "at": "2026-11-13T02:36:51Z"
+  },
+  {
+   "piece": "ella-attack",
+   "round": 2,
+   "verdict": "reference",
+   "checks": false,
+   "results": {
+    "art_check": "fail",
+    "screen_check": "pass",
+    "art_ref_check": "fail"
+   },
+   "pairs": {
+    "quality_bar": "ours",
+    "reference": "reference"
+   },
+   "panel": 2,
+   "calibration": {
+    "sessions": 6,
+    "passed": 5
+   },
+   "missing": [
+    "context (no in-engine capture made after the piece: import it and run the smoke, whose screenshot is the capture)",
+    "reference:pipeline/art/reference/Rehearsal/Ella/Ella-Shooting-03.png (2/3 calibrated sessions)"
+   ],
+   "critic_sessions": [],
+   "files": "42b5101dac949b47253f4b1474a3d13f796f9142596f754aedfdd9db726ec961",
+   "file": "Art/Source/ImageProof/R2/Raw/attack/ella_attack_01.png",
+   "card": "0.10b",
+   "refs": "5abdd1644674",
+   "commit": "24e92a0206b6",
+   "gap": "Y has no bent pointed hat and shows a bare, uncovered face instead of a concealed masked one.",
+   "at": "2026-11-13T02:56:45Z"
+  },
+  {
+   "piece": "ella-attack",
+   "round": 3,
+   "verdict": "reference",
+   "checks": false,
+   "results": {
+    "art_check": "fail",
+    "screen_check": "pass",
+    "art_ref_check": "fail"
+   },
+   "pairs": {
+    "quality_bar": "reference",
+    "reference": "reference"
+   },
+   "panel": 1,
+   "calibration": {
+    "sessions": 6,
+    "passed": 4
+   },
+   "missing": [
+    "context (no in-engine capture made after the piece: import it and run the smoke, whose screenshot is the capture)",
+    "quality_bar:pipeline/art/reference/discord/20261111-0319_Ricky_roadwarden-sundial-casters.png",
+    "reference:pipeline/art/reference/Rehearsal/Ella/Ella-Shooting-03.png (1/3 calibrated sessions)"
+   ],
+   "critic_sessions": [],
+   "files": "bd8560d3a0bd38c65fd9530875d3a510e626b79f7140a9ca3c6da38d4978ec5e",
+   "file": "Art/Source/ImageProof/R3/Raw/attack/ella_attack_01.png",
+   "card": "0.10b",
+   "refs": "5abdd1644674",
+   "commit": "9bca16085d95",
+   "gap": "X is a multi-figure reference sheet of a different character, with no Ella, no umbrella and red/yellow glowing shots, so it has no silhouette or motion to judge.",
+   "at": "2026-11-13T03:10:27Z"
+  }
+ ]
+}
