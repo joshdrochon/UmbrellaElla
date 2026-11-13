@@ -1,0 +1,25 @@
+{
+ "id": "SmallBlastImpact",
+ "records": [
+  {
+   "files": "742b0065986a1b8cd0b61b75f8823761b59586593e599168cf165d4a4ea3e832",
+   "verdict": "fail",
+   "style_pass": true,
+   "gap": "Raise the brightness: shift the pluck up and add a high chime and spark layer so the centroid sits around 3-5 kHz and 4-8 kHz carries real energy.",
+   "card": "SNDHIT",
+   "round": 1,
+   "critic": "critic-r1-SmallBlastImpact",
+   "at": "2026-11-13T02:06Z"
+  },
+  {
+   "files": "742b0065986a1b8cd0b61b75f8823761b59586593e599168cf165d4a4ea3e832",
+   "verdict": "pass",
+   "style_pass": true,
+   "gap": "none",
+   "card": "SNDHIT",
+   "round": 2,
+   "critic": "wf-critic-SmallBlastImpact",
+   "at": "2026-11-13T02:11Z"
+  }
+ ]
+}

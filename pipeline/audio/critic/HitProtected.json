@@ -1,0 +1,25 @@
+{
+ "id": "HitProtected",
+ "records": [
+  {
+   "files": "ae29ae0677c4029067ded510f5d46077d7dc00b7959d15aea170f1a4f8ee958b",
+   "verdict": "fail",
+   "style_pass": true,
+   "gap": "Add a distinct sharp mid-frequency rib-crack and canvas-snap transient (about 1-3 kHz) on top of the low thud, with a clean stone-hall tail, so the protected hit is identifiable and not a muddy noisy thud.",
+   "card": "SNDHIT",
+   "round": 1,
+   "critic": "critic-r1-HitProtected",
+   "at": "2026-11-13T02:06Z"
+  },
+  {
+   "files": "ae29ae0677c4029067ded510f5d46077d7dc00b7959d15aea170f1a4f8ee958b",
+   "verdict": "pass",
+   "style_pass": true,
+   "gap": "none",
+   "card": "SNDHIT",
+   "round": 2,
+   "critic": "wf-critic-HitProtected",
+   "at": "2026-11-13T02:11Z"
+  }
+ ]
+}

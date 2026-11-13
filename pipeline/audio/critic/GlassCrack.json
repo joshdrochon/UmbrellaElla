@@ -1,0 +1,15 @@
+{
+ "id": "GlassCrack",
+ "records": [
+  {
+   "files": "f2465dd76d277dea52176f4656e36b10041c5348e775b3a89d651e35e267020e",
+   "verdict": "pass",
+   "style_pass": true,
+   "gap": "none",
+   "card": "SNDHIT",
+   "round": 4,
+   "critic": "wf-critic3-GlassCrack",
+   "at": "2026-11-13T02:22Z"
+  }
+ ]
+}
