@@ -227,6 +227,8 @@ def remaining_usd(base):
         with open(os.environ.get("IMAGE_SPEND_FILE") or os.path.join(base, "logs", "image-spend.json")) as fh:
             d = json.load(fh)
         spent = float(d.get("spent_usd", 0))
+        spent -= sum(float(c.get("cost_usd") or 0) for c in d.get("calls", [])
+                     if c.get("provider") == "openrouter" and not c.get("refunded"))   # OpenRouter has its own cap
         if d.get("cap_usd") is not None:
             caps.append(float(d["cap_usd"]))
     except (OSError, ValueError):
