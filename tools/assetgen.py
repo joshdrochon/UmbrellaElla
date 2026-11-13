@@ -970,6 +970,15 @@ def openrouter_model(model):
     return OPENROUTER_MODELS[model]
 
 
+def gemini_direct_locked():
+    """True once the lead locked Gemini-direct spend in the shared counter (gemini_direct_locked)."""
+    try:
+        path, _ = spend_settings()
+        return bool(_read_spend(path).get("gemini_direct_locked"))
+    except (ImageRefused, OSError, ValueError):
+        return False
+
+
 def pick_provider(provider, model, key_present=None):
     """The provider that serves this call. An explicit openrouter or fal is checked against its mapping. Order is
     gemini, then OpenRouter, then fal: gemini moves to OpenRouter only when its remaining cap is below the cost of
@@ -990,6 +999,15 @@ def pick_provider(provider, model, key_present=None):
         if key_present is not None:
             return key_present if name == "OPENROUTER_API_KEY" else False
         return bool(keys.get(name))
+    # Josh, Nov 13 ~09:20: no more Google/Gemini-direct spend (a $25 Google Cloud charge); the same models go through
+    # OpenRouter, then fal. A gemini request is never served by Gemini-direct while that lock is on.
+    if gemini_direct_locked():
+        or_left = openrouter_remaining()
+        if has("OPENROUTER_API_KEY") and (or_left is None or or_left > 0):
+            return "openrouter"
+        if has("FAL_KEY"):
+            return "fal"
+        raise ImageRefused("GEMINI-DIRECT OFF (Josh): no OpenRouter or fal key or cap left for this model; no call made")
     left = gemini_remaining()
     final_cost = image_price(tool("gemini-image"), IMAGE_TIERS["final"], "medium", "1024x1024", 0, "2K")
     near = OPENROUTER_NEAR_CALLS * final_cost
