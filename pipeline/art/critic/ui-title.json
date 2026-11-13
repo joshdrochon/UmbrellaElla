@@ -247,6 +247,45 @@
    "commit": "f31c71b01d08",
    "gap": "Y is flatter and more digital. It has clean vector-like edges, little etched line work and little paper grain, so the scene feels pasted together instead of inked.",
    "at": "2026-11-13T05:19:16Z"
+  },
+  {
+   "piece": "ui-title",
+   "round": 14,
+   "verdict": "ours",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "ours",
+    "reference": "ours"
+   },
+   "panel": 3,
+   "calibration": {
+    "sessions": 6,
+    "passed": 6
+   },
+   "missing": [],
+   "critic_sessions": [
+    "ui-title-r14-00-reference-c1",
+    "ui-title-r14-00-reference-c2",
+    "ui-title-r14-00-reference-c3",
+    "ui-title-r14-01-quality_bar-c1",
+    "ui-title-r14-01-quality_bar-c2",
+    "ui-title-r14-01-quality_bar-c3"
+   ],
+   "manifest": "ebee8f4aedcafbd3a1a9fceee74c2801b3445b0539d13c08d8961203b0a962c0",
+   "evidence": "pipeline/art/critic/ui-title/14",
+   "prompt": "art_loop PANEL_PROMPT 8f1e148c4dd0",
+   "files": "9fea1187d483a040f60b6bd930fd0c3ed9a4eb343b630ce5e5f20d1017da62c6",
+   "file": "../../../../../../tmp/uishots/title.png",
+   "card": "artui",
+   "refs": "669f6f2ac14d",
+   "commit": "d7982cdeeb7a",
+   "gap": "",
+   "at": "2026-11-13T05:59:03Z"
   }
  ]
 }

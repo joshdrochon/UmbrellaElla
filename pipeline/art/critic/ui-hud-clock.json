@@ -1,0 +1,47 @@
+{
+ "id": "ui-hud-clock",
+ "records": [
+  {
+   "piece": "ui-hud-clock",
+   "round": 1,
+   "verdict": "reference",
+   "checks": false,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "fail",
+    "art_ref_check": "fail"
+   },
+   "pairs": {
+    "quality_bar": "reference",
+    "reference": "reference"
+   },
+   "panel": 3,
+   "calibration": {
+    "sessions": 6,
+    "passed": 6
+   },
+   "missing": [
+    "quality_bar:pipeline/art/reference/discord/20261111-0319_Ricky_roadwarden-sundial-casters.png",
+    "reference:pipeline/art/reference/discord/20261112-0443_Ricky_title-screen.png"
+   ],
+   "critic_sessions": [
+    "ui-hud-clock-r1-00-reference-c1",
+    "ui-hud-clock-r1-00-reference-c2",
+    "ui-hud-clock-r1-00-reference-c3",
+    "ui-hud-clock-r1-01-quality_bar-c1",
+    "ui-hud-clock-r1-01-quality_bar-c2",
+    "ui-hud-clock-r1-01-quality_bar-c3"
+   ],
+   "manifest": "",
+   "evidence": "",
+   "prompt": "",
+   "files": "290c4914af58441b7ef2de3b4a5e55c4ef26fc46d9f450fe1dcf1f28303aa2e4",
+   "file": "../../../../../../tmp/uishots/hud.png",
+   "card": "artui",
+   "refs": "669f6f2ac14d",
+   "commit": "d7982cdeeb7a",
+   "gap": "X is a tiny clock with flat, glowing white-yellow hands and a thin pale arc. It has no etched line work, no paper texture and no near-black ink value structure.; X is a tiny, flat clock with plain white hands, a flat yellow arc and almost no etched detail or aged-paper texture.; X is a tiny, flat clock with plain white hands, a thin glowing arc and no real etching or paper texture.; X is a tiny clock on an empty black field, with flat pale-yellow hands, a smooth gradient arc and no paper texture, etched line work or ink value structure.; Y is a tiny clock on pure black, with flat white and yellow hands and arc, no paper texture, no ink-weight line work and no atmosphere.; X is a tiny, smooth digital-looking clock with a flat pale-yellow arc and white hand, and it has no etched line work, paper grain or rust-and-gold depth.",
+   "at": "2026-11-13T06:10:51Z"
+  }
+ ]
+}
