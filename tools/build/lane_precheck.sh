@@ -12,7 +12,7 @@ $1"; }
 git -C "$ROOT" fetch -q origin
 [ -n "$(git status --porcelain --untracked-files=no)" ] && add "uncommitted changes in tracked files (commit or revert)"
 if ! git merge-tree --write-tree origin/main HEAD >/dev/null 2>&1; then
-  c=$(git merge-tree --write-tree --name-only origin/main HEAD 2>/dev/null | sed -n '2,$p' | grep -v -E '^docs/build/(rule-status\.csv|areas/|requests/)' | head -5 | tr '\n' ' ')
+  c=$(git merge-tree --write-tree --name-only origin/main HEAD 2>/dev/null | sed -n '2,/^$/p' | grep -v '^$' | grep -v -E '^docs/build/(rule-status\.csv|areas/|requests/)' | head -5 | tr '\n' ' ')
   [ -n "$c" ] && add "merge conflict with main in: $c (merge main and resolve)"
 fi
 p=$(python3 tools/build/art_inventory.py check 2>&1 | grep -E "FAIL" | head -3); [ -n "$p" ] && add "$p"
