@@ -45,3 +45,11 @@ Re-ran the guard (`draft_checks_passed`) on every existing draft; no new drafts 
 - Still no final (18): ella-condition, ella-motion, enemy-floodstrider, keeper-clock, keeper-departure, keeper-mech-middle, keeper-mech-rear, menu-screen, ui-purchase, ui-spell-wheel, ui-xp-ring, vfx-clock-open, vfx-departure, vfx-eye-exposed, vfx-keeper-recovery, vfx-keeper-strike, vfx-restoration, yellow-shot.
 - Check defect candidate: keyed copies fail off_style/on_palette at .03 to .26 because the cut leaves halo pixels; a feathered cut or rembg may pass them.
 - Spend by provider: gemini $33.82/$33.82 (exhausted), openrouter about $0.98/$19.89, fal $10.80/$74.84.
+
+## Round 5: review fixes, re-check after merging origin/main (2026-11-13)
+Review fixes (gate review, one round):
+- Provenance rows added for all 17 `draft2_clean.png` files (keeper-talon's was missing, so were 16 others): origin "edited in jam; assetgen.key_out", input = the draft2.png.
+- Correction (I was wrong in Round 3): keeper-talon `final2.png` was a fresh text-to-image call (`input_images: []`). `draft2_clean.png` was only the guard's input, not the final's source. Same for the other Round 3/4 finals: each is a prompt-only call, no draft pixels go into it.
+- Counter for the 7 Round 3 finals (gemini-direct, 17:09-17:11 UTC, before the 09:18 PST lock): the Gemini counter crossed its $33.82 cap during that batch (4 calls ran in parallel; the 3rd of them took it from about $33.7 to $33.82 and the rest billed past it, ending near $34.9, $0.97 total). The cap was already about $0.1 from gone before the batch; I should have stopped after the first call. Per provider now: gemini $33.82/$33.82 locked (counter value; real Google billing was about $1.1 over), openrouter $1.02/$19.89, fal $10.80/$74.84.
+- Minor: `bg-base/final2.request.json` `size: 1024x1024` is an unused field; the call used aspect 16:9, 2K. `bg-atmosphere` prompt conflict (green vs paper ground) fixed in `make_jobs2.py` (the ground is paper; the old text is in the request record).
+Re-check (no spend): merged origin/main (f4ef039c guard). `draft_checks_passed` on all 117 draft files: the same 10 pieces pass as before; no new pass.
