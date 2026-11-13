@@ -1,3 +1,5 @@
+B2 cause (Nov 13): NOT the scene panels. ART_05 off (all USceneArtSubsystem panels off) is still 98% black, windowed 640x360 and offscreen 1280x720 (b2-art05off-*.png). Bisecting next. The 20:20 run had no -SmokeQuitAfter, so no smoke hook loaded and it sat on the title.
+
 # screenfix status
 
 ## Done (commits d87b0e50, bff67883, main merged after)
