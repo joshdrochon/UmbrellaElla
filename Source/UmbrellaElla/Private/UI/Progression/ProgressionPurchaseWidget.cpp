@@ -3,7 +3,10 @@
 #include "GameFramework/PlayerController.h"
 #include "Harness/UmbrellaFeatureFlags.h"
 #include "Progression/ProgressionSubsystem.h"
-#include "Widgets/Input/SButton.h"
+#include "UI/Style/UmbrellaUIStyle.h"
+#include "Widgets/Layout/SBorder.h"
+#include "Widgets/Layout/SBox.h"
+#include "Widgets/SOverlay.h"
 #include "Widgets/SBoxPanel.h"
 #include "Widgets/Text/STextBlock.h"
 
@@ -101,7 +104,23 @@ TSharedRef<SWidget> UProgressionPurchaseWidget::RebuildWidget()
 {
 	Rows = SNew(SVerticalBox);
 	Rebuild();
-	return Rows.ToSharedRef();
+	return SNew(SOverlay)
+		+ SOverlay::Slot()
+		[
+			SNew(SUmbrellaGround)
+		]
+		+ SOverlay::Slot().HAlign(HAlign_Left).VAlign(VAlign_Center).Padding(UmbrellaUI::ColumnLeft - UmbrellaUI::PanelPadding, 0.0f, 0.0f, 0.0f)
+		[
+			SNew(SBorder)
+			.BorderImage(FUmbrellaUIStyle::PanelBrush())
+			.Padding(UmbrellaUI::PanelPadding)
+			[
+				SNew(SBox).WidthOverride(UmbrellaUI::ColumnWidth)
+				[
+					Rows.ToSharedRef()
+				]
+			]
+		];
 }
 
 void UProgressionPurchaseWidget::Rebuild()
@@ -115,16 +134,23 @@ void UProgressionPurchaseWidget::Rebuild()
 	const FProgressionTuning& Tuning = Subsystem->GetTuning();
 	const FProgressionProfile Real = Subsystem->GetEffectiveProfile();
 	const int32 Spare = FProgressionRules::UnspentPoints(Tuning, Real) - GetDraftNetCost();
+	const FSlateFontInfo Body = FUmbrellaUIStyle::BodyFont(UmbrellaUI::PurchaseRowTextSize);
 
 	Rows->AddSlot().AutoHeight()
 	[
-		SNew(STextBlock).Text(FText::Format(LOCTEXT("Header", "Level {0}   Points left {1}"), Subsystem->GetLevel(), Spare))
+		SNew(STextBlock).Font(FUmbrellaUIStyle::DisplayFont(UmbrellaUI::PurchaseHeadingTextSize)).ColorAndOpacity(FUmbrellaUIStyle::Cream())
+			.Text(FText::Format(LOCTEXT("Header", "Level {0}   Points left {1}"), Subsystem->GetLevel(), Spare))
+	];
+	Rows->AddSlot().AutoHeight().Padding(0.0f, UmbrellaUI::HeadingGap, 0.0f, UmbrellaUI::HeadingGap)
+	[
+		SNew(SUmbrellaRule)
 	];
 	if (IsInspectionOnly())
 	{
-		Rows->AddSlot().AutoHeight()
+		Rows->AddSlot().AutoHeight().Padding(0.0f, 0.0f, 0.0f, UmbrellaUI::HeadingGap)
 		[
-			SNew(STextBlock).Text(LOCTEXT("Inspect", "Inspection only. Spend points at a refuge or between runs."))
+			SNew(STextBlock).Font(Body).ColorAndOpacity(FUmbrellaUIStyle::Dim()).AutoWrapText(true)
+				.Text(LOCTEXT("Inspect", "Inspection only. Spend points at a refuge or between runs."))
 		];
 	}
 	for (int32 Index = 0; Index < static_cast<int32>(EProgressionTrack::Count); ++Index)
@@ -135,42 +161,36 @@ void UProgressionPurchaseWidget::Rebuild()
 		Rows->AddSlot().AutoHeight()
 		[
 			SNew(SHorizontalBox)
-			+ SHorizontalBox::Slot().FillWidth(1.0f)
+			+ SHorizontalBox::Slot().FillWidth(1.0f).VAlign(VAlign_Center)
 			[
-				SNew(STextBlock).Text(FText::Format(LOCTEXT("Row", "{0}: {1} / {2}"), TrackLabel(Track), Rank, Max))
+				SNew(STextBlock).Font(Body).ColorAndOpacity(FUmbrellaUIStyle::Cream())
+					.Text(FText::Format(LOCTEXT("Row", "{0}: {1} / {2}"), TrackLabel(Track), Rank, Max))
 			]
 			+ SHorizontalBox::Slot().AutoWidth()
 			[
-				SNew(SButton).IsEnabled(!IsInspectionOnly()).OnClicked_Lambda([this, Track]() { StageRefund(Track); return FReply::Handled(); })
-				[
-					SNew(STextBlock).Text(LOCTEXT("Minus", "-"))
-				]
+				SNew(SUmbrellaButton).IsEnabled(!IsInspectionOnly()).Text(LOCTEXT("Minus", "-")).FontSize(UmbrellaUI::PurchaseStepTextSize).RestColor(FUmbrellaUIStyle::Gold())
+					.OnClicked_Lambda([this, Track]() { StageRefund(Track); return FReply::Handled(); })
 			]
 			+ SHorizontalBox::Slot().AutoWidth()
 			[
-				SNew(SButton).IsEnabled(!IsInspectionOnly()).OnClicked_Lambda([this, Track]() { StageBuy(Track); return FReply::Handled(); })
-				[
-					SNew(STextBlock).Text(LOCTEXT("Plus", "+"))
-				]
+				SNew(SUmbrellaButton).IsEnabled(!IsInspectionOnly()).Text(LOCTEXT("Plus", "+")).FontSize(UmbrellaUI::PurchaseStepTextSize).RestColor(FUmbrellaUIStyle::Gold())
+					.OnClicked_Lambda([this, Track]() { StageBuy(Track); return FReply::Handled(); })
 			]
 		];
 	}
-	Rows->AddSlot().AutoHeight()
+	Rows->AddSlot().AutoHeight().Padding(0.0f, UmbrellaUI::HeadingGap, 0.0f, 0.0f)
 	[
 		SNew(SHorizontalBox)
-		+ SHorizontalBox::Slot().AutoWidth()
+		+ SHorizontalBox::Slot().AutoWidth().Padding(0.0f, 0.0f, UmbrellaUI::SectionGap, 0.0f)
 		[
-			SNew(SButton).IsEnabled(IsDraftDirty()).OnClicked_Lambda([this]() { Confirm(); return FReply::Handled(); })
-			[
-				SNew(STextBlock).Text(FText::Format(LOCTEXT("Confirm", "Confirm ({0} points)"), GetDraftNetCost()))
-			]
+			SNew(SUmbrellaButton).IsEnabled(IsDraftDirty()).FontSize(UmbrellaUI::PurchaseRowTextSize)
+				.Text(FText::Format(LOCTEXT("Confirm", "Confirm ({0} points)"), GetDraftNetCost()))
+				.OnClicked_Lambda([this]() { Confirm(); return FReply::Handled(); })
 		]
 		+ SHorizontalBox::Slot().AutoWidth()
 		[
-			SNew(SButton).OnClicked_Lambda([this]() { Cancel(); return FReply::Handled(); })
-			[
-				SNew(STextBlock).Text(LOCTEXT("Cancel", "Cancel"))
-			]
+			SNew(SUmbrellaButton).FontSize(UmbrellaUI::PurchaseRowTextSize).Text(LOCTEXT("Cancel", "Cancel"))
+				.OnClicked_Lambda([this]() { Cancel(); return FReply::Handled(); })
 		]
 	];
 }

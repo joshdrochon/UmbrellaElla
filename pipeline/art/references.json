@@ -894,7 +894,8 @@
     "0.10c",
     "MVP 2",
     "MVP 15",
-    "artfx"
+    "artfx",
+    "artui"
    ],
    "judge": true,
    "required": true,
@@ -934,7 +935,8 @@
    ],
    "what": "The title-screen target (Josh, 11 Nov): card 0.21b's title screen builds to this frame. Layout, title lockup, menu placement and mood: a painted, misty sepia scene of floating islands with a cottage and a windmill; a clock face top-left; the title lettered 'UMBRELLA GIRL' in an ornate serif with a clock-hand flourish; a menu with START GAME and DIRECTOR'S CUT. The title text and the painted look are open questions for the team (docs/decisions.md D-new-title-screen): look and layout only, never the wording. Reference only, never shipped Title text (Josh, Nov 12, D-new-title-text): the game title reads \"Umbrella Ella The Stolen Hour\" with no colon, on two lines (\"Umbrella Ella\" / \"The Stolen Hour\"), and the menu items read \"Start Game\" and \"Director's Cut\". Judge layout, lockup placement, menu placement, mood and style against this image; the reference's \"UMBRELLA GIRL\" wording is outdated and a difference in title wording is never a reason to fail the menu.",
    "cards": [
-    "0.21b"
+    "0.21b",
+    "artui"
    ],
    "consulted_by": [
     "0.20",

@@ -111,3 +111,8 @@ or calibration miss; the tool says "judge again"), never a counted one.
 ## Nov 13: candidates moved (lead rule "Where candidates live")
 - All Gemini raws, keyed cuts and round candidates moved to `pipeline/art/proof/scene/{skyline,paper}/`; `Art/Source/Scene/Paint/out/` is gone. Provenance, critic records and requests/artscene.md paths updated.
 - quality_gate: sprite_check, art_inventory, art_pass_verify, art all PASS. Remaining FAILs (gdd_check, pipeline_check agent_play.py path, audio_scan) are other lanes. Still blocked on request 3 (backdrop texture slot).
+
+## Nov 12 23:05: capture retry, still blocked (ours: none; machine)
+- Merged main (2ccbebdb) and artslots. T_Skyline_PH imported locally; run_game.sh -SmokeShot ran 10 min without finishing; load average 33 -> 151
+  (other lanes' captures and builds). `Flow.SmokeShotDelaySeconds` (5 s wall clock, tuning only, no command-line flag) fires before the first backdrop frame.
+- Needs the lead: a `-SmokeShotDelay=` flag in SmokeHookSubsystem.cpp (not my lane) or an idle machine window. No piece can pass the context pair. Every `_PH` stays; zero spend.
