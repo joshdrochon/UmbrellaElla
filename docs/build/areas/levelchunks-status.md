@@ -27,4 +27,8 @@ between the route and the Keeper: HAZ-02 calls it "a one-room diagnostic prototy
 call with no GDD rule, so it needs a decision row (added: D-new-mill-in-route, default = keep it out).
 Agentplay's journey only drives Start Game, so it never could meet the route. To see the route, a journey must pick
 Director's Cut.
-Doing now: a Level world test that walks Director's Cut start -> CP1..CP3 -> Keeper handoff in one flow (break-proven).
+Done: `UmbrellaElla.Level.World.DirectorsCutWalksRouteToKeeper` walks Director's Cut start -> CP1..CP3 -> short of the
+handoff -> over it -> Keeper fight active, route threats cleared, CP events once each in order. Build exit 0, test PASS;
+break-proven (handoff line moved +100000: FAIL 'handed off', 'route threats cleared'), restored. The Keeper fight also
+raises CheckpointReached for its phases (detail `wings`, source KeeperOfTime); the test counts the director's events only.
+Lead: to see the route in the real game, the journey needs Director's Cut (title menu item 2), not Start Game.
