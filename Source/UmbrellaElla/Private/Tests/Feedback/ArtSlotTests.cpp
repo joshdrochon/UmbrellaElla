@@ -271,6 +271,44 @@ bool FArtSlotKeeperEnemy::RunTest(const FString& Parameters)
 	return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FArtSlotRoadwardenVariants, "UmbrellaElla.Feedback.World.ArtSlotRoadwardenVariants",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+
+bool FArtSlotRoadwardenVariants::RunTest(const FString& Parameters)
+{
+	// Each Roadwarden equipment variant has its own slot row and path.
+	TSet<FString> Slots;
+	for (const ERoadwardenEquipment Equipment : { ERoadwardenEquipment::SundialCaster, ERoadwardenEquipment::ArmillaryLauncher, ERoadwardenEquipment::EscapementRepeater })
+	{
+		for (const EEnemyGender Gender : { EEnemyGender::Male, EEnemyGender::Female })
+		{
+			const FString Id = UEnemyPresenterSubsystem::VisualIdFor(EEnemyType::Roadwarden, Gender, Equipment);
+			const FArtSlotRow* Row = ArtSlot::Find(*Id);
+			if (TestNotNull(*Id, Row))
+			{
+				Slots.Add(ArtSlot::TexturePaths(*Row)[0]);
+			}
+		}
+	}
+	TestEqual(TEXT("six variants, six distinct assets"), Slots.Num(), 6);
+	TestEqual(TEXT("equipment is ignored off Roadwarden"), UEnemyPresenterSubsystem::VisualIdFor(EEnemyType::Floodstrider, EEnemyGender::Male, ERoadwardenEquipment::ArmillaryLauncher), FString(TEXT("enemy:Floodstrider:Male")));
+	UWorld* World = ArtSlotTestWorld();
+	if (!TestNotNull(TEXT("world"), World))
+	{
+		return false;
+	}
+	UEnemyPresenterSubsystem* Presenter = World->GetSubsystem<UEnemyPresenterSubsystem>();
+	AUmbrellaEnemy* Enemy = World->SpawnActor<AUmbrellaEnemy>();
+	if (TestNotNull(TEXT("presenter"), Presenter) && TestNotNull(TEXT("enemy"), Enemy))
+	{
+		TestEqual(TEXT("default variant"), Presenter->VisualIdOf(Enemy), UEnemyPresenterSubsystem::VisualIdFor(EEnemyType::Roadwarden, Enemy->GetGender(), ERoadwardenEquipment::SundialCaster));
+		Presenter->SetEquipment(Enemy, ERoadwardenEquipment::EscapementRepeater);
+		TestEqual(TEXT("stored variant"), Presenter->VisualIdOf(Enemy), UEnemyPresenterSubsystem::VisualIdFor(EEnemyType::Roadwarden, Enemy->GetGender(), ERoadwardenEquipment::EscapementRepeater));
+	}
+	ArtSlotTestEnd(World);
+	return true;
+}
+
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FBackdropCoversRoute, "UmbrellaElla.Feedback.World.BackdropCoversRoute",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
 
