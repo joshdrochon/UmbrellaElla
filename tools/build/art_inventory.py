@@ -27,6 +27,7 @@ import sys
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 sys.path.insert(0, os.path.join(ROOT, "tools"))
+sys.path.insert(0, os.path.join(ROOT, "tools", "build"))
 CSV = os.path.join("docs", "build", "art-inventory.csv")
 CRITIC = os.path.join("pipeline", "art", "critic")
 LANES = ("artella", "artkeeper", "artscene", "artui", "artshots", "artfx", "artenemy")
@@ -254,6 +255,7 @@ def passed_pieces(records=None, root=None):
     """Pieces whose newest tracked round passed (ours or same, checks passed, no pair missing) and whose image hash
     equals the sha256 of the file the record names (it must exist in this tree). Never reads Saved/Logs."""
     import art_loop
+    import art_pass_verify
     root = root or ROOT
     done = set()
     for piece, recs in (records if records is not None else critic_records(root)).items():
@@ -265,8 +267,8 @@ def passed_pieces(records=None, root=None):
         if not (r.get("verdict") in ("ours", "same") and r.get("checks") and not art_loop.missing_pairs(r)
                 and r.get("files") and f and not f.startswith("..") and os.path.isfile(full)):
             continue
-        if art_loop.content_sha(full) == r["files"]:
-            done.add(piece)
+        if art_loop.content_sha(full) == r["files"] and not art_pass_verify.verify_record(root, piece, r, True, False):
+            done.add(piece)   # a pass counts only when its raw panel evidence verifies (tools/build/art_pass_verify.py)
     return done
 
 
