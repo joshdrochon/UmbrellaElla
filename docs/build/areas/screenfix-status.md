@@ -97,7 +97,7 @@ B2 cause (Nov 13): NOT the scene panels. ART_05 off (all USceneArtSubsystem pane
   - Ella's picture is drawn at its own cell size: 114 world units tall (`UmbrellaPresenterConst::ArtCellHeight`), cell aspect wide. The idle figure is 79% of its cell, so about 90 px at 1080p (art bible Asset spec: Ella + open umbrella 80-100 px). State changes swap the sheet layout with the picture (`ArtSlot::SetTexture(Mesh, Texture, Row)`).
   - Light shaft: `EVfxLayer::Backdrop` now draws at ArenaY - 10 (-210): in front of every backdrop and scene picture, behind the arena layer. NAR-05 now reads: thin light down to the canopy, umbra under it.
 - Tests: `UmbrellaElla.ScreenFix.World.PackedSheetDrawsOneCell` (idle row Cols 6 Rows 4; drawn quad U 1/6, V 1/4), `UmbrellaElla.ScreenFix.LightShaftInFrontOfScenePictures` (shaft in front of every scene spec and backdrop layer, behind ArenaY), `tests/test_art_slots.py` `test_packed_standin_sheets_get_their_cell_layout`. `UmbrellaElla.Feedback.World.ArtSlotElla` expectation updated to the cell-size footprint.
-- Header: commit=<this commit> engine=5.8.4 config=Development host=mac run=Standalone (editor -game)
+- Header: commit=82bb0d8c (code; status commit follows) engine=5.8.4 config=Development host=mac run=Standalone (editor -game)
 - Build: `build exit: 0  mode=unity  warnings: 0` (Saved/Logs/pipeline/build-20261113-130023.log). module_check 0, pipeline_check 0, art_slots PASS (107 slots), test_art_slots OK.
 - Tests: `UmbrellaElla.ScreenFix+UmbrellaElla.Feedback+UmbrellaElla.Smoke` `PASS tests=64 failed=0` (../logs/screenfix-b2v-test4.log).
 - Captures (`-SmokeQuitAfter=20 -SmokeShotFrames=10`; with 120 frames Ella has already risen to the ceiling):
