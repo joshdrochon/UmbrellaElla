@@ -39,7 +39,7 @@
     "story": "Story",
     "agent-ops": "Agent Ops"
   },
-  "_kickoff_only_about": "Files only kickoff's own art loop writes and commits (tools/art_loop.py write_record, run by tools/kickoff.py): the art-loop pass records. Every agent session is refused a write (pipeline/agent-ops/hook.py guard) and a commit or push (tools/git_gate.py, JAM_ROLE set); the ship gates re-run the checks anyway (check_pr.py artship, submission_check.py art).",
+  "_kickoff_only_about": "Files only kickoff's own art loop writes and commits (tools/art_loop.py write_record, run by tools/kickoff.py): the art-loop pass records. Every agent session is refused a write (pipeline/agent-ops/hook.py guard; no git hook checks commits); the ship gates re-run the checks anyway (check_pr.py artship, submission_check.py art).",
   "kickoff_only_paths": ["**/*.artloop.json"],
   "role_deny": {
     "asset-specialist": [
@@ -174,6 +174,6 @@
   "daily_token_cap": 20000000,
   "_practice_about": "Practice mode (tools/practice.py): a committed .pipeline-practice marks a test repo. D39 is lifted there; submission, upload and G4 are blocked. real_repo is the team repo: tools/pipeline_check.py fails when the marker is on it (origin URL or GITHUB_REPOSITORY), so CI goes red.",
   "practice": {"marker": ".pipeline-practice", "real_repo": "RickTheBuilder/GameJam2026"},
-  "_agent_env_about": "tools/git_gate.py (git pre-commit and pre-push hooks, every agent): any of these set means an agent runs the commit. A gate-path commit needs JAM_HUMAN=<name> and none of these. CODEX_* names [VERIFY on Codex CLI]: the help does not list the env vars Codex sets; kickoff sets JAM_ROLE for every session anyway.",
+  "_agent_env_about": "tools/git_gate.py apply: any of these set means an agent session, which is refused a gate patch apply (kickoff's --auto route or a person from a plain terminal applies it). No git hook checks commits: check_pr.py rule gate and kickoff's merge gate catch a gate-path change on the PR. CODEX_* names [VERIFY on Codex CLI]: the help does not list the env vars Codex sets; kickoff sets JAM_ROLE for every session anyway.",
   "agent_env": ["JAM_ROLE", "JAM_KICKOFF", "CLAUDECODE", "CODEX_SANDBOX", "CODEX_SANDBOX_NETWORK_DISABLED", "CODEX_THREAD_ID"]
 }

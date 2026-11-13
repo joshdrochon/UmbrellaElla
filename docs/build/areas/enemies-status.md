@@ -1,6 +1,6 @@
 # Enemies status
 
-Build 0 errors; full suite PASS (34 tests); `module_check` 0 problems; `manifest_check` 0 problems.
+Build 0 errors; `TEST_FILTER=UmbrellaElla.BrokenMill` PASS (11 tests, including the two World tests); full-suite count not re-measured here; `module_check` 0 problems; `manifest_check` 0 problems.
 All code is in `Source/UmbrellaElla/{Public,Private}/{Enemy,Trap,BrokenMill}` with tests in `Private/Tests/{Enemy,Trap,BrokenMill}`.
 
 ## Done (rule -> test)
@@ -16,11 +16,18 @@ All code is in `Source/UmbrellaElla/{Public,Private}/{Enemy,Trap,BrokenMill}` wi
 - HAZ-17 pool gate as a rule function -> `BrokenMill.ShotLogAndPoolGate`
 
 ## Not code, not done
-- HAZ-16 human acceptance and HAZ-18 art evidence are human/art gates. HAZ-14/15 runtime sweeps with the real Motor and wind need the integrated build and a human run; only the rule parts are proven here.
+- HAZ-16 human acceptance and HAZ-18 art evidence are human/art gates. A human run of the room is still HAZ-16; the automated HAZ-14/15 checks are below.
 - HAZ-41 floating-ground containment is not in this area's Rule IDs; not built.
 
 ## Open / limits
-- Needs from Core: tuning member, `EnemyKilled` event, working projectile service (see `docs/build/requests/enemies.md`). Until then enemies read `FEnemyTuning()` defaults and broadcast `BossPartDestroyed` Detail=Enemy.
-- Bellows push is a rule value (`FTrapRules::BellowsPush`); the Motor does not read it yet. Mill wind volumes are not spawned (Field lane owns `AWindCurrent`); `SelectWind` is the rule.
+- Core request log: `docs/build/requests/enemies.md`. Enemies broadcast `BossPartDestroyed` Detail=Enemy.
+- Bellows push is a rule value (`FTrapRules::BellowsPush`); the Motor does not read it yet. `ABrokenMillRoom::BuildRoom` now calls `BuildWinds`, which spawns the real `AWindCurrent` bands (upper reset left, lower onward right, `FBrokenMillTuning::WindSpeed` 300 prototype).
 - Gust length/speed, blade count, tooth size are not in the GDD; prototype starts in `FTrapTuning`.
-- Hit detection by the projectile service is untested end to end (service is a stub on this branch).
+
+## Fixenemies pass (HAZ-14, HAZ-15 integrated checks)
+- Real `AEllaCharacter` + Motor + room + real `AWindCurrent` in a transient world:
+  `BrokenMill.World.GuardChecksWithRealElla` (pause freezes the clock then one shot; passing behind cancels, no bullet; pass-behind cancel is position-driven (SetActorLocation; no dash chain reaches the muzzle inside the 1.1 s warning); the abort is driven by real Motor dashes back out of range, no bullet),
+  `BrokenMill.World.WindCarriesEllaPastOneShotPerPass` (current carries Ella right, one warning and one shot, no warning while passing behind, rearm and second warning on a fresh pass).
+- Room fixes: pause is read from the world (`bPaused` was never set), assist/exit now set the no-warning phase, guard events are counted (`GetEventCount`).
+- Found, not fixable in this lane: `AWindCurrent` overlap events carry the pawn's actor name as `TargetId`; the Motor only accepts `Ella`. In play no wind moves Ella. Request with the exact diff: `docs/build/requests/enemies.md`. The test broadcasts the event with `TargetId = Ella` as a workaround.
+- Not covered: the free-rise case (Ella rising 120/s leaves the region before release) is real motion, not tested as a pass; reset-wind sweeps by a human run (HAZ-16).

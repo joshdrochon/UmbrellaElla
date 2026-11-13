@@ -1,4 +1,5 @@
 #include "Story/StorySubsystem.h"
+#include "Core/UmbrellaTuning.h"
 #include "Core/UmbrellaEventBus.h"
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
@@ -168,7 +169,7 @@ void UStorySubsystem::EnsureWidgets()
 		Caption = CreateWidget<UStoryCaptionWidget>(Owner);
 		if (Caption)
 		{
-			Caption->AddToViewport(FStoryTuning::Get().CaptionZOrder);
+			Caption->AddToViewport(GetDefault<UUmbrellaTuning>()->Story.CaptionZOrder);
 		}
 	}
 }
@@ -196,7 +197,7 @@ void UStorySubsystem::Refresh()
 			Statistics->SetStats(Model.GetStats());
 			Statistics->GetTryAgainDelegate().AddUObject(this, &UStorySubsystem::HandleTryAgain);
 			Statistics->GetMainMenuDelegate().AddUObject(this, &UStorySubsystem::HandleMainMenu);
-			Statistics->AddToViewport(FStoryTuning::Get().StatisticsZOrder);
+			Statistics->AddToViewport(GetDefault<UUmbrellaTuning>()->Story.StatisticsZOrder);
 			bStatisticsShown = true;
 		}
 	}

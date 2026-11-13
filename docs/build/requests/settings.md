@@ -33,3 +33,13 @@ No `FSettingsTuning` member exists in `UUmbrellaTuning`. Settings numbers are tr
 IA_* actions are built in C++ by the adapter, so there are no `.uasset` actions to mark player-mappable. Settings
 rebuilds the keys of the live context itself (`ApplyBindingsToContext`) and persists them in
 `Saved/SaveGames/UmbrellaSettings.ini`, so `UEnhancedInputUserSettings` is not used. No change requested.
+
+## 6. Screens read the saved text size and reduced motion (flow / progression lane, FLOW-45)
+Settings now exposes `USettingsMenuSubsystem::GetSavedTextScalePercent()` (100 to 200) and `IsReducedMotionSaved()`.
+Both are stored today but only the Settings menu reads them. Requests:
+- Progression: where the XP ring widget is created, call
+  `Ring->SetReducedMotion(GI->GetSubsystem<USettingsMenuSubsystem>()->IsReducedMotionSaved())`, and re-read on `OnPostWorldInitialization`
+  (the value changes only on Save).
+- Health (`UI/UmbrellaHUD.cpp`, clock text) and flow (menus, story/tutorial text): multiply the font size by
+  `GetSavedTextScalePercent() / SettingsConstants::TextScaleMin`, as `USettingsMenuWidget::ScaledFont` does.
+Both reads are guarded by the FLOW_45 flag on the caller's side.

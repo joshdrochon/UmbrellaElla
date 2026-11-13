@@ -75,7 +75,8 @@ CLOSED = {"G1": "2026-11-12T20:40-08:00", "G2": "2026-11-13T20:30-08:00", "G3": 
           "G4": "2026-11-15T12:20-08:00"}
 RELEASE_UI = "ui_check ci --release: PASS (0 problem(s))"
 GAME_PATHS = ("Source/", "Content/", "Config/", "Plugins/", "UmbrellaElla.uproject", "pipeline/qa/baked.json",
-              "Packaged", "Saved/", ".github/workflows/clock.yml")
+              "Packaged", "Saved/", ".github/workflows/clock.yml",
+              "docs/build/MODE")   # build mode: these sandboxes test the card flow
 PEOPLE = """## People (fill in; card 0.0)
 Rows marked **BLOCKER** stop Day 1.
 | Role | Person | Confirmed? | Day-1 blocker |
@@ -141,6 +142,7 @@ class Sandbox(tus.FakeRepo):
                 os.makedirs(os.path.dirname(dst), exist_ok=True)
                 shutil.copy2(src, dst)
         hermetic.write_planned_test_map(self.path("pipeline", "qa", "test-map.md"))
+        write(self.path("docs", "build", "MODE"), "cards\n")   # the honest jam walks the card flow
         # final-10 A H6: the no-player list as before the jam (card 0.10a adds its row in test_10), never the live one
         hermetic.write_pre_jam_no_player_maps(self.path("pipeline", "qa", "no-player-maps.txt"))
         # The Win64 packaging machine's daily (daily.ps1 there; no PowerShell here): ue_run.py daily run under a Python
@@ -238,8 +240,11 @@ def nested_ci(sb, stage):
     subprocess.run([PY, "tools/export_package.py"], cwd=d, capture_output=True)
 
     def run():
+        # CI's step, so CI's environment: no card-session variables (tests/test__card_session_guard.py stops a full
+        # discover inside a card session)
+        env = {k: v for k, v in os.environ.items() if k not in ("JAM_KICKOFF", "JAM_ROLE")}
         p = subprocess.run([PY, "-m", "unittest", "discover", "-s", "tests", "-v"], cwd=d, capture_output=True,
-                           text=True, env=dict(os.environ, HONEST_JAM_NESTED="1"), timeout=3000)
+                           text=True, env=dict(env, HONEST_JAM_NESTED="1"), timeout=3000)
         bad = [ln for ln in p.stderr.splitlines() if re.match(r"^(FAIL|ERROR): ", ln)]
         return stage, p.returncode, "\n".join(bad[:30]) + "\n" + p.stderr[-1500:]
     return _POOL.submit(run)
@@ -1517,7 +1522,7 @@ class HonestKickoff(unittest.TestCase):
         cls.env = dict(STUB_SLEEP="0.2", STUB_FAIL_ONCE="UE-0.5", STUB_CHANGES_ONCE="UE-0.6",
                        OPENAI_API_KEY="fake-openai-HONESTNEVERINSESSION01234")
         cls.outs, cls.rounds, cls.stop = [], [], None
-        rc, cls.prejam = cls.sb.kickoff("--agent", "codex", **cls.env)
+        rc, cls.prejam = cls.sb.kickoff("--agent", "codex", "--parallel", "3", **cls.env)
         cls.prejam_rc = rc
         cls.prejam_sessions = list(cls.sb.sessions())
         cls.prejam_titles = [i["title"] for i in cls.sb.gh()["issues"]] if os.path.exists(cls.sb.state) else []
@@ -1532,7 +1537,7 @@ class HonestKickoff(unittest.TestCase):
             rc, out = cls.sb.kickoff("--agent", "codex", "--parallel", "3", **cls.env)
             cls.outs.append((rc, out))
         cls.before_rerun = (cls.sb.gh(), len(cls.sb.sessions()))
-        cls.rerun = cls.sb.kickoff("--agent", "codex", **cls.env)
+        cls.rerun = cls.sb.kickoff("--agent", "codex", "--parallel", "3", **cls.env)
 
     @classmethod
     def tearDownClass(cls):

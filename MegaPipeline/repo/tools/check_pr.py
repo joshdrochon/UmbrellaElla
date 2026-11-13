@@ -120,11 +120,13 @@ Also checks:
   editor    if a changed path (--changed or "What changed") is a .uasset or .umap (editor MCP work included), Evidence
             has an `EDITOR CHECK: by=<the card's human> opened=<path>[,<path>...] ok` line naming every changed asset:
             the card's human opened each one in the editor and checked it (pipeline/agent-ops/editor-mcp.md)
-  gate      a changed path that is a gate path (pipeline/agent-ops/gates.json gate_paths) is named in a
-            `GATE EDIT: by=<name> <path>[,<path>]` line under Evidence. by=kickoff: kickoff applied the session's
-            gate.patch through the tool checks (tools/git_gate.py apply --auto), and this rule re-runs them with --card
-            and --base (lane, guardrail enforcers, no loosening). Any other by= is the card's Human or the TD human
-            (JAM_HUMAN route). The git hooks stop agent commits for every agent; this is the CI backstop
+  gate      a changed path that is a gate path (pipeline/agent-ops/gates.json gate_paths). On a card PR it came
+            through kickoff's tool route, read from git (base..head), not from the PR body: every commit that changes
+            a gate path has the trailer `GATE EDIT: by=kickoff <path>[,<path>]` (tools/git_gate.py apply --auto)
+            naming it, and this rule re-runs the tool checks with --card, --base and --head (lane, guardrail
+            enforcers, no loosening). A person's `GATE EDIT: by=<name>` line fails on a card PR (no human route an
+            agent cannot forge). A PR with no card: a `GATE EDIT: by=<name> <path>[,<path>]` line under Evidence.
+            No local git hook checks gate paths: this rule and kickoff's merge gate do
   task      the Task section links the card: `Part of #<n>` (D-new-port-1 default) or
             `Closes|Fixes|Resolves #<n>`. Both pass until D-new-port-1 is decided
   links     every line under "Not done / risks" (except "none" and the Next: line) has a link:
@@ -706,33 +708,6 @@ def gate_globs(root):
         return []
 
 
-def card_human(card):
-    if not card:
-        return None
-    try:
-        import check_card
-        got = check_card.parse(card.get("body") or "", check_card.template_fields(ROOT))
-        human = ((got[0] if isinstance(got, tuple) else got).get("Human") or "").strip()
-        return re.sub(r"\s*\(.*\)\s*$", "", human).strip() or None   # "Rick (sign-off: ...)" -> "Rick"
-    except Exception:  # pragma: no cover
-        return None
-
-
-def td_human(root):
-    """The TD human's name from the docs/jam-brief.md People table (the gate owner), or None."""
-    try:
-        with open(os.path.join(root, "docs", "jam-brief.md"), encoding="utf-8") as fh:
-            text = fh.read()
-    except OSError:
-        return None
-    for ln in text.splitlines():
-        cells = [c.strip() for c in ln.strip().strip("|").split("|")]
-        if len(cells) >= 2 and cells[0].lower().startswith("technical director, human"):
-            name = re.split(r"[ ,(]", cells[1])[0]
-            return None if not name or name.upper() == "TBD" else name
-    return None
-
-
 def norm_path(p):
     """A path as written in a PR: quotes and trailing punctuation off, a leading ./ off; a leading dot stays
     (.github/, .claude/, .gitignore are gate paths)."""
@@ -768,54 +743,100 @@ def file_reader(root, sha):
     return read_at
 
 
+def gate_commits(root, base, head):
+    """[(sha, message, [paths])] for each non-merge commit in base..head, or None when git cannot read the range."""
+    r = subprocess.run(["git", "log", "--no-merges", "--no-renames", "--name-only", "--format=%x00%H%x01%B%x02",
+                        f"{base}..{head}"], cwd=root, capture_output=True, text=True)
+    if r.returncode != 0:
+        return None
+    out = []
+    for rec in r.stdout.split("\x00")[1:]:
+        sha, _, rest = rec.partition("\x01")
+        msg, _, names = rest.partition("\x02")
+        out.append((sha.strip(), msg, [n.strip() for n in names.splitlines() if n.strip()]))
+    return out
+
+
+def trailer_paths(msg, by):
+    """The paths a commit message's `GATE EDIT: by=<by> <paths>` trailer lists (empty set = no such trailer)."""
+    got = set()
+    for m in GATE_EDIT.finditer(msg or ""):
+        if m.group("by").strip("<>").lower() == by:
+            got.update(norm_path(x) for x in m.group("paths").split(","))
+    return got
+
+
+def is_card_pr(s, card):
+    return bool(card) or bool(card_id(s)) or bool(TASK_LINK.search(s.get("Task", "")))
+
+
 def gate_problems(s, changed, root=ROOT, card=None, head=None, base=None):
-    """Rule gate: a changed gate path (gates.json gate_paths) is never an agent session's own commit. Every one is
-    named in a `GATE EDIT: by=<name> <path>[,<path>...]` line under Evidence. by=kickoff is the tool route
-    (tools/git_gate.py apply --auto): CI re-runs git_gate.auto_problems on it (every path in the linked card's File
-    lane, no guardrail enforcer changed, no guardrail file loosened against --base), so it needs --card and --base.
-    Any other by= is a person: the linked card's Human or the TD human (docs/jam-brief.md People) when the card is
-    known. The git pre-commit and pre-push hooks (tools/git_gate.py) stop agent commits locally for every agent;
-    this rule is the CI backstop."""
+    """Rule gate: a changed gate path (gates.json gate_paths) is never an agent session's own commit.
+    On a card PR the only route is kickoff's tool route (tools/git_gate.py apply --auto), read from the git history
+    of the PR head, never from the PR body (the agent writes the body): every non-merge commit in base..head that
+    changes a gate path carries the trailer `GATE EDIT: by=kickoff <path>[,<path>...]` naming each gate path it
+    changes, and the rule re-runs git_gate.auto_problems on the result (every path in the linked card's File lane, no
+    guardrail enforcer changed, no guardrail file loosened against --base). A trailer is commit text an agent could
+    also type; that buys it nothing, because the re-check is the same policy kickoff applies. A person's
+    `GATE EDIT: by=<name>` line does not pass on a card PR: no record of a human commit exists that an agent cannot
+    forge (JAM_HUMAN is an env var, the journal is a local file agents write), so the rule fails closed.
+    A PR with no card (a person's pipeline PR): a `GATE EDIT: by=<name> <path>[,<path>...]` line under Evidence names
+    each gate path. No local git hook checks gate paths (Josh, 12 Nov): this rule, and kickoff's merge gate running
+    it from the base checkout, catch an agent's gate-path change."""
     sys.path.insert(0, os.path.join(root, "tools"))
     import git_gate
     paths = {norm_path(p) for p in list(changed or []) + re.findall(r"[\w./{}*-]+", s.get("What changed", ""))}
-    hits = git_gate.gate_hits(sorted(p for p in paths if p and "*" not in p), gate_globs(root))
+    globs = gate_globs(root)
+    hits = git_gate.gate_hits(sorted(p for p in paths if p and "*" not in p), globs)
     if not hits:
         return []
     ev = re.sub(r"<!--.*?-->", "", s.get("Evidence", ""), flags=re.S)
-    human = card_human(card)
-    td = td_human(root)
-    named, wrong, tool = set(), [], []
+    how = ("kickoff applies a session's gate.patch (tools/git_gate.py apply --auto), which commits it with the "
+           "trailer `GATE EDIT: by=kickoff <path>[,<path>]`")
+    if is_card_pr(s, card):
+        if not (card and base and head):
+            return [f"PR changes {len(hits)} gate path(s) ({', '.join(hits[:5])}): the rule gate needs the linked "
+                    "card, --base and --head to read kickoff's gate commits from git (AGENTS.md section 7)"]
+        commits = gate_commits(root, base, head)
+        if commits is None:
+            return [f"gate: git cannot read {base[:12]}..{head[:12]} to find kickoff's gate commits (the checkout "
+                    "needs the PR history: fetch-depth 0)"]
+        out, done = [], set()
+        for sha, msg, names in commits:
+            touched = git_gate.gate_hits(sorted(norm_path(n) for n in names), globs)
+            if not touched:
+                continue
+            listed = trailer_paths(msg, git_gate.AUTO_BY)
+            bad = [t for t in touched if t not in listed]
+            if bad:
+                out.append(f"gate: commit {sha[:12]} changes gate path(s) {', '.join(bad[:5])} and is not kickoff's "
+                           "gate commit (no `GATE EDIT: by=kickoff` trailer naming them): agent sessions never commit "
+                           f"gates (AGENTS.md section 7); {how}")
+            done.update(t for t in touched if t in listed)
+        missing = [h for h in hits if h not in done]
+        if missing and not out:
+            out.append(f"gate: no kickoff gate commit in {base[:12]}..{head[:12]} changes {', '.join(missing[:5])}; "
+                       + how)
+        people = [m.group("by").strip("<>") for m in GATE_EDIT.finditer(ev)
+                  if m.group("by").strip("<>").lower() != git_gate.AUTO_BY]
+        if out and people:
+            out.append(f"gate: a person's `GATE EDIT: by={people[0]}` line in the PR body does not pass on a card PR "
+                       "(an agent can write it); only kickoff's tool route does")
+        if out:
+            return out
+        why = git_gate.auto_problems(hits, card_lanes(card), file_reader(root, base), file_reader(root, head))
+        return [f"gate: the tool route's gate commit fails its re-check: {w}" for w in why[:4]]
+    named = set()
     for m in GATE_EDIT.finditer(ev):
         by = m.group("by").strip("<>")
-        listed = {x.strip() for x in m.group("paths").split(",")}
-        if by.lower() == git_gate.AUTO_BY:
-            mine = sorted(h for h in hits if h in listed)
-            if not (card and base):
-                tool.append("a `GATE EDIT: by=kickoff` line needs the linked card and the base commit to re-check")
-                continue
-            why = git_gate.auto_problems(mine, card_lanes(card), file_reader(root, base), file_reader(root, head))
-            if why:
-                tool += why
-                continue
-            named.update(listed)
+        if by.lower() in NOT_A_HUMAN or by.lower() == git_gate.AUTO_BY:
             continue
-        if by.lower() in NOT_A_HUMAN:
-            continue
-        if human and by.lower() != human.lower() and not (td and by.lower() == td.lower()):
-            wrong.append(by)
-            continue
-        named.update(listed)
+        named.update(norm_path(x) for x in m.group("paths").split(","))
     missing = [h for h in hits if h not in named]
-    out = [f"gate: the tool route's GATE EDIT fails its re-check: {w}" for w in tool[:4]]
     if not missing:
-        return out
-    who = f"by={human}" if human else "by=<the card's Human>"
-    extra = f" (GATE EDIT by={', '.join(wrong)} is not the card's Human {human})" if wrong else ""
-    return out + [f"PR changes {len(missing)} gate path(s) nobody claimed ({', '.join(missing[:5])}){extra}: agent "
-                  f"sessions never commit gates (AGENTS.md section 7). kickoff applies a session's gate.patch "
-                  f"(`GATE EDIT: by=kickoff <path>[,<path>]`, tools/git_gate.py apply --auto), or a person pastes "
-                  f"`GATE EDIT: {who} <path>[,<path>]` under Evidence"]
+        return []
+    return [f"PR changes {len(missing)} gate path(s) nobody claimed ({', '.join(missing[:5])}): on a PR with no card, "
+            "a person pastes `GATE EDIT: by=<name> <path>[,<path>]` under Evidence; on a card PR, " + how]
 
 
 GDD_PATHS = ("docs/gdd/", "docs/feature-manifest.json")

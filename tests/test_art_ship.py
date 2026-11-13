@@ -39,20 +39,24 @@ _TEAM_FRAME = {}
 
 
 def team_quality_frame():
-    """One 640x512 frame cut from the team's owl sheet: art that clears the owl bar (a stand-in for a Blender render
-    that reached it; not a byte copy of any reference file). Cached: the source sheet is large."""
+    """One 640x512 frame holding the GDD SH1.0 Keeper cut from Ricky's sheet (discord-crops/keeper-side.png, centred on
+    a transparent frame): art that clears the owl bar (a stand-in for a Blender render that reached it; not a byte copy
+    of any reference file). The organic owl sheet (owl-flap) no longer clears it: GDD SH1.0 wins (12 Nov)."""
     if "path" not in _TEAM_FRAME:
         from png import read_png
-        w, h, rows = read_png(os.path.join(ROOT, "pipeline", "art", "reference", "Test_Assets",
-                                           "CHR_Owl_Flap_Damage.png"))
+        w, h, rows = read_png(os.path.join(ROOT, "pipeline", "art", "reference", "discord-crops", "keeper-side.png"))
+        x0, y0 = (640 - w) // 2, (512 - h) // 2
+        frame = [[(0, 0, 0, 0)] * 640 for _ in range(512)]
+        for y in range(h):
+            frame[y0 + y][x0:x0 + w] = [tuple(p) for p in rows[y]]
         p = os.path.join(tempfile.mkdtemp(), "owl_frame.png")
-        write_png(p, 640, 512, [r[:640] for r in rows[:512]])
+        write_png(p, 640, 512, frame)
         _TEAM_FRAME["path"] = p
     return _TEAM_FRAME["path"]
 
 
-OWL_ORIGIN = ("rendered in jam; Blender 5.2.1 render from pipeline/art/blender; style targets for piece owl: owl-flap "
-              "(reference only, never shipped)")
+OWL_ORIGIN = ("rendered in jam; Blender 5.2.1 render from pipeline/art/blender; style targets for piece owl: "
+              "discord-crop-keeper (reference only, never shipped)")
 
 
 @unittest.skipIf(hermetic.refs_left_out(), hermetic.LEFT_OUT)
@@ -244,7 +248,7 @@ class CheckPrArtship(ShipRepo):
 
 class ForgedRecords(ShipRepo):
     """Josh, 11 Nov: the gate never takes a record's word. It re-runs the deterministic checks on the shipped bytes,
-    and no agent session can write or commit a record (hook, git_gate, art_loop itself)."""
+    and no agent session can write a record (hook, art_loop itself). No git hook checks commits (Josh, 12 Nov)."""
     CRUDE = "Art/Sprites/Owl/owl_crude.png"
 
     def hand_written(self, rel, piece="owl", card="0.10b"):
@@ -293,7 +297,7 @@ class ForgedRecords(ShipRepo):
             del os.environ["JAM_ROLE"]
         self.assertIsNotNone(self.record(self.IMG), "kickoff's own process writes it")
 
-    def test_broken_on_purpose_the_hook_and_git_refuse_agents(self):
+    def test_broken_on_purpose_the_hook_refuses_agents(self):
         import subprocess
         hook = os.path.join(ROOT, "pipeline", "agent-ops", "hook.py")
         env = dict(os.environ, CLAUDE_PROJECT_DIR=self.root, JAM_ROLE="asset-specialist", AGENT_OPS_PLATFORM="linux")
@@ -306,13 +310,6 @@ class ForgedRecords(ShipRepo):
                     capture_output=True, text=True, env=env)
                 self.assertEqual(p.returncode, 2, p.stderr)
                 self.assertIn("art-loop pass record", p.stderr)
-        import git_gate
-        gates = json.load(open(os.path.join(ROOT, "pipeline", "agent-ops", "gates.json")))
-        ok, msg = git_gate.decide(["Art/Sprites/Owl/owl_still.artloop.json"], {"JAM_ROLE": "asset-specialist"}, gates)
-        self.assertFalse(ok)
-        self.assertIn("art-loop pass record", msg)
-        self.assertTrue(git_gate.decide(["Art/Sprites/Owl/owl_still.artloop.json"], {}, gates)[0],
-                        "kickoff commits it from its own process")
 
 
 class SubmissionArt(ShipRepo):

@@ -43,7 +43,7 @@ Josh: no PR/CI ceremony, every quality check kept, per-merge checks only for wha
 | automation tests for the touched prefixes (`tools/build/gate_plan.py`) | Source changed | yes |
 | `module_check`, `manifest_check`, `feel_check`, `encounter_check` | when their files changed | yes |
 | `tools/build/quality_gate.py`: art (art loop pass record), audio (audio_check + audio_style_check) | art/audio changed | ship only on pass: below-bar pieces stay tracked placeholders |
-| `quality_gate.py`: `ui_check ci`, `story_check`, `bake_preset defaults` (tuning bakes) | always | no new FAIL vs main |
+| `quality_gate.py`: `ui_check ci`, `story_check`, `bake_preset defaults`, `pipeline_check` | always | no new FAIL vs main |
 | `submission_check prejam` / `assets` | always / content changed | yes |
 | audio critic (`tools/build/critic.sh audio`, blind session per sound id, `tools/audio_loop.py` packet) | sounds changed | no: a failed piece becomes a tracked placeholder (gate commit sets provenance origin `placeholder: audio critic fail`) |
 | story critic (`tools/build/critic.sh story`) | story changed | yes |
@@ -72,6 +72,7 @@ If git hooks block a commit, use `git -c core.hooksPath=NUL commit` (the gate-gu
 Never commit `~/.umbrella-ella.env` or any key.
 
 ## Follow-up list (minor review findings)
+- Flow: queue a level-up that arrives while another screen is open and show it when that screen closes (D-new-levelup-queue); today it is dropped. Next flow pass after flowroute.
 - Keeper (review): with OWL-35 off a final hit leaves the fight Active with the model halted; LivesLostThisPhase written, never read; StartTransition zeroes stun without StunEnded; stun does not freeze queued shots; gust push uses unscaled delta.
 - Progression: the run-start checkpoint is written before the run-2 reallocation, so a boss retry reverts it.
 - Settings must call visuals' SetReducedFlash.

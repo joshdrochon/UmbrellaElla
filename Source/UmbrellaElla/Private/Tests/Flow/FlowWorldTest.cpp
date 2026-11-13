@@ -286,3 +286,48 @@ bool FFlowWorldPurchaseDraftTest::RunTest(const FString& Parameters)
 	Progression->EndShadowProgress();
 	return true;
 }
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFlowWorldLevelUpTest, "UmbrellaElla.Flow.World.LevelUpShowsAndResumes",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FFlowWorldLevelUpTest::RunTest(const FString& Parameters)
+{
+	FFlowTestWorld Test;
+	Test.Instance->Init();
+	// The XP ring is a widget and needs a local player.
+	Test.Controller->SetPlayer(NewObject<ULocalPlayer>(GEngine, GEngine->LocalPlayerClass));
+	Test.Controller->StartDirectorsCut();
+	if (!TestEqual(TEXT("playing"), Test.Controller->GetScreen(), EFlowScreen::Playing))
+	{
+		return false;
+	}
+	FUmbrellaEvent Event;
+	Event.Type = EUmbrellaEventType::LevelGained;
+	Event.Amount = 3;
+	UUmbrellaEventBus::Get(Test.World)->Broadcast(Event);
+	TestEqual(TEXT("level-up screen opens"), Test.Controller->GetScreen(), EFlowScreen::LevelUp);
+	TestEqual(TEXT("it shows the new level"), Test.Controller->GetLevelUpShown(), 3);
+	TestTrue(TEXT("gameplay input is off"), Test.Controller->IsGameplayInputBlocked());
+	Test.Controller->ApplyCommand(EFlowCommand::Back);
+	TestEqual(TEXT("back waits for neutral input"), Test.Controller->GetScreen(), EFlowScreen::Resuming);
+	for (int32 Step = 0; Step < 20 && Test.Controller->GetScreen() == EFlowScreen::Resuming; ++Step)
+	{
+		Test.Controller->TickFlow(0.5f);
+	}
+	TestEqual(TEXT("gameplay resumes"), Test.Controller->GetScreen(), EFlowScreen::Playing);
+	TestFalse(TEXT("input is back on"), Test.Controller->IsGameplayInputBlocked());
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFlowWorldNoLevelUpInStartGameTest, "UmbrellaElla.Flow.World.NoLevelUpScreenInStartGame",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FFlowWorldNoLevelUpInStartGameTest::RunTest(const FString& Parameters)
+{
+	FFlowTestWorld Test;
+	Test.Controller->StartGame();
+	FUmbrellaEvent Event;
+	Event.Type = EUmbrellaEventType::LevelGained;
+	Event.Amount = 2;
+	UUmbrellaEventBus::Get(Test.World)->Broadcast(Event);
+	TestEqual(TEXT("Start Game has no level-up screen"), Test.Controller->GetScreen(), EFlowScreen::Playing);
+	return true;
+}

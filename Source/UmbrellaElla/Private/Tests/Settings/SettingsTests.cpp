@@ -18,6 +18,12 @@
 #include "Settings/SettingsStore.h"
 #include "Sound/SoundClass.h"
 #include "UI/Settings/SettingsMenuWidget.h"
+#include "Core/EllaCharacter.h"
+#include "EnhancedInputComponent.h"
+#include "Engine/World.h"
+#include "Feedback/Vfx/UmbrellaVfxSubsystem.h"
+#include "Input/EllaInputAdapterComponent.h"
+#include "Tests/Shared/UmbrellaTestWorld.h"
 
 namespace
 {
@@ -324,6 +330,123 @@ bool FSettingsWidgetBackTest::RunTest(const FString& Parameters)
 	Widget->BeginRemap(EUmbrellaInputAction::Shoot, 0);
 	Widget->CaptureKey(EKeys::Escape);
 	TestFalse(TEXT("Escape cancels a remap"), Subsystem->GetSession().IsDirty());
+	SettingsStore::Delete(Path);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FSettingsReducedFlashTest, "UmbrellaElla.Settings.World.ReducedFlashReachesVfx", SettingsFlags)
+bool FSettingsReducedFlashTest::RunTest(const FString& Parameters)
+{
+	const FString Path = ScratchPath(TEXT("flash.ini"));
+	SettingsStore::Delete(Path);
+	UGameInstance* GameInstance = NewObject<UGameInstance>(GEngine);
+	GameInstance->InitializeStandalone();
+	USettingsMenuSubsystem* Subsystem = GameInstance->GetSubsystem<USettingsMenuSubsystem>();
+	if (!TestNotNull(TEXT("game instance owns the settings subsystem"), Subsystem))
+	{
+		return false;
+	}
+	Subsystem->SetStorePath(Path);
+	Subsystem->ReloadFromStore();
+	FUmbrellaTestWorld TestWorld;
+	UWorld* World = TestWorld.GetWorld();
+	UUmbrellaVfxSubsystem* Vfx = World ? World->GetSubsystem<UUmbrellaVfxSubsystem>() : nullptr;
+	if (!TestNotNull(TEXT("world has the Vfx subsystem"), Vfx))
+	{
+		return false;
+	}
+	World->SetGameInstance(GameInstance);
+	TestFalse(TEXT("reduced flash defaults off"), Subsystem->GetSession().GetSaved().bReducedFlash);
+	Subsystem->EditSession().SetReducedFlash(true);
+	TestFalse(TEXT("draft change does not reach Vfx before Save"), Vfx->IsReducedFlash());
+	TestEqual(TEXT("Save succeeds"), Subsystem->SaveSettings(ESettingsPage::Sound), ESettingsResult::Ok);
+	TestTrue(TEXT("saved copy has reduced flash"), Subsystem->GetSession().GetSaved().bReducedFlash);
+	// SaveSettings pushes to the game instance's own world; the test world is a separate one, so it
+	// receives the saved value through the world-init hook, the same path a real level load takes.
+	Subsystem->HandleWorldInit(World);
+	TestTrue(TEXT("world init applies the saved value"), Vfx->IsReducedFlash());
+
+	// A world of another game instance is left alone.
+	Vfx->SetReducedFlash(false);
+	World->SetGameInstance(nullptr);
+	Subsystem->HandleWorldInit(World);
+	TestFalse(TEXT("another game instance's world is untouched"), Vfx->IsReducedFlash());
+	SettingsStore::Delete(Path);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FSettingsSaveFailedTest, "UmbrellaElla.Settings.SaveFailureKeepsMenuOpen", SettingsFlags)
+bool FSettingsSaveFailedTest::RunTest(const FString& Parameters)
+{
+	// A directory where the file should go makes the write fail.
+	const FString Path = ScratchPath(TEXT("blocked.ini"));
+	IFileManager::Get().MakeDirectory(*Path, true);
+	USoundClass* Master = nullptr;
+	USoundClass* Sfx = nullptr;
+	USoundClass* Music = nullptr;
+	USettingsMenuSubsystem* Subsystem = MakeSubsystem(Path, Master, Sfx, Music);
+	USettingsMenuWidget* Widget = NewObject<USettingsMenuWidget>(GetTransientPackage());
+	Widget->Setup(Subsystem, EUmbrellaPlayMode::StartGame);
+	Widget->ShowPage(ESettingsPage::Sound);
+	Subsystem->EditSession().SetMusicVolume(12);
+	TestEqual(TEXT("Save reports Failed"), Subsystem->SaveSettings(ESettingsPage::Sound), ESettingsResult::Failed);
+
+	Subsystem->EditSession().SetMusicVolume(13);
+	Widget->PressSave();
+	TestTrue(TEXT("Save button shows the warning"), Widget->IsSaveFailedShown());
+	Subsystem->EditSession().SetMusicVolume(14);
+	Widget->PressBack();
+	Widget->ChooseBack(ESettingsBackChoice::Save);
+	TestTrue(TEXT("Back then Save keeps the warning and does not close"), Widget->IsSaveFailedShown());
+	IFileManager::Get().DeleteDirectory(*Path, false, true);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FSettingsSavedKeyLiveTest, "UmbrellaElla.Settings.World.SavedBindingReachesLiveContext", SettingsFlags)
+bool FSettingsSavedKeyLiveTest::RunTest(const FString& Parameters)
+{
+	const FString Path = ScratchPath(TEXT("live.ini"));
+	SettingsStore::Delete(Path);
+	UGameInstance* GameInstance = NewObject<UGameInstance>(GEngine);
+	GameInstance->InitializeStandalone();
+	USettingsMenuSubsystem* Subsystem = GameInstance->GetSubsystem<USettingsMenuSubsystem>();
+	if (!TestNotNull(TEXT("game instance owns the settings subsystem"), Subsystem))
+	{
+		return false;
+	}
+	Subsystem->SetStorePath(Path);
+	Subsystem->ReloadFromStore();
+	Subsystem->EditSession().Remap(EUmbrellaInputAction::Shoot, 0, EKeys::F);
+	Subsystem->SaveSettings(ESettingsPage::Controller);
+
+	FUmbrellaTestWorld TestWorld;
+	UWorld* World = TestWorld.GetWorld();
+	AEllaCharacter* Ella = World ? TestWorld.SpawnElla() : nullptr;
+	if (!TestNotNull(TEXT("Ella spawned"), Ella))
+	{
+		SettingsStore::Delete(Path);
+		return false;
+	}
+	World->SetGameInstance(GameInstance);
+	// Respawn path: BindInput builds a fresh IMC_Default and applies the saved keys.
+	Ella->GetInputAdapter()->BindInput(NewObject<UEnhancedInputComponent>(Ella));
+	const UInputMappingContext* Context = Ella->GetInputAdapter()->GetMappingContext();
+	bool bShootOnF = false;
+	bool bShootOnOld = false;
+	const FKey OldKey = SettingsRules::MakeDefaults().Bindings[SettingsRules::FindBindingIndex(SettingsRules::MakeDefaults().Bindings, EUmbrellaInputAction::Shoot, 0)].Key;
+	if (TestNotNull(TEXT("Ella has a mapping context"), Context))
+	{
+		for (const FEnhancedActionKeyMapping& Mapping : Context->GetMappings())
+		{
+			if (Mapping.Action && Mapping.Action->GetFName() == UmbrellaInputBindings::ActionName(EUmbrellaInputAction::Shoot))
+			{
+				bShootOnF |= Mapping.Key == EKeys::F;
+				bShootOnOld |= Mapping.Key == OldKey;
+			}
+		}
+	}
+	TestTrue(TEXT("saved Shoot key is live after respawn"), bShootOnF);
+	TestFalse(TEXT("the old Shoot key is gone"), bShootOnOld);
 	SettingsStore::Delete(Path);
 	return true;
 }

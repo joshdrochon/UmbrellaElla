@@ -6,8 +6,10 @@ check_pr passes; anything else blocks the merge and, after the retry, asks a hum
 Each case is a test that failed on the code before the fix."""
 import os
 import shutil
+import subprocess
 import sys
 import threading
+import time
 import unittest
 import unittest.mock
 
@@ -610,6 +612,122 @@ class GitHubOutageNeverCrashesTheRun(unittest.TestCase):
             with self.assertRaises(kickoff.GHError):
                 gh.issues()
         self.assertEqual(lines, [])
+
+class AutoParallel(unittest.TestCase):
+    """No --parallel: kickoff starts every ready card whose lane overlaps no running card's (bounded by the CPU
+    count), not a fixed 2. Four day-0 cards with no After and disjoint lanes build at the same time; --parallel 2
+    (or KICKOFF_PARALLEL) caps them at 2. Broken on purpose (the old fixed default of 2): the peak is 2."""
+
+    ONLY = "0.0,0.2,0.7,0.19"
+
+    def setUp(self):
+        self.sb = ks.KickoffSandbox(thj.PEOPLE)
+        self.addCleanup(self.sb.close)
+
+    def peak(self):
+        spans, open_ = [], {}
+        for s in self.sb.sessions():
+            if s.get("review") or not s["card"].startswith("UE-"):
+                continue
+            if s["event"] == "start":
+                open_[s["card"]] = s["t"]
+            elif s["event"] == "end" and s["card"] in open_:
+                spans.append((open_.pop(s["card"]), s["t"]))
+        return max((sum(1 for a, b in spans if a <= t < b) for t, _ in spans), default=0)
+
+    def test_four_ready_cards_start_together_without_a_flag(self):
+        self.assertGreaterEqual(os.cpu_count() or 1, 4, "needs a machine with 4 CPUs")
+        rc, out = self.sb.kickoff("--agent", "codex", "--practice", STUB_DAY0_ONLY=self.ONLY, STUB_SLEEP="4")
+        self.assertEqual(rc, 0, out)
+        self.assertEqual(self.peak(), 4, out[-3000:])
+
+    def test_parallel_flag_caps(self):
+        rc, out = self.sb.kickoff("--agent", "codex", "--practice", "--parallel", "2", STUB_DAY0_ONLY=self.ONLY,
+                                  STUB_SLEEP="4")
+        self.assertEqual(rc, 0, out)
+        self.assertEqual(self.peak(), 2, out[-3000:])
+
+    def test_session_cap(self):
+        cpus = os.cpu_count() or 1
+        self.assertEqual(kickoff.session_cap(0), cpus)
+        self.assertEqual(kickoff.session_cap(2), min(2, cpus))
+        self.assertEqual(kickoff.session_cap(10 ** 6), cpus)
+
+
+class TwoMachinesAtOnce(unittest.TestCase):
+    """The Mac and the Windows packaging machine run kickoff at the same time on one repo: each card job runs on one
+    machine only. Both Producers can file a card twice; only the oldest issue runs. A card another machine claimed
+    (KICKOFF CLAIM comment) waits; the claim read-back settles two claims made in the same second. Broken on purpose
+    (no claim, no twin check): every card was built on both machines, 4 of 4, simultaneous or 'doing' first."""
+
+    ONLY = "0.0,0.2,0.7,0.19"   # cards with no `Runs on:` line and no After: both machines may build each one
+    MACHINES = {"mac": dict(AGENT_OPS_PLATFORM="darwin", KICKOFF_MAC_MACHINE="0", KICKOFF_PACKAGING_MACHINE="0"),
+                "win": dict(AGENT_OPS_PLATFORM="win32", KICKOFF_MAC_MACHINE="0", KICKOFF_PACKAGING_MACHINE="1")}
+
+    def setUp(self):
+        self.sb = ks.KickoffSandbox(thj.PEOPLE)
+        self.addCleanup(self.sb.close)
+        with open(os.path.join(self.sb.repo, kickoff.practice.MARKER), "w", encoding="utf-8") as fh:
+            fh.write(kickoff.practice.MARKER_TEXT)
+        self.sb.git("add", "-A")
+        self.sb.git("commit", "-q", "-m", "practice repo")
+        self.sb.git("push", "-q", "origin", "main")
+        self.repos = {"mac": self.sb.repo, "win": self.sb.second_machine("win")}
+
+    def start(self, name):
+        env = self.sb.machine_env(name, STUB_DAY0_ONLY=self.ONLY, STUB_SLEEP="2", **self.MACHINES[name])
+        return subprocess.Popen([sys.executable, "tools/kickoff.py", "--agent", "codex", "--parallel", "2"],
+                                cwd=self.repos[name], env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                text=True)
+
+    def doing(self):
+        try:
+            return any("doing" in i["labels"] for i in self.sb.gh()["issues"])
+        except (OSError, ValueError):   # not written yet, or mid-write
+            return False
+
+    def run_both(self, doing_first):
+        outs = []
+        for _ in range(5):
+            procs = {"mac": self.start("mac")}
+            if doing_first:   # the Windows kickoff starts once the Mac has moved a card to `doing`
+                deadline = time.time() + 300
+                while not self.doing() and time.time() < deadline and procs["mac"].poll() is None:
+                    time.sleep(0.1)
+                doing_first = False
+            procs["win"] = self.start("win")
+            for name, p in procs.items():
+                out = p.communicate(timeout=1200)[0]
+                self.assertEqual(p.returncode, 0, f"{name}:\n{out[-3000:]}")
+                self.assertNotIn("ERROR", out, f"{name}:\n{out[-3000:]}")
+                outs.append(out)
+            answered, _ = self.sb.human_round()
+            if not answered:
+                break
+        return "\n".join(outs)
+
+    def check(self, out):
+        built = {n: [s["card"] for s in self.sb.machine_sessions(n) if s["event"] == "start" and not s.get("review")
+                     and s["card"].startswith("UE-")] for n in self.MACHINES}
+        reviewed = [s["card"] for n in self.MACHINES for s in self.sb.machine_sessions(n)
+                    if s["event"] == "start" and s.get("review")]
+        cards = ["UE-" + k for k in self.ONLY.split(",")]
+        self.assertEqual(sorted(built["mac"] + built["win"]), sorted(cards), (built, out[-4000:]))
+        self.assertEqual(sorted(reviewed), sorted(cards), "one review per card, on one machine")
+        s = self.sb.gh()
+        self.assertEqual(sorted(p["headRefName"].split("-")[1] for p in s["prs"]), sorted(self.ONLY.split(",")))
+        self.assertTrue(all(p["state"] == "MERGED" for p in s["prs"]), s["prs"])
+        for it in s["issues"]:
+            if "task" in it["labels"]:
+                self.assertEqual(it["state"], "CLOSED", it["title"])
+                self.assertEqual(kickoff.active_claims(it["comments"]), [], it["title"])
+        self.assertNotIn("push of", out, "no machine pushed over the other's branch")
+
+    def test_both_start_in_the_same_second(self):
+        self.check(self.run_both(doing_first=False))
+
+    def test_the_second_machine_starts_while_a_card_is_doing(self):
+        self.check(self.run_both(doing_first=True))
 
 
 if __name__ == "__main__":

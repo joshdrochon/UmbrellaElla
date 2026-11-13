@@ -1,4 +1,4 @@
-> Generated from `pipeline/agent-ops/README.md`, `pipeline/agent-ops/gates.json`, `pipeline/agent-ops/settings.json`, `pipeline/agent-ops/agent-tools.json`, `pipeline/agent-ops/components.csv`, `pipeline/agent-ops/model-tiers.md`, `pipeline/agent-ops/model-prices.json`, `pipeline/agent-ops/asset-tools.json`, `pipeline/agent-ops/editor-mcp.md`, `pipeline/agent-ops/mcp.template.json`, `tools/editor_mcp.py`, `pipeline/agent-ops/mcp.tools.template.json`, `tools/mcp_config.py`, `tools/kickoff.sh`, `tools/kickoff.ps1`, `tools/kickoff.py`, `tools/connections.py`, `tools/keys.py`, `tools/practice.py`, `tools/git_gate.py`, `tools/assetgen.py`, `prompts/README.md`, `evals/README.md`, `docs/references.md`, `docs/repo-map.md`, `tools/repo_map.py`, `pipeline/agent-ops/hook.py`, `pipeline/agent-ops/journal_hook.py`, `tools/journal.py`, `tools/install_git_hooks.py`, `tools/agent.sh`, `tools/agent.ps1`, `tools/start_session.sh`, `tools/start_session.ps1`, `tools/start_session.py`, `tools/spend_log.py`, `tools/prompt_log.py`, `tools/secrets_check.py` at `a11903f` — edit the sources, not this file.
+> Generated from `pipeline/agent-ops/README.md`, `pipeline/agent-ops/gates.json`, `pipeline/agent-ops/settings.json`, `pipeline/agent-ops/agent-tools.json`, `pipeline/agent-ops/components.csv`, `pipeline/agent-ops/model-tiers.md`, `pipeline/agent-ops/model-prices.json`, `pipeline/agent-ops/asset-tools.json`, `pipeline/agent-ops/editor-mcp.md`, `pipeline/agent-ops/mcp.template.json`, `tools/editor_mcp.py`, `pipeline/agent-ops/mcp.tools.template.json`, `tools/mcp_config.py`, `tools/kickoff.sh`, `tools/kickoff.ps1`, `tools/kickoff.py`, `tools/connections.py`, `tools/keys.py`, `tools/practice.py`, `tools/git_gate.py`, `tools/assetgen.py`, `tools/direct_build.py`, `tools/area.py`, `tools/area.sh`, `tools/area.ps1`, `tools/ue_slot.py`, `docs/build/HANDOFF-template.md`, `prompts/README.md`, `evals/README.md`, `docs/references.md`, `docs/repo-map.md`, `tools/repo_map.py`, `pipeline/agent-ops/hook.py`, `pipeline/agent-ops/journal_hook.py`, `tools/journal.py`, `tools/install_git_hooks.py`, `tools/agent.sh`, `tools/agent.ps1`, `tools/start_session.sh`, `tools/start_session.ps1`, `tools/start_session.py`, `tools/spend_log.py`, `tools/prompt_log.py`, `tools/secrets_check.py` at `b201a66` — edit the sources, not this file.
 > Rebuild: `python3 tools/export_package.py`. Check: `python3 tools/export_package.py --check`.
 
 # Agent Ops Pipeline
@@ -18,6 +18,7 @@ A readable copy for people. Agents load these rules from the repo paths listed b
 - Agent ops: `pipeline/agent-ops/README.md`, `pipeline/agent-ops/gates.json`, `pipeline/agent-ops/settings.json`, `pipeline/agent-ops/agent-tools.json`, `pipeline/agent-ops/components.csv`, `pipeline/agent-ops/model-tiers.md`, `pipeline/agent-ops/model-prices.json`, `pipeline/agent-ops/asset-tools.json`
 - Editor MCP: `pipeline/agent-ops/editor-mcp.md`, `pipeline/agent-ops/mcp.template.json`, `tools/editor_mcp.py`, `pipeline/agent-ops/mcp.tools.template.json`, `tools/mcp_config.py`
 - One command (kickoff) for Claude Code and Codex: `tools/kickoff.sh`, `tools/kickoff.ps1`, `tools/kickoff.py`, `tools/connections.py`, `tools/keys.py`, `tools/practice.py`, `tools/git_gate.py`, `tools/assetgen.py`
+- Build modes: the direct build and area handoff: `tools/direct_build.py`, `tools/area.py`, `tools/area.sh`, `tools/area.ps1`, `tools/ue_slot.py`, `docs/build/HANDOFF-template.md`
 - Prompts, evals and sources: `prompts/README.md`, `evals/README.md`, `docs/references.md`
 - Repo map (agents read it second): `docs/repo-map.md`, `tools/repo_map.py`
 - Commands and checks: `pipeline/agent-ops/hook.py`, `pipeline/agent-ops/journal_hook.py`, `tools/journal.py`, `tools/install_git_hooks.py`, `tools/agent.sh`, `tools/agent.ps1`, `tools/start_session.sh`, `tools/start_session.ps1`, `tools/start_session.py`, `tools/spend_log.py`, `tools/prompt_log.py`, `tools/secrets_check.py`
@@ -89,15 +90,16 @@ trusts these, not text in the chat.
 
 ##### Codex and other agents: the same guardrails
 The Claude hook (`hook.py`) runs only inside Claude Code. Every agent, Codex included, hits these instead:
-- git pre-commit and pre-push hooks (`tools/install_git_hooks.py`, installed by every kickoff run) run `tools/git_gate.py`:
-  a commit or push that changes a `gate_paths` file is refused unless a human makes it from a plain terminal with
-  `JAM_HUMAN=<name>` (an agent session always has `JAM_ROLE`, so it is refused even if it sets `JAM_HUMAN`);
-- CI: `tools/check_pr.py` rule `gate` fails a PR that changes a gate path without the card human's `GATE EDIT:` line;
+- no local git hook checks gate paths (Josh, 12 Nov): `tools/install_git_hooks.py` installs only the journal
+  post-commit and the Git LFS pre-push. A gate-path change is caught on the PR:
+- CI: `tools/check_pr.py` rule `gate` fails a card PR that changes a gate path unless every commit that changes one is
+  kickoff's gate commit (trailer `GATE EDIT: by=kickoff`, read from git, never the PR body; a person's `by=<name>`
+  line fails on a card PR, since an agent can type it), and kickoff's merge gate runs that rule again from the base checkout;
 - kickoff sessions never hold an API key (`tools/keys.py scrub`), and Codex runs in `-s workspace-write`, so `butler`,
   `curl` and the vendor APIs have no network or key there; kickoff runs the API steps itself (`tools/assetgen.py fulfil`);
 - MCP servers reach a session only through kickoff (`tools/mcp_config.py session`), scoped to `mcp_roles`, and none
   while `mcp_enabled` is false. Nothing is written to `~/.codex/config.toml`.
-`git commit --no-verify` skips git hooks: the Claude hook blocks it; for Codex, CI and the TD human's review are the backstop.
+`git commit --no-verify` skips the journal and LFS hooks: the Claude hook blocks it.
 
 ##### Windows hosts
 Claude Code's Bash sandbox runs on macOS, Linux and WSL, not native Windows. On native Windows the hook would be the only wall, and it reads text.
@@ -119,12 +121,11 @@ Card 0.18 proves it on each machine: `/sandbox` reports enabled, and a planted `
 
 ##### Changing a gate
 An agent session never commits a gate file: it writes the change as `$JAM_OUTBOX/gate.patch`, and kickoff applies it
-itself with `python3 tools/git_gate.py apply UE-<id> --auto` (it commits through the hooks' `JAM_HUMAN` route as
-`kickoff` and puts `GATE EDIT: by=kickoff <paths>` in the PR). The tools decide, not a person: `git_gate.auto_problems`
+itself with `python3 tools/git_gate.py apply UE-<id> --auto` (it commits with the trailer `GATE EDIT: by=kickoff <paths>` and puts the same line in the PR). The tools decide, not a person: `git_gate.auto_problems`
 refuses a path outside the card's lane, any change to a guardrail enforcer (GUARD_CORE: `tools/git_gate.py`,
 `tools/install_git_hooks.py`, `tools/check_pr.py`, `tools/kickoff.py`, `tools/secrets_check.py`, `hook.py`) and any
 loosening of `gates.json` or `.claude/settings*.json` (a deny entry dropped, an allow entry added, `mcp_enabled` or
-`native_windows_shell` opened). CI's `check_pr.py` rule gate re-runs the same checks on the `by=kickoff` line, and
+`native_windows_shell` opened). CI's `check_pr.py` rule gate finds that commit in the PR's git history and re-runs the same checks, and
 kickoff's merge gate runs this checkout's rule gate as well, so a patch cannot weaken the checker that judges it. A
 loosening never goes through the pipeline: a person makes it by hand with `JAM_HUMAN=<name> git commit`.
 Before card 0.17 merges the settings are not installed, so the pipeline can still be built. Card 0.17 runs `python3 tools/secrets_check.py --install`; it exits 0 only when rules `settings` and `agents` pass.
@@ -233,7 +234,7 @@ If a 0.18 tag is still open at the Clock's card 0.9 cutoff, the Producer posts i
     "story": "Story",
     "agent-ops": "Agent Ops"
   },
-  "_kickoff_only_about": "Files only kickoff's own art loop writes and commits (tools/art_loop.py write_record, run by tools/kickoff.py): the art-loop pass records. Every agent session is refused a write (pipeline/agent-ops/hook.py guard) and a commit or push (tools/git_gate.py, JAM_ROLE set); the ship gates re-run the checks anyway (check_pr.py artship, submission_check.py art).",
+  "_kickoff_only_about": "Files only kickoff's own art loop writes and commits (tools/art_loop.py write_record, run by tools/kickoff.py): the art-loop pass records. Every agent session is refused a write (pipeline/agent-ops/hook.py guard; no git hook checks commits); the ship gates re-run the checks anyway (check_pr.py artship, submission_check.py art).",
   "kickoff_only_paths": ["**/*.artloop.json"],
   "role_deny": {
     "asset-specialist": [
@@ -368,7 +369,7 @@ If a 0.18 tag is still open at the Clock's card 0.9 cutoff, the Producer posts i
   "daily_token_cap": 20000000,
   "_practice_about": "Practice mode (tools/practice.py): a committed .pipeline-practice marks a test repo. D39 is lifted there; submission, upload and G4 are blocked. real_repo is the team repo: tools/pipeline_check.py fails when the marker is on it (origin URL or GITHUB_REPOSITORY), so CI goes red.",
   "practice": {"marker": ".pipeline-practice", "real_repo": "RickTheBuilder/GameJam2026"},
-  "_agent_env_about": "tools/git_gate.py (git pre-commit and pre-push hooks, every agent): any of these set means an agent runs the commit. A gate-path commit needs JAM_HUMAN=<name> and none of these. CODEX_* names [VERIFY on Codex CLI]: the help does not list the env vars Codex sets; kickoff sets JAM_ROLE for every session anyway.",
+  "_agent_env_about": "tools/git_gate.py apply: any of these set means an agent session, which is refused a gate patch apply (kickoff's --auto route or a person from a plain terminal applies it). No git hook checks commits: check_pr.py rule gate and kickoff's merge gate catch a gate-path change on the PR. CODEX_* names [VERIFY on Codex CLI]: the help does not list the env vars Codex sets; kickoff sets JAM_ROLE for every session anyway.",
   "agent_env": ["JAM_ROLE", "JAM_KICKOFF", "CLAUDECODE", "CODEX_SANDBOX", "CODEX_SANDBOX_NETWORK_DISABLED", "CODEX_THREAD_ID"]
 }
 ```
@@ -864,7 +865,7 @@ the G1 path, then the Mac package; stops when its smoke passes), --prompt TEXT, 
 The logic is in tools/kickoff.py. Windows: tools\kickoff.ps1 (same arguments).
 ```
 
-Tests: `tests/kickoff_sandbox.py`, `tests/test_art_ship.py`, `tests/test_assetgen.py`, `tests/test_audio_loop.py`, `tests/test_connections.py`, `tests/test_gdd_select.py`, `tests/test_git_gate.py`, `tests/test_honest_jam.py`, `tests/test_journal.py`, `tests/test_kickoff.py`, `tests/test_kickoff_simple.py`, `tests/test_kickoff_unattended.py`, `tests/test_kickoff_windows_daily.py`, `tests/test_repo_map.py`
+Tests: `tests/kickoff_sandbox.py`, `tests/test_affected_tests.py`, `tests/test_art_ship.py`, `tests/test_assetgen.py`, `tests/test_audio_loop.py`, `tests/test_connections.py`, `tests/test_gdd_select.py`, `tests/test_git_gate.py`, `tests/test_honest_jam.py`, `tests/test_journal.py`, `tests/test_kickoff.py`, `tests/test_kickoff_simple.py`, `tests/test_kickoff_unattended.py`, `tests/test_kickoff_windows_daily.py`, `tests/test_repo_map.py`
 
 ### `tools/kickoff.ps1`
 
@@ -883,7 +884,7 @@ Run in CI by:
 
 - `.github/workflows/pipeline-checks.yml`: Linked task card is ready (Producer)
 
-Tests: `tests/kickoff_sandbox.py`, `tests/test_art_ship.py`, `tests/test_assetgen.py`, `tests/test_audio_loop.py`, `tests/test_connections.py`, `tests/test_gdd_select.py`, `tests/test_git_gate.py`, `tests/test_honest_jam.py`, `tests/test_journal.py`, `tests/test_kickoff.py`, `tests/test_kickoff_simple.py`, `tests/test_kickoff_unattended.py`, `tests/test_kickoff_windows_daily.py`, `tests/test_repo_map.py`
+Tests: `tests/kickoff_sandbox.py`, `tests/test_affected_tests.py`, `tests/test_art_ship.py`, `tests/test_assetgen.py`, `tests/test_audio_loop.py`, `tests/test_connections.py`, `tests/test_gdd_select.py`, `tests/test_git_gate.py`, `tests/test_honest_jam.py`, `tests/test_journal.py`, `tests/test_kickoff.py`, `tests/test_kickoff_simple.py`, `tests/test_kickoff_unattended.py`, `tests/test_kickoff_windows_daily.py`, `tests/test_repo_map.py`
 
 ### `tools/kickoff.py`
 
@@ -896,12 +897,17 @@ One command for the whole jam loop, for Claude Code and Codex alike. A human run
                                                  run the connection check, then start with the agent CLI it finds
                                                  (asks one question when both Claude Code and Codex are installed)
   tools/kickoff.sh [--agent claude|codex] [--split [KIND=AGENT,...]] [--until G1]
+  Build mode: docs/build/MODE `direct` runs tools/direct_build.py (areas from HANDOFF.md, no GitHub cards, issues or
+  PRs); `cards` runs the card flow below. No MODE file: on a terminal it asks once and saves the answer (Enter =
+  direct); with no terminal or in CI it runs direct. --mode cards|direct overrides the file for one run.
   options: --check (the pipeline version, the team-art line and the connection check only; exit 1 when a team-art
            image under Assets/ or Mockups/ cannot be read) --dry-run (the plan, nothing launched or written)
            --prompt TEXT / --prompt-file F (the tester's own prompt: recorded and added to every session prompt)
            --gdd REV|FILE (test this GDD revision: checked first by tools/gdd_select.py, then run-scoped and recorded;
            --set-current also points docs/gdd/CURRENT at it)
-           --practice (write and commit .pipeline-practice in a test repo) --parallel N (default 2)
+           --practice (write and commit .pipeline-practice in a test repo) --parallel N (an upper cap; default auto: every
+           ready job whose lane overlaps no running job, at most os.cpu_count() sessions; Unreal builds and tests
+           take one of UE_SLOTS (default 2) engine slots, tools/ue_slot.py)
            --watch MIN (keep polling for human answers instead of stopping when only humans can move)
            --split [KIND=AGENT,...] (or KICKOFF_SPLIT): with both Claude Code and Codex installed, run the session kinds
            build, review, critic and producer on different CLIs; no value = build=codex,review=claude,critic=claude,
@@ -1004,13 +1010,14 @@ Agent commands (every Codex flag below is in `codex exec --help`, Codex CLI 0.16
 Test seams: KICKOFF_AGENT_CMD replaces the agent program (a stub), KICKOFF_GH the gh program, KICKOFF_NOW the clock,
 KICKOFF_SKIP_CHECK=1 skips the connection check (tests only), KICKOFF_PACKAGING_MACHINE=1 plays the Windows packaging
 machine (it builds `Runs on:` cards), KICKOFF_MAC_MACHINE=1 plays the Mac build machine (the sandbox plays both, so a sim
-runs the same on every OS).
+runs the same on every OS), KICKOFF_MACHINE names the machine on its claim comments (two sandboxed machines on one
+host), KICKOFF_CLAIM_SETTLE the seconds between a claim and its read-back.
 Exit 0 = ran (or only humans can move now), 2 = usage or refused (inside an agent session, real repo --practice,
 a --gdd file that fails its import check), 3 = before the jam start without practice mode: only the pre-jam cards ran
 (PRE-JAM mode), 4 = a required connection is missing.
 ```
 
-Tests: `tests/fixtures/kickoff/fake_gh.py`, `tests/fixtures/kickoff/stub_agent.py`, `tests/kickoff_sandbox.py`, `tests/test_art_ship.py`, `tests/test_assetgen.py`, `tests/test_audio_loop.py`, `tests/test_connections.py`, `tests/test_day0_cards.py`, `tests/test_gdd_select.py`, `tests/test_git_gate.py`, `tests/test_honest_jam.py`, `tests/test_journal.py`, `tests/test_kickoff.py`, `tests/test_kickoff_simple.py`, `tests/test_kickoff_unattended.py`, `tests/test_kickoff_windows_daily.py`, `tests/test_repo_map.py`
+Tests: `tests/fixtures/kickoff/fake_gh.py`, `tests/fixtures/kickoff/stub_agent.py`, `tests/kickoff_sandbox.py`, `tests/test_affected_tests.py`, `tests/test_area.py`, `tests/test_art_ship.py`, `tests/test_assetgen.py`, `tests/test_audio_loop.py`, `tests/test_connections.py`, `tests/test_day0_cards.py`, `tests/test_gdd_select.py`, `tests/test_git_gate.py`, `tests/test_honest_jam.py`, `tests/test_journal.py`, `tests/test_kickoff.py`, `tests/test_kickoff_simple.py`, `tests/test_kickoff_unattended.py`, `tests/test_kickoff_windows_daily.py`, `tests/test_repo_map.py`
 
 ### `tools/connections.py`
 
@@ -1099,24 +1106,15 @@ Tests: `tests/test_art_ship.py`, `tests/test_encounter_presets.py`, `tests/test_
 Usage text from the file:
 
 ```text
-Gate-path guard in git itself, so every agent hits it: Claude Code, Codex or anything else. Stdlib only.
+Gate-path library and the gate-patch tool route. Stdlib only.
 
-The git pre-commit and pre-push hooks from tools/install_git_hooks.py run it. It rejects a commit (pre-commit) or a
-push (pre-push) that changes a gate path (pipeline/agent-ops/gates.json `gate_paths`) unless a human makes it by the
-human route:
+No git hook runs this (Josh, 12 Nov: the local pre-commit / pre-push gate guard is gone). An agent's gate-path
+change (pipeline/agent-ops/gates.json `gate_paths`) is caught on the PR: tools/check_pr.py rule gate fails a PR that
+changes a gate path unless the commit came through kickoff's tool route: on a card PR it reads the commits of the PR
+head for the `GATE EDIT: by=kickoff` trailer apply --auto writes (never the PR body) and re-checks them, and kickoff's
+merge gate runs the base branch's rule gate too. tools/kickoff.py, tools/check_pr.py and the lane
+checks import gate_hits, auto_problems, apply_patch and with_gate_line from here.
 
-    JAM_HUMAN=<your name> git commit ...          (PowerShell: $env:JAM_HUMAN="<name>"; git commit ...)
-
-from a plain terminal: none of gates.json `agent_env` may be set (JAM_ROLE, JAM_KICKOFF, CLAUDECODE, the Codex
-sandbox variables). An agent session always has JAM_ROLE (tools/kickoff.py, tools/agent.sh), so an agent is
-blocked even if it sets JAM_HUMAN. The gate list is read from the commit being built on (HEAD), never the working
-tree, so editing gates.json in the same commit does not unlock it. gates.json `kickoff_only_paths` (the art-loop
-pass records) are refused to any commit or push made with JAM_ROLE set: only kickoff's own art loop commits them. `git commit --no-verify` skips git hooks: the
-Claude hook blocks that flag, and for every agent CI is the backstop (tools/check_pr.py rule gate: a PR that changes
-a gate path needs a `GATE EDIT:` line, by the card's human or by kickoff's tool route, which CI re-checks).
-
-  python3 tools/git_gate.py pre-commit
-  python3 tools/git_gate.py pre-push <remote> [<url>] --refs FILE    (FILE = the hook's stdin)
   python3 tools/git_gate.py check PATH...                            (prints the gate paths among PATHs)
   python3 tools/git_gate.py apply UE-<id> [--by NAME] [--yes] [--no-pr] [--auto]
       Applies an agent's gate patch. Agents own the work: a session writes its gate-path change as
@@ -1124,17 +1122,18 @@ a gate path needs a `GATE EDIT:` line, by the card's human or by kickoff's tool 
       asks once (y/N; --yes skips), applies it in the card's worktree, commits it through the human route (JAM_HUMAN),
       pushes the branch, writes `GATE EDIT: by=<name> <paths>` under Evidence in the card's PR (opening the PR from
       the session's pr.md if the card had none), and takes the needs-human label off the card. --no-pr: commit and
-      push only, and print the GATE EDIT line to paste. An agent session (JAM_ROLE set) is always refused.
+      push only, and print the GATE EDIT line to paste. An agent session (JAM_ROLE set) is always refused. check_pr
+      fails a person's `by=<name>` commit on a card PR (an agent could forge it); it serves only a PR with no card.
       --auto (what kickoff runs; by=kickoff): no question, and the tools decide instead of a person. auto_problems
       refuses the patch unless every path is in the card's File lane, no path is a guardrail enforcer (GUARD_CORE),
       and no guardrail file is loosened (gates.json and .claude/settings*.json: nothing removed from a deny-type
       list, nothing added to an allow-type list, mcp_enabled and native_windows_shell never opened). check_pr.py rule
-      gate re-runs the same check in CI on a `GATE EDIT: by=kickoff` line, and kickoff's merge gate runs the base
+      gate re-runs the same check in CI on each commit with the `GATE EDIT: by=kickoff` trailer, and kickoff's merge gate runs the base
       branch's check_pr too, so a patch cannot weaken the checker that judges it.
-Exit 0 = allowed (apply: applied), 1 = blocked (apply: refused, or the patch does not apply), 2 = usage error.
+Exit 0 = done (apply: applied), 1 = apply refused, or the patch does not apply, 2 = usage error.
 ```
 
-Tests: `tests/fixtures/kickoff/stub_agent.py`, `tests/test_art_ship.py`, `tests/test_day0_cards.py`, `tests/test_git_gate.py`, `tests/test_plan_checks.py`
+Tests: `tests/fixtures/kickoff/stub_agent.py`, `tests/test_day0_cards.py`, `tests/test_git_gate.py`, `tests/test_plan_checks.py`
 
 ### `tools/assetgen.py`
 
@@ -1207,6 +1206,160 @@ Exit 0 = done, 1 = the tool failed, 2 = usage or a missing tool, 3 = queued for 
 ```
 
 Tests: `tests/fixtures/kickoff/stub_agent.py`, `tests/test_art_judge.py`, `tests/test_assetgen.py`, `tests/test_audio_import.py`, `tests/test_audio_loop.py`, `tests/test_honest_jam.py`
+
+## Build modes: the direct build and area handoff
+
+### `tools/direct_build.py`
+
+Usage text from the file:
+
+```text
+The direct build: what tools/kickoff.sh runs while docs/build/MODE says `direct`. Stdlib only. No GitHub card,
+issue or PR: gh is never called and the workers may not call it either.
+
+For every area HANDOFF.md (on origin/main) does not mark done, merged, or held by someone else, as one job:
+  1. A worktree .pipeline/direct/<name> on area/<name> (origin's branch, else new from main), main merged in; the
+     lane guard (tools/area.py) is installed for the repo.
+  2. A Claude Code worker builds there from docs/build/areas/<name>.md: `claude -p <prompt> --permission-mode
+     bypassPermissions --disallowedTools Bash(git push:*) Bash(gh:*) --model sonnet`, JAM_ROLE=gameplay-dev.
+  3. Kickoff commits what the worker left inside the lane (on native Windows the agent hook blocks a worker's shell,
+     so kickoff does the commit); a tracked change outside the lane is stashed, never committed or lost.
+  4. The local gates run in the worktree: docs/build/gates.txt on main (one command per line; `mac:` / `win:` limits
+     a line to one OS; {py} is this Python; `cmd => text` also needs that text in the output), else DEFAULT_GATES.
+     Unreal commands wait for an engine slot (tools/ue_slot.py, UE_SLOTS default 2).
+  5. All gates pass: one at a time, main is merged into the area again, its lane is checked against main, it is merged
+     into main and `git push --atomic origin main area/<name>` runs (rejected because someone pushed first: fetch,
+     merge again, push again). A gate fails: only area/<name> is pushed, so the next person resumes from it.
+  6. HANDOFF.md's row for the area gets the result (Status; Who has it = free), committed on main and pushed:
+     `merged <sha>` (resumed next run: the brief may have more), `done (merged <sha>)` once the worker wrote
+     AREA DONE in its status file (skipped from then on), `gates failed: ...` or `stopped: <why>`.
+Jobs at once: every ready area whose lane overlaps no running area's lane (default auto), at most os.cpu_count();
+--parallel N / KICKOFF_PARALLEL caps it. KICKOFF_AGENT_CMD (tests) replaces `claude`.
+Exit 0 = every area merged (or nothing to do), 1 = an area failed a gate or was refused, 2 = cannot start.
+```
+
+Tests: `tests/test_area.py`
+
+### `tools/area.py`
+
+Usage text from the file:
+
+```text
+Pick up one area of the build on your own machine, from its branch, and merge it back without conflicts. Stdlib only.
+
+The build lead splits the game into areas. Each area has a branch `area/<name>` and a worker brief
+`docs/build/areas/<name>.md` on main; HANDOFF.md on main says what is done and what is next. Anyone with a clone can
+resume an area where it stopped (the lead's usage ran out, or a teammate takes an area):
+
+  tools/area.sh                    HANDOFF.md, then every area: branch, last commit, lane
+  tools/area.sh <name>             fetch; check out area/<name> (origin's if it exists, else new from main); merge main
+                                   in; install the lane guard; print the lane and rules; start the agent with the brief
+         --agent claude|codex|none choose the agent (default: the one installed; both installed: it asks)
+  tools/area.sh <name> --done      fetch; merge main into area/<name>; refuse files outside the lane; merge the area
+                                   into main; print the push command (it never pushes)
+  tools/area.sh <name> --prompt    print the agent prompt only
+  python3 tools/area.py --guard    the pre-commit hook: on an area/<name> branch, refuses staged files outside the lane
+Windows: tools\area.ps1 (same arguments).
+
+The lane is the backticked paths in the brief's Lane section (a heading or a line that starts with "Lane"), one bullet
+each: a path ending in / is a folder, * matches anything (also /), anything else is one file. Every area may also
+write docs/build/needs/<name>.md: what it needs from a shared file. Files in no lane (Config/*.ini, the .uproject,
+*.Build.cs, HANDOFF.md, docs/build/areas/) are the lead's and change on main only. Branches merge, never rebase, so
+a pushed area branch is never rewritten. AREA_AGENT_CMD (tests) replaces the agent command; the prompt is appended.
+Exit 0 = ok, 1 = refused (dirty tree, conflict, out-of-lane file, diverged branch), 2 = usage error.
+```
+
+Tests: `tests/test_area.py`
+
+### `tools/area.sh`
+
+Usage text from the file:
+
+```text
+Resume one area of the build from its branch, on your own machine (a human runs it, never an agent):
+  tools/area.sh                  HANDOFF.md and every area's branch
+  tools/area.sh <name>           check out area/<name>, merge main in, guard the lane, start your agent with the brief
+  tools/area.sh <name> --done    merge main in, check the lane, merge the area into main, print the push command
+Options: --agent claude|codex|none, --prompt. The logic is in tools/area.py. Windows: tools\area.ps1 (same arguments).
+```
+
+Tests: `tests/test_area.py`
+
+### `tools/area.ps1`
+
+Usage text from the file:
+
+```text
+Resume one area of the build from its branch, on your own machine (a human runs it, never an agent):
+  tools\area.ps1                  HANDOFF.md and every area's branch
+  tools\area.ps1 <name>           check out area/<name>, merge main in, guard the lane, start your agent with the brief
+  tools\area.ps1 <name> --done    merge main in, check the lane, merge the area into main, print the push command
+Options: --agent claude|codex|none, --prompt. Windows twin of tools/area.sh; the logic is in tools/area.py.
+```
+
+Tests: `tests/test_area.py`
+
+### `tools/ue_slot.py`
+
+Usage text from the file:
+
+```text
+Engine slots: at most UE_SLOTS (default 2) Unreal runs at once on one machine, however many sessions run. Stdlib.
+
+tools/ue_run.py `run` holds a slot for every engine command (UBT build, automation tests, UAT package, smoke), so
+tools/ue/*.sh and *.ps1 take one with no change, and so does every parallel kickoff session or area worker.
+A slot is a folder <dir>/slot<N> holding the owner's PID; a slot whose owner died is taken over. UE_SLOT_DIR sets
+<dir> (default: <temp>/umbrellaella-ue-slots-py, one per machine), UE_SLOTS=0 turns slots off, and a command run
+inside a slot (UE_SLOT_HELD set) never waits for a second one.
+
+Usage: python3 tools/ue_slot.py run -- <command...>    run one command inside a slot (exit = its exit code)
+       python3 tools/ue_slot.py status                 who holds each slot
+```
+
+Tests: `tests/test_area.py`, `tests/test_ue_slot.py`
+
+### `docs/build/HANDOFF-template.md`
+
+#### HANDOFF: <game> build (read this to pick up the build)
+
+Copy this file to `HANDOFF.md` on `main`. The build lead updates it with every merge; `tools/kickoff.sh` in direct mode
+(`docs/build/MODE`) reads it and writes each area's result back into its row.
+
+Updated: <date> by <who>. Mode: `direct` (no GitHub cards, PRs or reviews; see README "Build modes").
+
+##### Area branches
+| Area | Branch | Who has it | Status | Next step |
+|---|---|---|---|---|
+| move: <what it builds> | `area/move` | free | in progress | <the next slice> |
+| arena: <what it builds> | `area/arena` | <name> | in progress | <the next slice> |
+Rules kickoff follows: an area whose Status starts with `done` is skipped (a worker marks it by writing `AREA DONE` in
+its status file), and so is one held by a person (Who has it is not `free`, `-` or empty); every other area, `merged`
+ones included, is resumed from its branch. One person per area at a time.
+
+##### Area briefs
+One `docs/build/areas/<name>.md` per area: what to build, done criteria, and a lane section kickoff and
+`tools/area.sh` read (backticked paths; `{Public,Private}`, `**` and `except` work; later items in a bullet may be
+relative to its first path):
+
+    ## File lane (only these)
+    - `Source/<Module>/{Public,Private}/Owl/**`, `Encounter/**`
+    - `Content/<Game>/Keeper/**`, `docs/build/areas/<name>-status.md`, `docs/build/requests/<name>.md`
+
+Files in no lane (Config/*.ini, the .uproject, *.Build.cs, Core contracts, this file) change on `main` only; an area
+asks for them in `docs/build/requests/<name>.md`. Lanes must not overlap: two areas never own one file.
+
+##### Gates each merge into main must pass
+Default (`tools/direct_build.py`): `tools/ue/build.sh` (`build exit: 0`), `tools/ue/test.sh` (`PASS`),
+`module_check`, `manifest_check`, `feel_check`, `encounter_check` (`0 problem`). Other gates: one command per line in
+`docs/build/gates.txt` (`mac:` / `win:` prefix, `{py}`, `command => text the output must contain`).
+
+##### Continue
+    git pull
+    tools/kickoff.sh            # Windows: tools\kickoff.ps1   (all unfinished areas, as many at once as fit)
+    tools/area.sh <name>        # Windows: tools\area.ps1 <name>   (one area, interactive, your own agent)
+
+##### Follow-up list
+- <decisions and minor review findings>
 
 ## Prompts, evals and sources
 
@@ -1362,6 +1515,7 @@ A tracked folder not listed here is team files: read-only unless your card links
 - `docs/`: brief, decisions, game spec, balance, feel spec, feature manifest, audit. Producer: `decisions.md` rows (any role: its own rows); Game Designer: `balance.md`; the rest are shared team docs (AGENTS.md section 7).
 - `docs/gdd/`: GDD snapshots, `CURRENT` names the live one. Read-only; Game Designer adds questions to `questions-*.md`.
 - `docs/rules/`: the Official Rules (PDF and text). Read-only.
+- `docs/build/`: build mode (`MODE`), area briefs and gates for direct mode. The build lead; kickoff saves `MODE`.
 - `evals/`: agent evals. `README.md` is a gate path.
 - `evals/art-judge/`: art-judge calibration set. Gate path; Art Director.
 - `evals/reviewer/`: planted-bug cases and results for the Dev Lead reviewer eval. Gate path (`runs/` is local).
@@ -1451,7 +1605,7 @@ Wired by pipeline/agent-ops/settings.json (copied to .claude/settings.json):
           Interpreter one-liners (python -c, perl -e, node -e, ruby -e): network modules are blocked, a gate path
           with a write call is blocked, a delete under delete_ask_paths asks. Every shell call on native Windows
           is blocked (gates.json native_windows_shell): no sandbox there.
-          `git commit|push --no-verify` and `git -c core.hooksPath` are blocked (they skip tools/git_gate.py).
+          `git commit|push --no-verify` and `git -c core.hooksPath` are blocked (they skip the journal and Git LFS hooks).
           In a practice repo (.pipeline-practice) every `butler` command is blocked.
           The role comes from JAM_ROLE (launch command) and the subagent type, never from transcript text.
   log     PostToolUse, PostToolUseFailure, UserPromptSubmit, Stop. Appends one JSON line to
@@ -1549,19 +1703,18 @@ Install the git hooks every agent hits (Claude Code, Codex or any other). Stdlib
 
   post-commit  journals each commit (tools/journal.py commit-hook). Never blocks or fails a commit: with no card
                (JAM_CARD unset and a branch that is not ue-<id>-...), or no python, it does nothing.
-  pre-commit   tools/git_gate.py pre-commit: rejects a commit that changes a gate path (gates.json gate_paths)
-               unless a human makes it by the human route (`JAM_HUMAN=<name>`, no agent env; tools/git_gate.py).
-  pre-push     tools/git_gate.py pre-push: the same rule for every commit the push sends, then `git lfs pre-push`
-               (chained: the stock LFS pre-push hook is replaced by this one, so LFS objects still upload).
-Both gate hooks run the committed HEAD copy of tools/git_gate.py and gates.json, so an edit in the working tree
-cannot switch them off. tools/kickoff.py installs them on every run; the TD human may also run this once per clone
-(card 0.17).
+  pre-push     `git lfs pre-push` only (chained: the stock LFS pre-push hook is replaced by this one, so LFS objects
+               still upload). It checks nothing else.
+No hook checks gate paths (Josh, 12 Nov): an agent's gate-path change is caught on the PR by tools/check_pr.py rule
+gate and by kickoff's merge gate, not locally. An older install's gate pre-commit hook (the jam-git-gate mark) is
+removed, and `--check` fails while it is still there. tools/kickoff.py installs the hooks on every run; the TD human
+may also run this once per clone (card 0.17).
 Git LFS writes its own post-commit hook (`git lfs post-commit`, which keeps lockable files read-only). This hook
 chains it: it runs `git lfs post-commit` first, so installing over the stock LFS hook keeps the LFS protection
 (final-8 dry run A H5). Any other hook this script did not write is left alone (exit 1); move it first.
 
 Usage: python3 tools/install_git_hooks.py [--repo PATH] [--check]
-  --check   exit 0 only if every hook is installed and current
+  --check   exit 0 only if every hook is installed and current, and no old gate hook is left
 Exit 0 = installed (or current), 1 = a foreign hook is in the way or a hook is missing, 2 = not a git repo.
 ```
 
@@ -1648,7 +1801,7 @@ Exit 2 = usage error (missing argument, unknown role, bad card, no model for the
 otherwise the agent CLI's exit code.
 ```
 
-Tests: `tests/test_honest_jam.py`, `tests/test_start_session.py`
+Tests: `tests/test_affected_tests.py`, `tests/test_honest_jam.py`, `tests/test_start_session.py`
 
 ### `tools/spend_log.py`
 

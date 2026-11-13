@@ -11,7 +11,19 @@ Umbrella Ella (working title): a 2D Unreal Engine 5.8.4 action game for the jam.
 - Pipeline audit (issue #11): [`docs/audit.md`](docs/audit.md)
 - Sources: [`docs/references.md`](docs/references.md)
 
-Checks: `python3 tools/pipeline_check.py` and `python3 -m unittest discover -s tests` (no installs needed).
+Checks: `python3 tools/pipeline_check.py`; a card session adds `python3 tools/affected_tests.py --run` (the tests for
+the changed files, a 5-minute target). The full suite, `python3 -m unittest discover -s tests`, is CI's (no installs needed).
+
+## Build modes
+`tools/kickoff.sh` (Windows: `tools\kickoff.ps1`) follows `docs/build/MODE`:
+- `direct`: no GitHub cards, PRs or reviews. Kickoff reads `HANDOFF.md`, resumes every unfinished area from its
+  `area/<name>` branch with a Claude Code worker (brief: `docs/build/areas/<name>.md`), runs the local gates, merges
+  each passing area into `main` and pushes. Use it to build fast, or to pick up the build where someone stopped.
+- `cards`: the GitHub card flow (task cards, PRs, reviewers, CI). Use it when every change should be reviewed on GitHub.
+No MODE file: kickoff asks once (Enter = `direct`) and saves the answer. Change it by editing the file, or pass
+`--mode cards|direct` for one run. Both modes start every ready job whose files overlap no running job's (at most one
+per CPU; `--parallel N` caps it); Unreal builds and tests share `UE_SLOTS` (default 2) engine slots. One area by hand:
+`tools/area.sh <name>` (Windows: `tools\area.ps1 <name>`). Lead's handoff file shape: `docs/build/HANDOFF-template.md`.
 
 ## Install and run (Claude Code or Codex, same steps)
 1. **Type `tools/kickoff.sh`** (Windows: `tools\kickoff.ps1`) with no options. It prints the pipeline version, runs the
@@ -25,9 +37,9 @@ Checks: `python3 tools/pipeline_check.py` and `python3 -m unittest discover -s t
 4. Options: `--agent codex|claude`, `--check` (version and check only), `--practice` once in a test repo,
    `--prompt-file F` to record your own prompt for A/B runs (`python3 tools/journal.py compare <a> <b>`).
 
-Codex users get the same guardrails as Claude Code users: kickoff installs git pre-commit and pre-push hooks
-(`tools/install_git_hooks.py`, `tools/git_gate.py`) that refuse any agent commit to a gate path, and CI fails a PR
-that changes one without the human's `GATE EDIT:` line (`tools/check_pr.py`). The Claude hook stays as an extra layer.
+Codex users get the same guardrails as Claude Code users: no local git hook checks gate paths; CI fails a card PR that
+changes one unless the commit came through kickoff's tool route (trailer `GATE EDIT: by=kickoff`, read from git, not
+from the PR body; `tools/check_pr.py` rule gate), and kickoff's merge gate runs that rule again. The Claude hook stays as an extra layer.
 How to run the jam day to day: `pipeline/how-to-run-the-jam.md`. What the tools check and what people decide:
 `pipeline/what-the-pipeline-controls.md`.
 

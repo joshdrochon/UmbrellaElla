@@ -468,7 +468,13 @@ class CiProfile(unittest.TestCase):
         return hits[0]
 
     def test_source_repo_has_the_marker(self):
-        self.assertTrue(os.path.isfile(os.path.join(ROOT, pipeline_check.CI_FULL)))
+        # the pipeline source keeps the full profile; an installed game repo (.pipeline-installed.json) never gets the
+        # marker, so its CI runs the fast game checks only
+        has = os.path.isfile(os.path.join(ROOT, pipeline_check.CI_FULL))
+        if os.path.isfile(os.path.join(ROOT, ".pipeline-installed.json")):
+            self.assertFalse(has, "installed game repo: the installer never ships the full-CI marker")
+        else:
+            self.assertTrue(has, "pipeline source repo: the full-CI marker is committed")
 
     def test_profile_job_reads_the_marker(self):
         self.assertIn("if [ -f .pipeline-ci-full ]; then full=true; else full=false; fi", self.jobs["profile"])
@@ -503,6 +509,24 @@ class CiProfile(unittest.TestCase):
         for name, block in self.jobs.items():
             with self.subTest(job=name):
                 self.assertRegex(block, r"(?m)^    timeout-minutes: ")
+
+
+class InstalledGameRepoSkipsTheExport(unittest.TestCase):
+    """12 Nov: in an installed game repo MegaPipeline/ is the update bundle. Card PRs must not be asked to regenerate it:
+    the export stamps the commit into ~38 files, so two parallel PRs that regenerate it always conflict."""
+
+    def test_installed_repo_skips_the_package_check_and_the_pipeline_repo_keeps_it(self):
+        d = tempfile.mkdtemp()
+        try:
+            os.makedirs(os.path.join(d, "MegaPipeline"))
+            os.makedirs(os.path.join(d, "tools"))
+            with open(os.path.join(d, "tools", "export_package.py"), "w") as fh:
+                fh.write("def check(root):\n    return [('MegaPipeline/x.md', 'stale')]\n")
+            self.assertEqual(len(pipeline_check.package(d)), 1, "pipeline repo: the stale export is a problem")
+            open(os.path.join(d, ".pipeline-installed.json"), "w").close()
+            self.assertEqual(pipeline_check.package(d), [], "installed game repo: never regenerate the bundle")
+        finally:
+            shutil.rmtree(d, ignore_errors=True)
 
 
 class DirectBuildMode(unittest.TestCase):
@@ -581,6 +605,7 @@ class DirectBuildMode(unittest.TestCase):
             with self.subTest(wf=f):
                 code = "\n".join(l for l in text.splitlines() if not l.strip().startswith("#"))
                 self.assertNotRegex(code, r"tools[/\\]ue[/\\](build|test|package)|RunUAT|UnrealEditor")
+
 
 
 class DirectBuildChecks(unittest.TestCase):

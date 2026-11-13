@@ -1,5 +1,5 @@
 # Packaged smoke passes (G1 blocker). Branch area/smoke. Read docs/build/worker-rules.md first.
-The first Mac Development package exists (main 5ae3718, built in /Users/joanmiguel/Desktop/Developer/UmbrellaElla-areas/
+The first Mac Development package exists (main 5ae3718, built in ../UmbrellaElla-areas/
 package). Two problems, both yours:
 1. `tools/ue/package.sh` archives `Packaged/Mac/UmbrellaElla.app` WITHOUT `Contents/UE` (no paks: the game fails with
    "Failed to open descriptor file" and an ICU assertion). The staged app `Saved/StagedBuilds/Mac/UmbrellaElla.app` has

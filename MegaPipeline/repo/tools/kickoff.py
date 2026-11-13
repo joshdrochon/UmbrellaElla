@@ -5,12 +5,17 @@
                                                  run the connection check, then start with the agent CLI it finds
                                                  (asks one question when both Claude Code and Codex are installed)
   tools/kickoff.sh [--agent claude|codex] [--split [KIND=AGENT,...]] [--until G1]
+  Build mode: docs/build/MODE `direct` runs tools/direct_build.py (areas from HANDOFF.md, no GitHub cards, issues or
+  PRs); `cards` runs the card flow below. No MODE file: on a terminal it asks once and saves the answer (Enter =
+  direct); with no terminal or in CI it runs direct. --mode cards|direct overrides the file for one run.
   options: --check (the pipeline version, the team-art line and the connection check only; exit 1 when a team-art
            image under Assets/ or Mockups/ cannot be read) --dry-run (the plan, nothing launched or written)
            --prompt TEXT / --prompt-file F (the tester's own prompt: recorded and added to every session prompt)
            --gdd REV|FILE (test this GDD revision: checked first by tools/gdd_select.py, then run-scoped and recorded;
            --set-current also points docs/gdd/CURRENT at it)
-           --practice (write and commit .pipeline-practice in a test repo) --parallel N (default 2)
+           --practice (write and commit .pipeline-practice in a test repo) --parallel N (an upper cap; default auto: every
+           ready job whose lane overlaps no running job, at most os.cpu_count() sessions; Unreal builds and tests
+           take one of UE_SLOTS (default 2) engine slots, tools/ue_slot.py)
            --watch MIN (keep polling for human answers instead of stopping when only humans can move)
            --split [KIND=AGENT,...] (or KICKOFF_SPLIT): with both Claude Code and Codex installed, run the session kinds
            build, review, critic and producer on different CLIs; no value = build=codex,review=claude,critic=claude,
@@ -113,7 +118,8 @@ Agent commands (every Codex flag below is in `codex exec --help`, Codex CLI 0.16
 Test seams: KICKOFF_AGENT_CMD replaces the agent program (a stub), KICKOFF_GH the gh program, KICKOFF_NOW the clock,
 KICKOFF_SKIP_CHECK=1 skips the connection check (tests only), KICKOFF_PACKAGING_MACHINE=1 plays the Windows packaging
 machine (it builds `Runs on:` cards), KICKOFF_MAC_MACHINE=1 plays the Mac build machine (the sandbox plays both, so a sim
-runs the same on every OS).
+runs the same on every OS), KICKOFF_MACHINE names the machine on its claim comments (two sandboxed machines on one
+host), KICKOFF_CLAIM_SETTLE the seconds between a claim and its read-back.
 Exit 0 = ran (or only humans can move now), 2 = usage or refused (inside an agent session, real repo --practice,
 a --gdd file that fails its import check), 3 = before the jam start without practice mode: only the pre-jam cards ran
 (PRE-JAM mode), 4 = a required connection is missing.
@@ -127,11 +133,13 @@ import os
 import re
 import shlex
 import shutil
+import socket
 import subprocess
 import sys
 import tempfile
 import threading
 import time
+import uuid
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -222,7 +230,21 @@ SPLIT_DEFAULT = "build=codex,review=claude,critic=claude,producer=claude"
 STUCK_ROUNDS = 3        # D-new-no-round-cap: loops have no round cap; needs-human only after 3 rounds in a row with
                         # no improvement (the same gap and no better score)
 CLAUDE_DENY = ["Bash(git push:*)", "Bash(gh pr merge:*)", "Bash(gh pr close:*)", "Bash(gh issue close:*)",
-               "Bash(gh repo:*)", "Bash(gh api -X DELETE:*)", "Bash(git_gate.py apply:*)"]   # kickoff's own steps
+               "Bash(gh repo:*)", "Bash(gh api -X DELETE:*)", "Bash(git_gate.py apply:*)",   # kickoff's own steps
+               # the full suite is CI's (.pipeline-ci-full): card sessions run tools/affected_tests.py (Josh, 12 Nov)
+               "Bash(python3 -m unittest discover:*)", "Bash(python -m unittest discover:*)"]
+# What a card session runs (AGENTS.md section 8; Josh 12 Nov: a docs-only card's builder spent ~30 min in the full
+# unit suite and each reviewer 15-20 min re-running heavy checks). Unreal steps stay as the card says.
+UNIT_TESTS = ("Unit tests: only `python3 tools/affected_tests.py --run` (the tests for the files this card changed, "
+              "picked to a 5-minute target; it also prints the Unreal test filter for Source/ changes), never the full "
+              "suite: the pipeline repos' CI runs it. Time never fails a card: a slow run prints one WARNING line; carry on, "
+              "never retry for time.")
+BUILD_CHECKS = ("Checks: run the commands the card's Done-when names, `python3 tools/pipeline_check.py` and "
+                "`python3 tools/affected_tests.py --run`; paste each output in pr.md. No other Python suite; Unreal steps as the card says.")
+REVIEW_CHECKS = ("Checks: read the diff and the Done-when evidence the builder pasted in the PR. Re-run only a check you "
+                 "doubt, targeted to the change (that Done-when command, or `python3 tools/affected_tests.py --run`), plus "
+                 "`python3 tools/pipeline_check.py`. Never re-run the builder's whole set: CI and kickoff's merge gate run "
+                 "the rest.")
 MAX_FAILS = 2           # AGENTS.md section 6: same failure twice -> blocked
 AGENT_ENV = ("CLAUDECODE", "JAM_ROLE", "CODEX_SANDBOX", "CODEX_THREAD_ID")
 KICK = "KICKOFF"
@@ -247,6 +269,13 @@ GREEN = ("pass", "skipping")   # gh pr checks buckets that let a PR merge; fail,
 LOCK = threading.Lock()            # the console only: say() takes it, so nothing that can block may hold it
 JOURNAL_LOCK = threading.Lock()    # one journal write at a time (SQLite); never held while printing
 GIT_LOCK = threading.RLock()   # worktree add and push write the shared .git/config
+# Two kickoff machines (the Mac and the Windows packaging machine) share one board. Before a job (build, fix, review,
+# merge) starts, kickoff posts `KICKOFF CLAIM: <machine> <nonce> <kind>` on the card and reads the card back: the
+# oldest claim with no `KICKOFF RELEASE: <machine> <nonce>` after it wins, the other machine releases its claim and
+# skips the card. A job releases its claim when it ends; a crashed run's claims are released by the next run on the
+# same machine. KICKOFF_MACHINE names this machine (default: the host name).
+CLAIM = re.compile(r"^\s*KICKOFF (CLAIM|RELEASE): (\S+) (\S+)", re.M)
+CLAIM_SETTLE = float(os.environ.get("KICKOFF_CLAIM_SETTLE", "2"))   # seconds between the claim and the read-back
 
 
 class Refused(Exception):
@@ -421,6 +450,9 @@ class GH:
     def comment(self, n, body):
         self.run("issue", "comment", str(n), body=body)
 
+    def issue_view(self, n, fields):
+        return json.loads(self.run("issue", "view", str(n), "--json", fields) or "{}")
+
     def close(self, n):
         self.run("issue", "close", str(n))
 
@@ -503,6 +535,23 @@ def windows_daily():
     """kickoff runs the daily itself (a QA and Build session per merge) only on the native Windows packaging machine,
     and only while gates.json lets agents run shells there (native_windows_shell: allow)."""
     return native_windows() and gates().get("native_windows_shell", "block") == "allow"
+
+
+def machine_id():
+    """This kickoff machine's name on the claim comments (KICKOFF_MACHINE, else the host name)."""
+    return os.environ.get("KICKOFF_MACHINE") or re.sub(r"\s+", "-", socket.gethostname().strip()) or "machine"
+
+
+def active_claims(comments):
+    """[(machine, nonce)] of the card's KICKOFF CLAIM comments that no KICKOFF RELEASE answers, oldest first."""
+    order, released = [], set()
+    for cm in comments or []:
+        for kind, machine, nonce in CLAIM.findall(cm.get("body") or ""):
+            if kind == "CLAIM":
+                order.append((machine, nonce))
+            else:
+                released.add(nonce)
+    return [(m, n) for m, n in order if n not in released]
 
 
 def role_keys():
@@ -595,13 +644,21 @@ def ask_who(card_human, fallback_seat="producer / time keeper"):
     return seat_person(fallback_seat) or "Producer"
 
 
+def session_cap(cap=0):
+    """Jobs at once: the CPU count, lowered to --parallel / KICKOFF_PARALLEL when one is given (0 = no cap)."""
+    cpus = max(1, os.cpu_count() or 1)
+    return max(1, min(cap, cpus)) if cap and cap > 0 else cpus
+
+
 # ---------- the run ----------
 class Kickoff:
     journal_lost = 0   # journal and run-record writes that failed this run (the first one is reported)
 
-    def __init__(self, agent, parallel=2, dry=False, watch=None, tester_prompt=None, prejam=False, split=None,
+    def __init__(self, agent, parallel=0, dry=False, watch=None, tester_prompt=None, prejam=False, split=None,
                  max_cards=0, until=None):
-        self.agent, self.parallel, self.dry, self.watch = agent, max(1, parallel), dry, watch
+        # parallel 0 = auto: plan() already holds back a job whose lane overlaps a running one, so the only bound
+        # is the machine (one session per CPU); Unreal itself is bounded by the engine slots (tools/ue_slot.py).
+        self.agent, self.parallel, self.dry, self.watch = agent, session_cap(parallel), dry, watch
         self.split = dict(split or {})   # session kind -> agent CLI (--split); empty: every session on self.agent
         self.prejam = check_card.prejam_cards(ROOT) if prejam else None   # PRE-JAM mode: only these card IDs
         self.tester_prompt = (tester_prompt or "").strip() or None
@@ -935,6 +992,7 @@ class Kickoff:
             "kickoff applies it through the tool checks, tools/git_gate.py apply --auto), never a person's to write. At a human checkpoint write the "
             "NEEDS HUMAN line to $JAM_OUTBOX/needs-human.txt and stop that step. API asset steps "
             "(tools/assetgen.py image|sfx|music) queue for kickoff: finish what you can, the next session has them.",
+            UNIT_TESTS,
             extra,
             repo_map.prompt_line(ROOT),   # the team's own top-level folders, which docs/repo-map.md does not describe
             ("Tester prompt for this run (recorded in the run record; follow it where AGENTS.md allows): "
@@ -1085,7 +1143,8 @@ class Kickoff:
                 with open(os.path.join(box, "card.json"), "w", encoding="utf-8") as fh:
                     json.dump({"number": c.number, "title": c.title, "body": c.body}, fh)
                 task = ("Build the card in this worktree" + (" (assets you queued are now in place; continue)"
-                                                            if cycle else "") + ". Write pr.md for the PR.")
+                                                            if cycle else "") + ". Write pr.md for the PR. "
+                        + BUILD_CHECKS)
                 extra = ("Review feedback to fix:\n" + fix) if fix else ""
                 code = self.session(cid, c.owner_key, wt, box, self.prompt(c.owner_key, cid, f"#{c.number}", c.body, task,
                                                                     extra),
@@ -1126,7 +1185,7 @@ class Kickoff:
             moved = git("rev-parse", "HEAD", cwd=wt)[1] != before
             if int(ahead or 0) and (moved or not pr):
                 penv = dict(keys.scrub(os.environ))
-                if gate_line:   # the tool route's gate commit goes through the hooks' human route as kickoff
+                if gate_line:   # the tool route's gate commit is kickoff's (JAM_HUMAN); no git hook checks it
                     penv["JAM_HUMAN"] = git_gate.AUTO_BY
                 with GIT_LOCK:
                     rc, out = git("push", "-u", "origin", branch, cwd=wt, env=penv)
@@ -1189,7 +1248,8 @@ class Kickoff:
     def apply_gate_patch(self, c, cid, wt):
         """No person applies a gate patch: kickoff runs tools/git_gate.py apply --auto on the kept patch (every path in
         the card's lane, no guardrail enforcer, no guardrail loosened), which commits it in the card's worktree as
-        `GATE EDIT: by=kickoff`. CI's check_pr rule gate and the merge gate re-run the same checks.
+        the trailer `GATE EDIT: by=kickoff`. CI's check_pr rule gate and the merge gate find that commit in the PR's
+        git history and re-run the same checks.
         Returns (GATE EDIT line, None) or (None, why it was refused)."""
         env = {k: v for k, v in keys.scrub(os.environ).items() if k not in AGENT_ENV + ("JAM_KICKOFF", "JAM_HUMAN")}
         rc, lines = git_gate.apply_patch(cid, git_gate.AUTO_BY, no_pr=True, root=ROOT, env=env, auto=True)
@@ -1420,6 +1480,63 @@ class Kickoff:
                note=f"kickoff: tagged jam-start at {sha[:12]} (card 0.3 started; pre-jam record)")
         say(f"JAM-START tagged on main at {sha[:12]} (card 0.3 starts; docs/pre-jam-declaration.md)")
         return sha
+
+    # ----- claims: two kickoff machines, one board -----
+    def claim(self, c, kind, pr):
+        """Claim card c for one job. Returns the claim's nonce, or None when another machine holds the card or the
+        job is no longer due (the other machine finished it between this run's plan and its claim)."""
+        here, nonce = machine_id(), uuid.uuid4().hex[:12]
+        mine = self.__dict__.setdefault("my_claims", set())
+        mine.add(nonce)
+        self.gh.comment(c.number, f"ROLE: Producer | session {stamp()} (tools/kickoff.py)\n"
+                                  f"KICKOFF CLAIM: {here} {nonce} {kind}")
+        time.sleep(CLAIM_SETTLE)
+        it = self.gh.issue_view(c.number, "state,labels,comments")
+        live = [(m, n) for m, n in active_claims(it.get("comments")) if m != here or n in mine]
+        why = None
+        if not live or live[0][1] != nonce:
+            why = f"claimed by kickoff on {live[0][0]}" if live else "the claim did not read back"
+        elif (it.get("state") or "OPEN").upper() == "CLOSED":
+            why = "the card is closed"
+        else:
+            now = self.card_pr(c, self.gh.prs())
+            if kind == "build" and now and now.get("state") in ("OPEN", "MERGED"):
+                why = f"PR #{now['number']} is {now['state'].lower()} now"
+            elif kind != "build" and (not now or not pr or now["number"] != pr["number"] or now.get("state") != "OPEN"
+                                      or len(now.get("comments") or []) != len(pr.get("comments") or [])):
+                why = "its PR moved on since the plan"
+        if why:
+            self.release(c, nonce)
+            say(f"SKIP {kind} UE-{c.key} #{c.number}: {why}")
+            return None
+        return nonce
+
+    def release(self, c, nonce):
+        self.__dict__.setdefault("my_claims", set()).discard(nonce)
+        try:
+            self.gh.comment(c.number, f"ROLE: Producer | session {stamp()} (tools/kickoff.py)\n"
+                                      f"KICKOFF RELEASE: {machine_id()} {nonce}")
+        except RuntimeError as e:   # the other machine waits on the card until this machine's next run releases it
+            say(f"WARNING #{c.number}: could not release the claim {nonce}: {str(e)[:160]}")
+
+    def claimed(self, c, kind, pr, fn):
+        nonce = self.claim(c, kind, pr)
+        if nonce is None:
+            return None
+        try:
+            return fn()
+        finally:
+            self.release(c, nonce)
+
+    def release_stale_claims(self):
+        """A crashed run on this machine left claims: release them, so the other machine is not kept waiting."""
+        here = machine_id()
+        for it in self.gh.issues():
+            if (it.get("state") or "OPEN").upper() == "CLOSED":
+                continue
+            for m, n in active_claims(it.get("comments")):
+                if m == here:
+                    self.release(Card(it), n)
 
     def block(self, c):
         self.gh.label(c.number, add=["blocked"], remove=["doing"])
@@ -1711,7 +1828,7 @@ class Kickoff:
                 json.dump({"number": c.number, "title": c.title, "body": c.body, "pr": pr["number"]}, fh)
             task = (f"Review PR #{pr['number']} (branch {pr['headRefName']}, this worktree) as {c.reviewer}, a fresh "
                     "session that did not write it. Write review.md: first line `ROLE: <your role> | session "
-                    "<UTC time>`, then `VERDICT: approve` or `VERDICT: changes` and the reasons.")
+                    "<UTC time>`, then `VERDICT: approve` or `VERDICT: changes` and the reasons. " + REVIEW_CHECKS)
             code = self.session(cid, c.reviewer_key, wt, box, self.prompt(c.reviewer_key, cid, f"#{c.number}", c.body,
                                                                           task),
                                 {"JAM_ISSUE": f"#{c.number}", "JAM_PR": f"#{pr['number']}", "JAM_REVIEW": "1"},
@@ -1780,9 +1897,19 @@ class Kickoff:
         by_key = {c.key: c for c in cards}
         by_num = {f"#{c.number}": c for c in cards}
         held = [g for k, (kind, lanes) in self.running.items() for g in lanes]
+        here = machine_id()
+        elsewhere = {}   # card number -> the other kickoff machine that holds a claim on it
+        for c in cards:
+            other = [m for m, _ in active_claims(getattr(c, "comments", None)) if m != here]
+            if c.open and other:
+                elsewhere[c.number] = other[0]
+        oldest = {}   # card key -> the oldest open issue for it (two machines' Producers can file one card twice)
+        for c in sorted(cards, key=lambda c: c.number):
+            if c.open:
+                oldest.setdefault(c.key, c.number)
         for c in cards:
             pr = self.card_pr(c, prs)
-            if c.open and pr and pr.get("state") == "OPEN" and c.key not in self.running:
+            if c.open and c.key not in self.running and (pr and pr.get("state") == "OPEN" or c.number in elsewhere):
                 held += c.lanes
         jobs, waiting = [], []
         targets = self.gate_targets(cards)[0] if getattr(self, "until", None) else None
@@ -1794,6 +1921,12 @@ class Kickoff:
                 self.close_card(c, f"PR #{merged['number']} is merged")
                 if windows_daily():
                     self.daily_q.append((c, merged))
+                continue
+            if oldest.get(c.key, c.number) != c.number:
+                waiting.append(f"#{c.number} {c.cid}: a second issue for the card; #{oldest[c.key]} runs it")
+                continue
+            if c.number in elsewhere:
+                waiting.append(f"#{c.number} {c.cid}: claimed by kickoff on {elsewhere[c.number]}")
                 continue
             if c.labels & {"needs-human", "blocked"}:
                 waiting.append(f"#{c.number} {c.cid}: {'needs-human' if 'needs-human' in c.labels else 'blocked'}")
@@ -2031,6 +2164,7 @@ class Kickoff:
         while True:
             try:   # a gh call that still fails after its retries skips this cycle; it never crashes the run
                 if not primed:
+                    self.release_stale_claims()
                     self.producer_until_clean()
                     self.last_done = {c.key for c in self.cards() if c.done}
                     primed = True
@@ -2058,6 +2192,8 @@ class Kickoff:
                         (lambda c=c, pr=pr: self.daily_run(c, pr)) if kind == "daily" else \
                         (lambda c=c, pr=pr: self.merger(c, pr)) if kind == "merge" else \
                         (lambda c=c, fb=fb: self.builder(c, fb))
+                    if kind != "daily":   # one machine per card job: the other kickoff machine skips a claimed card
+                        fn = (lambda fn=fn, c=c, kind=kind, pr=pr: self.claimed(c, kind, pr, fn))
                     say(f"START {kind} UE-{c.key} #{c.number} " + (f"PR #{pr['number']} (kickoff, no agent session)"
                                                                    if kind == "merge" else "role=" +
                         (c.reviewer_key if kind == "review" else "qa-build" if kind == "daily" else c.owner_key)))
@@ -2229,7 +2365,8 @@ WIN_STEP = re.compile(r"\.ps1\b|\$env:|\bplatform=Win64\b", re.I)   # a step onl
 def until_plan(gate, root=ROOT):
     """(lines, problems): the order a kickoff --until <gate> on the Mac builds the gate's Day-0 cards in (After first),
     then the MVP cards and the Mac package; a problem for each card on the path that waits for the Windows machine,
-    names a Windows step, has a person act (a `HUMAN <kind>:` line) or has no agent reviewer. Read from the files only
+    names a Windows step, has a person act (a `HUMAN <kind>:` line), has no agent reviewer or asks a second role to
+    review (kickoff runs one reviewer per card). Read from the files only
     (no GitHub), so it runs before anything is filed."""
     rows = day0_rows(root)
     rk = role_keys()
@@ -2266,6 +2403,8 @@ def until_plan(gate, root=ROOT):
             m = check_card.HUMAN_LINE.match(d)
             if m:
                 probs.append(f"UE-{k}: a person acts (HUMAN {m.group('kind')}:): {d[:100]}")
+            for who in check_card.second_reviewers(d, reviewer, list(rk)):
+                probs.append(f"UE-{k}: a second review by {who}, but kickoff runs only {reviewer}: {d[:100]}")
         if rk.get(reviewer) is None:
             probs.append(f"UE-{k}: reviewer {reviewer!r} is not an agent role")
     lines.append(f"  then: the Producer files the MVP cards for MVP {', '.join(map(str, due))} ([{gate}] in "
@@ -2275,8 +2414,8 @@ def until_plan(gate, root=ROOT):
     wait = sorted((k for k, r in rows.items() if any(RUNS_ON_WINDOWS.search(d) for d in r[4])), key=check_card.natural)
     lines.append(f"  not on the path (they wait for the Windows packaging machine): "
                  f"{', '.join('UE-' + k for k in wait) or 'none'}")
-    lines.append(f"UNTIL {gate}: {len(probs)} step(s) need a person, the Windows machine or a human reviewer"
-                 + (": " + "; ".join(probs) if probs else ""))
+    lines.append(f"UNTIL {gate}: {len(probs)} step(s) need a person, the Windows machine, a human reviewer or a "
+                 "second reviewer" + (": " + "; ".join(probs) if probs else ""))
     return lines, probs
 
 
@@ -2436,7 +2575,8 @@ def _main(argv=None):
     ap.add_argument("--live", action="store_true", help="with --check: one free auth request per API key")
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--practice", action="store_true")
-    ap.add_argument("--parallel", type=int, default=int(os.environ.get("KICKOFF_PARALLEL", "2")))
+    ap.add_argument("--parallel", type=int, default=int(os.environ.get("KICKOFF_PARALLEL") or 0),
+                    help="upper cap on jobs at once (default 0 = auto: every ready, non-overlapping job, <= CPUs)")
     ap.add_argument("--watch", type=float, metavar="MIN")
     ap.add_argument("--max-cards", type=int, metavar="N", default=int(os.environ.get("KICKOFF_MAX_CARDS") or 0),
                     help="bound the run: start no new card once N cards merged or got blocked in this run; cards in "
@@ -2449,6 +2589,7 @@ def _main(argv=None):
     ap.add_argument("--prompt-file", help="read the tester's prompt from this file")
     ap.add_argument("--gdd", metavar="REV|FILE", help="the GDD revision (1.4) or .md file this run tests")
     ap.add_argument("--set-current", action="store_true", help="with --gdd: also point docs/gdd/CURRENT at it")
+    ap.add_argument("--mode", choices=("cards", "direct"), help="override docs/build/MODE for this run")
     a = ap.parse_args(argv)
     try:
         problem = install_problem()
@@ -2459,6 +2600,9 @@ def _main(argv=None):
         if inside:
             raise Refused(f"this window is inside an agent session ({'/'.join(inside)} is set). Open a new plain "
                           f"terminal window and run {me()} there.")
+        import direct_build
+        if not a.check and direct_build.resolve_mode(ROOT, a.mode, say=say) == "direct":   # before any GitHub step
+            return direct_build.run(dry_run=a.dry_run, say=say, cap=a.parallel)
         tester_prompt = read_prompt(a)
         if a.set_current and not a.gdd:
             raise Refused(f"--set-current needs --gdd. Type {me()} --gdd 1.4 --set-current.")

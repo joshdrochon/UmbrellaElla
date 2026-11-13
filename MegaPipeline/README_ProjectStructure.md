@@ -1,4 +1,4 @@
-> Generated from `README.md` at `a11903f` — edit the sources, not this file.
+> Generated from `README.md` at `b201a66` — edit the sources, not this file.
 > Rebuild: `python3 tools/export_package.py`. Check: `python3 tools/export_package.py --check`.
 
 # MegaPipeline: what's where
@@ -21,43 +21,43 @@ Word counts include the stamp at the top of each file. This README is not counte
 
 ```text
 MegaPipeline/
-  Project Instructions.md  (1882 words)
-  START_HERE.md  (2455 words)
-  AI Roles/  (15981 words)
+  Project Instructions.md  (1899 words)
+  START_HERE.md  (2626 words)
+  AI Roles/  (16024 words)
     MegaJam2026-AgentOps_v1.0.md  (1117 words)
     MegaJam2026-ArtDirector_v1.0.md  (1207 words)
-    MegaJam2026-AssetSpecialist_v1.0.md  (1207 words)
+    MegaJam2026-AssetSpecialist_v1.0.md  (1205 words)
     MegaJam2026-Audio_v1.0.md  (1208 words)
     MegaJam2026-DevLead_v1.0.md  (1206 words)
     MegaJam2026-EncounterDesigner_v1.0.md  (1194 words)
     MegaJam2026-GameDesigner_v1.0.md  (929 words)
     MegaJam2026-GameplayDev_v1.0.md  (1080 words)
     MegaJam2026-Integrator_v1.0.md  (650 words)
-    MegaJam2026-LevelDesigner_v1.0.md  (988 words)
+    MegaJam2026-LevelDesigner_v1.0.md  (1026 words)
     MegaJam2026-Producer_v1.0.md  (1200 words)
-    MegaJam2026-QABuild_v1.0.md  (1208 words)
+    MegaJam2026-QABuild_v1.0.md  (1210 words)
     MegaJam2026-Story_v1.0.md  (933 words)
-    MegaJam2026-TechnicalDirector_v1.0.md  (1108 words)
+    MegaJam2026-TechnicalDirector_v1.0.md  (1113 words)
     MegaJam2026-UIUX_v1.0.md  (746 words)
-  Pipelines/  (157033 words)
-    Production Pipeline.md  (24191 words)
+  Pipelines/  (161420 words)
+    Production Pipeline.md  (24551 words)
     Design Pipeline.md  (8502 words)
-    Development Pipeline.md  (14792 words)
-    Technical Development Pipeline.md  (7260 words)
-    QA Pipeline.md  (7983 words)
-    Art Pipeline.md  (27675 words)
+    Development Pipeline.md  (14827 words)
+    Technical Development Pipeline.md  (8008 words)
+    QA Pipeline.md  (7985 words)
+    Art Pipeline.md  (29436 words)
     Audio Pipeline.md  (16648 words)
     Story Pipeline.md  (4565 words)
     Level Pipeline.md  (9664 words)
     UI UX Pipeline.md  (5511 words)
     Game Feel Pipeline.md  (7086 words)
-    Agent Ops Pipeline.md  (16944 words)
-    Submission Pipeline.md  (6212 words)
-  Reference/  (130672 words)
+    Agent Ops Pipeline.md  (18364 words)
+    Submission Pipeline.md  (6273 words)
+  Reference/  (130199 words)
     GDD Snapshot.md  (32487 words)
     Official Rules.md  (7887 words)
     Feature Manifest.md  (16217 words)
-    Decisions.md  (10518 words)
+    Decisions.md  (10045 words)
     Coverage Map.md  (41298 words)
     Port Log.md  (1267 words)
     Pipeline Audit.md  (4936 words)
@@ -83,7 +83,7 @@ MegaPipeline/
 | `AI Roles/MegaJam2026-Story_v1.0.md` | `pipeline/roles/story.md`, `.claude/agents/story.md` |
 | `AI Roles/MegaJam2026-TechnicalDirector_v1.0.md` | `pipeline/roles/technical-director.md`, `.claude/agents/technical-director.md` |
 | `AI Roles/MegaJam2026-UIUX_v1.0.md` | `pipeline/roles/ui-ux.md` |
-| `Pipelines/Agent Ops Pipeline.md` | `pipeline/agent-ops/README.md`, `pipeline/agent-ops/gates.json`, `pipeline/agent-ops/settings.json`, `pipeline/agent-ops/agent-tools.json`, `pipeline/agent-ops/components.csv`, `pipeline/agent-ops/model-tiers.md`, `pipeline/agent-ops/model-prices.json`, `pipeline/agent-ops/asset-tools.json`, `pipeline/agent-ops/editor-mcp.md`, `pipeline/agent-ops/mcp.template.json`, `tools/editor_mcp.py`, `pipeline/agent-ops/mcp.tools.template.json`, `tools/mcp_config.py`, `tools/kickoff.sh`, `tools/kickoff.ps1`, `tools/kickoff.py`, `tools/connections.py`, `tools/keys.py`, `tools/practice.py`, `tools/git_gate.py`, `tools/assetgen.py`, `prompts/README.md`, `evals/README.md`, `docs/references.md`, `docs/repo-map.md`, `tools/repo_map.py`, `pipeline/agent-ops/hook.py`, `pipeline/agent-ops/journal_hook.py`, `tools/journal.py`, `tools/install_git_hooks.py`, `tools/agent.sh`, `tools/agent.ps1`, `tools/start_session.sh`, `tools/start_session.ps1`, `tools/start_session.py`, `tools/spend_log.py`, `tools/prompt_log.py`, `tools/secrets_check.py` |
+| `Pipelines/Agent Ops Pipeline.md` | `pipeline/agent-ops/README.md`, `pipeline/agent-ops/gates.json`, `pipeline/agent-ops/settings.json`, `pipeline/agent-ops/agent-tools.json`, `pipeline/agent-ops/components.csv`, `pipeline/agent-ops/model-tiers.md`, `pipeline/agent-ops/model-prices.json`, `pipeline/agent-ops/asset-tools.json`, `pipeline/agent-ops/editor-mcp.md`, `pipeline/agent-ops/mcp.template.json`, `tools/editor_mcp.py`, `pipeline/agent-ops/mcp.tools.template.json`, `tools/mcp_config.py`, `tools/kickoff.sh`, `tools/kickoff.ps1`, `tools/kickoff.py`, `tools/connections.py`, `tools/keys.py`, `tools/practice.py`, `tools/git_gate.py`, `tools/assetgen.py`, `tools/direct_build.py`, `tools/area.py`, `tools/area.sh`, `tools/area.ps1`, `tools/ue_slot.py`, `docs/build/HANDOFF-template.md`, `prompts/README.md`, `evals/README.md`, `docs/references.md`, `docs/repo-map.md`, `tools/repo_map.py`, `pipeline/agent-ops/hook.py`, `pipeline/agent-ops/journal_hook.py`, `tools/journal.py`, `tools/install_git_hooks.py`, `tools/agent.sh`, `tools/agent.ps1`, `tools/start_session.sh`, `tools/start_session.ps1`, `tools/start_session.py`, `tools/spend_log.py`, `tools/prompt_log.py`, `tools/secrets_check.py` |
 | `Pipelines/Art Pipeline.md` | `pipeline/art/art-bible.md`, `pipeline/art/style.json`, `pipeline/art/references.json`, `pipeline/art/reference/discord/index.json`, `pipeline/art/reference/Test_Assets/SpriteLayout.json`, `pipeline/art/reference/Test_Assets/Asset Notes.md`, `pipeline/art/blender/characters.json`, `pipeline/art/blender/plan.py`, `pipeline/art/blender/stand_ins.py`, `pipeline/art/blender/render_sprite.py`, `pipeline/art/import-rules.md`, `pipeline/art/provenance.csv`, `pipeline/checklists/animation-review.md`, `pipeline/templates/asset-brief.md`, `evals/art-judge/README.md`, `evals/art-judge/blind_pairwise.md`, `evals/art-judge/agreement.csv`, `evals/art-judge/critic-calibration.json`, `tools/art_judge_prompt.md`, `tools/art_check.py`, `tools/screen_check.py`, `tools/art_judge.py`, `tools/art_ref_check.py`, `tools/art_loop.py`, `tools/sprite_check.py`, `tools/make_art_calibration.py`, `tools/png.py` |
 | `Pipelines/Audio Pipeline.md` | `pipeline/audio/style-target.md`, `pipeline/audio/style.json`, `pipeline/audio/sound-events.json`, `pipeline/audio/audio-rules.md`, `pipeline/audio/audio-rules.json`, `pipeline/audio/sound-list.csv`, `tools/audio_loop.py`, `tools/audio_critic_prompt.md`, `tools/audio_check.py`, `tools/audio_style_check.py`, `tools/audio_import.py`, `tools/ue/audio_dump.py`, `pipeline/audio/ue/audio_dump.py` |
 | `Pipelines/Design Pipeline.md` | `docs/gdd/README.md`, `docs/gdd/questions-1.3.md`, `docs/gdd/questions-B1.0.md`, `docs/game-spec.md`, `docs/balance.md`, `pipeline/checklists/design-review.md`, `pipeline/checklists/tuning.md`, `tools/manifest_check.py`, `tools/gdd_impact.py`, `tools/gdd_select.py`, `tools/bake_preset.py`, `tools/tuning.py`, `tools/progression_model.py` |
@@ -94,7 +94,7 @@ MegaPipeline/
 | `Pipelines/QA Pipeline.md` | `pipeline/qa/test-map.md`, `pipeline/qa/playtests.md`, `pipeline/qa/presets.json`, `pipeline/qa/no-player-maps.txt`, `pipeline/templates/test-note.md`, `tools/ue/daily-checklist.md`, `tools/ue/smoke-allow.txt`, `tools/check_automation_report.py`, `tools/ue/test.ps1`, `tools/ue/test.sh`, `tools/ue/daily.ps1`, `tools/ue/daily.sh`, `tools/ue/package.ps1`, `tools/ue/package.sh`, `tools/ue/smoke.ps1`, `tools/ue/smoke.sh` |
 | `Pipelines/Story Pipeline.md` | `pipeline/story/story-bible.md`, `pipeline/story/lines.csv`, `pipeline/story/story.json`, `tools/story_critic_prompt.md`, `evals/story-critic/README.md`, `evals/story-critic/calibration.csv`, `tools/story_check.py` |
 | `Pipelines/Submission Pipeline.md` | `pipeline/checklists/submission.md`, `docs/pre-jam-declaration.md`, `pipeline/submission/LICENSE.txt`, `pipeline/submission/README.txt`, `pipeline/submission/credits.md`, `pipeline/submission/devlog.md`, `pipeline/submission/footage.md`, `pipeline/submission/itch-page.md`, `pipeline/submission/video-plan.md`, `tools/submission_check.py` |
-| `Pipelines/Technical Development Pipeline.md` | `pipeline/unreal/commands-and-packaging.md`, `.github/workflows/pipeline-checks.yml`, `.github/CODEOWNERS.example`, `tools/pipeline_check.py`, `tools/module_check.py`, `tools/ue_run.py`, `tools/ue/common.ps1`, `tools/ue/common.sh`, `tools/ue/build.ps1`, `tools/ue/build.sh`, `tools/ue/validate.ps1`, `tools/ue/validate.sh`, `tools/export_package.py` |
+| `Pipelines/Technical Development Pipeline.md` | `pipeline/unreal/commands-and-packaging.md`, `.github/workflows/pipeline-checks.yml`, `.github/CODEOWNERS.example`, `tools/pipeline_check.py`, `tools/affected_tests.py`, `tools/module_check.py`, `tools/ue_run.py`, `tools/ue/common.ps1`, `tools/ue/common.sh`, `tools/ue/build.ps1`, `tools/ue/build.sh`, `tools/ue/validate.ps1`, `tools/ue/validate.sh`, `tools/export_package.py` |
 | `Pipelines/UI UX Pipeline.md` | `pipeline/ui/accessibility.md`, `pipeline/ui/menus.md`, `pipeline/ui/signals.json`, `tools/ui_check.py` |
 | `Project Instructions.md` | `AGENTS.md`, `CLAUDE.md` |
 | `README_ProjectStructure.md` | `README.md` |
@@ -135,7 +135,19 @@ Umbrella Ella (working title): a 2D Unreal Engine 5.8.4 action game for the jam.
 - Pipeline audit (issue #11): [`docs/audit.md`](docs/audit.md)
 - Sources: [`docs/references.md`](docs/references.md)
 
-Checks: `python3 tools/pipeline_check.py` and `python3 -m unittest discover -s tests` (no installs needed).
+Checks: `python3 tools/pipeline_check.py`; a card session adds `python3 tools/affected_tests.py --run` (the tests for
+the changed files, a 5-minute target). The full suite, `python3 -m unittest discover -s tests`, is CI's (no installs needed).
+
+#### Build modes
+`tools/kickoff.sh` (Windows: `tools\kickoff.ps1`) follows `docs/build/MODE`:
+- `direct`: no GitHub cards, PRs or reviews. Kickoff reads `HANDOFF.md`, resumes every unfinished area from its
+  `area/<name>` branch with a Claude Code worker (brief: `docs/build/areas/<name>.md`), runs the local gates, merges
+  each passing area into `main` and pushes. Use it to build fast, or to pick up the build where someone stopped.
+- `cards`: the GitHub card flow (task cards, PRs, reviewers, CI). Use it when every change should be reviewed on GitHub.
+No MODE file: kickoff asks once (Enter = `direct`) and saves the answer. Change it by editing the file, or pass
+`--mode cards|direct` for one run. Both modes start every ready job whose files overlap no running job's (at most one
+per CPU; `--parallel N` caps it); Unreal builds and tests share `UE_SLOTS` (default 2) engine slots. One area by hand:
+`tools/area.sh <name>` (Windows: `tools\area.ps1 <name>`). Lead's handoff file shape: `docs/build/HANDOFF-template.md`.
 
 #### Install and run (Claude Code or Codex, same steps)
 1. **Type `tools/kickoff.sh`** (Windows: `tools\kickoff.ps1`) with no options. It prints the pipeline version, runs the
@@ -149,9 +161,9 @@ Checks: `python3 tools/pipeline_check.py` and `python3 -m unittest discover -s t
 4. Options: `--agent codex|claude`, `--check` (version and check only), `--practice` once in a test repo,
    `--prompt-file F` to record your own prompt for A/B runs (`python3 tools/journal.py compare <a> <b>`).
 
-Codex users get the same guardrails as Claude Code users: kickoff installs git pre-commit and pre-push hooks
-(`tools/install_git_hooks.py`, `tools/git_gate.py`) that refuse any agent commit to a gate path, and CI fails a PR
-that changes one without the human's `GATE EDIT:` line (`tools/check_pr.py`). The Claude hook stays as an extra layer.
+Codex users get the same guardrails as Claude Code users: no local git hook checks gate paths; CI fails a card PR that
+changes one unless the commit came through kickoff's tool route (trailer `GATE EDIT: by=kickoff`, read from git, not
+from the PR body; `tools/check_pr.py` rule gate), and kickoff's merge gate runs that rule again. The Claude hook stays as an extra layer.
 How to run the jam day to day: `pipeline/how-to-run-the-jam.md`. What the tools check and what people decide:
 `pipeline/what-the-pipeline-controls.md`.
 

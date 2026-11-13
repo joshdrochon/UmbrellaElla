@@ -23,7 +23,8 @@ Checks:
             an automation test name UmbrellaElla.<Area>.<Behavior>, SMOKE_OK, "marked DECIDED", or a
             command result ("exits 0", "prints PASS", "lists 8") on a line that names the command
             (`backticks`, tools/..., *.py/*.sh/*.ps1, gh/git/grep). A line that says "works" /
-            "looks good" / "feels right" needs one of these; a hedge ("eventually", "should") always fails
+            "looks good" / "feels right" needs one of these; a hedge ("eventually", "should") always fails, and so
+            does a line that asks for the full unit suite (`unittest discover`: CI's job, never a card session's)
   GDD ref   tooling cards write "none" ("n/a" is read as an unfilled placeholder)
   gdd       GDD revision names a snapshot in docs/gdd/ (GDD-<rev>.md). A card on an older revision than docs/gdd/CURRENT
             fails only if one of its Features changed between the two (tools/gdd_impact.py); other cards stay valid
@@ -165,6 +166,7 @@ VAGUE = re.compile(
     r"\b(?:works?|working|functional|looks? (?:good|right|nice|fine|ok|okay|better|great)"
     r"|feels? (?:right|good|nice|better|fun|great)|is fine|properly|correctly|as expected|polished|is done)\b",
     re.IGNORECASE)
+FULL_SUITE = re.compile(r"\bunittest\s+discover\b")   # card sessions never run it (AGENTS.md section 8)
 HEDGE = re.compile(r"\b(?:eventually|somehow|mostly|usually|sometimes|roughly|basically|ideally|hopefully"
                    r"|should|more or less|if possible)\b", re.IGNORECASE)
 NO_LANE = re.compile(r"[`'\"\s]*(?:none|nothing|n/?a|everything|all|any|anything|whole repo|the (?:whole )?repo"
@@ -543,7 +545,11 @@ def problems(body, root=ROOT, title=None, manifest=None):
             out.append(("done", "an MVP feature card names its engine test (UmbrellaElla.<Area>.<Behavior>, "
                                 "pipeline/qa/test-map.md) in Done when; a build line alone is not a feature test"))
         for ln in lines:
-            if HEDGE.search(ln):
+            if FULL_SUITE.search(ln):
+                out.append(("done", "a Done-when line runs the full unit suite (`unittest discover`); name the test "
+                                    "modules or `tools/affected_tests.py --run`: the full suite runs in the pipeline "
+                                    f"repos' CI, never in a card session: '{ln[:70]}'"))
+            elif HEDGE.search(ln):
                 out.append(("done", f"hedged Done-when line ('{HEDGE.search(ln).group(0)}'); say exactly what is checked: '{ln[:70]}'"))
             elif VAGUE.search(ln) and not measurable(ln):
                 out.append(("done", f"vague Done-when line without a number or test: '{ln[:70]}'"))
@@ -1108,6 +1114,19 @@ HUMAN_ACTOR = re.compile(r"\b(?:TD human|human Producer|Producer \(human\)|Rick|
                          r"launch machine owner|Art Director human|Creative director|audio owner|playtest lead|"
                          r"(?:the|a) human)\b")
 PREJAM_LINE = re.compile(r"^\*\*Pre-jam cards:\*\*\s*(.+)$", re.M)
+# A Done-when line that asks a role other than the card's reviewer to review or approve: kickoff runs exactly one
+# reviewer session per card (the Reviewer column), so nobody runs that second review and the card stalls.
+ROLE_ALIAS = {"TD": "Technical Director"}
+REVIEW_VERB = r"(?:'s)?(?: (?:agent|owner|human))? (?:reviews?|approves?|verdict|signs? off)\b"
+
+
+def second_reviewers(seg, reviewer, roles_list):
+    """The roles (other than `reviewer`) a Done-when line asks for a review, approval or verdict."""
+    seg = re.sub(r"`[^`]*`", "", seg)
+    names = {r: r for r in roles_list}
+    names.update({a: r for a, r in ROLE_ALIAS.items() if r in roles_list})
+    return sorted({r for n, r in names.items() if r != reviewer
+                   and re.search(r"\b" + re.escape(n) + REVIEW_VERB, seg, re.I)})
 
 
 def prejam_cards(root=ROOT):
@@ -1165,6 +1184,9 @@ def day0_owner_problems(text, roles_list):
             elif HUMAN_ACTOR.search(re.sub(r"`[^`]*`", "", seg)):
                 out.append(f"{cid}: a person acts in a line with no `HUMAN <kind>:` tag (an agent does the work, or "
                            f"it is a checkpoint): {seg.strip()[:90]}")
+            for who in second_reviewers(seg, reviewer, roles_list):
+                out.append(f"{cid}: asks {who} to review or approve, but kickoff runs only the Reviewer column "
+                           f"({reviewer}): make it a check the builder pastes: {seg.strip()[:90]}")
         for k in kinds:
             if k not in used:
                 out.append(f"{cid}: signs off '{k}' but no Done-when line starts 'HUMAN {k}:'")
