@@ -76,3 +76,10 @@ Stuck rule: critic gap unchanged 3 rounds (deterministic score best 0.716): NEED
 - Blind panel (24 fresh sessions, 8 reference pairs + quality bar, 3 each): verdict reference. Calibration counted 16/27 sessions; reference pairs 1-2 of 3 calibrated each. Critic gaps (ours): wings and plumage still read organic/feathered, one wing visible, head small and glossy. Calibration (SAME and known-different folders) behaved in the sessions that counted, so not a critic defect.
 - Context pair still missing: no Keeper `_PH` slot yet (docs/build/requests/artkeeper.md; artslots merge has none).
 - Next R9: wing wording as rigid blades with visible joint spars, matte etched finish (less gloss), two wings visible.
+
+## Rounds 9 and 10 (Nov 13), cost $0.141 + $0.142, spent 8.102 of 33.82
+- R9 (rigid chisel-tip blades, matte finish): wings now read as rigid blades, but the model turned the owl to face the camera with ear tufts and set the cylinder under the feet. Ours (prompt): the wing rewrite shifted pose. Not cut or judged.
+- R10 (R8 grid as the pose input + R9 wing wording): model copied the R8 pose almost unchanged (top-right cell has the broad rigid fan wing, others as R8). Cut and keyed: art_ref_check 0.693 / 0.700 / 0.658 / 0.702 (min 0.698). Same look as R8, so no new panel run (R8 panel already measured that look: reference wins).
+- Verdict: the look has plateaued at the R8 level; remaining panel gaps (organic/feathered read, single clear wing, small glossy head) have not moved by prompt wording across R6-R10. Owl stays the tracked `_PH`; nothing shipped.
+- Blocker for the lead: (1) no Keeper `_PH` slot, so the context pair cannot be made (docs/build/requests/artkeeper.md); (2) panel calibration counts only 16/27 sessions, so even a good round would stay "missing" until the critic sessions calibrate more reliably: lead to check the calibration folders (not loosening the bar). 
+NEEDS HUMAN: Art Director / Josh: decide whether the Blender articulated route (rigid parts, Blender-rendered vanes with painted texture) should take over, since pure painting has plateaued 3 rounds.
