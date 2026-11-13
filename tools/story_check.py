@@ -66,6 +66,30 @@ LINES = "pipeline/story/lines.csv"
 RULES = "pipeline/story/story.json"
 MANIFEST = "docs/feature-manifest.json"
 CALIBRATION = "evals/story-critic/calibration.csv"
+CRITIC_RESULTS = "pipeline/story/critic-results.csv"
+
+
+def text_hash(s):
+    return hashlib.sha256(s.encode()).hexdigest()[:8]
+
+
+def lines_to_judge(lines_csv, results_csv):
+    """Shipped lines the critic panel must judge: those with no passed verdict on their exact text. A line whose text
+    already passed (critic-results.csv: verdict pass, same text_hash) keeps that verdict and is not judged again
+    (Nov 13: unchanged lines that passed on main failed on re-judging, so the verdict drifted, not the text)."""
+    try:
+        res = {r["id"]: r for r in csv.DictReader(open(results_csv, encoding="utf-8"))}
+    except OSError:
+        res = {}
+    out = []
+    for r in csv.DictReader(open(lines_csv, encoding="utf-8")):
+        if not r.get("text") or (r.get("ship") or "").strip().lower() == "no":
+            continue
+        v = res.get(r["id"]) or {}
+        if v.get("verdict") == "pass" and v.get("text_hash") == text_hash(r["text"]):
+            continue
+        out.append(r)
+    return out
 COLUMNS = ["id", "surface", "text", "facts", "ship", "note"]
 SECTIONS = ["Status words", "Sources", "Names", "Facts", "Open questions", "Tone target", "Tone sheet for other lanes",
             "Never use"]
@@ -322,7 +346,11 @@ def line_problems(rows, bible, rules, nar_ok):
             continue
         out += text_problems(text, where, rules, bible)
         words = len(WORD.findall(text))
-        if sf and words > sf["max_words"]:
+        cap = sf["max_words"] if sf else 0
+        ex = (rules.get("length_exceptions") or {}).get(r["id"])
+        if ex and ex.get("why"):
+            cap = max(cap, int(ex["max_words"]))
+        if sf and words > cap:
             out.append(("length", where, f"{words} words; a {r['surface']} allows {sf['max_words']}"))
         for fid, rx, why in contra:
             if rx.search(text):
@@ -516,6 +544,8 @@ def main(argv=None):
             print(f"story_check: {'PASS' if not probs else 'FAIL ' + str(len(probs)) + ' problem(s)'} table keys={keys}")
             return 1 if probs else 0
         if a.critic is not None:
+            if os.environ.get("STORY_CRITIC_LINES"):   # critic.sh judged only the lines without a passed verdict
+                n = int(os.environ["STORY_CRITIC_LINES"])
             probs = critic_problems(a.critic, rules, bh, sh, n)
             for p in probs:
                 print("- " + p)

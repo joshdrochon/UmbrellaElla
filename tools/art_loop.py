@@ -1737,11 +1737,15 @@ def main(argv=None):
         if a.cmd == "run":
             return cmd_run(a, refs, rh)
         if a.cmd == "gate-rerun":
-            tmp = tempfile.mkdtemp(prefix="art-rerun-")
+            # The answers stay for triage (Nov 13: a failed re-run left nothing to read): ../logs/gate-rerun-<piece>/
+            keep = os.path.join(os.path.dirname(os.path.abspath(a.root)), "UmbrellaElla-areas", "logs", f"gate-rerun-{a.piece}")
+            shutil.rmtree(keep, ignore_errors=True)
             try:
-                good, rec = rerun(a.root, a.piece, tmp)
-            finally:
-                shutil.rmtree(tmp, ignore_errors=True)
+                os.makedirs(keep)
+                tmp = keep
+            except OSError:
+                tmp = tempfile.mkdtemp(prefix="art-rerun-")
+            good, rec = rerun(a.root, a.piece, tmp)
             print(f"art_loop: gate re-run piece={a.piece} verdict={rec['verdict']} pairs="
                   + ",".join(f"{k}:{v}" for k, v in rec["pairs"].items())
                   + f" panel={rec['panel']} calibration={rec['calibration']['passed']}/{rec['calibration']['sessions']}"
