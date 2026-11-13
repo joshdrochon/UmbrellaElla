@@ -1,4 +1,5 @@
 #include "Encounter/EncounterDirectorSubsystem.h"
+#include "Core/UmbrellaSourceIds.h"
 
 #include "Arena/UmbrellaArena.h"
 #include "Core/UmbrellaDrawOrder.h"
@@ -316,6 +317,7 @@ void UEncounterDirectorSubsystem::ResetForRestart()
 	ClearEnemyProjectiles();
 	ThawProjectiles();
 	DestroyKeeper();
+	StopGustWind();
 	bWinPending = false;
 	bDefeatInWinFrame = false;
 	const bool bRetry = IsFeatureEnabled(EFeatureId::FLOW_09) && IsFeatureEnabled(EFeatureId::OWL_10)
@@ -339,6 +341,7 @@ void UEncounterDirectorSubsystem::SetPaused(bool bPaused)
 	if (bPaused && State == EEncounterState::Active)
 	{
 		StateBeforePause = State;
+		StopGustWind();
 		State = EEncounterState::Paused;
 		FreezeProjectiles();
 	}
@@ -365,14 +368,22 @@ void UEncounterDirectorSubsystem::AdvanceFight(float DeltaSeconds)
 	{
 		return;
 	}
-	LastDelta = DeltaSeconds;
 	ElapsedSeconds += DeltaSeconds;
 	FKeeperTickInput Input;
 	Input.PlayerPos = PlayerPosition();
 	Input.PlayerRadius = PlayerRadius();
 	TArray<FKeeperCommand> Commands;
+	bGustPushThisStep = false;
 	Model.Step(DeltaSeconds, Input, Commands);
 	ProcessCommands(Commands);
+	if (bGustPushThisStep)
+	{
+		StartGustWind(PendingGustSpeed);
+	}
+	else
+	{
+		StopGustWind();
+	}
 	if (Keeper && State == EEncounterState::Active)
 	{
 		Keeper->Refresh(Model, ElapsedSeconds);
@@ -431,10 +442,9 @@ void UEncounterDirectorSubsystem::ProcessCommands(TArray<FKeeperCommand>& Comman
 			DamageDelivered.Broadcast(Command.Name, Command.Damage);
 			break;
 		case EKeeperCommandType::PushPlayer:
-			if (AActor* Player = GetPlayerActor())
-			{
-				Player->AddActorWorldOffset(FVector(0.0f, 0.0f, Command.Value * LastDelta), true);
-			}
+			// Same world-scaled time as the model: the slow scale multiplies the push speed the Motor integrates.
+			PendingGustSpeed = Command.Value * Model.GetWorldScale();
+			bGustPushThisStep = true;
 			break;
 		case EKeeperCommandType::ClearProjectiles:
 			ClearEnemyProjectiles();
@@ -487,11 +497,51 @@ void UEncounterDirectorSubsystem::HandleDefeated(const FUmbrellaEvent& Event)
 	EnterFailure();
 }
 
+void UEncounterDirectorSubsystem::StartGustWind(float SignedSpeed)
+{
+	if (bGustWindActive && FMath::IsNearlyEqual(ActiveGustSpeed, SignedSpeed))
+	{
+		return;
+	}
+	// Motor current contract: force (speed, units/s) in Value, direction word in Detail. Up for a positive push.
+	if (UUmbrellaEventBus* Bus = UUmbrellaEventBus::Get(this))
+	{
+		FUmbrellaEvent Event;
+		Event.Type = EUmbrellaEventType::WindEntered;
+		Event.SourceId = UmbrellaSourceIds::GustBand();
+		Event.TargetId = PlayerTarget;
+		Event.Detail = SignedSpeed >= 0.0f ? FName(TEXT("Up")) : FName(TEXT("Down"));
+		Event.Value = FMath::Abs(SignedSpeed);
+		Bus->Broadcast(Event);
+	}
+	bGustWindActive = true;
+	ActiveGustSpeed = SignedSpeed;
+}
+
+void UEncounterDirectorSubsystem::StopGustWind()
+{
+	if (!bGustWindActive)
+	{
+		return;
+	}
+	bGustWindActive = false;
+	ActiveGustSpeed = 0.0f;
+	if (UUmbrellaEventBus* Bus = UUmbrellaEventBus::Get(this))
+	{
+		FUmbrellaEvent Event;
+		Event.Type = EUmbrellaEventType::WindExited;
+		Event.SourceId = UmbrellaSourceIds::GustBand();
+		Event.TargetId = PlayerTarget;
+		Bus->Broadcast(Event);
+	}
+}
+
 void UEncounterDirectorSubsystem::EnterFailure()
 {
 	TArray<FKeeperCommand> Commands;
 	Model.Halt(Commands);
 	ProcessCommands(Commands);
+	StopGustWind();
 	ThawProjectiles();
 	State = EEncounterState::EndingFailure;
 }
@@ -508,17 +558,19 @@ void UEncounterDirectorSubsystem::FinalizeEnding()
 		return;
 	}
 	bWinPending = false;
-	if (!IsFeatureEnabled(EFeatureId::OWL_35))
-	{
-		return;
-	}
 	State = ResolveEnding(false, true);
 	ClearEnemyProjectiles();
-	const float Departure = GetDefault<UUmbrellaTuning>()->Keeper.DepartureSeconds;
+	StopGustWind();
+	// OWL-35 off: the fight still ends in success, only the departure animation is skipped (never Active with a halted model).
+	const bool bDeparture = DepartureOverride.IsSet() ? DepartureOverride.GetValue() : IsFeatureEnabled(EFeatureId::OWL_35);
+	const float Departure = bDeparture ? GetDefault<UUmbrellaTuning>()->Keeper.DepartureSeconds : 0.0f;
 	if (Keeper)
 	{
 		Keeper->Refresh(Model, ElapsedSeconds);
-		Keeper->BeginDeparture(Departure);
+		if (bDeparture)
+		{
+			Keeper->BeginDeparture(Departure);
+		}
 	}
 	Broadcast(EUmbrellaEventType::EncounterCompleted, SuccessDetail, KeeperSource, Departure, 0);
 }

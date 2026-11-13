@@ -8,9 +8,14 @@
 #include "Engine/Engine.h"
 #include "Engine/World.h"
 #include "GameFramework/Actor.h"
+#include "Motor/EllaMotorComponent.h"
+#include "Motor/MotorModel.h"
 #include "Owl/KeeperOfTime.h"
 #include "Owl/KeeperPartComponent.h"
+#include "Core/UmbrellaSourceIds.h"
+#include "Core/UmbrellaTuning.h"
 #include "Projectile/UmbrellaShotSpec.h"
+#include "Umbrella/UmbrellaStateComponent.h"
 
 namespace
 {
@@ -296,6 +301,162 @@ bool FKeeperWorldHeadShootable::RunTest(const FString& Parameters)
 	TestTrue(TEXT("front cast extended"), W.Director->GetModel().GetPhysical() == EKeeperPhysical::FrontCast);
 	TestTrue(TEXT("head hittable"), Keeper->GetHeadComponent(EKeeperPart::Front)->GetCollisionEnabled() != ECollisionEnabled::NoCollision);
 	TestTrue(TEXT("no second hittable head at home"), Keeper->GetPartComponent(EKeeperPart::Front)->GetCollisionEnabled() == ECollisionEnabled::NoCollision);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FKeeperWorldNoDepartureEnds, "UmbrellaElla.Keeper.World.FinalHitWithDepartureOffStillEndsInSuccess", WorldFlags)
+bool FKeeperWorldNoDepartureEnds::RunTest(const FString& Parameters)
+{
+	FKeeperWorld W;
+	AddExpectedError(TEXT("no arena in the world"), EAutomationExpectedErrorFlags::Contains, 0);
+	W.Director->SetDepartureEnabledForTest(false);
+	W.Director->BeginKeeperFightAtPhase(EKeeperPhase::Clock);
+	W.Advance(2.2f);
+	W.Shoot(EKeeperPart::Clock, 100000.0f);
+	W.Advance(0.05f);
+	TestTrue(TEXT("ENDING_SUCCESS, not ACTIVE with a halted model"), W.Director->GetState() == EEncounterState::EndingSuccess);
+	TestEqual(TEXT("EncounterCompleted once"), W.CountEvents(EUmbrellaEventType::EncounterCompleted), 1);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FKeeperWorldGustViaMotor, "UmbrellaElla.Keeper.World.GustPushGoesThroughWindEventsNotPosition", WorldFlags)
+bool FKeeperWorldGustViaMotor::RunTest(const FString& Parameters)
+{
+	FKeeperWorld W;
+	AddExpectedError(TEXT("no arena in the world"), EAutomationExpectedErrorFlags::Contains, 0);
+	W.Director->BeginKeeperFight();
+	const FVector Start = W.Ella->GetActorLocation();
+	// Keep Ella in the band the gust locks to (it locks to her height) and let the front sweep through her.
+	for (float T = 0.0f; T < 20.0f && W.CountEvents(EUmbrellaEventType::WindEntered) == 0; T += 0.05f)
+	{
+		W.Director->AdvanceFight(0.05f);
+	}
+	TestTrue(TEXT("Gust WindEntered was sent"), W.CountEvents(EUmbrellaEventType::WindEntered) > 0);
+	for (const FUmbrellaEvent& Event : *W.Shared)
+	{
+		if (Event.Type == EUmbrellaEventType::WindEntered)
+		{
+			TestEqual(TEXT("source is GUST_Band"), Event.SourceId, UmbrellaSourceIds::GustBand());
+			TestEqual(TEXT("force is the tuned push at world scale 1"), Event.Value, GetDefault<UUmbrellaTuning>()->Keeper.GustPush);
+		}
+	}
+	TestEqual(TEXT("the director never moved Ella"), W.Ella->GetActorLocation().Z, Start.Z);
+	W.Director->SetPaused(true);
+	TestTrue(TEXT("wind ends when the push stops"), W.CountEvents(EUmbrellaEventType::WindExited) > 0);
+	return true;
+}
+
+
+namespace
+{
+	/** Send a gust WindEntered (Up) and step a Motor; returns the vertical displacement. */
+	float KeeperGustMotorDz(bool bShoot, bool bAbsorb, bool bRide, float Speed, float Seconds, EUmbrellaAction& OutAction)
+	{
+		UWorld* World = UWorld::CreateWorld(EWorldType::Game, false, FName(TEXT("KeeperGustMotorWorld")));
+		FWorldContext& Context = GEngine->CreateNewWorldContext(EWorldType::Game);
+		Context.SetCurrentWorld(World);
+		World->InitializeActorsForPlay(FURL());
+		World->BeginPlay();
+		AActor* Ella = World->SpawnActor<AActor>();
+		USceneComponent* Root = NewObject<USceneComponent>(Ella, TEXT("Root"));
+		Ella->SetRootComponent(Root);
+		Root->RegisterComponent();
+		UEllaMotorComponent* Motor = NewObject<UEllaMotorComponent>(Ella, TEXT("Motor"));
+		Motor->RegisterComponent();
+		UUmbrellaStateComponent* State = NewObject<UUmbrellaStateComponent>(Ella, TEXT("State"));
+		State->RegisterComponent();
+		State->SetRideHeld(bRide);
+		State->SetShootHeld(bShoot);
+		State->SetAbsorbHeld(bAbsorb);
+		Ella->DispatchBeginPlay(); // components subscribe to the bus in BeginPlay
+		OutAction = State->GetAction();
+		FUmbrellaEvent Event;
+		Event.Type = EUmbrellaEventType::WindEntered;
+		Event.SourceId = UmbrellaSourceIds::GustBand();
+		Event.Detail = FName(TEXT("Up"));
+		Event.Value = Speed;
+		UUmbrellaEventBus::Get(World)->Broadcast(Event);
+		const float StartZ = Ella->GetActorLocation().Z;
+		Motor->StepMotor(Seconds);
+		const float Dz = Ella->GetActorLocation().Z - StartZ;
+		GEngine->DestroyWorldContext(World);
+		World->DestroyWorld(false);
+		return Dz;
+	}
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FKeeperGustForcedPush, "UmbrellaElla.Keeper.World.GustForcedPushIgnoresActionAndRide", WorldFlags)
+bool FKeeperGustForcedPush::RunTest(const FString& Parameters)
+{
+	const float Speed = 280.0f;
+	const float Dt = 0.1f;
+	const FMotorTuning& Tuning = GetDefault<UUmbrellaTuning>()->Motor;
+	// Base vertical speed differs per action; the gust adds exactly Speed * Dt on top, at once (no ride blend).
+	struct FCase { bool bShoot; bool bAbsorb; bool bRide; const TCHAR* Name; };
+	const FCase Cases[] = {
+		{false, false, false, TEXT("rising, not riding")},
+		{true, false, false, TEXT("shooting, not riding")},
+		{false, true, false, TEXT("absorbing (defense)")},
+		{false, false, true, TEXT("rising, ride held")},
+		{true, false, true, TEXT("shooting, ride held")},
+	};
+	bool bSawFalling = false;
+	for (const FCase& Case : Cases)
+	{
+		EUmbrellaAction Action = EUmbrellaAction::Rise;
+		const float Dz = KeeperGustMotorDz(Case.bShoot, Case.bAbsorb, Case.bRide, Speed, Dt, Action);
+		bSawFalling |= UmbrellaActionRules::IsFalling(Action);
+		FMotorInput Base;
+		Base.Action = Action;
+		// The gust adds exactly Speed * Dt on top of the base, at once (no ride blend).
+		TestEqual(Case.Name, Dz, (MotorModel::BaseVerticalSpeed(Base, Tuning) + Speed) * Dt, 0.01f);
+	}
+	TestTrue(TEXT("a falling action was covered"), bSawFalling);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FKeeperGustForcedRule, "UmbrellaElla.Keeper.GustIsAForcedSourceNotACurrent", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FKeeperGustForcedRule::RunTest(const FString& Parameters)
+{
+	TestTrue(TEXT("GUST_Band is forced"), MotorModel::IsForcedSource(UmbrellaSourceIds::GustBand()));
+	TestFalse(TEXT("an ordinary current is not"), MotorModel::IsForcedSource(FName(TEXT("Current_A"))));
+	FMotorModelState State;
+	FMotorInput Input;
+	Input.Action = EUmbrellaAction::FreeFall;
+	Input.ForcedVelocity = FVector2D(0.0f, 280.0f);
+	const FMotorTuning& Tuning = GetDefault<UUmbrellaTuning>()->Motor;
+	const FVector2D Move = MotorModel::Step(State, Input, Tuning, 0.05f);
+	FMotorInput None = Input;
+	None.ForcedVelocity = FVector2D::ZeroVector;
+	FMotorModelState Fresh;
+	const FVector2D Plain = MotorModel::Step(Fresh, None, Tuning, 0.05f);
+	TestEqual(TEXT("lands at once: full speed in the first step"), static_cast<float>(Move.Y - Plain.Y), 280.0f * 0.05f, 0.001f);
+	TestEqual(TEXT("no ride wind state"), static_cast<float>(State.Wind.Y), 0.0f);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FKeeperGustSlowScale, "UmbrellaElla.Keeper.World.GustSpeedUsesWorldScaleOnce", WorldFlags)
+bool FKeeperGustSlowScale::RunTest(const FString& Parameters)
+{
+	FKeeperWorld W;
+	AddExpectedError(TEXT("no arena in the world"), EAutomationExpectedErrorFlags::Contains, 0);
+	// The gust only exists in the Wings phase and the slow only in Mechanisms, so they never overlap in play;
+	// this pins that the push is Push * GetWorldScale() (once), whatever scale the model reports.
+	W.Director->BeginKeeperFight();
+	for (float T = 0.0f; T < 40.0f && W.CountEvents(EUmbrellaEventType::WindEntered) == 0; T += 0.05f)
+	{
+		W.Director->AdvanceFight(0.05f);
+	}
+	TestTrue(TEXT("gust sent"), W.CountEvents(EUmbrellaEventType::WindEntered) > 0);
+	// The event Value is Push * model scale, integrated by the Motor in real time: scaled exactly once.
+	const float Scale = W.Director->GetModel().GetWorldScale();
+	for (const FUmbrellaEvent& Event : *W.Shared)
+	{
+		if (Event.Type == EUmbrellaEventType::WindEntered)
+		{
+			TestEqual(TEXT("Value = GustPush * world scale"), Event.Value, GetDefault<UUmbrellaTuning>()->Keeper.GustPush * Scale, 0.01f);
+		}
+	}
 	return true;
 }
 
