@@ -142,3 +142,6 @@ No gameplay timing, collision or state is written by any of it (tests check the 
 
 ## Slice 17 (Nov 13): main and artslots unchanged; still blocked on request 7
 - No new commits on main or origin/area/artslots; no change to art_loop.py, art-image-model.md or references. No paint, spend unchanged. All slots stay `_PH`.
+
+## Slice 18 (Nov 13): main merged (already up to date); still blocked on request 7
+- Main has artshare (shared-layer judging) and artjitter since slice 14, both already in this branch. Neither changes the effect quality-bar image or the effect context reference. No paint, spend unchanged. All slots stay `_PH`.
