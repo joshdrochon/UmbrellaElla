@@ -58,14 +58,26 @@ if [ "$K" = audio ]; then
   # packet; tools/audio_critic_prompt.md is the prompt). Prints AUDIO_CRITIC: PASS|FAIL piece=<Id> gap=...; never blocks.
   IDS="$3"; CARD="$4"; : > "$OUT"
   python3 tools/audio_loop.py start --card "$CARD" --issue 0 --ids "$IDS" --builder "area-worker" >/dev/null 2>&1
+  # Packets and verdicts run one at a time (they share the card's loop state); only the critic sessions run in parallel,
+  # at most CRITIC_JOBS (default 4) at once (Nov 12: one gate spent 30+ min on 29 serial critics).
+  ASK_AUDIO="$(cat "$ROOT/tools/audio_critic_prompt.md")
+
+The packet for this sound is the files in the current folder. Read them (the text files and the spectrogram images)."
   for id in $(echo "$IDS" | tr ',' ' '); do
     pk=$(python3 tools/audio_loop.py round --card "$CARD" --piece "$id" 2>&1 | sed -n 's/^CRITIC PACKET: //p')
-    if [ -z "$pk" ] || [ ! -d "$pk" ]; then echo "AUDIO_CRITIC: FAIL piece=$id gap=no packet (round failed)" | tee -a "$OUT"; continue; fi
-    D=$(mktemp -d "${TMPDIR:-/tmp}/acritic.XXXXXX"); cp -R "$pk"/. "$D"/
-    (cd "$D" && env -u CLAUDECODE -u CLAUDE_CODE_ENTRYPOINT claude -p "$(cat "$ROOT/tools/audio_critic_prompt.md")
-
-The packet for this sound is the files in the current folder. Read them (the text files and the spectrogram images)." \
-      --permission-mode bypassPermissions --disallowedTools "Bash" Edit Write --model "${CRITIC_MODEL:-claude-sonnet-5-5}") > "$D/reply.txt" 2>&1
+    if [ -z "$pk" ] || [ ! -d "$pk" ]; then echo "$id" >> "$W/nopacket"; continue; fi
+    mkdir -p "$W/$id"; cp -R "$pk"/. "$W/$id"/
+  done
+  for id in $(echo "$IDS" | tr ',' ' '); do
+    [ -d "$W/$id" ] || continue
+    while [ "$(jobs -rp | wc -l | tr -d ' ')" -ge "${CRITIC_JOBS:-4}" ]; do sleep 2; done
+    (cd "$W/$id" && env -u CLAUDECODE -u CLAUDE_CODE_ENTRYPOINT claude -p "$ASK_AUDIO" --permission-mode bypassPermissions \
+      --disallowedTools "Bash" Edit Write --model "${CRITIC_MODEL:-claude-sonnet-5-5}" > reply.txt 2>&1) &
+  done
+  wait
+  for id in $(echo "$IDS" | tr ',' ' '); do
+    if [ ! -d "$W/$id" ]; then echo "AUDIO_CRITIC: FAIL piece=$id gap=no packet (round failed)" | tee -a "$OUT"; continue; fi
+    D="$W/$id"
     python3 -c "import json,re,sys;t=open(sys.argv[1]).read();m=re.search(r'\{.*\}',t,re.S);json.dump(json.loads(m.group(0)),open(sys.argv[2],'w'))" "$D/reply.txt" "$D/reply.json" 2>/dev/null
     v=$(python3 -c "import json,sys;r=json.load(open(sys.argv[1]));print(r['verdict']+'|'+r.get('biggest_gap','').replace('|','/'))" "$D/reply.json" 2>/dev/null || echo "fail|critic reply unreadable")
     python3 tools/audio_loop.py verdict --card "$CARD" --piece "$id" --critic "gate-critic-$id-$$" --reply "$D/reply.json" >/dev/null 2>&1
