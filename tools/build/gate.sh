@@ -26,6 +26,11 @@ if ! git -c core.hooksPath=/dev/null merge -q --no-ff -m "Merge area/$A ($(git r
   git diff --name-only --diff-filter=U | xargs git checkout --ours -- && git add -A docs/build && git -c core.hooksPath=/dev/null commit -q --no-edit
 fi
 step "merge $(git rev-parse --short HEAD)"
+# Branches that each kept a row for the same take merge into duplicates; collapse them to the row the critic record backs.
+if python3 tools/build/provenance_dedupe.py | grep -q "rows -> 1"; then
+  git add pipeline/art/provenance.csv && git -c core.hooksPath=/dev/null commit -q -m "Gate: collapse duplicate provenance rows from the merge of area/$A"
+  step "provenance rows deduplicated"
+fi
 eval "$(python3 tools/build/gate_plan.py "$MAIN" HEAD)"
 SLOT="$ROOT/tools/build/ue_slot.sh"; EV="$L/gate-$A-evidence.txt"; : > "$EV"
 chk() { local name="$1"; shift; T1=$(date +%s); out=$("$@" 2>&1); rc=$?; echo "$out" | tail -3 >> "$EV"

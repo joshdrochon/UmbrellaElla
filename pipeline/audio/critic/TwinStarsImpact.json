@@ -1,0 +1,25 @@
+{
+ "id": "TwinStarsImpact",
+ "records": [
+  {
+   "files": "6240c59096b978aa126942dc71cd98701efa68c871e83103ecf254a63ad789e3",
+   "verdict": "fail",
+   "style_pass": true,
+   "gap": "Raise the energy into the 3-8 kHz band (higher-pitched celesta partials plus a tiny bright chime or spark layer) so the centroid sits near 3-4 kHz instead of about 1.8 kHz.",
+   "card": "SNDHIT",
+   "round": 1,
+   "critic": "critic-r1-TwinStarsImpact",
+   "at": "2026-11-13T02:06Z"
+  },
+  {
+   "files": "6240c59096b978aa126942dc71cd98701efa68c871e83103ecf254a63ad789e3",
+   "verdict": "pass",
+   "style_pass": true,
+   "gap": "none",
+   "card": "SNDHIT",
+   "round": 2,
+   "critic": "wf-critic-TwinStarsImpact",
+   "at": "2026-11-13T02:11Z"
+  }
+ ]
+}

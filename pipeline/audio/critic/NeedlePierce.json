@@ -1,0 +1,25 @@
+{
+ "id": "NeedlePierce",
+ "records": [
+  {
+   "files": "85a9e93eb20379b94a98cc887b1f1aaf89669a9b5e0cb46f9df58c2b246d0936",
+   "verdict": "fail",
+   "style_pass": true,
+   "gap": "Clean up the grainy broadband noise under the partials and give the pluck a distinct soft spark on top, so it sounds finished and clearly Ella's magic.",
+   "card": "SNDHIT",
+   "round": 1,
+   "critic": "critic-r1-NeedlePierce",
+   "at": "2026-11-13T02:06Z"
+  },
+  {
+   "files": "85a9e93eb20379b94a98cc887b1f1aaf89669a9b5e0cb46f9df58c2b246d0936",
+   "verdict": "pass",
+   "style_pass": true,
+   "gap": "none",
+   "card": "SNDHIT",
+   "round": 2,
+   "critic": "wf-critic-NeedlePierce",
+   "at": "2026-11-13T02:11Z"
+  }
+ ]
+}

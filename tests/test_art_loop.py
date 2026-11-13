@@ -292,6 +292,16 @@ class PacketGroundFlattens(unittest.TestCase):
         f = os.path.join(self.d, "clear.png")
         write_png(f, 2, 1, [[(0, 0, 0, 0), (10, 20, 30, 255)]])
         _, _, rows = read_png(art_loop.flatten_on_ground(f))
-        self.assertEqual(rows[0][0], art_loop.PACKET_GROUND + (255,))
+        pw, ph, paper = art_loop.packet_paper()
+        self.assertEqual(rows[0][0], paper[0][0])
         self.assertEqual(rows[0][1], (10, 20, 30, 255))
         self.assertTrue(all(px[3] == 255 for px in rows[0]))
+
+    def test_transparent_entry_shows_textured_paper_not_one_flat_colour(self):
+        import art_loop
+        from png import read_png, write_png
+        f = os.path.join(self.d, "empty.png")
+        write_png(f, 64, 64, [[(0, 0, 0, 0)] * 64 for _ in range(64)])
+        _, _, rows = read_png(art_loop.flatten_on_ground(f))
+        colours = {px for row in rows for px in row}
+        self.assertGreater(len(colours), 1)
