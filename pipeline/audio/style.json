@@ -876,7 +876,7 @@
         "CourierDisable",
         "CourierWithdraw"
       ],
-      "character": "The owl's projectiles. Launch: a heavy spring release with a gear clank, lower and heavier than Ella's shot. Travel: a low spinning-gear whirr. Fade: the gear winds down and ticks out. Rust-red danger in sound: dark, metallic, mid-low.",
+      "character": "The regular enemies of the road (GDD COM-14..COM-16), people with clockwork equipment, not the owl. Roadwarden: a grounded road guard on roof, bridge or ledge; movement is footsteps and equipment rattle on a patrol, then a stop and brace before one committed shot. Floodstrider: a two-person rig on four mechanical stilts; movement is heavy creaking stilt steps. Sky Courier: an air-only propeller flier; its flight loop is a small propeller drone. Each has a short warning before its shot, a shot launch lighter and smaller than the Keeper's, and a disable sound when it is put out of action. Metallic, mid-range, human-scale, never as heavy as the Keeper.",
       "instruments": "spring release, gear clank, spinning gear whirr, wind-down tick",
       "register": "low-mid, 150-1500 Hz body",
       "reverb": "large stone hall, RT60 about 0.6-2 s",

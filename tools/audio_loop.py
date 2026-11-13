@@ -97,12 +97,7 @@ def placeholder_piece(root, audio, sid):
 
 
 def files_hash(files):
-    h = hashlib.sha256()
-    for p in sorted(files, key=os.path.basename):
-        h.update(os.path.basename(p).encode() + b"\0")
-        with open(p, "rb") as f:
-            h.update(f.read())
-    return h.hexdigest()
+    return audio_check.takes_hash(files)   # the same hash the committed critic records carry
 
 
 def style_ctx(root):
@@ -149,7 +144,18 @@ def stuck(rounds, n):
 def neighbours(audio, sid, fam, style, k):
     """Up to k approved takes for consistency: other ids' _00 takes, same family first."""
     fam_of = audio_check.style_families(style)
-    other = {i: fs for i, fs in asc.takes(audio).items() if i != sid}
+    # Only approved takes may stand in as "sounds already approved" (Nov 12 check defect: failed placeholder takes were
+    # shown to the critic as approved neighbours on branches cut before the audio area merged).
+    import csv
+    held = set()
+    try:
+        for r in csv.DictReader(open(os.path.join(ROOT, "pipeline", "art", "provenance.csv"), newline="")):
+            if (r.get("origin") or "").startswith("placeholder"):
+                held.add(os.path.basename(r.get("asset_path") or ""))
+    except OSError:
+        pass
+    other = {i: [f for f in fs if os.path.basename(f) not in held] for i, fs in asc.takes(audio).items() if i != sid}
+    other = {i: fs for i, fs in other.items() if fs}
     picks = sorted(other, key=lambda i: (fam_of.get(i, [None])[0] != fam, i))
     out = []
     for i in picks:

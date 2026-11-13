@@ -1,0 +1,25 @@
+{
+ "id": "WandBolt",
+ "records": [
+  {
+   "files": "e1cef8e4830481afd33f5046dde0e9287d38c9137d28c174d2588e5b34785c81",
+   "verdict": "pass",
+   "style_pass": true,
+   "gap": "none",
+   "card": "AUDIO-R2-WandBolt",
+   "round": 1,
+   "critic": "critic-WandBolt-1794531860-2427",
+   "at": "2026-11-13T01:04Z"
+  },
+  {
+   "files": "e1cef8e4830481afd33f5046dde0e9287d38c9137d28c174d2588e5b34785c81",
+   "verdict": "pass",
+   "style_pass": true,
+   "gap": "none",
+   "card": "AUDIO-R2C-WandBolt",
+   "round": 1,
+   "critic": "critic-WandBolt-1794532695-27220",
+   "at": "2026-11-13T01:18Z"
+  }
+ ]
+}
