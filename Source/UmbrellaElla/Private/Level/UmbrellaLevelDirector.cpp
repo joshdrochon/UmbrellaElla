@@ -185,9 +185,9 @@ void AUmbrellaLevelDirector::StepFollow(float EllaX, int32 TravelDirection)
 	{
 		bHandedOff = true;
 		// FLOW-28: the route's enemies and traps are gone once the Keeper fight begins.
-		for (int32 i = Spawned.Num() - 1; i >= 0; --i)
+		for (int32 Index = Spawned.Num() - 1; Index >= 0; --Index)
 		{
-			AActor* A = Spawned[i];
+			AActor* A = Spawned[Index];
 			if (IsValid(A) && (A->IsA<AUmbrellaEnemy>() || A->IsA<AUmbrellaTrap>()))
 			{
 				A->Destroy();
