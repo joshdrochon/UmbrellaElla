@@ -11,6 +11,7 @@ REPO = os.path.dirname(HERE)
 sys.path.insert(0, os.path.join(REPO, "tools"))
 sys.path.insert(0, os.path.join(REPO, "tools", "build"))
 import art_inventory  # noqa: E402
+import art_loop  # noqa: E402
 
 FLOW = "Source/UmbrellaElla/Public/Flow/FlowRules.h"
 VFX = "Source/UmbrellaElla/Public/Feedback/Vfx/VfxCatalog.h"
@@ -47,12 +48,12 @@ class FakeTree(unittest.TestCase):
         put(self.root, REFS, json.dumps(self.refs))
 
     def fails(self):
-        return [p for p in art_inventory.build([])[1]]
+        return [p for p in art_inventory.build({})[1]]
 
 
 class Rules(FakeTree):
     def test_covered_tree_passes(self):
-        rows, problems = art_inventory.build([])
+        rows, problems = art_inventory.build({})
         self.assertEqual(problems, [])
         self.assertEqual({r[0] for r in rows}, {"screen:Title", "screen:Playing", "vfx-sheet:VFX_GoldTravel"})
         self.assertEqual({r[3] for r in rows}, {"artui", "artshots"})
@@ -82,7 +83,7 @@ class Rules(FakeTree):
     def test_known_sheet_file_is_covered_not_new(self):
         put(self.root, "Art/Source/VFX/Raw/VFX_GoldTravel_PH.png", "x")
         put(self.root, "Content/UmbrellaElla/Art/VFX/T_VFX_GoldTravel_PH.uasset", "x")
-        rows, problems = art_inventory.build([])
+        rows, problems = art_inventory.build({})
         self.assertEqual(problems, [])
         self.assertEqual(len([r for r in rows if r[0] == "vfx-sheet:VFX_GoldTravel"]), 1)
 
@@ -104,34 +105,69 @@ class Rules(FakeTree):
 
 
 class Passed(FakeTree):
-    def log(self, *recs):
-        path = os.path.join(self.root, "log.jsonl")
-        with open(path, "w", encoding="utf-8") as fh:
-            for r in recs:
-                fh.write(json.dumps(r) + "\n")
-        return [path]
+    PAIRS = {"reference": "ours", "quality_bar": "same"}
+
+    def shipped(self, data=b"png-bytes"):
+        put(self.root, "Art/Title.png", "x")
+        with open(os.path.join(self.root, "Art/Title.png"), "wb") as fh:
+            fh.write(data)
+        return art_loop.content_sha(os.path.join(self.root, "Art/Title.png"))
+
+    def rec(self, sha, **kw):
+        r = {"piece": "ui-title", "round": 1, "verdict": "ours", "checks": True, "pairs": self.PAIRS,
+             "files": sha, "file": "Art/Title.png"}
+        r.update(kw)
+        return r
+
+    def passed(self, *recs):
+        return art_inventory.passed_pieces({"ui-title": list(recs)}, self.root)
+
+    def test_loop_writes_tracked_record_that_inventory_counts(self):
+        sha = self.shipped()
+        rec = {"round": 1, "verdict": "ours", "checks": True, "pairs": self.PAIRS, "panel": 3, "sha": sha,
+               "file": os.path.join(self.root, "Art/Title.png")}
+        path = art_loop.write_critic_record(self.root, "C1", "ui-title", rec, "refs12", "abc")
+        self.assertEqual(path, os.path.join(self.root, "pipeline/art/critic/ui-title.json"))
+        saved = json.load(open(path))["records"][0]
+        for k in ("piece", "round", "verdict", "checks", "pairs", "files", "at"):
+            self.assertIn(k, saved)
+        self.assertEqual(saved["file"], "Art/Title.png")
+        rows, _ = art_inventory.build()
+        self.assertEqual({r[0]: r[4] for r in rows}["screen:Title"], "yes")
 
     def test_newest_round_decides(self):
-        ok = {"piece": "ui-title", "verdict": "ours", "checks": True, "pairs": {"reference": "ours", "quality_bar": "same"}}
-        bad = dict(ok, verdict="reference")
-        self.assertEqual(art_inventory.passed_pieces(self.log(bad, ok)), {"ui-title"})
-        self.assertEqual(art_inventory.passed_pieces(self.log(ok, bad)), set())
+        sha = self.shipped()
+        bad = self.rec(sha, verdict="reference")
+        self.assertEqual(self.passed(bad, self.rec(sha, round=2)), {"ui-title"})
+        self.assertEqual(self.passed(self.rec(sha), dict(bad, round=2)), set())
+
+    def test_changed_image_does_not_pass(self):
+        sha = self.shipped()
+        self.shipped(b"edited after the pass")
+        self.assertEqual(self.passed(self.rec(sha)), set())
 
     def test_failed_checks_or_missing_pair_do_not_pass(self):
-        base = {"piece": "ui-title", "verdict": "ours", "checks": True, "pairs": {"reference": "ours", "quality_bar": "same"}}
-        self.assertEqual(art_inventory.passed_pieces(self.log(dict(base, checks=False))), set())
-        self.assertEqual(art_inventory.passed_pieces(self.log(dict(base, pairs={"reference": "ours"}))), set())
+        sha = self.shipped()
+        self.assertEqual(self.passed(self.rec(sha, checks=False)), set())
+        self.assertEqual(self.passed(self.rec(sha, pairs={"reference": "ours"})), set())
+
+    def test_saved_logs_never_count(self):
+        sha = self.shipped()
+        rec = {"piece": "ui-title", "verdict": "ours", "checks": True, "pairs": self.PAIRS, "sha": sha}
+        put(self.root, "Saved/Logs/pipeline/art-loop.jsonl", json.dumps(rec) + "\n")
+        rows, _ = art_inventory.build()
+        self.assertEqual({r[0]: r[4] for r in rows}["screen:Title"], "no")
 
     def test_rows_and_summary_count_passes(self):
-        ok = {"piece": "ui-title", "verdict": "same", "checks": True, "pairs": {"reference": "same", "quality_bar": "same"}}
-        rows, _ = art_inventory.build(self.log(ok))
+        sha = self.shipped()
+        rows, _ = art_inventory.build({"ui-title": [self.rec(sha, verdict="same")]})
         self.assertEqual({r[0]: r[4] for r in rows}["screen:Title"], "yes")
         self.assertTrue(art_inventory.summary(rows).startswith("TOTAL=3 PASSED=1 "))
 
 
 class RealTree(unittest.TestCase):
     def test_repository_inventory_is_complete_and_current(self):
-        rows, problems = art_inventory.build([])
+        rows, problems = art_inventory.build({})
         self.assertEqual(problems, [])
         self.assertGreater(len(rows), 28)
         on_disk = art_inventory.read_csv()

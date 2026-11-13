@@ -82,6 +82,7 @@ import art_judge  # noqa: E402
 
 STUCK_ROUNDS = 3
 LOG = os.path.join("Saved", "Logs", "pipeline", "art-loop.jsonl")
+CRITIC_DIR = os.path.join("pipeline", "art", "critic")   # tracked: one <piece>.json of round verdicts per piece
 VERDICT = re.compile(r"^\s*WINNER:\s*(X|Y|SAME)\s*$", re.M | re.I)
 GAP = re.compile(r"^\s*GAP:\s*(.+)$", re.M)
 NUMBER_SCORE = re.compile(r"\b\d+(?:\.\d+)?\s*/\s*10\b|\bscore\s*[:=]\s*\d", re.I)
@@ -786,7 +787,42 @@ def log_round(root, card, piece, rec, refs_hash, commit):
             con.close()
     except Exception:   # the jsonl record is the evidence; the journal is the view
         pass
+    write_critic_record(root, card, piece, rec, refs_hash, commit)
     write_record(root, card, piece, rec, refs_hash, commit)
+
+
+def critic_entry(root, card, piece, rec, refs_hash="", commit=""):
+    """One round as a tracked record: piece, round, verdict, checks, panel votes, image hash, date."""
+    f = rec.get("file") or ""
+    full = f if os.path.isabs(f) else os.path.join(root, f)
+    sha = rec.get("sha") or (content_sha(full) if os.path.isfile(full) else "")
+    return {"piece": piece, "round": rec.get("round"), "verdict": rec.get("verdict"),
+            "checks": bool(rec.get("checks")), "results": rec.get("results") or {},
+            "pairs": rec.get("pairs") or {}, "panel": rec.get("panel", 0),
+            "calibration": rec.get("calibration") or {}, "missing": rec.get("missing") or [],
+            "critic_sessions": list(rec.get("sessions") or []),
+            "files": sha, "file": rel_to(full, root) if f else "", "card": card, "refs": refs_hash, "commit": commit,
+            "gap": rec.get("gap", ""),
+            "at": rec.get("at") or datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}
+
+
+def write_critic_record(root, card, piece, rec, refs_hash="", commit="", entry=None):
+    """Append the round to pipeline/art/critic/<piece>.json (same card/round replaces). Returns the path."""
+    entry = entry or critic_entry(root, card, piece, rec, refs_hash, commit)
+    path = os.path.join(root, CRITIC_DIR, piece + ".json")
+    data = {"id": piece, "records": []}
+    try:
+        with open(path, encoding="utf-8") as fh:
+            data = json.load(fh)
+    except (OSError, ValueError):
+        pass
+    keep = [r for r in data.get("records", []) if (r.get("card"), r.get("round")) != (entry["card"], entry["round"])]
+    data = {"id": piece, "records": keep + [entry]}
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w", encoding="utf-8") as fh:
+        json.dump(data, fh, indent=1)
+        fh.write("\n")
+    return path
 
 
 # ---------- the ship gate's record ----------

@@ -13,3 +13,9 @@
 - Thresholds on the new pieces are inherited, not measured.
 
 TOTAL=100 PASSED=0 artella=10 artkeeper=9 artscene=15 artui=17 artshots=10 artfx=27 artenemy=12
+
+## Lead change (Josh, Nov 12): tracked pass records
+- `tools/art_loop.py` `log_round` also writes each round to `pipeline/art/critic/<piece>.json` (piece, round, verdict, checks, panel votes, image hash `files`, file, date). One file per piece.
+- `art_inventory.py` counts passed only from those records: newest round ours/same, checks passed, no pair missing, and `files` equals the sha256 of the named file. It never reads Saved/Logs.
+- Backfilled 45 rounds from the area worktrees' art-loop.jsonl (8 pieces). None is a pass yet, so PASSED=0.
+- Tests: 5 new in `tests/test_art_inventory.py` (Passed class).

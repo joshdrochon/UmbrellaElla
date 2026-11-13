@@ -15,8 +15,8 @@ A new enum value, sheet, layer, screen, widget or art file that no mapping below
 tools/ui_check.py uses for screens. A visual whose piece is not an element of pipeline/art/references.json, or whose
 piece has no owner lane, is a FAIL too. docs/build/art-inventory.csv must match the regenerated rows.
 
-`passed` comes from the art loop's recorded verdicts (Saved/Logs/pipeline/art-loop.jsonl of this tree and of the
-sibling area worktrees): the piece's newest round is ours or same, its checks passed, no pair is missing.
+`passed` comes only from the tracked records in pipeline/art/critic/<piece>.json (tools/art_loop.py writes them): the
+piece's newest round is ours or same, its checks passed, no pair is missing, and its image hash matches the file.
 """
 import csv
 import glob
@@ -28,7 +28,7 @@ import sys
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 sys.path.insert(0, os.path.join(ROOT, "tools"))
 CSV = os.path.join("docs", "build", "art-inventory.csv")
-LOG = os.path.join("Saved", "Logs", "pipeline", "art-loop.jsonl")
+CRITIC = os.path.join("pipeline", "art", "critic")
 LANES = ("artella", "artkeeper", "artscene", "artui", "artshots", "artfx", "artenemy")
 HEADER = ["visual", "source", "piece", "owner", "passed"]
 
@@ -236,41 +236,45 @@ def owner_of(piece, elements):
     return el.get("owner") or OWNERS.get(piece)
 
 
-def log_files():
-    paths = [os.path.join(ROOT, LOG)]
-    for p in sorted(glob.glob(os.path.join(ROOT, "..", "*", LOG))):
-        if os.path.abspath(p) not in map(os.path.abspath, paths):
-            paths.append(p)
-    return paths
-
-
-def passed_pieces(paths=None):
-    """Pieces whose newest round in some log passed: verdict ours or same, checks passed, no pair missing."""
-    import art_loop
-    done = set()
-    for path in (paths if paths is not None else log_files()):
-        newest = {}
+def critic_records(root=None):
+    """{piece: [records]} from the tracked pipeline/art/critic/<piece>.json files."""
+    out = {}
+    for path in sorted(glob.glob(os.path.join(root or ROOT, CRITIC, "*.json"))):
         try:
             with open(path, encoding="utf-8") as fh:
-                for ln in fh:
-                    try:
-                        rec = json.loads(ln)
-                    except ValueError:
-                        continue
-                    if isinstance(rec, dict) and rec.get("piece"):
-                        newest[rec["piece"]] = rec
-        except OSError:
+                data = json.load(fh)
+        except (OSError, ValueError):
             continue
-        done |= {p for p, r in newest.items() if r.get("verdict") in ("ours", "same") and r.get("checks")
-                 and not art_loop.missing_pairs(r)}
+        if isinstance(data, dict) and data.get("id"):
+            out[data["id"]] = [r for r in data.get("records", []) if isinstance(r, dict)]
+    return out
+
+
+def passed_pieces(records=None, root=None):
+    """Pieces whose newest tracked round passed (ours or same, checks passed, no pair missing) and whose image hash
+    equals the sha256 of the file the record names (it must exist in this tree). Never reads Saved/Logs."""
+    import art_loop
+    root = root or ROOT
+    done = set()
+    for piece, recs in (records if records is not None else critic_records(root)).items():
+        if not recs:
+            continue
+        r = recs[-1]
+        f = r.get("file") or ""
+        full = os.path.join(root, f)
+        if not (r.get("verdict") in ("ours", "same") and r.get("checks") and not art_loop.missing_pairs(r)
+                and r.get("files") and f and not f.startswith("..") and os.path.isfile(full)):
+            continue
+        if art_loop.content_sha(full) == r["files"]:
+            done.add(piece)
     return done
 
 
-def build(log_paths=None):
+def build(records=None):
     """(rows, problems): rows = [visual, source, piece, owner, passed]; problems = FAIL lines."""
     elements = load_elements()
     ids = manifest_ids()
-    done = passed_pieces(log_paths)
+    done = passed_pieces(records)
     rows, problems = [], []
     for visual, (source, piece) in sorted(discover().items()):
         if not piece:
