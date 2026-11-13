@@ -295,19 +295,26 @@ class Sky:
                 curve_strand([(x + gx * 9, h - 6), (x + gx * 9, h - 1)], 0.6, det, self.y - 0.2)
             for row in range(1, int(h // 11)):  # stone courses
                 curve_strand([(x + 1, row * 11.0), (x + w - 1, row * 11.0)], 0.8, det, self.y - 0.2)
-        nwin = max(1, int(w // 12))
+        pwin = rnd.uniform(0.18, 0.7)                 # each house its own lit density
+        wh = rnd.choice((14, 20, 20, 30))            # window height: squat, normal, tall lancet
+        gap = wh + rnd.choice((6, 10, 16))
+        nwin = max(1, int(w // rnd.choice((10, 13, 18))))
         for i in range(nwin):
-            for row in range(max(1, int((h - 70) // 26))):
-                if rnd.random() < 0.55:
+            for row in range(max(1, int((h - 70) // gap))):
+                if rnd.random() < pwin:
                     wx = x + (i + 0.5) * w / nwin
-                    pw = min(10.0, w / nwin * 0.62)
-                    z0 = 76 + row * 26
-                    if z0 + 20 > h - 4:
+                    pw = min(10.0 if wh < 30 else 7.0, w / nwin * 0.62)
+                    z0 = 76 + row * gap
+                    if z0 + wh > h - 4:
                         continue
-                    poly(pointed_arch(wx, z0, pw, 20), self.glow, self.y - 0.1)
+                    poly(pointed_arch(wx, z0, pw, wh), self.glow, self.y - 0.1)
                     if det is not None:     # muntins: dark bars across the lit window
-                        curve_strand([(wx, z0), (wx, z0 + 20)], 0.9, self.ink, self.y - 0.3)
-                        curve_strand([(wx - pw / 2, z0 + 9), (wx + pw / 2, z0 + 9)], 0.8, self.ink, self.y - 0.3)
+                        curve_strand([(wx, z0), (wx, z0 + wh)], 0.9, self.ink, self.y - 0.3)
+                        curve_strand([(wx - pw / 2, z0 + wh * 0.45), (wx + pw / 2, z0 + wh * 0.45)], 0.8, self.ink, self.y - 0.3)
+        if style >= 0.8 and w > 34:      # side turret with its own pinnacle
+            tx = x + (w - 9 if rnd.random() < 0.5 else 2)
+            poly([(tx, h - 10), (tx, h + rh * 0.9), (tx + 7, h + rh * 0.9), (tx + 7, h - 10)], self.ink, self.y - 0.04)
+            poly([(tx - 2, h + rh * 0.9 - 1), (tx + 3.5, h + rh * 0.9 + 26), (tx + 9, h + rh * 0.9 - 1)], self.ink, self.y - 0.04)
         if style < 0.55 and w > 30:     # dormer on the roof face
             dx = x + w * rnd.uniform(0.3, 0.7)
             dz = h + rh * 0.28
@@ -323,8 +330,11 @@ class Sky:
             px = cx + side * w * 0.72
             poly([(px - 4, base - 20), (px, base + hh * 0.35), (px + 4, base - 20)], self.ink, self.y)
         if clock:
-            n = 20
-            poly([(cx + 11 * math.cos(2 * math.pi * i / n), base * 0.7 + 11 * math.sin(2 * math.pi * i / n)) for i in range(n)], self.glow, self.y - 0.1)
+            n = 24
+            cz = base * 0.7
+            poly([(cx + 15 * math.cos(2 * math.pi * i / n), cz + 15 * math.sin(2 * math.pi * i / n)) for i in range(n)], self.glow, self.y - 0.1)
+            curve_strand([(cx, cz), (cx, cz + 11)], 1.3, self.ink, self.y - 0.3)
+            curve_strand([(cx, cz), (cx + 8, cz - 3)], 1.3, self.ink, self.y - 0.3)
         else:
             poly(pointed_arch(cx, base * 0.45, w * 0.35, base * 0.45), self.glow, self.y - 0.1)
 
@@ -336,6 +346,9 @@ class Sky:
             px = x + i * w / n
             poly([(px - 3, 0), (px - 3, h), (px + 3, h), (px + 3, 0)], self.ink, self.y)
         poly([(x, 0), (x, 20), (x + w, 20), (x + w, 0)], self.ink, self.y)
+        for i in range(n):
+            cxm = x + (i + 0.5) * w / n
+            curve_strand([(cxm - w / n * 0.42 + w / n * 0.84 * t / 10.0, h - 4 - 9 * (1 - abs(t - 5) / 5.0) * -1 - 12 + 12 * 0) for t in range(11)], 3.0, self.ink, self.y - 0.1)
 
 
 def gothic_layer(w, rnd, sk, hscale=1.0, dense=1.0):
@@ -359,15 +372,25 @@ def gothic_layer(w, rnd, sk, hscale=1.0, dense=1.0):
             poly([(x + ww / 2 - 1, h0 + ww * 0.45), (x + ww / 2, h0 + ww * 0.45 + 20), (x + ww / 2 + 1, h0 + ww * 0.45)], sk.ink, sk.y)
             x += ww
         else:
-            ww = rnd.uniform(34, 64)
-            sk.block(x, ww, rnd.uniform(130, 185) * hscale, rnd)
-            x += ww * rnd.uniform(0.7, 1.0)
+            if rnd.random() < 0.22:      # wide manor: three gables of different height
+                ww = rnd.uniform(110, 170)
+                hh0 = rnd.uniform(120, 200) * hscale
+                for k, (fx, fw, fh) in enumerate(((0.0, 0.36, 0.8), (0.3, 0.4, 1.0), (0.64, 0.36, 0.75))):
+                    sk.block(x + ww * fx, ww * fw, hh0 * fh, rnd)
+                x += ww * 0.95
+            else:
+                ww = rnd.uniform(34, 72)
+                sk.block(x, ww, rnd.uniform(110, 235) * hscale, rnd)
+                x += ww * rnd.uniform(0.7, 1.0)
     # central cathedral
     cx = w * 0.5
     sk.spire(cx, 290, 76, 300, rnd)
     for d in (-1, 1):
         sk.spire(cx + d * 76, 230, 36, 160, rnd)
         sk.block(cx + d * 140 - 30, 90, 190, rnd, roof=70)
+        for k in range(3):    # flying buttress: arc from nave wall up to the central spire
+            x0, x1 = cx + d * (40 + 22 * k), cx + d * 8
+            curve_strand([(x0 + (x1 - x0) * t / 12.0, 150 + 70 * k + 55 * math.sin(math.pi * t / 24.0)) for t in range(13)], 4.0, sk.ink, sk.y - 0.2)
 
 
 def ink_lines(sc, hexc, px):
@@ -486,7 +509,7 @@ def etch_post(path, seed, mode):
     grain = rng.normal(0, 1, (h, w)).astype(np.float32)
     fib = _blur(rng.normal(0, 1, (h, w)), 1) * 0 + np.repeat(rng.normal(0, 1, (h, w // 12 + 1)), 12, axis=1)[:, :w]
     blot = _smooth_field(rng, h, w, 40, 1.0) + _smooth_field(rng, h, w, 11, 0.6)
-    tone = 1.0 + 0.16 * blot + 0.10 * grain + 0.05 * fib
+    tone = 1.0 + (0.16 + 0.22 * (yy > h - 90)) * blot + 0.10 * grain + 0.05 * fib
     # 4. hatching: diagonal engraved lines, stronger toward the roofline (top of each mass)
     hatch = ((xx * 0.8 + yy * 1.0) % 4.0 < 1.1).astype(np.float32)
     cross = ((xx * -0.8 + yy * 1.0) % 7.0 < 0.9).astype(np.float32)
