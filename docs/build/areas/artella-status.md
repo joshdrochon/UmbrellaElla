@@ -213,3 +213,8 @@ Blocker: no capture with Ella on screen. Shield R3 and closed R3 need a context 
 ## Round 32 (Nov 13 late): lead's retry at -SmokeShotFrames=3000, still "Preparing Textures (1)"
 Ran once as told: `RUN_RES=1280x720 ue_slot.sh run_game.sh -SmokeShot=<abs> -SmokeShotFrames=3000 -SmokeQuitAfter=600` (load ~47). Shot written 03:46, 1280x720, again "Preparing Textures (1)" on black, no Ella. Discarded, no panel. The shot also landed within seconds of the game starting, so the frame counter or shot timing does not wait the way the flag implies. Verdict: env/smoke-shot, not the art. Not retrying.
 Blocked until screenfix ships a shot that waits for texture streaming and keeps Ella alive. Then: up-open panel, shield R3, closed R3. No paint, no spend (15.08 of 33.82).
+
+## Round 33 (Nov 13 late): merged main e99e1856 (screenfix ready-shot wait), capture relaunched
+Finished the pending artslots merge (ArtSlotTests.cpp conflict, took main's version, not my lane). Main had nothing newer. Relaunched the up-open capture
+with the ready-shot wait: `-SmokeShotFrames=30` counts frames after shaders, textures and a live Ella are ready (log /tmp/artella_cap_ready.log). No paint, no spend (15.08 of 33.82).
+Next: if the shot shows Ella, run the up-open context pair and panel; then shield R3 and closed R3.
