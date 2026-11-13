@@ -1,0 +1,25 @@
+{
+ "id": "SurvivedSting",
+ "records": [
+  {
+   "files": "8f254fc2d687538c30cdbc19a614b7ba6587e3a7b57a2463b713d093e96da6d1",
+   "verdict": "pass",
+   "style_pass": true,
+   "gap": "none",
+   "card": "AUDIO-R2-SurvivedSting",
+   "round": 2,
+   "critic": "critic-SurvivedSting-1794532110-28598",
+   "at": "2026-11-13T01:08Z"
+  },
+  {
+   "files": "8f254fc2d687538c30cdbc19a614b7ba6587e3a7b57a2463b713d093e96da6d1",
+   "verdict": "pass",
+   "style_pass": true,
+   "gap": "none",
+   "card": "AUDIO-R2C-SurvivedSting",
+   "round": 1,
+   "critic": "critic-SurvivedSting-1794532693-18560",
+   "at": "2026-11-13T01:18Z"
+  }
+ ]
+}
