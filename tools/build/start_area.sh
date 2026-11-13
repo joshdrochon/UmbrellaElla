@@ -18,9 +18,12 @@ Read docs/build/worker-rules.md, then docs/build/areas/$A.md, and docs/build/are
 what is already done). Build your area to its definition of done: G1 Rule IDs first, then the later list.
 Commit after each working slice (git -c core.hooksPath=/dev/null commit). Never push, never touch main or another lane.
 Keep working until your area is done or you are truly blocked. $EXTRA"
-# Model split (Josh, Nov 12): Fable for the hardest jobs (art loops, audio), Opus for the rest; WORKER_MODEL overrides.
-case "$A" in art*|audio|snd*) DEFAULT_MODEL=claude-fable-5-2 ;; *) DEFAULT_MODEL=claude-opus-5-5 ;; esac
+# Model: Sonnet by default (Josh, Nov 12 evening); WORKER_MODEL overrides (repeat-failure escalation).
+DEFAULT_MODEL=claude-sonnet-5-5   # Josh, Nov 12 evening: Sonnet by default; escalation per worker-rules.md
 MODEL="${WORKER_MODEL:-$DEFAULT_MODEL}"
+# Image spend (Josh Spend OK): one counter shared by every worker on this Mac, one hard total cap set by the lead.
+export IMAGE_SPEND_FILE="$BASE/logs/image-spend.json"
+[ -f "$BASE/logs/image-cap-usd.txt" ] && export IMAGE_SPEND_CAP_USD="$(cat "$BASE/logs/image-cap-usd.txt")"
 cd "$WT"
 env -u CLAUDECODE -u CLAUDE_CODE_ENTRYPOINT nohup claude -p "$PROMPT" --permission-mode bypassPermissions \
   --disallowedTools "Bash(git push:*)" --model "$MODEL" >> "$BASE/logs/$A.log" 2>&1 &
