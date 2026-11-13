@@ -44,3 +44,14 @@ the piece (Art/Source/<Asset>/prompt.md and prompt-review.md, committed):
   framing stated (view, distance, aspect); negative constraints written as positive descriptions ("feet off the ground"
   not "no walking").
 - The builder applies the review, then calls. The prompt and review are committed with the piece.
+
+## Context capture (the in-engine pair)
+Every full art-loop round needs a `context` pair: an in-engine capture newer than the piece (`tools/art_loop.py`
+find_capture reads `Saved/Logs/pipeline/*-shot.png` or `Saved/Screenshots/`). A lane makes it itself, nobody else:
+1. Import the candidate into the piece's `_PH` asset slot in your worktree (same name, so the game loads it; it stays a
+   tracked `_PH` until the panel passes it).
+2. Run the game with a real renderer (not `-nullrhi`), through the one launcher:
+   `tools/build/run_game.sh -SmokeShot=Saved/Logs/pipeline/<piece>-shot.png -SmokeQuitAfter=15 [-SmokeSection=S<n>] [-SmokeMap=...]`
+   (640x360 windowed, no sound, no crash reporter). Pick the section or map where the piece is on screen; a VFX piece
+   needs the moment it plays (use the section's scripted run or the playtest hooks).
+3. Run the panel round; the context pair now finds the capture.
