@@ -12,6 +12,7 @@
 #include "Engine/GameViewportClient.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/ShapeComponent.h"
+#include "Components/BoxComponent.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
 #include "Enemy/UmbrellaEnemy.h"
@@ -56,13 +57,6 @@ namespace
 	FString PlaytestBool(bool bValue)
 	{
 		return bValue ? TEXT("1") : TEXT("0");
-	}
-
-	void PlaytestLog(const TCHAR* Key, const TArray<TPair<FString, FString>>& Pairs)
-	{
-		TArray<TPair<FString, FString>> Tagged = Pairs;
-		Tagged.Add({TEXT("relay"), FPlaytestRun::IsWindRelayRun() ? TEXT("1") : TEXT("0")});
-		UE_LOG(LogUmbrellaElla, Log, TEXT("%s"), *FPlaytestRun::FormatLine(Key, Tagged));
 	}
 }
 
@@ -163,14 +157,14 @@ void FPlaytestRun::StopWindRelay()
 	RelayBus.Reset();
 }
 
-void FPlaytestRun::Start(UWorld* World)
+void FPlaytestRun::Start(UWorld* World, AEllaCharacter* EllaOverride)
 {
 	WorldPtr = World;
-	AEllaCharacter* Ella = PlaytestFindElla(World);
+	AEllaCharacter* Ella = EllaOverride ? EllaOverride : PlaytestFindElla(World);
 	if (!Ella || !Ella->GetMotor() || !Ella->GetHealth() || !Ella->GetUmbrellaState() || !Ella->GetAttack())
 	{
 		UE_LOG(LogUmbrellaElla, Warning, TEXT("PLAYTEST_ABORT no Ella with Motor, Health, State and Attack"));
-		bDone = true;
+		Phase = EPlaytestPhase::Done;
 		return;
 	}
 	EllaPtr = Ella;
@@ -185,7 +179,7 @@ void FPlaytestRun::Start(UWorld* World)
 	if (!NewRoom)
 	{
 		UE_LOG(LogUmbrellaElla, Warning, TEXT("PLAYTEST_ABORT room did not spawn"));
-		bDone = true;
+		Phase = EPlaytestPhase::Done;
 		return;
 	}
 	NewRoom->BuildRoom();
@@ -214,6 +208,61 @@ void FPlaytestRun::Start(UWorld* World)
 	ShotsAtStart = Ella->GetAttack()->GetShotsFired();
 	Ella->GetUmbrellaState()->SetRideHeld(true);
 	Ella->GetUmbrellaState()->SetShootHeld(true);
+	LastEllaLocation = Ella->GetActorLocation();
+	LastEllaSpeed = Ella->GetMotor()->GetVelocity().Size();
+	Phase = EPlaytestPhase::Haz;
+}
+
+void FPlaytestRun::UseDirector(AUmbrellaLevelDirector* Director)
+{
+	DirectorOverride = Director;
+}
+
+bool FPlaytestRun::IsTeleportStep(float StepDistance, float SpeedBefore, float SpeedAfter, float DeltaSeconds)
+{
+	const float Allowed = FMath::Max(SpeedBefore, SpeedAfter) * DeltaSeconds * PlaytestTeleportSpeedShare + PlaytestTeleportSlack;
+	return StepDistance > Allowed;
+}
+
+bool FPlaytestRun::IsCurrentLive(const AWindCurrent* Current)
+{
+	if (!Current || Current->IsHidden() || Current->GetForce() <= 0.0f)
+	{
+		return false;
+	}
+	TArray<UBoxComponent*> Boxes;
+	Current->GetComponents(Boxes);
+	for (const UBoxComponent* Box : Boxes)
+	{
+		if (Box->GetGenerateOverlapEvents() && Box->GetCollisionEnabled() != ECollisionEnabled::NoCollision)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+bool FPlaytestRun::IsFrameCovered(const FBox2D& Frame, const TArray<FBox2D>& Layers)
+{
+	TArray<FBox2D> Usable;
+	for (const FBox2D& Layer : Layers)
+	{
+		if (Layer.Min.Y <= Frame.Min.Y && Layer.Max.Y >= Frame.Max.Y)
+		{
+			Usable.Add(Layer);
+		}
+	}
+	Usable.Sort([](const FBox2D& A, const FBox2D& B) { return A.Min.X < B.Min.X; });
+	double Reach = Frame.Min.X;
+	for (const FBox2D& Layer : Usable)
+	{
+		if (Layer.Min.X > Reach)
+		{
+			break;
+		}
+		Reach = FMath::Max(Reach, static_cast<double>(Layer.Max.X));
+	}
+	return Reach >= Frame.Max.X;
 }
 
 void FPlaytestRun::PlaytestPlace(AEllaCharacter* Ella, const FVector2D& RoomPoint) const
@@ -331,7 +380,7 @@ void FPlaytestRun::MeasureCam04Path(AEllaCharacter* Ella, const TCHAR* Profile, 
 	}
 	// The path qualifies when the real current carried her out of its far (onward) edge without leaving the band's eligible height.
 	const bool bQualified = bEntered && Exit == EPlaytestBandExit::Right;
-	PlaytestLog(TEXT("CAM04"), {{TEXT("profile"), Profile}, {TEXT("health"), bMinHealth ? TEXT("min") : TEXT("full")},
+	Emit(TEXT("CAM04"), {{TEXT("profile"), Profile}, {TEXT("health"), bMinHealth ? TEXT("min") : TEXT("full")},
 		{TEXT("lift"), PlaytestNum(Motor->GetLiftMultiplier())}, {TEXT("trim"), PlaytestNum(Trim)}, {TEXT("entered"), PlaytestBool(bEntered)},
 		{TEXT("carry_speed"), PlaytestNum(CarrySpeed)}, {TEXT("accel_t90"), PlaytestNum(AccelT)}, {TEXT("vx_peak"), PlaytestNum(PeakVx)},
 		{TEXT("exit_edge"), BandExitName(Exit)}, {TEXT("exit_t"), PlaytestNum(ExitT)}, {TEXT("exit_x"), PlaytestNum(ExitRoot.X)},
@@ -429,12 +478,12 @@ void FPlaytestRun::MeasureCam04Transients(AEllaCharacter* Ella)
 		Event.Type = EUmbrellaEventType::WindExited;
 		Bus->Broadcast(Event);
 	}
-	PlaytestLog(TEXT("WINDDIAG"), {{TEXT("ella_id"), Ella->GetFName().ToString()}, {TEXT("contract_id"), UmbrellaPlayerIds::Ella.ToString()},
+	Emit(TEXT("WINDDIAG"), {{TEXT("ella_id"), Ella->GetFName().ToString()}, {TEXT("contract_id"), UmbrellaPlayerIds::Ella.ToString()},
 		{TEXT("overlap"), PlaytestBool(bOverlap)}, {TEXT("rode_from_volume"), PlaytestBool(bRodeFromVolume)},
 		{TEXT("rode_with_contract_id"), PlaytestBool(bRodeWithContractId)}});
 	PlaytestSettle(Ella);
 
-	PlaytestLog(TEXT("CAM04T"), {{TEXT("profile"), TEXT("mill_lower_v2_trim0")}, {TEXT("health"), TEXT("full")}, {TEXT("pinned"), TEXT("xz")},
+	Emit(TEXT("CAM04T"), {{TEXT("profile"), TEXT("mill_lower_v2_trim0")}, {TEXT("health"), TEXT("full")}, {TEXT("pinned"), TEXT("xz")},
 		{TEXT("ella_id"), Ella->GetFName().ToString()}, {TEXT("carry_speed"), PlaytestNum(CarrySpeed)}, {TEXT("rode"), PlaytestBool(bRodeSteady)},
 		{TEXT("steady_vx"), PlaytestNum(SteadyVx)}, {TEXT("steady_vz"), PlaytestNum(SteadyVz)}, {TEXT("accel_t90"), PlaytestNum(AccelT)},
 		{TEXT("brake_t10"), PlaytestNum(BrakeT)}, {TEXT("reacq_t90"), PlaytestNum(ReacqT)}, {TEXT("decay_open_t10"), PlaytestNum(DecayOpenT)},
@@ -508,7 +557,7 @@ void FPlaytestRun::MeasureCam07Case(AEllaCharacter* Ella, const TCHAR* Case, flo
 	const AWindCurrent* Upper = Mill->GetUpperWind();
 	const AWindCurrent* Lower = Mill->GetLowerWind();
 	const bool bActive = Upper && Lower && !Upper->IsHidden() && !Lower->IsHidden() && Upper->GetForce() > 0.0f && Lower->GetForce() > 0.0f;
-	PlaytestLog(TEXT("CAM07"), {{TEXT("case"), Case}, {TEXT("start_root_z"), PlaytestNum(Start.Y)}, {TEXT("rode_upper"), PlaytestBool(bRodeUpper)},
+	Emit(TEXT("CAM07"), {{TEXT("case"), Case}, {TEXT("start_root_z"), PlaytestNum(Start.Y)}, {TEXT("rode_upper"), PlaytestBool(bRodeUpper)},
 		{TEXT("fall_s"), PlaytestNum(FallT)}, {TEXT("reopen_root_z"), PlaytestNum(Reopen.Y)}, {TEXT("x_drift"), PlaytestNum(Reopen.X - Start.X)},
 		{TEXT("min_root_z"), PlaytestNum(MinRootZ)}, {TEXT("fall_after_reopen"), PlaytestNum(Reopen.Y - MinRootZ)},
 		{TEXT("half_h"), PlaytestNum(HalfHeight)}, {TEXT("floor"), PlaytestNum(T.FloorTop)}, {TEXT("min_clear"), PlaytestNum(MinClear)},
@@ -555,19 +604,65 @@ void FPlaytestRun::MeasureFlow25()
 	const FRoute Route = LevelCatalogue::Generate(FPlaytestRun::RouteSeed);
 	const UUmbrellaBackdropSubsystem* Backdrop = World->GetSubsystem<UUmbrellaBackdropSubsystem>();
 	const int32 Total = Route.Slots.Num();
-	const int32 Covered = (Backdrop && Backdrop->GetLayerCount() > 0) ? Total : 0;
-	PlaytestLog(TEXT("FLOW25"), {{TEXT("drawn_width"), PlaytestNum(Drawn)}, {TEXT("usable_width"), PlaytestNum(Usable)},
+	int32 Covered = 0;
+	if (Backdrop)
+	{
+		const float ViewHeight = GetDefault<UUmbrellaTuning>()->ArenaCamera.ArenaHeight * FrameHeightShare;
+		const float FrameZ = EllaPtr.IsValid() ? EllaPtr->GetActorLocation().Z : 0.0f;
+		const TArray<TObjectPtr<AActor>>& Layers = Backdrop->GetLayers();
+		const TArray<FBackdropLayerSpec>& Specs = Backdrop->GetBuiltSpecs();
+		for (int32 Slot = 0; Slot < Total; ++Slot)
+		{
+			const float SlotEnd = Slot + 1 < Total ? LevelCatalogue::SlotStartX(Slot + 1) : RouteEnd;
+			const float CameraX = (LevelCatalogue::SlotStartX(Slot) + SlotEnd) * 0.5f;
+			const FBox2D Frame(FVector2D(CameraX - ViewWidth * 0.5f, FrameZ - ViewHeight * 0.5f), FVector2D(CameraX + ViewWidth * 0.5f, FrameZ + ViewHeight * 0.5f));
+			TArray<FBox2D> Boxes;
+			for (int32 Index = 0; Index < Layers.Num() && Index < Specs.Num(); ++Index)
+			{
+				if (!Layers[Index])
+				{
+					continue;
+				}
+				FVector Origin, Extent;
+				Layers[Index]->GetActorBounds(true, Origin, Extent);
+				const float X = UUmbrellaBackdropSubsystem::LayerXForCamera(CameraX, Specs[Index].Parallax);
+				Boxes.Add(FBox2D(FVector2D(X - Extent.X, Origin.Z - Extent.Z), FVector2D(X + Extent.X, Origin.Z + Extent.Z)));
+			}
+			Covered += IsFrameCovered(Frame, Boxes) ? 1 : 0;
+		}
+	}
+	Emit(TEXT("FLOW25"), {{TEXT("drawn_width"), PlaytestNum(Drawn)}, {TEXT("usable_width"), PlaytestNum(Usable)},
 		{TEXT("tol"), PlaytestNum(DrawnWidthTolerance)}, {TEXT("lead_left_ok"), PlaytestBool(bLeadOk)}, {TEXT("lead_right_ok"), PlaytestBool(bLeadOk)},
 		{TEXT("stages_total"), FString::FromInt(Total)}, {TEXT("stages_covered"), FString::FromInt(Covered)}});
 }
 
 void FPlaytestRun::Advance(float DeltaSeconds)
 {
+	if (!EllaPtr.IsValid() || !WorldPtr.IsValid())
+	{
+		Phase = EPlaytestPhase::Done;
+		return;
+	}
+	switch (Phase)
+	{
+	case EPlaytestPhase::Haz:
+		AdvanceHaz(DeltaSeconds);
+		break;
+	case EPlaytestPhase::Flow28:
+		AdvanceFlow28(DeltaSeconds);
+		break;
+	default:
+		break;
+	}
+}
+
+void FPlaytestRun::AdvanceHaz(float DeltaSeconds)
+{
 	AEllaCharacter* Ella = EllaPtr.Get();
 	ABrokenMillRoom* Mill = Room.Get();
-	if (bDone || !Ella || !Mill)
+	if (!Mill)
 	{
-		bDone = true;
+		Phase = EPlaytestPhase::Done;
 		return;
 	}
 	HazElapsed += DeltaSeconds;
@@ -582,10 +677,28 @@ void FPlaytestRun::Advance(float DeltaSeconds)
 	{
 		IdleSeconds += DeltaSeconds;
 	}
+
+	// Per-tick samples: teleport check against her own speed, and both required currents while the guard lives.
+	const FVector Now = Ella->GetActorLocation();
+	const float Speed = Ella->GetMotor()->GetVelocity().Size();
+	if (DeltaSeconds > 0.0f && IsTeleportStep(static_cast<float>(FVector::Dist(Now, LastEllaLocation)), LastEllaSpeed, Speed, DeltaSeconds))
+	{
+		++TeleportSteps;
+	}
+	LastEllaLocation = Now;
+	LastEllaSpeed = Speed;
+	if (Mill->GetGuardHp() > 0.0f)
+	{
+		++CurrentSamples;
+		CurrentSamplesLive += (IsCurrentLive(Mill->GetUpperWind()) && IsCurrentLive(Mill->GetLowerWind())) ? 1 : 0;
+	}
+	else
+	{
+		bGuardDiedWhileSampling = true;
+	}
 	if (HazElapsed >= HazRunSeconds || Mill->GetGuardHp() <= 0.0f)
 	{
 		FinishHaz();
-		bDone = true;
 	}
 }
 
@@ -605,51 +718,137 @@ void FPlaytestRun::FinishHaz()
 	}
 	const bool bLow = FParse::Param(FCommandLine::Get(), TEXT("PlaytestLowHealth"));
 	const bool bBoring = IdleShare(IdleSeconds, HazElapsed) > BoringIdleShare;
-	// No aid code exists in this run: no auto-aim call, no invulnerability call, no teleport after the start position.
-	PlaytestLog(TEXT("HAZ16"), {{TEXT("res"), FString::Printf(TEXT("%dx%d"), Res.X, Res.Y)}, {TEXT("debug"), TEXT("0")},
+	const bool bCleared = Mill->GetGuardHp() <= 0.0f;
+	// The only moves Ella makes in this phase are trim and shoot; teleport is measured per tick, the other two aids have no code path here.
+	Emit(TEXT("HAZ16"), {{TEXT("res"), FString::Printf(TEXT("%dx%d"), Res.X, Res.Y)}, {TEXT("debug"), TEXT("0")},
 		{TEXT("health"), bLow ? TEXT("low") : TEXT("healthy")}, {TEXT("attempts"), FString::FromInt(Ella->GetAttack()->GetShotsFired() - ShotsAtStart)},
 		{TEXT("useful_hits"), FString::FromInt(UsefulHits)}, {TEXT("damage"), PlaytestNum(Damage)}, {TEXT("reset_s"), PlaytestNum(IdleSeconds)}, {TEXT("run_s"), PlaytestNum(HazElapsed)},
 		{TEXT("warned"), PlaytestBool(Mill->GetEventCount(EMillGuardEvent::WarningStarted) > 0)}, {TEXT("autoaim"), TEXT("0")},
-		{TEXT("invuln"), TEXT("0")}, {TEXT("teleport"), TEXT("0")}, {TEXT("boring"), PlaytestBool(bBoring)},
-		{TEXT("cleared"), PlaytestBool(Mill->GetGuardHp() <= 0.0f)}});
-	MeasureFlow28(Ella);
-	StopWindRelay();
+		{TEXT("invuln"), TEXT("0")}, {TEXT("teleport"), PlaytestBool(TeleportSteps > 0)}, {TEXT("teleport_steps"), FString::FromInt(TeleportSteps)},
+		{TEXT("boring"), PlaytestBool(bBoring)}, {TEXT("cleared"), PlaytestBool(bCleared)}});
+	// CAM-07 persistence: both required currents were live on every tick while the guard lived.
+	Emit(TEXT("CAM07"), {{TEXT("case"), TEXT("persist")}, {TEXT("samples"), FString::FromInt(CurrentSamples)},
+		{TEXT("samples_live"), FString::FromInt(CurrentSamplesLive)},
+		{TEXT("required_current_active"), PlaytestBool(CurrentSamples > 0 && CurrentSamplesLive == CurrentSamples)},
+		{TEXT("challenge_clear"), PlaytestBool(bCleared)}});
+	StartFlow28();
 }
 
-void FPlaytestRun::MeasureFlow28(AEllaCharacter* Ella)
+void FPlaytestRun::StartFlow28()
 {
 	UWorld* World = WorldPtr.Get();
-	if (!World)
-	{
-		return;
-	}
+	AEllaCharacter* Ella = EllaPtr.Get();
 	Ella->GetHealth()->ResetForRetry();
-	double Clock = CarryClockStart;
-	PlaytestHurtTo(Ella, Ella->GetHealth()->GetState().Active - FPlaytestRun::CarryDamage, Clock);
-	const int32 Before = FMath::CeilToInt(Ella->GetHealth()->GetState().Active);
-	AUmbrellaLevelDirector* Director = World->SpawnActor<AUmbrellaLevelDirector>();
-	if (!Director || Director->BuildRoute(FPlaytestRun::RouteSeed) <= 0)
+	PlaytestHurtTo(Ella, Ella->GetHealth()->GetState().Active - CarryDamage, ScriptClock);
+	FlowHealthBefore = FMath::CeilToInt(Ella->GetHealth()->GetState().Active);
+	AUmbrellaLevelDirector* Director = DirectorOverride.Get();
+	if (!Director)
 	{
-		UE_LOG(LogUmbrellaElla, Warning, TEXT("PLAYTEST_ABORT level director built no route"));
-		return;
-	}
-	int32 Threats = 0;
-	for (TActorIterator<AUmbrellaEnemy> It(World); It; ++It)
-	{
-		if (!It->IsHidden() && !It->IsActorBeingDestroyed())
+		Director = World->SpawnActor<AUmbrellaLevelDirector>();
+		if (Director)
 		{
-			++Threats;
+			Director->BuildRoute(RouteSeed);
 		}
 	}
+	if (!Director || Director->GetSlotsSpawned() <= 0)
+	{
+		FinishFlow28(TEXT("level_director_built_no_route"));
+		return;
+	}
+	FlowDirector = Director;
 	Director->PlaceAtCheckpoint(Ella, 1);
-	Director->StepFollow(LevelPlan::KeeperHandoffX(), 1);
-	const float CameraA = Director->GetLastCameraX();
-	Director->StepFollow(LevelPlan::KeeperHandoffX(), 1);
-	const bool bSettled = FMath::IsNearlyEqual(CameraA, Director->GetLastCameraX());
-	const int32 After = FMath::CeilToInt(Ella->GetHealth()->GetState().Active);
-	PlaytestLog(TEXT("FLOW28"), {{TEXT("health_before"), FString::FromInt(Before)}, {TEXT("health_after"), FString::FromInt(After)},
-		{TEXT("max"), FString::FromInt(FMath::CeilToInt(Ella->GetHealth()->GetState().Capacity))}, {TEXT("threats"), FString::FromInt(Threats)},
-		{TEXT("framing_settled"), PlaytestBool(bSettled)}, {TEXT("boss_began"), PlaytestBool(Director->HasHandedOff())}});
-	Director->ClearRoute();
-	Director->Destroy();
+	FlowTravelX = static_cast<float>(Ella->GetActorLocation().X);
+	Phase = EPlaytestPhase::Flow28;
+}
+
+void FPlaytestRun::AdvanceFlow28(float DeltaSeconds)
+{
+	AEllaCharacter* Ella = EllaPtr.Get();
+	AUmbrellaLevelDirector* Director = FlowDirector.Get();
+	if (!Director)
+	{
+		FinishFlow28(TEXT("director_lost"));
+		return;
+	}
+	FlowElapsed += DeltaSeconds;
+	if (FlowHandoffAt < 0.0f)
+	{
+		// Route driver: Ella is carried along the route at a fixed speed; the director sees her X every tick, as in play.
+		FlowTravelX += FlowTravelSpeed * DeltaSeconds;
+		FVector Location = Ella->GetActorLocation();
+		Location.X = FlowTravelX;
+		Ella->SetActorLocation(Location);
+		Director->StepFollow(FlowTravelX, 1);
+		if (Director->HasHandedOff())
+		{
+			FlowHandoffAt = FlowElapsed;
+			FlowHealthAtHandoff = FMath::CeilToInt(Ella->GetHealth()->GetState().Active);
+			FlowCameraAtHandoff = Director->GetLastCameraX();
+			int32 Threats = 0;
+			for (TActorIterator<AUmbrellaEnemy> It(WorldPtr.Get()); It; ++It)
+			{
+				if (!It->IsHidden() && !It->IsActorBeingDestroyed())
+				{
+					++Threats;
+				}
+			}
+			FlowThreatsAtHandoff = Threats;
+		}
+		else if (FlowElapsed >= FlowTravelMaxSeconds)
+		{
+			FinishFlow28(TEXT("route_not_finished_in_time"));
+		}
+		return;
+	}
+	Director->StepFollow(FlowTravelX, 1);
+	if (FlowElapsed - FlowHandoffAt >= FlowSettleSeconds)
+	{
+		FinishFlow28(TEXT(""));
+	}
+}
+
+void FPlaytestRun::FinishFlow28(const TCHAR* NotMeasured)
+{
+	AEllaCharacter* Ella = EllaPtr.Get();
+	AUmbrellaLevelDirector* Director = FlowDirector.Get();
+	const bool bMeasured = FlowHandoffAt >= 0.0f;
+	const bool bSettled = bMeasured && Director && FMath::Abs(Director->GetLastCameraX() - FlowCameraAtHandoff) <= FlowSettleTolerance;
+	TArray<TPair<FString, FString>> Pairs = {{TEXT("health_before"), FString::FromInt(FlowHealthBefore)},
+		{TEXT("health_after"), FString::FromInt(bMeasured ? FlowHealthAtHandoff : FlowHealthBefore)},
+		{TEXT("max"), FString::FromInt(FMath::CeilToInt(Ella->GetHealth()->GetState().Capacity))},
+		{TEXT("threats"), FString::FromInt(FlowThreatsAtHandoff)}, {TEXT("framing_settled"), PlaytestBool(bSettled)},
+		{TEXT("boss_began"), PlaytestBool(Director && Director->HasHandedOff())}, {TEXT("route_s"), PlaytestNum(FlowElapsed)}};
+	if (FCString::Strlen(NotMeasured) > 0)
+	{
+		Pairs.Add({TEXT("not_measured"), NotMeasured});
+	}
+	Emit(TEXT("FLOW28"), Pairs);
+	if (Director && !DirectorOverride.IsValid())
+	{
+		Director->ClearRoute();
+		Director->Destroy();
+	}
+	Finish();
+}
+
+void FPlaytestRun::Finish()
+{
+	StopWindRelay();
+	if (AEllaCharacter* Ella = EllaPtr.Get())
+	{
+		Ella->SetActorLocation(EllaHome);
+	}
+	if (ABrokenMillRoom* Mill = Room.Get())
+	{
+		Mill->Destroy();
+	}
+	Phase = EPlaytestPhase::Done;
+}
+
+void FPlaytestRun::Emit(const TCHAR* Key, const TArray<TPair<FString, FString>>& Pairs)
+{
+	TArray<TPair<FString, FString>> Tagged = Pairs;
+	Tagged.Add({TEXT("relay"), IsWindRelayRun() ? TEXT("1") : TEXT("0")});
+	Lines.Add(FormatLine(Key, Tagged));
+	UE_LOG(LogUmbrellaElla, Log, TEXT("%s"), *Lines.Last());
 }

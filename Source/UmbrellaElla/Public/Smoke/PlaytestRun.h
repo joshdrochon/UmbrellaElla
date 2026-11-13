@@ -1,12 +1,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Delegates/IDelegateInstance.h"
 
 class AEllaCharacter;
 class ABrokenMillRoom;
 class AUmbrellaLevelDirector;
 class AWindCurrent;
 class UWorld;
+class UUmbrellaEventBus;
 
 /** Edge a played path left a wind band by (room coordinates). */
 enum class EPlaytestBandExit : uint8
@@ -92,6 +94,16 @@ public:
 	/** FLOW-28: camera X movement below this over the settle window counts as settled, world units. */
 	static constexpr float FlowSettleTolerance = 1.0f;
 
+	/** Level director seed of the FLOW-25 and FLOW-28 route. */
+	static constexpr int64 RouteSeed = 1;
+	/** Start of the fake clock used for scripted damage, seconds. */
+	static constexpr double CarryClockStart = 1000.0;
+	/** Share of the arena view height used as the vertical extent of a backdrop frame. */
+	static constexpr float FrameHeightShare = 1.0f;
+
+	/** -PlaytestWindRelay: diagnosis run that re-sends wind events with the contract player id. Its lines carry relay=1. */
+	static bool IsWindRelayRun();
+
 	/** Which edge of Band (room X/Z) Root has left by, or None while inside. Right and Left win over Top and Bottom. */
 	static EPlaytestBandExit BandExit(const FVector2D& Root, const FBox2D& Band);
 
@@ -112,6 +124,8 @@ public:
 
 	/** A required current is live: present, shown, force above zero and its volume still generating overlaps. */
 	static bool IsCurrentLive(const AWindCurrent* Current);
+
+	~FPlaytestRun();
 
 	/** Run the synchronous scenarios (CAM-04, CAM-07 falls, FLOW-25) and start the broken-mill run. Ella defaults to player 0's pawn. */
 	void Start(UWorld* World, AEllaCharacter* EllaOverride = nullptr);
@@ -143,6 +157,8 @@ private:
 	void AdvanceFlow28(float DeltaSeconds);
 	void FinishFlow28(const TCHAR* NotMeasured);
 	void Finish();
+	void StartWindRelay(AEllaCharacter* Ella);
+	void StopWindRelay();
 
 	TWeakObjectPtr<UWorld> WorldPtr;
 	TWeakObjectPtr<AEllaCharacter> EllaPtr;
@@ -150,6 +166,9 @@ private:
 	TWeakObjectPtr<AUmbrellaLevelDirector> DirectorOverride;
 	TWeakObjectPtr<AUmbrellaLevelDirector> FlowDirector;
 	TArray<FString> Lines;
+	TWeakObjectPtr<UUmbrellaEventBus> RelayBus;
+	FDelegateHandle RelayEnteredHandle;
+	FDelegateHandle RelayExitedHandle;
 	EPlaytestPhase Phase = EPlaytestPhase::Idle;
 
 	// HAZ run.
