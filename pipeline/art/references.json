@@ -490,8 +490,7 @@
    "what": "Wand shot, 6 x 1 cells of 128 x 64, 16 fps loop, faces right (gold star; GDD SH1.0 has no wand: the gold star head of Twin Stars from the canopy rim)",
    "cards": [
     "0.10c",
-    "MVP 3",
-    "artfx"
+    "MVP 3"
    ],
    "judge": true,
    "required": true,
@@ -646,8 +645,7 @@
    "cards": [
     "0.10b",
     "MVP 10",
-    "MVP 5",
-    "artfx"
+    "MVP 5"
    ],
    "judge": true,
    "required": true,
@@ -662,8 +660,7 @@
    ],
    "what": "Look only: Yellow (absorbable) shots sheet with Ella's umbrella capture and lit movement modes. Absorbable yellow shots are not in GDD 1.3 (the shield catches owl bolts): a design proposal for Richard",
    "cards": [
-    "MVP 4",
-    "artfx"
+    "MVP 4"
    ],
    "judge": true,
    "required": true,
@@ -697,8 +694,7 @@
    "what": "Look only: Wing gust attack, Ella pushed back, damaging vs rideable wind. OWL-02 (owl gust) is OFF in GDD 1.3; only WIND-01 (safe current) ships: use it for how wind reads, never as a new attack",
    "cards": [
     "0.10c",
-    "MVP 2",
-    "artfx"
+    "MVP 2"
    ],
    "judge": false,
    "required": true,
@@ -715,8 +711,7 @@
    ],
    "what": "Talon rake with a sliding mechanical leg extension: GDD SH1.0 OWL-18..OWL-20 (the extension art is a visual candidate only). Look and motion: this metal Keeper is GDD SH1.0's Keeper (crownless, metal vane wings, two feet, the chest clock, three hanging mechanisms; GDD SH1.0 wins (Josh; D-new-sh10-art-conflicts))",
    "cards": [
-    "MVP 5",
-    "artfx"
+    "MVP 5"
    ],
    "judge": true,
    "required": true,
@@ -733,8 +728,7 @@
    ],
    "what": "Clock double-beat attack: clock-hand cycle, repeated red shot paths (GDD SH1.0 OWL-28). The shot look: GDD SH1.0 'Shared red projectile' prints these same colours (crimson #FF3658, coral #FF7848, shadow #8F173C, core #FFF5DC). Look and motion: this metal Keeper is GDD SH1.0's Keeper (crownless, metal vane wings, two feet, the chest clock, three hanging mechanisms; GDD SH1.0 wins (Josh; D-new-sh10-art-conflicts))",
    "cards": [
-    "MVP 5",
-    "artfx"
+    "MVP 5"
    ],
    "judge": true,
    "required": true,
@@ -751,8 +745,7 @@
    "what": "Owl state study 01: rear gear mechanism hit and break. GDD SH1.0 ANIM-06 asks for the break states. Look and motion: this metal Keeper is GDD SH1.0's Keeper (crownless, metal vane wings, two feet, the chest clock, three hanging mechanisms; GDD SH1.0 wins (Josh; D-new-sh10-art-conflicts))",
    "cards": [
     "MVP 5",
-    "MVP 15",
-    "artfx"
+    "MVP 15"
    ],
    "judge": true,
    "required": true,
@@ -850,8 +843,7 @@
    ],
    "what": "Clock damage and failure: glass cracks, hand stops, keeper alive. GDD SH1.0 ANIM-06: glass, cracks, hands. Look and motion: this metal Keeper is GDD SH1.0's Keeper (crownless, metal vane wings, two feet, the chest clock, three hanging mechanisms; GDD SH1.0 wins (Josh; D-new-sh10-art-conflicts))",
    "cards": [
-    "MVP 5",
-    "artfx"
+    "MVP 5"
    ],
    "judge": true,
    "required": true,
@@ -873,8 +865,7 @@
     "MVP 5",
     "MVP 3",
     "MVP 4",
-    "MVP 15",
-    "artfx"
+    "MVP 15"
    ],
    "judge": true,
    "required": true,
@@ -893,8 +884,7 @@
     "0.10",
     "0.10c",
     "MVP 2",
-    "MVP 15",
-    "artfx"
+    "MVP 15"
    ],
    "judge": true,
    "required": true,
@@ -1003,8 +993,7 @@
    "what": "Ella needle spell: canopy open behind her, shaft held level like a lance firing separate gold pulse shots forward (build, release, next pulse) and the small-scale silhouette",
    "cards": [
     "0.10b",
-    "MVP 15",
-    "artfx"
+    "MVP 15"
    ],
    "consulted_by": [
     "MVP 9"
@@ -1026,8 +1015,7 @@
    "what": "Ella needle spell, second pass of study 01 (same pose, gold pulse shots along the level shaft)",
    "cards": [
     "0.10b",
-    "MVP 15",
-    "artfx"
+    "MVP 15"
    ],
    "consulted_by": [
     "MVP 9"
@@ -1097,8 +1085,7 @@
    "what": "Ella small blasts: four-step cycle with the umbrella held level (ready folded, open with one gold magic pulse, close, ready again)",
    "cards": [
     "0.10b",
-    "MVP 15",
-    "artfx"
+    "MVP 15"
    ],
    "consulted_by": [
     "MVP 9"
@@ -1120,8 +1107,7 @@
    "what": "Ella stored thunder: the whole open umbrella charged with gold lightning, one heavy forward discharge and its pulse, release and aftershock rhythm",
    "cards": [
     "0.10b",
-    "MVP 15",
-    "artfx"
+    "MVP 15"
    ],
    "consulted_by": [
     "MVP 9"
@@ -1143,8 +1129,7 @@
    "what": "Ella streamed blast: umbrella open on her shoulder, a continuous gold stream sourced inside the canopy, with the canopy close-up and the small-scale silhouette",
    "cards": [
     "0.10b",
-    "MVP 15",
-    "artfx"
+    "MVP 15"
    ],
    "consulted_by": [
     "MVP 9"
@@ -1166,8 +1151,7 @@
    "what": "Ella twin stars: open canopy held forward, two gold star shots leaving the upper and lower canopy tips on two forward lanes",
    "cards": [
     "0.10b",
-    "MVP 15",
-    "artfx"
+    "MVP 15"
    ],
    "consulted_by": [
     "MVP 9"
@@ -1189,8 +1173,7 @@
    "what": "Layered world: a medieval town on a shore under a darkening sky with an upper flight limit, travel to the right, parallax layers (sky, distant land, town and shore, black near ground), materials and palette. For parallax layering only: the skyline's look is the key art's black rock band",
    "cards": [
     "0.10c",
-    "MVP 15",
-    "artfx"
+    "MVP 15"
    ],
    "consulted_by": [
     "0.10"
@@ -1252,8 +1235,7 @@
    "what": "Keeper red shots: the firing tell at the chest, a volley of red bolts at Ella, each shot's tell, release, travel and fade, bright core, red shell and short trail, and the temporary light spill. The shot look: GDD SH1.0 'Shared red projectile' prints these same colours (crimson #FF3658, coral #FF7848, shadow #8F173C, core #FFF5DC). Look and motion: this metal Keeper is GDD SH1.0's Keeper (crownless, metal vane wings, two feet, the chest clock, three hanging mechanisms; GDD SH1.0 wins (Josh; D-new-sh10-art-conflicts))",
    "cards": [
     "0.10b",
-    "MVP 5",
-    "artfx"
+    "MVP 5"
    ],
    "judge": true,
    "required": false,
@@ -1406,8 +1388,7 @@
    "cards": [
     "0.10b",
     "MVP 5",
-    "MVP 10",
-    "artfx"
+    "MVP 10"
    ],
    "judge": false,
    "required": false,

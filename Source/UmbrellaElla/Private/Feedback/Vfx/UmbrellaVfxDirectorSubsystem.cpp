@@ -80,11 +80,13 @@ void UUmbrellaVfxDirectorSubsystem::Initialize(FSubsystemCollectionBase& Collect
 {
 	Collection.InitializeDependency<UUmbrellaEventBus>();
 	Super::Initialize(Collection);
+#if !UE_BUILD_SHIPPING
 	FString DemoValue;
 	if (FParse::Value(FCommandLine::Get(), TEXT("VfxDemo="), DemoValue))
 	{
 		DemoKey = FName(*DemoValue);
 	}
+#endif
 	if (UUmbrellaEventBus* Bus = UUmbrellaEventBus::Get(this))
 	{
 		Handles.Add(Bus->On(EUmbrellaEventType::ProjectileSpawned).AddUObject(this, &UUmbrellaVfxDirectorSubsystem::HandleProjectileSpawned));
@@ -561,27 +563,41 @@ void UUmbrellaVfxDirectorSubsystem::StepEffects(float DeltaSeconds)
 	StepNeedleChannel();
 	StepKeeper();
 	StepShaft(DeltaSeconds);
+#if !UE_BUILD_SHIPPING
 	StepDemo();
+#endif
 	StepLive();
 }
 
+#if !UE_BUILD_SHIPPING
 void UUmbrellaVfxDirectorSubsystem::StepDemo()
 {
-	AActor* Player = DemoKey.IsNone() ? nullptr : FindElla();
-	if (Player && DemoStartClock < 0.0f)
+	if (DemoKey.IsNone())
 	{
-		DemoStartClock = Clock;
+		return;
 	}
-	if (Player && !bDemoShotTaken && Clock - DemoStartClock >= UmbrellaVfxDirectorConst::DemoShotSeconds && GetLiveCount(DemoKey) > 0)
+	AActor* Player = FindElla();
+	if (!Player)
+	{
+		return;
+	}
+	const double Now = FPlatformTime::Seconds();
+	if (DemoStartSeconds < 0.0)
+	{
+		DemoStartSeconds = Now;
+	}
+	const int32 LiveOfKey = GetLiveCount(DemoKey);
+	if (!bDemoShotTaken && Now - DemoStartSeconds >= UmbrellaVfxDirectorConst::DemoShotSeconds && LiveOfKey > 0)
 	{
 		bDemoShotTaken = true;
 		FScreenshotRequest::RequestScreenshot(FString(), false, false);
 	}
-	if (Player && GetLiveCount(DemoKey) == 0)
+	if (UmbrellaVfxDirectorConst::ShouldPlayDemo(DemoKey, LiveOfKey))
 	{
 		Play(DemoKey, Player->GetActorLocation() + FVector(UmbrellaVfxDirectorConst::DemoOffsetX, 0.0f, UmbrellaVfxDirectorConst::DemoOffsetZ), nullptr);
 	}
 }
+#endif
 
 void UUmbrellaVfxDirectorSubsystem::StepShots()
 {

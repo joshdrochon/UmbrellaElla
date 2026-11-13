@@ -41,3 +41,8 @@ Evidence: gold impact v2 (`pipeline/art/proof/artfx/GoldImpact/sheet.png`), 9-se
 3. The `context` pair compares a near-black graybox capture against the key art, so it judges the scene, not the burst.
    Needed: a context reference for effects (a crop of the effect in the key art, or an effect-on-its-own-background capture).
 Until these land no `vfx-*` piece can pass; more paint would only add `_PH` candidates. Spend stays 4.56 of 33.82.
+
+## 6. Lead: add `artfx` to `cards` of the refs the 26 `vfx-*` judge elements use (`pipeline/art/references.json`)
+The earlier in-lane edit was reverted (review: outside the lane). Without it `art_loop.py pieces --card artfx` lists none of the
+`vfx-*` pieces. Needed: append `"artfx"` to `cards` of the 19 refs used by those elements (additions only). Regenerate the list
+with the `git show 2f4aac26 -- pipeline/art/references.json` diff, which holds the exact 19 entries.

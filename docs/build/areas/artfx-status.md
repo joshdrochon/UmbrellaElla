@@ -81,3 +81,8 @@ No gameplay timing, collision or state is written by any of it (tests check the 
 - Per art-image-model "Where candidates live": `Art/Source/VFX/Paint/*` (TwinStarHead, GoldImpact, cut_strip.py) is now `pipeline/art/proof/artfx/`. Provenance, request 5 and the critic json paths updated. Earlier slice text above keeps the old paths.
 - `VFX_GoldImpact_PH.png` and `T_VFX_GoldImpact_PH.uasset` restored to the generated placeholder (the painted sheet is a candidate, not shipped). `Art/Source/VFX` now holds only tracked `_PH` sheets.
 - Merged main. Still blocked on request 5; no paint.
+
+## Review fix (Nov 13, review-artfx round 1)
+- Reverted the `cards` additions in `pipeline/art/references.json` (outside the lane); the exact diff is request 6 in `docs/build/requests/artfx.md`. The slice 4 line above describing the edit as done is superseded.
+- `-VfxDemo` is compiled out of shipping builds (`#if !UE_BUILD_SHIPPING`, header and cpp), `StepDemo` returns early with no key, and its timer is wall time. Rule test `UmbrellaElla.Feedback.VfxDemoRules`.
+- Not run: UE build and the new test (the lead's slot).
