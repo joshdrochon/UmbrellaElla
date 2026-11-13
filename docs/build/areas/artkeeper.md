@@ -20,3 +20,4 @@ Lane: Art/Source/<these assets>/**, Art/<these assets>/**, Content/UmbrellaElla/
 tools/build/assets/art_keeper*.py, pipeline/art/provenance.csv (append your rows only). Never gameplay code.
 
 Image model: read docs/build/art-image-model.md; it applies once the lead says Spend OK.
+Lead grant, Nov 13 13:06 (coordinator-approved handoff blocker): Source edits to Owl/KeeperOfTime.*, Arena/UmbrellaArena.*, Feedback/Anim/KeeperPresenterSubsystem.* and their tests, for the Keeper stand-in cube hide only.

@@ -164,3 +164,36 @@ NEEDS HUMAN: lead: smoke switch to start the Keeper fight, ProjectDir-relative -
 ## Nov 13 session 12: still blocked (no new paint, spend unchanged)
 - Main and area/artslots already in. Source still has no -SmokeKeeper/-SmokeSection/-SmokeMap handling (header doc mention only), -SmokeShot not ProjectDir-relative (requests items 1-2). Owl paint plateaued R6-R10; no round run.
 NEEDS HUMAN: lead: smoke switch to start the Keeper fight, ProjectDir-relative -SmokeShot, Blender-vs-paint decision.
+
+## Nov 13 session 13: context capture works now; panel fails on the capture, not the paint
+- Merged main. -SmokeKeeper and ProjectDir-relative -SmokeShot are in. Build exit 0. Capture: `RUN_RES=1280x720 tools/build/run_game.sh -SmokeKeeper -SmokeShot=Saved/Logs/pipeline/owl-shot.png -SmokeQuitAfter=15` shows the Keeper sprite (R8 graded_1 imported to T_Keeper_Owl_PH), but a flat lilac cube (the game's old body mesh) is drawn over its torso/head, plus a grey gradient bar and a pale rectangle.
+- Round on R10 keyed_3 (card artkeeper, run by the artkeeper2 session): verdict reference, context pair lost with gaps "purple placeholder block, no owl"; quality_bar pair: ours; art_check FAIL off_style 0.045 (R10 keyed_3 saturation, ours: grade it like R8 graded_1); calibration 30/40.
+- My own run on R8 graded_1 duplicated that one and was killed at the 2 h background limit with no output; not restarted.
+- Triage: context pair failure is "ours/source": the capture hides the owl behind the cube. Needs the keeper lane to stop drawing the cube mesh when T_Keeper_Owl(_PH) loads (docs/build/requests/artkeeper.md item 3). Until then no round can pass the context pair, so more paid paint is wasted. Spend unchanged.
+NEEDS HUMAN: lead: hide the Keeper cube meshes when the owl slot texture loads (request 3).
+
+## Nov 13 session 14: blocked on request 3, no spend
+- Merged origin/main (523292da): only art_loop tooling changed; KeeperOfTime/KeeperPresenter still draw the cube over the sprite. Wrote the exact 3-step diff in docs/build/requests/artkeeper.md (Update 4). Paint is not the gap, so no paid round run (spend unchanged).
+NEEDS HUMAN: lead: apply request 3 (hide stand-in cubes when the owl slot draws); then artkeeper re-captures and runs the owl panel at once (R8 graded_1 is ready).
+
+## Nov 13 session 15: still blocked on request 3, no spend
+- Merged main (already in) and area/artslots. KeeperOfTime.cpp:107 still SetVisibility(true) on the cube parts; no bArtReplacesStandIn. Exact diff is in docs/build/requests/artkeeper.md Update 4. No paid round run.
+NEEDS HUMAN: lead: apply request 3; then artkeeper re-captures and runs the owl panel (R8 graded_1 ready).
+
+## Nov 13 session 16 (Opus, lead order: Keeper cream box + lilac square): done
+- Merged origin/main (262 behind; main kept outside the Keeper files).
+- Cubes: `AUmbrellaArena::SetKeeperArtShown` hides the arena's graybox KeeperStandIn (survives BuildPlaceholders); `UKeeperPresenterSubsystem::SyncArenaStandIn` (every Tick + after each draw) hides it while any Keeper slot draws and shows it when none does. KeeperOfTime body cubes (wings, clock, 3 mechanisms) stay hidden under the body sprite or their own layer (`MarkPartArtDrawn`). Attack cues (eye, chain head, talon tip, gust, telegraph) still show: they are state telegraphs with no slot art.
+- Test `UmbrellaElla.Feedback.World.KeeperStandInHiddenUnderArt`: break-checked (hide removed in PlaceVisual and SetKeeperArtShown -> FAIL, 7 assertions "cube N hidden under the body art", "arena keeper square hidden while Keeper art draws"; restored -> PASS).
+- Paper keyed: talon, wing and front mechanism stand-ins were RGB on cream paper (each drew a paper box). `tools/build/assets/art_keeper_talon_key.py` (Blender numpy, border flood fill; numbers only) writes `move_final2_keyed.png` beside each source; reimported T_Keeper_Talon_PH / Wing_PH / MechFront_PH with `import_art_candidate.py` (chmod u+w first, no LFS lock taken: workers do not reach the remote). Test `UmbrellaElla.Feedback.KeeperPaperStandInsHaveAlpha` (corners clear, >50 % clear, >10 % opaque) PASS.
+- Capture: `tools/build/run_game.sh -SmokeKeeper -SmokeShot=pipeline/art/proof/artkeeper/keeper-nocube.png -SmokeQuitAfter=20` (640x360 windowed): frame_check PASS, SMOKE_SCENE keeper=1. `python3 tools/build/assets/art_keeper_box_check.py`: screenfix b2-ella-1280.png FAIL (lilac 0.442, cream 0.356); ours PASS (lilac 0.000, cream 0.040: backdrop clouds at the box top).
+- Left: the stand-ins are still unpassed _PH art (owl panel next); the front-mechanism picture's right edge is a straight frame cut.
+
+## Nov 13 session 17 (Opus, lead order after review of 73c2ef68): state cues kept under the art
+- Merged origin/main (11 commits, clean).
+- Review item 1 (state cues): the slot art is static, so it shows only each part's default state. `AKeeperOfTime::PlaceVisual` now takes `bStateCue`: a covered cube still shows while its part is broken (wings, front/middle/rear) or the clock is open. Default states (wings alive, clock closed, mechanisms alive) stay hidden under the art.
+- Found while testing: `PlaceVisual` set the cube colour on `Color`, but the flat unlit stand-in material reads `Tint`, so every Keeper cube was lilac whatever its state (no broken/open colour ever showed, art or not). It now sets `Tint` too. This also changes the no-art look: cubes show KeeperLook state colours instead of all lilac.
+- Test `UmbrellaElla.Feedback.World.KeeperStateCuesShowUnderArt`: under the body art, default parts hidden; broken wing, open clock and broken front mechanism visible; wing tint = KeeperLook::Broken, clock tint = KeeperLook::ClockOpen. Break-checked twice: cue removed -> FAIL (3 assertions: wing, clock, front cue); Tint line removed -> FAIL (2 colour assertions); restored -> PASS.
+- Minor items: arena square syncs on Keeper spawn, draw and destroy (`AddOnActorDestroyedHandler`), and in Tick only when art presence changed (no TActorIterator per frame). `SyncPartCover` (presenter Tick) sets each part's cover from the art that exists now, so a destroyed part layer clears its cover and its cube shows (asserted in KeeperStandInHiddenUnderArt). `FindPart` ignores a destroyed layer waiting for GC; `ShowPartArt` moves such a stale one aside before reusing the name. Provenance rows for the three keyed stand-ins now name the tool (Blender 5.2.1 numpy script) and input image.
+- Lane grant line added to docs/build/areas/artkeeper.md (lead order item 2).
+- Build exit 0. Tests: UmbrellaElla.Keeper 44/44, UmbrellaElla.Feedback 45/45, UmbrellaElla.Arena 3/3 PASS.
+- Capture (640x360 windowed, -SmokeKeeper, Wings phase start): frame_check PASS; art_keeper_box_check PASS lilac 0.000, cream 0.040. No kept cube shows in this capture (default states). When a cue shows in play it is part-sized and in its state colour (dark grey broken, yellow open clock), not the full lilac body square.

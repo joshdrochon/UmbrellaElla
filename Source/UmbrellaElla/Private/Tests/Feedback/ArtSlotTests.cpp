@@ -1,3 +1,4 @@
+#include "Arena/UmbrellaArena.h"
 #include "Attack/StreamBeamActor.h"
 #include "Components/StaticMeshComponent.h"
 #include "Feedback/Art/ArtSlot.h"
@@ -28,6 +29,7 @@
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Misc/AutomationTest.h"
 #include "Owl/KeeperOfTime.h"
+#include "Owl/KeeperLook.h"
 #include "Feedback/Ui/UiArtSubsystem.h"
 
 #if WITH_AUTOMATION_TESTS
@@ -867,6 +869,267 @@ bool FArtSlotKeeperParts::RunTest(const FString& Parameters)
 		}
 	}
 	ArtSlotTestEnd(World);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FArtSlotKeeperStandInHidden, "UmbrellaElla.Feedback.World.KeeperStandInHiddenUnderArt",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+
+bool FArtSlotKeeperStandInHidden::RunTest(const FString& Parameters)
+{
+	UWorld* World = ArtSlotTestWorld();
+	if (!TestNotNull(TEXT("world"), World))
+	{
+		return false;
+	}
+	UKeeperPresenterSubsystem* Presenter = World->GetSubsystem<UKeeperPresenterSubsystem>();
+	// The arena's graybox Keeper square shows while no Keeper art draws.
+	AUmbrellaArena* Arena = World->SpawnActor<AUmbrellaArena>();
+	if (Arena && !Arena->GetKeeperStandIn())
+	{
+		Arena->BuildPlaceholders();
+	}
+	if (TestNotNull(TEXT("arena"), Arena) && TestNotNull(TEXT("arena keeper square"), Arena->GetKeeperStandIn()) && Presenter)
+	{
+		Presenter->SyncArenaStandIn();
+		TestTrue(TEXT("arena keeper square shows with no Keeper"), Arena->GetKeeperStandIn()->IsVisible());
+	}
+	AKeeperOfTime* Keeper = World->SpawnActor<AKeeperOfTime>();
+	if (TestNotNull(TEXT("keeper presenter"), Presenter) && TestNotNull(TEXT("keeper"), Keeper) && Arena && Arena->GetKeeperStandIn())
+	{
+		const UUmbrellaTuning* Tuning = GetDefault<UUmbrellaTuning>();
+		FKeeperFightModel Model;
+		TArray<FKeeperCommand> Commands;
+		Model.Init(Tuning->Keeper, Tuning->Encounter, FKeeperRuleSwitches());
+		Model.BeginPhase(EKeeperPhase::Wings, Commands);
+		const EKeeperPart BodyParts[] = {EKeeperPart::Wings, EKeeperPart::Clock, EKeeperPart::Front, EKeeperPart::Middle, EKeeperPart::Rear};
+		if (!Keeper->HasActorBegunPlay())
+		{
+			Keeper->DispatchBeginPlay();
+		}
+
+		// The body sprite draws (at spawn when its asset exists, else a transient picture): wings, clock and the three
+		// mechanism cubes hide and stay hidden across Refresh.
+		Presenter->ShowStandIn(Keeper);
+		const UStaticMeshComponent* Body = FindObjectFast<UStaticMeshComponent>(Keeper, FName(TEXT("KeeperStandIn")));
+		if (TestNotNull(TEXT("body stand-in"), Body) && !ArtSlot::HasArt(Body))
+		{
+			TestTrue(TEXT("body takes a picture"), Presenter->ShowArt(Keeper, ArtSlotTestTexture()) == EArtSlotDraw::Drawn);
+		}
+		Keeper->Refresh(Model, 0.0f);
+		for (const EKeeperPart Part : BodyParts)
+		{
+			TestTrue(*FString::Printf(TEXT("part %d marked as drawn by art"), static_cast<int32>(Part)), Keeper->IsPartArtDrawn(Part));
+			const UStaticMeshComponent* Cube = Keeper->GetStandInVisual(Part);
+			if (TestNotNull(TEXT("stand-in cube"), Cube))
+			{
+				TestFalse(*FString::Printf(TEXT("cube %d hidden under the body art"), static_cast<int32>(Part)), Cube->IsVisible());
+			}
+		}
+		TestTrue(TEXT("presenter reports Keeper art"), UKeeperPresenterSubsystem::HasKeeperArt(Keeper));
+		Presenter->SyncArenaStandIn();
+		TestTrue(TEXT("presenter sees Keeper art"), Presenter->HasAnyKeeperArt());
+		TestFalse(TEXT("arena keeper square hidden while Keeper art draws"), Arena->GetKeeperStandIn()->IsVisible());
+		Presenter->Tick(0.0f);
+		TestFalse(TEXT("arena keeper square stays hidden across Tick"), Arena->GetKeeperStandIn()->IsVisible());
+		TestFalse(TEXT("the exposed-eye cue is not covered by the body art"), Keeper->IsPartArtDrawn(EKeeperPart::Eye));
+		TestTrue(TEXT("hit regions stay"), Keeper->GetPartComponent(EKeeperPart::Wings) != nullptr);
+
+		// No art over a part: its cube shows again on the next Refresh (a stand-in shows when no art does).
+		for (const EKeeperPart Part : BodyParts)
+		{
+			Keeper->ClearPartArtDrawn(Part);
+		}
+		Keeper->Refresh(Model, 0.0f);
+		for (const EKeeperPart Part : BodyParts)
+		{
+			TestTrue(*FString::Printf(TEXT("cube %d shows with no art"), static_cast<int32>(Part)), Keeper->GetStandInVisual(Part)->IsVisible());
+		}
+
+		// A part layer covers its own cube only (drawn now, or already at spawn when its asset exists).
+		const FString FrontId = TEXT("keeper:mechanism-front");
+		if (!UKeeperPresenterSubsystem::FindPart(Keeper, FrontId))
+		{
+			TestTrue(TEXT("front layer takes a picture"), Presenter->ShowPartArt(Keeper, FrontId, ArtSlotTestTexture()) == EArtSlotDraw::Drawn);
+			Keeper->Refresh(Model, 0.0f);
+			TestTrue(TEXT("front mechanism layer covers the front cube"), Keeper->IsPartArtDrawn(EKeeperPart::Front));
+			TestFalse(TEXT("front cube hidden under its layer"), Keeper->GetStandInVisual(EKeeperPart::Front)->IsVisible());
+			TestTrue(TEXT("rear cube still shows with no art over it"), Keeper->GetStandInVisual(EKeeperPart::Rear)->IsVisible());
+		}
+
+		// A part layer that is destroyed uncovers its cube: the presenter clears the cover on its next Tick.
+		if (UStaticMeshComponent* FrontLayer = UKeeperPresenterSubsystem::FindPart(Keeper, FrontId))
+		{
+			UStaticMeshComponent* BodyMesh = FindObjectFast<UStaticMeshComponent>(Keeper, FName(TEXT("KeeperStandIn")));
+			if (BodyMesh && ArtSlot::HasArt(BodyMesh))
+			{
+				ArtSlotTestClearArt(BodyMesh, Keeper);
+			}
+			Presenter->Tick(0.0f);
+			Keeper->Refresh(Model, 0.0f);
+			TestTrue(TEXT("front layer still covers the front cube"), Keeper->IsPartArtDrawn(EKeeperPart::Front));
+			FrontLayer->DestroyComponent();
+			Presenter->Tick(0.0f);
+			Keeper->Refresh(Model, 0.0f);
+			TestFalse(TEXT("destroyed front layer no longer covers the front cube"), Keeper->IsPartArtDrawn(EKeeperPart::Front));
+			TestTrue(TEXT("front cube shows once its layer is destroyed"), Keeper->GetStandInVisual(EKeeperPart::Front)->IsVisible());
+		}
+
+		// The Keeper leaves: no Keeper art draws, so the arena square shows again (synced on destroy, no Tick needed).
+		Keeper->Destroy();
+		TestFalse(TEXT("presenter sees no Keeper art once it is gone"), Presenter->HasAnyKeeperArt());
+		TestTrue(TEXT("arena keeper square shows again with no Keeper art"), Arena->GetKeeperStandIn()->IsVisible());
+	}
+	ArtSlotTestEnd(World);
+	return true;
+}
+
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FArtSlotKeeperStateCues, "UmbrellaElla.Feedback.World.KeeperStateCuesShowUnderArt",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+
+bool FArtSlotKeeperStateCues::RunTest(const FString& Parameters)
+{
+	UWorld* World = ArtSlotTestWorld();
+	if (!TestNotNull(TEXT("world"), World))
+	{
+		return false;
+	}
+	UKeeperPresenterSubsystem* Presenter = World->GetSubsystem<UKeeperPresenterSubsystem>();
+	AKeeperOfTime* Keeper = World->SpawnActor<AKeeperOfTime>();
+	if (TestNotNull(TEXT("keeper presenter"), Presenter) && TestNotNull(TEXT("keeper"), Keeper))
+	{
+		if (!Keeper->HasActorBegunPlay())
+		{
+			Keeper->DispatchBeginPlay();
+		}
+		Presenter->ShowStandIn(Keeper);
+		const UStaticMeshComponent* Body = FindObjectFast<UStaticMeshComponent>(Keeper, FName(TEXT("KeeperStandIn")));
+		if (TestNotNull(TEXT("body stand-in"), Body) && !ArtSlot::HasArt(Body))
+		{
+			TestTrue(TEXT("body takes a picture"), Presenter->ShowArt(Keeper, ArtSlotTestTexture()) == EArtSlotDraw::Drawn);
+		}
+		const UUmbrellaTuning* Tuning = GetDefault<UUmbrellaTuning>();
+		FKeeperFightModel Model;
+		TArray<FKeeperCommand> Commands;
+		FKeeperTickInput Input;
+		Input.PlayerPos = FVector2D(-500.0f, 0.0f);
+		Input.PlayerRadius = 10.0f;
+		Model.Init(Tuning->Keeper, Tuning->Encounter, FKeeperRuleSwitches());
+
+		// Default states: wings alive, clock closed, mechanisms alive. The static art shows these, so the cubes hide.
+		Model.BeginPhase(EKeeperPhase::Wings, Commands);
+		Keeper->Refresh(Model, 0.0f);
+		for (const EKeeperPart Part : {EKeeperPart::Wings, EKeeperPart::Clock, EKeeperPart::Front, EKeeperPart::Middle, EKeeperPart::Rear})
+		{
+			TestTrue(*FString::Printf(TEXT("part %d is under art"), static_cast<int32>(Part)), Keeper->IsPartArtDrawn(Part));
+			TestFalse(*FString::Printf(TEXT("part %d cube hidden in its default state"), static_cast<int32>(Part)), Keeper->GetStandInVisual(Part)->IsVisible());
+		}
+
+		// Mechanisms phase: the wings are broken. One hit on the front mechanism opens the clock.
+		Model.BeginPhase(EKeeperPhase::Mechanisms, Commands);
+		for (float T = 0.0f; T < Tuning->Encounter.PhaseTransitionSeconds + 0.1f; T += 1.0f / 60.0f)
+		{
+			Model.Step(1.0f / 60.0f, Input, Commands);
+		}
+		Model.ApplyPlayerHit(EKeeperPart::Front, 1.0f, Commands);
+		TestTrue(TEXT("model: wings broken"), Model.IsPartBroken(EKeeperPart::Wings));
+		TestTrue(TEXT("model: clock open"), Model.IsClockOpen());
+		Keeper->Refresh(Model, 0.0f);
+		TestTrue(TEXT("wings still under the body art"), Keeper->IsPartArtDrawn(EKeeperPart::Wings));
+		TestTrue(TEXT("broken wing shows its cue under the body art"), Keeper->GetStandInVisual(EKeeperPart::Wings)->IsVisible());
+		TestTrue(TEXT("open clock shows its cue under the body art"), Keeper->GetStandInVisual(EKeeperPart::Clock)->IsVisible());
+		TestFalse(TEXT("live rear mechanism stays hidden under the art"), Keeper->GetStandInVisual(EKeeperPart::Rear)->IsVisible());
+		// The cue is the state colour, not the generic lilac stand-in.
+		auto CueColour = [](const UStaticMeshComponent* Cube)
+		{
+			FLinearColor Colour = FLinearColor::Transparent;
+			if (const UMaterialInstanceDynamic* Dynamic = Cube ? Cast<UMaterialInstanceDynamic>(Cube->GetMaterial(0)) : nullptr)
+			{
+				Dynamic->GetVectorParameterValue(FHashedMaterialParameterInfo(TEXT("Tint")), Colour);
+			}
+			return Colour;
+		};
+		TestTrue(TEXT("broken wing cue is the broken colour"), CueColour(Keeper->GetStandInVisual(EKeeperPart::Wings)).Equals(KeeperLook::Broken));
+		TestTrue(TEXT("open clock cue is the open colour"), CueColour(Keeper->GetStandInVisual(EKeeperPart::Clock)).Equals(KeeperLook::ClockOpen));
+
+		// A broken mechanism shows its cue too.
+		Model.ApplyPlayerHit(EKeeperPart::Front, Tuning->Keeper.FrontHp * 10.0f, Commands);
+		TestTrue(TEXT("model: front broken"), Model.IsPartBroken(EKeeperPart::Front));
+		Keeper->Refresh(Model, 0.0f);
+		TestTrue(TEXT("broken front mechanism shows its cue under the art"), Keeper->GetStandInVisual(EKeeperPart::Front)->IsVisible());
+		Keeper->Destroy();
+	}
+	ArtSlotTestEnd(World);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FArtSlotKeeperPaperAlpha, "UmbrellaElla.Feedback.KeeperPaperStandInsHaveAlpha",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FArtSlotKeeperPaperAlpha::RunTest(const FString& Parameters)
+{
+#if WITH_EDITORONLY_DATA
+	// The talon, wing and front-mechanism stand-ins were ink on cream paper with no alpha, so each drew a paper box over
+	// the whole Keeper. Their keyed sources must be transparent at every corner, mostly clear, and keep the drawing.
+	static const TCHAR* const KeeperPaperPaths[] = {
+		TEXT("/Game/UmbrellaElla/Art/Keeper/T_Keeper_Talon_PH.T_Keeper_Talon_PH"),
+		TEXT("/Game/UmbrellaElla/Art/Keeper/T_Keeper_Wing_PH.T_Keeper_Wing_PH"),
+		TEXT("/Game/UmbrellaElla/Art/Keeper/T_Keeper_MechFront_PH.T_Keeper_MechFront_PH"),
+	};
+	for (const TCHAR* Path : KeeperPaperPaths)
+	{
+		UTexture2D* Picture = LoadObject<UTexture2D>(nullptr, Path);
+		if (!TestNotNull(*FString::Printf(TEXT("%s loads"), Path), Picture))
+		{
+			continue;
+		}
+		TestFalse(*FString::Printf(TEXT("%s keeps its alpha channel"), Path), Picture->CompressionNoAlpha);
+		const ETextureSourceFormat Format = Picture->Source.GetFormat();
+		const bool bEight = Format == TSF_BGRA8;
+		TArray64<uint8> Mip;
+		if (!TestTrue(*FString::Printf(TEXT("%s source is 8 or 16 bit RGBA"), Path), bEight || Format == TSF_RGBA16)
+			|| !TestTrue(*FString::Printf(TEXT("%s source mip reads"), Path), Picture->Source.GetMipData(Mip, 0)))
+		{
+			continue;
+		}
+		const int64 W = Picture->Source.GetSizeX();
+		const int64 H = Picture->Source.GetSizeY();
+		const int64 Bpp = Picture->Source.GetBytesPerPixel();
+		if (!TestEqual(*FString::Printf(TEXT("%s mip size"), Path), Mip.Num(), W * H * Bpp))
+		{
+			continue;
+		}
+		const auto KeeperPaperAlpha = [&](int64 X, int64 Y) -> float
+		{
+			const uint8* Pixel = Mip.GetData() + (Y * W + X) * Bpp;
+			return bEight ? Pixel[3] / 255.0f : *reinterpret_cast<const uint16*>(Pixel + 6) / 65535.0f;
+		};
+		const int64 Corners[4][2] = {{0, 0}, {W - 1, 0}, {0, H - 1}, {W - 1, H - 1}};
+		for (const auto& Corner : Corners)
+		{
+			TestTrue(*FString::Printf(TEXT("%s corner (%lld,%lld) is transparent"), Path, Corner[0], Corner[1]), KeeperPaperAlpha(Corner[0], Corner[1]) < 0.05f);
+		}
+		int64 Opaque = 0;
+		int64 Clear = 0;
+		int64 Samples = 0;
+		for (int64 Y = 0; Y < H; Y += 4)
+		{
+			for (int64 X = 0; X < W; X += 4)
+			{
+				const float A = KeeperPaperAlpha(X, Y);
+				Opaque += A > 0.5f ? 1 : 0;
+				Clear += A < 0.05f ? 1 : 0;
+				++Samples;
+			}
+		}
+		const double OpaqueShare = static_cast<double>(Opaque) / Samples;
+		const double ClearShare = static_cast<double>(Clear) / Samples;
+		AddInfo(FString::Printf(TEXT("%s %lldx%lld opaque %.3f clear %.3f"), Path, W, H, OpaqueShare, ClearShare));
+		TestTrue(*FString::Printf(TEXT("%s paper is keyed: over half is clear"), Path), ClearShare > 0.5);
+		TestTrue(*FString::Printf(TEXT("%s drawing stays: over a tenth is opaque"), Path), OpaqueShare > 0.1);
+	}
+#endif
 	return true;
 }
 
