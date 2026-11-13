@@ -106,6 +106,10 @@ public:
 	static constexpr float JourneyViewBoxFraction = 0.04f;
 	/** A sampled box counts as "drawn" when its luminance spread or its offset from the frame mean reaches this (0-255). */
 	static constexpr float JourneyViewContrastMin = 12.0f;
+	/** Rec. 709 luma weights for the view measure. */
+	static constexpr double JourneyLumaR = 0.2126;
+	static constexpr double JourneyLumaG = 0.7152;
+	static constexpr double JourneyLumaB = 0.0722;
 
 private:
 	void StartStep();

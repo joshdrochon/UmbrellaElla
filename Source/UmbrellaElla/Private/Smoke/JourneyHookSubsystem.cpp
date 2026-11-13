@@ -888,7 +888,7 @@ FString UJourneyHookSubsystem::MeasureView(const TArray<FColor>& Bitmap, const F
 	Flow->GetViewportSize(ViewW, ViewH);
 	const double ScaleX = ViewW > 0 ? static_cast<double>(Size.X) / ViewW : 1.0;
 	const double ScaleY = ViewH > 0 ? static_cast<double>(Size.Y) / ViewH : 1.0;
-	auto Luma = [](const FColor& C) { return 0.2126 * C.R + 0.7152 * C.G + 0.0722 * C.B; };
+	auto Luma = [](const FColor& C) { return JourneyLumaR * C.R + JourneyLumaG * C.G + JourneyLumaB * C.B; };
 	double FrameSum = 0.0;
 	for (const FColor& C : Bitmap)
 	{
