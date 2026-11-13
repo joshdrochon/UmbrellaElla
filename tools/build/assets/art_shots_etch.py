@@ -199,11 +199,12 @@ def finish(tone_s, mask_s, phase, ramp, stops, light=(0.0, -1.0), halo_rgb=None,
     alpha = np.where(body, 1.0, 0.0)
     # anti-aliased silhouette: partly covered edge pixels carry the nearest body colour at low alpha
     if halo_rgb is not None:
-        spill = blur(body.astype(float), halo_r)
-        spill = np.clip(spill * 2.0, 0, 1) ** 1.6
-        speck = RNG.random(body.shape)
-        m2 = vnoise(6, body.shape)
-        a = halo_a * spill * (0.55 + 0.9 * m2) * (speck > 0.3)
+        # a bounded pool of light, stippled like a mezzotint: dots of one strength, dense at the shot and thinning
+        # to a clear edge, so it is a separate light on the paper's tooth and never an airbrush haze
+        spill = np.clip(blur(body.astype(float), halo_r) * 2.0, 0, 1)
+        edge_n = (vnoise(10 * MUL, body.shape) - 0.5) * 0.10
+        dens = np.clip((spill + edge_n - 0.10) * 1.15, 0, 0.82) * (spill + edge_n > 0.10)
+        a = np.where(RNG.random(body.shape) < dens, halo_a, 0.0)
         a = np.clip(a, 0, 0.46)
         out_side = ~body
         rgb = np.where(out_side[..., None], np.array(halo_rgb, float)[None, None], rgb)
@@ -225,8 +226,8 @@ def save(rgba):
 def bolt_body(k, ox, Y):
     """Tone and mask of the bolt's body (no flecks): k = px per design unit, ox = x offset in px."""
     # compact: the head (tip to the last barb) and the tail are about the same length (GDD: tail about one head long)
-    top = [(30, 0), (196, 66), (160, 34), (258, 68), (220, 33), (318, 54), (278, 25), (352, 12), (470, 1.6)]
-    bot = [(470, 1.6), (360, 10), (338, 29), (312, 15), (292, 50), (258, 25), (240, 64), (206, 32), (180, 58),
+    top = [(30, 0), (196, 66), (160, 34), (258, 68), (220, 33), (318, 54), (278, 25), (350, 12), (448, 1.6)]
+    bot = [(448, 1.6), (358, 10), (338, 29), (312, 15), (292, 50), (258, 25), (240, 64), (206, 32), (180, 58),
            (150, 30)]
     notches = [(160, -34), (220, -33), (278, -25), (150, 30), (206, 32), (258, 25), (312, 15)]
     outline = [(ox + x * k, Y - d * k) for x, d in top] + [(ox + x * k, Y + d * k) for x, d in bot]
@@ -244,13 +245,13 @@ def bolt_body(k, ox, Y):
         if i in (3, 6, 10):
             OUTLINES.append((f"layer{i}", p))
         tone = np.where(poly_mask(p), 0.20 + 0.80 * f ** 0.8, tone)
-    tone = blur(tone, 1.2 * SS * k)
+    tone = blur(tone, 2.0 * SS * k)   # wide transitions: the hatching carries the tone, no flat bands
     # light from above: the upper faces lift, the under side drops; the tail cools toward its end
     up = sstep(-3 * k, 3 * k, Y - YS)
     lit = (up - 0.5) * 0.20
     core_w = sstep(0.75, 0.95, tone)
     tone = tone + lit * (1 - core_w)
-    tone = tone * (1 - 0.55 * sstep(ox + 270 * k, ox + 455 * k, XS))
+    tone = tone * (1 - 0.55 * sstep(ox + 270 * k, ox + 440 * k, XS))
     # the crease behind each barb: a dark wedge from the notch toward the core
     for nx, nd in notches:
         ax, ay, bx, by = ox + nx * k, Y + nd * k, ox + (nx - 52) * k, Y + nd * 0.3 * k
@@ -272,8 +273,8 @@ def bolt(ramp):
     # square flecks on short dashed lines beside the tail (tidy, sparse)
     flecks = []
     no_ink = np.zeros(XS.shape, bool)
-    for (fx, fy, s, t, rot) in ((492, -36, 7.5, 0.40, 0.2), (546, 29, 6.8, 0.28, -0.15), (572, -21, 5.4, 0.28, 0.1),
-                                (514, 46, 5.4, 0.40, 0.3)):
+    for (fx, fy, s, t, rot) in ((486, -36, 7.5, 0.40, 0.2), (530, 29, 6.8, 0.28, -0.15), (556, -21, 5.4, 0.28, 0.1),
+                                (504, 46, 5.4, 0.40, 0.3)):
         sq = [((fx + math.cos(rot + q * math.pi / 2 + math.pi / 4) * s) * k,
                Y + (fy + math.sin(rot + q * math.pi / 2 + math.pi / 4) * s) * k) for q in range(4)]
         flecks.append((sq, t))
@@ -295,7 +296,7 @@ def bolt(ramp):
     wav = (vnoise(40 * MUL) - 0.5) * 0.6
     phase = (0.30 * XF - 0.954 * np.abs(YF - Y)) / period + wav
     phase2 = (0.80 * XF + 0.60 * np.abs(YF - Y)) / (period * 0.9)
-    return finish(tone, mask, phase, ramp, stops, halo_rgb=hx(ramp[2][1]), halo_r=6 * k, halo_a=0.42,
+    return finish(tone, mask, phase, ramp, stops, halo_rgb=hx(ramp[2][1]), halo_r=13 * k, halo_a=0.44,
                   ink_w=max(1, int(round(2 * k))), no_ink=no_ink, phase2=phase2)
 
 
@@ -342,7 +343,7 @@ def burst(ramp):
         if i in (4, 9):
             OUTLINES.append((f"burst_layer{i}", p))
         tone = np.where(m, 0.20 + 0.80 * f ** 0.85, tone)
-    tone = blur(tone, 1.1 * SS * k)
+    tone = blur(tone, 1.7 * SS * k)   # wide transitions: the hatching carries the tone, no flat bands
     tone = tone + 0.30 * np.exp(-(rr / (14 * k)) ** 2)           # the flash at the centre
     tone = tone - 0.20 * sstep(-4 * k, 4 * k, YS - cy) * (rr > 20 * k)   # under side in shadow
     tone = np.where(s_mask, np.clip(tone, 0.06, 1.0), 0.0)
@@ -370,7 +371,7 @@ def burst(ramp):
     phase = np.where(in_burst, radial, swept) + (vnoise(40 * MUL) - 0.5) * 0.5
     phase2 = (0.80 * XF + 0.60 * np.abs(YF - cy)) / (4.6 * kb)
     return finish(tone, mask, phase, ramp, stops, halo_rgb=hx(ramp[2][1]), halo_r=11 * k, halo_a=0.44,
-                  ink_w=max(1, int(round(2.5 * k))), no_ink=no_ink, phase2=phase2)
+                  ink_w=max(1, int(round(2.5 * k))), no_ink=no_ink, phase2=phase2, tooth=0.36)
 
 
 # ---------------------------------------------------------------- wand-shot
@@ -414,7 +415,7 @@ def pulse(ramp):
         s = 1 - 0.78 * f
         m = poly_mask(star(hxc, Y, [(a, L * k) for a, L in allr], 17 * k, s)) | poly_mask(tail(1 - 0.85 * f))
         tone = np.where(m, 0.22 + 0.78 * f ** 0.8, tone)
-    tone = blur(tone, 1.1 * SS * k)
+    tone = blur(tone, 2.8 * SS * k)   # wide transitions: the hatching carries the tone, no flat bands
     rr = np.hypot(XS - hxc, YS - Y)
     tone = tone + 0.22 * np.exp(-(rr / (11 * k)) ** 2)
     tone = tone + (sstep(-3 * k, 3 * k, Y - YS) - 0.5) * 0.22 * (1 - sstep(0.8, 0.95, tone))
