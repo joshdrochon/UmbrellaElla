@@ -133,6 +133,9 @@ class ChromaKey(img.ImageWork):
         self.assertIn("enclosed_key_px=0", o)
         self.assertNotIn("WARN", o)
         self.assertIn("chroma key #00FF00", self.prov()["Art/Source/Ella/cut.png"]["origin"])
+        row = self.prov()["Art/Source/Ella/cut.png"]
+        self.assertEqual(row["tool"], "tools/assetgen.py (pure Python)", "the cut is ours, not GIMP 3")
+        self.assertNotIn("GPL", row["licence"])
 
     def test_green_inside_the_subject_is_reported(self):
         src = os.path.join(self.repo, "Art/Source/Ella/raw2.png")
@@ -183,9 +186,31 @@ class StripFrames(img.ImageWork):
         self.assertEqual(meta["figure_heights"], [51, 51, 51])
         self.assertEqual(meta["height_spread_pct"], 0.0)
         self.assertIn("Art/Source/Ella/Raw/Idle/ella_idle_02.png", self.prov())
+        self.assertEqual(self.prov()["Art/Source/Ella/Raw/Idle/ella_idle_02.png"]["tool"],
+                         "tools/assetgen.py (pure Python)")
         rc, o = self.ag("sheet", "--frames", *outs, "--out", "Art/Sprites/Ella/ella_idle_PH.png", "--anim", "Idle",
                         "--fps", "6", ASSETGEN_NO_APP_DIRS="1")
         self.assertEqual(rc, 0, o)
+
+    def test_crop_one_figure_from_the_sheet_on_its_own_background(self):
+        mask = self.keyed_strip([(10, 20, 40, 70), (70, 10, 100, 60), (140, 25, 165, 75)])
+        sheet = os.path.join(self.repo, "Art/Source/Ella/sheet.png")
+        figure_on_green(sheet, w=200, h=80, figs=((10, 20, 40, 70), (70, 10, 100, 60), (140, 25, 165, 75)),
+                        fringe=False)
+        rc, o = self.ag("crop", "--in", "Art/Source/Ella/sheet.png", "--mask", mask, "--count", "3", "--figure", "2",
+                        "--pad", "4", "--out", "Art/Source/Ella/side.png")
+        self.assertEqual(rc, 0, o)
+        self.assertIn("box=66,6,104,64", o)
+        w, h, rows = png.read_png(os.path.join(self.repo, "Art/Source/Ella/side.png"))
+        self.assertEqual((w, h), (39, 59))
+        self.assertEqual(rows[0][0], GREEN, "the crop keeps the sheet's flat key background")
+        row = self.prov()["Art/Source/Ella/side.png"]
+        self.assertEqual(row["tool"], "tools/assetgen.py (pure Python)")
+        self.assertIn("figure 2 of 3", row["origin"])
+        rc, o = self.ag("crop", "--in", "Art/Source/Ella/sheet.png", "--mask", mask, "--count", "4", "--figure", "1",
+                        "--out", "Art/Source/Ella/x.png")
+        self.assertEqual(rc, 1, o)
+        self.assertIn("wanted 4", o)
 
     def test_scale_drift_is_measured(self):
         strip = self.keyed_strip([(10, 20, 40, 70), (70, 40, 100, 70)])

@@ -54,6 +54,8 @@ Blender headless; scripts and recipes in pipeline/art/blender/)
   frames  --in KEYED_STRIP --count N --out-dir DIR [--frame WxH] [--pad 8] [--stem S]   one painted strip of N poses
           cut into N equal frames, each figure at its own scale on one bottom-centre baseline; <stem>.frames.json
           records the figure heights and their spread (scale drift). Then `sheet` assembles them
+  crop    --in SHEET --mask KEYED_SHEET --count N --figure K --out PNG [--pad 24]   figure K of N cut out of a painted
+          sheet on its own background: the single-figure input for a strip (a whole sheet makes the model copy it)
   sheet   --frames F1 F2 ... --out Art/Sprites/<name>.png --anim <Anim> --fps N [--kind silhouette]
           Aseprite CLI (horizontal sheet + JSON data), else a Python strip; writes the .sprite.json sidecar
 Audio
@@ -192,6 +194,10 @@ def now_iso():
 def role_author():
     role = os.environ.get("JAM_ROLE") or "human"
     return f"{role} (agent session via tools/assetgen.py)" if role != "human" else "team (tools/assetgen.py)"
+
+
+PY_TOOL = {"name": "tools/assetgen.py (pure Python)",
+           "licence": "team code (no third-party application); output belongs to the team"}
 
 
 def write_provenance(root, out, tid, prompt="", model="", inputs=(), origin="generated in jam", note="", info=None,
@@ -1122,7 +1128,7 @@ def cmd_clean(a, argv, root):
         return 0
     if a.chroma:
         st = chroma_key(a.inp, a.out, a.chroma, grow=a.grow, hue_tol=a.hue_tol)
-        write_provenance(root, a.out, "gimp", inputs=[a.inp], origin="edited in jam",
+        write_provenance(root, a.out, "python", info=PY_TOOL, inputs=[a.inp], origin="edited in jam",
                          note=f"python HSV chroma key #{a.chroma.lstrip('#')}, mask grown {a.grow} px, despilled "
                               f"(tools/assetgen.py clean --chroma)")
         warn = ""
@@ -1147,8 +1153,8 @@ def cmd_clean(a, argv, root):
     else:
         key_out(a.inp, a.out)
         used = "python"
-    tid = "gimp" if used == "python" else used
-    write_provenance(root, a.out, tid, inputs=[a.inp], origin="edited in jam",
+    write_provenance(root, a.out, used, info=PY_TOOL if used == "python" else None, inputs=[a.inp],
+                     origin="edited in jam",
                      note="python colour-key cut (no GIMP on PATH)" if used == "python" else "")
     print(f"CLEAN {rel(a.out, root)} via={used}")
     return 0
@@ -1167,10 +1173,8 @@ def _segments(occ, min_gap):
     return segs
 
 
-def split_strip(src, count, min_gap=6, pad=8, frame=None, min_px=50):
-    """Cut a keyed strip (transparent background) of `count` figures side by side (or stacked when the strip is
-    taller than wide) into `count` equal frames. Each figure keeps its scale and is placed bottom-centre on one
-    baseline (fixed pivot). Returns (frames as (w, h, rows), stats)."""
+def figure_boxes(src, count, min_gap=6, min_px=50):
+    """The bounding boxes (x0, y0, x1, y1) of the `count` separate figures in a keyed strip, in strip order."""
     w, h, rows = png.read_png(src)
     vertical = h > w
     n_long = h if vertical else w
@@ -1195,6 +1199,14 @@ def split_strip(src, count, min_gap=6, pad=8, frame=None, min_px=50):
                     xs.append(x)
                     ys.append(y)
         boxes.append((min(xs), min(ys), max(xs), max(ys)))
+    return w, h, rows, boxes
+
+
+def split_strip(src, count, min_gap=6, pad=8, frame=None, min_px=50):
+    """Cut a keyed strip (transparent background) of `count` figures side by side (or stacked when the strip is
+    taller than wide) into `count` equal frames. Each figure keeps its scale and is placed bottom-centre on one
+    baseline (fixed pivot). Returns (frames as (w, h, rows), stats)."""
+    w, h, rows, boxes = figure_boxes(src, count, min_gap, min_px)
     bw = max(b[2] - b[0] + 1 for b in boxes)
     bh = max(b[3] - b[1] + 1 for b in boxes)
     fw, fh = frame or (bw + 2 * pad, bh + 2 * pad)
@@ -1230,7 +1242,7 @@ def cmd_frames(a, argv, root):
     for i, (fw, fh, rows) in enumerate(frames):
         out = os.path.join(a.out_dir, f"{stem}_{i:02d}.png")
         png.write_png(out, fw, fh, rows)
-        write_provenance(root, out, "gimp", inputs=[a.inp], origin="edited in jam",
+        write_provenance(root, out, "python", info=PY_TOOL, inputs=[a.inp], origin="edited in jam",
                          note=f"frame {i} of {a.count} cut from the strip, bottom-centre pivot "
                               f"(tools/assetgen.py frames)")
         outs.append(rel(out, root))
@@ -1239,6 +1251,36 @@ def cmd_frames(a, argv, root):
         fh_.write("\n")
     print(f"FRAMES {a.count} from {rel(a.inp, root)} frame={st['frame'][0]}x{st['frame'][1]} "
           f"heights={st['figure_heights']} spread={st['height_spread_pct']}% -> {rel(a.out_dir, root)}")
+    return 0
+
+
+def cmd_crop(a, argv, root):
+    """One figure out of a painted sheet, on its own key-colour background: the image-model input for a strip (a
+    whole sheet as the input makes the model copy the sheet's layout into the strip). The keyed sheet (--mask) finds
+    the figure; the crop is taken from the unkeyed sheet (--in) so the model sees the same flat background."""
+    try:
+        _, _, _, boxes = figure_boxes(a.mask, a.count)
+    except ValueError as e:
+        print(f"FAIL: {e}")
+        return 1
+    if not 1 <= a.figure <= a.count:
+        print(f"FAIL: --figure {a.figure} is not in 1..{a.count}")
+        return 2
+    w, h, rows = png.read_png(a.inp)
+    mw, mh = png.read_png(a.mask)[:2]
+    if (w, h) != (mw, mh):
+        print(f"FAIL: --in is {w}x{h}, --mask is {mw}x{mh}: the mask must be the keyed copy of the same sheet")
+        return 1
+    x0, y0, x1, y1 = boxes[a.figure - 1]
+    x0, y0, x1, y1 = max(0, x0 - a.pad), max(0, y0 - a.pad), min(w - 1, x1 + a.pad), min(h - 1, y1 + a.pad)
+    out = [list(rows[y][x0:x1 + 1]) for y in range(y0, y1 + 1)]
+    os.makedirs(os.path.dirname(os.path.abspath(a.out)), exist_ok=True)
+    png.write_png(a.out, x1 - x0 + 1, y1 - y0 + 1, out)
+    write_provenance(root, a.out, "python", info=PY_TOOL, inputs=[a.inp, a.mask], origin="edited in jam",
+                     note=f"figure {a.figure} of {a.count} cropped from the sheet, box {x0},{y0},{x1},{y1} "
+                          f"(tools/assetgen.py crop)")
+    print(f"CROP {rel(a.out, root)} figure={a.figure}/{a.count} box={x0},{y0},{x1},{y1} "
+          f"size={x1 - x0 + 1}x{y1 - y0 + 1}")
     return 0
 
 
@@ -1649,6 +1691,13 @@ def parser():
     p.add_argument("--pad", type=int, default=8)
     p.add_argument("--stem")
     p = sub.add_parser("image-models")
+    p = sub.add_parser("crop")
+    p.add_argument("--in", dest="inp", required=True, help="the painted sheet (key-colour background)")
+    p.add_argument("--mask", required=True, help="the keyed copy of the same sheet (clean --chroma)")
+    p.add_argument("--count", type=int, required=True, help="separate items on the sheet")
+    p.add_argument("--figure", type=int, required=True, help="which one, 1-based, left to right")
+    p.add_argument("--out", required=True)
+    p.add_argument("--pad", type=int, default=24)
     p = sub.add_parser("sheet")
     p.add_argument("--frames", nargs="+", required=True)
     p.add_argument("--out", required=True)
@@ -1699,7 +1748,7 @@ def parser():
 
 
 CMDS = {"image": cmd_image, "clean": cmd_clean, "sheet": cmd_sheet, "blender": cmd_blender,
-        "frames": cmd_frames, "image-models": cmd_image_models,
+        "frames": cmd_frames, "image-models": cmd_image_models, "crop": cmd_crop,
         "sfx": lambda a, v, r: cmd_audio(a, v, r), "music": lambda a, v, r: cmd_audio(a, v, r, music=True),
         "edit": cmd_edit, "capture": cmd_capture, "cut": cmd_cut, "zip": cmd_zip, "fulfil": cmd_fulfil}
 
