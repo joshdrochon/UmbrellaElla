@@ -27,12 +27,21 @@ float VfxCatalog::LayerY(EVfxLayer Layer)
 	case EVfxLayer::Foreground:
 		return UmbrellaDrawOrder::ForegroundY;
 	case EVfxLayer::Backdrop:
-		// In front of every backdrop and scene picture, behind the arena layer and gameplay.
-		return UmbrellaDrawOrder::ArenaY - UmbrellaVfxLayerConst::BackdropBehindArena;
+		return UmbrellaDrawOrder::BackgroundNearY;
 	case EVfxLayer::Vfx:
 	default:
 		return UmbrellaDrawOrder::VfxY;
 	}
+}
+
+float VfxCatalog::RowY(const FVfxArtRow& Row)
+{
+	// The light shaft draws in front of every backdrop and scene picture, behind the arena layer and gameplay.
+	if (FName(Row.Key) == FName(TEXT("LightShaft")))
+	{
+		return UmbrellaDrawOrder::ArenaY - UmbrellaVfxLayerConst::BackdropBehindArena;
+	}
+	return LayerY(Row.Layer);
 }
 
 float VfxCatalog::Duration(const FVfxArtRow& Row)

@@ -11,7 +11,17 @@ B2 cause (Nov 13): NOT the scene panels. ART_05 off (all USceneArtSubsystem pane
 - Proof: `pipeline/art/proof/screenfix/mill-after.png` -> `frame_check: PASS black=0.000 flat=0.746`.
 
 ## Left
-- Nothing. Post-merge: build exit 0, UmbrellaElla.ScreenFix PASS tests=3 failed=0.
+- The brief's Mill-room capture with Ella and the guard visible is not taken (see Follow-ups). Lighting, draw order,
+  world test and frame check are done; the area is not done by its own brief until that capture or a recorded cut.
+
+## Follow-ups (not blocking, coordinator 13:10)
+- Mill-room capture with the guard: the Mill is not in any run per the GDD; a decision row on the Mill in the route (mill-in-route, not yet in docs/decisions.md) is pending
+  with Josh. Take the capture (or drop it) once that row is decided.
+- `git rm` of two `.uasset` `_PH` files (T_Screen_Playing_PH, T_Screen_Resuming_PH, 897f3468), against AGENTS.md
+  section 7: the Producer or Technical Director records the exception.
+- Ella contrast: dark ink on the near-black NAR-05 umbra. Lighter umbra or a rim on Ella: artella / artfx.
+- Keeper cream box (keeper-talon stand-in with no alpha) and the lilac KeeperStandIn cube in front of it: artkeeper,
+  in progress.
 
 ## Smoke shot (frames, path, scene switches) - done
 - c9f317b4: -SmokeShot after level ready + N rendered frames (-SmokeShotFrames, default 60); relative path resolves against project dir; -SmokeKeeper, -SmokeEnemy=<family> (workbench).
@@ -109,3 +119,21 @@ B2 cause (Nov 13): NOT the scene panels. ART_05 off (all USceneArtSubsystem pane
   - after, b2-ella-1280.png box 231,152..281,228: figure_px=241, rows 157-202
 - Still weak: Ella is dark ink on the near-black umbra (NAR-05 says the umbra is dark), so contrast is low. Lighter umbra or a rim on Ella is an art/VFX call (artfx, artella), not done here. `vfx-sheet:VFX_GoldImpact` stand-in is a 6x4 grid in an 8-column VFX sheet; VfxSheetVisual's own material, not changed (artfx).
 - The two `_PH` deletions in 897f3468 (T_Screen_Playing_PH, T_Screen_Resuming_PH) were done with `git rm`, against AGENTS.md section 7. No editor redo is needed: a byte search of Content/ finds no package that references either name, and the game loads slots by soft path with a fallback. An editor delete of an unreferenced texture only removes the file, the same end state. Next time: delete through an editor script.
+
+## Gate review round 2 (Nov 13, Opus) - done
+- `tools/hitbox_check.py check` -> `hitbox_check: PASS entities=0 skipped=0`. pipeline/feel/hitboxes.json has no entities, so
+  it measures nothing for Ella. Art bible (gameplay never reads art; the player hurtbox sits inside the art) and the asset
+  spec (Ella + open umbrella 80-100 px at 1080p) both allow a 114-unit cell around an 88-unit capsule: the idle figure
+  is 79% of its cell, about 90 units. Not changed.
+- ArtSlotTests (`UmbrellaElla.Feedback.World.ArtSlotElla`): Hurt is a 24x1 strip texture (48x2) next to the 6x4 Idle grid;
+  checks Hurt draws at its own cell size (differs from Idle), TileV 1 and Cols 24; Down without a picture falls back to
+  Idle's size, TileV 0.25, Cols 6.
+- `tools/build/art_slots.py` cpp_rows: the one-line conditional is now an explicit if/else. Catalog output unchanged;
+  `test_art_slots` OK, `art_slots: PASS (107 slots)`.
+- Light shaft depth: `VfxCatalog::LayerY(Backdrop)` is back to BackgroundNearY. New `VfxCatalog::RowY(Row)` puts only
+  LightShaft at ArenaY - 10; the director (spawn, demo, shaft parts) uses RowY. `UmbrellaElla.ScreenFix.LightShaftInFrontOfScenePictures`
+  also checks the Backdrop layer stays at BackgroundNearY.
+- Build: `build exit: 0  mode=unity  commit=61274359 (+ working tree)  warnings: 0` (../logs/screenfix-r2-build.log).
+- Tests: `UmbrellaElla.ScreenFix+UmbrellaElla.Feedback+UmbrellaElla.Smoke` `PASS tests=64 failed=0` (../logs/screenfix-r2-test.log).
+- module_check 0, pipeline_check 0. origin/main already merged (0 commits behind).
+- Not done here: the Mill-room capture (coordinator order: not now; see Follow-ups).

@@ -88,7 +88,7 @@ bool FVfxArtCatalogRules::RunTest(const FString& Parameters)
 		TestFalse(TEXT("effect key is unique"), Keys.Contains(FName(Row.Key)));
 		Keys.Add(FName(Row.Key));
 		TestTrue(TEXT("sheet has frames"), Row.Frames > 0 && Row.Fps > 0.0f && Row.Size > 0.0f);
-		const float LayerY = VfxCatalog::LayerY(Row.Layer);
+		const float LayerY = VfxCatalog::RowY(Row);
 		TestTrue(TEXT("effect layer is not a sprite layer"), LayerY != UmbrellaDrawOrder::EllaY && LayerY != UmbrellaDrawOrder::KeeperY
 			&& LayerY != UmbrellaDrawOrder::ArenaY);
 		TestTrue(TEXT("an effect without light has no light colour"), Row.bLit || Row.LightHex == VfxCatalogData::None);

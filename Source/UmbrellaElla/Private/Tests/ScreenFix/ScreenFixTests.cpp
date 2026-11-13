@@ -170,7 +170,9 @@ bool FScreenFixShaftInFront::RunTest(const FString& Parameters)
 	{
 		return false;
 	}
-	const float ShaftY = VfxCatalog::LayerY(Shaft->Layer);
+	const float ShaftY = VfxCatalog::RowY(*Shaft);
+	// Only the shaft moves forward: the Backdrop layer itself stays at BackgroundNearY for any later backdrop effect.
+	TestEqual(TEXT("Backdrop layer stays at BackgroundNearY"), VfxCatalog::LayerY(EVfxLayer::Backdrop), UmbrellaDrawOrder::BackgroundNearY);
 	for (const FSceneArtSpec& Spec : USceneArtSubsystem::Specs())
 	{
 		if (Spec.Depth < UmbrellaDrawOrder::ArenaY)

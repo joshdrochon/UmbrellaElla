@@ -56,8 +56,9 @@ struct FVfxArtRow
 namespace UmbrellaVfxLayerConst
 {
 	/**
-	 * Backdrop-layer effects (the light shaft) sit this far behind the arena layer (screenfix B2). At
-	 * BackgroundNearY the shaft hid behind the scene pictures (up to BackgroundNearY + 15), leaving only the dark umbra.
+	 * The light shaft sits this far behind the arena layer (screenfix B2). At BackgroundNearY (the Backdrop layer) it
+	 * hid behind the scene pictures (up to BackgroundNearY + 15), leaving only the dark umbra. Only LightShaft; other
+	 * Backdrop-layer effects stay at BackgroundNearY.
 	 */
 	static constexpr float BackdropBehindArena = 10.0f;
 }
@@ -145,6 +146,9 @@ namespace VfxCatalog
 
 	/** Depth (Y) of a render layer, from the draw order. */
 	UMBRELLAELLA_API float LayerY(EVfxLayer Layer);
+
+	/** Depth (Y) one effect draws at: its layer's depth, except LightShaft (in front of the scene pictures). */
+	UMBRELLAELLA_API float RowY(const FVfxArtRow& Row);
 
 	/** Seconds a one-shot effect lasts (frames / fps). */
 	UMBRELLAELLA_API float Duration(const FVfxArtRow& Row);
