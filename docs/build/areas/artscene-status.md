@@ -17,3 +17,16 @@ Nothing ships. No piece has passed the blind panel, so every `_PH` stays and no 
 
 ## Blocked / needs a decision
 Procedural Blender geometry does not reach the painted/etched look of the key art, the gothic tile or the Other Realm bar. More rounds of the same approach are unlikely to pass. Options: (a) keep `_PH` for these four and ship the game with placeholders (my lean); (b) hand-sculpted/painted-in-Blender detail (grease pencil or displaced meshes with heavy texturing), many hours; (c) allow another image source for these four, which the current rule (Blender only) forbids.
+
+## Round log, skyline (Nov 12, technique change per lead: post-etch pass, measured against the critic's named gap)
+- r3 (commit "round 3"): `etch_post` in build_scene.py (numpy inside Blender): hand-jitter displacement of edges, ink-bleed ragged alpha,
+  ink tone variation + fibre streaks + grain, diagonal hatching, warm rim light on roof edges, window halo. Denser blocks (24-52 px).
+  art_ref_check skyline 0.719 (r2 0.718, min 0.527). screen_check PASS with `--aspect 4.444` (strip layer, not a 16:9 frame).
+- r3b: roof-tile courses and stone-course line detail (lighter ink strands). art_ref_check 0.720.
+- Panel r3b (9 critics, ours on transparent -> shown on black): 3 of 9 reference/bar pairs ours-or-SAME, rest lose; recurring gaps: flat fills,
+  no etched line, no paper grain. Several critics called ours "thin wobbly outline on pure black".
+- Critic-packet defect found: a transparent PNG is shown over black, so the ink mass vanishes and only the outline reads. The reference tile is on
+  white. Fix: judge ours composited over a plain ground. My first fix attempt composited on brown by mistake (bad sed), so panel r3c is invalid
+  as evidence (ours on brown, critics: "flat brown backdrop"). Next: composite on white, rerun once.
+- Still not tried: Grease Pencil Line Art pass, much denser architecture (reference has ~5x the window/roof/ironwork count), painted-light pass,
+  paper, scene, menu-screen. Nothing ships; `_PH` stays.
