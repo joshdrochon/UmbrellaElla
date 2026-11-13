@@ -135,3 +135,8 @@ Merged main + artslots; the `FB_Ella`/`T_Ella_<State>` loader is now in Source (
 `run_game.sh -SmokeShot=<abs path>` runs on a machine saturated by other workers (game fps 0.1 to 0.6): three launches (240 s, 1500 s) hit the
 timeout with no shot file. Note a relative -SmokeShot path wrote nothing under the worktree. Verdict: ours/env (load), not the art. A 2400 s run is queued.
 ella-up-open still has only `context` missing; attack/shield/closed paints unchanged since Round 10.
+
+## Round 14 (Nov 13 late): lane split, merged main
+My pieces now: ella-up-open, ella-attack, ella-shield, ella-closed, ella-motion. Merged main: assetgen still has no tiers and the frame-based smoke shot
+(screenfix) is not in yet. Spend counter 15.08 of 33.82. No paint this round: no piece can pass without `context`, and the machine load is ~31.
+A context capture launch via ue_slot/run_game.sh is running (T_Ella_Idle_PH = up-open frame 00); result below if it lands.
