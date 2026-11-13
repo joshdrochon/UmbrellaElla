@@ -128,3 +128,7 @@ No gameplay timing, collision or state is written by any of it (tests check the 
 - Result: `verdict=reference pairs=context:reference,quality_bar:reference,reference:ours`, calibration 8/9, checks pass (art_ref_check 0.552, screen_check, art_check --effect). Reference pair is ours; quality-bar and context pairs still go to the other image.
 - Triage: context = "ours: capture" again (tiny burst at game scale in a paper-only shot; the critics' gap text describes a clock UI, so the pair is not judging the burst). Quality bar pair, the bar image is a sundial-casters picture, not a burst: possible check defect (bar not an effect image for vfx pieces); needs the lead to confirm which bar image applies. Not loosened by me.
 - Next: fix the capture (crop to the burst, larger), and ask the lead about the quality bar for effect pieces. Nothing shipped; no paint, spend unchanged.
+
+## Slice 14 (Nov 13): merged main and artslots; blocked on request 7
+- Main up to date. Merged origin/area/artslots (one conflict in `ArtSlotTests.cpp`, outside my lane: took artslots' version).
+- Blocker for the lead: request 7 (quality-bar image for effect pieces, burst-scale context reference). Without it no `vfx-*` piece can pass the bar pair. No paint, spend unchanged. Every slot stays a tracked `_PH`.
