@@ -271,6 +271,45 @@ bool FArtSlotKeeperEnemy::RunTest(const FString& Parameters)
 	return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FArtSlotLoaderCache, "UmbrellaElla.Feedback.World.ArtSlotLoaderCache",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+
+bool FArtSlotLoaderCache::RunTest(const FString& Parameters)
+{
+	// Apply loads the material and plane once; later draws, and a row whose asset exists, load nothing again.
+	UWorld* World = ArtSlotTestWorld();
+	if (!TestNotNull(TEXT("world"), World))
+	{
+		return false;
+	}
+	const FArtSlotRow* Row = ArtSlot::Find(TEXT("ella-state:Down"));
+	AActor* Owner = World->SpawnActor<AActor>();
+	if (TestNotNull(TEXT("row"), Row) && TestNotNull(TEXT("owner"), Owner))
+	{
+		UTexture2D* Texture = ArtSlotTestTexture();
+		auto MakeMesh = [Owner]()
+		{
+			UStaticMeshComponent* Mesh = NewObject<UStaticMeshComponent>(Owner);
+			Mesh->RegisterComponent();
+			return Mesh;
+		};
+		TestTrue(TEXT("first draw"), ArtSlot::Apply(MakeMesh(), Texture, *Row, FVector::OneVector) == EArtSlotDraw::Drawn);
+		const int32 After = ArtSlot::LoadCallCount();
+		for (int32 Index = 0; Index < 5; ++Index)
+		{
+			ArtSlot::Apply(MakeMesh(), Texture, *Row, FVector::OneVector);
+		}
+		TestEqual(TEXT("five more draws load nothing"), ArtSlot::LoadCallCount(), After);
+		ArtSlot::LoadTexture(*Row);
+		const int32 AfterTexture = ArtSlot::LoadCallCount();
+		ArtSlot::LoadTexture(*Row);
+		const bool bFound = ArtSlot::LoadTexture(*Row) != nullptr;
+		TestTrue(TEXT("a texture that exists loads once"), !bFound || ArtSlot::LoadCallCount() == AfterTexture);
+	}
+	ArtSlotTestEnd(World);
+	return true;
+}
+
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FArtSlotRoadwardenVariants, "UmbrellaElla.Feedback.World.ArtSlotRoadwardenVariants",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
 
