@@ -7,7 +7,7 @@ MOVE-05,move,built,Move.DefaultBindings; Move.World.InputAssetsBuilt,hardware in
 MOVE-06,move,built,Move.DefaultBindings; Move.World.InputAssetsBuilt,hardware input not run,
 MOVE-07,move,built,Move.DefaultBindings; Move.World.InputAssetsBuilt,hardware input not run,
 MOVE-08,flow,built,Flow.MenuInputs; Move.DefaultBindings,"spell cycle in Move, pause/retry keys in Flow",
-MOVE-09,flow,built,Flow.MenuInputs,,
+MOVE-09,flow,built,Flow.MenuInputs; Flow.MenuMouse.HoverSelects; Flow.MenuMouse.ClickChoosesEachItem; Flow.MenuMouse.KeysAndPadStillChoose; Flow.MenuMouse.EmptyClickKeepsSelectionAndKeys,unproven: controller button remap (settings2); a real mouse click in the window not tested,
 MOVE-10,settings,built,Settings.RemapRebuildsMappingContext; Move.World.SavedRemapReachesLiveContext,no on-screen check of the remap UI,
 MOVE-11,move,built,Move.NoDirectSteering; Move.StateSpeedsAndTrim,unproven: same movement/controls asserted inside a boss encounter; same rules asserted inside a level route,move
 MOVE-12,move,built,Move.World.FireIsUnlimited; Move.SpellAvailability,"unproven: no ammo/energy for Stream, Twin, Needle (only Small tested)",move
@@ -155,8 +155,8 @@ FLOW-48,progression,partial,Progression.RingFillAndMax,UXpRingWidget drawn and s
 FLOW-31,health,built,Health.LifeHandAdvancesTowardXIIAndEndsAtXII; Health.World.LastLifeBroadcastsDefeatedOnce,life-hand angles open (requests/health.md),
 FLOW-32,health,built,Health.DrawnHandFollowsWithoutGameplayDelay; Health.World.FullHealthCatchIsValidAndNotHealing,,
 FLOW-33,health,built,Health.DamageScaleByDefenseRank; Health.DamageOverflowCarriesAcrossLives,,
-FLOW-34,flow,built,Flow.TitleStartsPlaying; Flow.StartAndPauseDesignRetained,"unproven: title music plays; background moves slowly; background art contains no characters; second button label is 'Director's Cut', GDD says 'Start Director's Cut'",titlemusic
-FLOW-35,flow,built,Flow.PauseCycle; Flow.World.MenuBlocksGameplayInput,"unproven: Quit exits the game; pause background animates ticking clocks and falling objects; pause background motion never advances gameplay | was: drifting background, not seen on screen",titlemusic
+FLOW-34,flow,built,Flow.TitleStartsPlaying; Flow.StartAndPauseDesignRetained; Flow.MenuMouse.FirstItemSelectedOnOpen; Flow.MenuMouse.MarkerLinesUpWithSelectedRow,"unproven: title music plays; background moves slowly; background art contains no characters; second button label is 'Director's Cut', GDD says 'Start Director's Cut'",titlemusic
+FLOW-35,flow,built,Flow.PauseCycle; Flow.World.MenuBlocksGameplayInput; Flow.MenuMouse.ClickChoosesEachItem; Flow.MenuMouse.KeysAndPadStillChoose,"unproven: Quit exits the game; pause background animates ticking clocks and falling objects; pause background motion never advances gameplay | was: drifting background, not seen on screen",titlemusic
 FLOW-36,settings,built,Settings.PagesByMode; Settings.SaveAppliesCurrentPage; Settings.BackDiscardsUnsaved; Settings.SliderRange; Settings.Credits,Slate layout not seen on screen,
 FLOW-37,settings,built,Settings.PagesByMode; Settings.SaveAppliesCurrentPage; Settings.BackDiscardsUnsaved; Settings.SliderRange; Settings.Credits,Slate layout not seen on screen,
 FLOW-38,settings,built,Settings.PagesByMode; Settings.SaveAppliesCurrentPage; Settings.BackDiscardsUnsaved; Settings.SliderRange; Settings.Credits,Slate layout not seen on screen,

@@ -209,7 +209,7 @@ void SFlowMenu::Construct(const FArguments& InArgs)
 	SelectedIndex = Buttons.Num() > 0 ? 0 : INDEX_NONE;
 	LastOpenedMenu = SharedThis(this);
 	// A click can hand focus to the game viewport; take it back so the keys and the pad keep working.
-	RegisterActiveTimer(0.0f, FWidgetActiveTimerDelegate::CreateSP(this, &SFlowMenu::KeepFocus));
+	RegisterActiveTimer(KeepFocusIntervalSeconds, FWidgetActiveTimerDelegate::CreateSP(this, &SFlowMenu::KeepFocus));
 
 	ChildSlot
 	[

@@ -97,13 +97,16 @@ public:
 	/** True while the hint shows the pad wording (the last key came from a pad). */
 	bool IsShowingGamepadPrompts() const { return bGamepadPrompts; }
 
-	/** The menu most recently built that is still on screen (the dev capture driver clicks through it). */
+	/** The menu most recently built, while anything still holds it; it may already be off screen (the dev capture
+	 *  driver clicks through it right after opening a screen). */
 	static TSharedPtr<SFlowMenu> GetLastOpened();
 
 private:
 	void HandleHovered(int32 Index);
 	void MoveSelection(int32 Step);
 	EActiveTimerReturnType KeepFocus(double InCurrentTime, float InDeltaTime);
+	/** Seconds between focus checks: fast enough that a key right after a click still lands, cheap to run. */
+	static constexpr float KeepFocusIntervalSeconds = 0.1f;
 	FText GetConfirmPrompt() const;
 	FText GetBackPrompt() const;
 
