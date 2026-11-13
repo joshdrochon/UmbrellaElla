@@ -66,3 +66,22 @@ so a candidate left there fails the merge.
 An art lane may add its own lane name to the `cards` list of a reference in `pipeline/art/references.json` that its
 pieces are judged against (additions only; never edit or remove another lane's entries). That is in-lane, not a
 cross-lane edit.
+
+## Animated pieces from video (artvideo trial, Nov 13)
+Order is fixed; each step has a number someone else can re-run.
+1. Still first. The input is an in-jam still that already won its blind pairs (Ella: `ella-up-open`). Never pre-jam art
+   (ART-03). Copy it next to the output as `<piece>-input.png`.
+2. Video. `tools/assetgen.py video` calls fal `fal-ai/veo3.1/fast/image-to-video` only (any other id is refused), audio
+   off, 720p, 4 s, flat #00FF00 background, locked camera, small in-place movement. Price 0.15 USD/s, so 0.60 per clip.
+   Key loaded in the same command as the call, never printed. The request, prompt, seed, input and cost are saved as
+   `<piece>.request.json`; the provenance row repeats them.
+3. Strip. `tools/build/video_to_strip.py --video X.mp4 --out DIR --stem <Piece> --counts 8 12 --fps 12`: ffmpeg frames,
+   `assetgen.py chroma_key` key and despill, every frame moved so its feet anchor (bottom-centre of the lowest 4% band)
+   sits on one pixel, a loop end picked in the last 40% closest to frame 0, N frames picked evenly, strip,
+   `.sprite.json` sidecar (frames, grid, fps, loop, pivot) and a GIF over paper and dark. Height drift is reported, not hidden.
+4. Judge. Jitter first (`<Piece>.report.json`: `max_anchor_step_px`, `max_anchor_from_first_px` after registration; the
+   loop check `last_to_first` against `mean_step`). Then the normal blind panel: `tools/art_loop.py run` on the strip, so
+   the sidecar makes it a sheet and the motion pair runs. No shortcuts, no hand-written record.
+5. Caps. At most 2 paid clips per piece before reporting; 1 USD per piece inside fal's counter (IMAGE_SPEND_FILE).
+   A re-key or a different N costs nothing: reuse the mp4.
+Keep the stills and the mp4 either way. A strip that fails the panel stays a `_PH` placeholder.
