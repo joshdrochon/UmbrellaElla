@@ -101,3 +101,47 @@ Choice made in the runbook: all three calls on 3 Pro at 21:9 2K (identity holds 
 ## Left after the key
 The 3 calls, art_ref_check, the full blind panel, the consistency verdict (identity across sheet/idle/attack, scale
 spread from frames.json), the "ours" problems triage and the cost per image from logs/image-spend.json, here.
+
+## Proof run on gemini-3-pro-image-preview (Nov 13, after Josh linked billing; main merged at 028308f)
+Billing link works: all 3 calls returned images, no 429. Shared counter: $0.416 of the $33.82 cap.
+
+Cost per image (3168x1344, 21:9 2K, from logs/image-spend.json):
+| call | inputs | thinking tokens | cost |
+|---|---|---|---|
+| 1 turnaround | 0 | 293 | $0.138 |
+| 2 idle strip | 1 (sheet) | 278 | $0.139 |
+| 3 attack strip | 1 (sheet) | 326 | $0.139 |
+About $0.139 per image; the 25% thinking reserve is far above real use (about $0.004).
+
+Checks (frames 01 used for the panel):
+- clean: all three WARN on enclosed key px (idle 24686: the gap between arm and body, real).
+- frames: idle height spread 6.3%, attack 8.5% (attack frame 3 is shorter).
+- art_ref_check: idle PASS (0.695-0.732, min 0.398, closest ella-rising); attack FAIL (0.2, min 0.448).
+- screen_check: PASS both. art_check colour rules: FAIL both (off_band 0.124 idle, 0.139 attack, max 0.01):
+  the bronze/ivory rim light and brown ink sit outside the gold and rust bands.
+- Blind panel (12 fresh Sonnet sessions, answers in Art/Source/ImageProof/Panel/*/*.answer.md):
+  idle: verdict=reference (the reference beats ours), calibration 4/6 (2 sessions answered "A: SAME" without
+  "WINNER:", counted as refusals; not rerun). attack: verdict=reference, calibration 6/6; ours beat the quality bar
+  but lost to the reference. Both rounds -> continue. Neither piece can pass yet: no in-engine capture (context).
+
+Consistency verdict: FAIL for the set.
+- Sheet holds identity well: same hat, mask, gold glints, layered dress, boots, ivory outline in all four views.
+- Idle keeps the identity (hat, mask, dress, boots, diamond terminal) but not the pose: one hand on the shaft, she
+  stands/walks under the umbrella like a pedestrian instead of hanging below it; legs walk in frame 2.
+- Attack keeps the costume and the level two-hand lance pose, but the strip is broken: ghost copies of the sheet's
+  heads/torsos bleed in above each frame, green-tinted, so the cut frames carry stray hats (all 3 critics named it).
+  The canopy sits behind her as asked, the pulse in frame 2 is the right gold.
+
+Ours-vs-model notes (what is the model, what is our prompt/tools):
+- Model: hair is a short bob in every image, not long (identity block says long). Closed umbrella held tip-down like
+  a cane on the sheet; finial is a plain spike, never a crown. Back view drops the umbrella.
+- Model: a reference image + 21:9 strip makes 3 Pro copy the sheet's layout into the strip (attack ghosts). Ours to
+  try: send the single side-profile figure cropped from the sheet as the input, not the whole sheet.
+- Ours (prompt): "hangs below the open umbrella held straight overhead in both hands" lost to the umbrella-walk
+  prior; the idle prompt needs the arms-up pose stated as the first thing, and "feet do not touch, no walking".
+- Ours (palette): the style block asks for bronze and warm ivory rim light, which art_check counts as off-band.
+  The style block and the art_check bands disagree; that is a rule question for the Art Director, not a retry.
+- Ours (tool): `clean`/`frames` provenance rows say tool "GIMP 3"; they are pure Python in tools/assetgen.py.
+  Fix the provenance tool field (my lane, follow-up).
+
+Not done: any retry (the lead asked for 3 calls only), in-engine capture, art loop round 2.
