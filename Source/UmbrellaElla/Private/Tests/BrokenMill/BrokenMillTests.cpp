@@ -2,7 +2,15 @@
 #include "BrokenMill/BrokenMillRoom.h"
 #include "BrokenMill/BrokenMillRules.h"
 #include "BrokenMill/BrokenMillTuning.h"
+#include "Core/EllaCharacter.h"
 #include "Core/UmbrellaEventBus.h"
+#include "Core/UmbrellaTuning.h"
+#include "Field/WindCurrent.h"
+#include "Input/EllaInputAdapterComponent.h"
+#include "Motor/EllaMotorComponent.h"
+#include "Tests/Shared/UmbrellaTestWorld.h"
+#include "Umbrella/UmbrellaPlayerIds.h"
+#include "Umbrella/UmbrellaStateComponent.h"
 #include "Engine/StaticMeshActor.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
@@ -35,6 +43,51 @@ namespace
 		Guard.Advance(Tuning, Tuning.WarningSeconds, Inputs);
 		return Guard;
 	}
+
+	/** Real Ella plus a built room at an offset; the room's target is Ella. */
+	struct FMillIntegratedFixture
+	{
+		FUmbrellaTestWorld Test;
+		AEllaCharacter* Ella = nullptr;
+		ABrokenMillRoom* Room = nullptr;
+
+		bool Setup(const FVector2D& EllaRoomPoint)
+		{
+			UWorld* World = Test.GetWorld();
+			if (!World)
+			{
+				return false;
+			}
+			Room = World->SpawnActor<ABrokenMillRoom>(ABrokenMillRoom::StaticClass(), FTransform(FVector(10000.0, 0.0, 0.0)));
+			if (!Room)
+			{
+				return false;
+			}
+			Room->BuildRoom();
+			Ella = Test.SpawnElla(Room->RoomToWorld(EllaRoomPoint));
+			if (Ella)
+			{
+				Room->SetTargetActor(Ella);
+			}
+			return Ella != nullptr;
+		}
+
+		/** Tick with Ella's height pinned (a held trim), so only the Motor's sideways motion moves her. */
+		void TickPinnedZ(float Seconds, float Dt)
+		{
+			const double Z = Ella->GetActorLocation().Z;
+			for (int32 Frame = 0; Frame < FMath::RoundToInt(Seconds / Dt); ++Frame)
+			{
+				Test.TickFrames(1, Dt);
+				FVector Location = Ella->GetActorLocation();
+				Location.Z = Z;
+				Ella->SetActorLocation(Location);
+			}
+		}
+
+		int32 CountShots() const { return Test.CountActors<AUmbrellaProjectile>(); }
+		FVector2D EllaRoom() const { return Room->WorldToRoom(Ella->GetActorLocation()); }
+	};
 }
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMillGeometryEstimates, "UmbrellaElla.BrokenMill.GeometryEstimatesMatchGdd", UMBRELLAELLA_MILL_FLAGS)
@@ -253,6 +306,121 @@ bool FMillRoomWorld::RunTest(const FString& Parameters)
 	TestTrue(TEXT("retry re-enables the guard"), Room->GetGuard().bEnabled);
 	GEngine->DestroyWorldContext(World);
 	World->DestroyWorld(false);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMillWorldCancelAbortPause, "UmbrellaElla.BrokenMill.World.GuardChecksWithRealElla", UMBRELLAELLA_MILL_FLAGS)
+bool FMillWorldCancelAbortPause::RunTest(const FString& Parameters)
+{
+	const float Dt = 1.0f / 60.0f;
+	{
+		// Pause: the warning clock stands still, then resumes and the single shot comes.
+		FMillIntegratedFixture F;
+		if (!TestTrue(TEXT("fixture"), F.Setup(FVector2D(600.0, 650.0))))
+		{
+			return false;
+		}
+		F.TickPinnedZ(0.1f, Dt);
+		TestEqual(TEXT("warning started"), F.Room->GetEventCount(EMillGuardEvent::WarningStarted), 1);
+		F.Room->SetSimulationPaused(true);
+		const float TimerBefore = F.Room->GetGuard().Timer;
+		F.TickPinnedZ(3.0f, Dt);
+		TestEqual(TEXT("pause froze the warning clock"), F.Room->GetGuard().Timer, TimerBefore);
+		TestEqual(TEXT("no shot while paused"), F.Room->GetEventCount(EMillGuardEvent::ShotReleased), 0);
+		F.Room->SetSimulationPaused(false);
+		F.TickPinnedZ(1.2f, Dt);
+		TestEqual(TEXT("one shot after resume"), F.Room->GetEventCount(EMillGuardEvent::ShotReleased), 1);
+		TestEqual(TEXT("one live enemy bullet"), F.CountShots(), 1);
+	}
+	{
+		// Cancel: Ella passes behind the guard during the warning. POSITION-DRIVEN: this proves the room reacts to Ella's
+		// X crossing the muzzle, not that the Motor can carry her there (dashes reach ~85 units per 0.3 s, so no dash chain
+		// covers the ~700 units from the activation region to the muzzle inside the 1.1 s warning).
+		FMillIntegratedFixture F;
+		if (!TestTrue(TEXT("fixture"), F.Setup(FVector2D(600.0, 650.0))))
+		{
+			return false;
+		}
+		F.Test.TickFrames(6, Dt);
+		TestEqual(TEXT("warning started"), F.Room->GetEventCount(EMillGuardEvent::WarningStarted), 1);
+		F.Ella->SetActorLocation(F.Room->RoomToWorld(FVector2D(F.Room->GetMillTuning().GuardMuzzle.X + 40.0, 650.0)));
+		F.Test.TickSeconds(2.0f, Dt);
+		TestEqual(TEXT("cancelled"), F.Room->GetEventCount(EMillGuardEvent::WarningCancelled), 1);
+		TestEqual(TEXT("no shot released"), F.Room->GetEventCount(EMillGuardEvent::ShotReleased), 0);
+		TestEqual(TEXT("no bullet exists"), F.CountShots(), 0);
+	}
+	{
+		// Abort: the real Motor dashes Ella back (RequestDash) out of shot range before the release; quiet recovery, no shot.
+		FMillIntegratedFixture F;
+		if (!TestTrue(TEXT("fixture"), F.Setup(FVector2D(600.0, 650.0))))
+		{
+			return false;
+		}
+		F.Test.TickFrames(6, Dt);
+		TestEqual(TEXT("warning started"), F.Room->GetEventCount(EMillGuardEvent::WarningStarted), 1);
+		const float StartX = F.EllaRoom().X;
+		const float DashGap = GetDefault<UUmbrellaTuning>()->Motor.DashCooldownSeconds + 0.02f;
+		F.Ella->GetUmbrellaState()->SetAbsorbHeld(true); // a dash needs a falling action; height is pinned below
+		for (int32 DashIndex = 0; DashIndex < 3; ++DashIndex)
+		{
+			F.Ella->GetMotor()->RequestDash(EUmbrellaDashDirection::Back);
+			F.TickPinnedZ(DashGap, Dt);
+		}
+		TestTrue(TEXT("the Motor moved her back"), F.EllaRoom().X < StartX - 200.0f);
+		F.Test.TickSeconds(1.5f, Dt);
+		TestEqual(TEXT("aborted"), F.Room->GetEventCount(EMillGuardEvent::WarningAborted), 1);
+		TestEqual(TEXT("no shot"), F.Room->GetEventCount(EMillGuardEvent::ShotReleased), 0);
+		TestEqual(TEXT("no bullet"), F.CountShots(), 0);
+	}
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMillWorldWindPass, "UmbrellaElla.BrokenMill.World.WindCarriesEllaPastOneShotPerPass", UMBRELLAELLA_MILL_FLAGS)
+bool FMillWorldWindPass::RunTest(const FString& Parameters)
+{
+	const float Dt = 1.0f / 60.0f;
+	FMillIntegratedFixture F;
+	if (!TestTrue(TEXT("fixture"), F.Setup(FVector2D(480.0, 650.0))))
+	{
+		return false;
+	}
+	AWindCurrent* Lower = F.Room->GetLowerWind();
+	if (!TestNotNull(TEXT("onward wind"), Lower) || !TestNotNull(TEXT("reset wind"), F.Room->GetUpperWind()))
+	{
+		return false;
+	}
+	TestTrue(TEXT("onward wind pushes right"), Lower->GetDirection().X > 0.0);
+	TestTrue(TEXT("reset wind pushes left"), F.Room->GetUpperWind()->GetDirection().X < 0.0);
+	// The wind actor's overlap event names the pawn by actor name; the Motor answers to the id "Ella" (or none).
+	// Until the Field lane and the Motor agree (docs/build/requests/enemies.md), put the current on the bus the way the
+	// Motor reads it, with the force and direction label taken from the real wind actor.
+	FUmbrellaEvent Entered;
+	Entered.Type = EUmbrellaEventType::WindEntered;
+	Entered.SourceId = Lower->GetFName();
+	Entered.TargetId = UmbrellaPlayerIds::Ella;
+	Entered.Detail = AWindCurrent::DirectionLabel(Lower->GetDirection());
+	Entered.Value = Lower->GetForce();
+	UUmbrellaEventBus::Get(F.Test.GetWorld())->Broadcast(Entered);
+	F.Ella->GetInputAdapter()->ApplyPress(EUmbrellaInputAction::Ride);
+
+	F.TickPinnedZ(0.5f, Dt);
+	TestTrue(TEXT("the current carries Ella right"), F.Ella->GetActorLocation().X > F.Room->RoomToWorld(FVector2D(480.0, 650.0)).X + 50.0);
+	TestEqual(TEXT("guard warned once on entry"), F.Room->GetEventCount(EMillGuardEvent::WarningStarted), 1);
+
+	F.TickPinnedZ(1.5f, Dt);
+	TestEqual(TEXT("one shot released for the pass"), F.Room->GetEventCount(EMillGuardEvent::ShotReleased), 1);
+	TestEqual(TEXT("still one warning (no second while recovering)"), F.Room->GetEventCount(EMillGuardEvent::WarningStarted), 1);
+
+	F.TickPinnedZ(2.0f, Dt);
+	TestTrue(TEXT("Ella is carried past the guard muzzle"), F.EllaRoom().X > F.Room->GetMillTuning().GuardMuzzle.X);
+	TestEqual(TEXT("passing behind started no new warning"), F.Room->GetEventCount(EMillGuardEvent::WarningStarted), 1);
+
+	// Recovery over and the shot gone: a fresh entry from the left is a new pass and the guard warns again.
+	F.TickPinnedZ(3.0f, Dt);
+	TestEqual(TEXT("shot is gone"), F.CountShots(), 0);
+	F.Ella->SetActorLocation(F.Room->RoomToWorld(FVector2D(480.0, 650.0)));
+	F.TickPinnedZ(0.3f, Dt);
+	TestEqual(TEXT("second pass rearms and warns again"), F.Room->GetEventCount(EMillGuardEvent::WarningStarted), 2);
 	return true;
 }
 
