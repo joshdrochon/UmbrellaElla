@@ -26,6 +26,7 @@ import sys
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 sys.path.insert(0, os.path.join(ROOT, "tools"))
 import art_loop  # noqa: E402
+import art_share  # noqa: E402
 
 CRITIC = art_loop.CRITIC_DIR
 
@@ -259,6 +260,14 @@ def base_link_problems(root):
         b = (el or {}).get("base")
         if b and piece in done and b not in done:
             out.append(f"FAIL art_pass_verify: {piece} passed on top of base {b}, which has no verified pass")
+        elif b and piece in done and el.get("base_mode") == "reuse":   # the reuse is re-measured on the shipped pixels
+            mine, theirs = art_loop.newest_record(root, piece), art_loop.newest_record(root, b)
+            if mine and theirs and mine.get("file") and theirs.get("file"):
+                ok, share = art_share.reuse_check(os.path.join(root, theirs["file"]), os.path.join(root, mine["file"]),
+                                                  el.get("base_region") or (0, 0))
+                if not ok:
+                    out.append(f"FAIL art_pass_verify: {piece} claims to reuse {b}, but only {share:.3f} of its pixels "
+                               f"match (needs {art_share.REUSE_SHARE})")
     return out
 
 

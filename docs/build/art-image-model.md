@@ -78,3 +78,16 @@ real motion; the numbers and source are in that file). Lanes cut with `frames` a
 An art lane may add its own lane name to the `cards` list of a reference in `pipeline/art/references.json` that its
 pieces are judged against (additions only; never edit or remove another lane's entries). That is in-lane, not a
 cross-lane edit.
+
+## Shared layers (Josh, Nov 13)
+A piece built on another passed piece is judged only on what it adds. In `pipeline/art/references.json` an element may
+carry `"base": "<piece>"`, `"base_mode": "reuse" | "repaint"` and `"new": "<what it adds>"` (the critic brief; `base_region`
+`[x, y]` places the base inside a reuse piece). `reuse` (UI background, backdrop stages, gear on a shared body): the base's
+shipped pixels must match inside the derived image (`tools/art_share.py reuse_check`, 98 percent of the base's opaque pixels
+within 8/255); a failure means the base region was altered and the piece does not count, a pass lets the panel judge only the
+added layer. `repaint` (Ella states, effect families): the piece is scored against the base's shipped image with
+`art_judge.element_score` (silhouette, line style, value, aspect, off-palette and flat-fill gates) and needs the floor
+measured from the base's own known-good references (leave-one-out minimum less 0.02); a pass judges only what differs, a
+fail runs the full panel as before. `art_loop.panel_run` records the result in the round (`shared`), and
+`art_pass_verify.py check` re-measures a reuse on the shipped files and still fails any derived pass whose base has no
+verified pass.
