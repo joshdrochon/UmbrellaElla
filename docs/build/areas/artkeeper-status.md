@@ -164,3 +164,10 @@ NEEDS HUMAN: lead: smoke switch to start the Keeper fight, ProjectDir-relative -
 ## Nov 13 session 12: still blocked (no new paint, spend unchanged)
 - Main and area/artslots already in. Source still has no -SmokeKeeper/-SmokeSection/-SmokeMap handling (header doc mention only), -SmokeShot not ProjectDir-relative (requests items 1-2). Owl paint plateaued R6-R10; no round run.
 NEEDS HUMAN: lead: smoke switch to start the Keeper fight, ProjectDir-relative -SmokeShot, Blender-vs-paint decision.
+
+## Nov 13 session 13: context capture works now; panel fails on the capture, not the paint
+- Merged main. -SmokeKeeper and ProjectDir-relative -SmokeShot are in. Build exit 0. Capture: `RUN_RES=1280x720 tools/build/run_game.sh -SmokeKeeper -SmokeShot=Saved/Logs/pipeline/owl-shot.png -SmokeQuitAfter=15` shows the Keeper sprite (R8 graded_1 imported to T_Keeper_Owl_PH), but a flat lilac cube (the game's old body mesh) is drawn over its torso/head, plus a grey gradient bar and a pale rectangle.
+- Round on R10 keyed_3 (card artkeeper, run by the artkeeper2 session): verdict reference, context pair lost with gaps "purple placeholder block, no owl"; quality_bar pair: ours; art_check FAIL off_style 0.045 (R10 keyed_3 saturation, ours: grade it like R8 graded_1); calibration 30/40.
+- My own run on R8 graded_1 duplicated that one and was killed at the 2 h background limit with no output; not restarted.
+- Triage: context pair failure is "ours/source": the capture hides the owl behind the cube. Needs the keeper lane to stop drawing the cube mesh when T_Keeper_Owl(_PH) loads (docs/build/requests/artkeeper.md item 3). Until then no round can pass the context pair, so more paid paint is wasted. Spend unchanged.
+NEEDS HUMAN: lead: hide the Keeper cube meshes when the owl slot texture loads (request 3).
