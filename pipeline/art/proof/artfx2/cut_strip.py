@@ -2,6 +2,7 @@
   Blender -b --factory-startup -P pipeline/art/proof/artfx/cut_strip.py -- <strip.png> <out_sheet.png> [<out_keyed.png>]
 Fixed geometry, no cell boxes: the green key (alpha from greenness, despill), the four bursts found as the four runs of
 non-empty columns, one common scale for all four (sizes stay relative), each centred in its cell; frames doubled to 8 cells."""
+import os
 import sys
 
 import bpy
@@ -17,6 +18,14 @@ r, g, b = px[..., 0], px[..., 1], px[..., 2]
 green = g - np.maximum(r, b)
 alpha = np.clip(1.0 - (green - 0.03) / 0.14, 0.0, 1.0)
 alpha[green < 0.03] = 1.0
+# env KEY_TOL (e.g. 0.28): the painted 'green' is not pure; key by colour distance from the median border colour
+if os.environ.get("KEY_TOL"):
+    border = np.concatenate([px[:12, :, :3].reshape(-1, 3), px[-12:, :, :3].reshape(-1, 3)])
+    bgc = np.median(border, axis=0)
+    dist = np.sqrt(((px[..., :3] - bgc) ** 2).sum(-1))
+    tol = float(os.environ["KEY_TOL"])
+    alpha = np.clip((dist - tol) / 0.08, 0.0, 1.0)
+    g = np.minimum(g, np.maximum(r, b) * 0.6)
 g2 = np.minimum(g, np.maximum(r, b) * 0.6)
 rgba = np.stack([r, g2, b, alpha], axis=-1)
 # snap every opaque pixel to the effect palette (art_check effect_style ramps + ink): env PALETTE=red|gold|both

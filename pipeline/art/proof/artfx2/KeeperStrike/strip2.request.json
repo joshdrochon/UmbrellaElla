@@ -1,0 +1,39 @@
+{
+ "provider": "gemini",
+ "tier": "draft",
+ "tool": "Gemini API image generation (Google)",
+ "model": "gemini-2.5-flash-image",
+ "openrouter_model": null,
+ "fal_model": null,
+ "model_version": "gemini-2.5-flash-image",
+ "prompt": "EXACTLY FOUR separate frames (count them: four, not three) of one effect for a 2D side-view game, painted side by side on one wide flat green field: the red strike shot a clockwork owl Keeper fires, flying left to right. Only the effect is drawn, no creature. The four frames stand in one row on the same horizontal centre line, centres at exactly one eighth, three eighths, five eighths and seven eighths of the picture width, evenly spaced, never touching each other or the edge; each frame is about a fifth of the picture width wide. Flat, side view, game-sprite distance.\n\nThe look: a flat, matte, hand-inked storybook mark, like a woodblock print. Opaque crimson (#FF3658), coral (#FF7848) and shadow-red (#8F173C) shapes with a thin dark etched outline and a little crosshatch. NO glow, NO soft gradient, NO paper tile or box behind it.\n\nFrame 1 (release): a spiky starburst of long coral spikes around a cream (#FFF5DC) core, with a crimson jagged streak leaving it to the right, the burst and the streak vertically centred exactly on the row centre line like the other frames. Frame 2 (travel): a sharp crimson arrowhead-shaped streak pointing right with a cream core line and two thin trailing shards. Frame 3 (travel): a longer crimson streak, jagged feathered edge behind, coral inner stripe, a cream core, three thin trailing shards. Frame 4 (travel): the same streak slightly stretched, with the shards drifting further back.\n\nOutside the shapes the picture is one perfectly flat, saturated, fully vivid chroma-key green #00FF00 (RGB 0,255,0), identical everywhere, no texture, no vignette, no paper. No text, labels, grid, frames or watermark.\n\nStyle (required): dark, muted ink on aged paper, like an etched storybook engraving. Etched ink linework with near-black ink outlines; crosshatch and fine line hatching for every shadow and form; visible aged paper grain and fibre texture under all colour; hand-printed, slightly uneven ink. No flat fills, no vector shapes, no smooth digital gradients, no glossy 3D rendering.",
+ "seed": "",
+ "size": "1024x1024",
+ "quality": "medium",
+ "aspect_ratio": "21:9",
+ "image_size": null,
+ "input_images": [],
+ "cost_usd": 0.039146,
+ "reply": {
+  "usage": {
+   "promptTokenCount": 488,
+   "candidatesTokenCount": 1290,
+   "totalTokenCount": 1778,
+   "promptTokensDetails": [
+    {
+     "modality": "TEXT",
+     "tokenCount": 488
+    }
+   ],
+   "candidatesTokensDetails": [
+    {
+     "modality": "IMAGE",
+     "tokenCount": 1290
+    }
+   ],
+   "serviceTier": "standard"
+  },
+  "finish": "STOP"
+ },
+ "date": "2026-11-13T17:12+00:00"
+}
