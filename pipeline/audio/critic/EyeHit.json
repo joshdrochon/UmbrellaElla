@@ -1,0 +1,15 @@
+{
+ "id": "EyeHit",
+ "records": [
+  {
+   "files": "7fe479e71dcc7e0b1f2671d763c9adc4c3a2cbad41de50c666bb972c643e7bc7",
+   "verdict": "pass",
+   "style_pass": true,
+   "gap": "none",
+   "card": "SNDHIT",
+   "round": 3,
+   "critic": "wf-critic3-EyeHit",
+   "at": "2026-11-13T02:22Z"
+  }
+ ]
+}
