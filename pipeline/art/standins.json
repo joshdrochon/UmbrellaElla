@@ -476,14 +476,14 @@
   "keeper:talon-empty-and-closed": {
    "art_ref_check": "not run",
    "calibration": null,
-   "copy": "pipeline/art/proof/standins/keeper-talon/move_final2.png",
+   "copy": "pipeline/art/proof/standins/keeper-talon/move_final2_keyed.png",
    "lane": "move",
-   "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
+   "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft. Keyed (artkeeper, Nov 13): cream paper made transparent by tools/build/assets/art_keeper_talon_key.py (border flood fill, numbers only); the RGB copy drew a cream box over the Keeper.",
    "panel_pairs": null,
    "piece": "keeper-talon",
    "round": "final2",
    "score": null,
-   "sha256": "db84546cac9611ed2022133d58a041dced61c799dcf056937390254d662bd2c0",
+   "sha256": "d9267cc6f13ecaa7da48309a7e84ddde4cf454341aa2f1c2a3228c45ff34dcf6",
    "source": "move/pipeline/art/proof/firstdrafts/keeper-talon/final2.png",
    "status": "best-so-far (not passed)"
   },

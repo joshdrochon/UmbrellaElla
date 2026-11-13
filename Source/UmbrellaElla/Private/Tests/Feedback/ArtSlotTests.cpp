@@ -928,4 +928,67 @@ bool FArtSlotKeeperStandInHidden::RunTest(const FString& Parameters)
 	return true;
 }
 
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FArtSlotKeeperTalonAlpha, "UmbrellaElla.Feedback.KeeperTalonStandInHasAlpha",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FArtSlotKeeperTalonAlpha::RunTest(const FString& Parameters)
+{
+#if WITH_EDITORONLY_DATA
+	// The talon stand-in was talons on cream paper with no alpha, so it drew a cream box over the whole Keeper.
+	// Its keyed source must be transparent at every corner and keep the talons opaque.
+	static const TCHAR* const KeeperTalonPath = TEXT("/Game/UmbrellaElla/Art/Keeper/T_Keeper_Talon_PH.T_Keeper_Talon_PH");
+	UTexture2D* Talon = LoadObject<UTexture2D>(nullptr, KeeperTalonPath);
+	if (!TestNotNull(TEXT("talon stand-in texture"), Talon))
+	{
+		return false;
+	}
+	TestFalse(TEXT("talon texture keeps its alpha channel"), Talon->CompressionNoAlpha);
+	const ETextureSourceFormat Format = Talon->Source.GetFormat();
+	const bool bEight = Format == TSF_BGRA8;
+	if (!TestTrue(TEXT("talon source is 8 or 16 bit RGBA"), bEight || Format == TSF_RGBA16))
+	{
+		return false;
+	}
+	TArray64<uint8> Mip;
+	if (!TestTrue(TEXT("talon source mip reads"), Talon->Source.GetMipData(Mip, 0)))
+	{
+		return false;
+	}
+	const int64 W = Talon->Source.GetSizeX();
+	const int64 H = Talon->Source.GetSizeY();
+	const int64 Bpp = Talon->Source.GetBytesPerPixel();
+	const auto KeeperTalonAlpha = [&](int64 X, int64 Y) -> float
+	{
+		const uint8* Pixel = Mip.GetData() + (Y * W + X) * Bpp;
+		return bEight ? Pixel[3] / 255.0f : *reinterpret_cast<const uint16*>(Pixel + 6) / 65535.0f;
+	};
+	if (!TestEqual(TEXT("talon mip size"), Mip.Num(), W * H * Bpp))
+	{
+		return false;
+	}
+	const int64 Corners[4][2] = {{0, 0}, {W - 1, 0}, {0, H - 1}, {W - 1, H - 1}};
+	for (const auto& Corner : Corners)
+	{
+		TestTrue(*FString::Printf(TEXT("talon corner (%lld,%lld) is transparent"), Corner[0], Corner[1]), KeeperTalonAlpha(Corner[0], Corner[1]) < 0.05f);
+	}
+	int64 Opaque = 0;
+	int64 Clear = 0;
+	for (int64 Y = 0; Y < H; Y += 4)
+	{
+		for (int64 X = 0; X < W; X += 4)
+		{
+			const float A = KeeperTalonAlpha(X, Y);
+			Opaque += A > 0.5f ? 1 : 0;
+			Clear += A < 0.05f ? 1 : 0;
+		}
+	}
+	const double Samples = static_cast<double>(((H + 3) / 4) * ((W + 3) / 4));
+	AddInfo(FString::Printf(TEXT("talon %lldx%lld opaque %.3f clear %.3f"), W, H, Opaque / Samples, Clear / Samples));
+	TestTrue(TEXT("the paper is keyed: over half the picture is clear"), Clear / Samples > 0.5);
+	TestTrue(TEXT("the talons stay: over a tenth of the picture is opaque"), Opaque / Samples > 0.1);
+#endif
+	return true;
+}
+
 #endif
