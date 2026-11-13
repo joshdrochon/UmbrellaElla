@@ -66,3 +66,6 @@ No gameplay timing, collision or state is written by any of it (tests check the 
 - Panel round on sheet.png (9 fresh Sonnet sessions): verdict=reference, calibration 3/9, score 0.526 (art_ref_check PASS, screen_check PASS), art_check colour rules FAIL (on_palette 0.55, off_style 0.32, off_band 0.15), no pass.
 - Triage: not the sheet alone. (1) art_check's colour rules are full-frame rules; they fail any gold sprite with bronze/amber shading (same defect as Slice 2). (2) Critic sessions miss calibration folder C (a clearly different pair) and answer SAME: 3/9 calibrated. (3) The context pair puts a near-black graybox capture against the key art, so it judges the scene, not the burst. Verdict: "check defect", needs the lead (a calibrated-session count, a sprite colour rule that reads the effect only, a context pair for effects). Not loosened by me.
 - Left: same method for the other 25 `vfx-*` pieces; none is run, because each would stop at the same three checks.
+
+## Slice 6 (Nov 13): merged main, still blocked
+- Merged main (b43ca5ae). Only change touching art_loop was the UI-screen context rule; the three check defects in Slice 5 are unchanged. Written up as request 5 in `docs/build/requests/artfx.md`. No paint, spend stays 4.56 of 33.82.
