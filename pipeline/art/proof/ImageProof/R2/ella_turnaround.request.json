@@ -1,0 +1,37 @@
+{
+ "provider": "gemini",
+ "tool": "Gemini API image generation (Google)",
+ "model": "gemini-3-pro-image-preview",
+ "model_version": "gemini-3-pro-image-preview",
+ "prompt": "A wide 21:9 character turnaround sheet, drawn orthographically with a level camera straight on, at the same distance for every item, each whole figure fully inside the frame with generous green margin above and below. Five separate items stand in one row, evenly spaced with wide empty green gaps between them, all the same height and scale, their lowest points aligned on one shared invisible line. In the first four items Ella hovers in the air, slowly sinking, her boots hanging with the toes pointed down well clear of any surface, and her hair ends, scarf tails and skirt hems drifting gently upward. She carries her closed umbrella upright in front of her chest, both gloved hands one above the other on the middle of the shaft, like a staff held out in front of her and planted on nothing: the crown finial points up beside her hat brim, the slim furled canopy rests just above her upper hand, and the diamond terminal hangs below her lower hand at about knee height. The items, left to right: first, a front view, her two long locks of hair hanging over her shoulders and both eye glints visible; second, a three-quarter view turned toward the right; third, a pure side profile facing right, her long hair and the two scarf tails streaming back behind her; fourth, a back view, her long dark hair covering her back down to the middle of it, the shaft of the closed umbrella still held in both hands and visible past one side of her body, its crown finial above her shoulder and its diamond terminal below her hip; fifth, on the far right, the same umbrella alone, fully open, seen from the side with the shaft vertical and as tall as the figures, the broad black and taupe gores, the scalloped hem, the rib tips and the crown finial at the top all clearly legible, and the diamond terminal at the bottom. Style: a dark painterly etched storybook illustration for a 2D side-view game sprite, drawn like an old engraving in brown-black ink with a thin sepia wash and fine etched cross-hatching in the shadows. The figure is a near-black silhouette that reads by shape alone: charcoal, soot and umber darks, the darkest tone ink #171614, with interior detail dark on dark. Subdued bronze and warm ivory appear only as thin rim light on edges and small highlights on metal. Cloth edges are ragged, torn into jagged points. Shapes are bold and simple enough to read when the figure is shown only about 90 pixels tall. The light is soft, even and unlit-looking, from the front and slightly above; the figure casts no shadow and no part of the body glows, apart from the gold elements named below. A clean warm ivory #EDE3CF outline, about 3 px at 2K, follows the outer edge of the whole figure and of every separate piece. The background is one perfectly flat, uniform pure green #00FF00 filling the canvas edge to edge, identical everywhere and completely empty: no ground, no shadow, no gradient, no grain or paper texture, no glow or light spill. Every part of the figure is charcoal, umber, bronze, ivory or gold; nothing in it or reflected on it is green. The image is wordless: no text, labels, numbers, grid lines, frames or watermark. Ella is an adult woman of slender build, about seven and a half heads tall, always airborne and never touching the ground. On her head is a wide-brimmed, tall pointed witch hat of soft dark cloth with a band, bent a third of the way up so its tip folds over backwards. Her hair is dark brown, a shade lighter than her clothes, long and straight: it falls from under the brim past her shoulders to the middle of her back with loose strands lifting in the air, and from the front two long locks hang forward over her shoulders to her chest. It is never short and never a bob. Her whole face, from brim to chin, is hidden under a dark cloth or mesh mask; two small separate gold #E9C46A glints, one per eye (only the near eye in profile), are the only light on her. A long ragged scarf, a separate piece of cloth clearly apart from the hair and the dress, wraps her neck and trails two ragged tails behind her. She wears a fully covering, layered, worn dark dress: long sleeves, high collar, a wide sash at the waist, and a skirt of several ragged jagged-edged layers ending below the knee, over opaque dark stockings and laced ankle boots with low heels, and dark gloves, so no skin shows. She carries one slender umbrella and no wand. Opened, its canopy is a shallow dome about three quarters as wide as she is tall, with a scalloped hem and eight gores of alternating broad black and muted warm taupe bands radiating from the top, over eight slender dark metal ribs whose small pointed tips show at the hem. At the very top of the canopy sits a small pointed crown finial: a tiny dark bronze coronet of three to five upward points on a small collar, clearly wider than the shaft, with a thin ivory highlight on its points. A long thin straight dark shaft runs down from it, with a small sliding collar on it. At the free end of the shaft hangs a separate narrow pierced diamond (lozenge) clock-hand terminal of dark bronze. From crown to terminal the umbrella is about two thirds of her height; closed, the canopy furls into a slim bundle. Both of her gloved hands grip the one shaft. Her body, hands, cloth and metal stay dark.",
+ "seed": "",
+ "size": "1024x1024",
+ "quality": "medium",
+ "aspect_ratio": "21:9",
+ "image_size": "2K",
+ "input_images": [],
+ "cost_usd": 0.14148,
+ "reply": {
+  "usage": {
+   "promptTokenCount": 1172,
+   "candidatesTokenCount": 1926,
+   "totalTokenCount": 3526,
+   "promptTokensDetails": [
+    {
+     "modality": "TEXT",
+     "tokenCount": 1172
+    }
+   ],
+   "candidatesTokensDetails": [
+    {
+     "modality": "IMAGE",
+     "tokenCount": 1120
+    }
+   ],
+   "thoughtsTokenCount": 428,
+   "serviceTier": "standard"
+  },
+  "finish": "STOP"
+ },
+ "date": "2026-11-13T02:52+00:00"
+}
