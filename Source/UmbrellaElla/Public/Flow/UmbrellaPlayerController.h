@@ -12,6 +12,7 @@ class SFlowTextScreen;
 class UInputAction;
 class UInputMappingContext;
 class UProgressionPurchaseWidget;
+class UStorySubsystem;
 class UXpRingWidget;
 
 /**
@@ -81,6 +82,24 @@ public:
 	/** Advance the screen timers by real seconds; runs while the world is paused. */
 	void TickFlow(float DeltaSeconds);
 
+	/**
+	 * The story Skip press (Enter, gamepad View). Story gets it first (opening caption, consumed even when the
+	 * first viewing cannot be skipped); after a prior first win it skips the ending story or credits to Journey Complete.
+	 */
+	void PressSkip();
+
+	/** The ending story pages showing now (both modes; Director's Cut uses the story's ending lines). */
+	TArray<FText> GetEndingPages() const;
+
+	/** True while the Story screen still holds on Ella before the ending background. */
+	bool IsInEndingHold() const;
+
+	/** Journey Complete's Try Again: reload the level and start a new Director's Cut run there. */
+	void TryAgain();
+
+	/** True once Try Again asked for the reload. */
+	bool HasRequestedTryAgain() const { return bTryAgainRequested; }
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
@@ -114,12 +133,19 @@ private:
 	void HandleEncounterCompleted(const FUmbrellaEvent& Event);
 	void HandleLevelGained(const FUmbrellaEvent& Event);
 	void RefreshTimedText();
+	UStorySubsystem* GetStory() const;
+	float GetEndingPageSeconds() const;
+	void OnSkipPressed();
+	void ReturnToTitleFromStatistics();
 
 	UPROPERTY()
 	TObjectPtr<UInputMappingContext> MenuContext;
 
 	UPROPERTY()
 	TObjectPtr<UInputAction> PauseAction;
+
+	UPROPERTY()
+	TObjectPtr<UInputAction> SkipAction;
 
 	UPROPERTY()
 	TObjectPtr<UProgressionPurchaseWidget> PurchaseWidget;
@@ -151,4 +177,8 @@ private:
 	bool bRunBegun = false;
 	bool bInputBlocked = false;
 	bool bTitleReturnRequested = false;
+	bool bTryAgainRequested = false;
+	bool bEndingTextShown = false;
+	FDelegateHandle StoryTryAgainHandle;
+	FDelegateHandle StoryMainMenuHandle;
 };
