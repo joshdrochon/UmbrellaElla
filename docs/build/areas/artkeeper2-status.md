@@ -45,3 +45,10 @@ NEEDS HUMAN: lead: (1) hide the stand-in cube when the slot has art, (2) Blender
 - Main's only change since last session is tools/art_loop.py + its test. KeeperPresenterSubsystem::ShowStandIn still always adds the lilac cube (no HasArt check), so the cube request in docs/build/requests/artkeeper2.md is still open.
 - None of my six pieces has won both blind pairs, so there is nothing to capture and gate. A paid draft also needs the fresh-session prompt review first (art-image-model.md), and the Keeper body base is still at the R6-R10 plateau; with about 4.2 USD left (0.50 per final) I did not start a paint round.
 NEEDS HUMAN: lead: (1) hide the cube when the slot has art, (2) Blender-vs-paint for the Keeper base, (3) who may spend the last ~4 USD.
+
+## Nov 13 session 17: first paint (mechanisms draft R1), spend 29.805 of 33.82
+- Lead answers applied: Gemini painting is the route; cube fix is artkeeper's (KeeperOfTime.cpp), not touched; flash drafts first.
+- Prompt written, reviewed by a fresh session (pipeline/art/proof/artkeeper2/mech/{prompt.md,prompt-review.md,final_prompt.txt}; review cut parts the GDD lacks: claw arm, spring, hammer; chain runs to the top eye).
+- One flash draft (0.039): sheet.png with front armillary, middle cage cylinder, rear gear ring on chains. Keyed with `assetgen.py clean --chroma 85A272 --grow 2 --hue-tol 30` (flash paints a muted olive, not #00FF00; key on the sampled colour). Cut is clean; 26k enclosed px are the sphere/gear openings (real gaps). Top-left corner has olive residue: crop before use.
+- Not yet run: art_check, art_ref_check, blind panel, context pair. Reasons: parts need slots T_Keeper_MechFront/Middle/Rear imported (editor script), and the panel judges parts as `base: owl reuse`, which needs a verified owl pass first.
+- Next: crop three pieces, check with art_ref_check per piece, import to slots, capture, panel; then wing/talon/clock cover drafts.
