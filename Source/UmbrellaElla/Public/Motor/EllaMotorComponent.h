@@ -42,6 +42,15 @@ public:
 	void SetPlayBounds(const FBox2D& Bounds);
 	void ClearPlayBounds();
 
+	/** Lowest root Z Ella may reach: the arena bottom plus her capsule half-height, so she stays on screen even with
+	 *  play bounds cleared. Lowest() when no arena exists. Hitting it is the lethal bottom (WIND-03); the health lane
+	 *  reads IsAtPlayFloor() to apply its rule. */
+	float GetPlayFloorZ() const;
+	bool IsAtPlayFloor() const { return bAtPlayFloor; }
+
+	/** Pure rule: Z held at or above FloorZ. */
+	static float ClampToPlayFloor(float Z, float FloorZ) { return Z < FloorZ ? FloorZ : Z; }
+
 	/** X = horizontal, Y = 0, Z = vertical, units/s. */
 	FVector GetVelocity() const;
 	bool IsHopProtected() const;
@@ -84,6 +93,7 @@ private:
 	/** Hostile sources (GUST_Band) by SourceId; they bypass the voluntary ride path. */
 	TMap<FName, FVector2D> ForcedPushes;
 	FBox2D PlayBounds = FBox2D(ForceInit);
+	bool bAtPlayFloor = false;
 	float TrimAxis = 0.0f;
 	float MoveAxis = 0.0f;
 	float LiftMultiplier = 1.0f;
