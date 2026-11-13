@@ -104,13 +104,59 @@ void AKeeperOfTime::PlaceVisual(UStaticMeshComponent* Visual, const FVector2D& C
 	{
 		return;
 	}
-	Visual->SetVisibility(true);
+	Visual->SetVisibility(!IsCoveredByArt(Visual));
 	Visual->SetWorldLocation(ToWorld(Centre));
 	Visual->SetWorldScale3D(FVector(HalfExtent.X * 2.0f / KeeperLook::CubeEdge, KeeperLook::VisualDepth / KeeperLook::CubeEdge, HalfExtent.Y * 2.0f / KeeperLook::CubeEdge));
 	if (UMaterialInstanceDynamic* Dynamic = Visual->CreateDynamicMaterialInstance(0))
 	{
 		Dynamic->SetVectorParameterValue(ColourParameter, Colour);
 	}
+}
+
+UStaticMeshComponent* AKeeperOfTime::GetStandInVisual(EKeeperPart Part) const
+{
+	switch (Part)
+	{
+	case EKeeperPart::Wings: return WingsVisual;
+	case EKeeperPart::Clock: return ClockVisual;
+	case EKeeperPart::Eye: return EyeVisual;
+	case EKeeperPart::Front: return FrontVisual;
+	case EKeeperPart::Middle: return MiddleVisual;
+	case EKeeperPart::Rear: return RearVisual;
+	default: return nullptr;
+	}
+}
+
+void AKeeperOfTime::SetPartArtDrawn(EKeeperPart Part, bool bDrawn)
+{
+	if (Part == EKeeperPart::Count)
+	{
+		return;
+	}
+	const uint8 Bit = static_cast<uint8>(1u << static_cast<uint8>(Part));
+	ArtDrawnParts = bDrawn ? (ArtDrawnParts | Bit) : (ArtDrawnParts & ~Bit);
+	if (bDrawn)
+	{
+		HideVisual(GetStandInVisual(Part));
+	}
+}
+
+bool AKeeperOfTime::IsPartArtDrawn(EKeeperPart Part) const
+{
+	return Part != EKeeperPart::Count && (ArtDrawnParts & (1u << static_cast<uint8>(Part))) != 0;
+}
+
+bool AKeeperOfTime::IsCoveredByArt(const UStaticMeshComponent* Visual) const
+{
+	for (uint8 Index = 0; Index < static_cast<uint8>(EKeeperPart::Count); ++Index)
+	{
+		const EKeeperPart Part = static_cast<EKeeperPart>(Index);
+		if (Visual && GetStandInVisual(Part) == Visual && IsPartArtDrawn(Part))
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 UKeeperPartComponent* AKeeperOfTime::GetPartComponent(EKeeperPart Part) const

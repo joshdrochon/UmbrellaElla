@@ -8,6 +8,52 @@
 #include "Harness/UmbrellaFeatureFlags.h"
 #include "Owl/KeeperOfTime.h"
 
+namespace
+{
+	/**
+	 * Which Keeper stand-in cubes a drawn slot covers. The body sprite paints wings, clock and the three mechanisms at
+	 * home; a part layer covers its own part. The exposed eye, chain head, talon tip, gust and telegraph are state cues
+	 * with no slot art at their position, so their cubes stay.
+	 */
+	void KeeperCoverStandIns(AActor* Keeper, const FString& VisualId)
+	{
+		AKeeperOfTime* Owl = Cast<AKeeperOfTime>(Keeper);
+		if (!Owl)
+		{
+			return;
+		}
+		TArray<EKeeperPart> Covered;
+		if (VisualId == TEXT("keeper:body-hover-flap"))
+		{
+			Covered = {EKeeperPart::Wings, EKeeperPart::Clock, EKeeperPart::Front, EKeeperPart::Middle, EKeeperPart::Rear};
+		}
+		else if (VisualId == TEXT("keeper:wings-gust-wear"))
+		{
+			Covered = {EKeeperPart::Wings};
+		}
+		else if (VisualId == TEXT("keeper:clock-cover-glass-hands"))
+		{
+			Covered = {EKeeperPart::Clock};
+		}
+		else if (VisualId == TEXT("keeper:mechanism-front"))
+		{
+			Covered = {EKeeperPart::Front};
+		}
+		else if (VisualId == TEXT("keeper:mechanism-middle"))
+		{
+			Covered = {EKeeperPart::Middle};
+		}
+		else if (VisualId == TEXT("keeper:mechanism-rear"))
+		{
+			Covered = {EKeeperPart::Rear};
+		}
+		for (const EKeeperPart Part : Covered)
+		{
+			Owl->SetPartArtDrawn(Part, true);
+		}
+	}
+}
+
 void UKeeperPresenterSubsystem::PostInitialize()
 {
 	Super::PostInitialize();
@@ -87,7 +133,12 @@ EArtSlotDraw UKeeperPresenterSubsystem::ShowArt(AActor* Keeper, UTexture2D* Text
 	{
 		return EArtSlotDraw::NoTexture;
 	}
-	return ArtSlot::Apply(Mesh, Texture, *Row, UmbrellaKeeperPresenterConst::StandInScale);
+	const EArtSlotDraw Result = ArtSlot::Apply(Mesh, Texture, *Row, UmbrellaKeeperPresenterConst::StandInScale);
+	if (Result == EArtSlotDraw::Drawn)
+	{
+		KeeperCoverStandIns(Keeper, Row->Visual);
+	}
+	return Result;
 }
 
 namespace
@@ -135,6 +186,7 @@ EArtSlotDraw UKeeperPresenterSubsystem::ShowPartArt(AActor* Keeper, const FStrin
 	Part->RegisterComponent();
 	ArtSlot::SetWorldBoxScale(Part, UmbrellaKeeperPresenterConst::StandInScale);
 	Part->SetWorldLocation(Keeper->GetActorLocation() + FVector(0.0, Layer->DepthOffset, 0.0));
+	KeeperCoverStandIns(Keeper, VisualId);
 	// State layers start hidden; Tick shows them while their state holds.
 	Part->SetVisibility(VisualId != UmbrellaKeeperPresenterConst::MaskVisual && VisualId != UmbrellaKeeperPresenterConst::DepartureVisual);
 	return Result;
@@ -171,7 +223,10 @@ void UKeeperPresenterSubsystem::ShowStandIn(AActor* Keeper)
 	// Art slot keeper:body-hover-flap; the cube stays when no asset exists.
 	if (const FArtSlotRow* Row = ArtSlot::Find(TEXT("keeper:body-hover-flap")))
 	{
-		ArtSlot::ApplyRow(Mesh, *Row, UmbrellaKeeperPresenterConst::StandInScale);
+		if (ArtSlot::ApplyRow(Mesh, *Row, UmbrellaKeeperPresenterConst::StandInScale) == EArtSlotDraw::Drawn)
+		{
+			KeeperCoverStandIns(Keeper, Row->Visual);
+		}
 	}
 	Mesh->RegisterComponent();
 	// Part slots (wings, mechanism, clock cover, talon) are layers over the body that exist only when their asset does.

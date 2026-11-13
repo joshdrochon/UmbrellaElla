@@ -43,6 +43,16 @@ public:
 
 	bool IsDeparting() const { return DepartureRemaining > 0.0f; }
 
+	/**
+	 * Presentation only: slot art now draws this part (the body sprite or the part's own layer), so its stand-in cube
+	 * stays hidden. A stand-in shows only when no art does. Hit regions are unchanged.
+	 */
+	void SetPartArtDrawn(EKeeperPart Part, bool bDrawn);
+	bool IsPartArtDrawn(EKeeperPart Part) const;
+
+	/** The stand-in cube for a body part (nullptr for parts without one). Tests read it. */
+	UStaticMeshComponent* GetStandInVisual(EKeeperPart Part) const;
+
 	virtual void Tick(float DeltaSeconds) override;
 
 private:
@@ -51,6 +61,7 @@ private:
 	void PlaceVisual(UStaticMeshComponent* Visual, const FVector2D& Centre, const FVector2D& HalfExtent, const FLinearColor& Colour);
 	void HideVisual(UStaticMeshComponent* Visual);
 	FVector ToWorld(const FVector2D& Position) const;
+	bool IsCoveredByArt(const UStaticMeshComponent* Visual) const;
 
 	UPROPERTY()
 	TObjectPtr<UKeeperPartComponent> WingsPart;
@@ -96,6 +107,8 @@ private:
 	FVector2D TelegraphFrom = FVector2D::ZeroVector;
 	FVector2D TelegraphTo = FVector2D::ZeroVector;
 	bool bTelegraphShown = false;
+	/** One bit per EKeeperPart whose slot art draws. */
+	uint8 ArtDrawnParts = 0;
 	float DepartureRemaining = 0.0f;
 	float DepartureTotal = 0.0f;
 };
