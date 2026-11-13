@@ -155,6 +155,10 @@ LABEL_ACTIONS = {"Start", "Play", "Resume", "Restart", "Quit", "Back", "Confirm"
                  "Game", "Settings"}
 
 
+# Short texts that head a screen or state a status; they are screen lines, not labels or buttons.
+HEADING_TEXTS = {"Paused", "Defeated", "Journey Complete", "Unsaved changes."}
+
+
 def surface_of(it):
     t, screen = it["text"], it["screen"]
     words = len(t.split())
@@ -164,6 +168,10 @@ def surface_of(it):
         return "end_card"
     if it["kind"] == "story-table":
         return "end_card" if screen == "ending" else "clue"
+    if t in HEADING_TEXTS:
+        return "screen"
+    if screen == "settings-controller":
+        return "label"
     if words <= 3 and t.split()[0] in LABEL_ACTIONS:
         return "button"
     if words <= 4:

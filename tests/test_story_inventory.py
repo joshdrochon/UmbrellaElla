@@ -27,9 +27,10 @@ class SurfaceOf(unittest.TestCase):
         f = lambda t: story_inventory.surface_of({"text": t, "screen": "settings", "kind": "ui"})
         self.assertEqual(f("Movement speed"), "label")
         self.assertEqual(f("Deaths"), "label")
-        self.assertEqual(f("Paused"), "label")
         self.assertEqual(f("Quit"), "button")
         self.assertEqual(f("Keep Editing"), "button")
+        self.assertEqual(f("Paused"), "screen")
+        self.assertEqual(story_inventory.surface_of({"text": "Next spell", "screen": "settings-controller", "kind": "ui"}), "label")
         self.assertEqual(f("A long sentence about many things here"), "screen")
 
 
