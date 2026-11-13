@@ -59,8 +59,8 @@ namespace SpellRules
 	/** Delay of burst shot Index after the trigger: Index * spacing (shot 0 is immediate). */
 	UMBRELLAELLA_API float BurstDelay(int32 Index, const FAttackTuning& Tuning);
 
-	/** Beam end X from the muzzle once solid blockers/targets are known: min(length, distance to the nearest solid stop). */
-	UMBRELLAELLA_API float BeamClippedLength(float Length, float SolidStopDistance);
+	/** Beam end X from the muzzle once solid blockers/targets are known: min(length, distance to the nearest solid stop). An unset stop means no blocker; a stop of 0 or below (blocker at or behind the muzzle) clips the beam to 0. */
+	UMBRELLAELLA_API float BeamClippedLength(float Length, const TOptional<float>& SolidStopDistance);
 
 	UMBRELLAELLA_API FName SpellName(EUmbrellaSpell Spell);
 }

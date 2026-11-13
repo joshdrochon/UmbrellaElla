@@ -138,9 +138,10 @@ float SpellRules::BurstDelay(int32 Index, const FAttackTuning& Tuning)
 	return FMath::Max(Index, 0) * Tuning.SmallBurstSpacing;
 }
 
-float SpellRules::BeamClippedLength(float Length, float SolidStopDistance)
+float SpellRules::BeamClippedLength(float Length, const TOptional<float>& SolidStopDistance)
 {
-	return FMath::Max(0.0f, SolidStopDistance >= 0.0f ? FMath::Min(Length, SolidStopDistance) : Length);
+	const float Clamped = FMath::Max(0.0f, Length);
+	return SolidStopDistance.IsSet() ? FMath::Min(Clamped, FMath::Max(0.0f, SolidStopDistance.GetValue())) : Clamped;
 }
 
 FName SpellRules::SpellName(EUmbrellaSpell Spell)

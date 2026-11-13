@@ -14,6 +14,8 @@
 #include "Motor/EllaMotorComponent.h"
 #include "Projectile/UmbrellaProjectile.h"
 #include "Tests/Shared/UmbrellaTestWorld.h"
+#include "Components/BoxComponent.h"
+#include "Core/UmbrellaCollision.h"
 #include "Umbrella/UmbrellaStateComponent.h"
 
 namespace
@@ -296,8 +298,10 @@ bool FMoveSpellBurstRulesTest::RunTest(const FString& Parameters)
 	TestEqual(TEXT("other spells never burst"), SpellRules::BurstShots(EUmbrellaSpell::TwinStars, T), 1);
 	TestEqual(TEXT("first shot immediate"), SpellRules::BurstDelay(0, T), 0.0f);
 	TestEqual(TEXT("shot 4 at 0.32 s"), SpellRules::BurstDelay(4, T), 0.32f, 0.0001f);
-	TestEqual(TEXT("beam unclipped"), SpellRules::BeamClippedLength(900.0f, -1.0f), 900.0f);
-	TestEqual(TEXT("beam clipped by a wall"), SpellRules::BeamClippedLength(900.0f, 300.0f), 300.0f);
+	TestEqual(TEXT("beam unclipped"), SpellRules::BeamClippedLength(900.0f, TOptional<float>()), 900.0f);
+	TestEqual(TEXT("blocker at the muzzle stops the beam"), SpellRules::BeamClippedLength(900.0f, TOptional<float>(0.0f)), 0.0f);
+	TestEqual(TEXT("blocker behind the muzzle stops the beam"), SpellRules::BeamClippedLength(900.0f, TOptional<float>(-40.0f)), 0.0f);
+	TestEqual(TEXT("beam clipped by a wall"), SpellRules::BeamClippedLength(900.0f, TOptional<float>(300.0f)), 300.0f);
 	return true;
 }
 
@@ -393,6 +397,32 @@ bool FMoveWorldBeamTest::RunTest(const FString& Parameters)
 	Ella->GetInputAdapter()->ApplyRelease(EUmbrellaInputAction::Shoot);
 	Test.TickSeconds(0.05f, 1.0f / 60.0f);
 	TestNull(TEXT("beam ends on release"), Emitter->GetBeam());
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMoveWorldBeamWallAtMuzzleTest, "UmbrellaElla.Move.World.StreamBeamWallAtMuzzle", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FMoveWorldBeamWallAtMuzzleTest::RunTest(const FString& Parameters)
+{
+	FUmbrellaTestWorld Test;
+	UWorld* World = Test.GetWorld();
+	AActor* Wall = World->SpawnActor<AActor>();
+	UBoxComponent* Box = NewObject<UBoxComponent>(Wall);
+	Box->SetBoxExtent(FVector(40.0, 200.0, 400.0));
+	Box->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	Box->SetCollisionObjectType(ECC_WorldStatic);
+	Box->SetCollisionResponseToAllChannels(ECR_Ignore);
+	Box->SetCollisionResponseToChannel(UmbrellaCollision::PlayerShot, ECR_Block);
+	Wall->SetRootComponent(Box);
+	Box->RegisterComponent();
+	// The wall spans X -20..60, so its near face is behind a muzzle at X=0.
+	Wall->SetActorLocation(FVector(20.0, 0.0, 0.0));
+	AStreamBeamActor* Beam = World->SpawnActor<AStreamBeamActor>();
+	if (!TestNotNull(TEXT("beam spawned"), Beam))
+	{
+		return false;
+	}
+	Beam->SetBeam(FVector(0.0, 0.0, 0.0), 900.0f, 14.0f);
+	TestEqual(TEXT("a wall overlapping the muzzle stops the beam"), Beam->GetEffectiveLength(), 0.0f, 0.01f);
 	return true;
 }
 

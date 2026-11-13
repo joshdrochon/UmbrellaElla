@@ -65,7 +65,7 @@ void AStreamBeamActor::SetBeam(const FVector& Muzzle, float Length, float Width)
 	BeamWidth = Width;
 
 	// A solid blocker (blocks the player shot channel, has no receiver) ends the beam early.
-	float StopDistance = -1.0f;
+	TOptional<float> StopDistance;
 	if (UWorld* World = GetWorld())
 	{
 		TArray<FOverlapResult> Overlaps;
@@ -84,8 +84,8 @@ void AStreamBeamActor::SetBeam(const FVector& Muzzle, float Length, float Width)
 				}
 				if (ProjectileRules::IsSolidStop(EUmbrellaShotKind::PlayerBlast, Component, BeamGatherReceivers(Other).Num() > 0))
 				{
-					const float Distance = static_cast<float>(Component->Bounds.GetBox().Min.X - BeamMuzzle.X);
-					StopDistance = StopDistance < 0.0f ? Distance : FMath::Min(StopDistance, Distance);
+					const float Distance = FMath::Max(0.0f, static_cast<float>(Component->Bounds.GetBox().Min.X - BeamMuzzle.X));
+					StopDistance = StopDistance.IsSet() ? FMath::Min(StopDistance.GetValue(), Distance) : Distance;
 				}
 			}
 		}
