@@ -125,3 +125,8 @@ NEEDS HUMAN: lead: smoke switch to start the Keeper fight, ProjectDir-relative -
 - Merged main and area/artslots: both already in. Source still has no -SmokeKeeper/-SmokeSection handling and relative -SmokeShot is still not ProjectDir-relative (requests items 1-2), so the context pair cannot be made and no round can pass. Paint plateaued R6-R10; a new round would repeat R8-R10.
 - Owl stays tracked _PH; nothing shipped.
 NEEDS HUMAN: lead: smoke switch to start the Keeper fight, ProjectDir-relative -SmokeShot, Blender-vs-paint decision.
+
+## Nov 13 session 4: still blocked (no new paint, spend unchanged)
+- Merged main and area/artslots: both already in. Source still has no -SmokeKeeper/-SmokeSection/-SmokeMap handling (grep empty), so the context pair cannot be made (docs/build/requests/artkeeper.md items 1-2). Paint plateaued R6-R10; no round run.
+- Owl stays tracked _PH; nothing shipped.
+NEEDS HUMAN: lead: smoke switch to start the Keeper fight, ProjectDir-relative -SmokeShot, Blender-vs-paint decision.
