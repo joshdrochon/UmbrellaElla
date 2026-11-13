@@ -368,7 +368,6 @@ void UEncounterDirectorSubsystem::AdvanceFight(float DeltaSeconds)
 	{
 		return;
 	}
-	LastDelta = DeltaSeconds;
 	ElapsedSeconds += DeltaSeconds;
 	FKeeperTickInput Input;
 	Input.PlayerPos = PlayerPosition();

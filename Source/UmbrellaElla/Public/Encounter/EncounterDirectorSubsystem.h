@@ -122,7 +122,6 @@ private:
 	bool bWinPending = false;
 	bool bDefeatInWinFrame = false;
 	int64 WinFrame = 0;
-	float LastDelta = 0.0f;
 	TOptional<bool> DepartureOverride;
 	float PendingGustSpeed = 0.0f;
 	bool bGustPushThisStep = false;
