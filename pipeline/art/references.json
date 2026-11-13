@@ -1,7 +1,7 @@
 {
  "version": 2,
  "_about": "The team's art references: the one list every art tool and the Art Director agent compares against (tools/art_check.py --references and --gate, tools/art_judge.py, tools/art_ref_check.py, tools/art_loop.py, tools/art_judge_prompt.md, tools/assetgen.py practice stand-ins, tools/submission_check.py assets). Reference only, never shipped: GDD 1.3 7C and its Provenance line ('Do not copy into the jam entry'); Official Rules 7(h) (game content is made during the Contest Period); a shipped byte copy of any file here fails submission_check.py assets. Schema (one list, `references`): id; path (repo-relative: under pipeline/art/reference/, or the team's own art folder for a team-art entry; null for kind described); kind (image | data | described); role (list, every value a key of `roles`); what; cards (Day-0 cards and MVP items judged against it: a Day-0 card listed on an image runs tools/art_ref_check.py, art_judge.py coverage); consulted_by (other cards and checks that read it without an art_ref_check verdict; art_check --references lists them with cards); judge (true = the blind X/Y judge sees it as style context); required (art_check --references and --gate fail while it is missing; false on an image = optional: a checkout without the file leaves the entry out of the list and out of every judge element, so the team-art entries work in repos that have only some of the files); judge_exempt (why no judge element uses it); tier (top = quality bar); cell (frame size of a sheet); description (kind described: the written target); note; origin. Kind data with role layout = the frame grids, pivots and fps (the source for sprite sidecars). elements and scene = what tools/art_judge.py scores; quality_bar = the top tier; gdd_embedded = images the current GDD embeds join the list automatically; team_art = every image under Assets/ and Mockups/ joins the list automatically (folders named obsolete skipped, already-listed paths and byte copies skipped), look only, never shipped. Practice repos only (.pipeline-practice): `tools/assetgen.py image --provider reference` (and any image step with no key) places the best-matching picture here by role as a stand-in, provenance `source=reference (practice)`; on the team repo assetgen refuses it and submission_check.py assets fails such a row.",
- "note": "Every reference image the art is judged against: the curated set in this repo under pipeline/art/reference/ (Git LFS; `origin` says where each came from), plus the team's own art folders (Assets/, Mockups/: the described studies below and, through team_art, any image the team adds). References only, never shipped or imported (Official Rules \u00a77(h): no game content before Nov 12; jam art is generated during the jam). tools/art_judge.py and tools/art_ref_check.py read this file: `scene` scores build screenshots, `elements` score generated art; each art card's own references are the ones listing it in `cards`. The evidence line carries refs=<first 12 hex of this file's sha256>, so a PASS made against an older or smaller set is refused (tools/check_pr.py rule artref). GDD SH1.0 (12 Nov): these pictures are judging targets for the art loop and art_ref_check.py, never generation inputs (ART-03, BG-02); card numbers follow the SH1.0 MVP list and the art cards 0.37-0.41.",
+ "note": "Every reference image the art is judged against: the curated set in this repo under pipeline/art/reference/ (Git LFS; `origin` says where each came from), plus the team's own art folders (Assets/, Mockups/: the described studies below and, through team_art, any image the team adds). References only, never shipped or imported (Official Rules §7(h): no game content before Nov 12; jam art is generated during the jam). tools/art_judge.py and tools/art_ref_check.py read this file: `scene` scores build screenshots, `elements` score generated art; each art card's own references are the ones listing it in `cards`. The evidence line carries refs=<first 12 hex of this file's sha256>, so a PASS made against an older or smaller set is refused (tools/check_pr.py rule artref). GDD SH1.0 (12 Nov): these pictures are judging targets for the art loop and art_ref_check.py, never generation inputs (ART-03, BG-02); card numbers follow the SH1.0 MVP list and the art cards 0.37-0.41.",
  "roles": {
   "composition target": "the whole-frame look a capture is judged against (layout, value structure, mood)",
   "character poses": "Ella and umbrella poses and states (UP_OPEN, ATTACK_DESCENT, SHIELD_DESCENT, free fall)",
@@ -908,7 +908,7 @@
    "role": [
     "menu style bar"
    ],
-   "what": "Written target for every menu screen and transition (title, pause, settings, Survived and fail): the feel of the paper cut-out, shadow-puppet animated end-credits sequence of the 2004 film 'Lemony Snicket's A Series of Unfortunate Events', in our brand and never deviating from our art. No frame of that film is stored or copied (copyright; Official Rules \u00a77(h) and \u00a715(d) ask for original work)",
+   "what": "Written target for every menu screen and transition (title, pause, settings, Survived and fail): the feel of the paper cut-out, shadow-puppet animated end-credits sequence of the 2004 film 'Lemony Snicket's A Series of Unfortunate Events', in our brand and never deviating from our art. No frame of that film is stored or copied (copyright; Official Rules §7(h) and §15(d) ask for original work)",
    "description": [
     "layered paper cut-out silhouettes in near-black ink",
     "parallax depth planes: three or more paper layers that slide at different speeds",
@@ -946,7 +946,7 @@
    ],
    "judge": true,
    "required": true,
-   "note": "Posted before the jam start (2026-11-12T04:43Z = 11 Nov 8:43 PM PT): reference only, never shipped (Official Rules \u00a77(h)).",
+   "note": "Posted before the jam start (2026-11-12T04:43Z = 11 Nov 8:43 PM PT): reference only, never shipped (Official Rules §7(h)).",
    "origin": "Discord DM from Ricky to Josh (not #art-direction), 2026-11-12T04:43Z"
   },
   {
@@ -1883,6 +1883,21 @@
     "effects"
    ],
    "what": "Crop of the effect itself for the Keeper stun (blue-white fault arcs): box [170, 570, 350, 720] of 20261110-1220_Ricky_1.png, key arc (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of Ricky's #art-direction sheet (13 Nov, artfx3, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "crop-part-hit-gear-intact",
+   "path": "pipeline/art/reference/crops/vfx-part-hit/gear-intact.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for a Keeper part hit (gear swinging on its chain): box [225, 355, 320, 440] of 20261110-1047_Ricky_1.png, key paper (crops.json beside it). Reference only; the whole sheet stays as context.",
    "cards": [
     "MVP 5"
    ],
@@ -3225,17 +3240,20 @@
     "crop-stream-start-fall-flame"
    ],
    "owner": "artfx",
-   "score_min": 0.334,
-   "detail_min": 0.212,
+   "score_min": 0.704,
+   "detail_min": 0.323,
    "calibration": {
-    "method": "no team image: leave-one-out and detail on the element's own references under pipeline/art/reference/ (quality bar included) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
     "margin": 0.02,
     "measured": "2026-11-13",
-    "loo": {},
-    "detail": {
-     "bar-casters": 0.232
+    "loo": {
+     "crop-stream-start-release-burst": 0.724,
+     "crop-stream-start-fall-flame": 0.724
     },
-    "note": "one image and nothing to compare it with: score_min not measurable (kept)"
+    "detail": {
+     "crop-stream-start-release-burst": 0.343,
+     "crop-stream-start-fall-flame": 0.615
+    }
    },
    "context": [
     "study-ella-streamed-blast",
@@ -3251,17 +3269,20 @@
     "crop-stream-sustain-fall-flame"
    ],
    "owner": "artfx",
-   "score_min": 0.334,
-   "detail_min": 0.212,
+   "score_min": 0.831,
+   "detail_min": 0.591,
    "calibration": {
-    "method": "no team image: leave-one-out and detail on the element's own references under pipeline/art/reference/ (quality bar included) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
     "margin": 0.02,
     "measured": "2026-11-13",
-    "loo": {},
-    "detail": {
-     "bar-casters": 0.232
+    "loo": {
+     "crop-stream-sustain-lit-flame": 0.851,
+     "crop-stream-sustain-fall-flame": 0.851
     },
-    "note": "one image and nothing to compare it with: score_min not measurable (kept)"
+    "detail": {
+     "crop-stream-sustain-lit-flame": 0.611,
+     "crop-stream-sustain-fall-flame": 0.615
+    }
    },
    "context": [
     "study-ella-streamed-blast",
@@ -3277,17 +3298,20 @@
     "crop-needle-channel-lit-flame"
    ],
    "owner": "artfx",
-   "score_min": 0.334,
-   "detail_min": 0.212,
+   "score_min": 0.573,
+   "detail_min": 0.485,
    "calibration": {
-    "method": "no team image: leave-one-out and detail on the element's own references under pipeline/art/reference/ (quality bar included) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
     "margin": 0.02,
     "measured": "2026-11-13",
-    "loo": {},
-    "detail": {
-     "bar-casters": 0.232
+    "loo": {
+     "crop-needle-channel-tell-ring": 0.593,
+     "crop-needle-channel-lit-flame": 0.593
     },
-    "note": "one image and nothing to compare it with: score_min not measurable (kept)"
+    "detail": {
+     "crop-needle-channel-tell-ring": 0.505,
+     "crop-needle-channel-lit-flame": 0.611
+    }
    },
    "context": [
     "study-ella-needle-1",
@@ -3303,17 +3327,20 @@
     "crop-needle-sliver-shot-diagram"
    ],
    "owner": "artfx",
-   "score_min": 0.334,
-   "detail_min": 0.212,
+   "score_min": 0.807,
+   "detail_min": 0.373,
    "calibration": {
-    "method": "no team image: leave-one-out and detail on the element's own references under pipeline/art/reference/ (quality bar included) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
     "margin": 0.02,
     "measured": "2026-11-13",
-    "loo": {},
-    "detail": {
-     "bar-casters": 0.232
+    "loo": {
+     "crop-needle-sliver-travel": 0.827,
+     "crop-needle-sliver-shot-diagram": 0.827
     },
-    "note": "one image and nothing to compare it with: score_min not measurable (kept)"
+    "detail": {
+     "crop-needle-sliver-travel": 0.427,
+     "crop-needle-sliver-shot-diagram": 0.393
+    }
    },
    "context": [
     "study-ella-needle-1",
@@ -3329,17 +3356,20 @@
     "crop-needle-pierce-fade"
    ],
    "owner": "artfx",
-   "score_min": 0.334,
-   "detail_min": 0.212,
+   "score_min": 0.656,
+   "detail_min": 0.356,
    "calibration": {
-    "method": "no team image: leave-one-out and detail on the element's own references under pipeline/art/reference/ (quality bar included) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
     "margin": 0.02,
     "measured": "2026-11-13",
-    "loo": {},
-    "detail": {
-     "bar-casters": 0.232
+    "loo": {
+     "crop-needle-pierce-release": 0.676,
+     "crop-needle-pierce-fade": 0.676
     },
-    "note": "one image and nothing to compare it with: score_min not measurable (kept)"
+    "detail": {
+     "crop-needle-pierce-release": 0.376,
+     "crop-needle-pierce-fade": 0.406
+    }
    },
    "context": [
     "study-ella-needle-1",
@@ -3541,29 +3571,26 @@
   "vfx-part-hit": {
    "what": "a Keeper part hit (art sheet VFX_PartHit, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
    "refs": [
-    "crop-part-hit-gear-swing"
+    "crop-part-hit-gear-swing",
+    "crop-part-hit-gear-intact"
    ],
    "owner": "artfx",
-   "score_min": 0.973,
-   "detail_min": 0.444,
+   "score_min": 0.627,
+   "detail_min": 0.644,
    "calibration": {
-    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
     "margin": 0.02,
     "measured": "2026-11-13",
     "loo": {
-     "d-gear-break": 0.993,
-     "d-clock-damage": 0.993
+     "crop-part-hit-gear-swing": 0.647,
+     "crop-part-hit-gear-intact": 0.647
     },
     "detail": {
-     "d-gear-break": 0.464,
-     "d-clock-damage": 0.491
+     "crop-part-hit-gear-swing": 0.687,
+     "crop-part-hit-gear-intact": 0.664
     }
    },
-   "context": [
-    "d-gear-break",
-    "d-clock-damage",
-    "bar-casters"
-   ]
+   "context": []
   },
   "vfx-part-break": {
    "what": "a Keeper part break (art sheet VFX_PartBreak, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
@@ -3572,19 +3599,19 @@
     "crop-part-break-wreckage"
    ],
    "owner": "artfx",
-   "score_min": 0.973,
-   "detail_min": 0.444,
+   "score_min": 0.684,
+   "detail_min": 0.642,
    "calibration": {
-    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
     "margin": 0.02,
     "measured": "2026-11-13",
     "loo": {
-     "d-gear-break": 0.993,
-     "d-clock-damage": 0.993
+     "crop-part-break-rim-failure": 0.704,
+     "crop-part-break-wreckage": 0.704
     },
     "detail": {
-     "d-gear-break": 0.464,
-     "d-clock-damage": 0.491
+     "crop-part-break-rim-failure": 0.672,
+     "crop-part-break-wreckage": 0.662
     }
    },
    "context": [
@@ -3629,17 +3656,19 @@
     "crop-stun-arcs-shoulder"
    ],
    "owner": "artfx",
-   "score_min": 0.716,
-   "detail_min": 0.444,
+   "score_min": 0.18,
+   "detail_min": 0.519,
    "calibration": {
-    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
     "margin": 0.02,
     "measured": "2026-11-13",
     "loo": {
-     "d-gear-break": 0.736
+     "crop-stun-arcs-clock": 0.2,
+     "crop-stun-arcs-shoulder": 0.2
     },
     "detail": {
-     "d-gear-break": 0.464
+     "crop-stun-arcs-clock": 0.583,
+     "crop-stun-arcs-shoulder": 0.539
     }
    },
    "context": [
@@ -3920,7 +3949,7 @@
    }
   }
  },
- "discord_note": "pipeline/art/reference/discord/ (index.json beside them: author, time, message, description; one byte-identical repost skipped) holds Ricky's #art-direction posts of 10 Nov. They show Ricky's proposed attacks and visuals. Use them for LOOK only: any gameplay in them that is not in the current GDD (absorbable yellow shots, wing gust attack, talon rake, double-beat, owl and clock damage states, throws and chain casts) is a design proposal for Richard, never a new mechanic. References only, never shipped (Official Rules \u00a77(h)).",
+ "discord_note": "pipeline/art/reference/discord/ (index.json beside them: author, time, message, description; one byte-identical repost skipped) holds Ricky's #art-direction posts of 10 Nov. They show Ricky's proposed attacks and visuals. Use them for LOOK only: any gameplay in them that is not in the current GDD (absorbable yellow shots, wing gust attack, talon rake, double-beat, owl and clock damage states, throws and chain casts) is a design proposal for Richard, never a new mechanic. References only, never shipped (Official Rules §7(h)).",
  "not_art_cards": {
   "0.10a": "the colour-calibration swatch: art_check.py --swatch measures it, it is not game art",
   "0.4d": "the TD's art dump script and import settings: no art is made",

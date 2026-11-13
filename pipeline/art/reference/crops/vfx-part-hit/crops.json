@@ -14,6 +14,19 @@
    "key": "paper",
    "pieces": "all",
    "opaque_px": 3825
+  },
+  {
+   "file": "gear-intact.png",
+   "source": "pipeline/art/reference/discord/20261110-1047_Ricky_1.png",
+   "box": [
+    225,
+    355,
+    320,
+    440
+   ],
+   "key": "paper",
+   "pieces": "all",
+   "opaque_px": 2913
   }
  ]
 }
