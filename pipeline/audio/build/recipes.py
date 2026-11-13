@@ -11,11 +11,11 @@ RECIPES = {
 
 RECIPES.update({
  "HitOwl": {
-  "seconds": 0.8, "lufs": -17, "fade_out": 0.2, "takes": 3,
+  "seconds": 0.8, "post_gain_db": 3, "lufs": -14, "fade_out": 0.2, "takes": 3,
   "post": "aecho=0.8:0.6:50|110:0.3|0.15",
   "layers": {
-   "thud": {"prompt": "single deep low thud impact, heavy boom of a stone and wood hit, dry, isolated, no other sounds", "secs": 1.0, "filter": "lowpass=f=260", "trim": 0.8, "decay": 6},
-   "clank": {"prompt": "one heavy brass clank struck once, pitched metallic ring with a bell partial, dry, isolated", "secs": 1.0, "filter": "highpass=f=400", "gain_db": -4, "trim": 0.8, "decay": 5},
+   "thud": {"prompt": "single deep low thud impact, heavy boom of a stone and wood hit, dry, isolated, no other sounds", "secs": 1.0, "filter": "highpass=f=60,lowpass=f=260", "norm_lufs": -20, "gain_db": -3, "trim": 0.8, "decay": 6},
+   "clank": {"prompt": "one heavy brass clank struck once, pitched metallic ring with a bell partial, dry, isolated", "secs": 1.0, "filter": "highpass=f=400", "norm_lufs": -20, "gain_db": 0, "trim": 0.8, "decay": 5},
   }},
  "OwlBoltLaunch": {
   "seconds": 0.8, "lufs": -19, "fade_out": 0.25, "takes": 3,

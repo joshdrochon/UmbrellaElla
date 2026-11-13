@@ -56,6 +56,8 @@ def mix(rec, files, out):
         if dur: chain += f"atrim=0:{dur},"
         chain += (f"silenceremove=start_periods=1:start_threshold=-42dB,volume='exp(-t*{spec['decay']})':eval=frame,{f},volume={spec.get('gain_db', 0)}dB" if "decay" in spec else
                   f"silenceremove=start_periods=1:start_threshold=-42dB,{f},volume={spec.get('gain_db', 0)}dB")
+        if "norm_lufs" in spec:   # opt-in: equalise this layer's loudness so candidates mix to the same balance
+            chain += f",loudnorm=I={spec['norm_lufs']}:TP=-2:LRA=11,volume={spec.get('gain_db', 0)}dB"
         if delay: chain += f",adelay={delay}|{delay}"
         chains.append(chain + f"[l{i}]"); labels.append(f"[l{i}]")
     total = rec["seconds"]
@@ -63,7 +65,7 @@ def mix(rec, files, out):
     post = rec.get("post", "anull")
     g = ";".join(chains) + ";" + "".join(labels) + f"amix=inputs={len(labels)}:normalize=0:duration=longest," \
         f"apad=whole_dur={total},atrim=0:{total},{post},afade=t=out:st={max(0, total - fade)}:d={fade}," \
-        f"loudnorm=I={rec['lufs']}:TP=-2:LRA=7,atrim=0:{total},aresample=48000,alimiter=limit=0.85:level=disabled[o]"
+        f"loudnorm=I={rec['lufs']}:TP=-2:LRA=7,atrim=0:{total},aresample=48000,volume={rec.get('post_gain_db', 0)}dB,alimiter=limit=0.85:level=disabled[o]"
     r = run(["ffmpeg", "-y", "-loglevel", "error", *ins, "-filter_complex", g, "-map", "[o]", "-ac", "1",
              "-c:a", "pcm_s16le", str(out)])
     if r.returncode:
