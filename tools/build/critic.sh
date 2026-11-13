@@ -23,7 +23,9 @@ p = p.replace("{story_json_surfaces_deny_banned}", json.dumps({k: sj[k] for k in
 p = p.replace("{story_check_output}", (sc.stdout + sc.stderr).strip())
 sys.path.insert(0, "tools"); import story_check
 # Only lines with no passed verdict on their exact text (critic-results.csv); held lines (ship=no) never reach a player.
-rows = [(r["id"], r["surface"], r["text"]) for r in story_check.lines_to_judge("pipeline/story/lines.csv", story_check.CRITIC_RESULTS)]
+# A line's mode (Start Game / Director's Cut) goes with it, so a Director's-Cut-only line is not judged against Start Game (Nov 13).
+rows = [(r["id"], r["surface"] + (" [" + next(p.strip()[5:] for p in (r.get("note") or "").split(";") if p.strip().startswith("mode=")) + "]" if "mode=" in (r.get("note") or "") else ""), r["text"])
+        for r in story_check.lines_to_judge("pipeline/story/lines.csv", story_check.CRITIC_RESULTS)]
 random.Random(len(rows)).shuffle(rows)
 p += "\n\nLines to judge (id | surface | text), cycle=1, builder=area-worker:\n" + "\n".join(" | ".join(r) for r in rows)
 open(sys.argv[1], "w").write(p)
