@@ -1,6 +1,8 @@
 #include "Arena/UmbrellaArena.h"
 #include "Camera/CameraComponent.h"
+#include "Core/UmbrellaDrawOrder.h"
 #include "Core/UmbrellaTuning.h"
+#include "Field/WindCurrent.h"
 #include "Engine/Engine.h"
 #include "Engine/World.h"
 #include "Enemy/UmbrellaEnemy.h"
@@ -110,20 +112,31 @@ bool FLevelWorldRoute::RunTest(const FString& Parameters)
 		TestTrue(TEXT("geometry spawned"), Director->GetSpawned().Num() >= 9 + 3);
 		int32 Traps = 0;
 		int32 Enemies = 0;
+		int32 Winds = 0;
 		for (const AActor* A : Director->GetSpawned())
 		{
 			Traps += Cast<AUmbrellaTrap>(A) != nullptr;
 			Enemies += Cast<AUmbrellaEnemy>(A) != nullptr;
+			if (const AWindCurrent* W = Cast<AWindCurrent>(A))
+			{
+				++Winds;
+				TestEqual(TEXT("current in Ella's plane"), static_cast<float>(W->GetActorLocation().Y), UmbrellaDrawOrder::EllaY);
+				TestTrue(TEXT("current has a direction"), !W->GetDirection().IsNearlyZero());
+			}
 		}
 		int32 PlannedTraps = 0;
 		int32 PlannedEnemies = 0;
+		int32 PlannedWinds = 0;
 		for (const FLevelPlacement& P : Director->GetPlan())
 		{
 			PlannedTraps += P.Kind == ELevelPlacementKind::Trap;
 			PlannedEnemies += P.Kind == ELevelPlacementKind::Enemy;
+			PlannedWinds += P.Kind == ELevelPlacementKind::Wind;
 		}
 		TestEqual(TEXT("traps spawned as planned"), Traps, PlannedTraps);
 		TestEqual(TEXT("enemies spawned as planned"), Enemies, PlannedEnemies);
+		TestTrue(TEXT("route has currents"), PlannedWinds >= 9 * 3);
+		TestEqual(TEXT("currents spawned as planned"), Winds, PlannedWinds);
 		AActor* Ella = World->SpawnActor<AActor>();
 		USceneComponent* EllaRoot = NewObject<USceneComponent>(Ella, TEXT("Root"));
 		Ella->SetRootComponent(EllaRoot);

@@ -81,7 +81,7 @@ void AUmbrellaGameMode::BeginRoute(APlayerController* Player, int64 Seed)
 	bFightStarted = true;
 	EnsurePlayerPawn(Player);
 	LevelDirector->SetArena(FindOrSpawnArena());
-	LevelDirector->PlaceAtCheckpoint(Player->GetPawn(), 1);
+	LevelDirector->PlaceAtCheckpoint(Player->GetPawn(), 0);   // a new run starts at CP0, the route start (group A first)
 }
 
 void AUmbrellaGameMode::PlaceAtLastCheckpoint(APlayerController* Player)

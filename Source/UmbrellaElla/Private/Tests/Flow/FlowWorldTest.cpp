@@ -164,7 +164,7 @@ bool FFlowWorldRouteTest::RunTest(const FString& Parameters)
 	{
 		return false;
 	}
-	TestEqual(TEXT("Ella stands at checkpoint 1"), Pawn->GetActorLocation().X, LevelPlan::CheckpointStandLocation(1).X);
+	TestEqual(TEXT("Ella stands at the route start (CP0)"), Pawn->GetActorLocation().X, LevelPlan::CheckpointStandLocation(0).X);
 	return true;
 }
 
