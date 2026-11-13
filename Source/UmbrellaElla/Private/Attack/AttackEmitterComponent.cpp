@@ -7,6 +7,7 @@
 #include "Core/UmbrellaTuning.h"
 #include "Engine/World.h"
 #include "Harness/UmbrellaFeatureFlags.h"
+#include "Motor/HeroSizeRules.h"
 #include "Projectile/UmbrellaProjectile.h"
 #include "Umbrella/UmbrellaAction.h"
 #include "Umbrella/UmbrellaPlayerIds.h"
@@ -129,7 +130,7 @@ void UAttackEmitterComponent::ShowBeam(const FAttackTuning& Tuning)
 	}
 	if (Beam)
 	{
-		FVector Muzzle = GetOwner()->GetActorLocation() + Tuning.MuzzleOffset;
+		FVector Muzzle = GetOwner()->GetActorLocation() + HeroSizeRules::MuzzleOffset(Tuning.MuzzleOffset, GetDefault<UUmbrellaTuning>()->Motor);
 		Beam->SetBeam(Muzzle, SpellRules::StreamLength(StreamHeldSeconds, Tuning), Tuning.StreamWidth);
 	}
 }
@@ -137,9 +138,9 @@ void UAttackEmitterComponent::ShowBeam(const FAttackTuning& Tuning)
 void UAttackEmitterComponent::FireVolley()
 {
 	const FAttackTuning& Tuning = ActiveTuning();
-	FVector Muzzle = GetOwner()->GetActorLocation() + Tuning.MuzzleOffset;
+	FVector Muzzle = GetOwner()->GetActorLocation() + HeroSizeRules::MuzzleOffset(Tuning.MuzzleOffset, GetDefault<UUmbrellaTuning>()->Motor);
 	Muzzle.Y = UmbrellaDrawOrder::ProjectileY;
-	for (const FUmbrellaShotSpec& Spec : SpellRules::BuildVolley(Equipped, Muzzle, Tuning))
+	for (const FUmbrellaShotSpec& Spec : SpellRules::BuildVolley(Equipped, Muzzle, Tuning, HeroSizeRules::ClampedHeroSize(GetDefault<UUmbrellaTuning>()->Motor)))
 	{
 		LastShot = Spec;
 		++ShotsFired;

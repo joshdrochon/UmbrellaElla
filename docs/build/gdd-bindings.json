@@ -2158,46 +2158,30 @@
    "owner": "enemies2 (Broken Mill, FBrokenMillTuning)",
    "missing": "lowered-step half-width 45",
    "was": "45 = half-width of the lowered step 230 +/- 45; see HAZ-06.before (no field)"
-  },
-  "HAZ-10.actor_scale": {
-   "owner": "motor (Core UmbrellaTuning request for a HeroSize field)",
-   "missing": "Ella actor scale 0.5 at HeroSize 1",
-   "was": "0.5 = Ella actor scale at HeroSize 1; no tuning field holds it (the muzzle offset it yields, +44/+6, is bound and currently mismatches)"
-  },
-  "HAZ-10.herosize": {
-   "owner": "motor (Core UmbrellaTuning request for a HeroSize field)",
-   "missing": "HeroSize field (reference value 1)",
-   "was": "1 = HeroSize of the reference muzzle offset; a test input, not a tuning field"
-  },
-  "HAZ-13.herosize": {
-   "owner": "motor (Core UmbrellaTuning request for a HeroSize field)",
-   "missing": "HeroSize field (upper range 1.3)",
-   "was": "1.3 = upper HeroSize of the supported range; HeroSize is a test-matrix input (BrokenMillTests GetMuzzleOffset(T, 1.3f)), not a tuning field"
-  },
-  "HAZ-14.herosize": {
-   "owner": "motor (Core UmbrellaTuning request for a HeroSize field)",
-   "missing": "HeroSize field (range 0.75-1.3)",
-   "was": "1 = HeroSize of the lowest-matrix pair in \"HeroSize 0.75/1.3\"; HeroSize is a test input (see HAZ-13.herosize)"
-  },
-  "HAZ-14.herosize.2": {
-   "owner": "motor (Core UmbrellaTuning request for a HeroSize field)",
-   "missing": "HeroSize field (lower range 0.75)",
-   "was": "0.75 = lower HeroSize of the supported range; a test input (see HAZ-13.herosize)"
-  },
-  "HAZ-14.value.2": {
-   "owner": "motor (Core UmbrellaTuning request for a HeroSize field)",
-   "missing": "HeroSize field (upper range 1.3)",
-   "was": "1.3 = upper HeroSize of the supported range; a test input (see HAZ-13.herosize)"
-  },
-  "HAZ-14.across": {
-   "owner": "motor (hitbox scale field)",
-   "missing": "hitbox scale field (upper 1)",
-   "was": "1 = upper hitbox scale of \"hitbox 0.75/1\"; a test-matrix input, no tuning field"
-  },
-  "HAZ-14.hitbox": {
-   "owner": "motor (hitbox scale field)",
-   "missing": "hitbox scale field (lower 0.75)",
-   "was": "0.75 = lower hitbox scale of \"hitbox 0.75/1\"; a test-matrix input, no tuning field"
   }
+ },
+ "HAZ-10.actor_scale": {
+  "tuning": "FMotorTuning.ActorScaleAtReference"
+ },
+ "HAZ-10.herosize": {
+  "tuning": "FMotorTuning.HeroSize"
+ },
+ "HAZ-13.herosize": {
+  "tuning": "FMotorTuning.HeroSizeMax"
+ },
+ "HAZ-14.herosize": {
+  "tuning": "FMotorTuning.HeroSize"
+ },
+ "HAZ-14.herosize.2": {
+  "tuning": "FMotorTuning.HeroSizeMin"
+ },
+ "HAZ-14.value.2": {
+  "tuning": "FMotorTuning.HeroSizeMax"
+ },
+ "HAZ-14.across": {
+  "tuning": "FMotorTuning.HitboxScaleMax"
+ },
+ "HAZ-14.hitbox": {
+  "tuning": "FMotorTuning.HitboxScaleMin"
  }
 }

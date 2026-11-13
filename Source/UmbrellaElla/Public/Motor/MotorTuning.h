@@ -76,4 +76,32 @@ struct UMBRELLAELLA_API FMotorTuning
 	/** A hop/dash press made this long before it is allowed still fires (pipeline/feel/feel.json forgiveness.toggle_buffer_s). */
 	UPROPERTY(Config, EditAnywhere, Category = "Motor", meta = (ClampMin = "0"))
 	float ToggleBufferSeconds = 0.1f;
+
+	/** HeroSize: Ella's size multiplier; 1 is the reference the muzzle fixture (+44/+6) and blast radius are measured at. Clamped to HeroSizeMin..HeroSizeMax. */
+	UPROPERTY(Config, EditAnywhere, Category = "Motor|HeroSize", meta = (ClampMin = "0.75", ClampMax = "1.3"))
+	float HeroSize = 1.0f; // bake: HAZ-10.herosize
+
+	/** Lowest supported HeroSize. */
+	UPROPERTY(Config, EditAnywhere, Category = "Motor|HeroSize", meta = (ClampMin = "0"))
+	float HeroSizeMin = 0.75f; // bake: HAZ-14.herosize
+
+	/** Highest supported HeroSize. */
+	UPROPERTY(Config, EditAnywhere, Category = "Motor|HeroSize", meta = (ClampMin = "0"))
+	float HeroSizeMax = 1.3f; // bake: HAZ-13.herosize
+
+	/** Ella's actor scale at HeroSize 1; the applied scale is this times HeroSize (GDD). */
+	UPROPERTY(Config, EditAnywhere, Category = "Motor|HeroSize", meta = (ClampMin = "0.01"))
+	float ActorScaleAtReference = 0.5f; // bake: HAZ-10.actor_scale
+
+	/** Hurtbox (capsule) scale on top of the actor scale; 1 is the full hitbox. Clamped to HitboxScaleMin..HitboxScaleMax. */
+	UPROPERTY(Config, EditAnywhere, Category = "Motor|HeroSize", meta = (ClampMin = "0.75", ClampMax = "1"))
+	float HitboxScale = 1.0f; // bake: HAZ-14.across
+
+	/** Lowest supported hitbox scale. */
+	UPROPERTY(Config, EditAnywhere, Category = "Motor|HeroSize", meta = (ClampMin = "0"))
+	float HitboxScaleMin = 0.75f; // bake: HAZ-14.hitbox
+
+	/** Highest supported hitbox scale. */
+	UPROPERTY(Config, EditAnywhere, Category = "Motor|HeroSize", meta = (ClampMin = "0"))
+	float HitboxScaleMax = 1.0f; // bake: HAZ-14.across
 };

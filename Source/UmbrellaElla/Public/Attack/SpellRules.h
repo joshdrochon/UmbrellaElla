@@ -48,7 +48,7 @@ namespace SpellRules
 	UMBRELLAELLA_API FSpellProfile GetProfile(EUmbrellaSpell Spell, const FAttackTuning& Tuning);
 
 	/** The shots one volley of a spell fires from Muzzle (Streamed Blast: one damage pulse per tick). All go to +X. */
-	UMBRELLAELLA_API TArray<FUmbrellaShotSpec> BuildVolley(EUmbrellaSpell Spell, const FVector& Muzzle, const FAttackTuning& Tuning);
+	UMBRELLAELLA_API TArray<FUmbrellaShotSpec> BuildVolley(EUmbrellaSpell Spell, const FVector& Muzzle, const FAttackTuning& Tuning, float HeroSize = 1.0f);
 
 	/** Streamed Blast beam length after being held HeldSeconds: grows at the growth speed up to the maximum range. */
 	UMBRELLAELLA_API float StreamLength(float HeldSeconds, const FAttackTuning& Tuning);
