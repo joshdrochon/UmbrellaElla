@@ -1,0 +1,109 @@
+{
+ "character": "ella",
+ "anim": "Open",
+ "builder": "ella",
+ "asset": "Ella",
+ "frame_size": [
+  432,
+  352
+ ],
+ "pivot_px": [
+  229.0,
+  188.0
+ ],
+ "faces": "right",
+ "px_per_unit": 70.0,
+ "fps": 24,
+ "loop": false,
+ "layout": "CHR_Witch_Cast.png",
+ "poses": [
+  {
+   "index": 0,
+   "rot": {
+    "skirt": -6.0,
+    "umbrella_arm": -90.0,
+    "wand_arm": 0.0
+   },
+   "canopy": 0.0,
+   "lift": 0.0
+  },
+  {
+   "index": 1,
+   "rot": {
+    "skirt": -4.0,
+    "umbrella_arm": -60.0,
+    "wand_arm": 3.3333
+   },
+   "canopy": 0.3333,
+   "lift": 0.6667
+  },
+  {
+   "index": 2,
+   "rot": {
+    "skirt": -2.0,
+    "umbrella_arm": -30.0,
+    "wand_arm": 6.6667
+   },
+   "canopy": 0.6667,
+   "lift": 1.3333
+  },
+  {
+   "index": 3,
+   "rot": {
+    "skirt": 0.0,
+    "umbrella_arm": 0.0,
+    "wand_arm": 10.0
+   },
+   "canopy": 1.0,
+   "lift": 2.0
+  }
+ ],
+ "colours": {
+  "paper-light": "#aa8f7f",
+  "paper-mid": "#93786b",
+  "paper-stain": "#7b6157",
+  "etch-line": "#c4a999",
+  "owl-umber": "#3a2c25",
+  "owl-feather": "#5c473e",
+  "silhouette": "#1d1713",
+  "spark-white": "#fff3d6",
+  "gold": "#e9c46a",
+  "amber-eye": "#ffc76a",
+  "rust-red": "#743422",
+  "ink": "#171614",
+  "wind-ash-blue": "#555e60",
+  "red": "#ff3658",
+  "coral": "#ff7848",
+  "red shadow": "#8f173c",
+  "yellow": "#ffd84a",
+  "amber": "#f5aa28",
+  "yellow shadow": "#94611e",
+  "core": "#fff5dc"
+ },
+ "look": {
+  "shades": [
+   "ink",
+   "silhouette",
+   "owl-umber"
+  ],
+  "ink": "ink",
+  "line_px": 1.6,
+  "grain": 0.06,
+  "grain_scale": 180.0,
+  "seed": 11,
+  "light_deg": [
+   62,
+   0,
+   18
+  ],
+  "samples": 16
+ },
+ "out_dir": "Art/Source/Ella/Raw/Open",
+ "frames": [
+  "Art/Source/Ella/Raw/Open/Ella_Open_00.png",
+  "Art/Source/Ella/Raw/Open/Ella_Open_01.png",
+  "Art/Source/Ella/Raw/Open/Ella_Open_02.png",
+  "Art/Source/Ella/Raw/Open/Ella_Open_03.png"
+ ],
+ "blend": "Art/Source/Ella/Raw/Open/Ella_Open.blend"
+}
