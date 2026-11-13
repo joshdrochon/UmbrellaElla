@@ -174,6 +174,12 @@ void UAgentPlayHookSubsystem::TickPaused()
 	{
 		WriteFrame();
 	}
+	if (IFileManager::Get().FileExists(*FilePath(AgentPlayRules::StopFileName())))
+	{
+		// The player ended the attempt (stop.txt): the numbers are still measured and written.
+		Finish(TEXT("stopped"));
+		return;
+	}
 	const FString Path = FilePath(AgentPlayRules::TurnFileName(TurnNumber + 1));
 	FString Text;
 	if (IFileManager::Get().FileExists(*Path) && FFileHelper::LoadFileToString(Text, *Path))

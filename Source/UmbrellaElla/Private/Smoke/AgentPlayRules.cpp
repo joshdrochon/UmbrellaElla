@@ -160,6 +160,11 @@ FString AgentPlayRules::TurnFileName(int32 TurnNumber)
 	return FString::Printf(TEXT("turn_%04d.txt"), TurnNumber);
 }
 
+FString AgentPlayRules::StopFileName()
+{
+	return TEXT("stop.txt");
+}
+
 FString AgentPlayRules::FrameFileName(int32 FrameNumber)
 {
 	return FString::Printf(TEXT("f%06d.jpg"), FrameNumber);

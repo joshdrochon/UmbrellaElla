@@ -83,6 +83,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FAgentPlayFilesAndFrames, "UmbrellaElla.Smoke.A
 bool FAgentPlayFilesAndFrames::RunTest(const FString& Parameters)
 {
 	TestEqual(TEXT("turn file"), AgentPlayRules::TurnFileName(7), FString(TEXT("turn_0007.txt")));
+	TestEqual(TEXT("stop file"), AgentPlayRules::StopFileName(), FString(TEXT("stop.txt")));
 	TestEqual(TEXT("frame file"), AgentPlayRules::FrameFileName(12), FString(TEXT("f000012.jpg")));
 	TestFalse(TEXT("frame not due"), AgentPlayRules::IsFrameDue(0.10, 0.15));
 	TestTrue(TEXT("frame due"), AgentPlayRules::IsFrameDue(0.15, 0.15));

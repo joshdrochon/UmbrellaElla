@@ -66,6 +66,9 @@ namespace AgentPlayRules
 	/** Turn file name for a turn number: turn_0007.txt. */
 	UMBRELLAELLA_API FString TurnFileName(int32 TurnNumber);
 
+	/** The file the player writes to end the attempt: stop.txt. */
+	UMBRELLAELLA_API FString StopFileName();
+
 	/** Frame file name for a frame number: f000012.jpg. */
 	UMBRELLAELLA_API FString FrameFileName(int32 FrameNumber);
 

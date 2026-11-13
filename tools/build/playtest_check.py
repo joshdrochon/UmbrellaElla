@@ -10,8 +10,9 @@ Run log lines (key=value, written by the scripted run in Source/UmbrellaElla/Pri
   PLAYTEST_CAM07   case=ontime|late|missed reopen_root_z= min_root_z= min_clear= caught=0|1
                    required_current_active=0|1 challenge_clear=0|1   (played fold from RESET and reopen)
   PLAYTEST_FLOW28  health_before= health_after= max= threats= framing_settled=0|1 boss_began=0|1
-  PLAYTEST_HAZ16   res=WxH debug=0|1 health=healthy|low attempts= useful_hits= damage= reset_s= warned=0|1
-                   autoaim=0|1 invuln=0|1 teleport=0|1 boring=0|1 cleared=0|1
+  PLAYTEST_HAZ16   res=WxH debug=0|1 health=healthy|low profile=natural|comparison source=agent attempts= useful_hits=
+                   damage= reset_s= idle_s= warned=0|1 warning_recognised=0|1 autoaim=0|1 invuln=0|1 teleport=0|1
+                   understood=0|1 boring=0|1 cleared=0|1 expect=0|1 plan=0|1 words=0|1   (agent_play.py; others ignored)
 Every line ends relay=0|1. relay=1 lines come from -PlaytestWindRelay diagnosis runs (wind events re-sent with the
 contract player id); they are printed as a projection and never count toward a row's verdict.
 Usage: playtest_check.py LOG [--json]   exit 0 = every row passes, 1 = a row fails or has no measurement.
@@ -121,22 +122,45 @@ def check_flow28(recs):
     return errs
 
 
+HAZ16_SMALL = "1280x720"
+HAZ16_LARGE = ("1728x1117", "1920x1080")  # D-new-haz16-agent-playtest: this Mac's largest, or the Windows 1920x1080 run
+
+
 def check_haz16(recs):
+    """HAZ-16 human acceptance by the agent play-tester (tools/build/agent_play.py). Only source=agent lines count: the
+    scripted run drives Ella with a route driver, which cannot prove discovery. Natural 10 HP lines decide; a
+    profile=comparison (20 HP) line is a design comparison and only valid after a natural line the player rejected."""
     errs = []
-    res = {r.get("res") for r in recs}
-    if not {"1280x720", "1920x1080"} <= res:
-        errs.append("need runs at 1280x720 and 1920x1080")
-    if not {"healthy", "low"} <= {r.get("health") for r in recs}:
-        errs.append("need healthy and low health runs")
-    for r in recs:
+    agent = [r for r in recs if r.get("source") == "agent"]
+    if not agent:
+        return ["no agent play-test lines (scripted runs do not prove discovery; run tools/build/agent_play.py)"]
+    natural = [r for r in agent if r.get("profile", "natural") == "natural"]
+    comparison = [r for r in agent if r.get("profile") == "comparison"]
+    res = {r.get("res") for r in natural}
+    if HAZ16_SMALL not in res:
+        errs.append("need natural runs at %s" % HAZ16_SMALL)
+    if not res & set(HAZ16_LARGE):
+        errs.append("need a natural run at %s (Mac) or %s (Windows check)" % HAZ16_LARGE)
+    for size in sorted(res):
+        if not {"healthy", "low"} <= {r.get("health") for r in natural if r.get("res") == size}:
+            errs.append("%s: need healthy and low health runs" % size)
+    for r in natural:
+        tag = "%s/%s" % (r.get("res"), r.get("health"))
         if r.get("debug") != "0":
-            errs.append("debug draw on")
+            errs.append("%s: debug draw on" % tag)
         if "1" in (r.get("autoaim"), r.get("invuln"), r.get("teleport")):
-            errs.append("autoaim/invulnerability/teleport cannot pass fairness")
+            errs.append("%s: autoaim/invulnerability/teleport cannot pass fairness" % tag)
         if r.get("boring") == "1":
-            errs.append("rejected as boring")
+            errs.append("%s: rejected as boring" % tag)
         if r.get("cleared") != "1":
-            errs.append("room not cleared")
+            errs.append("%s: room not cleared" % tag)
+        if int(r.get("attempts", 0) or 0) < 1:
+            errs.append("%s: no attempts" % tag)
+        for k, what in (("expect", "expected solid/harmful/background"), ("plan", "descent/reset plan"), ("words", "player's words")):
+            if r.get(k) != "1":
+                errs.append("%s: missing %s" % (tag, what))
+    if comparison and not any(r.get("boring") == "1" and r.get("understood") == "1" for r in natural):
+        errs.append("20 HP comparison without a natural run the player understood and rejected as boring")
     return errs
 
 

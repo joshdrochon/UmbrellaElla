@@ -16,8 +16,10 @@ PLAYTEST_CAM07 case=ontime reopen_root_z=270 min_root_z=270 min_clear=102 caught
 PLAYTEST_CAM07 case=late reopen_root_z=210 min_root_z=210 min_clear=42 caught=1 required_current_active=1 challenge_clear=0
 PLAYTEST_CAM07 case=missed reopen_root_z=150 min_root_z=150 min_clear=-18 caught=0 required_current_active=1 challenge_clear=0
 PLAYTEST_FLOW28 health_before=6 health_after=6 max=10 threats=0 framing_settled=1 boss_began=1
-PLAYTEST_HAZ16 res=1280x720 debug=0 health=healthy autoaim=0 invuln=0 teleport=0 boring=0 cleared=1
-PLAYTEST_HAZ16 res=1920x1080 debug=0 health=low autoaim=0 invuln=0 teleport=0 boring=0 cleared=1
+PLAYTEST_HAZ16 res=1280x720 debug=0 health=healthy profile=natural source=agent attempts=3 autoaim=0 invuln=0 teleport=0 boring=0 cleared=1 expect=1 plan=1 words=1
+PLAYTEST_HAZ16 res=1280x720 debug=0 health=low profile=natural source=agent attempts=3 autoaim=0 invuln=0 teleport=0 boring=0 cleared=1 expect=1 plan=1 words=1
+PLAYTEST_HAZ16 res=1728x1117 debug=0 health=healthy profile=natural source=agent attempts=3 autoaim=0 invuln=0 teleport=0 boring=0 cleared=1 expect=1 plan=1 words=1
+PLAYTEST_HAZ16 res=1728x1117 debug=0 health=low profile=natural source=agent attempts=3 autoaim=0 invuln=0 teleport=0 boring=0 cleared=1 expect=1 plan=1 words=1
 """
 
 class T(unittest.TestCase):
