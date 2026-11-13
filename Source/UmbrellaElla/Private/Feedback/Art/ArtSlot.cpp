@@ -141,6 +141,7 @@ void ArtSlot::SetFlatUnlit(UStaticMeshComponent* Mesh, UObject* Outer, const FLi
 	Dynamic->SetTextureParameterValue(ArtSlotParam, White);
 	Dynamic->SetVectorParameterValue(ArtSlotTintParam, Color);
 	Mesh->SetMaterial(0, Dynamic);
+	Mesh->ComponentTags.Remove(ArtSlotTag);
 	Mesh->SetCastShadow(false);
 }
 
@@ -172,7 +173,8 @@ void ArtSlot::SetTexture(UStaticMeshComponent* Mesh, UTexture2D* Texture)
 bool ArtSlot::IsDrawingArt(const UStaticMeshComponent* Mesh)
 {
 	const UMaterialInstanceDynamic* Dynamic = IsValid(Mesh) ? Cast<UMaterialInstanceDynamic>(Mesh->GetMaterial(0)) : nullptr;
-	return Dynamic && Dynamic->Parent && Dynamic->Parent->GetPathName() == UmbrellaArtSlotConst::MaterialPath;
+	// The flat unlit stand-in uses the same material; only Apply tags a component as drawing a picture.
+	return Dynamic && Mesh->ComponentHasTag(ArtSlotTag) && Dynamic->Parent && Dynamic->Parent->GetPathName() == UmbrellaArtSlotConst::MaterialPath;
 }
 
 void ArtSlot::SetFrame(UStaticMeshComponent* Mesh, int32 Frame)
