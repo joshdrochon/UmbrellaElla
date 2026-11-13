@@ -45,3 +45,8 @@
 - Clock-beat context import (sheet5 -> VFX_ClockBeat_PH) is running in the background (`../logs/artfx2-import.log`); it got an engine slot this time. Capture and panel still to do after it lands.
 - Spend counter: 28.99 of 33.82. Only about 4.8 left for every lane, so paint per piece stays at one draft per round until the lead says more.
 - Left: keeper-warning v2; keeper-strike; clock-beat panel after capture; clock-open, eye-exposed, recovery, departure, restoration.
+
+## Slice 7b (Nov 13): keeper-warning draft 2
+- Draft 2 (soft glowing ring + one ray, flash $0.039, `KeeperWarning/strip2.png`, `sheet2.png`): art_judge 0.568 vs min 0.699, closest is the tell-ring crop (draft 1 0.462). Better, not passed; look is glossy (no ink, no grain), so the blind critic will likely fail it.
+- Clock-beat import: the editor run exited with no import and no error; `T_VFX_ClockBeat_PH.uasset` unchanged. Cause not found yet; no capture, so no panel.
+- Spend 29.16 of 33.82.
