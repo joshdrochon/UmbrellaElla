@@ -1,0 +1,72 @@
+{
+ "id": "ella-closed",
+ "records": [
+  {
+   "piece": "ella-closed",
+   "round": 1,
+   "verdict": "reference",
+   "checks": false,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "fail"
+   },
+   "pairs": {
+    "quality_bar": "reference",
+    "reference": "reference"
+   },
+   "panel": 2,
+   "calibration": {
+    "sessions": 9,
+    "passed": 7
+   },
+   "missing": [
+    "context (no in-engine capture made after the piece: import it and run the smoke, whose screenshot is the capture)",
+    "quality_bar:pipeline/art/reference/discord/20261111-0319_Ricky_roadwarden-sundial-casters.png",
+    "reference:pipeline/art/reference/Rehearsal/Ella/Ella-FreeFall-03.png (2/3 calibrated sessions)",
+    "reference:pipeline/art/reference/Rehearsal/Ella/Ella-Shooting-03.png (2/3 calibrated sessions)"
+   ],
+   "critic_sessions": [],
+   "files": "42cbf663e5eaec61d88d4c505176c63a4b704cbfb6dda46349919835c7815971",
+   "file": "Art/Source/Ella/Raw/GP_PH/Ella_closed_GP_PH.png",
+   "card": "MVP 15",
+   "refs": "5abdd1644674",
+   "commit": "25dd62a1f1fb",
+   "gap": "Y is a flat, crudely drawn figure with thin hatching, a staff in place of the umbrella and a stiff standing pose, so its finish and value structure are far weaker.; X is a single flat-ish frame with a plain staff instead of the umbrella, so there is no canopy, clock-hand terminal or finial, and no sheet motion to judge.; Y is a flat, grounded, standing figure with a staff and no umbrella, with thin fills and no airborne pose or motion.; Y is flat, crude vector shapes with no etched line work or paper texture, and the figure is standing and grounded, not airborne.; X is a static, grounded, staff-carrying figure with a visible face, not an airborne right-facing Ella with an umbrella. Its line work is also cruder.",
+   "at": "2026-11-13T00:35:04Z"
+  },
+  {
+   "piece": "ella-closed",
+   "round": 2,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "ours",
+    "reference": "reference"
+   },
+   "panel": 3,
+   "calibration": {
+    "sessions": 9,
+    "passed": 9
+   },
+   "missing": [
+    "context (no in-engine capture made after the piece: import it and run the smoke, whose screenshot is the capture)",
+    "reference:pipeline/art/reference/Rehearsal/Ella/Ella-FreeFall-03.png",
+    "reference:pipeline/art/reference/Rehearsal/Ella/Ella-Shooting-03.png"
+   ],
+   "critic_sessions": [],
+   "files": "59419f2af371be1f8c748c0ca107937d4ba354262f162799d4cd2b8853848ac3",
+   "file": "Art/Source/Ella/Raw/GP_PH/Ella_closed_GP_PH.png",
+   "card": "MVP 15",
+   "refs": "5abdd1644674",
+   "commit": "98556bab2e75",
+   "gap": "X is a single flat, stiff vector figure with no etched line work or paper texture, and its umbrella is a loose bundle of shapes.; Y has crude, stamped speckle texture, a blocky silhouette, flat tan hair and scarf, and no fine etched detail.; X has a crude blotchy fill, a flat hair mass and a stiff scarf, with no fine etched linework or layered cloth detail.; X is a crude flat single frame with no etched line work or ink-on-paper texture, and no separate gold magic.; X has a flat, speckled fill and a thick uniform outline. Its hair and scarf are blank pale bands, and the umbrella and hands are crude.; X is a single frame with stiff, flat-cut shapes, a streaky tan hair block and a blobby hat, and it has no line-weight finish or motion consistency.",
+   "at": "2026-11-13T00:47:49Z"
+  }
+ ]
+}

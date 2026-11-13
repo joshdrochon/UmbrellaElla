@@ -40,7 +40,7 @@
     "agent-ops": "Agent Ops"
   },
   "_kickoff_only_about": "Files only kickoff's own art loop writes and commits (tools/art_loop.py write_record, run by tools/kickoff.py): the art-loop pass records. Every agent session is refused a write (pipeline/agent-ops/hook.py guard; no git hook checks commits); the ship gates re-run the checks anyway (check_pr.py artship, submission_check.py art).",
-  "kickoff_only_paths": ["**/*.artloop.json"],
+  "kickoff_only_paths": ["**/*.artloop.json", "pipeline/art/critic/**"],
   "role_deny": {
     "asset-specialist": [
       "Source/**",
