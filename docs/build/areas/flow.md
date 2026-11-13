@@ -3,7 +3,7 @@
 Branch `area/flow`. Read `docs/build/worker-rules.md` first.
 
 ## Rule IDs
-G1 first: FLOW-02, FLOW-04, FLOW-34, FLOW-35, ART-04 (start screen with Start Game and Start Director's Cut; Start Game
+G1 first: FLOW-02, FLOW-04, FLOW-34, FLOW-35, ART-04 (start screen with Start Game and Director's Cut; Start Game
 goes straight to the Keeper with one basic shot; pause with Continue, Settings, Quit; defeat retry screen; the win:
 story text over the background, then credits), plus the smoke hook (below).
 Later (G2/G3): FLOW-03 (first-start tutorials in both modes, Pause then Skip at every step), FLOW-41 (pause and start
