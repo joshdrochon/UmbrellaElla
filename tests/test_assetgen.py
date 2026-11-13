@@ -34,7 +34,7 @@ class Work(unittest.TestCase):
                         ignore=shutil.ignore_patterns("__pycache__"))
         for sub in ("agent-ops", "art", "audio"):
             shutil.copytree(os.path.join(ROOT, "pipeline", sub), os.path.join(self.repo, "pipeline", sub),
-                            ignore=shutil.ignore_patterns("reference", "__pycache__"))
+                            ignore=shutil.ignore_patterns("reference", "proof", "__pycache__"))   # proof is ~800 MB of lane output no test reads (Nov 13: disk churn)
         lay = os.path.join("pipeline", "art", "reference", "Test_Assets", "SpriteLayout.json")   # the layout entry
         os.makedirs(os.path.dirname(os.path.join(self.repo, lay)), exist_ok=True)
         shutil.copy(os.path.join(ROOT, lay), os.path.join(self.repo, lay))

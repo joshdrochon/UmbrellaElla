@@ -1,0 +1,36 @@
+{
+ "provider": "gemini",
+ "tool": "Gemini API image generation (Google)",
+ "model": "gemini-3.1-flash-image-preview",
+ "model_version": "gemini-3.1-flash-image-preview",
+ "prompt": "Four animation frames of a block cue: a gold magic shot meets a protected target and is turned away without harm; only the ring and the sparks are drawn, no person, umbrella, owl or target body, painted side by side on one wide, flat green field. Only the effect is drawn. The four frames stand in one row on the same horizontal centre line, their centres at exactly one eighth, three eighths, five eighths and seven eighths of the picture width, so every frame has the same amount of empty green on both sides and never touches its neighbour or the picture edge. The picture is a wide 16:9 landscape, a flat, face-on emblem drawn straight on and seen at the distance of a game sprite, with each frame surrounded by clear green. Frame 1: the gold star shot head meeting a small round ward, a thin gold ring, empty in the middle, with a faint cream flash where the star touches its left edge. Frame 2: the ring flares into a full round ring of gold with a slightly pointed lower edge, an empty centre and no emblem inside with a bright cream spark on its left edge and four short gold blades glancing away at a slant. Frame 3: the ring holds, thinning, the glancing blades flying off at a slant, a few tiny gold sparks. Frame 4: only the faint outline of the ring and two or three tiny gold specks, the faintest frame. Warm gold #E9C46A, amber #F5AA28, deep bronze #94611E and pale cream #FFF5DC with ink. Light comes from one source, in front and slightly above, so upper edges are brighter and lower edges are shaded. Style: a dark painterly etched storybook illustration, ink and wash with fine etched cross-hatching and a faint paper grain inside the shapes only. Every large shape has a heavy, confident near-black ink outline #171614 about a tenth of its width at the base, thicker on the lower edge, like a woodcut; the tiny sparks, specks and dashes carry only a hairline ink edge so they stay coloured rather than turning black. Each large shape is modelled in clear value steps from a pale upper facet to a deep shaded lower facet with dense etched hatching on the shaded side, so it reads as a solid carved form. The background is one perfectly flat, even, uniform pure green #00FF00 filling the canvas edge to edge, with the shapes cut cleanly against it. The image contains only the four frames floating alone on one bare green field, free of text, labels, numbers, grid lines, borders and watermark.",
+ "seed": "",
+ "size": "1024x1024",
+ "quality": "medium",
+ "aspect_ratio": "21:9",
+ "image_size": "1K",
+ "input_images": [],
+ "cost_usd": 0.067277,
+ "reply": {
+  "usage": {
+   "promptTokenCount": 553,
+   "candidatesTokenCount": 1669,
+   "totalTokenCount": 2222,
+   "promptTokensDetails": [
+    {
+     "modality": "TEXT",
+     "tokenCount": 553
+    }
+   ],
+   "candidatesTokensDetails": [
+    {
+     "modality": "IMAGE",
+     "tokenCount": 1120
+    }
+   ],
+   "serviceTier": "standard"
+  },
+  "finish": "STOP"
+ },
+ "date": "2026-11-13T07:55+00:00"
+}

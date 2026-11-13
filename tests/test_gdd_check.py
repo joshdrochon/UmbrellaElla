@@ -220,29 +220,29 @@ class CheckTests(unittest.TestCase):
         with Tree() as t:
             spec = json.loads(gdd_check._read(t.path("docs/build/gdd-spec.json")))["values"]
             b = self._bindings(t)
-            self.assertNotIn("HAZ-10.actor_scale", b["unbindable"])
-            self.assertEqual(b["not_in_game"]["HAZ-10.actor_scale"]["owner"].split()[0], "motor")
+            self.assertNotIn("CAM-06.h.2", b["unbindable"])
+            self.assertEqual(b["not_in_game"]["CAM-06.h.2"]["owner"].split()[0], "arena")
             lines, fails = t.check()
-            p0 = [l for l in lines if l.startswith("FAIL NOT_IN_GAME P0 HAZ-10.actor_scale")]
-            self.assertTrue(p0 and "owner=motor" in p0[0] and "missing=" in p0[0], p0)
+            p0 = [l for l in lines if l.startswith("FAIL NOT_IN_GAME P0 CAM-06.h.2")]
+            self.assertTrue(p0 and "owner=arena" in p0[0] and "missing=" in p0[0], p0)
             self.assertGreater(fails, 0)
             # a P1/P2 value only warns (every spec value is P0 today, so demote one)
-            k = "HAZ-10.actor_scale"
+            k = "CAM-06.h.2"
             spec[k]["priority"] = "P1"
             t.write("docs/build/gdd-spec.json", json.dumps({"values": spec}))
             lines, _ = gdd_check.check(t.dir, check_fresh=False)
             self.assertTrue([l for l in lines if l.startswith(f"WARN NOT_IN_GAME {k} ")])
             self.assertFalse([l for l in lines if l.startswith("FAIL") and k in l])
-            self.assertRegex(lines[-1], r"NOT_IN_GAME_P0=23 NOT_IN_GAME_P1P2=1 UNBOUND_P0=0")
+            self.assertRegex(lines[-1], rf"NOT_IN_GAME_P0={len(b['not_in_game']) - 1} NOT_IN_GAME_P1P2=1 UNBOUND_P0=0")
 
     def test_not_in_game_needs_owner_missing_and_a_spec_key(self):
         with Tree() as t:
             b = self._bindings(t)
-            b["not_in_game"]["HAZ-10.actor_scale"] = {"owner": "motor"}
+            b["not_in_game"]["CAM-06.h.2"] = {"owner": "arena"}
             b["not_in_game"]["ZZZ-01.gone"] = {"owner": "a", "missing": "b"}
             t.write("docs/build/gdd-bindings.json", json.dumps(b))
             lines = fail_lines(t.check()[0])
-            self.assertTrue([l for l in lines if l.startswith("FAIL not_in_game HAZ-10.actor_scale: needs owner and missing")])
+            self.assertTrue([l for l in lines if l.startswith("FAIL not_in_game CAM-06.h.2: needs owner and missing")])
             self.assertTrue([l for l in lines if l.startswith("FAIL not_in_game ZZZ-01.gone")])
 
 

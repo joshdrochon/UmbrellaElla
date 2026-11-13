@@ -1,0 +1,4 @@
+ROLE: Art Director | session 2026-11-12 (fresh review of prompt.v1.txt, no image call)
+
+Verdict: apply fixes. Changes: owl wing mention removed (model would draw an owl; effect only); 'north-wind face' removed (would paint a face); frame 3 gets spacing so ribbons stay separate. Ash blue #8FA3B0 kept per brief (the bible's measured wind accent is #555e60, darker and in the 6% cap; the gate may push it darker, Producer's call).
+Common fixes: aspect stated (wide 16:9, clear green round each frame); ink 'wide relative to the shape' made relative (a tenth of width) with hairline ink for tiny sparks so frame 4 stays coloured; positive phrasing for the tail and perspective clauses. Kept: narrative, pose first, one style block, centres at 1/8..7/8, ink #171614 and palette per art-bible. Risk: judge at gameplay size, hatching may read as a sticker.

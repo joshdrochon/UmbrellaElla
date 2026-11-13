@@ -1,0 +1,32 @@
+{
+ "element": "vfx-eye-exposed",
+ "note": "crops of the effect cut from the concept sheets; originals untouched",
+ "crops": [
+  {
+   "file": "clock-detail.png",
+   "source": "pipeline/art/reference/discord/20261110-1220_Ricky_1.png",
+   "box": [
+    1265,
+    540,
+    1485,
+    790
+   ],
+   "key": "paper",
+   "pieces": "all",
+   "opaque_px": 42687
+  },
+  {
+   "file": "glass-crack.png",
+   "source": "pipeline/art/reference/discord/20261110-1220_Ricky_1.png",
+   "box": [
+    170,
+    120,
+    330,
+    260
+   ],
+   "key": "ellipse",
+   "pieces": "all",
+   "opaque_px": 17720
+  }
+ ]
+}
