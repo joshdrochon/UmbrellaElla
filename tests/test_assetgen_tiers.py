@@ -423,3 +423,16 @@ class StyleBlock(unittest.TestCase):
         finally:
             if old is not None:
                 os.environ["ASSETGEN_NO_STYLE"] = old
+
+
+class SpendByProvider(unittest.TestCase):
+    """The counter and the status line give each provider's spend against its own cap (Nov 13)."""
+    def test_each_provider_against_its_own_cap(self):
+        d = {"spent_usd": 34.97, "calls": [{"provider": "fal", "cost_usd": 12.0}, {"provider": "openrouter", "cost_usd": 0.5},
+                                           {"provider": "gemini", "cost_usd": 22.47}]}
+        b = assetgen.by_provider(d, 33.82)
+        self.assertAlmostEqual(b["gemini"]["spent_usd"], 22.47)
+        self.assertAlmostEqual(b["gemini"]["left_usd"], 11.35)
+        self.assertAlmostEqual(b["fal"]["spent_usd"], 12.0)
+        self.assertAlmostEqual(b["openrouter"]["spent_usd"], 0.5)
+        self.assertIn("gemini $22.47/$33.82", assetgen.spend_line(d, 33.82))
