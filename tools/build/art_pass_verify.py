@@ -30,6 +30,15 @@ import art_loop  # noqa: E402
 CRITIC = art_loop.CRITIC_DIR
 
 
+
+def _is_screen(piece):
+    """Same rule as tools/art_loop.py is_screen: a UI screen piece has no context pair."""
+    try:
+        import art_loop
+        return art_loop.is_screen(art_loop.ROOT, piece)
+    except Exception:
+        return False
+
 def claims_pass(rec):
     return isinstance(rec, dict) and rec.get("verdict") in ("ours", "same") and bool(rec.get("checks"))
 
@@ -113,7 +122,7 @@ def verify_record(root, piece, rec, newest=True, remeasure=True):
     # what a pass needs, from the evidence itself
     kinds = {c.split(":", 1)[0] for c in man.get("required") or []}
     need = {"reference", "quality_bar"} | ({"motion"} if man.get("sheet") else set()) | \
-        ({"context"} if piece != "scene" else set())
+        ({"context"} if piece != "scene" and not _is_screen(piece) else set())   # a UI screen's capture is its own context
     if need - kinds:
         probs.append(f"the panel did not judge {', '.join(sorted(need - kinds))}")
     if not art_loop.panel_passed(dict(got, checks=rec.get("checks"), results=man.get("results"), combos=man["required"])):
