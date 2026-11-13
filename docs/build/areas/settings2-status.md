@@ -31,3 +31,11 @@ Evidence: not re-run after this fix; the build lead's gate runs build and tests 
   gameplay backdrop parallax 0, looping VFX frame 0 (`VfxCatalog::FrameAt(..., bReducedMotion)`).
 - Test: `UmbrellaElla.Settings.World.AccessibilityReachesReaders` extended. Targeted run (Flow, Settings, Story, Feedback): 92 pass.
 - Left: Keeper hover has no reader; screen shake does not exist.
+
+## Merge of main into settings2 (Nov 13)
+- Resolved conflicts in FlowMenuWidgets, StoryWidgets, UmbrellaPlayerController: main's shared UI style kept, text scale
+  (`PublishedFontSize`) and reduced motion re-applied on its fonts and backdrop.
+- Evidence at 207400a3: build exit 0, 0 warnings; module_check 0 problems; targeted run (Settings, Flow, Story, Feedback): 97 of 98 pass.
+- Failing: `UmbrellaElla.Feedback.World.ArtSlotKeeperEnemy` ("keeper takes a picture": Keeper ShowArt not Drawn). Keeper
+  presenter is not in this lane and no settings2 change touches it; not triaged against main. Keeper lane / build lead to check.
+- Left: Keeper hover has no reader; screen shake does not exist.
