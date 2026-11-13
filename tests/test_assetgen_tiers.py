@@ -51,6 +51,19 @@ class Tiers(img.ImageWork):
     def img_env(self, **extra):
         return super().img_env(**dict({"OPENROUTER_API_KEY": OR_KEY}, **extra))
 
+    def stub_checks(self, passing):
+        """Replace the temp repo's art_check / art_judge with stubs that pass or fail (no real measuring)."""
+        t = os.path.join(self.repo, "tools")
+        with open(os.path.join(t, "art_check.py"), "w") as fh:
+            fh.write("def measure(p, st): return {}\ndef evaluate(m, st): return %s\n" % ("[]" if passing else "['too flat']"))
+        with open(os.path.join(t, "art_judge.py"), "w") as fh:
+            fh.write("def element(i, files, refs, roots, only): return None, [(files[0], %s, 'x')], []\n" % (
+                "9.0" if passing else "0.0"))
+
+    def plant_draft(self, passing):
+        self.stub_checks(passing)
+        return self.plant("Art/Source/Ella/draft.png")
+
     def last_call(self):
         return self.counter()["calls"][-1]
 
@@ -59,7 +72,8 @@ class Tiers(img.ImageWork):
         self.assertEqual(rc, 0, o)
         self.assertEqual(self.last_call()["model"], DRAFT)
         self.assertEqual(self.last_call()["tier"], "draft")
-        rc, o = self.paint("Art/Source/Ella/f.png", "--tier", "final", "--image-size", "2K")
+        draft = self.plant_draft(passing=True)
+        rc, o = self.paint("Art/Source/Ella/f.png", "--tier", "final", "--image-size", "2K", "--from-draft", draft)
         self.assertEqual(rc, 0, o)
         self.assertEqual((self.last_call()["model"], self.last_call()["tier"]), (FINAL, "final"))
         self.assertIn(f"tier=final model={FINAL}", self.prov_row("Art/Source/Ella/f.png")["origin"])
@@ -130,6 +144,56 @@ class Tiers(img.ImageWork):
                            IMAGE_SPEND_CAP_USD="0.64")
         self.assertEqual(rc, 0, o)
         self.assertEqual(self.last_call()["provider"], "gemini")
+
+
+class SpendGuards(Tiers):
+    """Josh's image-spend guards (Nov 13): piece named, in-game context shot, draft first, per-piece cap."""
+
+    def calls(self):
+        return len(self.http())
+
+    def test_a_paid_call_must_name_its_piece(self):
+        rc, o = self.ag("image", "--prompt", "p", "--out", "Art/Source/Ella/a.png", **self.img_env())
+        self.assertEqual(rc, 2, o)
+        self.assertIn("PIECE REQUIRED", o)
+        self.assertEqual(self.calls(), 0)
+
+    def test_in_game_piece_refused_until_main_has_the_smoke_shot_but_ui_screen_paints(self):
+        rc, o = self.paint("Art/Source/Ella/a.png", "--piece", "ella-up-open")
+        self.assertEqual(rc, 2, o)
+        self.assertIn("NO CONTEXT SHOT", o)
+        self.assertEqual(self.calls(), 0)
+        rc, o = self.paint("Art/Source/Ella/b.png", "--piece", "ui-title")
+        self.assertEqual(rc, 0, o)
+
+    def test_final_needs_a_draft_that_passed_its_checks(self):
+        rc, o = self.paint("Art/Source/Ella/f.png", "--tier", "final", "--image-size", "2K")
+        self.assertEqual(rc, 2, o)
+        self.assertIn("DRAFT FIRST", o)
+        draft = self.plant_draft(passing=False)
+        rc, o = self.paint("Art/Source/Ella/f.png", "--tier", "final", "--image-size", "2K", "--from-draft", draft)
+        self.assertEqual(rc, 2, o)
+        self.assertIn("DRAFT NOT PASSED", o)
+        self.assertEqual(self.calls(), 0)
+        draft = self.plant_draft(passing=True)
+        rc, o = self.paint("Art/Source/Ella/f.png", "--tier", "final", "--image-size", "2K", "--from-draft", draft)
+        self.assertEqual(rc, 0, o)
+        self.assertEqual(self.last_call()["piece"], "ui-title")
+
+    def test_per_piece_cap_refuses_and_logs(self):
+        env = dict(IMAGE_SPEND_CAP_USD="50")
+        # 0.039 per draft: 12 calls = 0.468; the 13th would pass 0.50
+        for i in range(12):
+            self.assertEqual(self.paint(f"Art/Source/Ella/{i}.png", **env)[0], 0)
+        n = self.calls()
+        rc, o = self.paint("Art/Source/Ella/x.png", **env)
+        self.assertEqual(rc, 2, o)
+        self.assertIn("triage art vs check before more spend", o)
+        self.assertEqual(self.calls(), n)
+        log = os.path.join(os.path.dirname(self.repo), "logs", "spend-cap.log")
+        self.assertIn("triage art vs check before more spend", open(log).read())
+        # another piece is unaffected
+        self.assertEqual(self.paint("Art/Source/Ella/y.png", "--piece", "ui-pause", **env)[0], 0)
 
 
 if __name__ == "__main__":

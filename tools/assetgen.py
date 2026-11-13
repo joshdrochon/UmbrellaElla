@@ -753,6 +753,97 @@ def provider_spent(d):
     return round(orr, 6), round(max(0.0, d["spent_usd"] - orr), 6)
 
 
+PIECE_CAP_USD = 0.50   # Josh, Nov 13: per-piece image spend cap, both providers, keyed by piece in the counter
+SMOKE_SHOT_MARK = "SmokeShotFrames"
+SMOKE_HOOK = "Source/UmbrellaElla/Private/Smoke/SmokeHookSubsystem.cpp"
+
+
+def piece_cap():
+    v = (os.environ.get("IMAGE_SPEND_PIECE_CAP_USD") or "").strip()
+    return float(v) if v else PIECE_CAP_USD
+
+
+def smoke_shot_on_main(root):
+    """True when origin/main has screenfix's frame-based smoke shot (-SmokeShotFrames in the smoke hook)."""
+    try:
+        r = subprocess.run(["git", "-C", root, "show", f"origin/main:{SMOKE_HOOK}"], capture_output=True,
+                           text=True, timeout=30)
+    except (OSError, subprocess.SubprocessError):
+        return False
+    return r.returncode == 0 and SMOKE_SHOT_MARK in r.stdout
+
+
+def piece_is_screen(root, piece):
+    """A UI screen piece (an element with a ui block in references.json) has no in-game context pair."""
+    try:
+        with open(os.path.join(root, "pipeline", "art", "references.json"), encoding="utf-8") as fh:
+            refs = json.load(fh)
+    except (OSError, ValueError):
+        return False
+    return bool((refs.get("elements", {}).get(piece) or {}).get("ui"))
+
+
+def piece_needs_context(root, piece):
+    """True when the piece needs an in-game context pair: any piece that is not a UI screen."""
+    return not piece_is_screen(root, piece)
+
+
+def draft_checks_passed(root, piece, draft):
+    """(ok, why) for a draft file: art_check against style.json, and for a judge element the art_ref_check
+    element score (best file >= score_min). Runs the checks; no paid call."""
+    if not os.path.isfile(draft):
+        return False, f"draft file {draft} does not exist"
+    try:
+        sys.path.insert(0, os.path.join(root, "tools"))
+        import art_check, art_judge
+        with open(os.path.join(root, "pipeline", "art", "style.json"), encoding="utf-8") as fh:
+            st = json.load(fh)
+        fails = art_check.evaluate(art_check.measure(draft, st), st)
+        if fails:
+            return False, "art_check FAIL: " + "; ".join(fails[:3])
+        with open(os.path.join(root, "pipeline", "art", "references.json"), encoding="utf-8") as fh:
+            refs = json.load(fh)
+        el = refs.get("elements", {}).get(piece)
+        if el:
+            _, rows, missing = art_judge.element(piece, [draft], refs, [root], set(el["refs"]))
+            best = max((r[1] for r in rows), default=0.0)
+            if best < el["score_min"]:
+                return False, f"art_ref_check element {piece} FAIL: score {best} < {el['score_min']}"
+    except Exception as e:   # noqa: BLE001  a check that cannot run is not a pass
+        return False, f"the draft checks could not run: {e}"
+    return True, "art_check and art_ref_check passed"
+
+
+def spend_guards(root, a, tier):
+    """Josh's image-spend guards 1 and 2 (before any key or counter use); ImageRefused when a guard stops the call."""
+    piece = (getattr(a, "piece", None) or "").strip()
+    if not piece:
+        raise ImageRefused("PIECE REQUIRED: every paid image call names its piece (--piece <id>); no call made")
+    if piece_needs_context(root, piece) and not smoke_shot_on_main(root):
+        raise ImageRefused(f"NO CONTEXT SHOT: piece {piece} needs an in-game context pair and origin/main has no "
+                           f"-{SMOKE_SHOT_MARK} support yet ({SMOKE_HOOK}); only UI screens paint until screenfix's "
+                           f"frame-based smoke shot is on main. No call made")
+    if tier == "final":
+        draft = getattr(a, "from_draft", None)
+        if not draft:
+            raise ImageRefused("DRAFT FIRST: --tier final needs --from-draft <file>, a draft of this piece whose "
+                               "art_check / art_ref_check passed; no call made")
+        ok, why = draft_checks_passed(root, piece, draft)
+        if not ok:
+            raise ImageRefused(f"DRAFT NOT PASSED: {why} ({draft}); fix the draft first. No call made")
+    return piece
+
+
+def log_piece_cap(root, line):
+    d = os.path.join(os.path.dirname(os.path.abspath(root)), "logs")
+    try:
+        os.makedirs(d, exist_ok=True)
+        with open(os.path.join(d, "spend-cap.log"), "a", encoding="utf-8") as fh:
+            fh.write(f"{now_iso()} {line}\n")
+    except OSError:
+        pass
+
+
 def spend_reserve(cost, entry):
     """Add `cost` to the shared counter before the call, under the lock; ImageRefused when it would pass the cap of
     its provider (OpenRouter has its own hard cap; every other provider shares IMAGE_SPEND_CAP_USD).
@@ -768,6 +859,16 @@ def spend_reserve(cost, entry):
             raise ImageRefused(f"CAP REACHED: spent ${spent:.3f} of the ${limit:.2f} {name}; this call "
                                f"(${cost:.3f}) would pass it. No call made. "
                                f"Every further {entry.get('provider')} image call stops here (counter {path})")
+        piece = entry.get("piece")
+        if piece:
+            ps = round(sum(float(c.get("cost_usd") or 0) for c in d["calls"]
+                           if c.get("piece") == piece and not c.get("refunded")), 6)
+            if ps + cost > piece_cap() + 1e-9:
+                msg = (f"PIECE CAP: piece {piece} has spent ${ps:.3f} of the ${piece_cap():.2f} per-piece cap; this "
+                       f"call (${cost:.3f}) would pass it. triage art vs check before more spend. No call made")
+                log_piece_cap(entry.get("root") or os.getcwd(), f"piece={piece} provider={entry.get('provider')} {msg}")
+                raise ImageRefused(msg)
+        entry.pop("root", None)
         d["spent_usd"] = round(d["spent_usd"] + cost, 6)
         d["cap_usd"] = cap
         d["openrouter_cap_usd"] = openrouter_cap()
@@ -998,6 +1099,7 @@ def cmd_image_model(a, argv, root, provider):
     """One paid still from an image model. Order: inputs guarded, key, price, cap reserved, call, provenance, log."""
     tier = getattr(a, "tier", None) or "draft"
     model = a.model or (IMAGE_TIERS[tier] if provider in GOOGLE_PROVIDERS else tool(IMAGE_PROVIDERS[provider][0])["model"])
+    piece = spend_guards(root, a, tier)
     provider = pick_provider(provider, model)
     tid, key_name = IMAGE_PROVIDERS[provider]
     t = tool(tid)
@@ -1021,6 +1123,7 @@ def cmd_image_model(a, argv, root, provider):
     think = round(image_cost * thinking_rate(t, model)[1], 6) if google else 0.0
     cost = round(base_cost + think, 6)
     entry = {"provider": provider, "model": model, "tier": tier, "out": rel(a.out, root), "inputs": len(inputs),
+             "piece": piece, "root": root, "from_draft": rel(a.from_draft, root) if getattr(a, "from_draft", None) else None,
              "worker": os.path.basename(root), "role": os.environ.get("JAM_ROLE"), "aspect": aspect,
              "image_size": image_size, "thinking_reserve_usd": think}
     idx, spent, cap = spend_reserve(cost, entry)
@@ -1056,9 +1159,10 @@ def cmd_image_model(a, argv, root, provider):
                    "input_images": [rel(f, root) for f in inputs], "cost_usd": cost, "reply": meta,
                    "date": now_iso()}, fh, indent=1)
         fh.write("\n")
+    cap_name = "OpenRouter image cap" if provider == "openrouter" else "shared image cap"
     write_provenance(root, a.out, tid, a.prompt, version, inputs=inputs, origin="generated in jam",
                      info=OPENROUTER_INFO if provider == "openrouter" else None,
-                     note=f"image model provider={provider} tier={tier} model={model}; ${cost:.3f} counted against the shared image cap; full prompt in "
+                     note=f"image model provider={provider} tier={tier} model={model}; ${cost:.3f} counted against the {cap_name}; full prompt in "
                           f"{rel(os.path.splitext(a.out)[0] + '.request.json', root)}", seed=seed)
     log_image_prompt(root, a.prompt, provider, version, a.out, cost)
     w, h, _ = png.read_png(a.out)
@@ -1796,6 +1900,8 @@ def parser():
     p.add_argument("--input", action="append", help="an in-jam image of ours as an image-model input (repeatable; "
                    "pre-jam images are refused)")
     p.add_argument("--model", help="image model (default: the provider's model in asset-tools.json)")
+    p.add_argument("--piece", help="the art piece id this paid call is for (required for every paid image call)")
+    p.add_argument("--from-draft", dest="from_draft", help="--tier final: the draft file of this piece whose checks passed")
     p.add_argument("--quality", default="medium", choices=("low", "medium", "high"), help="openai quality")
     p.add_argument("--aspect", help="gemini aspect ratio, e.g. 1:1, 16:9, 4:1 (default: nearest to --size)")
     p.add_argument("--image-size", choices=GEMINI_IMAGE_SIZES, help="gemini 3.x output size (required for them)")

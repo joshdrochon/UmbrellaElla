@@ -92,6 +92,8 @@ class ImageWork(base.Work):
         return e
 
     def paint(self, out, *more, **extra):
+        if "--piece" not in more:
+            more = ("--piece", "ui-title") + more   # a UI screen: paints without the in-game smoke shot
         return self.ag("image", "--prompt", "Ella rising, umbrella open overhead", "--out", out, *more,
                        **self.img_env(**extra))
 
@@ -289,7 +291,7 @@ class SpendCap(ImageWork):
     def test_one_counter_shared_by_parallel_workers_never_passes_the_cap(self):
         """Eight workers at once against a cap that fits three calls: exactly three run (the lock holds)."""
         env = self.env(**self.img_env(IMAGE_SPEND_CAP_USD=str(3 * GEMINI_PRICE + 0.001)))
-        procs = [subprocess.Popen([PY, "tools/assetgen.py", "image", "--prompt", "p", "--out", f"Art/Source/P/{i}.png"],
+        procs = [subprocess.Popen([PY, "tools/assetgen.py", "image", "--prompt", "p", "--out", f"Art/Source/P/{i}.png", "--piece", f"ui-p{i}"],
                                   cwd=self.repo, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
                  for i in range(8)]
         outs = [(p.wait(), p.stdout.read()) for p in procs]
