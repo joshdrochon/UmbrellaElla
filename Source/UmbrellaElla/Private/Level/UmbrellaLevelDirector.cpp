@@ -126,7 +126,17 @@ int32 AUmbrellaLevelDirector::BuildRoute(int64 Seed)
 	{
 		return 0;
 	}
-	Route = LevelCatalogue::Generate(Seed);
+	return BuildRouteFrom(LevelCatalogue::Generate(Seed));
+}
+
+int32 AUmbrellaLevelDirector::BuildRouteFrom(const FRoute& InRoute)
+{
+	ClearRoute();
+	if (!IsFeatureEnabled(EFeatureId::FLOW_24) || !IsFeatureEnabled(EFeatureId::HAZ_24) || !GetWorld())
+	{
+		return 0;
+	}
+	Route = InRoute;
 	Plan = LevelPlan::Build(Route);
 	for (const FLevelPlacement& P : Plan)
 	{

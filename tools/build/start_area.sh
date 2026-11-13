@@ -39,7 +39,9 @@ fi
 # (Nov 12 20:29: ~10 workers died silently together). The exit line records how each worker ended.
 export WORKER_PROMPT="$PROMPT" WORKER_MODEL_ID="$MODEL" WORKER_LOG="$BASE/logs/$A.log" WORKER_STOP="$BASE/.stop-$A"
 rm -f "$BASE/.stop-$A"   # an intentional stop (lead, switch, pause) touches this file before killing; then no resume
-env -u CLAUDECODE -u CLAUDE_CODE_ENTRYPOINT nohup python3 -c '
+# Workers carry none of the launching session's CLAUDE_* variables (session id, PID, messaging socket): three mass
+# SIGTERMs (20:29, 22:15, 01:35) hit every worker tied to the lead's session at once.
+env $(env | sed -n 's/^\(CLAUDE[A-Z_]*\)=.*/-u \1/p' | tr '\n' ' ') nohup python3 -c '
 import os, signal, subprocess, sys, time
 os.setsid()
 for s in (signal.SIGHUP, signal.SIGINT): signal.signal(s, signal.SIG_IGN)

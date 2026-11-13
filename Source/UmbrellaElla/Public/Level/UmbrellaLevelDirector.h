@@ -25,6 +25,9 @@ public:
 	/** Generate the route from Seed and spawn everything. Replaces a previous build. Returns the number of chunks spawned (0 when the level flags are off). */
 	int32 BuildRoute(int64 Seed);
 
+	/** Spawn an explicit route (tests build one variant at a time). Same flags and return value as BuildRoute. */
+	int32 BuildRouteFrom(const FRoute& InRoute);
+
 	/** Destroy everything this director spawned. */
 	void ClearRoute();
 
