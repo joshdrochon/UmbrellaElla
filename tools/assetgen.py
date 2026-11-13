@@ -1187,11 +1187,25 @@ def to_png(data, out):
     return "converted"
 
 
+# One shared style block on every paid image prompt (Nov 13: the panels failed 31 pieces mostly for flat/vector/digital
+# fills (18), no etched line or ink finish (17) and weak paper texture (14)). Wording from pipeline/art/art-bible.md:
+# dark and muted ink on paper, etched lines, paper texture, flat fills fail.
+STYLE_BLOCK = ("Style (required): dark, muted ink on aged paper, like an etched storybook engraving. Etched ink "
+               "linework with near-black ink outlines; crosshatch and fine line hatching for every shadow and form; "
+               "visible aged paper grain and fibre texture under all colour; hand-printed, slightly uneven ink. "
+               "No flat fills, no vector shapes, no smooth digital gradients, no glossy 3D rendering.")
+
+
+def with_style(prompt):
+    return prompt if not prompt or STYLE_BLOCK in prompt or os.environ.get("ASSETGEN_NO_STYLE") else f"{prompt}\n\n{STYLE_BLOCK}"
+
+
 def cmd_image_model(a, argv, root, provider):
     """One paid still from an image model. Order: inputs guarded, key, price, cap reserved, call, provenance, log."""
     tier = getattr(a, "tier", None) or "draft"
     model = a.model or (IMAGE_TIERS[tier] if provider in GOOGLE_PROVIDERS else tool(IMAGE_PROVIDERS[provider][0])["model"])
     piece = spend_guards(root, a, tier)
+    a.prompt = with_style(a.prompt)   # after the guards: they read the piece from the caller's own prompt
     provider = pick_provider(provider, model)
     tid, key_name = IMAGE_PROVIDERS[provider]
     t = tool(tid)
