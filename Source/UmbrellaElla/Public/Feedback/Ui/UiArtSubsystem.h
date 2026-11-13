@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Core/UmbrellaPlayMode.h"
 #include "Flow/FlowRules.h"
 #include "Subsystems/WorldSubsystem.h"
 #include "UObject/StrongObjectPtr.h"
@@ -30,6 +31,8 @@ namespace UmbrellaUiPieceConst
 	static constexpr uint32 DriftScreens = UiScreenBit(EFlowScreen::Title) | UiScreenBit(EFlowScreen::Credits) | UiScreenBit(EFlowScreen::Statistics);
 	static constexpr uint32 PauseScreens = UiScreenBit(EFlowScreen::Paused) | UiScreenBit(EFlowScreen::TutorialPaused);
 	static constexpr uint32 HudScreens = UiScreenBit(EFlowScreen::Playing) | UiScreenBit(EFlowScreen::Tutorial);
+	/** Screens where the played world shows: no full-frame picture may cover them (B2, Nov 13). */
+	static constexpr uint32 GameplayScreens = HudScreens | UiScreenBit(EFlowScreen::Resuming);
 
 	/** One piece: which screens show it, whether it fills the frame, where it sits otherwise, and whether it sits below the menus (grounds) or above. */
 	struct FUiPiece
@@ -40,6 +43,8 @@ namespace UmbrellaUiPieceConst
 		EHorizontalAlignment Horizontal;
 		EVerticalAlignment Vertical;
 		bool bBelowMenu;
+		/** Shown only in Director's Cut only (Start Game has no XP ring). */
+		bool bDirectorOnly = false;
 	};
 	/** Back to front. Pieces without a screen of their own sit at their native size, aligned to the frame. */
 	static const FUiPiece Pieces[] = {
@@ -52,8 +57,8 @@ namespace UmbrellaUiPieceConst
 		{ TEXT("ui:head-Paused"), PauseScreens, false, HAlign_Center, VAlign_Top, false },
 		{ TEXT("ui:head-Settings"), UiScreenBit(EFlowScreen::Settings), false, HAlign_Center, VAlign_Top, false },
 		{ TEXT("ui:device-and-remap-prompts"), UiScreenBit(EFlowScreen::Settings), false, HAlign_Center, VAlign_Bottom, false },
-		{ TEXT("ui:clock-face"), HudScreens, false, HAlign_Center, VAlign_Top, false },
-		{ TEXT("ui:xp-ring"), HudScreens, false, HAlign_Left, VAlign_Top, false },
+		{ TEXT("ui:clock-face"), HudScreens, false, HAlign_Left, VAlign_Top, false },
+		{ TEXT("ui:xp-ring"), HudScreens, false, HAlign_Left, VAlign_Top, false, true },
 		{ TEXT("ui:spell-wheel"), UiScreenBit(EFlowScreen::Purchase) | UiScreenBit(EFlowScreen::LevelUp), false, HAlign_Center, VAlign_Center, false },
 	};
 }
@@ -76,12 +81,15 @@ public:
 	/** Art slot id for a screen, e.g. "screen:Title". Pure. */
 	static FString VisualIdFor(EFlowScreen Screen);
 
-	/** Show a picture for a screen (null removes it). Tests pass a transient texture. */
+	/** False on gameplay screens (Playing, Resuming, Tutorial): the world shows there, so no full-frame picture. Pure. */
+	static bool IsScreenArtAllowedOn(EFlowScreen Screen);
+
+	/** Show a picture for a screen (null removes it). Draws nothing on a gameplay screen, whatever the texture. Tests pass a transient texture. */
 	void ShowScreenArt(EFlowScreen Screen, UTexture2D* Texture);
 	void ClearScreenArt();
 
 	/** Draw one table piece for a screen (null removes it). Tests pass a transient texture. Refused (not Drawn) when the piece is not on that screen. */
-	EArtSlotDraw DrawPiece(const FString& Visual, EFlowScreen Screen, UTexture2D* Texture);
+	EArtSlotDraw DrawPiece(const FString& Visual, EFlowScreen Screen, UTexture2D* Texture, EUmbrellaPlayMode Mode = EUmbrellaPlayMode::DirectorsCut);
 	void ClearPieces();
 	int32 PieceCount() const { return PieceWidgets.Num(); }
 	bool IsShowingPiece(const FString& Visual) const { return ShownPieces.Contains(Visual); }
@@ -105,5 +113,5 @@ private:
 	TArray<TSharedPtr<FSlateBrush>> PieceBrushes;
 	TArray<TStrongObjectPtr<UTexture2D>> PieceTextures;
 	TSet<FString> ShownPieces;
-	void ShowPiecesFor(EFlowScreen Screen);
+	void ShowPiecesFor(EFlowScreen Screen, EUmbrellaPlayMode Mode);
 };

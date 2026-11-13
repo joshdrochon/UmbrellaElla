@@ -1,0 +1,39 @@
+{
+ "provider": "gemini",
+ "tier": "draft",
+ "tool": "Gemini API image generation (Google)",
+ "model": "gemini-3.1-flash-image-preview",
+ "openrouter_model": null,
+ "fal_model": null,
+ "model_version": "gemini-3.1-flash-image-preview",
+ "prompt": "A wide 4:1 landscape picture, a side-view effect, the sustained beam of Ella's Streamed Blast spell, a looping stream, for a 2D game, painted as four animation stages of one effect that float side by side on open, empty green. Only the effect is painted; whatever it touches or comes from stays off the canvas. The four stages share one horizontal centre line, centred at one sixteenth, three sixteenths, five sixteenths and so on up to fifteen sixteenths of the picture width, with the same wide band of empty green around each, so every stage sits alone in the open and none comes near another or the picture edge. Everything is drawn in flat side view with no perspective, at the size of a game sprite; the longest stage spans about a fifth of the picture width.\n\nEach stage shows the same horizontal stream flowing right, reaching the full width of its stage, built from several thin gold strands braided into one continuous stream: a bright cream core band along the centre line, a gold shell with angular ragged edges, and hair-thin amber strand lines running along its length. The four stages are four phases of one flowing loop: the sharp angular ripples and sparkle stars along the stream sit at different positions, shifted along the stream by a quarter of the pattern each time, so the stream appears to flow. The first and last phase continue seamlessly into each other. The stream keeps the same thickness, length and centre line in all four stages, and stays crisp and drawn, with no fog or haze. The palette is warm gold #E9C46A, amber #F5AA28, deep bronze #94611E and pale cream #FFF5DC with a near-black ink edge: one warm gold family, nothing else. Sparkles are sharp, faceted blades like cut spear tips.\n\n\nEight distinct frames, not four: each of the stages described above is shown as two consecutive steps, the second slightly further along than the first, so no two of the eight frames are alike and the motion reads smoothly from left to right. Draw big and bold: every shape is large, filling most of the height of the picture, with a thick, bold near-black ink outline (about a twelfth of the shape's width), strong contrast from near-black shadow to bright cream highlights, visible etched cross-hatching on the shaded sides, and a clear faceted, angular design with small ink-edged shards and sparks around it. Shapes read clearly even when shrunk to a tiny game sprite.\n\nStyle: a dark painterly etched storybook illustration, ink and wash with fine etched cross-hatching and a faint paper grain inside the shapes only. Large shapes have a clean near-black ink outline #171614 about 2 px wide at this size; hair-thin streaks and tiny sparks carry a hairline ink edge so they keep their colour. One light source sits in front and slightly above: upper edges brighter, lower edges shaded with fine hatching. The glow stays inside each shape, brightest at the core and fading toward the ink outline. The background is one perfectly flat, even, pure green #00FF00 from edge to edge, the shapes cut cleanly against it, and the shapes themselves use only the palette above. The canvas holds only the eight effects floating on the green, as a clean sprite strip with nothing else on it.\n\nStyle (required): dark, muted ink on aged paper, like an etched storybook engraving. Etched ink linework with near-black ink outlines; crosshatch and fine line hatching for every shadow and form; visible aged paper grain and fibre texture under all colour; hand-printed, slightly uneven ink. No flat fills, no vector shapes, no smooth digital gradients, no glossy 3D rendering.",
+ "seed": "",
+ "size": "1024x1024",
+ "quality": "medium",
+ "aspect_ratio": "8:1",
+ "image_size": "2K",
+ "input_images": [],
+ "cost_usd": 0.101392,
+ "reply": {
+  "usage": {
+   "promptTokenCount": 783,
+   "candidatesTokenCount": 2316,
+   "totalTokenCount": 3099,
+   "promptTokensDetails": [
+    {
+     "modality": "TEXT",
+     "tokenCount": 783
+    }
+   ],
+   "candidatesTokensDetails": [
+    {
+     "modality": "IMAGE",
+     "tokenCount": 1680
+    }
+   ],
+   "serviceTier": "standard"
+  },
+  "finish": "STOP"
+ },
+ "date": "2026-11-13T16:55+00:00"
+}

@@ -51,3 +51,44 @@ Event contract is in `docs/build/requests/progression.md`.
 - No emitters on main for the run events were a flow/keeper gap; both now broadcast the listed strings (not re-verified on main).
 - `GetTuning()` stays the single switch point; lead adds the `Progression` member to `UUmbrellaTuning`.
 - Open (minor): checkpoint written at run start precedes the run-2 reallocation, so a boss retry reverts it. Not changed.
+
+## Clause slice (Nov 13, lead resume: `ii` clauses of lane progression in clause-audit.csv)
+Evidence: `build exit: 0`; `TEST_FILTER=UmbrellaElla.Progression+UmbrellaElla.Persistence` PASS tests=41 failed=0;
+`UmbrellaElla.Flow+UmbrellaElla.Health` PASS tests=56 failed=0; module_check 0. Break test: one build with a deliberate break per
+clause made exactly the 9 new tests fail (9/41), then restored and re-passed.
+
+Proven (tag `proven`, row in clause-proof.csv):
+| Clause | Code | Test |
+|---|---|---|
+| FLOW-13 level checkpoint after boss checkpoint keeps the rollback | `ReachCheckpoint` keeps the boss snapshot; `BeginRun` starts a fresh chain | `LevelCheckpointAfterBossCheckpointKeepsRollback` |
+| FLOW-17 effects derived from baseline once | `DeriveEffects` | `EffectsDerivedFromBaselineOnce` |
+| FLOW-17 damage ranks change only damage | `DeriveEffects` | `DamageRanksChangeOnlyDamage` |
+| FLOW-22 tutorial replay on shadow progress | `BeginTutorialReplay`, ModeSelected `Tutorial*` | `World.TutorialReplayUsesShadowProgress` |
+| FLOW-42 review shows complete costs and effects | `FProgressionDraft::Review`, purchase widget review block | `ReviewListsCompleteCostsAndEffects` |
+| SURV-06 +1 life per point reaches Ella | `ApplyToHealth` on every change and on Ella spawn | `World.LifePurchaseRaisesEllaLives` |
+| FLOW-06 intro shown before the Extreme run + exact text | `ShowFinalHourIntro`, `UI/Progression/FinalHourIntroWidget` | `World.FinalHourIntroBeforeExtremeRun` |
+
+Still `ii` (12), blocked on other lanes (exact diffs in `docs/build/requests/progression.md` 3-5):
+- FLOW-05 x7, FLOW-06 "multipliers applied" + "telegraphs ... preserved", FLOW-21 x2: enemies/keeper/level must apply
+  `ScaledHp`, `ScaledFiringCooldown`, `EnemyCount` (rules ready and tested: `RunScalingTouchesOnlyCooldownAndHp`).
+- FLOW-17 health fraction: rule `ActiveHealthAfterCapacityChange` tested (`HealthFractionKeptOnCapacityChange`); health's
+  `SetCapacity` clamps instead (request 4).
+
+Defaults I chose (yours to change): Final Hour intro stays 4 s then removes itself, no skip input, shown every Extreme run start
+(GDD leaves duration/skip/repeat OPEN). Tutorial replay starts on `ModeSelected` Detail containing `Tutorial` (flow does not send it yet).
+Not run: PIE/visual check of the intro and review block.
+
+## Keeper clauses (Nov 13, lead queue top)
+Evidence: `build exit: 0`; `UmbrellaElla.Progression` PASS tests=38 failed=0; break build (no capacity push on retry, no keeper part XP) failed exactly
+`KeeperRetryRestoresEllaCapacity` and `KeeperEventStringsDriveXpAndCheckpoints` (2/38), restored. Not run: module_check, PIE.
+- OWL-06, OWL-10 retained/restored capacity: boss retry puts the checkpoint's max lives and hit capacity back on Ella, level retry keeps a purchase
+  (`World.KeeperRetryRestoresEllaCapacity`; code already in `RetryFromCheckpoint` -> `NotifyChanged`).
+- OWL-35 XP policy: keeper parts pay 60/60/80/100/150, eye 0, rollback pays again (`World.KeeperEventStringsDriveXpAndCheckpoints`).
+- Request 7 ordering (Health heals after this rollback) is still Health's lane; Progression applies capacity synchronously on the same event.
+
+## Lead resume (Nov 13, origin/main beccfa60): blocked
+All 12 remaining `ii` clauses of lane progression (FLOW-05 x7, FLOW-06 x2, FLOW-17 health fraction, FLOW-21 x2) need code in other lanes.
+Checked on origin/main: no file outside `Progression/` calls `GetRunScaling`, `ScaledHp` or `ScaledFiringCooldown` (request 3, enemies/keeper/level
+lanes), and `UUmbrellaHealthComponent::SetCapacity` still clamps Active (`UmbrellaHealthComponent.cpp:156`, request 4, health lane).
+The progression rule functions and their tests are done. Nothing left I can build in my lane for `ii`; the 28 `i` clauses (code there, test
+missing) were not in this brief.

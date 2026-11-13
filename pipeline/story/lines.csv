@@ -59,7 +59,7 @@ ui-settings-game-options-remap-controls,button,Remap controls,,yes,screen=settin
 ui-settings-game-options-menu-background-motion,label,Menu background motion,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
 ui-settings-game-options-off,button,Turn off,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
 ui-settings-game-options-open,button,Open,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
-ui-settings-controller-shoot,label,Small Blasts,,yes,screen=settings-controller; where=SettingsModel.cpp
+ui-settings-controller-shoot,label,Shoot,,yes,screen=settings-controller; where=SettingsModel.cpp
 ui-settings-controller-absorb,label,Absorb,,yes,screen=settings-controller; where=SettingsModel.cpp
 ui-settings-controller-hop,label,Hop,,yes,screen=settings-controller; where=SettingsModel.cpp
 ui-settings-controller-dash-back,label,Dash back,,yes,screen=settings-controller; where=SettingsModel.cpp
@@ -96,6 +96,10 @@ ui-level-up-a-new-point-to-spend,screen,A new point to spend at the next refuge.
 ui-defeat-defeated,screen,Defeated,,yes,screen=defeat; where=FlowMenuText.cpp
 ui-defeat-retry,button,Retry,,yes,screen=defeat; where=FlowMenuText.cpp
 ui-defeat-quit-to-title,button,Quit to Title,,yes,screen=defeat; where=FlowMenuText.cpp
+ui-prompt-confirm-keys,prompt,Click or Enter to choose,,yes,screen=menus; where=FlowMenuText.cpp; control hint (menus.md rule 4)
+ui-prompt-back-keys,prompt,Esc to go back,,yes,screen=menus; where=FlowMenuText.cpp; control hint (menus.md rule 4)
+ui-prompt-confirm-pad,prompt,A to choose,,yes,screen=menus; where=FlowMenuText.cpp; control hint (menus.md rule 4)
+ui-prompt-back-pad,prompt,B to go back,,yes,screen=menus; where=FlowMenuText.cpp; control hint (menus.md rule 4)
 story-ending-page-1,end_card,"Eventually, the owl's pursuit ends, and he retreats into the darkness, leaving Ella alive but still suspended between worlds.",F3;P8,yes,screen=ending; where=FlowStoryText.cpp
 story-ending-page-2,end_card,"She has survived, yet neither her fate nor the owl's intentions are resolved. Perhaps the owl has merely postponed his judgment, or perhaps something about Ella has challenged even his understanding of time.",F3;P8,yes,screen=ending; where=FlowStoryText.cpp
 credit-umbrella-ella-the-stolen-hour,screen,Umbrella Ella The Stolen Hour,,yes,screen=credits; where=FlowStoryText.cpp
@@ -115,6 +119,12 @@ ui-settings-game-options-enemy-shot-speed,label,Enemy shot speed,,yes,screen=set
 ui-settings-game-options-ella-s-hit-area,label,Ella's hit area,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
 credit-rick-rispoli-executive-producer,screen,Rick Rispoli - Executive Producer,,yes,screen=credits; where=SettingsModel.cpp
 ui-tutorial-while-dropping-shoot-with-j,screen,"While dropping, shoot with J or the left mouse button. Basic shots never run out.",,yes,screen=tutorial; where=FlowTutorialText.cpp
-ui-tutorial-shoot-with-j-or-the,screen,Shoot with J or the left mouse button. Cycle spells with [ and ] or press 1 to 4.,,yes,screen=tutorial; where=FlowTutorialText.cpp
+ui-tutorial-shoot-with-j-or-the,screen,Shoot with J or the left mouse button. Cycle spells with [ and ] or press 1 to 4.,,yes,screen=tutorial; mode=Director's Cut only (Start Game shows its own Small Blasts page); where=FlowTutorialText.cpp
 ui-settings-game-options-all-four-spells-unlocked,label,All four spells unlocked,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
 ui-settings-sound-controller-and-credits-have,screen,"Sound, Controller and Credits have their own pages.",,yes,screen=settings; where=FlowMenuText.cpp
+ui-FinalHourIntroWidget-her-time-has-run,screen,"Her time has run its course. The owl is coming.",,yes,screen=FinalHourIntroWidget; where=FinalHourIntroWidget.cpp
+ui-purchase-review-0-points-in-total,screen,Review: {0} points in total,,yes,screen=purchase; where=ProgressionPurchaseWidget.cpp
+ui-purchase-point,label,point,,yes,screen=purchase; where=ProgressionPurchaseWidget.cpp
+ui-purchase-points,label,points,,yes,screen=purchase; where=ProgressionPurchaseWidget.cpp
+ui-purchase-costs,label,Cost,,yes,screen=purchase; where=ProgressionPurchaseWidget.cpp
+ui-purchase-reallocates,label,Reallocation,,yes,"screen=purchase; where=ProgressionPurchaseWidget.cpp; GDD FLOW-11 / FLOW-18 reallocation, run 2 onward"

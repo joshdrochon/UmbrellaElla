@@ -6,6 +6,7 @@
 
 class AActor;
 struct FUmbrellaEvent;
+class AKeeperOfTime;
 class UStaticMeshComponent;
 class UTexture2D;
 enum class EArtSlotDraw : uint8;
@@ -71,11 +72,33 @@ public:
 	/** The part layer component for a slot id on a Keeper, or null. */
 	static UStaticMeshComponent* FindPart(const AActor* Keeper, const FString& VisualId);
 
+	/** True when any Keeper slot draws on this Keeper: the body picture or any part layer. Pure read. */
+	static bool HasKeeperArt(const AActor* Keeper);
+
+	/**
+	 * The arena's graybox Keeper square hides while any tracked Keeper draws slot art and shows when none does.
+	 * Runs on a Keeper spawn, draw or destroy, and in Tick only when a part layer's loss changed the answer.
+	 */
+	void SyncArenaStandIn();
+
+	/** True when any tracked Keeper draws slot art. Pure read. */
+	bool HasAnyKeeperArt() const;
+
 private:
 	void HandleActorSpawned(AActor* Actor);
 	FDelegateHandle SpawnHandle;
+	void HandleActorDestroyed(AActor* Actor);
+	FDelegateHandle DestroyHandle;
+	/** Set each part's art cover to what draws now (body picture, live part layers); a part whose art is gone shows its cube again. */
+	void SyncPartCover(AKeeperOfTime* Owl);
+	/** Last value written to the arenas by SyncArenaStandIn. */
+	bool bArenaArtShown = false;
 	void HandlePartDestroyed(const FUmbrellaEvent& Event);
 	FDelegateHandle PartHandle;
+	void HandleRestart(const FUmbrellaEvent& Event);
+	FDelegateHandle RestartHandle;
+	/** Single mask layer: shown while any part is destroyed since the last spawn or retry (an approximation of the 7/6/4/0 steps). */
+	int32 PartsDestroyed = 0;
 	TArray<TWeakObjectPtr<AActor>> Keepers;
 	bool bMasksShown = false;
 	int32 PresentedCount = 0;

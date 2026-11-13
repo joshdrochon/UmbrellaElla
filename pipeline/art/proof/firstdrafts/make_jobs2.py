@@ -16,7 +16,7 @@ KEEPER = ("The Keeper is a crownless fabricated metal owl in side profile: rigid
 J = {
  "bg-base": ("16:9", SCENE+"A quiet sky backdrop layer for a 2D side-scroller: soft ash-blue to charcoal sky, faint painterly cloud wash, "
    "a few small gold lights, nothing in the foreground, no horizon objects. Muted, dark, calm."),
- "bg-atmosphere": ("16:9", "A cloud bank, a trailing mist, a curl of haze and underside mist, drawn as soft ink-wash layers on a flat green background, a 2D game atmosphere layer. "+SPRITE),
+ "bg-atmosphere": ("16:9", "A cloud bank, a trailing mist, a curl of haze and underside mist, drawn as soft ink-wash layers, a 2D game atmosphere layer. "+SPRITE),
  "bg-start-end": ("16:9", SCENE+"The start and end screen background: dark charcoal and muted sepia, faint blue, small gold lights drifting slowly, distant etched clockwork silhouettes in haze. No characters."),
  "ella-condition": ("16:9", "Ella shown as six small full-body figures in a row, a condition scale from whole to faded: Ella is an adult in a hat with dark brown hair, "
    "a cloth mask hiding her face, a scarf, boots, holding an umbrella with two hands. Left to right: complete; boots faded; boots and hat faded; "

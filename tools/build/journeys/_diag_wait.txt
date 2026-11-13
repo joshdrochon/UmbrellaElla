@@ -1,0 +1,9 @@
+# Diagnostic: does the black gameplay screen clear with time?
+firstrun
+wait Title 60
+key Enter
+keyuntil Playing Enter 0.8 30
+hold J 2
+idle 25
+shot w1_after_27s
+end

@@ -1,0 +1,84 @@
+{
+ "id": "vfx-stream-start",
+ "records": [
+  {
+   "piece": "vfx-stream-start",
+   "round": 1,
+   "verdict": "reference",
+   "checks": false,
+   "results": {
+    "art_check": "fail",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "reference",
+    "reference": "reference"
+   },
+   "panel": 3,
+   "calibration": {
+    "sessions": 3,
+    "passed": 3
+   },
+   "missing": [
+    "context (no in-engine capture made after the piece: import it and run the smoke, whose screenshot is the capture)",
+    "quality_bar:pipeline/art/reference/discord/20261111-0319_Ricky_roadwarden-sundial-casters.png"
+   ],
+   "critic_sessions": [
+    "vfx-stream-start-r1-00-quality_bar-c1",
+    "vfx-stream-start-r1-00-quality_bar-c2",
+    "vfx-stream-start-r1-00-quality_bar-c3"
+   ],
+   "manifest": "",
+   "evidence": "",
+   "prompt": "",
+   "files": "2329b51d505b73338fef2f789a6151734c4170400f02560db947a1b4faada1b2",
+   "file": "pipeline/art/proof/artfx3/StreamStart/sheet1.png",
+   "card": "artfx",
+   "refs": "96bdbb99413f",
+   "commit": "be8d05649ba4",
+   "gap": "X is a tiny, soft, glossy-gradient projectile strip with no etched linework or ink-black value structure, and its motion is unstable (the shape and trail change from frame to frame).; Y's frames don't hold one identity or line weight, and the bolt shape pops between frames. It is also blurry and soft-edged, with no crisp etching or dark-ink silhouette.",
+   "at": "2026-11-13T06:58:46Z"
+  },
+  {
+   "piece": "vfx-stream-start",
+   "round": 2,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "reference",
+    "reference": "reference"
+   },
+   "panel": 3,
+   "calibration": {
+    "sessions": 4,
+    "passed": 3
+   },
+   "missing": [
+    "context (no in-engine capture made after the piece: import it and run the smoke, whose screenshot is the capture)",
+    "quality_bar:pipeline/art/reference/discord/20261111-0319_Ricky_roadwarden-sundial-casters.png"
+   ],
+   "critic_sessions": [
+    "vfx-stream-start-r2-00-quality_bar-c1",
+    "vfx-stream-start-r2-00-quality_bar-c2",
+    "vfx-stream-start-r2-00-quality_bar-c3",
+    "vfx-stream-start-r2-00-quality_bar-c4"
+   ],
+   "manifest": "",
+   "evidence": "",
+   "prompt": "",
+   "files": "51ab1d31f2af086514fca191348d48702ca01eb2ce5e3929a3a142d3798b9724",
+   "file": "pipeline/art/proof/artfx3/StreamStart/sheet4.png",
+   "card": "artfx",
+   "refs": "96bdbb99413f",
+   "commit": "be8d05649ba4",
+   "gap": "Y is a tiny, thin sprite strip with no ink-and-paper finish, no etched line weight, a muddy flat background and only a faint gold accent.; Y is a tiny, thin sprite strip with no value structure, and its smudgy paper has no etched detail or accent glow.; Y is a tiny, muddy sprite strip with thin hairline legs, no ink weight, no value structure and no finish, and its frames visibly change shape from one to the next.",
+   "at": "2026-11-13T07:06:17Z"
+  }
+ ]
+}

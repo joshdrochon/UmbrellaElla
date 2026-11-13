@@ -1,0 +1,2 @@
+STRIPS ella-transition source_frames=48 loop_end=36 jitter 1.09 -> 0.94 px
+  N=24 fps=7.78 loop last->first 59.22 vs mean step 22.95 loops=True -> pipeline/art/proof/videoframes/ella-transition/ella-transition_N24_strip.png

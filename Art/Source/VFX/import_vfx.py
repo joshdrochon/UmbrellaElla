@@ -1,6 +1,6 @@
 """Import the VFX sheets and build the two VFX materials (rebuildable; art lane artfx).
 Run (through tools/build/ue_slot.sh):
-  UnrealEditor-Cmd UmbrellaElla.uproject -run=pythonscript -script=Art/Source/VFX/import_vfx.py -unattended -nullrhi -nosplash -nocrashreports
+  tools/build/ue_slot.sh "$UE_ROOT/Engine/Binaries/Mac/UnrealEditor-Cmd" "$PWD/UmbrellaElla.uproject" -run=pythonscript -script=Art/Source/VFX/import_vfx.py -unattended -nullrhi -nosplash -nocrashreports
 Textures: Art/Source/VFX/Raw/<Sheet>_PH.png -> /Game/UmbrellaElla/Art/VFX/T_<Sheet>_PH (tracked placeholders until the art loop
 passes them). Materials: M_VFX_Sheet_PH (unlit translucent, one row of frames stepped by the Frame parameter) and
 M_VFX_Spill_PH (unlit additive soft disc: the light an effect spills on what is behind it). Names match

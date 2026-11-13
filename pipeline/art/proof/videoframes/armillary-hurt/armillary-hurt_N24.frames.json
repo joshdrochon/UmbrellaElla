@@ -1,0 +1,87 @@
+{
+ "frames": 24,
+ "frame": [
+  1164,
+  549
+ ],
+ "pivot": "bottom-centre",
+ "anchor": [
+  633,
+  497
+ ],
+ "fps": 9.93,
+ "cut": "video frames, chroma-keyed, feet-anchor registered",
+ "outputs": [
+  "pipeline/art/proof/videoframes/armillary-hurt/armillary-hurt_N24_00.png",
+  "pipeline/art/proof/videoframes/armillary-hurt/armillary-hurt_N24_01.png",
+  "pipeline/art/proof/videoframes/armillary-hurt/armillary-hurt_N24_02.png",
+  "pipeline/art/proof/videoframes/armillary-hurt/armillary-hurt_N24_03.png",
+  "pipeline/art/proof/videoframes/armillary-hurt/armillary-hurt_N24_04.png",
+  "pipeline/art/proof/videoframes/armillary-hurt/armillary-hurt_N24_05.png",
+  "pipeline/art/proof/videoframes/armillary-hurt/armillary-hurt_N24_06.png",
+  "pipeline/art/proof/videoframes/armillary-hurt/armillary-hurt_N24_07.png",
+  "pipeline/art/proof/videoframes/armillary-hurt/armillary-hurt_N24_08.png",
+  "pipeline/art/proof/videoframes/armillary-hurt/armillary-hurt_N24_09.png",
+  "pipeline/art/proof/videoframes/armillary-hurt/armillary-hurt_N24_10.png",
+  "pipeline/art/proof/videoframes/armillary-hurt/armillary-hurt_N24_11.png",
+  "pipeline/art/proof/videoframes/armillary-hurt/armillary-hurt_N24_12.png",
+  "pipeline/art/proof/videoframes/armillary-hurt/armillary-hurt_N24_13.png",
+  "pipeline/art/proof/videoframes/armillary-hurt/armillary-hurt_N24_14.png",
+  "pipeline/art/proof/videoframes/armillary-hurt/armillary-hurt_N24_15.png",
+  "pipeline/art/proof/videoframes/armillary-hurt/armillary-hurt_N24_16.png",
+  "pipeline/art/proof/videoframes/armillary-hurt/armillary-hurt_N24_17.png",
+  "pipeline/art/proof/videoframes/armillary-hurt/armillary-hurt_N24_18.png",
+  "pipeline/art/proof/videoframes/armillary-hurt/armillary-hurt_N24_19.png",
+  "pipeline/art/proof/videoframes/armillary-hurt/armillary-hurt_N24_20.png",
+  "pipeline/art/proof/videoframes/armillary-hurt/armillary-hurt_N24_21.png",
+  "pipeline/art/proof/videoframes/armillary-hurt/armillary-hurt_N24_22.png",
+  "pipeline/art/proof/videoframes/armillary-hurt/armillary-hurt_N24_23.png"
+ ],
+ "strip": "pipeline/art/proof/videoframes/armillary-hurt/armillary-hurt_N24_strip.png",
+ "loop": {
+  "indices": [
+   0,
+   1,
+   2,
+   4,
+   5,
+   6,
+   7,
+   8,
+   10,
+   11,
+   12,
+   13,
+   14,
+   16,
+   17,
+   18,
+   19,
+   21,
+   22,
+   23,
+   24,
+   25,
+   27,
+   28
+  ],
+  "mean_step": 49.22,
+  "max_step": 81.47,
+  "last_to_first": 103.44,
+  "loop_ratio": 2.1,
+  "loops": true
+ },
+ "jitter_before": {
+  "max_anchor_step_px": 53.58,
+  "max_height_step_pct": 11.88,
+  "max_anchor_from_first_px": 149.19,
+  "height_range_pct": 71.0
+ },
+ "jitter_after": {
+  "max_anchor_step_px": 0.9,
+  "max_height_step_pct": 11.88,
+  "max_anchor_from_first_px": 0.56,
+  "height_range_pct": 71.0
+ },
+ "source": "pipeline/art/proof/videoframes/armillary-hurt/armillary-hurt.mp4"
+}

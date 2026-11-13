@@ -1,0 +1,406 @@
+rule,area,clause,tag,code_pointer
+FLOW-02,flow,Director's Cut arrives at the Keeper with wings still to destroy,i,
+FLOW-02,flow,no boss-specific tutorial on Director's Cut arrival,i,Source/UmbrellaElla/Private/Flow/UmbrellaPlayerController.cpp:StartMode/ShouldShowTutorial
+FLOW-03,flow,Director's Cut tutorial Skip begins the first level (only Resuming asserted),i,
+FLOW-03,flow,both tutorials teach the same controls (only page counts compared),i,
+FLOW-04,flow,credits roll with music,i,Source/UmbrellaElla/Private/Feedback/Audio/UmbrellaCueSubsystem.cpp:EndMusic on EncounterCompleted
+FLOW-04,flow,credits use the Start screen background,i,
+MOVE-11,move,same movement/controls asserted inside a boss encounter,i,
+MOVE-11,move,same rules asserted inside a level route,i,
+MOVE-13,move,same profile asserted in every level/boss encounter,i,
+MOVE-15,move,qualifying route rejects developer protection setting,i,Source/UmbrellaElla/Private/Settings/DeveloperOptions.cpp:qualifying-route gate
+WIND-03,levelchunks,riding a current deals zero damage,i,Source/UmbrellaElla/Private/Field/WindCurrent.cpp (overlap only broadcasts WindEntered; no damage path)
+WIND-03,levelchunks,safe supports/solids/lethal bottoms explicitly tagged,ii,none (ELevelPlacementKind has Solid/Floor only; no safe/lethal tag; LevelPlan.h)
+MOVE-22,move,effective profile recorded before qualifying play,i,Source/UmbrellaElla/Private/Smoke/PlaytestRun.cpp / Progression effective profile
+MOVE-22,move,encounter display vs collision scale tested independently,i,
+COM-07,move,shoulder-braced body family used for Stream,i,Source/UmbrellaElla/Private/Feedback/Anim/EllaAnimPresenterComponent.cpp (no per-spell body family)
+COM-07,move,posture/art adds no damage or aim (beam),i,
+COM-09,move,Needle penetrates wings during clock opening,i,Source/UmbrellaElla/Private/Projectile/UmbrellaProjectile.cpp + Encounter/KeeperFightModel.cpp:ClockOpenRemaining
+COM-09,move,Needle never bypasses clock protection/order,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:ClockProtectRemaining
+COM-11,move,XP display derived from tuned curve,i,Source/UmbrellaElla/Private/UI/Progression/XpRingWidget.cpp
+COM-11,move,damage ranks applied once to baseline,i,Source/UmbrellaElla/Private/Progression/ProgressionRules.cpp
+COM-11,move,RegularFall vs ShoulderFall poses per spell,i,Source/UmbrellaElla/Private/Feedback/Anim/EllaAnimPresenterComponent.cpp (no such poses)
+COM-11,move,required routes clearable with basic fire,i,Source/UmbrellaElla/Private/Level/LevelRules.cpp:basic-fire route rule
+FLOW-05,progression,Enemy HP/cadence/count multipliers applied to real enemies (GetRunScaling has no consumer),ii,none: no enemy/boss/spawner reads FRunScaling
+FLOW-05,progression,Ordinary firing cooldowns divided by cadence multiplier,ii,none: no enemy/boss/spawner reads FRunScaling
+FLOW-05,progression,Projectiles/telegraphs/recoveries/pauses/protection not accelerated,ii,none: no enemy/boss/spawner reads FRunScaling
+FLOW-05,progression,Physical boss scheduling intact under scaling,ii,none: no enemy/boss/spawner reads FRunScaling
+FLOW-05,progression,Extra enemies only in authored slots under local threat caps,ii,none: no enemy/boss/spawner reads FRunScaling
+FLOW-05,progression,"Warnings, escapes, early yellow healing, generator limits preserved",ii,none: no enemy/boss/spawner reads FRunScaling
+FLOW-05,progression,No unsafe mandatory encounter from more enemies,ii,none: no enemy/boss/spawner reads FRunScaling
+FLOW-06,progression,Final Hour intro screen shown before the Extreme run,ii,none: no Final Hour intro widget/text in Flow or Story
+FLOW-06,progression,Exact text 'Your borrowed time has run its course...' shown,ii,none: string absent from Source
+FLOW-06,progression,Final Hour multipliers applied to real enemies,ii,none: no consumer of FRunScaling
+FLOW-06,progression,Telegraphs/recovery/scheduling/projectile speed/safe placement preserved,ii,none: no consumer of FRunScaling
+FLOW-06,progression,No automatic increase in incoming damage,i,Source/UmbrellaElla/Private/Progression/ProgressionRules.cpp:RunScaling(bFinalHour)
+FLOW-08,progression,Quit reload restores checkpoint upgrades (ranks),i,Source/UmbrellaElla/Private/Progression/ProgressionRules.cpp:QuitReload; ProgressionSubsystem.cpp:UseSaveSlot/ModeSelected
+FLOW-08,progression,only XP asserted,i,Source/UmbrellaElla/Private/Progression/ProgressionRules.cpp:QuitReload; ProgressionSubsystem.cpp:UseSaveSlot/ModeSelected
+FLOW-09,keeper,"3-life reset keeps purchased max lives (Health.World.RetryRestoresFullLivesAndHealth asserts 4 lives, not 3)",ii,
+FLOW-09,keeper,Rollback applied before full heal (ordering),ii,"Source/UmbrellaElla/Private/Progression/ProgressionRules.cpp:DeathRetry and Source/UmbrellaElla/Private/Health/UmbrellaHealthComponent.cpp:OnCheckpointRetried are independent listeners; no ordering, capacity not wired from Progression"
+FLOW-09,keeper,Level-checkpoint retry fully heals (only event-driven retry tested),ii,
+FLOW-10,progression,Upgrades (ranks) retained into next run after win,i,Source/UmbrellaElla/Private/Progression/ProgressionRules.cpp:CompleteRun (keeps Ranks/Xp)
+FLOW-10,progression,Unlocks/weapons retained into next run after win,i,Source/UmbrellaElla/Private/Progression/ProgressionRules.cpp:CompleteRun (keeps Ranks/Xp)
+FLOW-13,progression,Level checkpoint after boss checkpoint does not exempt gains from rollback,ii,Private/Progression/ProgressionRules.cpp:ReachCheckpoint overwrites CheckpointKind=Level so DeathRetry (Boss only) skips rollback
+FLOW-13,progression,Living Keeper departure grants no reward,i,Source/UmbrellaElla/Private/Progression/ProgressionRules.cpp:DeathRetry/ReachCheckpoint
+FLOW-15,progression,MAX displayed in UI at cap,i,Source/UmbrellaElla/Private/UI/Progression/XpRingWidget.cpp:bMaxShown; ProgressionRules.cpp:IsSpellUnlocked/KillXp
+FLOW-15,progression,Spell access survives refunds,i,Source/UmbrellaElla/Private/UI/Progression/XpRingWidget.cpp:bMaxShown; ProgressionRules.cpp:IsSpellUnlocked/KillXp
+FLOW-15,progression,No traversal XP,i,Source/UmbrellaElla/Private/UI/Progression/XpRingWidget.cpp:bMaxShown; ProgressionRules.cpp:IsSpellUnlocked/KillXp
+FLOW-15,progression,Start Game has no stat upgrades (purchase not tested),i,Source/UmbrellaElla/Private/UI/Progression/XpRingWidget.cpp:bMaxShown; ProgressionRules.cpp:IsSpellUnlocked/KillXp
+FLOW-17,progression,Health purchase/refund preserves current health fraction,ii,"Private/Health/UmbrellaHealthComponent.cpp:SetCapacity (clamps, no fraction preserve; never called)"
+FLOW-17,progression,Fractional health retained without per-hit rounding (C++),i,Source/UmbrellaElla/Private/Health/HealthModel.cpp; UmbrellaHealthComponent.cpp
+FLOW-17,progression,Defense does not cancel gust displacement,i,Source/UmbrellaElla/Private/Health/HealthModel.cpp; UmbrellaHealthComponent.cpp
+FLOW-17,progression,Defense does not make lethal boundaries safe,i,Source/UmbrellaElla/Private/Health/HealthModel.cpp; UmbrellaHealthComponent.cpp
+FLOW-17,progression,Damage ranks don't change rate/geometry/protection/penetration/aim,ii,none: GetSpellDamageMultiplier/GetDamageReduction have no consumer
+FLOW-17,progression,Effects derived from baseline once,ii,none: derived values (Progression getters) not applied to live health/attacks
+FLOW-19,progression,Living Keeper departure gives no kill reward,i,Source/UmbrellaElla/Private/Progression/ProgressionRules.cpp:KillXp (label table only)
+FLOW-19,progression,CP2/CP3 passage and reload give no XP (only CP1 tested),i,Source/UmbrellaElla/Private/Progression/ProgressionRules.cpp:KillXp (label table only)
+FLOW-20,progression,Quit/reload restores checkpoint upgrades (only XP asserted),i,Source/UmbrellaElla/Private/Progression/ProgressionRules.cpp:QuitReload/KillXp
+FLOW-20,progression,No catch XP in world (only rule-table 'Absorb' label),i,Source/UmbrellaElla/Private/Progression/ProgressionRules.cpp:QuitReload/KillXp
+FLOW-21,progression,Enemy count advanced in-world after win (only HP/cadence asserted),ii,none: no consumer of FRunScaling.Count
+FLOW-21,progression,Levers applied to real enemies within generator/fairness limits,ii,none: no consumer of FRunScaling
+FLOW-21,progression,Weapons/unlocks and upgrades retained into next run,i,Source/UmbrellaElla/Private/Progression/ProgressionRules.cpp:RunScaling/CompleteRun
+FLOW-22,progression,Earned data separate from tuning/bindings,i,Source/UmbrellaElla/Private/Persistence/ProgressionSaveGame.cpp; ProgressionSubsystem.cpp:Persist/EndShadowProgress
+FLOW-22,progression,Two corrupt copies error is recoverable,i,Source/UmbrellaElla/Private/Persistence/ProgressionSaveGame.cpp; ProgressionSubsystem.cpp:Persist/EndShadowProgress
+FLOW-22,progression,Shadow progress restored on relaunch,i,Source/UmbrellaElla/Private/Persistence/ProgressionSaveGame.cpp; ProgressionSubsystem.cpp:Persist/EndShadowProgress
+FLOW-22,progression,Tutorial replay uses shadow progress,ii,none: BeginShadowProgress has no caller (tutorial replay in Flow does not use it)
+OWL-06,keeper,"Retained/restored capacity, max lives, upgrades on retry",ii,Source/UmbrellaElla/Private/Health/UmbrellaHealthComponent.cpp:SetCapacity/SetDefenseRank never called outside tests; Progression ranks (GetMaxLives) not applied to Health
+OWL-07,keeper,Complete fight contract (OWL-06..35 rows themselves partial),ii,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp (aggregate; contains ii clauses in OWL-08/18-19/21/25/27/28 and retained-capacity)
+OWL-07,keeper,No player resource system (no test),i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp (no resource system exists)
+OWL-07,keeper,"Gameplay state, not animation length, owns damage/transitions",i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:Step/TickPhysical (model has no animation input)
+OWL-08,keeper,Crownless metallic owl in side profile (visual),ii,Source/UmbrellaElla/Private/Owl/KeeperOfTime.cpp:BeginPlay (cube stand-ins only; Content/UmbrellaElla/Art/Keeper/T_Keeper_Owl_PH single placeholder)
+OWL-08,keeper,"Exactly two feet, two wings, central clock (visual)",ii,"Source/UmbrellaElla/Private/Owl/KeeperOfTime.cpp:Refresh (one wings block, one clock block, no feet)"
+OWL-08,keeper,Three visually distinct hanging mechanisms,ii,"Source/UmbrellaElla/Private/Owl/KeeperOfTime.cpp:Refresh (three identical cube blocks, same colour; art slots keeper:mechanism-* have no asset)"
+OWL-08,keeper,"Front/middle/rear identity, attachment, reachability through movement",ii,"Source/UmbrellaElla/Private/Owl/KeeperOfTime.cpp:Refresh (home offsets exist, no attachment art)"
+OWL-08,keeper,"Front is armillary/ring, not duplicated",ii,"Source/UmbrellaElla/Private/Feedback/Anim/KeeperPresenterSubsystem.cpp (keeper:mechanism-front slot, no asset)"
+OWL-09,keeper,Wings reachable at supported owl sizes,i,"Source/UmbrellaElla/Private/Owl/KeeperOfTime.cpp:AKeeperOfTime ctor (WingsPart collider, WingsOffset/HalfExtent)"
+OWL-09,keeper,Wings damaged from lift,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:ApplyPlayerHit/IsPartEligible (Wings)
+OWL-09,keeper,No new gusts after wing depletion,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:PickScheduled (Wings broken -> None)
+OWL-09,keeper,Depleted wings remain visible as cover,i,"Source/UmbrellaElla/Private/Owl/KeeperOfTime.cpp:Refresh (KeeperLook::Broken, SetHittable(false))"
+OWL-09,keeper,Middle/rear break cancels cast and removes attack,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:BreakPart/TickPhysical/PickScheduled
+OWL-10,keeper,"Retained/restored capacity, max lives, upgrades on retry",ii,Source/UmbrellaElla/Private/Health/UmbrellaHealthComponent.cpp:SetCapacity/SetDefenseRank never called outside tests; Progression ranks (GetMaxLives) not applied to Health
+OWL-11,keeper,Wings/clock aim at captured positions,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:StartRedVolley/StartDoubleBeat (aim at volley start)
+OWL-11,keeper,Mechanisms use fixed-left fan,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:StartRedVolley (FixedLeftAngleDeg)
+OWL-11,keeper,No homing,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:QueueShot (fixed velocity)
+OWL-11,keeper,Spacing 0.09s,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:StartRedVolley (RedSpacingSeconds delay per index)
+OWL-11,keeper,Normal interval 1.35s,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:StartRedVolley RedCountdown
+OWL-11,keeper,One-shot reduced volley (assertion has vacuous OR),i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:StartRedVolley (bReduced)
+OWL-11,keeper,Queued/traveling shots keep counts/paths,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:TickPending/Pending
+OWL-11,keeper,"Recovery: yellow <=0.15s, red >=0.6s, longer red kept",i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:EnterRecovery
+OWL-11,keeper,Four shots (no spec key bound for 4),i,Source/UmbrellaElla/Public/Owl/KeeperTuning.h:RedShotCount=4
+OWL-11,keeper,Fan spreads 36/70/48 deg applied when firing,i,
+OWL-11,keeper,Shot speeds 270/300 applied in flight,i,
+OWL-12,keeper,No separate timed prefire delay,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:StartPhysical Gust (stroke directly after warning)
+OWL-12,keeper,"Captured lane shown, no hidden tracking",i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:StartPhysical GustBandZ; Source/UmbrellaElla/Private/Owl/KeeperOfTime.cpp:ShowTelegraph
+OWL-12,keeper,Player can leave via rise/fall/current/evade,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:TickPhysical Gust bInBand
+OWL-13,keeper,Yellow shots are aimed,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:StartYellow
+OWL-13,keeper,Independent 2.3s cadence,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:TickAttacks YellowCountdown
+OWL-13,keeper,No absorption cooldown or energy reward,i,Source/UmbrellaElla/Private/Health/UmbrellaHealthComponent.cpp:HealFromYellow (no cooldown/energy)
+OWL-13,keeper,Yellow shot speeds 195/210 applied in flight,i,
+OWL-15,keeper,Gust in wing act only,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:PickScheduled
+OWL-15,keeper,Shared physical scheduler 6.5s from attack start,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:StartPhysical PhysicalCountdown
+OWL-15,keeper,Talon priority over gust,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:TickPhysical (talon checked before scheduled)
+OWL-15,keeper,"Wing gather/load then flap cue, readable direction",ii,Source/UmbrellaElla/Private/Owl/KeeperOfTime.cpp (no wing animation; only gust block + telegraph); Source/UmbrellaElla/Private/Feedback/Anim/KeeperPresenterSubsystem.cpp keeper:wings-gust-wear no asset
+OWL-15,keeper,Complete owl warning/strike/recovery animation verified,ii,"Source/UmbrellaElla/Private/Feedback/Anim/KeeperPresenterSubsystem.cpp (stand-in, no flipbooks)"
+OWL-16,keeper,Gust deals 1 health in play,i,
+OWL-16,keeper,Bypasses hop protection,i,Source/UmbrellaElla/Private/Health/UmbrellaHealthComponent.cpp:ShouldBypassProtection; hop protection does not gate damage
+OWL-16,keeper,Dash protection blocks damage not push,ii,Source/UmbrellaElla/Private/Motor/MotorModel.cpp (no dash protection; none in Source/UmbrellaElla/Private/Health/UmbrellaHealthComponent.cpp)
+OWL-16,keeper,Gust travels at speed 350,i,
+OWL-16,keeper,Gust band is 120 wide in play,i,
+OWL-16,keeper,Gust expires after 3s,i,
+OWL-17,keeper,Wing recovery follows the flap,ii,Source/UmbrellaElla/Private/Owl/KeeperOfTime.cpp (no wing animation)
+OWL-17,keeper,Stun clears active gusts,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:BreakPart (CancelPhysical + ClearGusts)
+OWL-17,keeper,No new gusts after depletion/stun,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:PickScheduled / Step bFrozen
+OWL-17,keeper,Depleted wing smoke remains (visual),ii,"Source/UmbrellaElla/Private/Owl/KeeperOfTime.cpp:Refresh (dark block only, no smoke VFX)"
+OWL-17,keeper,Hostile fronts distinct from voluntary wind (geometry/motion),i,Source/UmbrellaElla/Private/Owl/KeeperOfTime.cpp:Refresh GustVisual + Source/UmbrellaElla/Private/Feedback/Vfx/KeeperVfxRules.cpp GustTravel
+OWL-18,keeper,"Empty claw draws back, distinct from carrying claw (visual)",ii,Source/UmbrellaElla/Private/Feedback/Anim/KeeperPresenterSubsystem.cpp keeper:talon-empty-and-closed (no asset)
+OWL-18,keeper,"Strike direction captured at commitment, no tracking",i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:StartPhysical Talon (LockEnd)
+OWL-18,keeper,Cooldown must be clear to trigger,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:TickPhysical (TalonCooldown<=0)
+OWL-18,keeper,No test that talon stays idle outside 270,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:TickPhysical (TalonDistance<=TalonReach)
+OWL-19,keeper,Empty space and recovery do no damage,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:TickPhysical Talon (damage only in Stroke segment)
+OWL-19,keeper,Sweep tip is 48 wide in play,i,
+OWL-19,keeper,Sweep aims at captured target,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:StartPhysical Talon LockEnd
+OWL-20,keeper,Shared scheduling with talon,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:TickPhysical (single Physical slot)
+OWL-20,keeper,Must re-enter <=270 after leaving to rearm,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:TickPhysical bTalonArmed/TalonRearmExit
+OWL-20,keeper,No rearm on simple exit at attack radius,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:TickPhysical (rearm only beyond TalonRearmExit 370)
+OWL-20,keeper,Talon cooldown 3.5s from commitment enforced,i,
+OWL-21,keeper,front head locks Ella's destination (move after lock not tested),i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:StartPhysical (LockEnd)
+OWL-21,keeper,"closed claw grips armillary outer ring, load/release/follow-through",ii,Source/UmbrellaElla/Private/Feedback/Anim/KeeperPresenterSubsystem.cpp keeper:mechanism-front (no asset/animation)
+OWL-21,keeper,original attachments pay out,ii,
+OWL-21,keeper,no duplicate ring or floating grasp,ii,
+OWL-21,keeper,choreography does not change lock window or collision,ii,Source/UmbrellaElla/Private/Owl/KeeperOfTime.cpp (no choreography exists; collision separate)
+OWL-22,keeper,committed straight outward head path,i,"Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:TickPhysical default case Lerp(LockStart,LockEnd)"
+OWL-22,keeper,only the outward moving head damages,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:IsHeadHurting/TickPhysical (damage in Stroke stages)
+OWL-22,keeper,links harmless,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp (no link damage); Source/UmbrellaElla/Private/Owl/KeeperOfTime.cpp (no link visual)
+OWL-22,keeper,visible position = shootable target = damaging sweep,i,"Source/UmbrellaElla/Private/Owl/KeeperOfTime.cpp:Refresh (HeadVisual, Head collider at GetHeadPosition) + Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:TickPhysical"
+OWL-23,keeper,return home is harmless,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:TickPhysical Recovery (no damage)
+OWL-23,keeper,return takes 1.2s then settles,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:EnterRecovery ChainReturnSeconds
+OWL-23,keeper,broken part's attack stays removed until explicit reset,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:PickScheduled/IsPartBroken
+OWL-23,keeper,explicit reset restores the attack,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:BeginPhase/RetryCheckpoint (restore PartHp)
+OWL-24,keeper,middle cast keeps same endpoint/warning/head/link/return contract,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:StartPhysical/TickPhysical
+OWL-24,keeper,±80-unit sine offset,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:TickPhysical Curve = MiddleSign*MiddleOffset*sin(PI*PathT)
+OWL-24,keeper,sign uses GLOBAL physical serial (talon counts) in real casts,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:MiddleSignForSerial(CastSerial)
+OWL-24,keeper,no every-cast alternation (talon-intervening case untested),i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:StartPhysical MiddleSign
+OWL-25,keeper,shown and collides on the actual curved path,i,Source/UmbrellaElla/Private/Owl/KeeperOfTime.cpp:Refresh Head->SetWorldLocation(GetHeadPosition) + Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:TickPhysical Curve
+OWL-25,keeper,moving middle head shootable on the curve,i,Source/UmbrellaElla/Private/Owl/KeeperOfTime.cpp:Refresh MiddleHead
+OWL-25,keeper,timing uses straight-distance basis (not constant 400/s),i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:TickPhysical Warning->Stroke duration ChainReach/ChainSpeed
+OWL-25,keeper,destroying the middle cancels its cast (only front tested),i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:TickPhysical broken-part cancel
+OWL-25,keeper,dedicated art follows curved geometry,ii,Source/UmbrellaElla/Private/Feedback/Anim/KeeperPresenterSubsystem.cpp keeper:mechanism-middle (no asset)
+OWL-26,keeper,first stroke stops at half of outward stroke,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:TickPhysical RearTwoStage PathT*0.5
+OWL-26,keeper,"continues to ORIGINAL captured endpoint, no re-aim",i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:EnterStage SecondStroke (LockEnd unchanged)
+OWL-26,keeper,"both strokes share one serial, damage at most once",i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:bDamagedThisCast/CastSerial
+OWL-26,keeper,chain links harmless,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp (no link damage)
+OWL-26,keeper,1.2s return harmless,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:EnterRecovery
+OWL-27,keeper,destruction cancels either rear stroke or pause immediately,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:TickPhysical (broken part -> CancelPhysical any stage)
+OWL-27,keeper,held-in-claw artwork reconciled to mid-flight pause,ii,Source/UmbrellaElla/Private/Feedback/Anim/KeeperPresenterSubsystem.cpp keeper:mechanism-rear (no asset)
+OWL-28,keeper,repeat without re-aim (player never moved in test),i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:StartDoubleBeat (captured Center)
+OWL-28,keeper,0.6s wait after last shot,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:StartDoubleBeat RepeatStart
+OWL-28,keeper,at least 0.85s recovery after repeat,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:StartDoubleBeat Natural
+OWL-28,keeper,yellow keeps its own timer,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:TickAttacks YellowCountdown
+OWL-28,keeper,destroyed hazards not resurrected / world not rewound,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:Pending (only queued shots re-emitted)
+OWL-29,keeper,exposure cycle uses unscaled active-gameplay time,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:TickUnscaled FinalCycleTime; Source/UmbrellaElla/Private/Encounter/EncounterDirectorSubsystem.cpp:SetPaused
+OWL-29,keeper,needle never bypasses magic or target order,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:ApplyPlayerHit/IsPartEligible (no weapon-kind bypass)
+OWL-29,keeper,clock exposure independent of volley cadence,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:TickUnscaled vs TickAttacks
+OWL-30,keeper,mechanism break opens the clock,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:BreakPart OpenClock
+OWL-30,keeper,break clears gusts,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:BreakPart ClearGusts
+OWL-30,keeper,fire pause freezes physical timers and pending emissions,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:Step
+OWL-30,keeper,fire pause is not stun,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:FirePauseRemaining vs StunRemaining
+OWL-30,keeper,blackout cancels the physical move,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:StartEyeBlackout CancelPhysical
+OWL-31,keeper,hit at 128-HP floor does not start slow,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:ApplyPlayerHit bClockHpReduced
+OWL-31,keeper,slow cooldown must be ready,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:ApplyPlayerHit bSlowReady
+OWL-31,keeper,new clock opening resets slow/eye flags and clears eye,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:OpenClock
+OWL-31,keeper,extending an opening does not reset flags,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:OpenClock early return
+OWL-31,keeper,lethal final-clock hit clears all effects,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:ApplyPlayerHit -> Halt -> EndEffects
+OWL-32,keeper,eye-when-slow-off enabled by default and works with slow off,i,Source/UmbrellaElla/Public/Owl/KeeperTuning.h:bEyeWhenSlowOff=true; Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:ApplyPlayerHit bEyeAllowed
+OWL-32,keeper,eye needs cooldown ready and unused per-opening chance,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:ApplyPlayerHit
+OWL-32,keeper,eye outlasts clock closing until its timer ends,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:TickUnscaled EyeWindowRemaining
+OWL-32,keeper,new clock opening clears the eye,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:OpenClock
+OWL-32,keeper,5s eye cooldown starts on eye hit,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:StartEyeBlackout EyeCooldownSeconds
+OWL-32,keeper,blackout clears physical moves and gusts,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:StartEyeBlackout
+OWL-32,keeper,shaft/clock/fresh-shot cues and ground danger kept,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:StartEyeBlackout (clears only projectiles/gusts/moves)
+OWL-32,keeper,prior damaged body restored at blackout expiry,i,Source/UmbrellaElla/Private/Feedback/Vfx/KeeperVfxRules.cpp:Diff KeeperRestoration; PartHp untouched
+OWL-32,keeper,blackout does not extend clock exposure,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:TickUnscaled (ClockOpenRemaining keeps counting)
+OWL-33,keeper,slow/eye/cooldowns/stun/blackout/clock timers run unscaled,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:TickUnscaled
+OWL-33,keeper,physical attack timing scaled at x0.35,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:Step WorldDt
+OWL-33,keeper,player projectiles stay unscaled,i,Source/UmbrellaElla/Private/Projectile (no slow scale applied)
+OWL-33,keeper,fire pause suspends physical timers,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:Step bFrozen
+OWL-33,keeper,traveling missiles continue during fire pause,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:Step
+OWL-33,keeper,"decorative menu clocks may run while paused, no gameplay/VFX advance",i,Source/UmbrellaElla/Private/Encounter/EncounterDirectorSubsystem.cpp:SetPaused
+OWL-34,keeper,full warning→stroke→recovery→idle sequence asserted,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:TickPhysical stage switch
+OWL-34,keeper,blackout and presentation locks respected by scheduler,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:Step bFrozen (blackout); Source/UmbrellaElla/Private/Encounter/EncounterDirectorSubsystem.cpp:State gating
+OWL-34,keeper,fire pause freezes pending emissions,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:Step TickPending
+OWL-34,keeper,reduced projectile pressure during physical activity (assertion has vacuous OR),i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:StartRedVolley bReduced
+OWL-34,keeper,overlapping escape routes tested,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:TickPhysical (geometry exists; test only)
+OWL-35,keeper,living departure lasts ~2.5s as presentation only,i,Source/UmbrellaElla/Private/Encounter/EncounterDirectorSubsystem.cpp:FinalizeEnding; Source/UmbrellaElla/Private/Owl/KeeperOfTime.cpp:BeginDeparture
+OWL-35,keeper,"retry clears casts, gusts, queued repeats, locks",i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:RetryCheckpoint/StartTransition/ClearDynamicState
+OWL-35,keeper,new-run reset clears state,i,Source/UmbrellaElla/Private/Encounter/EncounterDirectorSubsystem.cpp:ResetForRestart + Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:Init/BeginPhase
+OWL-35,keeper,phase reset clears state,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp:StartTransition ClearDynamicState
+OWL-35,keeper,XP policy applied,i,Source/UmbrellaElla/Private/Progression/ProgressionRules.cpp:DeathRetry
+HAZ-02,enemies2,land is solid and harmless for Ella on contact,i,Source/UmbrellaElla/Private/BrokenMill/BrokenMillIsland.cpp
+HAZ-03,enemies2,Camera is fixed at runtime,i,
+HAZ-03,enemies2,guard is stationary (never moves),i,"Source/UmbrellaElla/Private/BrokenMill/BrokenMillRoom.cpp:guard spawn, no movement"
+HAZ-03,enemies2,Guard contact deals 0 damage in play,i,
+HAZ-04,enemies2,entry must be from the left,i,Source/UmbrellaElla/Private/BrokenMill/BrokenMillRules.cpp:bPassedBehind/IsInMissedCurrentAssist
+HAZ-04,enemies2,source and muzzle fully visible check,i,Source/UmbrellaElla/Private/BrokenMill/BrokenMillRoom.cpp:bEngagementValid
+HAZ-04,enemies2,engagement validity required at warning start (only release tested),i,Source/UmbrellaElla/Private/BrokenMill/BrokenMillRules.cpp:FMillGuard::Tick Idle->Warning
+HAZ-05,enemies2,recovery must complete before rearm,i,Source/UmbrellaElla/Private/BrokenMill/BrokenMillRules.cpp:FMillGuard::Tick
+HAZ-05,enemies2,no warning in reset/underpass (room only flags assist and exit),i,Source/UmbrellaElla/Private/BrokenMill/BrokenMillRoom.cpp:bInNoWarningPhase
+HAZ-05,enemies2,launched projectile actor persists after guard disabled,i,
+HAZ-05,enemies2,pause freezes all gameplay clocks (only guard clock tested),i,
+HAZ-05,enemies2,no arbitrary seam culling of danger,i,Source/UmbrellaElla/Private/BrokenMill/BrokenMillRoom.cpp
+HAZ-17,enemies2,gate checks incoming velocity/mode,ii,Source/UmbrellaElla/Private/BrokenMill/BrokenMillRules.cpp:GetPoolGateFailures
+HAZ-17,enemies2,gate checks low health,ii,Source/UmbrellaElla/Private/BrokenMill/BrokenMillRules.cpp:GetPoolGateFailures
+HAZ-17,enemies2,gate checks dash state,ii,Source/UmbrellaElla/Private/BrokenMill/BrokenMillRules.cpp:GetPoolGateFailures
+HAZ-17,enemies2,gate checks pending warnings,i,Source/UmbrellaElla/Private/BrokenMill/BrokenMillRules.cpp:GetPoolGateFailures PendingWarning
+HAZ-17,enemies2,gate checks delayed impacts,i,Source/UmbrellaElla/Private/BrokenMill/BrokenMillRules.cpp:GetPoolGateFailures DelayedImpact
+HAZ-17,enemies2,one active owner,i,Source/UmbrellaElla/Private/BrokenMill/BrokenMillRules.cpp:MoreThanOneOwner
+HAZ-17,enemies2,no new simultaneous timing demand without proof,i,Source/UmbrellaElla/Private/BrokenMill/BrokenMillRules.cpp:NewSimultaneousTiming
+HAZ-17,enemies2,exact fallback specified,ii,Source/UmbrellaElla/Private/BrokenMill/BrokenMillRules.cpp (no fallback action on gate failure)
+HAZ-17,enemies2,"integrate with progression, preserve earned state",ii,Source/UmbrellaElla/Private/BrokenMill/BrokenMillRules.cpp:IsProgressionWriteAllowed returns false
+HAZ-17,enemies2,catalogue not silently replaced,ii,Source/UmbrellaElla/Private/Level/LevelCatalogue.cpp (no guard)
+CAM-03,levelchunks,required paths work with direct steering OFF,ii,none (no direct-steering toggle or required-path solver; ChunkLayouts.cpp:ValidateBypass only checks geometry)
+CAM-03,levelchunks,no mandatory dash/spell/invulnerability on required paths,ii,none (no required-path action check in ChunkLayouts.cpp:Validate)
+CAM-05,levelchunks,support incoming speed and settle excess momentum at interface,ii,none (interface only geometric: ChunkLayouts.cpp ChunkInterfaceBand; no speed/momentum handling in MotorModel)
+CAM-06,levelchunks,opening height >= 2rz+2m (no failing-height case),i,Source/UmbrellaElla/Private/Level/LevelRules.cpp:CanOpeningFit
+CAM-06,levelchunks,openings checked against full trap sweeps,ii,Source/UmbrellaElla/Private/Level/ChunkLayouts.cpp:Validate (CanOpeningFit/MinVerticalClearance never called on layouts)
+CAM-06,levelchunks,unassisted recovery climb limited to ~0.15H or lift route (not in game),ii,none (gdd_check CAM-06.h.2 NOT_IN_GAME; FFieldTuning)
+CAM-06,levelchunks,enlarged unqualified profiles get wider variants or labels,ii,none (LevelContracts.cpp:IsInsideQualifiedEnvelope exists but unused by catalogue)
+CAM-08,levelchunks,"next current, hazard and safe exit revealed before commitment",ii,"Source/UmbrellaElla/Private/Level/LevelRules.cpp:IsFullyRevealed (library only, not applied to layouts)"
+CAM-08,levelchunks,reveal holds when backtracking left (real chunks),i,Source/UmbrellaElla/Private/Level/LevelCatalogue.cpp:CameraRules::ScrollCentreX
+CAM-08,levelchunks,"clearance includes reaction, braking, height-change time",ii,"Source/UmbrellaElla/Private/Level/LevelRules.cpp:MinVerticalClearance (takes measured envelope, no computation of reaction/braking)"
+CAM-08,levelchunks,upper limits and bottom danger readable,ii,none (no cue/marking for bounds)
+HAZ-19,enemies2,lethal world boundaries separately marked,ii,none
+HAZ-19,enemies2,collision follows visible moving parts,ii,Source/UmbrellaElla/Private/Trap/UmbrellaTrap.cpp:ApplyContact (swept disk; no visible blades)
+HAZ-19,enemies2,air mill visible hub and four blades,ii,Source/UmbrellaElla/Private/Trap/UmbrellaTrap.cpp:BeginPlay (single cube placeholder; FTrapRules::BladeAngle unused)
+HAZ-19,enemies2,"never require tip-threading, destroying or invulnerability",ii,Source/UmbrellaElla/Private/Level/ChunkLayouts.cpp:Validate (no check)
+HAZ-19,enemies2,foreground mill distinct from decorative distant windmill,ii,none (no decorative windmill)
+HAZ-20,enemies2,visible crank/tension warning,ii,Source/UmbrellaElla/Private/Trap/UmbrellaTrap.cpp:BeginPlay (phase not drawn)
+HAZ-20,enemies2,clearly open look in recovery,ii,Source/UmbrellaElla/Private/Trap/UmbrellaTrap.cpp (no phase visual)
+HAZ-20,enemies2,hazard-free waiting pocket,i,Source/UmbrellaElla/Private/Level/ChunkLayouts.cpp:Validate/ChunkCatalogueData.h (authored layout)
+HAZ-20,enemies2,always-open low bypass in every variant (07B has upper detour),i,Source/UmbrellaElla/Private/Level/ChunkLayouts.cpp:ValidateBypass
+HAZ-20,enemies2,"damage only on visible panels, never the gap",ii,"Source/UmbrellaElla/Private/Trap/UmbrellaTrap.cpp:ConfigureKind (single full box hazard, no panels/gap)"
+HAZ-20,enemies2,committed travel never trapped without exit,ii,Source/UmbrellaElla/Private/Level/ChunkLayouts.cpp (no committed-travel check)
+HAZ-21,enemies2,visible nozzle warning,ii,Source/UmbrellaElla/Private/Trap/UmbrellaTrap.cpp (no phase visual)
+HAZ-21,enemies2,warning locks one lane,ii,none
+HAZ-21,enemies2,push actually applied toward safe catch space (Motor ignores it),ii,Source/UmbrellaElla/Private/Trap/TrapRules.cpp:BellowsPush (never called; Motor/EllaMotorComponent.cpp does not read it)
+HAZ-21,enemies2,cannot Ride or absorb the gust,ii,none (no gust object; Defense/AbsorbReceiverComponent.cpp)
+HAZ-21,enemies2,required wind never silently redirected,ii,none
+HAZ-21,enemies2,distinct cues: transport curls vs jagged hostile front,ii,none (WindCurrent field is a flat box)
+HAZ-22,enemies2,high-contrast projection visible on approach,ii,Source/UmbrellaElla/Private/Trap/UmbrellaTrap.cpp:BeginPlay (StandInDefaultColor cube)
+HAZ-22,enemies2,no surprise activation,i,"Source/UmbrellaElla/Private/Trap/TrapRules.cpp:IsPhaseDamaging (teeth always damaging, static)"
+HAZ-22,enemies2,no confusing decorative tiles,ii,none (no decorative tiles to check)
+HAZ-23,enemies2,retime/reject encounter instead of freezing geometry,ii,Source/UmbrellaElla/Private/Trap/TrapRules.cpp:FPressureContract::Evaluate (reports violations; no retime or reject applied in LevelCatalogue/LevelPlan)
+HAZ-23,enemies2,no attacks from UNcleared neighbours (test checks cleared),ii,Source/UmbrellaElla/Private/Trap/TrapRules.cpp:Evaluate (only bFromClearedNeighbor; uncleared case not modelled)
+HAZ-23,enemies2,no pursuers past cleared exits,ii,none
+HAZ-23,enemies2,no shots through refuges,ii,none (LevelRules.cpp:IsRayClearOfCircle unused)
+HAZ-23,enemies2,clear at observed safe boundary,ii,none
+HAZ-31,levelchunks,neither variant requires a timed dash,ii,Source/UmbrellaElla/Private/Level/ChunkLayouts.cpp:Validate (no required-action analysis)
+HAZ-32,levelchunks,bellows source and whole path visible,ii,none (no bellows source/path visual; Trap placeholder cube)
+HAZ-33,levelchunks,no hidden roof-face collision,i,Source/UmbrellaElla/Public/Level/ChunkCatalogueData.h (09A/09B rows; Hazard box = visible placeholder)
+HAZ-34,levelchunks,net progress right (no test asserts it),i,
+HAZ-34,levelchunks,sequence order low->reset->upper not asserted,i,
+HAZ-35,levelchunks,A Warden fire starts only after crossing clears,ii,Source/UmbrellaElla/Private/Enemy/UmbrellaEnemy.cpp (no crossing-clear gate; FPressureChunk.bFireSealsEscape not wired)
+HAZ-36,levelchunks,A alternate attack windows,ii,Source/UmbrellaElla/Private/Enemy/EnemyRules.cpp (enemies cycle independently; no alternation)
+HAZ-36,levelchunks,B stilt and Courier on the right (X not checked),i,Source/UmbrellaElla/Public/Level/ChunkCatalogueData.h (12B rows 0.66/0.84)
+HAZ-36,levelchunks,no unavoidable simultaneous lanes,ii,Source/UmbrellaElla/Private/Trap/TrapRules.cpp:Evaluate (not applied to layouts)
+HAZ-36,levelchunks,B bypass specifically avoids the stilt,i,Source/UmbrellaElla/Private/Level/ChunkLayouts.cpp:ValidateBypass (bypass vs HazardRect)
+HAZ-37,levelchunks,refuge CP2 placed after group B,i,Source/UmbrellaElla/Private/Level/LevelCatalogue.cpp:RefugeStartX; LevelGrammar.h:SlotChunks
+HAZ-37,levelchunks,once-only journey clue at CP2,ii,none (no journey clue event)
+HAZ-37,levelchunks,refuge CP3 after group C,i,Source/UmbrellaElla/Private/Level/LevelCatalogue.cpp:RefugeStartX
+HAZ-37,levelchunks,quiet arrival before Keeper,i,Source/UmbrellaElla/Private/Level/UmbrellaLevelDirector.cpp:StepFollow (clears enemies/traps at handoff); LevelContracts.cpp:IsBossArrivalReady
+HAZ-37,levelchunks,recovery/story ordering stays fixed,i,Source/UmbrellaElla/Private/Level/LevelCatalogue.cpp:ValidateRoute (slot grammar)
+HAZ-40,levelchunks,"separate layout, cosmetic and story random streams",ii,Source/UmbrellaElla/Private/Level/LevelCatalogue.cpp:BuildCandidate (layout) + LevelPlan.cpp (colour); no cosmetic/story stream
+HAZ-40,levelchunks,new run saves seed and generator/catalog/profile versions,ii,Source/UmbrellaElla/Public/Persistence/ProgressionSaveGame.h (no seed/version fields; only FormatVersion)
+HAZ-40,levelchunks,saved variants immutable and ordered,ii,none (route not saved)
+HAZ-40,levelchunks,retry preserves resolved layout,ii,"Source/UmbrellaElla/Private/Core/UmbrellaGameMode.cpp:PlaceAtLastCheckpoint (director not rebuilt, but route/seed not persisted across sessions)"
+HAZ-40,levelchunks,"route check: minimum lift, gun windows, pressure",ii,Source/UmbrellaElla/Private/Level/LevelCatalogue.cpp:ValidateRoute (grammar/mechanic only)
+HAZ-40,levelchunks,route check: story/recovery order,i,Source/UmbrellaElla/Private/Level/LevelCatalogue.cpp:ValidateRoute (SlotOptions grammar)
+HAZ-40,levelchunks,at most 32 attempts then named verified fallback,i,Source/UmbrellaElla/Private/Level/LevelCatalogue.cpp:GenerateAvoiding
+HAZ-40,levelchunks,fallback failure branch force-tested,i,Source/UmbrellaElla/Private/Level/LevelCatalogue.cpp:GenerateAvoiding (fallback branch; FallbackRoute unvalidated)
+FLOW-27,levelchunks,refuge core permanent harmless lift/reacquisition,ii,Source/UmbrellaElla/Private/Level/LevelPlan.cpp:Build (Refuge is a floor block; no lift)
+FLOW-27,levelchunks,clear cycling space,ii,none
+FLOW-27,levelchunks,no incoming threat lane into core,ii,Source/UmbrellaElla/Private/Level/LevelPlan.cpp (no check)
+FLOW-27,levelchunks,no forced damage or timer in refuge,i,Source/UmbrellaElla/Private/Level/LevelPlan.cpp:Build (refuge has no hazards/timer)
+FLOW-27,levelchunks,optional yellow bay ahead/right expires shots before core,ii,none
+FLOW-27,levelchunks,ordinary yellow contact still hurts,i,Source/UmbrellaElla/Private/Enemy/UmbrellaEnemy.cpp / Projectile (EnemyYellow shot damage)
+FLOW-29,progression,Defeat/retry context alone is inspection-only,i,Source/UmbrellaElla/Private/Progression/ProgressionRules.cpp:CanPurchase; UI/Progression/ProgressionPurchaseWidget.cpp:IsInspectionOnly
+FLOW-29,progression,'Active' eligibility condition,i,Source/UmbrellaElla/Private/Progression/ProgressionRules.cpp:CanPurchase; UI/Progression/ProgressionPurchaseWidget.cpp:IsInspectionOnly
+FLOW-29,progression,CP0 alone is not a purchase zone,i,Source/UmbrellaElla/Private/Progression/ProgressionRules.cpp:CanPurchase; UI/Progression/ProgressionPurchaseWidget.cpp:IsInspectionOnly
+NAR-04,settings2,start confirmation consumed so it cannot also fire/hop,i,"Source/UmbrellaElla/Private/Flow/UmbrellaPlayerController.cpp:PressSkip; FlowRules.cpp:StorySkipKeys (Enter/Start, unbound in gameplay)"
+NAR-07,settings2,Keeper withdraws alive into darkness,i,Source/UmbrellaElla/Private/Owl/KeeperOfTime.cpp:BeginDeparture/Tick (rise then hide); Source/UmbrellaElla/Private/Feedback/Vfx/KeeperVfxRules.cpp:Diff KeeperDeparture
+FLOW-34,flow,title music plays,ii,"Source/UmbrellaElla/Private/Feedback/Audio/UmbrellaCueSubsystem.cpp (StartMusic keyed to ModeSelected, not title screen)"
+FLOW-34,flow,background moves slowly,i,Source/UmbrellaElla/Private/UI/Menus/FlowMenuWidgets.cpp:SFlowBackground::OnPaint
+FLOW-34,flow,background art contains no characters,i,Source/UmbrellaElla/Private/UI/Menus/FlowMenuWidgets.cpp:SFlowBackground (drawn drift)
+FLOW-34,flow,"second button label is 'Director's Cut', GDD says 'Start Director's Cut'",ii,
+FLOW-35,flow,Quit exits the game,i,Source/UmbrellaElla/Private/Flow/UmbrellaPlayerController.cpp:QuitGame
+FLOW-35,flow,pause background animates ticking clocks and falling objects,i,Source/UmbrellaElla/Private/UI/Menus/FlowMenuWidgets.cpp:Backdrop Clocks (clocks; falling objects partial)
+FLOW-35,flow,pause background motion never advances gameplay,i,Source/UmbrellaElla/Private/UI/Menus/FlowMenuWidgets.cpp (Slate only)
+FLOW-39,settings2,Richard - Producer credit line,i,Source/UmbrellaElla/Private/Flow/FlowStoryText.cpp:GetCreditsLines; Settings/SettingsModel.cpp:GetCredits
+FLOW-39,settings2,"end credits roll (FlowStoryText) lists the full team, only one role checked",i,Source/UmbrellaElla/Private/Flow/FlowStoryText.cpp:GetCreditsLines; Settings/SettingsModel.cpp:GetCredits
+FLOW-40,settings2,"each page (Sound, Controller, Credits, Game Options) shows Back and Save buttons",i,Source/UmbrellaElla/Private/UI/Settings/SettingsMenuWidget.cpp:RebuildBody (Back+Save on all pages)
+FLOW-49,settings2,title text 'Journey Complete',i,Source/UmbrellaElla/Private/UI/Story/StoryWidgets.cpp:UJourneyCompleteWidget::RebuildWidget
+FLOW-49,settings2,Main Menu button,i,Source/UmbrellaElla/Private/UI/Story/StoryWidgets.cpp:UJourneyCompleteWidget::RebuildWidget
+FLOW-49,settings2,approved Gothic storybook look,ii,Content/UmbrellaElla/UI/*_PH.uasset (placeholder UI art; style in UI/Style)
+FLOW-49,settings2,readable controller/keyboard focus,ii,Private/UI/Story/StoryWidgets.cpp (no keyboard/gamepad focus handling on JourneyComplete)
+FLOW-42,progression,Review screen shows complete costs and effects,ii,Private/UI/Progression/ProgressionPurchaseWidget.cpp:Rebuild (shows rank n/max and net cost only; no per-rank cost/effect text)
+FLOW-42,progression,Confirm saves the staged draft atomically (draft commit untested),i,Source/UmbrellaElla/Private/UI/Progression/ProgressionPurchaseWidget.cpp:Confirm/OnProgressionChanged
+FLOW-42,progression,Context change discards unconfirmed draft,i,Source/UmbrellaElla/Private/UI/Progression/ProgressionPurchaseWidget.cpp:Confirm/OnProgressionChanged
+FLOW-42,progression,Start Game has no upgrades (purchase path),i,Source/UmbrellaElla/Private/UI/Progression/ProgressionPurchaseWidget.cpp:Confirm/OnProgressionChanged
+FLOW-43,settings2,dirty Back 'Save' choice saves,i,Source/UmbrellaElla/Private/UI/Settings/SettingsMenuWidget.cpp:ChooseBack; SettingsModel.cpp:ResetToDefaults/ResetBindings
+FLOW-43,settings2,named setups independent of earned character state,ii,none: no named setups in Settings
+FLOW-43,settings2,HP-max tuning requires explicit encounter restart,ii,none: no explicit encounter-restart gate for HP-max tuning
+FLOW-43,settings2,reset never erases the earned profile,i,Source/UmbrellaElla/Private/UI/Settings/SettingsMenuWidget.cpp:ChooseBack; SettingsModel.cpp:ResetToDefaults/ResetBindings
+ART-04,flow,credits/End screen uses the Start background (only Story+Title flag tested),i,
+ART-04,flow,background moves slowly,i,Source/UmbrellaElla/Private/UI/Menus/FlowMenuWidgets.cpp:SFlowBackground::OnPaint
+ART-04,flow,background art contains no characters,i,Source/UmbrellaElla/Private/UI/Menus/FlowMenuWidgets.cpp:SFlowBackground
+MOVE-08,flow,D-pad left/right and [ cycle spells,i,Source/UmbrellaElla/Private/Input/UmbrellaInputBindings.cpp:SpellNext/SpellPrevious
+MOVE-08,flow,keys 2/3 bound to Stream/Twin,i,Source/UmbrellaElla/Private/Input/UmbrellaInputBindings.cpp:Spell2/Spell3
+MOVE-08,flow,right-stick directions select spells,i,Source/UmbrellaElla/Private/Input/UmbrellaInputBindings.cpp:Gamepad_RightStick_*
+MOVE-08,flow,Escape/Menu opens pause during play,i,Source/UmbrellaElla/Private/Flow/UmbrellaPlayerController.cpp:PauseAction MapKey Escape/Gamepad_Special_Right
+MOVE-08,flow,Cross/A/Enter triggers retry on defeat screen,i,Source/UmbrellaElla/Private/Flow/UmbrellaPlayerController.cpp:Defeat Retry keys
+MOVE-09,flow,mouse click selects in menus,i,Source/UmbrellaElla/Private/UI/Menus/FlowMenuWidgets.cpp:SFlowMenu OnMouseButtonDown
+MOVE-09,flow,controller button remap,ii,Source/UmbrellaElla/Private/Settings/SettingsModel.cpp (Controller page; no gamepad rebind found)
+MOVE-10,settings2,controller (gamepad) button remap in Controller menu,i,Source/UmbrellaElla/Private/UI/Settings/SettingsMenuWidget.cpp:AddControllerBody/BeginRemap/NativeOnKeyDown (lists all bindings incl. gamepad)
+MOVE-17,settings2,controller (gamepad) button remap in Controller menu,i,Source/UmbrellaElla/Private/UI/Settings/SettingsMenuWidget.cpp:AddControllerBody/BeginRemap/NativeOnKeyDown
+SURV-05,move,clock HUD actually drawn in game,i,Source/UmbrellaElla/Private/UI/UmbrellaHUD.cpp:DrawHUD; Private/Defense/AbsorbReceiverComponent.cpp:ReceiveShot
+SURV-05,move,"no extra clocks, umbrella icons or numeric count",i,Source/UmbrellaElla/Private/UI/UmbrellaHUD.cpp:DrawHUD; Private/Defense/AbsorbReceiverComponent.cpp:ReceiveShot
+SURV-06,progression,+1 life per point (lives value after purchase),ii,none: GetMaxLives/GetHitCapacity have no consumer; UUmbrellaHealthComponent::SetCapacity never called from progression
+SURV-06,progression,previous-rank dependency for three-rank tracks,i,Source/UmbrellaElla/Private/Progression/ProgressionRules.cpp:MaxLives/TryCommitRanks
+FLOW-24,levelchunks,story events deterministic on retry,ii,none (no story-event stream in route; LevelPlan.cpp/UmbrellaLevelDirector.cpp)
+COM-12,enemies2,Floodstrider/Courier male+female art present,ii,Art assets; Source/UmbrellaElla/Private/Enemy/UmbrellaEnemy.cpp:Gender (stand-in scale only)
+COM-12,enemies2,identity consistent across actions/colours/damage states,ii,Source/UmbrellaElla/Private/Feedback/Anim/EnemyPresenterSubsystem.cpp
+COM-12,enemies2,gender parity tested only for Roadwarden,i,Source/UmbrellaElla/Private/Enemy/UmbrellaEnemy.cpp:Configure
+COM-12,enemies2,Floodstrider two-person four-stilt rig,ii,Source/UmbrellaElla/Private/Enemy/UmbrellaEnemy.cpp (only FloodstriderStiltHeight tuning)
+COM-12,enemies2,woman-carrier/man-operator version and per-role alternatives,ii,none
+COM-12,enemies2,carrier/operator roles stay distinct,ii,none
+COM-12,enemies2,enemy contact damage OFF,i,Source/UmbrellaElla/Private/Enemy/UmbrellaEnemy.cpp (no contact damage path)
+COM-12,enemies2,zero HP stops new/delayed fire,i,Source/UmbrellaElla/Private/Enemy/EnemyRules.cpp:Defeated
+COM-12,enemies2,non-graphic defeat/disable/withdrawal visual,i,Source/UmbrellaElla/Private/Feedback/Anim/EnemyPresenterSubsystem.cpp
+COM-12,enemies2,launched projectiles obey ownership/exit after defeat,i,Source/UmbrellaElla/Private/Enemy/UmbrellaEnemy.cpp:Packets
+COM-12,enemies2,equipment art adds no extra shots,i,Source/UmbrellaElla/Private/Enemy/UmbrellaEnemy.cpp (shots from tuning)
+COM-13,enemies2,Roadwarden equipment variants fire red and yellow,ii,Source/UmbrellaElla/Private/Enemy/UmbrellaEnemy.cpp:Configure (ShotKind only; no equipment variants)
+COM-13,enemies2,Floodstrider crew versions fire red and yellow,i,Source/UmbrellaElla/Private/Enemy/UmbrellaEnemy.cpp:Configure ShotKind
+COM-13,enemies2,Courier gender variants fire red and yellow,i,Source/UmbrellaElla/Private/Enemy/UmbrellaEnemy.cpp:Configure ShotKind
+FLOW-46,enemies2,Floodstriders placed high without platform,i,Source/UmbrellaElla/Public/Level/ChunkCatalogueData.h (rows 4A/4B/12) ; ChunkLayouts.cpp:Validate
+FLOW-46,enemies2,shot colour chosen independently of gender,i,Source/UmbrellaElla/Private/Level/UmbrellaLevelDirector.cpp:SpawnMechanic (gender = Slot%2; colour from seeded stream)
+FLOW-46,enemies2,MIX02 authored yellow reserved first,i,"Source/UmbrellaElla/Private/Level/LevelPlan.cpp:Build (Yellow rows forced, Any assigned after)"
+FLOW-46,enemies2,collision clearance of placed enemies,ii,Source/UmbrellaElla/Private/Level/ChunkLayouts.cpp:Validate (no enemy-vs-solid clearance except stand/rest)
+FLOW-46,enemies2,simultaneous-threat limits preserved,ii,Source/UmbrellaElla/Private/Trap/TrapRules.cpp:FPressureContract (not run on catalogue layouts)
+FLOW-46,enemies2,"unsafe/unreachable encounters rejected, ratio not forced",ii,Source/UmbrellaElla/Private/Level/LevelPlan.cpp:Build (ratio forced via AssignShotColors; no reject)
+HAZ-41,levelchunks,spawned enemy stays on its floating area in world,ii,Source/UmbrellaElla/Private/Enemy/UmbrellaEnemy.cpp:145 (no ground/support check)
+HAZ-41,levelchunks,holes and gaps in support accounted for,ii,Source/UmbrellaElla/Private/Level/LevelCatalogue.cpp:IsFootprintOnSupport (unused)
+HAZ-41,levelchunks,patrol span shrinks to available surface,ii,Source/UmbrellaElla/Private/Level/LevelCatalogue.cpp:ClampPatrolCentre (unused; patrol span fixed in EnemyRules.cpp)
+HAZ-41,levelchunks,turn/attack motion kept within support,ii,Source/UmbrellaElla/Private/Enemy/EnemyRules.cpp:46 (span only)
+FLOW-47,levelchunks,QA-40/41/42 automated tests as defined,ii,none (tests are test-only; no QA-40/41/42 harness)
+FLOW-47,levelchunks,short/long stilt configs validated,ii,Source/UmbrellaElla/Private/Level/ChunkLayouts.cpp:Validate (one stilt profile)
+FLOW-47,levelchunks,"actual body/weapon extents validated, not spawn points",i,Source/UmbrellaElla/Private/Level/ChunkLayouts.cpp:HazardRect (body + patrol span; weapon extent missing)
+FLOW-47,levelchunks,safe firing/catch-lane test,ii,none
+FLOW-47,levelchunks,"seeded record: seed, revision, enemy type/colour/transform, results",ii,none (no record writer)
+COM-14,enemies2,female Roadwarden red/yellow firing,i,Source/UmbrellaElla/Private/Enemy/UmbrellaEnemy.cpp:Configure
+COM-14,enemies2,patrol cannot move target behind fixed-right fire,i,Source/UmbrellaElla/Private/Enemy/EnemyRules.cpp:patrol limits
+COM-14,enemies2,equipment variants keep same burst/cadence,ii,Source/UmbrellaElla/Private/Enemy/EnemyRules.cpp (no equipment variants)
+COM-15,enemies2,two-person rig on four stilts,ii,Source/UmbrellaElla/Private/Enemy/UmbrellaEnemy.cpp (stilt height tuning only)
+COM-15,enemies2,adjustable short/long stilt heights,i,Source/UmbrellaElla/Private/Enemy/EnemyTuning.h:FloodstriderStiltHeight
+COM-15,enemies2,placed high without floating platform,ii,Source/UmbrellaElla/Private/Level/ChunkLayouts.cpp
+COM-15,enemies2,male/female crew fire red and yellow,i,Source/UmbrellaElla/Private/Enemy/UmbrellaEnemy.cpp:Configure
+COM-15,enemies2,harmless legs leave real underbody passage,ii,Source/UmbrellaElla/Private/Enemy/UmbrellaEnemy.cpp (collision of legs)
+COM-15,enemies2,gender keeps crew count/HP/scale/targeting/stilts,i,Source/UmbrellaElla/Private/Enemy/UmbrellaEnemy.cpp:Configure
+COM-16,enemies2,male/female propeller art,ii,Art assets; Source/UmbrellaElla/Private/Feedback/Anim/EnemyPresenterSubsystem.cpp
+COM-16,enemies2,four mounts never give simultaneous shots,i,Source/UmbrellaElla/Private/Enemy/UmbrellaEnemy.cpp:CourierEmissionSlots Packets
+COM-17,enemies2,launched shots resolve normally after withdrawal,i,Source/UmbrellaElla/Private/Enemy/UmbrellaEnemy.cpp:Withdraw handling
+COM-17,enemies2,duplicate callback rejected in world,i,Source/UmbrellaElla/Private/Enemy/UmbrellaEnemy.cpp:Packets
+COM-18,enemies2,all required traversal works with basic fire,i,Source/UmbrellaElla/Private/Level/LevelRules.cpp
+COM-18,enemies2,Courier need not die to supply healing,i,Source/UmbrellaElla/Private/Enemy/EnemyRules.cpp:Withdraw
+COM-18,enemies2,descent window and left reset before every enemy,ii,Source/UmbrellaElla/Private/Enemy/EnemyRules.cpp (no descent window/reset)
+HAZ-24,levelchunks,no horizontal whole-chunk mirror,i,"Source/UmbrellaElla/Private/Level/LevelCatalogue.cpp:BuildAll (A/B authored, no mirror code)"
+FLOW-30,move,clock HUD actually drawn in game (only layout math tested),i,Source/UmbrellaElla/Private/UI/UmbrellaHUD.cpp:DrawHUD; HudTuning.h colors
+FLOW-30,move,warm gold upper-right arc,i,Source/UmbrellaElla/Private/UI/UmbrellaHUD.cpp:DrawHUD; HudTuning.h colors
+FLOW-30,move,"no extra clocks, umbrella HUD units or numeric count",i,Source/UmbrellaElla/Private/UI/UmbrellaHUD.cpp:DrawHUD; HudTuning.h colors
+FLOW-30,move,hands high-contrast/readable over face across scenes,i,Source/UmbrellaElla/Private/UI/UmbrellaHUD.cpp:DrawHUD; HudTuning.h colors
+FLOW-32,move,gold arc restores on heal / drains on hit,i,"Source/UmbrellaElla/Private/UI/UmbrellaHUD.cpp:DrawHUD (arc, life hand)"
+FLOW-32,move,reserve handover shown without invulnerability/reset pause,i,"Source/UmbrellaElla/Private/UI/UmbrellaHUD.cpp:DrawHUD (arc, life hand)"
+FLOW-33,move,same-shot heal overflow into spent reserve,i,Source/UmbrellaElla/Private/Health/HealthModel.cpp:heal
+FLOW-33,move,progression rollback applied before health restore,i,Source/UmbrellaElla/Private/Flow/UmbrellaPlayerController.cpp:Retry/ResetForRetry
+FLOW-33,move,+1 life per point in Director's Cut,i,Source/UmbrellaElla/Private/Progression/ProgressionRules.cpp
+VFX-06,standins,no dynamic VFX/illumination baked into base sprites,ii,Art assets / Source/UmbrellaElla/Private/Feedback/Art/ArtSlot.cpp
+VFX-06,standins,"effects off: character stays dark, posed, damaged",i,Source/UmbrellaElla/Private/Feedback/Vfx/UmbrellaVfxSubsystem.cpp
+VFX-06,standins,audio cleared on retry/phase reset/defeat,i,Source/UmbrellaElla/Private/Feedback/Audio/UmbrellaCueSubsystem.cpp
+VFX-06,standins,effects cleared on defeat,i,Source/UmbrellaElla/Private/Feedback/Vfx/UmbrellaVfxSubsystem.cpp
+VFX-06,standins,destroyed parts not restored incorrectly,i,Source/UmbrellaElla/Private/Feedback/Anim/KeeperPresenterSubsystem.cpp
+VFX-09,standins,effects inspected at camera scale on every background/state,i,"Source/UmbrellaElla/Private/Feedback/Vfx/UmbrellaVfxSubsystem.cpp (needs capture review, no code gap)"
+VFX-09,standins,visual threat extent matches hitboxes,i,Source/UmbrellaElla/Private/Feedback/Vfx/KeeperVfxRules.cpp
+VFX-09,standins,glow never implies range or hides safe gap,i,Source/UmbrellaElla/Private/Feedback/Vfx/VfxLightPolicy.cpp
+VFX-09,standins,red/yellow distinguishable without colour,ii,Source/UmbrellaElla/Private/Feedback/Vfx/VfxCatalog.cpp (colour-only distinction)
+VFX-09,standins,warning/active/recovery distinguishable without colour,i,Source/UmbrellaElla/Private/Feedback/Vfx/KeeperVfxRules.cpp
+VFX-09,standins,VFX/animation obey pause/slow/cancel timing,i,Source/UmbrellaElla/Private/Feedback/Vfx/UmbrellaVfxSubsystem.cpp
+VFX-09,standins,"no added delays, re-aims or beats",i,Source/UmbrellaElla/Private/Feedback/Vfx/UmbrellaVfxDirectorSubsystem.cpp
+CORE-04,move,"movement owns input mode, position/velocity, locks",i,Source/UmbrellaElla/Private/Motor/EllaMotorComponent.cpp
+CORE-04,move,"weapons own emission/trajectory/hit identity, not ammo",i,Source/UmbrellaElla/Private/Attack/AttackEmitterComponent.cpp
+CORE-04,move,"encounter owns targets, scheduling, cancellation",i,Source/UmbrellaElla/Private/Encounter/EncounterDirectorSubsystem.cpp
+CORE-04,move,attack model owns target/path/warning/stroke/recovery,i,Source/UmbrellaElla/Private/Encounter/KeeperFightModel.cpp
+CORE-04,move,presentation never infers damage from animation completion,i,Source/UmbrellaElla/Private/Feedback/Anim/KeeperPresenterSubsystem.cpp
+CORE-04,move,"story owns facts/cues, not combat success",i,Source/UmbrellaElla/Private/Story/StoryRules.cpp
+CORE-04,move,level owns route/checkpoints/spawns,i,Source/UmbrellaElla/Private/Level/UmbrellaLevelDirector.cpp
+CORE-04,move,tuning owns validated persistence,i,Source/UmbrellaElla/Private/Core/UmbrellaTuning.cpp
+CORE-05,move,stable anchors and event identities,i,Source/UmbrellaElla/Private/Core/UmbrellaEventBus.cpp
+CORE-05,move,cosmetic swaps keep target order and attack timing,i,Source/UmbrellaElla/Private/Feedback/Art/ArtSlot.cpp
+CORE-05,move,settings and earned growth independent,i,Source/UmbrellaElla/Private/Settings/SettingsStore.cpp + Persistence/ProgressionSaveGame.cpp

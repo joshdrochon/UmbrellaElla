@@ -1,0 +1,32 @@
+{
+ "element": "vfx-stream-sustain",
+ "note": "crops of the effect cut from the concept sheets; originals untouched",
+ "crops": [
+  {
+   "file": "rising-flame.png",
+   "source": "pipeline/art/reference/discord/20261110-0328_Ricky_1.png",
+   "box": [
+    285,
+    808,
+    360,
+    850
+   ],
+   "key": "gold",
+   "pieces": "all",
+   "opaque_px": 826
+  },
+  {
+   "file": "pull-in.png",
+   "source": "pipeline/art/reference/discord/20261110-0328_Ricky_1.png",
+   "box": [
+    330,
+    595,
+    440,
+    655
+   ],
+   "key": "gold",
+   "pieces": "all",
+   "opaque_px": 759
+  }
+ ]
+}

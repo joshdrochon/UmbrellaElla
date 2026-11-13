@@ -134,10 +134,10 @@ void UEllaAnimPresenterComponent::LoadSlotArt()
 void UEllaAnimPresenterComponent::DrawArt()
 {
 	UTexture2D* Texture = TextureForState(VisualState);
-	const FArtSlotRow* Row = ArtSlot::Find(TEXT("ella-state:Idle"));
+	const FArtSlotRow* Row = RowForTexture(Texture);
 	if (IsValid(StandIn) && !ArtSlot::HasArt(StandIn) && Texture && Row)
 	{
-		ArtSlot::Apply(StandIn, Texture, *Row, StandInScaleFor(VisualState));
+		ArtSlot::Apply(StandIn, Texture, *Row, ArtBoxScaleFor(Texture, *Row));
 	}
 }
 
@@ -157,7 +157,6 @@ namespace
 		EUmbrellaEventType::CatchFailed,
 		EUmbrellaEventType::LifeLost,
 		EUmbrellaEventType::PlayerDefeated,
-		EUmbrellaEventType::ModeSelected,
 	};
 }
 
@@ -178,6 +177,29 @@ EEllaVisualState UEllaAnimPresenterComponent::StateForEvent(const FUmbrellaEvent
 	default:
 		return EEllaVisualState::Idle;
 	}
+}
+
+FVector UEllaAnimPresenterComponent::ArtBoxScaleFor(const UTexture2D* Texture, const FArtSlotRow& Row)
+{
+	const double Height = UmbrellaPresenterConst::ArtCellHeight;
+	return FVector(Height * ArtSlot::CellAspect(Texture, Row), UmbrellaPresenterConst::StandInScale.Y, Height);
+}
+
+const FArtSlotRow* UEllaAnimPresenterComponent::RowForTexture(const UTexture2D* Texture) const
+{
+	const UEnum* States = StaticEnum<EEllaVisualState>();
+	for (const TPair<EEllaVisualState, TObjectPtr<UTexture2D>>& Pair : StateTextures)
+	{
+		if (Texture && Pair.Value.Get() == Texture)
+		{
+			const FString Visual = TEXT("ella-state:") + States->GetNameStringByValue(static_cast<int64>(Pair.Key));
+			if (const FArtSlotRow* Row = ArtSlot::Find(*Visual))
+			{
+				return Row;
+			}
+		}
+	}
+	return ArtSlot::Find(TEXT("ella-state:Idle"));
 }
 
 FVector UEllaAnimPresenterComponent::StandInScaleFor(EEllaVisualState State)
@@ -216,9 +238,12 @@ void UEllaAnimPresenterComponent::ApplyState()
 	{
 		ArtSlot::SetBoxScale(StandIn, StandInScaleFor(VisualState));
 		DrawArt();
-		if (ArtSlot::HasArt(StandIn))
+		UTexture2D* Picture = TextureForState(VisualState);
+		const FArtSlotRow* PictureRow = RowForTexture(Picture);
+		if (ArtSlot::HasArt(StandIn) && Picture && PictureRow)
 		{
-			ArtSlot::SetTexture(StandIn, TextureForState(VisualState));
+			ArtSlot::SetTexture(StandIn, Picture, *PictureRow);
+			ArtSlot::SetBoxScale(StandIn, ArtBoxScaleFor(Picture, *PictureRow));
 		}
 	}
 	if (IsValid(Flipbook))
@@ -251,11 +276,6 @@ void UEllaAnimPresenterComponent::TickComponent(float DeltaTime, ELevelTick Tick
 
 void UEllaAnimPresenterComponent::HandleEvent(const FUmbrellaEvent& Event)
 {
-	if (Event.Type == EUmbrellaEventType::ModeSelected)
-	{
-		TransitionLeft = UmbrellaEllaOverlayConst::TransitionHoldSeconds;
-		return;
-	}
 	if (Event.Type == EUmbrellaEventType::CatchSucceeded)
 	{
 		RepairLeft = UmbrellaEllaOverlayConst::RepairHoldSeconds;

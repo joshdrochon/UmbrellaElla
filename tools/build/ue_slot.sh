@@ -61,6 +61,18 @@ while :; do
         echo $$ > "$DIR/build.lock/owner"; rm -f "$DIR/gate-wants-build" 2>/dev/null
         trap 'rm -rf "$s" "$DIR/gate-held" "$DIR/build.lock"' EXIT INT TERM;;
       esac
+      # Any editor or game launch builds first under the build lock when the module is older than the source
+      # (Nov 13: an editor started by an import script auto-compiled outside the lock and broke the gate's build, exit 6).
+      case "$1" in *build.sh) ;; *)
+        dylib="$(pwd)/Binaries/Mac/libUnrealEditor-UmbrellaElla.dylib"
+        if [ -d Source ] && { [ ! -f "$dylib" ] || [ -n "$(find Source -newer "$dylib" -name '*.[ch]*' -print -quit 2>/dev/null)" ]; }; then
+          until mkdir "$DIR/build.lock" 2>/dev/null; do
+            o=$(cat "$DIR/build.lock/owner" 2>/dev/null); [ -n "$o" ] && ! kill -0 "$o" 2>/dev/null && rm -rf "$DIR/build.lock"; sleep 5; done
+          echo $$ > "$DIR/build.lock/owner"; trap 'rm -rf "$s" "$DIR/gate-held" "$DIR/build.lock"' EXIT INT TERM
+          echo "ue_slot: module older than Source; building first under the build lock" >&2
+          tools/ue/build.sh >&2; rm -rf "$DIR/build.lock"; trap 'rm -rf "$s" "$DIR/gate-held"' EXIT INT TERM
+        fi;;
+      esac
       "$@"; exit $?
     fi
     rmdir "$DIR/.mutex"

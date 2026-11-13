@@ -23,6 +23,10 @@ struct UMBRELLAELLA_API FFlowMenuText
 	static FText RetryLabel();
 	static FText QuitToTitleLabel();
 
+	/** The control hint at the bottom right of every menu (pipeline/ui/menus.md rule 4): Confirm, then Back. */
+	static FText ConfirmPrompt(bool bGamepad);
+	static FText BackPrompt(bool bGamepad);
+
 	/** Button order on the Start screen, the pause menu and the retry screen. */
 	static TArray<FText> TitleLabels();
 	static TArray<FText> PauseLabels();

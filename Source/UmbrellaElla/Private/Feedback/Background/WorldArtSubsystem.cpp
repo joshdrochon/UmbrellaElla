@@ -88,9 +88,9 @@ int32 UWorldArtSubsystem::Refresh(UTexture2D* Texture)
 			{
 				continue;
 			}
-			Done.Add(Piece);
 			if (ArtSlot::Apply(Mesh, Picture, *Row, Mesh->GetRelativeScale3D()) == EArtSlotDraw::Drawn)
 			{
+				Done.Add(Piece);
 				++Counts.FindOrAdd(Visual);
 				++Drawn;
 			}

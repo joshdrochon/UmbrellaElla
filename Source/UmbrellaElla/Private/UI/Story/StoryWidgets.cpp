@@ -3,6 +3,7 @@
 #include "Core/UmbrellaTuning.h"
 #include "Harness/UmbrellaFeatureFlags.h"
 #include "UI/Style/UmbrellaUIStyle.h"
+#include "Framework/Application/SlateApplication.h"
 #include "Widgets/Input/SButton.h"
 #include "Widgets/Layout/SBox.h"
 #include "Widgets/Layout/SBorder.h"
@@ -36,7 +37,8 @@ namespace
 
 TSharedRef<SWidget> UStoryCaptionWidget::RebuildWidget()
 {
-	return SNew(SOverlay)
+	// Captions are read, never clicked: the full-screen overlay sits above the menus and would take every click.
+	return SNew(SOverlay).Visibility(EVisibility::HitTestInvisible)
 		+ SOverlay::Slot().HAlign(HAlign_Center).VAlign(VAlign_Bottom).Padding(SafeMargin())
 		[
 			SAssignNew(BottomText, STextBlock)
@@ -147,17 +149,29 @@ TSharedRef<SWidget> UJourneyCompleteWidget::RebuildWidget()
 					SNew(SHorizontalBox)
 					+ SHorizontalBox::Slot().AutoWidth().Padding(0.0f, 0.0f, Story.BlockGap, 0.0f)
 					[
-						SNew(SUmbrellaButton).Text(FText::FromString(TEXT("Try Again"))).FontSize(Story.MinFontSize + Story.ButtonFontExtra)
+						SAssignNew(TryAgainButton, SUmbrellaButton).Text(FText::FromString(TEXT("Try Again"))).FontSize(Story.MinFontSize + Story.ButtonFontExtra)
 							.OnClicked(FOnClicked::CreateUObject(this, &UJourneyCompleteWidget::HandleTryAgain))
 					]
 					+ SHorizontalBox::Slot().AutoWidth()
 					[
-						SNew(SUmbrellaButton).Text(FText::FromString(TEXT("Main Menu"))).FontSize(Story.MinFontSize + Story.ButtonFontExtra)
+						SAssignNew(MainMenuButton, SUmbrellaButton).Text(FText::FromString(TEXT("Main Menu"))).FontSize(Story.MinFontSize + Story.ButtonFontExtra)
 							.OnClicked(FOnClicked::CreateUObject(this, &UJourneyCompleteWidget::HandleMainMenu))
 					]
 				]
 			]
 		];
+	// Hover selects: the hovered button also takes keyboard and pad focus, so one button is lit and Enter chooses it.
+	for (const TSharedPtr<SUmbrellaButton>& Button : { TryAgainButton, MainMenuButton })
+	{
+		Button->SetOnHovered(FSimpleDelegate::CreateLambda([Weak = TWeakPtr<SUmbrellaButton>(Button)]()
+		{
+			const TSharedPtr<SUmbrellaButton> Hovered = Weak.Pin();
+			if (Hovered.IsValid() && FSlateApplication::IsInitialized())
+			{
+				FSlateApplication::Get().SetAllUserFocus(Hovered, EFocusCause::Mouse);
+			}
+		}));
+	}
 	FillRows();
 	return Root;
 }
@@ -166,6 +180,8 @@ void UJourneyCompleteWidget::ReleaseSlateResources(bool bReleaseChildren)
 {
 	Super::ReleaseSlateResources(bReleaseChildren);
 	RowBox.Reset();
+	TryAgainButton.Reset();
+	MainMenuButton.Reset();
 }
 
 FReply UJourneyCompleteWidget::HandleTryAgain()
