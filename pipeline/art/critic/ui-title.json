@@ -412,6 +412,48 @@
    "commit": "b83b26a843f2",
    "gap": "X is cropped at the left edge (\"MBRELLA\", \"ART GAME\", \"RECTOR'S CUT\" are cut off), so the layout and lettering are broken.; X crops the title and menu items off the left edge, and its lettering is a plain display face with no etched feel. Y's lockup, menu and finish are intact.",
    "at": "2026-11-13T12:20:37Z"
+  },
+  {
+   "piece": "ui-title",
+   "round": 18,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "reference",
+    "reference": "reference"
+   },
+   "panel": 3,
+   "calibration": {
+    "sessions": 6,
+    "passed": 6
+   },
+   "missing": [
+    "quality_bar:pipeline/art/reference/discord/20261111-0319_Ricky_roadwarden-sundial-casters.png",
+    "reference:pipeline/art/reference/discord/20261112-0443_Ricky_title-screen.png"
+   ],
+   "critic_sessions": [
+    "ui-title-r18-00-reference-c1",
+    "ui-title-r18-00-reference-c2",
+    "ui-title-r18-00-reference-c3",
+    "ui-title-r18-01-quality_bar-c1",
+    "ui-title-r18-01-quality_bar-c2",
+    "ui-title-r18-01-quality_bar-c3"
+   ],
+   "manifest": "",
+   "evidence": "",
+   "prompt": "",
+   "files": "9df3181857ffab42d4fd5d254487a39f6eea467d48f1baf712f77a1bd01a8499",
+   "file": "pipeline/art/proof/artui/ui-title/capture_title_r20_draftA.png",
+   "card": "artui",
+   "refs": "669f6f2ac14d",
+   "commit": "36ba934c5afb",
+   "gap": "Y's title and menu lettering is cropped off the left edge, and its flat digital finish lacks the etched, textured ink-on-paper feel X has.; Y's title and menu text are clipped off the left edge, and its flat, cartoonish inking has less etched detail and paper grain than X.; X crops its title and menu text off the left edge, and its scene is flatter and smoother, with no etched line work or aged-paper grain.",
+   "at": "2026-11-13T13:45:04Z"
   }
  ]
 }

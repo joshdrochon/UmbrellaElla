@@ -52,3 +52,12 @@ fails the draft gate with `paper_texture 0.28 < 0.38; dark_share 0.459 outside [
 black fails `dark_share 0.94`. So no UI screen piece can ever get a `--tier final` call. Verdict: check defect.
 Change: in `draft_checks_passed`, when `piece_is_screen(root, piece)`, run `art_loop.measure(root, <card>, piece, draft)`
 (the loop's own checks) instead of the full-frame art_check; test: the r19 capture passes, a flat grey 16:9 PNG fails.
+
+## 7. art_loop.fit_packet centre-crops full-screen UI captures (tools/art_loop.py, build lead)
+`fit_packet` cuts any image wider than PACKET_MAX=1568 to a 1568-wide centre crop. A 1920x1080 UI capture loses 176 px
+on each side, so the title lockup's swash and the left-aligned menu are cut; the 1672-wide reference loses only 52 px.
+Every ui-title panel since r17 (1920x1080) has the gap "title and menu cropped off the left edge" (r18: all three
+sessions). Verdict: check defect (the critic judges a crop we never ship). Workaround here: capture at
+RUN_RES=1568x882 so no crop happens. Suggested fix: for a fully opaque full frame, shrink to fit instead of cropping
+(the viewer limit is about detail on sprites; a screen is judged whole), with a test that a 1920x1080 frame keeps its
+left 10% columns.
