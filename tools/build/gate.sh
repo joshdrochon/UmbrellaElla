@@ -4,7 +4,7 @@
 # Josh, Nov 12: no PR/CI ceremony, every quality check kept, and per-merge checks run only what the change touches
 # (tools/build/gate_plan.py). The full Unreal and Python suites run before each package (tools/build/prepackage.sh).
 # Steps (each prints a line and its seconds):
-#   merge (docs/build conflicts resolve to main's copy) -> build -> targeted automation tests -> module/manifest/feel/
+#   merge (docs/build conflicts resolve to main's copy; art pass records verify and the gate re-runs the panel) -> build -> targeted automation tests -> module/manifest/feel/
 #   encounter checks that apply -> quality_gate.py (art and audio ship only on pass; UI incl. flow-check and story
 #   blocking vs main) -> submission_check prejam (+ assets when content changed) -> independent review session
 #   (tools/build/review.sh; one round: "changes" holds the merge once, exit 3, then becomes follow-ups) -> critics
@@ -13,10 +13,15 @@
 set -u
 A="${1#area/}"; C="${2:-area/$A}"; ROOT="$(cd "$(dirname "$0")/../.." && pwd)"; BASE="$(dirname "$ROOT")/UmbrellaElla-areas"
 G="$BASE/gate"; L="$BASE/logs"; mkdir -p "$L"; T0=$(date +%s); fail=0
+# A head the gate failed or held is never gated again; the lane needs new commits (Josh, Nov 12). Lane verdicts are
+# recorded on exit (1 FAIL, 3 HOLD); exits that are not the lane's fault set NORECORD=1 first.
+TIP="$(git -C "$ROOT" rev-parse "$C" 2>/dev/null)"; NORECORD=0
+python3 "$ROOT/tools/build/gate_seen.py" check "$L" "$A" "$TIP" || exit 4
+trap 'rc=$?; if [ "$NORECORD" = 0 ]; then case $rc in 1) python3 "$ROOT/tools/build/gate_seen.py" record "$L" "$A" "$TIP" FAIL;; 3) python3 "$ROOT/tools/build/gate_seen.py" record "$L" "$A" "$TIP" HOLD;; esac; fi' EXIT
 step() { echo "[gate $A] $1 ($(( $(date +%s) - T1 )) s)"; }
 # Art lanes wait for the pass-record verifier (Josh, Nov 12): no art-loop pass merges until main can re-verify it.
-if git -C "$ROOT" diff --name-only "main...$C" 2>/dev/null | grep -q '^pipeline/art/critic/' || [[ "$A" == art* && "$A" != artinventory ]]; then
-  git -C "$ROOT" cat-file -e main:tools/build/art_pass_verify.py 2>/dev/null || { echo "GATE FAIL: area/$A waits for tools/build/art_pass_verify.py on main (pass records must be re-verified)"; exit 1; }
+if [ "$A" != artinventory ] && { git -C "$ROOT" diff --name-only "main...$C" 2>/dev/null | grep -q '^pipeline/art/critic/' || [[ "$A" == art* ]]; }; then
+  git -C "$ROOT" cat-file -e main:tools/build/art_pass_verify.py 2>/dev/null || { NORECORD=1; echo "GATE FAIL: area/$A waits for tools/build/art_pass_verify.py on main (pass records must be re-verified)"; exit 1; }
 fi
 cd "$ROOT"; git fetch -q origin
 [ -d "$G" ] || git worktree add -q "$G" -B gate main
@@ -53,6 +58,15 @@ fi
 [ "$FEEL" = 1 ] && chk feel_check python3 tools/feel_check.py
 [ "$ENCOUNTER" = 1 ] && chk encounter_check python3 tools/encounter_check.py
 chk quality_gate python3 tools/build/quality_gate.py check "$MAIN" "$L/quality-base.txt"
+chk art_pass_verify python3 tools/build/art_pass_verify.py check --base "$MAIN"
+if [ $fail = 0 ]; then
+  # The proof the panel really ran (Josh, Nov 12): every piece whose pass record is new in this merge is judged again by
+  # fresh blind critic sessions on the same packets; the gate's panel must pass it too, or the merge fails.
+  for pc in $(python3 tools/build/art_pass_verify.py newly-passed "$MAIN"); do
+    T1=$(date +%s); out=$(python3 tools/art_loop.py gate-rerun --piece "$pc" 2>&1); rc=$?; echo "$out" | tail -2 >> "$EV"
+    if [ $rc -eq 0 ]; then step "art panel re-run $pc PASS"; else step "art panel re-run $pc FAIL"; echo "$out" | tail -6; fail=1; fi
+  done
+fi
 chk prejam python3 tools/submission_check.py prejam
 [ "$ASSETS" = 1 ] && chk assets python3 tools/submission_check.py assets
 if [ $fail = 0 ] && [ "$AUDIO" = 1 ]; then
@@ -92,7 +106,7 @@ cd "$ROOT"
 if ! git merge -q --ff-only gate 2>/dev/null; then
   base=$(git merge-base main gate)
   if git diff --name-only "$base" main | grep -q -E '^(Source|Config|Content|Plugins)/|\.uproject$'; then
-    echo "GATE FAIL: main moved with game-file changes during the gate; rerun"; exit 1
+    NORECORD=1; echo "GATE FAIL: main moved with game-file changes during the gate; rerun"; exit 1
   fi
   git -c core.hooksPath=/dev/null merge -q --no-edit -m "Merge gate result for area/$A" gate || { git merge --abort; echo "GATE FAIL: merge"; exit 1; }
 fi

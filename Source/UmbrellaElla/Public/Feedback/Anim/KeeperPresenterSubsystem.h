@@ -5,6 +5,8 @@
 #include "KeeperPresenterSubsystem.generated.h"
 
 class AActor;
+class UTexture2D;
+enum class EArtSlotDraw : uint8;
 
 namespace UmbrellaKeeperPresenterConst
 {
@@ -29,6 +31,9 @@ public:
 	void ShowStandIn(AActor* Keeper);
 
 	int32 GetPresentedCount() const { return PresentedCount; }
+
+	/** Swap the stand-in on a Keeper for a picture (the slot load does this; tests pass a transient texture). */
+	EArtSlotDraw ShowArt(AActor* Keeper, UTexture2D* Texture);
 
 private:
 	void HandleActorSpawned(AActor* Actor);

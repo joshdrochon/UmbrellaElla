@@ -1,0 +1,418 @@
+{
+ "id": "owl-bolt",
+ "records": [
+  {
+   "piece": "owl-bolt",
+   "round": 1,
+   "verdict": "reference",
+   "checks": false,
+   "results": {
+    "art_check": "fail",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "reference",
+    "reference": "reference"
+   },
+   "panel": 0,
+   "calibration": {
+    "sessions": 12,
+    "passed": 6
+   },
+   "missing": [
+    "context (no in-engine capture made after the piece: import it and run the smoke, whose screenshot is the capture)",
+    "quality_bar:pipeline/art/reference/discord/20261111-0319_Ricky_roadwarden-sundial-casters.png",
+    "reference:pipeline/art/reference/discord-crops/red-shot.png (0/3 calibrated sessions)",
+    "reference:pipeline/art/reference/discord/20261110-0258_Ricky_1.png (1/3 calibrated sessions)",
+    "reference:pipeline/art/reference/discord/20261110-0800_Ricky_1.png (2/3 calibrated sessions)"
+   ],
+   "critic_sessions": [],
+   "files": "2e8a04accc908880227ded87b60e5ad5e7a1b7140cc654cb018a7b34bd878bb8",
+   "file": "pipeline/art/proof/artshots/owl-bolt/Raw/Still/OwlBolt_Still_00.png",
+   "card": "0.10b",
+   "refs": "b120cc1f1902",
+   "commit": "31757bbb7413",
+   "gap": "Y is a small flat-filled, sticker-like shot with a pink halo, no etched line work, no paper texture and weak value structure.; X is a small flat-filled spiky blob with no paper grain, no etched lines and no clear pale-core-to-shell value steps; Y is a tiny, flat-filled sprite with a rounded blob body and uneven spikes. It has no etched line, paper texture, layered shell or clean pointed head, and its tail is only scattered squares.; X is a short blob-shaped head with a soft pink halo, no clear pointed head, no detached tail and no etched ink line or paper texture.",
+   "at": "2026-11-13T00:15:16Z"
+  },
+  {
+   "piece": "owl-bolt",
+   "round": 2,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "reference",
+    "reference": "reference"
+   },
+   "panel": 2,
+   "calibration": {
+    "sessions": 12,
+    "passed": 11
+   },
+   "missing": [
+    "context (no in-engine capture made after the piece: import it and run the smoke, whose screenshot is the capture)",
+    "quality_bar:pipeline/art/reference/discord/20261111-0319_Ricky_roadwarden-sundial-casters.png",
+    "reference:pipeline/art/reference/discord-crops/red-shot.png",
+    "reference:pipeline/art/reference/discord/20261110-0258_Ricky_1.png (2/3 calibrated sessions)",
+    "reference:pipeline/art/reference/discord/20261110-0800_Ricky_1.png"
+   ],
+   "critic_sessions": [],
+   "files": "42d05a83850f887edb318831787c4e7e41063d100e8201a74c8ab238ab75112a",
+   "file": "pipeline/art/proof/artshots/owl-bolt/Raw/Still/OwlBolt_Still_00.png",
+   "card": "0.10b",
+   "refs": "b120cc1f1902",
+   "commit": "43da525cfee0",
+   "gap": "X is a small pixel-art serrated flame blob with a blunt head, flat blocky fills, a stray square-fleck trail, and no etched line work or paper texture.; Y is a tiny flat pixel blob with a saw-toothed, rounded head. It has no etched line, no paper texture, no layered shell and no clean crimson, coral and magenta value structure.; X is a flat-filled pixel sawtooth blob with no etched line, no paper texture and no tail geometry, so it reads as a rounded comet rather than a sharp angular head.; Y is a tiny low-res pixel blob with a jagged, saw-toothed head and no clear pointed tip. It has no layered crimson shell and no etched edge line.; Y is a small pixel-chunk head with a rounded jagged silhouette and no layered shell or etched line work, and its tail is a few loose dots.; Y is small and low-resolution. It has a blobby, saw-edged head, a muddy core, a loose scatter of pixels for a tail and no etched line work.; Y is a small pixel-art sprite with a sawtooth head. It lacks the sharp single point, clean layered shell and etched finish, and its tail reads as loose pixel debris, with no paper texture and no bounded glow.; X is a low-res pixel blob. Its head is a ragged jagged mass, not one sharp point. Its shell is flat, with no layered crimson/coral/shadow edge, and it has no etched line, paper texture or gradual glow.; Y is a tiny, soft, low-res blob with a stubby serrated head, a muddy core and no etched edge, so it has none of X's crisp layered shell, shadow edge or geometric tail.",
+   "at": "2026-11-13T00:18:31Z"
+  },
+  {
+   "piece": "owl-bolt",
+   "round": 3,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "reference",
+    "reference": "reference"
+   },
+   "panel": 2,
+   "calibration": {
+    "sessions": 12,
+    "passed": 11
+   },
+   "missing": [
+    "context (no in-engine capture made after the piece: import it and run the smoke, whose screenshot is the capture)",
+    "quality_bar:pipeline/art/reference/discord/20261111-0319_Ricky_roadwarden-sundial-casters.png",
+    "reference:pipeline/art/reference/discord-crops/red-shot.png (2/3 calibrated sessions)",
+    "reference:pipeline/art/reference/discord/20261110-0258_Ricky_1.png",
+    "reference:pipeline/art/reference/discord/20261110-0800_Ricky_1.png"
+   ],
+   "critic_sessions": [],
+   "files": "8918fdb11392d5d82649d25426145bc4999bb4696377bed715f8d4475538c1a5",
+   "file": "pipeline/art/proof/artshots/owl-bolt/Raw/Still4/OwlBolt_Still_00.png",
+   "card": "0.10b",
+   "refs": "b120cc1f1902",
+   "commit": "bfbd32958a16",
+   "gap": "X is a flat-fill vector leaf shape. Its head is jagged and bulky rather than a sharp point, and its tail is a few loose squares. It has no etched line, no paper texture and no separate glow.; X is a flat-fill vector on white. It has no etched line, no paper texture, no glow mask and a blocky tail, so it is not ink on aged paper.; X is flat vector fills with a heavy uniform outline and no paper texture or etched line work. Its body reads as a bulky leaf, and the tail is detached loose squares rather than a narrow geometric tail.; X is flat vector fills with no etched lines or paper texture, and its flecks are scattered far from the head instead of sitting in a short tail.; Y is flat vector fills with no etching, paper texture or ink line weight, and its head is a jagged leaf shape rather than a clean pointed dart.; Y is a stubby leaf-shaped flat-fill blob with a blunt back end, no etched line or paper texture, and none of the sharp head, short geometric tail or glow of the reference.; X is flat vector fills with no etched line, no paper texture and no ink-on-paper finish. Its jagged leaf-shaped head is too wide and blobby, the tail is just loose squares, and it has no glow mask.",
+   "at": "2026-11-13T00:20:26Z"
+  },
+  {
+   "piece": "owl-bolt",
+   "round": 4,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "reference",
+    "reference": "reference"
+   },
+   "panel": 2,
+   "calibration": {
+    "sessions": 12,
+    "passed": 10
+   },
+   "missing": [
+    "context (no in-engine capture made after the piece: import it and run the smoke, whose screenshot is the capture)",
+    "quality_bar:pipeline/art/reference/discord/20261111-0319_Ricky_roadwarden-sundial-casters.png (2/3 calibrated sessions)",
+    "reference:pipeline/art/reference/discord-crops/red-shot.png",
+    "reference:pipeline/art/reference/discord/20261110-0258_Ricky_1.png",
+    "reference:pipeline/art/reference/discord/20261110-0800_Ricky_1.png (2/3 calibrated sessions)"
+   ],
+   "critic_sessions": [],
+   "files": "9f4e94eedb14ae1103dd61defd671daeae4036ddeeb87cdc85ad489aee1243f6",
+   "file": "pipeline/art/proof/artshots/owl-bolt/Raw/Still4/OwlBolt_Still_00.png",
+   "card": "0.10b",
+   "refs": "b120cc1f1902",
+   "commit": "e4a20d0055f1",
+   "gap": "Y is flat vector fills with a soft blurred glow and no etched line or paper texture, and its head is a stack of jagged teeth, not one pointed head.; Y is flat vector fills with a soft baked haze. It has no etched line, no paper texture and no ink-black silhouette, and its shell layers are unrefined.; Y has flat vector fills, a serrated fir-tree head and a long thin beam tail with a smooth baked glow, and none of the etched paper texture.; X is flat vector fills with a soft baked-in glow halo, a long thin beam tail and no etched line or paper texture.; X is flat vector fills with a zigzag tree-shaped head and a soft round glow, so it has no etched line or paper texture and no sharply pointed head.; Y is flat vector fills with no etched lines, paper texture or ink-on-paper finish, and its jagged head is clumsy next to X's refined pointed head.; X is a flat vector bolt on white. It has no paper texture or etched lines, and its fills are flat. The jagged saw-tooth head isn't a clean single point, and the trail is a long thin spike.; X is flat vector fills on white with a long beam tail. It has no etched ink line, no paper grain, and no separate bounded glow.; X is flat vector fills on white, with no ink etching, no paper texture, a tail longer than the head, and a glow baked into the figure.",
+   "at": "2026-11-13T00:21:41Z"
+  },
+  {
+   "piece": "owl-bolt",
+   "round": 5,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "reference",
+    "reference": "reference"
+   },
+   "panel": 2,
+   "calibration": {
+    "sessions": 12,
+    "passed": 10
+   },
+   "missing": [
+    "context (no in-engine capture made after the piece: import it and run the smoke, whose screenshot is the capture)",
+    "quality_bar:pipeline/art/reference/discord/20261111-0319_Ricky_roadwarden-sundial-casters.png",
+    "reference:pipeline/art/reference/discord-crops/red-shot.png",
+    "reference:pipeline/art/reference/discord/20261110-0258_Ricky_1.png (2/3 calibrated sessions)",
+    "reference:pipeline/art/reference/discord/20261110-0800_Ricky_1.png (2/3 calibrated sessions)"
+   ],
+   "critic_sessions": [],
+   "files": "1ca90bc8225000495867774ce296cbd4b3f8a23957db9a8a78f2580fec809081",
+   "file": "pipeline/art/proof/artshots/owl-bolt/Raw/Still4/OwlBolt_Still_00.png",
+   "card": "0.10b",
+   "refs": "b120cc1f1902",
+   "commit": "f0eb6f1e0666",
+   "gap": "Y is the rust needle with a cross guard, not the angular crimson projectile, and has no pale core, layered shell or flecks.; X is flat vector fills on a blank white ground, with no etched line, paper texture or ink-and-paper finish, and its jagged head reads as stacked triangles rather than a single sharp point.; Y is flat-filled vector shards on blank white, with no etched line, paper texture, glow, tail taper or stage sequence.; X is flat vector fills with no etched line or paper texture, a triple-spike head and a long beam tail.; X is flat vector fills with no etched line, grain or soft falloff, and its shell layers read as cut paper.; Y is flat-filled with a stubby, lumpy three-lobed head and a detached tail, with no etched line, no glow separation and no ink-on-paper depth.; Y is the rust cross-and-needle bolt, so it has the wrong form and colour, with no crimson layered shell and no angular head and tail.; Y is flat vector fills with no etched ink lines, paper texture or soft value falloff, and its thick black outline and blocky shapes look pasted on.",
+   "at": "2026-11-13T00:24:56Z"
+  },
+  {
+   "piece": "owl-bolt",
+   "round": 6,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "reference",
+    "reference": "reference"
+   },
+   "panel": 2,
+   "calibration": {
+    "sessions": 12,
+    "passed": 10
+   },
+   "missing": [
+    "context (no in-engine capture made after the piece: import it and run the smoke, whose screenshot is the capture)",
+    "quality_bar:pipeline/art/reference/discord/20261111-0319_Ricky_roadwarden-sundial-casters.png (2/3 calibrated sessions)",
+    "reference:pipeline/art/reference/discord-crops/red-shot.png",
+    "reference:pipeline/art/reference/discord/20261110-0258_Ricky_1.png (2/3 calibrated sessions)",
+    "reference:pipeline/art/reference/discord/20261110-0800_Ricky_1.png"
+   ],
+   "critic_sessions": [],
+   "files": "cc6ee986aa049ecaa8a99d4b40368874db6df17e9da1b114784206c1da568963",
+   "file": "pipeline/art/proof/artshots/owl-bolt/Raw/GP7/OwlBolt_Still_00.png",
+   "card": "0.10b",
+   "refs": "5abdd1644674",
+   "commit": "7e31728799b8",
+   "gap": "X is clean vector fills on flat cream. It has no etched linework, no paper grain, no ink-dark shadow structure, and its glow is a smooth airbrush halo.; X is a long, wide flame with a big soft glow. It reads as a comet, not a short angular bolt, and the glow is baked in rather than a separate bounded mask.; X is clean vector fills with speckle where Y has etched ink linework and paper texture. X's tail also stretches into a long beam of about three head-lengths, not a short geometric one.; Y is the same rust cross and needle, not an angular crimson projectile, and has no layered shell, short geometric tail or flecks.",
+   "at": "2026-11-13T00:45:53Z"
+  },
+  {
+   "piece": "owl-bolt",
+   "round": 7,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "reference",
+    "reference": "reference"
+   },
+   "panel": 1,
+   "calibration": {
+    "sessions": 12,
+    "passed": 10
+   },
+   "missing": [
+    "context (no in-engine capture made after the piece: import it and run the smoke, whose screenshot is the capture)",
+    "quality_bar:pipeline/art/reference/discord/20261111-0319_Ricky_roadwarden-sundial-casters.png",
+    "reference:pipeline/art/reference/discord/20261110-0258_Ricky_1.png (1/3 calibrated sessions)",
+    "reference:pipeline/art/reference/discord/20261110-0800_Ricky_1.png"
+   ],
+   "critic_sessions": [],
+   "files": "31165920997188c097881c51f9f5ec29c0e347661d874a8ff28d72c17913cff3",
+   "file": "pipeline/art/proof/artshots/owl-bolt/Raw/GP8/OwlBolt_Still_00.png",
+   "card": "0.10b",
+   "refs": "5abdd1644674",
+   "commit": "c2d0d89df4ee",
+   "gap": "X is a flat, noisy blast with a rounded, glowing silhouette, a long scattered dash trail and no clean angular layering of core, shell and shadow edge, so it doesn't hold up against Y's crisp etched finish.; Y is a flat vector spiky blob with speckle noise. It has no etched ink linework, no layered shell with a clean pale core, and a fuzzy pink halo baked into the head instead of a separate bounded glow.; X has a rounded, blobby core and a ragged scribbled shell with a soft pink halo. It lacks Y's crisp layered crimson/coral facets, hard shadow edge and tidy clockwork flecks.; X has a long, soft, airbrushed tail and a fuzzy halo baked into the body, with noisy scratch marks in place of controlled etching; its head and tail are not geometric and compact, and the paper has no grain.; Y is a soft lens-shaped glow with a rounded halo and stray hatching, so it lacks a crisp angular head and the ink-on-aged-paper finish.",
+   "at": "2026-11-13T00:48:46Z"
+  },
+  {
+   "piece": "owl-bolt",
+   "round": 8,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "reference",
+    "reference": "reference"
+   },
+   "panel": 3,
+   "calibration": {
+    "sessions": 12,
+    "passed": 12
+   },
+   "missing": [
+    "context (no in-engine capture made after the piece: import it and run the smoke, whose screenshot is the capture)",
+    "quality_bar:pipeline/art/reference/discord/20261111-0319_Ricky_roadwarden-sundial-casters.png",
+    "reference:pipeline/art/reference/discord-crops/red-shot.png",
+    "reference:pipeline/art/reference/discord/20261110-0258_Ricky_1.png",
+    "reference:pipeline/art/reference/discord/20261110-0800_Ricky_1.png"
+   ],
+   "critic_sessions": [],
+   "files": "6eb1e4344b37a3942cc259373120288c0570b597a6c538c637b38c5a706a4a9a",
+   "file": "pipeline/art/proof/artshots/owl-bolt/Raw/GP9/OwlBolt_Still_00.png",
+   "card": "0.10b",
+   "refs": "5abdd1644674",
+   "commit": "99003e010af0",
+   "gap": "Y has flat vector fills with no etched lines, no paper texture and no ink value structure, and its spiky head is long enough to read as a beam.; X uses flat vector fills on blank paper. It has no etched line, no paper grain and no ink value structure, and its tail runs far past one head long.; Y uses flat vector fills on blank paper, with no etched line, paper grain or modelled crimson shell.; Y is flat vector fills with no etched ink line, hatching or paper grain, so it reads as clip-art instead of ink on aged paper.; X is a ragged, spiky flame-comet with a long streaked trail, not a compact angular head with a short geometric tail.; X is flat vector fills on a clean background, with no etched ink lines and no aged-paper texture, and its needle tail plus dash streaks run far past one head length.; Y is flat vector fill with no etched ink line or paper grain, and its spiky shell and long dashed trail break the short geometric silhouette.; X is flat vector fills on blank cream paper, with no etched ink lines and no paper texture, and its tail is a long ragged spray, not a short geometric tail.; Y is flat vector fill on blank paper, with no etched line, no paper grain and no ink value structure, and its jagged spray reads as a long ragged beam.; X has no aged-paper texture and no etched ink line; it is flat vector fill on a plain beige ground.",
+   "at": "2026-11-13T00:54:39Z"
+  },
+  {
+   "piece": "owl-bolt",
+   "round": 9,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "reference",
+    "reference": "reference"
+   },
+   "panel": 3,
+   "calibration": {
+    "sessions": 12,
+    "passed": 12
+   },
+   "missing": [
+    "context (no in-engine capture made after the piece: import it and run the smoke, whose screenshot is the capture)",
+    "quality_bar:pipeline/art/reference/discord/20261111-0319_Ricky_roadwarden-sundial-casters.png",
+    "reference:pipeline/art/reference/discord/20261110-0258_Ricky_1.png"
+   ],
+   "critic_sessions": [],
+   "files": "aa4e2bf87cf4af7f033328184393a1797a58098cd2ecf6723a85b326241d77d8",
+   "file": "pipeline/art/proof/artshots/owl-bolt/Raw/E11/OwlBolt_Still_00.png",
+   "card": "0.10b",
+   "refs": "5abdd1644674",
+   "commit": "99003e010af0",
+   "gap": "Y sits on flat, untextured paper with no gathering, release or fade stages, and its sawtooth head is less clean than X's angular head.; X sits on flat, untextured beige with no near-black ink contour, so its mechanical hatching reads as digital, not etched on aged paper.; X's hatching is uniform machine-made stripes on a plain flat background, not etched ink lines on textured aged paper.; X has a flat, untextured paper ground and a tail that runs out into a long thin spike, longer than the head.; Y sits on flat, untextured paper with no grain, and it shows no bounded glow or shot stages.",
+   "at": "2026-11-13T01:05:09Z"
+  },
+  {
+   "piece": "owl-bolt",
+   "round": 10,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "reference",
+    "reference": "reference"
+   },
+   "panel": 1,
+   "calibration": {
+    "sessions": 12,
+    "passed": 10
+   },
+   "missing": [
+    "context (no in-engine capture made after the piece: import it and run the smoke, whose screenshot is the capture)",
+    "quality_bar:pipeline/art/reference/discord/20261111-0319_Ricky_roadwarden-sundial-casters.png",
+    "reference:pipeline/art/reference/discord/20261110-0258_Ricky_1.png",
+    "reference:pipeline/art/reference/discord/20261110-0800_Ricky_1.png (1/3 calibrated sessions)"
+   ],
+   "critic_sessions": [],
+   "files": "630d374b7fcafea34baea5c22f0da188dcd2228a009df7403db0cfd2487400e3",
+   "file": "pipeline/art/proof/artshots/owl-bolt/Raw/E12/OwlBolt_Still_00.png",
+   "card": "0.10b",
+   "refs": "5abdd1644674",
+   "commit": "363ee276e29f",
+   "gap": "Y sits on flat, untextured paper with no bounded glow, so its hatching looks like digital stripes, not ink on aged paper.; X sits on flat, untextured cream with no aged-paper grain, so the engraved shot reads as a sticker, not ink printed on paper.; X has no aged-paper texture or finish. It sits on a flat, clean ground, and its silhouette is a ragged sawtooth with a needle tail longer than one head.; Y lacks a compact pointed head with a short tail about one head long. Its jagged saw-tooth body runs long, like a lightning spear, on flat untextured paper.",
+   "at": "2026-11-13T01:12:41Z"
+  },
+  {
+   "piece": "owl-bolt",
+   "round": 11,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "reference",
+    "reference": "reference"
+   },
+   "panel": 3,
+   "calibration": {
+    "sessions": 12,
+    "passed": 12
+   },
+   "missing": [
+    "context (no in-engine capture made after the piece: import it and run the smoke, whose screenshot is the capture)",
+    "quality_bar:pipeline/art/reference/discord/20261111-0319_Ricky_roadwarden-sundial-casters.png",
+    "reference:pipeline/art/reference/discord/20261110-0800_Ricky_1.png"
+   ],
+   "critic_sessions": [],
+   "files": "45b698b16564e55679522597c6558266cd36743e09c23603897ec3781a33e5c7",
+   "file": "pipeline/art/proof/artshots/owl-bolt/Raw/E13/OwlBolt_Still_00.png",
+   "card": "0.10b",
+   "refs": "5abdd1644674",
+   "commit": "9ce10fe2656a",
+   "gap": "Y sits on flat, clean paper with no aged texture and no separate bounded glow, so its etched hatching reads as a sticker, not ink on aged paper.; Y sits on flat, untextured paper with no bounded glow and no stage sequence, so it reads as a vector cutout, not ink on aged paper.; X's serrated body runs long like a spear, with a tail longer than its head, and it sits on flat paper with no texture.",
+   "at": "2026-11-13T01:48:23Z"
+  },
+  {
+   "piece": "owl-bolt",
+   "round": 1,
+   "verdict": "reference",
+   "checks": false,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "fail"
+   },
+   "pairs": {
+    "quality_bar": "reference",
+    "reference": "reference"
+   },
+   "panel": 1,
+   "calibration": {
+    "sessions": 12,
+    "passed": 8
+   },
+   "missing": [
+    "context (no in-engine capture made after the piece: import it and run the smoke, whose screenshot is the capture)",
+    "quality_bar:pipeline/art/reference/discord/20261111-0319_Ricky_roadwarden-sundial-casters.png (1/3 calibrated sessions)",
+    "reference:pipeline/art/reference/discord-crops/red-shot.png (2/3 calibrated sessions)",
+    "reference:pipeline/art/reference/discord/20261110-0258_Ricky_1.png (2/3 calibrated sessions)"
+   ],
+   "critic_sessions": [],
+   "files": "a7a2aed97ec7a7a428def8274ee09e8fe5e2ecede926c02409a9823f2f9462eb",
+   "file": "pipeline/art/proof/artshots/owl-bolt/Paint/g1_fit.png",
+   "card": "0.10c",
+   "refs": "d1afca932485",
+   "commit": "e5b9db8c2ec2",
+   "gap": "Y's layers are flat vector fills with a plain coral outline; it has no etched ink line and no paper grain inside the shot.; X uses flat, posterized vector fills with no etched ink line or paper texture, so it reads as clip art, not ink on aged paper.",
+   "at": "2026-11-13T04:12:22Z"
+  }
+ ]
+}

@@ -71,7 +71,10 @@ def check_cam04(recs, transients=()):
             if _f(t, k) < 0:
                 errs.append("transients: %s never reached" % k)
         for k, (lo, hi) in CAL.TRANSIENT_RANGES.items():
-            if k in t and _f(t, k) >= 0 and not lo <= _f(t, k) <= hi:
+            # Only the time keys use a negative value for "never reached"; a steady velocity can be really negative.
+            if k in t and (k in TRANSIENTS and _f(t, k) < 0):
+                continue
+            if k in t and not lo <= _f(t, k) <= hi:
                 errs.append("transients: %s %.2f outside fixed range %.2f-%.2f (%s)" % (k, _f(t, k), lo, hi, CAL.PROFILE))
     return errs
 
@@ -105,6 +108,9 @@ def check_cam07(recs):
     for r in recs:
         if r.get("challenge_clear") != "1" and r.get("required_current_active") != "1":
             errs.append("required current gone before challenge clear")
+        # A clear at the end does not excuse ticks where the current was off while the guard lived.
+        if r.get("case") == "persist" and _f(r, "samples") > 0 and _f(r, "samples_live") < _f(r, "samples"):
+            errs.append("required current live on %s of %s ticks while the guard lived" % (r.get("samples_live"), r.get("samples")))
     return errs
 
 

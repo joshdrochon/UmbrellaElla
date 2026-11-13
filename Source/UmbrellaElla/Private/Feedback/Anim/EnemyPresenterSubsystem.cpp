@@ -3,6 +3,8 @@
 #include "Core/UmbrellaDrawOrder.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/World.h"
+#include "Engine/Texture2D.h"
+#include "Feedback/Art/ArtSlot.h"
 #include "Enemy/UmbrellaEnemy.h"
 #include "Harness/UmbrellaFeatureFlags.h"
 
@@ -40,6 +42,31 @@ FName UEnemyPresenterSubsystem::ArtKeyFor(EEnemyType Type, EEnemyGender Gender, 
 		*StaticEnum<EEnemyType>()->GetNameStringByValue(static_cast<int64>(Type)),
 		*StaticEnum<EEnemyGender>()->GetNameStringByValue(static_cast<int64>(Gender)),
 		*StaticEnum<EEnemyState>()->GetNameStringByValue(static_cast<int64>(State))));
+}
+
+FString UEnemyPresenterSubsystem::VisualIdFor(EEnemyType Type, EEnemyGender Gender)
+{
+	// The enemy does not store its Roadwarden equipment yet, so a Roadwarden shows the first one (request artslots 2).
+	const FString Family = Type == EEnemyType::Roadwarden ? FString(TEXT("SundialCaster"))
+		: StaticEnum<EEnemyType>()->GetNameStringByValue(static_cast<int64>(Type));
+	return FString::Printf(TEXT("enemy:%s:%s"), *Family,
+		*StaticEnum<EEnemyGender>()->GetNameStringByValue(static_cast<int64>(Gender)));
+}
+
+EArtSlotDraw UEnemyPresenterSubsystem::ShowArt(AUmbrellaEnemy* Enemy, UTexture2D* Texture)
+{
+	UStaticMeshComponent* Mesh = IsValid(Enemy) ? FindStandIn(Enemy) : nullptr;
+	const FArtSlotRow* Row = IsValid(Enemy) ? ArtSlot::Find(*VisualIdFor(Enemy->GetEnemyType(), Enemy->GetGender())) : nullptr;
+	if (!Mesh || !Row || ArtSlot::HasArt(Mesh))
+	{
+		return EArtSlotDraw::NoTexture;
+	}
+	const EArtSlotDraw Result = ArtSlot::Apply(Mesh, Texture, *Row, StandInScaleFor(Enemy->GetEnemyState(), Enemy->GetGender()));
+	if (Result == EArtSlotDraw::Drawn)
+	{
+		Refresh(Enemy);
+	}
+	return Result;
 }
 
 void UEnemyPresenterSubsystem::PostInitialize()
@@ -95,6 +122,11 @@ void UEnemyPresenterSubsystem::ShowStandIn(AUmbrellaEnemy* Enemy)
 	Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Mesh->SetGenerateOverlapEvents(false);
 	Mesh->SetupAttachment(Enemy->GetRootComponent());
+	// Art slot enemy:<Family>:<Gender>; the cube stays when no asset exists.
+	if (const FArtSlotRow* Row = ArtSlot::Find(*VisualIdFor(Enemy->GetEnemyType(), Enemy->GetGender())))
+	{
+		ArtSlot::ApplyRow(Mesh, *Row, StandInScaleFor(Enemy->GetEnemyState(), Enemy->GetGender()));
+	}
 	Mesh->RegisterComponent();
 	Enemies.Add(Enemy);
 	++PresentedCount;
@@ -109,7 +141,7 @@ void UEnemyPresenterSubsystem::Refresh(AUmbrellaEnemy* Enemy)
 		return;
 	}
 	const EEnemyState State = Enemy->GetEnemyState();
-	Mesh->SetWorldScale3D(StandInScaleFor(State, Enemy->GetGender()));
+	ArtSlot::SetWorldBoxScale(Mesh, StandInScaleFor(State, Enemy->GetGender()));
 	Mesh->SetVisibility(IsVisibleIn(State));
 	// Dual-colour art comes from the art swap; the shot kind is already on the enemy.
 	FVector Location = Mesh->GetComponentLocation();

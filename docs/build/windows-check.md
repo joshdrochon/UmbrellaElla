@@ -22,3 +22,7 @@ and retry, and if you can, win.
 - the zip path if package.ps1 made one (do not upload it yet; the packaging owner submits)
 
 If a step fails: stop, paste its last 20 lines, and do not try to fix the code on main. The build lead routes it.
+
+## HAZ-16 at 1920x1080 (D-new-haz16-agent-playtest)
+This Mac clamps the viewport to 1728x1117 even offscreen, so the HAZ-16 agent play-test at 1920x1080 runs here, on Windows:
+`python3 tools/build/agent_play.py --rule HAZ-16 --res 1920x1080` (debug off, healthy and low health). Attach the run log to the report.
