@@ -656,6 +656,11 @@ class ConfigAndWidgets(unittest.TestCase):
             fh.write("void UTitleMenu::OnQuit() { UKismetSystemLibrary::QuitGame(this, nullptr, Q, false); }\n")
         os.makedirs(os.path.join(d, "pipeline", "feel"), exist_ok=True)
         dump(Shake().good(), os.path.join(d, ui_check.FEEL_JSON))
+        code, out = run(["--root", d, "ci", "--release"])   # the screens input is one of "every input" (12 Nov)
+        self.assertEqual(code, 1, out)
+        self.assertIn("release: pipeline/art/references.json does not exist", out)
+        os.makedirs(os.path.join(d, "pipeline", "art"), exist_ok=True)
+        dump({"references": [], "elements": {}}, os.path.join(d, ui_check.REFERENCES_JSON))
         code, out = run(["--root", d, "ci", "--release"])
         self.assertEqual(code, 0, out)
         self.assertNotIn("skipped", out)
@@ -759,6 +764,121 @@ class MouseAndQuit(unittest.TestCase):
                             uiflow([daily, line.replace("mouse-menus pass", "mouse-menus fail")])))
         self.assertTrue(any("no UIFLOW line" in p for p in uiflow([daily, line.replace("commit=abc1234",
                                                                                        "commit=fff9999")])))
+
+
+class Screens(unittest.TestCase):
+    """Every UI screen is an art-loop piece (Josh, 12 Nov): a widget class or screen with no element fails."""
+    MENU_H = ("class UMBRELLAELLA_API SFlowMenu : public SCompoundWidget\n{\n};\n"
+              "// class SCommented : public SCompoundWidget {};\n"
+              "struct FFlowMenuItem { int x; };\n")
+    RULES_H = "UENUM()\nenum class EFlowScreen : uint8\n{\n\tTitle,\n\tDefeat\n};\nenum class EFlowCommand : uint8 { Go };\n"
+
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, self.tmp, True)
+        self.src = os.path.join(self.tmp, "Source")
+        self.put("UmbrellaElla/Public/UI/Menus/FlowMenuWidgets.h", self.MENU_H)
+        self.put("UmbrellaElla/Public/Flow/FlowRules.h", self.RULES_H)
+        self.refs = {"references": [{"id": "title-screen"}, {"id": "bar"}],
+                     "quality_bar": {"refs": ["bar"], "default": "bar"},
+                     "elements": {
+                         "owl": {"refs": ["title-screen"]},
+                         "ui-title": {"refs": ["title-screen"], "ui": {"widgets": ["SFlowMenu"], "screens": ["EFlowScreen::Title"]}},
+                         "ui-defeated": {"refs": ["title-screen"], "ui": {"widgets": ["SFlowMenu"], "screens": ["EFlowScreen::Defeat"]}}}}
+
+    def put(self, rel, text):
+        path = os.path.join(self.src, rel)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "w", encoding="utf-8") as fh:
+            fh.write(text)
+
+    def problems(self):
+        return ui_check.screen_problems(self.src, self.refs)
+
+    def test_covered_screens_pass(self):
+        self.assertEqual(self.problems(), [])
+
+    def test_fake_slate_screen_without_element_fails(self):
+        self.put("UmbrellaElla/Public/UI/Fake/FakeScreen.h", "class UMBRELLAELLA_API SFakeScreen : public SCompoundWidget\n{\n};\n")
+        probs = self.problems()
+        self.assertEqual(len(probs), 1, probs)
+        self.assertIn("SFakeScreen is no art-loop piece", probs[0])
+        self.refs["elements"]["ui-title"]["ui"]["widgets"].append("SFakeScreen")
+        self.assertEqual(self.problems(), [])
+
+    def test_fake_umg_final_hud_and_cpp_only_widgets_fail(self):
+        self.put("UmbrellaElla/Public/UI/Fake.h",
+                 "UCLASS()\nclass UMBRELLAELLA_API UFakeWidget final : public UUserWidget\n{\n};\n"
+                 "class AFakeHUD : public AHUD\n{\n};\n")
+        self.put("UmbrellaElla/Private/Flow/Hidden.cpp", "class SHiddenBox final : public SCompoundWidget\n{\n};\n")
+        text = "\n".join(self.problems())
+        for name in ("UFakeWidget", "AFakeHUD", "SHiddenBox"):
+            self.assertIn(f"widget class {name} is no art-loop piece", text)
+
+    def test_subclass_of_our_own_widget_fails(self):
+        self.put("UmbrellaElla/Public/UI/Sub.h", "class SDerivedMenu : public SFlowMenu\n{\n};\n")
+        self.assertTrue(any("SDerivedMenu" in p for p in self.problems()))
+
+    def test_new_screen_enum_value_fails(self):
+        self.put("UmbrellaElla/Public/Flow/FlowRules.h", self.RULES_H.replace("\tDefeat\n", "\tDefeat,\n\tShop\n"))
+        probs = self.problems()
+        self.assertEqual(len(probs), 1, probs)
+        self.assertIn("screen EFlowScreen::Shop is no art-loop piece", probs[0])
+
+    def test_not_a_widget_and_other_folders_and_tests_are_ignored(self):
+        self.put("UmbrellaElla/Public/UI/Model.h", "class FClockModel : public FBase\n{\n};\nclass UThing : public UObject\n{\n};\n")
+        self.put("UmbrellaElla/Public/Owl/Keeper.h", "class SElsewhere : public SCompoundWidget\n{\n};\n")
+        self.put("UmbrellaElla/Private/Tests/UI/T.cpp", "class STestOnly : public SCompoundWidget\n{\n};\n")
+        self.assertEqual(self.problems(), [])
+
+    def test_stale_element_fails(self):
+        self.refs["elements"]["ui-title"]["ui"]["widgets"].append("SGone")
+        self.refs["elements"]["ui-defeated"]["ui"]["screens"].append("EFlowScreen::Gone")
+        text = "\n".join(self.problems())
+        self.assertIn("names widget class SGone, which is not declared", text)
+        self.assertIn("names screen EFlowScreen::Gone, which is not declared", text)
+
+    def test_element_needs_a_reference_and_a_quality_bar_and_one_screen_one_piece(self):
+        self.refs["elements"]["ui-title"]["refs"] = ["unknown"]
+        self.assertTrue(any("ui-title has no reference" in p for p in self.problems()))
+        self.refs["elements"]["ui-title"]["refs"] = ["title-screen"]
+        self.refs["quality_bar"] = {"refs": [], "default": "bar"}
+        self.assertTrue(any("ui-title has no quality-bar image" in p for p in self.problems()))
+        self.refs["quality_bar"] = {"refs": ["bar"], "default": "bar"}
+        self.refs["elements"]["ui-defeated"]["ui"]["screens"].append("EFlowScreen::Title")
+        self.assertTrue(any("named by two elements" in p for p in self.problems()))
+
+    def test_cli_and_ci(self):
+        refs = os.path.join(self.tmp, "refs.json")
+        dump(self.refs, refs)
+        code, out = run(["screens", "--src", self.src, "--refs", refs])
+        self.assertEqual(code, 0, out)
+        self.put("UmbrellaElla/Public/UI/Fake/FakeScreen.h", "class SFakeScreen : public SLeafWidget\n{\n};\n")
+        code, out = run(["screens", "--src", self.src, "--refs", refs])
+        self.assertEqual(code, 1, out)
+        self.assertIn("SFakeScreen", out)
+        os.makedirs(os.path.join(self.tmp, "pipeline", "art"))
+        dump(self.refs, os.path.join(self.tmp, "pipeline", "art", "references.json"))
+        with redirect_stdout(io.StringIO()):
+            self.assertTrue(any(p.startswith("screens:") and "SFakeScreen" in p for p in ui_check.run_ci(self.tmp)))
+
+    def test_repo_screens_all_have_an_element(self):
+        code, out = run(["screens"])
+        self.assertEqual(code, 0, out)
+        with open(os.path.join(ROOT, "pipeline", "art", "references.json"), encoding="utf-8") as fh:
+            els = ui_check.screen_elements(json.load(fh))
+        for eid in ("ui-title", "ui-pause", "ui-settings", "ui-credits", "ui-defeated", "ui-story-text",
+                    "ui-journey-complete", "ui-purchase", "ui-level-up", "ui-tutorial", "ui-hud-clock", "ui-xp-ring"):
+            self.assertIn(eid, els)
+
+    def test_repo_screen_elements_can_go_to_the_blind_critic(self):
+        """The element's `what` is the critic's whole brief: a word that leaks the builder's side would stop the panel."""
+        import art_loop
+        with open(os.path.join(ROOT, "pipeline", "art", "references.json"), encoding="utf-8") as fh:
+            refs = json.load(fh)
+        for eid in ui_check.screen_elements(refs):
+            prompt = art_loop.critic_prompt(refs["elements"][eid]["what"])
+            self.assertEqual(art_loop.critic_prompt_problems(prompt), [], eid)
 
 
 if __name__ == "__main__":

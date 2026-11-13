@@ -21,6 +21,7 @@ public:
 	float GetDrawnLifeDegrees() const { return DrawnLifeDegrees; }
 
 private:
+	void DrawHandBlade(const FVector2D& Center, const FVector2D& Tip, float Width, const FLinearColor& Color);
 	void DrawCircleOutline(const FVector2D& Center, float Radius, int32 Segments, float Thickness, const FLinearColor& Color);
 	void DrawArc(const FVector2D& Center, float Radius, float FromDegrees, float ToDegrees, int32 Segments, float Thickness, const FLinearColor& Color);
 
