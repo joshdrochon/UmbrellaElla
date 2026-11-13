@@ -1,0 +1,43 @@
+{
+ "seconds": 0.75,
+ "lufs": -22,
+ "fade_out": 0.2,
+ "takes": 1,
+ "post": "anull",
+ "reverb": {
+  "rt60": 0.3,
+  "wet_db": -13,
+  "damp_hz": 7000,
+  "predelay_ms": 5
+ },
+ "layers": {
+  "pick": {
+   "prompt": "one single fine brass gear tooth click, tiny and crisp, dry, close, isolated, no other sounds",
+   "secs": 0.5,
+   "filter": "atrim=0:0.04,asetpts=PTS-STARTPTS,highpass=f=1500,lowpass=f=6000",
+   "norm_lufs": -20,
+   "gain_db": 0,
+   "start_db": -24,
+   "decay": 70
+  },
+  "n1": {
+   "kind": "synth",
+   "prompt": "synthesised music-box comb note at 784 Hz: partials at 2x, 3.01x and 5.4x, each with its own exponential decay",
+   "secs": 0.5,
+   "trim": 0.5,
+   "expr": "0.6*exp(-15*t)*sin(2*PI*784*t)+0.240*exp(-21.0*t)*sin(2*PI*1568*t)+0.120*exp(-30*t)*sin(2*PI*2359.8*t)+0.060*exp(-52.5*t)*sin(2*PI*4233.6*t)",
+   "gain_db": -3,
+   "delay_ms": 5
+  },
+  "n2": {
+   "kind": "synth",
+   "prompt": "synthesised music-box comb note at 1047 Hz: partials at 2x, 3.01x and 5.4x, each with its own exponential decay",
+   "secs": 0.55,
+   "trim": 0.55,
+   "expr": "0.6*exp(-13*t)*sin(2*PI*1047*t)+0.240*exp(-18.2*t)*sin(2*PI*2094*t)+0.120*exp(-26*t)*sin(2*PI*3151.5*t)+0.060*exp(-45.5*t)*sin(2*PI*5653.8*t)",
+   "gain_db": -5,
+   "delay_ms": 150
+  }
+ },
+ "post_gain_db": -1.8
+}
