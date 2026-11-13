@@ -143,3 +143,59 @@ RECIPES["SurvivedSting"]["channels"] = 2
 # PlayerHurt level: the 1.5 s tail dropped its RMS 3+ dB under the hit family median; a wetter hall and a 1.3 s file bring it back.
 RECIPES["PlayerHurt"].update({"seconds": 1.3, "fade_out": 0.45, "take_gain_db": {}, "post_gain_db": 5})
 RECIPES["PlayerHurt"]["reverb"].update({"wet_db": -5})
+# Gate critic gaps (Nov 12). OwlBoltLaunch: darker (clank and ratchet rolled off above 3 kHz), more 150-800 Hz weight.
+RECIPES["OwlBoltLaunch"].update({"seconds": 1.2, "fade_out": 0.4, "post": "anull",
+  "reverb": {"rt60": 1.0, "wet_db": -8, "damp_hz": 2200, "predelay_ms": 15}})
+RECIPES["OwlBoltLaunch"]["layers"]["thunk"].update({"filter": "highpass=f=70,lowpass=f=900", "gain_db": -2})
+RECIPES["OwlBoltLaunch"]["layers"]["clank"].update({"filter": "highpass=f=300,lowpass=f=3000", "gain_db": -5})
+RECIPES["OwlBoltLaunch"]["layers"]["ratchet"].update({"filter": "highpass=f=500,lowpass=f=2800", "gain_db": -10})
+# ShieldCatch: a pitched rib snap (wood-block partials, 8 ms rise) over the canvas whump; 6 ms fade-in kills the 0 ms click.
+RECIPES["ShieldCatch"].update({"seconds": 0.7, "fade_out": 0.2, "fade_in": 0.006, "post": "anull",
+  "reverb": {"rt60": 0.4, "wet_db": -12, "damp_hz": 4000, "predelay_ms": 6}})
+RECIPES["ShieldCatch"]["layers"]["snap"] = {"kind": "synth", "prompt": "synthesised rib snap: wood-block partials at 1x, 1.83x and 2.9x with a brass-rib ring at 4.1x, 8 ms rise, fast decay",
+  "secs": 0.3, "freqs": [880, 990, 830],
+  "expr": "(1-exp(-t*350))*(0.6*exp(-45*t)*sin(2*PI*{f}*t)+0.35*exp(-60*t)*sin(2*PI*1.83*{f}*t)+0.2*exp(-80*t)*sin(2*PI*2.9*{f}*t)+0.12*exp(-25*t)*sin(2*PI*4.1*{f}*t))",
+  "gain_db": -6, "delay_ms": 4, "trim": 0.3}
+RECIPES["ShieldCatch"]["layers"]["click"].update({"gain_db": -6})
+RECIPES["ShieldCatch"].update({"post_gain_db": -2})     # state family level (with KeeperHoot): RMS near -21 dB
+RECIPES["OwlBoltLaunch"].update({"post_gain_db": -1})   # launch family level (with WandBolt)
+RECIPES["OwlBoltLaunch"]["layers"]["thunk"].update({"gain_db": -4, "decay": 9})
+RECIPES["OwlBoltLaunch"]["layers"]["clank"].update({"gain_db": -2, "delay_ms": 0, "decay": 9})
+RECIPES["OwlBoltLaunch"]["layers"]["ratchet"].update({"gain_db": -12})
+# Layer balance by peak (regen.py brings every layer to -3 dBFS first); the per-layer loudnorm smeared the onsets.
+for _id, _g in (("OwlBoltLaunch", {"thunk": -3, "clank": 0, "ratchet": -16}),
+                ("ShieldCatch", {"thump": -2, "click": -10, "canvas": -9, "snap": -5})):
+    for _n, _v in _g.items():
+        RECIPES[_id]["layers"][_n].pop("norm_lufs", None)
+        RECIPES[_id]["layers"][_n].update({"gain_db": _v, "start_db": -28})
+RECIPES["ShieldCatch"]["layers"]["snap"].pop("start_db")
+RECIPES["OwlBoltLaunch"]["want"] = {"centroid_hz": [450, 1700], "low_share": [0.25, 0.65]}   # gate gap: 1.7 kHz or lower, low-mid weight
+RECIPES["OwlBoltLaunch"]["layers"]["thunk"].update({"gain_db": -1})
+RECIPES["OwlBoltLaunch"]["layers"]["clank"].update({"gain_db": -3})
+RECIPES["ShieldCatch"].update({"post_gain_db": 2})
+RECIPES["ShieldCatch"]["reverb"].update({"wet_db": -8})
+RECIPES["ShieldCatch"]["layers"]["thump"].update({"decay": 4})
+RECIPES["OwlBoltLaunch"]["candidates"] = {0: [8, 11, 14, 17, 20], 1: [16], 2: [5]}   # the layer sets that meet 'want'
+RECIPES["ShieldCatch"]["candidates"] = {0: [0], 1: [10], 2: [11]}
+# Critic (second session on PlayerHurt, round 1 on ShieldCatch): the low band held flat and was cut at the fade.
+# static_level (one fixed gain), a high-passed reverb return and a faster sub decay let the body fall with the room.
+RECIPES["PlayerHurt"].update({"static_level": True, "lufs": -20, "post_gain_db": 0, "seconds": 1.6, "fade_out": 0.6})
+RECIPES["PlayerHurt"]["reverb"].update({"hp_hz": 220, "wet_db": -7})
+RECIPES["PlayerHurt"]["layers"]["thud"].update({"decay": 10})
+RECIPES["ShieldCatch"].update({"static_level": True, "lufs": -21, "post_gain_db": 0, "seconds": 1.0, "fade_out": 0.4,
+                               "candidates": {0: [0], 1: [4, 10, 7], 2: [11]}})
+RECIPES["ShieldCatch"]["reverb"].update({"hp_hz": 250, "rt60": 0.35, "wet_db": -10})
+RECIPES["ShieldCatch"]["layers"]["thump"].update({"decay": 8})
+RECIPES["ShieldCatch"]["layers"]["click"].update({"trim": 0.12})
+RECIPES["ShieldCatch"]["layers"]["canvas"].update({"trim": 0.3, "decay": 12})
+RECIPES["PlayerHurt"]["layers"]["crack"].pop("norm_lufs"); RECIPES["PlayerHurt"]["layers"]["crack"].update({"gain_db": 0, "start_db": -28})
+RECIPES["PlayerHurt"]["layers"]["thud"].pop("norm_lufs"); RECIPES["PlayerHurt"]["layers"]["thud"].update({"gain_db": -3, "start_db": -28})
+RECIPES["PlayerHurt"]["layers"]["thud"].update({"gain_db": -15})
+RECIPES["PlayerHurt"]["want"] = {"low_share": [0.3, 0.7], "centroid_hz": [900, 3000]}
+RECIPES["PlayerHurt"]["lufs"] = -19
+RECIPES["PlayerHurt"]["layers"]["thud"].update({"gain_db": -17})
+RECIPES["PlayerHurt"]["reverb"].update({"wet_db": -4})
+RECIPES["PlayerHurt"]["layers"]["thud"].update({"gain_db": -16})
+RECIPES["PlayerHurt"].update({"seconds": 1.4, "fade_out": 0.5, "candidates": {0: [9, 0, 3], 1: [1, 4, 7], 2: [11, 2, 5]}})
+RECIPES["PlayerHurt"]["reverb"].update({"wet_db": -5})
+RECIPES["PlayerHurt"]["lufs"] = -17.5   # +1.5 dB into the limiter: RMS inside the hit family window (audio_check)
