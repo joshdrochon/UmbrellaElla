@@ -400,6 +400,63 @@ bool FMoveWorldBeamTest::RunTest(const FString& Parameters)
 	return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMoveWorldCom06OffTest, "UmbrellaElla.Move.World.Com06OffClearsBeamAndBursts", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FMoveWorldCom06OffTest::RunTest(const FString& Parameters)
+{
+	// Queued burst shots.
+	{
+		FAttackTuning Tuned = Attack();
+		Tuned.SmallBurstCount = 5;
+		FUmbrellaTestWorld Test;
+		AEllaCharacter* Ella = Test.SpawnElla();
+		if (!TestNotNull(TEXT("Ella spawned"), Ella))
+		{
+			return false;
+		}
+		UAttackEmitterComponent* Emitter = Ella->GetAttack();
+		Emitter->SetTuningOverride(Tuned);
+		Ella->GetInputAdapter()->ApplyPress(EUmbrellaInputAction::Shoot);
+		Test.TickSeconds(0.05f, 1.0f / 120.0f);
+		TestTrue(TEXT("bursts are queued before the flag goes off"), Emitter->GetPendingBurstShots() > 0);
+		Emitter->SetCom06OffForTest(true);
+		Emitter->StepEmitter(1.0f / 120.0f);
+		TestEqual(TEXT("flag off: burst queue empty"), Emitter->GetPendingBurstShots(), 0);
+		const int32 Fired = Emitter->GetShotsFired();
+		Test.TickSeconds(0.5f, 1.0f / 60.0f);
+		TestEqual(TEXT("flag off: nothing fires while the trigger is held"), Emitter->GetShotsFired(), Fired);
+	}
+	// Live beam.
+	{
+		FUmbrellaTestWorld Test;
+		AEllaCharacter* Ella = Test.SpawnElla();
+		if (!TestNotNull(TEXT("Ella spawned"), Ella))
+		{
+			return false;
+		}
+		UAttackEmitterComponent* Emitter = Ella->GetAttack();
+		Emitter->SetPlayMode(EUmbrellaPlayMode::DirectorsCut);
+		Emitter->SetDirectorLevel(10);
+		Emitter->SelectSpell(EUmbrellaSpell::StreamedBlast);
+		Ella->GetInputAdapter()->ApplyPress(EUmbrellaInputAction::Shoot);
+		Test.TickSeconds(0.3f, 1.0f / 60.0f);
+		TestNotNull(TEXT("a beam is live before the flag goes off"), Emitter->GetBeam());
+		Emitter->SetCom06OffForTest(true);
+		Emitter->StepEmitter(1.0f / 60.0f);
+		TestNull(TEXT("flag off: no beam pointer"), Emitter->GetBeam());
+		int32 LiveBeams = 0;
+		for (TActorIterator<AStreamBeamActor> It(Test.GetWorld()); It; ++It)
+		{
+			if (IsValid(*It))
+			{
+				++LiveBeams;
+			}
+		}
+		TestEqual(TEXT("flag off: no beam actor left in the world"), LiveBeams, 0);
+		TestEqual(TEXT("flag off: burst queue empty"), Emitter->GetPendingBurstShots(), 0);
+	}
+	return true;
+}
+
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMoveWorldBeamWallAtMuzzleTest, "UmbrellaElla.Move.World.StreamBeamWallAtMuzzle", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
 bool FMoveWorldBeamWallAtMuzzleTest::RunTest(const FString& Parameters)
 {

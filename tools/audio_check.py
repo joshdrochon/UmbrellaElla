@@ -291,6 +291,24 @@ def provenance_rows(path):
         return {r["asset_path"]: r for r in csv.DictReader(f)}
 
 
+def duplicate_provenance(path):
+    """One row per sound file: a WAV path with two rows (say `generated` and `placeholder:`) reads differently
+    depending on which row a reader takes, so a merge can turn a passed take back into a placeholder."""
+    if not os.path.exists(path):
+        return []
+    seen, out = {}, []
+    with open(path, encoding="utf-8", newline="") as f:
+        for n, r in enumerate(csv.DictReader(f), 2):
+            ap = (r.get("asset_path") or "").strip()
+            if not ap.lower().endswith(".wav"):
+                continue
+            if ap in seen and ap not in out:
+                out.append(ap)
+            seen.setdefault(ap, []).append(n)
+    return [f"{ap}: {len(seen[ap])} provenance rows (lines {', '.join(map(str, seen[ap]))}); keep one row "
+            "holding the current origin" for ap in out]
+
+
 GENERATED = ("generated", "synthesized")
 # A tracked placeholder take: tools/assetgen.py made a procedural take because the audio API could not (no key, an
 # HTTP error, no credits left). Its provenance origin carries `placeholder: <reason>`; the run goes on with it, the
@@ -343,7 +361,7 @@ def scan(folder, rules, rows, prov_path=DEFAULT_PROV, root=ROOT, fail_lfs_pointe
     by_id = {r["id"]: r for r in rows}
     prov = provenance_rows(prov_path)
     name_re = re.compile(wr["name_regex"])
-    problems, skipped, measured, takes = [], [], [], {}
+    problems, skipped, measured, takes = duplicate_provenance(prov_path), [], [], {}
     paths = []
     for d, _, fs in os.walk(folder):
         paths += [os.path.join(d, f) for f in fs if f.lower().endswith(".wav")]

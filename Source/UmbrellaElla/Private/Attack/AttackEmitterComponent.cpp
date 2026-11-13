@@ -37,7 +37,7 @@ const FAttackTuning& UAttackEmitterComponent::ActiveTuning() const
 void UAttackEmitterComponent::StepEmitter(float DeltaSeconds)
 {
 	AActor* Owner = GetOwner();
-	if (!Owner || !IsFeatureEnabled(EFeatureId::COM_06))
+	if (!Owner || bCom06OffForTest || !IsFeatureEnabled(EFeatureId::COM_06))
 	{
 		PendingBurstDelays.Reset();
 		HideBeam();

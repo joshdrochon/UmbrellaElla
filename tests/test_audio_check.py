@@ -191,6 +191,17 @@ class WavScan(unittest.TestCase):
         p = self.run_scan(prov_skip=("SW_WandBolt_01.wav",))[0]
         self.assertTrue(any("no provenance row" in x for x in p), p)
 
+    def test_two_provenance_rows_for_one_take_fail(self):
+        src, prov, root = self.build()
+        with open(prov, "a") as f:
+            f.write("Audio/Source/WandBolt/SW_WandBolt_00.wav,Rick,placeholder: audio critic fail (x),Audacity,,,,,"
+                    "2026-11-12,CC0,\n")
+        p = audio_check.scan(src, RULES, ROWS, prov, root=root)[0]
+        self.assertTrue(any("SW_WandBolt_00.wav: 2 provenance rows" in x for x in p), p)
+
+    def test_repo_ledger_has_one_row_per_take(self):
+        self.assertEqual(audio_check.duplicate_provenance(audio_check.DEFAULT_PROV), [])
+
     def test_bad_name_and_unknown_id_fail(self):
         files = dict(GOOD)
         files["SW_EnemyDefeat_00.wav"] = {}
