@@ -6,6 +6,8 @@
 
 struct FUmbrellaEvent;
 class AActor;
+class UTexture2D;
+enum class EArtSlotDraw : uint8;
 
 namespace UmbrellaVfxConst
 {
@@ -63,6 +65,9 @@ public:
 
 	/** Spawn the effect for an event (also what the bus handler does). Counts only when one was shown. */
 	void PlayForEvent(const FUmbrellaEvent& Event);
+
+	/** Draw the bolt-hit picture (art slot shot:red-impact) on a shown ShotImpact effect, keeping its size. */
+	EArtSlotDraw ShowImpactArt(AActor* Effect, UTexture2D* Texture);
 
 	/** Spec of a named effect (NAME_None Name if unknown). Pure. */
 	static FVfxEffectSpec SpecForEffect(FName Effect);
