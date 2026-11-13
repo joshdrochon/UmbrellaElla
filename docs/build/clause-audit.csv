@@ -112,7 +112,7 @@ OWL-11,Speeds 270/300 (no mechanism/clock speed test),proven,keeper
 OWL-12,No separate timed prefire delay,i,keeper
 OWL-12,"Captured lane shown, no hidden tracking",i,keeper
 OWL-12,Player can leave via rise/fall/current/evade,i,keeper
-OWL-12,Traveling missiles continue during electrical stun,i,keeper
+OWL-12,Traveling missiles continue during electrical stun,proven,keeper
 OWL-13,Yellow shots are aimed,i,keeper
 OWL-13,Independent 2.3s cadence,i,keeper
 OWL-13,Keeper yellow ordinary contact deals 1 health,i,keeper
@@ -140,7 +140,7 @@ OWL-18,"Strike direction captured at commitment, no tracking",i,keeper
 OWL-18,Cooldown must be clear to trigger,i,keeper
 OWL-18,No test that talon stays idle outside 270,i,keeper
 OWL-19,Empty space and recovery do no damage,i,keeper
-OWL-19,Vertical-exit check suppresses impossible launches,ii,keeper
+OWL-19,Vertical-exit check suppresses impossible launches,proven,keeper
 OWL-19,"Tip width 48 (bound, no test exercises width)",proven,keeper
 OWL-19,Sweep aims at captured target,i,keeper
 OWL-20,Quiet recovery 1s,proven,keeper
@@ -172,7 +172,7 @@ OWL-24,no every-cast alternation (talon-intervening case untested),i,keeper
 OWL-25,shown and collides on the actual curved path,i,keeper
 OWL-25,moving middle head shootable on the curve,i,keeper
 OWL-25,timing uses straight-distance basis (not constant 400/s),i,keeper
-OWL-25,telegraph shows enough curve for a viable exit,ii,keeper
+OWL-25,telegraph shows enough curve for a viable exit,proven,keeper
 OWL-25,destroying the middle cancels its cast (only front tested),i,keeper
 OWL-25,dedicated art follows curved geometry,ii,keeper
 OWL-26,0.9s warning before rear stroke,proven,keeper
@@ -181,21 +181,21 @@ OWL-26,"continues to ORIGINAL captured endpoint, no re-aim",i,keeper
 OWL-26,"both strokes share one serial, damage at most once",i,keeper
 OWL-26,chain links harmless,i,keeper
 OWL-26,1.2s return harmless,i,keeper
-OWL-27,second clack / stopped head signals unfinished movement,ii,keeper
+OWL-27,second clack / stopped head signals unfinished movement,proven,keeper
 OWL-27,destruction cancels either rear stroke or pause immediately,i,keeper
 OWL-27,held-in-claw artwork reconciled to mid-flight pause,ii,keeper
 OWL-28,repeat without re-aim (player never moved in test),i,keeper
 OWL-28,0.6s wait after last shot,i,keeper
 OWL-28,at least 0.85s recovery after repeat,i,keeper
 OWL-28,yellow keeps its own timer,i,keeper
-OWL-28,"clock-hand move, tick and path cue mark the reprise",ii,keeper
+OWL-28,"clock-hand move, tick and path cue mark the reprise",proven,keeper
 OWL-28,destroyed hazards not resurrected / world not rewound,i,keeper
 OWL-29,exposure cycle uses unscaled active-gameplay time,i,keeper
 OWL-29,needle never bypasses magic or target order,i,keeper
 OWL-29,clock exposure independent of volley cadence,i,keeper
 OWL-30,mechanism break opens the clock,i,keeper
 OWL-30,break clears gusts,i,keeper
-OWL-30,"new fire stops during stun, traveling missiles continue",i,keeper
+OWL-30,"new fire stops during stun, traveling missiles continue",proven,keeper
 OWL-30,fire pause freezes physical timers and pending emissions,i,keeper
 OWL-30,fire pause is not stun,i,keeper
 OWL-30,blackout cancels the physical move,i,keeper
