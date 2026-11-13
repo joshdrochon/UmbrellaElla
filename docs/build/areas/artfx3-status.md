@@ -51,3 +51,6 @@ Still blocked: origin/main (80aacfd8) has no SmokeShotFrames in Source/; it exis
 
 ## 2026-11-13 (recheck 5)
 Still blocked: origin/main (80aacfd8) has no SmokeShotFrames in Source/; screenfix not merged. No paid call made. Request in docs/build/requests/artfx3.md stands.
+
+## 2026-11-13 (style block, stun)
+Merged main 3e2c0b2a; SmokeShotFrames is on main now, paid calls work (draft model needs `--model gemini-3.1-flash-image-preview` for 8:1). Repainted vfx-stun with prompt3 (arcs) plus the shared style block: `Stun/draft4.png`, cut with NOGRADE=1 into `sheet7.png` (ivory/pale-blue arcs with brass shards, reads as stun). art_judge per frame: frames 0-5 score 0.2 (style gate), frames 6-7 0.639, bar 0.764. Whole strip 0.397. Still a placeholder. Cost about $0.10. Other seven pieces not repainted: about $4 of the shared cap is left for every lane. Next: another stun seed or 3-pro-image final, then the other pieces best-ranked first (stream-sustain, needle-channel).
