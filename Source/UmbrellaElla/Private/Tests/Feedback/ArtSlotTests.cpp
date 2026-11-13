@@ -244,7 +244,21 @@ bool FArtSlotKeeperEnemy::RunTest(const FString& Parameters)
 	if (TestNotNull(TEXT("keeper presenter"), KeeperPresenter) && TestNotNull(TEXT("keeper"), Keeper))
 	{
 		UTexture2D* Texture = ArtSlotTestTexture();
-		TestTrue(TEXT("keeper takes a picture"), KeeperPresenter->ShowArt(Keeper, Texture) == EArtSlotDraw::Drawn);
+		// When the keeper's own asset exists the stand-in already drew it on spawn; the first call is then refused too.
+		const UStaticMeshComponent* KeeperMesh = nullptr;
+		TInlineComponentArray<UStaticMeshComponent*> KeeperMeshes(Keeper);
+		for (UStaticMeshComponent* Candidate : KeeperMeshes)
+		{
+			if (Candidate->GetFName() == FName(TEXT("KeeperStandIn")))
+			{
+				KeeperMesh = Candidate;
+			}
+		}
+		const bool bDrewOnSpawn = KeeperMesh && ArtSlot::HasArt(KeeperMesh);
+		if (!bDrewOnSpawn)
+		{
+			TestTrue(TEXT("keeper takes a picture"), KeeperPresenter->ShowArt(Keeper, Texture) == EArtSlotDraw::Drawn);
+		}
 		TestTrue(TEXT("a second picture is refused"), KeeperPresenter->ShowArt(Keeper, Texture) != EArtSlotDraw::Drawn);
 	}
 	UEnemyPresenterSubsystem* EnemyPresenter = World->GetSubsystem<UEnemyPresenterSubsystem>();
