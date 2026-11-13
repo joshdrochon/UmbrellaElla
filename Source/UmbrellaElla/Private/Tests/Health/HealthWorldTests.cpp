@@ -212,7 +212,8 @@ bool FHealthWorldRetry::RunTest(const FString& Parameters)
 	Health->TakeHitAt(6.0f, NAME_None, 10.0);
 	TestTrue(TEXT("a life was lost"), Health->GetState().Lives < 4);
 	Health->ResetForRetry();
-	TestEqual(TEXT("lives back to max"), Health->GetState().Lives, 4);
+	TestEqual(TEXT("exactly 3 current lives (FLOW-09)"), Health->GetState().Lives, 3);
+	TestEqual(TEXT("bought maximum kept"), Health->GetState().MaxLives, 4);
 	TestEqual(TEXT("active full at capacity"), Health->GetState().Active, 4.0f, 1.0e-4f);
 	TestEqual(TEXT("purchased capacity kept"), Health->GetState().Capacity, 4.0f, 1.0e-4f);
 	return true;
