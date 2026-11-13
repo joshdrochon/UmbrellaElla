@@ -12,7 +12,9 @@
 
 struct FProgressionTuning;
 
+class AActor;
 class UUmbrellaEventBus;
+class UUmbrellaHealthComponent;
 class UWorld;
 
 DECLARE_MULTICAST_DELEGATE(FOnProgressionChanged);
@@ -62,6 +64,10 @@ public:
 	void CompleteRun();
 	bool IsRunActive() const;
 	bool IsFinalHourRun() const;
+	/** How many times the Final Hour intro was shown (once at the start of each Extreme run). */
+	int32 GetFinalHourIntroCount() const;
+	/** Fires when the Final Hour intro shows, before the Extreme run's play begins. */
+	FOnProgressionChanged& OnFinalHourIntro();
 	FRunScaling GetRunScaling() const;
 
 	// ---- XP
@@ -99,6 +105,12 @@ public:
 	void BeginShadowProgress(int32 Level);
 	void EndShadowProgress();
 	bool IsShadowActive() const;
+	/** Tutorial replay on shadow progress (a copy of the earned profile). ModeSelected "Tutorial..." starts it. */
+	void BeginTutorialReplay();
+	bool IsTutorialReplay() const;
+
+	/** Pushes hits per life, lives, recovery and defense ranks into a health component. */
+	void ApplyToHealth(UUmbrellaHealthComponent* Health) const;
 
 	FOnProgressionChanged& OnChanged();
 	FOnProgressionLevelGained& OnLevelGained();
@@ -112,6 +124,10 @@ private:
 	void Persist();
 	void Broadcast(EUmbrellaEventType Type, FName Detail, int32 Amount);
 	bool IsProgressing() const;
+	void NotifyChanged();
+	void ApplyToPlayers() const;
+	void OnActorSpawned(AActor* Actor);
+	void ShowFinalHourIntro();
 
 	FProgressionProfile Profile;
 	FProgressionProfile RealProfileWhileShadow;
@@ -123,6 +139,10 @@ private:
 	bool bFinalHour = false;
 	bool bRunActive = false;
 	bool bShadowActive = false;
+	bool bTutorialReplay = false;
+	int32 FinalHourIntroCount = 0;
+	FDelegateHandle SpawnHandle;
+	FOnProgressionChanged FinalHourIntroDelegate;
 
 	TWeakObjectPtr<UUmbrellaEventBus> BoundBus;
 	TArray<EUmbrellaEventType> BoundTypes;

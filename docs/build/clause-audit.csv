@@ -42,8 +42,8 @@ FLOW-05,Physical boss scheduling intact under scaling,ii,progression
 FLOW-05,Extra enemies only in authored slots under local threat caps,ii,progression
 FLOW-05,"Warnings, escapes, early yellow healing, generator limits preserved",ii,progression
 FLOW-05,No unsafe mandatory encounter from more enemies,ii,progression
-FLOW-06,Final Hour intro screen shown before the Extreme run,ii,progression
-FLOW-06,Exact text 'Your borrowed time has run its course...' shown,ii,progression
+FLOW-06,Final Hour intro screen shown before the Extreme run,proven,progression
+FLOW-06,Exact text 'Your borrowed time has run its course...' shown,proven,progression
 FLOW-06,Final Hour multipliers applied to real enemies,ii,progression
 FLOW-06,Telegraphs/recovery/scheduling/projectile speed/safe placement preserved,ii,progression
 FLOW-06,No automatic increase in incoming damage,i,progression
@@ -55,7 +55,7 @@ FLOW-09,Rollback applied before full heal (ordering),ii,keeper
 FLOW-09,Level-checkpoint retry fully heals (only event-driven retry tested),ii,keeper
 FLOW-10,Upgrades (ranks) retained into next run after win,i,progression
 FLOW-10,Unlocks/weapons retained into next run after win,i,progression
-FLOW-13,Level checkpoint after boss checkpoint does not exempt gains from rollback,ii,progression
+FLOW-13,Level checkpoint after boss checkpoint does not exempt gains from rollback,proven,progression
 FLOW-13,Living Keeper departure grants no reward,i,progression
 FLOW-15,MAX displayed in UI at cap,i,progression
 FLOW-15,Spell access survives refunds,i,progression
@@ -65,8 +65,8 @@ FLOW-17,Health purchase/refund preserves current health fraction,ii,progression
 FLOW-17,Fractional health retained without per-hit rounding (C++),i,progression
 FLOW-17,Defense does not cancel gust displacement,i,progression
 FLOW-17,Defense does not make lethal boundaries safe,i,progression
-FLOW-17,Damage ranks don't change rate/geometry/protection/penetration/aim,ii,progression
-FLOW-17,Effects derived from baseline once,ii,progression
+FLOW-17,Damage ranks don't change rate/geometry/protection/penetration/aim,proven,progression
+FLOW-17,Effects derived from baseline once,proven,progression
 FLOW-19,Living Keeper departure gives no kill reward,i,progression
 FLOW-19,CP2/CP3 passage and reload give no XP (only CP1 tested),i,progression
 FLOW-20,Quit/reload restores checkpoint upgrades (only XP asserted),i,progression
@@ -77,7 +77,7 @@ FLOW-21,Weapons/unlocks and upgrades retained into next run,i,progression
 FLOW-22,Earned data separate from tuning/bindings,i,progression
 FLOW-22,Two corrupt copies error is recoverable,i,progression
 FLOW-22,Shadow progress restored on relaunch,i,progression
-FLOW-22,Tutorial replay uses shadow progress,ii,progression
+FLOW-22,Tutorial replay uses shadow progress,proven,progression
 OWL-06,Rules apply in BOTH modes (no Director's Cut keeper test),proven,keeper
 OWL-06,"Retained/restored capacity, max lives, upgrades on retry",ii,keeper
 OWL-06,Normal phase advancement carries Ella's health,proven,keeper
@@ -349,7 +349,7 @@ FLOW-49,title text 'Journey Complete',i,settings2
 FLOW-49,Main Menu button,i,settings2
 FLOW-49,approved Gothic storybook look,ii,settings2
 FLOW-49,readable controller/keyboard focus,ii,settings2
-FLOW-42,Review screen shows complete costs and effects,ii,progression
+FLOW-42,Review screen shows complete costs and effects,proven,progression
 FLOW-42,Confirm saves the staged draft atomically (draft commit untested),i,progression
 FLOW-42,Context change discards unconfirmed draft,i,progression
 FLOW-42,Start Game has no upgrades (purchase path),i,progression
@@ -376,7 +376,7 @@ SURV-05,clock HUD actually drawn in game,i,move
 SURV-05,"no extra clocks, umbrella icons or numeric count",i,move
 SURV-05,Shoot-only fall does not auto-catch,proven,move
 SURV-05,no absorption cooldown (repeated world catches),proven,move
-SURV-06,+1 life per point (lives value after purchase),ii,progression
+SURV-06,+1 life per point (lives value after purchase),proven,progression
 SURV-06,previous-rank dependency for three-rank tracks,i,progression
 FLOW-24,story events deterministic on retry,ii,levelchunks
 COM-12,Floodstrider/Courier male+female art present,ii,enemies2
