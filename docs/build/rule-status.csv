@@ -5,22 +5,22 @@ FLOW-04,flow,partial,Flow.WinStoryThenCredits; Flow.World.EncounterCompletedReac
 MOVE-04,move,built,Move.DefaultBindings; Move.World.InputAssetsBuilt,hardware input not run,
 MOVE-05,move,built,Move.DefaultBindings; Move.World.InputAssetsBuilt,hardware input not run,
 MOVE-06,move,built,Move.DefaultBindings; Move.World.InputAssetsBuilt,hardware input not run,
-MOVE-07,move,built,Move.DefaultBindings; Move.World.InputAssetsBuilt,hardware input not run,
-MOVE-08,flow,built,Flow.MenuInputs; Move.DefaultBindings,"spell cycle in Move, pause/retry keys in Flow",
-MOVE-09,flow,built,Flow.MenuInputs,,
-MOVE-10,settings,built,Settings.RemapRebuildsMappingContext; Move.World.SavedRemapReachesLiveContext,no on-screen check of the remap UI,
+MOVE-07,move,partial,Move.DefaultBindings; Move.World.InputAssetsBuilt,unproven: arrow-key trim aliases; fire goes right while traveling left; right stick selects spells | was: hardware input not run,move
+MOVE-08,flow,partial,Flow.MenuInputs; Move.DefaultBindings,"unproven: D-pad left/right and [ cycle spells; keys 2/3 bound to Stream/Twin; right-stick directions select spells; Escape/Menu opens pause during play; Cross/A/Enter triggers retry on defeat screen | was: spell cycle in Move, pause/retry keys in Flow",titlemusic
+MOVE-09,flow,partial,Flow.MenuInputs,unproven: mouse click selects in menus; controller (gamepad) button remap,titlemusic
+MOVE-10,settings,partial,Settings.RemapRebuildsMappingContext; Move.World.SavedRemapReachesLiveContext,unproven: controller (gamepad) button remap in Controller menu | was: no on-screen check of the remap UI,settings2
 MOVE-11,move,partial,Move.NoDirectSteering; Move.StateSpeedsAndTrim,unproven: same movement/controls asserted inside a boss encounter; same rules asserted inside a level route,move
 MOVE-12,move,partial,Move.World.FireIsUnlimited; Move.SpellAvailability,"unproven: no ammo/energy for Stream, Twin, Needle (only Small tested)",move
 MOVE-13,move,partial,Move.ActionRules; Move.World.AbsorbFallAndFreeFall,unproven: same profile asserted in every level/boss encounter,move
 MOVE-14,move,built,Move.World.ShootFallFiresRightOnlyWhileDropping,,
 MOVE-15,move,partial,Move.HopDashTuned,unproven: hop protection actually blocks damage in Health; hop vs post-hit protection asserted distinct; qualifying route rejects developer protection setting | was: hop protection in Motor,move
 MOVE-16,move,built,Move.World.ControlsSameInBothModes,,
-MOVE-17,settings,built,Settings.RemapRebuildsMappingContext; Move.World.SavedRemapReachesLiveContext,no on-screen check of the remap UI,
+MOVE-17,settings,partial,Settings.RemapRebuildsMappingContext; Move.World.SavedRemapReachesLiveContext,unproven: controller (gamepad) button remap in Controller menu | was: no on-screen check of the remap UI,settings2
 MOVE-18,move,built,Move.World.ControlsSameInBothModes,,
 MOVE-19,move,partial,Move.StateLockWaitsForNeutral; Move.ActionRules,unproven: right stick selects a spell,move
 MOVE-20,move,partial,Move.StateLockWaitsForNeutral; Move.ActionRules,unproven: Absorb/Free fall disengage Ride (only Shoot tested); remapped controls keep the four combinations,move
 MOVE-21,move,built,Move.Baseline; Move.StateSpeedsAndTrim; Move.HopDashTuned,Hop direction is a default awaiting Josh,
-SURV-05,health,built,Health.ThreeHitsCostALife; Health.World.PostHitProtectionBlocksSecondHit,,
+SURV-05,health,partial,Health.ThreeHitsCostALife; Health.World.PostHitProtectionBlocksSecondHit,"unproven: clock HUD actually drawn in game; no extra clocks, umbrella icons or numeric count; Shoot-only fall does not auto-catch; no absorption cooldown (repeated world catches)",settings2
 UMB-05,move,partial,Move.Baseline; Move.World.LiftScalesWithHealth; Health.World.YellowDuringAbsorbFallHealsAndIsConsumed,unproven: catch gives no ammo/stored-energy reward; repair not disabled by reward eligibility,move
 WIND-03,arena,partial,Field.World.BroadcastsEnterExit; Move.World.RideCurrentFromEvents; Move.World.RideCurrentFromVolume,unproven: riding a current deals zero damage; safe supports/solids/lethal bottoms explicitly tagged | was: Motor IsEventForElla also accepts TargetId == owner actor name; volume test fails without the fix,levelchunks
 MOVE-22,move,partial,Move.WindRideAndDecay; Move.World.RideCurrentFromEvents,unproven: effective profile recorded before qualifying play; encounter display vs collision scale tested independently,move
@@ -43,7 +43,7 @@ FLOW-13,progression,partial,Progression.World.BossRetryRollsBackXpAndPartsPayAga
 FLOW-14,progression,built,Persistence.RoundTrip; Progression.World.StartGameGivesNoXp,,
 FLOW-15,progression,partial,Progression.XpCurveMatchesOracle,unproven: MAX displayed in UI at cap; Spell access survives refunds; No traversal XP; Start Game has no stat upgrades (purchase not tested),settings2
 FLOW-16,progression,built,Progression.UnlockScheduleMatchesOracle,,
-SURV-06,progression,built,Progression.RankValues; Progression.CommitIsAtomicAndGated,,
+SURV-06,progression,partial,Progression.RankValues; Progression.CommitIsAtomicAndGated,unproven: +1 life per point (lives value after purchase); previous-rank dependency for three-rank tracks,settings2
 SURV-07,health,built,Health.HealingActiveFirstThenReserves,,
 FLOW-17,progression,partial,Progression.World.PurchaseNeedsContext,unproven: Health purchase/refund preserves current health fraction; Fractional health retained without per-hit rounding (C++); Defense does not cancel gust displacement; Defense does not make lethal boundaries safe; Damage ranks don't change rate/geometry/protection/penetration/aim; Effects derived from baseline once,settings2
 FLOW-18,progression,built,Progression.PurchaseVersusReallocation,,
@@ -150,11 +150,11 @@ NAR-05,story,partial,Story.InPlayCues,caption stand-in; the light shaft and umbr
 NAR-06,story,partial,Story.ClueOnPhaseStartedWings,caption stand-in; clock-hand and bronze shaft visual clue needs Keeper art,artkeeper
 NAR-07,story,partial,Story.EndingSequence; Flow.EndingTimelineRules; Flow.World.DirectorsCutEndingOneTimeline; Flow.World.LaterWinSkipsToStatistics,unproven: Keeper withdraws alive into darkness | was: one ending timeline owned by Flow (dcb08d4); 95 tests PASS on 1ab85de,agentplay
 NAR-08,story,built,Story.OpeningOncePerRun; Story.LateModeSelectedShowsOpeningOnce,"retry sends no ModeSelected, new run sends one",
-FLOW-30,health,built,Health.ClockHudInsideSixteenByNineView; Health.ClockHudTextAtLeast18Px,HUD not seen on screen,
+FLOW-30,health,partial,Health.ClockHudInsideSixteenByNineView; Health.ClockHudTextAtLeast18Px,"unproven: clock HUD actually drawn in game (only layout math tested); antique bronze/gold look, smoky translucent face, etched rim; warm gold upper-right arc; no extra clocks, umbrella HUD units or numeric count; hands high-contrast/readable over face across scenes | was: HUD not seen on screen",settings2
 FLOW-48,progression,partial,Progression.RingFillAndMax,UXpRingWidget drawn and shown in Director's Cut; no test reads the drawing; look not passed,artui
-FLOW-31,health,built,Health.LifeHandAdvancesTowardXIIAndEndsAtXII; Health.World.LastLifeBroadcastsDefeatedOnce,life-hand angles open (requests/health.md),
-FLOW-32,health,built,Health.DrawnHandFollowsWithoutGameplayDelay; Health.World.FullHealthCatchIsValidAndNotHealing,,
-FLOW-33,health,built,Health.DamageScaleByDefenseRank; Health.DamageOverflowCarriesAcrossLives,,
+FLOW-31,health,partial,Health.LifeHandAdvancesTowardXIIAndEndsAtXII; Health.World.LastLifeBroadcastsDefeatedOnce,unproven: life-loss transition adds no protection window | was: life-hand angles open (requests/health.md),health
+FLOW-32,health,partial,Health.DrawnHandFollowsWithoutGameplayDelay; Health.World.FullHealthCatchIsValidAndNotHealing,unproven: absorbed energy visibly flows into the clock; gold arc restores on heal / drains on hit; life hand unchanged on partial damage/heal; reserve handover shown without invulnerability/reset pause,settings2
+FLOW-33,health,partial,Health.DamageScaleByDefenseRank; Health.DamageOverflowCarriesAcrossLives,unproven: ordinary red/yellow projectile damage is 1 (no bound key; tests inject 1); same-shot heal overflow into spent reserve; handover grants no new protection; retry restores exactly 3 lives (test asserts max=4 instead); progression rollback applied before health restore; normal checkpoint passage does not heal; +1 life per point in Director's Cut,health
 FLOW-34,flow,partial,Flow.TitleStartsPlaying; Flow.StartAndPauseDesignRetained,"unproven: title music plays; background moves slowly; background art contains no characters; second button label is 'Director's Cut', GDD says 'Start Director's Cut'",titlemusic
 FLOW-35,flow,partial,Flow.PauseCycle; Flow.World.MenuBlocksGameplayInput,"unproven: Quit exits the game; pause background animates ticking clocks and falling objects; pause background motion never advances gameplay | was: drifting background, not seen on screen",titlemusic
 FLOW-36,settings,built,Settings.PagesByMode; Settings.SaveAppliesCurrentPage; Settings.BackDiscardsUnsaved; Settings.SliderRange; Settings.Credits,Slate layout not seen on screen,
