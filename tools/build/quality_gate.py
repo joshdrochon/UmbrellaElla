@@ -27,6 +27,12 @@ BLOCKING = {"ui_check": ["tools/ui_check.py", "ci"], "story_check": ["tools/stor
             "audio_scan": ["tools/audio_check.py", "--scan", "Audio/Source"]}   # a sound in the list with no file is a FAIL line
 
 
+# Lane pre-check only (lane_precheck.sh sets it): sprite_check judges just the art the lane changed against this base, not
+# all of Art (the full scan took ~15 min per lane under load, Nov 13). The gate never sets it, so its check stays full.
+if os.environ.get("QUALITY_SPRITE_BASE"):
+    BLOCKING["sprite_check"] = BLOCKING["sprite_check"] + ["--only-changed", os.environ["QUALITY_SPRITE_BASE"]]
+
+
 def run(args):
     p = subprocess.run([sys.executable] + args, cwd=ROOT, capture_output=True, text=True)
     return p.returncode, (p.stdout + p.stderr).splitlines()

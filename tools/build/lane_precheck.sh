@@ -31,7 +31,7 @@ fi
 p=$(python3 tools/build/art_inventory.py check 2>&1 | grep -E "FAIL" | head -3); [ -n "$p" ] && add "$p"
 p=$(python3 tools/pipeline_check.py 2>&1 | grep -E "^\[" | grep -v agent_play | head -3); [ -n "$p" ] && add "$p"
 if [ -f "$L/quality-base.txt" ]; then
-  p=$(python3 tools/build/quality_gate.py check origin/main "$L/quality-base.txt" 2>&1 | grep -E "new FAIL" | head -5)
+  p=$(QUALITY_SPRITE_BASE=origin/main python3 tools/build/quality_gate.py check origin/main "$L/quality-base.txt" 2>&1 | grep -E "new FAIL" | head -5)
   [ -n "$p" ] && add "$p"
 fi
 # Python tests only on request (PRECHECK_TESTS=1): under load they ran 20-50 min per lane (Nov 13); the gate runs them.
