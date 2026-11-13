@@ -37,7 +37,13 @@ if [ -f "$L/quality-base.txt" ]; then
   p=$(QUALITY_SPRITE_BASE=origin/main python3 tools/build/quality_gate.py check origin/main "$L/quality-base.txt" 2>&1 | grep -E "new FAIL" | head -5)
   [ -n "$p" ] && add "$p"
 fi
+# The gate's other checks, minus the Unreal build and tests (Nov 13, Josh: a tip reaches the gate only after these pass).
+p=$(python3 tools/module_check.py 2>&1 | grep -E "^\[" | head -3); [ -n "$p" ] && add "$p"
+p=$(python3 tools/manifest_check.py 2>&1 | grep -iE "^(FAIL|\[)" | head -3); [ -n "$p" ] && add "$p"
+p=$(python3 tools/build/art_pass_verify.py check --base origin/main 2>&1 | grep -E "FAIL" | head -3); [ -n "$p" ] && add "$p"
+[ -f tools/build/clause_check.py ] && { p=$(python3 tools/build/clause_check.py origin/main 2>&1 | grep -E "FAIL " | head -3); [ -n "$p" ] && add "$p"; }
 # Python tests only on request (PRECHECK_TESTS=1): under load they ran 20-50 min per lane (Nov 13); the gate runs them.
 p=""; [ -n "${PRECHECK_TESTS:-}" ] && p=$(python3 tools/affected_tests.py --base origin/main --run 2>&1 | grep -E "^(FAIL|ERROR)" | head -3 2>/dev/null); [ -n "$p" ] && add "$p"
-if [ -z "$out" ]; then echo "PRECHECK PASS"; exit 0; fi
-echo "PRECHECK FAIL$out"; exit 1
+SHA=$(git rev-parse HEAD)
+if [ -z "$out" ]; then echo "PRECHECK PASS sha=$SHA"; exit 0; fi
+echo "PRECHECK FAIL sha=$SHA$out"; exit 1
