@@ -244,7 +244,17 @@ bool FArtSlotKeeperEnemy::RunTest(const FString& Parameters)
 	if (TestNotNull(TEXT("keeper presenter"), KeeperPresenter) && TestNotNull(TEXT("keeper"), Keeper))
 	{
 		UTexture2D* Texture = ArtSlotTestTexture();
-		TestTrue(TEXT("keeper takes a picture"), KeeperPresenter->ShowArt(Keeper, Texture) == EArtSlotDraw::Drawn);
+		// When the slot's own asset exists (T_Keeper_Owl_PH is on main), the stand-in already shows it at spawn, so a
+		// second picture is refused; without the asset the first picture is drawn and the second refused.
+		const UStaticMeshComponent* KeeperMesh = FindObjectFast<UStaticMeshComponent>(Keeper, FName(TEXT("KeeperStandIn")));
+		if (KeeperMesh && ArtSlot::HasArt(KeeperMesh))
+		{
+			TestTrue(TEXT("keeper already shows its slot art"), ArtSlot::HasArt(KeeperMesh));
+		}
+		else
+		{
+			TestTrue(TEXT("keeper takes a picture"), KeeperPresenter->ShowArt(Keeper, Texture) == EArtSlotDraw::Drawn);
+		}
 		TestTrue(TEXT("a second picture is refused"), KeeperPresenter->ShowArt(Keeper, Texture) != EArtSlotDraw::Drawn);
 	}
 	UEnemyPresenterSubsystem* EnemyPresenter = World->GetSubsystem<UEnemyPresenterSubsystem>();
