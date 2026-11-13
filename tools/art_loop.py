@@ -120,8 +120,10 @@ frame may pop. The style standard is ink on aged paper: near-black silhouettes, 
 and rust red), etched lines, textured paper, never flat fills.
 
 Judge every lettered folder on its own, on style and craft only. Be strict: small differences in line quality,
-texture, value structure, silhouette, finish and motion count. When you cannot tell X and Y apart in style and
-quality, answer SAME.
+texture, value structure, silhouette, finish and motion count. The two images of a folder can differ a lot: one may
+be flat, blocky, blurry or a plainly cruder drawing of the same kind of thing. Look at both at full size first. When
+one is clearly better crafted, name it (X or Y), even if the two show different subjects. Answer SAME only when you
+truly cannot tell X and Y apart in style and quality, as when they are the same picture.
 
 Answer with exactly one line per lettered folder and nothing else, in this form:
 A: WINNER: X | GAP: <the single biggest thing the losing image lacks; for SAME, the one thing both still lack>
@@ -131,6 +133,8 @@ Never give a number, a score or a rating.
 """
 KINDS = ("reference", "quality_bar", "motion", "context")
 PANEL = 3   # fresh blind critic sessions per pair per round; every one must answer ours or SAME
+REDRAW_MAX = 2 * PANEL   # extra sessions drawn per pair when some do not calibrate: bounded; a vote that missed a
+#                          calibration folder is never counted, so a pair that cannot reach PANEL counted votes fails
 CALIBRATION = os.path.join("evals", "art-judge", "critic-calibration.json")
 CAL_LOG = os.path.join("Saved", "Logs", "pipeline", "critic-calibration.csv")
 AGREEMENT_COLS = ["date", "pair_id", "seed", "model", "prompt_version", "rubric_version", "judge_closer",
@@ -315,6 +319,34 @@ def near_copy(src, root):
     return out
 
 
+def crude_of(src, root=ROOT):
+    """A deliberately crude copy of a team image (coarse blocks, three flat tones per channel, no texture), cached in the
+    temp folder: a calibration pair's clearly worse side for an element no crude render targets (a VFX burst: the Ella
+    and owl renders show another subject, so critics answered SAME). The team image must win against it."""
+    import tempfile
+    from png import read_png, write_png
+    cache = os.path.join(tempfile.gettempdir(), "art-loop-cache")
+    os.makedirs(cache, exist_ok=True)
+    out = os.path.join(cache, "crude-" + content_sha(src)[:16] + ".png")
+    if not os.path.isfile(out):
+        w, h, rows = read_png(src)
+        cell = max(1, max(w, h) // 20)
+        step = max(1, max(w, h) // 256)   # cap the work on a large image
+        rows = [r[::step] for r in rows[::step]]
+        w, h, cell = len(rows[0]), len(rows), max(1, cell // step)
+        flat = []
+        for y0 in range(0, h, cell):
+            line = []
+            for x0 in range(0, w, cell):
+                px = [rows[y][x] for y in range(y0, min(h, y0 + cell)) for x in range(x0, min(w, x0 + cell))]
+                a = sum(p[3] for p in px) // len(px)
+                c = tuple(min(255, (sum(p[i] for p in px) // len(px)) // 85 * 85 + 40) for i in range(3))
+                line += [c + (a,)] * min(cell, w - x0)
+            flat += [line] * min(cell, h - y0)
+        write_png(out, w, h, flat)
+    return out
+
+
 # Critic packets show images on a plain paper ground (Nov 12 critic-defect fix): a transparent sprite was shown over black,
 # so its ink mass vanished and only the outline read, while the references are opaque on paper. Every image, ours and the
 # reference alike, is flattened onto the same ground, so neither side gains from it.
@@ -356,6 +388,32 @@ def flatten_on_ground(src):
     return out
 
 
+PACKET_MAX = 1568   # longest edge the critic's image viewer keeps at full detail; larger images are shrunk before it sees them
+
+
+def fit_packet(src, limit=PACKET_MAX):
+    """src itself when its longest edge is within limit; else a full-detail crop (never a resize): the subject's opaque
+    bounding box (a fully opaque image: its centre), cut to at most limit x limit around the box centre. Cached by content.
+    A large frame shown whole is shrunk by the viewer, and the critic then calls the figure a coarse pixel figure."""
+    import tempfile
+    from png import read_png, write_png
+    w, h, rows = read_png(src)
+    if max(w, h) <= limit:
+        return src
+    cache = os.path.join(tempfile.gettempdir(), "art-loop-cache")
+    os.makedirs(cache, exist_ok=True)
+    out = os.path.join(cache, f"fit{limit}-" + content_sha(src)[:16] + ".png")
+    if not os.path.isfile(out):
+        ys = [y for y, r in enumerate(rows) if any(px[3] > 0 for px in r)] or [0, h - 1]
+        xs = [x for r in rows for x, px in enumerate(r) if px[3] > 0] or [0, w - 1]
+        x0, x1, y0, y1 = min(xs), max(xs), min(ys), max(ys)
+        cw, ch = min(x1 - x0 + 1, limit), min(y1 - y0 + 1, limit)
+        x = int(min(max((x0 + x1 + 1 - cw) // 2, 0), w - cw))
+        y = int(min(max((y0 + y1 + 1 - ch) // 2, 0), h - ch))
+        write_png(out, cw, ch, [r[x:x + cw] for r in rows[y:y + ch]])
+    return out
+
+
 def _pair(folder, mine, other, rnd, frame_src=None, frame=None):
     os.makedirs(folder)
     mine_x = rnd.random() < 0.5
@@ -363,22 +421,152 @@ def _pair(folder, mine, other, rnd, frame_src=None, frame=None):
     if frame_src is not None:
         cell = (a if mine_x else b) + ".cell.png"
         frame_of(frame_src, frame, cell)
-        shutil.copy(flatten_on_ground(cell), a if mine_x else b)
+        shutil.copy(fit_packet(flatten_on_ground(cell)), a if mine_x else b)
         os.remove(cell)
     else:
-        shutil.copy(flatten_on_ground(mine), a if mine_x else b)
-    shutil.copy(flatten_on_ground(other), b if mine_x else a)
+        shutil.copy(fit_packet(flatten_on_ground(mine)), a if mine_x else b)
+    shutil.copy(fit_packet(flatten_on_ground(other)), b if mine_x else a)
     return "X" if mine_x else "Y"
 
 
+class PieceNotFound(ValueError):
+    """The piece's colours are nowhere in the in-engine capture: there is nothing to crop for the context pair."""
+
+
+CONTEXT_CROPS = os.path.join("evals", "art-judge", "context-crops.json")
+LOCATE_SHARE = 0.03      # a colour is the piece's when it covers this share of the piece's opaque pixels
+LOCATE_BG_SHARE = 0.10   # ...and is not the capture's background when it covers more than this share of the capture
+LOCATE_DIST = 40         # RGB distance of a capture pixel to one of the piece's colours
+LOCATE_MIN = 12          # fewest matching capture pixels that count as the piece being there
+
+
+def piece_signature(ours):
+    """The piece's own colours: [(r, g, b)] of its most common colours among opaque pixels (a sheet: every frame)."""
+    from png import read_png
+    _, _, rows = read_png(ours)
+    hist = {}
+    n = 0
+    for row in rows:
+        for px in row[::2]:
+            if px[3] >= 200:
+                k = (px[0] >> 4, px[1] >> 4, px[2] >> 4)
+                acc = hist.setdefault(k, [0, 0, 0, 0])
+                acc[0] += 1
+                for i in range(3):
+                    acc[i + 1] += px[i]
+                n += 1
+    out = []
+    for c, r, g, b in sorted(hist.values(), reverse=True)[:6]:
+        if n and c / n >= LOCATE_SHARE:
+            out.append((r // c, g // c, b // c))
+    return out
+
+
+_LOCATED = {}
+
+
+def locate_piece(capture, ours, pad=0.35, min_side=64):
+    """Cached per (capture, piece file, their mtimes, pad, min_side): the pixel scan runs once per critic round, not per session.
+    (x, y, w, h) of the piece in an in-engine capture, from the piece's own colours: capture pixels near one of its
+    colours that are not the capture's background, trimmed to the 3rd..97th percentile on each axis, padded.
+    Raises PieceNotFound when too few pixels match."""
+    key = (os.path.abspath(capture), os.path.abspath(ours), os.path.getmtime(capture), os.path.getmtime(ours), pad, min_side)
+    if key not in _LOCATED:
+        _LOCATED[key] = _locate_piece(capture, ours, pad, min_side)
+    return _LOCATED[key]
+
+
+def _locate_piece(capture, ours, pad, min_side):
+    from png import read_png
+    sig = piece_signature(ours)
+    w, h, rows = read_png(capture)
+    total = w * h
+    bg = {}
+    for row in rows:
+        for px in row[::3]:
+            k = (px[0] >> 4, px[1] >> 4, px[2] >> 4)
+            bg[k] = bg.get(k, 0) + 1
+    seen = max(1, total // 3)
+    sig = [c for c in sig if bg.get((c[0] >> 4, c[1] >> 4, c[2] >> 4), 0) / seen <= LOCATE_BG_SHARE]
+    if not sig:
+        raise PieceNotFound("the piece's colours are the capture's background")
+    xs, ys = [], []
+    lim = LOCATE_DIST * LOCATE_DIST
+    for y, row in enumerate(rows):
+        for x, px in enumerate(row):
+            for c in sig:
+                if (px[0] - c[0]) ** 2 + (px[1] - c[1]) ** 2 + (px[2] - c[2]) ** 2 <= lim:
+                    xs.append(x)
+                    ys.append(y)
+                    break
+    if len(xs) < LOCATE_MIN:
+        raise PieceNotFound(f"the piece is not in the capture ({len(xs)} matching pixels)")
+    xs.sort()
+    ys.sort()
+    lo, hi = int(len(xs) * 0.03), max(int(len(xs) * 0.97) - 1, 0)
+    x0, x1, y0, y1 = xs[lo], xs[hi], ys[int(len(ys) * 0.03)], ys[hi]
+    cw, ch = max(x1 - x0 + 1, 1), max(y1 - y0 + 1, 1)
+    side = max(cw * (1 + 2 * pad), ch * (1 + 2 * pad), min_side)
+    cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
+    side = min(side, w, h)
+    x = int(min(max(cx - side / 2, 0), w - side))
+    y = int(min(max(cy - side / 2, 0), h - side))
+    return x, y, int(side), int(side)
+
+
+def crop_png(src, rect, out):
+    """Cut rect (x, y, w, h) of src to out (clamped to the image)."""
+    from png import read_png, write_png
+    w, h, rows = read_png(src)
+    x, y, cw, ch = rect
+    x, y = max(0, min(x, w - 1)), max(0, min(y, h - 1))
+    cw, ch = max(1, min(cw, w - x)), max(1, min(ch, h - y))
+    write_png(out, cw, ch, [r[x:x + cw] for r in rows[y:y + ch]])
+    return out
+
+
+def context_reference(refs, piece, root=ROOT):
+    """(image, rect|None) the element's context pair shows against the capture crop: its crop of the key art
+    (evals/art-judge/context-crops.json: where the matching element sits in the key art), else the element's own first
+    reference image on its own background (rect None)."""
+    key = context_ref(refs, root)
+    for base in (root, ROOT):
+        p = os.path.join(base, CONTEXT_CROPS)
+        if os.path.isfile(p):
+            with open(p, encoding="utf-8") as fh:
+                crops = json.load(fh)
+            hit = (crops.get("elements") or {}).get(piece) or next(
+                (v for pre, v in (crops.get("prefixes") or {}).items() if piece.startswith(pre)), None)
+            if hit and hit.get("ref", "keyart") in ("keyart", None):
+                return key, tuple(hit["rect"])
+            break
+    own = element_refs(refs, piece, root)
+    return (own[0] if own else key), None
+
+
+def context_crops(refs, piece, capture, piece_file, root, out_dir):
+    """(capture crop file, reference file, {capture: rect, reference: rect|None}) for an element's context pair: the
+    in-engine capture cut to the piece, against the matching element of the key art (or the element alone)."""
+    rect = locate_piece(capture, piece_file)
+    ref, rrect = context_reference(refs, piece, root)
+    os.makedirs(out_dir, exist_ok=True)
+    mine = crop_png(capture, rect, os.path.join(out_dir, "capture-crop.png"))
+    src = ref if os.path.isabs(ref) else (os.path.join(root, ref) if os.path.exists(os.path.join(root, ref))
+                                          else os.path.join(ROOT, ref))
+    theirs = crop_png(src, rrect, os.path.join(out_dir, "reference-crop.png")) if rrect else src
+    return mine, theirs, {"capture": list(rect), "reference": list(rrect) if rrect else None}
+
+
 def blind(refs, card, piece, ours, out_dir, seed=None, root=ROOT, quality=False, kind=None, ref=None,
-          calibrate=True):
+          calibrate=True, piece_file=None):
     """Make one critic session's folder. Returns the key path (outside the folder).
     kind: reference (one of the piece's references; `ref` names which, else the seed picks), quality_bar (the piece's
     quality-bar image; quality=True is the same), motion (the whole sheet against a reference sheet) or context (ours
     is an in-engine capture with the piece in it, against the key art). A sheet in a reference or quality_bar pair is
     judged by one frame the seed picks. calibrate=True (the loop): the pair sits among calibration pairs in lettered
-    folders, and the session counts only when it gets every calibration pair right (judge())."""
+    folders, and the session counts only when it gets every calibration pair right (judge()).
+    A context pair for a non-scene piece (piece_file given) is cut to the piece: the capture crop against the piece's
+    key-art crop (context-crops.json), or against its own first reference image when it has no crop entry."""
     kind = kind or ("quality_bar" if quality else "reference")
     if kind not in KINDS:
         raise ValueError(f"unknown pair kind {kind!r} ({', '.join(KINDS)})")
@@ -402,12 +590,16 @@ def blind(refs, card, piece, ours, out_dir, seed=None, root=ROOT, quality=False,
     if os.path.isdir(out_dir):
         shutil.rmtree(out_dir)
     frame = rnd.randrange(info[0]) if info and kind != "motion" else None
-    what = refs["scene"]["what"].split(".")[0] if piece == "scene" or kind == "context" \
+    crop = kind == "context" and piece_file and piece != "scene"
+    what = refs["scene"]["what"].split(".")[0] if piece == "scene" or (kind == "context" and not crop) \
         else refs["elements"][piece]["what"]
     did = None if piece == "scene" else refs["elements"][piece].get("described")
     target = art_judge.refs_by_id(refs)[did]["description"] if did else None
     key = {"ours_file": os.path.abspath(ours), "reference": rel_to(other, root), "seed": seed, "kind": kind,
            "frame": frame, "card": card, "piece": piece, "root": os.path.abspath(root)}
+    if crop:   # the capture cut to the piece against the matching element of the key art, not the whole frames
+        ours, other, key["context_crop"] = context_crops(refs, piece, ours, piece_file, root,
+                                                         tempfile.mkdtemp(prefix="art-ctx-"))
     if not calibrate:
         os.makedirs(out_dir)
         key["ours"] = _pair(os.path.join(out_dir, "tmp"), ours, other, rnd, ours if frame is not None else None, frame)
@@ -429,7 +621,9 @@ def blind(refs, card, piece, ours, out_dir, seed=None, root=ROOT, quality=False,
         os.makedirs(out_dir)
         key["ours"] = _pair(os.path.join(out_dir, real), ours, other, rnd, ours if frame is not None else None, frame)
         key["folder"] = real
-        rough = rnd.choice(mine_el or [f for f, _ in crude])
+        # A crude render of this element when the set has one; else a crude copy of the team image itself, so the pair
+        # always shows the same kind of thing, plainly worse (the check defect behind 3/9 calibrated on the VFX pieces).
+        rough = rnd.choice(mine_el) if mine_el else crude_of(team, root)
         crude_side = _pair(os.path.join(out_dir, bad), rough, team, rnd)
         _pair(os.path.join(out_dir, same), rough, near_copy(rough, root), rnd)   # two equal images: SAME
         key["calibration"] = {bad: "Y" if crude_side == "X" else "X", same: "SAME"}
@@ -516,10 +710,25 @@ def not_art(root, path):
     return f"{rel_to(path, root)} is a {hit[0]} (provenance origin: {row.get('origin')})" if hit else None
 
 
-def sprite_checks(path, root=ROOT):
+EFFECT_PIECES = ("vfx-", "owl-bolt", "bolt-hit", "wand-shot", "umbrella-repair")
+
+
+def is_effect(path, piece=""):
+    """An effect (shot, burst, glow): its sidecar says kind fx, or the piece is a vfx-* / shot element."""
+    try:
+        with open(os.path.splitext(path)[0] + ".sprite.json", encoding="utf-8") as fh:
+            if json.load(fh).get("kind") == "fx":
+                return True
+    except (OSError, ValueError, AttributeError):
+        pass
+    return str(piece).startswith(EFFECT_PIECES)
+
+
+def sprite_checks(path, root=ROOT, effect=False):
     """(screen_check ok, art_check ok, lines) on a sprite or sheet: screen_check's flat/grey/outline rules (its own
-    aspect) and art_check's colour rules. The frame-share rules (dark share, accent caps, paper texture) belong to the
-    full frame: the `scene` piece's art_ref_check runs them on a capture."""
+    aspect) and art_check's colour rules, read on the non-transparent pixels only (art_check.measure_sprite); an
+    effect (effect=True) is read against the effect palette. The frame-share rules (dark share, accent caps, paper
+    texture) belong to the full frame: the `scene` piece's art_ref_check runs them on a capture."""
     import art_check
     import screen_check
     style = os.path.join(root if os.path.isfile(os.path.join(root, "pipeline", "art", "style.json")) else ROOT,
@@ -530,12 +739,11 @@ def sprite_checks(path, root=ROOT):
     with open(style, encoding="utf-8") as fh:
         st = json.load(fh)
     try:
-        fails = [f for f in art_check.evaluate(art_check.measure(path, st), st)
-                 if f.startswith(("on_palette", "off_style", "off_band"))]
+        fails = art_check.sprite_failures(path, st, effect)
     except ValueError as e:
         fails = [str(e)]
     lines = ["  " + screen_check.summary(dict(res, image=os.path.basename(path))),
-             f"  art_check (sprite colour rules): {'PASS' if not fails else 'FAIL'}" +
+             f"  art_check ({'effect' if effect else 'sprite'} colour rules): {'PASS' if not fails else 'FAIL'}" +
              ("" if not fails else " (" + "; ".join(fails[:3]) + ")")]
     return res["pass"], not fails, lines
 
@@ -557,7 +765,7 @@ def measure(root, card, piece, path):
         sc = any(ln.strip().startswith("screen_check: PASS") for ln in lines)
     else:
         rc, lines = art_ref_check.run(card, element_id=piece, files=[path], refs_path=rp, root=root, commit=commit)
-        sc, ac, more = sprite_checks(path, root)
+        sc, ac, more = sprite_checks(path, root, is_effect(path, piece))
         lines = lines + more
     m = re.search(r"score=([\d.]+)", lines[-1] if piece == "scene" else
                   next((ln for ln in lines if ln.startswith("art_ref_check:")), ""))
@@ -647,6 +855,17 @@ def required_pairs(refs, piece, ours, root=ROOT):
     return out
 
 
+def session_folder(refs, card, piece, kind, other, mine, base, rnd_round, i, m, root=ROOT, piece_file=None):
+    """One critic session's folder for pair number i of a round (session number m of that pair): (folder, key)."""
+    d = os.path.join(base, f"{piece}-r{rnd_round}-{i:02d}-{kind}-c{m + 1}")
+    seed = (rnd_round * 1000 + i * 10 + m)
+    with open(blind(refs, card, piece, mine, d, seed=seed, root=root, kind=kind, ref=other, piece_file=piece_file),
+              encoding="utf-8") as fh:
+        key = json.load(fh)
+    key["combo"] = f"{kind}:{other}"
+    return d, key
+
+
 def panel_folders(refs, card, piece, ours, base, rnd_round, root=ROOT):
     """Every critic folder of one round: PANEL calibrated folders per required pair (fresh order and calibration
     pairs each). Returns ([(folder, key)], [missing descriptions])."""
@@ -656,15 +875,31 @@ def panel_folders(refs, card, piece, ours, base, rnd_round, root=ROOT):
             missing.append("context (no in-engine capture made after the piece: import it and run the smoke, whose "
                            "screenshot is the capture)")
             continue
-        for m in range(PANEL):
-            d = os.path.join(base, f"{piece}-r{rnd_round}-{i:02d}-{kind}-c{m + 1}")
-            seed = (rnd_round * 1000 + i * 10 + m)
-            with open(blind(refs, card, piece, mine, d, seed=seed, root=root, kind=kind, ref=other),
-                      encoding="utf-8") as fh:
-                key = json.load(fh)
-            key["combo"] = f"{kind}:{other}"
-            out.append((d, key))
+        try:
+            for m in range(PANEL):
+                out.append(session_folder(refs, card, piece, kind, other, mine, base, rnd_round, i, m, root,
+                                          ours if kind == "context" else None))
+        except PieceNotFound as e:
+            missing.append(f"context ({e})")
     return out, missing
+
+
+def redrawer(refs, card, piece, ours, base, rnd_round, root=ROOT):
+    """redraw(key, m) for ask_calibrated: a fresh session (new seed, new calibration pairs) for key's pair."""
+    specs = {f"{k}:{o}": (i, k, o, m) for i, (k, o, m) in enumerate(required_pairs(refs, piece, ours, root))
+             if m is not None}
+
+    def redraw(key, m):
+        spec = specs.get(key.get("combo"))
+        if spec is None:
+            return None
+        i, kind, other, mine = spec
+        try:
+            return session_folder(refs, card, piece, kind, other, mine, base, rnd_round, i, m, root,
+                                  ours if kind == "context" else None)
+        except (PieceNotFound, ValueError):
+            return None
+    return redraw
 
 
 def summarise(answers, required, missing=()):
@@ -722,10 +957,8 @@ def run_piece(build, critic, checks, make_pair, log, stuck_rounds=STUCK_ROUNDS):
             refs, _ = refs_and_hash(root)
             base = os.path.dirname(pairs[0][0].rstrip("/\\"))
             folders, missing = panel_folders(refs, card, piece, ours, base, len(history) + 1, root)
-            items = []
-            for d, key in folders:
-                got = critic(d)
-                items.append((d, key, (got[0] if isinstance(got, tuple) else got) or ""))
+            items = ask_calibrated(folders, lambda d: (lambda g: (g[0] if isinstance(g, tuple) else g) or "")(critic(d)),
+                                   redrawer(refs, card, piece, ours, base, len(history) + 1, root), jobs=1)
             rec["round"] = unique_round(root, piece, rec["round"])
             rec.update(finish_round(root, card, piece, ours, items, missing, rec["round"], ok))
             attach_evidence(root, card, piece, rec, items, refs_hash_of(root))
@@ -999,6 +1232,48 @@ def claude_ask(folder):
     return p.stdout
 
 
+def calibrated(text, key):
+    """True when the session's answer parses and gets every calibration folder right (its vote may count)."""
+    try:
+        judge(text, key)
+        return True
+    except ValueError:
+        return False
+
+
+def ask_calibrated(folders, ask, redraw, jobs=None):
+    """[(folder, key, text)] for every folder, with uncalibrated sessions redrawn until each pair has PANEL calibrated
+    sessions, at most REDRAW_MAX redraws per pair (bounded). redraw(key, m) -> (folder, key) is a fresh session for
+    the pair `key["combo"]`, m = its session number (>= PANEL). A session that missed a calibration folder stays in
+    the list (logged, refused) but summarise() never counts its vote. A pair `redraw` cannot make is not redrawn."""
+    texts = ask_all([d for d, _ in folders], ask, jobs)
+    items = [(d, k, t) for (d, k), t in zip(folders, texts)]
+    used = {}
+    while True:
+        good, drawn = {}, {}
+        for _, k, t in items:
+            c = k.get("combo") or f"{k.get('kind')}:{k.get('reference')}"
+            drawn[c] = drawn.get(c, 0) + 1
+            good[c] = good.get(c, 0) + calibrated(t, k)
+        todo = []
+        for c, n in good.items():
+            for _ in range(min(PANEL - n, REDRAW_MAX - used.get(c, 0))):
+                if n >= PANEL:
+                    break
+                key = next(k for _, k, _ in items if (k.get("combo") or f"{k.get('kind')}:{k.get('reference')}") == c)
+                m = PANEL + used.get(c, 0)
+                used[c] = used.get(c, 0) + 1
+                got = redraw(key, m)
+                if got is None:
+                    used[c] = REDRAW_MAX
+                    break
+                todo.append(got)
+        if not todo:
+            return items
+        more = ask_all([d for d, _ in todo], ask, jobs)
+        items += [(d, k, t) for (d, k), t in zip(todo, more)]
+
+
 def ask_all(folders, ask, jobs=None):
     """Run every critic session (fresh each, at most `jobs` at once). Returns the texts in folder order."""
     import concurrent.futures
@@ -1012,8 +1287,7 @@ def panel_run(root, card, piece, ours, base, rnd, ask=claude_ask, checks_ok=True
     Returns (round record, items). Nothing is written to the repo here."""
     refs = refs or refs_and_hash(root)[0]
     folders, missing = panel_folders(refs, card, piece, ours, base, rnd, root)
-    texts = ask_all([d for d, _ in folders], ask)
-    items = [(d, k, t) for (d, k), t in zip(folders, texts)]
+    items = ask_calibrated(folders, ask, redrawer(refs, card, piece, ours, base, rnd, root))
     return finish_round(root, card, piece, ours, items, missing, rnd, checks_ok, record), items
 
 
@@ -1048,8 +1322,7 @@ def rerun(root, piece, base, ask=claude_ask):
                 shutil.copytree(os.path.join(saved, "packets", stem), d)
                 key["ours_file"] = os.path.join(root, key["ours_file"])
                 folders.append((d, key))
-    texts = ask_all([d for d, _ in folders], ask)
-    items = [(d, k, t) for (d, k), t in zip(folders, texts)]
+    items = ask_calibrated(folders, ask, redrawer(refs, r.get("card") or "", piece, ours, base, int(r["round"]), root))
     rec = finish_round(root, r.get("card") or "", piece, ours, items, missing, int(r["round"]), True, False)
     return panel_passed(rec), rec
 
