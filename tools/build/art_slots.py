@@ -39,7 +39,7 @@ TILED = {"bg-layer:Sky"}   # paper: UV-tiled across the panel
 # visual prefix -> the C++ class that loads the slot today ("-" = no consumer yet; see docs/build/requests/artslots.md)
 CONSUMER = [("bg-layer:", "UUmbrellaBackdropSubsystem"), ("ella-state:", "UEllaAnimPresenterComponent"),
             ("enemy:", "UEnemyPresenterSubsystem"),
-            ("shot:red-impact", "UUmbrellaVfxSubsystem"), ("shot:red", "UShotPresenterSubsystem"),
+            ("wind:", "UWindPresenterSubsystem"), ("shot:red-impact", "UUmbrellaVfxSubsystem"), ("shot:red", "UShotPresenterSubsystem"),
             ("shot:gold", "UShotPresenterSubsystem"), ("shot:yellow", "UShotPresenterSubsystem"), ("keeper:body-hover-flap", "UKeeperPresenterSubsystem"),
             ("vfx-sheet:", "VfxSheetVisual")]
 

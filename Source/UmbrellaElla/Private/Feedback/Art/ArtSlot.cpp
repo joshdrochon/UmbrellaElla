@@ -112,6 +112,20 @@ void ArtSlot::SetTexture(UStaticMeshComponent* Mesh, UTexture2D* Texture)
 	}
 }
 
+bool ArtSlot::IsDrawingArt(const UStaticMeshComponent* Mesh)
+{
+	const UMaterialInstanceDynamic* Dynamic = IsValid(Mesh) ? Cast<UMaterialInstanceDynamic>(Mesh->GetMaterial(0)) : nullptr;
+	return Dynamic && Dynamic->Parent && Dynamic->Parent->GetPathName() == UmbrellaArtSlotConst::MaterialPath;
+}
+
+void ArtSlot::SetFrame(UStaticMeshComponent* Mesh, int32 Frame)
+{
+	if (UMaterialInstanceDynamic* Dynamic = IsValid(Mesh) ? Cast<UMaterialInstanceDynamic>(Mesh->GetMaterial(0)) : nullptr)
+	{
+		Dynamic->SetScalarParameterValue(ArtSlotFrameParam, static_cast<float>(Frame));
+	}
+}
+
 bool ArtSlot::HasArt(const UStaticMeshComponent* Mesh)
 {
 	return IsValid(Mesh) && Mesh->ComponentHasTag(ArtSlotTag);

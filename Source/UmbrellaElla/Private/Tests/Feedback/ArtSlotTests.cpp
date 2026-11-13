@@ -10,6 +10,8 @@
 #include "Feedback/Anim/EnemyPresenterSubsystem.h"
 #include "Feedback/Anim/KeeperPresenterSubsystem.h"
 #include "Feedback/Anim/ShotPresenterSubsystem.h"
+#include "Feedback/Anim/WindPresenterSubsystem.h"
+#include "Field/WindCurrent.h"
 #include "Feedback/Vfx/UmbrellaVfxDirectorSubsystem.h"
 #include "Feedback/Vfx/VfxCatalog.h"
 #include "Feedback/Vfx/VfxSheetVisual.h"
@@ -396,6 +398,78 @@ bool FArtSlotSheetFrames::RunTest(const FString& Parameters)
 	float Later = -1.0f;
 	Dynamic->GetScalarParameterValue(FName(TEXT("Frame")), Later);
 	TestTrue(TEXT("frame keeps advancing"), Later > Frame);
+	return true;
+}
+
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FArtSlotWind, "UmbrellaElla.Feedback.World.ArtSlotWind",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+
+bool FArtSlotWind::RunTest(const FString& Parameters)
+{
+	UWorld* World = ArtSlotTestWorld();
+	if (!TestNotNull(TEXT("world"), World))
+	{
+		return false;
+	}
+	TestEqual(TEXT("gust starts on frame 0"), UWindPresenterSubsystem::GustFrameAt(0.0f, 8), 0);
+	TestTrue(TEXT("gust advances"), UWindPresenterSubsystem::GustFrameAt(0.5f, 8) > 0);
+	TestTrue(TEXT("gust wraps inside the sheet"), UWindPresenterSubsystem::GustFrameAt(99.0f, 8) < 8);
+	UWindPresenterSubsystem* Presenter = World->GetSubsystem<UWindPresenterSubsystem>();
+	AWindCurrent* Wind = World->SpawnActor<AWindCurrent>();
+	if (TestNotNull(TEXT("wind presenter"), Presenter) && TestNotNull(TEXT("wind"), Wind))
+	{
+		Wind->SetHalfExtent(300.0f, 200.0f);
+		UStaticMeshComponent* Field = Wind->GetField();
+		UTexture2D* Texture = ArtSlotTestTexture();
+		const FString FieldId = UmbrellaWindPresenterConst::FieldVisual;
+		TestTrue(TEXT("field takes the picture"), Presenter->ShowArt(Wind, FieldId, Texture) == EArtSlotDraw::Drawn);
+		TestTrue(TEXT("second field picture refused"), Presenter->ShowArt(Wind, FieldId, Texture) != EArtSlotDraw::Drawn);
+		TestTrue(TEXT("field shows the picture"), ArtSlot::IsDrawingArt(Field) && ArtSlotParamTexture(Field) == Texture);
+		TestEqual(TEXT("picture is the field width"), Field->GetRelativeScale3D().X, 6.0);
+		TestEqual(TEXT("picture is the field height"), Field->GetRelativeScale3D().Y, 4.0);
+		TestEqual(TEXT("picture has no collision"), static_cast<int32>(Field->GetCollisionEnabled()), static_cast<int32>(ECollisionEnabled::NoCollision));
+
+		// The current refreshes its colour card when resized; the presenter puts the picture back at the new size.
+		Wind->SetHalfExtent(400.0f, 200.0f);
+		TestFalse(TEXT("refresh put the card back"), ArtSlot::IsDrawingArt(Field));
+		Presenter->Tick(0.0f);
+		TestTrue(TEXT("picture is back after refresh"), ArtSlot::IsDrawingArt(Field) && ArtSlotParamTexture(Field) == Texture);
+		TestEqual(TEXT("picture follows the new width"), Field->GetRelativeScale3D().X, 8.0);
+
+		for (const FString& Overlay : { FString(UmbrellaWindPresenterConst::LinesVisual), FString(UmbrellaWindPresenterConst::GustVisual) })
+		{
+			// The shipped _PH gust sheet may already be drawn by the tick above; then the transient picture is refused.
+			const bool bAlready = UWindPresenterSubsystem::FindOverlay(Wind, Overlay) != nullptr;
+			const EArtSlotDraw OverlayResult = bAlready ? EArtSlotDraw::Drawn : Presenter->ShowArt(Wind, Overlay, Texture);
+			TestTrue(*FString::Printf(TEXT("overlay %s is drawn (result %d)"), *Overlay, static_cast<int32>(OverlayResult)), OverlayResult == EArtSlotDraw::Drawn);
+			const UStaticMeshComponent* Mesh = UWindPresenterSubsystem::FindOverlay(Wind, Overlay);
+			if (TestNotNull(TEXT("overlay component"), Mesh))
+			{
+				TestTrue(TEXT("overlay shows a picture"), ArtSlot::IsDrawingArt(Mesh) && (bAlready || ArtSlotParamTexture(Mesh) == Texture));
+				TestEqual(TEXT("overlay matches the field width"), Mesh->GetRelativeScale3D().X, 8.0);
+				TestEqual(TEXT("overlay has no collision"), static_cast<int32>(Mesh->GetCollisionEnabled()), static_cast<int32>(ECollisionEnabled::NoCollision));
+			}
+		}
+
+		// A wind slot asset that exists must be drawn by a fresh current.
+		AWindCurrent* Fresh = World->SpawnActor<AWindCurrent>();
+		if (TestNotNull(TEXT("fresh wind"), Fresh))
+		{
+			Fresh->SetHalfExtent(300.0f, 200.0f);
+			Presenter->Tick(0.0f);
+			for (const TCHAR* Visual : { UmbrellaWindPresenterConst::FieldVisual, UmbrellaWindPresenterConst::LinesVisual, UmbrellaWindPresenterConst::GustVisual })
+			{
+				const FArtSlotRow* Row = ArtSlot::Find(Visual);
+				if (TestNotNull(TEXT("wind slot row"), Row) && ArtSlot::LoadTexture(*Row))
+				{
+					const bool bDrawn = FString(Visual) == UmbrellaWindPresenterConst::FieldVisual ? ArtSlot::IsDrawingArt(Fresh->GetField()) : UWindPresenterSubsystem::FindOverlay(Fresh, Visual) != nullptr;
+					TestTrue(*FString::Printf(TEXT("%s asset exists, so the wind draws it"), Visual), bDrawn);
+				}
+			}
+		}
+	}
+	ArtSlotTestEnd(World);
 	return true;
 }
 

@@ -94,8 +94,8 @@ vfx-sheet:VFX_StreamSustain,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw
 vfx-sheet:VFX_Stun,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_Stun_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_Stun_PH.uasset,vfx-stun,artfx,no,/Game/UmbrellaElla/Art/VFX/T_VFX_Stun,VfxSheetVisual
 vfx-sheet:VFX_TwinStarHead,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_TwinStarHead_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_TwinStarHead_PH.uasset,wand-shot,artshots,no,/Game/UmbrellaElla/Art/VFX/T_VFX_TwinStarHead,VfxSheetVisual
 vfx-sheet:VFX_Umbra,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_Umbra_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_Umbra_PH.uasset,vfx-umbra,artfx,no,/Game/UmbrellaElla/Art/VFX/T_VFX_Umbra,VfxSheetVisual
-wind:current-field,GDD ANIM-08,wind-zone,artshots,no,/Game/UmbrellaElla/Art/Shots/T_WindZone,-
-wind:decor-lines,GDD ART-06,wind-lines,artshots,no,/Game/UmbrellaElla/Art/Shots/T_WindLines,-
+wind:current-field,GDD ANIM-08,wind-zone,artshots,no,/Game/UmbrellaElla/Art/Shots/T_WindZone,UWindPresenterSubsystem
+wind:decor-lines,GDD ART-06,wind-lines,artshots,no,/Game/UmbrellaElla/Art/Shots/T_WindLines,UWindPresenterSubsystem
 world:mill-and-traps,GDD ANIM-08,world-mill,artscene,no,/Game/UmbrellaElla/Art/Scene/T_WorldMill,-
 world:refuge-and-yellow-bay,GDD ANIM-08,world-refuge,artscene,no,/Game/UmbrellaElla/Art/Scene/T_WorldRefuge,-
 world:solids,GDD ANIM-08,world-solids,artscene,no,/Game/UmbrellaElla/Art/Scene/T_WorldSolids,-

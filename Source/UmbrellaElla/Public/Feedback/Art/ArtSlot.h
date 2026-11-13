@@ -78,6 +78,12 @@ namespace ArtSlot
 	/** Swap the picture on a component already drawn with art (a state change). */
 	UMBRELLAELLA_API void SetTexture(UStaticMeshComponent* Mesh, UTexture2D* Texture);
 
+	/** True while the component's material is the art-slot material (false once something else, such as a stand-in refresh, replaced it). Pure read. */
+	UMBRELLAELLA_API bool IsDrawingArt(const UStaticMeshComponent* Mesh);
+
+	/** Show one cell of a sheet drawn with art (a row with Cols > 1). */
+	UMBRELLAELLA_API void SetFrame(UStaticMeshComponent* Mesh, int32 Frame);
+
 	/** True once Apply put art on the component. */
 	UMBRELLAELLA_API bool HasArt(const UStaticMeshComponent* Mesh);
 
