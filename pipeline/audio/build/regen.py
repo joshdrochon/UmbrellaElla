@@ -11,15 +11,40 @@ from recipes import RECIPES
 def run(cmd, **kw):
     return subprocess.run(cmd, capture_output=True, text=True, cwd=ROOT, **kw)
 
+def synth_expr(spec, n):
+    """A synth layer may vary per take: every {f} in expr is the take's frequency from spec['freqs']."""
+    fr = spec.get("freqs")
+    return spec["expr"].replace("{f}", str(fr[n % len(fr)])) if fr else spec["expr"]
+
+
+def reverb_ir(rv, path):
+    """Room impulse for the afir convolution: seeded noise with an exponential decay to -60 dB at rt60, a one-pole
+    low-pass (air damping) and a pre-delay; unit energy, so wet_db sets the level against the dry mix. A smooth tail,
+    with none of the repeating taps aecho draws on a spectrogram."""
+    import math, random, struct, wave
+    rate, rt60 = 48000, rv["rt60"]
+    n = int(rate * rt60 * 1.3); pre = int(rate * rv.get("predelay_ms", 15) / 1000)
+    rng = random.Random(rv.get("seed", 7)); a = math.exp(-2 * math.pi * rv.get("damp_hz", 5000) / rate)
+    k = 6.908 / (rt60 * rate); y = 0.0; out = [0.0] * pre
+    for i in range(n):
+        y = (1 - a) * rng.gauss(0, 1) + a * y
+        out.append(y * math.exp(-k * i) * min(1.0, i / (0.004 * rate)))
+    e = math.sqrt(sum(v * v for v in out)) or 1.0
+    with wave.open(str(path), "wb") as w:
+        w.setnchannels(1); w.setsampwidth(4); w.setframerate(rate)
+        w.writeframes(b"".join(struct.pack("<i", int(max(-1, min(1, v / e * 4)) * 2147483000)) for v in out))
+    return path
+
+
 def gen_layer(sid, name, spec, n, d):
     """One ElevenLabs call (same endpoints as tools/assetgen.py); the key comes from the environment, never printed."""
     import urllib.request, urllib.error
     out = d / f"{name}_{n}.wav"
-    if out.exists() and out.stat().st_size > 2000:
+    if out.exists() and out.stat().st_size > 2000 and spec.get("kind") != "synth":
         return out
     if spec.get("kind") == "synth":   # deterministic ffmpeg synthesis (aevalsrc), no API: sharp, pitched, clean sources
         r = run(["ffmpeg", "-y", "-loglevel", "error", "-f", "lavfi", "-i",
-                 f"aevalsrc={spec['expr']}:s=48000:d={spec['secs']}", "-c:a", "pcm_s16le", str(out)])
+                 f"aevalsrc={synth_expr(spec, n)}:s=48000:d={spec['secs']}", "-c:a", "pcm_s16le", str(out)])
         if r.returncode:
             raise SystemExit(r.stderr[-300:])
         return out
@@ -63,6 +88,11 @@ def mix(rec, files, out):
     total = rec["seconds"]
     fade = rec.get("fade_out", 0.05)
     post = rec.get("post", "anull")
+    rv = rec.get("reverb")
+    if rv:   # convolution reverb after the post chain: dry + wet (IR scaled by 4 in the file, so -12 dB here = unity)
+        ins += ["-i", str(reverb_ir(rv, Path(out).parent.parent / "ir.wav"))]
+        post += (f",asplit[dry][w];[w][{len(labels)}:a]afir=dry=1:wet=1:gtype=none:irnorm=-1,"
+                 f"volume={rv.get('wet_db', -10) - 12}dB[wet];[dry][wet]amix=inputs=2:normalize=0:duration=longest")
     g = ";".join(chains) + ";" + "".join(labels) + f"amix=inputs={len(labels)}:normalize=0:duration=longest," \
         f"apad=whole_dur={total},atrim=0:{total},{post},afade=t=out:st={max(0, total - fade)}:d={fade}," \
         f"loudnorm=I={rec['lufs']}:TP=-2:LRA=7,atrim=0:{total},aresample=48000,volume={rec.get('post_gain_db', 0) + rec.get('take_gain_db', {}).get(rec.get('_take', 0), 0)}dB,alimiter=limit=0.85:level=disabled[o]"

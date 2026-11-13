@@ -81,3 +81,51 @@ RECIPES.update({
             "filter": "lowpass=f=4000", "gain_db": 0, "trim": 0.6},
   }},
 })
+
+# Round after the gate critic (Nov 12): convolution reverb (regen.py reverb_ir) instead of aecho taps, which drew
+# vertical stripes; WandBolt from clean additive partials (a celesta bar is near-sinusoidal partials with fast decay).
+RECIPES["WandBolt"] = {
+  "seconds": 0.9, "lufs": -22, "fade_out": 0.3, "takes": 3,
+  "reverb": {"rt60": 0.5, "wet_db": -9, "damp_hz": 7000, "predelay_ms": 8},
+  "layers": {
+   "pluck": {"kind": "synth", "prompt": "synthesised celesta pluck: fundamental with partials at 2x, 3.01x and 4.2x, each with its own exponential decay",
+             "secs": 0.9, "freqs": [1568, 1760, 2093], "expr": "0.6*exp(-9*t)*sin(2*PI*{f}*t)+0.25*exp(-13*t)*sin(2*PI*2*{f}*t)+0.12*exp(-18*t)*sin(2*PI*3.01*{f}*t)+0.05*exp(-26*t)*sin(2*PI*4.2*{f}*t)", "trim": 0.9},
+   "spark": {"kind": "synth", "prompt": "synthesised tiny chime ping two octaves above the pluck, fast decay",
+             "secs": 0.5, "freqs": [1568, 1760, 2093], "expr": "0.5*exp(-22*t)*sin(2*PI*4*{f}*t)+0.3*exp(-30*t)*sin(2*PI*6*{f}*t)", "gain_db": -15, "delay_ms": 70, "trim": 0.5},
+   "glint": {"kind": "synth", "prompt": "synthesised second chime ping a fifth above the first, fast decay",
+             "secs": 0.5, "freqs": [1568, 1760, 2093], "expr": "0.5*exp(-24*t)*sin(2*PI*3*{f}*t)", "gain_db": -19, "delay_ms": 150, "trim": 0.5},
+  }}
+RECIPES["PlayerHurt"].update({"seconds": 1.5, "fade_out": 0.5, "post": "anull", "post_gain_db": 3,
+  "reverb": {"rt60": 1.1, "wet_db": -9, "damp_hz": 3500, "predelay_ms": 18}})
+RECIPES["FailSting"].update({"seconds": 7.0, "fade_out": 2.5, "post": "anull",
+  "reverb": {"rt60": 4.0, "wet_db": -8, "damp_hz": 3000, "predelay_ms": 30}})
+RECIPES["FailSting"]["layers"]["clock"] = {"prompt": "old clock mechanism ticking slower and slower, then stopping with one final heavy clunk, dry, isolated", "secs": 3.0, "filter": "highpass=f=300,lowpass=f=5000", "norm_lufs": -20, "gain_db": -10, "delay_ms": 2600, "trim": 3.0}
+RECIPES["SurvivedSting"].update({"seconds": 7.5, "fade_out": 2.5, "post": "anull",
+  "reverb": {"rt60": 4.0, "wet_db": -8, "damp_hz": 5000, "predelay_ms": 30}})
+# Stinger numbers: the peak must land in the first 60 ms, so the bell strike opens both cards and the rest sits under it.
+RECIPES["FailSting"]["layers"]["bell"].update({"delay_ms": 0, "gain_db": 4, "start_db": -24})
+RECIPES["FailSting"]["layers"]["brass"].update({"gain_db": -3, "delay_ms": 60})
+RECIPES["FailSting"]["layers"]["choir"].update({"gain_db": -8, "delay_ms": 1000})
+RECIPES["FailSting"]["layers"]["clock"].update({"gain_db": -14, "delay_ms": 3000})
+RECIPES["SurvivedSting"].update({"seconds": 6.5, "fade_out": 2.5})
+RECIPES["SurvivedSting"]["reverb"].update({"rt60": 3.0, "wet_db": -10})
+RECIPES["SurvivedSting"]["layers"]["bell"].update({"gain_db": 4, "start_db": -24})
+RECIPES["SurvivedSting"]["layers"]["choir"].update({"gain_db": -8, "delay_ms": 400})
+RECIPES["FailSting"].update({"seconds": 6.0, "fade_out": 2.0})
+RECIPES["FailSting"]["reverb"].update({"rt60": 3.0, "wet_db": -10})
+RECIPES["FailSting"]["layers"]["bell"].update({"gain_db": 6})
+RECIPES["FailSting"]["layers"]["brass"].update({"gain_db": -9})
+RECIPES["FailSting"]["layers"]["choir"].update({"gain_db": -11, "trim": 3.0})
+RECIPES["FailSting"]["layers"]["clock"].update({"gain_db": -16, "delay_ms": 2400, "trim": 2.6})
+RECIPES["SurvivedSting"].update({"seconds": 6.0, "fade_out": 2.0})
+RECIPES["SurvivedSting"]["layers"]["bell"].update({"gain_db": 6})
+RECIPES["SurvivedSting"]["layers"]["choir"].update({"gain_db": -10, "trim": 3.6})
+RECIPES["SurvivedSting"]["layers"]["wind"].update({"trim": 3.5})
+RECIPES["FailSting"]["layers"]["bell"].update({"decay": 2.5})
+RECIPES["FailSting"]["layers"]["choir"].update({"gain_db": -12, "trim": 2.8})
+RECIPES["FailSting"]["layers"]["clock"].update({"delay_ms": 2200})
+RECIPES["FailSting"].update({"seconds": 5.6})
+RECIPES["SurvivedSting"]["layers"]["bell"].update({"decay": 2.5})
+RECIPES["SurvivedSting"]["layers"]["bell"].update({"decay": 4})
+RECIPES["SurvivedSting"]["layers"]["choir"].update({"gain_db": -12, "trim": 3.2, "delay_ms": 300})
+RECIPES["SurvivedSting"].update({"seconds": 5.6})

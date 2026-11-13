@@ -42,11 +42,13 @@ def generated(rows, sid):
     rec = RECIPES[sid]
     prompt = "Layered mix (pipeline/audio/build/regen.py, ffmpeg): " + " + ".join(
         f"{n}: {s['prompt']}" for n, s in rec["layers"].items()) + ". Original sound for an etched gothic storybook game. No vocals with words."
+    synth = all(l.get("kind") == "synth" for l in rec["layers"].values())   # no API layer: ffmpeg synthesis only
+    tool, lic = (("ffmpeg", "LGPL-2.1-or-later (GPL build options); output belongs to the team") if synth else
+                 ("ElevenLabs Sound Effects API", "ElevenLabs Terms: commercial use on a paid plan; free plan needs attribution [VERIFY]"))
     now = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M+00:00")
-    new = {f.relative_to(ROOT).as_posix(): [f.relative_to(ROOT).as_posix(), "team (tools/assetgen.py)", "generated in jam",
-           "ElevenLabs Sound Effects API", "", prompt, "", "", now,
-           "ElevenLabs Terms: commercial use on a paid plan; free plan needs attribution [VERIFY]",
-           "see pipeline/submission/credits.md"] for f in sorted((ROOT / "Audio/Source" / sid).glob("*.wav"))}
+    new = {f.relative_to(ROOT).as_posix(): [f.relative_to(ROOT).as_posix(), "team (tools/assetgen.py)", "synthesized in jam" if synth else "generated in jam",
+           tool, "", prompt, "", "", now, lic,
+           "none" if synth else "see pipeline/submission/credits.md"] for f in sorted((ROOT / "Audio/Source" / sid).glob("*.wav"))}
     out, seen = [], set()
     for r in rows:
         if r and r[0] in new:
