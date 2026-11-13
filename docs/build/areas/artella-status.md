@@ -85,3 +85,14 @@ asset so the smoke can capture, or relax the order. Next: R2 paints for attack, 
 Merged main, followed "Context capture". Step 1 fails: no Ella `_PH` asset slot exists in Content and no code loads an Ella flipbook
 (`IdleFlipbook` is never set; cube stand-in is what a capture shows). Needs a loader in the feedback lane: docs/build/requests/artella.md #2.
 R2 paints for attack/shield/closed are cut (3 frames) but not yet judged. ella-up-open stays blocked only on `context`.
+
+## Round 10 (Nov 13): R2 paints judged, still blocked on the Ella slot
+Merged main and artslots; `FB_Ella` loader still absent from Source (request #2 open). No paint spend this round (shared counter 7.82 of 33.82).
+| Piece | art_ref_check | art_check | Panel |
+|---|---|---|---|
+| ella-attack | PASS 0.649 (min 0.448) | PASS | reference pair: ref wins/SAME mix; calibration 3/6, panel refused (judge again) |
+| ella-shield | PASS 0.588 (min 0.586) | PASS | ref wins 1 of 3 reference sessions, SAME in others; bar pair split; calibration 7/9. Gap: no pierced diamond terminal, crown finial, mask, gold magic |
+| ella-closed | FAIL 0.2 (min 0.749, closest ella-freefall) | PASS | not run |
+Critic noise on attack (calibration 3/6) is the critic's, not a defect found in the images; reasons match the references. Verdict: work.
+Nothing shipped. Every pass is blocked anyway by the `context` pair (request #2). Next once the slot exists: import up-open as `FB_Ella_Open_PH`, capture, finish its panel.
+Next paints: shield R3 (terminal, finial, mask, gold in prompt), closed R3 (airborne folded umbrella, ref check 0.2).
