@@ -109,6 +109,8 @@ def main():
     if os.path.exists(basefile):
         for row in open(basefile):
             n, _, l = row.rstrip("\n").partition("\t"); before.setdefault(n, set()).add(l)
+    if "gdd_check" in before:   # a baseline written before key comparison holds full lines: compare by key too
+        before["gdd_check"] = gdd_keys(before["gdd_check"]) | {l for l in before["gdd_check"] if l.startswith("FAIL ") and " " not in l[5:]}
     for n, ls in baseline_for_new_checks(base).items():
         before[n] = before.get(n, set()) | ls
     problems = []
