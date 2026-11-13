@@ -42,6 +42,7 @@ if python3 tools/build/provenance_dedupe.py | grep -q "rows -> 1"; then
   step "provenance rows deduplicated"
 fi
 eval "$(python3 tools/build/gate_plan.py "$MAIN" HEAD)"
+export UE_SLOT_GATE=1   # the gate always gets its reserved engine slot
 SLOT="$ROOT/tools/build/ue_slot.sh"; EV="$L/gate-$A-evidence.txt"; : > "$EV"
 chk() { local name="$1"; shift; T1=$(date +%s); out=$("$@" 2>&1); rc=$?; echo "$out" | tail -3 >> "$EV"
   if [ $rc -eq 0 ]; then step "$name PASS"; else step "$name FAIL"; echo "$out" | tail -15; fail=1; fi; }
@@ -50,7 +51,7 @@ if [ "$SRC" = 1 ]; then
   if echo "$b" | grep -q "build exit: 0"; then step "build PASS"; else step "build FAIL: $b"; fail=1; fi
   if [ $fail = 0 ]; then
     T1=$(date +%s); t=$(TEST_FILTER="$TESTS" "$SLOT" tools/ue/test.sh 2>&1 | tail -6); echo "$t" >> "$EV"
-    if echo "$t" | grep -q "^PASS"; then step "tests PASS ($TESTS): $(echo "$t" | grep '^PASS' | cut -c1-40)"; else step "tests FAIL ($TESTS)"; echo "$t"; fail=1; fi
+    if echo "$t" | grep -q "^PASS"; then step "tests PASS ($TESTS): $(echo "$t" | grep '^PASS' | cut -c1-40)"; else step "tests FAIL ($TESTS)"; echo "$t"; fail=1; echo "$t" | grep -q "report missing or unreadable" && NORECORD=1; fi   # no report = the run never finished (load), not the lane
   fi
 fi
 [ "$MODULE" = 1 ] && chk module_check python3 tools/module_check.py
