@@ -20,9 +20,10 @@ import numpy as np
 
 W, H, G = 3200, 720, 80          # frame and ground-band top
 U = 0.01                         # Blender units per pixel
-CLASSES = ("wall", "roof", "glow", "line", "rust", "hole", "pane")
+CLASSES = ("wall", "roof", "glow", "line", "rust", "hole", "pane", "lwall", "rock", "etch")
 PASSES = ({"roof": (1, 0, 0), "glow": (0, 1, 0), "line": (0, 0, 1)},
-          {"rust": (1, 0, 0), "hole": (0, 1, 0), "pane": (0, 0, 1)})
+          {"rust": (1, 0, 0), "hole": (0, 1, 0), "pane": (0, 0, 1)},
+          {"lwall": (1, 0, 0), "rock": (0, 1, 0), "etch": (0, 0, 1)})
 
 
 # ---------------------------------------------------------------- geometry kit
@@ -152,8 +153,8 @@ def balustrade(k, x0, x1, z, hh=8.0):
 def dormer(k, cx, z, w=13.0, lit=None):
     hh = w * 0.95
     k.add("roof", [(cx - w / 2 - 3, z + hh - 1), (cx, z + hh + w * 0.78 + 3), (cx + w / 2 + 3, z + hh - 1)])
-    k.rect("wall", cx - w / 2, z, cx + w / 2, z + hh)
-    k.add("wall", [(cx - w / 2 - 0.8, z + hh - 0.5), (cx, z + hh + w * 0.72), (cx + w / 2 + 0.8, z + hh - 0.5)])
+    k.rect("lwall", cx - w / 2, z, cx + w / 2, z + hh)
+    k.add("lwall", [(cx - w / 2 - 0.8, z + hh - 0.5), (cx, z + hh + w * 0.72), (cx + w / 2 + 0.8, z + hh - 0.5)])
     k.stroke("line", [(cx - w / 2 - 2.6, z + hh - 0.5), (cx, z + hh + w * 0.76), (cx + w / 2 + 2.6, z + hh - 0.5)], 0.9)
     window(k, cx, z + 2.5, w * 0.5, hh * 0.92, lit)
 
@@ -241,6 +242,16 @@ def win_rows(k, x0, x1, z0, z1, ww=None, course=True):
     return nrow
 
 
+def quoins(k, x0, x1, z0, z1):
+    """Corner stones: short etched ticks up both edges of a face."""
+    z, i = z0, 0
+    while z < z1:
+        ln = 5.0 if i % 2 else 2.8
+        k.stroke("etch", [(x0 + 0.6, z), (x0 + 0.6 + ln, z)], 0.8)
+        k.stroke("etch", [(x1 - 0.6 - ln, z), (x1 - 0.6, z)], 0.8)
+        z, i = z + 5.5, i + 1
+
+
 def gable_house(k, x, w, he, rh, side=0, sl=0.0):
     """Gable-front house; `side` (-1/+1) adds a wing running sideways under its own roof plane."""
     r = k.rnd
@@ -266,9 +277,10 @@ def gable_house(k, x, w, he, rh, side=0, sl=0.0):
         cx = a1 - rw * 0.35 - r.uniform(4, 12) if side > 0 else a0 + rw * 0.35 + r.uniform(4, 12)
         chimney(k, cx, hw + rw * 0.5, hw + rw + r.uniform(14, 26), r.choice((6.5, 9.0)))
     k.add("roof", [(x - 6.5, he - 3), (x + w / 2, he + rh + 5.5), (x + w + 6.5, he - 3)])
-    k.rect("wall", x, 0, x + w, he + 1)
-    k.add("wall", [(x - 1.5, he - 0.5), (x + w / 2, he + rh), (x + w + 1.5, he - 0.5)])
+    k.rect("lwall", x, 0, x + w, he + 1)
+    k.add("lwall", [(x - 1.5, he - 0.5), (x + w / 2, he + rh), (x + w + 1.5, he - 0.5)])
     k.stroke("line", [(x - 5.5, he - 2.2), (x + w / 2, he + rh + 4.6), (x + w + 5.5, he - 2.2)], 0.9)
+    quoins(k, x, x + w, G - 6, he - 3)
     k.stroke("line", [(x + 1, he - 1), (x + w - 1, he - 1)], 0.7)
     win_rows(k, x + 3, x + w - 3, G - 4, he - 3)
     if rh > 26:
@@ -293,6 +305,7 @@ def hip_house(k, x, w, he, rh, mansard=False):
     if w - 2 * inset > 16:
         cresting(k, x + inset + 2, x + w - inset - 2, he + rh, 5.5)
     win_rows(k, x + 3, x + w - 3, G - 4, he - 3)
+    quoins(k, x, x + w, G - 6, he - 3)
     nd = max(1, int(w // 34))
     for i in range(nd):
         if r.random() < 0.85:
@@ -308,28 +321,43 @@ def tower_house(k, cx, w, he, rh):
     k.rect("wall", cx - w / 2, 0, cx + w / 2, he)
     k.rect("wall", cx - w / 2 - 2.5, he - 5, cx + w / 2 + 2.5, he + 1)
     k.stroke("line", [(cx - w / 2 - 2.5, he + 1.2), (cx + w / 2 + 2.5, he + 1.2)], 0.9)
-    k.add("rust" if r.random() < 0.14 else "roof", [(cx - w / 2 - 3.5, he + 1), (cx - w * 0.12, he + rh * 0.62), (cx, he + rh),
+    k.add("rust" if r.random() < 0.3 else "roof", [(cx - w / 2 - 3.5, he + 1), (cx - w * 0.12, he + rh * 0.62), (cx, he + rh),
                                                   (cx + w * 0.12, he + rh * 0.62), (cx + w / 2 + 3.5, he + 1)])
     win_rows(k, cx - w / 2 + 2, cx + w / 2 - 2, G - 4, he - 8, ww=min(10.0, w * 0.34), course=True)
     finial(k, cx, he + rh - 1, 0.9)
 
 
 def arcade(k, x0, x1, zdeck, span=44.0, rail=True):
-    """Viaduct on round arches; the openings are cut out of the mass."""
+    """Viaduct on round arches; the openings are cut out of the mass. Voussoir rings, spandrel roundels, lamps."""
     n = max(1, round((x1 - x0) / span))
     sw = (x1 - x0) / n
     k.rect("wall", x0, 0, x1, zdeck)
     for i in range(n):
         cx = x0 + (i + 0.5) * sw
-        k.add("hole", round_pts(cx, -2, sw - 9, zdeck - 9, 14))
+        k.add("etch", round_pts(cx, -2, sw - 8.5, zdeck - 13, 14))
+        k.add("wall", round_pts(cx, -2, sw - 11, zdeck - 14.5, 14))
+        k.add("hole", round_pts(cx, -2, sw - 14, zdeck - 16, 14))
+        k.stroke("etch", [(cx, zdeck - 16), (cx, zdeck - 5)], 1.8)                             # keystone
     for i in range(n + 1):
         px = x0 + i * sw
-        k.rect("wall", px - 5.5, zdeck - sw * 0.52 - 4, px + 5.5, zdeck - sw * 0.52 - 0.5)   # impost blocks
+        k.rect("wall", px - 8.5, zdeck - sw * 0.5 - 13, px + 8.5, zdeck - sw * 0.5 - 9.5)   # impost blocks
+        k.stroke("etch", [(px - 8.5, zdeck - sw * 0.5 - 9.2), (px + 8.5, zdeck - sw * 0.5 - 9.2)], 0.8)
+        k.stroke("etch", [(px - 5, G - 4), (px - 5, zdeck - sw * 0.5 - 14)], 0.6)
+        k.stroke("etch", [(px + 5, G - 4), (px + 5, zdeck - sw * 0.5 - 14)], 0.6)
+        if 0 < i < n:
+            k.disc("etch", px, zdeck - 9, 4.4, 12)                                           # spandrel roundel
+            k.disc("pane", px, zdeck - 9, 3.0, 12)
     k.rect("wall", x0 - 2, zdeck - 1, x1 + 2, zdeck + 3.5)
     k.stroke("line", [(x0 - 2, zdeck + 3.6), (x1 + 2, zdeck + 3.6)], 0.9)
-    k.stroke("line", [(x0, zdeck - 3.5), (x1, zdeck - 3.5)], 0.6)
+    k.stroke("etch", [(x0, zdeck - 3.5), (x1, zdeck - 3.5)], 0.7)
     if rail:
         balustrade(k, x0, x1, zdeck + 3.5)
+    for i in range(n + 1):                                                                    # lamp standards
+        px = x0 + i * sw
+        k.stroke("wall", [(px, zdeck + 3), (px, zdeck + 25)], 1.5)
+        k.stroke("wall", [(px - 3, zdeck + 25), (px + 3, zdeck + 25)], 1.2)
+        k.disc("glow", px, zdeck + 28.4, 2.7, 10)
+        k.add("wall", [(px - 3.4, zdeck + 31), (px, zdeck + 35.5), (px + 3.4, zdeck + 31)])
 
 
 def clock_tower(k, cx, w, he):
@@ -459,8 +487,9 @@ def cathedral(k, cx):
     k.stroke("line", [(cx - 24, fz + 81.2), (cx + 24, fz + 81.2)], 0.9)
     spire(k, cx, fz + 81, 38.0, 176.0, facet=1)
     k.add("roof", [(cx - nw / 2 - 5, nh - 3), (cx, nh + gh + 6), (cx + nw / 2 + 5, nh - 3)])   # nave gable
-    k.rect("wall", cx - nw / 2, 0, cx + nw / 2, nh + 1)
-    k.add("wall", [(cx - nw / 2 + 2, nh), (cx, nh + gh - 2), (cx + nw / 2 - 2, nh)])
+    k.rect("lwall", cx - nw / 2, 0, cx + nw / 2, nh + 1)
+    k.add("lwall", [(cx - nw / 2 + 2, nh), (cx, nh + gh - 2), (cx + nw / 2 - 2, nh)])
+    quoins(k, cx - nw / 2, cx + nw / 2, G, nh - 4)
     k.stroke("line", [(cx - nw / 2 - 4, nh - 2), (cx, nh + gh + 5), (cx + nw / 2 + 4, nh - 2)], 1.0)
     for i in range(1, 9):                            # crockets up the gable
         for s in (-1, 1):
@@ -474,7 +503,7 @@ def cathedral(k, cx):
         window(k, cx + dxw, G + 62, ww, wh, lit=lit)
     k.add("line", arch_pts(cx, 0, 36.0, G + 34.0))   # portal
     k.add("wall", arch_pts(cx, 0, 31.0, G + 30.0))
-    k.add("pane", arch_pts(cx, 0, 22.0, G + 23.0))
+    k.add("rust", arch_pts(cx, 0, 22.0, G + 23.0))
     k.stroke("wall", [(cx, 0), (cx, G + 20)], 1.6)
     for s in (-1, 1):                               # niche lights in the gable
         window(k, cx + s * 44, nh + 4, 7.0, 22.0, lit=False)
@@ -521,19 +550,50 @@ def house_row(k, x0, x1, lo, hi, front, blocked=(), low=(), gappy=0.0):
 
 
 def ground(k):
+    """The town stands on a jagged rock shelf (the key art's black rock band): crags and ledges, etched strata.
+    The shelf has the same height at both tile edges, so the tile wraps."""
     r = k.rnd
-    pts, x = [(0, 0), (0, G)], 0.0
-    while x < W:
-        x = min(W, x + r.uniform(26, 90))
-        pts.append((x, G + (r.uniform(-3, 9) * taper(x) if x < W else 0)))
-    pts.append((W, 0))
-    for a, b in zip(pts[1:-2], pts[2:-1]):
-        k.add("wall", [(a[0], -4), a, b, (b[0], -4)])
-    for (a, b) in ((0, 150), (W - 150, W)):         # terrace rail where the town meets the tile edge
-        balustrade(k, a, b, G - 1, 9)
+    edge = G + 30.0
+    prof, x, z = [(0.0, edge)], 0.0, edge
+    while x < W - 40:
+        e = 1 - taper(x)                             # crags stand tall where the houses thin out
+        kind = r.random()
+        if kind < 0.3:                               # ledge: flat run, then a sharp step
+            x += r.uniform(24, 70)
+            prof.append((x, z + r.uniform(-2, 2)))
+            z = G - 4 + 30 * e + r.uniform(-4, 16) * (0.6 + e)
+            x += r.uniform(2, 6)
+        elif kind < 0.6:                             # crag: steep up, broken top, steep down
+            top = G + 30 * e + r.uniform(10, 34) * (0.55 + 0.9 * e)
+            x += r.uniform(5, 14)
+            prof.append((x, top - r.uniform(0, 6)))
+            x += r.uniform(6, 22)
+            prof.append((x, top))
+            x += r.uniform(3, 10)
+            z = G - 2 + 30 * e + r.uniform(-4, 8)
+        else:                                        # scree slope
+            x += r.uniform(16, 46)
+            z = G - 4 + 30 * e + r.uniform(-5, 10)
+        prof.append((x, z))
+    prof.append((W, edge))
+    for a, b in zip(prof, prof[1:]):
+        k.add("rock", [(a[0], -4), a, b, (b[0], -4)])
+    for d, wd in ((4.5, 0.9), (11, 0.7), (20, 0.8), (31, 0.6), (44, 0.8), (58, 0.6), (72, 0.7)):   # etched strata
+        i = 0
+        while i < len(prof) - 2:
+            run = r.randint(2, 7)
+            seg = [(px + r.uniform(-2, 2), min(pz - d * r.uniform(0.85, 1.15), G + 20 - d * 0.9) if d > 12 else pz - d)
+                   for px, pz in prof[i:i + run + 1]]
+            if len(seg) > 1:
+                k.stroke("etch" if d > 5 else "line", seg, wd, jit=0.5)
+            i += run + r.randint(1, 3)
+    for _ in range(90):                              # fissures
+        j = r.randrange(len(prof) - 1)
+        fx, fz = prof[j][0] + r.uniform(0, 12), prof[j][1] - r.uniform(2, 30)
+        k.stroke("etch", [(fx, fz), (fx + r.uniform(-4, 4), fz - r.uniform(6, 16)), (fx + r.uniform(-7, 7), fz - r.uniform(16, 30))], 0.6)
 
 
-VIADUCTS = ((742, 1018, 192, 46), (2190, 2452, 176, 44), (1300, 1476, 150, 44), (2880, 3008, 138, 43))
+VIADUCTS = ((742, 1018, 192, 46), (2190, 2452, 176, 44), (1340, 1430, 152, 45))
 LANDMARKS = ((585, 695), (1090, 1210), (1640, 2120), (2560, 2740), (292, 342))
 
 
@@ -541,7 +601,7 @@ def near_town(k):
     for x0, x1, deck, span in VIADUCTS:             # viaducts first: their arches cut only what is behind them
         arcade(k, x0, x1, deck, span)
     spans = tuple((a + 4, b - 4) for a, b, _, _ in VIADUCTS)
-    house_row(k, 150, W - 150, 84, 150, front=False, blocked=spans + LANDMARKS, gappy=0.3)      # back row
+    house_row(k, 150, W - 150, 84, 150, front=False, blocked=spans + LANDMARKS, gappy=0.1)      # back row
     conservatory(k, 1150, 104, G + 62)
     clock_tower(k, 640, 58, 330)
     cathedral(k, 1880)
@@ -549,16 +609,16 @@ def near_town(k):
     k.rect("wall", 300, 0, 334, 250)                        # parish spire, left
     window(k, 317, 196, 9.0, 30.0, lit=False)
     spire(k, 317, 250, 34, 150, facet=-1)
-    house_row(k, 110, W - 110, 38, 92, front=True, blocked=spans, low=((1690, 2070), (1100, 1200)), gappy=0.2)   # front row
+    house_row(k, 110, W - 110, 38, 92, front=True, low=((1690, 2070), (1100, 1200)) + tuple((a - 40, b) for a, b in spans), gappy=0.06)   # front row
     ground(k)
 
 
 def far_town(k):
     r = k.rnd
-    open_ = tuple(((a + 190 - 20) / 0.86, (b + 190 + 20) / 0.86) for a, b, _, _ in VIADUCTS)   # keep the arches open to the sky
-    house_row(k, 150, W - 150, 50, 120, front=False, blocked=open_, gappy=0.5)
+    open_ = tuple(((a + 190 + 6) / 0.86, (b + 190 - 6) / 0.86) for a, b, _, _ in VIADUCTS)   # keep the arches open to the sky
+    house_row(k, 150, W - 150, 50, 125, front=False, blocked=open_, gappy=0.25)
     for cx in (210, 520, 905, 1560, 2100, 2460, 2880, 3020):
-        if any(a - 30 < cx < b + 30 for a, b in open_):
+        if any(a - 8 < cx < b + 8 for a, b in open_):
             continue
         t = taper(cx)
         w = r.uniform(26, 40)
@@ -566,7 +626,7 @@ def far_town(k):
         k.rect("wall", cx - w / 2, 0, cx + w / 2, he)
         window(k, cx, he - 40, 8.0, 26.0, lit=False)
         spire(k, cx, he, w, r.uniform(100, 170) * (0.4 + 0.6 * t), facet=r.choice((-1, 1)))
-    k.rect("wall", 0, -4, W, G)
+    k.rect("rock", 0, -4, W, G)
 
 
 # ---------------------------------------------------------------- Blender render
@@ -673,19 +733,20 @@ def col(*rgb):
     return np.array(rgb, dtype=np.float32)[None, None, :] / 255.0
 
 
-def finish(p1, p2, seed, far=False):
+def finish(p1, p2, p3, seed, far=False):
     rng = np.random.default_rng(seed)
     # hand wobble: one displacement field for both passes
     dx, dy = field(rng, 13, 0.75) + field(rng, 4, 0.25), field(rng, 13, 0.75) + field(rng, 4, 0.25)
     yy, xx = np.mgrid[0:H, 0:W].astype(np.float32)
     sy = np.clip((yy + dy).round().astype(int), 0, H - 1)
     sx = np.clip((xx + dx).round().astype(int), 0, W - 1)
-    p1, p2 = p1[sy, sx], p2[sy, sx]
+    p1, p2, p3 = p1[sy, sx], p2[sy, sx], p3[sy, sx]
     roof, glow, line = (lin(p1[..., i]) for i in range(3))
     rust, hole, pane = (lin(p2[..., i]) for i in range(3))
     a = p1[..., 3] * (1 - hole)
     zz = H - yy
-    wall = np.clip(1 - roof - glow - line - rust - pane, 0, 1)
+    lwall, rock, etch = (lin(p3[..., i]) for i in range(3))
+    wall = np.clip(1 - roof - glow - line - rust - pane - lwall - rock - etch, 0, 1)
     # paper and ink textures
     white = rng.normal(0, 1, (H, W)).astype(np.float32)
     weave = (box(rng.normal(0, 1, (H, W)).astype(np.float32), 2, 1) + box(rng.normal(0, 1, (H, W)).astype(np.float32), 2, 0)) * 1.6
@@ -698,18 +759,21 @@ def finish(p1, p2, seed, far=False):
     vhatch = (((xx * 1.0 + zz * 0.5) % 5.0) < 1.0).astype(np.float32) * np.clip(field(rng, 30, 1.0) - 0.25, 0, 1)
     eave = np.clip(box(shift_down(roof + line * 0.5, 6), 3) * 1.5, 0, 1)
     bounce = np.clip(box(glow, 12) * 3.2, 0, 1)
-    c_wall = col(25, 20, 17) * (1 + 0.08 * (zz / H))[..., None] + stone[..., None] * col(15, 12, 10) + vhatch[..., None] * col(17, 14, 11)
+    c_wall = col(25, 20, 17) * (1 + 0.08 * (zz / H))[..., None] + stone[..., None] * col(18, 15, 12) + vhatch[..., None] * col(17, 14, 11)
     c_wall = c_wall * (1 - 0.32 * eave)[..., None] + bounce[..., None] * col(40, 25, 12)
-    band = np.clip((G + 6 - zz) / 26.0, 0, 1)        # ground band: plain earth, no masonry
-    c_band = col(24, 19, 16) * (1 + 0.10 * mott)[..., None]
-    c_wall = c_wall * (1 - band[..., None]) + c_band * band[..., None]
+    c_lwall = (col(37, 31, 26) * (1 + 0.08 * (zz / H))[..., None] + stone[..., None] * col(24, 20, 17) + vhatch[..., None] * col(12, 10, 8))
+    c_lwall = c_lwall * (1 - 0.4 * eave)[..., None] + bounce[..., None] * col(46, 29, 14)
+    h1 = (((xx + zz * 0.6) % 4.0) < 1.0).astype(np.float32) * np.clip(field(rng, 34, 1.0) + field(rng, 9, 0.5) - 0.2, 0, 1)
+    h2 = (((xx * 0.5 - zz) % 4.5) < 1.0).astype(np.float32) * np.clip(field(rng, 28, 1.0) + field(rng, 8, 0.5) - 0.3, 0, 1)
+    c_rock = col(24, 19, 16) * (1 + 0.16 * mott)[..., None] + (h1 + h2)[..., None] * col(26, 22, 18)
+    c_etch = col(78, 67, 57) * (0.75 + 0.4 * patch)[..., None]
     # roofs: lighter umber, diamond slates, each slate lit along its upper edges
     p = 6.0
     wx, wz = xx + field(rng, 14, 2.2), zz + field(rng, 14, 2.2)      # slates laid by hand: the courses waver
     d1, d2 = (wx + wz) % p, (wx - wz) % p
     slate = np.maximum((d1 < 1.1), (d2 < 1.1)).astype(np.float32) * np.clip(0.55 + 0.5 * box(white, 1), 0, 1)
     lit_s = np.clip(1 - (d1 + d2) / (2 * p), 0, 1)
-    c_roof = col(40, 33, 28) * (0.84 + 0.3 * lit_s)[..., None] + slate[..., None] * col(46, 39, 33) * (0.3 + 0.9 * patch)[..., None]
+    c_roof = col(40, 33, 28) * (0.84 + 0.3 * lit_s)[..., None] + slate[..., None] * col(50, 43, 36) * (0.45 + 0.8 * patch)[..., None]
     c_rust = col(96, 44, 29) * (0.8 + 0.4 * lit_s)[..., None] + slate[..., None] * col(34, 14, 9)
     c_line = col(112, 96, 82) * (0.8 + 0.3 * patch)[..., None]
     c_pane = col(50, 44, 39) * (0.85 + 0.2 * (box(white, 1, 0)))[..., None]
@@ -717,16 +781,16 @@ def finish(p1, p2, seed, far=False):
     core = np.clip(box(glow, 3) * 1.25 - 0.1, 0, 1)
     streak = box(rng.normal(0, 1, (H, W)).astype(np.float32), 5, 0) * 2.6
     c_glow = (col(184, 124, 66) * (1 - core[..., None]) + col(238, 180, 104) * core[..., None]) * (1 + 0.09 * streak)[..., None]
-    rgb = (wall[..., None] * c_wall + roof[..., None] * c_roof + rust[..., None] * c_rust + line[..., None] * c_line
+    rgb = (wall[..., None] * c_wall + lwall[..., None] * c_lwall + rock[..., None] * c_rock + etch[..., None] * c_etch + roof[..., None] * c_roof + rust[..., None] * c_rust + line[..., None] * c_line
            + pane[..., None] * c_pane + glow[..., None] * c_glow)
     halo = np.clip(box(glow, 4) * 1.6, 0, 1) * (1 - glow)
     rgb = rgb + halo[..., None] * col(58, 36, 14)
     rim = np.clip(a - shift_down(a, 2), 0, 1) * (a > 0.5)   # light catching the top edge of every mass
     rgb = rgb + (box(rim, 1) * (1 - glow))[..., None] * col(52, 44, 37)
     dark = (1 - glow)[..., None]
-    tone = 1 + (0.08 * mott + 0.085 * weave + 0.075 * white)
+    tone = 1 + (0.11 * mott + 0.09 * weave + 0.08 * white)
     rgb = rgb * (1 + (tone - 1)[..., None] * (0.35 + 0.65 * dark))
-    rgb = rgb + (((rng.random((H, W)) < 0.006) * rng.uniform(0.02, 0.07, (H, W))).astype(np.float32) * (1 - glow))[..., None] * col(255, 225, 190)
+    rgb = rgb + (((rng.random((H, W)) < 0.004) * rng.uniform(0.015, 0.045, (H, W))).astype(np.float32) * (1 - glow))[..., None] * col(255, 225, 190)
     if far:                                          # far layer: hazier, lower contrast
         rgb = rgb * 0.86 + col(98, 85, 73) * 0.14
     soft = np.stack([box(rgb[..., i], 1) for i in range(3)], axis=2)
@@ -734,6 +798,8 @@ def finish(p1, p2, seed, far=False):
     bite = np.clip(field(rng, 5, 1.0) + field(rng, 2, 0.8) - 0.9, 0, 1) * 0.5    # the ink edge breaks here and there
     ragged = a + rng.normal(0, 0.05, a.shape).astype(np.float32) - bite
     a = np.clip((ragged - 0.4) * 5.0, 0, 1) * (a > 0.03)
+    skip = np.clip(field(rng, 4, 1.0) + field(rng, 2, 0.8) + 0.15 * white - 1.42, 0, 1) * 2.0   # dry-brush skips: paper shows through
+    a = a * (1 - np.clip(skip, 0, 0.5) * (1 - glow))
     return np.clip(rgb, 0, 1), a
 
 
@@ -763,8 +829,8 @@ def main():
     far_town(far)
     near = Kit(random.Random(seed), lit=0.3)
     near_town(near)
-    fr, fa = finish(*render_layer(sc, mats, far, tmp, "far"), seed + 1, far=True)
-    nr, na = finish(*render_layer(sc, mats, near, tmp, "near"), seed)
+    fr, fa = finish(*render_layer(sc, mats, far, tmp, "far"), seed=seed + 1, far=True)
+    nr, na = finish(*render_layer(sc, mats, near, tmp, "near"), seed=seed)
     rgb, a = over(nr, na, fr, fa)
     save(os.path.abspath(o["out"]), rgb, a)
     print("SKYLINE_RENDER size=%dx%d seed=%d shapes=%d version=%s" % (W, H, seed, near.n + far.n, bpy.app.version_string.split()[0]))
