@@ -32,6 +32,11 @@ vendor's message (it read the body twice before and lost it; test added).
   `HTTP 429 ... Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0`.
   The key's project is on the free tier: the prepaid credits are not attached to it, and the free tier gives 0 for
   this model. Stopped per the same-failure-twice rule; calls 2 and 3 not tried (they depend on call 1).
+- Lead's fallback, one call on gemini-2.5-flash-image (free tier), turnaround prompt from the runbook, 21:9, no
+  image size: same refusal, refunded, counter $0.000:
+  `HTTP 429 ... generate_content_free_tier_input_token_count, limit: 0`. The free tier gives 0 on 2.5 flash too, so
+  no model on this key can make an image until billing is linked. Stopped after that one call, as the lead asked.
+  Not run: key/despill/cut/scale on a 2.5 flash sheet, art_ref_check.
 - Needs (Josh): in AI Studio, link the key's project to the billing account that holds the prepaid credits (or make
   a key in the project that has them). Then rerun the runbook below unchanged.
 Not run: the 3 images, art_ref_check, the blind panel, the consistency verdict, ours-vs-model notes, cost per image.
