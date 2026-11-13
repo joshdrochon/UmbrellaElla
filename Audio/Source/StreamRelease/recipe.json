@@ -1,0 +1,44 @@
+{
+ "seconds": 0.7,
+ "lufs": -21,
+ "static_level": true,
+ "fade_out": 0.25,
+ "takes": 3,
+ "reverb": {
+  "rt60": 0.3,
+  "wet_db": -15,
+  "damp_hz": 8000,
+  "predelay_ms": 8,
+  "hp_hz": 800
+ },
+ "layers": {
+  "fall": {
+   "kind": "synth",
+   "prompt": "synthesised celesta release: two falling plucks (fifth, then root) 70 ms apart, 1 ms rise, partials at 2x, 3.01x and 4.2x, gone inside 0.5 s",
+   "secs": 0.7,
+   "freqs": [
+    2093,
+    2349,
+    2637
+   ],
+   "expr": "(1-exp(-500*t))*(0.540*exp(-20*t)*sin(2*PI*1.498*{f}*t)+0.225*exp(-24*t)*sin(2*PI*2.996*{f}*t)+0.108*exp(-29*t)*sin(2*PI*4.509*{f}*t)+0.045*exp(-37*t)*sin(2*PI*6.292*{f}*t))+gte(t\\,0.07)*((1-exp(-500*(t-0.07)))*(0.252*exp(-13*(t-0.07))*sin(2*PI*1*{f}*(t-0.07))+0.105*exp(-17*(t-0.07))*sin(2*PI*2*{f}*(t-0.07))+0.050*exp(-22*(t-0.07))*sin(2*PI*3.010*{f}*(t-0.07))+0.021*exp(-30*(t-0.07))*sin(2*PI*4.200*{f}*(t-0.07))))",
+   "gain_db": 0,
+   "trim": 0.7,
+   "filter": "anull,apad=whole_dur=0.7"
+  },
+  "glitter": {
+   "kind": "synth",
+   "prompt": "synthesised soft glitter: one tiny high ping at the onset, 60 ms",
+   "secs": 0.2,
+   "freqs": [
+    2093,
+    2349,
+    2637
+   ],
+   "expr": "(1-exp(-3000*t))*0.4*exp(-45*t)*sin(2*PI*3*{f}*t)",
+   "gain_db": -14,
+   "trim": 0.2,
+   "filter": "anull,apad=whole_dur=0.7"
+  }
+ }
+}

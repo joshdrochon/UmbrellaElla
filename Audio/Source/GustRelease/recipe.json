@@ -1,0 +1,50 @@
+{
+ "seconds": 2.2,
+ "lufs": -20,
+ "static_level": true,
+ "fade_out": 0.7,
+ "takes": 3,
+ "post": "anull",
+ "post_gain_db": 0,
+ "reverb": {
+  "rt60": 1.1,
+  "wet_db": -11,
+  "damp_hz": 2200,
+  "predelay_ms": 20,
+  "hp_hz": 150
+ },
+ "want": {
+  "attack_ms": [
+   10,
+   110
+  ]
+ },
+ "layers": {
+  "flap": {
+   "prompt": "one single huge heavy wing flap pushing a wall of air, deep leathery whump and whoosh, dry, isolated",
+   "secs": 1.5,
+   "filter": "highpass=f=60,lowpass=f=1100,afade=t=out:st=0.5:d=0.4,apad=whole_dur=2.2",
+   "gain_db": -1,
+   "start_db": -26,
+   "trim": 1.5,
+   "decay": 3
+  },
+  "gust": {
+   "prompt": "one hard gust of cold wind rushing through stone arches, a short forceful burst that dies away, no voices, isolated",
+   "secs": 2.5,
+   "filter": "highpass=f=150,lowpass=f=2600,tremolo=f=7:d=0.5,afade=t=out:st=0.5:d=1.4,apad=whole_dur=2.2",
+   "gain_db": -4,
+   "start_db": -26,
+   "trim": 2.5
+  },
+  "canvas": {
+   "prompt": "heavy canvas sail flapping hard twice in a strong gust, sharp cloth snaps, dry, isolated",
+   "secs": 1.5,
+   "filter": "highpass=f=300,lowpass=f=3000,afade=t=out:st=0.7:d=0.4,apad=whole_dur=2.2",
+   "gain_db": -6,
+   "start_db": -26,
+   "delay_ms": 110,
+   "trim": 1.5
+  }
+ }
+}

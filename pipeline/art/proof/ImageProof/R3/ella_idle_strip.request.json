@@ -1,0 +1,43 @@
+{
+ "provider": "gemini",
+ "tool": "Gemini API image generation (Google)",
+ "model": "gemini-3-pro-image-preview",
+ "model_version": "gemini-3-pro-image-preview",
+ "prompt": "Ella hangs from her open umbrella in pure side view facing right: arms straight up, both gloved hands stacked on the shaft just under the canopy, her body hanging below like a weight on a string. Her legs dangle loose, boots pointing down, far above any ground; the shaft runs down past her hands, alongside her body, to the diamond terminal at her waist. The open canopy is directly above her head, finial pointing up. One 21:9 strip of 4 poses in a row, level camera, evenly spaced with wide empty green gaps, one figure each, whole umbrella inside, about 65% of the canvas height, same scale, hands and hips at the same height in all four. Pose 1: legs together. Pose 2: boots drift a few degrees apart into a narrow V, skirt and hair sway the other way. Pose 3: the V at its widest, still small and slow. Pose 4: legs together again. The motion is a slow sway, never a kick. The attached image shows only her umbrella, open; copy its design. Style: dark etched storybook engraving for a 2D game sprite: brown-black ink, sepia wash, fine cross-hatching. Near-black silhouette (ink #171614, umber #3A2C25), dark-on-dark interior detail, ragged cloth edges. Thin rim light and a 3 px outline, both warm candle-cream: spark-white #FFF3D6 with touches of gold #E9C46A, always more red than green, never lemon. No glow. Background: one flat pure green #00FF00, edge to edge, unbroken, empty. Nothing on the figure is green. No text. Ella: a slender adult woman, always airborne, in a tall bent pointed witch hat with a wide brim. Long straight dark brown hair falls to mid-back, never short. A dark cloth mask hides her whole face; two small gold eye glints are its only light. A separate long ragged scarf with two tails. Worn layered dark dress with belt, long sleeves, jagged knee-length skirt, stockings, laced boots, gloves; no skin shows. One umbrella, no wand: a shallow dome almost as wide as she is tall, eight broad gores alternating black and taupe, scalloped hem; a long thin dark shaft; a narrow pierced diamond clock-hand terminal at the free end. At the canopy's peak a short dark stem rises from a small collar and ends in one small round bead with a tiny point, barely wider than the shaft. Both gloved hands hold the one shaft.",
+ "seed": "",
+ "size": "1024x1024",
+ "quality": "medium",
+ "aspect_ratio": "21:9",
+ "image_size": "2K",
+ "input_images": [
+  "Art/Source/ImageProof/R3/ref_umbrella.png"
+ ],
+ "cost_usd": 0.139132,
+ "reply": {
+  "usage": {
+   "promptTokenCount": 814,
+   "candidatesTokenCount": 1544,
+   "totalTokenCount": 2650,
+   "promptTokensDetails": [
+    {
+     "modality": "TEXT",
+     "tokenCount": 556
+    },
+    {
+     "modality": "IMAGE",
+     "tokenCount": 258
+    }
+   ],
+   "candidatesTokensDetails": [
+    {
+     "modality": "IMAGE",
+     "tokenCount": 1120
+    }
+   ],
+   "thoughtsTokenCount": 292,
+   "serviceTier": "standard"
+  },
+  "finish": "STOP"
+ },
+ "date": "2026-11-13T03:04+00:00"
+}

@@ -1,0 +1,44 @@
+{
+ "provider": "gemini",
+ "tool": "Gemini API image generation (Google)",
+ "model": "gemini-3-pro-image-preview",
+ "model_version": "gemini-3-pro-image-preview",
+ "prompt": "Ella: a slender adult woman, always airborne, in a tall bent pointed witch hat with a wide brim. Long straight dark brown hair falls to mid-back, never short. A dark cloth mask hides her whole face; two small gold eye glints are its only light. A separate long ragged scarf with two tails. Worn layered dark dress with belt, long sleeves, jagged knee-length skirt, stockings, laced boots, gloves; no skin shows. One umbrella, no wand: a shallow dome almost as wide as she is tall, eight broad gores alternating black and taupe, scalloped hem; a long thin dark shaft; a narrow pierced diamond clock-hand terminal at the free end. At the canopy's peak a short dark stem rises from a small collar and ends in one small round bead with a tiny point, barely wider than the shaft. Both gloved hands hold the one shaft. Images: 1 gives her hat, mask and hair; 2, her open umbrella. Level side view facing right, she falls slowly, torso upright, boots hanging; the umbrella lies level at her hip, finial behind, diamond pointing right. Three figures in a row, same scale, 65% of canvas height, only green between them. Left: canopy furled. Middle: canopy snapped open behind her; a small gold pulse flies right, clear of her. Right: canopy half closed, air ahead empty. Style: dark etched storybook engraving for a 2D game sprite: brown-black ink, sepia wash, fine cross-hatching. Near-black silhouette (ink #171614, umber #3A2C25), dark-on-dark interior detail, ragged cloth edges. Thin rim light and a 3 px outline, both warm candle-cream: spark-white #FFF3D6 with touches of gold #E9C46A, always more red than green, never lemon. No glow. Background: one flat pure green #00FF00, edge to edge, unbroken, empty. Nothing on the figure is green. No text.",
+ "seed": "",
+ "size": "1024x1024",
+ "quality": "medium",
+ "aspect_ratio": "21:9",
+ "image_size": "2K",
+ "input_images": [
+  "Art/Source/ImageProof/R3/ref_side.png",
+  "Art/Source/ImageProof/R3/ref_umbrella.png"
+ ],
+ "cost_usd": 0.141022,
+ "reply": {
+  "usage": {
+   "promptTokenCount": 955,
+   "candidatesTokenCount": 1478,
+   "totalTokenCount": 2859,
+   "promptTokensDetails": [
+    {
+     "modality": "TEXT",
+     "tokenCount": 439
+    },
+    {
+     "modality": "IMAGE",
+     "tokenCount": 516
+    }
+   ],
+   "candidatesTokensDetails": [
+    {
+     "modality": "IMAGE",
+     "tokenCount": 1120
+    }
+   ],
+   "thoughtsTokenCount": 426,
+   "serviceTier": "standard"
+  },
+  "finish": "STOP"
+ },
+ "date": "2026-11-13T03:04+00:00"
+}

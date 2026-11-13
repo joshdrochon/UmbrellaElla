@@ -1,0 +1,43 @@
+{
+ "provider": "gemini",
+ "tool": "Gemini API image generation (Google)",
+ "model": "gemini-3-pro-image-preview",
+ "model_version": "gemini-3-pro-image-preview",
+ "prompt": "Style: dark painterly etched storybook illustration for a 2D side-view game sprite; ink and wash with fine etched cross-hatching; a near-black silhouette that reads by shape alone (charcoal, soot and umber darks, interior detail dark-on-dark), subdued bronze and warm ivory only as thin rim light; a clean 2-3 px warm ivory #EDE3CF outline around the whole figure. Background: one perfectly flat solid pure green #00FF00 filling the canvas edge to edge: no gradient, no paper texture, no grain, no vignette, no ground, no cast or drop shadow, no glow or light spill on the background. Nothing in the figure is green: no green cloth, light, reflection or tint. No text, labels, numbers, grid lines, frames or watermark. Ella: an adult woman, slim, airborne (never standing on ground), wearing a bent pointed witch hat, long dark brown hair, a separate scarf, a layered worn dark dress, dark stockings and boots. Her face is fully concealed under a dark cloth / mesh mask; two small separate gold #E9C46A eye glints are the only light on her. One slender umbrella: black canopy with thin light ivory stripes, a small pointed crown finial at the canopy tip, and a separate narrow pierced diamond (lozenge) clock-hand terminal at the free end of the shaft. Both hands grip the one shaft. No wand. Body, hands, cloth and metal stay dark. The attached sheet is Ella: keep her costume, proportions, mask, hat and umbrella exactly. One horizontal animation strip of 3 frames of Ella's idle hover, side view facing right, in one row, evenly spaced with wide flat green gaps, figures never touching, the same scale and line weight in every frame: she hangs below the open umbrella held straight overhead in both hands, canopy fully open above her, weight hanging, toes down. Frame 1 legs together; frame 2 legs in a small V split, dress swaying; frame 3 legs together, canopy a little higher. No kicking.",
+ "seed": "",
+ "size": "1024x1024",
+ "quality": "medium",
+ "aspect_ratio": "21:9",
+ "image_size": "2K",
+ "input_images": [
+  "Art/Source/ImageProof/ella_turnaround.png"
+ ],
+ "cost_usd": 0.13873,
+ "reply": {
+  "usage": {
+   "promptTokenCount": 697,
+   "candidatesTokenCount": 1408,
+   "totalTokenCount": 2383,
+   "promptTokensDetails": [
+    {
+     "modality": "TEXT",
+     "tokenCount": 439
+    },
+    {
+     "modality": "IMAGE",
+     "tokenCount": 258
+    }
+   ],
+   "candidatesTokensDetails": [
+    {
+     "modality": "IMAGE",
+     "tokenCount": 1120
+    }
+   ],
+   "thoughtsTokenCount": 278,
+   "serviceTier": "standard"
+  },
+  "finish": "STOP"
+ },
+ "date": "2026-11-13T02:33+00:00"
+}
