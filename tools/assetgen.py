@@ -829,7 +829,14 @@ def draft_checks_passed(root, piece, draft):
         import art_check, art_judge
         with open(os.path.join(root, "pipeline", "art", "style.json"), encoding="utf-8") as fh:
             st = json.load(fh)
-        fails = art_check.evaluate(art_check.measure(draft, st), st)
+        # The same colour rules the art loop judges with (tools/art_loop.py check_file): the full-frame rules (dark share,
+        # accent caps, paper texture) only for the scene; every other piece on its non-transparent pixels, effects on the
+        # effect palette (Nov 13: 19 sprite/effect drafts failed accent_area because their paper ground counted as gold).
+        if piece == "scene":
+            fails = art_check.evaluate(art_check.measure(draft, st), st)
+        else:
+            import art_loop
+            fails = art_check.sprite_failures(draft, st, art_loop.is_effect(draft, piece))
         if fails:
             return False, "art_check FAIL: " + "; ".join(fails[:3])
         with open(os.path.join(root, "pipeline", "art", "references.json"), encoding="utf-8") as fh:
