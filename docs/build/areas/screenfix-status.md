@@ -1,3 +1,4 @@
+B2 CAUSE (Nov 13, confirmed by image): the screen:Playing stand-in T_Screen_Playing_PH (2b624685, source pipeline/art/proof/standins/ui-hud-clock/capture_r16_hud.png) is a screenshot of a black frame with the HUD clock and 'Preparing Shaders (2)'. UUiArtSubsystem::ShowScreenArt draws it full-screen, opaque, above the game on the Playing screen. Same for Resuming. Fix next: no full-screen screen art on gameplay screens.
 B2 cause (Nov 13): NOT the scene panels. ART_05 off (all USceneArtSubsystem panels off) is still 98% black, windowed 640x360 and offscreen 1280x720 (b2-art05off-*.png). Bisecting next. The 20:20 run had no -SmokeQuitAfter, so no smoke hook loaded and it sat on the title.
 
 # screenfix status
