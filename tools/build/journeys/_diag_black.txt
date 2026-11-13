@@ -1,0 +1,15 @@
+# Diagnostic: is the black gameplay screen unlit geometry or nothing drawn?
+firstrun
+wait Title 60
+key Enter
+keyuntil Playing Enter 0.8 30
+idle 4
+shot d1_lit
+console viewmode unlit
+idle 0.5
+shot d2_unlit
+console viewmode lit
+console show postprocessing
+idle 0.5
+shot d3_no_postprocess
+end

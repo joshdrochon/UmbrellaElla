@@ -1,0 +1,30 @@
+# WIN path, Start Game: Keeper fight through wings, mechanisms and clock to the withdrawal, story text, credits with
+# music, back to the Start screen. Assisted: `assistwin` holds Shoot and delivers Ella's basic shot to every Keeper
+# part through the parts' own shot receiver, healing Ella to full between hits.
+firstrun
+wait Title 60
+click Start Game
+keyuntil Playing Enter 0.8 30
+idle 2
+shot w01_fight_start
+texts
+hold J 1.5                     # real shooting: Ella drops while she shoots
+hold K 1.0                     # absorb
+hold SpaceBar 0.2              # hop
+shot w02_moves
+assistwin 900
+idle 1
+shot w03_story_hold
+idle 4
+shot w04_story_text
+texts
+music none                     # FLOW-04: story text plays without the run's music
+wait Credits 120
+idle 3
+shot w05_credits
+texts
+music any                      # credits bring the title track back
+wait Title 120
+idle 2
+shot w06_back_at_start
+end
