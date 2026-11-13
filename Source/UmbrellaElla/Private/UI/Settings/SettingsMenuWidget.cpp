@@ -2,8 +2,11 @@
 #include "Framework/Application/SlateApplication.h"
 #include "GameFramework/PlayerController.h"
 #include "Harness/UmbrellaFeatureFlags.h"
+#include "Settings/DeveloperOptions.h"
 #include "Settings/SettingsConstants.h"
+#include "Settings/SettingsLiveTuning.h"
 #include "Settings/SettingsMenuSubsystem.h"
+#include "Settings/UmbrellaAccessibility.h"
 #include "Styling/CoreStyle.h"
 #include "Widgets/Input/SButton.h"
 #include "Widgets/Input/SCheckBox.h"
@@ -11,6 +14,7 @@
 #include "Widgets/Layout/SBorder.h"
 #include "Widgets/Layout/SBox.h"
 #include "Widgets/SBoxPanel.h"
+#include "Widgets/SNullWidget.h"
 #include "Widgets/Text/STextBlock.h"
 
 #define LOCTEXT_NAMESPACE "UmbrellaSettingsMenu"
@@ -126,8 +130,7 @@ int32 USettingsMenuWidget::ScaledFont(int32 Size) const
 	{
 		return Size;
 	}
-	const int32 Percent = Subsystem->GetSession().GetSaved().TextScalePercent;
-	return FMath::RoundToInt(static_cast<float>(Size) * static_cast<float>(Percent) / static_cast<float>(SettingsConstants::TextScaleMin));
+	return UmbrellaAccessibility::ScaledFontSize(Size, Subsystem->GetSavedTextScalePercent());
 }
 
 TSharedRef<SWidget> USettingsMenuWidget::RebuildWidget()
@@ -474,13 +477,135 @@ void USettingsMenuWidget::AddCreditsBody()
 void USettingsMenuWidget::AddGameOptionsBody()
 {
 	const int32 Size = ScaledFont(SettingsLayout::BodyFontSize);
+	const bool bEditable = DeveloperOptionRules::CanEdit(Mode, DeveloperOptionRules::IsWorkbenchBuild());
 	BodyBox->AddSlot().AutoHeight().Padding(SettingsLayout::RowPadding)
 	[
-		Label(LOCTEXT("DevNote", "Developer options (Director's Cut only). Contents are still being chosen:"), Size, Gold())
+		Label(bEditable
+			? LOCTEXT("DevNote", "Developer options (Director's Cut only). Save applies them to this session; 100% is as tuned.")
+			: LOCTEXT("DevNoteLocked", "Developer options (Director's Cut only). They can be changed in the tester build."), Size, Gold())
 	];
-	for (const FName Name : SettingsRules::GetDeveloperOptionNames(Mode))
+	const USettingsMenuSubsystem* Subsystem = Owner.Get();
+	const FSettingsLiveTuning Baseline = Subsystem ? Subsystem->GetBaselineTuning() : FSettingsLiveTuning();
+	if (SettingsRules::GetDeveloperOptionNames(Mode).Num() == 0)
 	{
-		BodyBox->AddSlot().AutoHeight().Padding(SettingsLayout::RowPadding)[Label(FText::FromName(Name), Size, Sepia())];
+		return;
+	}
+	for (const FDeveloperOptionSpec& Spec : DeveloperOptionRules::AllSpecs())
+	{
+		const EDeveloperOption Option = Spec.Id;
+		TSharedRef<SWidget> Control = SNullWidget::NullWidget;
+		switch (Spec.Kind)
+		{
+		case EDeveloperOptionKind::Percent:
+		case EDeveloperOptionKind::Offset:
+		{
+			const int32 Low = Spec.Low;
+			const int32 High = Spec.High;
+			Control = SNew(SSlider)
+				.IsEnabled(bEditable)
+				.StepSize(static_cast<float>(Spec.Step) / static_cast<float>(High - Low))
+				.Value(TAttribute<float>::Create(TAttribute<float>::FGetter::CreateWeakLambda(this, [this, Option, Low, High]()
+				{
+					const USettingsMenuSubsystem* Current = Owner.Get();
+					const int32 Value = Current ? DeveloperOptionRules::ValueOf(Current->GetSession().GetDraft().DeveloperValues, Option) : Low;
+					return static_cast<float>(Value - Low) / static_cast<float>(High - Low);
+				})))
+				.OnValueChanged(FOnFloatValueChanged::CreateWeakLambda(this, [this, Option, Low, High](float Fraction)
+				{
+					SetDeveloperOption(Option, Low + FMath::RoundToInt(Fraction * static_cast<float>(High - Low)));
+				}));
+			break;
+		}
+		case EDeveloperOptionKind::Toggle:
+			Control = SNew(SCheckBox)
+				.IsEnabled(bEditable)
+				.IsChecked(TAttribute<ECheckBoxState>::Create(TAttribute<ECheckBoxState>::FGetter::CreateWeakLambda(this, [this, Option]()
+				{
+					const USettingsMenuSubsystem* Current = Owner.Get();
+					const int32 Value = Current ? DeveloperOptionRules::ValueOf(Current->GetSession().GetDraft().DeveloperValues, Option) : 0;
+					return Value == DeveloperOptionLimits::ToggleOn ? ECheckBoxState::Checked : ECheckBoxState::Unchecked;
+				})))
+				.OnCheckStateChanged(FOnCheckStateChanged::CreateWeakLambda(this, [this, Option](ECheckBoxState State)
+				{
+					SetDeveloperOption(Option, State == ECheckBoxState::Checked ? DeveloperOptionLimits::ToggleOn : DeveloperOptionLimits::ToggleOff);
+				}));
+			break;
+		case EDeveloperOptionKind::Link:
+		default:
+			Control = SNew(SButton)
+				.IsEnabled(SettingsRules::IsPageAvailable(ESettingsPage::Controller, Mode))
+				.OnClicked(FOnClicked::CreateWeakLambda(this, [this]()
+				{
+					ShowPage(ESettingsPage::Controller);
+					return FReply::Handled();
+				}))
+				[
+					Label(LOCTEXT("OpenController", "Open Controller page"), Size, Gold())
+				];
+			break;
+		}
+		BodyBox->AddSlot().AutoHeight().Padding(SettingsLayout::RowPadding)
+		[
+			SNew(SHorizontalBox)
+			+ SHorizontalBox::Slot().AutoWidth()
+			[
+				SNew(SBox).WidthOverride(SettingsLayout::LabelWidth)[Label(Spec.Label, Size, Sepia())]
+			]
+			+ SHorizontalBox::Slot().AutoWidth()
+			[
+				SNew(SBox).WidthOverride(SettingsLayout::SliderWidth)[Control]
+			]
+			+ SHorizontalBox::Slot().AutoWidth().Padding(SettingsLayout::RowPadding)
+			[
+				SNew(SBox).WidthOverride(SettingsLayout::ValueWidth)
+				[
+					SNew(STextBlock)
+					.Font(Font(Size))
+					.ColorAndOpacity(Gold())
+					.Text(TAttribute<FText>::Create(TAttribute<FText>::FGetter::CreateWeakLambda(this, [this, Option, Baseline]()
+					{
+						const USettingsMenuSubsystem* Current = Owner.Get();
+						const int32 Value = Current ? DeveloperOptionRules::ValueOf(Current->GetSession().GetDraft().DeveloperValues, Option)
+							: DeveloperOptionRules::SpecFor(Option).Default;
+						return DeveloperOptionRules::ValueText(Option, Value, Baseline);
+					})))
+				]
+			]
+		];
+	}
+	if (bEditable)
+	{
+		BodyBox->AddSlot().AutoHeight().Padding(SettingsLayout::RowPadding)
+		[
+			SNew(SButton)
+			.OnClicked(FOnClicked::CreateWeakLambda(this, [this]()
+			{
+				PressResetDeveloperOptions();
+				return FReply::Handled();
+			}))
+			[
+				Label(LOCTEXT("ResetDev", "Reset to as tuned"), Size, Gold())
+			]
+		];
+	}
+}
+
+void USettingsMenuWidget::SetDeveloperOption(EDeveloperOption Option, int32 Value)
+{
+	USettingsMenuSubsystem* Subsystem = Owner.Get();
+	if (Subsystem && DeveloperOptionRules::CanEdit(Mode, DeveloperOptionRules::IsWorkbenchBuild()))
+	{
+		Subsystem->EditSession().SetDeveloperOption(Option, Value);
+	}
+}
+
+void USettingsMenuWidget::PressResetDeveloperOptions()
+{
+	USettingsMenuSubsystem* Subsystem = Owner.Get();
+	if (Subsystem && DeveloperOptionRules::CanEdit(Mode, DeveloperOptionRules::IsWorkbenchBuild()))
+	{
+		Subsystem->EditSession().ResetDeveloperOptions();
+		RebuildBody();
 	}
 }
 
