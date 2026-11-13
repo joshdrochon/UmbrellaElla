@@ -249,7 +249,7 @@ bool FMillMeasureOnwardRide::RunTest(const FString& Parameters)
 				Lift, Trim, ExpectedRise, Peak, Lowest, LeftBandAt, LeftEnvelopeAt, bUpperTook ? 1 : 0, ColumnExitAt, ColumnExitZ, F.EllaRoom().X, PeakSpeedX,
 				FBrokenMillRules::GetUndersideClearance(T, Peak), FBrokenMillRules::GetFloorClearance(T, Lowest), *MillVerdict(bInside && !bUpperTook)));
 			TestTrue(TEXT("the ride was measured (Motor rode the real current)"), PeakSpeedX > 0.0f);
-			TestTrue(TEXT("the root never sank while riding open (rise only)"), Lowest >= Start.Y - KINDA_SMALL_NUMBER);
+			TestTrue(TEXT("the local restoring field keeps the root inside the required envelope 185-285 and the upper reset never takes her"), bInside && !bUpperTook);
 		}
 	}
 	return true;
@@ -631,7 +631,7 @@ bool FMillMeasureDelayedImpact::RunTest(const FString& Parameters)
 		const float GddDrift = 30.0f;
 		const float DriftContact = FBrokenMillRules::GetFirstContactSeconds(T, 650.0f + static_cast<float>(Drift), 1.0f);
 		AddInfo(FString::Printf(TEXT("MEASURE HAZ-13 drift: carried at %.1f/s after %.2f s riding (room wind %.0f, Motor clamp %.0f), residual drift after closing %.1f units, GDD-muzzle contact from 650 + drift %.3f s | GDD wind 360 / decay 12: about 30 units, 0.971 s | %s"),
-			SpeedAtClose, RideSeconds, T.WindSpeed, Motor.HorizontalMaxSpeed, Drift, DriftContact, *MillVerdict(FMath::Abs(Drift - GddDrift) <= 3.0f)));
+			SpeedAtClose, RideSeconds, T.WindSpeed, Motor.WindMaxSpeed, Drift, DriftContact, *MillVerdict(FMath::Abs(Drift - GddDrift) <= 3.0f)));
 		TestTrue(TEXT("closing kept some forward drift"), Drift > 0.0);
 		TestTrue(TEXT("drift is the falling decay of the carried speed (speed / decay, within 15%)"), FMath::IsNearlyEqual(static_cast<float>(Drift), static_cast<float>(SpeedAtClose) / Motor.WindFallingDecay, static_cast<float>(SpeedAtClose) / Motor.WindFallingDecay * 0.15f));
 	}
