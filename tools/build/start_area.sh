@@ -57,8 +57,9 @@ for attempt in range(3):
     if (rc not in (143, 137) and rc >= 0) or os.path.exists(os.environ["WORKER_STOP"]):
         break
     log.write("WORKER_RESUME after outside kill (run %d)\n" % (attempt + 2)); log.flush(); time.sleep(20)
-    prompt = ("Lead: your previous session was killed from outside mid-work. Resume exactly where your status file and git log "
-              "say you were; commit anything finished first. Original brief follows.\n\n" + os.environ["WORKER_PROMPT"])
+    # the brief stays first, so every liveness check (it matches the opening of the brief) still sees the worker
+    prompt = (os.environ["WORKER_PROMPT"] + "\n\nLead: your previous session was killed from outside mid-work. Resume exactly "
+              "where your status file and git log say you were; commit anything finished first.")
 log.close()
 ' >/dev/null 2>&1 &
 echo "$A worker ($MODEL) pid $! worktree $WT log $BASE/logs/$A.log"
