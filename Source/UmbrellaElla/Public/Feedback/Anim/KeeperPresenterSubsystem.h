@@ -71,6 +71,15 @@ public:
 	/** The part layer component for a slot id on a Keeper, or null. */
 	static UStaticMeshComponent* FindPart(const AActor* Keeper, const FString& VisualId);
 
+	/** True when any Keeper slot draws on this Keeper: the body picture or any part layer. Pure read. */
+	static bool HasKeeperArt(const AActor* Keeper);
+
+	/**
+	 * The arena's graybox Keeper square hides while any tracked Keeper draws slot art and shows when none does.
+	 * Runs every Tick and after each draw. Returns whether art draws.
+	 */
+	bool SyncArenaStandIn();
+
 private:
 	void HandleActorSpawned(AActor* Actor);
 	FDelegateHandle SpawnHandle;

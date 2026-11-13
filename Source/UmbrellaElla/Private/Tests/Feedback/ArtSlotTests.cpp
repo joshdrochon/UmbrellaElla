@@ -1,3 +1,4 @@
+#include "Arena/UmbrellaArena.h"
 #include "Attack/StreamBeamActor.h"
 #include "Components/StaticMeshComponent.h"
 #include "Feedback/Art/ArtSlot.h"
@@ -845,8 +846,19 @@ bool FArtSlotKeeperStandInHidden::RunTest(const FString& Parameters)
 		return false;
 	}
 	UKeeperPresenterSubsystem* Presenter = World->GetSubsystem<UKeeperPresenterSubsystem>();
+	// The arena's graybox Keeper square shows while no Keeper art draws.
+	AUmbrellaArena* Arena = World->SpawnActor<AUmbrellaArena>();
+	if (Arena && !Arena->GetKeeperStandIn())
+	{
+		Arena->BuildPlaceholders();
+	}
+	if (TestNotNull(TEXT("arena"), Arena) && TestNotNull(TEXT("arena keeper square"), Arena->GetKeeperStandIn()) && Presenter)
+	{
+		Presenter->SyncArenaStandIn();
+		TestTrue(TEXT("arena keeper square shows with no Keeper"), Arena->GetKeeperStandIn()->IsVisible());
+	}
 	AKeeperOfTime* Keeper = World->SpawnActor<AKeeperOfTime>();
-	if (TestNotNull(TEXT("keeper presenter"), Presenter) && TestNotNull(TEXT("keeper"), Keeper))
+	if (TestNotNull(TEXT("keeper presenter"), Presenter) && TestNotNull(TEXT("keeper"), Keeper) && Arena && Arena->GetKeeperStandIn())
 	{
 		const UUmbrellaTuning* Tuning = GetDefault<UUmbrellaTuning>();
 		FKeeperFightModel Model;
@@ -877,6 +889,11 @@ bool FArtSlotKeeperStandInHidden::RunTest(const FString& Parameters)
 				TestFalse(*FString::Printf(TEXT("cube %d hidden under the body art"), static_cast<int32>(Part)), Cube->IsVisible());
 			}
 		}
+		TestTrue(TEXT("presenter reports Keeper art"), UKeeperPresenterSubsystem::HasKeeperArt(Keeper));
+		TestTrue(TEXT("sync reports Keeper art"), Presenter->SyncArenaStandIn());
+		TestFalse(TEXT("arena keeper square hidden while Keeper art draws"), Arena->GetKeeperStandIn()->IsVisible());
+		Presenter->Tick(0.0f);
+		TestFalse(TEXT("arena keeper square stays hidden across Tick"), Arena->GetKeeperStandIn()->IsVisible());
 		TestFalse(TEXT("the exposed-eye cue is not covered by the body art"), Keeper->IsPartArtDrawn(EKeeperPart::Eye));
 		TestTrue(TEXT("hit regions stay"), Keeper->GetPartComponent(EKeeperPart::Wings) != nullptr);
 
@@ -901,6 +918,11 @@ bool FArtSlotKeeperStandInHidden::RunTest(const FString& Parameters)
 			TestFalse(TEXT("front cube hidden under its layer"), Keeper->GetStandInVisual(EKeeperPart::Front)->IsVisible());
 			TestTrue(TEXT("rear cube still shows with no art over it"), Keeper->GetStandInVisual(EKeeperPart::Rear)->IsVisible());
 		}
+
+		// The Keeper leaves: no Keeper art draws, so the arena square shows again.
+		Keeper->Destroy();
+		TestFalse(TEXT("sync reports no Keeper art once it is gone"), Presenter->SyncArenaStandIn());
+		TestTrue(TEXT("arena keeper square shows again with no Keeper art"), Arena->GetKeeperStandIn()->IsVisible());
 	}
 	ArtSlotTestEnd(World);
 	return true;

@@ -1,4 +1,6 @@
 #include "Feedback/Anim/KeeperPresenterSubsystem.h"
+#include "Arena/UmbrellaArena.h"
+#include "EngineUtils.h"
 #include "Components/StaticMeshComponent.h"
 #include "Core/UmbrellaEvent.h"
 #include "Core/UmbrellaEventBus.h"
@@ -122,8 +124,51 @@ void UKeeperPresenterSubsystem::HideStateLayer(AActor* Keeper, const FString& Vi
 	}
 }
 
+bool UKeeperPresenterSubsystem::HasKeeperArt(const AActor* Keeper)
+{
+	if (!IsValid(Keeper))
+	{
+		return false;
+	}
+	static const FName StandInName(TEXT("KeeperStandIn"));
+	const UStaticMeshComponent* Body = FindObjectFast<UStaticMeshComponent>(const_cast<AActor*>(Keeper), StandInName);
+	if (Body && ArtSlot::HasArt(Body))
+	{
+		return true;
+	}
+	for (const UmbrellaKeeperPresenterConst::FKeeperPartLayer& Layer : UmbrellaKeeperPresenterConst::PartLayers)
+	{
+		if (FindPart(Keeper, Layer.Visual))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+bool UKeeperPresenterSubsystem::SyncArenaStandIn()
+{
+	bool bArt = false;
+	for (const TWeakObjectPtr<AActor>& Keeper : Keepers)
+	{
+		bArt = bArt || HasKeeperArt(Keeper.Get());
+	}
+	if (UWorld* World = GetWorld())
+	{
+		for (TActorIterator<AUmbrellaArena> It(World); It; ++It)
+		{
+			if (It->IsKeeperArtShown() != bArt)
+			{
+				It->SetKeeperArtShown(bArt);
+			}
+		}
+	}
+	return bArt;
+}
+
 void UKeeperPresenterSubsystem::Tick(float DeltaTime)
 {
+	SyncArenaStandIn();
 	for (int32 Index = Keepers.Num() - 1; Index >= 0; --Index)
 	{
 		AActor* Keeper = Keepers[Index].Get();
@@ -170,6 +215,7 @@ EArtSlotDraw UKeeperPresenterSubsystem::ShowArt(AActor* Keeper, UTexture2D* Text
 	if (Result == EArtSlotDraw::Drawn)
 	{
 		KeeperCoverStandIns(Keeper, Row->Visual);
+		SyncArenaStandIn();
 	}
 	return Result;
 }
@@ -220,6 +266,7 @@ EArtSlotDraw UKeeperPresenterSubsystem::ShowPartArt(AActor* Keeper, const FStrin
 	ArtSlot::SetWorldBoxScale(Part, UmbrellaKeeperPresenterConst::StandInScale);
 	Part->SetWorldLocation(Keeper->GetActorLocation() + FVector(0.0, Layer->DepthOffset, 0.0));
 	KeeperCoverStandIns(Keeper, VisualId);
+	SyncArenaStandIn();
 	// State layers start hidden; Tick shows them while their state holds.
 	Part->SetVisibility(VisualId != UmbrellaKeeperPresenterConst::MaskVisual && VisualId != UmbrellaKeeperPresenterConst::DepartureVisual);
 	return Result;
@@ -268,4 +315,5 @@ void UKeeperPresenterSubsystem::ShowStandIn(AActor* Keeper)
 		ShowPartArt(Keeper, Layer.Visual, nullptr);
 	}
 	++PresentedCount;
+	SyncArenaStandIn();
 }
