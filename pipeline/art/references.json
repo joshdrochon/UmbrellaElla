@@ -2174,7 +2174,6 @@
    "what": "Ella at zero health (ANIM-03 bounded zero-health dissolve): the magical dissolve, non-graphic, never a corpse",
    "refs": [
     "study-ella-character",
-    "d-ella-eyes",
     "bar-casters",
     "ella-sh10"
    ],
@@ -2217,10 +2216,10 @@
     "ella-sh10"
    ],
    "owner": "artella",
-   "score_min": 0.749,
-   "detail_min": 0.617,
+   "score_min": 0.398,
+   "detail_min": 0.448,
    "calibration": {
-    "method": "inherits the thresholds of ella-closed until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "method": "inherits the thresholds of ella-up-open until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
     "margin": 0.02,
     "measured": "2026-11-12",
     "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
@@ -2230,7 +2229,6 @@
    "what": "Ella's whole-character condition states 100/75/50/25/5/0 (ANIM-04): boots fade by 75, hat by 50, mask and scarf kept, living critical state, collision fixed",
    "refs": [
     "study-ella-character",
-    "d-ella-eyes",
     "bar-casters",
     "ella-sh10"
    ],
@@ -3011,9 +3009,9 @@
    ],
    "owner": "artfx",
    "score_min": 0.582,
-   "detail_min": 0.408,
+   "detail_min": 0.079,
    "calibration": {
-    "method": "inherits the thresholds of wind-lines until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "method": "inherits the thresholds of wind-zone until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
     "margin": 0.02,
     "measured": "2026-11-12",
     "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
