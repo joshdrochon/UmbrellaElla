@@ -1,0 +1,112 @@
+{
+ "character": "ella",
+ "anim": "Attack",
+ "builder": "ella",
+ "asset": "Ella",
+ "frame_size": [
+  432,
+  352
+ ],
+ "pivot_px": [
+  229.0,
+  188.0
+ ],
+ "faces": "right",
+ "px_per_unit": 70.0,
+ "fps": 15,
+ "loop": false,
+ "layout": "CHR_Witch_Cast.png",
+ "poses": [
+  {
+   "index": 0,
+   "rot": {
+    "skirt": -8.0,
+    "umbrella_arm": -90.0,
+    "wand_arm": 80.0
+   },
+   "canopy": 0.0,
+   "lift": 0.0,
+   "flash": 0.0
+  },
+  {
+   "index": 1,
+   "rot": {
+    "skirt": -9.6667,
+    "umbrella_arm": -91.6667,
+    "wand_arm": 92.5
+   },
+   "canopy": 0.0,
+   "lift": 0.0,
+   "flash": 0.8333
+  },
+  {
+   "index": 2,
+   "rot": {
+    "skirt": -9.1111,
+    "umbrella_arm": -91.1111,
+    "wand_arm": 89.2222
+   },
+   "canopy": 0.0,
+   "lift": 0.0,
+   "flash": 1.0
+  },
+  {
+   "index": 3,
+   "rot": {
+    "skirt": -8.0,
+    "umbrella_arm": -90.0,
+    "wand_arm": 82.0
+   },
+   "canopy": 0.0,
+   "lift": 0.0
+  }
+ ],
+ "colours": {
+  "paper-light": "#aa8f7f",
+  "paper-mid": "#93786b",
+  "paper-stain": "#7b6157",
+  "etch-line": "#c4a999",
+  "owl-umber": "#3a2c25",
+  "owl-feather": "#5c473e",
+  "silhouette": "#1d1713",
+  "spark-white": "#fff3d6",
+  "gold": "#e9c46a",
+  "amber-eye": "#ffc76a",
+  "rust-red": "#743422",
+  "ink": "#171614",
+  "wind-ash-blue": "#555e60",
+  "red": "#ff3658",
+  "coral": "#ff7848",
+  "red shadow": "#8f173c",
+  "yellow": "#ffd84a",
+  "amber": "#f5aa28",
+  "yellow shadow": "#94611e",
+  "core": "#fff5dc"
+ },
+ "look": {
+  "shades": [
+   "ink",
+   "silhouette",
+   "owl-umber"
+  ],
+  "ink": "ink",
+  "line_px": 1.6,
+  "grain": 0.06,
+  "grain_scale": 180.0,
+  "seed": 11,
+  "light_deg": [
+   62,
+   0,
+   18
+  ],
+  "samples": 16
+ },
+ "out_dir": "Art/Source/Ella/Raw/Ella_Attack_PH",
+ "frames": [
+  "Art/Source/Ella/Raw/Ella_Attack_PH/Ella_Attack_00.png",
+  "Art/Source/Ella/Raw/Ella_Attack_PH/Ella_Attack_01.png",
+  "Art/Source/Ella/Raw/Ella_Attack_PH/Ella_Attack_02.png",
+  "Art/Source/Ella/Raw/Ella_Attack_PH/Ella_Attack_03.png"
+ ],
+ "blend": "Art/Source/Ella/Raw/Ella_Attack_PH/Ella_Attack.blend"
+}
