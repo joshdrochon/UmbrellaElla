@@ -141,12 +141,7 @@ EArtSlotDraw UKeeperPresenterSubsystem::ShowPartArt(AActor* Keeper, const FStrin
 	Part->RegisterComponent();
 	ArtSlot::SetWorldBoxScale(Part, UmbrellaKeeperPresenterConst::StandInScale);
 	Part->SetWorldLocation(Keeper->GetActorLocation() + FVector(0.0, Layer->DepthOffset, 0.0));
-<<<<<<< HEAD
 	KeeperCoverStandIns(Keeper, VisualId);
-	// State layers start hidden; Tick shows them while their state holds.
-	Part->SetVisibility(VisualId != UmbrellaKeeperPresenterConst::MaskVisual && VisualId != UmbrellaKeeperPresenterConst::DepartureVisual);
-=======
->>>>>>> parent of 2c293acc (Merge remote-tracking branch 'origin/area/artslots' into area/artkeeper)
 	return Result;
 }
 
