@@ -30,6 +30,8 @@ KEEPER_SCALE = 0.88          # whole figure, so the raised wing stays inside the
 KEEPER_PALETTE = ("#0f0d0b", "#171614", "#292622", "#463C32", "#695640", "#918173", "#B0A294", "#cdbfa9")
 KEEPER_STOPS = (0.0, 0.07, 0.2, 0.36, 0.52, 0.72, 0.9, 1.0)
 KEEPER_LINE_PX = 1.25
+KEEPER_HATCH_PX = 3.0         # engraving line pitch
+KEEPER_ETCH = 0.7             # how much of the tone is carried by engraved lines
 KEEPER_GAIN = 0.235           # render value scale of the tone shoulder (higher = darker)
 
 
@@ -358,7 +360,7 @@ def build_keeper(m, rnd):
         k.blade("tail", P if i % 2 else D, -1.25 - 0.05 * i, -0.2 - 0.08 * i, 0.35 - 0.02 * i, a, 2.7 - 0.12 * i, 0.66,
                 tilt=-0.16, ridge=0.07, skew=-0.25, slots=1 if i % 3 == 1 else 0)
     # ---- far leg, then body core
-    keeper_leg(k, (-0.35, -0.85), 0.45, P, S, I, D)
+    keeper_leg(k, (-0.5, -0.85), 0.45, P, S, I, D)
     k.sphere("body", D, -0.25, 0.0, 0.0, 1.0, sc=(1.75, 0.72, 1.08), a=12, seg=24)
     k.sphere("head", D, 0.9, 0.95, 0.0, 0.55, sc=(1.1, 0.9, 1.3), a=55, seg=16)      # neck
     # body plating: staggered scale rows over the barrel, front rows on top
@@ -384,7 +386,7 @@ def build_keeper(m, rnd):
     for i in range(9):
         t = i / 8.0
         k.rivet("body", S, -1.5 + 2.3 * t, -1.0 + 0.22 * (2 * t - 1) ** 2 - 0.02, -0.72, 0.035)
-    for ex in (0.72, 0.05, -0.85):   # the three underside body eyes the chains hang from
+    for ex in (0.9, 0.0, -1.0):   # the three underside body eyes the chains hang from
         k.ring("body", I, ex, -1.16, -0.6, 0.11, 0.055, 0.05, seg=14)
 
     # ---- near leg
@@ -392,72 +394,75 @@ def build_keeper(m, rnd):
 
     # ---- hanging mechanisms, each on its own chain
     # front: armillary sphere (solid rim, intersecting hoops, central ball)
-    ax, az = 1.0, -2.25
-    k.chain("mech", I, (0.72, -1.25), (ax, az + 0.5), -0.6, sag=0.03)
-    k.ring("mech", S, ax, az, -0.6, 0.42, 0.33, 0.1, seg=28)
-    k.tube("mech", I, [(ax + 0.34 * math.cos(t), -0.6 + 0.34 * math.sin(t) * 0.9, az + 0.12 * math.sin(t))
+    ax, az = 1.1, -2.2
+    k.chain("mech", I, (0.9, -1.1), (ax, az + 0.5), -1.0, sag=0.03)
+    k.ring("mech", S, ax, az, -1.0, 0.42, 0.33, 0.1, seg=28)
+    k.tube("mech", I, [(ax + 0.34 * math.cos(t), -1.0 + 0.34 * math.sin(t) * 0.9, az + 0.12 * math.sin(t))
                        for t in [2 * math.pi * q / 20 for q in range(20)]], 0.028, seg=6, closed=True)
-    k.tube("mech", I, [(ax + 0.14 * math.sin(t), -0.6 + 0.3 * math.cos(t), az + 0.34 * math.sin(t))
+    k.tube("mech", I, [(ax + 0.14 * math.sin(t), -1.0 + 0.3 * math.cos(t), az + 0.34 * math.sin(t))
                        for t in [2 * math.pi * q / 20 for q in range(20)]], 0.028, seg=6, closed=True)
-    k.bar("mech", I, (ax - 0.4, az), (ax + 0.4, az), -0.58, 0.035, 0.04)
-    k.sphere("mech", P, ax, az, -0.62, 0.15, seg=14)
-    k.sphere("mech", I, ax, az + 0.46, -0.6, 0.06)
-    k.tube("mech", S, [(ax, -0.6, az - 0.42), (ax, -0.6, az - 0.55), (ax, -0.6, az - 0.62)], [0.07, 0.05, 0.01], seg=8)
-    # middle: ribbed cage cylinder, swung out front on its long chain
-    lx, lz = 3.55, -0.75
-    k.chain("mech", I, (0.05, -1.25), (1.9, -1.02), -0.55, sag=0.2)
-    k.chain("mech", I, (1.9, -1.02), (lx, lz + 0.92), -0.55, sag=-0.06)
-    k.ring("mech", I, lx, lz + 0.8, -0.55, 0.1, 0.055, 0.04, seg=14)
-    k.tube("mech", P, [(lx, -0.55, lz + 0.72), (lx, -0.55, lz + 0.62), (lx, -0.55, lz + 0.5), (lx, -0.55, lz + 0.42)],
+    k.bar("mech", I, (ax - 0.4, az), (ax + 0.4, az), -0.98, 0.035, 0.04)
+    k.sphere("mech", P, ax, az, -1.02, 0.15, seg=14)
+    k.sphere("mech", I, ax, az + 0.46, -1.0, 0.06)
+    k.tube("mech", S, [(ax, -1.0, az - 0.42), (ax, -1.0, az - 0.55), (ax, -1.0, az - 0.62)], [0.07, 0.05, 0.01], seg=8)
+    # middle: ribbed cage cylinder, hanging lowest
+    lx, lz = 3.15, -0.95
+    k.chain("mech", I, (0.0, -1.25), (1.7, -1.3), -1.0, sag=0.16)
+    k.chain("mech", I, (1.7, -1.3), (lx, lz + 0.92), -1.0, sag=-0.1)
+    k.ring("mech", I, lx, lz + 0.8, -1.0, 0.1, 0.055, 0.04, seg=14)
+    k.tube("mech", P, [(lx, -1.0, lz + 0.72), (lx, -1.0, lz + 0.62), (lx, -1.0, lz + 0.5), (lx, -1.0, lz + 0.42)],
            [0.06, 0.2, 0.4, 0.44], seg=14)                                                           # cap
-    k.tube("mech", S, [(lx, -0.55, lz + 0.42), (lx, -0.55, lz + 0.36)], [0.46, 0.46], seg=14)
-    k.tube("mech", I, [(lx, -0.3, lz + 0.36), (lx, -0.3, lz - 0.5)], [0.2, 0.2], seg=12)           # dark core
+    k.tube("mech", S, [(lx, -1.0, lz + 0.42), (lx, -1.0, lz + 0.36)], [0.46, 0.46], seg=14)
+    k.tube("mech", I, [(lx, -0.8, lz + 0.36), (lx, -0.8, lz - 0.5)], [0.2, 0.2], seg=12)             # dark core
     for q in range(9):
         a = 2 * math.pi * q / 9 + 0.2
-        k.tube("mech", S, [(lx + 0.4 * math.cos(a), -0.55 + 0.4 * math.sin(a), lz + 0.38),
-                                           (lx + 0.43 * math.cos(a), -0.55 + 0.43 * math.sin(a), lz - 0.05),
-                                           (lx + 0.4 * math.cos(a), -0.55 + 0.4 * math.sin(a), lz - 0.5)], 0.042, seg=6)
+        k.tube("mech", S, [(lx + 0.4 * math.cos(a), -1.0 + 0.4 * math.sin(a), lz + 0.38),
+                           (lx + 0.43 * math.cos(a), -1.0 + 0.43 * math.sin(a), lz - 0.05),
+                           (lx + 0.4 * math.cos(a), -1.0 + 0.4 * math.sin(a), lz - 0.5)], 0.042, seg=6)
     for zz in (0.12, -0.2):
-        k.tube("mech", P, [(lx + 0.44 * math.cos(t), -0.55 + 0.44 * math.sin(t), lz + zz)
+        k.tube("mech", P, [(lx + 0.44 * math.cos(t), -1.0 + 0.44 * math.sin(t), lz + zz)
                            for t in [2 * math.pi * q / 16 for q in range(16)]], 0.035, seg=6, closed=True)
-    k.tube("mech", S, [(lx, -0.55, lz - 0.48), (lx, -0.55, lz - 0.56), (lx, -0.55, lz - 0.62), (lx, -0.55, lz - 0.74)],
+    k.tube("mech", S, [(lx, -1.0, lz - 0.48), (lx, -1.0, lz - 0.56), (lx, -1.0, lz - 0.62), (lx, -1.0, lz - 0.74)],
            [0.46, 0.48, 0.3, 0.05], seg=14)                                                          # base + finial
     # rear: gear ring
-    gx, gz = -1.05, -2.2
-    k.chain("mech", I, (-0.85, -1.25), (gx, gz + 0.45), -0.6, sag=0.02)
-    k.gear("mech", P, gx, gz, -0.6, 0.36, 10, 0.1, 0.15, r_in=0.2)
-    k.ring("mech", I, gx, gz, -0.66, 0.2, 0.13, 0.05, seg=16)
+    gx, gz = -1.2, -2.2
+    k.chain("mech", I, (-1.0, -1.2), (gx, gz + 0.45), -1.0, sag=0.02)
+    k.gear("mech", P, gx, gz, -1.0, 0.36, 10, 0.1, 0.15, r_in=0.2)
+    k.ring("mech", I, gx, gz, -1.06, 0.2, 0.13, 0.05, seg=16)
     for q in range(4):
-        k.bar("mech", S, (gx, gz), (gx + 0.22 * math.cos(q * HALF + 0.4), gz + 0.22 * math.sin(q * HALF + 0.4)), -0.6, 0.05, 0.05)
-    k.sphere("mech", I, gx, gz, -0.64, 0.06)
+        k.bar("mech", S, (gx, gz), (gx + 0.22 * math.cos(q * HALF + 0.4), gz + 0.22 * math.sin(q * HALF + 0.4)), -1.0, 0.05, 0.05)
+    k.sphere("mech", I, gx, gz, -1.04, 0.06)
 
     # ---- near wing
     keeper_wing(k, "wing_near", -0.75, (-0.25, 0.75), (P, S, I), D, rnd, swing=18.0)
 
     # ---- head: small, angular, crownless; swept-back plates, heavy brow, hooked beak, muted eye
-    hx, hz = 1.45, 1.62
-    k.sphere("head", D, hx, hz, 0.0, 0.62, sc=(1.08, 0.85, 0.95), seg=18)
-    for row_i, rr in enumerate((0.56, 0.4, 0.24)):                 # plates radiating back from the face
-        n = 9 - 2 * row_i
+    hx, hz = 1.42, 1.62
+    k.sphere("head", D, hx, hz, 0.0, 0.7, sc=(1.0, 0.85, 0.98), seg=18)
+    for row_i, rr in enumerate((0.66, 0.5, 0.36)):                 # plates sweeping back over the skull
+        n = 10 - 2 * row_i
         for i in range(n):
-            ph = 95 + 190 * i / (n - 1.0)                          # around the back of the head
-            px, pz = hx + rr * math.cos(rad(ph)) * 0.9 - 0.05, hz + rr * math.sin(rad(ph)) * 0.85
-            k.blade("head", (P, S, P)[(i + row_i) % 3], px, pz, -0.5 - 0.06 * row_i - 0.004 * i, 150 + 0.42 * (ph - 95) + rnd.uniform(-4, 4),
-                    0.5 - 0.05 * row_i, 0.3, tilt=-0.1, pitch=0.06, ridge=0.05, base=0.85, thick=0.025)
-    for i in range(5):                                             # neck ruff down to the clock
-        k.blade("head", S if i % 2 else P, hx - 0.5 + 0.2 * i, hz - 0.52 - 0.04 * i, -0.62, 236 + 9 * i, 0.62, 0.34, tilt=-0.1,
-                ridge=0.05, base=0.8)
-    k.disc("head", I, hx + 0.2, hz + 0.05, -0.74, 0.22, 0.05, seg=20)                 # eye socket
-    k.ring("head", S, hx + 0.2, hz + 0.05, -0.78, 0.2, 0.13, 0.04, seg=20)           # muted eye ring
-    k.sphere("head", F, hx + 0.2, hz + 0.05, -0.78, 0.115, sc=(1, 0.5, 1), seg=12)
-    k.sphere("head", I, hx + 0.215, hz + 0.045, -0.83, 0.06, sc=(1, 0.5, 1), seg=10)
-    k.blade("head", D, hx + 0.56, hz + 0.1, -0.86, 158, 1.05, 0.3, tilt=-0.25, ridge=0.07, skew=0.25, base=0.6)   # brow
-    k.blade("head", P, hx + 0.5, hz + 0.24, -0.82, 150, 0.95, 0.26, tilt=-0.2, ridge=0.06, skew=0.2, base=0.6)
-    k.tube("head", S, [(hx + 0.4, -0.3, hz - 0.02), (hx + 0.6, -0.3, hz - 0.03), (hx + 0.76, -0.3, hz - 0.14),
-                       (hx + 0.83, -0.3, hz - 0.32), (hx + 0.8, -0.3, hz - 0.5)], [0.2, 0.19, 0.15, 0.09, 0.008], seg=10, flat=0.7)
-    k.tube("head", I, [(hx + 0.4, -0.25, hz - 0.2), (hx + 0.58, -0.25, hz - 0.26), (hx + 0.7, -0.25, hz - 0.36)],
-           [0.11, 0.08, 0.01], seg=8, flat=0.7)
-    k.sphere("head", I, hx + 0.56, hz + 0.0, -0.46, 0.03)                              # nostril
+            ph = 70 + 215 * i / (n - 1.0)
+            px, pz = hx + rr * math.cos(rad(ph)) * 0.92 - 0.12, hz + rr * math.sin(rad(ph)) * 0.9
+            k.blade("head", (P, S, P)[(i + row_i) % 3], px, pz, -0.5 - 0.06 * row_i - 0.004 * i, 140 + 0.42 * (ph - 70) + rnd.uniform(-4, 4),
+                    0.5 - 0.04 * row_i, 0.32, tilt=-0.14, pitch=0.06, ridge=0.05, skew=-0.15, base=0.85, thick=0.025)
+    for i in range(6):                                             # neck ruff down to the clock
+        k.blade("head", S if i % 2 else P, hx - 0.62 + 0.2 * i, hz - 0.58 - 0.03 * i, -0.62, 232 + 9 * i, 0.66, 0.36, tilt=-0.14,
+                ridge=0.05, skew=-0.15, base=0.8)
+    ex, ez = hx + 0.26, hz + 0.02
+    k.disc("head", P, ex, ez, -0.72, 0.4, 0.05, seg=10)                                # riveted face plate
+    k.disc("head", I, ex, ez, -0.78, 0.27, 0.05, seg=24)                               # eye socket
+    k.ring("head", S, ex, ez, -0.83, 0.25, 0.17, 0.04, seg=24)                         # rim
+    k.sphere("head", F, ex, ez, -0.83, 0.165, sc=(1, 0.5, 1), seg=14)                  # muted glass eye, not lit
+    k.sphere("head", I, ex + 0.02, ez - 0.01, -0.9, 0.09, sc=(1, 0.5, 1), seg=10)
+    for q in range(8):
+        k.rivet("head", I, ex + 0.33 * math.cos(q * 0.785 + 0.3), ez + 0.33 * math.sin(q * 0.785 + 0.3), -0.77, 0.022)
+    k.blade("head", D, ex + 0.46, ez + 0.26, -0.92, 170, 0.95, 0.2, tilt=-0.3, ridge=0.07, skew=0.3, base=0.5)   # angular brow
+    k.tube("head", S, [(hx + 0.5, -0.3, hz - 0.08), (hx + 0.66, -0.3, hz - 0.12), (hx + 0.76, -0.3, hz - 0.24),
+                       (hx + 0.77, -0.3, hz - 0.4), (hx + 0.7, -0.3, hz - 0.52)], [0.17, 0.16, 0.12, 0.07, 0.008], seg=10, flat=0.7)
+    k.tube("head", I, [(hx + 0.46, -0.25, hz - 0.26), (hx + 0.58, -0.25, hz - 0.33), (hx + 0.64, -0.25, hz - 0.42)],
+           [0.09, 0.07, 0.01], seg=8, flat=0.7)
+    k.sphere("head", I, hx + 0.6, hz - 0.1, -0.44, 0.025)                              # nostril
 
     # ---- chest clock: toothed back gear, riveted bezel, aged face, Roman markers, one long hand on one pivot
     cx, cz, cy = 0.78, 0.2, -1.4
@@ -490,8 +495,8 @@ def build_keeper(m, rnd):
 def keeper_leg(k, hip, y, P, S, I, D):
     """A short mechanical leg: plated thigh, hinge, banded shank, four hooked talons."""
     hx, hz = hip
-    kn = (hx + 0.36, hz - 0.8)
-    an = (hx + 0.0, hz - 1.6)
+    kn = (hx + 0.36, hz - 0.68)
+    an = (hx + 0.04, hz - 1.36)
     for i in range(4):                                             # thigh plates
         k.blade("body", P if i % 2 else S, hx - 0.2 + 0.14 * i, hz + 0.28, y - 0.03 - 0.004 * i, 268 + 7 * i, 0.95, 0.36, tilt=-0.1,
                 ridge=0.05, base=0.8)
@@ -505,7 +510,7 @@ def keeper_leg(k, hip, y, P, S, I, D):
         k.disc("body", S, jx, jz, y - 0.14, jr, 0.08, seg=18)
         k.ring("body", I, jx, jz, y - 0.19, jr * 0.7, jr * 0.45, 0.03, seg=18)
         k.sphere("body", I, jx, jz, y - 0.2, jr * 0.3, sc=(1, 0.6, 1), seg=8)
-    for i, (da, ln) in enumerate(((-30, 0.8), (-62, 0.86), (-95, 0.78), (-155, 0.6))):   # talons: three forward, one back
+    for i, (da, ln) in enumerate(((-28, 0.74), (-60, 0.8), (-95, 0.7), (-158, 0.55))):   # talons: three forward, one back
         pts, rr = [], []
         for q in range(6):
             t = q / 5.0
@@ -730,14 +735,20 @@ def keeper_paint(path, seed=7):
         return top * (1 - fy) + bot * fy
 
     v = 1.0 - np.exp(-np.clip(lum - 0.004, 0, 4) / float(KEEPER_GAIN))   # shoulder: lit plates keep their tone
-    wob = (noise(9) - 0.5) * 5.0
-    h1 = (np.abs(((xx + yy + wob) % 3.6) - 1.8) > 1.25).astype(np.float32)      # etched hatch, one direction
-    h2 = (np.abs(((xx - yy * 0.6 + wob) % 4.4) - 2.2) > 1.7).astype(np.float32)   # cross hatch for deep shadow
-    half = np.clip((0.6 - v) / 0.35, 0, 1)
-    deep = np.clip((0.34 - v) / 0.25, 0, 1)
-    v = v * (1.0 - 0.2 * h1 * half) * (1.0 - 0.24 * h2 * deep)
-    v = v * (0.97 + 0.06 * noise(2))            # tooth and mottle
-    v = v + (rng.random((h, w)).astype(np.float32) - 0.5) * 0.035
+    # engraving: ink lines whose width follows the darkness (one family in the half-tones, a crossing one in shadow)
+    wob = (noise(11) - 0.5) * 3.0
+    dark = np.clip((0.74 - v) / 0.62, 0, 1)
+    c1 = ((xx * 0.5 + yy * 0.866 + wob) % KEEPER_HATCH_PX) / KEEPER_HATCH_PX
+    c2 = ((xx * 0.866 - yy * 0.5 - wob) % (KEEPER_HATCH_PX * 1.2)) / (KEEPER_HATCH_PX * 1.2)
+    ink1 = np.clip((dark * 0.8 - c1) * KEEPER_HATCH_PX, 0, 1)            # soft 1 px edge, not a stair step
+    ink2 = np.clip(((dark - 0.5) * 1.3 - c2) * KEEPER_HATCH_PX, 0, 1)
+    ink = np.maximum(ink1, ink2)
+    lifted = 0.3 + 0.7 * v                                               # the plate tone between the lines
+    v = KEEPER_ETCH * (lifted * (1.0 - 0.62 * ink)) + (1.0 - KEEPER_ETCH) * v
+    # paper tooth: fibres and specks in the ink, so no tone is a flat fill
+    fibre = 0.5 * noise(2) + 0.5 * rng.random((h, w)).astype(np.float32)
+    v = v * (0.9 + 0.2 * fibre)
+    v = np.where(rng.random((h, w)) > 0.992, v * 1.25 + 0.05, v)         # worn specks
     v = np.clip(v, 0, 1)
     stops = np.array(KEEPER_STOPS, dtype=np.float32)
     cols = np.array([[int(c[i:i + 2], 16) / 255.0 for i in (1, 3, 5)] for c in KEEPER_PALETTE], dtype=np.float32)
