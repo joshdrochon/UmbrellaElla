@@ -27,7 +27,7 @@ UFinalHourIntroWidget* UFinalHourIntroWidget::Show(APlayerController* Owner, flo
 
 FText UFinalHourIntroWidget::IntroText()
 {
-	return LOCTEXT("Text", "Your borrowed time has run its course. Now, face the Final Hour.");
+	return LOCTEXT("Text", "Her time has run its course. The owl is coming.");
 }
 
 TSharedRef<SWidget> UFinalHourIntroWidget::RebuildWidget()

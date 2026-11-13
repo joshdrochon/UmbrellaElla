@@ -290,7 +290,7 @@ FText UProgressionPurchaseWidget::ReviewLineText(const FProgressionReviewLine& L
 	FNumberFormattingOptions Format;
 	Format.MaximumFractionalDigits = 2;
 	const FText Points = FMath::Abs(Line.Cost) == 1 ? LOCTEXT("Point", "point") : LOCTEXT("Points", "points");
-	const FText Verb = Line.Cost >= 0 ? LOCTEXT("Costs", "costs") : LOCTEXT("Reallocates", "reallocates");
+	const FText Verb = Line.Cost >= 0 ? LOCTEXT("Costs", "costs") : LOCTEXT("Reallocates", "reallocation");
 	return FText::Format(LOCTEXT("ReviewLine", "{0} {1} to {2}: {3} to {4}, {5} {6} {7}"), TrackLabel(Line.Track), Line.FromRank, Line.ToRank,
 		FText::AsNumber(Line.ValueBefore, &Format), FText::AsNumber(Line.ValueAfter, &Format), Verb, FMath::Abs(Line.Cost), Points);
 }

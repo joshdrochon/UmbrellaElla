@@ -72,3 +72,4 @@ OWL-13,Keeper yellow ordinary contact deals 1 health,test:UmbrellaElla.Move.Worl
 OWL-13,Shoot alone never auto-catches,test:UmbrellaElla.Move.World.KeeperYellowContactCostsOneAndShootNeverCatches
 FLOW-09,3-life reset keeps purchased max lives (Health.World.RetryRestoresFullLivesAndHealth asserts 4 lives; not 3),test:UmbrellaElla.Move.World.RetryGivesThreeLivesKeepsPurchasedMaximum
 OWL-16,Dash protection blocks damage not push,test:UmbrellaElla.Move.World.DashGivesNoProtectionByDefault
+MOVE-09,mouse click selects in menus,test:UmbrellaElla.Flow.MenuMouse.ClickChoosesEachItem
