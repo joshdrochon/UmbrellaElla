@@ -70,6 +70,14 @@ def gen_layer(sid, name, spec, n, d):
         raise SystemExit(r.stderr[-300:])
     return out
 
+def peak_db(path):
+    import math, struct, wave
+    with wave.open(str(path)) as w:
+        raw = w.readframes(w.getnframes())
+    pk = max((abs(v) for v in struct.unpack("<%dh" % (len(raw) // 2), raw)), default=1) or 1
+    return 20 * math.log10(pk / 32768)
+
+
 def mix(rec, files, out):
     ins, chains, labels = [], [], []
     for i, (name, spec) in enumerate(rec["layers"].items()):
@@ -78,11 +86,12 @@ def mix(rec, files, out):
         delay = int(spec.get("delay_ms", 0))
         dur = spec.get("trim")
         chain = f"[{i}:a]aformat=sample_rates=48000:channel_layouts=mono,"
+        chain += f"volume={-3 - peak_db(files[name]):.1f}dB,"   # some generated layers come back near-silent: peak to -3 dBFS first
         if dur: chain += f"atrim=0:{dur},"
         chain += (f"silenceremove=start_periods=1:start_threshold={spec.get("start_db", -42)}dB,volume='exp(-t*{spec['decay']})':eval=frame,{f},volume={spec.get('gain_db', 0)}dB" if "decay" in spec else
                   f"silenceremove=start_periods=1:start_threshold={spec.get("start_db", -42)}dB,{f},volume={spec.get('gain_db', 0)}dB")
         if "norm_lufs" in spec:   # opt-in: equalise this layer's loudness so candidates mix to the same balance
-            chain += f",loudnorm=I={spec['norm_lufs']}:TP=-2:LRA=11,volume={spec.get('gain_db', 0)}dB"
+            chain += f",loudnorm=I={spec['norm_lufs']}:TP=-2:LRA=11,aresample=48000,volume={spec.get('gain_db', 0)}dB"
         if delay: chain += f",adelay={delay}|{delay}"
         chains.append(chain + f"[l{i}]"); labels.append(f"[l{i}]")
     total = rec["seconds"]
@@ -92,15 +101,39 @@ def mix(rec, files, out):
     if rv:   # convolution reverb after the post chain: dry + wet (IR scaled by 4 in the file, so -12 dB here = unity)
         ins += ["-i", str(reverb_ir(rv, Path(out).parent.parent / "ir.wav"))]
         post += (f",asplit[dry][w];[w][{len(labels)}:a]afir=dry=1:wet=1:gtype=none:irnorm=-1,"
-                 f"volume={rv.get('wet_db', -10) - 12}dB[wet];[dry][wet]amix=inputs=2:normalize=0:duration=longest")
+                 f"highpass=f={rv.get('hp_hz', 20)},volume={rv.get('wet_db', -10) - 12}dB[wet];[dry][wet]amix=inputs=2:normalize=0:duration=longest")
+    fin = f"afade=t=in:d={rec['fade_in']}," if rec.get("fade_in") else ""   # a sub-millisecond afade renders silence
+    level = f"loudnorm=I={rec['lufs']}:TP=-2:LRA=7"
+    if rec.get("static_level"):
+        # One fixed gain to the target loudness (measured on a first render) instead of loudnorm's moving gain, which
+        # lifts a decaying tail back up: on a spectrogram the low band then holds flat and stops at the fade.
+        import re
+        pre = ";".join(chains) + ";" + "".join(labels) + f"amix=inputs={len(labels)}:normalize=0:duration=longest," \
+            f"{fin}apad=whole_dur={total},atrim=0:{total},{post}," \
+            f"afade=t=out:st={max(0, total - fade)}:d={fade},ebur128=peak=none[o]"
+        r = run(["ffmpeg", "-hide_banner", "-nostats", *ins, "-filter_complex", pre, "-map", "[o]", "-f", "null", "-"])
+        m = re.findall(r"I:\s+(-?[0-9.]+) LUFS", r.stderr)
+        if not m or float(m[-1]) < -65:
+            raise SystemExit("static_level: no loudness measured: " + r.stderr[-300:])
+        level = f"volume={rec['lufs'] - float(m[-1]):.2f}dB"
     g = ";".join(chains) + ";" + "".join(labels) + f"amix=inputs={len(labels)}:normalize=0:duration=longest," \
-        f"apad=whole_dur={total},atrim=0:{total},{post},afade=t=out:st={max(0, total - fade)}:d={fade}," \
-        f"loudnorm=I={rec['lufs']}:TP=-2:LRA=7,atrim=0:{total},aresample=48000,afade=t=out:st={max(0, total - fade)}:d={fade}:curve=qsin," \
+        f"{fin}apad=whole_dur={total},atrim=0:{total},{post},afade=t=out:st={max(0, total - fade)}:d={fade}," \
+        f"{level},atrim=0:{total},aresample=48000,afade=t=out:st={max(0, total - fade)}:d={fade}:curve=qsin," \
         f"volume={rec.get('post_gain_db', 0) + rec.get('take_gain_db', {}).get(rec.get('_take', 0), 0)}dB,alimiter=limit=0.85:level=disabled[o]"
     r = run(["ffmpeg", "-y", "-loglevel", "error", *ins, "-filter_complex", g, "-map", "[o]", "-ac", str(rec.get("channels", 1)),
              "-c:a", "pcm_s16le", str(out)])
     if r.returncode:
         raise SystemExit(r.stderr[-800:])
+
+def wanted(rec, style_out):
+    """Recipe 'want': {metric: [lo, hi]} narrows the style ranges to what the critic asked for (never widens them)."""
+    import re
+    for k, (lo, hi) in rec.get("want", {}).items():
+        m = re.search(rf"\b{k}=([-0-9.e]+)", style_out)
+        if not m or not lo <= float(m.group(1)) <= hi:
+            return False
+    return True
+
 
 def main():
     ap = argparse.ArgumentParser()
@@ -115,16 +148,18 @@ def main():
     outdir = ROOT / "Audio/Source" / a.sid
     outdir.mkdir(parents=True, exist_ok=True)
     for t in (a.take if a.take is not None else range(rec.get("takes", 3))):
-        for c in range(t, t + 3 * a.tries, 3):   # candidate c of every layer; next candidate if the measured check fails
+        cands = rec.get("candidates", {}).get(t) or list(range(t, t + 3 * a.tries, 3))
+        for c in cands:   # candidate c of every layer; next candidate if the measured check fails
             files = {n: gen_layer(a.sid, n, s, c, d) for n, s in rec["layers"].items()}
             chk = d / "chk"; chk.mkdir(exist_ok=True)
             for old in chk.glob("*.wav"): old.unlink()
             rec['_take'] = t
             mix(rec, files, chk / f"SW_{a.sid}_{t:02d}.wav")
             r = run(["python3", "tools/audio_style_check.py", "check", str(chk)])
-            if r.returncode == 0 or c == t + 3 * (a.tries - 1):
+            ok = r.returncode == 0 and wanted(rec, r.stdout)
+            if ok or c == cands[-1]:
                 dest = outdir / f"SW_{a.sid}_{t:02d}.wav"
                 dest.write_bytes((chk / dest.name).read_bytes())
-                print("made", dest.name, "candidate", c, "style", "PASS" if r.returncode == 0 else "FAIL")
+                print("made", dest.name, "candidate", c, "style", "PASS" if r.returncode == 0 else "FAIL", "want", "ok" if ok else "MISSED")
                 break
 main()

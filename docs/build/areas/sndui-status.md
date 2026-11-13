@@ -37,3 +37,13 @@ Rebuild and critic commands: `docs/build/requests/sndui.md`.
 
 ## Requests (docs/build/requests/sndui.md)
 recipes.py to load `Audio/Source/*/recipe.json`; regen.py trims before the lead-silence cut; home for the import script.
+
+## Unreal assets (Nov 12 2026)
+`docs/build/requests/sndui_audio_import.py` (editor exit 0) made, per sound, `Content/UmbrellaElla/Audio/<Id>/SW_<Id>_00`
+and the cue `SC_<Id>` (one wave player; class SCL_UI, concurrency SCON_UI, 2D). 58 assets.
+Evidence: commit=ddde118 engine=5.8.4 config=Development host=mac; build `build exit: 0 warnings: 0`;
+`tools/ue/audio_dump.py` then `audio_check.py --ue-dump Saved/AudioDump.json`: no error on any sndui asset (the 8 errors
+left are the old arena cue names Shot, Hit, ...). The cue is needed because the dump reports concurrency and 2D only for
+cues, and the check wants them on whatever plays the sound.
+Not done: nothing in game code plays these cues yet (not this lane). Not run: automation tests (no C++ changed), package, smoke.
+Known warning: `SoundNodeWavePlayer.sound_wave` is deprecated in 5.8 (renamed `sound_wave_asset_ptr`); the import still works.

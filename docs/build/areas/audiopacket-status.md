@@ -9,5 +9,5 @@ Done (check defect from sndtele: the blind critic packet now names the event and
 - Tests (tests/test_audio_loop.py, 16 OK): test_packet_names_its_event_and_kind,
   test_event_text_is_blind_for_every_sound_list_row, test_known_bad_takes_still_fail, plus the sndworld loop test.
 
-Open: pipeline_check flags docs/build/areas/audiopacket.md line 2 (docs/build/requests/sndtele.md exists only on
+Open: pipeline_check flags docs/build/areas/audiopacket.md line 2 (the sndtele requests file (area/sndtele) exists only on
 area/sndtele). That file is the build lead's brief, not this lane.

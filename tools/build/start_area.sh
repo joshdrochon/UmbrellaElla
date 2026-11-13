@@ -24,6 +24,8 @@ MODEL="${WORKER_MODEL:-$DEFAULT_MODEL}"
 # Image spend (Josh Spend OK): one counter shared by every worker on this Mac, one hard total cap set by the lead.
 export IMAGE_SPEND_FILE="$BASE/logs/image-spend.json"
 [ -f "$BASE/logs/image-cap-usd.txt" ] && export IMAGE_SPEND_CAP_USD="$(cat "$BASE/logs/image-cap-usd.txt")"
+export AUDIO_SPEND_FILE="$BASE/logs/audio-spend.json"
+[ -f "$BASE/logs/audio-cap.txt" ] && export AUDIO_SPEND_CAP="$(cat "$BASE/logs/audio-cap.txt")"
 cd "$WT"
 env -u CLAUDECODE -u CLAUDE_CODE_ENTRYPOINT nohup claude -p "$PROMPT" --permission-mode bypassPermissions \
   --disallowedTools "Bash(git push:*)" --model "$MODEL" >> "$BASE/logs/$A.log" 2>&1 &

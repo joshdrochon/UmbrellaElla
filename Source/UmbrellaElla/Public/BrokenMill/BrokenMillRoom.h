@@ -9,11 +9,13 @@
 
 struct FBrokenMillTuning;
 
+class ABrokenMillIsland;
 class AUmbrellaProjectile;
 class AUmbrellaTrap;
 class AWindCurrent;
 class UBoxComponent;
 class USceneComponent;
+class UStaticMeshComponent;
 
 /**
  * The Broken Mill Crossing one-room test: a stationary Roadwarden guard on an island, an air-mill rotor, one
@@ -45,6 +47,13 @@ public:
 	/** Retry: full guard HP, idle guard, empty log. */
 	void ResetForRestart();
 
+	/**
+	 * Pick the 10 HP introduction or the 20 HP comparison (ONE changed variable). Takes effect now and on
+	 * every retry. BuildRoom picks Comparison when the command line has -MillGuardComparison.
+	 */
+	void SetGuardProfile(EMillGuardProfile NewProfile);
+	EMillGuardProfile GetGuardProfile() const { return Profile; }
+
 	virtual EUmbrellaShotResult ReceiveShot(const FUmbrellaShotSpec& Shot, const FVector& HitLocation) override;
 
 	virtual void Tick(float DeltaSeconds) override;
@@ -60,6 +69,10 @@ public:
 	const FMillShotLog& GetShotLog() const { return ShotLog; }
 	const FBrokenMillTuning& GetMillTuning() const { return Tuning(); }
 	AUmbrellaTrap* GetRotor() const { return Rotor; }
+	ABrokenMillIsland* GetIsland() const { return Island; }
+	UStaticMeshComponent* GetTellVisual() const { return TellVisual; }
+	UStaticMeshComponent* GetGuardVisual() const { return GuardVisual; }
+	EMillTellPose GetTellPose() const;
 	int32 GetShotsFired() const { return ShotsFired; }
 	AWindCurrent* GetUpperWind() const { return UpperWind; }
 	AWindCurrent* GetLowerWind() const { return LowerWind; }
@@ -70,11 +83,23 @@ public:
 private:
 	void ReleaseShot();
 
+	/** Show, hide or lower the warning tell and hide the guard body once it is down. */
+	void UpdateVisuals();
+
+	/** Enable only the wind band Ella's root is eligible for (no target known: both stay on). */
+	void ApplyWindEligibility(EMillWind Eligible);
+
 	UPROPERTY(VisibleAnywhere, Category = "BrokenMill")
 	TObjectPtr<USceneComponent> Root;
 
+	UPROPERTY()
+	TObjectPtr<ABrokenMillIsland> Island;
+
 	UPROPERTY(VisibleAnywhere, Category = "BrokenMill")
-	TObjectPtr<UBoxComponent> Island;
+	TObjectPtr<UStaticMeshComponent> GuardVisual;
+
+	UPROPERTY(VisibleAnywhere, Category = "BrokenMill")
+	TObjectPtr<UStaticMeshComponent> TellVisual;
 
 	UPROPERTY(VisibleAnywhere, Category = "BrokenMill")
 	TObjectPtr<UBoxComponent> TargetBox;
@@ -101,5 +126,7 @@ private:
 	float Clock = 0.0f;
 	int32 ShotsFired = 0;
 	bool bSimulationPaused = false;
+	bool bLastReleaseAborted = false;
+	EMillGuardProfile Profile = EMillGuardProfile::Introduction;
 	TMap<EMillGuardEvent, int32> EventCounts;
 };
