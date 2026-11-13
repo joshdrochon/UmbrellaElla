@@ -53,3 +53,14 @@ Triage of the 77 fails (verdict: mostly CHECK/SOURCE defect, not bad text; no re
 Not run: rewrite rounds. Not run: UE build/tests (no source changed this session).
 
 PASSED=41/118
+
+## Critic batch run (2026-11-13)
+Ran `story_critic_batch.py run` on the 77 lines without a valid pass (3 fresh Sonnet sessions per batch, 4 batches). 41 already passed, 3 more passed: PASSED=44/118. 74 fail.
+Triage (not a loosening; the failures sit in the check and the source, not in line wording):
+- check defect, surface: 3-word UI/stat/setting labels ("Deaths", "Music", "Movement speed", "Paused", "Reduced flash") are classed `button` by `story_inventory.surface_of`. S6 then demands a verb ("a button names an action"). ~40 fails. `story.json` has no `label` surface. Fix is a new `label` surface in story.json (gate file, not my lane) plus a critic prompt S6 note; see docs/build/requests/storyinventory.md.
+- bible vs GDD SH1.0: S8/S1 fail Absorb, Dash, Hop, Ride, spells, Needle Spell, Twin Stars, Suction, Lives, Keeper, "points/refuge" because the bible's F2-F6 canon has one umbrella, one kind of shot, no progression. The GDD ships these mechanics. Needs a Story-role bible update or a decision row; rewriting the labels cannot remove the words without removing the mechanic names players see.
+- real wording, fixable (not done): gamer words (Experience, Shots fired, damage, lives, hitbox, missile, unlocked, "tester build", "next slice", "points"). Each is a Source edit plus test change across Flow/Settings/Purchase lanes.
+- credits (Josh Rochon, Richard, Rick Rispoli): real names fail S2/S7 by design; need Names-table rows.
+Record: pipeline/story/critic-results.csv. Not run: Unreal build/tests (no C++ changed).
+
+TOTAL=118 BEFORE=7 NEW=111 PASSED=44/118
