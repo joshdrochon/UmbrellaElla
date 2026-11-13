@@ -16,6 +16,8 @@ G="${GATE_DIR:-$BASE/gate}"; GB="${GATE_BRANCH:-gate}"; L="$BASE/logs"; mkdir -p
 # A head the gate failed or held is never gated again; the lane needs new commits (Josh, Nov 12). Lane verdicts are
 # recorded on exit (1 FAIL, 3 HOLD); exits that are not the lane's fault set NORECORD=1 first.
 TIP="$(git -C "$ROOT" rev-parse "$C" 2>/dev/null)"; NORECORD=0
+# Owner approvals are written only by the build lead on main; a lane that touches them never merges.
+if git -C "$ROOT" diff --name-only "origin/main...$C" 2>/dev/null | grep -qx pipeline/art/approvals.json; then NORECORD=1; echo "GATE FAIL: area/$A changes pipeline/art/approvals.json (owner approvals are recorded by the lead on main only)"; exit 1; fi
 # A batch must hold lane merges; an empty batch (branch reset to main) never passes (Nov 12: one "passed" and dropped 7 lanes).
 if [ "$A" = batch ] && ! git -C "$ROOT" log --format=%s "origin/main..$C" | grep -q " into batch$"; then echo "GATE FAIL: area/batch holds no lane merges"; exit 1; fi
 python3 "$ROOT/tools/build/gate_seen.py" check "$L" "$A" "$TIP" || exit 4
@@ -36,6 +38,8 @@ else python3 tools/build/quality_gate.py baseline "$QB.tmp" 2>/dev/null && mv "$
 T1=$(date +%s)
 if ! git -c core.hooksPath=/dev/null merge -q --no-ff -m "Merge area/$A ($(git rev-parse --short "$C")) into main" "$C" 2>/dev/null; then
   if git diff --name-only --diff-filter=U | grep -qx docs/build/rule-status.csv; then python3 tools/build/rule_status_merge.py || true; fi
+  # The inventory CSV is generated: a conflict there is resolved by regenerating it from the merged tree.
+  if git diff --name-only --diff-filter=U | grep -qx docs/build/art-inventory.csv; then git checkout --ours docs/build/art-inventory.csv && python3 tools/build/art_inventory.py write >/dev/null 2>&1; git add docs/build/art-inventory.csv; fi
   bad=$(git diff --name-only --diff-filter=U | grep -v -E '^docs/build/(areas/[a-z]+\.md|worker-rules\.md|areas\.py)$')
   if [ -n "$bad" ]; then echo "GATE FAIL: merge conflict in: $bad"; git merge --abort; exit 1; fi
   git diff --name-only --diff-filter=U | xargs git checkout --ours -- && git add -A docs/build && git -c core.hooksPath=/dev/null commit -q --no-edit
@@ -48,6 +52,7 @@ if python3 tools/build/provenance_dedupe.py | grep -q "rows -> 1"; then
   step "provenance rows deduplicated"
 fi
 eval "$(python3 tools/build/gate_plan.py "$MAIN" HEAD)"
+export CRITIC_CONTEXT=full   # Josh, Nov 13: critics run with full context
 export UE_SLOT_GATE=1   # the gate always gets its reserved engine slot
 SLOT="$ROOT/tools/build/ue_slot.sh"; EV="$L/gate-$A-evidence.txt"; : > "$EV"
 chk() { local name="$1"; shift; T1=$(date +%s); out=$("$@" 2>&1); rc=$?; echo "$out" | tail -3 >> "$EV"

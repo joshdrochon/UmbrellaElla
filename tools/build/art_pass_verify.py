@@ -26,6 +26,7 @@ import sys
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 sys.path.insert(0, os.path.join(ROOT, "tools"))
 import art_loop  # noqa: E402
+import art_share  # noqa: E402
 
 CRITIC = art_loop.CRITIC_DIR
 
@@ -55,6 +56,32 @@ def load_piece_records(root):
         if isinstance(data, dict) and data.get("id"):
             out[data["id"]] = [r for r in data.get("records", []) if isinstance(r, dict)]
     return out
+
+
+NEAR_COPY_SSIM = 0.80   # our two text-only paints of one prompt score 0.98 together; our UI capture vs the pre-jam title 0.37
+
+
+def _piece_reference_paths(root, piece):
+    try:
+        refs, _ = art_loop.refs_and_hash(root)
+        import art_judge
+        byid = art_judge.refs_by_id(refs)
+        el = (refs.get("elements") or {}).get(piece) or {}
+        return [byid[r]["path"] for r in el.get("refs", []) if r in byid and byid[r].get("path")]
+    except Exception:
+        return []
+
+
+def _ssim(a, b):
+    """Grey SSIM at 640x360 through ffmpeg (no Python image library needed); None when it cannot be measured."""
+    import subprocess, re as _re
+    if not os.path.isfile(b):
+        return None
+    p = subprocess.run(["ffmpeg", "-hide_banner", "-i", a, "-i", b, "-lavfi",
+                        "[0:v]scale=640:360,format=gray[x];[1:v]scale=640:360,format=gray[y];[x][y]ssim", "-f", "null", "-"],
+                       capture_output=True, text=True)
+    m = _re.search(r"All:([0-9.]+)", p.stderr)
+    return float(m.group(1)) if m else None
 
 
 def verify_record(root, piece, rec, newest=True, remeasure=True):
@@ -130,6 +157,14 @@ def verify_record(root, piece, rec, newest=True, remeasure=True):
     for c in art_loop.CHECKS:
         if (man.get("results") or {}).get(c) != "pass":
             probs.append(f"the manifest has no PASS for {c}")
+    # Near-copy guard (Josh, Nov 13): a pass must be our own work in the style, not a copy of pre-jam reference art.
+    # SSIM of the judged image against every reference image of the piece above NEAR_COPY_SSIM fails the pass.
+    full_img = os.path.join(root, rec.get("file") or "")
+    if os.path.isfile(full_img):
+        for rpath in _piece_reference_paths(root, piece):
+            sim = _ssim(full_img, os.path.join(root, rpath))
+            if sim is not None and sim > NEAR_COPY_SSIM:
+                probs.append(f"near-copy of pre-jam reference {rpath} (SSIM {sim:.2f} > {NEAR_COPY_SSIM}): a pass must be new work, not the reference")
     shipped = man.get("shipped") or {}
     if shipped.get("sha256") != rec.get("files") or shipped.get("file") != rec.get("file"):
         probs.append("the record's image hash is not the one the panel judged")
@@ -151,9 +186,30 @@ def verify_record(root, piece, rec, newest=True, remeasure=True):
     return probs
 
 
+APPROVALS = "pipeline/art/approvals.json"
+
+
+def owner_approved(root):
+    """Pieces the owner approved by eye (Josh, Nov 13; like MusicTitle approved by ear): pipeline/art/approvals.json,
+    written only by the build lead on main (the gate fails any lane that changes it). Each entry names the piece, the
+    approver, the date, the origin text and the sha256 of the shipped file; it counts only while that file is unchanged.
+    The technical checks (key, registration, jitter, sprite_check, inventory, slot load) still run on the file."""
+    try:
+        entries = json.load(open(os.path.join(root, APPROVALS))).get("approvals", [])
+    except (OSError, ValueError):
+        return set()
+    out = set()
+    for e in entries:
+        f = os.path.join(root, e.get("file") or "")
+        if e.get("piece") and e.get("approver") and e.get("date") and os.path.isfile(f) \
+                and art_loop.content_sha(f) == e.get("sha256"):
+            out.add(e["piece"])
+    return out
+
+
 def verified_pieces(root, records=None, remeasure=False):
-    """Pieces whose newest record says passed and verifies."""
-    done = set()
+    """Pieces whose newest record says passed and verifies, plus owner-approved pieces."""
+    done = set(owner_approved(root)) if records is None else set()
     for piece, recs in (records if records is not None else load_piece_records(root)).items():
         if recs and claims_pass(recs[-1]) and not verify_record(root, piece, recs[-1], True, remeasure):
             done.add(piece)
@@ -212,6 +268,30 @@ def newly_passed(root, base, remeasure=False):
     return out
 
 
+def base_link_problems(root):
+    """Shared-layer pieces (Josh, Nov 13): an element with "base": "<piece>" in references.json is judged only on what it
+    adds to that base, so its pass counts only if the base piece itself has a verified pass in the same tree."""
+    try:
+        refs, _ = art_loop.refs_and_hash(root)
+    except Exception:
+        return []
+    done = verified_pieces(root)
+    out = []
+    for piece, el in (refs.get("elements") or {}).items():
+        b = (el or {}).get("base")
+        if b and piece in done and b not in done:
+            out.append(f"FAIL art_pass_verify: {piece} passed on top of base {b}, which has no verified pass")
+        elif b and piece in done and el.get("base_mode") == "reuse":   # the reuse is re-measured on the shipped pixels
+            mine, theirs = art_loop.newest_record(root, piece), art_loop.newest_record(root, b)
+            if mine and theirs and mine.get("file") and theirs.get("file"):
+                ok, share = art_share.reuse_check(os.path.join(root, theirs["file"]), os.path.join(root, mine["file"]),
+                                                  el.get("base_region") or (0, 0))
+                if not ok:
+                    out.append(f"FAIL art_pass_verify: {piece} claims to reuse {b}, but only {share:.3f} of its pixels "
+                               f"match (needs {art_share.REUSE_SHARE})")
+    return out
+
+
 def main(argv=None):
     a = list(sys.argv[1:] if argv is None else argv)
     root = ROOT
@@ -223,6 +303,7 @@ def main(argv=None):
     if cmd == "check":
         base = a[a.index("--base") + 1] if "--base" in a else None
         lines = check(root, base, "--no-remeasure" not in a)
+        lines += base_link_problems(root)
         print("\n".join(lines))
         print(f"art_pass_verify: {'FAIL' if lines else 'PASS'} ({len(verified_pieces(root))} verified passes, "
               f"{len(lines)} problems)")
