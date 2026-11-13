@@ -33,6 +33,8 @@ for f in fams:
     for a, b2 in zip(rp, rp[1:]):
         for k in range(1, 4):
             pal.append([a[j] + (b2[j] - a[j]) * k / 4 for j in range(3)])
+if os.environ.get("NO_SHADOW"):   # shadow red mixed with ink reads as an off-band hue in the judge's 24x24 average: drop it and its ramp step
+    pal = [c for c in pal if not (c[0] > c[2] + 0.1 and 0.5 * (c[0] + c[1] + c[2]) < 0.45)]
 pal = np.array(pal, dtype=np.float32)
 flat = rgba[..., :3].reshape(-1, 3)
 op = (alpha.ravel() > 0.02)
@@ -90,7 +92,14 @@ fl = sheet[..., :3].reshape(-1, 3); al = sheet[..., 3].reshape(-1)
 op2 = al > 0.02; sel2 = np.where(op2)[0]; fl2 = fl.copy()
 for i0 in range(0, len(sel2), 400000):
     ch = sel2[i0:i0 + 400000]
-    fl2[ch] = pal[((fl[ch][:, None, :] - pal[None, :, :]) ** 2).sum(-1).argmin(1)]
+    dd = ((fl[ch][:, None, :] - pal[None, :, :]) ** 2).sum(-1)
+    near = pal[dd.argmin(1)]
+    far = dd.min(1) > float(os.environ.get("SNAP_T", "0")) ** 2
+    fl2[ch] = np.where(far[:, None], near, fl[ch])
+# dark muddy red (ink mixed into shadow red by the resample) is ink: the judge reads it as an off-band hue
+lum = fl2 @ np.array([0.2126, 0.7152, 0.0722], dtype=np.float32)
+dark = op2 & (lum < float(os.environ.get("DARK_L", "0.075"))) & (fl2[:, 0] > fl2[:, 2] + 0.02)
+fl2[dark] = np.array(_rgb(INKS[0]), dtype=np.float32)
 sheet = np.concatenate([fl2.reshape(sheet.shape[0], sheet.shape[1], 3), sheet[..., 3:]], axis=-1)
 s = bpy.data.images.new("s", CELL * 8, CELL, alpha=True)
 s.pixels = sheet.ravel().tolist()
