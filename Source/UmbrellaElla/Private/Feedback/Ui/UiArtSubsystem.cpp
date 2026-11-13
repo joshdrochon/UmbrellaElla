@@ -17,6 +17,11 @@ FString UUiArtSubsystem::VisualIdFor(EFlowScreen Screen)
 	return FString::Printf(TEXT("screen:%s"), *StaticEnum<EFlowScreen>()->GetNameStringByValue(static_cast<int64>(Screen)));
 }
 
+bool UUiArtSubsystem::IsScreenArtAllowedOn(EFlowScreen Screen)
+{
+	return !(UmbrellaUiPieceConst::GameplayScreens & UiScreenBit(Screen));
+}
+
 bool UUiArtSubsystem::IsClickThrough() const
 {
 	return Widget.IsValid() && Widget->GetVisibility() == EVisibility::HitTestInvisible;
@@ -111,7 +116,8 @@ void UUiArtSubsystem::ShowPiecesFor(EFlowScreen Screen, EUmbrellaPlayMode Mode)
 void UUiArtSubsystem::ShowScreenArt(EFlowScreen Screen, UTexture2D* Texture)
 {
 	ClearScreenArt();
-	if (!IsValid(Texture) || !IsFeatureEnabled(EFeatureId::ART_08))
+	// A full-frame picture never covers the played world (B2: a black screen:Playing stand-in hid the whole game).
+	if (!IsValid(Texture) || !IsFeatureEnabled(EFeatureId::ART_08) || !IsScreenArtAllowedOn(Screen))
 	{
 		return;
 	}

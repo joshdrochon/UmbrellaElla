@@ -31,6 +31,8 @@ namespace UmbrellaUiPieceConst
 	static constexpr uint32 DriftScreens = UiScreenBit(EFlowScreen::Title) | UiScreenBit(EFlowScreen::Credits) | UiScreenBit(EFlowScreen::Statistics);
 	static constexpr uint32 PauseScreens = UiScreenBit(EFlowScreen::Paused) | UiScreenBit(EFlowScreen::TutorialPaused);
 	static constexpr uint32 HudScreens = UiScreenBit(EFlowScreen::Playing) | UiScreenBit(EFlowScreen::Tutorial);
+	/** Screens where the played world shows: no full-frame picture may cover them (B2, Nov 13). */
+	static constexpr uint32 GameplayScreens = HudScreens | UiScreenBit(EFlowScreen::Resuming);
 
 	/** One piece: which screens show it, whether it fills the frame, where it sits otherwise, and whether it sits below the menus (grounds) or above. */
 	struct FUiPiece
@@ -79,7 +81,10 @@ public:
 	/** Art slot id for a screen, e.g. "screen:Title". Pure. */
 	static FString VisualIdFor(EFlowScreen Screen);
 
-	/** Show a picture for a screen (null removes it). Tests pass a transient texture. */
+	/** False on gameplay screens (Playing, Resuming, Tutorial): the world shows there, so no full-frame picture. Pure. */
+	static bool IsScreenArtAllowedOn(EFlowScreen Screen);
+
+	/** Show a picture for a screen (null removes it). Draws nothing on a gameplay screen, whatever the texture. Tests pass a transient texture. */
 	void ShowScreenArt(EFlowScreen Screen, UTexture2D* Texture);
 	void ClearScreenArt();
 
