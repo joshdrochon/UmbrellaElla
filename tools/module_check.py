@@ -1276,6 +1276,9 @@ def standard_findings(path, raw):
         for m in UOBJECT_REF_RE.finditer(code):
             if is_macro_name(m.group(2)):
                 continue
+            stmt_end = code.find(";", m.end())
+            if stmt_end > 0 and re.search(r"\)\s*(?:const\s*)?override\b", code[m.end():stmt_end]):
+                continue   # an engine override must keep the engine's signature (UWorldSubsystem::OnWorldBeginPlay(UWorld&))
             at("D", m.start(), f"'{m.group(1)}&' passes a UObject by reference; pass a pointer ({m.group(2)}*)")
     # E: macro names
     for m in re.finditer(r"^\s*#\s*define\s+(\w+)", code, re.M):
