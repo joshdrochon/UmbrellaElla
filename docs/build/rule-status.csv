@@ -9,86 +9,86 @@ MOVE-07,move,built,Move.DefaultBindings; Move.World.InputAssetsBuilt,hardware in
 MOVE-08,flow,built,Flow.MenuInputs; Move.DefaultBindings,"spell cycle in Move, pause/retry keys in Flow",
 MOVE-09,flow,built,Flow.MenuInputs,,
 MOVE-10,settings,built,Settings.RemapRebuildsMappingContext; Move.World.SavedRemapReachesLiveContext,no on-screen check of the remap UI,
-MOVE-11,move,built,Move.NoDirectSteering; Move.StateSpeedsAndTrim,,
-MOVE-12,move,built,Move.World.FireIsUnlimited; Move.SpellAvailability,,
-MOVE-13,move,built,Move.ActionRules; Move.World.AbsorbFallAndFreeFall,,
+MOVE-11,move,partial,Move.NoDirectSteering; Move.StateSpeedsAndTrim,unproven: same movement/controls asserted inside a boss encounter; same rules asserted inside a level route,move
+MOVE-12,move,partial,Move.World.FireIsUnlimited; Move.SpellAvailability,"unproven: no ammo/energy for Stream, Twin, Needle (only Small tested)",move
+MOVE-13,move,partial,Move.ActionRules; Move.World.AbsorbFallAndFreeFall,unproven: same profile asserted in every level/boss encounter,move
 MOVE-14,move,built,Move.World.ShootFallFiresRightOnlyWhileDropping,,
-MOVE-15,move,built,Move.HopDashTuned,hop protection in Motor,
+MOVE-15,move,partial,Move.HopDashTuned,unproven: hop protection actually blocks damage in Health; hop vs post-hit protection asserted distinct; qualifying route rejects developer protection setting | was: hop protection in Motor,move
 MOVE-16,move,built,Move.World.ControlsSameInBothModes,,
 MOVE-17,settings,built,Settings.RemapRebuildsMappingContext; Move.World.SavedRemapReachesLiveContext,no on-screen check of the remap UI,
 MOVE-18,move,built,Move.World.ControlsSameInBothModes,,
-MOVE-19,move,built,Move.StateLockWaitsForNeutral; Move.ActionRules,,
-MOVE-20,move,built,Move.StateLockWaitsForNeutral; Move.ActionRules,,
+MOVE-19,move,partial,Move.StateLockWaitsForNeutral; Move.ActionRules,unproven: right stick selects a spell,move
+MOVE-20,move,partial,Move.StateLockWaitsForNeutral; Move.ActionRules,unproven: Absorb/Free fall disengage Ride (only Shoot tested); remapped controls keep the four combinations,move
 MOVE-21,move,built,Move.Baseline; Move.StateSpeedsAndTrim; Move.HopDashTuned,Hop direction is a default awaiting Josh,
 SURV-05,health,built,Health.ThreeHitsCostALife; Health.World.PostHitProtectionBlocksSecondHit,,
-UMB-05,move,built,Move.Baseline; Move.World.LiftScalesWithHealth; Health.World.YellowDuringAbsorbFallHealsAndIsConsumed,,
-WIND-03,arena,built,Field.World.BroadcastsEnterExit; Move.World.RideCurrentFromEvents; Move.World.RideCurrentFromVolume,Motor IsEventForElla also accepts TargetId == owner actor name; volume test fails without the fix,levelchunks
-MOVE-22,move,built,Move.WindRideAndDecay; Move.World.RideCurrentFromEvents,,
-COM-05,move,built,Move.SpellAvailability; Move.SpellBaseline,,
-COM-06,move,built,Move.SpellBurstRules; Move.World.SmallBlastBurst; Move.World.Com06OffClearsBeamAndBursts,burst count 1-5 is tuning only; no in-game control changes it,
-COM-07,move,built,Move.World.StreamBeamActor; Move.World.StreamBeamWallAtMuzzle,AStreamBeamActor beam; beam art is a placeholder cube,
+UMB-05,move,partial,Move.Baseline; Move.World.LiftScalesWithHealth; Health.World.YellowDuringAbsorbFallHealsAndIsConsumed,unproven: catch gives no ammo/stored-energy reward; repair not disabled by reward eligibility,move
+WIND-03,arena,partial,Field.World.BroadcastsEnterExit; Move.World.RideCurrentFromEvents; Move.World.RideCurrentFromVolume,unproven: riding a current deals zero damage; safe supports/solids/lethal bottoms explicitly tagged | was: Motor IsEventForElla also accepts TargetId == owner actor name; volume test fails without the fix,levelchunks
+MOVE-22,move,partial,Move.WindRideAndDecay; Move.World.RideCurrentFromEvents,unproven: effective profile recorded before qualifying play; encounter display vs collision scale tested independently,move
+COM-05,move,partial,Move.SpellAvailability; Move.SpellBaseline,unproven: Stream/Twin/Needle never run out (only Small tested); catch gives no weapon charge,move
+COM-06,move,partial,Move.SpellBurstRules; Move.World.SmallBlastBurst; Move.World.Com06OffClearsBeamAndBursts,"unproven: fold-ready, snap open, pulse, cock, reset cycle tied to emission | was: burst count 1-5 is tuning only; no in-game control changes it",move
+COM-07,move,partial,Move.World.StreamBeamActor; Move.World.StreamBeamWallAtMuzzle,unproven: canopy strands converge around dark body (art); shoulder-braced body family used for Stream; posture/art adds no damage or aim (beam) | was: AStreamBeamActor beam; beam art is a placeholder cube,move
 COM-08,move,built,Move.SpellVolleys; Move.World.SpellSelectionAndFire,,
-COM-09,move,built,Move.SpellVolleys; Move.World.SpellSelectionAndFire,,
+COM-09,move,partial,Move.SpellVolleys; Move.World.SpellSelectionAndFire,unproven: Needle penetrates wings during clock opening; Needle never bypasses clock protection/order,move
 COM-10,move,built,Move.SpellAvailability; Move.SpellBaseline,,
-COM-11,move,built,Move.SpellAvailability; Move.SpellBaseline,,
-FLOW-05,progression,built,Progression.RunScalingMatchesOracle; Progression.World.OnlyAWonRunAdvancesScaling,,
-FLOW-06,progression,built,Progression.AllStatsMaxedTriggersFinalHour,,
+COM-11,move,partial,Move.SpellAvailability; Move.SpellBaseline,unproven: locked-weapon UI shows levels 1/10/20/30; XP display derived from tuned curve; damage ranks applied once to baseline; RegularFall vs ShoulderFall poses per spell; only Small uses fold/open/cock; required routes clearable with basic fire,move
+FLOW-05,progression,partial,Progression.RunScalingMatchesOracle; Progression.World.OnlyAWonRunAdvancesScaling,"unproven: Enemy HP/cadence/count multipliers applied to real enemies (GetRunScaling has no consumer); Ordinary firing cooldowns divided by cadence multiplier; Projectiles/telegraphs/recoveries/pauses/protection not accelerated; Physical boss scheduling intact under scaling; Extra enemies only in authored slots under local threat caps; Warnings, escapes, early yellow healing, generator limits preserved; No unsafe mandatory encounter from more enemies",settings2
+FLOW-06,progression,partial,Progression.AllStatsMaxedTriggersFinalHour,unproven: Final Hour intro screen shown before the Extreme run; Exact text 'Your borrowed time has run its course...' shown; Final Hour multipliers applied to real enemies; Telegraphs/recovery/scheduling/projectile speed/safe placement preserved; No automatic increase in incoming damage,settings2
 FLOW-07,progression,built,Progression.LevelCheckpointRetryKeepsXpAndRanks; Progression.BossCheckpointRollsBackCoherently,,
-FLOW-08,progression,built,Progression.QuitReloadRestoresLastCheckpoint,,
-FLOW-09,keeper,built,Keeper.RetryRestoresPhaseCheckpoint; Keeper.World.RetryRestoresPhaseCheckpointWithThreeLives; Health.World.CheckpointRetryRestoresFullHealthAndLives,,
-FLOW-10,progression,built,Progression.WinKeepsGrowthAndCountsOnce,,
+FLOW-08,progression,partial,Progression.QuitReloadRestoresLastCheckpoint,unproven: Quit reload restores checkpoint upgrades (ranks); only XP asserted,settings2
+FLOW-09,keeper,partial,Keeper.RetryRestoresPhaseCheckpoint; Keeper.World.RetryRestoresPhaseCheckpointWithThreeLives; Health.World.CheckpointRetryRestoresFullHealthAndLives,"unproven: Exactly 3 lives on retry in both modes (Start Game not tested); 3-life reset keeps purchased max lives (Health.World.RetryRestoresFullLivesAndHealth asserts 4 lives, not 3); Rollback applied before full heal (ordering); Level-checkpoint retry fully heals (only event-driven retry tested)",agentplay
+FLOW-10,progression,partial,Progression.WinKeepsGrowthAndCountsOnce,unproven: Upgrades (ranks) retained into next run after win; Unlocks/weapons retained into next run after win,settings2
 FLOW-11,progression,built,Progression.PurchaseVersusReallocation,,
 FLOW-12,progression,built,Progression.World.LevelRetryKeepsXpAndRewardsAgain,,
-FLOW-13,progression,built,Progression.World.BossRetryRollsBackXpAndPartsPayAgain,wing XP per part is a default,
+FLOW-13,progression,partial,Progression.World.BossRetryRollsBackXpAndPartsPayAgain,unproven: Level checkpoint after boss checkpoint does not exempt gains from rollback; Living Keeper departure grants no reward | was: wing XP per part is a default,settings2
 FLOW-14,progression,built,Persistence.RoundTrip; Progression.World.StartGameGivesNoXp,,
-FLOW-15,progression,built,Progression.XpCurveMatchesOracle,,
+FLOW-15,progression,partial,Progression.XpCurveMatchesOracle,unproven: MAX displayed in UI at cap; Spell access survives refunds; No traversal XP; Start Game has no stat upgrades (purchase not tested),settings2
 FLOW-16,progression,built,Progression.UnlockScheduleMatchesOracle,,
 SURV-06,progression,built,Progression.RankValues; Progression.CommitIsAtomicAndGated,,
 SURV-07,health,built,Health.HealingActiveFirstThenReserves,,
-FLOW-17,progression,built,Progression.World.PurchaseNeedsContext,,
+FLOW-17,progression,partial,Progression.World.PurchaseNeedsContext,unproven: Health purchase/refund preserves current health fraction; Fractional health retained without per-hit rounding (C++); Defense does not cancel gust displacement; Defense does not make lethal boundaries safe; Damage ranks don't change rate/geometry/protection/penetration/aim; Effects derived from baseline once,settings2
 FLOW-18,progression,built,Progression.PurchaseVersusReallocation,,
-FLOW-19,progression,built,Progression.KillXpTable; Progression.World.KillsAwardXpAndLevels,,
-FLOW-20,progression,built,Progression.World.RealEnemyAndMillKillsPayXp; Progression.World.KeeperEventStringsDriveXpAndCheckpoints,,
-FLOW-21,progression,built,Progression.RunScalingMatchesOracle,,
-FLOW-22,progression,built,Persistence.CorruptMainFallsBackToBackup; Persistence.TwoCorruptCopiesBlock; Progression.World.ProfileSurvivesRelaunch,,
+FLOW-19,progression,partial,Progression.KillXpTable; Progression.World.KillsAwardXpAndLevels,unproven: Living Keeper departure gives no kill reward; CP2/CP3 passage and reload give no XP (only CP1 tested),settings2
+FLOW-20,progression,partial,Progression.World.RealEnemyAndMillKillsPayXp; Progression.World.KeeperEventStringsDriveXpAndCheckpoints,unproven: Quit/reload restores checkpoint upgrades (only XP asserted); No catch XP in world (only rule-table 'Absorb' label),settings2
+FLOW-21,progression,partial,Progression.RunScalingMatchesOracle,unproven: Enemy count advanced in-world after win (only HP/cadence asserted); Levers applied to real enemies within generator/fairness limits; Weapons/unlocks and upgrades retained into next run,settings2
+FLOW-22,progression,partial,Persistence.CorruptMainFallsBackToBackup; Persistence.TwoCorruptCopiesBlock; Progression.World.ProfileSurvivesRelaunch,unproven: Earned data separate from tuning/bindings; Two corrupt copies error is recoverable; Shadow progress restored on relaunch; Tutorial replay uses shadow progress,settings2
 FLOW-23,progression,built,Progression.DeveloperFixtureLevels; Progression.World.ShadowProgressNeverTouchesTheProfile,,
-OWL-06,keeper,built,Keeper.PhaseGating; Keeper.World.PhaseAdvancesWhenItsPartsBreak,,
-OWL-07,keeper,built,Keeper.* suite (34 tests),contract is the sum of OWL-06..35,
-OWL-08,keeper,built,Keeper.BaselineHp,,
-OWL-09,keeper,built,Keeper.PhaseGating; Keeper.WingBreakAdvancesToMechanisms,,
-OWL-10,keeper,built,Keeper.RetryRestoresPhaseCheckpoint,,
-OWL-11,keeper,built,Keeper.RedPressure,,
-OWL-12,keeper,built,Keeper.RedIsReducedDuringPhysicalActivity,,
-OWL-13,keeper,built,Keeper.YellowPackets,,
+OWL-06,keeper,partial,Keeper.PhaseGating; Keeper.World.PhaseAdvancesWhenItsPartsBreak,"unproven: Rules apply in BOTH modes (no Director's Cut keeper test); Retained/restored capacity, max lives, upgrades on retry; Normal phase advancement carries Ella's health",agentplay
+OWL-07,keeper,partial,Keeper.* suite (34 tests),"unproven: Complete fight contract (OWL-06..35 rows themselves partial); No player resource system (no test); Gameplay state, not animation length, owns damage/transitions | was: contract is the sum of OWL-06..35",agentplay
+OWL-08,keeper,partial,Keeper.BaselineHp,"unproven: Crownless metallic owl in side profile (visual); Exactly two feet, two wings, central clock (visual); Three visually distinct hanging mechanisms; Front/middle/rear identity, attachment, reachability through movement; Front is armillary/ring, not duplicated",agentplay
+OWL-09,keeper,partial,Keeper.PhaseGating; Keeper.WingBreakAdvancesToMechanisms,unproven: Wings reachable at supported owl sizes; Wings damaged from lift; No new gusts after wing depletion; Depleted wings remain visible as cover; Middle/rear break cancels cast and removes attack,agentplay
+OWL-10,keeper,partial,Keeper.RetryRestoresPhaseCheckpoint,"unproven: Both modes checkpoint at each phase start; No mid-mechanism checkpoint after a mechanism breaks; Retained/restored capacity, max lives, upgrades on retry; Initial phase advancement carries Ella's health",agentplay
+OWL-11,keeper,partial,Keeper.RedPressure,"unproven: Wings/clock aim at captured positions; Mechanisms use fixed-left fan; No homing; Spacing 0.09s; Normal interval 1.35s; One-shot reduced volley (assertion has vacuous OR); Queued/traveling shots keep counts/paths; Recovery: yellow <=0.15s, red >=0.6s, longer red kept; Four shots (no spec key bound for 4); Spreads 36/70/48 deg (no test uses spread fields); Speeds 270/300 (no mechanism/clock speed test)",agentplay
+OWL-12,keeper,partial,Keeper.RedIsReducedDuringPhysicalActivity,"unproven: No separate timed prefire delay; Captured lane shown, no hidden tracking; Player can leave via rise/fall/current/evade; Traveling missiles continue during electrical stun",agentplay
+OWL-13,keeper,partial,Keeper.YellowPackets,unproven: Yellow shots are aimed; Independent 2.3s cadence; Keeper yellow ordinary contact deals 1 health; Shoot alone never auto-catches; No absorption cooldown or energy reward; Speeds 195/210 (no mechanism/clock yellow test),agentplay
 OWL-14,keeper,partial,Keeper.YellowPackets,data and contract tested; red/yellow packets are engine cubes; owl-bolt art pending,artshots
-OWL-15,keeper,built,Keeper.GustLocksBandAndStopsWithWings; Keeper.GustDamagesAndPushesOnce,gust push direction is a default,
-OWL-16,keeper,built,Keeper.GustLocksBandAndStopsWithWings; Keeper.GustDamagesAndPushesOnce,gust push direction is a default,
-OWL-17,keeper,built,Keeper.GustLocksBandAndStopsWithWings; Keeper.GustDamagesAndPushesOnce,gust push direction is a default,
-OWL-18,keeper,built,Keeper.TalonWarnsStrikesAndRearms; Keeper.TalonWarningDoesNoDamage,,
-OWL-19,keeper,built,Keeper.TalonWarnsStrikesAndRearms; Keeper.TalonWarningDoesNoDamage,,
-OWL-20,keeper,built,Keeper.TalonWarnsStrikesAndRearms; Keeper.TalonWarningDoesNoDamage,,
-OWL-21,keeper,built,Keeper.ChainHeadDamagesOncePerCast; Keeper.MiddleCurveSignFollowsSerial,,
-OWL-22,keeper,built,Keeper.ChainHeadDamagesOncePerCast; Keeper.MiddleCurveSignFollowsSerial,,
-OWL-23,keeper,built,Keeper.ChainHeadDamagesOncePerCast; Keeper.MiddleCurveSignFollowsSerial,,
-OWL-24,keeper,built,Keeper.ChainHeadDamagesOncePerCast; Keeper.MiddleCurveSignFollowsSerial,,
-OWL-25,keeper,built,Keeper.ChainHeadDamagesOncePerCast; Keeper.MiddleCurveSignFollowsSerial,,
-OWL-26,keeper,built,Keeper.RearTwoStageHasSafePause,,
-OWL-27,keeper,built,Keeper.RearTwoStageHasSafePause,,
-OWL-28,keeper,built,Keeper.ClockDoubleBeatRepeatsPaths,,
-OWL-29,keeper,built,Keeper.ClockOpeningWindowAndRecovery; Keeper.FinalExposureCycle,,
-OWL-30,keeper,built,Keeper.BreakStunCancelsPhysicalMove,,
-OWL-31,keeper,built,Keeper.ClockHitStartsSlowAndEyeThenBlackout,,
-OWL-32,keeper,built,Keeper.ClockHitStartsSlowAndEyeThenBlackout,,
-OWL-33,keeper,built,Keeper.SlowStretchesWorldTimersNotClockTimers,,
-OWL-34,keeper,built,Keeper.PhysicalSchedulerSerialisesMoves,,
-OWL-35,keeper,built,Keeper.FinalClockHitEndsFight; Keeper.World.FinalClockHitEndsInSuccess,,
+OWL-15,keeper,partial,Keeper.GustLocksBandAndStopsWithWings; Keeper.GustDamagesAndPushesOnce,"unproven: Gust in wing act only; Shared physical scheduler 6.5s from attack start; Talon priority over gust; Wing gather/load then flap cue, readable direction; Complete owl warning/strike/recovery animation verified | was: gust push direction is a default",agentplay
+OWL-16,keeper,partial,Keeper.GustLocksBandAndStopsWithWings; Keeper.GustDamagesAndPushesOnce,"unproven: Gust damage 1 health (only hit count checked); Bypasses hop protection; Dash protection blocks damage not push; Speed 350 (bound, but no test exercises speed); Band width 120 (bound, no test exercises it); Lifetime 3s (bound, no test exercises it) | was: gust push direction is a default",agentplay
+OWL-17,keeper,partial,Keeper.GustLocksBandAndStopsWithWings; Keeper.GustDamagesAndPushesOnce,unproven: Wing recovery follows the flap; Stun clears active gusts; No new gusts after depletion/stun; Depleted wing smoke remains (visual); Hostile fronts distinct from voluntary wind (geometry/motion) | was: gust push direction is a default,agentplay
+OWL-18,keeper,partial,Keeper.TalonWarnsStrikesAndRearms; Keeper.TalonWarningDoesNoDamage,"unproven: Empty claw draws back, distinct from carrying claw (visual); Strike direction captured at commitment, no tracking; Cooldown must be clear to trigger; No test that talon stays idle outside 270",agentplay
+OWL-19,keeper,partial,Keeper.TalonWarnsStrikesAndRearms; Keeper.TalonWarningDoesNoDamage,"unproven: Empty space and recovery do no damage; Vertical-exit check suppresses impossible launches; Tip width 48 (bound, no test exercises width); Sweep aims at captured target",agentplay
+OWL-20,keeper,partial,Keeper.TalonWarnsStrikesAndRearms; Keeper.TalonWarningDoesNoDamage,"unproven: Quiet recovery 1s; Shared scheduling with talon; Must re-enter <=270 after leaving to rearm; No rearm on simple exit at attack radius; Cooldown 3.5s from commitment (bound, behavior not asserted)",agentplay
+OWL-21,keeper,partial,Keeper.ChainHeadDamagesOncePerCast; Keeper.MiddleCurveSignFollowsSerial,"unproven: front head locks Ella's destination (move after lock not tested); 0.9s warning duration; closed claw grips armillary outer ring, load/release/follow-through; original attachments pay out; no duplicate ring or floating grasp; choreography does not change lock window or collision",agentplay
+OWL-22,keeper,partial,Keeper.ChainHeadDamagesOncePerCast; Keeper.MiddleCurveSignFollowsSerial,unproven: committed straight outward head path; reach 800; speed basis 400 units/s; head width 32; only the outward moving head damages; links harmless; visible position = shootable target = damaging sweep,agentplay
+OWL-23,keeper,partial,Keeper.ChainHeadDamagesOncePerCast; Keeper.MiddleCurveSignFollowsSerial,unproven: return home is harmless; return takes 1.2s then settles; broken part's attack stays removed until explicit reset; explicit reset restores the attack,agentplay
+OWL-24,keeper,partial,Keeper.ChainHeadDamagesOncePerCast; Keeper.MiddleCurveSignFollowsSerial,unproven: middle cast keeps same endpoint/warning/head/link/return contract; ±80-unit sine offset; sign uses GLOBAL physical serial (talon counts) in real casts; no every-cast alternation (talon-intervening case untested),agentplay
+OWL-25,keeper,partial,Keeper.ChainHeadDamagesOncePerCast; Keeper.MiddleCurveSignFollowsSerial,unproven: shown and collides on the actual curved path; moving middle head shootable on the curve; timing uses straight-distance basis (not constant 400/s); telegraph shows enough curve for a viable exit; destroying the middle cancels its cast (only front tested); dedicated art follows curved geometry,agentplay
+OWL-26,keeper,partial,Keeper.RearTwoStageHasSafePause,"unproven: 0.9s warning before rear stroke; first stroke stops at half of outward stroke; continues to ORIGINAL captured endpoint, no re-aim; both strokes share one serial, damage at most once; chain links harmless; 1.2s return harmless",agentplay
+OWL-27,keeper,partial,Keeper.RearTwoStageHasSafePause,unproven: second clack / stopped head signals unfinished movement; destruction cancels either rear stroke or pause immediately; held-in-claw artwork reconciled to mid-flight pause,agentplay
+OWL-28,keeper,partial,Keeper.ClockDoubleBeatRepeatsPaths,"unproven: repeat without re-aim (player never moved in test); 0.6s wait after last shot; at least 0.85s recovery after repeat; yellow keeps its own timer; clock-hand move, tick and path cue mark the reprise; destroyed hazards not resurrected / world not rewound",agentplay
+OWL-29,keeper,partial,Keeper.ClockOpeningWindowAndRecovery; Keeper.FinalExposureCycle,unproven: exposure cycle uses unscaled active-gameplay time; needle never bypasses magic or target order; clock exposure independent of volley cadence,agentplay
+OWL-30,keeper,partial,Keeper.BreakStunCancelsPhysicalMove,"unproven: mechanism break opens the clock; break clears gusts; new fire stops during stun, traveling missiles continue; fire pause freezes physical timers and pending emissions; fire pause is not stun; blackout cancels the physical move",agentplay
+OWL-31,keeper,partial,Keeper.ClockHitStartsSlowAndEyeThenBlackout,unproven: hit at 128-HP floor does not start slow; slow cooldown must be ready; slow lasts 3s; 3s slow cooldown; new clock opening resets slow/eye flags and clears eye; extending an opening does not reset flags; lethal final-clock hit clears all effects,agentplay
+OWL-32,keeper,partial,Keeper.ClockHitStartsSlowAndEyeThenBlackout,unproven: eye-when-slow-off enabled by default and works with slow off; eye window lasts 2s; eye needs cooldown ready and unused per-opening chance; eye outlasts clock closing until its timer ends; new clock opening clears the eye; 5s eye cooldown starts on eye hit; blackout clears physical moves and gusts; shaft/clock/fresh-shot cues and ground danger kept; prior damaged body restored at blackout expiry; blackout does not extend clock exposure,agentplay
+OWL-33,keeper,partial,Keeper.SlowStretchesWorldTimersNotClockTimers,"unproven: slow/eye/cooldowns/stun/blackout/clock timers run unscaled; physical attack timing scaled at x0.35; player projectiles stay unscaled; fire pause suspends physical timers; traveling missiles continue during fire pause; decorative menu clocks may run while paused, no gameplay/VFX advance",agentplay
+OWL-34,keeper,partial,Keeper.PhysicalSchedulerSerialisesMoves,unproven: full warning→stroke→recovery→idle sequence asserted; blackout and presentation locks respected by scheduler; fire pause freezes pending emissions; reduced projectile pressure during physical activity (assertion has vacuous OR); overlapping escape routes tested,agentplay
+OWL-35,keeper,partial,Keeper.FinalClockHitEndsFight; Keeper.World.FinalClockHitEndsInSuccess,"unproven: living departure lasts ~2.5s as presentation only; retry clears casts, gusts, queued repeats, locks; new-run reset clears state; phase reset clears state; XP policy applied",agentplay
 FLOW-24,arena,built,Level.RefugesAndLength; Level.NineSlotGrammar,,
 FLOW-25,arena,partial,Level.ContractsReadabilityCatchCheckpoint; Field.World.CurrentDrawsItsUsableWidth,wind fields now drawn at full usable width with distinct transport/descent/rescue stand-in colours (rescue has its own); painted gust art left; backdrop coverage goes to artslots; QA-36 re-measure left | QA-36 Nov 13: FAIL backdrop covers 0 of 9 route stages (drawn width 200=200),playtest
 FLOW-26,arena,blocked,,"GDD row says the design is authored, not implemented; nothing to build until the GDD changes",ORPHAN
-HAZ-02,enemies,built,BrokenMill.GeometryEstimatesMatchGdd; BrokenMill.ActivationAndEngagement; BrokenMill.GuardOneShotPerPass; BrokenMill.TwoWindsNeverSteal,rule layer; BrokenMillRoom.cpp spawns both wind bands,
-HAZ-03,enemies,built,BrokenMill.GeometryEstimatesMatchGdd; BrokenMill.ActivationAndEngagement; BrokenMill.GuardOneShotPerPass; BrokenMill.TwoWindsNeverSteal,rule layer; BrokenMillRoom.cpp spawns both wind bands,
-HAZ-04,enemies,built,BrokenMill.GeometryEstimatesMatchGdd; BrokenMill.ActivationAndEngagement; BrokenMill.GuardOneShotPerPass; BrokenMill.TwoWindsNeverSteal,rule layer; BrokenMillRoom.cpp spawns both wind bands,
-HAZ-05,enemies,built,BrokenMill.GeometryEstimatesMatchGdd; BrokenMill.ActivationAndEngagement; BrokenMill.GuardOneShotPerPass; BrokenMill.TwoWindsNeverSteal,rule layer; BrokenMillRoom.cpp spawns both wind bands,
+HAZ-02,enemies,partial,BrokenMill.GeometryEstimatesMatchGdd; BrokenMill.ActivationAndEngagement; BrokenMill.GuardOneShotPerPass; BrokenMill.TwoWindsNeverSteal,unproven: land is solid and harmless for Ella on contact | was: rule layer; BrokenMillRoom.cpp spawns both wind bands,enemies2
+HAZ-03,enemies,partial,BrokenMill.GeometryEstimatesMatchGdd; BrokenMill.ActivationAndEngagement; BrokenMill.GuardOneShotPerPass; BrokenMill.TwoWindsNeverSteal,"unproven: fixed camera at (960,540) (binding is RoomSize/2, no camera checked); guard is stationary (never moves); guard contact damage 0 (bound, but no test exercises contact) | was: rule layer; BrokenMillRoom.cpp spawns both wind bands",enemies2
+HAZ-04,enemies,partial,BrokenMill.GeometryEstimatesMatchGdd; BrokenMill.ActivationAndEngagement; BrokenMill.GuardOneShotPerPass; BrokenMill.TwoWindsNeverSteal,unproven: entry must be from the left; source and muzzle fully visible check; engagement validity required at warning start (only release tested) | was: rule layer; BrokenMillRoom.cpp spawns both wind bands,enemies2
+HAZ-05,enemies,partial,BrokenMill.GeometryEstimatesMatchGdd; BrokenMill.ActivationAndEngagement; BrokenMill.GuardOneShotPerPass; BrokenMill.TwoWindsNeverSteal,unproven: recovery must complete before rearm; no warning in reset/underpass (room only flags assist and exit); launched projectile actor persists after guard disabled; pause freezes all gameplay clocks (only guard clock tested); no arbitrary seam culling of danger | was: rule layer; BrokenMillRoom.cpp spawns both wind bands,enemies2
 HAZ-06,enemies,partial,BrokenMill.GeometryEstimatesMatchGdd; BrokenMill.ActivationAndEngagement; BrokenMill.GuardOneShotPerPass; BrokenMill.TwoWindsNeverSteal,"Motor accepts wind events by actor name (WIND-03); real bands now move Ella in play. Room wind 360 (GDD HAZ-13) carried whole: Motor WindMaxSpeed 360, separate from the 290 horizontal max",levelchunks
 HAZ-07,enemies,partial,BrokenMill.GeometryEstimatesMatchGdd; BrokenMill.ActivationAndEngagement; BrokenMill.GuardOneShotPerPass; BrokenMill.TwoWindsNeverSteal,"Local restoring field live: lower band carries Gain 2.4 / Compensation -78 on WindEntered (Detail ""Dir@gain,centreZ,comp""); Motor adds Vz while riding (Move.WindLocalVerticalField). Priority algorithm still unsettled in the GDD",levelchunks
 HAZ-08,enemies,partial,BrokenMill.World.MeasureOnwardRideBends; BrokenMill.World.MeasureRedRayPaths; BrokenMill.World.MeasureFiringFixture; BrokenMill.World.MeasureFiringWindow; BrokenMill.World.MeasureEmissionsPerPass; BrokenMill.World.MeasureDelayedImpact,"measured with the Motor hook (local field centre z 230): onward ride stays in envelope 185-285 for all 6 lift/trim cases (lowest 217.0-259.1, peak 270.0), upper reset never takes her; underside clearance 41.0 at peak 270, floor clearance 98.0-140.1; MeasureOnwardRideBends asserts it",millmeasure
@@ -100,19 +100,19 @@ HAZ-13,enemies,partial,BrokenMill.World.MeasureOnwardRideBends; BrokenMill.World
 HAZ-14,enemies,partial,BrokenMill.World.GuardChecksWithRealElla; BrokenMill.World.WindCarriesEllaPastOneShotPerPass,"real Ella and Motor; island solid now stops shots at IslandTop + IslandShotMargin 402 (island side tests: friendly ended x 1335.7, red 1338.0, island left 1350); the test wind broadcast still uses TargetId=Ella, real-name path covered by Move.World.RideCurrentFromVolume",enemies2
 HAZ-15,enemies,partial,BrokenMill.World.GuardChecksWithRealElla; BrokenMill.World.WindCarriesEllaPastOneShotPerPass,"free-rise miss and minimum-lift rescue now tested (FreeRiseLeavesRegionShotMisses, MissedCurrentFallsAndMinimumLiftRescue); remaining: tests still use the Ella-named workaround (WIND-03 now fixed on main), Ella capsule is not the GDD hurtbox (requests/enemies2.md), missed-current low assist not built",enemies2
 HAZ-16,agentplay,partial,Smoke.AgentPlay.*; tests/test_agent_play.py; tests/test_playtest_check.py,"agent play-tester built (hook + tools/build/agent_play.py + checker); no passing agent run yet: the room renders unreadable on this Mac (grey surface, Ella/guard not visible) and the live Sonnet attempt could not start under machine load; 1920x1080 is the Windows check" | QA-36 Nov 13: FAIL 1280x720 low-health run boring; 1728x1117 and healthy pass; 1 attempt each,playtest
-HAZ-17,enemies,built,BrokenMill.ShotLogAndPoolGate,,
+HAZ-17,enemies,partial,BrokenMill.ShotLogAndPoolGate,"unproven: gate checks incoming velocity/mode; gate checks low health; gate checks dash state; gate checks pending warnings; gate checks delayed impacts; one active owner; no new simultaneous timing demand without proof; exact fallback specified; integrate with progression, preserve earned state; catalogue not silently replaced",enemies2
 HAZ-18,enemies,partial,BrokenMill.World.RoomFiresOneShotAndDies,collision-aligned cube proxies; no wind-band art passed (artcal fixing wind calibration),artshots
-CAM-03,arena,built,Arena.World.CameraAndAnchors; Arena.BackgroundLoopWraps,,
+CAM-03,arena,partial,Arena.World.CameraAndAnchors; Arena.BackgroundLoopWraps,unproven: required paths work with direct steering OFF; no mandatory dash/spell/invulnerability on required paths,levelchunks
 CAM-04,arena,partial,Level.ContractsReadabilityCatchCheckpoint,rule functions only; QA-36 calibration measurement not run | QA-36 Nov 13: PASS (mill_lower_v2),playtest
-CAM-05,arena,built,Level.ClearanceAndInterface,,
-CAM-06,arena,built,Level.ClearanceAndInterface,,
+CAM-05,arena,partial,Level.ClearanceAndInterface,unproven: support incoming speed and settle excess momentum at interface,levelchunks
+CAM-06,arena,partial,Level.ClearanceAndInterface,unproven: opening height >= 2rz+2m (no failing-height case); openings checked against full trap sweeps; unassisted recovery climb limited to ~0.15H or lift route (not in game); enlarged unqualified profiles get wider variants or labels,levelchunks
 CAM-07,arena,partial,Level.ContractsReadabilityCatchCheckpoint,"rule functions only; the route spawns no wind currents, so catch flow cannot be measured yet" | QA-36 Nov 13: PASS (currents live while guard lived),playtest
-CAM-08,arena,built,Level.CameraLeadAndReveal; Level.World.CameraFollowsAndCheckpoints,level director tick now calls FollowEllaX; 1 s cue target is a GDD proposal,
-HAZ-19,enemies,built,Trap.* ; Trap.World.EachTrapHurtsOnContact,,
-HAZ-20,enemies,built,Trap.* ; Trap.World.EachTrapHurtsOnContact,,
-HAZ-21,enemies,built,Trap.* ; Trap.World.EachTrapHurtsOnContact,Motor does not read bellows push yet,
-HAZ-22,enemies,built,Trap.* ; Trap.World.EachTrapHurtsOnContact,,
-HAZ-23,enemies,built,Trap.PressureContract,,
+CAM-08,arena,partial,Level.CameraLeadAndReveal; Level.World.CameraFollowsAndCheckpoints,"unproven: next current, hazard and safe exit revealed before commitment; reveal holds when backtracking left (real chunks); clearance includes reaction, braking, height-change time; upper limits and bottom danger readable | was: level director tick now calls FollowEllaX; 1 s cue target is a GDD proposal",levelchunks
+HAZ-19,enemies,partial,Trap.* ; Trap.World.EachTrapHurtsOnContact,"unproven: lethal world boundaries separately marked; collision follows visible moving parts; air mill visible hub and four blades; never require tip-threading, destroying or invulnerability; foreground mill distinct from decorative distant windmill",levelchunks
+HAZ-20,enemies,partial,Trap.* ; Trap.World.EachTrapHurtsOnContact,"unproven: visible crank/tension warning; clearly open look in recovery; hazard-free waiting pocket; always-open low bypass in every variant (07B has upper detour); damage only on visible panels, never the gap; committed travel never trapped without exit",levelchunks
+HAZ-21,enemies,partial,Trap.* ; Trap.World.EachTrapHurtsOnContact,unproven: visible nozzle warning; warning locks one lane; push actually applied toward safe catch space (Motor ignores it); cannot Ride or absorb the gust; required wind never silently redirected; distinct cues: transport curls vs jagged hostile front | was: Motor does not read bellows push yet,levelchunks
+HAZ-22,enemies,partial,Trap.* ; Trap.World.EachTrapHurtsOnContact,unproven: high-contrast projection visible on approach; no surprise activation; no confusing decorative tiles,levelchunks
+HAZ-23,enemies,partial,Trap.PressureContract,unproven: retime/reject encounter instead of freezing geometry; no attacks from UNcleared neighbours (test checks cleared); no pursuers past cleared exits; no shots through refuges; clear at observed safe boundary,levelchunks
 COM-12,enemies,built,Enemy.World.GenderChangesNoMechanics; Enemy.World.FiresConfiguredColour,,
 COM-13,enemies,built,Enemy.World.GenderChangesNoMechanics; Enemy.World.FiresConfiguredColour,,
 FLOW-46,enemies,built,Enemy.ColorRatioTwoRedToOneYellow,,
@@ -140,9 +140,9 @@ HAZ-37,arena,partial,Level.NineSlotGrammar,unproven: refuge CP2 placed after gro
 HAZ-38,arena,partial,Level.ValidateRejectsBadRoutes,bBypass flag only; no bypass geometry or test that reads a bypass path,levelchunks
 HAZ-39,arena,partial,Level.FallbackAndAvoidRepeat; Level.SameSeedSameRoute,seed 1001 fallback matches the GDD fixture; 1002/1003 proposals not checked,levelchunks
 HAZ-40,arena,partial,Level.FallbackAndAvoidRepeat; Level.SameSeedSameRoute,"unproven: separate layout, cosmetic and story random streams; new run saves seed and generator/catalog/profile versions; saved variants immutable and ordered; retry preserves resolved layout; route check: minimum lift, gun windows, pressure; route check: story/recovery order; at most 32 attempts then named verified fallback; fallback failure branch force-tested",levelchunks
-FLOW-27,arena,built,Level.RefugesAndLength; Level.NineSlotGrammar,,
+FLOW-27,arena,partial,Level.RefugesAndLength; Level.NineSlotGrammar,unproven: refuge core permanent harmless lift/reacquisition; clear cycling space; no incoming threat lane into core; no forced damage or timer in refuge; optional yellow bay ahead/right expires shots before core; ordinary yellow contact still hurts,levelchunks
 FLOW-28,arena,partial,Level.CheckpointsAndHandoff; Flow.World.RetryOnRoutePlacesAtLastCheckpoint; Flow.World.RetryAfterHandoffKeepsEllaInArena,"checkpoints and Keeper handoff built and tested (Level.CheckpointsAndHandoff, Flow.World.Retry*); Health.World.CheckpointRetryRestoresFullHealthAndLives passes; carry of partial health across route checkpoints not shown; QA-36 not run" | QA-36 Nov 13: PASS (health carries, handoff, threats=0),playtest
-FLOW-29,progression,built,Progression.World.PurchaseNeedsContext,,
+FLOW-29,progression,partial,Progression.World.PurchaseNeedsContext,unproven: Defeat/retry context alone is inspection-only; 'Active' eligibility condition; CP0 alone is not a purchase zone,settings2
 NAR-02,story,built,Story.StartGameHasNoStory; Story.InPlayCues; Story.World.ReactsToBus,text captions only; voice optional later,
 NAR-03,story,built,Story.CueTable; story_check PASS,"blind story critic failed the ""Mother:"" label; logged as critic defect (requests/storyship.md)",
 NAR-04,story,partial,Story.OpeningOncePerRun; Story.SkipRules; Flow.World.OpeningSkipGoesToStory,unproven: start confirmation consumed so it cannot also fire/hop | was: Flow routes the skip press (dcb08d4); 95 tests PASS on 1ab85de,settings2
@@ -164,7 +164,7 @@ FLOW-39,settings,partial,Settings.Credits,"unproven: Richard - Producer credit l
 FLOW-40,settings,partial,Settings.PagesByMode; Settings.SaveAppliesCurrentPage; Settings.BackDiscardsUnsaved; Settings.SliderRange; Settings.Credits,"unproven: each page (Sound, Controller, Credits, Game Options) shows Back and Save buttons | was: Slate layout not seen on screen",settings2
 FLOW-49,story,partial,Story.JourneyStatistics; Flow.World.DirectorsCutEndingOneTimeline,unproven: title text 'Journey Complete'; Main Menu button; approved Gothic storybook look; readable controller/keyboard focus | was: Journey Complete follows Flow credits; Try Again / Main Menu bound (dcb08d4); keyboard focus on the widget is an artui follow-up,settings2
 FLOW-41,flow,built,Flow.TitleStartsPlaying; Flow.StartAndPauseDesignRetained,,
-FLOW-42,progression,built,Progression.DraftStagesWithoutChangingLiveValues; Flow.PurchaseScreenReturnsToTitle; Flow.World.LeavingPurchaseDiscardsDraft,layout never seen; level-up widget not wired,
+FLOW-42,progression,partial,Progression.DraftStagesWithoutChangingLiveValues; Flow.PurchaseScreenReturnsToTitle; Flow.World.LeavingPurchaseDiscardsDraft,unproven: Review screen shows complete costs and effects; Confirm saves the staged draft atomically (draft commit untested); Context change discards unconfirmed draft; Start Game has no upgrades (purchase path) | was: layout never seen; level-up widget not wired,settings2
 FLOW-43,settings,partial,Settings.PagesByMode; Settings.SaveAppliesCurrentPage; Settings.BackDiscardsUnsaved; Settings.SliderRange; Settings.Credits,unproven: dirty Back 'Save' choice saves; named setups independent of earned character state; HP-max tuning requires explicit encounter restart; reset never erases the earned profile | was: Slate layout not seen on screen,settings2
 FLOW-44,settings,partial,Settings.PagesByMode,candidate option names only; contents OPEN in GDD,settings2
 FLOW-45,settings,partial,Settings.World.ReducedFlashReachesVfx,"reduced flash wired; Settings exposes GetSavedTextScalePercent/IsReducedMotionSaved but no HUD, XP ring or Flow screen calls them (grep on main 1ab85de); requests/settings.md item 6 not applied",settings2
