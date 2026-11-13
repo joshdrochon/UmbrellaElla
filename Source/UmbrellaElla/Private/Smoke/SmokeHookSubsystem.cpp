@@ -74,6 +74,32 @@ float USmokeHookSubsystem::ComputeLowFps(const TArray<float>& Frames, float LowS
 	return MeanSlow > 0.0 ? static_cast<float>(1.0 / MeanSlow) : 0.0f;
 }
 
+USmokeHookSubsystem::EInputStep USmokeHookSubsystem::NextInputStep(EInputStep Step, double InStepSeconds, double SinceStartSeconds, float ShotDelaySeconds, bool bHasMotor, bool bHasController)
+{
+	switch (Step)
+	{
+	case EInputStep::Idle:
+		if (!bHasController || SinceStartSeconds < ShotDelaySeconds + InputGapSeconds)
+		{
+			return Step;
+		}
+		return bHasMotor ? EInputStep::KeyHold : EInputStep::Done;
+	case EInputStep::KeyHold:
+		return InStepSeconds >= InputHoldSeconds ? EInputStep::KeyGap : Step;
+	case EInputStep::KeyGap:
+		return InStepSeconds >= InputGapSeconds ? EInputStep::PadHold : Step;
+	case EInputStep::PadHold:
+		return InStepSeconds >= InputHoldSeconds ? EInputStep::PadDash : Step;
+	case EInputStep::PadDash:
+		return InStepSeconds >= InputHoldSeconds ? EInputStep::PadGap : Step;
+	case EInputStep::PadGap:
+		return InStepSeconds >= InputGapSeconds ? EInputStep::Done : Step;
+	case EInputStep::Done:
+	default:
+		return EInputStep::Done;
+	}
+}
+
 void USmokeHookSubsystem::Tick(float DeltaTime)
 {
 	const FFlowTuning& Tuning = GetDefault<UUmbrellaTuning>()->Flow;
@@ -103,22 +129,23 @@ void USmokeHookSubsystem::Tick(float DeltaTime)
 	{
 		bShotTaken = true;
 		// [VERIFY] 5.8.4 packaged Mac: the request fires but no PNG is written (see docs/build/areas/smoke-status.md).
-		FScreenshotRequest::RequestScreenshot(ShotPath, true, false);
+		FScreenshotRequest::RequestScreenshot(ShotPath, false, false);
 		const FVector2D Size = GEngine && GEngine->GameViewport ? FVector2D(GEngine->GameViewport->Viewport->GetSizeXY()) : FVector2D::ZeroVector;
 		UE_LOG(LogUmbrellaElla, Log, TEXT("SMOKE_SHOT at_s=%.1f w=%d h=%d"), Elapsed, static_cast<int32>(Size.X), static_cast<int32>(Size.Y));
 	}
 
 	TickInputCheck(Flow);
 
-	if (Flow && Flow->GetScreen() == EFlowScreen::Defeat)
+	const bool bInputSettled = InputStep == EInputStep::Done;
+	if (Flow && Flow->GetScreen() == EFlowScreen::Defeat && (bInputSettled || Elapsed >= QuitAfterSeconds + InputGraceSeconds))
 	{
 		LogEnd(TEXT("fail"));
 	}
-	else if (Flow && (Flow->GetScreen() == EFlowScreen::Story || Flow->GetScreen() == EFlowScreen::Credits))
+	else if (Flow && (Flow->GetScreen() == EFlowScreen::Story || Flow->GetScreen() == EFlowScreen::Credits) && (bInputSettled || Elapsed >= QuitAfterSeconds + InputGraceSeconds))
 	{
 		LogEnd(TEXT("survived"));
 	}
-	else if (Elapsed >= QuitAfterSeconds && (InputStep == EInputStep::Done || Elapsed >= QuitAfterSeconds + InputGraceSeconds))
+	else if (Elapsed >= QuitAfterSeconds && (bInputSettled || Elapsed >= QuitAfterSeconds + InputGraceSeconds))
 	{
 		LogEnd(TEXT("quit"));
 	}
@@ -231,74 +258,52 @@ void USmokeHookSubsystem::TickInputCheck(AUmbrellaPlayerController* Flow)
 	const bool bHasMotor = HasMotor(Velocity);
 	APlayerController* Controller = Flow;
 
+	const double SinceStart = Now - StartTime;
+	const EInputStep Next = NextInputStep(InputStep, InStep, SinceStart, Tuning.SmokeShotDelaySeconds, bHasMotor, Controller != nullptr);
+	if (InputStep == EInputStep::PadDash)
+	{
+		PadPeakVx = FMath::Max(PadPeakVx, static_cast<float>(Velocity.X));
+	}
+	if (Next == InputStep)
+	{
+		return;
+	}
+
 	switch (InputStep)
 	{
 	case EInputStep::Idle:
-		if (FApp::GetCurrentTime() - StartTime < Tuning.SmokeShotDelaySeconds + InputGapSeconds || !Controller)
+		if (Next == EInputStep::KeyHold)
 		{
-			break;
+			CanSendKey(Controller, EKeys::J, IE_Pressed, 1.0f);
 		}
-		if (!bHasMotor)
-		{
-			// No player on this map: input=none (the smoke accepts it only on a no-player map).
-			InputStep = EInputStep::Done;
-			break;
-		}
-		CanSendKey(Controller, EKeys::J, IE_Pressed, 1.0f);
-		InputStep = EInputStep::KeyHold;
-		InputStepStart = Now;
 		break;
 	case EInputStep::KeyHold:
-		if (InStep >= InputHoldSeconds)
-		{
-			InputVz = static_cast<float>(Velocity.Z);
-			bInputOk = InputVz < 0.0f;
-			CanSendKey(Controller, EKeys::J, IE_Released, 0.0f);
-			InputStep = EInputStep::KeyGap;
-			InputStepStart = Now;
-			UE_LOG(LogUmbrellaElla, Log, TEXT("SMOKE_INPUT key=J action=Shoot vz=%.1f"), InputVz);
-		}
+		InputVz = static_cast<float>(Velocity.Z);
+		bInputOk = InputVz < 0.0f;
+		CanSendKey(Controller, EKeys::J, IE_Released, 0.0f);
+		UE_LOG(LogUmbrellaElla, Log, TEXT("SMOKE_INPUT key=J action=Shoot vz=%.1f"), InputVz);
 		break;
 	case EInputStep::KeyGap:
-		if (InStep >= InputGapSeconds)
-		{
-			CanSendKey(Controller, EKeys::Gamepad_RightTrigger, IE_Pressed, 1.0f);
-			CanSendKey(Controller, EKeys::Gamepad_LeftX, IE_Axis, 1.0f);
-			InputStep = EInputStep::PadHold;
-			InputStepStart = Now;
-		}
+		CanSendKey(Controller, EKeys::Gamepad_RightTrigger, IE_Pressed, 1.0f);
+		CanSendKey(Controller, EKeys::Gamepad_LeftX, IE_Axis, 1.0f);
 		break;
 	case EInputStep::PadHold:
-		if (InStep >= InputHoldSeconds)
-		{
-			PadAttackVz = static_cast<float>(Velocity.Z);
-			// Falling, stick right: Hop is a dash by input direction, so it must move her right.
-			CanSendKey(Controller, EKeys::Gamepad_FaceButton_Bottom, IE_Pressed, 1.0f);
-			CanSendKey(Controller, EKeys::Gamepad_FaceButton_Bottom, IE_Released, 0.0f);
-			InputStep = EInputStep::PadDash;
-			InputStepStart = Now;
-		}
+		PadAttackVz = static_cast<float>(Velocity.Z);
+		// Falling, stick right: Hop is a dash by input direction, so it must move her right.
+		CanSendKey(Controller, EKeys::Gamepad_FaceButton_Bottom, IE_Pressed, 1.0f);
+		CanSendKey(Controller, EKeys::Gamepad_FaceButton_Bottom, IE_Released, 0.0f);
 		break;
 	case EInputStep::PadDash:
-		PadPeakVx = FMath::Max(PadPeakVx, static_cast<float>(Velocity.X));
-		if (InStep >= InputHoldSeconds)
-		{
-			CanSendKey(Controller, EKeys::Gamepad_LeftX, IE_Axis, 0.0f);
-			CanSendKey(Controller, EKeys::Gamepad_RightTrigger, IE_Released, 0.0f);
-			bGamepadOk = PadAttackVz < 0.0f && PadPeakVx > 0.0f;
-			InputStep = EInputStep::PadGap;
-			InputStepStart = Now;
-			UE_LOG(LogUmbrellaElla, Log, TEXT("SMOKE_GAMEPAD attack_vz=%.1f peak_vx=%.1f"), PadAttackVz, PadPeakVx);
-		}
+		CanSendKey(Controller, EKeys::Gamepad_LeftX, IE_Axis, 0.0f);
+		CanSendKey(Controller, EKeys::Gamepad_RightTrigger, IE_Released, 0.0f);
+		bGamepadOk = PadAttackVz < 0.0f && PadPeakVx > 0.0f;
+		UE_LOG(LogUmbrellaElla, Log, TEXT("SMOKE_GAMEPAD attack_vz=%.1f peak_vx=%.1f"), PadAttackVz, PadPeakVx);
 		break;
 	case EInputStep::PadGap:
-		if (InStep >= InputGapSeconds)
-		{
-			InputStep = EInputStep::Done;
-		}
-		break;
 	case EInputStep::Done:
 	default:
 		break;
 	}
+	InputStep = Next;
+	InputStepStart = Now;
 }

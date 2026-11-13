@@ -1,4 +1,5 @@
 #include "Misc/AutomationTest.h"
+#include "Core/UmbrellaTuning.h"
 #include "Smoke/SmokeHookSubsystem.h"
 
 #if WITH_AUTOMATION_TESTS
@@ -23,9 +24,29 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FSmokeInputTimeline, "UmbrellaElla.Smoke.InputC
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
 bool FSmokeInputTimeline::RunTest(const FString& Parameters)
 {
-	// Key hold + gap + pad hold + dash window + gap must end inside the 15 s default quit with the 5 s shot delay.
-	const float Total = 5.0f + USmokeHookSubsystem::InputGapSeconds * 3.0f + USmokeHookSubsystem::InputHoldSeconds * 3.0f;
-	TestTrue(TEXT("input check ends before 15 s"), Total < 15.0f);
+	using EStep = USmokeHookSubsystem::EInputStep;
+	const float ShotDelay = GetDefault<UUmbrellaTuning>()->Flow.SmokeShotDelaySeconds;
+	const float Gap = USmokeHookSubsystem::InputGapSeconds;
+	const float Hold = USmokeHookSubsystem::InputHoldSeconds;
+
+	TestEqual(TEXT("idle waits for the shot delay"), static_cast<int32>(USmokeHookSubsystem::NextInputStep(EStep::Idle, 0.0, ShotDelay, ShotDelay, true, true)), static_cast<int32>(EStep::Idle));
+	TestEqual(TEXT("no player map goes straight to done"), static_cast<int32>(USmokeHookSubsystem::NextInputStep(EStep::Idle, 0.0, ShotDelay + Gap, ShotDelay, false, true)), static_cast<int32>(EStep::Done));
+
+	// Walk the machine in 0.1 s ticks: it must reach Done, and before the default 15 s quit.
+	EStep Step = EStep::Idle;
+	double Since = 0.0;
+	double InStep = 0.0;
+	const double Tick = 0.1;
+	while (Step != EStep::Done && Since < 60.0)
+	{
+		const EStep Next = USmokeHookSubsystem::NextInputStep(Step, InStep, Since, ShotDelay, true, true);
+		Since += Tick;
+		InStep = Next == Step ? InStep + Tick : 0.0;
+		Step = Next;
+	}
+	TestEqual(TEXT("input check reaches done"), static_cast<int32>(Step), static_cast<int32>(EStep::Done));
+	TestTrue(TEXT("input check ends before 15 s"), Since < 15.0);
+	TestTrue(TEXT("input check takes at least the shot delay and its holds"), Since >= ShotDelay + Gap + Hold * 3.0f + Gap * 2.0f - 0.5);
 	return true;
 }
 

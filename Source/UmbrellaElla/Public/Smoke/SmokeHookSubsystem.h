@@ -27,6 +27,24 @@ public:
 	/** The 1% low in frames per second from a list of frame times in seconds (plain rule function). */
 	static float ComputeLowFps(const TArray<float>& FrameSeconds, float LowShare);
 
+	/** The scripted input check: keyboard Shoot hold, then gamepad stick + trigger hold + A (dash). */
+	enum class EInputStep : uint8
+	{
+		Idle,
+		KeyHold,
+		KeyGap,
+		PadHold,
+		PadDash,
+		PadGap,
+		Done
+	};
+
+	/**
+	 * The input state machine's transitions (plain rule function). InStepSeconds is the time in Step, SinceStartSeconds
+	 * the time since gameplay began. Idle waits ShotDelay + a gap, then goes to KeyHold (or Done on a map with no player).
+	 */
+	static EInputStep NextInputStep(EInputStep Step, double InStepSeconds, double SinceStartSeconds, float ShotDelaySeconds, bool bHasMotor, bool bHasController);
+
 	static constexpr float MillisecondsPerSecond = 1000.0f;
 
 	/** Input check timeline, seconds after the screenshot moment. Each hold lasts HoldSeconds, then a settle gap. */
@@ -46,18 +64,6 @@ private:
 	FString BuildEffectiveLine(const TCHAR* At, const TCHAR* Outcome) const;
 	void LogEnd(const TCHAR* Outcome);
 
-	/** The scripted input check: keyboard Shoot hold, then gamepad stick + trigger hold + A (dash). */
-	enum class EInputStep : uint8
-	{
-		Idle,
-		KeyHold,
-		KeyGap,
-		PadHold,
-		PadDash,
-		PadGap,
-		Done
-	};
-
 	void TickInputCheck(class AUmbrellaPlayerController* Flow);
 	bool CanSendKey(class APlayerController* Controller, const FKey& Key, EInputEvent Event, float Amount) const;
 	bool HasMotor(FVector& OutVelocity) const;
@@ -67,7 +73,6 @@ private:
 	bool bInputOk = false;
 	bool bGamepadOk = false;
 	float InputVz = 0.0f;
-	float PadVx = 0.0f;
 	float PadAttackVz = 0.0f;
 	float PadPeakVx = 0.0f;
 
