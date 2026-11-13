@@ -94,3 +94,9 @@ or calibration miss; the tool says "judge again"), never a counted one.
 - r2 (prompt paper_r2.txt, hand-etched lines, soft ivory dots): art_ref 0.813 but the model painted a photographed sheet with a deckled edge, lines only at the
   borders. Ours: prompt invited "sheet"/"pressed into paper". Not panelled. Next: r3 prompt without "sheet"/"etching paper", wind lines inside the frame.
 - Spend so far $7.746 of $33.82 (shared counter). Still waiting on area/artslots for the context shot; nothing ships.
+
+## Nov 13: paper r3 (Gemini, prompt paper_r3.txt)
+- Wind lines now inside the frame, soft ivory dots, no deckled edge (r2 fault was ours: prompt said "sheet"). art_ref 0.871, screen_check and art_check PASS.
+- Panel (tool-written round 2): calibration 3/6, quality-bar pair ours, reference pair reference-leaning but 0/3 calibrated sessions; "judge again". Context pair missing.
+- Merged main and area/artslots again: still no backdrop texture slot (grep Source for T_*_PH finds nothing). Request 3 stands; it is the only thing
+  stopping a pass for skyline, paper and menu-screen. No more paid calls until the slot exists (spend is wasted without the context pair). Nothing ships; `_PH` stays.

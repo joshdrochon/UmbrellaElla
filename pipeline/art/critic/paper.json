@@ -32,6 +32,38 @@
    "commit": "f2713e7336b4",
    "gap": "Y has crisp vector lines and plain white dots that sit on top of the paper, not etched into it, and its texture is a flat digital weave.",
    "at": "2026-11-13T04:27:25Z"
+  },
+  {
+   "piece": "paper",
+   "round": 2,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "ours",
+    "reference": "reference"
+   },
+   "panel": 0,
+   "calibration": {
+    "sessions": 6,
+    "passed": 3
+   },
+   "missing": [
+    "context (no in-engine capture made after the piece: import it and run the smoke, whose screenshot is the capture)",
+    "reference:pipeline/art/reference/Test_Assets/SKY_StarPaper_Tile.png (0/3 calibrated sessions)"
+   ],
+   "critic_sessions": [],
+   "files": "20ba940bc0c8541c3b2f1306bd8045f72168300310ed19df1b3228b89520e581",
+   "file": "Art/Source/Scene/Paint/out/paper_r3.png",
+   "card": "MVP 15",
+   "refs": "d1afca932485",
+   "commit": "7bcc69e59bb9",
+   "gap": "critic sessions refused (calibration missed or no answer): judge again",
+   "at": "2026-11-13T04:34:59Z"
   }
  ]
 }

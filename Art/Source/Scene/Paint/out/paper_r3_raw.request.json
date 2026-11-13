@@ -1,0 +1,36 @@
+{
+ "provider": "gemini",
+ "tool": "Gemini API image generation (Google)",
+ "model": "gemini-3.1-flash-image-preview",
+ "model_version": "gemini-3.1-flash-image-preview",
+ "prompt": "A very wide, flat, front-on view of a seamless field of aged taupe-brown parchment texture that fills the frame edge to edge with no border, no edge, no fold and no shadow. The colour is a calm mid taupe (about #8C7B6E), a little grey and a little rosy, drifting in soft cloudy, low-contrast patches. The surface is a fine, irregular, hand-printed linen grain with tiny dark and light fibre flecks and a few light scuffs, evenly toned all the way to every edge.\n\nAcross the middle of the field, three loose bands of wind sweep from left to right in long gentle curves. Each band is a bundle of five to eight fine parallel hairlines in dark brown ink, drawn by hand: they wobble slightly, swell and thin like engraver's strokes, break here and there, and fade softly into the grain at their ends. The upper and lower fifth of the field hold only grain.\n\nAbout six faint, soft-edged dots of warm ivory light are scattered thinly, each glowing slightly into the grain like a point of light seen through mist, a few with a thin broken ring. They melt into the texture at their edges. Nothing else appears.",
+ "seed": "",
+ "size": "1024x1024",
+ "quality": "medium",
+ "aspect_ratio": "16:9",
+ "image_size": "2K",
+ "input_images": [],
+ "cost_usd": 0.101128,
+ "reply": {
+  "usage": {
+   "promptTokenCount": 256,
+   "candidatesTokenCount": 1982,
+   "totalTokenCount": 2238,
+   "promptTokensDetails": [
+    {
+     "modality": "TEXT",
+     "tokenCount": 256
+    }
+   ],
+   "candidatesTokensDetails": [
+    {
+     "modality": "IMAGE",
+     "tokenCount": 1680
+    }
+   ],
+   "serviceTier": "standard"
+  },
+  "finish": "STOP"
+ },
+ "date": "2026-11-13T04:29+00:00"
+}
