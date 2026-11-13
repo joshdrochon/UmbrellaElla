@@ -21,9 +21,16 @@ BLOCKING = {"ui_check": ["tools/ui_check.py", "ci"], "story_check": ["tools/stor
             "pipeline_check": ["tools/pipeline_check.py"],
             "gdd_check": ["tools/build/gdd_check.py"],   # the game must hold the GDD's numbers; no new FAIL against main
             "sprite_check": ["tools/sprite_check.py", "--scan", "Art"],
+            "story_inventory": ["tools/build/story_inventory.py", "check"],   # shipped player text missing from, or differing from, pipeline/story/lines.csv is a FAIL line
             "art_inventory": ["tools/build/art_inventory.py", "check"],   # a shipped visual with no art-loop piece is a FAIL line
             "art_pass_verify": ["tools/build/art_pass_verify.py", "check"],   # a pass record without verifying panel evidence
             "audio_scan": ["tools/audio_check.py", "--scan", "Audio/Source"]}   # a sound in the list with no file is a FAIL line
+
+
+# Lane pre-check only (lane_precheck.sh sets it): sprite_check judges just the art the lane changed against this base, not
+# all of Art (the full scan took ~15 min per lane under load, Nov 13). The gate never sets it, so its check stays full.
+if os.environ.get("QUALITY_SPRITE_BASE"):
+    BLOCKING["sprite_check"] = BLOCKING["sprite_check"] + ["--only-changed", os.environ["QUALITY_SPRITE_BASE"]]
 
 
 def run(args):

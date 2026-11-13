@@ -19,17 +19,19 @@ p = open("tools/story_critic_prompt.md").read().split("---", 1)[-1]
 sj = json.load(open("pipeline/story/story.json"))
 sc = subprocess.run([sys.executable, "tools/story_check.py"], capture_output=True, text=True)
 p = p.replace("{story_bible}", open("pipeline/story/story-bible.md").read())
-p = p.replace("{story_json_surfaces_deny_banned}", json.dumps({k: sj[k] for k in sj if k in ("surfaces", "deny", "banned", "banned_words")}, indent=1))
+p = p.replace("{story_json_surfaces_deny_banned}", json.dumps({k: sj[k] for k in sj if k in ("surfaces", "deny", "banned", "banned_words", "length_exceptions")}, indent=1))
 p = p.replace("{story_check_output}", (sc.stdout + sc.stderr).strip())
-rows = [(r["id"], r["surface"], r["text"]) for r in csv.DictReader(open("pipeline/story/lines.csv"))
-        if r.get("text") and (r.get("ship") or "").strip().lower() != "no"]   # held lines (ship=no) never reach a player
+sys.path.insert(0, "tools"); import story_check
+# Only lines with no passed verdict on their exact text (critic-results.csv); held lines (ship=no) never reach a player.
+rows = [(r["id"], r["surface"], r["text"]) for r in story_check.lines_to_judge("pipeline/story/lines.csv", story_check.CRITIC_RESULTS)]
 random.Random(len(rows)).shuffle(rows)
 p += "\n\nLines to judge (id | surface | text), cycle=1, builder=area-worker:\n" + "\n".join(" | ".join(r) for r in rows)
 open(sys.argv[1], "w").write(p)
 print(len(rows))
 P
-  n=$(python3 -c "import csv;print(sum(1 for r in csv.DictReader(open('pipeline/story/lines.csv')) if r.get('text') and (r.get('ship') or '').strip().lower()!='no'))")
-  [ "$n" = 0 ] && { echo "story critic: PASS (no shipped lines in pipeline/story/lines.csv; held lines are ship=no)"; exit 0; }
+  n=$(python3 -c "import sys; sys.path.insert(0,'tools'); import story_check as s; print(len(s.lines_to_judge('pipeline/story/lines.csv', s.CRITIC_RESULTS)))")
+  [ "$n" = 0 ] && { echo "story critic: PASS (every shipped line already passed on its exact text; nothing changed to judge)"; exit 0; }
+  echo "story critic: judging $n line(s) without a passed verdict on their current text"; export STORY_CRITIC_LINES=$n
   # A panel of 3 fresh sessions, all must pass (Nov 12: one session passed lines another failed on the same bible).
   : > "$OUT"; ok=1
   for i in 1 2 3; do

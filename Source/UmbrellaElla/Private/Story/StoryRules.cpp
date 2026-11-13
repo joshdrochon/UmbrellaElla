@@ -31,7 +31,7 @@ TArray<TPair<FString, FString>> StoryStatsRows(const FStoryRunStats& Stats)
 	const float UnitsPerMetre = GetDefault<UUmbrellaTuning>()->Story.UnitsPerMetre;
 	TArray<TPair<FString, FString>> Rows;
 	Rows.Emplace(TEXT("Enemies defeated"), FString::FromInt(Stats.EnemiesDefeated));
-	Rows.Emplace(TEXT("XP earned"), FString::FromInt(Stats.XpEarned));
+	Rows.Emplace(TEXT("Experience earned"), FString::FromInt(Stats.XpEarned));
 	Rows.Emplace(TEXT("Deaths"), FString::FromInt(Stats.Deaths));
 	Rows.Emplace(TEXT("Distance flown"), FString::Printf(TEXT("%.0f m"), Stats.DistanceFlownUnits / UnitsPerMetre));
 	Rows.Emplace(TEXT("Shots fired"), FString::FromInt(Stats.ShotsFired));
