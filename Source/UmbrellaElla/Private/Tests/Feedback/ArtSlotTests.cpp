@@ -24,6 +24,7 @@
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Misc/AutomationTest.h"
 #include "Owl/KeeperOfTime.h"
+#include "Feedback/Ui/UiArtSubsystem.h"
 
 #if WITH_AUTOMATION_TESTS
 
@@ -305,6 +306,46 @@ bool FArtSlotLoaderCache::RunTest(const FString& Parameters)
 		ArtSlot::LoadTexture(*Row);
 		const bool bFound = ArtSlot::LoadTexture(*Row) != nullptr;
 		TestTrue(TEXT("a texture that exists loads once"), !bFound || ArtSlot::LoadCallCount() == AfterTexture);
+	}
+	ArtSlotTestEnd(World);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FArtSlotUiScreens, "UmbrellaElla.Feedback.World.ArtSlotUiScreens",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+
+bool FArtSlotUiScreens::RunTest(const FString& Parameters)
+{
+	// Every flow screen has its own slot row; a picture shows click-through, swaps with the screen, and clears.
+	TSet<FString> Assets;
+	for (int32 Value = 0; Value <= static_cast<int32>(EFlowScreen::Statistics); ++Value)
+	{
+		const FString Id = UUiArtSubsystem::VisualIdFor(static_cast<EFlowScreen>(Value));
+		const FArtSlotRow* Row = ArtSlot::Find(*Id);
+		if (TestNotNull(*Id, Row))
+		{
+			Assets.Add(ArtSlot::SlotPath(*Row));
+		}
+	}
+	TestEqual(TEXT("one asset per screen"), Assets.Num(), static_cast<int32>(EFlowScreen::Statistics) + 1);
+	UWorld* World = ArtSlotTestWorld();
+	if (!TestNotNull(TEXT("world"), World))
+	{
+		return false;
+	}
+	UUiArtSubsystem* Ui = World->GetSubsystem<UUiArtSubsystem>();
+	if (TestNotNull(TEXT("ui art subsystem"), Ui))
+	{
+		UTexture2D* Texture = ArtSlotTestTexture();
+		Ui->ShowScreenArt(EFlowScreen::Title, nullptr);
+		TestFalse(TEXT("nothing shown without a picture"), Ui->IsShowingArt());
+		Ui->ShowScreenArt(EFlowScreen::Title, Texture);
+		TestTrue(TEXT("shown for Title"), Ui->IsShowingArt() && Ui->GetShownScreen() == EFlowScreen::Title && Ui->GetShownTexture() == Texture);
+		TestTrue(TEXT("clicks go through to the menu"), Ui->IsClickThrough());
+		Ui->ShowScreenArt(EFlowScreen::Paused, Texture);
+		TestTrue(TEXT("paused picture replaces it"), Ui->IsShowingArt() && Ui->GetShownScreen() == EFlowScreen::Paused);
+		Ui->ClearScreenArt();
+		TestFalse(TEXT("cleared"), Ui->IsShowingArt());
 	}
 	ArtSlotTestEnd(World);
 	return true;
