@@ -1,8 +1,8 @@
 id,surface,text,facts,ship,note
 story-opening-mother,clue,"Mother: Keep it open, Ella. It'll protect you from the owl.",F2;P3,yes,NAR-04: Ella's mother speaks; P3 (she believes the umbrella keeps her safe)
 story-light-shadow,narration,The abyss is endless. The open umbrella's shadow follows her.,F2;P2;P4;P5,yes,"NAR-05: endless abyss (P4), shadow of the umbrella (P2, P5)"
-story-keeper-arrival,clue,The clock keeps one hand. The mounting beside it is empty.,F1,yes,NAR-06: the single remaining hand and the empty mounting; says nothing about a theft (F8 stolen hand is DEFERRED)
-story-shaft-clue,clue,The umbrella's shaft matches the bronze of the clock.,F1,yes,NAR-06: matching bronze shaft detail; no claim about where the umbrella came from (F8 stolen hand is DEFERRED)
+story-keeper-arrival,clue,The clock keeps one hand. Beside it is an empty place.,F1;F9,yes,NAR-06: the single remaining hand and the empty place where the other would sit; says nothing about a theft (F8 stolen hand is DEFERRED)
+story-shaft-clue,clue,The umbrella's shaft matches the bronze of the clock.,F1;F9,yes,NAR-06: matching bronze shaft detail; no claim about where the umbrella came from (F8 stolen hand is DEFERRED)
 story-ending-1,end_card,The owl's pursuit ends. He goes back into the darkness.,F3,yes,NAR-07 draft from the team story
 story-ending-2,end_card,"Ella is alive, but still suspended between worlds.",P8,yes,NAR-07 draft
 story-ending-3,end_card,Perhaps the owl has only postponed his judgment.,P8,yes,NAR-07 draft
