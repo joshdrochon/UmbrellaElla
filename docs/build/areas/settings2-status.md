@@ -73,3 +73,7 @@ Evidence: not re-run after this fix; the build lead's gate runs build and tests 
   stay; the readers wait on their lanes.
 - `PublishSaved` lost its unused `bReducedFlash` param.
 - The earlier note that two Python tests also fail on clean main is withdrawn; the gate evidence does not show them.
+- Evidence at cb529b44 (origin/main 6a4b2bc5 merged): build exit 0, 0 warnings; gate_plan tests
+  (Feedback.World, Field.World, Flow.World, Settings) 78 of 78 pass; Flow+Move+Settings+UI+Feedback.World+Field.World
+  171 of 171 pass; module_check 0, manifest_check 0, affected_tests OK. Diff vs main is Settings/**, UI/Settings/**,
+  Tests/Settings/** and docs only.
