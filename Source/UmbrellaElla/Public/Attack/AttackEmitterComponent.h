@@ -89,6 +89,7 @@ protected:
 private:
 	const FAttackTuning& ActiveTuning() const;
 	const FMotorTuning& ActiveMotor() const;
+	FVector SizedMuzzle(const FAttackTuning& Tuning) const;
 	const FMotorTuning* MotorOverride = nullptr;
 	/** Borrowed from the caller (a test); must outlive its use. */
 	const FAttackTuning* TuningOverride = nullptr;
