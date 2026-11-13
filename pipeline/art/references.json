@@ -1789,6 +1789,1365 @@
      "title-screen": 0.269
     }
    }
+  },
+  "ui-title": {
+   "what": "a game's title screen: the title lockup, the menu items (Start Game, Director's Cut) and the painted scene behind them; judge layout, lettering, mood and finish. The game title reads \"Umbrella Ella The Stolen Hour\" (D-new-title-text); a difference in wording is never a reason to fail.",
+   "refs": [
+    "title-screen"
+   ],
+   "score_min": 0.5,
+   "detail_min": 0.249,
+   "ui": {
+    "widgets": [
+     "SFlowMenu",
+     "SFlowBackground",
+     "SUmbrellaButton",
+     "SUmbrellaRule"
+    ],
+    "screens": [
+     "EFlowScreen::Title"
+    ]
+   },
+   "calibration": {
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "loo": {},
+    "detail": {
+     "title-screen": 0.269
+    },
+    "note": "one team image and nothing to compare it with: score_min not measurable"
+   },
+   "owner": "artui"
+  },
+  "ui-hud-clock": {
+   "what": "a game's HUD clock (one clock face with a health hand and a life hand, numerals and a gold arc) as it sits in the frame; the title screen's clock faces set its style: etched gold line work, lettered numerals, finish",
+   "refs": [
+    "title-screen"
+   ],
+   "score_min": 0.5,
+   "detail_min": 0.249,
+   "ui": {
+    "widgets": [
+     "AUmbrellaHUD"
+    ],
+    "screens": [
+     "EFlowScreen::Playing"
+    ]
+   },
+   "calibration": {
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "loo": {},
+    "detail": {
+     "title-screen": 0.269
+    },
+    "note": "one team image and nothing to compare it with: score_min not measurable"
+   },
+   "owner": "artui"
+  },
+  "ui-pause": {
+   "what": "a game menu screen (the pause menu; the title screen sets its style): a lettered heading and a column of menu items over the painted ground; judge lettering, layout, mood and finish, not which words or how many items it shows",
+   "refs": [
+    "title-screen"
+   ],
+   "score_min": 0.5,
+   "detail_min": 0.249,
+   "ui": {
+    "widgets": [
+     "SFlowMenu",
+     "SFlowBackground",
+     "SUmbrellaButton",
+     "SUmbrellaRule"
+    ],
+    "screens": [
+     "EFlowScreen::Paused",
+     "EFlowScreen::Resuming",
+     "EFlowScreen::TutorialPaused"
+    ]
+   },
+   "calibration": {
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "loo": {},
+    "detail": {
+     "title-screen": 0.269
+    },
+    "note": "one team image and nothing to compare it with: score_min not measurable"
+   },
+   "owner": "artui"
+  },
+  "ui-settings": {
+   "what": "a game menu screen (the settings screen; the title screen sets its style): page tabs, sliders, key bindings, Back and Save; judge lettering, layout, mood and finish, not which words or controls it shows",
+   "refs": [
+    "title-screen"
+   ],
+   "score_min": 0.5,
+   "detail_min": 0.249,
+   "ui": {
+    "widgets": [
+     "USettingsMenuWidget",
+     "SFlowMenu",
+     "SUmbrellaButton",
+     "SUmbrellaRule",
+     "SUmbrellaGround"
+    ],
+    "screens": [
+     "EFlowScreen::Settings"
+    ]
+   },
+   "calibration": {
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "loo": {},
+    "detail": {
+     "title-screen": 0.269
+    },
+    "note": "one team image and nothing to compare it with: score_min not measurable"
+   },
+   "owner": "artui"
+  },
+  "ui-defeated": {
+   "what": "a game menu screen (the Defeated screen; the title screen sets its style): a lettered heading, Retry and the way back to the title; judge lettering, layout, mood and finish, not which words or how many items it shows",
+   "refs": [
+    "title-screen"
+   ],
+   "score_min": 0.5,
+   "detail_min": 0.249,
+   "ui": {
+    "widgets": [
+     "SFlowMenu",
+     "SUmbrellaButton",
+     "SUmbrellaRule"
+    ],
+    "screens": [
+     "EFlowScreen::Defeat"
+    ]
+   },
+   "calibration": {
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "loo": {},
+    "detail": {
+     "title-screen": 0.269
+    },
+    "note": "one team image and nothing to compare it with: score_min not measurable"
+   },
+   "owner": "artui"
+  },
+  "ui-story-text": {
+   "what": "a game story screen (the ending story text and captions; the title screen sets its style): ink lettering over the painted ground or the scene; judge lettering, layout, mood and finish, not which words it shows",
+   "refs": [
+    "title-screen"
+   ],
+   "score_min": 0.5,
+   "detail_min": 0.249,
+   "ui": {
+    "widgets": [
+     "SFlowTextScreen",
+     "UStoryCaptionWidget"
+    ],
+    "screens": [
+     "EFlowScreen::Story"
+    ]
+   },
+   "calibration": {
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "loo": {},
+    "detail": {
+     "title-screen": 0.269
+    },
+    "note": "one team image and nothing to compare it with: score_min not measurable"
+   },
+   "owner": "artui"
+  },
+  "ui-credits": {
+   "what": "a game menu screen (the credits roll; the title screen sets its style): names and roles as lettering over the painted ground; judge lettering, layout, mood and finish, not which words it shows",
+   "refs": [
+    "title-screen"
+   ],
+   "score_min": 0.5,
+   "detail_min": 0.249,
+   "ui": {
+    "widgets": [
+     "SFlowTextScreen"
+    ],
+    "screens": [
+     "EFlowScreen::Credits",
+     "EFlowScreen::Statistics"
+    ]
+   },
+   "calibration": {
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "loo": {},
+    "detail": {
+     "title-screen": 0.269
+    },
+    "note": "one team image and nothing to compare it with: score_min not measurable"
+   },
+   "owner": "artui"
+  },
+  "ui-tutorial": {
+   "what": "a game menu screen (a first-start tutorial page; the title screen sets its style): a lettered heading, instruction text, Next; judge lettering, layout, mood and finish, not which words it shows",
+   "refs": [
+    "title-screen"
+   ],
+   "score_min": 0.5,
+   "detail_min": 0.249,
+   "ui": {
+    "widgets": [
+     "SFlowMenu",
+     "SUmbrellaButton",
+     "SUmbrellaRule"
+    ],
+    "screens": [
+     "EFlowScreen::Tutorial"
+    ]
+   },
+   "calibration": {
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "loo": {},
+    "detail": {
+     "title-screen": 0.269
+    },
+    "note": "one team image and nothing to compare it with: score_min not measurable"
+   },
+   "owner": "artui"
+  },
+  "ui-purchase": {
+   "what": "a game menu screen (the Ella and Spells purchase screen; the title screen sets its style): level and points, one row per track with minus and plus, Confirm, Cancel and Done; judge lettering, layout, mood and finish, not which words or numbers it shows",
+   "refs": [
+    "title-screen"
+   ],
+   "score_min": 0.5,
+   "detail_min": 0.249,
+   "ui": {
+    "widgets": [
+     "UProgressionPurchaseWidget",
+     "SFlowPurchaseDoneBox",
+     "SUmbrellaButton",
+     "SUmbrellaRule",
+     "SUmbrellaGround"
+    ],
+    "screens": [
+     "EFlowScreen::Purchase"
+    ]
+   },
+   "calibration": {
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "loo": {},
+    "detail": {
+     "title-screen": 0.269
+    },
+    "note": "one team image and nothing to compare it with: score_min not measurable"
+   },
+   "owner": "artui"
+  },
+  "ui-level-up": {
+   "what": "a game menu screen (the level-up screen; the title screen sets its style): the new level as a lettered heading and its menu items; judge lettering, layout, mood and finish, not which words it shows",
+   "refs": [
+    "title-screen"
+   ],
+   "score_min": 0.5,
+   "detail_min": 0.249,
+   "ui": {
+    "widgets": [
+     "SFlowMenu",
+     "SUmbrellaButton",
+     "SUmbrellaRule"
+    ],
+    "screens": [
+     "EFlowScreen::LevelUp"
+    ]
+   },
+   "calibration": {
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "loo": {},
+    "detail": {
+     "title-screen": 0.269
+    },
+    "note": "one team image and nothing to compare it with: score_min not measurable"
+   },
+   "owner": "artui"
+  },
+  "ui-journey-complete": {
+   "what": "a game menu screen (Journey Complete; the title screen sets its style): eight stat rows, Try Again and Main Menu; judge lettering, layout, mood and finish, not which words or numbers it shows",
+   "refs": [
+    "title-screen"
+   ],
+   "score_min": 0.5,
+   "detail_min": 0.249,
+   "ui": {
+    "widgets": [
+     "UJourneyCompleteWidget",
+     "SUmbrellaButton",
+     "SUmbrellaRule",
+     "SUmbrellaGround"
+    ],
+    "screens": []
+   },
+   "calibration": {
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "loo": {},
+    "detail": {
+     "title-screen": 0.269
+    },
+    "note": "one team image and nothing to compare it with: score_min not measurable"
+   },
+   "owner": "artui"
+  },
+  "ui-xp-ring": {
+   "what": "a game's HUD clock with a thin glowing gold ring around it (the experience ring) as it sits in the frame; the title screen's clock faces and gold line work set its style",
+   "refs": [
+    "title-screen"
+   ],
+   "score_min": 0.5,
+   "detail_min": 0.249,
+   "ui": {
+    "widgets": [
+     "UXpRingWidget"
+    ],
+    "screens": []
+   },
+   "calibration": {
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "loo": {},
+    "detail": {
+     "title-screen": 0.269
+    },
+    "note": "one team image and nothing to compare it with: score_min not measurable"
+   },
+   "owner": "artui"
+  },
+  "ui-spell-wheel": {
+   "what": "the spell wheel: four spell slots with locked, available and equipped states (ART-08), lettered and etched like the title screen's clock work",
+   "refs": [
+    "title-screen"
+   ],
+   "owner": "artui",
+   "score_min": 0.805,
+   "detail_min": 0.249,
+   "calibration": {
+    "method": "inherits the thresholds of menu-screen until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "ella-hurt": {
+   "what": "Ella hit and recovering (ANIM-03 hit/recovery): the same figure, umbrella and boots as the other states, non-graphic, a flinch not a collapse",
+   "refs": [
+    "ella-freefall",
+    "study-ella-character",
+    "bar-casters",
+    "ella-sh10"
+   ],
+   "owner": "artella",
+   "score_min": 0.749,
+   "detail_min": 0.617,
+   "calibration": {
+    "method": "inherits the thresholds of ella-closed until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "ella-down": {
+   "what": "Ella at zero health (ANIM-03 bounded zero-health dissolve): the magical dissolve, non-graphic, never a corpse",
+   "refs": [
+    "study-ella-character",
+    "d-ella-eyes",
+    "bar-casters",
+    "ella-sh10"
+   ],
+   "owner": "artella",
+   "score_min": 0.749,
+   "detail_min": 0.617,
+   "calibration": {
+    "method": "inherits the thresholds of ella-closed until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "ella-motion": {
+   "what": "Ella's movement set (ANIM-03): overhead hop, forward and back falling cartwheels, free-fall dash",
+   "refs": [
+    "ella-freefall",
+    "study-ella-freefall",
+    "study-ella-character",
+    "bar-casters",
+    "ella-sh10"
+   ],
+   "owner": "artella",
+   "score_min": 0.749,
+   "detail_min": 0.617,
+   "calibration": {
+    "method": "inherits the thresholds of ella-closed until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "ella-transition": {
+   "what": "Ella's mode transitions (ANIM-03): the umbrella opening and closing between rise and fall",
+   "refs": [
+    "ella-rising",
+    "ella-freefall",
+    "study-ella-character",
+    "bar-casters",
+    "ella-sh10"
+   ],
+   "owner": "artella",
+   "score_min": 0.749,
+   "detail_min": 0.617,
+   "calibration": {
+    "method": "inherits the thresholds of ella-closed until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "ella-condition": {
+   "what": "Ella's whole-character condition states 100/75/50/25/5/0 (ANIM-04): boots fade by 75, hat by 50, mask and scarf kept, living critical state, collision fixed",
+   "refs": [
+    "study-ella-character",
+    "d-ella-eyes",
+    "bar-casters",
+    "ella-sh10"
+   ],
+   "owner": "artenemy",
+   "score_min": 0.749,
+   "detail_min": 0.617,
+   "calibration": {
+    "method": "inherits the thresholds of ella-closed until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "keeper-clock": {
+   "what": "the Keeper's chest clock (ANIM-06): cover open and close, glass, cracks, hands",
+   "refs": [
+    "discord-crop-keeper",
+    "study-keeper-character",
+    "keeper-sh10",
+    "d-clock-damage",
+    "d-clock-double-beat"
+   ],
+   "owner": "artkeeper",
+   "score_min": 0.698,
+   "detail_min": 0.301,
+   "calibration": {
+    "method": "inherits the thresholds of owl until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "keeper-talon": {
+   "what": "the Keeper's talon (ANIM-06): the empty rake and the closed front grasp, release",
+   "refs": [
+    "discord-crop-keeper",
+    "study-keeper-character",
+    "keeper-sh10",
+    "d-talon-rake",
+    "study-keeper-front-grip"
+   ],
+   "owner": "artkeeper",
+   "score_min": 0.698,
+   "detail_min": 0.301,
+   "calibration": {
+    "method": "inherits the thresholds of owl until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "keeper-wing": {
+   "what": "the Keeper's wings (ANIM-06): gather, flap, front, recovery, wing wear, the disabled-gust state",
+   "refs": [
+    "discord-crop-keeper",
+    "study-keeper-character",
+    "keeper-sh10",
+    "d-wing-gust",
+    "d-wing-damage"
+   ],
+   "owner": "artkeeper",
+   "score_min": 0.698,
+   "detail_min": 0.301,
+   "calibration": {
+    "method": "inherits the thresholds of owl until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "keeper-mech-front": {
+   "what": "the Keeper's front mechanism (ANIM-06): the grasp-and-throw arm",
+   "refs": [
+    "discord-crop-keeper",
+    "study-keeper-character",
+    "keeper-sh10",
+    "study-keeper-front-grip",
+    "d-flip-throw"
+   ],
+   "owner": "artkeeper",
+   "score_min": 0.698,
+   "detail_min": 0.301,
+   "calibration": {
+    "method": "inherits the thresholds of owl until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "keeper-mech-middle": {
+   "what": "the Keeper's middle mechanism (ANIM-06): the curved cast",
+   "refs": [
+    "discord-crop-keeper",
+    "study-keeper-character",
+    "keeper-sh10",
+    "d-arc-chain"
+   ],
+   "owner": "artkeeper",
+   "score_min": 0.698,
+   "detail_min": 0.301,
+   "calibration": {
+    "method": "inherits the thresholds of owl until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "keeper-mech-rear": {
+   "what": "the Keeper's rear mechanism (ANIM-06): first stroke, safe pause, second stroke",
+   "refs": [
+    "discord-crop-keeper",
+    "study-keeper-character",
+    "keeper-sh10",
+    "d-toss-kick"
+   ],
+   "owner": "artkeeper",
+   "score_min": 0.698,
+   "detail_min": 0.301,
+   "calibration": {
+    "method": "inherits the thresholds of owl until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "keeper-damage": {
+   "what": "the Keeper's part damage (ANIM-06): surviving-mechanism masks 7, 6, 4, 0, break, stun",
+   "refs": [
+    "discord-crop-keeper",
+    "study-keeper-character",
+    "keeper-sh10",
+    "d-gear-break",
+    "d-wing-damage"
+   ],
+   "owner": "artkeeper",
+   "score_min": 0.698,
+   "detail_min": 0.301,
+   "calibration": {
+    "method": "inherits the thresholds of owl until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "keeper-departure": {
+   "what": "the Keeper's living departure and phase/retry reset (ANIM-06): it leaves alive, not defeated",
+   "refs": [
+    "discord-crop-keeper",
+    "study-keeper-character",
+    "keeper-sh10"
+   ],
+   "owner": "artkeeper",
+   "score_min": 0.698,
+   "detail_min": 0.301,
+   "calibration": {
+    "method": "inherits the thresholds of owl until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "enemy-sundial": {
+   "what": "Roadwarden, Sundial Caster (GDD SH1.0 ANIM-08, ART-10): one enemy figure, male or female, as a transparent sprite set (idle, aim, fire red or yellow, recover, hit, defeat)",
+   "refs": [
+    "d-red-shots",
+    "d-yellow-shots",
+    "bar-casters"
+   ],
+   "owner": "artenemy",
+   "score_min": 0.729,
+   "detail_min": 0.281,
+   "calibration": {
+    "method": "inherits the thresholds of owl-bolt until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "enemy-armillary": {
+   "what": "Roadwarden, Armillary Launcher (GDD SH1.0 ANIM-08, ART-10): one enemy figure, male or female, as a transparent sprite set (idle, aim, fire red or yellow, recover, hit, defeat)",
+   "refs": [
+    "d-red-shots",
+    "d-yellow-shots",
+    "bar-casters"
+   ],
+   "owner": "artenemy",
+   "score_min": 0.729,
+   "detail_min": 0.281,
+   "calibration": {
+    "method": "inherits the thresholds of owl-bolt until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "enemy-repeater": {
+   "what": "Roadwarden, Escapement Repeater (GDD SH1.0 ANIM-08, ART-10): one enemy figure, male or female, as a transparent sprite set (idle, aim, fire red or yellow, recover, hit, defeat)",
+   "refs": [
+    "d-red-shots",
+    "d-yellow-shots",
+    "bar-casters"
+   ],
+   "owner": "artenemy",
+   "score_min": 0.729,
+   "detail_min": 0.281,
+   "calibration": {
+    "method": "inherits the thresholds of owl-bolt until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "enemy-floodstrider": {
+   "what": "Floodstrider (stilt) (GDD SH1.0 ANIM-08, ART-10): one enemy figure, male or female, as a transparent sprite set (idle, aim, fire red or yellow, recover, hit, defeat)",
+   "refs": [
+    "d-red-shots",
+    "d-yellow-shots",
+    "bar-casters"
+   ],
+   "owner": "artenemy",
+   "score_min": 0.729,
+   "detail_min": 0.281,
+   "calibration": {
+    "method": "inherits the thresholds of owl-bolt until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "enemy-courier": {
+   "what": "Sky Courier (airborne) (GDD SH1.0 ANIM-08, ART-10): one enemy figure, male or female, as a transparent sprite set (idle, aim, fire red or yellow, recover, hit, defeat)",
+   "refs": [
+    "d-red-shots",
+    "d-yellow-shots",
+    "bar-casters"
+   ],
+   "owner": "artenemy",
+   "score_min": 0.729,
+   "detail_min": 0.281,
+   "calibration": {
+    "method": "inherits the thresholds of owl-bolt until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "yellow-shot": {
+   "what": "the yellow shot: GDD SH1.0's pointed angular yellow projectile that heals when absorbed (#FFD84A / #F5AA28 / #94611E, pale core)",
+   "refs": [
+    "d-yellow-shots",
+    "d-yellow-crop",
+    "bar-casters"
+   ],
+   "owner": "artshots",
+   "score_min": 0.729,
+   "detail_min": 0.281,
+   "calibration": {
+    "method": "inherits the thresholds of owl-bolt until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "stream-beam": {
+   "what": "Ella's Streamed Blast beam: a gold stream with interior strands, startup to sustain to stop",
+   "refs": [
+    "study-ella-streamed-blast",
+    "study-ella-stored-thunder",
+    "bar-casters"
+   ],
+   "owner": "artshots",
+   "score_min": 0.334,
+   "detail_min": 0.077,
+   "calibration": {
+    "method": "inherits the thresholds of wand-shot until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "bg-base": {
+   "what": "the base sky layer pair A/B (BG-03): quiet ash-blue and charcoal sky behind the clocks",
+   "refs": [
+    "study-environment",
+    "study-foundation",
+    "keyart"
+   ],
+   "owner": "artscene",
+   "score_min": 0.5,
+   "detail_min": 0.085,
+   "calibration": {
+    "method": "inherits the thresholds of paper until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "bg-architecture": {
+   "what": "architecture (BG-04): barn, factory, school and chapel, upright and separately authored inverted, roof and body separate",
+   "refs": [
+    "study-environment",
+    "study-foundation",
+    "gothic-skyline"
+   ],
+   "owner": "artscene",
+   "score_min": 0.527,
+   "detail_min": 0.143,
+   "calibration": {
+    "method": "inherits the thresholds of skyline until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "bg-land": {
+   "what": "floating land (BG-04): bronze and ink dissolving island core with veil, smaller perch, open arch, hanger and link cap",
+   "refs": [
+    "study-environment",
+    "study-foundation",
+    "gothic-skyline"
+   ],
+   "owner": "artscene",
+   "score_min": 0.527,
+   "detail_min": 0.143,
+   "calibration": {
+    "method": "inherits the thresholds of skyline until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "bg-atmosphere": {
+   "what": "atmosphere (BG-03): cloud bank, mist trail, underside mist, haze curl",
+   "refs": [
+    "study-environment",
+    "study-foundation",
+    "keyart"
+   ],
+   "owner": "artscene",
+   "score_min": 0.5,
+   "detail_min": 0.085,
+   "calibration": {
+    "method": "inherits the thresholds of paper until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "bg-water": {
+   "what": "water (BG-03): spill source, falling middle, land pool, sea landing, silver-grey and masked",
+   "refs": [
+    "study-environment",
+    "study-foundation",
+    "keyart"
+   ],
+   "owner": "artscene",
+   "score_min": 0.5,
+   "detail_min": 0.085,
+   "calibration": {
+    "method": "inherits the thresholds of paper until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "bg-clock": {
+   "what": "distant clocks (BG-03, BG-06): face, short hand, long hand, front rim, the clock-ridge pair; hands animated apart from the face",
+   "refs": [
+    "study-environment",
+    "study-foundation",
+    "keyart",
+    "gothic-skyline"
+   ],
+   "owner": "artscene",
+   "score_min": 0.527,
+   "detail_min": 0.143,
+   "calibration": {
+    "method": "inherits the thresholds of skyline until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "bg-clock-water-wind": {
+   "what": "the clock, water and wind assembly layer as it sits in the frame (BG-05, BG-06): clock faces, water falls and wind entry, middle, bend and exit on one layer",
+   "refs": [
+    "study-environment",
+    "study-foundation",
+    "keyart"
+   ],
+   "owner": "artscene",
+   "score_min": 0.527,
+   "detail_min": 0.143,
+   "calibration": {
+    "method": "inherits the thresholds of skyline until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "bg-start-end": {
+   "what": "the shared Start and End background (ART-04): slowly moving, no characters",
+   "refs": [
+    "study-environment",
+    "study-foundation",
+    "keyart",
+    "original-picture"
+   ],
+   "owner": "artscene",
+   "score_min": 0.5,
+   "detail_min": 0.085,
+   "calibration": {
+    "method": "inherits the thresholds of paper until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "world-refuge": {
+   "what": "the safe refuge and the separate yellow bay (ANIM-08): readable apart from hostile gust and from catchable yellow",
+   "refs": [
+    "study-environment",
+    "study-foundation",
+    "gameplay-01",
+    "gameplay-02"
+   ],
+   "owner": "artscene",
+   "score_min": 0.527,
+   "detail_min": 0.143,
+   "calibration": {
+    "method": "inherits the thresholds of skyline until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "world-solids": {
+   "what": "collision-aligned solid islands and platforms (ANIM-08): the art edge is the collider",
+   "refs": [
+    "study-environment",
+    "study-foundation",
+    "gameplay-01",
+    "gameplay-02"
+   ],
+   "owner": "artscene",
+   "score_min": 0.527,
+   "detail_min": 0.143,
+   "calibration": {
+    "method": "inherits the thresholds of skyline until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "world-mill": {
+   "what": "the Broken Mill and trap hazards (ANIM-08): mill sweeps, shutter gaps, bellows fronts, trap actors",
+   "refs": [
+    "study-environment",
+    "study-foundation",
+    "gameplay-01",
+    "gameplay-02"
+   ],
+   "owner": "artscene",
+   "score_min": 0.527,
+   "detail_min": 0.143,
+   "calibration": {
+    "method": "inherits the thresholds of skyline until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "vfx-gold-impact": {
+   "what": "Ella's gold impact burst (art sheet VFX_GoldImpact, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
+   "refs": [
+    "wand-star",
+    "study-ella-small-blasts",
+    "study-ella-twin-stars",
+    "bar-casters"
+   ],
+   "owner": "artfx",
+   "score_min": 0.334,
+   "detail_min": 0.077,
+   "calibration": {
+    "method": "inherits the thresholds of wand-shot until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "vfx-gold-fade": {
+   "what": "the gold shot fading out (art sheet VFX_GoldFade, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
+   "refs": [
+    "wand-star",
+    "study-ella-small-blasts",
+    "study-ella-twin-stars",
+    "bar-casters"
+   ],
+   "owner": "artfx",
+   "score_min": 0.334,
+   "detail_min": 0.077,
+   "calibration": {
+    "method": "inherits the thresholds of wand-shot until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "vfx-stream-start": {
+   "what": "the Streamed Blast startup (art sheet VFX_StreamStart, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
+   "refs": [
+    "study-ella-streamed-blast",
+    "study-ella-stored-thunder",
+    "bar-casters"
+   ],
+   "owner": "artfx",
+   "score_min": 0.334,
+   "detail_min": 0.077,
+   "calibration": {
+    "method": "inherits the thresholds of wand-shot until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "vfx-stream-sustain": {
+   "what": "the Streamed Blast sustain loop (art sheet VFX_StreamSustain, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
+   "refs": [
+    "study-ella-streamed-blast",
+    "study-ella-stored-thunder",
+    "bar-casters"
+   ],
+   "owner": "artfx",
+   "score_min": 0.334,
+   "detail_min": 0.077,
+   "calibration": {
+    "method": "inherits the thresholds of wand-shot until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "vfx-needle-channel": {
+   "what": "the Needle channel (art sheet VFX_NeedleChannel, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
+   "refs": [
+    "study-ella-needle-1",
+    "study-ella-needle-2",
+    "bar-casters"
+   ],
+   "owner": "artfx",
+   "score_min": 0.334,
+   "detail_min": 0.077,
+   "calibration": {
+    "method": "inherits the thresholds of wand-shot until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "vfx-needle-sliver": {
+   "what": "the Needle sliver in travel (art sheet VFX_NeedleSliver, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
+   "refs": [
+    "study-ella-needle-1",
+    "study-ella-needle-2",
+    "bar-casters"
+   ],
+   "owner": "artfx",
+   "score_min": 0.334,
+   "detail_min": 0.077,
+   "calibration": {
+    "method": "inherits the thresholds of wand-shot until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "vfx-needle-pierce": {
+   "what": "the Needle penetration (art sheet VFX_NeedlePierce, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
+   "refs": [
+    "study-ella-needle-1",
+    "study-ella-needle-2",
+    "bar-casters"
+   ],
+   "owner": "artfx",
+   "score_min": 0.334,
+   "detail_min": 0.077,
+   "calibration": {
+    "method": "inherits the thresholds of wand-shot until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "vfx-blocked": {
+   "what": "the protected-contact block cue (art sheet VFX_Blocked, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
+   "refs": [
+    "wand-star",
+    "study-ella-small-blasts",
+    "study-ella-twin-stars",
+    "bar-casters"
+   ],
+   "owner": "artfx",
+   "score_min": 0.334,
+   "detail_min": 0.077,
+   "calibration": {
+    "method": "inherits the thresholds of wand-shot until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "vfx-keeper-warning": {
+   "what": "the Keeper attack warning (art sheet VFX_KeeperWarning, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
+   "refs": [
+    "d-red-shots",
+    "study-keeper-red-shots",
+    "red-shot-sh10",
+    "bar-casters",
+    "d-talon-rake"
+   ],
+   "owner": "artfx",
+   "score_min": 0.729,
+   "detail_min": 0.281,
+   "calibration": {
+    "method": "inherits the thresholds of owl-bolt until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "vfx-keeper-strike": {
+   "what": "the Keeper strike (art sheet VFX_KeeperStrike, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
+   "refs": [
+    "d-red-shots",
+    "study-keeper-red-shots",
+    "red-shot-sh10",
+    "bar-casters",
+    "d-talon-rake"
+   ],
+   "owner": "artfx",
+   "score_min": 0.729,
+   "detail_min": 0.281,
+   "calibration": {
+    "method": "inherits the thresholds of owl-bolt until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "vfx-keeper-recovery": {
+   "what": "the Keeper recovery cue (art sheet VFX_KeeperRecovery, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
+   "refs": [
+    "d-red-shots",
+    "study-keeper-red-shots",
+    "red-shot-sh10",
+    "bar-casters",
+    "d-talon-rake"
+   ],
+   "owner": "artfx",
+   "score_min": 0.729,
+   "detail_min": 0.281,
+   "calibration": {
+    "method": "inherits the thresholds of owl-bolt until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "vfx-clock-beat": {
+   "what": "the Keeper clock double beat (art sheet VFX_ClockBeat, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
+   "refs": [
+    "d-red-shots",
+    "study-keeper-red-shots",
+    "red-shot-sh10",
+    "bar-casters",
+    "d-clock-double-beat"
+   ],
+   "owner": "artfx",
+   "score_min": 0.729,
+   "detail_min": 0.281,
+   "calibration": {
+    "method": "inherits the thresholds of owl-bolt until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "vfx-clock-open": {
+   "what": "the Keeper clock opening (art sheet VFX_ClockOpen, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
+   "refs": [
+    "d-clock-double-beat",
+    "d-clock-damage",
+    "d-yellow-shots",
+    "bar-casters"
+   ],
+   "owner": "artfx",
+   "score_min": 0.729,
+   "detail_min": 0.281,
+   "calibration": {
+    "method": "inherits the thresholds of owl-bolt until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "vfx-part-hit": {
+   "what": "a Keeper part hit (art sheet VFX_PartHit, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
+   "refs": [
+    "d-gear-break",
+    "d-clock-damage",
+    "bar-casters"
+   ],
+   "owner": "artfx",
+   "score_min": 0.666,
+   "detail_min": 0.362,
+   "calibration": {
+    "method": "inherits the thresholds of bolt-hit until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "vfx-part-break": {
+   "what": "a Keeper part break (art sheet VFX_PartBreak, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
+   "refs": [
+    "d-gear-break",
+    "d-clock-damage",
+    "bar-casters"
+   ],
+   "owner": "artfx",
+   "score_min": 0.666,
+   "detail_min": 0.362,
+   "calibration": {
+    "method": "inherits the thresholds of bolt-hit until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "vfx-eye-exposed": {
+   "what": "the exposed Keeper eye (art sheet VFX_EyeExposed, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
+   "refs": [
+    "d-clock-damage",
+    "d-yellow-shots",
+    "bar-casters"
+   ],
+   "owner": "artfx",
+   "score_min": 0.666,
+   "detail_min": 0.362,
+   "calibration": {
+    "method": "inherits the thresholds of bolt-hit until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "vfx-stun": {
+   "what": "the Keeper stun loop (art sheet VFX_Stun, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
+   "refs": [
+    "d-gear-break",
+    "bar-casters"
+   ],
+   "owner": "artfx",
+   "score_min": 0.666,
+   "detail_min": 0.362,
+   "calibration": {
+    "method": "inherits the thresholds of bolt-hit until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "vfx-slow": {
+   "what": "the Keeper slow field (art sheet VFX_Slow, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
+   "refs": [
+    "d-clock-double-beat",
+    "bar-other-realm"
+   ],
+   "owner": "artfx",
+   "score_min": 0.582,
+   "detail_min": 0.408,
+   "calibration": {
+    "method": "inherits the thresholds of wind-lines until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "vfx-gust": {
+   "what": "the hostile wing gust in travel (art sheet VFX_Gust, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
+   "refs": [
+    "d-wing-gust",
+    "bar-other-realm"
+   ],
+   "owner": "artfx",
+   "score_min": 0.582,
+   "detail_min": 0.408,
+   "calibration": {
+    "method": "inherits the thresholds of wind-lines until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "vfx-gust-puff": {
+   "what": "the wing gust warning, release and expiry puff (art sheet VFX_GustPuff, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
+   "refs": [
+    "d-wing-gust",
+    "bar-other-realm"
+   ],
+   "owner": "artfx",
+   "score_min": 0.582,
+   "detail_min": 0.408,
+   "calibration": {
+    "method": "inherits the thresholds of wind-lines until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "vfx-blackout": {
+   "what": "the blackout veil (art sheet VFX_Blackout, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
+   "refs": [
+    "study-environment",
+    "bar-other-realm"
+   ],
+   "owner": "artfx",
+   "score_min": 0.5,
+   "detail_min": 0.085,
+   "calibration": {
+    "method": "inherits the thresholds of paper until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "vfx-restoration": {
+   "what": "the restoration after blackout (art sheet VFX_Restoration, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
+   "refs": [
+    "study-environment",
+    "bar-other-realm"
+   ],
+   "owner": "artfx",
+   "score_min": 0.5,
+   "detail_min": 0.085,
+   "calibration": {
+    "method": "inherits the thresholds of paper until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "vfx-departure": {
+   "what": "the Keeper's living departure (art sheet VFX_Departure, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
+   "refs": [
+    "d-clock-damage",
+    "bar-casters"
+   ],
+   "owner": "artfx",
+   "score_min": 0.729,
+   "detail_min": 0.281,
+   "calibration": {
+    "method": "inherits the thresholds of owl-bolt until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "vfx-light-shaft": {
+   "what": "the light shaft falling into the abyss (NAR-05) (art sheet VFX_LightShaft, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
+   "refs": [
+    "study-environment",
+    "bar-other-realm"
+   ],
+   "owner": "artfx",
+   "score_min": 0.5,
+   "detail_min": 0.085,
+   "calibration": {
+    "method": "inherits the thresholds of paper until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "vfx-umbra": {
+   "what": "the umbrella's umbra shadow (NAR-05) (art sheet VFX_Umbra, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
+   "refs": [
+    "study-environment",
+    "bar-other-realm"
+   ],
+   "owner": "artfx",
+   "score_min": 0.5,
+   "detail_min": 0.085,
+   "calibration": {
+    "method": "inherits the thresholds of paper until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
+  },
+  "vfx-light-spill": {
+   "what": "the lit-material spill on nearby surfaces (VFX-07, VFX-08) (art sheet M_VFX_Spill_PH / M_VFX_Sheet_PH, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
+   "refs": [
+    "wand-star",
+    "study-ella-small-blasts",
+    "study-ella-twin-stars",
+    "bar-casters"
+   ],
+   "owner": "artfx",
+   "score_min": 0.334,
+   "detail_min": 0.077,
+   "calibration": {
+    "method": "inherits the thresholds of wand-shot until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+   }
   }
  },
  "scene": {
@@ -1881,7 +3240,14 @@
    "scene": "bar-other-realm",
    "skyline": "bar-other-realm",
    "paper": "bar-other-realm",
-   "menu-screen": "bar-other-realm"
+   "menu-screen": "bar-other-realm",
+   "vfx-slow": "bar-other-realm",
+   "vfx-gust": "bar-other-realm",
+   "vfx-gust-puff": "bar-other-realm",
+   "vfx-blackout": "bar-other-realm",
+   "vfx-restoration": "bar-other-realm",
+   "vfx-light-shaft": "bar-other-realm",
+   "vfx-umbra": "bar-other-realm"
   },
   "default": "bar-casters",
   "palette_note": "The quality-bar colours (ash-blue flow, the yellows) and the GDD SH1.0 shot reds (crimson #FF3658, coral #FF7848, shadow #8F173C: the same values as bar-casters; the key art's rust of D-new-owl-shot-look is superseded, D-new-sh10-art-conflicts) are in style.json as capped accents (Josh, DECIDED 2026-11-10, D-new-palette-accents): art_check.py accepts them only in their role, hue band and share cap."
