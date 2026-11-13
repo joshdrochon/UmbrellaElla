@@ -349,3 +349,107 @@ FLOW-43,reset never erases the earned profile,i,settings2
 ART-04,credits/End screen uses the Start background (only Story+Title flag tested),i,flow
 ART-04,background moves slowly,i,flow
 ART-04,background art contains no characters,i,flow
+MOVE-07,arrow-key trim aliases,i,move
+MOVE-07,fire goes right while traveling left,i,move
+MOVE-07,right stick selects spells,i,move
+MOVE-08,D-pad left/right and [ cycle spells,i,flow
+MOVE-08,keys 2/3 bound to Stream/Twin,i,flow
+MOVE-08,right-stick directions select spells,i,flow
+MOVE-08,Escape/Menu opens pause during play,i,flow
+MOVE-08,Cross/A/Enter triggers retry on defeat screen,i,flow
+MOVE-09,mouse click selects in menus,i,flow
+MOVE-09,controller button remap,ii,flow
+MOVE-10,controller (gamepad) button remap in Controller menu,i,settings2
+MOVE-17,controller (gamepad) button remap in Controller menu,i,settings2
+SURV-05,clock HUD actually drawn in game,i,health
+SURV-05,"no extra clocks, umbrella icons or numeric count",i,health
+SURV-05,Shoot-only fall does not auto-catch,i,health
+SURV-05,no absorption cooldown (repeated world catches),i,health
+SURV-06,+1 life per point (lives value after purchase),ii,progression
+SURV-06,previous-rank dependency for three-rank tracks,i,progression
+FLOW-24,story events deterministic on retry,ii,levelchunks
+COM-12,Floodstrider/Courier male+female art present,ii,enemies2
+COM-12,identity consistent across actions/colours/damage states,ii,enemies2
+COM-12,gender parity tested only for Roadwarden,i,enemies2
+COM-12,Floodstrider two-person four-stilt rig,ii,enemies2
+COM-12,woman-carrier/man-operator version and per-role alternatives,ii,enemies2
+COM-12,carrier/operator roles stay distinct,ii,enemies2
+COM-12,enemy contact damage OFF,i,enemies2
+COM-12,zero HP stops new/delayed fire,i,enemies2
+COM-12,non-graphic defeat/disable/withdrawal visual,i,enemies2
+COM-12,launched projectiles obey ownership/exit after defeat,i,enemies2
+COM-12,equipment art adds no extra shots,i,enemies2
+COM-13,Roadwarden equipment variants fire red and yellow,ii,enemies2
+COM-13,Floodstrider crew versions fire red and yellow,i,enemies2
+COM-13,Courier gender variants fire red and yellow,i,enemies2
+FLOW-46,Floodstriders placed high without platform,i,enemies2
+FLOW-46,shot colour chosen independently of gender,i,enemies2
+FLOW-46,MIX02 authored yellow reserved first,i,enemies2
+FLOW-46,collision clearance of placed enemies,ii,enemies2
+FLOW-46,simultaneous-threat limits preserved,ii,enemies2
+FLOW-46,"unsafe/unreachable encounters rejected, ratio not forced",ii,enemies2
+HAZ-41,spawned enemy stays on its floating area in world,ii,levelchunks
+HAZ-41,holes and gaps in support accounted for,ii,levelchunks
+HAZ-41,patrol span shrinks to available surface,ii,levelchunks
+HAZ-41,turn/attack motion kept within support,ii,levelchunks
+FLOW-47,QA-40/41/42 automated tests as defined,ii,levelchunks
+FLOW-47,short/long stilt configs validated,ii,levelchunks
+FLOW-47,"actual body/weapon extents validated, not spawn points",i,levelchunks
+FLOW-47,safe firing/catch-lane test,ii,levelchunks
+FLOW-47,"seeded record: seed, revision, enemy type/colour/transform, results",ii,levelchunks
+COM-14,female Roadwarden red/yellow firing,i,enemies2
+COM-14,patrol cannot move target behind fixed-right fire,i,enemies2
+COM-14,equipment variants keep same burst/cadence,ii,enemies2
+COM-15,two-person rig on four stilts,ii,enemies2
+COM-15,adjustable short/long stilt heights,i,enemies2
+COM-15,placed high without floating platform,ii,enemies2
+COM-15,male/female crew fire red and yellow,i,enemies2
+COM-15,harmless legs leave real underbody passage,ii,enemies2
+COM-15,gender keeps crew count/HP/scale/targeting/stilts,i,enemies2
+COM-16,male/female propeller art,ii,enemies2
+COM-16,four mounts never give simultaneous shots,i,enemies2
+COM-17,launched shots resolve normally after withdrawal,i,enemies2
+COM-17,duplicate callback rejected in world,i,enemies2
+COM-18,all required traversal works with basic fire,i,enemies2
+COM-18,Courier need not die to supply healing,i,enemies2
+COM-18,descent window and left reset before every enemy,ii,enemies2
+HAZ-24,no horizontal whole-chunk mirror,i,levelchunks
+FLOW-30,clock HUD actually drawn in game (only layout math tested),i,health
+FLOW-30,"antique bronze/gold look, smoky translucent face, etched rim",ii,health
+FLOW-30,warm gold upper-right arc,i,health
+FLOW-30,"no extra clocks, umbrella HUD units or numeric count",i,health
+FLOW-30,hands high-contrast/readable over face across scenes,i,health
+FLOW-31,life-loss transition adds no protection window,i,health
+FLOW-32,absorbed energy visibly flows into the clock,ii,health
+FLOW-32,gold arc restores on heal / drains on hit,i,health
+FLOW-32,life hand unchanged on partial damage/heal,i,health
+FLOW-32,reserve handover shown without invulnerability/reset pause,i,health
+FLOW-33,ordinary red/yellow projectile damage is 1 (no bound key),i,health
+FLOW-33,same-shot heal overflow into spent reserve,i,health
+FLOW-33,handover grants no new protection,i,health
+FLOW-33,progression rollback applied before health restore,i,health
+FLOW-33,normal checkpoint passage does not heal,i,health
+FLOW-33,+1 life per point in Director's Cut,i,health
+VFX-06,no dynamic VFX/illumination baked into base sprites,ii,visuals
+VFX-06,"effects off: character stays dark, posed, damaged",i,visuals
+VFX-06,audio cleared on retry/phase reset/defeat,i,visuals
+VFX-06,effects cleared on defeat,i,visuals
+VFX-06,destroyed parts not restored incorrectly,i,visuals
+VFX-09,effects inspected at camera scale on every background/state,i,visuals
+VFX-09,visual threat extent matches hitboxes,i,visuals
+VFX-09,glow never implies range or hides safe gap,i,visuals
+VFX-09,red/yellow distinguishable without colour,ii,visuals
+VFX-09,warning/active/recovery distinguishable without colour,i,visuals
+VFX-09,VFX/animation obey pause/slow/cancel timing,i,visuals
+VFX-09,"no added delays, re-aims or beats",i,visuals
+CORE-04,"movement owns input mode, position/velocity, locks",i,move
+CORE-04,"weapons own emission/trajectory/hit identity, not ammo",i,move
+CORE-04,"encounter owns targets, scheduling, cancellation",i,move
+CORE-04,attack model owns target/path/warning/stroke/recovery,i,move
+CORE-04,presentation never infers damage from animation completion,i,move
+CORE-04,"story owns facts/cues, not combat success",i,move
+CORE-04,level owns route/checkpoints/spawns,i,move
+CORE-04,tuning owns validated persistence,i,move
+CORE-05,stable anchors and event identities,i,move
+CORE-05,cosmetic swaps keep target order and attack timing,i,move
+CORE-05,settings and earned growth independent,i,move
