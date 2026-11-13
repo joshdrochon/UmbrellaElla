@@ -115,5 +115,8 @@ struct UMBRELLAELLA_API FFlowRules
 	static EFlowCommand AfterCredits(EUmbrellaPlayMode Mode, bool bStatisticsOn);
 
 	/** Seconds of neutral input so far: resets to 0 when a key is held. */
+	/** FLOW-34: the sound-list row the Start screen plays (looped music). */
+	static FName TitleMusicId();
+
 	static float AdvanceNeutral(float NeutralSoFar, float DeltaSeconds, bool bAnyHeld);
 };

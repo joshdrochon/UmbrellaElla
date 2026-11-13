@@ -126,6 +126,8 @@ private:
 	void SetInputModeFor(EFlowScreen To);
 	void AddViewportWidget(const TSharedRef<SWidget>& Widget);
 	void ReturnToTitle();
+	/** FLOW-34: the Start screen's music (audio's MusicTitle row through the cue subsystem). */
+	void PlayTitleMusic();
 	void QuitGame();
 	bool IsAnyNeutralKeyHeld() const;
 	void OnPausePressed();

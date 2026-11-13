@@ -6,7 +6,7 @@
 #include "Core/UmbrellaTuning.h"
 #include "Encounter/EncounterDirectorSubsystem.h"
 #include "Engine/World.h"
-#include "Engine/World.h"
+#include "Feedback/Audio/UmbrellaCueSubsystem.h"
 #include "Engine/GameViewportClient.h"
 #include "Engine/LocalPlayer.h"
 #include "EnhancedInputComponent.h"
@@ -175,6 +175,7 @@ void AUmbrellaPlayerController::BeginPlay()
 	SetInputBlocked(true);
 	ShowScreenWidget();
 	SetInputModeFor(Screen);
+	PlayTitleMusic();
 
 	const AGameModeBase* GameMode = GetWorld() ? GetWorld()->GetAuthGameMode() : nullptr;
 	if (GameMode && IsFeatureEnabled(EFeatureId::FLOW_49) && FFlowRules::IsTryAgainStart(GameMode->OptionsString))
@@ -923,6 +924,18 @@ bool AUmbrellaPlayerController::IsSettingsMenuOpen() const
 	const UGameInstance* Instance = GetGameInstance();
 	const USettingsMenuSubsystem* Settings = Instance ? Instance->GetSubsystem<USettingsMenuSubsystem>() : nullptr;
 	return Settings && Settings->IsSettingsOpen();
+}
+
+void AUmbrellaPlayerController::PlayTitleMusic()
+{
+	if (!IsFeatureEnabled(EFeatureId::FLOW_34))
+	{
+		return;
+	}
+	if (UUmbrellaCueSubsystem* Cues = GetWorld() ? GetWorld()->GetSubsystem<UUmbrellaCueSubsystem>() : nullptr)
+	{
+		Cues->PlaySoundById(FFlowRules::TitleMusicId());
+	}
 }
 
 void AUmbrellaPlayerController::ReturnToTitle()
