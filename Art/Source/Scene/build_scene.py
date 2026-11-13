@@ -519,7 +519,7 @@ def etch_post(path, seed, mode):
     grain = rng.normal(0, 1, (h, w)).astype(np.float32)
     fib = _blur(rng.normal(0, 1, (h, w)), 1) * 0 + np.repeat(rng.normal(0, 1, (h, w // 12 + 1)), 12, axis=1)[:, :w]
     blot = _smooth_field(rng, h, w, 40, 1.0) + _smooth_field(rng, h, w, 11, 0.6)
-    tone = 1.0 + (0.16 + 0.22 * (yy > h - 90)) * blot + 0.10 * grain + 0.05 * fib
+    tone = 1.0 + (0.16 + 0.34 * (yy > h - 90)) * blot + 0.10 * grain + 0.05 * fib
     # 4. hatching: diagonal engraved lines, stronger toward the roofline (top of each mass)
     hatch = ((xx * 0.8 + yy * 1.0) % 4.0 < 1.1).astype(np.float32)
     cross = ((xx * -0.8 + yy * 1.0) % 7.0 < 0.9).astype(np.float32)
@@ -533,6 +533,8 @@ def etch_post(path, seed, mode):
     rim = np.clip(a - up, 0, 1) * (a > 0.5)
     rim = _blur(rim, 1) * 1.2
     dark = dark + rim[..., None] * np.array([0.30, 0.20, 0.13])[None, None, :]
+    speck = (rng.random((h, w)) < 0.012).astype(np.float32) * rng.uniform(0.04, 0.12, (h, w))
+    dark = dark + speck[..., None] * np.array([1.0, 0.85, 0.7])[None, None, :]
     dark = dark * (1 - strand[..., None]) + rgb * strand[..., None] * 1.05
     rcol = np.array([0.30, 0.095, 0.060])[None, None, :] * (0.7 + 0.5 * np.clip(blot + 0.5, 0, 1))[..., None] + lines * 0.8
     dark = np.where(rust[..., None], rcol, dark)
@@ -542,7 +544,9 @@ def etch_post(path, seed, mode):
     # 6. window glow: gold stays bright with grain; soft halo bleeds into the ink
     halo = _blur(gold.astype(np.float32), 4)
     out = out + (halo * (~gold) * (a > 0.5))[..., None] * np.array([0.22, 0.17, 0.07])[None, None, :]
-    gcol = np.array([0.91, 0.77, 0.42])[None, None, :] * (0.90 + 0.10 * np.clip(grain * 0.5 + 0.5, 0, 1))[..., None]
+    core = _blur(gold.astype(np.float32), 2)    # lit centre, cooler amber toward the frame
+    gcol = (np.array([0.78, 0.55, 0.24])[None, None, :] * (1 - core[..., None]) + np.array([0.92, 0.76, 0.42])[None, None, :] * core[..., None])
+    gcol = gcol * (0.88 + 0.12 * np.clip(grain * 0.5 + 0.5, 0, 1))[..., None]
     out = np.where(gold[..., None], gcol, out)
     res = np.concatenate([np.clip(out, 0, 1), a[..., None]], axis=2)[::-1]
     img.pixels = res.astype(np.float32).ravel().tolist()
