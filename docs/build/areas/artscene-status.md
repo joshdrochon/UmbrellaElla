@@ -87,3 +87,10 @@ or calibration miss; the tool says "judge again"), never a counted one.
 - Earlier "round 14" record was a hand-typed entry; the tool-written record replaces it as evidence. Re-ran skyline_r2_keyed.png: tool logged round 15 in
   pipeline/art/critic/skyline.json (calibration 7/9, checks pass 0.781, verdict reference, two pairs short of 3 calibrated sessions, context pair missing).
   Not a pass. Waiting on area/artslots backdrop slot for the context shot.
+
+## Nov 13: paper (Gemini, key loaded in the generating shell only)
+- Prompt paper_r1.txt reviewed by a fresh session (paper-review.md), applied. r1: art_ref 0.807, screen/art checks pass. Panel (tool-written record, round 1, calibration 4/6):
+  quality-bar pair ours, reference pair (star-paper tile) reference. Gap: crisp vector lines and plain white dots sit on top, flat digital weave. Context pair missing.
+- r2 (prompt paper_r2.txt, hand-etched lines, soft ivory dots): art_ref 0.813 but the model painted a photographed sheet with a deckled edge, lines only at the
+  borders. Ours: prompt invited "sheet"/"pressed into paper". Not panelled. Next: r3 prompt without "sheet"/"etching paper", wind lines inside the frame.
+- Spend so far $7.746 of $33.82 (shared counter). Still waiting on area/artslots for the context shot; nothing ships.
