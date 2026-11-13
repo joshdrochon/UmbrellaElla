@@ -109,3 +109,5 @@ missing `tools/build/agent_play.py` on main (not my lane).
 - Spend: $9.774 of $33.82 total (this lane $3.0 across r1-r3 and the lockup).
 - Next: (1) lettering wear on the lockup (grain drawn over it too, or re-paint with heavier chipping), (2) mute the amber sky in
   the ground, (3) re-panel; then panel the other 11 screens (none judged yet).
+- Checks on this commit: build exit 0, `UmbrellaElla.UI` 6/6 PASS, module_check 0 problems (the style assets singleton now found by object name, no mutable static), ui_check ci PASS, affected python tests ran clean.
+- STATE: ui-title NOT passed (reference pair lost in r8-r13); the other 11 screens are not yet judged. Not blocked on the lead; the loop continues from "Next" above.

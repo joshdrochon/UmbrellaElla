@@ -40,7 +40,7 @@ namespace
 	UUmbrellaUIStyleAssets* UmbrellaUIAssets()
 	{
 		// Own rooted instance (the class default stays read-only); its constructor finds the same textures.
-		static UUmbrellaUIStyleAssets* Instance = nullptr;
+		UUmbrellaUIStyleAssets* Instance = FindObject<UUmbrellaUIStyleAssets>(GetTransientPackage(), TEXT("UmbrellaUIStyleAssetsInstance"));
 		if (Instance == nullptr)
 		{
 			Instance = NewObject<UUmbrellaUIStyleAssets>(GetTransientPackage(), TEXT("UmbrellaUIStyleAssetsInstance"), RF_Transient);
