@@ -111,3 +111,13 @@ missing the agent-play script on main (not my lane).
   the ground, (3) re-panel; then panel the other 11 screens (none judged yet).
 - Checks on this commit: build exit 0, `UmbrellaElla.UI` 6/6 PASS, module_check 0 problems (the style assets singleton now found by object name, no mutable static), ui_check ci PASS, affected python tests ran clean.
 - STATE: ui-title NOT passed (reference pair lost in r8-r13); the other 11 screens are not yet judged. Not blocked on the lead; the loop continues from "Next" above.
+
+## Round 14-15 re-record (13 Nov, artui worker, after merging main 03fb8cef)
+- r14 "ours/ours" cited /tmp/uishots/title.png (not a repo file). Capture copied to `pipeline/art/proof/artui/ui-title/capture_title.png`
+  (same sha 9fea1187...) and the panel re-run through `art_loop.py run` with that repo path: round 15, same bytes,
+  verdict `reference` (quality_bar: ours, reference: reference), calibration 6/8, checks pass. So r14's pass was critic noise; ui-title is NOT passed.
+  Gap: "flatter vector-like fills, less paper grain and etched texture; lockup collides with the clock hands; menu small and weak".
+- `python3 tools/build/art_pass_verify.py` -> `art_pass_verify: PASS (0 verified passes, 0 problems)`
+- `python3 tools/build/art_inventory.py summary` -> `TOTAL=105 PASSED=0 artella=10 artkeeper=9 artscene=15 artui=22 artshots=10 artfx=27 artenemy=12`
+- Uncommitted in the tree (not part of this commit, not built or tested): `UmbrellaUIStyle.cpp` BodyFont now uses the display face.
+- Next: lockup/menu spacing (lockup overlaps hands), grain on the lockup; then panel the other 11 screens.
