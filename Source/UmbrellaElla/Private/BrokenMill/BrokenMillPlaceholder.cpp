@@ -1,3 +1,4 @@
+#include "Feedback/Art/ArtSlot.h"
 #include "BrokenMill/BrokenMillPlaceholder.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/StaticMesh.h"
@@ -23,6 +24,10 @@ void BrokenMillPlaceholder::ApplyCube(UStaticMeshComponent* Visual, UObject* Out
 	}
 	Visual->SetStaticMesh(Cube);
 	Visual->SetRelativeScale3D(FVector(Size.X / CubeSize, DepthScale, Size.Y / CubeSize));
+	if (ArtSlot::ApplyFlatUnlit(Visual, Outer, Color))
+	{
+		return;
+	}
 	if (UMaterialInterface* Base = LoadObject<UMaterialInterface>(nullptr, BrokenMillShapeMaterialPath, nullptr, LOAD_NoWarn | LOAD_Quiet))
 	{
 		UMaterialInstanceDynamic* Material = UMaterialInstanceDynamic::Create(Base, Outer);

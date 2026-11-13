@@ -12,6 +12,23 @@
 #include "Core/UmbrellaTuning.h"
 #include "Level/LevelCatalogue.h"
 
+namespace
+{
+	/** Unlit stand-in colour for a backdrop layer with no art: darker and cooler the farther back, so gameplay reads in front. */
+	FLinearColor BackdropStandInColor(FName LayerName)
+	{
+		if (LayerName == TEXT("Sky"))
+		{
+			return FLinearColor(0.20f, 0.19f, 0.17f, 1.0f);
+		}
+		if (LayerName == TEXT("FarLand"))
+		{
+			return FLinearColor(0.16f, 0.15f, 0.14f, 1.0f);
+		}
+		return FLinearColor(0.12f, 0.11f, 0.10f, 1.0f);
+	}
+}
+
 bool UUmbrellaBackdropSubsystem::IsLayerEnabled(FName LayerName)
 {
 	if (LayerName == TEXT("Sky"))
@@ -107,6 +124,7 @@ int32 UUmbrellaBackdropSubsystem::BuildLayers()
 		}
 		Panel->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		Panel->SetGenerateOverlapEvents(false);
+		ArtSlot::ApplyFlatUnlit(Panel, Layer, BackdropStandInColor(Spec.Name));
 		const float Unit = UmbrellaBackdropConst::EngineCubeSize;
 		Panel->SetRelativeScale3D(FVector(UmbrellaBackdropConst::PanelWidth / Unit, UmbrellaBackdropConst::PanelThickness, UmbrellaBackdropConst::PanelHeight / Unit));
 		Layer->SetRootComponent(Panel);

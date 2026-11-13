@@ -1,3 +1,4 @@
+#include "Feedback/Art/ArtSlot.h"
 #include "Trap/UmbrellaTrap.h"
 #include "Trap/TrapTuning.h"
 #include "Components/BoxComponent.h"
@@ -57,6 +58,7 @@ void AUmbrellaTrap::BeginPlay()
 	const FVector Extent = Hazard->GetUnscaledBoxExtent();
 	Placeholder->SetRelativeScale3D(FVector(Extent.X * 2.0 / TrapConst::CubeSize, Tuning().PlaceholderDepthScale, Extent.Z * 2.0 / TrapConst::CubeSize));
 	Placeholder->SetRelativeLocation(FVector(0.0, UmbrellaDrawOrder::HazardY, 0.0));
+	ArtSlot::ApplyFlatUnlit(Placeholder, this, UmbrellaArtSlotConst::StandInDefaultColor);
 	Placeholder->RegisterComponent();
 }
 

@@ -1,3 +1,4 @@
+#include "Feedback/Art/ArtSlot.h"
 #include "Enemy/UmbrellaEnemy.h"
 #include "Enemy/EnemyTuning.h"
 #include "Components/BoxComponent.h"
@@ -83,6 +84,7 @@ void AUmbrellaEnemy::BeginPlay()
 	Placeholder->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Placeholder->SetupAttachment(RootComponent);
 	Placeholder->SetRelativeScale3D(FVector(Profile.Body.X / EnemyConst::CubeSize, Tuning().PlaceholderDepthScale, Profile.Body.Y / EnemyConst::CubeSize));
+	ArtSlot::ApplyFlatUnlit(Placeholder, this, UmbrellaArtSlotConst::StandInEnemyColor);
 	Placeholder->RegisterComponent();
 }
 
