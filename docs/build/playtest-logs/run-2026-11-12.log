@@ -1,0 +1,44 @@
+PLAYTEST_CAM04 profile=mill_lower_v1_trim0 health=full lift_min=1.00 lift_max=1.00 vert_disp=240.00 env_min=-1464.00 env_max=288.00 qualified=1
+PLAYTEST_CAM04 profile=mill_lower_v1_trim_up health=full lift_min=1.00 lift_max=1.00 vert_disp=288.00 env_min=-1464.00 env_max=288.00 qualified=1
+PLAYTEST_CAM04 profile=mill_lower_v1_trim_down health=full lift_min=1.00 lift_max=1.00 vert_disp=192.00 env_min=-1464.00 env_max=288.00 qualified=1
+PLAYTEST_CAM04 profile=mill_lower_v1_trim0 health=min lift_min=0.32 lift_max=0.32 vert_disp=77.60 env_min=-1464.00 env_max=288.00 qualified=1
+PLAYTEST_CAM04 profile=mill_lower_v1_trim_up health=min lift_min=0.32 lift_max=0.32 vert_disp=93.12 env_min=-1464.00 env_max=288.00 qualified=1
+PLAYTEST_CAM04 profile=mill_lower_v1_trim_down health=min lift_min=0.32 lift_max=0.32 vert_disp=62.08 env_min=-1464.00 env_max=288.00 qualified=1
+PLAYTEST_CAM07 decision_height=270.00 reopen_height=61.00 required_current_active=1 challenge_clear=0
+PLAYTEST_FLOW25 drawn_width=0.00 usable_width=200.00 tol=4.00 lead_left_ok=1 lead_right_ok=1 stages_total=9 stages_covered=9
+PLAYTEST_HAZ16 res=1280x720 debug=0 health=healthy attempts=5 useful_hits=1 damage=0.00 reset_s=0.66 run_s=1.00 warned=0 autoaim=0 invuln=0 teleport=0 boring=1 cleared=1
+PLAYTEST_FLOW28 health_before=2 health_after=2 max=3 threats=4 framing_settled=1 boss_began=1
+SMOKE_OK map=L_Graybox fps=2.6 worst_ms=3750.5 commit=unknown input=ok input_vz=-330.0 gamepad=ok gp_vx=531.2 gp_attack_vz=-330.0 res=1280x720 win=windowed textpx=28 load_ms=3819 workbench=1 view=1280x720 aspect=1.778 debugdraw=0
+PLAYTEST_CAM04 profile=mill_lower_v1_trim0 health=full lift_min=1.00 lift_max=1.00 vert_disp=240.00 env_min=-1464.00 env_max=288.00 qualified=1
+PLAYTEST_CAM04 profile=mill_lower_v1_trim_up health=full lift_min=1.00 lift_max=1.00 vert_disp=288.00 env_min=-1464.00 env_max=288.00 qualified=1
+PLAYTEST_CAM04 profile=mill_lower_v1_trim_down health=full lift_min=1.00 lift_max=1.00 vert_disp=192.00 env_min=-1464.00 env_max=288.00 qualified=1
+PLAYTEST_CAM04 profile=mill_lower_v1_trim0 health=min lift_min=0.32 lift_max=0.32 vert_disp=77.60 env_min=-1464.00 env_max=288.00 qualified=1
+PLAYTEST_CAM04 profile=mill_lower_v1_trim_up health=min lift_min=0.32 lift_max=0.32 vert_disp=93.12 env_min=-1464.00 env_max=288.00 qualified=1
+PLAYTEST_CAM04 profile=mill_lower_v1_trim_down health=min lift_min=0.32 lift_max=0.32 vert_disp=62.08 env_min=-1464.00 env_max=288.00 qualified=1
+PLAYTEST_CAM07 decision_height=270.00 reopen_height=61.00 required_current_active=1 challenge_clear=0
+PLAYTEST_FLOW25 drawn_width=0.00 usable_width=200.00 tol=4.00 lead_left_ok=1 lead_right_ok=1 stages_total=9 stages_covered=9
+PLAYTEST_HAZ16 res=1280x720 debug=0 health=low attempts=5 useful_hits=1 damage=0.00 reset_s=0.70 run_s=1.01 warned=0 autoaim=0 invuln=0 teleport=0 boring=1 cleared=1
+PLAYTEST_FLOW28 health_before=2 health_after=2 max=3 threats=4 framing_settled=1 boss_began=1
+SMOKE_OK map=L_Graybox fps=3.2 worst_ms=2277.3 commit=unknown input=ok input_vz=-330.0 gamepad=ok gp_vx=531.2 gp_attack_vz=-330.0 res=1280x720 win=windowed textpx=28 load_ms=3894 workbench=1 view=1280x720 aspect=1.778 debugdraw=0
+PLAYTEST_CAM04 profile=mill_lower_v1_trim0 health=full lift_min=1.00 lift_max=1.00 vert_disp=240.00 env_min=-1464.00 env_max=288.00 qualified=1
+PLAYTEST_CAM04 profile=mill_lower_v1_trim_up health=full lift_min=1.00 lift_max=1.00 vert_disp=288.00 env_min=-1464.00 env_max=288.00 qualified=1
+PLAYTEST_CAM04 profile=mill_lower_v1_trim_down health=full lift_min=1.00 lift_max=1.00 vert_disp=192.00 env_min=-1464.00 env_max=288.00 qualified=1
+PLAYTEST_CAM04 profile=mill_lower_v1_trim0 health=min lift_min=0.32 lift_max=0.32 vert_disp=77.60 env_min=-1464.00 env_max=288.00 qualified=1
+PLAYTEST_CAM04 profile=mill_lower_v1_trim_up health=min lift_min=0.32 lift_max=0.32 vert_disp=93.12 env_min=-1464.00 env_max=288.00 qualified=1
+PLAYTEST_CAM04 profile=mill_lower_v1_trim_down health=min lift_min=0.32 lift_max=0.32 vert_disp=62.08 env_min=-1464.00 env_max=288.00 qualified=1
+PLAYTEST_CAM07 decision_height=270.00 reopen_height=61.00 required_current_active=1 challenge_clear=0
+PLAYTEST_FLOW25 drawn_width=0.00 usable_width=200.00 tol=4.00 lead_left_ok=1 lead_right_ok=1 stages_total=9 stages_covered=9
+PLAYTEST_HAZ16 res=1440x1080 debug=0 health=healthy attempts=5 useful_hits=1 damage=0.00 reset_s=0.64 run_s=1.01 warned=0 autoaim=0 invuln=0 teleport=0 boring=1 cleared=1
+PLAYTEST_FLOW28 health_before=2 health_after=2 max=3 threats=4 framing_settled=1 boss_began=1
+SMOKE_OK map=L_Graybox fps=5.3 worst_ms=1485.6 commit=unknown input=ok input_vz=-330.0 gamepad=ok gp_vx=531.2 gp_attack_vz=-330.0 res=1440x1080 win=windowed textpx=28 load_ms=2945 workbench=1 view=1440x810 aspect=1.778 debugdraw=0
+PLAYTEST_CAM04 profile=mill_lower_v1_trim0 health=full lift_min=1.00 lift_max=1.00 vert_disp=240.00 env_min=-1464.00 env_max=288.00 qualified=1
+PLAYTEST_CAM04 profile=mill_lower_v1_trim_up health=full lift_min=1.00 lift_max=1.00 vert_disp=288.00 env_min=-1464.00 env_max=288.00 qualified=1
+PLAYTEST_CAM04 profile=mill_lower_v1_trim_down health=full lift_min=1.00 lift_max=1.00 vert_disp=192.00 env_min=-1464.00 env_max=288.00 qualified=1
+PLAYTEST_CAM04 profile=mill_lower_v1_trim0 health=min lift_min=0.32 lift_max=0.32 vert_disp=77.60 env_min=-1464.00 env_max=288.00 qualified=1
+PLAYTEST_CAM04 profile=mill_lower_v1_trim_up health=min lift_min=0.32 lift_max=0.32 vert_disp=93.12 env_min=-1464.00 env_max=288.00 qualified=1
+PLAYTEST_CAM04 profile=mill_lower_v1_trim_down health=min lift_min=0.32 lift_max=0.32 vert_disp=62.08 env_min=-1464.00 env_max=288.00 qualified=1
+PLAYTEST_CAM07 decision_height=270.00 reopen_height=61.00 required_current_active=1 challenge_clear=0
+PLAYTEST_FLOW25 drawn_width=0.00 usable_width=200.00 tol=4.00 lead_left_ok=1 lead_right_ok=1 stages_total=9 stages_covered=9
+PLAYTEST_HAZ16 res=1440x1080 debug=0 health=low attempts=5 useful_hits=1 damage=0.00 reset_s=0.69 run_s=1.00 warned=0 autoaim=0 invuln=0 teleport=0 boring=1 cleared=1
+PLAYTEST_FLOW28 health_before=2 health_after=2 max=3 threats=4 framing_settled=1 boss_began=1
+SMOKE_OK map=L_Graybox fps=14.6 worst_ms=124.1 commit=unknown input=ok input_vz=-330.0 gamepad=ok gp_vx=531.2 gp_attack_vz=-330.0 res=1440x1080 win=windowed textpx=28 load_ms=2897 workbench=1 view=1440x810 aspect=1.778 debugdraw=0
