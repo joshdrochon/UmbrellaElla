@@ -81,8 +81,7 @@ ui-settings-controller-spell-3,button,Spell 3,,yes,screen=settings-controller; w
 ui-settings-controller-spell-4,button,Spell 4,,yes,screen=settings-controller; where=SettingsModel.cpp
 ui-settings-controller-next-spell,button,Next spell,,yes,screen=settings-controller; where=SettingsModel.cpp
 ui-settings-controller-previous-spell,button,Previous spell,,yes,screen=settings-controller; where=SettingsModel.cpp
-credit-rick-rispoli,button,Rick Rispoli,,yes,screen=credits; where=SettingsModel.cpp
-credit-the-executive-producer-executive-produce,screen,[the executive producer] - Executive Producer,,yes,screen=credits; where=SettingsModel.cpp
+credit-rick-rispoli-executive-producer,screen,Rick Rispoli - Executive Producer,,yes,screen=credits; where=SettingsModel.cpp
 credit-richard-producer,button,Richard - Producer,,yes,screen=credits; where=SettingsModel.cpp
 credit-josh-rochon-technical-lead,screen,Josh Rochon - Technical Lead,,yes,screen=credits; where=SettingsModel.cpp
 ui-journey-complete-enemies-defeated,button,Enemies defeated,,yes,screen=journey-complete; where=StoryRules.cpp
@@ -109,6 +108,7 @@ ui-defeat-quit-to-title,button,Quit to Title,,yes,screen=defeat; where=FlowMenuT
 story-ending-page-1,end_card,"Eventually, the owl's pursuit ends, and he retreats into the darkness, leaving Ella alive but still suspended between worlds.",F3;P8,yes,screen=ending; where=FlowStoryText.cpp
 story-ending-page-2,end_card,"She has survived, yet neither her fate nor the owl's intentions are resolved. Perhaps the owl has merely postponed his judgment, or perhaps something about Ella has challenged even his understanding of time.",F3;P8,yes,screen=ending; where=FlowStoryText.cpp
 credit-umbrella-ella-the-stolen-hour,screen,Umbrella Ella The Stolen Hour,,yes,screen=credits; where=FlowStoryText.cpp
+credit-rick-rispoli,screen,Rick Rispoli,,yes,screen=credits; where=FlowStoryText.cpp
 credit-rick-role,screen,Executive Producer,,yes,screen=credits; where=FlowStoryText.cpp
 ui-tutorial-while-dropping-shoot-with-j,screen,"While dropping, shoot with J or the left mouse button. Shots always fly right. Basic shots never run out.",,yes,screen=tutorial; where=FlowTutorialText.cpp
 ui-tutorial-absorb-yellow-shots-with-k,screen,Absorb yellow shots with K or the right mouse button to heal. Dash with Q and E or the bumpers.,,yes,screen=tutorial; where=FlowTutorialText.cpp

@@ -102,10 +102,9 @@ TArray<FName> SettingsRules::GetDeveloperOptionNames(EUmbrellaPlayMode Mode)
 
 TArray<FSettingsCreditLine> SettingsRules::GetCredits()
 {
-	// Supplied by Rick (GDD section 7). Rick's role is OPEN, so it stays empty.
+	// Supplied by Rick (GDD section 7). Rick is the Executive Producer (D-new-credits-ep), same as the Flow credits.
 	TArray<FSettingsCreditLine> Lines;
-	Lines.Add({TEXT("Rick Rispoli"), FString()});
-	Lines.Add({TEXT("[the executive producer]"), TEXT("Executive Producer")});
+	Lines.Add({TEXT("Rick Rispoli"), TEXT("Executive Producer")});
 	Lines.Add({TEXT("Richard"), TEXT("Producer")});
 	Lines.Add({TEXT("Josh Rochon"), TEXT("Technical Lead")});
 	return Lines;

@@ -170,14 +170,18 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FSettingsCreditsTest, "UmbrellaElla.Settings.Cr
 bool FSettingsCreditsTest::RunTest(const FString& Parameters)
 {
 	const TArray<FSettingsCreditLine> Credits = SettingsRules::GetCredits();
-	TestEqual(TEXT("four credit lines"), Credits.Num(), 4);
+	TestEqual(TEXT("three credit lines"), Credits.Num(), 3);
 	bool bFoundJosh = false;
 	for (const FSettingsCreditLine& Line : Credits)
 	{
 		bFoundJosh = bFoundJosh || (Line.Name == TEXT("Josh Rochon") && Line.Role == TEXT("Technical Lead"));
 	}
 	TestTrue(TEXT("Josh Rochon, Technical Lead"), bFoundJosh);
-	TestTrue(TEXT("Rick's role is still open"), Credits[0].Name == TEXT("Rick Rispoli") && Credits[0].Role.IsEmpty());
+	TestTrue(TEXT("Rick Rispoli, Executive Producer"), Credits[0].Name == TEXT("Rick Rispoli") && Credits[0].Role == TEXT("Executive Producer"));
+	for (const FSettingsCreditLine& Line : Credits)
+	{
+		TestFalse(TEXT("no separate executive-producer line"), Line.Name.Contains(TEXT("executive producer")));
+	}
 	return true;
 }
 
