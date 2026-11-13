@@ -407,6 +407,7 @@ def first_frame(path):
 
 
 _SIGS = {}
+INK_L = 35   # art bible: INK #171614 and the darks; below this L* a pixel is ink, not a hue
 STYLE = os.path.join(ROOT, "pipeline", "art", "style.json")
 _BANDS = []
 
@@ -465,19 +466,32 @@ def _signature(path, cell=None):
     mask = [[p[3] >= 128 for p in row] for row in g]
     lum = [[lab(p)[0] if p[3] >= 128 else 100.0 for p in row] for row in g]
     opaque = [p for row in g for p in row if p[3] >= 128]
-    dark = sum(1 for p in opaque if lab(p)[0] <= 35) / max(1, len(opaque))
-    off = 0
+    dark = sum(1 for p in opaque if lab(p)[0] <= INK_L) / max(1, len(opaque))
     counts = {}
     for p in opaque:
-        L, a, b = lab(p)
-        hue = math.degrees(math.atan2(b, a)) % 360
-        if math.hypot(a, b) > 18 and not hue_allowed(hue, math.hypot(a, b)):
-            off += 1   # a hue outside the gold and rust bands and the capped accents (art bible pillar 3)
         k = tuple(int(v) // 6 for v in p[:3])
         counts[k] = counts.get(k, 0) + 1
+    # Off-band share on the source pixels, not the 24x24 average: ink lines next to crimson average to a muddy dark
+    # red that is no real hue. Dark ink pixels (L* <= INK_L, the same threshold as `dark`) carry no hue and are
+    # ignored (D-new-vfx-calibration, 13 Nov).
+    off = tot = 0
+    sx, sy = max(1, (fx1 - fx0) // 96), max(1, (fy1 - fy0) // 96)
+    for y in range(fy0, fy1, sy):
+        r = rows[y]
+        for x in range(fx0, fx1, sx):
+            q = r[x]
+            if q[3] < 128:
+                continue
+            L, a, b = lab(q)
+            if L <= INK_L:
+                continue
+            tot += 1
+            c = math.hypot(a, b)
+            if c > 18 and not hue_allowed(math.degrees(math.atan2(b, a)) % 360, c):
+                off += 1   # a hue outside the gold and rust bands and the capped accents (art bible pillar 3)
     flat = max(counts.values()) / len(opaque) if counts else 0.0
     return {"mask": mask, "edges": edge_hist(lum), "dark": dark, "aspect": (fx1 - fx0) / float(fy1 - fy0),
-            "offband": off / max(1, len(opaque)), "flat": flat, "detail": detail(rows, box)}
+            "offband": off / max(1, tot), "flat": flat, "detail": detail(rows, box)}
 
 
 def detail(rows, box, delta_l=4.0):
