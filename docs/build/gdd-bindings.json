@@ -1858,13 +1858,6 @@
  "OWL-08.protected": {
   "expr": "FKeeperTuning.ClockReserveHp / FKeeperTuning.ClockHp * 100"
  },
- "CAM-05.value.2": {
-  "const": "Source/UmbrellaElla/Public/Level/LevelPlan.h:MidHeightFraction"
- },
- "CAM-05.h.3": {
-  "const": "Source/UmbrellaElla/Public/Level/LevelPlan.h:HighFraction",
-  "tol": 0.06
- },
  "unbindable": {
   "ANIM-04.boots": "0 in “review states 100/75/50/25/5/0, boots fading by 75 and”: art/animation/narrative spec in prose (review state, mask or ordinal), no game field",
   "ANIM-04.living": "50 in “boots fading by 75 and hat by 50, living mask/scarf retai”: art/animation/narrative spec in prose (review state, mask or ordinal), no game field",
@@ -2085,6 +2078,16 @@
    "owner": "arena (FFieldTuning)",
    "missing": "a recovery-climb guide 'about 0.15H'",
    "was": "0.15 = recovery climb \"about 0.15H\" in the camera guideline; an authoring guide with no field"
+  },
+  "CAM-05.value.2": {
+   "owner": "level (ChunkLayoutConst)",
+   "missing": "a middle internal camera band 'near 0.5H' (InterfaceLow/High 0.35-0.65 is the entrance/exit interface, bound under CAM-05.h)",
+   "was": "0.5 = LevelPlanConst::MidHeightFraction, removed by 3935a344 (authored chunk layouts replaced the placeholder columns)"
+  },
+  "CAM-05.h.3": {
+   "owner": "level (ChunkLayoutConst)",
+   "missing": "an upper internal camera band 'near 0.7H'",
+   "was": "0.7 = LevelPlanConst::HighFraction 0.75 (tol 0.06), removed by 3935a344 (authored chunk layouts replaced the placeholder columns)"
   }
  },
  "HAZ-03.guard_feet": {
