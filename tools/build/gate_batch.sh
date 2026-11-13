@@ -13,6 +13,8 @@ cd "$W" && git reset -q --hard origin/main && git clean -qfd
 picked=(); seen=""
 for a in "$@"; do
   tip=$(git rev-parse "area/$a" 2>/dev/null) || continue
+  grep -qx "$a" "$L/gate-never" 2>/dev/null && continue   # stopped or stale lanes the lead listed
+  [ "$(git rev-list --count origin/main..area/$a 2>/dev/null)" = 0 ] && continue   # already on main: nothing to gate
   python3 "$ROOT/tools/build/gate_seen.py" check "$L" "$a" "$tip" >/dev/null || continue
   # Fast pre-check in the lane's worktree (inventory, pipeline_check, quality vs main): a lane that would fail is left out
   # of the batch and told why, instead of failing the whole batch (Nov 13: 8-lane batches failing on one doc path).
