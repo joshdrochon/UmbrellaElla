@@ -77,11 +77,11 @@ read like the owl).
 Each one is a row in `docs/decisions.md`; Richard answers. Until then the default holds and nothing in the row ships.
 | ID | Question | Default until answered | Row |
 |---|---|---|---|
-| Q1 | Which #story rows (P1-P10) become canon? Is the player character's name Ella (GDD 1.3 lists it only as a DEFERRED idea)? | None: in-game text uses only GDD rows and no name for her | D-new-story-canon |
+| Q1 | Which #story rows (P1-P10) become canon? Is the player character's name Ella (GDD 1.3 lists it only as a DEFERRED idea)? | Answered 2026-11-12 (agent default, Josh: no one waits): P1-P8, Ella and Mother are CONFIRMED; P9 and P10 stay PROPOSED. The team may override | D-new-story-canon |
 | Q2 | The game's title: Umbrella Ella, nUMBeR ELLA, or another? | Title screen and store page keep "TBD"; nothing ships with a title until confirmed | D-new-story-canon |
 | Q3 | The owl's name, if any. | "the owl"; never the floated name on the deny list | D-new-owl-name |
 | Q4 | What are Ella's gold shots in the story? The art bible calls them the "wand bolt"; the #story premise does not mention magic. | Text never explains the shots | D-new-story-canon |
-| Q5 | Night-to-dawn hour (GDD idea) or falling light of truth (#story) as the visual motif? | Neither in text | D-new-story-canon |
+| Q5 | Night-to-dawn hour (GDD idea) or falling light of truth (#story) as the visual motif? | Answered 2026-11-12 (agent default): the falling light of truth (P5, CONFIRMED); the night-to-dawn hour stays DEFERRED | D-new-story-canon |
 
 ## Tone target
 The voice a blind critic judges every line against (rubric row S3 in `tools/story_critic_prompt.md`).
