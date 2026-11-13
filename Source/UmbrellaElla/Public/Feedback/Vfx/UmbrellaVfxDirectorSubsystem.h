@@ -18,6 +18,11 @@ namespace UmbrellaVfxDirectorConst
 {
 	/** Most effects alive at once. One-shots beyond it are dropped; held state effects (warnings, veils) never are. */
 	static constexpr int32 MaxLive = 40;
+	/** Art capture only (-VfxDemo=<Key>): where the replayed effect sits, relative to Ella. */
+	static constexpr float DemoOffsetX = 150.0f;
+	static constexpr float DemoOffsetZ = 30.0f;
+	/** Art capture only: seconds into the demo when the scene (no UI) is written to Saved/Screenshots. */
+	static constexpr float DemoShotSeconds = 4.0f;
 	/** A held effect whose state never ends is cleared after this long, so nothing can stay up forever. */
 	static constexpr float MaxHeldSeconds = 20.0f;
 	/** Size of an effect that covers the whole view (blackout, slow, restoration). */
@@ -151,6 +156,11 @@ private:
 	FVector StreamEnd = FVector::ZeroVector;
 	EUmbrellaSpell Equipped = EUmbrellaSpell::SmallBlasts;
 	EUmbrellaAction EllaAction = EUmbrellaAction::Rise;
+	/** Art capture only: -VfxDemo=<Key> replays that effect beside Ella whenever none is live, so a smoke shot shows it. */
+	FName DemoKey = NAME_None;
+	float DemoStartClock = -1.0f;
+	bool bDemoShotTaken = false;
+	void StepDemo();
 	float Clock = 0.0f;
 	float LastFlashClock = UmbrellaVfxDirectorConst::NeverSeconds;
 	float LastBeatShotClock = UmbrellaVfxDirectorConst::NeverSeconds;
