@@ -1,7 +1,7 @@
 """Import the sndui lane's UI sounds as USoundWave assets (rebuildable). Same pattern as tools/build/assets/arena_audio_import.py.
 Run: UnrealEditor-Cmd UmbrellaElla.uproject -run=pythonscript -script=docs/build/requests/sndui_audio_import.py -unattended -nullrhi -nosplash -nocrashreports
-Audio/Source/<Id>/SW_<Id>_00.wav -> /Game/UmbrellaElla/Audio/<Id>/SW_<Id>_00, sound class SCL_UI, concurrency SCON_UI
-(pipeline/audio/audio-rules.json), 2D (no attenuation). A sound with no WAV yet is skipped with a warning."""
+Audio/Source/<Id>/SW_<Id>_00.wav -> /Game/UmbrellaElla/Audio/<Id>/SW_<Id>_00 plus the cue the game plays, SC_<Id>
+(one wave player): sound class SCL_UI, concurrency SCON_UI (pipeline/audio/audio-rules.json), 2D (no attenuation). A sound with no WAV yet is skipped with a warning."""
 import os
 import unreal
 
@@ -39,5 +39,22 @@ for t in tasks:
     wave.set_editor_property("concurrency_set", [ui_con])
     wave.set_editor_property("attenuation_settings", None)
     lib.save_loaded_asset(wave)
+    sid = t.destination_name[3:-3]
+    cue_path = "%s/SC_%s" % (t.destination_path, sid)
+    if lib.does_asset_exist(cue_path):
+        lib.delete_asset(cue_path)
+    cue = unreal.AssetToolsHelpers.get_asset_tools().create_asset("SC_%s" % sid, t.destination_path, unreal.SoundCue,
+                                                                  unreal.SoundCueFactoryNew())
+    if not cue:
+        unreal.log_error("sndui_audio_import: no cue for %s" % sid)
+        continue
+    player = unreal.new_object(unreal.SoundNodeWavePlayer, outer=cue)   # the factory's initial wave is protected in 5.8
+    player.set_editor_property("sound_wave", wave)
+    cue.set_editor_property("first_node", player)
+    cue.set_editor_property("sound_class_object", ui_class)
+    cue.set_editor_property("concurrency_set", [ui_con])
+    cue.set_editor_property("attenuation_settings", None)
+    cue.set_editor_property("override_attenuation", False)
+    lib.save_loaded_asset(cue)
     done += 1
 unreal.log("sndui_audio_import done: %d of %d sounds" % (done, len(IDS)))
