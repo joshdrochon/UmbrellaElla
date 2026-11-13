@@ -48,3 +48,19 @@ BossTargetHit, BossAttackTelegraphed, EncounterCompleted. Placeholder visuals ar
 COM-12..COM-18 and `Enemy/**` moved to the enemies area. Removed from this branch with the keeper-side code that only served them
 (enemy tuning fields, `ResetEnemies`, tuning-pointer refactor, enemy colours). Test-file `Step` renamed `KeeperTestStep` (unity -Wshadow).
 Build exit 0, `UmbrellaElla.Keeper` PASS 34, module_check, manifest_check, encounter_check 0 problems.
+
+## Clause pass (Nov 13, docs/build/clause-audit.csv lane=keeper, 158 clauses)
+Main's tags (ruleaudit lane) win; my 6 clauses below are now `proven`. Keeper ii left that need another lane: FLOW-09 x3 and
+OWL-06/10 retained capacity (health, progression: requests 6, 7), OWL-16 dash protection (health/move). The rest of the ii are art.
+
+| Clause (now proven) | Code | Proof (break-tested: removing the code fails the test) |
+|---|---|---|
+| OWL-30 new fire stops during stun; OWL-12 missiles continue | model `Step`: stun holds the pending queue | Keeper.StunHoldsQueuedFire |
+| OWL-19 vertical-exit check | `CanExitVertically`, director `FillVerticalBounds` (arena floor/ceiling, slowest trimmed rise/fall) | Keeper.TalonVerticalExitSuppressesImpossibleLaunch |
+| OWL-25 telegraph shows the curve | warning `Curve` = serial sign x 80 | Keeper.MiddleWarningShowsTheCurve |
+| OWL-27 second clack | `Stage` on commands; Pause strike at the stopped head; director AnimationCue `KeeperRearSecondClack` | Keeper.RearPauseSignalsUnfinishedStroke |
+| OWL-28 reprise cue | `BeatReprise` queued with the repeat; AnimationCue `KeeperBeatReprise` | Keeper.DoubleBeatRepriseCue |
+
+Also: `BossAttackTelegraphed.Value` is now each attack's own warning (gust 1.1, talon 1.05, casts 0.9), not always 0.9.
+Decisions (yours to overrule): stun HOLDS queued emissions (delivered after), not drops them; vertical-exit uses
+full-trim rise/fall speeds and needs tip half-width + radius clearance inside the arena within the 1.05 s warning.
