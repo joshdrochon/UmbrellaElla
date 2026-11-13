@@ -16,3 +16,7 @@ Tracked placeholders:
   family-target/neighbour defect (wind target has no telegraph kind); work side tried: one 650 ms swell, rising narrow whistle, valve knock, open tail.
   Needs fresh takes or a telegraph line in the wind family target.
 - WardenMove: blocked on request 2 in docs/build/requests/sndtele.md (style.json `enemy` target describes only the owl's projectiles).
+
+## Update (wind family target now describes the bellows warning, main fff114d)
+BellowsWarning passes: blind critic round 8 (fresh session, A1-A8 true, same take as before, no new ElevenLabs), style PASS, provenance generated.
+Round 1-7 failure was a check defect (wind target never described a warning). Still blocked: WardenMove (request 2).
