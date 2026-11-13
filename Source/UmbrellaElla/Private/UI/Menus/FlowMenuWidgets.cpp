@@ -5,6 +5,7 @@
 #include "Rendering/DrawElements.h"
 #include "Styling/CoreStyle.h"
 #include "UI/Style/UmbrellaUIStyle.h"
+#include "Widgets/Images/SImage.h"
 #include "Widgets/Layout/SBox.h"
 #include "Widgets/SBoxPanel.h"
 #include "Widgets/SOverlay.h"
@@ -115,7 +116,15 @@ void SFlowMenu::Construct(const FArguments& InArgs)
 		FString Name;
 		FString Subtitle;
 		const FString Heading = InArgs._Heading.ToString();
-		if (Heading.Split(TEXT("\n"), &Name, &Subtitle))
+		if (Heading.Split(TEXT("\n"), &Name, &Subtitle) && FUmbrellaUIStyle::TitleLockupBrush())
+		{
+			// The painted lockup (lettering, clock ring and hand in one image) replaces the typeset title.
+			Column->AddSlot().AutoHeight().HAlign(HAlign_Left).Padding(TextInset - UmbrellaUI::OrnamentWidth, 0.0f, 0.0f, 0.0f)
+			[
+				SNew(SImage).Image(FUmbrellaUIStyle::TitleLockupBrush())
+			];
+		}
+		else if (Heading.Split(TEXT("\n"), &Name, &Subtitle))
 		{
 			Column->AddSlot().AutoHeight().HAlign(HAlign_Left).Padding(TextInset, 0.0f, 0.0f, 0.0f)
 			[

@@ -18,6 +18,8 @@ struct FUmbrellaUIStyleData
 	TSharedPtr<FCompositeFont> DisplayComposite;
 	FSlateBrush GroundBrush;
 	bool bGroundValid = false;
+	FSlateBrush TitleLockupBrush;
+	bool bTitleLockupValid = false;
 	TUniquePtr<FSlateRoundedBoxBrush> Panel;
 	TUniquePtr<FSlateRoundedBoxBrush> SliderBar;
 	TUniquePtr<FSlateRoundedBoxBrush> SliderThumb;
@@ -86,6 +88,14 @@ namespace
 			Data->bGroundValid = true;
 		}
 
+		if (UTexture2D* Lockup = Assets->GetTitleLockup())
+		{
+			Data->TitleLockupBrush.SetResourceObject(Lockup);
+			Data->TitleLockupBrush.ImageSize = FVector2D(UmbrellaUI::LockupImageWidth, UmbrellaUI::LockupImageHeight);
+			Data->TitleLockupBrush.DrawAs = ESlateBrushDrawType::Image;
+			Data->bTitleLockupValid = true;
+		}
+
 		const FLinearColor Ink = FUmbrellaUIStyle::Ink();
 		const FLinearColor Gold = FUmbrellaUIStyle::Gold();
 		const FLinearColor Bright = FUmbrellaUIStyle::GoldBright();
@@ -122,7 +132,9 @@ UUmbrellaUIStyleAssets::UUmbrellaUIStyleAssets()
 {
 	static ConstructorHelpers::FObjectFinderOptional<UTexture2D> GroundFinder(TEXT("/Game/UmbrellaElla/UI/T_UI_Ground_PH.T_UI_Ground_PH"));
 	static ConstructorHelpers::FObjectFinderOptional<UTexture2D> ClockFinder(TEXT("/Game/UmbrellaElla/UI/T_UI_ClockFace_PH.T_UI_ClockFace_PH"));
+	static ConstructorHelpers::FObjectFinderOptional<UTexture2D> LockupFinder(TEXT("/Game/UmbrellaElla/UI/T_UI_TitleLockup_PH.T_UI_TitleLockup_PH"));
 	Ground = GroundFinder.Get();
+	TitleLockup = LockupFinder.Get();
 	ClockFace = ClockFinder.Get();
 }
 
@@ -181,6 +193,12 @@ const FSlateBrush* FUmbrellaUIStyle::GroundBrush()
 {
 	FUmbrellaUIStyleData& Data = UmbrellaUIStyleData();
 	return Data.bGroundValid ? &Data.GroundBrush : nullptr;
+}
+
+const FSlateBrush* FUmbrellaUIStyle::TitleLockupBrush()
+{
+	FUmbrellaUIStyleData& Data = UmbrellaUIStyleData();
+	return Data.bTitleLockupValid ? &Data.TitleLockupBrush : nullptr;
 }
 
 UTexture2D* FUmbrellaUIStyle::ClockFaceTexture()

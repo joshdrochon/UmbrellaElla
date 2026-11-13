@@ -34,6 +34,7 @@ SMALL_NIB = 0.86        # small capitals keep most of the stroke weight
 SIDE = 46               # side bearing
 SPACE = 250
 ARC_STEP = 11.0         # degrees per arc segment
+INK_JITTER = 9.0        # font units: hand-inked edge roughness (title is about 60 px, so ~0.5 px); fixed hash, no random state
 
 
 # ------------------------------------------------------------------ geometry
@@ -197,6 +198,29 @@ def glyphs():
 ALIASES = {"’": "'", "‘": "'", "“": '"', "”": '"', "`": "'"}
 
 
+def _noise(a, b, k):
+    """Deterministic value in [-1, 1] from integer inputs (no random state, so the build stays byte-identical)."""
+    h = (a * 73856093 ^ b * 19349663 ^ k * 83492791) & 0xFFFFFFFF
+    h = (h ^ (h >> 13)) * 1274126177 & 0xFFFFFFFF
+    return ((h ^ (h >> 16)) & 0xFFFF) / 32767.5 - 1.0
+
+
+def rough(poly):
+    """Hand-inked edge: long edges get a midpoint, every vertex a small fixed-hash nudge."""
+    pts = []
+    n = len(poly)
+    for i, (x, y) in enumerate(poly):
+        nx, ny = poly[(i + 1) % n]
+        pts.append((x, y))
+        if math.hypot(nx - x, ny - y) > 70:
+            pts.append(((x + nx) / 2.0, (y + ny) / 2.0))
+    out = []
+    for x, y in pts:
+        ix, iy = int(round(x)), int(round(y))
+        out.append((x + INK_JITTER * _noise(ix, iy, 1), y + INK_JITTER * _noise(ix, iy, 2)))
+    return out
+
+
 def build_glyph(strokes, extras, scale=1.0, nib_scale=1.0):
     """Contours (clockwise integer polygons), shifted so the left edge sits at the side bearing; returns (contours, advance)."""
     pen = nib(nib_scale)
@@ -206,7 +230,7 @@ def build_glyph(strokes, extras, scale=1.0, nib_scale=1.0):
     for e in extras:
         k = scale
         polys.append([(x * k, y * k) for x, y in e])
-    polys = [clockwise(p) for p in polys if len(p) >= 3]
+    polys = [clockwise(rough(p)) for p in polys if len(p) >= 3]
     xmin = min(x for p in polys for x, _ in p)
     xmax = max(x for p in polys for x, _ in p)
     side = SIDE * (scale if scale < 1.0 else 1.0)

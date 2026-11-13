@@ -98,6 +98,11 @@ namespace UmbrellaUIStyleConstants
 	static constexpr int32 PurchaseStepTextSize = 24;
 
 	/** The title lockup: its first line is the name, lettered large; the lines under it are the subtitle. */
+	/** The painted lockup is drawn this wide (it is 1584 x 672 painted, 21:9). */
+	static constexpr float LockupImageWidth = 820.0f;
+	static constexpr float LockupImageHeight = 820.0f * 672.0f / 1584.0f;
+	static constexpr float LockupImagePixelWidth = 1584.0f;
+	static constexpr float LockupImagePixelHeight = 672.0f;
 	static constexpr int32 LockupNameSize = 74;
 	static constexpr int32 LockupSubtitleSize = 38;
 	static constexpr int32 LockupSubtitleSpacing = 260;
@@ -155,6 +160,8 @@ public:
 	/** The painted ground; null when the texture is not imported (PaintGround then fills ink). */
 	static const FSlateBrush* GroundBrush();
 	static UTexture2D* ClockFaceTexture();
+	/** The painted title lockup; null when the texture is not imported (the menu then letters the title in the display face). */
+	static const FSlateBrush* TitleLockupBrush();
 
 	/** The display face as a font the HUD canvas can draw with; null when the face is missing. */
 	static class UFont* DisplayCanvasFont();

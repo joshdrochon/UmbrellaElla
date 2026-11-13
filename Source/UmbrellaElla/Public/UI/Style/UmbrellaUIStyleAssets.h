@@ -28,6 +28,9 @@ public:
 	/** The etched HUD clock face. Null when not imported. */
 	UTexture2D* GetClockFace() const { return ClockFace; }
 
+	/** The painted title lockup (Art/Source/UI/Lockup/build_lockup.py), transparent. Null when not imported. */
+	UTexture2D* GetTitleLockup() const { return TitleLockup; }
+
 	UFontFace* GetDisplayFace() const { return DisplayFace; }
 	UFont* GetDisplayCanvasFont() const { return DisplayCanvasFont; }
 	void SetDisplayFonts(UFontFace* InFace, UFont* InCanvasFont);
@@ -42,6 +45,9 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<UTexture2D> ClockFace;
+
+	UPROPERTY()
+	TObjectPtr<UTexture2D> TitleLockup;
 
 	/** The display face, made at first use from the bytes in UmbrellaStorybookFont.inl. */
 	UPROPERTY(Transient)

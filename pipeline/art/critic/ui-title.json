@@ -82,6 +82,47 @@
    "commit": "de34beb46113",
    "gap": "X has a smoother digital finish with no inked line or paper grain, its dark cliff face reads as a muddy blob, and its lettering is plain next to Y's etched, clock-hand lockup.; Y's lettering is a plain, clean typeface, and its scene is smoother and more digital, with little etched line work or paper grain.",
    "at": "2026-11-13T04:59:54Z"
+  },
+  {
+   "piece": "ui-title",
+   "round": 10,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "ours",
+    "reference": "reference"
+   },
+   "panel": 2,
+   "calibration": {
+    "sessions": 6,
+    "passed": 5
+   },
+   "missing": [
+    "reference:pipeline/art/reference/discord/20261112-0443_Ricky_title-screen.png (2/3 calibrated sessions)"
+   ],
+   "critic_sessions": [
+    "ui-title-r10-00-reference-c1",
+    "ui-title-r10-00-reference-c2",
+    "ui-title-r10-00-reference-c3",
+    "ui-title-r10-01-quality_bar-c1",
+    "ui-title-r10-01-quality_bar-c2",
+    "ui-title-r10-01-quality_bar-c3"
+   ],
+   "manifest": "",
+   "evidence": "",
+   "prompt": "",
+   "files": "0db2f415c599f5c89753e803c9b1a15710e1e286ca1596d32674c1d03ea6944e",
+   "file": "../../../../../../tmp/uishots4/title.png",
+   "card": "artui",
+   "refs": "669f6f2ac14d",
+   "commit": "118c41d8840a",
+   "gap": "Y is smooth and digital, with no etched ink linework or grain, and its plain lettering lacks the aged, distressed finish.; Y has plain typeset lettering and smoother, digital-looking rendering, so it lacks X's etched ink linework and gritty paper texture.",
+   "at": "2026-11-13T05:02:46Z"
   }
  ]
 }
