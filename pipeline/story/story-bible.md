@@ -35,10 +35,10 @@ also wait for NAR-01 to be authorised in `docs/feature-manifest.json`.
 ## Names
 | Name | Kind | Status | Source | Notes |
 |---|---|---|---|---|
-| Ella | player character | DEFERRED | S1 Appendix narrative inventory; S3 | GDD 1.3 names her only in the DEFERRED narrative inventory, though every repo name uses it. Until Richard confirms the name, shipped text says "she" or nothing. |
+| Ella | player character | CONFIRMED 2026-11-12 (agent default; team may override) | S1 Appendix narrative inventory; S3 | GDD 1.3 names her only in the DEFERRED narrative inventory, though every repo name uses it. Until Richard confirms the name, shipped text says "she" or nothing. |
 | the owl | opponent | GDD | S1 sections 1, 7A | Huge, clockwork, a clock in its chest. Always "the owl" in text until a name is CONFIRMED. |
 | Keeper of Time | epithet for the owl | PROPOSED | S1 "clockkeeper"; S3 "an ancient keeper of time and death" | A title, not a name. Needs a human trademark search before it ships. |
-| Mother | Ella's mother (no given name) | PROPOSED | S3 | Never on screen yet. Write "her mother" in text; "Mother" only if Ella speaks to her. |
+| Mother | Ella's mother (no given name) | CONFIRMED 2026-11-12 (agent default; team may override) | S3 | Never on screen yet. Write "her mother" in text; "Mother" only if Ella speaks to her. |
 | Umbrella Ella | game title candidate | OPEN | repo working name | D-new-story-canon picks the title. |
 | nUMBeR ELLA | game title candidate | PROPOSED | S3 | Wordplay on umbra, umbrella and the hour's number. Mixed case is part of it. |
 | The Last Hour | chapter or encounter title | DEFERRED | S2 | Provisional only. |
@@ -58,14 +58,14 @@ The owl's own name is OPEN (D-new-owl-name). The name floated so far has a trade
 | F6 | The player character fires small gold shots while the umbrella is lowered. | GDD | S1 COM-01 | |
 | F7 | The tone is gothic storybook and clockwork; play needs no story. | GDD | S1 section 1 Tone | |
 | F8 | Story ideas in the GDD (the clockkeeper, a night-to-dawn hour, a stolen clock hand in the umbrella, a mysterious departure, chapter framing) are ideas only. | DEFERRED | S1 Appendix inventory | |
-| P1 | Ella was meant to die. Her mother would not accept it and stole, from the owl, the clock hand that marked Ella's last hour. | PROPOSED | S3 | |
-| P2 | Her mother made the stolen hand into the umbrella. Its umbra, a perfect shadow, hides Ella from the light of truth, and so from death. | PROPOSED | S3 | |
-| P3 | Ella knows nothing of the theft. She believes her mother gave her the umbrella to keep her safe from a terrifying owl. | PROPOSED | S3 | \bElla\s+(?:knows\|knew\|learns\|learned\|realises\|realizes\|discovers)\s+(?:the\s+truth\|about\s+the\s+theft\|she\s+was\s+meant) |
-| P4 | The world is the edge of reality, where the living pass into the afterlife. Ella hangs above an endless abyss. | PROPOSED | S3 | |
-| P5 | The light of truth falls like rain and weighs down everything whose time has come. Under the open umbrella Ella is shaded and rises; closed, the light's weight pulls her down. This matches F2. | PROPOSED | S3 | |
-| P6 | The owl comes to take back the missing hand and set time right. To Ella he is a monster; to him she is a life whose time has ended. Neither is evil. | PROPOSED | S3 | \b(?:evil\|wicked)\s+(?:owl\|keeper)\b |
-| P7 | The umbrella wears away as the owl's attacks grow. This matches F4. | PROPOSED | S3 | |
-| P8 | In the end the owl gives up the chase and goes back into the dark. Ella lives but is still between worlds. Nothing is settled: the owl may only have put off his judgment. | PROPOSED | S3 | \bElla\s+(?:returns\|goes\|flies)\s+home\b |
+| P1 | Ella was meant to die. Her mother would not accept it and stole, from the owl, the clock hand that marked Ella's last hour. | CONFIRMED 2026-11-12 (agent default; team may override) | S3 | |
+| P2 | Her mother made the stolen hand into the umbrella. Its umbra, a perfect shadow, hides Ella from the light of truth, and so from death. | CONFIRMED 2026-11-12 (agent default; team may override) | S3 | |
+| P3 | Ella knows nothing of the theft. She believes her mother gave her the umbrella to keep her safe from a terrifying owl. | CONFIRMED 2026-11-12 (agent default; team may override) | S3 | \bElla\s+(?:knows\|knew\|learns\|learned\|realises\|realizes\|discovers)\s+(?:the\s+truth\|about\s+the\s+theft\|she\s+was\s+meant) |
+| P4 | The world is the edge of reality, where the living pass into the afterlife. Ella hangs above an endless abyss. | CONFIRMED 2026-11-12 (agent default; team may override) | S3 | |
+| P5 | The light of truth falls like rain and weighs down everything whose time has come. Under the open umbrella Ella is shaded and rises; closed, the light's weight pulls her down. This matches F2. | CONFIRMED 2026-11-12 (agent default; team may override) | S3 | |
+| P6 | The owl comes to take back the missing hand and set time right. To Ella he is a monster; to him she is a life whose time has ended. Neither is evil. | CONFIRMED 2026-11-12 (agent default; team may override) | S3 | \b(?:evil\|wicked)\s+(?:owl\|keeper)\b |
+| P7 | The umbrella wears away as the owl's attacks grow. This matches F4. | CONFIRMED 2026-11-12 (agent default; team may override) | S3 | |
+| P8 | In the end the owl gives up the chase and goes back into the dark. Ella lives but is still between worlds. Nothing is settled: the owl may only have put off his judgment. | CONFIRMED 2026-11-12 (agent default; team may override) | S3 | \bElla\s+(?:returns\|goes\|flies)\s+home\b |
 | P9 | The heart of it: her mother defied death out of love, the owl seeks to restore what was taken, and Ella fights for a life she does not know she was meant to lose. | PROPOSED | S3 (the post's closing line) | |
 | P10 | Ella wears a mask and her eyes glow. | PROPOSED | S4 | |
 
