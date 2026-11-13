@@ -1,0 +1,43 @@
+{
+ "seconds": 0.7,
+ "lufs": -22,
+ "fade_out": 0.2,
+ "takes": 1,
+ "post": "anull",
+ "reverb": {
+  "rt60": 0.3,
+  "wet_db": -13,
+  "damp_hz": 7000,
+  "predelay_ms": 5
+ },
+ "layers": {
+  "tick": {
+   "prompt": "one single soft antique clock escapement tick, small wood and brass mechanism, dry, close, isolated, no other sounds",
+   "secs": 0.5,
+   "filter": "atrim=0:0.08,asetpts=PTS-STARTPTS,highpass=f=900,lowpass=f=6000",
+   "norm_lufs": -20,
+   "gain_db": 0,
+   "start_db": -24,
+   "decay": 40
+  },
+  "n1": {
+   "kind": "synth",
+   "prompt": "synthesised music-box comb note at 880 Hz: partials at 2x, 3.01x and 5.4x, each with its own exponential decay",
+   "secs": 0.5,
+   "trim": 0.5,
+   "expr": "0.6*exp(-16*t)*sin(2*PI*880*t)+0.240*exp(-22.4*t)*sin(2*PI*1760*t)+0.120*exp(-32*t)*sin(2*PI*2648.8*t)+0.060*exp(-56.0*t)*sin(2*PI*4752.0*t)",
+   "gain_db": -5,
+   "delay_ms": 10
+  },
+  "n2": {
+   "kind": "synth",
+   "prompt": "synthesised music-box comb note at 1319 Hz: partials at 2x, 3.01x and 5.4x, each with its own exponential decay",
+   "secs": 0.55,
+   "trim": 0.55,
+   "expr": "0.6*exp(-14*t)*sin(2*PI*1319*t)+0.240*exp(-19.6*t)*sin(2*PI*2638*t)+0.120*exp(-28*t)*sin(2*PI*3970.2*t)+0.060*exp(-49.0*t)*sin(2*PI*7122.6*t)",
+   "gain_db": -6,
+   "delay_ms": 120
+  }
+ },
+ "post_gain_db": -2.3
+}

@@ -97,12 +97,7 @@ def placeholder_piece(root, audio, sid):
 
 
 def files_hash(files):
-    h = hashlib.sha256()
-    for p in sorted(files, key=os.path.basename):
-        h.update(os.path.basename(p).encode() + b"\0")
-        with open(p, "rb") as f:
-            h.update(f.read())
-    return h.hexdigest()
+    return audio_check.takes_hash(files)   # the same hash the committed critic records carry
 
 
 def style_ctx(root):
@@ -149,7 +144,18 @@ def stuck(rounds, n):
 def neighbours(audio, sid, fam, style, k):
     """Up to k approved takes for consistency: other ids' _00 takes, same family first."""
     fam_of = audio_check.style_families(style)
-    other = {i: fs for i, fs in asc.takes(audio).items() if i != sid}
+    # Only approved takes may stand in as "sounds already approved" (Nov 12 check defect: failed placeholder takes were
+    # shown to the critic as approved neighbours on branches cut before the audio area merged).
+    import csv
+    held = set()
+    try:
+        for r in csv.DictReader(open(os.path.join(ROOT, "pipeline", "art", "provenance.csv"), newline="")):
+            if (r.get("origin") or "").startswith("placeholder"):
+                held.add(os.path.basename(r.get("asset_path") or ""))
+    except OSError:
+        pass
+    other = {i: [f for f in fs if os.path.basename(f) not in held] for i, fs in asc.takes(audio).items() if i != sid}
+    other = {i: fs for i, fs in other.items() if fs}
     picks = sorted(other, key=lambda i: (fam_of.get(i, [None])[0] != fam, i))
     out = []
     for i in picks:
@@ -161,9 +167,60 @@ def neighbours(audio, sid, fam, style, k):
     return out
 
 
-def family_text(fam, style):
+KIND_NOTE = {
+    "oneshot": ("Kind: a one-shot. It plays once each time the event happens, so its onset and its tail are part of the "
+                "sound and are judged."),
+    "loop": ("Kind: a seamless loop. It plays end to start with no gap, so it has no onset and no tail by design: a "
+             "level that runs to the last frame is correct, and a fade in or out would be a defect. attack_ms and decay_s "
+             "are one-shot measures; they are not measured or ranged for a loop."),
+    "stem": ("Kind: a music stem: one vertical layer of the fight music. It starts on the bar and plays end to start "
+             "with the other layers, all at one tempo and one length, so it has no onset and no tail by design: a level "
+             "that runs to the last frame is correct, and a fade in or out would be a defect. attack_ms and decay_s are "
+             "one-shot measures; they are not measured or ranged for a stem."),
+}
+# Event text comes from the team's sound list; these parts of it are team bookkeeping, not what the player hears, and
+# some would tie the packet to our ids: CamelCase names (sound ids, event-bus names like WindEntered), rule ids and
+# state names (OWL-14, SHIELD_DESCENT), and scope notes in brackets.
+EVENT_NAME = re.compile(r"\b[A-Z][a-z0-9]+(?:[A-Z][a-z0-9]*)+\b")
+EVENT_TAG = re.compile(r"\b[A-Z]{2,}(?:[-_][A-Z0-9]+)+\b")
+EVENT_SCOPE = re.compile(r"\b(?:to confirm|to discuss|optional|only if)\b", re.I)
+
+
+def kind_of(sid, rows, style):
+    """oneshot, loop or stem (a music stem is a loop row named in style.json music.stems)."""
+    if sid in style.get("music", {}).get("stems", []):
+        return "stem"
+    return next((r["kind"] for r in rows if r["id"] == sid), "oneshot")
+
+
+def event_text(sid, rows):
+    """The sound-list event for sid, blind: no sound id, no internal name or rule id, no scope note."""
+    ev = next((r.get("event", "") for r in rows if r["id"] == sid), "")
+    ids = sorted({r["id"] for r in rows} | {sid}, key=len, reverse=True)
+
+    def scrub(t):
+        for i in ids:
+            t = re.sub(rf"\b{re.escape(i)}\b", "", t, flags=re.I)
+        return EVENT_TAG.sub("", EVENT_NAME.sub("", t))
+
+    def paren(m):
+        inner = m.group(1)
+        if EVENT_SCOPE.search(inner):
+            return ""
+        left = re.sub(r"\s*,\s*(?=,|$)|^\s*,\s*", "", scrub(inner).strip()).strip(" ,;")
+        return f"({left})" if len(left.split()) >= 2 or left == inner.strip() else ""
+
+    ev = scrub(re.sub(r"\(([^()]*)\)", paren, ev))
+    ev = re.sub(r"\s+([,;:.)])", r"\1", re.sub(r"\s{2,}", " ", ev)).strip(" :;,")
+    return ev or "not named"
+
+
+def family_text(fam, style, kind="oneshot", stem=False):
+    """The written target. Only the ranges tools/audio_style_check.py applies to this kind of sound are listed
+    (asc.applies: attack_ms and decay_s for one-shots only, tempo_bpm and lra_db for music stems only), so the critic
+    never fails a loop on a one-shot range the measured check does not use."""
     f = style["families"][fam]
-    rng = "; ".join(f"{k} {lo}..{hi}" for k, (lo, hi) in sorted(f.get("ranges", {}).items()))
+    rng = "; ".join(f"{k} {lo}..{hi}" for k, (lo, hi) in sorted(f.get("ranges", {}).items()) if asc.applies(k, kind, stem))
     return (f"Character: {f['character']}\nInstruments: {f['instruments']}\nRegister: {f['register']}\n"
             f"Space: {f['reverb']}\nMeasured ranges: {rng}")
 
@@ -173,7 +230,7 @@ def brand_text(style):
     return (f"{b['world']}\nAlways: " + "; ".join(b["always"]) + "\nNever: " + "; ".join(b["never"]))
 
 
-def write_packet(rdir, files, near, results, fam, style):
+def write_packet(rdir, files, near, results, fam, style, kind="oneshot", stem=False, event="not named"):
     pk = os.path.join(rdir, "packet")
     if os.path.isdir(pk):
         shutil.rmtree(pk)
@@ -186,7 +243,7 @@ def write_packet(rdir, files, near, results, fam, style):
         asc.spectrogram_png(f, os.path.join(pk, name + ".png"))
         key[name] = os.path.basename(f)
         m = results.get(f, {}).get("metrics", {})
-        nums.append(f"{name}: " + asc.summary(m, sorted(k for k in m if k != "silent")))
+        nums.append(f"{name}: " + asc.summary(m, sorted(k for k in m if k != "silent" and asc.applies(k, kind, stem))))
     for i, f in enumerate(near, 1):
         name = f"R{i}"
         shutil.copyfile(f, os.path.join(pk, name + ".wav"))
@@ -194,7 +251,9 @@ def write_packet(rdir, files, near, results, fam, style):
         key[name] = os.path.basename(f)
     with open(PROMPT, encoding="utf-8") as fh:
         tpl = fh.read().split("---", 1)[1]
-    brief = (tpl.replace("{family_target}", family_text(fam, style)).replace("{brand}", brand_text(style))
+    note = KIND_NOTE["stem" if stem else kind if kind in KIND_NOTE else "oneshot"]
+    brief = (tpl.replace("{event}", f"Event: {event}\n{note}")
+             .replace("{family_target}", family_text(fam, style, kind, stem)).replace("{brand}", brand_text(style))
              .replace("{numbers}", "\n".join(nums)))
     with open(os.path.join(pk, "brief.md"), "w", encoding="utf-8") as fh:
         fh.write(brief.lstrip())
@@ -237,7 +296,9 @@ def cmd_round(a):
     n = len(pc["rounds"]) + 1
     rdir = os.path.join(sdir, a.piece, f"round-{n}")
     near = neighbours(audio, a.piece, pc["family"], style, style.get("loop", {}).get("critic_packet_neighbours", 3))
-    pk = write_packet(rdir, files, near, results, pc["family"], style)
+    kind = kind_of(a.piece, rows, style)
+    pk = write_packet(rdir, files, near, results, pc["family"], style, "loop" if kind == "stem" else kind,
+                      kind == "stem", event_text(a.piece, rows))
     pc["rounds"].append({"n": n, "files": files_hash(files), "paths": [os.path.relpath(f, root).replace(os.sep, "/") for f in files],
                          "style_pass": not probs, "problems": probs, "distance": dist, "at": now()})
     save_state(sdir, st)

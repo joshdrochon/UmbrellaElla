@@ -1,0 +1,25 @@
+{
+ "seconds": 0.22,
+ "lufs": -22,
+ "fade_out": 0.08,
+ "takes": 1,
+ "post": "anull",
+ "reverb": {
+  "rt60": 0.22,
+  "wet_db": -14,
+  "damp_hz": 6000,
+  "predelay_ms": 4
+ },
+ "layers": {
+  "tick": {
+   "prompt": "one single soft antique clock escapement tick, small wood and brass mechanism, dry, close, isolated, no other sounds",
+   "secs": 0.5,
+   "filter": "atrim=0:0.12,asetpts=PTS-STARTPTS,highpass=f=900,lowpass=f=6000",
+   "norm_lufs": -20,
+   "gain_db": 0,
+   "start_db": -24,
+   "decay": 30
+  }
+ },
+ "post_gain_db": -3.8
+}

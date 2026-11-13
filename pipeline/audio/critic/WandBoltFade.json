@@ -1,0 +1,25 @@
+{
+ "id": "WandBoltFade",
+ "records": [
+  {
+   "files": "69922eaec51ced3a6587dcbc694dac86c4dfaacb9fad49c94e1ad12dd2dfb9df",
+   "verdict": "fail",
+   "style_pass": true,
+   "gap": "Shorten the tail to about 0.4-0.5 s and remove the broadband noise wash so only a clean celesta pluck with a few bright partials and a small spark remains.",
+   "card": "SNDHIT",
+   "round": 1,
+   "critic": "critic-r1-WandBoltFade",
+   "at": "2026-11-13T02:06Z"
+  },
+  {
+   "files": "69922eaec51ced3a6587dcbc694dac86c4dfaacb9fad49c94e1ad12dd2dfb9df",
+   "verdict": "pass",
+   "style_pass": true,
+   "gap": "none",
+   "card": "SNDHIT",
+   "round": 2,
+   "critic": "wf-critic-WandBoltFade",
+   "at": "2026-11-13T02:11Z"
+  }
+ ]
+}

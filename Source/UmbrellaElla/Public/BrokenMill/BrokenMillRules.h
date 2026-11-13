@@ -23,6 +23,23 @@ enum class EMillGuardEvent : uint8
 	WarningCancelled
 };
 
+/** The 10 HP introduction, or the 20 HP comparison that changes nothing else. */
+UENUM()
+enum class EMillGuardProfile : uint8
+{
+	Introduction,
+	Comparison
+};
+
+/** What the visible warning tell shows. */
+UENUM()
+enum class EMillTellPose : uint8
+{
+	Hidden,
+	Raised,
+	Lowered
+};
+
 UENUM()
 enum class EMillWind : uint8
 {
@@ -108,11 +125,23 @@ struct UMBRELLAELLA_API FBrokenMillRules
 	/** Muzzle ahead/right of Ella, in range, ray clear of rotor and island; descent reachability is the caller's. */
 	static bool IsEngagementValid(const FBrokenMillTuning& Tuning, const FVector2D& Ella, bool bDescentReachable);
 
+	/** Guard HP for a profile: the comparison changes HP only. */
+	static float GetGuardHp(const FBrokenMillTuning& Tuning, EMillGuardProfile Profile);
+
+	/** Raised for the whole warning, lowered for the quiet recovery after an aborted release, else hidden. */
+	static EMillTellPose GetTellPose(EMillGuardState State, bool bLastReleaseAborted, bool bGuardAlive);
+
 	/** Lifetime of the guard shot: range / speed (at most 4.167 s by default). */
 	static float GetGuardShotLifetime(const FBrokenMillTuning& Tuning);
 
 	/** Local wind choice from Ella's height: the two bands never overlap, so neither steals the other. */
 	static EMillWind SelectWind(const FBrokenMillTuning& Tuning, float EllaZ);
+
+	/**
+	 * Local eligibility: the one mill wind Ella's ROOT may ride, by height (SelectWind) and only inside the firing
+	 * column. The room enables only this band's volume, so a tall collision body in the gap cannot touch both.
+	 */
+	static EMillWind GetEligibleWind(const FBrokenMillTuning& Tuning, const FVector2D& Ella);
 
 	static bool IsInMissedCurrentAssist(const FBrokenMillTuning& Tuning, const FVector2D& Ella);
 

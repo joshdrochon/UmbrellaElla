@@ -1,8 +1,8 @@
 id,surface,text,facts,ship,note
-story-opening-mother,clue,Keep it open.,F2,no,NAR-04 only F2 (GDD). Dropped P3 (mother gave the umbrella) and any promise of protection (F4: it tears)
-story-light-shadow,narration,The open umbrella lifts her. Its shadow follows.,F2,no,"NAR-05 needs P2/P5 (umbra/shade motif, PROPOSED): shadow is not in GDD. Only F2 (umbrella lifts her) is GDD; ship=no until P2/P5 confirmed"
-story-keeper-arrival,clue,"The owl is huge, and made of clockwork.",F1,no,NAR-06 draft
-story-shaft-clue,clue,Gears turn inside the owl's wing.,F1,no,NAR-06 only F1 (clockwork owl). No damage to the owl (F3)
-story-ending-1,end_card,The owl departs.,F3,no,NAR-07 owl departs (F3) only. Dropped pronoun and darkness and pursuit (P6/P8 PROPOSED)
-story-ending-2,end_card,She is alive.,F3,no,NAR-07 survival only (F3). Dropped P4/P8 between-worlds
-story-ending-3,end_card,The owl has gone.,F3,no,NAR-07 owl departs (F3). Dropped P8/P1 postponed judgment
+story-opening-mother,clue,"Mother: Keep it open, Ella. It'll protect you from the owl.",F2;P3,yes,NAR-04: Ella's mother speaks; P3 (she believes the umbrella keeps her safe)
+story-light-shadow,narration,The abyss is endless. The open umbrella's shadow follows her.,F2;P2;P4;P5,yes,"NAR-05: endless abyss (P4), shadow of the umbrella (P2, P5)"
+story-keeper-arrival,clue,The clock keeps one hand. Beside it is an empty place.,F1;F9,yes,NAR-06: the single remaining hand and the empty place where the other would sit; says nothing about a theft (F8 stolen hand is DEFERRED)
+story-shaft-clue,clue,The umbrella's shaft matches the bronze of the clock.,F1;F9,yes,NAR-06: matching bronze shaft detail; no claim about where the umbrella came from (F8 stolen hand is DEFERRED)
+story-ending-1,end_card,The owl's pursuit ends. He goes back into the darkness.,F3,yes,NAR-07 draft from the team story
+story-ending-2,end_card,"Ella is alive, but still suspended between worlds.",P8,yes,NAR-07 draft
+story-ending-3,end_card,Perhaps the owl has only postponed his judgment.,P8,yes,NAR-07 draft

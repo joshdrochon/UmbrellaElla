@@ -1,0 +1,15 @@
+{
+ "id": "EndEvent",
+ "records": [
+  {
+   "files": "260569f409439d093366f0d44172ff682452cbdf7635ac5b9fec53e7fc509141",
+   "verdict": "pass",
+   "style_pass": true,
+   "gap": "none",
+   "card": "AUDIO-1",
+   "round": 1,
+   "critic": "critic-EndEvent-1794530822-17492",
+   "at": "2026-11-13T00:47Z"
+  }
+ ]
+}

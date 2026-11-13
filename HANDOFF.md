@@ -22,7 +22,7 @@ usage (Sonnet workers). Re-check whenever a worker finishes, an area merges or n
 its later list has independent parts (`docs/build/areas.py` must still show every Rule ID in exactly one area).
 
 Escalation: a worker that fails the same gate check twice, or loops 2 rounds on the same gap with no better score,
-restarts on Opus (`WORKER_MODEL=claude-opus-5-5 tools/build/start_area.sh <area>`); the rest stay on Sonnet.
+restarts on Fable (`WORKER_MODEL=claude-fable-5-2 tools/build/start_area.sh <area>`). Default model: Sonnet for every worker, reviewer and critic (Josh, Nov 12 evening).
 
 ## Area branches
 | Area | Branch | G1 Rule IDs | Later | Status / last commit |

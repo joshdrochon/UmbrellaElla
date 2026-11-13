@@ -1,0 +1,15 @@
+{
+ "id": "HitEnemy",
+ "records": [
+  {
+   "files": "3ce8d36a3aba3758224da301caa7b93ae0eae94e22304d821d7932da9f7a0a07",
+   "verdict": "pass",
+   "style_pass": true,
+   "gap": "none",
+   "card": "SNDHIT",
+   "round": 4,
+   "critic": "critic-HitEnemy-1794538358-19489",
+   "at": "2026-11-13T02:53Z"
+  }
+ ]
+}

@@ -1,0 +1,15 @@
+{
+ "id": "WingsBreak",
+ "records": [
+  {
+   "files": "b2ea4cd81587e20422746cc75976769e52bfb1769fd708cb7939320aa4bb94e2",
+   "verdict": "pass",
+   "style_pass": true,
+   "gap": "none",
+   "card": "SNDHIT",
+   "round": 3,
+   "critic": "critic-WingsBreak-1794538308-25942",
+   "at": "2026-11-13T02:52Z"
+  }
+ ]
+}

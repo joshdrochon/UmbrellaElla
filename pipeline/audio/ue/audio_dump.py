@@ -3,7 +3,7 @@
 Source: pipeline/audio/ue/audio_dump.py (audio lane). Copied byte for byte to tools/ue/audio_dump.py before the jam,
 because tools/ is frozen during it. tests/test_audio_check.py fails if the two differ.
 Run in the editor on the project, then check the result:
-  UnrealEditor-Cmd <Project>.uproject -run=pythonscript -script=tools/ue/audio_dump.py   [VERIFY 5.8.4 spelling]
+  UnrealEditor-Cmd <Project>.uproject -run=pythonscript -script=tools/ue/audio_dump.py -unattended -nullrhi -nosplash -nocrashreports   [VERIFY 5.8.4 spelling]
   python3 tools/audio_check.py --ue-dump Saved/AudioDump.json
 Format: tests/fixtures/audio/ue_dump_pass.json. Every editor property name below is [VERIFY] on 5.8.4.
 A property that cannot be read is never guessed: its name goes in the dump's `unread` list, and

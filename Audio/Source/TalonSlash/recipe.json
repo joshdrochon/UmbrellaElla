@@ -1,0 +1,78 @@
+{
+ "seconds": 1.3,
+ "lufs": -19,
+ "static_level": true,
+ "fade_out": 0.45,
+ "takes": 3,
+ "post": "anull",
+ "post_gain_db": 0,
+ "reverb": {
+  "rt60": 1.0,
+  "wet_db": -16,
+  "damp_hz": 2200,
+  "predelay_ms": 15,
+  "hp_hz": 200
+ },
+ "layers": {
+  "body": {
+   "kind": "synth",
+   "prompt": "synthesised heavy iron body thud: low partials at 1x, 1.47x and 2.09x, each with its own fast exponential decay",
+   "secs": 0.8,
+   "freqs": [
+    85,
+    90,
+    80
+   ],
+   "expr": "0.45*exp(-13*t)*sin(2*PI*{f}*t)+0.28*exp(-16*t)*sin(2*PI*1.47*{f}*t)+0.17*exp(-20*t)*sin(2*PI*2.09*{f}*t)",
+   "gain_db": -15,
+   "trim": 0.8,
+   "filter": "anull,apad=whole_dur=1.3"
+  },
+  "thunk": {
+   "prompt": "one heavy iron claw slamming down on stone, deep hard thunk, dark, dry, isolated",
+   "secs": 1.0,
+   "filter": "highpass=f=70,lowpass=f=900,afade=t=out:st=0.3:d=0.2,apad=whole_dur=1.3",
+   "gain_db": 0,
+   "start_db": -28,
+   "trim": 1.0,
+   "decay": 25.0
+  },
+  "rake": {
+   "prompt": "giant iron talons raking fast across stone, one short harsh metallic scrape slash, dry, isolated",
+   "secs": 1.0,
+   "filter": "highpass=f=500,lowpass=f=3200,afade=t=out:st=0.2:d=0.2,apad=whole_dur=1.3",
+   "gain_db": -13,
+   "start_db": -28,
+   "trim": 1.0,
+   "decay": 25
+  },
+  "ratchet": {
+   "kind": "synth",
+   "prompt": "synthesised gear spinning down: 11 short metallic pawl ticks (inharmonic partials, 1 ms rise) whose rate falls exponentially from a fast whirr to single ticks, uneven tooth spacing, each lower and quieter, until it stops",
+   "secs": 1.8,
+   "freqs": [
+    1450,
+    1380,
+    1520
+   ],
+   "expr": "gte(t\\,(0.3*{f}/1450))*0.2400*(1-exp(-2500*(t-(0.3*{f}/1450))))*exp(-120*(t-(0.3*{f}/1450)))*(sin(2*PI*1.000*{f}*(t-(0.3*{f}/1450)))+0.6*sin(2*PI*1.590*{f}*(t-(0.3*{f}/1450)))+0.3*sin(2*PI*2.370*{f}*(t-(0.3*{f}/1450))))+gte(t\\,(0.3195*{f}/1450))*0.2160*(1-exp(-2500*(t-(0.3195*{f}/1450))))*exp(-118*(t-(0.3195*{f}/1450)))*(sin(2*PI*0.985*{f}*(t-(0.3195*{f}/1450)))+0.6*sin(2*PI*1.566*{f}*(t-(0.3195*{f}/1450)))+0.3*sin(2*PI*2.334*{f}*(t-(0.3195*{f}/1450))))+gte(t\\,(0.3425*{f}/1450))*0.1944*(1-exp(-2500*(t-(0.3425*{f}/1450))))*exp(-116*(t-(0.3425*{f}/1450)))*(sin(2*PI*0.970*{f}*(t-(0.3425*{f}/1450)))+0.6*sin(2*PI*1.543*{f}*(t-(0.3425*{f}/1450)))+0.3*sin(2*PI*2.299*{f}*(t-(0.3425*{f}/1450))))+gte(t\\,(0.3668*{f}/1450))*0.1750*(1-exp(-2500*(t-(0.3668*{f}/1450))))*exp(-114*(t-(0.3668*{f}/1450)))*(sin(2*PI*0.956*{f}*(t-(0.3668*{f}/1450)))+0.6*sin(2*PI*1.520*{f}*(t-(0.3668*{f}/1450)))+0.3*sin(2*PI*2.265*{f}*(t-(0.3668*{f}/1450))))+gte(t\\,(0.3953*{f}/1450))*0.1575*(1-exp(-2500*(t-(0.3953*{f}/1450))))*exp(-112*(t-(0.3953*{f}/1450)))*(sin(2*PI*0.941*{f}*(t-(0.3953*{f}/1450)))+0.6*sin(2*PI*1.497*{f}*(t-(0.3953*{f}/1450)))+0.3*sin(2*PI*2.231*{f}*(t-(0.3953*{f}/1450))))+gte(t\\,(0.4275*{f}/1450))*0.1417*(1-exp(-2500*(t-(0.4275*{f}/1450))))*exp(-110*(t-(0.4275*{f}/1450)))*(sin(2*PI*0.927*{f}*(t-(0.4275*{f}/1450)))+0.6*sin(2*PI*1.474*{f}*(t-(0.4275*{f}/1450)))+0.3*sin(2*PI*2.198*{f}*(t-(0.4275*{f}/1450))))+gte(t\\,(0.4595*{f}/1450))*0.1275*(1-exp(-2500*(t-(0.4595*{f}/1450))))*exp(-108*(t-(0.4595*{f}/1450)))*(sin(2*PI*0.913*{f}*(t-(0.4595*{f}/1450)))+0.6*sin(2*PI*1.452*{f}*(t-(0.4595*{f}/1450)))+0.3*sin(2*PI*2.165*{f}*(t-(0.4595*{f}/1450))))+gte(t\\,(0.4964*{f}/1450))*0.1148*(1-exp(-2500*(t-(0.4964*{f}/1450))))*exp(-106*(t-(0.4964*{f}/1450)))*(sin(2*PI*0.900*{f}*(t-(0.4964*{f}/1450)))+0.6*sin(2*PI*1.430*{f}*(t-(0.4964*{f}/1450)))+0.3*sin(2*PI*2.132*{f}*(t-(0.4964*{f}/1450))))+gte(t\\,(0.5507*{f}/1450))*0.1033*(1-exp(-2500*(t-(0.5507*{f}/1450))))*exp(-104*(t-(0.5507*{f}/1450)))*(sin(2*PI*0.886*{f}*(t-(0.5507*{f}/1450)))+0.6*sin(2*PI*1.409*{f}*(t-(0.5507*{f}/1450)))+0.3*sin(2*PI*2.100*{f}*(t-(0.5507*{f}/1450))))+gte(t\\,(0.6099*{f}/1450))*0.0930*(1-exp(-2500*(t-(0.6099*{f}/1450))))*exp(-102*(t-(0.6099*{f}/1450)))*(sin(2*PI*0.873*{f}*(t-(0.6099*{f}/1450)))+0.6*sin(2*PI*1.388*{f}*(t-(0.6099*{f}/1450)))+0.3*sin(2*PI*2.069*{f}*(t-(0.6099*{f}/1450))))+gte(t\\,(0.6886*{f}/1450))*0.0837*(1-exp(-2500*(t-(0.6886*{f}/1450))))*exp(-100*(t-(0.6886*{f}/1450)))*(sin(2*PI*0.860*{f}*(t-(0.6886*{f}/1450)))+0.6*sin(2*PI*1.367*{f}*(t-(0.6886*{f}/1450)))+0.3*sin(2*PI*2.038*{f}*(t-(0.6886*{f}/1450))))",
+   "filter": "lowpass=f=3200,apad=whole_dur=1.3",
+   "gain_db": -10,
+   "trim": 1.8
+  }
+ },
+ "want": {
+  "centroid_hz": [
+   300,
+   2400
+  ],
+  "low_share": [
+   0.1,
+   0.7
+  ],
+  "attack_ms": [
+   0,
+   20
+  ]
+ }
+}

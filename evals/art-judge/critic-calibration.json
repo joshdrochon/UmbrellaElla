@@ -4,7 +4,8 @@
   {"file": "tests/fixtures/art/crude/ella_idle_crude.png", "elements": ["ella-up-open", "ella-shield", "umbrella"]},
   {"file": "tests/fixtures/art/crude/ella_attack_crude.png", "elements": ["ella-attack", "ella-closed"]},
   {"file": "tests/fixtures/art/crude/owl_flap_crude.png", "elements": ["owl"]},
-  {"file": "tests/fixtures/art/crude/bolt_crude.png", "elements": ["owl-bolt", "bolt-hit", "wand-shot", "umbrella-repair"]},
+  {"file": "tests/fixtures/art/crude/bolt_crude.png", "elements": ["owl-bolt", "bolt-hit", "umbrella-repair"]},
+  {"file": "tests/fixtures/art/crude/wand_pulse_crude.png", "elements": ["wand-shot"]},
   {"file": "tests/fixtures/art/crude/skyline_crude.png", "elements": ["skyline", "paper", "wind-lines", "wind-zone", "menu-screen", "scene"]}
  ]
 }

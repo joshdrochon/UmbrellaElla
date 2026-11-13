@@ -1,0 +1,25 @@
+{
+ "id": "HitWing",
+ "records": [
+  {
+   "files": "4d56e2cc483498cee4fd92269113c1bee2dff6d55591afa559b65f323c650dc4",
+   "verdict": "fail",
+   "style_pass": true,
+   "gap": "Replace the low-heavy noise wash with a distinct leathery slap (sharp mid-band crack around 1-3 kHz) followed by a short, airy feather flutter, and cut the low thud so it reads as a wing and not a body hit.",
+   "card": "SNDHIT",
+   "round": 1,
+   "critic": "critic-r1-HitWing",
+   "at": "2026-11-13T02:06Z"
+  },
+  {
+   "files": "4d56e2cc483498cee4fd92269113c1bee2dff6d55591afa559b65f323c650dc4",
+   "verdict": "pass",
+   "style_pass": true,
+   "gap": "none",
+   "card": "SNDHIT",
+   "round": 2,
+   "critic": "wf-critic-HitWing",
+   "at": "2026-11-13T02:11Z"
+  }
+ ]
+}
