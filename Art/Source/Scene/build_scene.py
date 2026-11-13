@@ -283,6 +283,18 @@ class Sky:
             cx = x + w * rnd.uniform(0.1, 0.85)
             poly([(cx, h), (cx, h + rh * 0.8 + 10), (cx + 5, h + rh * 0.8 + 10), (cx + 5, h)], self.ink, self.y)
             poly([(cx - 1.5, h + rh * 0.8 + 10), (cx - 1.5, h + rh * 0.8 + 14), (cx + 6.5, h + rh * 0.8 + 14), (cx + 6.5, h + rh * 0.8 + 10)], self.ink, self.y)
+        det = getattr(self, "detail", None)
+        if det is not None:
+            for t in range(1, 7):      # roof tile courses
+                f = t / 7.0
+                half = (w * 1.06 / 2) * (1 - f) if style < 0.55 else (w * 0.85 / 2)
+                zz = h + rh * f * (1.0 if style < 0.55 else 0.7)
+                if half > 2:
+                    curve_strand([(x + w / 2 - half, zz), (x + w / 2 + half, zz)], 0.7, det, self.y - 0.2)
+            for gx in range(1, int(w // 9)):   # eave brackets / wall courses
+                curve_strand([(x + gx * 9, h - 6), (x + gx * 9, h - 1)], 0.6, det, self.y - 0.2)
+            for row in range(1, int(h // 11)):  # stone courses
+                curve_strand([(x + 1, row * 11.0), (x + w - 1, row * 11.0)], 0.5, det, self.y - 0.2)
         nwin = max(1, int(w // 16))
         for i in range(nwin):
             for row in range(max(1, int(h // 34))):
@@ -398,8 +410,11 @@ def build_skyline(o, rnd):
     ink = emission_mat("ink", ink_col)
     far = emission_mat("far", lambda nt: _rgb(nt, "#2b211b"))
     gold = emission_mat("gold", gold_col)
+    detail = emission_mat("detail", lambda nt: _rgb(nt, "#4a3a2f"))
     gothic_layer(w, random.Random(seed + 100), Sky(far, far, -0.5), hscale=0.8)
-    gothic_layer(w, random.Random(seed), Sky(ink, gold, -1.0))
+    near = Sky(ink, gold, -1.0)
+    near.detail = detail
+    gothic_layer(w, random.Random(seed), near)
     poly([(0, -4), (0, 38), (w, 38), (w, -4)], ink, -1.2)   # solid ground band
     ink_lines(sc, "#6a5444", 1.3)
     return sc, w, h
