@@ -52,6 +52,7 @@ Exit 0 = pass, 1 = fail, 2 = usage or input error.
 import argparse
 import array
 import csv
+import hashlib
 import json
 import math
 import os
@@ -291,6 +292,24 @@ def provenance_rows(path):
         return {r["asset_path"]: r for r in csv.DictReader(f)}
 
 
+def duplicate_provenance(path):
+    """One row per sound file: a WAV path with two rows (say `generated` and `placeholder:`) reads differently
+    depending on which row a reader takes, so a merge can turn a passed take back into a placeholder."""
+    if not os.path.exists(path):
+        return []
+    seen, out = {}, []
+    with open(path, encoding="utf-8", newline="") as f:
+        for n, r in enumerate(csv.DictReader(f), 2):
+            ap = (r.get("asset_path") or "").strip()
+            if not ap.lower().endswith(".wav"):
+                continue
+            if ap in seen and ap not in out:
+                out.append(ap)
+            seen.setdefault(ap, []).append(n)
+    return [f"{ap}: {len(seen[ap])} provenance rows (lines {', '.join(map(str, seen[ap]))}); keep one row "
+            "holding the current origin" for ap in out]
+
+
 GENERATED = ("generated", "synthesized")
 # A tracked placeholder take: tools/assetgen.py made a procedural take because the audio API could not (no key, an
 # HTTP error, no credits left). Its provenance origin carries `placeholder: <reason>`; the run goes on with it, the
@@ -306,6 +325,65 @@ def placeholder_takes(prov_path=None, root=ROOT):
         m = PLACEHOLDER.search(r.get("origin") or "")
         if m and path.lower().endswith(".wav"):
             out[path] = m.group(1).strip()
+    return out
+
+
+# The committed record of blind critic verdicts, one file per sound id (pipeline/audio/critic/<Id>.json, written by
+# pipeline/audio/build/provenance.py record from the tools/audio_loop.py state). A record names the takes it judged by
+# their hash, so a regenerated piece has no record until its new bytes are judged.
+CRITIC_DIR = os.path.join("pipeline", "audio", "critic")
+APPROVED = "approved by"   # a take a person listened to and approved: the critic does not overrule it
+
+
+def takes_hash(files):
+    """One hash for a piece's takes (names and bytes); tools/audio_loop.py stores it with every round."""
+    h = hashlib.sha256()
+    for p in sorted(files, key=os.path.basename):
+        h.update(os.path.basename(p).encode() + b"\0")
+        with open(p, "rb") as f:
+            h.update(f.read())
+    return h.hexdigest()
+
+
+def critic_records(sid, root=ROOT):
+    try:
+        with open(os.path.join(root, CRITIC_DIR, sid + ".json"), encoding="utf-8") as f:
+            return json.load(f).get("records", [])
+    except (OSError, ValueError):
+        return []
+
+
+def critic_verdict(sid, files, root=ROOT):
+    """The latest recorded critic round on exactly these bytes (None when they were never judged)."""
+    recs = critic_records(sid, root)
+    if not recs or not files:
+        return None
+    h = takes_hash(files)
+    same = [r for r in recs if r.get("files") == h]
+    return max(enumerate(same), key=lambda x: (x[1].get("at", ""), x[0]))[1] if same else None
+
+
+def critic_mismatch(takes, prov, root=ROOT):
+    """Provenance matches the critic: takes whose bytes hold a passing record are not placeholders, and takes the
+    critic failed are not marked generated. takes: {sound id: [repo-relative WAV paths]}."""
+    out = []
+    for sid, rels in sorted(takes.items()):
+        rec = critic_verdict(sid, [os.path.join(root, r) for r in rels], root)
+        if rec is None:
+            continue
+        passed = rec.get("verdict") == "pass" and rec.get("style_pass")
+        where = f"card {rec.get('card')} round {rec.get('round')}, {rec.get('at')}"
+        for rel in rels:
+            origin = (prov.get(rel) or {}).get("origin") or ""
+            if APPROVED in origin:
+                continue
+            ph = PLACEHOLDER.search(origin)
+            if passed and ph:
+                out.append(f"{rel}: marked placeholder, but the blind critic passed these bytes ({where}); set the "
+                           f"origin back to its generated origin (pipeline/audio/build/promote.sh {sid})")
+            elif not passed and not ph and prov.get(rel) is not None:
+                out.append(f"{rel}: origin '{origin[:40]}', but the blind critic failed these bytes ({where}); mark "
+                           "it `placeholder: <gap>` or regenerate it")
     return out
 
 
@@ -343,7 +421,7 @@ def scan(folder, rules, rows, prov_path=DEFAULT_PROV, root=ROOT, fail_lfs_pointe
     by_id = {r["id"]: r for r in rows}
     prov = provenance_rows(prov_path)
     name_re = re.compile(wr["name_regex"])
-    problems, skipped, measured, takes = [], [], [], {}
+    problems, skipped, measured, takes = duplicate_provenance(prov_path), [], [], {}
     paths = []
     for d, _, fs in os.walk(folder):
         paths += [os.path.join(d, f) for f in fs if f.lower().endswith(".wav")]
@@ -418,6 +496,7 @@ def scan(folder, rules, rows, prov_path=DEFAULT_PROV, root=ROOT, fail_lfs_pointe
         if abs(mm["rms_db"] - med) > wr["family_rms_db_tol"]:
             problems.append(f"{rel}: RMS {mm['rms_db']:.1f} dB is {mm['rms_db'] - med:+.1f} dB from the {fam} median "
                             f"{med:.1f} dB; max ±{wr['family_rms_db_tol']} dB")
+    problems += critic_mismatch({s: [f for f in fs if f not in skipped] for s, fs in takes.items()}, prov, root)
     for sid, files in takes.items():
         want = int(by_id[sid]["takes"])
         if len(files) < want:

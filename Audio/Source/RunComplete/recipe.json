@@ -1,0 +1,61 @@
+{
+ "seconds": 1.0,
+ "lufs": -22,
+ "fade_out": 0.35,
+ "takes": 1,
+ "post": "anull",
+ "reverb": {
+  "rt60": 0.3,
+  "wet_db": -13,
+  "damp_hz": 7000,
+  "predelay_ms": 5
+ },
+ "layers": {
+  "pick": {
+   "prompt": "one single fine brass gear tooth click, tiny and crisp, dry, close, isolated, no other sounds",
+   "secs": 0.5,
+   "filter": "atrim=0:0.04,asetpts=PTS-STARTPTS,highpass=f=1500,lowpass=f=6000",
+   "norm_lufs": -20,
+   "gain_db": 4,
+   "start_db": -24,
+   "decay": 70
+  },
+  "n1": {
+   "kind": "synth",
+   "prompt": "synthesised music-box comb note at 587 Hz: partials at 2x, 3.01x and 5.4x, each with its own exponential decay",
+   "secs": 0.7,
+   "trim": 0.7,
+   "expr": "0.6*exp(-13*t)*sin(2*PI*587*t)+0.240*exp(-18.2*t)*sin(2*PI*1174*t)+0.120*exp(-26*t)*sin(2*PI*1766.9*t)+0.060*exp(-45.5*t)*sin(2*PI*3169.8*t)",
+   "gain_db": -3,
+   "delay_ms": 5
+  },
+  "n2": {
+   "kind": "synth",
+   "prompt": "synthesised music-box comb note at 880 Hz: partials at 2x, 3.01x and 5.4x, each with its own exponential decay",
+   "secs": 0.7,
+   "trim": 0.7,
+   "expr": "0.6*exp(-13*t)*sin(2*PI*880*t)+0.240*exp(-18.2*t)*sin(2*PI*1760*t)+0.120*exp(-26*t)*sin(2*PI*2648.8*t)+0.060*exp(-45.5*t)*sin(2*PI*4752.0*t)",
+   "gain_db": -7,
+   "delay_ms": 55
+  },
+  "n3": {
+   "kind": "synth",
+   "prompt": "synthesised music-box comb note at 1175 Hz: partials at 2x, 3.01x and 5.4x, each with its own exponential decay",
+   "secs": 0.7,
+   "trim": 0.7,
+   "expr": "0.6*exp(-13*t)*sin(2*PI*1175*t)+0.240*exp(-18.2*t)*sin(2*PI*2350*t)+0.120*exp(-26*t)*sin(2*PI*3536.7*t)+0.060*exp(-45.5*t)*sin(2*PI*6345.0*t)",
+   "gain_db": -8,
+   "delay_ms": 105
+  },
+  "n4": {
+   "kind": "synth",
+   "prompt": "synthesised music-box comb note at 1480 Hz: partials at 2x, 3.01x and 5.4x, each with its own exponential decay",
+   "secs": 0.75,
+   "trim": 0.75,
+   "expr": "0.6*exp(-12*t)*sin(2*PI*1480*t)+0.240*exp(-16.8*t)*sin(2*PI*2960*t)+0.120*exp(-24*t)*sin(2*PI*4454.8*t)+0.060*exp(-42.0*t)*sin(2*PI*7992.0*t)",
+   "gain_db": -8,
+   "delay_ms": 155
+  }
+ },
+ "post_gain_db": -2.5
+}

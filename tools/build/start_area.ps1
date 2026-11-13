@@ -20,4 +20,4 @@ G1 Rule IDs first, then the later list. Commit after each working slice (git -c 
 Push your branch after each commit: git push origin area/$Area. Never touch main or another lane. $Extra
 "@
 Set-Location $Wt
-claude -p $Prompt --permission-mode bypassPermissions --model claude-opus-5-5 *>> (Join-Path $Base "logs\$Area.log")
+claude -p $Prompt --permission-mode bypassPermissions --model claude-sonnet-5-5 *>> (Join-Path $Base "logs\$Area.log")
