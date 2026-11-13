@@ -58,7 +58,7 @@ The owl's own name is OPEN (D-new-owl-name). The name floated so far has a trade
 | F5 | Holding the umbrella in front catches a bolt and mends it a little. | GDD | S1 DEF-01, SURV-03 | |
 | F6 | The player character fires small gold shots while the umbrella is lowered. | GDD | S1 COM-01 | |
 | F7 | The tone is gothic storybook and clockwork; play needs no story. | GDD | S1 section 1 Tone | |
-| F9 | On the keeper's arrival the player sees the clock's single remaining hand and an empty place beside it, with a matching bronze shaft detail (the umbrella's shaft and the clock's metal share it). It is a clue to look at, not an explanation. | GDD | S1 NAR-06 | |
+| F9 | On the keeper's arrival the player sees the clock's single remaining hand and an empty place beside it, with a matching bronze shaft detail. It is a clue to look at, not an explanation. | GDD | S1 NAR-06 | |
 | F8 | Story ideas in the GDD (the clockkeeper, a night-to-dawn hour, a stolen clock hand in the umbrella, a mysterious departure, chapter framing) are ideas only. | DEFERRED | S1 Appendix inventory | |
 | P1 | Ella was meant to die. Her mother would not accept it and stole, from the owl, the clock hand that marked Ella's last hour. | CONFIRMED 2026-11-12 (agent default; team may override) | S3 | |
 | P2 | Her mother made the stolen hand into the umbrella. Its umbra, a perfect shadow, hides Ella from the light of truth, and so from death. | CONFIRMED 2026-11-12 (agent default; team may override) | S3 | |
