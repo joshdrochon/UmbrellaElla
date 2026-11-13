@@ -57,7 +57,7 @@ screen:TutorialPaused,Source Flow/FlowRules.h EFlowScreen,ui-tutorial,artui,yes,
 shot:gold,GDD ANIM-05,wand-shot,artshots,no,/Game/UmbrellaElla/Art/Shots/T_WandShot,UShotPresenterSubsystem
 shot:red,GDD VFX-04,owl-bolt,artshots,no,/Game/UmbrellaElla/Art/Shots/T_OwlBolt,UShotPresenterSubsystem
 shot:red-impact,GDD VFX-04,bolt-hit,artshots,no,/Game/UmbrellaElla/Art/Shots/T_BoltHit,UUmbrellaVfxSubsystem
-shot:stream-beam,GDD ANIM-05,stream-beam,artshots,no,/Game/UmbrellaElla/Art/Shots/T_StreamBeam,-
+shot:stream-beam,GDD ANIM-05,stream-beam,artshots,no,/Game/UmbrellaElla/Art/Shots/T_StreamBeam,UShotPresenterSubsystem
 shot:yellow,GDD VFX-04,yellow-shot,artshots,no,/Game/UmbrellaElla/Art/Shots/T_YellowShot,UShotPresenterSubsystem
 ui:clock-face,Art/Source/UI/Ground/Raw/T_UI_ClockFace_PH.png,ui-hud-clock,artui,no,/Game/UmbrellaElla/Art/UI/T_UI_ClockFace,-
 ui:device-and-remap-prompts,GDD ART-08,ui-settings,artui,no,/Game/UmbrellaElla/Art/UI/T_Prompts,-

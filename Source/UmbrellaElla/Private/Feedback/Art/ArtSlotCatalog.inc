@@ -57,7 +57,7 @@
 	{ TEXT("shot:gold"), TEXT("Shots"), TEXT("T_WandShot"), 1, false, TEXT("UShotPresenterSubsystem") },
 	{ TEXT("shot:red"), TEXT("Shots"), TEXT("T_OwlBolt"), 1, false, TEXT("UShotPresenterSubsystem") },
 	{ TEXT("shot:red-impact"), TEXT("Shots"), TEXT("T_BoltHit"), 1, false, TEXT("UUmbrellaVfxSubsystem") },
-	{ TEXT("shot:stream-beam"), TEXT("Shots"), TEXT("T_StreamBeam"), 1, false, TEXT("-") },
+	{ TEXT("shot:stream-beam"), TEXT("Shots"), TEXT("T_StreamBeam"), 1, false, TEXT("UShotPresenterSubsystem") },
 	{ TEXT("shot:yellow"), TEXT("Shots"), TEXT("T_YellowShot"), 1, false, TEXT("UShotPresenterSubsystem") },
 	{ TEXT("ui:clock-face"), TEXT("UI"), TEXT("T_UI_ClockFace"), 1, false, TEXT("-") },
 	{ TEXT("ui:device-and-remap-prompts"), TEXT("UI"), TEXT("T_Prompts"), 1, false, TEXT("-") },

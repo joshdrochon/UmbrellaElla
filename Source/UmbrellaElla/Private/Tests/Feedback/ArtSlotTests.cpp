@@ -10,6 +10,7 @@
 #include "Feedback/Anim/EnemyPresenterSubsystem.h"
 #include "Feedback/Anim/KeeperPresenterSubsystem.h"
 #include "Feedback/Anim/ShotPresenterSubsystem.h"
+#include "Attack/StreamBeamActor.h"
 #include "Feedback/Anim/WindPresenterSubsystem.h"
 #include "Field/WindCurrent.h"
 #include "Feedback/Vfx/UmbrellaVfxDirectorSubsystem.h"
@@ -675,6 +676,47 @@ bool FArtSlotScene::RunTest(const FString& Parameters)
 		{
 			TestEqual(TEXT("land scrolls like a backdrop layer"), static_cast<float>(Land->GetActorLocation().X), UUmbrellaBackdropSubsystem::LayerXForCamera(CameraX, UmbrellaBackdropConst::FarParallax));
 		}
+	}
+	ArtSlotTestEnd(World);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FArtSlotBeam, "UmbrellaElla.Feedback.World.ArtSlotBeam",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+
+bool FArtSlotBeam::RunTest(const FString& Parameters)
+{
+	UWorld* World = ArtSlotTestWorld();
+	if (!TestNotNull(TEXT("world"), World))
+	{
+		return false;
+	}
+	UShotPresenterSubsystem* Presenter = World->GetSubsystem<UShotPresenterSubsystem>();
+	AStreamBeamActor* Beam = World->SpawnActor<AStreamBeamActor>();
+	if (TestNotNull(TEXT("shot presenter"), Presenter) && TestNotNull(TEXT("beam"), Beam))
+	{
+		TestNotNull(TEXT("beam slot row"), ArtSlot::Find(UShotPresenterSubsystem::BeamVisualId()));
+		Beam->SetBeam(FVector(0.0, 0.0, 300.0), 800.0f, 14.0f);
+		UStaticMeshComponent* Mesh = Cast<UStaticMeshComponent>(Beam->GetRootComponent());
+		UTexture2D* Texture = ArtSlotTestTexture();
+		// A shipped beam asset is drawn on the first tick; otherwise the transient picture is.
+		Presenter->Tick(0.0f);
+		const bool bAlready = ArtSlot::HasArt(Mesh);
+		if (!bAlready)
+		{
+			TestTrue(TEXT("beam takes the picture"), Presenter->ShowBeamArt(Beam, Texture) == EArtSlotDraw::Drawn);
+		}
+		TestTrue(TEXT("second beam picture refused"), Presenter->ShowBeamArt(Beam, Texture) != EArtSlotDraw::Drawn);
+		TestTrue(TEXT("beam shows a picture"), ArtSlot::IsDrawingArt(Mesh) && (bAlready || ArtSlotParamTexture(Mesh) == Texture));
+		TestEqual(TEXT("beam has no collision"), static_cast<int32>(Mesh->GetCollisionEnabled()), static_cast<int32>(ECollisionEnabled::NoCollision));
+		const float Length = Beam->GetEffectiveLength();
+		TestEqual(TEXT("picture is the beam length"), static_cast<float>(Mesh->GetComponentScale().X), Length / AStreamBeamActor::CubeSize);
+		// The beam grows and resets its cube scale; the next presenter tick puts the picture back at the beam's size.
+		Beam->SetBeam(FVector(0.0, 0.0, 300.0), 1200.0f, 14.0f);
+		Presenter->Tick(0.0f);
+		TestTrue(TEXT("still a picture after growth"), ArtSlot::IsDrawingArt(Mesh));
+		TestEqual(TEXT("picture follows the grown length"), static_cast<float>(Mesh->GetComponentScale().X), Beam->GetEffectiveLength() / AStreamBeamActor::CubeSize);
+		TestTrue(TEXT("beam grew"), Beam->GetEffectiveLength() > Length);
 	}
 	ArtSlotTestEnd(World);
 	return true;
