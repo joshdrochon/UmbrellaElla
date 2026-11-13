@@ -1,6 +1,7 @@
 #include "Misc/AutomationTest.h"
 #include "Core/UmbrellaTuning.h"
 #include "Smoke/SmokeHookSubsystem.h"
+#include "Enemy/EnemyTypes.h"
 
 #if WITH_AUTOMATION_TESTS
 
@@ -47,6 +48,46 @@ bool FSmokeInputTimeline::RunTest(const FString& Parameters)
 	TestEqual(TEXT("input check reaches done"), static_cast<int32>(Step), static_cast<int32>(EStep::Done));
 	TestTrue(TEXT("input check ends before 15 s"), Since < 15.0);
 	TestTrue(TEXT("input check takes at least the shot delay and its holds"), Since >= ShotDelay + Gap + Hold * 3.0f + Gap * 2.0f - 0.5);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FSmokeShotFrameCount, "UmbrellaElla.Smoke.ShotWaitsForRenderedFrames",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+bool FSmokeShotFrameCount::RunTest(const FString& Parameters)
+{
+	TestFalse(TEXT("level not ready: no shot however many frames"), USmokeHookSubsystem::IsShotDue(false, 1000, 60));
+	TestFalse(TEXT("59 frames is early"), USmokeHookSubsystem::IsShotDue(true, 59, 60));
+	TestTrue(TEXT("60 frames is due"), USmokeHookSubsystem::IsShotDue(true, 60, 60));
+	TestEqual(TEXT("default frames"), USmokeHookSubsystem::ResolveShotFrames(0), USmokeHookSubsystem::DefaultShotFrames);
+	TestEqual(TEXT("negative falls back"), USmokeHookSubsystem::ResolveShotFrames(-3), USmokeHookSubsystem::DefaultShotFrames);
+	TestEqual(TEXT("explicit N wins"), USmokeHookSubsystem::ResolveShotFrames(7), 7);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FSmokeShotReadiness, "UmbrellaElla.Smoke.ShotWaitsForShadersTexturesAndPlayer",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+bool FSmokeShotReadiness::RunTest(const FString& Parameters)
+{
+	TestTrue(TEXT("all settled and Ella alive"), USmokeHookSubsystem::IsShotReady(0, 0, 0, true));
+	TestFalse(TEXT("shader jobs pending"), USmokeHookSubsystem::IsShotReady(3, 0, 0, true));
+	TestFalse(TEXT("textures still streaming (Preparing Textures)"), USmokeHookSubsystem::IsShotReady(0, 12, 0, true));
+	TestFalse(TEXT("assets still compiling"), USmokeHookSubsystem::IsShotReady(0, 0, 1, true));
+	TestFalse(TEXT("no live player"), USmokeHookSubsystem::IsShotReady(0, 0, 0, false));
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FSmokeShotPathAndSwitches, "UmbrellaElla.Smoke.ShotPathAndSceneSwitches",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+bool FSmokeShotPathAndSwitches::RunTest(const FString& Parameters)
+{
+	TestEqual(TEXT("relative path resolves against the project"), USmokeHookSubsystem::ResolveShotPath(TEXT("pipeline/a.png"), TEXT("/proj/")), FString(TEXT("/proj/pipeline/a.png")));
+	TestEqual(TEXT("absolute path stays"), USmokeHookSubsystem::ResolveShotPath(TEXT("/tmp/a.png"), TEXT("/proj/")), FString(TEXT("/tmp/a.png")));
+	EEnemyType Type = EEnemyType::Roadwarden;
+	TestTrue(TEXT("floodstrider parses"), USmokeHookSubsystem::HasEnemyFamilyName(TEXT("floodstrider"), Type));
+	TestEqual(TEXT("floodstrider type"), static_cast<int32>(Type), static_cast<int32>(EEnemyType::Floodstrider));
+	TestTrue(TEXT("sky courier parses"), USmokeHookSubsystem::HasEnemyFamilyName(TEXT("SkyCourier"), Type));
+	TestEqual(TEXT("sky courier type"), static_cast<int32>(Type), static_cast<int32>(EEnemyType::SkyCourier));
+	TestFalse(TEXT("unknown family"), USmokeHookSubsystem::HasEnemyFamilyName(TEXT("owl"), Type));
 	return true;
 }
 

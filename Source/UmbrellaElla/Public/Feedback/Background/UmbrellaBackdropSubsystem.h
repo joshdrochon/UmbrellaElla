@@ -14,6 +14,10 @@ namespace UmbrellaBackdropConst
 	static constexpr float PanelHeight = 2400.0f;
 	/** Thin depth so the panel is a flat card. */
 	static constexpr float PanelThickness = 0.01f;
+	/** Unlit stand-in colours, darker the farther back, so gameplay reads in front. */
+	static const FLinearColor SkyStandInColor(0.20f, 0.19f, 0.17f, 1.0f);
+	static const FLinearColor FarLandStandInColor(0.16f, 0.15f, 0.14f, 1.0f);
+	static const FLinearColor NearStandInColor(0.12f, 0.11f, 0.10f, 1.0f);
 	/** Cube base size in engine units. */
 	static constexpr float EngineCubeSize = 100.0f;
 	/** Seconds-free loop: a layer wraps its parallax offset at this period (world units), so it never runs out. */
