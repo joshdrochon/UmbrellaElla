@@ -1173,11 +1173,29 @@ def _segments(occ, min_gap):
     return segs
 
 
-def figure_boxes(src, count, min_gap=6, min_px=50):
-    """The bounding boxes (x0, y0, x1, y1) of the `count` separate figures in a keyed strip, in strip order."""
+def figure_boxes(src, count, min_gap=6, min_px=50, cells=False, inset=0):
+    """The bounding boxes (x0, y0, x1, y1) of the `count` separate figures in a keyed strip, in strip order.
+    cells=True: cut the strip into `count` equal cells instead of looking for gaps (figures that touch, or a strip
+    the model drew inside boxes); `inset` px at every cell edge are dropped (the box lines)."""
     w, h, rows = png.read_png(src)
     vertical = h > w
     n_long = h if vertical else w
+    if cells:
+        n_short = w if vertical else h
+        boxes = []
+        for k in range(count):
+            a0, a1 = k * n_long // count + inset, (k + 1) * n_long // count - 1 - inset
+            xs, ys = [], []
+            for y, row in enumerate(rows):
+                for x, px in enumerate(row):
+                    along, across = (y, x) if vertical else (x, y)
+                    if px[3] and a0 <= along <= a1 and inset <= across < n_short - inset:
+                        xs.append(x)
+                        ys.append(y)
+            if len(xs) < min_px:
+                raise ValueError(f"{src}: cell {k + 1} of {count} is empty (the strip does not hold {count} poses)")
+            boxes.append((min(xs), min(ys), max(xs), max(ys)))
+        return w, h, rows, boxes
     occ = [0] * n_long
     for y, row in enumerate(rows):
         for x, px in enumerate(row):
@@ -1202,11 +1220,11 @@ def figure_boxes(src, count, min_gap=6, min_px=50):
     return w, h, rows, boxes
 
 
-def split_strip(src, count, min_gap=6, pad=8, frame=None, min_px=50):
+def split_strip(src, count, min_gap=6, pad=8, frame=None, min_px=50, cells=False, inset=0):
     """Cut a keyed strip (transparent background) of `count` figures side by side (or stacked when the strip is
     taller than wide) into `count` equal frames. Each figure keeps its scale and is placed bottom-centre on one
     baseline (fixed pivot). Returns (frames as (w, h, rows), stats)."""
-    w, h, rows, boxes = figure_boxes(src, count, min_gap, min_px)
+    w, h, rows, boxes = figure_boxes(src, count, min_gap, min_px, cells=cells, inset=inset)
     bw = max(b[2] - b[0] + 1 for b in boxes)
     bh = max(b[3] - b[1] + 1 for b in boxes)
     fw, fh = frame or (bw + 2 * pad, bh + 2 * pad)
@@ -1229,13 +1247,17 @@ def split_strip(src, count, min_gap=6, pad=8, frame=None, min_px=50):
     widths = [b[2] - b[0] + 1 for b in boxes]
     stats = {"frames": count, "frame": [fw, fh], "figure_heights": heights, "figure_widths": widths,
              "height_spread_pct": round(100.0 * (max(heights) - min(heights)) / max(heights), 1),
-             "pivot": "bottom-centre"}
+             "pivot": "bottom-centre", "cut": f"equal cells, inset {inset} px" if cells else "gaps"}
     return frames, stats
 
 
 def cmd_frames(a, argv, root):
     frame = tuple(int(v) for v in a.frame.lower().split("x")) if a.frame else None
-    frames, st = split_strip(a.inp, a.count, pad=a.pad, frame=frame)
+    try:
+        frames, st = split_strip(a.inp, a.count, pad=a.pad, frame=frame, cells=a.cells, inset=a.inset)
+    except ValueError as e:
+        print(f"FAIL: frames: {e}")
+        return 1
     os.makedirs(a.out_dir, exist_ok=True)
     stem = a.stem or os.path.splitext(os.path.basename(a.inp))[0]
     outs = []
@@ -1690,6 +1712,9 @@ def parser():
     p.add_argument("--frame", help="WxH of every frame (default: the largest figure plus --pad)")
     p.add_argument("--pad", type=int, default=8)
     p.add_argument("--stem")
+    p.add_argument("--cells", action="store_true",
+                   help="cut into --count equal cells (thirds for 3), not at gaps: touching figures or a boxed strip")
+    p.add_argument("--inset", type=int, default=0, help="with --cells: px dropped at every cell edge (box lines)")
     p = sub.add_parser("image-models")
     p = sub.add_parser("crop")
     p.add_argument("--in", dest="inp", required=True, help="the painted sheet (key-colour background)")

@@ -229,6 +229,44 @@ class StripFrames(img.ImageWork):
         rc, o = self.ag("frames", "--in", strip, "--count", "2", "--out-dir", "Art/Source/Ella/Raw/Z")
         self.assertEqual(rc, 0, o)
 
+    def test_touching_figures_cut_by_equal_cells(self):
+        # three figures, the first two joined by a bar (an umbrella tip touching the next pose): gaps find 2
+        strip = self.keyed_strip([(10, 20, 40, 70), (40, 40, 75, 42), (75, 10, 120, 60), (140, 25, 190, 75)],
+                                 w=210)
+        rc, o = self.ag("frames", "--in", strip, "--count", "3", "--out-dir", "Art/Source/Ella/Raw/T")
+        self.assertEqual(rc, 1, o)
+        self.assertIn("wanted 3", o)
+        rc, o = self.ag("frames", "--in", strip, "--count", "3", "--cells", "--out-dir", "Art/Source/Ella/Raw/T")
+        self.assertEqual(rc, 0, o)
+        meta = json.load(open(os.path.join(self.repo, "Art/Source/Ella/Raw/T/strip.frames.json")))
+        self.assertEqual(meta["figure_heights"], [51, 51, 51])
+        self.assertEqual(meta["figure_widths"], [60, 51, 51], "cells 0-69, 70-139, 140-209: the bar falls in cells 1 and 2")
+        self.assertEqual(meta["cut"], "equal cells, inset 0 px")
+
+    def test_boxed_strip_cut_by_cells_with_inset_drops_the_box_lines(self):
+        figs = [(20, 20, 40, 60), (90, 15, 110, 60), (160, 25, 180, 60)]
+        lines = []
+        for k in range(3):   # a 1 px box line around each third, as the model drew in round 2
+            x0, x1 = k * 70 + 2, k * 70 + 67
+            lines += [(x0, 2, x1, 2), (x0, 77, x1, 77), (x0, 2, x0, 77), (x1, 2, x1, 77)]
+        strip = self.keyed_strip(figs + lines, w=210)
+        rc, o = self.ag("frames", "--in", strip, "--count", "3", "--cells", "--out-dir", "Art/Source/Ella/Raw/B")
+        self.assertEqual(rc, 0, o)
+        meta = json.load(open(os.path.join(self.repo, "Art/Source/Ella/Raw/B/strip.frames.json")))
+        self.assertEqual(meta["figure_heights"], [76, 76, 76], "without inset the box is measured, not the figure")
+        rc, o = self.ag("frames", "--in", strip, "--count", "3", "--cells", "--inset", "5",
+                        "--out-dir", "Art/Source/Ella/Raw/B")
+        self.assertEqual(rc, 0, o)
+        meta = json.load(open(os.path.join(self.repo, "Art/Source/Ella/Raw/B/strip.frames.json")))
+        self.assertEqual(meta["figure_heights"], [41, 46, 36])
+        self.assertEqual(meta["figure_widths"], [21, 21, 21])
+
+    def test_an_empty_cell_fails(self):
+        strip = self.keyed_strip([(10, 20, 40, 70), (70, 10, 100, 60)], w=210)
+        rc, o = self.ag("frames", "--in", strip, "--count", "3", "--cells", "--out-dir", "Art/Source/Ella/Raw/E")
+        self.assertEqual(rc, 1, o)
+        self.assertIn("cell 3 of 3 is empty", o)
+
 
 if __name__ == "__main__":
     unittest.main()
