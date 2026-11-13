@@ -19,7 +19,7 @@ Blender headless; scripts and recipes in pipeline/art/blender/)
           No Blender (PATH, $BLENDER, or the usual install folder): labelled placeholder frames, which can never
           pass the art loop (tools/art_loop.py) or ship (check_pr.py, submission_check.py art).
   blender --script PY --out PNG [-- args]   any other Blender script, headless
-  image   --prompt P --out pipeline/art/proof/ImageProof/<name>.png (proof images; shipped art goes under Art/) [--provider gemini|openai] [--input OURS.png ...] [--model M]
+  image   --prompt P --out pipeline/art/proof/ImageProof/<name>.png (proof images; shipped art goes under Art/) [--provider gemini|openai|openrouter] [--tier draft|final] [--input OURS.png ...] [--model M]
           [--size WxH] [--aspect 4:1] [--image-size 0.5K|1K|2K|4K] [--seed S] [--quality low|medium|high]
           Image model (D-new-art-image-model; default gemini, key GEMINI_API_KEY; openai optional, OPENAI_API_KEY):
           one still from the prompt. Order: every --input is guarded first (GDD ART-03 / BG-02: a file under
@@ -514,7 +514,22 @@ def cmd_image(a, argv, root):
 
 
 # ---------- image model providers (D-new-art-image-model) ----------
-IMAGE_PROVIDERS = {"gemini": ("gemini-image", "GEMINI_API_KEY"), "openai": ("openai-image", "OPENAI_API_KEY")}
+IMAGE_PROVIDERS = {"gemini": ("gemini-image", "GEMINI_API_KEY"), "openai": ("openai-image", "OPENAI_API_KEY"),
+                   "openrouter": ("gemini-image", "OPENROUTER_API_KEY")}   # openrouter: Google's models, Google's price table
+GOOGLE_PROVIDERS = ("gemini", "openrouter")
+# Tiers (Josh, Nov 12): drafts on the cheap flash model, final candidates on Pro. Ids checked against the key's
+# models.list (image-models) on Nov 12: gemini-2.5-flash-image and gemini-3-pro-image-preview both exist and are priced.
+IMAGE_TIERS = {"draft": "gemini-2.5-flash-image", "final": "gemini-3-pro-image-preview"}
+# OpenRouter serves the SAME Google models only: our model id -> OpenRouter's id for that model (checked against
+# openrouter.ai/api/v1/models, free, Nov 12: both tiers' models are offered). Anything else is refused, no fallback.
+OPENROUTER_MODELS = {"gemini-2.5-flash-image": "google/gemini-2.5-flash-image",
+                     "gemini-3-pro-image-preview": "google/gemini-3-pro-image-preview"}
+OPENROUTER_ENDPOINT = "https://openrouter.ai/api/v1/chat/completions"
+OPENROUTER_CAP_USD = 19.89   # hard cap on OpenRouter spend in the shared counter (IMAGE_SPEND_OPENROUTER_CAP_USD overrides)
+OPENROUTER_NEAR_CALLS = 5    # OpenRouter is used only when Gemini's remaining cap < this many final calls
+OPENROUTER_INFO = {"name": "OpenRouter (Google Gemini image models)",
+                   "licence": "OpenRouter Terms; output of the Google model: Gemini API Additional Terms of Service "
+                              "(Google claims no ownership of generated output)"}
 GEMINI_RATIOS = ("1:1", "2:3", "3:2", "3:4", "4:3", "4:5", "5:4", "9:16", "16:9", "21:9")
 GEMINI_IMAGE_SIZES = ("0.5K", "1K", "2K", "4K")
 OPENAI_SIZES = {"1024x1024": 1.0, "1024x1536": 1.5, "1536x1024": 1.5}
@@ -726,21 +741,74 @@ def _write_spend(path, d):
     os.replace(tmp, path)
 
 
+def openrouter_cap():
+    v = (os.environ.get("IMAGE_SPEND_OPENROUTER_CAP_USD") or "").strip()
+    return float(v) if v else OPENROUTER_CAP_USD
+
+
+def provider_spent(d):
+    """(openrouter USD, every other provider's USD) in the counter. spent_usd stays the total of both."""
+    orr = sum(float(c.get("cost_usd") or 0) for c in d["calls"]
+              if c.get("provider") == "openrouter" and not c.get("refunded"))
+    return round(orr, 6), round(max(0.0, d["spent_usd"] - orr), 6)
+
+
 def spend_reserve(cost, entry):
-    """Add `cost` to the shared counter before the call, under the lock; ImageRefused when it would pass the cap.
+    """Add `cost` to the shared counter before the call, under the lock; ImageRefused when it would pass the cap of
+    its provider (OpenRouter has its own hard cap; every other provider shares IMAGE_SPEND_CAP_USD).
     Returns the call's index in the counter (spend_settle updates it)."""
     path, cap = spend_settings()
+    on_or = entry.get("provider") == "openrouter"
     with _SpendLock(path):
         d = _read_spend(path)
-        if d["spent_usd"] + cost > cap + 1e-9:
-            raise ImageRefused(f"CAP REACHED: spent ${d['spent_usd']:.3f} of the ${cap:.2f} total image cap "
-                               f"(IMAGE_SPEND_CAP_USD); this call (${cost:.3f}) would pass it. No call made. "
-                               f"Every further image call stops here (counter {path})")
+        or_spent, other_spent = provider_spent(d)
+        spent, limit, name = (or_spent, openrouter_cap(), "OpenRouter image cap") if on_or else \
+            (other_spent, cap, "total image cap (IMAGE_SPEND_CAP_USD)")
+        if spent + cost > limit + 1e-9:
+            raise ImageRefused(f"CAP REACHED: spent ${spent:.3f} of the ${limit:.2f} {name}; this call "
+                               f"(${cost:.3f}) would pass it. No call made. "
+                               f"Every further {entry.get('provider')} image call stops here (counter {path})")
         d["spent_usd"] = round(d["spent_usd"] + cost, 6)
         d["cap_usd"] = cap
+        d["openrouter_cap_usd"] = openrouter_cap()
         d["calls"].append(dict(entry, cost_usd=cost, status="reserved", ts=now_iso()))
         _write_spend(path, d)
-        return len(d["calls"]) - 1, d["spent_usd"], cap
+        return len(d["calls"]) - 1, (or_spent if on_or else other_spent) + cost, limit
+
+
+def gemini_remaining():
+    """USD left under Gemini's cap (None when no cap or counter is configured)."""
+    try:
+        path, cap = spend_settings()
+    except ImageRefused:
+        return None
+    with _SpendLock(path):
+        return cap - provider_spent(_read_spend(path))[1]
+
+
+def openrouter_model(model):
+    """OpenRouter's id for our model; ImageRefused for any model that is not one of the two Google image models."""
+    if model not in OPENROUTER_MODELS:
+        raise ImageRefused(f"OPENROUTER REFUSED: {model!r} is not one of the Google models OpenRouter may serve "
+                           f"({', '.join(OPENROUTER_MODELS)}); no fallback to another model")
+    return OPENROUTER_MODELS[model]
+
+
+def pick_provider(provider, model, key_present=None):
+    """The provider that serves this call. An explicit openrouter is checked against the mapping. gemini moves to
+    OpenRouter only when its remaining cap is below the cost of OPENROUTER_NEAR_CALLS final calls, the model is
+    mapped and an OpenRouter key exists; otherwise it stays on gemini (no silent model change)."""
+    if provider == "openrouter":
+        openrouter_model(model)
+        return provider
+    if provider != "gemini" or model not in OPENROUTER_MODELS:
+        return provider
+    left = gemini_remaining()
+    final_cost = image_price(tool("gemini-image"), IMAGE_TIERS["final"], "medium", "1024x1024", 0, "2K")
+    if left is None or left >= OPENROUTER_NEAR_CALLS * final_cost:
+        return provider
+    has_key = keys.get("OPENROUTER_API_KEY") if key_present is None else key_present
+    return "openrouter" if has_key else provider
 
 
 def spend_settle(index, status, refund=False, cost=None, **extra):
@@ -848,6 +916,31 @@ def gemini_request(t, model, prompt, inputs, aspect, image_size, seed, key):
     raise RuntimeError(f"gemini returned no image (finish={why}; text={' '.join(texts)[:160]!r})")
 
 
+def openrouter_request(t, model, prompt, inputs, aspect, image_size, key):
+    """One image through OpenRouter's chat completions for the mapped Google model (never any other)."""
+    import base64
+    parts = [{"type": "text", "text": prompt}]
+    for f in inputs:
+        with open(f, "rb") as fh:
+            parts.append({"type": "image_url", "image_url": {
+                "url": f"data:{_mime(f)};base64," + base64.b64encode(fh.read()).decode()}})
+    image_cfg = {"aspect_ratio": aspect}
+    if image_size:
+        image_cfg["image_size"] = image_size
+    body = json.dumps({"model": openrouter_model(model), "messages": [{"role": "user", "content": parts}],
+                       "modalities": ["image", "text"], "image_config": image_cfg,
+                       "usage": {"include": True}}).encode()
+    raw = http_post(OPENROUTER_ENDPOINT, {"Authorization": f"Bearer {key}", "Content-Type": "application/json"}, body)
+    reply = json.loads(raw)
+    for ch in reply.get("choices") or []:
+        for im in (ch.get("message") or {}).get("images") or []:
+            url = (im.get("image_url") or {}).get("url") or ""
+            if url.startswith("data:") and "," in url:
+                return (base64.b64decode(url.split(",", 1)[1]), reply.get("model") or openrouter_model(model),
+                        {"usage": reply.get("usage"), "finish": ch.get("finish_reason")})
+    raise RuntimeError(f"openrouter returned no image (model={reply.get('model')!r}; error={str(reply.get('error'))[:160]!r})")
+
+
 def _multipart(fields, files):
     import uuid
     b = "----assetgen" + uuid.uuid4().hex
@@ -903,9 +996,12 @@ def to_png(data, out):
 
 def cmd_image_model(a, argv, root, provider):
     """One paid still from an image model. Order: inputs guarded, key, price, cap reserved, call, provenance, log."""
+    tier = getattr(a, "tier", None) or "draft"
+    model = a.model or (IMAGE_TIERS[tier] if provider in GOOGLE_PROVIDERS else tool(IMAGE_PROVIDERS[provider][0])["model"])
+    provider = pick_provider(provider, model)
     tid, key_name = IMAGE_PROVIDERS[provider]
     t = tool(tid)
-    model = a.model or t["model"]
+    google = provider in GOOGLE_PROVIDERS
     inputs = list(a.input or [])
     for f in inputs:
         why = refuse_prejam_input(root, f)
@@ -919,18 +1015,20 @@ def cmd_image_model(a, argv, root, provider):
             queue_or_key(argv, key_name)
         raise ImageRefused(f"NO KEY: {key_name} is not set (tools/keys.py status), so no image was made and no "
                            f"placeholder stands in for it. {keys.how_to_set(key_name)}")
-    aspect, image_size = gemini_shape(t, model, a) if provider == "gemini" else (None, None)
+    aspect, image_size = gemini_shape(t, model, a) if google else (None, None)
     base_cost = image_price(t, model, a.quality, a.size, len(inputs), image_size)
     image_cost = image_price(t, model, a.quality, a.size, 0, image_size)
-    think = round(image_cost * thinking_rate(t, model)[1], 6) if provider == "gemini" else 0.0
+    think = round(image_cost * thinking_rate(t, model)[1], 6) if google else 0.0
     cost = round(base_cost + think, 6)
-    entry = {"provider": provider, "model": model, "out": rel(a.out, root), "inputs": len(inputs),
+    entry = {"provider": provider, "model": model, "tier": tier, "out": rel(a.out, root), "inputs": len(inputs),
              "worker": os.path.basename(root), "role": os.environ.get("JAM_ROLE"), "aspect": aspect,
              "image_size": image_size, "thinking_reserve_usd": think}
     idx, spent, cap = spend_reserve(cost, entry)
     try:
         if provider == "gemini":
             data, version, meta = gemini_request(t, model, a.prompt, inputs, aspect, image_size, a.seed, k)
+        elif provider == "openrouter":
+            data, version, meta = openrouter_request(t, model, a.prompt, inputs, aspect, image_size, k)
         else:
             data, version, meta = openai_request(t, model, a.prompt, inputs, a.size, a.quality, k)
     except Exception as e:   # noqa: BLE001  the call failed: settle the counter, report, never a placeholder
@@ -943,23 +1041,29 @@ def cmd_image_model(a, argv, root, provider):
     how = to_png(data, a.out)
     if provider == "gemini":
         cost = settled_cost(t, model, image_cost, len(inputs), meta.get("usage"))
+    elif provider == "openrouter" and isinstance((meta.get("usage") or {}).get("cost"), (int, float)):
+        cost = round(float(meta["usage"]["cost"]), 6)   # what OpenRouter billed for the call
     spent = spend_settle(idx, "done", cost=cost, usage=meta.get("usage"), model_version=version)
-    seed = a.seed if (provider == "gemini" and a.seed is not None) else ("none (no seed parameter)"
-                                                                         if provider == "openai" else "")
+    if provider == "gemini":
+        seed = a.seed if a.seed is not None else ""
+    else:
+        seed = "none (no seed parameter)" if provider == "openai" else "none (seed not sent)"
     with open(os.path.splitext(a.out)[0] + ".request.json", "w", encoding="utf-8") as fh:
-        json.dump({"provider": provider, "tool": t["name"], "model": model, "model_version": version,
+        json.dump({"provider": provider, "tier": tier, "tool": t["name"] if provider != "openrouter" else OPENROUTER_INFO["name"],
+                   "model": model, "openrouter_model": OPENROUTER_MODELS.get(model) if provider == "openrouter" else None, "model_version": version,
                    "prompt": a.prompt, "seed": seed, "size": a.size, "quality": a.quality, "aspect_ratio": aspect,
                    "image_size": image_size,
                    "input_images": [rel(f, root) for f in inputs], "cost_usd": cost, "reply": meta,
                    "date": now_iso()}, fh, indent=1)
         fh.write("\n")
     write_provenance(root, a.out, tid, a.prompt, version, inputs=inputs, origin="generated in jam",
-                     note=f"image model {provider}; ${cost:.3f} counted against the shared image cap; full prompt in "
+                     info=OPENROUTER_INFO if provider == "openrouter" else None,
+                     note=f"image model provider={provider} tier={tier} model={model}; ${cost:.3f} counted against the shared image cap; full prompt in "
                           f"{rel(os.path.splitext(a.out)[0] + '.request.json', root)}", seed=seed)
     log_image_prompt(root, a.prompt, provider, version, a.out, cost)
     w, h, _ = png.read_png(a.out)
     thoughts = ((meta.get("usage") or {}).get("thoughtsTokenCount") or 0) if provider == "gemini" else 0
-    print(f"IMAGE {rel(a.out, root)} via={provider} model={version} {w}x{h} inputs={len(inputs)} "
+    print(f"IMAGE {rel(a.out, root)} via={provider} tier={tier} model={version} {w}x{h} inputs={len(inputs)} "
           f"aspect={aspect or a.size} image_size={image_size or '-'} thinking_tokens={thoughts} cost=${cost:.3f} "
           f"spent=${spent:.3f} of ${cap:.2f} ({how})")
     return 0
@@ -1685,7 +1789,10 @@ def parser():
     p.add_argument("--prompt", required=True)
     p.add_argument("--out", required=True)
     p.add_argument("--size", default="1024x1024")
-    p.add_argument("--provider", choices=("gemini", "openai", "blender", "placeholder", "reference"), default="gemini")
+    p.add_argument("--provider", choices=("gemini", "openai", "openrouter", "blender", "placeholder", "reference"),
+                   default="gemini")
+    p.add_argument("--tier", choices=tuple(IMAGE_TIERS), default="draft",
+                   help="draft: gemini-2.5-flash-image (cheap); final: gemini-3-pro-image-preview (art_loop final candidates)")
     p.add_argument("--input", action="append", help="an in-jam image of ours as an image-model input (repeatable; "
                    "pre-jam images are refused)")
     p.add_argument("--model", help="image model (default: the provider's model in asset-tools.json)")

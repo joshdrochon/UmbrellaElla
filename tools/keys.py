@@ -30,6 +30,7 @@ KEYS = {
 IMAGE_KEYS = {
     "GEMINI_API_KEY": "Gemini API image generation (default image provider)",
     "OPENAI_API_KEY": "OpenAI Images (optional image provider)",
+    "OPENROUTER_API_KEY": "OpenRouter (second provider for the same Google image models, own spend cap)",
 }
 
 
