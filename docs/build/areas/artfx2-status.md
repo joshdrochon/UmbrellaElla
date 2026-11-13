@@ -60,3 +60,6 @@
 ## Slice 9 (Nov 13): no change, still blocked
 - Merged main and artslots: both up to date. Spend 29.40 of 33.82 (shared). No paint.
 - Blockers for the lead: (1) `import_art_candidate.py` exits without importing, so no in-engine capture and no panel; (2) keeper-warning flat at 3 flash drafts (0.462/0.568/0.515 vs 0.699): Opus retry or a pro-tier try; (3) about 4.4 spend left for all lanes. All 8 pieces remain `_PH`.
+
+## Slice 10 (Nov 13): no change, still blocked
+- Merged main and artslots: both up to date. No paint, no spend. Blockers as in slice 9: (1) `import_art_candidate.py` exits without importing, so no capture and no panel; (2) keeper-warning flat at 3 flash drafts; (3) shared spend nearly at cap. All 8 pieces remain `_PH`.
