@@ -209,3 +209,7 @@ Main and artslots: nothing new. Capture pid 30354 still waits on ue_slot (empty 
 ## Round 31 (Nov 13 late): frame-250 shot landed, still not usable; merged screenfix fix
 `ella-up-open-shot.png` (03:09) shows "Preparing Textures (1)" on black, no Ella: shot taken before textures finish under load. Discarded, no panel. Merged area/screenfix (2db3d92c); ArtSlot.cpp conflicted, took screenfix's version (not my lane). No paint, no spend (15.08 of 33.82).
 Blocker: no capture with Ella on screen. Shield R3 and closed R3 need a context pair too. Next: retry capture with a later frame (e.g. 400) when load drops, or a smoke flag that waits for textures and keeps Ella alive.
+
+## Round 32 (Nov 13 late): lead's retry at -SmokeShotFrames=3000, still "Preparing Textures (1)"
+Ran once as told: `RUN_RES=1280x720 ue_slot.sh run_game.sh -SmokeShot=<abs> -SmokeShotFrames=3000 -SmokeQuitAfter=600` (load ~47). Shot written 03:46, 1280x720, again "Preparing Textures (1)" on black, no Ella. Discarded, no panel. The shot also landed within seconds of the game starting, so the frame counter or shot timing does not wait the way the flag implies. Verdict: env/smoke-shot, not the art. Not retrying.
+Blocked until screenfix ships a shot that waits for texture streaming and keeps Ella alive. Then: up-open panel, shield R3, closed R3. No paint, no spend (15.08 of 33.82).
