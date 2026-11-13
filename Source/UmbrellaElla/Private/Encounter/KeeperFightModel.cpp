@@ -1,16 +1,17 @@
 #include "Encounter/KeeperFightModel.h"
+#include "Core/UmbrellaSourceIds.h"
 #include "Owl/KeeperTuning.h"
 
 namespace
 {
-	const FName RedFanName(TEXT("RED_Fan"));
-	const FName BeatName(TEXT("CLOCK_DoubleBeat"));
-	const FName YellowName(TEXT("YELLOW_Packet"));
-	const FName GustName(TEXT("GUST_Band"));
-	const FName TalonName(TEXT("TALON_Rake"));
-	const FName FrontName(TEXT("MECH_Front_Cast"));
-	const FName MiddleName(TEXT("MECH_Middle_Curve"));
-	const FName RearName(TEXT("MECH_Rear_TwoStage"));
+	const FName RedFanName = UmbrellaSourceIds::RedFan();
+	const FName BeatName = UmbrellaSourceIds::ClockDoubleBeat();
+	const FName YellowName = UmbrellaSourceIds::YellowPacket();
+	const FName GustName = UmbrellaSourceIds::GustBand();
+	const FName TalonName = UmbrellaSourceIds::TalonRake();
+	const FName FrontName = UmbrellaSourceIds::MechFrontCast();
+	const FName MiddleName = UmbrellaSourceIds::MechMiddleCurve();
+	const FName RearName = UmbrellaSourceIds::MechRearTwoStage();
 
 	FName PhysicalName(EKeeperPhysical Kind)
 	{

@@ -75,6 +75,9 @@ public:
 	/** The purchase screen while it is open (null otherwise); tests read its draft. */
 	UProgressionPurchaseWidget* GetPurchaseWidget() const { return PurchaseWidget; }
 
+	/** True while the purchase screen is open at a refuge on the route (not at the title). */
+	bool IsPurchaseAtRefuge() const { return bPurchaseAtRefuge; }
+
 	/** Advance the screen timers by real seconds; runs while the world is paused. */
 	void TickFlow(float DeltaSeconds);
 
@@ -94,6 +97,7 @@ private:
 	bool IsSettingsMenuOpen() const;
 	void ShowPurchaseScreen();
 	void ClearPurchaseScreen();
+	void OfferRefugePurchase();
 	void SyncProgressionMode(EUmbrellaPlayMode Mode);
 	void EnterScreen(EFlowScreen To, EFlowCommand Cause);
 	void ShowScreenWidget();
@@ -125,6 +129,8 @@ private:
 
 	TSharedPtr<SWidget> PurchaseDoneButton;
 	bool bPurchaseDone = false;
+	bool bPurchaseAtRefuge = false;
+	int32 LastRefugeOffered = 0;
 	bool bSettingsOpened = false;
 
 	EFlowScreen Screen = EFlowScreen::Title;

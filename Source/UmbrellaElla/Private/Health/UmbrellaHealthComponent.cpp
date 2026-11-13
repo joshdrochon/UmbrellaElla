@@ -1,5 +1,6 @@
 #include "Health/UmbrellaHealthComponent.h"
 #include "Core/UmbrellaEventBus.h"
+#include "Core/UmbrellaSourceIds.h"
 #include "Core/UmbrellaTuning.h"
 #include "Engine/World.h"
 #include "Harness/UmbrellaFeatureFlags.h"
@@ -13,7 +14,6 @@ namespace
 	const FName CaptureDetail(TEXT("FullCapture"));
 	const FName ResetDetail(TEXT("Reset"));
 	const FName ConfigDetail(TEXT("Config"));
-	const FName GustSource(TEXT("GUST_Band"));
 }
 
 UUmbrellaHealthComponent::UUmbrellaHealthComponent()
@@ -60,7 +60,7 @@ void UUmbrellaHealthComponent::OnCheckpointRetried(const FUmbrellaEvent& Event)
 
 bool UUmbrellaHealthComponent::ShouldBypassProtection(FName SourceId)
 {
-	return SourceId == GustSource;
+	return SourceId == UmbrellaSourceIds::GustBand();
 }
 
 EUmbrellaShotResult UUmbrellaHealthComponent::ReceiveShot(const FUmbrellaShotSpec& Shot, const FVector& HitLocation)

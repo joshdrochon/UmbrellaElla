@@ -35,6 +35,8 @@ enum class EFlowCommand : uint8
 	Continue,
 	OpenSettings,
 	OpenPurchase,
+	EnterRefuge,
+	LeaveRefuge,
 	OpenLevelUp,
 	PlayerDefeated,
 	EncounterCompleted,

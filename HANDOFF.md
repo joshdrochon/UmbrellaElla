@@ -4,6 +4,8 @@ Updated: 2026-11-12 (build lead). Josh's call, Nov 12 13:40: no GitHub cards/PRs
 workers (Claude Code, Sonnet) build in parallel on `area/<name>` branches; the build lead runs the gates below and
 merges to `main`. **Teammates continue with Claude Code** (not Codex).
 
+Lessons learned (pipeline failures and what changed): `MegaPipeline/Reference/Lessons Learned.md`. Add a row whenever a gate, critic, worker or package step fails for a pipeline reason.
+
 ## What is on main
 - Unreal 5.8.4 project skeleton: `UmbrellaElla.uproject`, `Source/`, `Config/`, `Content/UmbrellaElla/Maps/L_Graybox.umap`.
 - Core contracts every area builds against (Ella shell + components, `UUmbrellaTuning`, event bus, collision channels,
