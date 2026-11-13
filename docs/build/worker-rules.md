@@ -77,6 +77,9 @@ When the same check fails twice, or a loop goes flat (2 rounds, same gap, no bet
 - Never print, log or commit `~/.umbrella-ella.env` or any key value. Any area that generates assets through an API (audio,
   image: the snd* lanes, audio, imagegen, the art loops once the lead says Spend OK) may source it in the one shell that
   runs generation, and nowhere else.
+  Spend OK is given for all seven art loops (Nov 12, cap in IMAGE_SPEND_CAP_USD). Load the key in the same command as the
+  call, never on its own: `set -a; . ~/.umbrella-ella.env; set +a; python3 tools/assetgen.py image ...` (the file's lines
+  have no `export`, so a plain `source` doesn't reach python). Never echo, cat or grep the file.
 
 ## Unreal commands (Mac; many workers share this machine, so always through the slot lock)
     tools/build/ue_slot.sh tools/ue/build.sh                 # compile (editor target); must end "build exit: 0"
