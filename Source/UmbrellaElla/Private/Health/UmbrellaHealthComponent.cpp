@@ -140,7 +140,10 @@ void UUmbrellaHealthComponent::ResetForRetry()
 {
 	// Retry: exactly RetryLives current lives, the purchased maximum and capacity stay.
 	State = HealthRules::MakeFull(State.Capacity, State.MaxLives);
-	State.Lives = FMath::Min(GetDefault<UUmbrellaTuning>()->Health.RetryLives, State.MaxLives);
+	if (IsFeatureEnabled(EFeatureId::FLOW_09))
+	{
+		State.Lives = FMath::Min(GetDefault<UUmbrellaTuning>()->Health.RetryLives, State.MaxLives);
+	}
 	ProtectedUntil = -1.0;
 	BroadcastHealth(NAME_None, ResetDetail);
 }
