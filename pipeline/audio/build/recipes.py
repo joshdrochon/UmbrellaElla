@@ -41,12 +41,12 @@ RECIPES.update({
    "canvas": {"prompt": "waxed canvas fabric snapping taut, short, dry, isolated", "secs": 1.0, "filter": "highpass=f=500,lowpass=f=3000", "norm_lufs": -20, "gain_db": -2, "trim": 0.4, "decay": 9},
   }},
  "KeeperHoot": {
-  "seconds": 3.0, "lufs": -25, "fade_out": 0.8, "takes": 3,
+  "seconds": 3.0, "take_gain_db": {1: 1.5}, "lufs": -25, "fade_out": 0.8, "takes": 3,
   "post": "aecho=0.8:0.6:120|250:0.3|0.2",
   "layers": {
-   "thump": {"prompt": "one single huge slow wingbeat, low heavy thump of a giant wing, dry, isolated", "secs": 2.0, "filter": "lowpass=f=500", "norm_lufs": -20, "trim": 2.0, "decay": 1.5},
-   "whoosh": {"prompt": "slow heavy leathery whoosh of a giant wing sweeping air, smooth, isolated", "secs": 2.5, "filter": "lowpass=f=2500,highpass=f=120", "norm_lufs": -20, "gain_db": -5, "delay_ms": 120, "trim": 2.4, "decay": 1.0},
-   "creak": {"prompt": "slow creak of old brass joints, deep and low, isolated", "secs": 2.5, "filter": "lowpass=f=3000,highpass=f=150", "norm_lufs": -20, "gain_db": -10, "delay_ms": 300, "trim": 2.4, "decay": 1.0},
+   "thump": {"prompt": "one single huge slow wingbeat, low heavy thump of a giant wing, dry, isolated", "secs": 2.0, "filter": "lowpass=f=500", "norm_lufs": -20, "gain_db": -8, "start_db": -24, "trim": 2.0, "decay": 1.5},
+   "whoosh": {"prompt": "slow heavy leathery whoosh of a giant wing sweeping air, smooth, isolated", "secs": 2.5, "filter": "lowpass=f=2500,highpass=f=120", "norm_lufs": -20, "gain_db": 2, "delay_ms": 120, "trim": 2.4, "decay": 1.0},
+   "creak": {"prompt": "slow creak of old brass joints, deep and low, isolated", "secs": 2.5, "filter": "lowpass=f=3000,highpass=f=150", "norm_lufs": -20, "gain_db": -3, "delay_ms": 300, "trim": 2.4, "decay": 1.0},
   }},
  "EndEvent": {
   "seconds": 4.0, "lufs": -18, "fade_out": 1.2, "takes": 3,
@@ -72,10 +72,12 @@ RECIPES.update({
    "wind": {"prompt": "soft gentle wind settling to calm, quiet, isolated", "secs": 4.0, "filter": "lowpass=f=1500", "norm_lufs": -20, "gain_db": -12, "delay_ms": 1500, "trim": 4.0},
   }},
  "LevelUpClock": {
-  "seconds": 0.477, "lufs": -26, "fade_out": 0.12, "takes": 1,
+  "post_gain_db": 3, "seconds": 0.477, "lufs": -26, "fade_out": 0.3, "takes": 1,
   "post": "aecho=0.8:0.3:20|45:0.15|0.08",
   "layers": {
-   "tick": {"prompt": "single crisp clock escapement tick, very short clean click, dry, isolated", "secs": 0.5, "filter": "highpass=f=1500", "norm_lufs": -20, "trim": 0.25, "decay": 30},
-   "ping": {"prompt": "one tiny clear small bell ping, high and clean, isolated", "secs": 1.0, "filter": "highpass=f=2000", "norm_lufs": -20, "gain_db": -8, "delay_ms": 100, "trim": 0.4, "decay": 8},
+   "tick": {"prompt": "short clean escapement tick, dry, isolated", "secs": 0.5, "filter": "highpass=f=800,lowpass=f=4500", "norm_lufs": -20, "gain_db": -3, "start_db": -20, "trim": 0.25, "decay": 30},
+   "bell": {"kind": "synth", "prompt": "synthesised small bell: 880 Hz fundamental with inharmonic partials at 1320 and 2217 Hz, exponential decay", "secs": 0.6,
+            "expr": "0.6*exp(-7*t)*sin(2*PI*880*t)+0.3*exp(-9*t)*sin(2*PI*1320*t)+0.2*exp(-12*t)*sin(2*PI*2217*t)",
+            "filter": "lowpass=f=4000", "gain_db": 0, "trim": 0.6},
   }},
 })
