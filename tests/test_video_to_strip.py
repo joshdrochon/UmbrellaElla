@@ -69,6 +69,20 @@ class Strip(unittest.TestCase):
         self.assertFalse(os.path.exists(os.path.join(out, "keyed")))
         self.assertEqual(r["source_frames"], SECS * FPS)
 
+    def test_grid_sheet_cuts_back_to_the_frames(self):
+        mp4 = clip(self.d)
+        out = os.path.join(self.d, "grid")
+        v.convert(mp4, out, "T", [10], FPS, H, cols=4)
+        side = json.load(open(os.path.join(out, "T_N10_grid.sprite.json")))
+        gw, gh, rows = png.read_png(os.path.join(out, "T_N10_grid.png"))
+        fw, fh = side["grid"]
+        self.assertEqual((gw, gh), (fw * 4, fh * 3))          # 10 frames, 4 per row -> 3 rows
+        f3 = png.read_png(os.path.join(out, "T_N10_03.png"))
+        f5 = png.read_png(os.path.join(out, "T_N10_05.png"))
+        self.assertEqual(rows[0][3 * fw:4 * fw], f3[2][0])    # cell 3 = row 0, col 3
+        self.assertEqual(rows[fh][fw:2 * fw], f5[2][0])       # cell 5 = row 1, col 1
+        self.assertEqual(rows[fh * 2][3 * fw:], [(0, 0, 0, 0)] * fw)   # unused cell stays empty
+
     def test_pick_and_loop_numbers(self):
         self.assertEqual(v.pick(8, 24), [0, 3, 6, 9, 12, 15, 18, 21])
         a = (2, 1, [[(10, 10, 10, 255), (0, 0, 0, 0)]])
