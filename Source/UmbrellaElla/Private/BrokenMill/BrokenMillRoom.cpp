@@ -246,13 +246,23 @@ EMillGuardEvent ABrokenMillRoom::StepSeconds(float DeltaSeconds)
 
 void ABrokenMillRoom::ApplyWindEligibility(EMillWind Eligible)
 {
-	// Turning a volume's collision off ends its overlap, so the wind actor itself sends WindExited (and WindEntered
-	// when it comes back on with Ella inside). The Motor still only rides while overhead with Ride held.
+	// Both currents stay live (actor and volume collision enabled, overlap events on) for the guard's whole life, as
+	// CAM-07 requires. Eligibility only switches the volume's response to pawns: an Ignore response ends the overlap,
+	// so the wind actor itself sends WindExited (and WindEntered when it comes back with Ella inside). The Motor
+	// still only rides while overhead with Ride held.
 	auto Gate = [](AWindCurrent* Wind, bool bEligible)
 	{
-		if (IsValid(Wind) && Wind->GetActorEnableCollision() != bEligible)
+		if (!IsValid(Wind))
 		{
-			Wind->SetActorEnableCollision(bEligible);
+			return;
+		}
+		if (UBoxComponent* Volume = Wind->FindComponentByClass<UBoxComponent>())
+		{
+			const ECollisionResponse Wanted = bEligible ? ECR_Overlap : ECR_Ignore;
+			if (Volume->GetCollisionResponseToChannel(ECC_Pawn) != Wanted)
+			{
+				Volume->SetCollisionResponseToChannel(ECC_Pawn, Wanted);
+			}
 		}
 	};
 	Gate(UpperWind, Eligible == EMillWind::UpperReset);

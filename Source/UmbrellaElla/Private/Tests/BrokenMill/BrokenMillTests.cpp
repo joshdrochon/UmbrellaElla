@@ -9,6 +9,7 @@
 #include "Core/UmbrellaTuning.h"
 #include "Field/WindCurrent.h"
 #include "Input/EllaInputAdapterComponent.h"
+#include "Smoke/PlaytestRun.h"
 #include "Motor/EllaMotorComponent.h"
 #include "Tests/Shared/UmbrellaTestWorld.h"
 #include "Umbrella/UmbrellaPlayerIds.h"
@@ -601,6 +602,54 @@ bool FMillWorldMissedCurrent::RunTest(const FString& Parameters)
 		}
 		TestTrue(TEXT("rescued: back in the real onward current"), RescuedAt > 0.0f);
 		TestTrue(TEXT("rescued: the current carries her onward"), Carried > 10.0);
+	}
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMillWorldCurrentsLiveWhileGuardLives, "UmbrellaElla.BrokenMill.World.CurrentsLiveWhileGuardLives", UMBRELLAELLA_MILL_FLAGS)
+bool FMillWorldCurrentsLiveWhileGuardLives::RunTest(const FString& Parameters)
+{
+	// CAM-07 (playtest): both mill currents must be live on every tick while the guard lives, wherever Ella is, and the
+	// HAZ-07 eligibility gate must still keep her out of the band she is not eligible for.
+	constexpr float Dt = 1.0f / 60.0f;
+	struct FMillLivePoint
+	{
+		FVector2D Ella;
+		bool bUpperTouches;
+		bool bLowerTouches;
+		const TCHAR* Label;
+	};
+	const FMillLivePoint Points[] = {{FVector2D(700.0, 420.0), true, false, TEXT("reset band")},
+		{FVector2D(700.0, 270.0), false, true, TEXT("onward band")},
+		{FVector2D(700.0, 345.0), false, false, TEXT("gap")},
+		{FVector2D(300.0, 270.0), false, false, TEXT("outside the firing column")}};
+	for (const FMillLivePoint& Point : Points)
+	{
+		BrokenMillTest::FMillIntegratedFixture F;
+		if (!TestNotNull(TEXT("fixture"), F.Spawn(Point.Ella, true)) || !TestNotNull(TEXT("reset wind"), F.Room->GetUpperWind()) || !TestNotNull(TEXT("onward wind"), F.Room->GetLowerWind()))
+		{
+			return false;
+		}
+		bool bUpperTouched = false;
+		bool bLowerTouched = false;
+		int32 Samples = 0;
+		int32 LiveSamples = 0;
+		for (int32 Frame = 0; Frame < 90 && F.Room->GetGuardHp() > 0.0f; ++Frame)
+		{
+			F.Test.TickFrames(1, Dt);
+			++Samples;
+			if (Frame == 2)
+			{
+				// Ella has not fallen far yet: the gate has run, so only the eligible band still overlaps her.
+				bUpperTouched = F.Room->GetUpperWind()->IsOverlappingActor(F.Ella);
+				bLowerTouched = F.Room->GetLowerWind()->IsOverlappingActor(F.Ella);
+			}
+			LiveSamples += (FPlaytestRun::IsCurrentLive(F.Room->GetUpperWind()) && FPlaytestRun::IsCurrentLive(F.Room->GetLowerWind())) ? 1 : 0;
+		}
+		TestTrue(FString::Printf(TEXT("%s: sampled while the guard lived"), Point.Label), Samples > 0);
+		TestEqual(FString::Printf(TEXT("%s: both currents live on every tick"), Point.Label), LiveSamples, Samples);
+		TestEqual(FString::Printf(TEXT("%s: reset band touching Ella"), Point.Label), bUpperTouched, Point.bUpperTouches);
+		TestEqual(FString::Printf(TEXT("%s: onward band touching Ella"), Point.Label), bLowerTouched, Point.bLowerTouches);
 	}
 	return true;
 }

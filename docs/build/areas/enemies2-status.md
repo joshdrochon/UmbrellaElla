@@ -75,3 +75,15 @@ Tests: `BrokenMill.World.MeasureOnwardRideBends`, `MeasureRedRayPaths`, `Measure
   current does not hold Ella; at full lift the upper reset takes her back. Building it is in this file lane.
 - The Attack fixture differences (request 4) change the window, rotor gap and contact time; GDD HAZ-10 forbids tuning them
   for this room, so they stay.
+
+### CAM-07 / HAZ-07: both mill currents live while the guard lives (playtest said 0 of 78 ticks)
+- Cause (room, mine): the HAZ-07 gate switched off the whole actor collision of the band Ella was not eligible for, so at
+  most one current was ever live, and none in the gap or outside the firing column. The playtest "live" check (volume
+  collision enabled, overlap events on) could never hold for both.
+- Fix: `ABrokenMillRoom::ApplyWindEligibility` now only sets the volume's Pawn response (Overlap / Ignore). Both volumes stay
+  enabled for the guard's whole life; the ineligible one just stops overlapping Ella (same WindExited/WindEntered events,
+  same band-choice behavior; the earlier room-gate tests still pass).
+- Test: `BrokenMill.World.CurrentsLiveWhileGuardLives` (reset band, onward band, gap, outside the column): both currents
+  live on every sampled tick via `FPlaytestRun::IsCurrentLive`, and only the eligible band overlaps Ella.
+- Evidence: build exit 0, 0 warnings; `TEST_FILTER=UmbrellaElla.BrokenMill` PASS 25/25. Not run: module_check (hung twice
+  on this machine, no output), and a new `-SmokePlaytest` HAZ run (playtest lane); CAM-07 `persist` should now read live on all ticks.
