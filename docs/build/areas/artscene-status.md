@@ -107,3 +107,7 @@ or calibration miss; the tool says "judge again"), never a counted one.
   (ground r1, ui-title round 4: reference still wins). menu-screen overlaps that lane; I am not painting it in parallel (shared spend, double work).
 - Zero spend this round. Blocker for the lead, in requests/artscene.md item 3: give the backdrop a texture slot (or merge artui's `ui` elements and
   retire menu-screen). Nothing ships; every `_PH` stays. Stopping here until the slot lands.
+
+## Nov 13: candidates moved (lead rule "Where candidates live")
+- All Gemini raws, keyed cuts and round candidates moved to `pipeline/art/proof/scene/{skyline,paper}/`; `Art/Source/Scene/Paint/out/` is gone. Provenance, critic records and requests/artscene.md paths updated.
+- quality_gate: sprite_check, art_inventory, art_pass_verify, art all PASS. Remaining FAILs (gdd_check, pipeline_check agent_play.py path, audio_scan) are other lanes. Still blocked on request 3 (backdrop texture slot).
