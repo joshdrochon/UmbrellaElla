@@ -36,3 +36,6 @@ Merged main and origin/area/artslots (ArtSlotTests.cpp conflict: took artslots' 
 Triage, stun: ours (prompt). The painted stun is a gold star-and-gear ring; GDD OWL-30 says 1.2 s electrical stun and both crops are blue-white arcs over clock brass. That is why stun scores 0.36 to 0.69 against a 0.76 bar. Fix prepared: `pipeline/art/proof/artfx3/Stun/prompt3.md` (forked ivory/pale-blue arcs plus brass shards) and `cut_strip.py` with `NOGRADE=1` (keeps the painted hue; the default grade pulls everything toward gold). Needle-sliver has the same kind of mismatch (painted metal shard, crop is a gold bolt).
 Blocked: paid calls refused (`NO CONTEXT SHOT`, screenfix's -SmokeShotFrames not on main). Written in docs/build/requests/artfx3.md. Shared spend counter: $28.41 of $33.82 used, so about $5.4 is left for every lane.
 Next once unblocked: stun arcs draft (flash), cut with NOGRADE=1, per-frame art_judge, then final on 3-pro-image, then context capture and the panel.
+
+## 2026-11-13 (recheck)
+Still blocked: origin/main has no SmokeShotFrames in Source/ (area/screenfix not merged). No paid call made. Request in docs/build/requests/artfx3.md stands.
