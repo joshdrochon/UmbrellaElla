@@ -54,3 +54,9 @@ Stuck rule: critic gap unchanged 3 rounds (deterministic score best 0.716): NEED
 - Quick blind (cell 1): quality-bar pair: OURS wins. Reference pair: reference wins, gap "ours is an organic feathered owl with flesh and plumage, not the fabricated metal Keeper". Calibration pairs correct.
 - Look: rigid perforated vane wings and three spread mechanisms now right. Gap (ours, prompt): head/body drawn as a real barn owl (feathers, flesh face, fur-like breast); chains go up off the cell, not to a top eye.
 - R7: body, head, face and breast all riveted metal plates, metal beak, glass eyes, no feather or skin texture.
+
+## Round 7 (Nov 13), cost $0.141, spent 5.323 of 33.82
+- Prompt: all-metal body/head/face/beak, glass eyes, no feather or skin. Painted grid has a green-to-white gradient background (top row did not key; bottom cells keyed clean with --chroma 00FF00 --hue-tol 40).
+- Look: head now bolted metal plates, rigid vane wings, three spread mechanisms. Gaps (ours, prompt): head still reads parrot-like, chains do not reach a top eye, armillary hangs lower than the others.
+- art_ref_check owl: PASS 0.705 (cell 3; cells 2 0.625; top cells unkeyed). Min 0.698, thin margin.
+- Next: in-engine context capture per art-image-model.md, then full blind panel on cell 3.
