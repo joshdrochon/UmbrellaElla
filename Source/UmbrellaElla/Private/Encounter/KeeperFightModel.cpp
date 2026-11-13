@@ -60,6 +60,20 @@ float FKeeperFightModel::FanAngleDeg(float CenterDeg, float SpreadDeg, int32 Ind
 	return CenterDeg + SpreadDeg * (Alpha - 0.5f);
 }
 
+bool FKeeperFightModel::CanExitVertically(const FKeeperTickInput& Input, float NeededClearance, float Seconds)
+{
+	if (!Input.bHasVerticalBounds)
+	{
+		return true;
+	}
+	// Conservative: Ella must clear the band by rising or falling at her slowest speed, inside the playable space.
+	const float Z = Input.PlayerPos.Y;
+	const float Need = NeededClearance + Input.PlayerRadius;
+	const bool bUp = Input.RiseSpeed > 0.0f && Z + Need + Input.PlayerRadius <= Input.CeilingZ && Need <= Input.RiseSpeed * Seconds;
+	const bool bDown = Input.FallSpeed > 0.0f && Z - Need - Input.PlayerRadius >= Input.FloorZ && Need <= Input.FallSpeed * Seconds;
+	return bUp || bDown;
+}
+
 bool FKeeperFightModel::ShouldDefeatWin(bool bPlayerDefeated, bool bFightWon)
 {
 	return bPlayerDefeated && bFightWon;
@@ -388,12 +402,10 @@ void FKeeperFightModel::Step(float UnscaledDeltaSeconds, const FKeeperTickInput&
 	PhaseTime += UnscaledDeltaSeconds;
 	const bool bFrozen = FirePauseRemaining > 0.0f || StunRemaining > 0.0f || BlackoutRemaining > 0.0f;
 	const float WorldDt = UnscaledDeltaSeconds * GetWorldScale();
-	if (FirePauseRemaining <= 0.0f && BlackoutRemaining <= 0.0f)
-	{
-		TickPending(WorldDt, Out);
-	}
 	if (!bFrozen)
 	{
+		// Fire pause and stun hold queued emissions (new fire stops); missiles already flying are world actors and continue.
+		TickPending(WorldDt, Out);
 		TickAttacks(WorldDt, Input, Out);
 		TickPhysical(WorldDt, Input, Out);
 	}
@@ -573,6 +585,17 @@ void FKeeperFightModel::StartDoubleBeat(const FKeeperTickInput& Input)
 	const float RepeatStart = GroupSpan + Tuning().BeatRepeatWaitSeconds;
 	for (int32 Repeat = 0; Repeat < 2; ++Repeat)
 	{
+		if (Repeat > 0)
+		{
+			// The reprise cue goes out just before the repeat's first shot, through the same queue (slow and pauses stretch both).
+			FPendingShot Cue;
+			Cue.DelayRemaining = RepeatStart;
+			Cue.Command.Type = EKeeperCommandType::BeatReprise;
+			Cue.Command.Name = BeatName;
+			Cue.Command.A = Origin;
+			Cue.Command.Phase = Phase;
+			Pending.Add(Cue);
+		}
 		for (int32 Index = 0; Index < Count; ++Index)
 		{
 			// The repeat flies the same captured paths: same origin, same angles, never re-aimed.
@@ -632,7 +655,8 @@ void FKeeperFightModel::TickPhysical(float WorldDt, const FKeeperTickInput& Inpu
 	if (Stage == EKeeperStage::Idle)
 	{
 		if (Switches.bTalon && bTalonArmed && TalonCooldown <= 0.0f && PhaseTime >= Tuning().TalonFirstAtSeconds
-			&& TalonDistance <= Tuning().TalonReach)
+			&& TalonDistance <= Tuning().TalonReach
+			&& CanExitVertically(Input, Tuning().TalonTipWidth * 0.5f, Tuning().TalonWarningSeconds))
 		{
 			StartPhysical(EKeeperPhysical::Talon, Input, Out);
 		}
@@ -819,8 +843,12 @@ void FKeeperFightModel::StartPhysical(EKeeperPhysical Kind, const FKeeperTickInp
 		HeadPos = LockStart;
 		Cmd.A = LockStart;
 		Cmd.B = LockEnd;
+		// The middle warning shows the curve the stroke will take (same sign and amplitude).
+		Cmd.Curve = (Kind == EKeeperPhysical::MiddleCurve) ? MiddleSign * Tuning().MiddleOffset : 0.0f;
 	}
 	PrevHeadPos = HeadPos;
+	Cmd.Stage = EKeeperStage::Warning;
+	Cmd.Value = Warning;
 	Out.Add(Cmd);
 	Stage = EKeeperStage::Warning;
 	StageDuration = Warning;
@@ -840,6 +868,12 @@ void FKeeperFightModel::EnterStage(EKeeperStage NewStage, float Duration, TArray
 	Cmd.A = LockStart;
 	Cmd.B = LockEnd;
 	Cmd.Value = Duration;
+	Cmd.Stage = NewStage;
+	Cmd.Curve = (Physical == EKeeperPhysical::MiddleCurve) ? MiddleSign * Tuning().MiddleOffset : 0.0f;
+	if (NewStage == EKeeperStage::Pause)
+	{
+		Cmd.A = HeadPos; // the stopped head: the second clack shows where the unfinished stroke resumes
+	}
 	Out.Add(Cmd);
 }
 
@@ -857,6 +891,7 @@ void FKeeperFightModel::EnterRecovery(float Duration, TArray<FKeeperCommand>& Ou
 	Cmd.Name = PhysicalName(Physical);
 	Cmd.Serial = CastSerial;
 	Cmd.Value = Duration;
+	Cmd.Stage = EKeeperStage::Recovery;
 	Out.Add(Cmd);
 }
 

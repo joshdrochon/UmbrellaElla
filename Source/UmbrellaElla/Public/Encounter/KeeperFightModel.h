@@ -81,7 +81,9 @@ enum class EKeeperCommandType : uint8
 	BlackoutEnded,
 	StunStarted,
 	StunEnded,
-	FightWon
+	FightWon,
+	/** OWL-28: the double beat's repeat is starting on the original captured paths (clock-hand move, tick, path cue). */
+	BeatReprise
 };
 
 /** One request from the model. Unused fields stay zero. */
@@ -101,6 +103,10 @@ struct UMBRELLAELLA_API FKeeperCommand
 	float Value = 0.0f;
 	float Damage = 0.0f;
 	int32 Serial = 0;
+	/** Physical stage this command opens (warning, stroke, rear pause, recovery). */
+	EKeeperStage Stage = EKeeperStage::Idle;
+	/** Middle cast: signed sine offset of the stroke, shown in the warning (OWL-25). Zero for straight moves. */
+	float Curve = 0.0f;
 };
 
 /** Which parts of the fight are built (each is a manifest feature flag, set by the director). */
@@ -125,6 +131,12 @@ struct UMBRELLAELLA_API FKeeperTickInput
 {
 	FVector2D PlayerPos = FVector2D::ZeroVector;
 	float PlayerRadius = 0.0f;
+	/** OWL-19 vertical-exit check: playable floor/ceiling (Z) and Ella's slowest rise and fall speeds. Unset = no check. */
+	bool bHasVerticalBounds = false;
+	float FloorZ = 0.0f;
+	float CeilingZ = 0.0f;
+	float RiseSpeed = 0.0f;
+	float FallSpeed = 0.0f;
 };
 
 /** Result of one player shot on a part. */
@@ -199,11 +211,14 @@ public:
 	FVector2D GetMuzzle() const;
 	FVector2D GetClaw() const;
 	float GetStageRemaining() const { return StageRemaining; }
+	float GetMiddleSign() const { return MiddleSign; }
 
 	/** The shared rule for parity: the sign of the middle curve for a global physical-attack serial. */
 	static float MiddleSignForSerial(int32 Serial);
 	/** Fan angle (degrees) of shot Index of Count across Spread degrees around Center. */
 	static float FanAngleDeg(float CenterDeg, float SpreadDeg, int32 Index, int32 Count);
+	/** OWL-19: true when Ella can rise or fall clear of a talon tip band of NeededClearance within Seconds. */
+	static bool CanExitVertically(const FKeeperTickInput& Input, float NeededClearance, float Seconds);
 	/** Which of two same-frame outcomes wins: a fatal player hit beats the final clock hit. */
 	static bool ShouldDefeatWin(bool bPlayerDefeated, bool bFightWon);
 

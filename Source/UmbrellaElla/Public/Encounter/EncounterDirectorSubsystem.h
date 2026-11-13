@@ -97,6 +97,8 @@ private:
 	void EnterFailure();
 	void DeliverDamage(FName Source, float Amount) const;
 	FVector2D PlayerPosition() const;
+	/** OWL-19: arena floor/ceiling and Ella's slowest vertical speeds for the talon's vertical-exit check. */
+	void FillVerticalBounds(FKeeperTickInput& Input) const;
 	float PlayerRadius() const;
 	FVector FindAnchor();
 	AActor* GetPlayerActor() const;
