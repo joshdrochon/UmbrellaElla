@@ -23,7 +23,7 @@ import hermetic  # noqa: E402
 
 CRUDE = os.path.join(HERE, "fixtures", "art", "crude")
 TARGETS = {"ella_idle_crude.png": ["ella-up-open"], "ella_attack_crude.png": ["ella-attack", "ella-closed"],
-           "owl_flap_crude.png": ["owl"], "bolt_crude.png": ["owl-bolt"], "skyline_crude.png": ["skyline"]}
+           "owl_flap_crude.png": ["owl"], "bolt_crude.png": ["owl-bolt"], "wand_pulse_crude.png": ["wand-shot"], "skyline_crude.png": ["skyline"]}
 
 
 def real_png(p):
