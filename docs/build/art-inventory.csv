@@ -30,14 +30,14 @@ enemy:SkyCourier:Male,Source Enemy/EnemyTypes.h + GDD ANIM-08,enemy-courier,arte
 enemy:SundialCaster:Female,Source Enemy/EnemyTypes.h + GDD ANIM-08,enemy-sundial,artenemy,no,/Game/UmbrellaElla/Art/Enemy/T_Enemy_SundialCaster_Female,UEnemyPresenterSubsystem
 enemy:SundialCaster:Male,Source Enemy/EnemyTypes.h + GDD ANIM-08,enemy-sundial,artenemy,no,/Game/UmbrellaElla/Art/Enemy/T_Enemy_SundialCaster_Male,UEnemyPresenterSubsystem
 keeper:body-hover-flap,GDD ANIM-06; Art/Source/Keeper/Raw/keeper_idle_PH.png; Art/Source/Keeper/Raw/keeper_idle_PH/Owl_Flap.blend; Art/Source/Keeper/Raw/keeper_idle_PH/Owl_Flap_00.png; Art/Source/Keeper/Raw/keeper_idle_PH/Owl_Flap_01.png; Art/Source/Keeper/Raw/keeper_idle_PH/Owl_Flap_02.png; Art/Source/Keeper/Raw/keeper_idle_PH/Owl_Flap_03.png; Art/Source/Keeper/Raw/keeper_idle_PH/Owl_Flap_04.png; Art/Source/Keeper/Raw/keeper_idle_PH/Owl_Flap_05.png; Content/UmbrellaElla/Art/Keeper/T_Keeper_Owl_PH.uasset,owl,artkeeper,no,/Game/UmbrellaElla/Art/Keeper/T_Keeper_Owl,UKeeperPresenterSubsystem
-keeper:clock-cover-glass-hands,GDD ANIM-06,keeper-clock,artkeeper,no,/Game/UmbrellaElla/Art/Keeper/T_Keeper_Clock,-
+keeper:clock-cover-glass-hands,GDD ANIM-06,keeper-clock,artkeeper,no,/Game/UmbrellaElla/Art/Keeper/T_Keeper_Clock,UKeeperPresenterSubsystem
 keeper:living-departure,GDD ANIM-06,keeper-departure,artkeeper,no,/Game/UmbrellaElla/Art/Keeper/T_Keeper_Departure,-
-keeper:mechanism-front,GDD ANIM-06,keeper-mech-front,artkeeper,no,/Game/UmbrellaElla/Art/Keeper/T_Keeper_MechFront,-
-keeper:mechanism-middle,GDD ANIM-06,keeper-mech-middle,artkeeper,no,/Game/UmbrellaElla/Art/Keeper/T_Keeper_MechMiddle,-
-keeper:mechanism-rear,GDD ANIM-06,keeper-mech-rear,artkeeper,no,/Game/UmbrellaElla/Art/Keeper/T_Keeper_MechRear,-
+keeper:mechanism-front,GDD ANIM-06,keeper-mech-front,artkeeper,no,/Game/UmbrellaElla/Art/Keeper/T_Keeper_MechFront,UKeeperPresenterSubsystem
+keeper:mechanism-middle,GDD ANIM-06,keeper-mech-middle,artkeeper,no,/Game/UmbrellaElla/Art/Keeper/T_Keeper_MechMiddle,UKeeperPresenterSubsystem
+keeper:mechanism-rear,GDD ANIM-06,keeper-mech-rear,artkeeper,no,/Game/UmbrellaElla/Art/Keeper/T_Keeper_MechRear,UKeeperPresenterSubsystem
 keeper:part-masks-7-6-4-0,GDD ANIM-06,keeper-damage,artkeeper,no,/Game/UmbrellaElla/Art/Keeper/T_Keeper_DamageMasks,-
-keeper:talon-empty-and-closed,GDD ANIM-06,keeper-talon,artkeeper,no,/Game/UmbrellaElla/Art/Keeper/T_Keeper_Talon,-
-keeper:wings-gust-wear,GDD ANIM-06,keeper-wing,artkeeper,no,/Game/UmbrellaElla/Art/Keeper/T_Keeper_Wing,-
+keeper:talon-empty-and-closed,GDD ANIM-06,keeper-talon,artkeeper,no,/Game/UmbrellaElla/Art/Keeper/T_Keeper_Talon,UKeeperPresenterSubsystem
+keeper:wings-gust-wear,GDD ANIM-06,keeper-wing,artkeeper,no,/Game/UmbrellaElla/Art/Keeper/T_Keeper_Wing,UKeeperPresenterSubsystem
 menu-backdrop:Clocks,Source UI/Menus EFlowBackdrop,ui-pause,artui,no,/Game/UmbrellaElla/Art/UI/T_MenuBackdrop_Clocks,-
 menu-backdrop:Drift,Source UI/Menus EFlowBackdrop,menu-screen,artscene,no,/Game/UmbrellaElla/Art/UI/T_MenuBackdrop_Drift,-
 scene:gameplay-frame,GDD ART-07,scene,artscene,no,/Game/UmbrellaElla/Art/Scene/T_Frame,USceneArtSubsystem

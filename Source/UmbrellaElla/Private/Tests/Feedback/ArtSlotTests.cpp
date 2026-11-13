@@ -722,4 +722,54 @@ bool FArtSlotBeam::RunTest(const FString& Parameters)
 	return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FArtSlotKeeperParts, "UmbrellaElla.Feedback.World.ArtSlotKeeperParts",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+
+bool FArtSlotKeeperParts::RunTest(const FString& Parameters)
+{
+	UWorld* World = ArtSlotTestWorld();
+	if (!TestNotNull(TEXT("world"), World))
+	{
+		return false;
+	}
+	UKeeperPresenterSubsystem* Presenter = World->GetSubsystem<UKeeperPresenterSubsystem>();
+	AKeeperOfTime* Keeper = World->SpawnActor<AKeeperOfTime>();
+	if (TestNotNull(TEXT("keeper presenter"), Presenter) && TestNotNull(TEXT("keeper"), Keeper))
+	{
+		Presenter->ShowStandIn(Keeper);
+		UTexture2D* Texture = ArtSlotTestTexture();
+		float LastDepth = -1.0e9f;
+		for (const UmbrellaKeeperPresenterConst::FKeeperPartLayer& Layer : UmbrellaKeeperPresenterConst::PartLayers)
+		{
+			const FString Id = Layer.Visual;
+			const FArtSlotRow* Row = ArtSlot::Find(*Id);
+			if (!TestNotNull(*FString::Printf(TEXT("%s has a slot row"), *Id), Row))
+			{
+				continue;
+			}
+			TestFalse(*FString::Printf(TEXT("%s names a consumer"), *Id), FString(Row->DrawnBy) == TEXT("-"));
+			TestTrue(*FString::Printf(TEXT("%s layers are ordered back to front"), *Id), Layer.DepthOffset > LastDepth);
+			LastDepth = Layer.DepthOffset;
+			// A part asset that exists is drawn when the Keeper appears; otherwise the transient picture is.
+			const bool bAssetExists = ArtSlot::LoadTexture(*Row) != nullptr;
+			TestEqual(*FString::Printf(TEXT("%s drawn at spawn iff its asset exists"), *Id), UKeeperPresenterSubsystem::FindPart(Keeper, Id) != nullptr, bAssetExists);
+			if (!bAssetExists)
+			{
+				TestTrue(*FString::Printf(TEXT("%s takes a picture"), *Id), Presenter->ShowPartArt(Keeper, Id, Texture) == EArtSlotDraw::Drawn);
+			}
+			TestTrue(*FString::Printf(TEXT("second picture for %s refused"), *Id), Presenter->ShowPartArt(Keeper, Id, Texture) != EArtSlotDraw::Drawn);
+			const UStaticMeshComponent* Part = UKeeperPresenterSubsystem::FindPart(Keeper, Id);
+			if (TestNotNull(*FString::Printf(TEXT("%s part"), *Id), Part))
+			{
+				TestTrue(*FString::Printf(TEXT("%s shows art"), *Id), ArtSlot::IsDrawingArt(Part));
+				TestEqual(*FString::Printf(TEXT("%s has no collision"), *Id), static_cast<int32>(Part->GetCollisionEnabled()), static_cast<int32>(ECollisionEnabled::NoCollision));
+				TestEqual(*FString::Printf(TEXT("%s depth offset"), *Id), static_cast<float>(Part->GetComponentLocation().Y - Keeper->GetActorLocation().Y), Layer.DepthOffset);
+				TestEqual(*FString::Printf(TEXT("%s is the body width"), *Id), static_cast<float>(Part->GetComponentScale().X), static_cast<float>(UmbrellaKeeperPresenterConst::StandInScale.X));
+			}
+		}
+	}
+	ArtSlotTestEnd(World);
+	return true;
+}
+
 #endif

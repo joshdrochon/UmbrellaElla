@@ -44,6 +44,8 @@ CONSUMER = [("bg-layer:", "UUmbrellaBackdropSubsystem"), ("ella-state:", "UEllaA
             ("enemy:", "UEnemyPresenterSubsystem"),
             ("wind:", "UWindPresenterSubsystem"), ("shot:red-impact", "UUmbrellaVfxSubsystem"), ("shot:red", "UShotPresenterSubsystem"),
             ("shot:gold", "UShotPresenterSubsystem"), ("shot:yellow", "UShotPresenterSubsystem"), ("keeper:body-hover-flap", "UKeeperPresenterSubsystem"),
+            ("keeper:wings-gust-wear", "UKeeperPresenterSubsystem"), ("keeper:mechanism-", "UKeeperPresenterSubsystem"),
+            ("keeper:clock-cover", "UKeeperPresenterSubsystem"), ("keeper:talon-", "UKeeperPresenterSubsystem"),
             ("vfx-sheet:", "VfxSheetVisual"), ("screen:", "UUiArtSubsystem"),
             ("bg:", "USceneArtSubsystem"), ("scene:", "USceneArtSubsystem"),
             ("shot:stream-beam", "UShotPresenterSubsystem")]
