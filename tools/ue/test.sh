@@ -18,7 +18,7 @@ rc=0
 "${UE_RUN[@]}" run --timeout "$UE_TIMEOUT" --log "$LOG" -- \
   "$UE_ROOT/Engine/Binaries/Mac/UnrealEditor.app/Contents/MacOS/UnrealEditor" "$PROJECT" \
   -ExecCmds="Automation RunTests ${TEST_FILTER:-UmbrellaElla};Quit" -TestExit="Automation Test Queue Empty" \
-  -ReportExportPath="$REPORT" -unattended -nopause -nosplash -NullRHI -nocrashreports -stdout >/dev/null || rc=$?
+  -ReportExportPath="$REPORT" -unattended -nopause -nosplash -NullRHI -nosound -nocrashreports -stdout >/dev/null || rc=$?
 if [ "$rc" = "124" ]; then echo "FAIL: editor timed out after ${UE_TIMEOUT}s; log: $LOG"; exit 124; fi
 # The (world) marks of the test map always count, so a world test is the same test here, in the daily and in the map
 # (final-10 A H4); --test-map (the daily) also requires the merged rows' tests.
