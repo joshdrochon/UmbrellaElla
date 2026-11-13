@@ -73,3 +73,6 @@ No gameplay timing, collision or state is written by any of it (tests check the 
 ## Slice 7 (Nov 13): merged main and origin/area/artslots, still blocked
 - Re-checked the three defects of request 5 on main: `art_check.py` still has no sprite/effect colour mode, `art_loop.py` still counts only fully calibrated sessions with no re-draw, and the context pair is unchanged for effects. artslots brought nothing for them.
 - No paint, spend stays 4.56 of 33.82. Blocker is only the lead's: request 5 in `docs/build/requests/artfx.md`.
+
+## Slice 8 (Nov 13): merged main and artslots (both up to date), still blocked
+- Main (e90abdd5) has not moved since slice 7. `art_check.py` has no sprite/effect mode, `art_loop.py` has no re-draw for uncalibrated sessions, the context pair is unchanged. Request 5 stands. No paint, spend stays 4.56 of 33.82.
