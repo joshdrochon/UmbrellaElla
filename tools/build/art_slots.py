@@ -36,7 +36,6 @@ SCENE = {"scene:gameplay-frame": "Frame", "world:mill-and-traps": "WorldMill", "
          "world:solids": "WorldSolids"}
 TILED = {"bg-layer:Sky"}   # paper: UV-tiled across the panel
 
-# NOTE: vfx-sheet rows load their texture via VfxSheetVisual but nothing drives the Frame parameter yet (ArtSlot.cpp sets 0), so only frame 0 shows.
 # visual prefix -> the C++ class that loads the slot today ("-" = no consumer yet; see docs/build/requests/artslots.md)
 CONSUMER = [("bg-layer:", "UUmbrellaBackdropSubsystem"), ("ella-state:", "UEllaAnimPresenterComponent"),
             ("enemy:", "UEnemyPresenterSubsystem"),

@@ -10,6 +10,10 @@
 #include "Feedback/Anim/EnemyPresenterSubsystem.h"
 #include "Feedback/Anim/KeeperPresenterSubsystem.h"
 #include "Feedback/Anim/ShotPresenterSubsystem.h"
+#include "Feedback/Vfx/UmbrellaVfxDirectorSubsystem.h"
+#include "Feedback/Vfx/VfxCatalog.h"
+#include "Feedback/Vfx/VfxSheetVisual.h"
+#include "Tests/Shared/UmbrellaTestWorld.h"
 #include "Feedback/Vfx/UmbrellaVfxSubsystem.h"
 #include "Core/UmbrellaEvent.h"
 #include "Projectile/UmbrellaProjectile.h"
@@ -352,6 +356,46 @@ bool FArtSlotShots::RunTest(const FString& Parameters)
 		}
 	}
 	ArtSlotTestEnd(World);
+	return true;
+}
+
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FArtSlotSheetFrames, "UmbrellaElla.Feedback.World.ArtSlotSheetFrames",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+
+bool FArtSlotSheetFrames::RunTest(const FString& Parameters)
+{
+	FUmbrellaTestWorld Harness;
+	UWorld* World = Harness.GetWorld();
+	UUmbrellaVfxDirectorSubsystem* Director = World ? World->GetSubsystem<UUmbrellaVfxDirectorSubsystem>() : nullptr;
+	const FVfxArtRow* Row = VfxCatalog::Find(TEXT("SmallBlastTravel"));
+	if (!TestNotNull(TEXT("effect director"), Director) || !TestNotNull(TEXT("sheet row"), Row))
+	{
+		return false;
+	}
+	TestTrue(TEXT("effect plays"), Director->Play(TEXT("SmallBlastTravel"), FVector(0.0, 0.0, 300.0), nullptr) > 0);
+	UStaticMeshComponent* Visual = Cast<UStaticMeshComponent>(IsValid(Director->GetLiveActor(TEXT("SmallBlastTravel"))) ? Director->GetLiveActor(TEXT("SmallBlastTravel"))->GetRootComponent() : nullptr);
+	if (!TestNotNull(TEXT("effect visual"), Visual) || !TestTrue(TEXT("the sheet is drawn, not the stand-in"), VfxSheetVisual::HasArt(Visual)))
+	{
+		return false;
+	}
+	const UMaterialInstanceDynamic* Dynamic = Cast<UMaterialInstanceDynamic>(Visual->GetMaterial(0));
+	if (!TestNotNull(TEXT("sheet material"), Dynamic))
+	{
+		return false;
+	}
+	float Frame = -1.0f;
+	Dynamic->GetScalarParameterValue(FName(TEXT("Frame")), Frame);
+	TestEqual(TEXT("starts on the first frame"), Frame, 0.0f);
+	const float Elapsed = 3.5f / Row->Fps;
+	Director->StepEffects(Elapsed);
+	Dynamic->GetScalarParameterValue(FName(TEXT("Frame")), Frame);
+	TestTrue(TEXT("frame advanced with game time"), Frame > 0.0f);
+	TestEqual(TEXT("frame is the catalogue frame at that time"), static_cast<int32>(Frame), VfxCatalog::FrameAt(*Row, Elapsed));
+	Director->StepEffects(Elapsed);
+	float Later = -1.0f;
+	Dynamic->GetScalarParameterValue(FName(TEXT("Frame")), Later);
+	TestTrue(TEXT("frame keeps advancing"), Later > Frame);
 	return true;
 }
 
