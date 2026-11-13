@@ -2,7 +2,12 @@
 
 int32 AttackCadence::Step(float& Countdown, float DeltaSeconds, float ShotsPerSecond, bool bWantsFire)
 {
-	Countdown -= DeltaSeconds;
+	// An idle countdown sits at zero: the first shot is immediate and that frame must not also eat time from the
+	// next gap (D-new-smallblast-fixture: every gap is exactly one interval).
+	if (Countdown > 0.0f)
+	{
+		Countdown -= DeltaSeconds;
+	}
 	if (!bWantsFire || ShotsPerSecond <= 0.0f)
 	{
 		Countdown = FMath::Max(Countdown, 0.0f);

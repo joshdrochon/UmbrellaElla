@@ -1,0 +1,44 @@
+{
+ "provider": "gemini",
+ "tool": "Gemini API image generation (Google)",
+ "model": "gemini-3-pro-image-preview",
+ "model_version": "gemini-3-pro-image-preview",
+ "prompt": "Ella hangs in a slow hover beneath her open umbrella, seen in pure side view facing right. Both of her arms are stretched straight up above her head and both gloved hands grip the one shaft just below the canopy, so her whole body hangs from the umbrella like a weight from a string. The open canopy sits directly above her head with its crown finial pointing straight up at the top; the shaft passes between her hands and ends just below them in the diamond terminal. Her legs hang straight down, relaxed and limp, the boots dangling with the toes pointed down, high above any surface. Layout: one horizontal strip on a 21:9 canvas holding 4 frames of this hover, in one row, evenly spaced with wide empty flat green gaps, each frame containing only its own single figure with her whole umbrella inside the frame, the crown finial well clear of the top edge and the boots well clear of the bottom edge, the figure filling about 80% of the canvas height. The camera is level and at the same distance in every frame; scale, line weight, and the heights of the hips and hands are identical in every frame. Frame 1: legs together, hanging straight. Frame 2: the boots swing a few degrees apart into a narrow V, one slightly forward and one slightly back, the skirt and hair swaying gently the other way. Frame 3: the V at its widest, still small and slow, with no kick. Frame 4: the legs swing back together, almost as in frame 1. The two attached images are reference only for her identity: the first shows Ella in side profile, the second shows her umbrella open. Copy her face covering, hat, hair length and colour, scarf, dress, boots and the umbrella design. Do not copy the first image's pose, scale, framing or closed upright umbrella hold; here the umbrella is open overhead and the layout is the one described above. Style: a dark painterly etched storybook illustration for a 2D side-view game sprite, drawn like an old engraving in brown-black ink with a thin sepia wash and fine etched cross-hatching in the shadows. The figure is a near-black silhouette that reads by shape alone: charcoal, soot and umber darks, the darkest tone ink #171614, with interior detail dark on dark. Subdued bronze and warm ivory appear only as thin rim light on edges and small highlights on metal. Cloth edges are ragged, torn into jagged points. Shapes are bold and simple enough to read when the figure is shown only about 90 pixels tall. The light is soft, even and unlit-looking, from the front and slightly above; the figure casts no shadow and no part of the body glows, apart from the gold elements named below. A clean warm ivory #EDE3CF outline, about 3 px at 2K, follows the outer edge of the whole figure and of every separate piece. The background is one perfectly flat, uniform pure green #00FF00 filling the canvas edge to edge, identical everywhere and completely empty: no ground, no shadow, no gradient, no grain or paper texture, no glow or light spill. Every part of the figure is charcoal, umber, bronze, ivory or gold; nothing in it or reflected on it is green. The image is wordless: no text, labels, numbers, grid lines, frames or watermark. Ella is an adult woman of slender build, about seven and a half heads tall, always airborne and never touching the ground. On her head is a wide-brimmed, tall pointed witch hat of soft dark cloth with a band, bent a third of the way up so its tip folds over backwards. Her hair is dark brown, a shade lighter than her clothes, long and straight: it falls from under the brim past her shoulders to the middle of her back with loose strands lifting in the air, and from the front two long locks hang forward over her shoulders to her chest. It is never short and never a bob. Her whole face, from brim to chin, is hidden under a dark cloth or mesh mask; two small separate gold #E9C46A glints, one per eye (only the near eye in profile), are the only light on her. A long ragged scarf, a separate piece of cloth clearly apart from the hair and the dress, wraps her neck and trails two ragged tails behind her. She wears a fully covering, layered, worn dark dress: long sleeves, high collar, a wide sash at the waist, and a skirt of several ragged jagged-edged layers ending below the knee, over opaque dark stockings and laced ankle boots with low heels, and dark gloves, so no skin shows. She carries one slender umbrella and no wand. Opened, its canopy is a shallow dome about three quarters as wide as she is tall, with a scalloped hem and eight gores of alternating broad black and muted warm taupe bands radiating from the top, over eight slender dark metal ribs whose small pointed tips show at the hem. At the very top of the canopy sits a small pointed crown finial: a tiny dark bronze coronet of three to five upward points on a small collar, clearly wider than the shaft, with a thin ivory highlight on its points. A long thin straight dark shaft runs down from it, with a small sliding collar on it. At the free end of the shaft hangs a separate narrow pierced diamond (lozenge) clock-hand terminal of dark bronze. From crown to terminal the umbrella is about two thirds of her height; closed, the canopy furls into a slim bundle. Both of her gloved hands grip the one shaft. Her body, hands, cloth and metal stay dark.",
+ "seed": "",
+ "size": "1024x1024",
+ "quality": "medium",
+ "aspect_ratio": "21:9",
+ "image_size": "2K",
+ "input_images": [
+  "Art/Source/ImageProof/R2/ref_side.png",
+  "Art/Source/ImageProof/R2/ref_umbrella.png"
+ ],
+ "cost_usd": 0.141104,
+ "reply": {
+  "usage": {
+   "promptTokenCount": 1698,
+   "candidatesTokenCount": 1531,
+   "totalTokenCount": 3538,
+   "promptTokensDetails": [
+    {
+     "modality": "TEXT",
+     "tokenCount": 1182
+    },
+    {
+     "modality": "IMAGE",
+     "tokenCount": 516
+    }
+   ],
+   "candidatesTokensDetails": [
+    {
+     "modality": "IMAGE",
+     "tokenCount": 1120
+    }
+   ],
+   "thoughtsTokenCount": 309,
+   "serviceTier": "standard"
+  },
+  "finish": "STOP"
+ },
+ "date": "2026-11-13T02:53+00:00"
+}

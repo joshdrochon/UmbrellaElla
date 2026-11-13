@@ -55,6 +55,7 @@ bool FMoveBaselineTest::RunTest(const FString& Parameters)
 	TestEqual(TEXT("wind accel"), M.WindAcceleration, 3.0f);
 	TestEqual(TEXT("wind open decay"), M.WindOpenDecay, 1.5f);
 	TestEqual(TEXT("wind falling decay"), M.WindFallingDecay, 12.0f);
+	TestEqual(TEXT("wind maximum"), M.WindMaxSpeed, 360.0f);
 	const FUmbrellaFlightTuning& U = GetDefault<UUmbrellaTuning>()->UmbrellaFlight;
 	TestEqual(TEXT("absorb range"), U.AbsorbRange, 240.0f);
 	TestEqual(TEXT("absorb cone"), U.AbsorbConeDegrees, 60.0f);
@@ -288,12 +289,15 @@ bool FMoveWindTest::RunTest(const FString& Parameters)
 		TestFalse(TEXT("falling disengages ride"), Falling.bRiding);
 		TestTrue(TEXT("falling decays fast"), FMath::Abs(Falling.Wind.X) < 1.0f);
 
-		// Cap at horizontal_max_speed.
+		// A 360 current is carried whole (GDD wind 360); only faster ones are capped, at the wind maximum.
 		FMotorModelState Fast;
 		Input.Action = EUmbrellaAction::Rise;
+		Input.CurrentVelocity = FVector2D(360.0f, 0.0f);
+		Run(Fast, Input, 5.0f, Delta);
+		TestEqual(TEXT("wind 360 is not cut"), static_cast<float>(Fast.Wind.X), 360.0f, 0.5f);
 		Input.CurrentVelocity = FVector2D(900.0f, 0.0f);
 		Run(Fast, Input, 5.0f, Delta);
-		TestEqual(TEXT("capped at 290"), static_cast<float>(Fast.Wind.X), 290.0f, 0.01f);
+		TestEqual(TEXT("capped at the wind maximum"), static_cast<float>(Fast.Wind.X), Motor().WindMaxSpeed, 0.01f);
 
 		// Outside a current, holding Ride does nothing.
 		FMotorModelState Outside;
@@ -307,6 +311,43 @@ bool FMoveWindTest::RunTest(const FString& Parameters)
 	TestEqual(TEXT("Down"), MotorModel::ParseCurrentDirection(FName(TEXT("Down"))), FVector2D(0.0, -1.0));
 	TestEqual(TEXT("junk"), MotorModel::ParseCurrentDirection(FName(TEXT("sideways"))), FVector2D::ZeroVector);
 	TestEqual(TEXT("x,z"), MotorModel::ParseCurrentDirection(FName(TEXT("0,-3"))), FVector2D(0.0, -1.0));
+	TestEqual(TEXT("direction with local field"), MotorModel::ParseCurrentDirection(FName(TEXT("Right@2.4,230,-78"))), FVector2D(1.0, 0.0));
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMoveLocalFieldTest, "UmbrellaElla.Move.WindLocalVerticalField", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FMoveLocalFieldTest::RunTest(const FString& Parameters)
+{
+	float Gain = 0.0f;
+	float Centre = 0.0f;
+	float Comp = 0.0f;
+	TestFalse(TEXT("plain label has no field"), MotorModel::HasLocalField(FName(TEXT("Right")), Gain, Centre, Comp));
+	if (!TestTrue(TEXT("field parses"), MotorModel::HasLocalField(FName(TEXT("Right@2.4,230,-78")), Gain, Centre, Comp)))
+	{
+		return false;
+	}
+	TestEqual(TEXT("gain"), Gain, 2.4f);
+	TestEqual(TEXT("centre z"), Centre, 230.0f);
+	TestEqual(TEXT("compensation"), Comp, -78.0f);
+	// Vz term: Gain * (CentreZ - RootZ) + Compensation.
+	TestEqual(TEXT("term at root 257.5 balances full lift with up trim (GDD +27.5)"), MotorModel::LocalVerticalTerm(Gain, Centre, Comp, 257.5f) + Motor().RiseSpeed * (1.0f + Motor().VerticalTrimPct / 100.0f), 0.0f, 0.01f);
+	TestEqual(TEXT("term at centre"), MotorModel::LocalVerticalTerm(Gain, Centre, Comp, 230.0f), -78.0f, 0.001f);
+	for (const float Delta : TestDeltas)
+	{
+		FMotorModelState State;
+		FMotorInput Input;
+		Input.bRideHeld = true;
+		Input.bInCurrent = true;
+		Input.CurrentVelocity = FVector2D(360.0f, 0.0f);
+		Input.LocalVerticalVelocity = -50.0f;
+		const FVector2D Moved = Run(State, Input, 1.0f, Delta);
+		TestEqual(TEXT("riding adds the term to Vz"), static_cast<float>(State.Velocity.Y), Motor().RiseSpeed - 50.0f, 0.01f);
+		TestTrue(TEXT("displacement follows"), Moved.Y < Motor().RiseSpeed);
+		FMotorModelState NotRiding;
+		Input.bRideHeld = false;
+		Run(NotRiding, Input, 0.5f, Delta);
+		TestEqual(TEXT("not riding: no term"), static_cast<float>(NotRiding.Velocity.Y), Motor().RiseSpeed, 0.01f);
+	}
 	return true;
 }
 
@@ -349,6 +390,28 @@ bool FMoveCadenceTest::RunTest(const FString& Parameters)
 			Idle += AttackCadence::Step(Countdown, Delta, 5.0f, false);
 		}
 		TestEqual(TEXT("no shots when not firing"), Idle, 0);
+	}
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMoveCadenceGapsTest, "UmbrellaElla.Move.SmallBlastCadenceGaps", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FMoveCadenceGapsTest::RunTest(const FString& Parameters)
+{
+	// D-new-smallblast-fixture: every gap is one interval (0.200 s at 5 shots/s), the first included.
+	const float Delta = 1.0f / 60.0f;
+	float Countdown = 0.0f;
+	TArray<int32> ShotFrames;
+	for (int32 Frame = 0; Frame < 60; ++Frame)
+	{
+		if (AttackCadence::Step(Countdown, Delta, 5.0f, true) > 0)
+		{
+			ShotFrames.Add(Frame);
+		}
+	}
+	TestTrue(TEXT("at least 4 shots in a second"), ShotFrames.Num() >= 4);
+	for (int32 Index = 1; Index < ShotFrames.Num(); ++Index)
+	{
+		TestEqual(*FString::Printf(TEXT("gap %d in frames"), Index), ShotFrames[Index] - ShotFrames[Index - 1], 12);
 	}
 	return true;
 }

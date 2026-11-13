@@ -40,6 +40,14 @@ void AWindCurrent::SetCurrent(const FVector& NewDirection, float NewForce)
 	Force = NewForce;
 }
 
+void AWindCurrent::SetLocalVerticalField(float Gain, float CentreZ, float Compensation)
+{
+	bHasLocalField = true;
+	LocalGain = Gain;
+	LocalCentreZ = CentreZ;
+	LocalCompensation = Compensation;
+}
+
 void AWindCurrent::BroadcastEntered(const AActor* Other) const
 {
 	if (!IsFeatureEnabled(EFeatureId::WIND_03) || !IsValid(Other))
@@ -52,7 +60,9 @@ void AWindCurrent::BroadcastEntered(const AActor* Other) const
 		Event.Type = EUmbrellaEventType::WindEntered;
 		Event.SourceId = GetFName();
 		Event.TargetId = Other->GetFName();
-		Event.Detail = DirectionLabel(Direction);
+		Event.Detail = bHasLocalField
+			? FName(*FString::Printf(TEXT("%s@%g,%g,%g"), *DirectionLabel(Direction).ToString(), LocalGain, LocalCentreZ, LocalCompensation))
+			: DirectionLabel(Direction);
 		Event.Value = GetForce();
 		Bus->Broadcast(Event);
 	}
