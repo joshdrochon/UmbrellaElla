@@ -16,6 +16,8 @@ G="$BASE/gate"; L="$BASE/logs"; mkdir -p "$L"; T0=$(date +%s); fail=0
 # A head the gate failed or held is never gated again; the lane needs new commits (Josh, Nov 12). Lane verdicts are
 # recorded on exit (1 FAIL, 3 HOLD); exits that are not the lane's fault set NORECORD=1 first.
 TIP="$(git -C "$ROOT" rev-parse "$C" 2>/dev/null)"; NORECORD=0
+# A batch must hold lane merges; an empty batch (branch reset to main) never passes (Nov 12: one "passed" and dropped 7 lanes).
+if [ "$A" = batch ] && ! git -C "$ROOT" log --format=%s "origin/main..$C" | grep -q " into batch$"; then echo "GATE FAIL: area/batch holds no lane merges"; exit 1; fi
 python3 "$ROOT/tools/build/gate_seen.py" check "$L" "$A" "$TIP" || exit 4
 trap 'rc=$?; if [ "$NORECORD" = 0 ]; then case $rc in 1) python3 "$ROOT/tools/build/gate_seen.py" record "$L" "$A" "$TIP" FAIL;; 3) python3 "$ROOT/tools/build/gate_seen.py" record "$L" "$A" "$TIP" HOLD;; esac; fi' EXIT
 step() { echo "[gate $A] $1 ($(( $(date +%s) - T1 )) s)"; }
@@ -42,6 +44,7 @@ if python3 tools/build/provenance_dedupe.py | grep -q "rows -> 1"; then
   step "provenance rows deduplicated"
 fi
 eval "$(python3 tools/build/gate_plan.py "$MAIN" HEAD)"
+export UE_SLOT_GATE=1   # the gate always gets its reserved engine slot
 SLOT="$ROOT/tools/build/ue_slot.sh"; EV="$L/gate-$A-evidence.txt"; : > "$EV"
 chk() { local name="$1"; shift; T1=$(date +%s); out=$("$@" 2>&1); rc=$?; echo "$out" | tail -3 >> "$EV"
   if [ $rc -eq 0 ]; then step "$name PASS"; else step "$name FAIL"; echo "$out" | tail -15; fail=1; fi; }
@@ -50,7 +53,7 @@ if [ "$SRC" = 1 ]; then
   if echo "$b" | grep -q "build exit: 0"; then step "build PASS"; else step "build FAIL: $b"; fail=1; fi
   if [ $fail = 0 ]; then
     T1=$(date +%s); t=$(TEST_FILTER="$TESTS" "$SLOT" tools/ue/test.sh 2>&1 | tail -6); echo "$t" >> "$EV"
-    if echo "$t" | grep -q "^PASS"; then step "tests PASS ($TESTS): $(echo "$t" | grep '^PASS' | cut -c1-40)"; else step "tests FAIL ($TESTS)"; echo "$t"; fail=1; fi
+    if echo "$t" | grep -q "^PASS"; then step "tests PASS ($TESTS): $(echo "$t" | grep '^PASS' | cut -c1-40)"; else step "tests FAIL ($TESTS)"; echo "$t"; fail=1; echo "$t" | grep -q "report missing or unreadable" && NORECORD=1; fi   # no report = the run never finished (load), not the lane
   fi
 fi
 [ "$MODULE" = 1 ] && chk module_check python3 tools/module_check.py
