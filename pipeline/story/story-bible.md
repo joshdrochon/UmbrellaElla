@@ -40,7 +40,7 @@ also wait for NAR-01 to be authorised in `docs/feature-manifest.json`.
 | the owl | opponent | GDD | S1 sections 1, 7A | Huge, clockwork, a clock in its chest. Always "the owl" in text until a name is CONFIRMED. |
 | Keeper of Time | epithet for the owl | PROPOSED | S1 "clockkeeper"; S3 "an ancient keeper of time and death" | A title, not a name. Needs a human trademark search before it ships. |
 | Mother | Ella's mother (no given name) | CONFIRMED 2026-11-12 (agent default; team may override) | S3 | Never on screen yet. Write "her mother" in text; "Mother" only if Ella speaks to her, or as the speaker label on a caption she speaks (GDD NAR-04: "Mother: Keep it open."). |
-| Umbrella Ella | game title candidate | OPEN | repo working name | D-new-story-canon picks the title. |
+| Umbrella Ella | game title (start of "Umbrella Ella The Stolen Hour") | CONFIRMED 2026-11-12 (agent default; Josh decided the title, D-new-title-text) | repo working name | `docs/decisions.md` D-new-title-text. |
 | nUMBeR ELLA | game title candidate | PROPOSED | S3 | Wordplay on umbra, umbrella and the hour's number. Mixed case is part of it. |
 | The Last Hour | chapter or encounter title | DEFERRED | S2 | Provisional only. |
 | UMBRELLA / OWL | design document title | GDD | S1 cover | The GDD's own title, not a game title. |

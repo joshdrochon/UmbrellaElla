@@ -30,7 +30,26 @@
                  "Options", "Menu", "SFX", "UI", "PC", "Windows", "Play", "Quit", "Resume", "Settings", "Restart",
                  "Back", "Confirm", "Survived", "Pause", "Controls", "Music", "Hold", "Toggle", "On", "Off", "Remap",
                  "Screen", "Text", "Game", "Speed", "Projectile", "Umbrella", "Wear", "Shake", "English", "Title",
-                 "I", "Unreal", "Engine"],
+                 "I", "Unreal", "Engine",
+                 "Editing", "Volume", "Effects", "Size", "Absorb", "Director's", "Cut", "Controller", "Blasts", "Blast",
+                 "Stars", "Spell", "Points", "Complete", "Again", "Credits", "Stolen", "Rispoli", "Rochon",
+                 "Executive", "Producer", "Technical", "Lead", "D-pad"],
+  "_allow_caps_reasons": {
+    "Editing": "settings button 'Keep Editing'", "Volume": "settings slider label", "Effects": "settings label 'Sound Effects'",
+    "Size": "settings label 'Text Size'", "Absorb": "game verb/control name (GDD FLOW absorb)",
+    "Director's": "menu item Director's Cut (D-new-title-text)", "Cut": "menu item Director's Cut (D-new-title-text)",
+    "Controller": "settings page name", "Blasts": "spell name (GDD spell list)", "Blast": "spell name (GDD spell list)",
+    "Stars": "spell name Twin Stars (GDD spell list)", "Spell": "spell name Needle Spell (GDD spell list)",
+    "Points": "purchase screen label 'Points left'", "Complete": "screen title Journey Complete (GDD FLOW-49)",
+    "Again": "button Try Again (GDD FLOW-49)", "Credits": "settings/menu term", "Stolen": "title word (D-new-title-text)",
+    "Rispoli": "credits: team member name", "Rochon": "credits: team member name",
+    "Executive": "credits role title", "Producer": "credits role title", "Technical": "credits role title",
+    "Lead": "credits role title", "D-pad": "controller button name"
+  },
+  "_length_exceptions_about": "Per line id: a cap above the surface cap, with the decision that allows it. The surface cap still applies to every other line.",
+  "length_exceptions": {
+    "ui-title-umbrella-ella-the-stolen-hour": {"max_words": 5, "why": "docs/decisions.md D-new-title-text: Josh decided the title 'Umbrella Ella The Stolen Hour'"}
+  },
   "_surfaces_about": "Every row of pipeline/story/lines.csv names one surface. max_words caps its length. story = true means the line is narrative (NAR-01): it ships only once docs/feature-manifest.json NAR-01 is implementation_authorized, and it must cite at least one bible fact.",
   "surfaces": {
     "title":       {"max_words": 4,   "story": false, "where": "title screen and store page title"},

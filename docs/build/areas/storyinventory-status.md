@@ -19,3 +19,12 @@ Scope: text patterns the check sees are listed in the story_inventory.py docstri
 Not run: Unreal build/tests (no C++ changed).
 
 TOTAL=119 BEFORE=7 NEW=112 PASSED=0 | credits=7 defeat=3 ending=5 in-world=2 journey-complete=11 level-up=3 opening=2 pause=3 purchase=14 settings=24 settings-controller=14 settings-game-options=21 title=3 tutorial=7
+
+## Lead fixes (2026-11-12), story_check 42 -> 6
+- allow_caps: 27 UI/credit terms added to story.json with reasons in `_allow_caps_reasons` (lead-authorised gate-file edit).
+- length: story.json `length_exceptions` (per line id, needs a `why`) for the title, citing D-new-title-text; story_check.py reads it; test added.
+  Tutorial pages rewritten to 20 words ("Trim with W, S or the left stick."; "A long drop lies ahead.") in FlowTutorialText.cpp.
+- ship: bible Names row "Umbrella Ella" now CONFIRMED 2026-11-12 (agent default; Josh decided the title, D-new-title-text). test_story_check "ship" case now uses "The Last Hour".
+- banned: "XP earned" -> "Experience earned" (StoryRules.cpp, lines.csv).
+- Left on purpose: the two credits placeholders (6 story_check problems: caps ROLE/EXECUTIVE/PRODUCER/NAME, name Josh x2). test_story_check.RepoStoryFilesPass fails on them until Josh supplies the names.
+- Build exit 0. story_inventory check PASS shipped=119 rows=119.

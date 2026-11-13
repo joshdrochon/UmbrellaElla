@@ -86,7 +86,6 @@ credit-the-executive-producer-executive-produce,screen,[the executive producer] 
 credit-richard-producer,button,Richard - Producer,,yes,screen=credits; where=SettingsModel.cpp
 credit-josh-rochon-technical-lead,screen,Josh Rochon - Technical Lead,,yes,screen=credits; where=SettingsModel.cpp
 ui-journey-complete-enemies-defeated,button,Enemies defeated,,yes,screen=journey-complete; where=StoryRules.cpp
-ui-journey-complete-xp-earned,button,XP earned,,yes,screen=journey-complete; where=StoryRules.cpp
 ui-journey-complete-deaths,button,Deaths,,yes,screen=journey-complete; where=StoryRules.cpp
 ui-journey-complete-distance-flown,button,Distance flown,,yes,screen=journey-complete; where=StoryRules.cpp
 ui-journey-complete-shots-fired,button,Shots fired,,yes,screen=journey-complete; where=StoryRules.cpp
@@ -112,10 +111,11 @@ story-ending-page-2,end_card,"She has survived, yet neither her fate nor the owl
 credit-umbrella-ella-the-stolen-hour,screen,Umbrella Ella The Stolen Hour,,yes,screen=credits; where=FlowStoryText.cpp
 credit-role-josh-to-supply,screen,[ROLE - Josh to supply],,yes,screen=credits; where=FlowStoryText.cpp
 credit-executive-producer-name-josh-to,screen,[EXECUTIVE PRODUCER NAME - Josh to supply],,yes,screen=credits; where=FlowStoryText.cpp
-ui-tutorial-ella-drops-under-her-umbrella,screen,Ella drops under her umbrella. Hop with Space or A to rise. Trim with W and S or the left stick.,,yes,screen=tutorial; where=FlowTutorialText.cpp
 ui-tutorial-while-dropping-shoot-with-j,screen,"While dropping, shoot with J or the left mouse button. Shots always fly right. Basic shots never run out.",,yes,screen=tutorial; where=FlowTutorialText.cpp
 ui-tutorial-absorb-yellow-shots-with-k,screen,Absorb yellow shots with K or the right mouse button to heal. Dash with Q and E or the bumpers.,,yes,screen=tutorial; where=FlowTutorialText.cpp
-ui-tutorial-a-long-way-down-lies,screen,A long way down lies ahead. Hop with Space or A to rise. Trim with W and S or the left stick.,,yes,screen=tutorial; where=FlowTutorialText.cpp
 ui-tutorial-shoot-with-j-or-the,screen,"Shoot with J or the left mouse button while dropping. Cycle spells with [ and ] or the D-pad, or press 1 to 4.",,yes,screen=tutorial; where=FlowTutorialText.cpp
 ui-tutorial-next,button,Next,,yes,screen=tutorial; where=UmbrellaPlayerController.cpp
 ui-tutorial-begin,button,Begin,,yes,screen=tutorial; where=UmbrellaPlayerController.cpp
+ui-journey-complete-experience-earned,button,Experience earned,,yes,screen=journey-complete; where=StoryRules.cpp
+ui-tutorial-ella-drops-under-her-umbrella-2,screen,"Ella drops under her umbrella. Hop with Space or A to rise. Trim with W, S or the left stick.",,yes,screen=tutorial; where=FlowTutorialText.cpp
+ui-tutorial-a-long-drop-lies-ahead,screen,"A long drop lies ahead. Hop with Space or A to rise. Trim with W, S or the left stick.",,yes,screen=tutorial; where=FlowTutorialText.cpp
