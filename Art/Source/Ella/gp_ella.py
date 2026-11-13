@@ -413,8 +413,9 @@ def body(sx=0, lean=0):
     shape(torso, 0.35, light=(-1, -.3), hatch=58, cont=1.6, n_grain=80, lo=(44, 38, 34), mid=(92, 80, 70), hi=(140, 122, 100),
           spacing=3.2)
     # three skirt tiers: flared, ragged, leaf-like layers (top narrow, hem wide with big irregular teeth)
-    tiers = [((112, 258), (160, 258), 118, 168, 306, 20, 8), ((100, 286), (166, 286), 98, 178, 352, 26, 10),
-             ((86, 322), (178, 322), 74, 188, 400, 34, 11)]
+    tiers = [((112, 258), (160, 258), 112, 170, 292, 16, 9), ((106, 276), (164, 276), 100, 176, 320, 20, 10),
+             ((98, 298), (170, 298), 88, 182, 350, 24, 11), ((90, 322), (176, 322), 78, 188, 382, 28, 12),
+             ((84, 346), (180, 346), 68, 194, 414, 32, 13)]
     for k, (a, b, hl, hr, yb, amp, n) in enumerate(tiers):
         bot = jag((hl - 8 + lean * k * 2, yb), (hr + 6, yb), n, amp)
         poly = [a, b] + bot[::-1]
