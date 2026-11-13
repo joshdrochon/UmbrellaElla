@@ -152,10 +152,10 @@ def slug(text, taken):
 # First words that make a short UI text an action (a button); anything else short is a label (names a thing).
 LABEL_ACTIONS = {"Start", "Play", "Resume", "Restart", "Quit", "Back", "Confirm", "Cancel", "Save", "Discard", "Keep", "Reset",
                  "Open", "Skip", "Done", "Next", "Begin", "Retry", "Continue", "Try", "Main", "Sound", "Controller", "Credits",
-                 "Game", "Settings"}
+                 "Game", "Settings", "Remap", "On", "Off"}
 
 # A page tab is a button only as the bare name ("Sound"); "Sound Effects" is a setting label.
-PAGE_TABS = {"Sound", "Controller", "Credits", "Game", "Settings"}
+PAGE_TABS = {"Sound", "Controller", "Credits", "Game", "Settings", "Remap", "On", "Off"}
 
 
 # Short texts that head a screen or state a status; they are screen lines, not labels or buttons.

@@ -73,3 +73,14 @@ Left failing (6): five purchase rows "Damage reduction", "Small Blasts / Streame
 Not run to completion: Unreal build/tests were queued behind the slot lock when this was written.
 
 PASSED=112/118
+
+## Full-path re-judge (2026-11-13, tools/build/critic.sh story, CRITIC_CONTEXT=full, main merged)
+The batch runner's per-line record is not used. Panel of 3 fresh sessions over all 118 lines, three rounds. Round 1 flagged 9 lines (stale
+button/screen surfaces in lines.csv, "Sound Effects" read as a page tab, "Shots fired at you" missing from bible F13). Fixed: surfaces
+regenerated, PAGE_TABS (bare "Sound" is a button, "Sound Effects" a label), Remap/On/Off are buttons, F13 now lists shots fired at you (GDD FLOW-49).
+Round 3: all 3 sessions pass 117 of 118 lines. Left failing: ui-title-umbrella-ella-the-stolen-hour (S4: 5 words vs cap 4). The length
+exception (D-new-title-text) is in the packet and the critic ignores it; the title is Josh's decision. Not rewritten.
+Open: tests.test_story_check RepoStoryFilesPass.test_strixon_is_denied fails because bible P11 has status GDD (test wants no GDD P facts). Bible canon call, not changed.
+Not run: Unreal build/tests (no C++ changed).
+
+PASSED=117/118
