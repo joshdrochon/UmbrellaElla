@@ -1,7 +1,7 @@
 {
  "card": "0.10b",
  "piece": "ella-attack",
- "ours": "/Users/joanmiguel/Desktop/Developer/UmbrellaElla-areas/imagegen/Art/Source/ImageProof/R3/Raw/attack/ella_attack_01.png",
+ "ours": "pipeline/art/proof/ImageProof/R3/Raw/attack/ella_attack_01.png",
  "round": 3,
  "folders": [
   "Art/Source/ImageProof/R3/Panel/attack/ella-attack-r3-00-reference-c1",

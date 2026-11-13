@@ -19,7 +19,7 @@ Blender headless; scripts and recipes in pipeline/art/blender/)
           No Blender (PATH, $BLENDER, or the usual install folder): labelled placeholder frames, which can never
           pass the art loop (tools/art_loop.py) or ship (check_pr.py, submission_check.py art).
   blender --script PY --out PNG [-- args]   any other Blender script, headless
-  image   --prompt P --out Art/Source/<name>.png [--provider gemini|openai] [--input OURS.png ...] [--model M]
+  image   --prompt P --out pipeline/art/proof/ImageProof/<name>.png (proof images; shipped art goes under Art/) [--provider gemini|openai] [--input OURS.png ...] [--model M]
           [--size WxH] [--aspect 4:1] [--image-size 0.5K|1K|2K|4K] [--seed S] [--quality low|medium|high]
           Image model (D-new-art-image-model; default gemini, key GEMINI_API_KEY; openai optional, OPENAI_API_KEY):
           one still from the prompt. Order: every --input is guarded first (GDD ART-03 / BG-02: a file under

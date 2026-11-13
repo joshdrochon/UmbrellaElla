@@ -1,7 +1,7 @@
 {
  "card": "0.10b",
  "piece": "ella-up-open",
- "ours": "/Users/joanmiguel/Desktop/Developer/UmbrellaElla-areas/imagegen/Art/Source/ImageProof/Raw/Idle/ella_idle_01.png",
+ "ours": "pipeline/art/proof/ImageProof/Raw/Idle/ella_idle_01.png",
  "round": 1,
  "folders": [
   "Art/Source/ImageProof/Panel/idle/ella-up-open-r1-00-reference-c1",

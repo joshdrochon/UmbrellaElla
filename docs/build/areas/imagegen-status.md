@@ -41,7 +41,7 @@ vendor's message (it read the body twice before and lost it; test added).
   a key in the project that has them). Then rerun the runbook below unchanged.
 Not run: the 3 images, art_ref_check, the blind panel, the consistency verdict, ours-vs-model notes, cost per image.
 
-## Proof runbook (exact; outputs under Art/Source/ImageProof/, not the Ella art lane)
+## Proof runbook (exact; outputs under pipeline/art/proof/ImageProof/; proof images are not shipped art)
 Locked style block and identity block, the same words in all three prompts; set them in the shell first:
 
     S="Style: dark painterly etched storybook illustration for a 2D side-view game sprite; ink and wash with fine etched
@@ -62,14 +62,14 @@ hands, cloth and metal stay dark."
     python3 tools/assetgen.py image-models        # free; if a newer image model is listed, price it first
     # 1: canonical turnaround (text only)
     python3 tools/assetgen.py image --model gemini-3-pro-image-preview --aspect 21:9 --image-size 2K \
-      --out Art/Source/ImageProof/ella_turnaround.png \
+      --out pipeline/art/proof/ImageProof/ella_turnaround.png \
       --prompt "$S $I A character turnaround sheet of Ella: five items in one row, evenly spaced with wide green gaps,
     same height and scale, feet on one shared invisible baseline, toes pointing down as she floats: front view,
     three-quarter view, side profile facing right, back view, each holding the closed umbrella upright in both hands;
     then on the far right the same umbrella alone, open, seen from the side."
     # 2: idle (UP_OPEN, ANIM-03 overhead rise) strip, the sheet as the reference
     python3 tools/assetgen.py image --model gemini-3-pro-image-preview --aspect 21:9 --image-size 2K \
-      --input Art/Source/ImageProof/ella_turnaround.png --out Art/Source/ImageProof/ella_idle_strip.png \
+      --input pipeline/art/proof/ImageProof/ella_turnaround.png --out pipeline/art/proof/ImageProof/ella_idle_strip.png \
       --prompt "$S $I The attached sheet is Ella: keep her costume, proportions, mask, hat and umbrella exactly. One
     horizontal animation strip of 3 frames of Ella's idle hover, side view facing right, in one row, evenly spaced with
     wide flat green gaps, figures never touching, the same scale and line weight in every frame: she hangs below the
@@ -78,7 +78,7 @@ hands, cloth and metal stay dark."
     No kicking."
     # 3: ella-attack (ATTACK_DESCENT, Small Blasts) strip, same refs
     python3 tools/assetgen.py image --model gemini-3-pro-image-preview --aspect 21:9 --image-size 2K \
-      --input Art/Source/ImageProof/ella_turnaround.png --out Art/Source/ImageProof/ella_attack_strip.png \
+      --input pipeline/art/proof/ImageProof/ella_turnaround.png --out pipeline/art/proof/ImageProof/ella_attack_strip.png \
       --prompt "$S $I The attached sheet is Ella: keep her costume, proportions, mask, hat and umbrella exactly. One
     horizontal animation strip of 3 frames of Ella's attack while slowly falling, side view facing right, in one row,
     evenly spaced with wide flat green gaps, figures never touching, the same scale and line weight in every frame:
@@ -86,12 +86,12 @@ hands, cloth and metal stay dark."
     diamond clock-hand terminal at the front right end. Frame 1 ready; frame 2 one small separate gold #E9C46A magic
     pulse leaves the canopy ahead of her; frame 3 recoil, the pulse gone. The pulse is the only bright thing."
     # cut, frame, check (per strip; idle shown)
-    python3 tools/assetgen.py clean --chroma 00FF00 --grow 2 --in Art/Source/ImageProof/ella_idle_strip.png \
-      --out Art/Source/ImageProof/ella_idle_keyed.png
-    python3 tools/assetgen.py frames --in Art/Source/ImageProof/ella_idle_keyed.png --count 3 \
-      --out-dir Art/Source/ImageProof/Raw/Idle --stem ella_idle
-    python3 tools/art_ref_check.py --card 0.10b --element ella-up-open Art/Source/ImageProof/Raw/Idle/ella_idle_0*.png
-    python3 tools/art_ref_check.py --card 0.10b --element ella-attack Art/Source/ImageProof/Raw/Attack/ella_attack_0*.png
+    python3 tools/assetgen.py clean --chroma 00FF00 --grow 2 --in pipeline/art/proof/ImageProof/ella_idle_strip.png \
+      --out pipeline/art/proof/ImageProof/ella_idle_keyed.png
+    python3 tools/assetgen.py frames --in pipeline/art/proof/ImageProof/ella_idle_keyed.png --count 3 \
+      --out-dir pipeline/art/proof/ImageProof/Raw/Idle --stem ella_idle
+    python3 tools/art_ref_check.py --card 0.10b --element ella-up-open pipeline/art/proof/ImageProof/Raw/Idle/ella_idle_0*.png
+    python3 tools/art_ref_check.py --card 0.10b --element ella-attack pipeline/art/proof/ImageProof/Raw/Attack/ella_attack_0*.png
     python3 tools/art_loop.py panel --card 0.10b --piece ella-up-open --ours <frame> --out <dir>   # then one fresh
     # blind critic session per folder, then: python3 tools/art_loop.py verdict --panel <dir> --card 0.10b --piece ...
 
@@ -119,7 +119,7 @@ Checks (frames 01 used for the panel):
 - art_ref_check: idle PASS (0.695-0.732, min 0.398, closest ella-rising); attack FAIL (0.2, min 0.448).
 - screen_check: PASS both. art_check colour rules: FAIL both (off_band 0.124 idle, 0.139 attack, max 0.01):
   the bronze/ivory rim light and brown ink sit outside the gold and rust bands.
-- Blind panel (12 fresh Sonnet sessions, answers in Art/Source/ImageProof/Panel/*/*.answer.md):
+- Blind panel (12 fresh Sonnet sessions, answers in pipeline/art/proof/ImageProof/Panel/*/*.answer.md):
   idle: verdict=reference (the reference beats ours), calibration 4/6 (2 sessions answered "A: SAME" without
   "WINNER:", counted as refusals; not rerun). attack: verdict=reference, calibration 6/6; ours beat the quality bar
   but lost to the reference. Both rounds -> continue. Neither piece can pass yet: no in-engine capture (context).
@@ -146,10 +146,10 @@ Ours-vs-model notes (what is the model, what is our prompt/tools):
 
 Not done: any retry (the lead asked for 3 calls only), in-engine capture, art loop round 2.
 
-## Round 2 (Nov 13; main merged at c2f1142; outputs under Art/Source/ImageProof/R2/)
+## Round 2 (Nov 13; main merged at c2f1142; outputs under pipeline/art/proof/ImageProof/R2/)
 Done first: provenance tool name fixed (clean/frames/crop write "tools/assetgen.py (pure Python)", not GIMP 3; tests);
 new `assetgen.py crop` (one figure from a painted sheet, the strip reference). Prompt review per
-docs/build/art-image-model.md: draft prompts in Art/Source/ImageProof/prompt.md, a fresh Sonnet session in an empty
+docs/build/art-image-model.md: draft prompts in pipeline/art/proof/ImageProof/prompt.md, a fresh Sonnet session in an empty
 /tmp folder (copies of the key art, the umbrella crop, Ella-Rising-02, Ella-Shooting-03, round 1 outputs, the art
 bible, GDD ART-03..07, ANIM-02..05, Ella shared identity, Small Blasts body; Bash/Edit/Write disallowed) wrote
 prompt-review.md; applied in full with its three leans: idle 4 frames (style.json IdleFloat [4, 6]), two in-jam
@@ -195,7 +195,7 @@ Ours vs model:
 
 ROUND2: not improved
 
-## Round 3 (Nov 13; outputs under Art/Source/ImageProof/R3/)
+## Round 3 (Nov 13; outputs under pipeline/art/proof/ImageProof/R3/)
 Lead's list applied: idle with no figure input (text + open-umbrella crop, pose first); attack with the identity block
 first, short frame text, 295 words assembled; rim light and outline named by art-bible values (spark-white #FFF3D6,
 gold #E9C46A, "more red than green"); finial in one sentence as the key art draws it (a short dark stem on a small
