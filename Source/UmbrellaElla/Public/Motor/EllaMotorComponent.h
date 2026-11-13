@@ -10,6 +10,7 @@ class UEnhancedInputComponent;
 class UUmbrellaStateComponent;
 class UUmbrellaEventBus;
 struct FUmbrellaEvent;
+struct FMotorTuning;
 
 /**
  * Player Motor: the only writer of Ella's velocity and position. Reads the action from the Umbrella State, requests
@@ -49,6 +50,9 @@ public:
 	/** Test seam: advance the motor by a fixed delta without a world tick. */
 	void StepMotor(float DeltaSeconds);
 
+	/** Applies actor scale and hurtbox from this tuning (BeginPlay passes the live one; tests pass their own copy, the class default is never written). */
+	void ApplyHeroSize(const FMotorTuning& Size);
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
@@ -64,6 +68,10 @@ private:
 
 	UPROPERTY(Transient)
 	TObjectPtr<UUmbrellaStateComponent> UmbrellaState;
+
+	/** Capsule size before any HeroSize hitbox scale; captured on the first ApplyHeroSize so repeat calls do not compound. */
+	float RefCapsuleRadius = -1.0f;
+	float RefCapsuleHalfHeight = -1.0f;
 
 	FMotorModelState Model;
 	TMap<FName, FVector2D> ActiveCurrents;

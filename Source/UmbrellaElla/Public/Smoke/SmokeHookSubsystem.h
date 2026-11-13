@@ -7,6 +7,8 @@
 #include "Smoke/PlaytestRun.h"
 #include "SmokeHookSubsystem.generated.h"
 
+enum class EEnemyType : uint8;
+
 /**
  * The smoke hook (pipeline/unreal-rules.md "Smoke hook contract"). Exists only when the game is launched with
  * -SmokeQuitAfter=<s>. It presses Start Game through the Start screen's own path, logs SMOKE_EFFECTIVE at the first
@@ -46,6 +48,37 @@ public:
 	 */
 	static EInputStep NextInputStep(EInputStep Step, double InStepSeconds, double SinceStartSeconds, float ShotDelaySeconds, bool bHasMotor, bool bHasController);
 
+	/**
+	 * -SmokeShot timing (plain rule function): true once the level is ready (gameplay running) AND FramesSinceReady
+	 * frames have been counted. Wall clock plays no part: a busy machine can run at 0.1 fps and still gets a lit frame.
+	 */
+	static bool IsShotDue(bool bLevelReady, int32 FramesSinceReady, int32 RequiredFrames);
+
+	/**
+	 * Shot readiness (plain rule function): no shader compiles pending, no texture or asset still streaming or compiling,
+	 * and Ella's pawn alive. Only frames counted while this holds count toward -SmokeShotFrames (a busy machine still
+	 * shows "Preparing Textures" at a fixed frame count, so frames are counted only once everything has settled).
+	 */
+	static bool IsShotReady(int32 PendingShaderJobs, int32 StreamingResources, int32 PendingAssets, bool bPlayerAlive);
+
+	/** -SmokeShot path: absolute paths stay, a relative one resolves against ProjectDir. */
+	static FString ResolveShotPath(const FString& Path, const FString& ProjectDir);
+
+	/** -SmokeEnemy=<family>: true for Roadwarden, Floodstrider or SkyCourier (case-insensitive), the family in OutType. False for anything else. */
+	static bool HasEnemyFamilyName(const FString& Name, EEnemyType& OutType);
+
+	/** The -SmokeShotFrames=N value: N when it is at least 1, else the default. */
+	static int32 ResolveShotFrames(int32 Requested);
+
+	/** SMOKE_VIEW (plain rule function): true when a projected point lies inside a ViewW x ViewH frame (projection succeeded). */
+	static bool IsPixelInFrame(bool bProjected, const FVector2D& Pixel, const FVector2D& ViewSize);
+
+	static constexpr int32 DefaultShotFrames = 60;
+	/** The shot may take this long (seconds past -SmokeQuitAfter) before the run quits without it. */
+	static constexpr double ShotMaxWaitSeconds = 1200.0;
+	/** The -SmokeEnemy stand-in appears this far right of Ella (cm). */
+	static constexpr double SmokeEnemyOffsetX = 700.0;
+
 	static constexpr float MillisecondsPerSecond = 1000.0f;
 	/** Seconds after the screenshot request before the hook checks the file exists (smoke fallback writes it itself). */
 	static constexpr double ShotWriteWaitSeconds = 1.0;
@@ -69,6 +102,10 @@ private:
 	FString BuildEffectiveLine(const TCHAR* At, const TCHAR* Outcome) const;
 	void LogEnd(const TCHAR* Outcome);
 	void SaveWindowShotDirect();
+	/** At the shot: log what the camera sees (view target, Ella and arena centre in frame) as SMOKE_VIEW. */
+	void LogShotView(class AUmbrellaPlayerController* Flow) const;
+	/** -SmokeKeeper / -SmokeEnemy: set up the scene once, on the first gameplay frame (workbench builds only). */
+	void ApplySceneSwitches();
 
 	void TickInputCheck(class AUmbrellaPlayerController* Flow);
 	bool CanSendKey(class APlayerController* Controller, const FKey& Key, EInputEvent Event, float Amount) const;
@@ -97,4 +134,8 @@ private:
 	bool bShotChecked = false;
 	double ShotRequestedAt = 0.0;
 	bool bSelectedStart = false;
+	int32 ShotFrames = DefaultShotFrames;
+	int32 FramesSinceReady = 0;
+	bool bSceneApplied = false;
+	bool bShotReadyLogged = false;
 };

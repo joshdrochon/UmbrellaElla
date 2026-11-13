@@ -45,6 +45,54 @@ EArtSlotDraw UKeeperPresenterSubsystem::ShowArt(AActor* Keeper, UTexture2D* Text
 	return ArtSlot::Apply(Mesh, Texture, *Row, UmbrellaKeeperPresenterConst::StandInScale);
 }
 
+namespace
+{
+	FName KeeperPartName(const FString& VisualId)
+	{
+		FString Name = VisualId;
+		Name.ReplaceInline(TEXT(":"), TEXT("_"));
+		return FName(*(FString(TEXT("KeeperPart_")) + Name));
+	}
+}
+
+UStaticMeshComponent* UKeeperPresenterSubsystem::FindPart(const AActor* Keeper, const FString& VisualId)
+{
+	return IsValid(Keeper) ? FindObjectFast<UStaticMeshComponent>(const_cast<AActor*>(Keeper), KeeperPartName(VisualId)) : nullptr;
+}
+
+EArtSlotDraw UKeeperPresenterSubsystem::ShowPartArt(AActor* Keeper, const FString& VisualId, UTexture2D* Texture)
+{
+	const FArtSlotRow* Row = ArtSlot::Find(*VisualId);
+	const UmbrellaKeeperPresenterConst::FKeeperPartLayer* Layer = nullptr;
+	for (const UmbrellaKeeperPresenterConst::FKeeperPartLayer& Candidate : UmbrellaKeeperPresenterConst::PartLayers)
+	{
+		Layer = VisualId == Candidate.Visual ? &Candidate : Layer;
+	}
+	if (!IsValid(Keeper) || !Row || !Layer || !IsFeatureEnabled(EFeatureId::ANIM_06) || !Keeper->GetRootComponent() || FindPart(Keeper, VisualId))
+	{
+		return EArtSlotDraw::NoTexture;
+	}
+	UTexture2D* Picture = Texture ? Texture : ArtSlot::LoadTexture(*Row);
+	if (!Picture)
+	{
+		return EArtSlotDraw::NoTexture;
+	}
+	UStaticMeshComponent* Part = NewObject<UStaticMeshComponent>(Keeper, KeeperPartName(VisualId));
+	Part->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Part->SetGenerateOverlapEvents(false);
+	Part->SetupAttachment(Keeper->GetRootComponent());
+	const EArtSlotDraw Result = ArtSlot::Apply(Part, Picture, *Row, UmbrellaKeeperPresenterConst::StandInScale);
+	if (Result != EArtSlotDraw::Drawn)
+	{
+		Part->DestroyComponent();
+		return Result;
+	}
+	Part->RegisterComponent();
+	ArtSlot::SetWorldBoxScale(Part, UmbrellaKeeperPresenterConst::StandInScale);
+	Part->SetWorldLocation(Keeper->GetActorLocation() + FVector(0.0, Layer->DepthOffset, 0.0));
+	return Result;
+}
+
 void UKeeperPresenterSubsystem::ShowStandIn(AActor* Keeper)
 {
 	if (!IsValid(Keeper) || !IsFeatureEnabled(EFeatureId::ANIM_06))
@@ -64,6 +112,7 @@ void UKeeperPresenterSubsystem::ShowStandIn(AActor* Keeper)
 	Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Mesh->SetGenerateOverlapEvents(false);
 	Mesh->SetRelativeScale3D(UmbrellaKeeperPresenterConst::StandInScale);
+	ArtSlot::SetFlatUnlit(Mesh, Keeper, UmbrellaArtSlotConst::StandInKeeperColor);
 	if (!Keeper->GetRootComponent())
 	{
 		Keeper->SetRootComponent(Mesh);
@@ -78,5 +127,10 @@ void UKeeperPresenterSubsystem::ShowStandIn(AActor* Keeper)
 		ArtSlot::ApplyRow(Mesh, *Row, UmbrellaKeeperPresenterConst::StandInScale);
 	}
 	Mesh->RegisterComponent();
+	// Part slots (wings, mechanism, clock cover, talon) are layers over the body that exist only when their asset does.
+	for (const UmbrellaKeeperPresenterConst::FKeeperPartLayer& Layer : UmbrellaKeeperPresenterConst::PartLayers)
+	{
+		ShowPartArt(Keeper, Layer.Visual, nullptr);
+	}
 	++PresentedCount;
 }

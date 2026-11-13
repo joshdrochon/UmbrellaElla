@@ -1904,6 +1904,28 @@
    "judge": true,
    "required": true,
    "origin": "crop of Ricky's #art-direction sheet (13 Nov, artfx3, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "bar-casters-vfx",
+   "path": "pipeline/art/reference/discord-crops/bar-casters-shot-sequence.png",
+   "kind": "image",
+   "role": [
+    "quality bar"
+   ],
+   "tier": "top",
+   "what": "The quality bar at effect scale (artfx request 7, Nov 13): bar-casters' two shot-sequence rows (tell, release, travel, fade; red and yellow), box x343-1335 y557-693 of 20261111-0319_Ricky_roadwarden-sundial-casters.png, cropped unchanged. Effect pieces are judged against this crop instead of the full illustration.",
+   "cards": [
+    "0.10",
+    "0.10b",
+    "0.10c",
+    "MVP 5",
+    "MVP 3",
+    "MVP 4",
+    "MVP 15"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "Crop of bar-casters (Discord #art-direction, Ricky, 2026-11-11T03:19Z), cut unchanged by the lead, 2026-11-13"
   }
  ],
  "elements": {
@@ -3953,7 +3975,8 @@
  "quality_bar": {
   "refs": [
    "bar-casters",
-   "bar-other-realm"
+   "bar-other-realm",
+   "bar-casters-vfx"
   ],
   "rule": "Top tier, on top of the key-art composition target. Every art-loop round also puts our piece blind against a quality-bar image (bar-casters for characters and shot VFX, bar-other-realm for the scene and wind); a round passes only when the critic picks neither the piece reference nor the quality bar over ours. A frame or piece that reads as flat primitives or a rough placeholder is an automatic FAIL (screen_check.py flat/grey/outline, the element judge's flat-fill and off-palette caps).",
   "by_piece": {
@@ -3969,7 +3992,26 @@
    "vfx-blackout": "bar-other-realm",
    "vfx-restoration": "bar-other-realm",
    "vfx-light-shaft": "bar-other-realm",
-   "vfx-umbra": "bar-other-realm"
+   "vfx-umbra": "bar-other-realm",
+   "vfx-gold-impact": "bar-casters-vfx",
+   "vfx-gold-fade": "bar-casters-vfx",
+   "vfx-stream-start": "bar-casters-vfx",
+   "vfx-stream-sustain": "bar-casters-vfx",
+   "vfx-needle-channel": "bar-casters-vfx",
+   "vfx-needle-sliver": "bar-casters-vfx",
+   "vfx-needle-pierce": "bar-casters-vfx",
+   "vfx-blocked": "bar-casters-vfx",
+   "vfx-keeper-warning": "bar-casters-vfx",
+   "vfx-keeper-strike": "bar-casters-vfx",
+   "vfx-keeper-recovery": "bar-casters-vfx",
+   "vfx-clock-beat": "bar-casters-vfx",
+   "vfx-clock-open": "bar-casters-vfx",
+   "vfx-part-hit": "bar-casters-vfx",
+   "vfx-part-break": "bar-casters-vfx",
+   "vfx-eye-exposed": "bar-casters-vfx",
+   "vfx-stun": "bar-casters-vfx",
+   "vfx-departure": "bar-casters-vfx",
+   "vfx-light-spill": "bar-casters-vfx"
   },
   "default": "bar-casters",
   "palette_note": "The quality-bar colours (ash-blue flow, the yellows) and the GDD SH1.0 shot reds (crimson #FF3658, coral #FF7848, shadow #8F173C: the same values as bar-casters; the key art's rust of D-new-owl-shot-look is superseded, D-new-sh10-art-conflicts) are in style.json as capped accents (Josh, DECIDED 2026-11-10, D-new-palette-accents): art_check.py accepts them only in their role, hue band and share cap."

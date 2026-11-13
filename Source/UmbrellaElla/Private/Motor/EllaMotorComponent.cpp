@@ -2,9 +2,11 @@
 #include "Core/UmbrellaDrawOrder.h"
 #include "Core/UmbrellaEventBus.h"
 #include "Core/UmbrellaTuning.h"
+#include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Harness/UmbrellaFeatureFlags.h"
+#include "Motor/HeroSizeRules.h"
 #include "Motor/MotorTuning.h"
 #include "Umbrella/UmbrellaFlightTuning.h"
 #include "Umbrella/UmbrellaPlayerIds.h"
@@ -46,6 +48,35 @@ void UEllaMotorComponent::BeginPlay()
 		WindEnteredHandle = Bus->On(EUmbrellaEventType::WindEntered).AddUObject(this, &UEllaMotorComponent::OnWindEntered);
 		WindExitedHandle = Bus->On(EUmbrellaEventType::WindExited).AddUObject(this, &UEllaMotorComponent::OnWindExited);
 		HealthHandle = Bus->On(EUmbrellaEventType::PlayerHealthChanged).AddUObject(this, &UEllaMotorComponent::OnHealthChanged);
+	}
+	ApplyHeroSize(GetDefault<UUmbrellaTuning>()->Motor);
+}
+
+void UEllaMotorComponent::ApplyHeroSize(const FMotorTuning& Size)
+{
+	AActor* Owner = GetOwner();
+	if (!Owner)
+	{
+		return;
+	}
+	// HAZ-10/13/14: actor scale 0.5 x HeroSize; the hurtbox capsule shrinks by the hitbox scale on top.
+	const bool bHeroSize = IsFeatureEnabled(EFeatureId::HAZ_10) && IsFeatureEnabled(EFeatureId::HAZ_13) && IsFeatureEnabled(EFeatureId::HAZ_14);
+	if (bHeroSize)
+	{
+		Owner->SetActorScale3D(FVector(HeroSizeRules::ActorScale(Size)));
+	}
+	if (const ACharacter* SizedCharacter = bHeroSize ? Cast<ACharacter>(Owner) : nullptr)
+	{
+		if (UCapsuleComponent* Capsule = SizedCharacter->GetCapsuleComponent())
+		{
+			const float Hitbox = HeroSizeRules::ClampedHitboxScale(Size);
+			if (RefCapsuleRadius < 0.0f)
+			{
+				RefCapsuleRadius = Capsule->GetUnscaledCapsuleRadius();
+				RefCapsuleHalfHeight = Capsule->GetUnscaledCapsuleHalfHeight();
+			}
+			Capsule->SetCapsuleSize(RefCapsuleRadius * Hitbox, RefCapsuleHalfHeight * Hitbox);
+		}
 	}
 }
 
