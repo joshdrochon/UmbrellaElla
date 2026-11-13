@@ -4,7 +4,11 @@
 #include "Engine/World.h"
 #include "Feedback/Anim/EllaAnimPresenterComponent.h"
 #include "Feedback/Art/ArtSlot.h"
+#include "Feedback/Background/WorldArtSubsystem.h"
+#include "Feedback/Ui/UiArtSubsystem.h"
 #include "GameFramework/Actor.h"
+#include "Level/LevelCatalogue.h"
+#include "Level/UmbrellaLevelDirector.h"
 #include "Misc/AutomationTest.h"
 
 #if WITH_AUTOMATION_TESTS
@@ -111,6 +115,100 @@ bool FArtSlotEllaOverlays::RunTest(const FString& Parameters)
 		TestTrue(TEXT("free-fall part visible while falling"), FallPart->IsVisible());
 		Presenter->UpdateOverlays(Calm);
 		TestFalse(TEXT("free-fall part hidden after"), FallPart->IsVisible());
+	}
+	FamilyTestEnd(World);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FArtSlotWorldPieces, "UmbrellaElla.Feedback.World.ArtSlotWorldPieces",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+
+bool FArtSlotWorldPieces::RunTest(const FString& Parameters)
+{
+	UWorld* World = FamilyTestWorld();
+	if (!TestNotNull(TEXT("world"), World))
+	{
+		return false;
+	}
+	UWorldArtSubsystem* WorldArt = World->GetSubsystem<UWorldArtSubsystem>();
+	AUmbrellaLevelDirector* Director = World->SpawnActor<AUmbrellaLevelDirector>();
+	if (TestNotNull(TEXT("world art subsystem"), WorldArt) && TestNotNull(TEXT("director"), Director))
+	{
+		TestTrue(TEXT("route built"), Director->BuildRoute(1) > 0);
+		for (const FString Id : { FString(TEXT("world:solids")), FString(TEXT("world:refuge-and-yellow-bay")), FString(TEXT("world:mill-and-traps")) })
+		{
+			const FArtSlotRow* Row = ArtSlot::Find(*Id);
+			if (TestNotNull(*FString::Printf(TEXT("%s has a slot row"), *Id), Row))
+			{
+				TestFalse(*FString::Printf(TEXT("%s names a consumer"), *Id), FString(Row->DrawnBy) == TEXT("-"));
+			}
+		}
+		// Count what the plan holds, then draw with a transient picture and compare.
+		int32 Solids = 0;
+		int32 Refuges = 0;
+		for (const FLevelPlacement& Placement : Director->GetPlan())
+		{
+			const FString Visual = UWorldArtSubsystem::VisualFor(Placement.Kind);
+			Solids += Visual == TEXT("world:solids") ? 1 : 0;
+			Refuges += Visual == TEXT("world:refuge-and-yellow-bay") ? 1 : 0;
+		}
+		TestTrue(TEXT("the route has land and refuges"), Solids > 0 && Refuges > 0);
+		TestEqual(TEXT("floor has no world slot"), UWorldArtSubsystem::VisualFor(ELevelPlacementKind::Floor), FString());
+		UTexture2D* Texture = FamilyTestTexture();
+		const int32 Drawn = WorldArt->Refresh(Texture);
+		TestEqual(TEXT("every land block is drawn"), WorldArt->DrawnCount(TEXT("world:solids")), Solids);
+		TestEqual(TEXT("every refuge piece is drawn"), WorldArt->DrawnCount(TEXT("world:refuge-and-yellow-bay")), Refuges);
+		TestEqual(TEXT("drawn total is the three slots"), Drawn, Solids + Refuges + WorldArt->DrawnCount(TEXT("world:mill-and-traps")));
+		TestEqual(TEXT("a second pass draws nothing new"), WorldArt->Refresh(Texture), 0);
+		for (const TObjectPtr<AActor>& Piece : Director->GetSpawned())
+		{
+			const UStaticMeshComponent* Block = IsValid(Piece) ? FindObjectFast<UStaticMeshComponent>(Piece, TEXT("Block")) : nullptr;
+			if (Block && Block->GetCollisionEnabled() != ECollisionEnabled::NoCollision)
+			{
+				TestTrue(TEXT("a drawn land block still collides"), Block->GetCollisionEnabled() == ECollisionEnabled::QueryAndPhysics);
+				break;
+			}
+		}
+	}
+	FamilyTestEnd(World);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FArtSlotUiPieces, "UmbrellaElla.Feedback.World.ArtSlotUiPieces",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+
+bool FArtSlotUiPieces::RunTest(const FString& Parameters)
+{
+	// Every ui piece and menu backdrop has a row naming a consumer and a place in the table; a piece shows only on its screens.
+	for (const UmbrellaUiPieceConst::FUiPiece& Piece : UmbrellaUiPieceConst::Pieces)
+	{
+		const FArtSlotRow* Row = ArtSlot::Find(Piece.Visual);
+		if (TestNotNull(Piece.Visual, Row))
+		{
+			TestFalse(*FString::Printf(TEXT("%s names a consumer"), Piece.Visual), FString(Row->DrawnBy) == TEXT("-"));
+		}
+		TestTrue(*FString::Printf(TEXT("%s is on at least one screen"), Piece.Visual), Piece.Screens != 0);
+	}
+	UWorld* World = FamilyTestWorld();
+	if (!TestNotNull(TEXT("world"), World))
+	{
+		return false;
+	}
+	UUiArtSubsystem* Ui = World->GetSubsystem<UUiArtSubsystem>();
+	if (TestNotNull(TEXT("ui art subsystem"), Ui))
+	{
+		UTexture2D* Texture = FamilyTestTexture();
+		TestFalse(TEXT("nothing without a picture"), Ui->ShowPiece(TEXT("ui:title-lockup"), EFlowScreen::Title, nullptr));
+		TestTrue(TEXT("lockup shows on Title"), Ui->ShowPiece(TEXT("ui:title-lockup"), EFlowScreen::Title, Texture));
+		TestTrue(TEXT("lockup is tracked"), Ui->IsShowingPiece(TEXT("ui:title-lockup")));
+		TestFalse(TEXT("a second lockup is refused"), Ui->ShowPiece(TEXT("ui:title-lockup"), EFlowScreen::Title, Texture));
+		TestFalse(TEXT("lockup is not drawn on Settings"), Ui->ShowPiece(TEXT("ui:title-lockup"), EFlowScreen::Settings, Texture));
+		TestTrue(TEXT("settings head shows on Settings"), Ui->ShowPiece(TEXT("ui:head-Settings"), EFlowScreen::Settings, Texture));
+		TestFalse(TEXT("settings head is not drawn on Paused"), Ui->ShowPiece(TEXT("ui:head-Paused"), EFlowScreen::Settings, Texture));
+		TestEqual(TEXT("two pieces up"), Ui->PieceCount(), 2);
+		Ui->ClearPieces();
+		TestEqual(TEXT("cleared"), Ui->PieceCount(), 0);
+		TestFalse(TEXT("unknown piece refused"), Ui->ShowPiece(TEXT("ui:nothing"), EFlowScreen::Title, Texture));
 	}
 	FamilyTestEnd(World);
 	return true;

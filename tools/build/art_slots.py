@@ -49,6 +49,9 @@ CONSUMER = [("bg-layer:", "UUmbrellaBackdropSubsystem"), ("ella-state:", "UEllaA
             ("vfx-sheet:", "VfxSheetVisual"), ("screen:", "UUiArtSubsystem"),
             ("bg:", "USceneArtSubsystem"), ("scene:", "USceneArtSubsystem"),
             ("shot:stream-beam", "UShotPresenterSubsystem"),
+            ("keeper:living-departure", "UKeeperPresenterSubsystem"), ("keeper:part-masks-", "UKeeperPresenterSubsystem"),
+            ("world:", "UWorldArtSubsystem"), ("ui:", "UUiArtSubsystem"), ("menu-backdrop:", "UUiArtSubsystem"),
+            ("vfx-material:", "VfxSheetVisual"),
             ("ella:", "UEllaAnimPresenterComponent"), ("umbrella:", "UEllaAnimPresenterComponent")]
 
 

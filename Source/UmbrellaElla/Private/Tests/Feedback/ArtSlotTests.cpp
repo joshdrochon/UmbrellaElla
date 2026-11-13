@@ -19,6 +19,7 @@
 #include "Tests/Shared/UmbrellaTestWorld.h"
 #include "Feedback/Vfx/UmbrellaVfxSubsystem.h"
 #include "Core/UmbrellaEvent.h"
+#include "Core/UmbrellaEventBus.h"
 #include "Projectile/UmbrellaProjectile.h"
 #include "Feedback/Background/UmbrellaBackdropSubsystem.h"
 #include "Feedback/Background/SceneArtSubsystem.h"
@@ -771,6 +772,22 @@ bool FArtSlotKeeperParts::RunTest(const FString& Parameters)
 				TestEqual(*FString::Printf(TEXT("%s depth offset"), *Id), static_cast<float>(Part->GetComponentLocation().Y - Keeper->GetActorLocation().Y), Layer.DepthOffset);
 				TestEqual(*FString::Printf(TEXT("%s is the body width"), *Id), static_cast<float>(Part->GetComponentScale().X), static_cast<float>(UmbrellaKeeperPresenterConst::StandInScale.X));
 			}
+		}
+		// State layers: hidden until a part is destroyed (masks) or the Keeper departs (departure).
+		const UStaticMeshComponent* Masks = UKeeperPresenterSubsystem::FindPart(Keeper, UmbrellaKeeperPresenterConst::MaskVisual);
+		const UStaticMeshComponent* Departure = UKeeperPresenterSubsystem::FindPart(Keeper, UmbrellaKeeperPresenterConst::DepartureVisual);
+		if (TestNotNull(TEXT("mask layer"), Masks) && TestNotNull(TEXT("departure layer"), Departure))
+		{
+			Presenter->Tick(0.0f);
+			TestFalse(TEXT("masks hidden at full health"), Masks->IsVisible());
+			TestFalse(TEXT("departure hidden while the Keeper stays"), Departure->IsVisible());
+			FUmbrellaEvent Event;
+			Event.Type = EUmbrellaEventType::BossPartDestroyed;
+			UUmbrellaEventBus::Get(World)->Broadcast(Event);
+			Keeper->BeginDeparture(1.0f);
+			Presenter->Tick(0.0f);
+			TestTrue(TEXT("masks shown after a part is destroyed"), Masks->IsVisible());
+			TestTrue(TEXT("departure shown while the Keeper leaves"), Departure->IsVisible());
 		}
 	}
 	ArtSlotTestEnd(World);

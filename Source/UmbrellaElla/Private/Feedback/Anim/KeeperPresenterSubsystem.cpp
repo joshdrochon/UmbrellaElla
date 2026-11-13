@@ -1,5 +1,6 @@
 #include "Feedback/Anim/KeeperPresenterSubsystem.h"
 #include "Components/StaticMeshComponent.h"
+#include "Core/UmbrellaEventBus.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/World.h"
 #include "Feedback/Art/ArtSlot.h"
@@ -13,6 +14,10 @@ void UKeeperPresenterSubsystem::PostInitialize()
 	if (UWorld* World = GetWorld())
 	{
 		SpawnHandle = World->AddOnActorSpawnedHandler(FOnActorSpawned::FDelegate::CreateUObject(this, &UKeeperPresenterSubsystem::HandleActorSpawned));
+		if (UUmbrellaEventBus* Bus = UUmbrellaEventBus::Get(World))
+		{
+			PartHandle = Bus->On(EUmbrellaEventType::BossPartDestroyed).AddUObject(this, &UKeeperPresenterSubsystem::HandlePartDestroyed);
+		}
 	}
 }
 
@@ -21,6 +26,10 @@ void UKeeperPresenterSubsystem::Deinitialize()
 	if (UWorld* World = GetWorld())
 	{
 		World->RemoveOnActorSpawnedHandler(SpawnHandle);
+		if (UUmbrellaEventBus* Bus = UUmbrellaEventBus::Get(World))
+		{
+			Bus->On(EUmbrellaEventType::BossPartDestroyed).Remove(PartHandle);
+		}
 	}
 	Super::Deinitialize();
 }
@@ -29,8 +38,44 @@ void UKeeperPresenterSubsystem::HandleActorSpawned(AActor* Actor)
 {
 	if (Cast<AKeeperOfTime>(Actor))
 	{
+		bMasksShown = false;
+		Keepers.Add(Actor);
 		ShowStandIn(Actor);
 	}
+}
+
+void UKeeperPresenterSubsystem::HandlePartDestroyed(const FUmbrellaEvent&)
+{
+	bMasksShown = true;
+}
+
+void UKeeperPresenterSubsystem::SetStateLayerShown(AActor* Keeper, const FString& VisualId, bool bShown)
+{
+	if (UStaticMeshComponent* Layer = FindPart(Keeper, VisualId))
+	{
+		Layer->SetVisibility(bShown);
+	}
+}
+
+void UKeeperPresenterSubsystem::Tick(float DeltaTime)
+{
+	for (int32 Index = Keepers.Num() - 1; Index >= 0; --Index)
+	{
+		AActor* Keeper = Keepers[Index].Get();
+		const AKeeperOfTime* Owl = Cast<AKeeperOfTime>(Keeper);
+		if (!Owl)
+		{
+			Keepers.RemoveAtSwap(Index);
+			continue;
+		}
+		SetStateLayerShown(Keeper, UmbrellaKeeperPresenterConst::MaskVisual, bMasksShown);
+		SetStateLayerShown(Keeper, UmbrellaKeeperPresenterConst::DepartureVisual, Owl->IsDeparting());
+	}
+}
+
+TStatId UKeeperPresenterSubsystem::GetStatId() const
+{
+	RETURN_QUICK_DECLARE_CYCLE_STAT(UKeeperPresenterSubsystem, STATGROUP_Tickables);
 }
 
 EArtSlotDraw UKeeperPresenterSubsystem::ShowArt(AActor* Keeper, UTexture2D* Texture)
@@ -90,6 +135,8 @@ EArtSlotDraw UKeeperPresenterSubsystem::ShowPartArt(AActor* Keeper, const FStrin
 	Part->RegisterComponent();
 	ArtSlot::SetWorldBoxScale(Part, UmbrellaKeeperPresenterConst::StandInScale);
 	Part->SetWorldLocation(Keeper->GetActorLocation() + FVector(0.0, Layer->DepthOffset, 0.0));
+	// State layers start hidden; Tick shows them while their state holds.
+	Part->SetVisibility(VisualId != UmbrellaKeeperPresenterConst::MaskVisual && VisualId != UmbrellaKeeperPresenterConst::DepartureVisual);
 	return Result;
 }
 
