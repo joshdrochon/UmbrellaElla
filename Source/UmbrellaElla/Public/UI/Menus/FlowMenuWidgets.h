@@ -95,9 +95,14 @@ public:
 	/** Replace the text; ScrollOffset slides it up from below (0 = centered). */
 	void SetText(const FText& NewText, float ScrollOffset);
 
+	/** The credits roll: line 0 is the game title (gold, large), then names (cream) with their roles beneath (gold small caps). */
+	void SetCredits(const TArray<FString>& Lines, float ScrollOffset);
+
 private:
 	TOptional<FSlateRenderTransform> GetScrollTransform() const;
 
 	TSharedPtr<class STextBlock> TextBlock;
+	TSharedPtr<class SVerticalBox> CreditsBox;
+	TArray<FString> CreditsShown;
 	float Scroll = 0.0f;
 };

@@ -25,12 +25,12 @@ namespace SettingsLayout
 {
 	static constexpr float Padding = 16.0f;
 	static constexpr float RowPadding = 6.0f;
-	static constexpr float PanelWidth = 720.0f;
-	static constexpr float LabelWidth = 220.0f;
+	static constexpr float PanelWidth = 860.0f;    // artui: room for 22 pt rows inside the painted card's border
+	static constexpr float LabelWidth = 270.0f;
 	static constexpr float SliderWidth = 320.0f;
 	static constexpr float ValueWidth = 56.0f;
 	static constexpr float KeyButtonWidth = 150.0f;
-	static constexpr int32 BodyFontSize = 18;
+	static constexpr int32 BodyFontSize = 22;    // artui r21 panel gap: "small, thin lettering"
 	static constexpr int32 TitleFontSize = 32;
 	static constexpr float PanelDim = 0.04f;
 	static constexpr float PanelAlpha = 0.94f;
