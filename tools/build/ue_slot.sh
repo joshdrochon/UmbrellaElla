@@ -52,7 +52,16 @@ while :; do
       s="$DIR/slot$$"; mkdir "$s"; echo "$$ $(pwd)" > "$s/owner"; rmdir "$DIR/.mutex"
       trap 'rm -rf "$s" "$DIR/gate-held"' EXIT INT TERM
       echo "ue_slot: slot taken by $$ ($((have + 1))/$max, used $(used_gb) GB) for: $*" >&2
-      export UE_SLOT_HELD=1; "$@"; exit $?
+      export UE_SLOT_HELD=1
+      # One UBT build at a time machine-wide (parallel UBT runs fail with exit 6); the gate's build goes first.
+      case "$1" in *build.sh)
+        [ -n "${UE_SLOT_GATE:-}" ] && touch "$DIR/gate-wants-build"
+        until { [ -n "${UE_SLOT_GATE:-}" ] || [ ! -f "$DIR/gate-wants-build" ]; } && mkdir "$DIR/build.lock" 2>/dev/null; do
+          o=$(cat "$DIR/build.lock/owner" 2>/dev/null); [ -n "$o" ] && ! kill -0 "$o" 2>/dev/null && rm -rf "$DIR/build.lock"; sleep 5; done
+        echo $$ > "$DIR/build.lock/owner"; rm -f "$DIR/gate-wants-build" 2>/dev/null
+        trap 'rm -rf "$s" "$DIR/gate-held" "$DIR/build.lock"' EXIT INT TERM;;
+      esac
+      "$@"; exit $?
     fi
     rmdir "$DIR/.mutex"
   else

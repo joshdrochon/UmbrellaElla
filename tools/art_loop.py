@@ -638,8 +638,24 @@ def blind(refs, card, piece, ours, out_dir, seed=None, root=ROOT, quality=False,
         fh.write(prompt)
     kp = out_dir.rstrip("/\\") + ".key.json"
     with open(kp, "w", encoding="utf-8") as fh:
-        json.dump(key, fh)
+        json.dump(_repo_relative(key), fh)   # no home paths in tracked files (pipeline_check [private])
     return kp
+
+
+def _repo_relative(o):
+    """Paths under the repo or the home folder become repo-relative (or ~-free) strings."""
+    home = os.path.expanduser("~")
+    if isinstance(o, dict):
+        return {k: _repo_relative(v) for k, v in o.items()}
+    if isinstance(o, list):
+        return [_repo_relative(v) for v in o]
+    if isinstance(o, str) and o.startswith(home):
+        try:
+            r = os.path.relpath(o, ROOT)
+            return r if not r.startswith("..") else o.replace(home, "~", 1)
+        except ValueError:
+            return o.replace(home, "~", 1)
+    return o
 
 
 def judge(text, key, root=None, session=""):
