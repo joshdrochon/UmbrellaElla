@@ -121,7 +121,7 @@ namespace LevelPlan
 		const float H = LevelPlanArena().ArenaHeight;
 		const float RefugeLength = LevelPlanField().RefugeLengthFraction * LevelPlanField().ChunkLength;
 		const float X = LevelCatalogue::RefugeStartX(Checkpoint) + LevelPlanConst::StandInsetFraction * RefugeLength;
-		return FVector(X, UmbrellaDrawOrder::EllaY, LevelPlanConst::FloorThicknessFraction * H + LevelPlanConst::EnemySizeFraction * H);
+		return FVector(X, UmbrellaDrawOrder::EllaY, LevelPlanConst::FloorThicknessFraction * H + LevelPlanConst::CheckpointStandFraction * H);
 	}
 
 	int32 CheckpointReachedAt(float EllaX)

@@ -1,14 +1,14 @@
 #include "Field/WindCurrent.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
-#include "Core/UmbrellaDrawOrder.h"
-#include "Engine/StaticMesh.h"
-#include "Materials/MaterialInstanceDynamic.h"
 #include "Core/EllaCharacter.h"
+#include "Core/UmbrellaDrawOrder.h"
 #include "Core/UmbrellaEventBus.h"
 #include "Core/UmbrellaTuning.h"
+#include "Engine/StaticMesh.h"
 #include "GameFramework/Pawn.h"
 #include "Harness/UmbrellaFeatureFlags.h"
+#include "Materials/MaterialInstanceDynamic.h"
 #include "Umbrella/UmbrellaPlayerIds.h"
 
 namespace

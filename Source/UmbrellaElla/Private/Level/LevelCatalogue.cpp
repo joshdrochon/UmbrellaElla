@@ -183,29 +183,6 @@ namespace LevelCatalogue
 		return R;
 	}
 
-	bool HasFixtureRoute(int64 Seed, FRoute& OutRoute)
-	{
-		if (!IsFeatureEnabled(EFeatureId::HAZ_39))
-		{
-			return false;
-		}
-		for (int32 I = 0; I < LevelGrammar::FixtureCount; ++I)
-		{
-			if (LevelGrammar::FixtureSeeds[I] == Seed)
-			{
-				FRoute R = FromLabels(Seed, LevelGrammar::FixtureRoutes[I]);
-				if (!ValidateRoute(R).IsEmpty())
-				{
-					return false;
-				}
-				R.Attempts = 1;
-				OutRoute = R;
-				return true;
-			}
-		}
-		return false;
-	}
-
 	FRoute FallbackRoute()
 	{
 		// The named fallback is the seed 1001 layout (the first fixture).
@@ -219,11 +196,6 @@ namespace LevelCatalogue
 
 	FRoute GenerateAvoiding(int64 Seed, const FString& PreviousSignature)
 	{
-		FRoute Fixture;
-		if (HasFixtureRoute(Seed, Fixture) && (PreviousSignature.IsEmpty() || Fixture.Signature() != PreviousSignature))
-		{
-			return Fixture;
-		}
 		const int32 Max = Tuning().MaxCandidateAttempts;
 		for (int32 Attempt = 0; Attempt < Max; ++Attempt)
 		{

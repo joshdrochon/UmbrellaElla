@@ -22,7 +22,7 @@ namespace LevelPlanConst
 {
 	static constexpr float FloorThicknessFraction = ChunkLayoutConst::FloorTop;
 	static constexpr float CheckpointSizeFraction = 0.06f;
-	static constexpr float EnemySizeFraction = 0.1f;
+	static constexpr float CheckpointStandFraction = 0.1f;
 	static constexpr float StandInsetFraction = 0.25f;
 	/** Land is this deep in Y around the play plane, so Ella (at EllaY) collides with it. */
 	static constexpr float SolidDepth = 100.0f;
