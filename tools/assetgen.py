@@ -970,6 +970,24 @@ def openrouter_model(model):
     return OPENROUTER_MODELS[model]
 
 
+def provider_spend_now(provider):
+    """This provider's spend in the counter (the status line shows it against the same provider's cap, Nov 13: it
+    printed the all-provider total against OpenRouter's cap)."""
+    path, _ = spend_settings()
+    with _SpendLock(path):
+        orr, other, fal = provider_spent(_read_spend(path))
+    return {"openrouter": orr, "fal": fal}.get(provider, other)
+
+
+def gemini_direct_locked():
+    """True once the lead locked Gemini-direct spend in the shared counter (gemini_direct_locked)."""
+    try:
+        path, _ = spend_settings()
+        return bool(_read_spend(path).get("gemini_direct_locked"))
+    except (ImageRefused, OSError, ValueError):
+        return False
+
+
 def pick_provider(provider, model, key_present=None):
     """The provider that serves this call. An explicit openrouter or fal is checked against its mapping. Order is
     gemini, then OpenRouter, then fal: gemini moves to OpenRouter only when its remaining cap is below the cost of
@@ -990,6 +1008,15 @@ def pick_provider(provider, model, key_present=None):
         if key_present is not None:
             return key_present if name == "OPENROUTER_API_KEY" else False
         return bool(keys.get(name))
+    # Josh, Nov 13 ~09:20: no more Google/Gemini-direct spend (a $25 Google Cloud charge); the same models go through
+    # OpenRouter, then fal. A gemini request is never served by Gemini-direct while that lock is on.
+    if gemini_direct_locked():
+        or_left = openrouter_remaining()
+        if has("OPENROUTER_API_KEY") and (or_left is None or or_left > 0):
+            return "openrouter"
+        if has("FAL_KEY"):
+            return "fal"
+        raise ImageRefused("GEMINI-DIRECT OFF (Josh): no OpenRouter or fal key or cap left for this model; no call made")
     left = gemini_remaining()
     final_cost = image_price(tool("gemini-image"), IMAGE_TIERS["final"], "medium", "1024x1024", 0, "2K")
     near = OPENROUTER_NEAR_CALLS * final_cost
@@ -1267,7 +1294,7 @@ def cmd_image_model(a, argv, root, provider):
     except Exception as e:   # noqa: BLE001  the call failed: settle the counter, report, never a placeholder
         code = getattr(e, "code", None)
         refused = isinstance(code, int) and 400 <= code < 500   # rejected before generation: not billed
-        spent = spend_settle(idx, "failed", refund=refused, error=api_error(e) if code else str(e)[:200])
+        spend_settle(idx, "failed", refund=refused, error=api_error(e) if code else str(e)[:200]); spent = provider_spend_now(entry["provider"])
         print(f"FAIL: image {provider} {model}: {api_error(e) if code else e}; counter ${spent:.3f} of ${cap:.2f}"
               + (" (refunded: the provider refused the request)" if refused else " (cost kept: it may be billed)"))
         return 1
@@ -1276,7 +1303,7 @@ def cmd_image_model(a, argv, root, provider):
         cost = settled_cost(t, model, image_cost, len(inputs), meta.get("usage"))
     elif provider == "openrouter" and isinstance((meta.get("usage") or {}).get("cost"), (int, float)):
         cost = round(float(meta["usage"]["cost"]), 6)   # what OpenRouter billed for the call
-    spent = spend_settle(idx, "done", cost=cost, usage=meta.get("usage"), model_version=version)
+    spend_settle(idx, "done", cost=cost, usage=meta.get("usage"), model_version=version); spent = provider_spend_now(entry["provider"])
     if provider == "gemini":
         seed = a.seed if a.seed is not None else ""
     else:
@@ -2240,14 +2267,14 @@ def cmd_video_model(a, argv, root):
     except Exception as e:   # noqa: BLE001
         code = getattr(e, "code", None)
         refused = isinstance(code, int) and 400 <= code < 500   # rejected before generation: not billed
-        spent = spend_settle(idx, "failed", refund=refused, error=api_error(e) if code else str(e)[:200])
+        spend_settle(idx, "failed", refund=refused, error=api_error(e) if code else str(e)[:200]); spent = provider_spend_now(entry["provider"])
         print(f"FAIL: video fal {FAL_VIDEO_MODEL}: {api_error(e) if code else e}; counter ${spent:.3f} of ${cap:.2f}"
               + (" (refunded: the provider refused the request)" if refused else " (cost kept: it may be billed)"))
         return 1
     os.makedirs(os.path.dirname(os.path.abspath(a.out)), exist_ok=True)
     with open(a.out, "wb") as fh:
         fh.write(data)
-    spent = spend_settle(idx, "done", cost=cost, model_version=FAL_VIDEO_MODEL)
+    spend_settle(idx, "done", cost=cost, model_version=FAL_VIDEO_MODEL); spent = provider_spend_now("fal")
     req = os.path.splitext(a.out)[0] + ".request.json"
     with open(req, "w", encoding="utf-8") as fh:
         json.dump({"provider": "fal", "model": FAL_VIDEO_MODEL, "prompt": prompt, "negative_prompt": VIDEO_NEGATIVE,

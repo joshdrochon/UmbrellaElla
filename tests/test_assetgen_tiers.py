@@ -436,3 +436,21 @@ class SpendByProvider(unittest.TestCase):
         self.assertAlmostEqual(b["fal"]["spent_usd"], 12.0)
         self.assertAlmostEqual(b["openrouter"]["spent_usd"], 0.5)
         self.assertIn("gemini $22.47/$33.82", assetgen.spend_line(d, 33.82))
+
+
+class GeminiDirectLock(unittest.TestCase):
+    """Josh, Nov 13: once the counter has gemini_direct_locked, a gemini request goes to OpenRouter, then fal, never
+    Gemini-direct."""
+    def test_locked_routes_to_openrouter_then_fal(self):
+        old = assetgen.gemini_direct_locked, assetgen.openrouter_remaining
+        try:
+            assetgen.gemini_direct_locked = lambda: True
+            assetgen.openrouter_remaining = lambda: 5.0
+            m = assetgen.IMAGE_TIERS["draft"]
+            self.assertEqual(assetgen.pick_provider("gemini", m, {"OPENROUTER_API_KEY": True, "FAL_KEY": True}), "openrouter")
+            assetgen.openrouter_remaining = lambda: 0.0
+            self.assertEqual(assetgen.pick_provider("gemini", m, {"OPENROUTER_API_KEY": True, "FAL_KEY": True}), "fal")
+            with self.assertRaises(assetgen.ImageRefused):
+                assetgen.pick_provider("gemini", m, {"OPENROUTER_API_KEY": False, "FAL_KEY": False})
+        finally:
+            assetgen.gemini_direct_locked, assetgen.openrouter_remaining = old
