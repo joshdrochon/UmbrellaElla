@@ -1,0 +1,145 @@
+{
+ "seconds": 0.9,
+ "lufs": -20,
+ "static_level": true,
+ "fade_out": 0.3,
+ "takes": 3,
+ "post": "anull",
+ "post_gain_db": 0,
+ "reverb": {
+  "rt60": 0.5,
+  "wet_db": -14,
+  "damp_hz": 5000,
+  "predelay_ms": 10,
+  "hp_hz": 300
+ },
+ "layers": {
+  "tick": {
+   "kind": "synth",
+   "prompt": "synthesised heavy brass escapement tick: pallet striking the escape wheel, inharmonic partials at 1x, 1.62x and 2.45x, dry, very fast decay",
+   "secs": 0.12,
+   "freqs": [
+    2100,
+    2250,
+    1980
+   ],
+   "expr": "(1-exp(-4000*t))*(0.4*exp(-85*t)*sin(2*PI*1*{f}*t)+0.3*exp(-100*t)*sin(2*PI*1*1.62*{f}*t)+0.2*exp(-120*t)*sin(2*PI*1*2.45*{f}*t))",
+   "gain_db": 0,
+   "trim": 0.12,
+   "filter": "anull,apad=whole_dur=0.9"
+  },
+  "clunk": {
+   "kind": "synth",
+   "prompt": "synthesised short low mechanism clunk under the beat: partials at 1x and 1.5x, 40 ms",
+   "secs": 0.12,
+   "freqs": [
+    250,
+    265,
+    240
+   ],
+   "expr": "0.5*exp(-45*t)*sin(2*PI*{f}*t)+0.3*exp(-55*t)*sin(2*PI*1.5*{f}*t)",
+   "gain_db": -3,
+   "trim": 0.12,
+   "filter": "anull,apad=whole_dur=0.9"
+  },
+  "tock": {
+   "kind": "synth",
+   "prompt": "synthesised heavy brass escapement tock a fourth lower: pallet striking the escape wheel, inharmonic partials at 1x, 1.62x and 2.45x, dry, very fast decay",
+   "secs": 0.12,
+   "freqs": [
+    2100,
+    2250,
+    1980
+   ],
+   "expr": "(1-exp(-4000*t))*(0.4*exp(-85*t)*sin(2*PI*0.75*{f}*t)+0.3*exp(-100*t)*sin(2*PI*0.75*1.62*{f}*t)+0.2*exp(-120*t)*sin(2*PI*0.75*2.45*{f}*t))",
+   "gain_db": -2,
+   "trim": 0.12,
+   "delay_ms": 110,
+   "filter": "anull,apad=whole_dur=0.9"
+  },
+  "clunk2": {
+   "kind": "synth",
+   "prompt": "synthesised short low mechanism clunk under the beat: partials at 1x and 1.5x, 40 ms",
+   "secs": 0.12,
+   "freqs": [
+    250,
+    265,
+    240
+   ],
+   "expr": "0.5*exp(-45*t)*sin(2*PI*{f}*t)+0.3*exp(-55*t)*sin(2*PI*1.5*{f}*t)",
+   "gain_db": -5,
+   "trim": 0.12,
+   "delay_ms": 110,
+   "filter": "anull,apad=whole_dur=0.9"
+  },
+  "tick2": {
+   "kind": "synth",
+   "prompt": "synthesised heavy brass escapement repeat tick: pallet striking the escape wheel, inharmonic partials at 1x, 1.62x and 2.45x, dry, very fast decay",
+   "secs": 0.12,
+   "freqs": [
+    2100,
+    2250,
+    1980
+   ],
+   "expr": "(1-exp(-4000*t))*(0.4*exp(-85*t)*sin(2*PI*1*{f}*t)+0.3*exp(-100*t)*sin(2*PI*1*1.62*{f}*t)+0.2*exp(-120*t)*sin(2*PI*1*2.45*{f}*t))",
+   "gain_db": -3,
+   "trim": 0.12,
+   "delay_ms": 220,
+   "filter": "anull,apad=whole_dur=0.9"
+  },
+  "clunk3": {
+   "kind": "synth",
+   "prompt": "synthesised short low mechanism clunk under the beat: partials at 1x and 1.5x, 40 ms",
+   "secs": 0.12,
+   "freqs": [
+    250,
+    265,
+    240
+   ],
+   "expr": "0.5*exp(-45*t)*sin(2*PI*{f}*t)+0.3*exp(-55*t)*sin(2*PI*1.5*{f}*t)",
+   "gain_db": -6,
+   "trim": 0.12,
+   "delay_ms": 220,
+   "filter": "anull,apad=whole_dur=0.9"
+  },
+  "tock2": {
+   "kind": "synth",
+   "prompt": "synthesised heavy brass escapement repeat tock: pallet striking the escape wheel, inharmonic partials at 1x, 1.62x and 2.45x, dry, very fast decay",
+   "secs": 0.12,
+   "freqs": [
+    2100,
+    2250,
+    1980
+   ],
+   "expr": "(1-exp(-4000*t))*(0.4*exp(-85*t)*sin(2*PI*0.75*{f}*t)+0.3*exp(-100*t)*sin(2*PI*0.75*1.62*{f}*t)+0.2*exp(-120*t)*sin(2*PI*0.75*2.45*{f}*t))",
+   "gain_db": -5,
+   "trim": 0.12,
+   "delay_ms": 330,
+   "filter": "anull,apad=whole_dur=0.9"
+  },
+  "clunk4": {
+   "kind": "synth",
+   "prompt": "synthesised short low mechanism clunk under the beat: partials at 1x and 1.5x, 40 ms",
+   "secs": 0.12,
+   "freqs": [
+    250,
+    265,
+    240
+   ],
+   "expr": "0.5*exp(-45*t)*sin(2*PI*{f}*t)+0.3*exp(-55*t)*sin(2*PI*1.5*{f}*t)",
+   "gain_db": -8,
+   "trim": 0.12,
+   "delay_ms": 330,
+   "filter": "anull,apad=whole_dur=0.9"
+  },
+  "brass": {
+   "prompt": "single heavy antique clock escapement tick, large brass mechanism, close and exact, dry, isolated",
+   "secs": 0.5,
+   "filter": "highpass=f=500,lowpass=f=7000,apad=whole_dur=0.9",
+   "gain_db": -5,
+   "start_db": -26,
+   "trim": 0.5,
+   "decay": 40
+  }
+ }
+}
