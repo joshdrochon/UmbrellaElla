@@ -85,6 +85,10 @@ public:
 	static constexpr float JourneyDefaultHitIntervalSeconds = 1.0f;
 	static constexpr float JourneyDefaultWinTimeoutSeconds = 600.0f;
 	static constexpr double JourneyOverlayCheckSeconds = 1.0;
+	/** A click waits this long for its button to be laid out before it fails. */
+	static constexpr double JourneyClickWaitSeconds = 5.0;
+	/** The `texts` step logs at most this many characters of each text. */
+	static constexpr int32 JourneyTextLogChars = 40;
 
 private:
 	void StartStep();
@@ -101,6 +105,7 @@ private:
 	void SendSlateKey(const FKey& Key, EInputEvent Event);
 	void ClickLabel(const FString& Label, FString& OutDetail, bool& bOutClicked);
 	TSharedPtr<SWidget> FindButtonWithLabel(const TSharedRef<SWidget>& Root, const FString& Label) const;
+	void CollectTexts(const TSharedRef<SWidget>& Root, TArray<FString>& Out) const;
 	void MakeOverlayClickThrough(const TSharedRef<SWidget>& Root);
 	void SaveShot(const FString& Name, FString& OutDetail, bool& bOutSaved);
 	FString DescribeState() const;

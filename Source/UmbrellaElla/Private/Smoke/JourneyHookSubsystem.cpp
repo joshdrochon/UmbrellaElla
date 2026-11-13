@@ -7,7 +7,7 @@ namespace JourneyRules
 	TArray<FJourneyStep> ParseScript(const FString& Text, TArray<FString>& OutErrors)
 	{
 		static const TArray<FString> Known = { TEXT("wait"), TEXT("trywait"), TEXT("shot"), TEXT("key"), TEXT("hold"), TEXT("click"),
-			TEXT("music"), TEXT("idle"), TEXT("hits"), TEXT("assistwin"), TEXT("retrycheck"), TEXT("log"), TEXT("end"), TEXT("firstrun"), TEXT("keyuntil"), TEXT("console") };
+			TEXT("music"), TEXT("idle"), TEXT("hits"), TEXT("assistwin"), TEXT("retrycheck"), TEXT("log"), TEXT("end"), TEXT("firstrun"), TEXT("keyuntil"), TEXT("console"), TEXT("texts") };
 		TArray<FJourneyStep> Out;
 		TArray<FString> Lines;
 		Text.ParseIntoArrayLines(Lines, false);
@@ -101,10 +101,12 @@ namespace JourneyRules
 #include "Misc/CommandLine.h"
 #include "Misc/FileHelper.h"
 #include "Misc/Paths.h"
+#include "GameFramework/PlayerInput.h"
 #include "Owl/KeeperOfTime.h"
 #include "Owl/KeeperPartComponent.h"
 #include "Sound/SoundBase.h"
 #include "Components/AudioComponent.h"
+#include "Widgets/SViewport.h"
 #include "Widgets/SWindow.h"
 #include "Widgets/Text/STextBlock.h"
 
@@ -190,6 +192,19 @@ FString UJourneyHookSubsystem::DescribeState() const
 	if (const AUmbrellaPlayerController* Flow = GetFlow())
 	{
 		Out += FString::Printf(TEXT(" mode=%s retries=%d"), Flow->GetPlayMode() == EUmbrellaPlayMode::DirectorsCut ? TEXT("dc") : TEXT("start"), Flow->GetRetryCount());
+		if (Flow->PlayerInput)
+		{
+			// Keys the game's PlayerInput still counts as held (Resuming waits for these to be released).
+			TArray<FString> Held;
+			for (const FKey& Key : { EKeys::Enter, EKeys::SpaceBar, EKeys::LeftMouseButton, EKeys::Escape, EKeys::F1, EKeys::J, EKeys::K })
+			{
+				if (Flow->PlayerInput->IsPressed(Key))
+				{
+					Held.Add(Key.ToString());
+				}
+			}
+			Out += FString::Printf(TEXT(" held=[%s]"), *FString::Join(Held, TEXT(",")));
+		}
 	}
 	if (const AEllaCharacter* Ella = GetElla())
 	{
@@ -255,7 +270,7 @@ void UJourneyHookSubsystem::Tick(float DeltaTime)
 		}
 		else if (Elapsed >= N0)
 		{
-			FinishStep(Step.Command == TEXT("trywait") ? EJourneyResult::Pass : EJourneyResult::Fail, FString::Printf(TEXT("timeout %.0fs, still %s"), N0, *JourneyRules::ScreenName(CurrentScreen())));
+			FinishStep(EJourneyResult::Fail, FString::Printf(TEXT("timeout %.0fs, still %s"), N0, *JourneyRules::ScreenName(CurrentScreen())));
 		}
 	}
 	else if (Step.Command == TEXT("keyuntil"))
@@ -282,6 +297,16 @@ void UJourneyHookSubsystem::Tick(float DeltaTime)
 			PressSlateKey(FKey(*KeyWord));
 			ReleaseSlateKey(FKey(*KeyWord));
 			Log(FString::Printf(TEXT("JOURNEY_TAP key=%s n=%d focus=%s from=%s to=%s"), *KeyWord, AssistHits, *LastKeyFocus, *JourneyRules::ScreenName(Before), *JourneyRules::ScreenName(CurrentScreen())));
+		}
+	}
+	else if (Step.Command == TEXT("click"))
+	{
+		FString Detail;
+		bool bOk = false;
+		ClickLabel(Step.Arg, Detail, bOk);
+		if (bOk || Elapsed >= JourneyClickWaitSeconds)
+		{
+			FinishStep(bOk ? EJourneyResult::Pass : EJourneyResult::Fail, Detail);
 		}
 	}
 	else if (Step.Command == TEXT("idle"))
@@ -446,10 +471,7 @@ void UJourneyHookSubsystem::StartStep()
 	}
 	else if (Step.Command == TEXT("click"))
 	{
-		FString Detail;
-		bool bOk = false;
-		ClickLabel(Step.Arg, Detail, bOk);
-		FinishStep(bOk ? EJourneyResult::Pass : EJourneyResult::Fail, Detail);
+		// Clicked from Tick once the button has been laid out and painted (a just-opened menu has no geometry yet).
 	}
 	else if (Step.Command == TEXT("music"))
 	{
@@ -498,6 +520,16 @@ void UJourneyHookSubsystem::StartStep()
 		}
 		FinishStep(bOk ? EJourneyResult::Pass : EJourneyResult::Fail, FString::Printf(TEXT("DIAGNOSTIC console '%s'"), *Step.Arg));
 	}
+	else if (Step.Command == TEXT("texts"))
+	{
+		// What text the window holds now, in paint order with each text's painted size (0x0 = never painted).
+		TArray<FString> Texts;
+		if (GEngine && GEngine->GameViewport && GEngine->GameViewport->GetWindow().IsValid())
+		{
+			CollectTexts(GEngine->GameViewport->GetWindow().ToSharedRef(), Texts);
+		}
+		FinishStep(EJourneyResult::Pass, FString::Join(Texts, TEXT(" | ")));
+	}
 	else if (Step.Command == TEXT("log"))
 	{
 		FinishStep(EJourneyResult::Pass, Step.Arg);
@@ -520,7 +552,7 @@ void UJourneyHookSubsystem::FinishStep(EJourneyResult Result, const FString& Det
 	bPass ? ++Passed : ++Failed;
 	Log(FString::Printf(TEXT("JOURNEY_STEP n=%d line=%d cmd=\"%s %s\" result=%s %s detail=\"%s\""), StepIndex + 1, Step.Line, *Step.Command, *Step.Arg,
 		bPass ? TEXT("PASS") : TEXT("FAIL"), *DescribeState(), *Detail));
-	if (!bPass && Step.Command != TEXT("music") && Step.Command != TEXT("retrycheck") && Step.Command != TEXT("shot"))
+	if (!bPass && Step.Command != TEXT("music") && Step.Command != TEXT("retrycheck") && Step.Command != TEXT("shot") && Step.Command != TEXT("trywait"))
 	{
 		EndJourney(FString::Printf(TEXT("line %d %s %s: %s"), Step.Line, *Step.Command, *Step.Arg, *Detail));
 		return;
@@ -598,6 +630,28 @@ TSharedPtr<SWidget> UJourneyHookSubsystem::FindButtonWithLabel(const TSharedRef<
 	return nullptr;
 }
 
+void UJourneyHookSubsystem::CollectTexts(const TSharedRef<SWidget>& Root, TArray<FString>& Out) const
+{
+	if (!Root->GetVisibility().IsVisible())
+	{
+		return;
+	}
+	if (Root->GetType() == FName(TEXT("STextBlock")))
+	{
+		const FString Text = StaticCastSharedRef<STextBlock>(Root)->GetText().ToString();
+		if (!Text.TrimStartAndEnd().IsEmpty())
+		{
+			const FVector2D Size = Root->GetPaintSpaceGeometry().GetLocalSize();
+			Out.Add(FString::Printf(TEXT("%s(%.0fx%.0f)"), *Text.Left(JourneyTextLogChars), Size.X, Size.Y));
+		}
+	}
+	FChildren* Children = Root->GetChildren();
+	for (int32 Index = 0; Children && Index < Children->Num(); ++Index)
+	{
+		CollectTexts(Children->GetChildAt(Index), Out);
+	}
+}
+
 void UJourneyHookSubsystem::MakeOverlayClickThrough(const TSharedRef<SWidget>& Root)
 {
 	if (Root->GetType() == FName(TEXT("SSoundLabelList")) && Root->GetVisibility() != EVisibility::HitTestInvisible)
@@ -632,7 +686,14 @@ void UJourneyHookSubsystem::ClickLabel(const FString& Label, FString& OutDetail,
 	// so it takes every click; the packaged game (UMBRELLAELLA_WORKBENCH=0) has no such list. Let clicks through it, logged
 	// (docs/build/requests/agentplay.md asks its lane for HitTestInvisible).
 	// A real mouse: move over the button's centre, press and release the left button there (Slate hit-tests it).
-	const FVector2D Centre = Button->GetTickSpaceGeometry().GetAbsolutePositionAtCoordinates(FVector2D(0.5, 0.5));
+	const FGeometry Geometry = Button->GetTickSpaceGeometry();
+	if (Geometry.GetLocalSize().X <= 0.0f || Geometry.GetLocalSize().Y <= 0.0f)
+	{
+		OutDetail = FString::Printf(TEXT("button '%s' not laid out yet"), *Label);
+		bOutClicked = false;
+		return;
+	}
+	const FVector2D Centre = Geometry.GetAbsolutePositionAtCoordinates(FVector2D(0.5, 0.5));
 	const uint8 Before = CurrentScreen();
 	FSlateApplication& Slate = FSlateApplication::Get();
 	const TSet<FKey> None;
@@ -677,6 +738,20 @@ void UJourneyHookSubsystem::SaveShot(const FString& Name, FString& OutDetail, bo
 	for (FColor& Color : Bitmap)
 	{
 		Color.A = JourneyOpaqueAlpha;
+	}
+	// The viewport widget alone (how the UI art loop captures; UMG screens live in the viewport's overlay).
+	if (TSharedPtr<SViewport> ViewportWidget = GEngine->GameViewport->GetGameViewportWidget())
+	{
+		TArray<FColor> Pixels;
+		FIntVector VpSize;
+		if (FSlateApplication::Get().TakeScreenshot(ViewportWidget.ToSharedRef(), Pixels, VpSize) && Pixels.Num() > 0)
+		{
+			for (FColor& Pixel : Pixels)
+			{
+				Pixel.A = JourneyOpaqueAlpha;
+			}
+			FImageUtils::SaveImageByExtension(*FPaths::Combine(OutDir, Name + TEXT("_vp.png")), FImageView(Pixels.GetData(), VpSize.X, VpSize.Y));
+		}
 	}
 	// The engine's own screenshot (scene + UI, written a frame later) as a second capture to compare with the composite.
 	FScreenshotRequest::RequestScreenshot(FPaths::Combine(OutDir, Name + TEXT("_engine.png")), true, false);

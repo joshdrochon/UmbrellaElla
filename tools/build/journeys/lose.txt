@@ -5,7 +5,7 @@ idle 2
 shot 01_start_screen
 music any                      # the title track plays on the Start screen (FLOW-34)
 click Start Game               # the mouse, not a key
-trywait Tutorial 5
+wait Tutorial 5
 shot 02_tutorial
 keyuntil Playing Enter 0.8 30  # page through the first-start tutorial with Enter
 idle 3
