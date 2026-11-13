@@ -199,8 +199,8 @@ def wash(poly, tone, light=(-1, -0.4), lo=DEEP, mid=MID, hi=LIGHT, bands=14):
     for seg in scan(poly, ang + 90, max(2.2, (x1 - x0 + y1 - y0) / bands / 2), jitter=0.8):
         mx, my = (seg[0][0] + seg[1][0]) / 2, (seg[0][1] + seg[1][1]) / 2
         u = ((mx - x0) * -lx + (my - y0) * -ly) / (((x1 - x0) * abs(lx) + (y1 - y0) * abs(ly)) or 1)
-        t = max(0.0, min(1.0, tone + (u - 0.5) * 0.9 + RNG.uniform(-0.05, 0.05)))
-        tapered(seg[0], seg[1], 3.1, ramp(t, lo, mid, hi), opacity=0.55, bow=RNG.uniform(-0.8, 0.8))
+        t = max(0.0, min(1.0, tone + (u - 0.5) * 1.5 + RNG.uniform(-0.06, 0.06)))
+        tapered(seg[0], seg[1], 3.1, ramp(t, lo, mid, hi), opacity=1.0, bow=RNG.uniform(-0.8, 0.8))
 
 
 def etch(poly, angle=62, spacing=3.4, color=INK, w=0.55, shade=None, opacity=0.8):
@@ -342,11 +342,13 @@ def terminal(p, size=1.0):
           lo=DEEP, mid=(120, 100, 72), hi=(190, 160, 110))
 
 
-def hand(p, r=7):
+def hand(p, r=5.5):
     x, y = p
     poly = catmull([(x - r * .8, y - r), (x + r * .8, y - r * .9), (x + r, y + r * .5), (x, y + r * 1.1),
                     (x - r, y + r * .4)], 5, True)
     shape(poly, 0.55, hatch=None, cont=1.1, lo=(90, 74, 62), mid=SKIN, hi=(190, 164, 140))
+    for k in range(4):
+        add([(x - r * .6 + k * r * .45, y - r * .2), (x - r * .55 + k * r * .45, y + r * .9)], 0.5, INK, "line")
 
 
 def hat(c, tilt=-14, bend=1.0):
@@ -360,11 +362,23 @@ def hat(c, tilt=-14, bend=1.0):
     brim = catmull([T(-44, 2), T(-20, -6), T(10, -6), T(42, -2), T(40, 6), T(8, 10), T(-24, 9), T(-44, 6)], 5, True)
     shape(cone, 0.18, light=(-1, -1), hatch=50, cont=1.7, n_grain=60, hi=(110, 96, 80), spacing=3.0)
     shape(brim, 0.22, light=(-1, -1), hatch=-20, cont=1.8, n_grain=40, hi=(120, 104, 86), spacing=3.0)
+    mask = catmull([T(2, 10), T(22, 6), T(30, 20), T(24, 36), T(8, 38), T(-2, 24)], 5, True)
+    shape(mask, 0.5, light=(-1, -.3), hatch=35, cont=1.4, lo=(70, 62, 54), mid=(150, 134, 112), hi=(200, 184, 156),
+          hatch_color=(60, 52, 44), spacing=2.8)
+    for ex, ey in ((12, 20), (22, 19)):
+        e = T(ex, ey)
+        add([e, (e[0] + 1.5, e[1])], [1.8, 1.4], (233, 196, 106), "line")
     band = [T(-27, -3), T(24, -3), T(24, -9), T(-28, -10)]
     shape(band, 0.55, hatch=None, cont=1.0, lo=DEEP, mid=(110, 92, 70), hi=(170, 148, 108))
 
 
 def hair_and_scarf(root, spread=1.0):
+    rx, ry = root
+    hair(root, spread)
+    scarf(root)
+
+
+def scarf(root):
     rx, ry = root
     # scarf ribbon: wide cloth streaming back and down, ragged torn end
     rib = [(rx + 6, ry + 8), (rx - 8, ry + 36), (rx - 30, ry + 70), (rx - 58, ry + 104), (rx - 76, ry + 136)]
@@ -374,15 +388,18 @@ def hair_and_scarf(root, spread=1.0):
     poly = catmull(left, 5) + jag(right[-1], (rx - 82, ry + 134), 6, 7)[::-1] + catmull(right[::-1], 5)
     shape(poly, 0.55, light=(-1, 0), hatch=70, cont=1.2, lo=(120, 104, 82), mid=BONE, hi=(224, 208, 176),
           hatch_color=(60, 52, 44), n_grain=140, spacing=3.6, hatch_w=0.5)
-    # long hair strands
-    for i in range(34):
-        t = i / 34
+
+
+def hair(root, spread=1.0):
+    rx, ry = root
+    for i in range(46):
+        t = i / 46
         sx, sy = rx + 4 + t * 16, ry - 6 + t * 24
         pts = [(sx, sy), (sx - 28 * spread - t * 8, sy + 24 + t * 22), (sx - 62 * spread - RNG.uniform(0, 18), sy + 66 + RNG.uniform(0, 26)),
                (sx - 96 * spread - RNG.uniform(0, 14), sy + 100 + RNG.uniform(0, 36))]
         pts = catmull(pts, 7)
         c = ramp(RNG.uniform(0.15, 0.75), (60, 50, 42), (110, 90, 70), (170, 148, 118))
-        add(pts, [max(0.2, 1.4 * (1 - j / len(pts)) + .2) for j in range(len(pts))], c, "line", opacity=0.9)
+        add(pts, [max(0.25, 2.1 * (1 - j / len(pts)) + .25) for j in range(len(pts))], c, "line", opacity=0.95)
 
 
 def body(sx=0, lean=0):
@@ -444,7 +461,7 @@ def draw_open():
     arm((124, 214), (160, 146), 12)
     LEAN[0] = 0.0
     hand((161, 134))
-    hand((163, 152), 6)
+    hand((163, 152), 4.8)
 
 
 def draw_closed():
