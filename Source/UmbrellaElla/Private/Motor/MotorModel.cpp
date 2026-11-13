@@ -1,4 +1,5 @@
 #include "Motor/MotorModel.h"
+#include "Core/UmbrellaSourceIds.h"
 #include "Harness/UmbrellaFeatureFlags.h"
 #include "Motor/MotorTuning.h"
 
@@ -155,13 +156,20 @@ FVector2D MotorModel::Step(FMotorModelState& State, const FMotorInput& Input, co
 	}
 
 	const FVector2D Base(0.0f, BaseVerticalSpeed(Input, Tuning));
-	State.Velocity = Base + WindNow + BurstNow;
-	return (Base + WindNow) * DeltaSeconds + BurstNow * BurstSeconds;
+	// Hostile forced push: no ride blend, no decay, not cancelled by action or defense.
+	const FVector2D Forced = Input.ForcedVelocity;
+	State.Velocity = Base + WindNow + BurstNow + Forced;
+	return (Base + WindNow + Forced) * DeltaSeconds + BurstNow * BurstSeconds;
 }
 
 bool MotorModel::IsProtected(const FMotorModelState& State)
 {
 	return State.ProtectionLeft > 0.0f;
+}
+
+bool MotorModel::IsForcedSource(FName SourceId)
+{
+	return SourceId == UmbrellaSourceIds::GustBand();
 }
 
 FVector2D MotorModel::ParseCurrentDirection(FName Detail)

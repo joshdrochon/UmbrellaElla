@@ -6,6 +6,7 @@
 #include "Core/UmbrellaEventBus.h"
 #include "Enemy/EnemyRules.h"
 #include "Engine/World.h"
+#include "Field/WindCurrent.h"
 #include "GameFramework/Pawn.h"
 #include "GameFramework/Pawn.h"
 #include "Harness/UmbrellaFeatureFlags.h"
@@ -62,6 +63,30 @@ void ABrokenMillRoom::BuildRoom()
 			Rotor->ConfigureKind(ETrapKind::AirMill);
 		}
 	}
+	BuildWinds();
+}
+
+void ABrokenMillRoom::BuildWinds()
+{
+	UWorld* World = GetWorld();
+	if (!World || !IsFeatureEnabled(EFeatureId::HAZ_06) || IsValid(UpperWind))
+	{
+		return;
+	}
+	const FBrokenMillTuning& T = Tuning();
+	auto SpawnBand = [&](const FVector2D& ZRange, const FVector& Direction) -> AWindCurrent*
+	{
+		const FVector2D Centre((T.FiringColumnX.X + T.FiringColumnX.Y) * 0.5f, (ZRange.X + ZRange.Y) * 0.5f);
+		AWindCurrent* Wind = World->SpawnActor<AWindCurrent>(AWindCurrent::StaticClass(), FTransform(RoomToWorld(Centre)));
+		if (IsValid(Wind))
+		{
+			Wind->SetHalfExtent((T.FiringColumnX.Y - T.FiringColumnX.X) * 0.5f, (ZRange.Y - ZRange.X) * 0.5f);
+			Wind->SetCurrent(Direction, T.WindSpeed);
+		}
+		return Wind;
+	};
+	UpperWind = SpawnBand(T.UpperResetZ, FVector(-1.0, 0.0, 0.0));
+	LowerWind = SpawnBand(T.LowerOnwardZ, FVector(1.0, 0.0, 0.0));
 }
 
 void ABrokenMillRoom::SetTargetActor(AActor* NewTarget)
@@ -82,6 +107,7 @@ void ABrokenMillRoom::ResetForRestart()
 	GuardHp = Tuning().GuardHp;
 	ShotsFired = 0;
 	Clock = 0.0f;
+	EventCounts.Reset();
 	SetActorHiddenInGame(false);
 	TargetBox->SetCollisionResponseToChannel(UmbrellaCollision::PlayerShot, ECR_Block);
 }
@@ -114,7 +140,7 @@ EUmbrellaShotResult ABrokenMillRoom::ReceiveShot(const FUmbrellaShotSpec& Shot, 
 void ABrokenMillRoom::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-	if (!UGameplayStatics::IsGamePaused(this))
+	if (!bSimulationPaused && !UGameplayStatics::IsGamePaused(this))
 	{
 		StepSeconds(DeltaSeconds);
 	}
@@ -122,13 +148,18 @@ void ABrokenMillRoom::Tick(float DeltaSeconds)
 
 EMillGuardEvent ABrokenMillRoom::StepSeconds(float DeltaSeconds)
 {
-	Clock += DeltaSeconds;
+	const bool bPaused = bSimulationPaused || UGameplayStatics::IsGamePaused(this);
+	if (!bPaused)
+	{
+		Clock += DeltaSeconds;
+	}
 	const AActor* Found = TargetActor.Get();
 	if (!IsValid(Found))
 	{
 		Found = UGameplayStatics::GetPlayerPawn(this, 0);
 	}
 	FMillGuardInputs Inputs;
+	Inputs.bPaused = bPaused;
 	Inputs.bShotGone = !ActiveShot.IsValid();
 	if (IsValid(Found))
 	{
@@ -137,8 +168,14 @@ EMillGuardEvent ABrokenMillRoom::StepSeconds(float DeltaSeconds)
 		Inputs.bInActivationRegion = FBrokenMillRules::IsInActivationRegion(Tuning(), Inputs.Ella);
 		Inputs.bEngagementValid = FBrokenMillRules::IsEngagementValid(Tuning(), Ella, true);
 		Inputs.bPassedBehind = Ella.X > Tuning().GuardMuzzle.X;
+		// Assist and exit are the no-warning phases of the room (reset is the upper band, which stays warned).
+		Inputs.bInNoWarningPhase = FBrokenMillRules::IsInMissedCurrentAssist(Tuning(), Ella) || Ella.X >= Tuning().ExitPoint.X;
 	}
 	const EMillGuardEvent Event = Guard.Advance(Tuning(), DeltaSeconds, Inputs);
+	if (Event != EMillGuardEvent::None)
+	{
+		++EventCounts.FindOrAdd(Event);
+	}
 	if (Event == EMillGuardEvent::ShotReleased)
 	{
 		ReleaseShot();

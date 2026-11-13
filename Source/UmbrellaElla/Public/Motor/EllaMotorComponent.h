@@ -60,12 +60,15 @@ private:
 	void OnHealthChanged(const FUmbrellaEvent& Event);
 	bool IsEventForElla(const FUmbrellaEvent& Event) const;
 	FVector2D SumCurrents() const;
+	FVector2D SumForcedPushes() const;
 
 	UPROPERTY(Transient)
 	TObjectPtr<UUmbrellaStateComponent> UmbrellaState;
 
 	FMotorModelState Model;
 	TMap<FName, FVector2D> ActiveCurrents;
+	/** Hostile sources (GUST_Band) by SourceId; they bypass the voluntary ride path. */
+	TMap<FName, FVector2D> ForcedPushes;
 	FBox2D PlayBounds = FBox2D(ForceInit);
 	float TrimAxis = 0.0f;
 	float MoveAxis = 0.0f;
