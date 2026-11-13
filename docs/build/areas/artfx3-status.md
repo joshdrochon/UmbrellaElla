@@ -45,3 +45,6 @@ Still blocked: origin/main (80aacfd8) has no SmokeShotFrames in Source/. No paid
 
 ## 2026-11-13 (recheck 3)
 Still blocked: origin/main (80aacfd8) has no SmokeShotFrames in Source/. No paid call made. Request in docs/build/requests/artfx3.md stands.
+
+## 2026-11-13 (recheck 4)
+Still blocked: origin/main (80aacfd8) has no SmokeShotFrames in Source/; it exists only on origin/area/screenfix. No paid call made. Request in docs/build/requests/artfx3.md stands.
