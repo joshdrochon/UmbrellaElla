@@ -11,3 +11,8 @@
   - Verdict: work, in tension with the judge: a crisp ink outline conflicts with the offband gate, a soft glow conflicts with the critic's "no ink line". Not loosened.
 - No panel pass for any piece; nothing shipped, `_PH` slots untouched.
 - Left: find a frame-1 shape that keeps ink hatching but with red-only edge (ink outline in coral/crimson rim), re-run the panel; then the other 7 pieces (keeper-recovery, keeper-strike, keeper-warning, clock-open, eye-exposed, departure, restoration) with the same method. Ask the lead to calibrate score_min/detail_min for the vfx pieces (art_judge calibrate) since 0.729 is inherited from owl-bolt.
+
+## Slice 2 (Nov 13): blocked on judge calibration
+- Merged main and artslots (clean). Re-judged clock-beat sheets 3-5: 0.593 / 0.2 / 0.2 vs min 0.729, same as slice 1. No new paint, no spend.
+- Verdict: check defect (uncalibrated inherited min; offband counts ink-dark pixels). Request in `docs/build/requests/artfx2.md`.
+- Left: all 8 pieces, after the lead calibrates the vfx elements.
