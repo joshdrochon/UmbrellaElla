@@ -71,7 +71,7 @@ public:
 	void SetTuningOverride(const FAttackTuning& InTuning) { TuningOverride = &InTuning; }
 	void ClearTuningOverride() { TuningOverride = nullptr; }
 
-	/** Test only: behave as if the COM-06 flag were switched off (the flag table is a constant). */
+	/** Test only: behave as if the burst-shot feature flag were switched off (the flag table is a constant). */
 	void SetCom06OffForTest(bool bOff) { bCom06OffForTest = bOff; }
 
 	int32 GetShotsFired() const { return ShotsFired; }
