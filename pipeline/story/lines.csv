@@ -25,10 +25,10 @@ ui-settings-reduced-motion,button,Reduced motion,,yes,screen=settings; where=Set
 ui-settings-reduced-flash,button,Reduced flash,,yes,screen=settings; where=SettingsMenuWidget.cpp
 ui-settings-shoot-and-absorb-share-a,screen,Shoot and Absorb share a key. The four flight modes need them apart. Reset bindings to recover.,,yes,screen=settings; where=SettingsMenuWidget.cpp
 ui-settings-reset-bindings,button,Reset bindings,,yes,screen=settings; where=SettingsMenuWidget.cpp
-ui-settings-developer-options-director-s-cut,screen,Developer options (Director's Cut only). Save applies them to this session; 100% is as tuned.,,yes,screen=settings; where=SettingsMenuWidget.cpp
+ui-settings-developer-options-director-s-cut,screen,Developer options (Director's Cut only). Save applies them to this session; 100% is the default.,,yes,screen=settings; where=SettingsMenuWidget.cpp
 ui-settings-developer-options-director-s-cut-2,screen,Developer options (Director's Cut only). They can be changed in the tester build.,,yes,screen=settings; where=SettingsMenuWidget.cpp
 ui-settings-open-controller-page,button,Open Controller page,,yes,screen=settings; where=SettingsMenuWidget.cpp
-ui-settings-reset-to-as-tuned,screen,Reset to as tuned,,yes,screen=settings; where=SettingsMenuWidget.cpp
+ui-settings-reset-to-as-tuned,screen,Reset to default,,yes,screen=settings; where=SettingsMenuWidget.cpp
 ui-purchase-hits-per-life,button,Hits per life,,yes,screen=purchase; where=ProgressionPurchaseWidget.cpp
 ui-purchase-lives,button,Lives,,yes,screen=purchase; where=ProgressionPurchaseWidget.cpp
 ui-purchase-recovery-per-yellow,button,Recovery per yellow,,yes,screen=purchase; where=ProgressionPurchaseWidget.cpp
@@ -63,7 +63,7 @@ ui-settings-game-options-keeper-slow-attack,button,Keeper slow attack,,yes,scree
 ui-settings-game-options-eye-blackout-time,button,Eye blackout time,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
 ui-settings-game-options-first-play-tutorials,button,First-play tutorials,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
 ui-settings-game-options-remap-controls,button,Remap controls,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
-ui-settings-game-options-ella-hitbox-size,button,Ella hitbox size,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
+ui-settings-game-options-ella-hitbox-size,button,Ella body size,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
 ui-settings-game-options-menu-background-motion,button,Menu background motion,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
 ui-settings-game-options-off,button,Off,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
 ui-settings-game-options-open,button,Open,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
@@ -100,19 +100,19 @@ ui-pause-continue,button,Continue,,yes,screen=pause; where=FlowMenuText.cpp
 ui-pause-quit,button,Quit,,yes,screen=pause; where=FlowMenuText.cpp
 ui-level-up-skip,button,Skip,,yes,screen=level-up; where=FlowMenuText.cpp
 ui-level-up-done,button,Done,,yes,screen=level-up; where=FlowMenuText.cpp
-ui-settings-sound-controller-and-credits-arrive,screen,"Sound, Controller and Credits arrive in the next slice.",,yes,screen=settings; where=FlowMenuText.cpp
+ui-settings-sound-controller-and-credits-arrive,screen,"Sound, Controller and Credits arrive soon.",,yes,screen=settings; where=FlowMenuText.cpp
 ui-level-up-a-new-point-to-spend,screen,A new point to spend at the next refuge.,,yes,screen=level-up; where=FlowMenuText.cpp
 ui-defeat-defeated,button,Defeated,,yes,screen=defeat; where=FlowMenuText.cpp
 ui-defeat-retry,button,Retry,,yes,screen=defeat; where=FlowMenuText.cpp
 ui-defeat-quit-to-title,button,Quit to Title,,yes,screen=defeat; where=FlowMenuText.cpp
 story-ending-page-1,end_card,"Eventually, the owl's pursuit ends, and he retreats into the darkness, leaving Ella alive but still suspended between worlds.",F3;P8,yes,screen=ending; where=FlowStoryText.cpp
-story-ending-page-2,end_card,"She has survived, yet neither her fate nor the owl's intentions are resolved. Perhaps the owl has merely postponed his judgment, or perhaps something about Ella has challenged even his understanding of time.",F3;P8,yes,screen=ending; where=FlowStoryText.cpp
+story-ending-page-2,end_card,"She has survived, yet neither her fate nor the owl's intentions are resolved. Perhaps the owl has merely postponed his judgment.",F3;P8,yes,screen=ending; where=FlowStoryText.cpp
 credit-umbrella-ella-the-stolen-hour,screen,Umbrella Ella The Stolen Hour,,yes,screen=credits; where=FlowStoryText.cpp
 credit-rick-rispoli,screen,Rick Rispoli,,yes,screen=credits; where=FlowStoryText.cpp
 credit-rick-role,screen,Executive Producer,,yes,screen=credits; where=FlowStoryText.cpp
 ui-tutorial-while-dropping-shoot-with-j,screen,"While dropping, shoot with J or the left mouse button. Shots always fly right. Basic shots never run out.",,yes,screen=tutorial; where=FlowTutorialText.cpp
 ui-tutorial-absorb-yellow-shots-with-k,screen,Absorb yellow shots with K or the right mouse button to heal. Dash with Q and E or the bumpers.,,yes,screen=tutorial; where=FlowTutorialText.cpp
-ui-tutorial-shoot-with-j-or-the,screen,"Shoot with J or the left mouse button while dropping. Cycle spells with [ and ] or the D-pad, or press 1 to 4.",,yes,screen=tutorial; where=FlowTutorialText.cpp
+ui-tutorial-shoot-with-j-or-the,screen,"Shoot with J or the left mouse button while dropping. Change spells with [ and ] or 1 to 4.",,yes,screen=tutorial; where=FlowTutorialText.cpp
 ui-tutorial-next,button,Next,,yes,screen=tutorial; where=UmbrellaPlayerController.cpp
 ui-tutorial-begin,button,Begin,,yes,screen=tutorial; where=UmbrellaPlayerController.cpp
 ui-journey-complete-experience-earned,button,Experience earned,,yes,screen=journey-complete; where=StoryRules.cpp

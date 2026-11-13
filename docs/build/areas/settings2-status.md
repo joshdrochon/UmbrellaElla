@@ -8,7 +8,7 @@
   all-defaults restores the captured baseline. Settings follows the player controller's play mode every frame.
 - Release exposure (D-new-flow44-release): read-only in the submission build, editable in editor/tester builds;
   one constant flips it (`DeveloperOptionRelease::bEditableInSubmissionBuild`).
-- Game Options page: slider/checkbox/button per option, value text, Reset to as tuned; dirty Back prompt as other pages.
+- Game Options page: slider/checkbox/button per option, value text, Reset to default; dirty Back prompt as other pages.
 - Tests: `UmbrellaElla.Settings.DeveloperOptionsList`, `.DeveloperOptionsApply`, `.DeveloperOptionsDirectorOnly`,
   `.World.DeveloperOptionsReachLiveTuning`; `.PagesByMode` still passes.
 

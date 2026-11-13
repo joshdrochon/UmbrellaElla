@@ -91,7 +91,7 @@ TArray<FDeveloperOptionSpec> DeveloperOptionRules::AllSpecs()
 	Specs.Add(MakeDevSpec(EDeveloperOption::EyesBlackout, TEXT("EyesBlackout"), LOCTEXT("EyesBlackout", "Eye blackout time"), EKind::Percent, Off));
 	Specs.Add(MakeDevSpec(EDeveloperOption::Tutorial, TEXT("Tutorial"), LOCTEXT("Tutorial", "First-play tutorials"), EKind::Toggle, DeveloperOptionLimits::ToggleOn));
 	Specs.Add(MakeDevSpec(EDeveloperOption::Remapping, TEXT("Remapping"), LOCTEXT("Remapping", "Remap controls"), EKind::Link, 0));
-	Specs.Add(MakeDevSpec(EDeveloperOption::SizeHitbox, TEXT("SizeHitbox"), LOCTEXT("SizeHitbox", "Ella hitbox size"), EKind::Percent, Low));
+	Specs.Add(MakeDevSpec(EDeveloperOption::SizeHitbox, TEXT("SizeHitbox"), LOCTEXT("SizeHitbox", "Ella body size"), EKind::Percent, Low));
 	Specs.Add(MakeDevSpec(EDeveloperOption::Background, TEXT("Background"), LOCTEXT("Background", "Menu background motion"), EKind::Percent, Off));
 	return Specs;
 }

@@ -507,7 +507,7 @@ void USettingsMenuWidget::AddGameOptionsBody()
 	BodyBox->AddSlot().AutoHeight().Padding(SettingsLayout::RowPadding)
 	[
 		Label(bEditable
-			? LOCTEXT("DevNote", "Developer options (Director's Cut only). Save applies them to this session; 100% is as tuned.")
+			? LOCTEXT("DevNote", "Developer options (Director's Cut only). Save applies them to this session; 100% is the default.")
 			: LOCTEXT("DevNoteLocked", "Developer options (Director's Cut only). They can be changed in the tester build."), Size, Gold())
 	];
 	const USettingsMenuSubsystem* Subsystem = Owner.Get();
@@ -615,7 +615,7 @@ void USettingsMenuWidget::AddGameOptionsBody()
 				return FReply::Handled();
 			}))
 			[
-				Label(LOCTEXT("ResetDev", "Reset to as tuned"), Size, Gold())
+				Label(LOCTEXT("ResetDev", "Reset to default"), Size, Gold())
 			]
 		];
 	}
