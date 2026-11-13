@@ -116,3 +116,8 @@ or calibration miss; the tool says "judge again"), never a counted one.
 - Merged main (2ccbebdb) and artslots. T_Skyline_PH imported locally; run_game.sh -SmokeShot ran 10 min without finishing; load average 33 -> 151
   (other lanes' captures and builds). `Flow.SmokeShotDelaySeconds` (5 s wall clock, tuning only, no command-line flag) fires before the first backdrop frame.
 - Needs the lead: a `-SmokeShotDelay=` flag in SmokeHookSubsystem.cpp (not my lane) or an idle machine window. No piece can pass the context pair. Every `_PH` stays; zero spend.
+
+## Nov 13 (re-check, main 4829fa66): still blocked, zero spend
+- Merged main: nothing new for the capture. No `-SmokeShotDelay` flag in SmokeHookSubsystem; load average 49. Context pair for skyline, paper, menu-screen still impossible from this lane.
+- Uncommitted and left alone: `tools/build/art_inventory.py` (scene-texture rule, outside my lane) and untracked `Content/UmbrellaElla/Art/Scene/T_Skyline_PH.uasset`. The lead decides on the inventory rule.
+- Needs the lead (requests/artscene.md item 3 update): shot waits for first rendered frames or `-SmokeShotDelay=`. Every `_PH` stays.
