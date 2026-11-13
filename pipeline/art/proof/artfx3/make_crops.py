@@ -27,11 +27,23 @@ SPEC = {
                 ("gear-intact", S_GEAR, (225, 355, 320, 440), "paper", "all")],
  "vfx-part-break": [("rim-failure", S_GEAR, (1200, 345, 1340, 440), "paper", "all"),
                     ("wreckage", S_GEAR, (400, 780, 520, 858), "paper", "all")],
- "vfx-stun": [("arcs-clock", S_CLK, (780, 540, 1000, 720), "arc", "all"),
-              ("arcs-shoulder", S_CLK, (170, 570, 350, 720), "arc", "all")],
+ "vfx-stun": [("arcs-shoulder", S_CLK, (170, 570, 350, 720), "halo", "all"),
+              ("arcs-clock", S_CLK, (780, 540, 1000, 720), "halo", "all")],
 }
 _k = M.keyer
 def keyer(key, rows, w, h):
+    if key == "box":
+        return [[True] * w for _ in range(h)]
+    if key == "halo":   # arcs plus 14 px of the clock around them (a keyed arc alone is too sparse to read as an image)
+        m = keyer("arc", rows, w, h)
+        R = 14
+        pts = [(x, y) for y in range(h) for x in range(w) if m[y][x]]
+        out = [[False] * w for _ in range(h)]
+        for x, y in pts:
+            for j in range(max(0, y - R), min(h, y + R + 1)):
+                for i in range(max(0, x - R), min(w, x + R + 1)):
+                    out[j][i] = True
+        return out
     if key in ("gold", "arc"):
         m = [[False] * w for _ in range(h)]
         for y in range(h):

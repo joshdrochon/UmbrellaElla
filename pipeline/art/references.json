@@ -1831,36 +1831,6 @@
    "origin": "crop of Ricky's #art-direction sheet (13 Nov, artfx3, D-new-vfx-calibration), keyed to an alpha mask; reference only"
   },
   {
-   "id": "crop-stun-arcs-clock",
-   "path": "pipeline/art/reference/crops/vfx-stun/arcs-clock.png",
-   "kind": "image",
-   "role": [
-    "effects"
-   ],
-   "what": "Crop of the effect itself for the Keeper stun (blue-white fault arcs): box [780, 540, 1000, 720] of 20261110-1220_Ricky_1.png, key arc (crops.json beside it). Reference only; the whole sheet stays as context.",
-   "cards": [
-    "MVP 5"
-   ],
-   "judge": true,
-   "required": true,
-   "origin": "crop of Ricky's #art-direction sheet (13 Nov, artfx3, D-new-vfx-calibration), keyed to an alpha mask; reference only"
-  },
-  {
-   "id": "crop-stun-arcs-shoulder",
-   "path": "pipeline/art/reference/crops/vfx-stun/arcs-shoulder.png",
-   "kind": "image",
-   "role": [
-    "effects"
-   ],
-   "what": "Crop of the effect itself for the Keeper stun (blue-white fault arcs): box [170, 570, 350, 720] of 20261110-1220_Ricky_1.png, key arc (crops.json beside it). Reference only; the whole sheet stays as context.",
-   "cards": [
-    "MVP 5"
-   ],
-   "judge": true,
-   "required": true,
-   "origin": "crop of Ricky's #art-direction sheet (13 Nov, artfx3, D-new-vfx-calibration), keyed to an alpha mask; reference only"
-  },
-  {
    "id": "crop-part-hit-gear-intact",
    "path": "pipeline/art/reference/crops/vfx-part-hit/gear-intact.png",
    "kind": "image",
@@ -1898,6 +1868,36 @@
     "effects"
    ],
    "what": "Crop of the effect itself for the Streamed Blast sustain (lit flame): box [285, 808, 360, 850] of 20261110-0328_Ricky_1.png, key gold (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of Ricky's #art-direction sheet (13 Nov, artfx3, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "crop-stun-arcs-shoulder",
+   "path": "pipeline/art/reference/crops/vfx-stun/arcs-shoulder.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for the Keeper stun (blue-white fault arcs): box [170, 570, 350, 720] of 20261110-1220_Ricky_1.png, key halo (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of Ricky's #art-direction sheet (13 Nov, artfx3, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "crop-stun-arcs-clock",
+   "path": "pipeline/art/reference/crops/vfx-stun/arcs-clock.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for the Keeper stun (blue-white fault arcs): box [780, 540, 1000, 720] of 20261110-1220_Ricky_1.png, key halo (crops.json beside it). Reference only; the whole sheet stays as context.",
    "cards": [
     "MVP 5"
    ],
@@ -3649,29 +3649,26 @@
   "vfx-stun": {
    "what": "the Keeper stun loop (art sheet VFX_Stun, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
    "refs": [
-    "crop-stun-arcs-clock",
-    "crop-stun-arcs-shoulder"
+    "crop-stun-arcs-shoulder",
+    "crop-stun-arcs-clock"
    ],
    "owner": "artfx",
-   "score_min": 0.18,
-   "detail_min": 0.519,
+   "score_min": 0.764,
+   "detail_min": 0.384,
    "calibration": {
     "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
     "margin": 0.02,
     "measured": "2026-11-13",
     "loo": {
-     "crop-stun-arcs-clock": 0.2,
-     "crop-stun-arcs-shoulder": 0.2
+     "crop-stun-arcs-shoulder": 0.784,
+     "crop-stun-arcs-clock": 0.784
     },
     "detail": {
-     "crop-stun-arcs-clock": 0.583,
-     "crop-stun-arcs-shoulder": 0.539
+     "crop-stun-arcs-shoulder": 0.404,
+     "crop-stun-arcs-clock": 0.413
     }
    },
-   "context": [
-    "d-gear-break",
-    "bar-casters"
-   ]
+   "context": []
   },
   "vfx-slow": {
    "what": "the Keeper slow field (art sheet VFX_Slow, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",

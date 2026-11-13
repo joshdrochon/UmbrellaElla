@@ -3,19 +3,6 @@
  "note": "crops of the effect cut from the concept sheets; originals untouched",
  "crops": [
   {
-   "file": "arcs-clock.png",
-   "source": "pipeline/art/reference/discord/20261110-1220_Ricky_1.png",
-   "box": [
-    780,
-    540,
-    1000,
-    720
-   ],
-   "key": "arc",
-   "pieces": "all",
-   "opaque_px": 589
-  },
-  {
    "file": "arcs-shoulder.png",
    "source": "pipeline/art/reference/discord/20261110-1220_Ricky_1.png",
    "box": [
@@ -24,9 +11,22 @@
     350,
     720
    ],
-   "key": "arc",
+   "key": "halo",
    "pieces": "all",
-   "opaque_px": 279
+   "opaque_px": 12883
+  },
+  {
+   "file": "arcs-clock.png",
+   "source": "pipeline/art/reference/discord/20261110-1220_Ricky_1.png",
+   "box": [
+    780,
+    540,
+    1000,
+    720
+   ],
+   "key": "halo",
+   "pieces": "all",
+   "opaque_px": 18384
   }
  ]
 }
