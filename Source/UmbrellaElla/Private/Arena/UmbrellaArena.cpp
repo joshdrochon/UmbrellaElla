@@ -163,7 +163,17 @@ void AUmbrellaArena::BuildPlaceholders()
 	BackgroundFar = Make(TEXT("BackgroundFar"), FVector(HalfW, UmbrellaDrawOrder::BackgroundFarY, HalfH), FVector(T.ArenaWidth * T.BackgroundWidthScale / Unit, UmbrellaArenaConst::PlaneThickness, T.ArenaHeight / Unit));
 	BackgroundNear = Make(TEXT("BackgroundNear"), FVector(HalfW, UmbrellaDrawOrder::BackgroundNearY, HalfH * 0.5f), FVector(T.ArenaWidth * T.BackgroundWidthScale / Unit, UmbrellaArenaConst::PlaneThickness, T.ArenaHeight * 0.5f / Unit));
 	KeeperStandIn = Make(TEXT("KeeperStandIn"), FVector(T.ArenaWidth * T.KeeperAnchorXFraction, UmbrellaDrawOrder::KeeperY, T.ArenaHeight * T.KeeperAnchorZFraction), FVector(T.KeeperStandInSize / Unit, UmbrellaArenaConst::KeeperDepthScale, T.KeeperStandInSize / Unit));
+	KeeperStandIn->SetVisibility(!bKeeperArtShown);
 	ApplyScroll();
+}
+
+void AUmbrellaArena::SetKeeperArtShown(bool bShown)
+{
+	bKeeperArtShown = bShown;
+	if (KeeperStandIn)
+	{
+		KeeperStandIn->SetVisibility(!bShown);
+	}
 }
 
 void AUmbrellaArena::BeginPlay()

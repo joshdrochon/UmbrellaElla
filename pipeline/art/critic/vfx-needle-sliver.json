@@ -1,0 +1,84 @@
+{
+ "id": "vfx-needle-sliver",
+ "records": [
+  {
+   "piece": "vfx-needle-sliver",
+   "round": 1,
+   "verdict": "reference",
+   "checks": false,
+   "results": {
+    "art_check": "fail",
+    "screen_check": "pass",
+    "art_ref_check": "fail"
+   },
+   "pairs": {
+    "quality_bar": "reference",
+    "reference": "reference"
+   },
+   "panel": 3,
+   "calibration": {
+    "sessions": 4,
+    "passed": 3
+   },
+   "missing": [
+    "context (no in-engine capture made after the piece: import it and run the smoke, whose screenshot is the capture)",
+    "quality_bar:pipeline/art/reference/discord/20261111-0319_Ricky_roadwarden-sundial-casters.png"
+   ],
+   "critic_sessions": [
+    "vfx-needle-sliver-r1-00-quality_bar-c1",
+    "vfx-needle-sliver-r1-00-quality_bar-c2",
+    "vfx-needle-sliver-r1-00-quality_bar-c3",
+    "vfx-needle-sliver-r1-00-quality_bar-c4"
+   ],
+   "manifest": "",
+   "evidence": "",
+   "prompt": "",
+   "files": "c8039a181a3d48e34ef4b0ca69234aea89fbc9f88c432ebd17eba9e64827f97e",
+   "file": "pipeline/art/proof/artfx3/NeedleSliver/sheet1.png",
+   "card": "artfx",
+   "refs": "96bdbb99413f",
+   "commit": "be8d05649ba4",
+   "gap": "X is a row of tiny, thin gold needles with a soft, flat finish, and it has no etched line work, ink-dark silhouette or real value structure.; Y is a tiny, blurry strip of near-identical needle frames, with no etched detail, no readable silhouette or accent structure, and almost no change between frames to show motion.; Both are the same steampunk shot sheet, and the shots are glossy neon renders with no etched ink line. The red/magenta and gold glow is soft airbrush, and the paper has no real grain.",
+   "at": "2026-11-13T06:55:24Z"
+  },
+  {
+   "piece": "vfx-needle-sliver",
+   "round": 2,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "reference",
+    "reference": "reference"
+   },
+   "panel": 3,
+   "calibration": {
+    "sessions": 3,
+    "passed": 3
+   },
+   "missing": [
+    "context (no in-engine capture made after the piece: import it and run the smoke, whose screenshot is the capture)",
+    "quality_bar:pipeline/art/reference/discord/20261111-0319_Ricky_roadwarden-sundial-casters.png"
+   ],
+   "critic_sessions": [
+    "vfx-needle-sliver-r2-00-quality_bar-c1",
+    "vfx-needle-sliver-r2-00-quality_bar-c2",
+    "vfx-needle-sliver-r2-00-quality_bar-c3"
+   ],
+   "manifest": "",
+   "evidence": "",
+   "prompt": "",
+   "files": "45ae0835976f5675588446c68e2e9ca07c899c9df868205675dbd89a798a5b86",
+   "file": "pipeline/art/proof/artfx3/NeedleSliver/sheet3.png",
+   "card": "artfx",
+   "refs": "96bdbb99413f",
+   "commit": "be8d05649ba4",
+   "gap": "Y is a tiny, thin needle strip with no etched line weight, no ink silhouette and no paper texture, and its frames barely change.; Y is a tiny, flat, near-identical set of eight needle frames with no etched line work, no value depth and almost no motion change.; Y is a tiny, pale, low-contrast needle with thin etched detail and no value depth, and its frames barely differ.",
+   "at": "2026-11-13T07:04:48Z"
+  }
+ ]
+}

@@ -1,0 +1,32 @@
+{
+ "element": "vfx-part-break",
+ "note": "crops of the effect cut from the concept sheets; originals untouched",
+ "crops": [
+  {
+   "file": "rim-failure.png",
+   "source": "pipeline/art/reference/discord/20261110-1047_Ricky_1.png",
+   "box": [
+    1200,
+    345,
+    1340,
+    440
+   ],
+   "key": "paper",
+   "pieces": "all",
+   "opaque_px": 4414
+  },
+  {
+   "file": "wreckage.png",
+   "source": "pipeline/art/reference/discord/20261110-1047_Ricky_1.png",
+   "box": [
+    400,
+    780,
+    520,
+    858
+   ],
+   "key": "paper",
+   "pieces": "all",
+   "opaque_px": 2751
+  }
+ ]
+}

@@ -97,10 +97,18 @@ public:
 	/** Create the placeholder visuals (also called from BeginPlay). */
 	void BuildPlaceholders();
 
+	/**
+	 * Presentation only: Keeper slot art draws, so the graybox Keeper square hides (it sits in front of every Keeper
+	 * layer). False shows it again. Survives BuildPlaceholders.
+	 */
+	void SetKeeperArtShown(bool bShown);
+	bool IsKeeperArtShown() const { return bKeeperArtShown; }
+
 	/** The unlit 2D look for the play camera: fixed exposure, no bloom, motion blur, vignette or grain. Pure settings. */
 	static void ApplyFlatLookPostProcess(FPostProcessSettings& Settings);
 
 private:
 	float FarOffset = 0.0f;
 	float NearOffset = 0.0f;
+	bool bKeeperArtShown = false;
 };

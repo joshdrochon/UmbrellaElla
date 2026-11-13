@@ -434,14 +434,14 @@
   "keeper:mechanism-front": {
    "art_ref_check": "not run",
    "calibration": null,
-   "copy": "pipeline/art/proof/standins/keeper-mech-front/move_final2.png",
+   "copy": "pipeline/art/proof/standins/keeper-mech-front/move_final2_keyed.png",
    "lane": "move",
-   "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
+   "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft. Keyed (artkeeper, Nov 13): cream paper made transparent by tools/build/assets/art_keeper_talon_key.py --line-px 3 --holes (numbers only); the RGB copy drew a paper box over the Keeper.",
    "panel_pairs": null,
    "piece": "keeper-mech-front",
    "round": "final2",
    "score": null,
-   "sha256": "a1d4e62a32e65ea6c0ed1173c67cfef4632fd3189f8706ed4d58a904b67ebf64",
+   "sha256": "3e2b463a87cc16957c527f25f5d39bb2ec71655235ae289698fd7c8bd6d4d090",
    "source": "move/pipeline/art/proof/firstdrafts/keeper-mech-front/final2.png",
    "status": "best-so-far (not passed)"
   },
@@ -476,28 +476,28 @@
   "keeper:talon-empty-and-closed": {
    "art_ref_check": "not run",
    "calibration": null,
-   "copy": "pipeline/art/proof/standins/keeper-talon/move_final2.png",
+   "copy": "pipeline/art/proof/standins/keeper-talon/move_final2_keyed.png",
    "lane": "move",
-   "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
+   "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft. Keyed (artkeeper, Nov 13): cream paper made transparent by tools/build/assets/art_keeper_talon_key.py (border flood fill, numbers only); the RGB copy drew a cream box over the Keeper.",
    "panel_pairs": null,
    "piece": "keeper-talon",
    "round": "final2",
    "score": null,
-   "sha256": "db84546cac9611ed2022133d58a041dced61c799dcf056937390254d662bd2c0",
+   "sha256": "d9267cc6f13ecaa7da48309a7e84ddde4cf454341aa2f1c2a3228c45ff34dcf6",
    "source": "move/pipeline/art/proof/firstdrafts/keeper-talon/final2.png",
    "status": "best-so-far (not passed)"
   },
   "keeper:wings-gust-wear": {
    "art_ref_check": "not run",
    "calibration": null,
-   "copy": "pipeline/art/proof/standins/keeper-wing/move_final2.png",
+   "copy": "pipeline/art/proof/standins/keeper-wing/move_final2_keyed.png",
    "lane": "move",
-   "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
+   "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft. Keyed (artkeeper, Nov 13): cream paper made transparent by tools/build/assets/art_keeper_talon_key.py (numbers only); the RGB copy drew a paper box over the Keeper.",
    "panel_pairs": null,
    "piece": "keeper-wing",
    "round": "final2",
    "score": null,
-   "sha256": "4c11e441b6da637352811d9301b32934e236aea0eb3e9591f8f0798fc2dc8701",
+   "sha256": "03ccddb945551b8054f7da070466c4b4721f37d9850e266b9f6cb13756ee941a",
    "source": "move/pipeline/art/proof/firstdrafts/keeper-wing/final2.png",
    "status": "best-so-far (not passed)"
   },
@@ -572,25 +572,6 @@
    "source": "artui/pipeline/art/proof/artui/ui-pause/capture_pause_r21_1568.png",
    "status": "best-so-far (not passed)"
   },
-  "screen:Playing": {
-   "art_ref_check": "fail",
-   "calibration": {
-    "passed": 6,
-    "sessions": 7
-   },
-   "copy": "pipeline/art/proof/standins/ui-hud-clock/capture_r16_hud.png",
-   "lane": "artella",
-   "note": "",
-   "panel_pairs": {
-    "quality_bar": "reference",
-    "reference": "reference"
-   },
-   "piece": "ui-hud-clock",
-   "round": 2,
-   "sha256": "b93856a0fc8af0528f10841dc87e28fcf81375079ab3e46c052430c1a1714742",
-   "source": "artella/pipeline/art/proof/artui/ui-hud-clock/capture_r16_hud.png",
-   "status": "best-so-far (not passed)"
-  },
   "screen:Purchase": {
    "art_ref_check": "not run",
    "calibration": null,
@@ -603,25 +584,6 @@
    "score": null,
    "sha256": "c807c919d85b52482df1687e7fdb37d62aca7334157596fd54660cbb1dbfd309",
    "source": "artella/pipeline/art/proof/firstdrafts/ui-purchase/draft2.png",
-   "status": "best-so-far (not passed)"
-  },
-  "screen:Resuming": {
-   "art_ref_check": "pass",
-   "calibration": {
-    "passed": 6,
-    "sessions": 6
-   },
-   "copy": "pipeline/art/proof/standins/ui-pause/capture_pause_r21_1568.png",
-   "lane": "artui",
-   "note": "",
-   "panel_pairs": {
-    "quality_bar": "ours",
-    "reference": "reference"
-   },
-   "piece": "ui-pause",
-   "round": 5,
-   "sha256": "36aa87c679268823f97f92eefb34c91035f6e22f13536079f5ff6796bb1860ab",
-   "source": "artui/pipeline/art/proof/artui/ui-pause/capture_pause_r21_1568.png",
    "status": "best-so-far (not passed)"
   },
   "screen:Settings": {

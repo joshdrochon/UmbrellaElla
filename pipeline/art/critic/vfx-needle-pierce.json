@@ -1,0 +1,86 @@
+{
+ "id": "vfx-needle-pierce",
+ "records": [
+  {
+   "piece": "vfx-needle-pierce",
+   "round": 1,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "reference",
+    "reference": "reference"
+   },
+   "panel": 3,
+   "calibration": {
+    "sessions": 4,
+    "passed": 3
+   },
+   "missing": [
+    "context (no in-engine capture made after the piece: import it and run the smoke, whose screenshot is the capture)",
+    "quality_bar:pipeline/art/reference/discord/20261111-0319_Ricky_roadwarden-sundial-casters.png"
+   ],
+   "critic_sessions": [
+    "vfx-needle-pierce-r1-00-quality_bar-c1",
+    "vfx-needle-pierce-r1-00-quality_bar-c2",
+    "vfx-needle-pierce-r1-00-quality_bar-c3",
+    "vfx-needle-pierce-r1-00-quality_bar-c4"
+   ],
+   "manifest": "",
+   "evidence": "",
+   "prompt": "",
+   "files": "1bdb3c24ea22f0d23c9cc1c435e68b47c8454960678833b536f857b2f607ea65",
+   "file": "pipeline/art/proof/artfx3/NeedlePierce/sheet1.png",
+   "card": "artfx",
+   "refs": "96bdbb99413f",
+   "commit": "be8d05649ba4",
+   "gap": "X is a plain vector needle on flat grey, with no etched line work, no paper texture and no tonal depth.; Y has flat grey cells with a thin, clean-edged needle and starburst, so it lacks paper grain and etched shading. Its frames also pop between states instead of flowing.; X has flat grey frame backgrounds, thin low-detail needle shapes and weak paper texture, and the frames pop between poses with no stable weight.",
+   "at": "2026-11-13T06:57:11Z"
+  },
+  {
+   "piece": "vfx-needle-pierce",
+   "round": 2,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "reference",
+    "reference": "reference"
+   },
+   "panel": 3,
+   "calibration": {
+    "sessions": 5,
+    "passed": 3
+   },
+   "missing": [
+    "context (no in-engine capture made after the piece: import it and run the smoke, whose screenshot is the capture)",
+    "quality_bar:pipeline/art/reference/discord/20261111-0319_Ricky_roadwarden-sundial-casters.png"
+   ],
+   "critic_sessions": [
+    "vfx-needle-pierce-r2-00-quality_bar-c1",
+    "vfx-needle-pierce-r2-00-quality_bar-c2",
+    "vfx-needle-pierce-r2-00-quality_bar-c3",
+    "vfx-needle-pierce-r2-00-quality_bar-c4",
+    "vfx-needle-pierce-r2-00-quality_bar-c5"
+   ],
+   "manifest": "",
+   "evidence": "",
+   "prompt": "",
+   "files": "2face29c5675e4e2c9518d38f67f14c3394a117e7e9826fcfe79496a213dcef8",
+   "file": "pipeline/art/proof/artfx3/NeedlePierce/sheet3.png",
+   "card": "artfx",
+   "refs": "96bdbb99413f",
+   "commit": "be8d05649ba4",
+   "gap": "Y has flat grey cell fills with no paper texture, and its needle is a tiny, thin gold sliver with no etched line work or value depth.; Y is a small, thin sprite strip on a flat grey fill. It has no paper texture, no etched ink line and no rust-red family, and its frames barely change.; Y has flat grey fills with no paper texture, thin sparse effect drawing, and frames that repeat in pairs, so the motion stutters.",
+   "at": "2026-11-13T07:06:15Z"
+  }
+ ]
+}

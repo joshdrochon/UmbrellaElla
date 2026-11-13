@@ -13,12 +13,14 @@ struct FArtSlotRow
 	const TCHAR* Folder;
 	/** Asset base name with its prefix (T_Paper); the game loads it, then "<Asset>_PH", else keeps the stand-in. */
 	const TCHAR* Asset;
-	/** Frames in one row of the sheet (1 = a single picture). */
+	/** Frames in one row of the sheet (1 = a single picture; tools/build/art_slots.py reads packed stand-in sheets). */
 	int32 Cols;
 	/** True when the picture tiles across the panel (paper). */
 	bool bTile;
 	/** The class that loads this slot today; "-" = nothing draws it yet. */
 	const TCHAR* DrawnBy;
+	/** Rows of frames in the sheet (a stand-in cut as a 6x4 grid has 4); the slot draws the top row, frame 0 first. */
+	int32 Rows = 1;
 };
 
 /** What a draw request did. NoTexture and NoMaterial leave the stand-in untouched. */
@@ -98,6 +100,12 @@ namespace ArtSlot
 
 	/** Swap the picture on a component already drawn with art (a state change). */
 	UMBRELLAELLA_API void SetTexture(UStaticMeshComponent* Mesh, UTexture2D* Texture);
+
+	/** Swap the picture and its sheet layout (Cols, Rows; back to frame 0), for pictures cut differently (screenfix B2). */
+	UMBRELLAELLA_API void SetTexture(UStaticMeshComponent* Mesh, UTexture2D* Texture, const FArtSlotRow& Row);
+
+	/** Width / height of one cell of the row's sheet in Texture (1 when the size is unknown). Pure read. */
+	UMBRELLAELLA_API float CellAspect(const UTexture2D* Texture, const FArtSlotRow& Row);
 
 	/** True while the component's material is the art-slot material (false once something else, such as a stand-in refresh, replaced it). Pure read. */
 	UMBRELLAELLA_API bool IsDrawingArt(const UStaticMeshComponent* Mesh);

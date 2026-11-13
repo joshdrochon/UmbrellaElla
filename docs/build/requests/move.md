@@ -12,3 +12,10 @@ None blocking. Two nice-to-haves for Core (build lead, optional):
    level checkpoints too; only the Keeper director does today. Health already heals on that event.
 3. OWL-09 reach and lift: a defined "supported owl size" (a number or a `FKeeperTuning` field) so a test can assert Ella's reach and lift
    cover it. Not provable from move's tuning alone.
+
+## Lethal bottom: the health/arena rule is not wired (Nov 13, agentplay floor blocker)
+The motor now holds Ella at the arena bottom (`UEllaMotorComponent::GetPlayFloorZ`, root Z = arena bottom + capsule
+half-height), even with play bounds cleared, and reports `IsAtPlayFloor()`. Nothing applies the GDD "lethal bottom"
+(WIND-03, FLOW-17, game-spec line 38): `AUmbrellaArena::LethalBottom` is overlap-only and no code listens to it.
+Until the owner wires it, the bottom is a safe floor. Needed from health (or arena): on reaching the bottom, apply the
+lethal rule. How much "lethal" costs (the current life, or defeat as old D-new-lose says) is a decision row, not move's.

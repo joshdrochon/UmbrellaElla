@@ -18,7 +18,10 @@ for a in "$@"; do
   python3 "$ROOT/tools/build/gate_seen.py" check "$L" "$a" "$tip" >/dev/null || continue
   # Fast pre-check in the lane's worktree (inventory, pipeline_check, quality vs main): a lane that would fail is left out
   # of the batch and told why, instead of failing the whole batch (Nov 13: 8-lane batches failing on one doc path).
-  if [ -d "$BASE/$a" ] && ! pc=$(PRECHECK_FAST=1 "$ROOT/tools/build/lane_precheck.sh" "$a" 2>&1); then
+  # A PASS recorded for this exact tip stands: the live worktree may hold a worker's next, unfinished edits
+  # (Nov 13: screenfix 55210475 passed at 12:40, then was recorded FAIL at 12:48 on its worker's uncommitted edits).
+  if head -1 "$L/precheck-$a.result" 2>/dev/null | grep -q "^PRECHECK PASS sha=$tip"; then :
+  elif [ -d "$BASE/$a" ] && ! pc=$(PRECHECK_FAST=1 "$ROOT/tools/build/lane_precheck.sh" "$a" 2>&1); then
     echo "$(date +%H:%M) precheck $a: $(echo "$pc" | sed -n '2,4p' | tr '\n' ' ' | cut -c1-300)" >> "$L/precheck.log"
     python3 "$ROOT/tools/build/gate_seen.py" record "$L" "$a" "$tip" FAIL >/dev/null; continue
   fi

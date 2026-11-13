@@ -7,7 +7,7 @@ namespace JourneyRules
 	TArray<FJourneyStep> ParseScript(const FString& Text, TArray<FString>& OutErrors)
 	{
 		static const TArray<FString> Known = { TEXT("wait"), TEXT("trywait"), TEXT("shot"), TEXT("key"), TEXT("hold"), TEXT("click"),
-			TEXT("music"), TEXT("idle"), TEXT("hits"), TEXT("assistwin"), TEXT("retrycheck"), TEXT("log"), TEXT("end"), TEXT("firstrun"), TEXT("keyuntil"), TEXT("console"), TEXT("texts") };
+			TEXT("music"), TEXT("idle"), TEXT("hits"), TEXT("assistwin"), TEXT("retrycheck"), TEXT("log"), TEXT("end"), TEXT("firstrun"), TEXT("keyuntil"), TEXT("console"), TEXT("texts"), TEXT("route"), TEXT("routeassist"), TEXT("skipunless") };
 		TArray<FJourneyStep> Out;
 		TArray<FString> Lines;
 		Text.ParseIntoArrayLines(Lines, false);
@@ -82,7 +82,11 @@ namespace JourneyRules
 
 #if UMBRELLAELLA_WORKBENCH
 
+#include "Arena/UmbrellaArena.h"
 #include "Attack/AttackEmitterComponent.h"
+#include "Core/UmbrellaGameMode.h"
+#include "Level/LevelPlan.h"
+#include "Level/UmbrellaLevelDirector.h"
 #include "Core/EllaCharacter.h"
 #include "Encounter/EncounterDirectorSubsystem.h"
 #include "EngineUtils.h"
@@ -214,6 +218,10 @@ FString UJourneyHookSubsystem::DescribeState() const
 			Out += FString::Printf(TEXT(" lives=%d/%d active=%.2f/%.2f"), S.Lives, S.MaxLives, S.Active, S.Capacity);
 		}
 		Out += FString::Printf(TEXT(" ella=(%.0f,%.0f)"), Ella->GetActorLocation().X, Ella->GetActorLocation().Z);
+	}
+	if (RouteProgress() >= 0)
+	{
+		Out += FString::Printf(TEXT(" route_cp=%d"), RouteProgress());
 	}
 	UWorld* World = GetGameInstance() ? GetGameInstance()->GetWorld() : nullptr;
 	if (const UEncounterDirectorSubsystem* Director = World ? World->GetSubsystem<UEncounterDirectorSubsystem>() : nullptr)
@@ -362,6 +370,85 @@ void UJourneyHookSubsystem::Tick(float DeltaTime)
 			}
 		}
 	}
+	else if (Step.Command == TEXT("route"))
+	{
+		// route <N> <timeout>: real keys only (D held, Space and E tapped) until the director reports checkpoint N.
+		const int32 Want = FMath::RoundToInt(N0);
+		const float Timeout = Step.Numbers.IsValidIndex(1) ? Step.Numbers[1] : JourneyDefaultWinTimeoutSeconds;
+		const AEllaCharacter* Ella = GetElla();
+		const float X = Ella ? static_cast<float>(Ella->GetActorLocation().X) : 0.0f;
+		RouteBestX = FMath::Max(RouteBestX, X);
+		const int32 Progress = RouteProgress();
+		if (Progress >= Want)
+		{
+			ReleaseSlateKey(EKeys::D);
+			ReleaseSlateKey(EKeys::J);
+			bRouteSinking = false;
+			FinishStep(EJourneyResult::Pass, FString::Printf(TEXT("cp=%d after %.1fs real_input x_start=%.0f x_best=%.0f heals=%d"), Progress, Elapsed, RouteStartX, RouteBestX, RouteHeals));
+		}
+		else if (Elapsed >= Timeout || Progress < 0)
+		{
+			ReleaseSlateKey(EKeys::D);
+			ReleaseSlateKey(EKeys::J);
+			bRouteSinking = false;
+			FinishStep(EJourneyResult::Fail, FString::Printf(TEXT("cp=%d want=%d %s after %.1fs real_input x_start=%.0f x_best=%.0f heals=%d"), Progress, Want,
+				Progress < 0 ? TEXT("no route") : TEXT("timeout"), Elapsed, RouteStartX, RouteBestX, RouteHeals));
+		}
+		else if (CurrentScreen() == static_cast<uint8>(EFlowScreen::LevelUp) || CurrentScreen() == static_cast<uint8>(EFlowScreen::Story)
+			|| CurrentScreen() == static_cast<uint8>(EFlowScreen::Purchase))
+		{
+			// A level-up or story card on the route: Enter, as a player would; a refuge purchase screen: Escape (leave
+			// without spending). Logged with the screen it closed.
+			if (Now - LastRouteHop >= JourneyRouteHopSeconds)
+			{
+				LastRouteHop = Now;
+				const uint8 Before = CurrentScreen();
+				const FKey Key = Before == static_cast<uint8>(EFlowScreen::Purchase) ? EKeys::Escape : EKeys::Enter;
+				PressSlateKey(Key);
+				ReleaseSlateKey(Key);
+				Log(FString::Printf(TEXT("JOURNEY_ROUTE_CARD key=%s from=%s to=%s"), *Key.ToString(), *JourneyRules::ScreenName(Before), *JourneyRules::ScreenName(CurrentScreen())));
+			}
+		}
+		else if (CurrentScreen() == static_cast<uint8>(EFlowScreen::Playing))
+		{
+			if (Now - LastRouteHop >= JourneyRouteHopSeconds)
+			{
+				LastRouteHop = Now;
+				PressSlateKey(EKeys::SpaceBar);
+				ReleaseSlateKey(EKeys::SpaceBar);
+			}
+			if (Now - LastRouteDash >= JourneyRouteDashSeconds)
+			{
+				LastRouteDash = Now;
+				PressSlateKey(EKeys::E);
+				ReleaseSlateKey(EKeys::E);
+			}
+			// route <N> <timeout> 1: hold Shoot (J, real key) while Ella is above the route's stand height, so she sinks
+			// back instead of rising off the top; without it she rises as long as nothing is held (GDD controls).
+			const bool bTrim = Step.Numbers.IsValidIndex(2) && Step.Numbers[2] > 0.0f;
+			const bool bHigh = Ella && Ella->GetActorLocation().Z > LevelPlan::CheckpointStandLocation(1).Z + JourneyRouteTrimAbove;
+			if (bTrim && bHigh != bRouteSinking)
+			{
+				bRouteSinking = bHigh;
+				bHigh ? PressSlateKey(EKeys::J) : ReleaseSlateKey(EKeys::J);
+			}
+			if (AEllaCharacter* Hurt = GetElla(); Hurt && Hurt->GetHealth())
+			{
+				const FHealthState& S = Hurt->GetHealth()->GetState();
+				if (!S.IsDefeated() && (S.Active < S.Capacity || S.Lives < S.MaxLives))
+				{
+					Hurt->GetHealth()->ResetForRetry();
+					++RouteHeals;
+					Log(FString::Printf(TEXT("JOURNEY_ASSIST route_heal=%d %s"), RouteHeals, *DescribeState()));
+				}
+			}
+			if (Now - LastRouteLog >= JourneyRouteLogSeconds)
+			{
+				LastRouteLog = Now;
+				Log(FString::Printf(TEXT("JOURNEY_ROUTE t=%.1f %s"), Elapsed, *DescribeState()));
+			}
+		}
+	}
 	else if (Step.Command == TEXT("assistwin"))
 	{
 		const float Timeout = N0 > 0.0f ? N0 : JourneyDefaultWinTimeoutSeconds;
@@ -376,6 +463,14 @@ void UJourneyHookSubsystem::Tick(float DeltaTime)
 			ReleaseSlateKey(HeldKey);
 			HeldKey = FKey();
 			FinishStep(EJourneyResult::Fail, FString::Printf(TEXT("assisted_part_hits=%d timeout %.0fs %s"), AssistHits, Timeout, *DescribeState()));
+		}
+		else if (Now - LastAssist >= JourneyRouteHopSeconds && CurrentScreen() == static_cast<uint8>(EFlowScreen::LevelUp))
+		{
+			// Director's Cut level-up card mid-fight: Enter, as a player would (logged).
+			LastAssist = Now;
+			PressSlateKey(EKeys::Enter);
+			ReleaseSlateKey(EKeys::Enter);
+			Log(FString::Printf(TEXT("JOURNEY_FIGHT_CARD key=Enter from=LevelUp to=%s"), *JourneyRules::ScreenName(CurrentScreen())));
 		}
 		else if (Now - LastAssist >= JourneyAssistIntervalSeconds && CurrentScreen() == static_cast<uint8>(EFlowScreen::Playing))
 		{
@@ -464,6 +559,51 @@ void UJourneyHookSubsystem::StartStep()
 		}
 		PressSlateKey(HeldKey);
 	}
+	else if (Step.Command == TEXT("route"))
+	{
+		const AEllaCharacter* Ella = GetElla();
+		RouteStartX = Ella ? static_cast<float>(Ella->GetActorLocation().X) : 0.0f;
+		RouteBestX = RouteStartX;
+		RouteHeals = 0;
+		LastRouteHop = 0.0;
+		LastRouteDash = 0.0;
+		LastRouteLog = 0.0;
+		PressSlateKey(EKeys::D);
+	}
+	else if (Step.Command == TEXT("routeassist"))
+	{
+		// routeassist <N>: place Ella at checkpoint N through the director's own PlaceAtCheckpoint (4: past the handoff line).
+		const int32 Want = FMath::RoundToInt(N0);
+		UWorld* World = GetGameInstance() ? GetGameInstance()->GetWorld() : nullptr;
+		AUmbrellaGameMode* Mode = World ? World->GetAuthGameMode<AUmbrellaGameMode>() : nullptr;
+		AUmbrellaLevelDirector* Level = Mode ? Mode->GetLevelDirector() : nullptr;
+		AEllaCharacter* Ella = GetElla();
+		bool bOk = false;
+		FString Detail = TEXT("no route or no Ella");
+		if (Level && Ella && RouteProgress() >= Want)
+		{
+			bOk = true;
+			Detail = FString::Printf(TEXT("not needed: real input already reached %d"), RouteProgress());
+		}
+		else if (Level && Ella)
+		{
+			const float FromX = static_cast<float>(Ella->GetActorLocation().X);
+			if (Want >= JourneyRouteHandoff)
+			{
+				FVector Past = LevelPlan::CheckpointStandLocation(LevelPlanConst::MaxCheckpoint);
+				Past.X = LevelPlan::KeeperHandoffX() + 1.0f;
+				bOk = Ella->SetActorLocation(Past, false, nullptr, ETeleportType::TeleportPhysics);
+			}
+			else
+			{
+				bOk = Level->PlaceAtCheckpoint(Ella, Want) == Want;
+			}
+			Detail = FString::Printf(TEXT("ASSIST placed at %s from x=%.0f to x=%.0f"), Want >= JourneyRouteHandoff ? TEXT("handoff") : *FString::Printf(TEXT("CP%d"), Want),
+				FromX, static_cast<float>(Ella->GetActorLocation().X));
+		}
+		Log(FString::Printf(TEXT("JOURNEY_ASSIST routeassist=%d ok=%d %s"), Want, bOk ? 1 : 0, *Detail));
+		FinishStep(bOk ? EJourneyResult::Pass : EJourneyResult::Fail, Detail);
+	}
 	else if (Step.Command == TEXT("assistwin"))
 	{
 		HeldKey = EKeys::J;
@@ -530,6 +670,18 @@ void UJourneyHookSubsystem::StartStep()
 		}
 		FinishStep(EJourneyResult::Pass, FString::Join(Texts, TEXT(" | ")));
 	}
+	else if (Step.Command == TEXT("skipunless"))
+	{
+		// skipunless <Screen> <n>: when the screen is not <Screen>, the next n steps are skipped (logged), e.g. the
+		// Director's Cut purchase screen that only shows once points are earned.
+		uint8 Want = 0;
+		const bool bKnown = JourneyRules::HasScreenNamed(Step.Arg, Want);
+		const int32 Count = FMath::RoundToInt(N0);
+		const bool bShown = bKnown && CurrentScreen() == Want;
+		SkipAfterStep = bKnown && !bShown ? FMath::Max(0, Count) : 0;
+		FinishStep(bKnown ? EJourneyResult::Pass : EJourneyResult::Fail,
+			bShown ? FString::Printf(TEXT("%s shown, next %d steps run"), *Step.Arg, Count) : FString::Printf(TEXT("%s not shown, next %d steps skipped"), *Step.Arg, Count));
+	}
 	else if (Step.Command == TEXT("log"))
 	{
 		FinishStep(EJourneyResult::Pass, Step.Arg);
@@ -552,12 +704,13 @@ void UJourneyHookSubsystem::FinishStep(EJourneyResult Result, const FString& Det
 	bPass ? ++Passed : ++Failed;
 	Log(FString::Printf(TEXT("JOURNEY_STEP n=%d line=%d cmd=\"%s %s\" result=%s %s detail=\"%s\""), StepIndex + 1, Step.Line, *Step.Command, *Step.Arg,
 		bPass ? TEXT("PASS") : TEXT("FAIL"), *DescribeState(), *Detail));
-	if (!bPass && Step.Command != TEXT("music") && Step.Command != TEXT("retrycheck") && Step.Command != TEXT("shot") && Step.Command != TEXT("trywait"))
+	if (!bPass && Step.Command != TEXT("music") && Step.Command != TEXT("retrycheck") && Step.Command != TEXT("shot") && Step.Command != TEXT("trywait") && Step.Command != TEXT("route"))
 	{
 		EndJourney(FString::Printf(TEXT("line %d %s %s: %s"), Step.Line, *Step.Command, *Step.Arg, *Detail));
 		return;
 	}
-	++StepIndex;
+	StepIndex = FMath::Min(Steps.Num(), StepIndex + 1 + SkipAfterStep);
+	SkipAfterStep = 0;
 	StartStep();
 }
 
@@ -710,6 +863,82 @@ void UJourneyHookSubsystem::ClickLabel(const FString& Label, FString& OutDetail,
 	bOutClicked = true;
 }
 
+int32 UJourneyHookSubsystem::RouteProgress() const
+{
+	UWorld* World = GetGameInstance() ? GetGameInstance()->GetWorld() : nullptr;
+	const AUmbrellaGameMode* Mode = World ? World->GetAuthGameMode<AUmbrellaGameMode>() : nullptr;
+	const AUmbrellaLevelDirector* Level = Mode ? Mode->GetLevelDirector() : nullptr;
+	if (!Level || Level->GetSlotsSpawned() == 0)
+	{
+		return -1;
+	}
+	return Level->HasHandedOff() ? JourneyRouteHandoff : Level->GetCheckpointReached();
+}
+
+FString UJourneyHookSubsystem::MeasureView(const TArray<FColor>& Bitmap, const FIntVector& Size) const
+{
+	AUmbrellaPlayerController* Flow = GetFlow();
+	UWorld* World = GetGameInstance() ? GetGameInstance()->GetWorld() : nullptr;
+	if (!Flow || !World || Size.X <= 0 || Size.Y <= 0 || Bitmap.Num() != Size.X * Size.Y)
+	{
+		return TEXT("view=unmeasured");
+	}
+	int32 ViewW = 0;
+	int32 ViewH = 0;
+	Flow->GetViewportSize(ViewW, ViewH);
+	const double ScaleX = ViewW > 0 ? static_cast<double>(Size.X) / ViewW : 1.0;
+	const double ScaleY = ViewH > 0 ? static_cast<double>(Size.Y) / ViewH : 1.0;
+	auto Luma = [](const FColor& C) { return JourneyLumaR * C.R + JourneyLumaG * C.G + JourneyLumaB * C.B; };
+	double FrameSum = 0.0;
+	for (const FColor& C : Bitmap)
+	{
+		FrameSum += Luma(C);
+	}
+	const double FrameMean = FrameSum / Bitmap.Num();
+	const int32 Half = FMath::Max(2, FMath::RoundToInt(Size.Y * JourneyViewBoxFraction));
+	auto Measure = [&](const TCHAR* Name, const AActor* Actor) -> FString
+	{
+		if (!Actor)
+		{
+			return FString::Printf(TEXT("%s=absent"), Name);
+		}
+		FVector Origin, Extent;
+		Actor->GetActorBounds(true, Origin, Extent);
+		FVector2D Px;
+		if (!Flow->ProjectWorldLocationToScreen(Origin, Px))
+		{
+			return FString::Printf(TEXT("%s=behind_camera"), Name);
+		}
+		const int32 Cx = FMath::RoundToInt(Px.X * ScaleX);
+		const int32 Cy = FMath::RoundToInt(Px.Y * ScaleY);
+		if (Cx < 0 || Cy < 0 || Cx >= Size.X || Cy >= Size.Y)
+		{
+			return FString::Printf(TEXT("%s=offscreen(%d,%d)"), Name, Cx, Cy);
+		}
+		double Sum = 0.0, Sq = 0.0;
+		int32 N = 0;
+		for (int32 Y = FMath::Max(0, Cy - Half); Y <= FMath::Min(Size.Y - 1, Cy + Half); ++Y)
+		{
+			for (int32 X = FMath::Max(0, Cx - Half); X <= FMath::Min(Size.X - 1, Cx + Half); ++X)
+			{
+				const double L = Luma(Bitmap[Y * Size.X + X]);
+				Sum += L;
+				Sq += L * L;
+				++N;
+			}
+		}
+		const double Mean = N > 0 ? Sum / N : 0.0;
+		const double Spread = N > 0 ? FMath::Sqrt(FMath::Max(0.0, Sq / N - Mean * Mean)) : 0.0;
+		const bool bDrawn = Spread >= JourneyViewContrastMin || FMath::Abs(Mean - FrameMean) >= JourneyViewContrastMin;
+		return FString::Printf(TEXT("%s=%s(%d,%d) spread=%.0f mean=%.0f"), Name, bDrawn ? TEXT("drawn") : TEXT("flat"), Cx, Cy, Spread, Mean);
+	};
+	TActorIterator<AKeeperOfTime> KeeperIt(World);
+	const AKeeperOfTime* Keeper = KeeperIt ? *KeeperIt : nullptr;
+	TActorIterator<AUmbrellaArena> ArenaIt(World);
+	const AUmbrellaArena* Arena = ArenaIt ? *ArenaIt : nullptr;
+	return FString::Printf(TEXT("view frame_mean=%.0f %s %s %s"), FrameMean, *Measure(TEXT("ella"), Flow->GetPawn()), *Measure(TEXT("keeper"), Keeper), *Measure(TEXT("arena"), Arena));
+}
+
 void UJourneyHookSubsystem::SaveShot(const FString& Name, FString& OutDetail, bool& bOutSaved)
 {
 	TSharedPtr<SWindow> Window = GEngine && GEngine->GameViewport ? GEngine->GameViewport->GetWindow() : nullptr;
@@ -757,7 +986,7 @@ void UJourneyHookSubsystem::SaveShot(const FString& Name, FString& OutDetail, bo
 	FScreenshotRequest::RequestScreenshot(FPaths::Combine(OutDir, Name + TEXT("_engine.png")), true, false);
 	const FString Path = FPaths::Combine(OutDir, Name + TEXT(".png"));
 	bOutSaved = FImageUtils::SaveImageByExtension(*Path, FImageView(Bitmap.GetData(), Size.X, Size.Y));
-	OutDetail = FString::Printf(TEXT("%s %dx%d"), *FPaths::GetCleanFilename(Path), Size.X, Size.Y);
+	OutDetail = FString::Printf(TEXT("%s %dx%d %s"), *FPaths::GetCleanFilename(Path), Size.X, Size.Y, *MeasureView(Bitmap, Size));
 }
 
 #else // not a workbench build: the subsystem never exists.
