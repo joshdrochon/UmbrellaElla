@@ -293,7 +293,7 @@ FText DeveloperOptionRules::ValueText(EDeveloperOption Option, int32 Value, int3
 		return FText::AsNumber(DevCount(Base, Value));
 	}
 	case EDeveloperOptionKind::Toggle:
-		return Value == DeveloperOptionLimits::ToggleOn ? LOCTEXT("On", "On") : LOCTEXT("Off", "Off");
+		return Value == DeveloperOptionLimits::ToggleOn ? LOCTEXT("On", "On") : LOCTEXT("Off", "Turn off");
 	case EDeveloperOptionKind::Link:
 	default:
 		return LOCTEXT("Open", "Open");
