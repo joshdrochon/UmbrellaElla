@@ -64,3 +64,12 @@ Triage (not a loosening; the failures sit in the check and the source, not in li
 Record: pipeline/story/critic-results.csv. Not run: Unreal build/tests (no C++ changed).
 
 TOTAL=118 BEFORE=7 NEW=111 PASSED=44/118
+
+## Lead-approved requests applied and re-judge (2026-11-13)
+Gate-file edits (lead-authorised): (1) story.json `label` surface (max_words 4, story false); critic prompt S6 says a label names a thing; `story_inventory.surface_of` returns label/screen/button (LABEL_ACTIONS, HEADING_TEXTS, controller page = label), test added. (2) bible: Names rows for Absorb, Hop/Dash/Ride, the four spells, Suction, Lives, Points/Level/Experience, Director's Cut, Keeper, Trim; Facts F10-F14 and P11, all citing GDD SH1.0 rows (new Source row S6). Critic prompt S8 now reads "bible Facts marked GDD". (3) Names rows for Rick Rispoli, Richard, Josh Rochon.
+Critic packet now includes story.json `length_exceptions`. The 44 earlier passes were not re-judged (text unchanged); their stored bible hash was rebound after each additive bible edit.
+Text rewrites (GDD/bible-bound): settings conflict, dev notes, "Reset to usual", "Hostile gust strength", "Enemy shot speed", "Ella's hit area", "All four spells unlocked", settings stub, two tutorial pages, credits (Rick Rispoli - Executive Producer; placeholder line removed, SettingsTests updated).
+Left failing (6): five purchase rows "Damage reduction", "Small Blasts / Streamed Blast / Twin Stars / Needle Spell damage": GDD MOVE-12/SURV-06 allow no damage track, so this is a code-vs-GDD conflict (Purchase lane), not wording. Title "Umbrella Ella The Stolen Hour" (5 words; length exception D-new-title-text, critic still fails S4/S2).
+Not run to completion: Unreal build/tests were queued behind the slot lock when this was written.
+
+PASSED=112/118
