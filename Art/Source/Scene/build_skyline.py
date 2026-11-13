@@ -227,7 +227,7 @@ def rose(k, cx, cz, r):
 def win_rows(k, x0, x1, z0, z1, ww=None, course=True):
     """Storeys of framed windows on a wall face between x0..x1, from z0 up to z1."""
     r = k.rnd
-    ww = ww or r.choice((9.0, 10.0, 11.0, 13.0))
+    ww = ww or r.choice((10.0, 11.0, 13.0, 14.0))
     wh = ww * r.uniform(1.9, 2.5)
     storey = wh + r.uniform(13, 19)
     ncol = max(1, int((x1 - x0 - 4) // (ww + r.uniform(8, 13))))
@@ -583,7 +583,7 @@ def ground(k):
         fw = r.uniform(14, 34)                                          # lit left flank
         k.add("facet", [(x0 + 1.5, top - 5), (x0 + fw, top - 7), (x0 + fw * r.uniform(0.5, 0.9), low - r.uniform(14, 40)),
                         (x0 - 2, low - r.uniform(4, 16))])
-        for _ in range(r.randint(2, 4)):                                # clefts running down from the rim
+        for _ in range(r.randint(1, 2)):                                # clefts running down from the rim
             cx = r.uniform(x0 + fw, x1 - 6)
             cz = top - r.uniform(3, 8)
             k.stroke("etch", [(cx, cz), (cx + r.uniform(-3, 3), cz - r.uniform(10, 22)), (cx + r.uniform(-6, 6), cz - r.uniform(24, 46))], 0.8)
@@ -606,7 +606,7 @@ def near_town(k):
     k.rect("wall", 300, 0, 334, 250)                        # parish spire, left
     window(k, 317, 196, 9.0, 30.0, lit=False)
     spire(k, 317, 250, 34, 150, facet=-1)
-    house_row(k, 110, W - 110, 38, 92, front=True, low=((1690, 2070), (1100, 1200)) + tuple((a - 40, b) for a, b in spans), gappy=0.06)   # front row
+    house_row(k, 110, W - 110, 48, 108, front=True, low=((1690, 2070), (1100, 1200)) + tuple((a - 40, b) for a, b in spans), gappy=0.06)   # front row
     ground(k)
 
 
@@ -733,7 +733,7 @@ def col(*rgb):
 def finish(p1, p2, p3, p4, seed, far=False):
     rng = np.random.default_rng(seed)
     # hand wobble: one displacement field for both passes
-    dx, dy = field(rng, 13, 0.75) + field(rng, 4, 0.25), field(rng, 13, 0.75) + field(rng, 4, 0.25)
+    dx, dy = field(rng, 13, 0.5) + field(rng, 4, 0.15), field(rng, 13, 0.5) + field(rng, 4, 0.15)
     yy, xx = np.mgrid[0:H, 0:W].astype(np.float32)
     sy = np.clip((yy + dy).round().astype(int), 0, H - 1)
     sx = np.clip((xx + dx).round().astype(int), 0, W - 1)
@@ -762,7 +762,7 @@ def finish(p1, p2, p3, p4, seed, far=False):
     c_lwall = c_lwall * (1 - 0.4 * eave)[..., None] + bounce[..., None] * col(46, 29, 14)
     h1 = (((xx + zz * 0.6) % 4.0) < 1.0).astype(np.float32) * np.clip(field(rng, 40, 1.0) + field(rng, 11, 0.5) - 0.35, 0, 1)
     h2 = (((xx * 0.5 - zz) % 4.5) < 1.0).astype(np.float32) * np.clip(field(rng, 34, 1.0) + field(rng, 9, 0.5) - 0.45, 0, 1)
-    c_rock = col(23, 18, 15) * (1 + 0.10 * mott)[..., None] + (h1 + h2)[..., None] * col(22, 18, 15)
+    c_rock = col(23, 18, 15) * (1 + 0.06 * mott)[..., None] + (h1 + h2)[..., None] * col(26, 21, 17)
     c_etch = col(78, 67, 57) * (0.75 + 0.4 * patch)[..., None]
     facet = lin(p4[..., 0])
     c_facet = col(27, 22, 18) + ((((xx * 0.7 + zz) % 3.6) < 1.0).astype(np.float32) * (0.6 + 0.5 * patch))[..., None] * col(40, 34, 28)
@@ -789,7 +789,7 @@ def finish(p1, p2, p3, p4, seed, far=False):
     dark = (1 - glow)[..., None]
     tone = 1 + (0.11 * mott + 0.09 * weave + 0.08 * white)
     rgb = rgb * (1 + (tone - 1)[..., None] * (0.35 + 0.65 * dark))
-    rgb = rgb + (((rng.random((H, W)) < 0.004) * rng.uniform(0.015, 0.045, (H, W))).astype(np.float32) * (1 - glow))[..., None] * col(255, 225, 190)
+    rgb = rgb + (((rng.random((H, W)) < 0.004) * rng.uniform(0.015, 0.045, (H, W))).astype(np.float32) * (1 - glow) * (1 - rock))[..., None] * col(255, 225, 190)
     if far:                                          # far layer: hazier, lower contrast
         rgb = rgb * 0.86 + col(98, 85, 73) * 0.14
     soft = np.stack([box(rgb[..., i], 1) for i in range(3)], axis=2)
@@ -801,7 +801,7 @@ def finish(p1, p2, p3, p4, seed, far=False):
     ragged = a + rng.normal(0, 0.05, a.shape).astype(np.float32) * (1 + 2.5 * rk * rim_zone) - bite - tear * rk * rim_zone
     a = np.clip((ragged - 0.4) * 5.0, 0, 1) * (a > 0.03)
     skip = np.clip(field(rng, 4, 1.0) + field(rng, 2, 0.8) + 0.15 * white - 1.42, 0, 1) * 2.0   # dry-brush skips: paper shows through
-    a = a * (1 - np.clip(skip, 0, 0.5) * (1 - glow))
+    a = a * (1 - np.clip(skip, 0, 0.5) * (1 - glow) * (1 - 0.8 * rock))
     return np.clip(rgb, 0, 1), a
 
 
@@ -829,7 +829,7 @@ def main():
     sc, mats = setup_scene()
     far = Kit(random.Random(seed + 100), lit=0.12, sx=0.86, sz=0.9, dx=-190.0, dz=34.0)
     far_town(far)
-    near = Kit(random.Random(seed), lit=0.38)
+    near = Kit(random.Random(seed), lit=0.46)
     near_town(near)
     fr, fa = finish(*render_layer(sc, mats, far, tmp, "far"), seed=seed + 1, far=True)
     nr, na = finish(*render_layer(sc, mats, near, tmp, "near"), seed=seed)
