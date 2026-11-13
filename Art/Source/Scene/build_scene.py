@@ -275,10 +275,12 @@ class Sky:
         poly([(x, 0), (x, h), (x + w, h), (x + w, 0)], self.ink, self.y)
         rh = roof if roof is not None else w * rnd.uniform(0.5, 1.1)
         style = rnd.random()
+        rustmat = getattr(self, "rust", None)
+        rm = rustmat if (rustmat is not None and rnd.random() < 0.22) else self.ink
         if style < 0.55:
-            poly([(x - w * 0.06, h - 2), (x + w / 2, h + rh), (x + w * 1.06, h - 2)], self.ink, self.y)
+            poly([(x - w * 0.06, h - 2), (x + w / 2, h + rh), (x + w * 1.06, h - 2)], rm, self.y)
         else:
-            poly([(x - w * 0.05, h - 2), (x + w * 0.2, h + rh * 0.7), (x + w * 0.8, h + rh * 0.7), (x + w * 1.05, h - 2)], self.ink, self.y)
+            poly([(x - w * 0.05, h - 2), (x + w * 0.2, h + rh * 0.7), (x + w * 0.8, h + rh * 0.7), (x + w * 1.05, h - 2)], rm, self.y)
         for k in range(rnd.randint(0, 3)):    # chimneys
             cx = x + w * rnd.uniform(0.1, 0.85)
             poly([(cx, h), (cx, h + rh * 0.8 + 10), (cx + 5, h + rh * 0.8 + 10), (cx + 5, h)], self.ink, self.y)
@@ -448,15 +450,22 @@ def build_skyline(o, rnd):
     gothic_layer(w, random.Random(seed + 100), Sky(far, far, -0.5), hscale=0.8)
     near = Sky(ink, gold, -1.0)
     near.detail = detail
+    near.rust = emission_mat("rust", lambda nt: _rgb(nt, "#8a331f"))
     gothic_layer(w, random.Random(seed), near)
     poly([(0, -4), (0, 86), (w, 86), (w, -4)], ink, -1.2)   # solid ground band
     rg = random.Random(seed + 7)
-    for zc in (18, 38, 60):      # etched stone courses and joints in the ground band
-        curve_strand([(0, zc), (w, zc)], 0.9, detail, -1.4)
-        xj = rg.uniform(0, 20)
+    zc = 0.0
+    while zc < 84:      # irregular rubble courses: uneven height, jittered joints, a few arched openings
+        ch = rg.uniform(11, 25)
+        zc += ch
+        curve_strand([(0, zc)] + [(xx, zc + rg.uniform(-1.6, 1.6)) for xx in range(60, w, 60)] + [(w, zc)], 0.9, detail, -1.4)
+        xj = rg.uniform(0, 30)
         while xj < w:
-            curve_strand([(xj, zc), (xj, zc + (20 if zc < 60 else 24))], 0.8, detail, -1.4)
-            xj += rg.uniform(26, 58)
+            curve_strand([(xj, zc - ch), (xj + rg.uniform(-2, 2), zc)], 0.8, detail, -1.4)
+            xj += rg.uniform(14, 62)
+    for k in range(int(w // 260)):
+        ax = rg.uniform(40, w - 40)
+        curve_strand([(ax - 14 + 28 * t / 14.0, 30 + 26 * math.sin(math.pi * t / 14.0) ** 0.7) for t in range(15)], 1.4, detail, -1.45)
     ink_lines(sc, "#4a3a2f", 1.0)
     return sc, w, h
 
@@ -499,8 +508,9 @@ def etch_post(path, seed, mode):
     a = px[..., 3]
     rgb = px[..., :3]
     lum = rgb.mean(axis=2)
-    gold = (a > 0.5) & (rgb[..., 0] > 0.45) & (rgb[..., 2] < 0.45)
+    gold = (a > 0.5) & (rgb[..., 0] > 0.45) & (rgb[..., 2] < 0.45) & (rgb[..., 1] > 0.6 * rgb[..., 0])
     ink = (a > 0.5) & ~gold
+    rust = ink & (rgb[..., 0] > 1.5 * rgb[..., 1]) & (rgb[..., 0] > 1.9 * rgb[..., 2]) & (rgb[..., 0] > 0.14) & (rgb[..., 1] < 0.6 * rgb[..., 0])
     strand = np.clip((lum - 0.10) / 0.22, 0, 1) * ink   # lighter etched strands survive the ink pass
     # 2. ink bleed: ragged alpha edge from fine noise on a slightly blurred mask
     ragged = _blur(a, 1) + rng.normal(0, 0.09, a.shape)
@@ -524,6 +534,10 @@ def etch_post(path, seed, mode):
     rim = _blur(rim, 1) * 1.2
     dark = dark + rim[..., None] * np.array([0.30, 0.20, 0.13])[None, None, :]
     dark = dark * (1 - strand[..., None]) + rgb * strand[..., None] * 1.05
+    rcol = np.array([0.30, 0.095, 0.060])[None, None, :] * (0.7 + 0.5 * np.clip(blot + 0.5, 0, 1))[..., None] + lines * 0.8
+    dark = np.where(rust[..., None], rcol, dark)
+    gb = np.clip((yy - (h - 86)) / 86.0, 0, 1)    # ground band: lighter umber toward the foot, depth from the mid-tone
+    dark = dark + (gb * (blot * 0.5 + 0.5) * 0.035)[..., None] * np.array([1.0, 0.8, 0.65])[None, None, :]
     out = np.where(ink[..., None], dark, rgb)
     # 6. window glow: gold stays bright with grain; soft halo bleeds into the ink
     halo = _blur(gold.astype(np.float32), 4)
