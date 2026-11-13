@@ -85,15 +85,18 @@ When the same check fails twice, or a loop goes flat (2 rounds, same gap, no bet
 
 ## Unreal commands (Mac; many workers share this machine, so always through the slot lock)
     tools/build/ue_slot.sh tools/ue/build.sh                 # compile (editor target); must end "build exit: 0"
-    tools/build/ue_slot.sh tools/ue/test.sh                  # all automation tests; must PASS
-    TEST_FILTER=UmbrellaElla.<Area> tools/build/ue_slot.sh tools/ue/test.sh   # just yours while iterating
+    eval "$(python3 tools/build/gate_plan.py origin/main HEAD | grep '^TESTS=')"   # the prefixes your change touches
+    TEST_FILTER="${TESTS:-UmbrellaElla.<Area>}" tools/build/ue_slot.sh tools/ue/test.sh   # targeted only; must PASS
+    python3 tools/affected_tests.py --base origin/main --run          # only the Python tests your change affects
     python3 tools/module_check.py                            # must be 0 problems
 Windows (PowerShell, no lock needed): `tools\ue\build.ps1`, `tools\ue\test.ps1`.
 Do not run package.sh; the build lead packages after merges.
 
 ## Definition of done (per slice and for the area)
 1. `tools/build/ue_slot.sh tools/ue/build.sh` -> `build exit: 0`.
-2. `tools/build/ue_slot.sh tools/ue/test.sh` -> PASS, your new tests included.
+2. Targeted tests only (Josh, Nov 12): `TEST_FILTER=<prefixes from gate_plan.py>` with `tools/build/ue_slot.sh tools/ue/test.sh`
+   -> PASS, your new tests included, plus `python3 tools/affected_tests.py --base origin/main --run`. Never run the full
+   Unreal or Python suite in a worker or the gate; the full suites run only in `tools/build/prepackage.sh`.
 3. `python3 tools/module_check.py` -> 0 problems; `python3 tools/manifest_check.py` clean; feel/encounter checks
    if your area file names them.
 4. Committed on your branch with a message naming the Rule IDs done.
