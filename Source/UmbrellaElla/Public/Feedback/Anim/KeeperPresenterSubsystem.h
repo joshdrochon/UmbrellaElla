@@ -76,9 +76,12 @@ public:
 
 	/**
 	 * The arena's graybox Keeper square hides while any tracked Keeper draws slot art and shows when none does.
-	 * Runs every Tick and after each draw. Returns whether art draws.
+	 * Runs every Tick and after each draw.
 	 */
-	bool SyncArenaStandIn();
+	void SyncArenaStandIn();
+
+	/** True when any tracked Keeper draws slot art. Pure read. */
+	bool HasAnyKeeperArt() const;
 
 private:
 	void HandleActorSpawned(AActor* Actor);

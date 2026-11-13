@@ -146,13 +146,21 @@ bool UKeeperPresenterSubsystem::HasKeeperArt(const AActor* Keeper)
 	return false;
 }
 
-bool UKeeperPresenterSubsystem::SyncArenaStandIn()
+bool UKeeperPresenterSubsystem::HasAnyKeeperArt() const
 {
-	bool bArt = false;
 	for (const TWeakObjectPtr<AActor>& Keeper : Keepers)
 	{
-		bArt = bArt || HasKeeperArt(Keeper.Get());
+		if (HasKeeperArt(Keeper.Get()))
+		{
+			return true;
+		}
 	}
+	return false;
+}
+
+void UKeeperPresenterSubsystem::SyncArenaStandIn()
+{
+	const bool bArt = HasAnyKeeperArt();
 	if (UWorld* World = GetWorld())
 	{
 		for (TActorIterator<AUmbrellaArena> It(World); It; ++It)
@@ -163,7 +171,6 @@ bool UKeeperPresenterSubsystem::SyncArenaStandIn()
 			}
 		}
 	}
-	return bArt;
 }
 
 void UKeeperPresenterSubsystem::Tick(float DeltaTime)

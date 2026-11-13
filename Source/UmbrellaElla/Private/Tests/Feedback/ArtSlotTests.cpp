@@ -890,7 +890,8 @@ bool FArtSlotKeeperStandInHidden::RunTest(const FString& Parameters)
 			}
 		}
 		TestTrue(TEXT("presenter reports Keeper art"), UKeeperPresenterSubsystem::HasKeeperArt(Keeper));
-		TestTrue(TEXT("sync reports Keeper art"), Presenter->SyncArenaStandIn());
+		Presenter->SyncArenaStandIn();
+		TestTrue(TEXT("presenter sees Keeper art"), Presenter->HasAnyKeeperArt());
 		TestFalse(TEXT("arena keeper square hidden while Keeper art draws"), Arena->GetKeeperStandIn()->IsVisible());
 		Presenter->Tick(0.0f);
 		TestFalse(TEXT("arena keeper square stays hidden across Tick"), Arena->GetKeeperStandIn()->IsVisible());
@@ -921,7 +922,8 @@ bool FArtSlotKeeperStandInHidden::RunTest(const FString& Parameters)
 
 		// The Keeper leaves: no Keeper art draws, so the arena square shows again.
 		Keeper->Destroy();
-		TestFalse(TEXT("sync reports no Keeper art once it is gone"), Presenter->SyncArenaStandIn());
+		Presenter->SyncArenaStandIn();
+		TestFalse(TEXT("presenter sees no Keeper art once it is gone"), Presenter->HasAnyKeeperArt());
 		TestTrue(TEXT("arena keeper square shows again with no Keeper art"), Arena->GetKeeperStandIn()->IsVisible());
 	}
 	ArtSlotTestEnd(World);
