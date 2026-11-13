@@ -2070,7 +2070,7 @@
  },
  "not_in_game": {
   "CAM-05.value": {
-   "owner": "arena (FFieldTuning)",
+   "owner": "level (ChunkLayoutConst)",
    "missing": "a lower internal camera band 'near 0.3H' (the clearance rule 0.3 is a different field)",
    "was": "0.3 = lower internal band \"near 0.3H\", an authoring guide; the game has no matching field (FFieldTuning.MinClearanceHeightFraction=0.3 is the clearance rule, bound under CAM-05.h.2, a different concept)"
   },
