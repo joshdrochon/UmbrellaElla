@@ -26,6 +26,7 @@ import sys
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 sys.path.insert(0, os.path.join(ROOT, "tools"))
 import art_loop  # noqa: E402
+import art_share  # noqa: E402
 
 CRITIC = art_loop.CRITIC_DIR
 
@@ -185,9 +186,30 @@ def verify_record(root, piece, rec, newest=True, remeasure=True):
     return probs
 
 
+APPROVALS = "pipeline/art/approvals.json"
+
+
+def owner_approved(root):
+    """Pieces the owner approved by eye (Josh, Nov 13; like MusicTitle approved by ear): pipeline/art/approvals.json,
+    written only by the build lead on main (the gate fails any lane that changes it). Each entry names the piece, the
+    approver, the date, the origin text and the sha256 of the shipped file; it counts only while that file is unchanged.
+    The technical checks (key, registration, jitter, sprite_check, inventory, slot load) still run on the file."""
+    try:
+        entries = json.load(open(os.path.join(root, APPROVALS))).get("approvals", [])
+    except (OSError, ValueError):
+        return set()
+    out = set()
+    for e in entries:
+        f = os.path.join(root, e.get("file") or "")
+        if e.get("piece") and e.get("approver") and e.get("date") and os.path.isfile(f) \
+                and art_loop.content_sha(f) == e.get("sha256"):
+            out.add(e["piece"])
+    return out
+
+
 def verified_pieces(root, records=None, remeasure=False):
-    """Pieces whose newest record says passed and verifies."""
-    done = set()
+    """Pieces whose newest record says passed and verifies, plus owner-approved pieces."""
+    done = set(owner_approved(root)) if records is None else set()
     for piece, recs in (records if records is not None else load_piece_records(root)).items():
         if recs and claims_pass(recs[-1]) and not verify_record(root, piece, recs[-1], True, remeasure):
             done.add(piece)
@@ -259,6 +281,14 @@ def base_link_problems(root):
         b = (el or {}).get("base")
         if b and piece in done and b not in done:
             out.append(f"FAIL art_pass_verify: {piece} passed on top of base {b}, which has no verified pass")
+        elif b and piece in done and el.get("base_mode") == "reuse":   # the reuse is re-measured on the shipped pixels
+            mine, theirs = art_loop.newest_record(root, piece), art_loop.newest_record(root, b)
+            if mine and theirs and mine.get("file") and theirs.get("file"):
+                ok, share = art_share.reuse_check(os.path.join(root, theirs["file"]), os.path.join(root, mine["file"]),
+                                                  el.get("base_region") or (0, 0))
+                if not ok:
+                    out.append(f"FAIL art_pass_verify: {piece} claims to reuse {b}, but only {share:.3f} of its pixels "
+                               f"match (needs {art_share.REUSE_SHARE})")
     return out
 
 
