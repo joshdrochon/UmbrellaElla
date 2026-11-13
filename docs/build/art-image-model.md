@@ -61,3 +61,8 @@ Raw paints, keyed cuts and every round's candidate go under `pipeline/art/proof/
 checked as game art). `Art/Source/` holds only what the game ships: the tracked `_PH` placeholder or a piece whose panel
 passed, each with its sidecar. The gate's sprite_check, art_inventory and prejam checks read `Art/Source/` as shipped,
 so a candidate left there fails the merge.
+
+## Shared references
+An art lane may add its own lane name to the `cards` list of a reference in `pipeline/art/references.json` that its
+pieces are judged against (additions only; never edit or remove another lane's entries). That is in-lane, not a
+cross-lane edit.
