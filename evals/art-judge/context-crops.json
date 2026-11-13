@@ -1,0 +1,18 @@
+{
+ "_about": "Where each effect or sprite piece sits in the key art (pipeline/art/references.json element `keyart`, 1672x941): the context pair shows the in-engine capture cut to the piece against this crop, never a whole dark graybox frame against the whole key art (check defect, 13 Nov). rect = [x, y, w, h] in key-art pixels. A piece with no entry is shown against its own first reference image on its own background. Matched by exact element id, else by prefix.",
+ "elements": {
+  "vfx-gold-impact": {"ref": "keyart", "rect": [1010, 380, 220, 120]},
+  "vfx-gold-fade": {"ref": "keyart", "rect": [1010, 380, 220, 120]},
+  "vfx-part-hit": {"ref": "keyart", "rect": [1010, 380, 220, 120]},
+  "wand-shot": {"ref": "keyart", "rect": [330, 420, 330, 70]},
+  "owl-bolt": {"ref": "keyart", "rect": [575, 395, 190, 70]},
+  "bolt-hit": {"ref": "keyart", "rect": [1010, 380, 220, 120]},
+  "ella-up-open": {"ref": "keyart", "rect": [150, 340, 210, 230]},
+  "ella-closed": {"ref": "keyart", "rect": [150, 340, 210, 230]},
+  "ella-attack": {"ref": "keyart", "rect": [150, 340, 210, 230]}
+ },
+ "prefixes": {
+  "vfx-stream": {"ref": "keyart", "rect": [330, 420, 330, 70]},
+  "vfx-needle": {"ref": "keyart", "rect": [330, 420, 330, 70]}
+ }
+}
