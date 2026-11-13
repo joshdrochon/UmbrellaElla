@@ -1,7 +1,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Core/UmbrellaEvent.h"
 #include "Subsystems/WorldSubsystem.h"
 #include "KeeperPresenterSubsystem.generated.h"
 
@@ -28,12 +27,7 @@ namespace UmbrellaKeeperPresenterConst
 		{ TEXT("keeper:mechanism-front"), 1.0f * PartStep },
 		{ TEXT("keeper:clock-cover-glass-hands"), 2.0f * PartStep },
 		{ TEXT("keeper:talon-empty-and-closed"), 3.0f * PartStep },
-		{ TEXT("keeper:part-masks-7-6-4-0"), 4.0f * PartStep },
-		{ TEXT("keeper:living-departure"), 5.0f * PartStep },
 	};
-	/** State layers: hidden until their state starts (a part is destroyed; the Keeper departs). */
-	static const TCHAR* const MaskVisual = TEXT("keeper:part-masks-7-6-4-0");
-	static const TCHAR* const DepartureVisual = TEXT("keeper:living-departure");
 }
 
 /**
@@ -41,20 +35,13 @@ namespace UmbrellaKeeperPresenterConst
  * gameplay, adds no collision, and sits on the Keeper depth layer. Never gameplay authority. Visuals lane.
  */
 UCLASS()
-class UMBRELLAELLA_API UKeeperPresenterSubsystem final : public UTickableWorldSubsystem
+class UMBRELLAELLA_API UKeeperPresenterSubsystem final : public UWorldSubsystem
 {
 	GENERATED_BODY()
 
 public:
 	virtual void PostInitialize() override;
 	virtual void Deinitialize() override;
-	virtual void Tick(float DeltaTime) override;
-	virtual TStatId GetStatId() const override;
-	virtual bool IsTickableInEditor() const override { return false; }
-
-	/** Show or hide a state layer on every Keeper: the damage masks once a part is destroyed, the departure while it leaves. */
-	void SetStateLayerShown(AActor* Keeper, const FString& VisualId, bool bShown);
-	bool AreMasksShown() const { return bMasksShown; }
 
 	/** Attach the stand-in to a Keeper (safe to call twice). The presented count tells whether one was added. */
 	void ShowStandIn(AActor* Keeper);
@@ -73,9 +60,5 @@ public:
 private:
 	void HandleActorSpawned(AActor* Actor);
 	FDelegateHandle SpawnHandle;
-	void HandlePartDestroyed(const FUmbrellaEvent& Event);
-	FDelegateHandle PartHandle;
-	TArray<TWeakObjectPtr<AActor>> Keepers;
-	bool bMasksShown = false;
 	int32 PresentedCount = 0;
 };

@@ -46,19 +46,6 @@ TArray<FSceneArtSpec> USceneArtSubsystem::Specs()
 	return Out;
 }
 
-EFeatureId USceneArtSubsystem::FeatureFor(const FString& Visual)
-{
-	if (Visual == TEXT("bg:land"))
-	{
-		return EFeatureId::BG_04;
-	}
-	if (Visual == TEXT("bg:atmosphere") || Visual == TEXT("bg:water") || Visual == TEXT("bg:clocks"))
-	{
-		return EFeatureId::BG_03;
-	}
-	return EFeatureId::FLOW_25;
-}
-
 float USceneArtSubsystem::PanelX(const FSceneArtSpec& Spec, float CameraX)
 {
 	switch (Spec.Anchor)
@@ -105,7 +92,7 @@ EArtSlotDraw USceneArtSubsystem::ShowArt(const FString& Visual, UTexture2D* Text
 {
 	UWorld* World = GetWorld();
 	const FArtSlotRow* Row = ArtSlot::Find(*Visual);
-	if (!IsValid(World) || !Row || !IsFeatureEnabled(EFeatureId::ART_05) || !IsFeatureEnabled(FeatureFor(Visual)) || PanelCount(Visual) > 0)
+	if (!IsValid(World) || !Row || !IsFeatureEnabled(EFeatureId::ART_05) || PanelCount(Visual) > 0)
 	{
 		return EArtSlotDraw::NoTexture;
 	}

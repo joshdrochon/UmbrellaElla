@@ -48,11 +48,7 @@ CONSUMER = [("bg-layer:", "UUmbrellaBackdropSubsystem"), ("ella-state:", "UEllaA
             ("keeper:clock-cover", "UKeeperPresenterSubsystem"), ("keeper:talon-", "UKeeperPresenterSubsystem"),
             ("vfx-sheet:", "VfxSheetVisual"), ("screen:", "UUiArtSubsystem"),
             ("bg:", "USceneArtSubsystem"), ("scene:", "USceneArtSubsystem"),
-            ("shot:stream-beam", "UShotPresenterSubsystem"),
-            ("keeper:living-departure", "UKeeperPresenterSubsystem"), ("keeper:part-masks-", "UKeeperPresenterSubsystem"),
-            ("world:", "UWorldArtSubsystem"), ("ui:", "UUiArtSubsystem"), ("menu-backdrop:", "UUiArtSubsystem"),
-            ("vfx-material:", "VfxSheetVisual"),
-            ("ella:", "UEllaAnimPresenterComponent"), ("umbrella:", "UEllaAnimPresenterComponent")]
+            ("shot:stream-beam", "UShotPresenterSubsystem")]
 
 
 def derive(visual):
