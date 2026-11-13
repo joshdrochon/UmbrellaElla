@@ -36,8 +36,8 @@ namespace UmbrellaUIStyleConstants
 	static constexpr float ColumnBottomLift = 60.0f;
 
 	/** Panel behind dense screens (settings, purchase, statistics). */
-	static constexpr float PanelFillAlpha = 0.80f;
-	static constexpr float PanelBorderAlpha = 0.55f;
+	static constexpr float PanelFillAlpha = 0.9f;
+	static constexpr float PanelBorderAlpha = 0.85f;
 	static constexpr float PanelCornerRadius = 3.0f;
 	static constexpr float PanelBorderWidth = 1.5f;
 	static constexpr float PanelPadding = 28.0f;
@@ -79,7 +79,7 @@ namespace UmbrellaUIStyleConstants
 	/** Drifting embers and the pause clocks painted over the ground. */
 	static constexpr float EmberSizeShare = 0.2f;
 	static constexpr float EmberAlpha = 0.75f;
-	static constexpr float ClockLineAlpha = 0.5f;
+	static constexpr float ClockLineAlpha = 0.2f;
 	static constexpr float ClockLineShare = 0.5f;
 	static constexpr int32 ClockTickCount = 12;
 	static constexpr float ClockTickInner = 0.86f;
