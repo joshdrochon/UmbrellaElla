@@ -13,6 +13,15 @@ namespace WindCurrentConst
 class UBoxComponent;
 class UStaticMeshComponent;
 
+/** What a current is for, drawn differently (drawn width): carries along, pushes down, or restores the player. */
+UENUM()
+enum class EWindKind : uint8
+{
+	Transport,
+	Descent,
+	Rescue
+};
+
 /**
  * A harmless wind current volume . On overlap with a pawn it broadcasts WindEntered / WindExited on the
  * event bus: SourceId = this current, TargetId = TargetIdFor(pawn) (the player id "Ella" for Ella), Value = force, Detail = direction label. The Motor applies
@@ -49,13 +58,21 @@ public:
 	static FLinearColor FieldColourFor(FName Role);
 
 	/** Width of the usable volume (what moves Ella) and of the drawn field (what the player sees), in units. */
-	float GetUsableWidth() const;
-	float GetDrawnWidth() const;
 	UStaticMeshComponent* GetField() const { return Field; }
 
 	/** Optional local vertical field carried on WindEntered (Detail "Dir@gain,centreZ,compensation"):
 	 * the Motor adds Vz = Gain * (CentreZ - RootZ) + Compensation while it rides this current. World z. */
 	void SetLocalVerticalField(float Gain, float CentreZ, float Compensation);
+
+	/** Kind from direction and local field: a local vertical field or an upward push is Rescue, downward is Descent. */
+	static EWindKind KindFor(const FVector& Direction, bool bHasLocalField);
+	EWindKind GetKind() const { return KindFor(Direction, bHasLocalField); }
+
+	/** Width and height (X, Z) of the usable volume and of the drawn field, in world units. Drawn is 0 when nothing is drawn. */
+	FVector2D GetUsableSize() const;
+	FVector2D GetDrawnSize() const;
+	/** Colour parameter currently on the drawn field (transparent when nothing is drawn). */
+	FLinearColor GetDrawnColour() const;
 
 	/** Broadcast the enter/exit event for a pawn; separate so tests can call it without physics. */
 	void BroadcastEntered(const AActor* Other) const;

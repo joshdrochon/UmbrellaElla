@@ -13,14 +13,25 @@ cd "$W" && git reset -q --hard origin/main && git clean -qfd
 picked=(); seen=""
 for a in "$@"; do
   tip=$(git rev-parse "area/$a" 2>/dev/null) || continue
+  grep -qx "$a" "$L/gate-never" 2>/dev/null && continue   # stopped or stale lanes the lead listed
+  [ "$(git rev-list --count origin/main..area/$a 2>/dev/null)" = 0 ] && continue   # already on main: nothing to gate
   python3 "$ROOT/tools/build/gate_seen.py" check "$L" "$a" "$tip" >/dev/null || continue
+  # Fast pre-check in the lane's worktree (inventory, pipeline_check, quality vs main): a lane that would fail is left out
+  # of the batch and told why, instead of failing the whole batch (Nov 13: 8-lane batches failing on one doc path).
+  if [ -d "$BASE/$a" ] && ! pc=$(PRECHECK_FAST=1 "$ROOT/tools/build/lane_precheck.sh" "$a" 2>&1); then
+    echo "$(date +%H:%M) precheck $a: $(echo "$pc" | sed -n '2,4p' | tr '\n' ' ' | cut -c1-300)" >> "$L/precheck.log"
+    python3 "$ROOT/tools/build/gate_seen.py" record "$L" "$a" "$tip" FAIL >/dev/null; continue
+  fi
   files=""
   if git -c core.hooksPath=/dev/null merge -q --no-ff -m "Merge area/$a ($(git rev-parse --short "area/$a")) into batch" "area/$a" 2>/dev/null; then
     picked+=("$a"); seen="$seen
 $files"
   else
     # a rule-status-only conflict is resolved row by row, anything else drops the lane from the batch
-    if [ "$(git diff --name-only --diff-filter=U)" = docs/build/rule-status.csv ] && python3 "$ROOT/tools/build/rule_status_merge.py" >/dev/null; then
+    u=$(git diff --name-only --diff-filter=U)
+    echo "$u" | grep -qx docs/build/rule-status.csv && python3 "$ROOT/tools/build/rule_status_merge.py" >/dev/null
+    echo "$u" | grep -qx docs/build/art-inventory.csv && { git checkout --ours docs/build/art-inventory.csv && python3 tools/build/art_inventory.py write >/dev/null 2>&1; git add docs/build/art-inventory.csv; }
+    if [ -z "$(git diff --name-only --diff-filter=U)" ]; then
       git -c core.hooksPath=/dev/null commit -q --no-edit && { picked+=("$a"); seen="$seen
 $files"; }
     else git merge --abort; fi

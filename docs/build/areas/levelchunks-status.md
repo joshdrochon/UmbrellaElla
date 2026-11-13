@@ -10,3 +10,4 @@ now checks each seed's generated route (valid, not fallback, deterministic, auth
 PlaytestRun `MeasureFlow28` already counts threats after `StepFollow(KeeperHandoffX(), 1)` (merged from main); no Playtest/smoke run by me.
 `EnemySizeFraction` renamed `CheckpointStandFraction`.
 Left: nothing in this lane. The `Hazard` folder has no tests of its own.
+HAZ-25..HAZ-36 closed: `BuildRouteFrom` on the director; `UmbrellaElla.Level.World.EachVariantSpawnsItsLayout` spawns all 24 variants and checks trap, enemy and per-role current counts against each layout. Build exit 0, Level tests 21/21 PASS. HAZ-06/07 left partial: they are enemies-lane rows (priority algorithm unsettled in the GDD).

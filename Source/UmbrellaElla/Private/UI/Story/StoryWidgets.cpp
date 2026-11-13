@@ -1,9 +1,9 @@
+#include "Settings/UmbrellaAccessibility.h"
 #include "UI/Story/StoryWidgets.h"
 #include "Story/StoryRules.h"
 #include "Core/UmbrellaTuning.h"
 #include "Harness/UmbrellaFeatureFlags.h"
-#include "Settings/UmbrellaAccessibility.h"
-#include "Styling/CoreStyle.h"
+#include "UI/Style/UmbrellaUIStyle.h"
 #include "Widgets/Input/SButton.h"
 #include "Widgets/Layout/SBox.h"
 #include "Widgets/Layout/SBorder.h"
@@ -15,7 +15,17 @@ namespace
 {
 	FSlateFontInfo StoryFont(int32 Extra)
 	{
-		return FCoreStyle::GetDefaultFontStyle(TEXT("Regular"), UmbrellaAccessibility::PublishedFontSize(GetDefault<UUmbrellaTuning>()->Story.MinFontSize + Extra));
+		return FUmbrellaUIStyle::BodyFont(UmbrellaAccessibility::PublishedFontSize(GetDefault<UUmbrellaTuning>()->Story.MinFontSize + Extra));
+	}
+
+	FSlateFontInfo StoryDisplayFont(int32 Extra)
+	{
+		return FUmbrellaUIStyle::DisplayFont(UmbrellaAccessibility::PublishedFontSize(GetDefault<UUmbrellaTuning>()->Story.MinFontSize + Extra));
+	}
+
+	FVector2D StoryShadow()
+	{
+		return FVector2D(UmbrellaUI::ShadowOffset, UmbrellaUI::ShadowOffset);
 	}
 
 	FMargin SafeMargin()
@@ -32,7 +42,9 @@ TSharedRef<SWidget> UStoryCaptionWidget::RebuildWidget()
 		[
 			SAssignNew(BottomText, STextBlock)
 			.Font(StoryFont(GetDefault<UUmbrellaTuning>()->Story.CaptionFontExtra))
-			.ColorAndOpacity(GetDefault<UUmbrellaTuning>()->Story.TextColor)
+			.ColorAndOpacity(FUmbrellaUIStyle::Cream())
+			.ShadowOffset(StoryShadow())
+			.ShadowColorAndOpacity(FUmbrellaUIStyle::Shadow())
 			.Justification(ETextJustify::Center)
 			.AutoWrapText(true)
 			.Text(FText::GetEmpty())
@@ -41,7 +53,9 @@ TSharedRef<SWidget> UStoryCaptionWidget::RebuildWidget()
 		[
 			SAssignNew(CentreText, STextBlock)
 			.Font(StoryFont(GetDefault<UUmbrellaTuning>()->Story.NarrationFontExtra))
-			.ColorAndOpacity(GetDefault<UUmbrellaTuning>()->Story.TextColor)
+			.ColorAndOpacity(FUmbrellaUIStyle::Cream())
+			.ShadowOffset(StoryShadow())
+			.ShadowColorAndOpacity(FUmbrellaUIStyle::Shadow())
 			.Justification(ETextJustify::Center)
 			.AutoWrapText(true)
 			.Text(FText::GetEmpty())
@@ -91,12 +105,12 @@ void UJourneyCompleteWidget::FillRows()
 			[
 				SNew(SBox).WidthOverride(GetDefault<UUmbrellaTuning>()->Story.RowLabelWidth)
 				[
-					SNew(STextBlock).Font(StoryFont(GetDefault<UUmbrellaTuning>()->Story.RowFontExtra)).ColorAndOpacity(GetDefault<UUmbrellaTuning>()->Story.TextColor).Text(FText::FromString(Row.Key))
+					SNew(STextBlock).Font(StoryFont(GetDefault<UUmbrellaTuning>()->Story.RowFontExtra)).ColorAndOpacity(FUmbrellaUIStyle::Dim()).Text(FText::FromString(Row.Key))
 				]
 			]
 			+ SHorizontalBox::Slot().AutoWidth()
 			[
-				SNew(STextBlock).Font(StoryFont(GetDefault<UUmbrellaTuning>()->Story.RowFontExtra)).ColorAndOpacity(GetDefault<UUmbrellaTuning>()->Story.TextColor).Text(FText::FromString(Row.Value))
+				SNew(STextBlock).Font(StoryDisplayFont(GetDefault<UUmbrellaTuning>()->Story.RowFontExtra)).ColorAndOpacity(FUmbrellaUIStyle::GoldBright()).Text(FText::FromString(Row.Value))
 			]
 		];
 	}
@@ -104,34 +118,43 @@ void UJourneyCompleteWidget::FillRows()
 
 TSharedRef<SWidget> UJourneyCompleteWidget::RebuildWidget()
 {
-	TSharedRef<SWidget> Root = SNew(SBorder)
-		.BorderBackgroundColor(GetDefault<UUmbrellaTuning>()->Story.PanelColor)
-		.Padding(SafeMargin())
+	const FStoryTuning& Story = GetDefault<UUmbrellaTuning>()->Story;
+	TSharedRef<SWidget> Root = SNew(SOverlay)
+		+ SOverlay::Slot()
 		[
-			SNew(SVerticalBox)
-			+ SVerticalBox::Slot().AutoHeight().Padding(0.0f, 0.0f, 0.0f, GetDefault<UUmbrellaTuning>()->Story.BlockGap)
+			SNew(SUmbrellaGround)
+		]
+		+ SOverlay::Slot().HAlign(HAlign_Left).VAlign(VAlign_Center).Padding(UmbrellaUI::ColumnLeft - UmbrellaUI::PanelPadding, 0.0f, 0.0f, 0.0f)
+		[
+			SNew(SBorder)
+			.BorderImage(FUmbrellaUIStyle::PanelBrush())
+			.Padding(UmbrellaUI::PanelPadding)
 			[
-				SNew(STextBlock).Font(StoryFont(GetDefault<UUmbrellaTuning>()->Story.TitleFontExtra)).ColorAndOpacity(GetDefault<UUmbrellaTuning>()->Story.TextColor).Text(FText::FromString(TEXT("Journey Complete")))
-			]
-			+ SVerticalBox::Slot().AutoHeight()
-			[
-				SAssignNew(RowBox, SVerticalBox)
-			]
-			+ SVerticalBox::Slot().AutoHeight().Padding(0.0f, GetDefault<UUmbrellaTuning>()->Story.BlockGap, 0.0f, 0.0f)
-			[
-				SNew(SHorizontalBox)
-				+ SHorizontalBox::Slot().AutoWidth().Padding(0.0f, 0.0f, GetDefault<UUmbrellaTuning>()->Story.BlockGap, 0.0f)
+				SNew(SVerticalBox)
+				+ SVerticalBox::Slot().AutoHeight()
 				[
-					SNew(SButton).OnClicked(FOnClicked::CreateUObject(this, &UJourneyCompleteWidget::HandleTryAgain))
-					[
-						SNew(STextBlock).Font(StoryFont(GetDefault<UUmbrellaTuning>()->Story.ButtonFontExtra)).Text(FText::FromString(TEXT("Try Again")))
-					]
+					SNew(STextBlock).Font(StoryDisplayFont(Story.TitleFontExtra)).ColorAndOpacity(FUmbrellaUIStyle::Cream()).Text(FText::FromString(TEXT("Journey Complete")))
 				]
-				+ SHorizontalBox::Slot().AutoWidth()
+				+ SVerticalBox::Slot().AutoHeight().Padding(0.0f, UmbrellaUI::HeadingGap, 0.0f, Story.BlockGap)
 				[
-					SNew(SButton).OnClicked(FOnClicked::CreateUObject(this, &UJourneyCompleteWidget::HandleMainMenu))
+					SNew(SUmbrellaRule)
+				]
+				+ SVerticalBox::Slot().AutoHeight()
+				[
+					SAssignNew(RowBox, SVerticalBox)
+				]
+				+ SVerticalBox::Slot().AutoHeight().Padding(0.0f, Story.BlockGap, 0.0f, 0.0f)
+				[
+					SNew(SHorizontalBox)
+					+ SHorizontalBox::Slot().AutoWidth().Padding(0.0f, 0.0f, Story.BlockGap, 0.0f)
 					[
-						SNew(STextBlock).Font(StoryFont(GetDefault<UUmbrellaTuning>()->Story.ButtonFontExtra)).Text(FText::FromString(TEXT("Main Menu")))
+						SNew(SUmbrellaButton).Text(FText::FromString(TEXT("Try Again"))).FontSize(Story.MinFontSize + Story.ButtonFontExtra)
+							.OnClicked(FOnClicked::CreateUObject(this, &UJourneyCompleteWidget::HandleTryAgain))
+					]
+					+ SHorizontalBox::Slot().AutoWidth()
+					[
+						SNew(SUmbrellaButton).Text(FText::FromString(TEXT("Main Menu"))).FontSize(Story.MinFontSize + Story.ButtonFontExtra)
+							.OnClicked(FOnClicked::CreateUObject(this, &UJourneyCompleteWidget::HandleMainMenu))
 					]
 				]
 			]

@@ -1,0 +1,1 @@
+Reviewed 12 Nov by a fresh session (first pass could not open the reference: wrong relative path, ours); its points on grain, lettering style, arc, hand position and margin applied by the builder who viewed the reference. Approved with those edits.
