@@ -35,9 +35,4 @@ namespace UmbrellaAccessibility
 
 	/** Shake multiplier for a reduced-motion state. Pure. */
 	UMBRELLAELLA_API float ShakeScaleFor(bool bReducedMotion);
-
-#if UMBRELLAELLA_WORKBENCH
-	/** Reduced-motion presentation on a tuning copy: still menu backgrounds, no ring pulse, no Keeper hover. Pure. */
-	UMBRELLAELLA_API void ApplyReducedMotion(FSettingsLiveTuning& Tuning);
-#endif
 }

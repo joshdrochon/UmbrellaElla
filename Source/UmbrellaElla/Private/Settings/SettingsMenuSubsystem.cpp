@@ -160,12 +160,11 @@ void USettingsMenuSubsystem::GetBaselineLifeCounts(int32& OutRetryLives, int32& 
 void USettingsMenuSubsystem::RefreshLiveTuning()
 {
 #if UMBRELLAELLA_WORKBENCH
-	// Workbench builds only: a composed copy goes into the live tuning object. The submission never writes the
+	// Developer options only, workbench builds only (reduced motion is read through UmbrellaAccessibility, not written here): a composed copy goes into the live tuning object. The submission never writes the
 	// tuning class default (the // bake: defaults are the shipped values), so there the options stay read-only.
 	const FUmbrellaSettingsData& Saved = Session.GetSaved();
 	const bool bDeveloper = IsDeveloperTuningActive() && !DeveloperOptionRules::IsAllDefault(Saved.DeveloperValues);
-	const bool bMotion = IsFeatureEnabled(EFeatureId::FLOW_45) && Saved.bReducedMotion;
-	if (!bDeveloper && !bMotion)
+	if (!bDeveloper)
 	{
 		RestoreBaselineTuning();
 		ApplyReducedMotionToRings();
@@ -181,10 +180,6 @@ void USettingsMenuSubsystem::RefreshLiveTuning()
 	if (bDeveloper)
 	{
 		DeveloperOptionRules::Apply(Saved.DeveloperValues, Composed);
-	}
-	if (bMotion)
-	{
-		UmbrellaAccessibility::ApplyReducedMotion(Composed);
 	}
 	Composed.WriteTo(Live);
 	bLiveTuningApplied = true;

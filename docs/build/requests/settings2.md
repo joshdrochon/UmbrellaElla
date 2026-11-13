@@ -19,7 +19,7 @@ No camera or screen shake exists in `Source/` today (`grep -ri shake Source` fin
 reduced motion zeroes them (`pipeline/ui/accessibility.md` E8).
 
 ## 3. Gameplay backdrop motion (visuals lane, `Feedback/Background`)
-Reduced motion already stills the menu backgrounds, the XP ring pulse and the Keeper hover through the live tuning.
+Reduced motion reaches the XP ring (`UXpRingWidget::SetReducedMotion`, works in the shipping target). Menu backgrounds and the Keeper hover are not reached yet: see items 5 and 6.
 The gameplay backdrop's parallax constants are not tuning, so Settings cannot reach them. Request: in
 `UUmbrellaBackdropSubsystem::ScrollTo`, when `UmbrellaAccessibility::IsReducedMotion(this)` use parallax 0 for every
 layer (fixed to the camera, no relative slide), and tag each layer actor `BackgroundMotion` (accessibility E8).
@@ -34,3 +34,13 @@ default (on) outside Director's Cut, so Start Game is unchanged.
 Settings now follows `AUmbrellaPlayerController::GetPlayMode()` itself (every frame, and on `OpenSettings`), so
 developer options never reach a Start Game run. Calling `USettingsMenuSubsystem::SetPlayMode` from `StartMode` would
 apply them one frame earlier; not required.
+
+## 5. Menu background stillness (flow lane)
+Nothing reads `UmbrellaAccessibility::IsReducedMotion` in Flow yet. Where the menu background applies `Flow.BackgroundDriftSpeed`,
+`BackgroundSwayAmplitude` and `FallingShapeMinSpeed/MaxSpeed`, use 0 for each when `IsFeatureEnabled(FLOW_45)` and
+`UmbrellaAccessibility::IsReducedMotion(this)` (local value, no tuning write; works in the submission build).
+(`BackgroundDriftSpeed` has no reader at all today.)
+
+## 6. Keeper hover (keeper lane)
+Where the Keeper applies `Keeper.HoverAmplitude`, use 0 when `IsFeatureEnabled(FLOW_45)` and
+`UmbrellaAccessibility::IsReducedMotion(this)`. `HoverAmplitude` has no reader today; read it locally, never write the tuning.

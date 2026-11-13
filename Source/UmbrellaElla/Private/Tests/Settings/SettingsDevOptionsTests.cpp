@@ -230,17 +230,6 @@ bool FSettingsAccessDefaultsTest::RunTest(const FString& Parameters)
 	TestEqual(TEXT("text scale clamps at 200%"), UmbrellaAccessibility::TextScaleFromPercent(300), 2.0f);
 	TestEqual(TEXT("reduced motion zeroes shake"), UmbrellaAccessibility::ShakeScaleFor(true), 0.0f);
 
-#if UMBRELLAELLA_WORKBENCH
-	const FSettingsLiveTuning Base = FSettingsLiveTuning::ReadFrom(GetDefault<UUmbrellaTuning>());
-	FSettingsLiveTuning Still = Base;
-	UmbrellaAccessibility::ApplyReducedMotion(Still);
-	TestEqual(TEXT("menu shapes stop falling"), Still.Flow.FallingShapeMaxSpeed, 0.0f);
-	TestEqual(TEXT("menu shapes stop swaying"), Still.Flow.BackgroundSwayAmplitude, 0.0f);
-	TestEqual(TEXT("XP ring stops pulsing"), Still.Progression.RingPulseExtraThickness, 0.0f);
-	TestEqual(TEXT("Keeper stops bobbing"), Still.Keeper.HoverAmplitude, 0.0f);
-	TestEqual(TEXT("gameplay numbers untouched"), Still.Motor.RiseSpeed, Base.Motor.RiseSpeed);
-	TestEqual(TEXT("menu shape count untouched"), Still.Flow.FallingShapeCount, Base.Flow.FallingShapeCount);
-#endif
 	return true;
 }
 
@@ -258,10 +247,6 @@ bool FSettingsAccessLiveTest::RunTest(const FString& Parameters)
 	}
 	Subsystem->SetStorePath(Path);
 	Subsystem->ReloadFromStore();
-#if UMBRELLAELLA_WORKBENCH
-	const float BaseSway = GetDefault<UUmbrellaTuning>()->Flow.BackgroundSwayAmplitude;
-	const float BaseFall = GetDefault<UUmbrellaTuning>()->Flow.FallingShapeMaxSpeed;
-#endif
 
 	FUmbrellaTestWorld TestWorld;
 	UWorld* World = TestWorld.GetWorld();
@@ -285,18 +270,10 @@ bool FSettingsAccessLiveTest::RunTest(const FString& Parameters)
 	TestEqual(TEXT("camera shake readers get 0"), UmbrellaAccessibility::GetShakeScale(World), 0.0f);
 	TestTrue(TEXT("readers see reduced flash"), UmbrellaAccessibility::IsReducedFlash(World));
 	TestEqual(TEXT("readers see 150% text"), UmbrellaAccessibility::GetTextScale(World), 1.5f);
-#if UMBRELLAELLA_WORKBENCH
-	TestEqual(TEXT("live menu shapes stop falling"), GetDefault<UUmbrellaTuning>()->Flow.FallingShapeMaxSpeed, 0.0f);
-	TestEqual(TEXT("live menu shapes stop swaying"), GetDefault<UUmbrellaTuning>()->Flow.BackgroundSwayAmplitude, 0.0f);
-#endif
 
 	Subsystem->EditSession().SetReducedMotion(false);
 	Subsystem->SaveSettings(ESettingsPage::Sound);
 	TestFalse(TEXT("motion back on"), UmbrellaAccessibility::IsReducedMotion(World));
-#if UMBRELLAELLA_WORKBENCH
-	TestEqual(TEXT("sway restored"), GetDefault<UUmbrellaTuning>()->Flow.BackgroundSwayAmplitude, BaseSway);
-	TestEqual(TEXT("fall speed restored"), GetDefault<UUmbrellaTuning>()->Flow.FallingShapeMaxSpeed, BaseFall);
-#endif
 	TestFalse(TEXT("nothing left in the live tuning"), Subsystem->IsLiveTuningApplied());
 
 	Subsystem->OnSettingsSaved().Remove(Handle);

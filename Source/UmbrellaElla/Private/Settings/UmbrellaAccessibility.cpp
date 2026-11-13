@@ -64,21 +64,3 @@ float UmbrellaAccessibility::ShakeScaleFor(bool bReducedMotion)
 {
 	return bReducedMotion ? 0.0f : 1.0f;
 }
-
-#if UMBRELLAELLA_WORKBENCH
-void UmbrellaAccessibility::ApplyReducedMotion(FSettingsLiveTuning& Tuning)
-{
-	if (!IsFeatureEnabled(EFeatureId::FLOW_45))
-	{
-		return;
-	}
-	// Menu backgrounds stand still (the Pause clocks keep their once-a-second tick, which is information, not motion).
-	Tuning.Flow.BackgroundDriftSpeed = 0.0f;
-	Tuning.Flow.BackgroundSwayAmplitude = 0.0f;
-	Tuning.Flow.FallingShapeMinSpeed = 0.0f;
-	Tuning.Flow.FallingShapeMaxSpeed = 0.0f;
-	// The XP ring keeps its fill but stops pulsing; the Keeper stops bobbing.
-	Tuning.Progression.RingPulseExtraThickness = 0.0f;
-	Tuning.Keeper.HoverAmplitude = 0.0f;
-}
-#endif

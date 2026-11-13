@@ -64,7 +64,7 @@ namespace DeveloperOptionLimits
 	static constexpr int32 CountFloor = 1;
 	static constexpr int32 ToggleOff = 0;
 	static constexpr int32 ToggleOn = 1;
-	/** Unlock level every weapon gets when Four Weapons is on. */
+	/** Unlock level every weapon gets when Four Weapons is on. Level 1 works because the small blast unlocks at level 1; change it if that unlock moves. */
 	static constexpr int32 AllWeaponsUnlockLevel = 1;
 }
 

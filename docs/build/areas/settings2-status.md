@@ -15,11 +15,12 @@
 ## FLOW-45 accessibility readers (done in lane; reads outside the lane requested)
 - `Settings/UmbrellaAccessibility.h/.cpp`: settings API for readers (text scale, reduced motion, reduced flash, shake
   scale); `OnSettingsSaved()` delegate.
-- Reduced motion now reaches the game: still menu backgrounds (flow tuning), no XP ring pulse (tuning + live
-  `UXpRingWidget::SetReducedMotion`), no Keeper hover, all through the live tuning. Reduced flash already reached Vfx.
+- Reduced motion reaches the XP ring (`UXpRingWidget::SetReducedMotion`, also in the submission build) and is readable by
+  everything via `IsReducedMotion`. Menu backgrounds and the Keeper hover do NOT react yet: no reader exists in Flow or Keeper
+  (requests 5 and 6). Settings no longer writes reduced motion into the tuning. Reduced flash already reached Vfx.
 - Tests: `UmbrellaElla.Settings.AccessibilityDefaults`, `UmbrellaElla.Settings.World.AccessibilityReachesReaders`.
 - Left (requests in `docs/build/requests/settings2.md`): text scale read by the artui shared UI style; screen shake
   does not exist yet (whoever adds it multiplies by `GetShakeScale`); gameplay backdrop parallax under reduced motion
-  (visuals lane); flow reads the Tutorial developer toggle.
+  (visuals lane); flow reads the Tutorial developer toggle; flow and keeper read reduced motion (requests 5, 6).
 
-Evidence (commit 09c76ee): build exit 0 (unity, 0 warnings); `UmbrellaElla.Settings` PASS tests=21 failed=0; full `test.sh` PASS tests=256 failed=0; module_check 0, manifest_check 0, pipeline_check 0, ui_check ci PASS.
+Evidence: not re-run after this fix; the build lead's gate runs build and tests (gate evidence at a6fef4d showed 39 tests).
