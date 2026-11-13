@@ -1,0 +1,37 @@
+{
+ "provider": "gemini",
+ "tool": "Gemini API image generation (Google)",
+ "model": "gemini-3-pro-image-preview",
+ "model_version": "gemini-3-pro-image-preview",
+ "prompt": "A title-lockup logo, centred in a wide 3:1 frame, on a perfectly flat, pure black #000000 background; the background itself is empty: no texture, no glow, no border, no other shapes. The whole lockup fills about 80% of the width with even padding, so no swash or arc is cropped.\n\nThe words \"Umbrella Ella\" in large hand-lettered capitals on one line: a high-contrast Roman serif with thick and hairline strokes, slightly flared, with a long curling swash on the first U that sweeps out to the left and a small tapering flourish on the final A. Beneath it, centred and about a third the size, the words \"The Stolen Hour\" in refined, widely spaced serif capitals. The letters are aged ivory #FFF3D6, worn like etched metal leaf: fine paper grain and ink speckle inside the strokes, chipped and slightly uneven edges, with thin gold #E9C46A light along the upper-left edge of each stroke.\n\nBehind the words, a thin etched-ink clock-face ring in muted gold-brown covers the upper right three quarters of a circle behind the lettering, with six Roman numerals on it, the strokes of the numerals thin and worn. One long, slender, pointed gold clock hand with a small ring ornament near its tip crosses the lettering from the lower right toward the centre, passing over the lower part of the last letters, with a short counter-tail on the other side of the pivot.\n\nThe look is ink and gold leaf on soot black, a dark storybook title for a game about a stolen hour; the palette is only ivory, gold and muted sepia-brown. The spelling must be exactly \"Umbrella Ella\" and \"The Stolen Hour\", with no other words.",
+ "seed": "",
+ "size": "1024x1024",
+ "quality": "medium",
+ "aspect_ratio": "21:9",
+ "image_size": "2K",
+ "input_images": [],
+ "cost_usd": 0.138844,
+ "reply": {
+  "usage": {
+   "promptTokenCount": 382,
+   "candidatesTokenCount": 1684,
+   "totalTokenCount": 2406,
+   "promptTokensDetails": [
+    {
+     "modality": "TEXT",
+     "tokenCount": 382
+    }
+   ],
+   "candidatesTokensDetails": [
+    {
+     "modality": "IMAGE",
+     "tokenCount": 1120
+    }
+   ],
+   "thoughtsTokenCount": 340,
+   "serviceTier": "standard"
+  },
+  "finish": "STOP"
+ },
+ "date": "2026-11-13T05:04+00:00"
+}

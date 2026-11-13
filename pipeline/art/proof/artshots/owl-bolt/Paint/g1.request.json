@@ -1,0 +1,37 @@
+{
+ "provider": "gemini",
+ "tool": "Gemini API image generation (Google)",
+ "model": "gemini-3-pro-image-preview",
+ "model_version": "gemini-3-pro-image-preview",
+ "prompt": "A single red magic projectile, drawn as a flat 2D game effect sprite, flying to the left along the horizontal centre line of a wide 21:9 landscape canvas, in pure side view with no perspective. The whole shot sits in the middle of the canvas at about 60% of the canvas width, with generous empty flat green above, below and at both ends. The head leads on the left: a long, narrow, razor-sharp spearhead, built from nested jagged chevron layers of crimson #FF3658 and coral #FF7848, widest about halfway along the head, its rear edge swept back into sharp barbed sawtooth notches. The lower and rear facets are deep magenta-red #8F173C. Inside the head burns an elongated pale warm-white triangular core #FFF5DC pointing the same way, brightest at its centre. Behind the head runs a narrow, short geometric tail about as long as the head itself, made of a few thin angular crimson and magenta-red shards that taper to a thread on the right, with a handful of tiny solid square flecks in crimson and magenta-red drifting in a loose line just behind and beside it. The whole shot is finished as clean layered facets with crisp, saturated colour, a few fine engraved ink hatch lines only inside the magenta-red shadow facets, and a faint hand-printed grain inside the shapes, in the dark etched storybook look of the game. The outermost edge of the shot is a crisp 2 to 3 pixel contour in coral #FF7848, and every edge drops straight onto the background, so the silhouette stays sharp and angular at tiny size. The background is one perfectly even, flat, pure chroma-key green #00FF00 filling the canvas edge to edge, smooth and evenly lit, so the shot casts no shadow on it. Every colour in the shot is red, coral, magenta-red or warm white; the green belongs only to the background. The canvas holds only this one shot.",
+ "seed": "",
+ "size": "1024x1024",
+ "quality": "medium",
+ "aspect_ratio": "21:9",
+ "image_size": "2K",
+ "input_images": [],
+ "cost_usd": 0.139292,
+ "reply": {
+  "usage": {
+   "promptTokenCount": 420,
+   "candidatesTokenCount": 1590,
+   "totalTokenCount": 2381,
+   "promptTokensDetails": [
+    {
+     "modality": "TEXT",
+     "tokenCount": 420
+    }
+   ],
+   "candidatesTokensDetails": [
+    {
+     "modality": "IMAGE",
+     "tokenCount": 1120
+    }
+   ],
+   "thoughtsTokenCount": 371,
+   "serviceTier": "standard"
+  },
+  "finish": "STOP"
+ },
+ "date": "2026-11-13T04:02+00:00"
+}

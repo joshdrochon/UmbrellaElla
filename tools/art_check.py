@@ -28,6 +28,8 @@ Usage:
     reference pixels nearest to it (within delta_e_tolerance). Prints the measured hex per name and the
     reference's own numbers, so card 0.7 can write them into style.json and set palette_status: measured.
   A provisional palette is a FAIL once the reference file exists (card 0.7 not done).
+  python3 tools/art_check.py --sprite|--effect piece.png  # colour rules on the non-transparent pixels only
+    (--effect: against the effect palette). Exit 0 pass, 1 a failed check, 2 an unreadable style file or image.
   python3 tools/art_check.py --swatch swatch_capture.png  # engine colour round-trip (CAM_Eval_Swatch)
     The capture shows the swatch sprite from make_art_calibration.py --swatch. Each cell's centre
     (inset by style.json swatch.inset) is averaged and compared with its palette hex. Any cell over
@@ -197,6 +199,66 @@ def measure(path, style):
         "accent_extra": round(sum(extra.values()) / n, 4),
         **{f"accent_{r}": round(v / n, 4) for r, v in extra.items()},
     }
+
+
+EFFECT_RAMPS = (   # shading ramps of the GDD SH1.0 shot colours (references.json vfx_spec.palette), light to dark
+    ("gold", ("#FFF5DC", "#FFD84A", "#E9C46A", "#F5AA28", "#94611E")),
+    ("red", ("#FFF5DC", "#FF7848", "#FF3658", "#8F173C")),
+)
+RAMP_STEPS = 4   # palette entries added between two neighbouring ramp colours
+
+
+def _hex(lab_rgb):
+    return "#%02x%02x%02x" % tuple(max(0, min(255, round(c))) for c in lab_rgb)
+
+
+def effect_style(style):
+    """style.json widened for an effect sprite: the effect palette (the brand palette, the GDD SH1.0 shot colours and
+    the shading ramps between them: gold and amber shade into bronze, red into shadow red) and the hue bands of the
+    accent roles. Thresholds, tolerances and accent roles are untouched; only colours an effect is allowed to carry
+    are added, so teal, magenta, blue and a flat rainbow still fail. Never a loosening of a threshold."""
+    st = json.loads(json.dumps(style))
+    pal = st["palette"]
+    seen = {c["hex"].lower() for c in pal}
+    for fam, ramp in EFFECT_RAMPS:
+        rgb = [hex_to_rgb(h) for h in ramp]
+        for i, h in enumerate(ramp):
+            if h.lower() not in seen:
+                seen.add(h.lower())
+                pal.append({"name": f"fx-{fam}-{i}", "role": "accent", "hex": h})
+        for (a, b), (ha, hb) in zip(zip(rgb, rgb[1:]), zip(ramp, ramp[1:])):
+            for k in range(1, RAMP_STEPS):
+                t = k / RAMP_STEPS
+                mid = _hex(tuple(a[j] + (b[j] - a[j]) * t for j in range(3)))
+                if mid.lower() not in seen:
+                    seen.add(mid.lower())
+                    pal.append({"name": f"fx-{fam}-ramp-{ha}-{hb}-{k}", "role": "accent", "hex": mid})
+    bands = [list(b) for b in st["hue_gate"]["allowed_hue_bands_deg"]]
+    for r in ((st.get("accents") or {}).get("roles") or {}).values():
+        for b in r["hue_bands_deg"]:
+            if r.get("chroma") and r["chroma"][1] >= 30:   # the saturated shot roles; the ash-blue wind role stays out
+                bands.append(list(b))
+    lo = min(b[0] for b in bands)
+    hi = max(b[1] for b in bands)
+    st["hue_gate"]["allowed_hue_bands_deg"] = [[lo, hi]]
+    return st
+
+
+SPRITE_RULES = ("on_palette", "off_style", "off_band")
+
+
+def measure_sprite(path, style, effect=False):
+    """measure() for a sprite or an effect sheet: only the non-transparent pixels (alpha >= 128) are read, so the
+    transparent ground never counts; an effect is read against the effect palette (effect_style). The frame-share
+    rules (dark share, accent caps, paper texture) belong to a full frame, not a sprite."""
+    st = effect_style(style) if effect else style
+    return measure(path, st), st
+
+
+def sprite_failures(path, style, effect=False):
+    """The colour rules (on_palette, off_style, off_band) a sprite or an effect sheet fails; [] = pass."""
+    m, st = measure_sprite(path, style, effect)
+    return [f for f in evaluate(m, st) if f.startswith(SPRITE_RULES)]
 
 
 def accent_roles(style):
@@ -759,6 +821,10 @@ def main(argv=None):
     ap.add_argument("--measure-palette", action="store_true",
                     help="image is the reference key art: print each palette name re-centred on it")
     ap.add_argument("--reference", default=REFERENCE, help=argparse.SUPPRESS)
+    ap.add_argument("--sprite", action="store_true",
+                    help="image is a sprite or sheet: colour rules on its non-transparent pixels only")
+    ap.add_argument("--effect", action="store_true",
+                    help="like --sprite, read against the effect palette (shot colours and their shading ramps)")
     ap.add_argument("--swatch", action="store_true", help="image is a CAM_Eval_Swatch capture")
     ap.add_argument("--references", action="store_true", help="list the team's art references, present or MISSING")
     ap.add_argument("--gate", action="store_true", help="the automated art gate on one in-engine capture")
@@ -807,6 +873,24 @@ def main(argv=None):
         print(f"ART_GATE: PASS capture={a.image} numeric=PASS judge={stem}:target-keyart "
               f"refs={len(load_references(a.root))}")
         return 0
+    if a.sprite or a.effect:
+        try:
+            with open(a.style, encoding="utf-8") as f:
+                style = json.load(f)
+            m, st = measure_sprite(a.image, style, a.effect)
+        except (OSError, ValueError, KeyError) as e:
+            print(f"art_check: {e}", file=sys.stderr)
+            return 2
+        fails = [f for f in evaluate(m, st) if f.startswith(SPRITE_RULES)]
+        if a.json:
+            print(json.dumps(dict(m, **{"pass": not fails, "failures": fails}), indent=2))
+        else:
+            print(("PASS" if not fails else "FAIL") + f"  {a.image}  (--{'effect' if a.effect else 'sprite'})")
+            for k in SPRITE_RULES:
+                print(f"  {k:12s} {m[k]}")
+            for fl in fails:
+                print("  - " + fl)
+        return 0 if not fails else 1
     try:
         if a.extract:
             print(json.dumps(extract(a.image), indent=2))

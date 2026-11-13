@@ -1,3 +1,6 @@
+#include "Widgets/Layout/SScaleBox.h"
+#include "Widgets/Images/SImage.h"
+#include "Widgets/Layout/SBox.h"
 #include "UI/Settings/SettingsMenuWidget.h"
 #include "Framework/Application/SlateApplication.h"
 #include "GameFramework/PlayerController.h"
@@ -5,6 +8,7 @@
 #include "Settings/DeveloperOptions.h"
 #include "Settings/SettingsConstants.h"
 #include "Settings/SettingsMenuSubsystem.h"
+#include "UI/Style/UmbrellaUIStyle.h"
 #include "Settings/UmbrellaAccessibility.h"
 #include "Styling/CoreStyle.h"
 #include "Widgets/Input/SButton.h"
@@ -12,6 +16,7 @@
 #include "Widgets/Input/SSlider.h"
 #include "Widgets/Layout/SBorder.h"
 #include "Widgets/Layout/SBox.h"
+#include "Widgets/SOverlay.h"
 #include "Widgets/SBoxPanel.h"
 #include "Widgets/SNullWidget.h"
 #include "Widgets/Text/STextBlock.h"
@@ -30,22 +35,22 @@ namespace
 
 	FLinearColor Sepia()
 	{
-		return FLinearColor(SettingsLayout::TextSepia[0], SettingsLayout::TextSepia[1], SettingsLayout::TextSepia[2]);
+		return FUmbrellaUIStyle::Cream();
 	}
 
 	FLinearColor Gold()
 	{
-		return FLinearColor(SettingsLayout::GoldAccent[0], SettingsLayout::GoldAccent[1], SettingsLayout::GoldAccent[2]);
+		return FUmbrellaUIStyle::Gold();
 	}
 
 	FLinearColor Warn()
 	{
-		return FLinearColor(SettingsLayout::WarnRed[0], SettingsLayout::WarnRed[1], SettingsLayout::WarnRed[2]);
+		return FUmbrellaUIStyle::Warn();
 	}
 
 	FSlateFontInfo Font(int32 Size)
 	{
-		return FCoreStyle::GetDefaultFontStyle(TEXT("Regular"), Size);
+		return FUmbrellaUIStyle::BodyFont(Size);
 	}
 
 	int32 SliderValue(const FUmbrellaSettingsData& Data, ESliderId Id)
@@ -144,28 +149,34 @@ TSharedRef<SWidget> USettingsMenuWidget::RebuildWidget()
 			.AutoWidth()
 			.Padding(SettingsLayout::RowPadding)
 			[
-				SNew(SButton)
+				SNew(SUmbrellaButton)
+				.Text(PageName(TabPage))
+				.FontSize(ScaledFont(SettingsLayout::BodyFontSize))
+				.RestColor(Sepia())
+				.Selected(TAttribute<bool>::Create(TAttribute<bool>::FGetter::CreateWeakLambda(this, [this, TabPage]()
+				{
+					return Page == TabPage;
+				})))
 				.OnClicked(FOnClicked::CreateWeakLambda(this, [this, TabPage]()
 				{
 					ShowPage(TabPage);
 					return FReply::Handled();
 				}))
-				[
-					Label(PageName(TabPage), ScaledFont(SettingsLayout::BodyFontSize), Sepia())
-				]
 			];
 	}
 
 	RebuildBody();
 
-	return SNew(SBox)
-		.HAlign(HAlign_Center)
-		.VAlign(VAlign_Center)
+	return SNew(SOverlay)
+		+ SOverlay::Slot()
+		[
+			SNew(SUmbrellaGround)
+		]
+		+ SOverlay::Slot().HAlign(HAlign_Left).VAlign(VAlign_Center).Padding(UmbrellaUI::ColumnLeft - UmbrellaUI::PanelPadding, 0.0f, 0.0f, 0.0f)
 		[
 			SNew(SBorder)
-			.BorderImage(FCoreStyle::Get().GetBrush(TEXT("GenericWhiteBox")))
-			.BorderBackgroundColor(FLinearColor(SettingsLayout::PanelDim, SettingsLayout::PanelDim, SettingsLayout::PanelDim, SettingsLayout::PanelAlpha))
-			.Padding(SettingsLayout::Padding)
+			.BorderImage(FUmbrellaUIStyle::PanelBrush())
+			.Padding(UmbrellaUI::PanelPadding)
 			[
 				SNew(SBox)
 				.WidthOverride(SettingsLayout::PanelWidth)
@@ -173,7 +184,20 @@ TSharedRef<SWidget> USettingsMenuWidget::RebuildWidget()
 					SNew(SVerticalBox)
 					+ SVerticalBox::Slot().AutoHeight().Padding(SettingsLayout::RowPadding)
 					[
-						Label(LOCTEXT("Title", "Settings"), ScaledFont(SettingsLayout::TitleFontSize), Gold())
+						FUmbrellaUIStyle::HeadingBrush(TEXT("Settings")) ?
+							StaticCastSharedRef<SWidget>(SNew(SBox).HAlign(HAlign_Left).HeightOverride(UmbrellaUI::HeadSettingsWidgetHeight)
+							[
+								SNew(SScaleBox).Stretch(EStretch::ScaleToFit).HAlign(HAlign_Left)
+								[
+									SNew(SImage).Image(FUmbrellaUIStyle::HeadingBrush(TEXT("Settings")))
+								]
+							]) :
+							StaticCastSharedRef<SWidget>(SNew(STextBlock).Text(LOCTEXT("Title", "Settings")).Font(FUmbrellaUIStyle::DisplayFont(ScaledFont(SettingsLayout::TitleFontSize)))
+								.ColorAndOpacity(FUmbrellaUIStyle::Cream()))
+					]
+					+ SVerticalBox::Slot().AutoHeight().Padding(SettingsLayout::RowPadding)
+					[
+						SNew(SUmbrellaRule)
 					]
 					+ SVerticalBox::Slot().AutoHeight()
 					[
@@ -247,15 +271,15 @@ void USettingsMenuWidget::RebuildBody()
 			const ESettingsBackChoice Picked = Choice.Choice;
 			Buttons->AddSlot().AutoWidth().Padding(SettingsLayout::RowPadding)
 			[
-				SNew(SButton)
+				SNew(SUmbrellaButton)
+				.Text(Choice.Text)
+				.FontSize(Size)
+				.RestColor(Sepia())
 				.OnClicked(FOnClicked::CreateWeakLambda(this, [this, Picked]()
 				{
 					ChooseBack(Picked);
 					return FReply::Handled();
 				}))
-				[
-					Label(Choice.Text, Size, Sepia())
-				]
 			];
 		}
 	}
@@ -263,27 +287,27 @@ void USettingsMenuWidget::RebuildBody()
 	{
 		Buttons->AddSlot().AutoWidth().Padding(SettingsLayout::RowPadding)
 		[
-			SNew(SButton)
+			SNew(SUmbrellaButton)
+			.Text(LOCTEXT("Back", "Back"))
+			.FontSize(Size)
+			.RestColor(Sepia())
 			.OnClicked(FOnClicked::CreateWeakLambda(this, [this]()
 			{
 				PressBack();
 				return FReply::Handled();
 			}))
-			[
-				Label(LOCTEXT("Back", "Back"), Size, Sepia())
-			]
 		];
 		Buttons->AddSlot().AutoWidth().Padding(SettingsLayout::RowPadding)
 		[
-			SNew(SButton)
+			SNew(SUmbrellaButton)
+			.Text(LOCTEXT("Save", "Save"))
+			.FontSize(Size)
+			.RestColor(Gold())
 			.OnClicked(FOnClicked::CreateWeakLambda(this, [this]()
 			{
 				PressSave();
 				return FReply::Handled();
 			}))
-			[
-				Label(LOCTEXT("Save", "Save"), Size, Gold())
-			]
 		];
 	}
 	FooterBox->AddSlot().AutoHeight()[Buttons];
@@ -318,6 +342,7 @@ void USettingsMenuWidget::AddSoundBody()
 				SNew(SBox).WidthOverride(SettingsLayout::SliderWidth)
 				[
 					SNew(SSlider)
+					.Style(&FUmbrellaUIStyle::SliderStyle())
 					.StepSize(SettingsLayout::SliderStep)
 					.Value(TAttribute<float>::Create(TAttribute<float>::FGetter::CreateWeakLambda(this, [this, Id, Low, High]()
 					{
@@ -355,6 +380,7 @@ void USettingsMenuWidget::AddSoundBody()
 		BodyBox->AddSlot().AutoHeight().Padding(SettingsLayout::RowPadding)
 		[
 			SNew(SCheckBox)
+			.Style(&FUmbrellaUIStyle::CheckBoxStyle())
 			.IsChecked(TAttribute<ECheckBoxState>::Create(TAttribute<ECheckBoxState>::FGetter::CreateWeakLambda(this, [this]()
 			{
 				const USettingsMenuSubsystem* Subsystem = Owner.Get();
@@ -374,6 +400,7 @@ void USettingsMenuWidget::AddSoundBody()
 		BodyBox->AddSlot().AutoHeight().Padding(SettingsLayout::RowPadding)
 		[
 			SNew(SCheckBox)
+			.Style(&FUmbrellaUIStyle::CheckBoxStyle())
 			.IsChecked(TAttribute<ECheckBoxState>::Create(TAttribute<ECheckBoxState>::FGetter::CreateWeakLambda(this, [this]()
 			{
 				const USettingsMenuSubsystem* Subsystem = Owner.Get();
@@ -428,15 +455,15 @@ void USettingsMenuWidget::AddControllerBody()
 			[
 				SNew(SBox).WidthOverride(SettingsLayout::KeyButtonWidth)
 				[
-					SNew(SButton)
+					SNew(SUmbrellaButton)
+					.Text(FText::FromString(Text))
+					.FontSize(Size)
+					.RestColor(bWaiting ? Gold() : Sepia())
 					.OnClicked(FOnClicked::CreateWeakLambda(this, [this, Action, Slot]()
 					{
 						BeginRemap(Action, Slot);
 						return FReply::Handled();
 					}))
-					[
-						Label(FText::FromString(Text), Size, bWaiting ? Gold() : Sepia())
-					]
 				]
 			];
 		}
@@ -451,15 +478,15 @@ void USettingsMenuWidget::AddControllerBody()
 	}
 	BodyBox->AddSlot().AutoHeight().Padding(SettingsLayout::RowPadding)
 	[
-		SNew(SButton)
+		SNew(SUmbrellaButton)
+		.Text(LOCTEXT("ResetBindings", "Reset bindings"))
+		.FontSize(Size)
+		.RestColor(Sepia())
 		.OnClicked(FOnClicked::CreateWeakLambda(this, [this]()
 		{
 			PressResetBindings();
 			return FReply::Handled();
 		}))
-		[
-			Label(LOCTEXT("ResetBindings", "Reset bindings"), Size, Sepia())
-		]
 	];
 }
 

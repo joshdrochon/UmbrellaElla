@@ -30,6 +30,15 @@ import art_loop  # noqa: E402
 CRITIC = art_loop.CRITIC_DIR
 
 
+
+def _is_screen(piece):
+    """Same rule as tools/art_loop.py is_screen: a UI screen piece has no context pair."""
+    try:
+        import art_loop
+        return art_loop.is_screen(art_loop.ROOT, piece)
+    except Exception:
+        return False
+
 def claims_pass(rec):
     return isinstance(rec, dict) and rec.get("verdict") in ("ours", "same") and bool(rec.get("checks"))
 
@@ -46,6 +55,32 @@ def load_piece_records(root):
         if isinstance(data, dict) and data.get("id"):
             out[data["id"]] = [r for r in data.get("records", []) if isinstance(r, dict)]
     return out
+
+
+NEAR_COPY_SSIM = 0.80   # our two text-only paints of one prompt score 0.98 together; our UI capture vs the pre-jam title 0.37
+
+
+def _piece_reference_paths(root, piece):
+    try:
+        refs, _ = art_loop.refs_and_hash(root)
+        import art_judge
+        byid = art_judge.refs_by_id(refs)
+        el = (refs.get("elements") or {}).get(piece) or {}
+        return [byid[r]["path"] for r in el.get("refs", []) if r in byid and byid[r].get("path")]
+    except Exception:
+        return []
+
+
+def _ssim(a, b):
+    """Grey SSIM at 640x360 through ffmpeg (no Python image library needed); None when it cannot be measured."""
+    import subprocess, re as _re
+    if not os.path.isfile(b):
+        return None
+    p = subprocess.run(["ffmpeg", "-hide_banner", "-i", a, "-i", b, "-lavfi",
+                        "[0:v]scale=640:360,format=gray[x];[1:v]scale=640:360,format=gray[y];[x][y]ssim", "-f", "null", "-"],
+                       capture_output=True, text=True)
+    m = _re.search(r"All:([0-9.]+)", p.stderr)
+    return float(m.group(1)) if m else None
 
 
 def verify_record(root, piece, rec, newest=True, remeasure=True):
@@ -113,7 +148,7 @@ def verify_record(root, piece, rec, newest=True, remeasure=True):
     # what a pass needs, from the evidence itself
     kinds = {c.split(":", 1)[0] for c in man.get("required") or []}
     need = {"reference", "quality_bar"} | ({"motion"} if man.get("sheet") else set()) | \
-        ({"context"} if piece != "scene" else set())
+        ({"context"} if piece != "scene" and not _is_screen(piece) else set())   # a UI screen's capture is its own context
     if need - kinds:
         probs.append(f"the panel did not judge {', '.join(sorted(need - kinds))}")
     if not art_loop.panel_passed(dict(got, checks=rec.get("checks"), results=man.get("results"), combos=man["required"])):
@@ -121,6 +156,14 @@ def verify_record(root, piece, rec, newest=True, remeasure=True):
     for c in art_loop.CHECKS:
         if (man.get("results") or {}).get(c) != "pass":
             probs.append(f"the manifest has no PASS for {c}")
+    # Near-copy guard (Josh, Nov 13): a pass must be our own work in the style, not a copy of pre-jam reference art.
+    # SSIM of the judged image against every reference image of the piece above NEAR_COPY_SSIM fails the pass.
+    full_img = os.path.join(root, rec.get("file") or "")
+    if os.path.isfile(full_img):
+        for rpath in _piece_reference_paths(root, piece):
+            sim = _ssim(full_img, os.path.join(root, rpath))
+            if sim is not None and sim > NEAR_COPY_SSIM:
+                probs.append(f"near-copy of pre-jam reference {rpath} (SSIM {sim:.2f} > {NEAR_COPY_SSIM}): a pass must be new work, not the reference")
     shipped = man.get("shipped") or {}
     if shipped.get("sha256") != rec.get("files") or shipped.get("file") != rec.get("file"):
         probs.append("the record's image hash is not the one the panel judged")
@@ -203,6 +246,22 @@ def newly_passed(root, base, remeasure=False):
     return out
 
 
+def base_link_problems(root):
+    """Shared-layer pieces (Josh, Nov 13): an element with "base": "<piece>" in references.json is judged only on what it
+    adds to that base, so its pass counts only if the base piece itself has a verified pass in the same tree."""
+    try:
+        refs, _ = art_loop.refs_and_hash(root)
+    except Exception:
+        return []
+    done = verified_pieces(root)
+    out = []
+    for piece, el in (refs.get("elements") or {}).items():
+        b = (el or {}).get("base")
+        if b and piece in done and b not in done:
+            out.append(f"FAIL art_pass_verify: {piece} passed on top of base {b}, which has no verified pass")
+    return out
+
+
 def main(argv=None):
     a = list(sys.argv[1:] if argv is None else argv)
     root = ROOT
@@ -214,6 +273,7 @@ def main(argv=None):
     if cmd == "check":
         base = a[a.index("--base") + 1] if "--base" in a else None
         lines = check(root, base, "--no-remeasure" not in a)
+        lines += base_link_problems(root)
         print("\n".join(lines))
         print(f"art_pass_verify: {'FAIL' if lines else 'PASS'} ({len(verified_pieces(root))} verified passes, "
               f"{len(lines)} problems)")

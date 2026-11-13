@@ -1,0 +1,43 @@
+{
+ "provider": "gemini",
+ "tool": "Gemini API image generation (Google)",
+ "model": "gemini-3-pro-image-preview",
+ "model_version": "gemini-3-pro-image-preview",
+ "prompt": "A flat, straight-on, front-facing sheet of two hand-lettered screen headings, one above the other, in a wide 3:1 landscape frame, on a perfectly flat, solid pure black #000000 background that is smooth and empty all the way to the edges. The two headings are the only things in the frame. Each heading sits in its own half of the frame with generous even padding all round, so every swash ends well inside the frame.\n\nTop: the single word \"Paused\". Bottom: the single word \"Settings\". Both match the supplied title lockup: a high-contrast Roman serif in the Victorian storybook manner, with thick vertical stems, hairline-thin joins, sharp bracketed serifs and slightly flared terminals, set in mixed case. The first capital is much larger than the lowercase and carries a bold looped swash: a long curl that sweeps out to the left and rolls inward at its tip, like the curl on the U of the lockup. The last letter ends in a small tapering curl flourish that lifts up and to the right, like the tail of the lockup's final A. Both words share the same left edge, the same letter height and the same stroke weight, with the swash hanging to the left of that edge.\n\nEach letter is filled with aged ivory #FFF3D6, mottled like old parchment, with fine paper grain and scattered tiny dark ink specks and small chips inside the strokes. A thin, clean line of gold #E9C46A runs all the way round the outside of every stroke, like a gilded edge, with a soft, narrow shadow in muted sepia-brown just beneath and to the lower right of each letter, which lifts the lettering off the black.\n\nThe look is ink and gold leaf on soot black, a dark storybook heading for a game about a stolen hour. The palette is ivory, gold and muted sepia-brown on black. The spelling is exactly \"Paused\" and \"Settings\", and the sheet holds only these two words.",
+ "seed": "",
+ "size": "1024x1024",
+ "quality": "medium",
+ "aspect_ratio": "21:9",
+ "image_size": "2K",
+ "input_images": [
+  "pipeline/art/proof/artui/ui-title-lockup/lockup_a.png"
+ ],
+ "cost_usd": 0.138778,
+ "reply": {
+  "usage": {
+   "promptTokenCount": 685,
+   "candidatesTokenCount": 1482,
+   "totalTokenCount": 2451,
+   "promptTokensDetails": [
+    {
+     "modality": "TEXT",
+     "tokenCount": 427
+    },
+    {
+     "modality": "IMAGE",
+     "tokenCount": 258
+    }
+   ],
+   "candidatesTokensDetails": [
+    {
+     "modality": "IMAGE",
+     "tokenCount": 1120
+    }
+   ],
+   "thoughtsTokenCount": 284,
+   "serviceTier": "standard"
+  },
+  "finish": "STOP"
+ },
+ "date": "2026-11-13T07:07+00:00"
+}
