@@ -121,3 +121,11 @@ missing the agent-play script on main (not my lane).
 - `python3 tools/build/art_inventory.py summary` -> `TOTAL=105 PASSED=0 artella=10 artkeeper=9 artscene=15 artui=22 artshots=10 artfx=27 artenemy=12`
 - Uncommitted in the tree (not part of this commit, not built or tested): `UmbrellaUIStyle.cpp` BodyFont now uses the display face.
 - Next: lockup/menu spacing (lockup overlaps hands), grain on the lockup; then panel the other 11 screens.
+
+## Resume (13 Nov, artui worker, after the session was killed)
+- Committed the leftover slice: painted Settings heading (`HeadingBrush("Settings")`, text fallback). `tools/ue/build.sh` exit 0, warnings 0 (commit 37c86f2d).
+- Not run: panel round for ui-settings with the new heading. Only the title is reachable through `run_game.sh -SmokeShot` (the smoke hook passes title to gameplay).
+  The r16 captures in /tmp/uishots were made by a one-off method not recorded in the repo, so Settings/Pause/HUD cannot be re-captured from the repo alone.
+- BLOCKED (env/requests): needs a committed per-screen capture switch (e.g. `-SmokeScreen=settings|pause|hud|purchase|levelup` in the smoke hook, Smoke lane) or a way to say how /tmp/uishots was made.
+- `art_pass_verify` currently FAILS on ui-defeated (not my piece; says passed with no panel record). My pieces: 0 passed.
+- Spend: no image calls this session.
