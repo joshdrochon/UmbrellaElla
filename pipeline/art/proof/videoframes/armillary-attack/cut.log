@@ -1,0 +1,2 @@
+STRIPS armillary-attack source_frames=48 loop_end=47 jitter 0.92 -> 0.96 px
+  N=24 fps=6.0 loop last->first 38.98 vs mean step 15.9 loops=True -> pipeline/art/proof/videoframes/armillary-attack/armillary-attack_N24_strip.png

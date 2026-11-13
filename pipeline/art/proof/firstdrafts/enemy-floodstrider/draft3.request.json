@@ -1,0 +1,44 @@
+{
+ "provider": "openrouter",
+ "tier": "draft",
+ "tool": "OpenRouter (Google Gemini image models)",
+ "model": "gemini-2.5-flash-image",
+ "openrouter_model": "google/gemini-2.5-flash-image",
+ "fal_model": null,
+ "model_version": "google/gemini-2.5-flash-image",
+ "prompt": "A square picture for a 2D game, piece enemy-floodstrider. The Floodstrider: a tall stilt-legged clockwork enemy figure in side view, a hunched cloaked walker on two long wading stilts with a dripping hem, a brass lantern, and a small caster arm raised to fire a pointed red projectile. The background is one perfectly flat, even, pure green #00FF00 from edge to edge, the shapes cut cleanly against it, and the shapes use no green. The canvas holds only the subject floating on the green, nothing else, no text.  Style: a dark painterly etched storybook illustration, ink and wash with fine etched cross-hatching and a faint paper grain inside the shapes only. Large shapes have a clean near-black ink outline #171614 about 2 px wide at this size. One light source sits in front and slightly above: upper edges brighter, lower edges shaded with fine hatching. Palette: charcoal and ash-blue darks, muted sepia, bone ivory #FFF5DC, warm gold #E9C46A, bronze #94611E, with only tiny accents of crimson #FF3658. Seed variation 3: a fresh composition. \n\nStyle (required): dark, muted ink on aged paper, like an etched storybook engraving. Etched ink linework with near-black ink outlines; crosshatch and fine line hatching for every shadow and form; visible aged paper grain and fibre texture under all colour; hand-printed, slightly uneven ink. No flat fills, no vector shapes, no smooth digital gradients, no glossy 3D rendering.",
+ "seed": "none (seed not sent)",
+ "size": "1024x1024",
+ "quality": "medium",
+ "aspect_ratio": "1:1",
+ "image_size": null,
+ "input_images": [],
+ "cost_usd": 0.038805,
+ "reply": {
+  "usage": {
+   "prompt_tokens": 349,
+   "completion_tokens": 1290,
+   "total_tokens": 1639,
+   "cost": 0.0388047,
+   "is_byok": false,
+   "prompt_tokens_details": {
+    "cached_tokens": 0,
+    "cache_write_tokens": 0,
+    "audio_tokens": 0,
+    "video_tokens": 0
+   },
+   "cost_details": {
+    "upstream_inference_cost": 0.0388047,
+    "upstream_inference_prompt_cost": 0.0001047,
+    "upstream_inference_completions_cost": 0.0387
+   },
+   "completion_tokens_details": {
+    "reasoning_tokens": 0,
+    "image_tokens": 1290,
+    "audio_tokens": 0
+   }
+  },
+  "finish": "stop"
+ },
+ "date": "2026-11-13T17:21+00:00"
+}

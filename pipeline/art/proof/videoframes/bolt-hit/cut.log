@@ -1,0 +1,2 @@
+STRIPS bolt-hit source_frames=29 loop_end=21 jitter 175.03 -> 0.64 px
+  N=24 fps=13.09 loop last->first 64.78 vs mean step 49.22 loops=True -> pipeline/art/proof/videoframes/bolt-hit/bolt-hit_N24_strip.png

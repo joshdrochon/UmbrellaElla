@@ -1,0 +1,81 @@
+{
+ "video": "pipeline/art/proof/videoframes/armillary-turn/armillary-turn.mp4",
+ "fps": 12,
+ "source_frames": 48,
+ "loop_end": 43,
+ "end_candidates": {
+  "28": 89.86,
+  "29": 91.91,
+  "30": 93.95,
+  "31": 97.17,
+  "32": 99.79,
+  "33": 100.81,
+  "34": 100.4,
+  "35": 98.81,
+  "36": 97.26,
+  "37": 95.29,
+  "38": 92.16,
+  "39": 88.48,
+  "40": 85.47,
+  "41": 84.49,
+  "42": 84.35,
+  "43": 83.94,
+  "44": 85.28,
+  "45": 85.93,
+  "46": 87.62,
+  "47": 92.01
+ },
+ "jitter_before": {
+  "max_anchor_step_px": 31.32,
+  "max_height_step_pct": 1.01,
+  "max_anchor_from_first_px": 75.43,
+  "height_range_pct": 4.24
+ },
+ "jitter_after": {
+  "max_anchor_step_px": 0.94,
+  "max_height_step_pct": 1.01,
+  "max_anchor_from_first_px": 0.91,
+  "height_range_pct": 4.24
+ },
+ "green_inside_px_max": 0,
+ "sets": {
+  "24": {
+   "strip": "pipeline/art/proof/videoframes/armillary-turn/armillary-turn_N24_strip.png",
+   "gif": "pipeline/art/proof/videoframes/armillary-turn/armillary-turn_N24_preview.gif",
+   "loop": {
+    "indices": [
+     0,
+     2,
+     4,
+     6,
+     7,
+     9,
+     11,
+     13,
+     15,
+     16,
+     18,
+     20,
+     22,
+     24,
+     26,
+     28,
+     29,
+     31,
+     33,
+     35,
+     37,
+     38,
+     40,
+     42
+    ],
+    "mean_step": 43.5,
+    "max_step": 87.95,
+    "last_to_first": 84.35,
+    "loop_ratio": 1.94,
+    "loops": true
+   },
+   "fps": 6.55
+  }
+ }
+}

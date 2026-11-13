@@ -1,0 +1,63 @@
+{
+ "frames": 12,
+ "frame": [
+  825,
+  320
+ ],
+ "pivot": "bottom-centre",
+ "anchor": [
+  451,
+  269
+ ],
+ "fps": 4.24,
+ "cut": "video frames, chroma-keyed, feet-anchor registered",
+ "outputs": [
+  "pipeline/art/proof/artfx2/ClockBeat/video/ClockBeat_N12_00.png",
+  "pipeline/art/proof/artfx2/ClockBeat/video/ClockBeat_N12_01.png",
+  "pipeline/art/proof/artfx2/ClockBeat/video/ClockBeat_N12_02.png",
+  "pipeline/art/proof/artfx2/ClockBeat/video/ClockBeat_N12_03.png",
+  "pipeline/art/proof/artfx2/ClockBeat/video/ClockBeat_N12_04.png",
+  "pipeline/art/proof/artfx2/ClockBeat/video/ClockBeat_N12_05.png",
+  "pipeline/art/proof/artfx2/ClockBeat/video/ClockBeat_N12_06.png",
+  "pipeline/art/proof/artfx2/ClockBeat/video/ClockBeat_N12_07.png",
+  "pipeline/art/proof/artfx2/ClockBeat/video/ClockBeat_N12_08.png",
+  "pipeline/art/proof/artfx2/ClockBeat/video/ClockBeat_N12_09.png",
+  "pipeline/art/proof/artfx2/ClockBeat/video/ClockBeat_N12_10.png",
+  "pipeline/art/proof/artfx2/ClockBeat/video/ClockBeat_N12_11.png"
+ ],
+ "strip": "pipeline/art/proof/artfx2/ClockBeat/video/ClockBeat_N12_strip.png",
+ "loop": {
+  "indices": [
+   0,
+   3,
+   6,
+   8,
+   11,
+   14,
+   17,
+   20,
+   23,
+   26,
+   28,
+   31
+  ],
+  "mean_step": 35.39,
+  "max_step": 152.67,
+  "last_to_first": 146.69,
+  "loop_ratio": 4.14,
+  "loops": true
+ },
+ "jitter_before": {
+  "max_anchor_step_px": 342.07,
+  "max_height_step_pct": 13.73,
+  "max_anchor_from_first_px": 292.9,
+  "height_range_pct": 53.16
+ },
+ "jitter_after": {
+  "max_anchor_step_px": 0.94,
+  "max_height_step_pct": 13.73,
+  "max_anchor_from_first_px": 0.51,
+  "height_range_pct": 53.16
+ },
+ "source": "pipeline/art/proof/artfx2/ClockBeat/video/clip.mp4"
+}

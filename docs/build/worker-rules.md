@@ -151,3 +151,15 @@ Run it from your own worktree, in the background (your commands stop at 10 min):
 `PRECHECK_FAST=1 bash tools/build/lane_precheck.sh <your-lane> --bg`, then poll `../logs/precheck-<your-lane>.result` until its first
 line starts with `PRECHECK` (`RUNNING <time>` means it is still going). Fix every line under `PRECHECK FAIL` and
 run it again; only a `PRECHECK PASS` tip is worth gating. The Python tests are skipped by default (under load they ran 20-50 min; the gate runs them); `PRECHECK_TESTS=1` adds them.
+
+## Per-piece cap near the bar (Nov 13, approved)
+A piece whose best measured art_ref_check score is within 0.05 of its `score_min` (references.json) may spend up to
+1.00 USD instead of 0.50: run that piece's calls with `IMAGE_SPEND_PIECE_CAP_USD=1.00` set in the same command, and
+put the measured score and `score_min` in the commit message. Any other piece keeps 0.50. Style block on (automatic),
+flash drafts first, pro final only from a passing draft.
+
+## Setting a rule to built (Nov 13, gate check clause_check)
+A rule-status row may become `built` only when every GDD clause of that rule is proven in `docs/build/clause-proof.csv`
+(`rule,clause,proof`, proof = `test:UmbrellaElla.<Area>.<Name>`, `py:tests/<file>.py` or `gdd:<binding key>`), covering
+every clause `docs/build/clause-audit.csv` lists for that rule. Add those rows in the same commit; the gate fails the
+merge otherwise. The 150 rows built before the audit are the baseline.
