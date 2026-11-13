@@ -9,25 +9,17 @@ Provenance: one row per take, inserted sorted among the Audio/ rows.
 The spin-down ratchet layer is generated maths (tick rate 60/s falling exponentially, uneven gaps), written into the
 recipe as an ffmpeg expression.
 
-## Pieces
-| Id | tier | audio_check --scan | audio_style_check | critic | provenance origin |
-|---|---|---|---|---|---|
-| KeeperYellowLaunch | P0 | pass (3 takes) | PASS | fail x9 | placeholder |
-
-## Critic triage (Nov 12): check defect, not closed
-KeeperYellowLaunch: 9 rounds, every round `style=PASS`, critic fail each time; the gap changed between rounds and rows
-failed with "cannot confirm without listening". Triage, evidence and the exact changes asked for are in
-docs/build/requests/sndlaunch.md section 1. Short form: the packet picture draws column stripes under 500 Hz that the
-critic reads as even gear ticks, and the brief does not say the piece is the launch one-shot, so the critic asks for
-launch + travel + fade in one file. A redrawn packet with the event named got a judged, concrete verdict (still fail,
-one gap); the official packet then asked for the opposite. Bar not loosened; nothing in tools/ changed by me.
-
-## Nov 12 late: takes for all 16 ids on disk
-All 16 ids have 1 to 3 takes in Audio/Source/<Id>/ with recipe.json, provenance rows (origin `placeholder: audio critic fail
-(critic not yet run)`), `audio_style_check` PASS and `audio_check --scan` clean for these ids (FloodShot, RearCastLaunch,
-WardenShot got a 30 ms end fade for the end-click check; the cached-layer regen needs the key shell, not run).
-Critic ran for ClockBeatRepeat, GustRelease, NeedleFire, StreamLoop/Release/Start, TwinStarsFire (packets in Saved/AudioLoop/SNDLAUNCH);
-not recorded as passes here. Not done: critic for the rest, Unreal import (request 3). Blocked on: request 1 for owl_attack/enemy ids.
+## Pieces (Nov 12, after the audio-critic/3 packet fix)
+All 16 ids: 3 takes each (StreamLoop 1), `audio_check --scan` no FAIL, `audio_style_check` PASS, blind critic pass
+(Saved/AudioLoop/SNDLAUNCH state: every piece `done`, last gap none), provenance origin generated/synthesized.
+Reruns under the new packet: KeeperYellowLaunch passed round 10 with no change to the sound. Fixed after a real fail:
+- StreamRelease: second pluck rise 0.3 ms to 2 ms (click).
+- ClockBeatRepeat: one tick + low clunk per take (the cluster read as a ratchet); level lufs -17 for scan RMS.
+- RearCastLaunch: two distinct strokes 450 ms apart, fade_out 0.8.
+- WardenShot, FloodShot, RearCastLaunch take 00 were 0.8 s (stale build); rebuilt from cached layers at full length.
+RearCastLaunch takes 00/02 reuse cached ElevenLabs candidates in other combinations: the ElevenLabs quota is
+exhausted (4 credits left), so no new generation is possible until credits return.
 
 ## Left
-The other 15 ids; Unreal import (request 3: the import script has a fixed cue table).
+Unreal import (request 3: arena_audio_import.py has a fixed cue table, no --ids).
+Not mine: KeeperHoot has 3 provenance rows each (audio_check --scan FAIL).
