@@ -52,6 +52,8 @@ When the same check fails twice, or a loop goes flat (2 rounds, same gap, no bet
      (flow), `UI/UmbrellaHUD` (health). Fill in your own; call others only through their public functions and events.
 
 ## Hard rules
+- Every automated game launch (editor -game or packaged) goes through `tools/build/run_game.sh` or `tools/ue/smoke.sh`:
+  no sound, a 640x360 window, no crash reporter. Never start `UnrealEditor -game` or the packaged app by hand.
 - Never write an absolute home path (`/Users/...`, `~/...` beyond `~/.umbrella-ella.env`) into a repo file; use paths
   relative to the repo or `../UmbrellaElla-areas/...`. `python3 tools/pipeline_check.py` (in every gate) rejects them.
 - Unity builds merge many `.cpp` files into one: never put generic names (`Step`, `Count`, `Tolerance`) at file scope
