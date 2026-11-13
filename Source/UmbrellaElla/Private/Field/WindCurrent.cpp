@@ -1,5 +1,5 @@
-#include "Feedback/Art/ArtSlot.h"
 #include "Field/WindCurrent.h"
+#include "Feedback/Art/ArtSlot.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Core/EllaCharacter.h"
@@ -101,7 +101,8 @@ void AWindCurrent::RefreshField()
 			Field->SetStaticMesh(Cube);
 		}
 	}
-	if (ArtSlot::ApplyFlatUnlit(Field, this, FieldColourFor(RoleLabel(Direction))))
+	ArtSlot::SetFlatUnlit(Field, this, FieldColourFor(RoleLabel(Direction)));
+	if (ArtSlot::IsUnlit(Field))
 	{
 		return;
 	}

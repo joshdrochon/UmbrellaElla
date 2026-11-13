@@ -1,5 +1,5 @@
-#include "Feedback/Art/ArtSlot.h"
 #include "Projectile/UmbrellaProjectile.h"
+#include "Feedback/Art/ArtSlot.h"
 #include "Components/StaticMeshComponent.h"
 #include "Core/EllaCharacter.h"
 #include "Core/UmbrellaCollision.h"
@@ -252,7 +252,8 @@ void AUmbrellaProjectile::ApplyPlaceholderVisual()
 	{
 		Tint = Tuning.YellowColor;
 	}
-	if (ArtSlot::ApplyFlatUnlit(Visual, this, Tint))
+	ArtSlot::SetFlatUnlit(Visual, this, Tint);
+	if (ArtSlot::IsUnlit(Visual))
 	{
 		return;
 	}

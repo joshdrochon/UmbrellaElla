@@ -1,5 +1,5 @@
-#include "Feedback/Art/ArtSlot.h"
 #include "Arena/UmbrellaArena.h"
+#include "Feedback/Art/ArtSlot.h"
 #include "Camera/CameraComponent.h"
 #include "Components/BoxComponent.h"
 #include "Core/UmbrellaCollision.h"
@@ -67,6 +67,7 @@ AUmbrellaArena::AUmbrellaArena()
 	PlayCamera->SetProjectionMode(ECameraProjectionMode::Orthographic);
 	PlayCamera->SetOrthoWidth(T.ArenaWidth);
 	PlayCamera->SetConstraintAspectRatio(true);
+	PlayCamera->bAutoCalculateOrthoPlanes = false;
 	PlayCamera->SetAspectRatio(T.CameraAspectRatio);
 	PlayCamera->SetRelativeLocation(FVector(HalfW, T.CameraDistance, HalfH));
 	PlayCamera->SetRelativeRotation(FRotator(0.0, UmbrellaArenaConst::CameraYaw, 0.0));
@@ -153,7 +154,7 @@ void AUmbrellaArena::BuildPlaceholders()
 		Mesh->SetupAttachment(RootComponent);
 		Mesh->SetRelativeLocation(Location);
 		Mesh->SetRelativeScale3D(Scale);
-		ArtSlot::ApplyFlatUnlit(Mesh, this, FCString::Strstr(Name, TEXT("Keeper")) ? UmbrellaArtSlotConst::StandInKeeperColor : UmbrellaArenaConst::BackgroundStandInColor);
+		ArtSlot::SetFlatUnlit(Mesh, this, FCString::Strstr(Name, TEXT("Keeper")) ? UmbrellaArtSlotConst::StandInKeeperColor : UmbrellaArenaConst::BackgroundStandInColor);
 		Mesh->RegisterComponent();
 		return Mesh;
 	};

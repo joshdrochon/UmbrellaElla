@@ -1,5 +1,5 @@
-#include "Feedback/Art/ArtSlot.h"
 #include "Level/UmbrellaLevelDirector.h"
+#include "Feedback/Art/ArtSlot.h"
 #include "Arena/UmbrellaArena.h"
 #include "Camera/CameraComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -54,7 +54,7 @@ AActor* AUmbrellaLevelDirector::SpawnBlock(const FLevelPlacement& P)
 	}
 	Mesh->SetWorldLocation(P.Location);
 	Mesh->SetWorldScale3D(P.Size / LevelPlanConst::CubeSize);
-	ArtSlot::ApplyFlatUnlit(Mesh, Block, UmbrellaArtSlotConst::StandInDefaultColor);
+	ArtSlot::SetFlatUnlit(Mesh, Block, UmbrellaArtSlotConst::StandInDefaultColor);
 	// Land blocks Ella; a checkpoint marker is only a sign she flies through.
 	Mesh->SetCollisionEnabled(P.Kind == ELevelPlacementKind::Checkpoint ? ECollisionEnabled::NoCollision : ECollisionEnabled::QueryAndPhysics);
 	return Block;

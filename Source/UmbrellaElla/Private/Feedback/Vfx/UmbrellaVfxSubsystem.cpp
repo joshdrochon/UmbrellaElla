@@ -1,5 +1,5 @@
-#include "Feedback/Art/ArtSlot.h"
 #include "Feedback/Vfx/UmbrellaVfxSubsystem.h"
+#include "Feedback/Art/ArtSlot.h"
 #include "Feedback/Vfx/UmbrellaVfxDirectorSubsystem.h"
 #include "Components/PointLightComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -216,7 +216,7 @@ void UUmbrellaVfxSubsystem::PlayForEvent(const FUmbrellaEvent& Event)
 	Mesh->SetGenerateOverlapEvents(false);
 	const float Shrink = (bReducedFlash && Spec.bFlashing && IsFeatureEnabled(EFeatureId::VFX_10)) ? UmbrellaVfxConst::ReducedFlashScale : 1.0f;
 	Mesh->SetRelativeScale3D(FVector(Spec.Scale * Shrink));
-	ArtSlot::ApplyFlatUnlit(Mesh, Flash, UmbrellaArtSlotConst::StandInDefaultColor);
+	ArtSlot::SetFlatUnlit(Mesh, Flash, UmbrellaArtSlotConst::StandInDefaultColor);
 	Flash->SetRootComponent(Mesh);
 	Mesh->RegisterComponent();
 	Flash->SetActorLocation(Location);

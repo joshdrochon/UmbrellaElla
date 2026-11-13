@@ -101,24 +101,23 @@ EArtSlotDraw ArtSlot::Apply(UStaticMeshComponent* Mesh, UTexture2D* Texture, con
 	return EArtSlotDraw::Drawn;
 }
 
-bool ArtSlot::ApplyFlatUnlit(UStaticMeshComponent* Mesh, UObject* Outer, const FLinearColor& Color)
+void ArtSlot::SetFlatUnlit(UStaticMeshComponent* Mesh, UObject* Outer, const FLinearColor& Color)
 {
 	if (!IsValid(Mesh))
 	{
-		return false;
+		return;
 	}
 	UMaterialInterface* Material = LoadObject<UMaterialInterface>(nullptr, UmbrellaArtSlotConst::MaterialPath, nullptr, LOAD_NoWarn | LOAD_Quiet);
 	UTexture2D* White = LoadObject<UTexture2D>(nullptr, UmbrellaArtSlotConst::WhiteTexturePath, nullptr, LOAD_NoWarn | LOAD_Quiet);
 	if (!Material || !White)
 	{
-		return false;
+		return;
 	}
 	UMaterialInstanceDynamic* Dynamic = UMaterialInstanceDynamic::Create(Material, IsValid(Outer) ? Outer : Mesh);
 	Dynamic->SetTextureParameterValue(ArtSlotParam, White);
 	Dynamic->SetVectorParameterValue(ArtSlotTintParam, Color);
 	Mesh->SetMaterial(0, Dynamic);
 	Mesh->SetCastShadow(false);
-	return true;
 }
 
 bool ArtSlot::IsUnlit(const UStaticMeshComponent* Mesh)

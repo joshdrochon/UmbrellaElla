@@ -64,7 +64,7 @@ void UKeeperPresenterSubsystem::ShowStandIn(AActor* Keeper)
 	Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Mesh->SetGenerateOverlapEvents(false);
 	Mesh->SetRelativeScale3D(UmbrellaKeeperPresenterConst::StandInScale);
-	ArtSlot::ApplyFlatUnlit(Mesh, Keeper, UmbrellaArtSlotConst::StandInKeeperColor);
+	ArtSlot::SetFlatUnlit(Mesh, Keeper, UmbrellaArtSlotConst::StandInKeeperColor);
 	if (!Keeper->GetRootComponent())
 	{
 		Keeper->SetRootComponent(Mesh);

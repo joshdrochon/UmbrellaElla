@@ -301,7 +301,7 @@ void UEllaAnimPresenterComponent::BuildVisual()
 	StandIn->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	StandIn->SetupAttachment(Owner->GetRootComponent());
 	StandIn->SetRelativeScale3D(UmbrellaPresenterConst::StandInScale);
-	ArtSlot::ApplyFlatUnlit(StandIn, Owner, UmbrellaArtSlotConst::StandInEllaColor);
+	ArtSlot::SetFlatUnlit(StandIn, Owner, UmbrellaArtSlotConst::StandInEllaColor);
 	StandIn->RegisterComponent();
 	LoadSlotArt();
 }

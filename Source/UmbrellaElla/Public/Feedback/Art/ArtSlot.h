@@ -85,10 +85,10 @@ namespace ArtSlot
 
 	/**
 	 * Flat unlit stand-in colour (screenfix): put the unlit slot material tinted Color on Mesh, so a placeholder cube
-	 * never depends on level lights (art bible: unlit sprite materials only). False when the material is missing,
-	 * which leaves the component as it was.
+	 * never depends on level lights (art bible: unlit sprite materials only). Leaves the component as it was when the
+	 * material is missing (IsUnlit then says false).
 	 */
-	UMBRELLAELLA_API bool ApplyFlatUnlit(UStaticMeshComponent* Mesh, UObject* Outer, const FLinearColor& Color);
+	UMBRELLAELLA_API void SetFlatUnlit(UStaticMeshComponent* Mesh, UObject* Outer, const FLinearColor& Color);
 
 	/** True when the component's material 0 is the unlit slot material (or an instance of it). */
 	UMBRELLAELLA_API bool IsUnlit(const UStaticMeshComponent* Mesh);
