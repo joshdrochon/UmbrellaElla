@@ -49,6 +49,12 @@ int32 VfxCatalog::FrameAt(const FVfxArtRow& Row, float Elapsed)
 	return Row.bLoop ? Raw % Row.Frames : FMath::Min(Raw, Row.Frames - 1);
 }
 
+int32 VfxCatalog::FrameAt(const FVfxArtRow& Row, float Elapsed, bool bReducedMotion)
+{
+	// Reduced motion (VFX-10): a looping effect holds one still frame; one-shots still play, they are short feedback.
+	return (bReducedMotion && Row.bLoop) ? 0 : FrameAt(Row, Elapsed);
+}
+
 bool VfxCatalog::IsFinished(const FVfxArtRow& Row, float Elapsed)
 {
 	return !Row.bLoop && Elapsed >= Duration(Row);

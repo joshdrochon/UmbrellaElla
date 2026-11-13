@@ -27,6 +27,18 @@ namespace UmbrellaAccessibility
 	/** Multiply every screen-shake amplitude by this: 0 under reduced motion, 1 otherwise. */
 	UMBRELLAELLA_API float GetShakeScale(const UObject* WorldContext);
 
+	/**
+	 * Last saved values, for Slate widgets and subsystems with no world context. The settings subsystem publishes them
+	 * at load and on every Save; with none published they are the shipped defaults. Honours the FLOW_45 flag.
+	 */
+	UMBRELLAELLA_API void PublishSaved(int32 TextPercent, bool bReducedMotion, bool bReducedFlash);
+	UMBRELLAELLA_API void ResetPublished();
+	UMBRELLAELLA_API int32 PublishedTextScalePercent();
+	UMBRELLAELLA_API float PublishedTextScale();
+	UMBRELLAELLA_API bool PublishedReducedMotion();
+	/** A font size scaled by the published text percent. */
+	UMBRELLAELLA_API int32 PublishedFontSize(int32 BaseSize);
+
 	/** Text percent to a multiplier. Pure. */
 	UMBRELLAELLA_API float TextScaleFromPercent(int32 Percent);
 

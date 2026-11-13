@@ -17,6 +17,44 @@ namespace
 	}
 }
 
+namespace
+{
+	int32 PublishedPercent = SettingsConstants::TextScaleMin;
+	bool bPublishedMotion = false;
+}
+
+void UmbrellaAccessibility::PublishSaved(int32 TextPercent, bool bReducedMotion, bool bReducedFlash)
+{
+	PublishedPercent = FMath::Clamp(TextPercent, SettingsConstants::TextScaleMin, SettingsConstants::TextScaleMax);
+	bPublishedMotion = bReducedMotion;
+}
+
+void UmbrellaAccessibility::ResetPublished()
+{
+	PublishedPercent = SettingsConstants::TextScaleMin;
+	bPublishedMotion = false;
+}
+
+int32 UmbrellaAccessibility::PublishedTextScalePercent()
+{
+	return IsFeatureEnabled(EFeatureId::FLOW_45) ? PublishedPercent : SettingsConstants::TextScaleMin;
+}
+
+float UmbrellaAccessibility::PublishedTextScale()
+{
+	return TextScaleFromPercent(PublishedTextScalePercent());
+}
+
+bool UmbrellaAccessibility::PublishedReducedMotion()
+{
+	return IsFeatureEnabled(EFeatureId::FLOW_45) && bPublishedMotion;
+}
+
+int32 UmbrellaAccessibility::PublishedFontSize(int32 BaseSize)
+{
+	return ScaledFontSize(BaseSize, PublishedTextScalePercent());
+}
+
 int32 UmbrellaAccessibility::GetTextScalePercent(const UObject* WorldContext)
 {
 	const USettingsMenuSubsystem* Settings = FindAccessibilitySettings(WorldContext);

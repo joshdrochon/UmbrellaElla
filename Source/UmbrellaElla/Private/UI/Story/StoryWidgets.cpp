@@ -2,6 +2,7 @@
 #include "Story/StoryRules.h"
 #include "Core/UmbrellaTuning.h"
 #include "Harness/UmbrellaFeatureFlags.h"
+#include "Settings/UmbrellaAccessibility.h"
 #include "Styling/CoreStyle.h"
 #include "Widgets/Input/SButton.h"
 #include "Widgets/Layout/SBox.h"
@@ -14,7 +15,7 @@ namespace
 {
 	FSlateFontInfo StoryFont(int32 Extra)
 	{
-		return FCoreStyle::GetDefaultFontStyle(TEXT("Regular"), GetDefault<UUmbrellaTuning>()->Story.MinFontSize + Extra);
+		return FCoreStyle::GetDefaultFontStyle(TEXT("Regular"), UmbrellaAccessibility::PublishedFontSize(GetDefault<UUmbrellaTuning>()->Story.MinFontSize + Extra));
 	}
 
 	FMargin SafeMargin()

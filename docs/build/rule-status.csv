@@ -166,8 +166,8 @@ FLOW-49,story,built,Story.JourneyStatistics; Flow.World.DirectorsCutEndingOneTim
 FLOW-41,flow,built,Flow.TitleStartsPlaying; Flow.StartAndPauseDesignRetained,,
 FLOW-42,progression,built,Progression.DraftStagesWithoutChangingLiveValues; Flow.PurchaseScreenReturnsToTitle; Flow.World.LeavingPurchaseDiscardsDraft,layout never seen; level-up widget not wired,
 FLOW-43,settings,built,Settings.PagesByMode; Settings.SaveAppliesCurrentPage; Settings.BackDiscardsUnsaved; Settings.SliderRange; Settings.Credits,Slate layout not seen on screen,
-FLOW-44,settings,partial,Settings.PagesByMode,candidate option names only; contents OPEN in GDD,settings2
-FLOW-45,settings,partial,Settings.World.ReducedFlashReachesVfx,"reduced flash wired; Settings exposes GetSavedTextScalePercent/IsReducedMotionSaved but no HUD, XP ring or Flow screen calls them (grep on main 1ab85de); requests/settings.md item 6 not applied",settings2
+FLOW-44,settings,done,Settings.DeveloperOptionsList; Settings.DeveloperOptionsApply; Settings.World.DeveloperOptionsReachLiveTuning; Settings.PagesByMode,"20 GDD candidate options built Director-only (agent default D-new-flow44-dev-options); pages by mode tested",settings2
+FLOW-45,settings,done,Settings.World.AccessibilityReachesReaders,"published snapshot read by flow menu fonts+backdrop, story text, HUD numerals, DC label, gameplay backdrop parallax, XP ring; Keeper HoverAmplitude has no reader (requests/settings2.md item 6); 92 targeted tests pass at 2387d3d+edits",settings2
 ART-03,arena,built,Feedback.World.PresenterStandIn,stand-in box when no art,
 ART-04,flow,built,Flow.World.StartGameReachesFight (shared background),,
 ART-05,visuals,partial,,no art-loop pass on main; Ella mode readability is the artella pieces,artella
@@ -198,7 +198,7 @@ VFX-06,visuals,built,Feedback.VfxRules; Feedback.World.VfxLayersLightLimits,,
 VFX-07,visuals,partial,Feedback.World.VfxLayersLightLimits,"point-light stand-in, no lit material",artfx
 VFX-08,visuals,partial,Feedback.World.VfxLayersLightLimits,point-light stand-in; lit material policy not resolved,artfx
 VFX-09,visuals,built,Feedback.VfxRules; Feedback.World.VfxLayersLightLimits,,
-VFX-10,visuals,partial,Feedback.VfxRules; Feedback.World.VfxLayersLightLimits,"effect concurrency and light limits tested; reduced flash wired (Settings.World.ReducedFlashReachesVfx); reduced motion not read (settings2); target devices, frame-time/memory/overdraw budgets OPEN in GDD and no profiling on hardware",settings2
+VFX-10,visuals,partial,Feedback.VfxRules; Feedback.World.VfxLayersLightLimits,"effect concurrency and light limits tested; reduced flash wired (Settings.World.ReducedFlashReachesVfx); reduced motion: looping VFX hold frame 0 (Settings.World.AccessibilityReachesReaders); target devices, frame-time/memory/overdraw budgets OPEN in GDD and no profiling on hardware",settings2
 VFX-11,visuals,not built,,was blocked; acceptance needs real VFX; nothing to accept yet,artfx
 CORE-04,move,built,tools/module_check.py,,
 CORE-05,move,built,Move.StateLockWaitsForNeutral; Move.World.LockStopsMotionAndFire,,

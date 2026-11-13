@@ -24,3 +24,10 @@
   (visuals lane); flow reads the Tutorial developer toggle; flow and keeper read reduced motion (requests 5, 6).
 
 Evidence: not re-run after this fix; the build lead's gate runs build and tests (gate evidence at a6fef4d showed 39 tests).
+
+## FLOW-45 / VFX-10 readers wired (this slice)
+- `UmbrellaAccessibility::Published*` snapshot (no world context), published by the settings subsystem on load and Save.
+- Readers: flow menu fonts and backdrop (still under reduced motion), story text, HUD clock numerals, Director's Cut label,
+  gameplay backdrop parallax 0, looping VFX frame 0 (`VfxCatalog::FrameAt(..., bReducedMotion)`).
+- Test: `UmbrellaElla.Settings.World.AccessibilityReachesReaders` extended. Targeted run (Flow, Settings, Story, Feedback): 92 pass.
+- Left: Keeper hover has no reader; screen shake does not exist.

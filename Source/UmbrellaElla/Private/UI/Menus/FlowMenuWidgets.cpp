@@ -1,5 +1,6 @@
 #include "UI/Menus/FlowMenuWidgets.h"
 #include "Flow/FlowRules.h"
+#include "Settings/UmbrellaAccessibility.h"
 #include "Brushes/SlateColorBrush.h"
 #include "Brushes/SlateRoundedBoxBrush.h"
 #include "Fonts/SlateFontInfo.h"
@@ -22,7 +23,7 @@ namespace
 
 	FSlateFontInfo MakeFont(int32 Size)
 	{
-		return FCoreStyle::GetDefaultFontStyle(TEXT("Bold"), Size);
+		return FCoreStyle::GetDefaultFontStyle(TEXT("Bold"), UmbrellaAccessibility::PublishedFontSize(Size));
 	}
 }
 
@@ -41,7 +42,9 @@ int32 SFlowBackground::OnPaint(const FPaintArgs& Args, const FGeometry& Allotted
 	FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const
 {
 	const FVector2f Size = AllottedGeometry.GetLocalSize();
-	const float Time = static_cast<float>(Args.GetCurrentTime());
+	const bool bStill = UmbrellaAccessibility::PublishedReducedMotion();
+	// Reduced motion (FLOW-45): the backdrop holds still, no fall, sway or tick.
+	const float Time = bStill ? 0.0f : static_cast<float>(Args.GetCurrentTime());
 	const FSlateBrush* White = FCoreStyle::Get().GetBrush(TEXT("WhiteBrush"));
 	const FSlateRoundedBoxBrush Round(FLinearColor::White, Size.Y);
 	int32 Layer = LayerId;

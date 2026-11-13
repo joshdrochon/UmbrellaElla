@@ -16,6 +16,7 @@
 #include "Feedback/Vfx/VfxLightPolicy.h"
 #include "Feedback/Vfx/VfxSheetVisual.h"
 #include "GameFramework/Actor.h"
+#include "Settings/UmbrellaAccessibility.h"
 #include "Harness/UmbrellaFeatureFlags.h"
 #include "Kismet/GameplayStatics.h"
 #include "Camera/PlayerCameraManager.h"
@@ -710,7 +711,7 @@ void UUmbrellaVfxDirectorSubsystem::StepShaft(float DeltaSeconds)
 		Part->SetActorLocation(Location);
 		VfxSheetVisual::Resize(Visual, Sizes[Index]);
 		VfxSheetVisual::SetOpacity(Visual, Opacities[Index]);
-		VfxSheetVisual::SetFrame(Visual, VfxCatalog::FrameAt(*Row, Clock));
+		VfxSheetVisual::SetFrame(Visual, VfxCatalog::FrameAt(*Row, Clock, UmbrellaAccessibility::PublishedReducedMotion() && IsFeatureEnabled(EFeatureId::VFX_10)));
 		Part->SetActorHiddenInGame(Opacities[Index] <= 0.0f);
 	}
 }
@@ -742,7 +743,7 @@ void UUmbrellaVfxDirectorSubsystem::StepLive()
 			At = FVector(Target.X, At.Y, Target.Z);
 		}
 		Actor->SetActorLocation(At);
-		VfxSheetVisual::SetFrame(Cast<UStaticMeshComponent>(Actor->GetRootComponent()), VfxCatalog::FrameAt(*Effect.Row, Elapsed));
+		VfxSheetVisual::SetFrame(Cast<UStaticMeshComponent>(Actor->GetRootComponent()), VfxCatalog::FrameAt(*Effect.Row, Elapsed, UmbrellaAccessibility::PublishedReducedMotion() && IsFeatureEnabled(EFeatureId::VFX_10)));
 		// The light fades with the effect and leaves with it: surfaces return to their normal look.
 		const float Fade = VfxLightPolicy::FadeAt(*Effect.Row, Elapsed);
 		if (UPointLightComponent* Light = Effect.Light.Get())
