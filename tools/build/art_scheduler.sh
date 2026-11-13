@@ -2,7 +2,8 @@
 # Start/stop the art scheduler (replaces ../UmbrellaElla-areas/art_keepalive.sh). Run from the main checkout.
 #   tools/build/art_scheduler.sh start|stop|status|once|plan
 set -u
-ROOT="$(cd "$(dirname "$0")/../.." && pwd)"; BASE="$(dirname "$ROOT")/UmbrellaElla-areas"
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+case "$(basename "$(dirname "$ROOT")")" in UmbrellaElla-areas) BASE="$(dirname "$ROOT")";; *) BASE="$(dirname "$ROOT")/UmbrellaElla-areas";; esac
 PIDF="$BASE/.art-scheduler.pid"; mkdir -p "$BASE/logs"
 alive() { [ -f "$PIDF" ] && kill -0 "$(cat "$PIDF")" 2>/dev/null; }
 case "${1:-status}" in

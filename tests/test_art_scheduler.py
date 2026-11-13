@@ -47,17 +47,42 @@ class Grouping(unittest.TestCase):
 class Capacity(unittest.TestCase):
     def test_memory_thresholds_match_ue_slot(self):
         self.assertEqual([S.ue_slots(x) for x in (30, 40, 50, 57)], [4, 3, 2, 0])
-        self.assertEqual(S.capacity(5, 30, 100)[0], 16)
-        self.assertEqual(S.capacity(5, 40, 100)[0], 14)
+        self.assertEqual(S.capacity(5, 30, 100, 16)[0], 16)
+        self.assertEqual(S.capacity(5, 40, 100, 16)[0], 14)
         self.assertEqual(S.capacity(9, 50, 100)[0], 9)    # hold: running loops stay, none start
 
     def test_spend_limits_new_loops_and_no_cap_means_none(self):
-        self.assertEqual(S.capacity(10, 30, 1.2)[0], 12)
+        self.assertEqual(S.capacity(10, 30, 1.2, 16)[0], 12)
         self.assertEqual(S.capacity(10, 30, 0.0)[0], 10)
         self.assertEqual(S.capacity(10, 30, None)[0], 10)
 
+    def test_default_max_loops_is_6(self):
+        self.assertEqual(S.capacity(2, 30, 100)[0], 6)
+        self.assertEqual(S.Scheduler(dry=True).max_loops, int(os.environ.get("ART_MAX_LOOPS", "6")))
+
+    def test_high_load_starts_nothing_new(self):
+        self.assertEqual(S.capacity(3, 30, 100, load=20.5)[0], 3)
+        self.assertIn("by load", S.capacity(3, 30, 100, load=25)[1])
+        self.assertEqual(S.capacity(3, 30, 100, load=19.9)[0], 6)
+
     def test_never_below_running(self):
-        self.assertEqual(S.capacity(15, 60, -3)[0], 15)
+        self.assertEqual(S.capacity(15, 60, -3, 16)[0], 15)
+
+
+class StartFailure(unittest.TestCase):
+    def test_failed_start_records_no_state_and_merge_target_needs_branch(self):
+        import tempfile, subprocess as sp
+        from unittest import mock
+        s = S.Scheduler(dry=True)
+        g = S.Group("zz", "", ["p1", "p2", "p3"])
+        calls = []
+        def fake(cmd, **k):
+            calls.append(cmd)
+            return sp.CompletedProcess(cmd, 1, "", "boom")
+        with mock.patch.object(S.subprocess, "run", fake), mock.patch.object(s, "has_branch", return_value=False):
+            self.assertFalse(s.start(g, ["p1"], ""))
+        self.assertIn("main only", calls[-1][-1])
+        self.assertNotIn("origin/area/zz", calls[-1][-1])
 
 
 class Handoff(unittest.TestCase):

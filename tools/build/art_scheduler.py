@@ -15,7 +15,8 @@ Inputs
                            new lines are appended. Lane names: <owner>, <owner>2, <owner>3 ...
   <areas>/art_models.txt   optional  lane|model  (a loop keeps its model; escalation is the lead's call).
 Capacity (loops running at once) is the lowest of
-  ART_MAX_LOOPS (default 16)
+  ART_MAX_LOOPS (default 6; Josh capped Unreal-heavy jobs machine-wide)
+  load:   1-minute load average above ART_MAX_LOAD (20): no new loop starts
   memory: same thresholds as tools/build/ue_slot.sh. used < 36 GB: all; < 44 GB: 14; otherwise no new loop starts.
   spend:  remaining image budget (smallest of IMAGE_SPEND_CAP_USD, logs/image-cap-usd.txt and the counter's cap_usd,
           minus spent) / ART_MIN_USD_PER_LOOP (0.5); no cap known = no new loop.
@@ -45,7 +46,7 @@ MEM_FULL_GB, MEM_MID_GB, MEM_STOP_GB = 36.0, 44.0, 56.0
 PS_RE = re.compile(r"^claude -p You are the '([A-Za-z0-9_]+)' area worker")
 
 BRIEF = ("Lead: you are an art loop (no human review: loop to the bar). Your scope is EXACTLY these pieces: {pieces}. "
-         "Do not work on any other piece; another loop owns it. First merge {merges} and main. Paint (Spend OK, shared "
+         "Do not work on any other piece; another loop owns it. First merge {merges}. Paint (Spend OK, shared "
          "cap; check the counter), judge every pair through tools/art_loop.py only, context capture per "
          "docs/build/art-image-model.md (merge origin/area/artslots for your slot once it has it). Commit after each "
          "round and keep docs/build/areas/{lane}-status.md current. Stop only when every piece in your scope passes, or "
@@ -165,7 +166,7 @@ def ue_slots(used_gb, forced=None):
     return 4 if used_gb < MEM_FULL_GB else 3 if used_gb < MEM_MID_GB else 2
 
 
-def capacity(running, used_gb, remaining_usd, max_loops=16, min_usd=0.5, forced_slots=None):
+def capacity(running, used_gb, remaining_usd, max_loops=6, min_usd=0.5, forced_slots=None, load=None, max_load=20.0):
     """(loops allowed to run at once, why). Never below `running`: capacity only gates new starts."""
     slots = ue_slots(used_gb, forced_slots)
     mem_cap = max_loops if slots >= 4 else min(max_loops, 14) if slots == 3 else running
@@ -174,9 +175,25 @@ def capacity(running, used_gb, remaining_usd, max_loops=16, min_usd=0.5, forced_
     else:
         spend_cap = running + int(max(0.0, remaining_usd) // min_usd)
         why = f"${max(0.0, remaining_usd):.2f} left"
-    cap = max(running, min(max_loops, mem_cap, spend_cap))
-    which = "memory" if mem_cap <= spend_cap and mem_cap < max_loops else "spend" if spend_cap < max_loops else "max"
-    return cap, f"cap={cap} by {which} (ue_slots={slots}, used={used_gb:.1f}GB, {why})"
+    busy = load is not None and load > max_load
+    cap = max(running, 0 if busy else min(max_loops, mem_cap, spend_cap))
+    if busy:
+        which = "load"
+    elif mem_cap < min(max_loops, spend_cap):
+        which = "memory"
+    elif spend_cap < max_loops:
+        which = "spend"
+    else:
+        which = "max"
+    ld = "" if load is None else f", load1={load:.1f}"
+    return cap, f"cap={cap} by {which} (ue_slots={slots}, used={used_gb:.1f}GB{ld}, {why})"
+
+
+def load1():
+    try:
+        return os.getloadavg()[0]
+    except (OSError, AttributeError):
+        return None
 
 
 def used_gb():
@@ -271,7 +288,7 @@ class Scheduler:
         self.groups_file = os.path.join(self.base, "art_groups.txt")
         self.state_file = os.path.join(self.base, ".art-scheduler.json")
         self.log_file = os.path.join(self.base, "logs", "art-scheduler.log")
-        self.max_loops = int(os.environ.get("ART_MAX_LOOPS", "16"))
+        self.max_loops = int(os.environ.get("ART_MAX_LOOPS", "6"))
         self.max_restarts = int(os.environ.get("ART_MAX_RESTARTS", "8"))
         self.min_usd = float(os.environ.get("ART_MIN_USD_PER_LOOP", "0.5"))
         self._last = {}
@@ -329,12 +346,21 @@ class Scheduler:
                 out[a.strip()] = m.strip()
         return out
 
+    def has_branch(self, name):
+        return subprocess.run(["git", "-C", self.repo, "show-ref", "--verify", "--quiet",
+                               f"refs/remotes/origin/area/{name}"]).returncode == 0
+
     def start(self, g, left, model):
-        merges = f"origin/area/{g.parent}" if g.parent else f"origin/area/{g.lane}"
+        """True if start_area.sh succeeded. Names origin/area/<x> to merge only when that branch exists."""
+        x = g.parent or g.lane
+        merges = f"origin/area/{x} and main" if self.has_branch(x) else "main only (no origin/area branch for you yet)"
         brief = BRIEF.format(pieces=" ".join(left), merges=merges, lane=g.lane)
         env = dict(os.environ, WORKER_MODEL=model or "")
-        subprocess.run([os.path.join(self.repo, "tools", "build", "start_area.sh"), g.lane, brief], cwd=self.repo, env=env,
-                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        p = subprocess.run([os.path.join(self.repo, "tools", "build", "start_area.sh"), g.lane, brief], cwd=self.repo,
+                           env=env, capture_output=True, text=True)
+        if p.returncode != 0:
+            self.log(f"START_FAILED {g.lane} rc={p.returncode}: {(p.stderr or p.stdout).strip()[-300:]}")
+        return p.returncode == 0
 
     def stop(self, lane, pids):
         open(os.path.join(self.base, f".stop-{lane}"), "w").close()   # start_area's wrapper does not resume after this
@@ -367,7 +393,8 @@ class Scheduler:
         for lane in sorted(set(run) - set(lanes)):
             self.log(f"ORPHAN {lane} has a session but no group; left running", key=("orphan", lane))
         cap, why = capacity(len(run), used_gb(), remaining_usd(self.base), self.max_loops, self.min_usd,
-                            os.environ.get("UE_SLOTS"))
+                            os.environ.get("UE_SLOTS"), load1(),
+                            float(os.environ.get("ART_MAX_LOAD", "20")))
         acts = plan(groups, passed, set(run), st, cap, self.max_restarts)
         models = self.models()
         for act, lane, detail in acts:
@@ -382,7 +409,8 @@ class Scheduler:
                 n = rec.get("restarts", 0) if rec.get("left") == len(left) else 0
                 self.log(f"{act} {lane} {detail} model={models.get(lane, 'default')} ({why})")
                 if not self.dry:
-                    self.start(g, left, models.get(lane, ""))
+                    if not self.start(g, left, models.get(lane, "")):
+                        continue   # nothing is running: record nothing, so the next cycle starts it again
                     st[lane] = {"restarts": n + (1 if act == "RESTART" else 0), "left": len(left),
                                 "last": int(self.now()), "last_act": act}
             elif act == "HOLD":
