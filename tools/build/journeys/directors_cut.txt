@@ -6,6 +6,12 @@ firstrun
 wait Title 60
 idle 1
 click Director's Cut              # menu item 2, by mouse
+skipunless Purchase 5             # once points are earned (a run before this one), Director's Cut opens Purchase first
+shot d00_purchase
+texts
+key Escape                        # leaves Purchase (Back) to the Start screen; the mouse cannot reach Done at 640x360 (it draws under the panel)
+wait Title 5
+click Director's Cut
 trywait Tutorial 5
 keyuntil Playing Enter 0.8 30
 idle 2
@@ -16,13 +22,25 @@ shot d01b_route_untrimmed         # where Ella is after 8 s of that (she rises w
 route 1 60 1                      # real input with altitude trim (J held while she is high): walk to CP1
 routeassist 1
 idle 1
+skipunless Purchase 2             # a refuge with unspent points opens Purchase; leave it without spending
+shot d02a_refuge_purchase
+key Escape
+idle 1
 shot d02_cp1
 route 2 60 1
 routeassist 2
 idle 1
+skipunless Purchase 2             # a refuge with unspent points opens Purchase; leave it without spending
+shot d03a_refuge_purchase
+key Escape
+idle 1
 shot d03_cp2
 route 3 60 1
 routeassist 3
+idle 1
+skipunless Purchase 2             # a refuge with unspent points opens Purchase; leave it without spending
+shot d04a_refuge_purchase
+key Escape
 idle 1
 shot d04_cp3
 route 4 60 1                      # past CP3 to the Keeper handoff

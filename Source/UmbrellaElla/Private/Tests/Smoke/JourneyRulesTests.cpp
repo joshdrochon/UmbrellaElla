@@ -41,4 +41,23 @@ bool FJourneyNamesScreens::RunTest(const FString& Parameters)
 	return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FJourneyParsesRouteSteps, "UmbrellaElla.Smoke.Journey.ParsesRouteSteps",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+bool FJourneyParsesRouteSteps::RunTest(const FString& Parameters)
+{
+	// The Director's Cut journey: real-key route walk with trim, the named checkpoint assist, the purchase-screen skip.
+	TArray<FString> Errors;
+	const TArray<FJourneyStep> Steps = JourneyRules::ParseScript(TEXT("route 2 60 1\nrouteassist 4\nskipunless Purchase 5\n"), Errors);
+	TestEqual(TEXT("no errors"), Errors.Num(), 0);
+	if (TestEqual(TEXT("steps"), Steps.Num(), 3))
+	{
+		TestEqual(TEXT("route numbers"), Steps[0].Numbers.Num(), 3);
+		TestTrue(TEXT("route arg empty"), Steps[0].Arg.IsEmpty());
+		TestEqual(TEXT("routeassist checkpoint"), Steps[1].Numbers.Num() == 1 ? Steps[1].Numbers[0] : -1.0f, 4.0f);
+		TestEqual(TEXT("skipunless screen"), Steps[2].Arg, FString(TEXT("Purchase")));
+		TestEqual(TEXT("skipunless count"), Steps[2].Numbers.Num() == 1 ? Steps[2].Numbers[0] : -1.0f, 5.0f);
+	}
+	return true;
+}
+
 #endif

@@ -19,7 +19,7 @@ enum class EJourneyResult : uint8
 /** One line of a journey script (JourneyRules::ParseScript). */
 struct UMBRELLAELLA_API FJourneyStep
 {
-	/** wait, trywait, shot, key, hold, click, music, idle, hits, assistwin, retrycheck, log, end, route, routeassist. */
+	/** wait, trywait, shot, key, hold, click, music, idle, hits, assistwin, retrycheck, log, end, route, routeassist, skipunless. */
 	FString Command;
 	/** Everything after the command word (a label, a key, a screen name). */
 	FString Arg;
@@ -154,4 +154,6 @@ private:
 	float RouteBestX = 0.0f;
 	int32 RouteHeals = 0;
 	bool bRouteSinking = false;
+	/** Steps a `skipunless` drops after itself (set just before its FinishStep). */
+	int32 SkipAfterStep = 0;
 };

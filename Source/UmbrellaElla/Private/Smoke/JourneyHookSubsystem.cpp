@@ -7,7 +7,7 @@ namespace JourneyRules
 	TArray<FJourneyStep> ParseScript(const FString& Text, TArray<FString>& OutErrors)
 	{
 		static const TArray<FString> Known = { TEXT("wait"), TEXT("trywait"), TEXT("shot"), TEXT("key"), TEXT("hold"), TEXT("click"),
-			TEXT("music"), TEXT("idle"), TEXT("hits"), TEXT("assistwin"), TEXT("retrycheck"), TEXT("log"), TEXT("end"), TEXT("firstrun"), TEXT("keyuntil"), TEXT("console"), TEXT("texts"), TEXT("route"), TEXT("routeassist") };
+			TEXT("music"), TEXT("idle"), TEXT("hits"), TEXT("assistwin"), TEXT("retrycheck"), TEXT("log"), TEXT("end"), TEXT("firstrun"), TEXT("keyuntil"), TEXT("console"), TEXT("texts"), TEXT("route"), TEXT("routeassist"), TEXT("skipunless") };
 		TArray<FJourneyStep> Out;
 		TArray<FString> Lines;
 		Text.ParseIntoArrayLines(Lines, false);
@@ -394,16 +394,19 @@ void UJourneyHookSubsystem::Tick(float DeltaTime)
 			FinishStep(EJourneyResult::Fail, FString::Printf(TEXT("cp=%d want=%d %s after %.1fs real_input x_start=%.0f x_best=%.0f heals=%d"), Progress, Want,
 				Progress < 0 ? TEXT("no route") : TEXT("timeout"), Elapsed, RouteStartX, RouteBestX, RouteHeals));
 		}
-		else if (CurrentScreen() == static_cast<uint8>(EFlowScreen::LevelUp) || CurrentScreen() == static_cast<uint8>(EFlowScreen::Story))
+		else if (CurrentScreen() == static_cast<uint8>(EFlowScreen::LevelUp) || CurrentScreen() == static_cast<uint8>(EFlowScreen::Story)
+			|| CurrentScreen() == static_cast<uint8>(EFlowScreen::Purchase))
 		{
-			// A level-up or story card on the route: Enter, as a player would, logged with the screen it closed.
+			// A level-up or story card on the route: Enter, as a player would; a refuge purchase screen: Escape (leave
+			// without spending). Logged with the screen it closed.
 			if (Now - LastRouteHop >= JourneyRouteHopSeconds)
 			{
 				LastRouteHop = Now;
 				const uint8 Before = CurrentScreen();
-				PressSlateKey(EKeys::Enter);
-				ReleaseSlateKey(EKeys::Enter);
-				Log(FString::Printf(TEXT("JOURNEY_ROUTE_CARD key=Enter from=%s to=%s"), *JourneyRules::ScreenName(Before), *JourneyRules::ScreenName(CurrentScreen())));
+				const FKey Key = Before == static_cast<uint8>(EFlowScreen::Purchase) ? EKeys::Escape : EKeys::Enter;
+				PressSlateKey(Key);
+				ReleaseSlateKey(Key);
+				Log(FString::Printf(TEXT("JOURNEY_ROUTE_CARD key=%s from=%s to=%s"), *Key.ToString(), *JourneyRules::ScreenName(Before), *JourneyRules::ScreenName(CurrentScreen())));
 			}
 		}
 		else if (CurrentScreen() == static_cast<uint8>(EFlowScreen::Playing))
@@ -667,6 +670,18 @@ void UJourneyHookSubsystem::StartStep()
 		}
 		FinishStep(EJourneyResult::Pass, FString::Join(Texts, TEXT(" | ")));
 	}
+	else if (Step.Command == TEXT("skipunless"))
+	{
+		// skipunless <Screen> <n>: when the screen is not <Screen>, the next n steps are skipped (logged), e.g. the
+		// Director's Cut purchase screen that only shows once points are earned.
+		uint8 Want = 0;
+		const bool bKnown = JourneyRules::HasScreenNamed(Step.Arg, Want);
+		const int32 Count = FMath::RoundToInt(N0);
+		const bool bShown = bKnown && CurrentScreen() == Want;
+		SkipAfterStep = bKnown && !bShown ? FMath::Max(0, Count) : 0;
+		FinishStep(bKnown ? EJourneyResult::Pass : EJourneyResult::Fail,
+			bShown ? FString::Printf(TEXT("%s shown, next %d steps run"), *Step.Arg, Count) : FString::Printf(TEXT("%s not shown, next %d steps skipped"), *Step.Arg, Count));
+	}
 	else if (Step.Command == TEXT("log"))
 	{
 		FinishStep(EJourneyResult::Pass, Step.Arg);
@@ -694,7 +709,8 @@ void UJourneyHookSubsystem::FinishStep(EJourneyResult Result, const FString& Det
 		EndJourney(FString::Printf(TEXT("line %d %s %s: %s"), Step.Line, *Step.Command, *Step.Arg, *Detail));
 		return;
 	}
-	++StepIndex;
+	StepIndex = FMath::Min(Steps.Num(), StepIndex + 1 + SkipAfterStep);
+	SkipAfterStep = 0;
 	StartStep();
 }
 

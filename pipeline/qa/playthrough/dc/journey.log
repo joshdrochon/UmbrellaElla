@@ -1,0 +1,129 @@
+JOURNEY_BEGIN script=directors_cut.txt steps=64 out=/Users/joanmiguel/Desktop/Developer/UmbrellaElla-areas/agentplay/Saved/Journey/dc
+JOURNEY_STEP n=1 line=5 cmd="firstrun " result=PASS screen=Title mode=start retries=0 held=[] encounter=0 phase=wings detail="tutorial not seen (memory only)"
+JOURNEY_STEP n=2 line=6 cmd="wait Title" result=PASS screen=Title mode=start retries=0 held=[] encounter=0 phase=wings detail="after 0.0s"
+JOURNEY_STEP n=3 line=7 cmd="idle " result=PASS screen=Title mode=start retries=0 held=[] encounter=0 phase=wings detail=""
+JOURNEY_STEP n=4 line=8 cmd="click Director's Cut" result=PASS screen=Purchase mode=dc retries=0 held=[] encounter=0 phase=wings detail="mouse at (642,612) on SUmbrellaButton, under=none focus=SUmbrellaButton active=1 window_pos=X=544.000 Y=353.000 from=Title"
+JOURNEY_STEP n=5 line=9 cmd="skipunless Purchase" result=PASS screen=Purchase mode=dc retries=0 held=[] encounter=0 phase=wings detail="Purchase shown, next 5 steps run"
+JOURNEY_STEP n=6 line=10 cmd="shot d00_purchase" result=PASS screen=Purchase mode=dc retries=0 held=[] encounter=0 phase=wings detail="d00_purchase.png 640x360 view frame_mean=69 ella=absent keeper=absent arena=absent"
+JOURNEY_STEP n=7 line=11 cmd="texts " result=PASS screen=Purchase mode=dc retries=0 held=[] encounter=0 phase=wings detail="Done(99x43) | Level 6   Points left 5(700x45) | Hits per life: 0 / 8(624x29) | -(16x34) | +(20x34) | Lives: 0 / 8(624x29) | -(16x34) | +(20x34) | Recovery per yellow: 0 / 3(624x29) | -(16x34) | +(20x34) | Damage reduction: 0 / 3(624x29) | -(16x34) | +(20x34) | Suction range: 0 / 3(624x29) | -(16x34) | +(20x34) | Suction cone: 0 / 3(624x29) | -(16x34) | +(20x34) | Small Blasts damage: 0 / 3(624x29) | -(16x34) | +(20x34) | Streamed Blast damage: 0 / 3(624x29) | -(16x34) | +(20x34) | Twin Stars damage: 0 / 3(624x29) | -(16x34) | +(20x34) | Needle Spell damage: 0 / 3(624x29) | -(16x34) | +(20x34) | Confirm (0 points)(245x29) | Cancel(97x29)"
+JOURNEY_STEP n=8 line=12 cmd="key Escape" result=PASS screen=Title mode=dc retries=0 held=[] encounter=0 phase=wings detail="from=Purchase focus=SUmbrellaButton"
+JOURNEY_STEP n=9 line=13 cmd="wait Title" result=PASS screen=Title mode=dc retries=0 held=[] encounter=0 phase=wings detail="after 1.5s"
+JOURNEY_STEP n=10 line=14 cmd="click Director's Cut" result=PASS screen=Tutorial mode=dc retries=0 held=[] encounter=0 phase=wings detail="mouse at (642,612) on SUmbrellaButton, under=none focus=SUmbrellaButton active=1 window_pos=X=544.000 Y=353.000 from=Title"
+JOURNEY_STEP n=11 line=15 cmd="trywait Tutorial" result=PASS screen=Tutorial mode=dc retries=0 held=[] encounter=0 phase=wings detail="after 0.0s"
+JOURNEY_TAP key=Enter n=1 focus=SUmbrellaButton from=Tutorial to=Tutorial
+JOURNEY_TAP key=Enter n=2 focus=SUmbrellaButton from=Tutorial to=Tutorial
+JOURNEY_TAP key=Enter n=3 focus=SUmbrellaButton from=Tutorial to=Resuming
+JOURNEY_STEP n=12 line=16 cmd="keyuntil Playing Enter" result=PASS screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(-720,151) route_cp=0 encounter=0 phase=wings detail="taps=3 after 1.9s"
+JOURNEY_STEP n=13 line=17 cmd="idle " result=PASS screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(-720,633) route_cp=0 encounter=0 phase=wings detail=""
+JOURNEY_STEP n=14 line=18 cmd="shot d01_route_start" result=PASS screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(-720,672) route_cp=0 encounter=0 phase=wings detail="d01_route_start.png 640x360 view frame_mean=86 ella=offscreen(-240,136) keeper=absent arena=drawn(320,180) spread=51 mean=85"
+JOURNEY_STEP n=15 line=19 cmd="texts " result=PASS screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(-720,672) route_cp=0 encounter=0 phase=wings detail="Director's Cut(281x43) | Mother: Keep it open, Ella. It'll protec(851x32)"
+JOURNEY_ROUTE t=0.1 screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(-720,708) route_cp=0 encounter=0 phase=wings
+JOURNEY_ROUTE t=2.2 screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(-486,1190) route_cp=0 encounter=0 phase=wings
+JOURNEY_ROUTE t=4.2 screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(-396,1671) route_cp=0 encounter=0 phase=wings
+JOURNEY_ROUTE t=6.2 screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(-234,2152) route_cp=0 encounter=0 phase=wings
+JOURNEY_STEP n=16 line=20 cmd="route " result=FAIL screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(-72,2593) route_cp=0 encounter=0 phase=wings detail="cp=0 want=1 timeout after 8.0s real_input x_start=-720 x_best=-72 heals=0"
+JOURNEY_STEP n=17 line=21 cmd="shot d01b_route_untrimmed" result=PASS screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(-72,2636) route_cp=0 encounter=0 phase=wings detail="d01b_route_untrimmed.png 640x360 view frame_mean=86 ella=offscreen(-24,-519) keeper=absent arena=drawn(320,180) spread=47 mean=85"
+JOURNEY_ROUTE t=0.2 screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(-72,2672) route_cp=0 encounter=0 phase=wings
+JOURNEY_ROUTE t=2.2 screen=Playing mode=dc retries=0 held=[J] lives=3/3 active=3.00/3.00 ella=(791,1346) route_cp=0 encounter=0 phase=wings
+JOURNEY_ROUTE t=4.2 screen=Playing mode=dc retries=0 held=[J] lives=3/3 active=3.00/3.00 ella=(1420,1226) route_cp=0 encounter=0 phase=wings
+JOURNEY_ROUTE t=6.2 screen=Playing mode=dc retries=0 held=[J] lives=3/3 active=3.00/3.00 ella=(2048,933) route_cp=0 encounter=0 phase=wings
+JOURNEY_ROUTE t=8.2 screen=Playing mode=dc retries=0 held=[J] lives=3/3 active=3.00/3.00 ella=(2799,446) route_cp=0 encounter=0 phase=wings
+JOURNEY_ROUTE t=10.2 screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(3419,451) route_cp=0 encounter=0 phase=wings
+JOURNEY_ROUTE t=12.2 screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(4102,451) route_cp=0 encounter=0 phase=wings
+JOURNEY_ROUTE t=14.2 screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(4807,448) route_cp=0 encounter=0 phase=wings
+JOURNEY_ROUTE t=16.2 screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(5472,452) route_cp=0 encounter=0 phase=wings
+JOURNEY_STEP n=18 line=22 cmd="route " result=PASS screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(5772,446) route_cp=1 encounter=0 phase=wings detail="cp=1 after 17.4s real_input x_start=-72 x_best=5772 heals=0"
+JOURNEY_ASSIST routeassist=1 ok=1 not needed: real input already reached 1
+JOURNEY_STEP n=19 line=23 cmd="routeassist " result=PASS screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(5772,446) route_cp=1 encounter=0 phase=wings detail="not needed: real input already reached 1"
+JOURNEY_STEP n=20 line=24 cmd="idle " result=PASS screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(5899,686) route_cp=1 encounter=0 phase=wings detail=""
+JOURNEY_STEP n=21 line=25 cmd="skipunless Purchase" result=PASS screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(5899,686) route_cp=1 encounter=0 phase=wings detail="Purchase not shown, next 2 steps skipped"
+JOURNEY_STEP n=24 line=28 cmd="idle " result=PASS screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(5899,928) route_cp=1 encounter=0 phase=wings detail=""
+JOURNEY_STEP n=25 line=29 cmd="shot d02_cp1" result=PASS screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(5899,974) route_cp=1 encounter=0 phase=wings detail="d02_cp1.png 640x360 view frame_mean=90 ella=drawn(320,35) spread=20 mean=17 keeper=absent arena=offscreen(-1326,180)"
+JOURNEY_ROUTE t=0.2 screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(5899,1011) route_cp=1 encounter=0 phase=wings
+JOURNEY_ROUTE t=2.2 screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(6666,449) route_cp=1 encounter=0 phase=wings
+JOURNEY_ROUTE t=4.2 screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(7265,451) route_cp=1 encounter=0 phase=wings
+JOURNEY_ROUTE t=6.2 screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(7862,449) route_cp=1 encounter=0 phase=wings
+JOURNEY_ROUTE t=8.2 screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(8524,448) route_cp=1 encounter=0 phase=wings
+JOURNEY_ROUTE t=10.2 screen=Playing mode=dc retries=0 held=[J] lives=3/3 active=3.00/3.00 ella=(9116,446) route_cp=1 encounter=0 phase=wings
+JOURNEY_ROUTE t=12.2 screen=Playing mode=dc retries=0 held=[J] lives=3/3 active=3.00/3.00 ella=(9824,446) route_cp=1 encounter=0 phase=wings
+JOURNEY_ROUTE t=14.2 screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(10464,449) route_cp=1 encounter=0 phase=wings
+JOURNEY_ROUTE t=16.2 screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(11096,451) route_cp=1 encounter=0 phase=wings
+JOURNEY_ROUTE t=18.2 screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(11464,452) route_cp=1 encounter=0 phase=wings
+JOURNEY_ROUTE t=20.2 screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(11464,452) route_cp=1 encounter=0 phase=wings
+JOURNEY_ROUTE t=22.2 screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(11464,450) route_cp=1 encounter=0 phase=wings
+JOURNEY_ROUTE t=24.2 screen=Playing mode=dc retries=0 held=[J] lives=3/3 active=3.00/3.00 ella=(11464,446) route_cp=1 encounter=0 phase=wings
+JOURNEY_ROUTE t=26.2 screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(11464,447) route_cp=1 encounter=0 phase=wings
+JOURNEY_ROUTE t=28.2 screen=Playing mode=dc retries=0 held=[J] lives=3/3 active=3.00/3.00 ella=(11464,445) route_cp=1 encounter=0 phase=wings
+JOURNEY_ROUTE t=30.2 screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(11464,453) route_cp=1 encounter=0 phase=wings
+JOURNEY_ROUTE t=32.2 screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(11464,450) route_cp=1 encounter=0 phase=wings
+JOURNEY_ROUTE t=34.2 screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(11464,454) route_cp=1 encounter=0 phase=wings
+JOURNEY_ROUTE t=36.2 screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(11464,453) route_cp=1 encounter=0 phase=wings
+JOURNEY_ROUTE t=38.2 screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(11464,452) route_cp=1 encounter=0 phase=wings
+JOURNEY_ROUTE t=40.3 screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(11464,454) route_cp=1 encounter=0 phase=wings
+JOURNEY_ROUTE t=42.3 screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(11464,450) route_cp=1 encounter=0 phase=wings
+JOURNEY_ROUTE t=44.3 screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(11464,451) route_cp=1 encounter=0 phase=wings
+JOURNEY_ROUTE t=46.3 screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(11464,450) route_cp=1 encounter=0 phase=wings
+JOURNEY_ROUTE t=48.3 screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(11464,447) route_cp=1 encounter=0 phase=wings
+JOURNEY_ROUTE t=50.3 screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(11464,448) route_cp=1 encounter=0 phase=wings
+JOURNEY_ROUTE t=52.3 screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(11464,448) route_cp=1 encounter=0 phase=wings
+JOURNEY_ROUTE t=54.3 screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(11464,449) route_cp=1 encounter=0 phase=wings
+JOURNEY_ROUTE t=56.3 screen=Playing mode=dc retries=0 held=[J] lives=3/3 active=3.00/3.00 ella=(11464,445) route_cp=1 encounter=0 phase=wings
+JOURNEY_ROUTE t=58.3 screen=Playing mode=dc retries=0 held=[J] lives=3/3 active=3.00/3.00 ella=(11464,447) route_cp=1 encounter=0 phase=wings
+JOURNEY_STEP n=26 line=30 cmd="route " result=FAIL screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(11464,453) route_cp=1 encounter=0 phase=wings detail="cp=1 want=2 timeout after 60.0s real_input x_start=5899 x_best=11465 heals=0"
+JOURNEY_ASSIST routeassist=2 ok=1 ASSIST placed at CP2 from x=11464 to x=12720
+JOURNEY_STEP n=27 line=31 cmd="routeassist " result=PASS screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(12720,151) route_cp=1 encounter=0 phase=wings detail="ASSIST placed at CP2 from x=11464 to x=12720"
+JOURNEY_STEP n=28 line=32 cmd="idle " result=PASS screen=Purchase mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(12730,153) route_cp=2 encounter=0 phase=wings detail=""
+JOURNEY_STEP n=29 line=33 cmd="skipunless Purchase" result=PASS screen=Purchase mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(12730,153) route_cp=2 encounter=0 phase=wings detail="Purchase shown, next 2 steps run"
+JOURNEY_STEP n=30 line=34 cmd="shot d03a_refuge_purchase" result=PASS screen=Purchase mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(12730,153) route_cp=2 encounter=0 phase=wings detail="d03a_refuge_purchase.png 640x360 view frame_mean=69 ella=flat(163,309) spread=5 mean=68 keeper=absent arena=offscreen(-3760,180)"
+JOURNEY_STEP n=31 line=35 cmd="key Escape" result=PASS screen=Resuming mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(12730,153) route_cp=2 encounter=0 phase=wings detail="from=Purchase focus=SUmbrellaButton"
+JOURNEY_STEP n=32 line=36 cmd="idle " result=PASS screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(12778,333) route_cp=2 encounter=0 phase=wings detail=""
+JOURNEY_STEP n=33 line=37 cmd="shot d03_cp2" result=PASS screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(12778,378) route_cp=2 encounter=0 phase=wings detail="d03_cp2.png 640x360 view frame_mean=90 ella=drawn(320,234) spread=20 mean=22 keeper=absent arena=offscreen(-3619,180)"
+JOURNEY_ROUTE t=0.1 screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(12778,411) route_cp=2 encounter=0 phase=wings
+JOURNEY_ROUTE t=2.1 screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(13455,453) route_cp=2 encounter=0 phase=wings
+JOURNEY_ROUTE t=4.1 screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(13963,452) route_cp=2 encounter=0 phase=wings
+JOURNEY_ROUTE t=6.2 screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(14560,452) route_cp=2 encounter=0 phase=wings
+JOURNEY_ROUTE t=8.2 screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(15210,447) route_cp=2 encounter=0 phase=wings
+JOURNEY_ROUTE t=10.2 screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(15880,453) route_cp=2 encounter=0 phase=wings
+JOURNEY_ROUTE t=12.2 screen=Playing mode=dc retries=0 held=[J] lives=3/3 active=3.00/3.00 ella=(16608,447) route_cp=2 encounter=0 phase=wings
+JOURNEY_ROUTE t=14.2 screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(17330,449) route_cp=2 encounter=0 phase=wings
+JOURNEY_ROUTE t=16.2 screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(17977,450) route_cp=2 encounter=0 phase=wings
+JOURNEY_ROUTE t=18.2 screen=Playing mode=dc retries=0 held=[J] lives=3/3 active=3.00/3.00 ella=(18581,446) route_cp=2 encounter=0 phase=wings
+JOURNEY_STEP n=34 line=38 cmd="route " result=PASS screen=Purchase mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(19218,453) route_cp=3 encounter=0 phase=wings detail="cp=3 after 20.1s real_input x_start=12778 x_best=19218 heals=0"
+JOURNEY_ASSIST routeassist=3 ok=1 not needed: real input already reached 3
+JOURNEY_STEP n=35 line=39 cmd="routeassist " result=PASS screen=Purchase mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(19218,453) route_cp=3 encounter=0 phase=wings detail="not needed: real input already reached 3"
+JOURNEY_STEP n=36 line=40 cmd="idle " result=PASS screen=Purchase mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(19218,453) route_cp=3 encounter=0 phase=wings detail=""
+JOURNEY_STEP n=37 line=41 cmd="skipunless Purchase" result=PASS screen=Purchase mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(19218,453) route_cp=3 encounter=0 phase=wings detail="Purchase shown, next 2 steps run"
+JOURNEY_STEP n=38 line=42 cmd="shot d04a_refuge_purchase" result=PASS screen=Purchase mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(19218,453) route_cp=3 encounter=0 phase=wings detail="d04a_refuge_purchase.png 640x360 view frame_mean=69 ella=flat(326,209) spread=6 mean=63 keeper=absent arena=offscreen(-5760,180)"
+JOURNEY_STEP n=39 line=43 cmd="key Escape" result=PASS screen=Resuming mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(19218,453) route_cp=3 encounter=0 phase=wings detail="from=Purchase focus=SUmbrellaButton"
+JOURNEY_STEP n=40 line=44 cmd="idle " result=PASS screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(19355,631) route_cp=3 encounter=0 phase=wings detail=""
+JOURNEY_STEP n=41 line=45 cmd="shot d04_cp3" result=PASS screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(19355,675) route_cp=3 encounter=0 phase=wings detail="d04_cp3.png 640x360 view frame_mean=77 ella=drawn(372,135) spread=20 mean=22 keeper=absent arena=offscreen(-5760,180)"
+JOURNEY_ROUTE t=0.2 screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(19355,712) route_cp=3 encounter=0 phase=wings
+JOURNEY_STEP n=42 line=46 cmd="route " result=PASS screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(19783,450) route_cp=4 encounter=1 phase=wings detail="cp=4 after 1.3s real_input x_start=19355 x_best=19783 heals=0"
+JOURNEY_ASSIST routeassist=4 ok=1 not needed: real input already reached 4
+JOURNEY_STEP n=43 line=47 cmd="routeassist " result=PASS screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(19783,450) route_cp=4 encounter=1 phase=wings detail="not needed: real input already reached 4"
+JOURNEY_STEP n=44 line=48 cmd="idle " result=PASS screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(19783,1173) route_cp=4 encounter=1 phase=wings detail=""
+JOURNEY_STEP n=45 line=49 cmd="shot d05_keeper_handoff" result=PASS screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(19783,1217) route_cp=4 encounter=1 phase=wings detail="d05_keeper_handoff.png 640x360 view frame_mean=77 ella=offscreen(514,-46) keeper=offscreen(-5600,145) arena=offscreen(-5760,180)"
+JOURNEY_STEP n=46 line=50 cmd="texts " result=PASS screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(19783,1217) route_cp=4 encounter=1 phase=wings detail="Director's Cut(281x43) | The clock keeps one hand. Beside it is a(768x32)"
+JOURNEY_PHASE from=wings to=mechanisms part_hits=144 screen=Playing mode=dc retries=0 held=[J] lives=3/3 active=3.00/3.00 ella=(19783,90) route_cp=4 encounter=1 phase=mechanisms
+JOURNEY_FIGHT_CARD key=Enter from=LevelUp to=Resuming
+JOURNEY_FIGHT_CARD key=Enter from=LevelUp to=Resuming
+JOURNEY_PHASE from=mechanisms to=clock part_hits=379 screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(19783,90) route_cp=4 encounter=1 phase=clock
+JOURNEY_FIGHT_CARD key=Enter from=LevelUp to=Resuming
+JOURNEY_STEP n=47 line=51 cmd="assistwin " result=PASS screen=Story mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(19783,90) route_cp=4 encounter=2 phase=clock detail="assisted_part_hits=490 after 44.8s"
+JOURNEY_STEP n=48 line=52 cmd="idle " result=PASS screen=Story mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(19783,89) route_cp=4 encounter=2 phase=clock detail=""
+JOURNEY_STEP n=49 line=53 cmd="shot d06_story_hold" result=PASS screen=Story mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(19783,89) route_cp=4 encounter=2 phase=clock detail="d06_story_hold.png 640x360 view frame_mean=62 ella=drawn(514,330) spread=22 mean=49 keeper=offscreen(-6080,360) arena=offscreen(-5760,180)"
+JOURNEY_STEP n=50 line=54 cmd="idle " result=PASS screen=Story mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(19783,89) route_cp=4 encounter=2 phase=clock detail=""
+JOURNEY_STEP n=51 line=55 cmd="shot d07_story_text" result=PASS screen=Story mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(19783,89) route_cp=4 encounter=2 phase=clock detail="d07_story_text.png 640x360 view frame_mean=62 ella=drawn(514,330) spread=22 mean=49 keeper=offscreen(-6080,360) arena=offscreen(-5760,180)"
+JOURNEY_STEP n=52 line=56 cmd="texts " result=PASS screen=Story mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(19783,89) route_cp=4 encounter=2 phase=clock detail="The owl's pursuit ends. He goes back int(700x90)"
+JOURNEY_STEP n=53 line=57 cmd="wait Credits" result=PASS screen=Credits mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(19783,90) route_cp=4 encounter=2 phase=clock detail="after 12.1s"
+JOURNEY_STEP n=54 line=58 cmd="idle " result=PASS screen=Credits mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(19783,90) route_cp=4 encounter=2 phase=clock detail=""
+JOURNEY_STEP n=55 line=59 cmd="shot d08_credits" result=PASS screen=Credits mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(19783,90) route_cp=4 encounter=2 phase=clock detail="d08_credits.png 640x360 view frame_mean=62 ella=drawn(514,330) spread=22 mean=49 keeper=offscreen(-6080,360) arena=offscreen(-5760,180)"
+JOURNEY_STEP n=56 line=60 cmd="texts " result=PASS screen=Credits mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(19783,90) route_cp=4 encounter=2 phase=clock detail="Umbrella Ella(700x77) | The Stolen Hour(700x43) | Rick Rispoli(700x52) | Executive Producer(700x32) | Richard(700x52) | Producer(700x32) | Josh Rochon(700x52) | Technical Lead(700x32)"
+JOURNEY_STEP n=57 line=61 cmd="trywait Statistics" result=PASS screen=Statistics mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(19783,90) route_cp=4 encounter=2 phase=clock detail="after 20.8s"
+JOURNEY_STEP n=58 line=62 cmd="shot d09_after_credits" result=PASS screen=Statistics mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(19783,90) route_cp=4 encounter=2 phase=clock detail="d09_after_credits.png 640x360 view frame_mean=69 ella=drawn(514,330) spread=25 mean=44 keeper=offscreen(-6080,360) arena=offscreen(-5760,180)"
+JOURNEY_STEP n=59 line=63 cmd="texts " result=PASS screen=Statistics mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(19783,90) route_cp=4 encounter=2 phase=clock detail="Journey Complete(545x63) | Enemies defeated(420x34) | 5(20x34) | Experience earned(420x34) | 450(61x34) | Deaths(420x34) | 0(20x34) | Distance flown(420x34) | 592 m(90x34) | Shots fired(420x34) | 0(20x34) | Shots fired at you(420x34) | 690(56x34) | Damage taken(420x34) | 0.0(47x34) | Health restored(420x34) | 0.0(47x34) | Try Again(151x32) | Main Menu(157x32)"
+JOURNEY_STEP n=60 line=64 cmd="click Main Menu" result=PASS screen=Statistics mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(19783,106) route_cp=4 encounter=2 phase=clock detail="mouse at (728,647) on SUmbrellaButton, under=STextBlock focus=SUmbrellaButton active=1 window_pos=X=544.000 Y=353.000 from=Statistics"
+JOURNEY_STEP n=61 line=65 cmd="wait Title" result=PASS screen=Title mode=start retries=0 held=[] encounter=0 phase=wings detail="after 0.0s"
+JOURNEY_STEP n=62 line=66 cmd="idle " result=PASS screen=Title mode=start retries=0 held=[] encounter=0 phase=wings detail=""
+JOURNEY_STEP n=63 line=67 cmd="shot d10_back_at_start" result=PASS screen=Title mode=start retries=0 held=[] encounter=0 phase=wings detail="d10_back_at_start.png 640x360 view frame_mean=63 ella=absent keeper=absent arena=absent"
+JOURNEY_END passed=59 failed=2 blocker="none" screen=Title mode=start retries=0 held=[] encounter=0 phase=wings
