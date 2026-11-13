@@ -378,8 +378,10 @@ namespace
 		{
 			FMotorTuning& Motor = GetMutableDefault<UUmbrellaTuning>()->Motor;
 			Saved = Motor;
+#if UMBRELLAELLA_WORKBENCH
 			Motor.HeroSize = HeroSize;
 			Motor.HitboxScale = Hitbox;
+#endif
 		}
 		~FMoveHeroSizeScope() { GetMutableDefault<UUmbrellaTuning>()->Motor = Saved; }
 	};

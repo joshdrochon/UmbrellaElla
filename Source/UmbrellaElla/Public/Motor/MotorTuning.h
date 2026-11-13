@@ -103,5 +103,5 @@ struct UMBRELLAELLA_API FMotorTuning
 
 	/** Highest supported hitbox scale. */
 	UPROPERTY(Config, EditAnywhere, Category = "Motor|HeroSize", meta = (ClampMin = "0"))
-	float HitboxScaleMax = 1.0f; // bake: HAZ-14.across
+	float HitboxScaleMax = 1.0f; // upper bound of HitboxScale (HAZ-14.across is baked on HitboxScale)
 };
