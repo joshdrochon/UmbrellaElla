@@ -19,6 +19,16 @@ a = np.array(img.pixels[:], dtype=np.float32).reshape(h, w, 4)
 ys, xs = np.where(a[..., 3] > 0.02)
 a = a[ys.min():ys.max() + 1, xs.min():xs.max() + 1]
 h, w = a.shape[:2]
+PEEL = int(ARGS[9]) if len(ARGS) > 9 else 0   # peel a painted coloured rim: border pixels that are not ink go clear, until ink shows
+for _ in range(PEEL):
+    op = a[..., 3] > 0.5
+    pad = np.pad(op, 1)
+    edge = op & ~(pad[:-2, 1:-1] & pad[2:, 1:-1] & pad[1:-1, :-2] & pad[1:-1, 2:])
+    lum = a[..., :3].max(-1)
+    gone = edge & (lum > 0.22)
+    if not gone.any():
+        break
+    a[gone, 3] = 0.0
 k = min(CW * FRAC / w, CH * FRAC / h) if CW == CH else CW * FRAC / w
 nw, nh = max(1, round(w * k)), max(1, round(h * k))
 tmp = bpy.data.images.new("t", w, h, alpha=True)
