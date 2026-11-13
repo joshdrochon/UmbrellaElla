@@ -41,6 +41,12 @@ const FMotorTuning& UAttackEmitterComponent::ActiveMotor() const
 	return MotorOverride ? *MotorOverride : GetDefault<UUmbrellaTuning>()->Motor;
 }
 
+FVector UAttackEmitterComponent::SizedMuzzle(const FAttackTuning& Tuning) const
+{
+	const bool bHeroSize = IsFeatureEnabled(EFeatureId::HAZ_10) && IsFeatureEnabled(EFeatureId::HAZ_13) && IsFeatureEnabled(EFeatureId::HAZ_14);
+	return bHeroSize ? HeroSizeRules::MuzzleOffset(Tuning.MuzzleOffset, ActiveMotor()) : Tuning.MuzzleOffset;
+}
+
 void UAttackEmitterComponent::StepEmitter(float DeltaSeconds)
 {
 	AActor* Owner = GetOwner();
@@ -136,7 +142,7 @@ void UAttackEmitterComponent::ShowBeam(const FAttackTuning& Tuning)
 	}
 	if (Beam)
 	{
-		FVector Muzzle = GetOwner()->GetActorLocation() + HeroSizeRules::MuzzleOffset(Tuning.MuzzleOffset, ActiveMotor());
+		FVector Muzzle = GetOwner()->GetActorLocation() + SizedMuzzle(Tuning);
 		Beam->SetBeam(Muzzle, SpellRules::StreamLength(StreamHeldSeconds, Tuning), Tuning.StreamWidth);
 	}
 }
@@ -144,9 +150,9 @@ void UAttackEmitterComponent::ShowBeam(const FAttackTuning& Tuning)
 void UAttackEmitterComponent::FireVolley()
 {
 	const FAttackTuning& Tuning = ActiveTuning();
-	FVector Muzzle = GetOwner()->GetActorLocation() + HeroSizeRules::MuzzleOffset(Tuning.MuzzleOffset, ActiveMotor());
+	FVector Muzzle = GetOwner()->GetActorLocation() + SizedMuzzle(Tuning);
 	Muzzle.Y = UmbrellaDrawOrder::ProjectileY;
-	for (const FUmbrellaShotSpec& Spec : SpellRules::BuildVolley(Equipped, Muzzle, Tuning, HeroSizeRules::ClampedHeroSize(ActiveMotor())))
+	for (const FUmbrellaShotSpec& Spec : SpellRules::BuildVolley(Equipped, Muzzle, Tuning))
 	{
 		LastShot = Spec;
 		++ShotsFired;

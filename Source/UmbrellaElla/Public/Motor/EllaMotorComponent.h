@@ -69,6 +69,10 @@ private:
 	UPROPERTY(Transient)
 	TObjectPtr<UUmbrellaStateComponent> UmbrellaState;
 
+	/** Capsule size before any HeroSize hitbox scale; captured on the first ApplyHeroSize so repeat calls do not compound. */
+	float RefCapsuleRadius = -1.0f;
+	float RefCapsuleHalfHeight = -1.0f;
+
 	FMotorModelState Model;
 	TMap<FName, FVector2D> ActiveCurrents;
 	/** Local vertical fields of currents Ella is in: x gain, y centre z, z compensation. */

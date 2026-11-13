@@ -77,17 +77,17 @@ struct UMBRELLAELLA_API FMotorTuning
 	UPROPERTY(Config, EditAnywhere, Category = "Motor", meta = (ClampMin = "0"))
 	float ToggleBufferSeconds = 0.1f;
 
-	/** HeroSize: Ella's size multiplier; 1 is the reference the muzzle fixture (+44/+6) and blast radius are measured at. Clamped to HeroSizeMin..HeroSizeMax. */
+	/** HeroSize: Ella's size multiplier; 1 is the reference the muzzle fixture (+44/+6) is measured at. Clamped to HeroSizeMin..HeroSizeMax. */
 	UPROPERTY(Config, EditAnywhere, Category = "Motor|HeroSize", meta = (ClampMin = "0.75", ClampMax = "1.3"))
-	float HeroSize = 1.0f; // bake: HAZ-10.herosize
+	float HeroSize = 1.0f; // bake: HAZ-10.herosize (gdd-bindings also sends HAZ-14.herosize here)
 
 	/** Lowest supported HeroSize. */
 	UPROPERTY(Config, EditAnywhere, Category = "Motor|HeroSize", meta = (ClampMin = "0"))
-	float HeroSizeMin = 0.75f; // bake: HAZ-14.herosize
+	float HeroSizeMin = 0.75f; // bake: HAZ-14.herosize.2
 
 	/** Highest supported HeroSize. */
 	UPROPERTY(Config, EditAnywhere, Category = "Motor|HeroSize", meta = (ClampMin = "0"))
-	float HeroSizeMax = 1.3f; // bake: HAZ-13.herosize
+	float HeroSizeMax = 1.3f; // bake: HAZ-13.herosize (also HAZ-14.value.2)
 
 	/** Ella's actor scale at HeroSize 1; the applied scale is this times HeroSize (GDD). */
 	UPROPERTY(Config, EditAnywhere, Category = "Motor|HeroSize", meta = (ClampMin = "0.01"))
@@ -95,7 +95,7 @@ struct UMBRELLAELLA_API FMotorTuning
 
 	/** Hurtbox (capsule) scale on top of the actor scale; 1 is the full hitbox. Clamped to HitboxScaleMin..HitboxScaleMax. */
 	UPROPERTY(Config, EditAnywhere, Category = "Motor|HeroSize", meta = (ClampMin = "0.75", ClampMax = "1"))
-	float HitboxScale = 1.0f; // bake: HAZ-14.across
+	float HitboxScale = 1.0f;
 
 	/** Lowest supported hitbox scale. */
 	UPROPERTY(Config, EditAnywhere, Category = "Motor|HeroSize", meta = (ClampMin = "0"))
@@ -103,5 +103,5 @@ struct UMBRELLAELLA_API FMotorTuning
 
 	/** Highest supported hitbox scale. */
 	UPROPERTY(Config, EditAnywhere, Category = "Motor|HeroSize", meta = (ClampMin = "0"))
-	float HitboxScaleMax = 1.0f; // upper bound of HitboxScale
+	float HitboxScaleMax = 1.0f; // bake: HAZ-14.across
 };

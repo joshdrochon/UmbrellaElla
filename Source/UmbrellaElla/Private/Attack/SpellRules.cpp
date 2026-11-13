@@ -93,7 +93,7 @@ FSpellProfile SpellRules::GetProfile(EUmbrellaSpell Spell, const FAttackTuning& 
 	return Profile;
 }
 
-TArray<FUmbrellaShotSpec> SpellRules::BuildVolley(EUmbrellaSpell Spell, const FVector& Muzzle, const FAttackTuning& Tuning, float HeroSize)
+TArray<FUmbrellaShotSpec> SpellRules::BuildVolley(EUmbrellaSpell Spell, const FVector& Muzzle, const FAttackTuning& Tuning)
 {
 	const FSpellProfile Profile = GetProfile(Spell, Tuning);
 	TArray<FUmbrellaShotSpec> Volley;
@@ -110,7 +110,7 @@ TArray<FUmbrellaShotSpec> SpellRules::BuildVolley(EUmbrellaSpell Spell, const FV
 		}
 		// Always to +X: fire never follows travel direction or an aim.
 		Spec.Velocity = FVector(Profile.Speed, 0.0, 0.0);
-		Spec.Radius = Tuning.BlastRadius * Profile.RadiusScale * HeroSize;
+		Spec.Radius = Tuning.BlastRadius * Profile.RadiusScale;
 		Spec.Damage = Profile.Damage;
 		Spec.LifetimeSeconds = Profile.Range / Profile.Speed;
 		Spec.SourceId = UmbrellaPlayerIds::Ella;

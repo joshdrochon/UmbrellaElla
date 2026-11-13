@@ -70,10 +70,12 @@ void UEllaMotorComponent::ApplyHeroSize(const FMotorTuning& Size)
 		if (UCapsuleComponent* Capsule = SizedCharacter->GetCapsuleComponent())
 		{
 			const float Hitbox = HeroSizeRules::ClampedHitboxScale(Size);
-			if (Hitbox < 1.0f)
+			if (RefCapsuleRadius < 0.0f)
 			{
-				Capsule->SetCapsuleSize(Capsule->GetUnscaledCapsuleRadius() * Hitbox, Capsule->GetUnscaledCapsuleHalfHeight() * Hitbox);
+				RefCapsuleRadius = Capsule->GetUnscaledCapsuleRadius();
+				RefCapsuleHalfHeight = Capsule->GetUnscaledCapsuleHalfHeight();
 			}
+			Capsule->SetCapsuleSize(RefCapsuleRadius * Hitbox, RefCapsuleHalfHeight * Hitbox);
 		}
 	}
 }

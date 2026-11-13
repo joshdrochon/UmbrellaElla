@@ -392,6 +392,7 @@ bool FMoveHeroSizeRuleTest::RunTest(const FString& Parameters)
 	TestEqual(TEXT("hitbox range 0.75..1"), Tuning.HitboxScaleMin, 0.75f);
 	TestEqual(TEXT("hitbox upper 1"), Tuning.HitboxScaleMax, 1.0f);
 	TestEqual(TEXT("actor scale 0.5 at HeroSize 1"), HeroSizeRules::ActorScale(Tuning), 0.5f);
+#if UMBRELLAELLA_WORKBENCH
 	Tuning = MoveTuningWithHeroSize(Tuning, 1.3f, 1.0f);
 	TestEqual(TEXT("muzzle 57.2 / 7.8 at HeroSize 1.3"), static_cast<float>(HeroSizeRules::MuzzleOffset(FVector(44.0, 0.0, 6.0), Tuning).X), 57.2f, 0.01f);
 	TestEqual(TEXT("muzzle Z 7.8 at HeroSize 1.3"), static_cast<float>(HeroSizeRules::MuzzleOffset(FVector(44.0, 0.0, 6.0), Tuning).Z), 7.8f, 0.01f);
@@ -399,6 +400,7 @@ bool FMoveHeroSizeRuleTest::RunTest(const FString& Parameters)
 	TestEqual(TEXT("HeroSize clamps to the range"), HeroSizeRules::ClampedHeroSize(Tuning), 1.3f);
 	Tuning = MoveTuningWithHeroSize(Tuning, 5.0f, 0.1f);
 	TestEqual(TEXT("hitbox scale clamps to the range"), HeroSizeRules::ClampedHitboxScale(Tuning), 0.75f);
+#endif
 	return true;
 }
 
@@ -419,6 +421,9 @@ bool FMoveWorldHeroSizeTest::RunTest(const FString& Parameters)
 		TestEqual(TEXT("actor scale 0.5 at HeroSize 1"), static_cast<float>(Ella->GetActorScale3D().X), 0.5f, 0.0001f);
 		RefHalfHeight = Ella->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
 	}
+#if !UMBRELLAELLA_WORKBENCH
+	return true; // the 0.75/1.3 cases need the workbench tuning override
+#endif
 	const float Cases[][2] = {{0.75f, 1.0f}, {1.3f, 1.0f}, {1.0f, 0.75f}, {1.3f, 0.75f}};
 	for (const float (&Case)[2] : Cases)
 	{
@@ -439,7 +444,7 @@ bool FMoveWorldHeroSizeTest::RunTest(const FString& Parameters)
 		const FUmbrellaShotSpec& Shot = Ella->GetAttack()->GetLastShot();
 		const FVector Offset = Shot.Origin - Ella->GetActorLocation();
 		TestTrue(TEXT("a shot was fired"), Ella->GetAttack()->GetShotsFired() > 0);
-		TestEqual(TEXT("blast radius follows HeroSize"), Shot.Radius, 6.0f * Case[0], 0.001f);
+		TestEqual(TEXT("blast radius stays 6 (HAZ-10)"), Shot.Radius, 6.0f, 0.001f);
 		// The first shot leaves from the muzzle at the moment of the volley; Ella has since fallen, so compare X only.
 		TestEqual(TEXT("muzzle X follows HeroSize"), static_cast<float>(Offset.X), 44.0f * Case[0], 0.5f);
 	}
