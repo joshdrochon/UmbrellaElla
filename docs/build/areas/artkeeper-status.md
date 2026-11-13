@@ -93,3 +93,9 @@ Per art-image-model.md "Where candidates live": every raw paint, keyed cut, roun
 - No new paint round: R6-R10 plateaued at the same panel gap (organic/feathered read, one wing); spend stays 10.89 of 33.82 (shared). The open decision is unchanged: Blender articulated route vs more paint.
 - Owl stays tracked _PH; nothing shipped.
 NEEDS HUMAN: Josh / lead: smoke switch to start the Keeper fight (request 1), and the Blender-vs-paint decision.
+
+## Nov 13 later session: still blocked (no new paint, spend unchanged)
+- Merged main and area/artslots. Rechecked: Source still has no -SmokeKeeper/-SmokeSection/-SmokeMap handling and a relative -SmokeShot path still resolves into the engine folder, so the in-engine context pair cannot be made (docs/build/requests/artkeeper.md items 1 and 2, both outside my lane).
+- Paint plateaued R6-R10 at the same panel gap; another round would cost money without moving it, so none was run.
+- Owl stays tracked _PH; nothing shipped.
+NEEDS HUMAN: lead: (1) smoke switch to start the Keeper fight, (2) ProjectDir-relative -SmokeShot path, (3) Blender-articulated vs paint decision.
