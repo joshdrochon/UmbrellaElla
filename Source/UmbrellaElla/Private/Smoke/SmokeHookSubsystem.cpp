@@ -28,6 +28,9 @@
 #include "Enemy/UmbrellaEnemy.h"
 #include "Arena/UmbrellaArena.h"
 #include "Projectile/UmbrellaShotSpec.h"
+#include "ShaderCompiler.h"
+#include "ContentStreaming.h"
+#include "AssetCompilingManager.h"
 
 #ifndef UMBRELLAELLA_BUILD_COMMIT
 #define UMBRELLAELLA_BUILD_COMMIT "unknown"
@@ -66,6 +69,11 @@ void USmokeHookSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 bool USmokeHookSubsystem::IsShotDue(bool bLevelReady, int32 FramesSinceReady, int32 RequiredFrames)
 {
 	return bLevelReady && FramesSinceReady >= RequiredFrames;
+}
+
+bool USmokeHookSubsystem::IsShotReady(int32 PendingShaderJobs, int32 StreamingResources, int32 PendingAssets, bool bPlayerAlive)
+{
+	return PendingShaderJobs <= 0 && StreamingResources <= 0 && PendingAssets <= 0 && bPlayerAlive;
 }
 
 FString USmokeHookSubsystem::ResolveShotPath(const FString& Path, const FString& ProjectDir)
@@ -230,7 +238,27 @@ void USmokeHookSubsystem::Tick(float DeltaTime)
 	{
 		ApplySceneSwitches();
 	}
-	++FramesSinceReady;
+	{
+		const int32 ShaderJobs = GShaderCompilingManager ? GShaderCompilingManager->GetNumRemainingJobs() : 0;
+		const int32 Streaming = IStreamingManager::Get().GetTextureStreamingManager().GetNumWantingResources();
+		const int32 Assets = FAssetCompilingManager::Get().GetNumRemainingAssets();
+		const APawn* Pawn = Flow ? Flow->GetPawn() : nullptr;
+		const bool bAlive = Pawn && IsValid(Pawn) && Flow->GetScreen() == EFlowScreen::Playing;
+		if (IsShotReady(ShaderJobs, Streaming, Assets, bAlive))
+		{
+			++FramesSinceReady;
+			if (!bShotReadyLogged)
+			{
+				bShotReadyLogged = true;
+				UE_LOG(LogUmbrellaElla, Log, TEXT("SMOKE_SHOT_READY at_s=%.1f"), Elapsed);
+			}
+		}
+		else
+		{
+			// Anything pending again restarts the count: the frames must be consecutive and settled.
+			FramesSinceReady = 0;
+		}
+	}
 	const bool bShotPending = !ShotPath.IsEmpty() && !bShotChecked && Elapsed < QuitAfterSeconds + ShotMaxWaitSeconds;
 
 	if (!bShotTaken && !ShotPath.IsEmpty() && IsShotDue(true, FramesSinceReady, ShotFrames))

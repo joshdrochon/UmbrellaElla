@@ -53,6 +53,13 @@ public:
 	 */
 	static bool IsShotDue(bool bLevelReady, int32 FramesSinceReady, int32 RequiredFrames);
 
+	/**
+	 * Shot readiness (plain rule function): no shader compiles pending, no texture or asset still streaming or compiling,
+	 * and Ella's pawn alive. Only frames counted while this holds count toward -SmokeShotFrames (a busy machine still
+	 * shows "Preparing Textures" at a fixed frame count, so frames are counted only once everything has settled).
+	 */
+	static bool IsShotReady(int32 PendingShaderJobs, int32 StreamingResources, int32 PendingAssets, bool bPlayerAlive);
+
 	/** -SmokeShot path: absolute paths stay, a relative one resolves against ProjectDir. */
 	static FString ResolveShotPath(const FString& Path, const FString& ProjectDir);
 
@@ -124,4 +131,5 @@ private:
 	int32 ShotFrames = DefaultShotFrames;
 	int32 FramesSinceReady = 0;
 	bool bSceneApplied = false;
+	bool bShotReadyLogged = false;
 };

@@ -63,6 +63,18 @@ bool FSmokeShotFrameCount::RunTest(const FString& Parameters)
 	return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FSmokeShotReadiness, "UmbrellaElla.Smoke.ShotWaitsForShadersTexturesAndPlayer",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+bool FSmokeShotReadiness::RunTest(const FString& Parameters)
+{
+	TestTrue(TEXT("all settled and Ella alive"), USmokeHookSubsystem::IsShotReady(0, 0, 0, true));
+	TestFalse(TEXT("shader jobs pending"), USmokeHookSubsystem::IsShotReady(3, 0, 0, true));
+	TestFalse(TEXT("textures still streaming (Preparing Textures)"), USmokeHookSubsystem::IsShotReady(0, 12, 0, true));
+	TestFalse(TEXT("assets still compiling"), USmokeHookSubsystem::IsShotReady(0, 0, 1, true));
+	TestFalse(TEXT("no live player"), USmokeHookSubsystem::IsShotReady(0, 0, 0, false));
+	return true;
+}
+
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FSmokeShotPathAndSwitches, "UmbrellaElla.Smoke.ShotPathAndSceneSwitches",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
 bool FSmokeShotPathAndSwitches::RunTest(const FString& Parameters)
