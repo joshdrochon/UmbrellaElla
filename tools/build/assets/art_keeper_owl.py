@@ -26,6 +26,7 @@ def build_keeper(m, rnd):
     plate = m["plate"]
     lite = m["lite"]
     ink, fea, gold, amber = m["ink"], m["feather"], m["gold"], m["amber"]
+    aged = m["aged"]
     r = si.Rig("Keeper")
     r.bone("body", (0, 0, -0.6), (0, 0, 0.8))
     r.bone("head", (1.7, 0, 0.5), (2.5, 0, 0.9), "body")
@@ -65,7 +66,7 @@ def build_keeper(m, rnd):
         add("primitive_cube_add", "head", fea if k % 2 else plate, loc=(1.7 + k * 0.15, -0.55, 0.65 + 0.05 * k),
             rot=(0, 0.2 * k, 0), size=1, scale=(0.35, 0.05, 0.22))
     add("primitive_uv_sphere_add", "head", ink, loc=(2.3, -0.55, 1.0), segments=12, ring_count=8, radius=0.27, scale=(1, 0.4, 1))
-    add("primitive_uv_sphere_add", "head", amber, loc=(2.32, -0.66, 1.0), segments=12, ring_count=8, radius=0.19, scale=(1, 0.35, 1))
+    add("primitive_uv_sphere_add", "head", aged, loc=(2.32, -0.66, 1.0), segments=12, ring_count=8, radius=0.19, scale=(1, 0.35, 1))
     add("primitive_cone_add", "head", ink, loc=(2.92, -0.1, 0.7), rot=(0, S + 0.7, 0), vertices=5, radius1=0.2, radius2=0.0, depth=0.7)  # hooked beak
     add("primitive_cone_add", "head", ink, loc=(3.05, -0.1, 0.45), rot=(0, S + 1.7, 0), vertices=4, radius1=0.1, radius2=0.0, depth=0.3)
     # chest clock: gear-toothed bezel, gold face, ticks, hands
@@ -76,7 +77,7 @@ def build_keeper(m, rnd):
         add("primitive_cube_add", "body", ink, loc=(cx + 1.03 * math.cos(a), cy, cz + 1.03 * math.sin(a)), rot=(0, -a, 0),
             size=1, scale=(0.14, 0.12, 0.12))
     add("primitive_cylinder_add", "body", plate, loc=(cx, cy - 0.05, cz), rot=(S, 0, 0), vertices=32, radius=0.84, depth=0.08)
-    add("primitive_cylinder_add", "body", gold, loc=(cx, cy - 0.1, cz), rot=(S, 0, 0), vertices=32, radius=0.7, depth=0.06)
+    add("primitive_cylinder_add", "body", aged, loc=(cx, cy - 0.1, cz), rot=(S, 0, 0), vertices=32, radius=0.7, depth=0.06)
     for k in range(12):
         a = 2 * math.pi * k / 12
         add("primitive_cube_add", "body", ink, loc=(cx + 0.58 * math.cos(a), cy - 0.15, cz + 0.58 * math.sin(a)), rot=(0, -a, 0),
@@ -87,15 +88,15 @@ def build_keeper(m, rnd):
     # wings: rigid vane plates fanned from a jointed shoulder strut, near one in front and bigger
     for bone, y, sc, tone in (("wing_near", -0.4, 1.0, lite), ("wing_far", 0.45, 0.88, plate)):
         add("primitive_uv_sphere_add", bone, ink, loc=(-0.05, y, 0.8), segments=12, ring_count=8, radius=0.3)
-        n = 11
+        n = 14
         for k in range(n):
-            a = math.radians(146 - k * 4.0)          # direction from +X: up-and-back, sweeping down
-            ln = (4.9 - 0.16 * k) * sc + rnd.uniform(-0.1, 0.1)
+            a = math.radians(140 + k * 5.6)          # direction from +X: up-and-back, sweeping round to down-and-back
+            ln = (4.2 - 0.05 * k + 0.35 * math.sin(k * 0.5)) * sc + rnd.uniform(-0.1, 0.1)
             ox, oz = -0.05, 0.8
             cxw, czw = ox + math.cos(a) * ln / 2, oz + math.sin(a) * ln / 2
             yy = y + (-0.012 if bone == "wing_near" else 0.012) * k
             mat = tone if k % 2 else plate
-            add("primitive_cube_add", bone, mat, loc=(cxw, yy, czw), rot=(0, -a, 0), size=1, scale=(ln, 0.05, 0.4))
+            add("primitive_cube_add", bone, mat, loc=(cxw, yy, czw), rot=(0, -a, 0), size=1, scale=(ln, 0.05, 0.55))
             add("primitive_cone_add", bone, ink, loc=(ox + math.cos(a) * ln, yy, oz + math.sin(a) * ln),
                 rot=(0, S - a, 0), vertices=3, radius1=0.2, radius2=0.0, depth=0.45, scale=(1, 0.3, 1))
             add("primitive_cube_add", bone, ink, loc=(cxw, yy - 0.035, czw), rot=(0, -a, 0), size=1, scale=(ln * 0.96, 0.02, 0.035))  # rib
@@ -105,6 +106,16 @@ def build_keeper(m, rnd):
             for t in (0.3, 0.6):   # rivets
                 add("primitive_uv_sphere_add", bone, m["rust"], loc=(ox + math.cos(a) * ln * t, yy - 0.04, oz + math.sin(a) * ln * t),
                     segments=6, ring_count=4, radius=0.045)
+        for k in range(9):   # covert row: short broad plates overlapping the vane roots
+            a = math.radians(142 + k * 7.0)
+            ln = (2.8 - 0.04 * k) * sc
+            ox, oz = -0.05, 0.8
+            yy = y + (0.02 if bone == "wing_near" else -0.02)
+            add("primitive_cube_add", bone, lite if k % 2 else plate, loc=(ox + math.cos(a) * ln / 2, yy, oz + math.sin(a) * ln / 2),
+                rot=(0, -a, 0), size=1, scale=(ln, 0.05, 0.5))
+            for t in (0.35, 0.75):
+                add("primitive_uv_sphere_add", bone, m["rust"], loc=(ox + math.cos(a) * ln * t, yy - 0.04, oz + math.sin(a) * ln * t),
+                    segments=6, ring_count=4, radius=0.05)
         a0 = math.radians(146)   # jointed leading-edge strut
         add("primitive_cube_add", bone, ink, loc=(-0.05 + math.cos(a0) * 1.3 * sc, y - 0.05, 0.8 + math.sin(a0) * 1.3 * sc),
             rot=(0, -a0, 0), size=1, scale=(2.6 * sc, 0.1, 0.12))
@@ -141,7 +152,7 @@ def build_keeper(m, rnd):
     add("primitive_cone_add", "mech", lite, loc=(3.4, -0.45, -1.45), vertices=6, radius1=0.5, radius2=0.12, depth=0.35)
     add("primitive_torus_add", "mech", lite, loc=(3.4, -0.45, -1.2), major_radius=0.1, minor_radius=0.03, major_segments=12, minor_segments=5)
     add("primitive_cylinder_add", "mech", lite, loc=(3.4, -0.45, -2.62), vertices=6, radius=0.48, depth=0.12)
-    add("primitive_uv_sphere_add", "mech", gold, loc=(3.4, -0.9, -2.1), segments=10, ring_count=6, radius=0.18)
+    add("primitive_uv_sphere_add", "mech", aged, loc=(3.4, -0.9, -2.1), segments=10, ring_count=6, radius=0.18)
     for k in range(6):
         a = 2 * math.pi * k / 6
         add("primitive_cube_add", "mech", ink, loc=(3.4 + 0.44 * math.cos(a), -0.45 + 0.44 * math.sin(a), -2.1), size=1, scale=(0.07, 0.07, 0.9))
@@ -195,9 +206,10 @@ _orig = si.materials
 def materials(colours, look):
     d = _orig(colours, look)
     c = colours.get
-    d["plate"] = etched("plate", [c("paper-stain", "#7b6157"), c("paper-mid", "#93786b"), c("paper-light", "#aa8f7f")], look)
-    d["feather"] = etched("feather", [c("owl-feather"), c("paper-stain", "#7b6157"), c("paper-mid", "#93786b")], look)
-    d["lite"] = etched("lite", [c("paper-mid", "#93786b"), c("paper-light", "#aa8f7f"), c("etch-line", "#c4a999")], look)
+    d["plate"] = etched("plate", ["#5e4f3f", "#7d6a55", "#9d8c78"], look, hatch=0.22)
+    d["feather"] = etched("feather", ["#4d4034", "#6d5c4a", "#8c7b68"], look, hatch=0.22)
+    d["lite"] = etched("lite", ["#7d6a55", "#a09080", "#bdb09c"], look, hatch=0.18)
+    d["aged"] = si.glow("aged", "#b8873a")
     d["rust"] = si.glow("rust", c("rust-red", "#743422"))
     return d
 
@@ -205,6 +217,67 @@ def materials(colours, look):
 si.materials = materials
 si.BUILDERS["keeper"] = build_keeper
 
+def painted_pass(path, seed=7):
+    """Compositor pass on the rendered frame: bronze/iron value remap, etched hatching in the shadows, edge-darkened
+    ink, scratches and paper mottle. Alpha untouched. Keeps the palette inside ink/soot/umber/bronze/taupe + accents."""
+    import numpy as np
+    img = bpy.data.images.load(path)
+    w, h = img.size
+    a = np.array(img.pixels[:], dtype=np.float32).reshape(h, w, 4)
+    rng = np.random.default_rng(seed)
+    al = a[..., 3]
+    rgb = a[..., :3]
+    lum = rgb @ np.array([0.3, 0.59, 0.11], dtype=np.float32)
+    yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
+
+    def smooth_noise(sc):
+        g = rng.random((h // sc + 2, w // sc + 2)).astype(np.float32)
+        big = np.kron(g, np.ones((sc, sc), dtype=np.float32))
+        return big[:h, :w]
+    mottle = 0.5 * smooth_noise(24) + 0.3 * smooth_noise(8) + 0.2 * smooth_noise(3)
+    # hatching: two families of diagonal etched lines, denser as the value drops
+    d1 = ((xx + yy) % 5.0) < 1.15
+    d2 = ((xx - yy) % 6.0) < 1.0
+    shade = np.clip((0.42 - lum) / 0.3, 0, 1)            # 0 in light, 1 in deep shadow
+    mid = np.clip((0.62 - lum) / 0.3, 0, 1)
+    wob = (smooth_noise(6) - 0.5) * 2.2
+    h1 = (((xx + yy + wob * 3) % 5.0) < 1.2) & (mid > 0.25)
+    h2 = (((xx - yy + wob * 3) % 6.0) < 1.0) & (shade > 0.35)
+    hatch = np.where(h1, 0.18, 0.0) + np.where(h2, 0.2, 0.0)
+    # light etched highlights on the lit plates (thin paper-tone lines)
+    hl = (((xx * 0.6 + yy) % 7.0) < 0.9) & (lum > 0.38)
+    out = rgb * (1.0 - hatch[..., None])
+    out = out * (0.86 + 0.28 * mottle[..., None])
+    out = np.where(hl[..., None], np.minimum(out * 1.22 + 0.02, 1.0), out)
+    # scratches: sparse short dark strokes
+    sc = np.zeros((h, w), dtype=np.float32)
+    for _ in range(260):
+        x0, y0 = rng.integers(0, w), rng.integers(0, h)
+        ln = rng.integers(6, 22)
+        for t in range(ln):
+            x, y = int(x0 + t * 0.9), int(y0 + t * 0.45)
+            if 0 <= x < w and 0 <= y < h:
+                sc[y, x] = 1.0
+    out = out * (1.0 - 0.45 * sc[..., None] * (al[..., None] > 0.5))
+    # edge darkening: pixels near transparent get inked
+    solid = (al > 0.5).astype(np.float32)
+    er = solid.copy()
+    for dy, dx in ((1, 0), (-1, 0), (0, 1), (0, -1), (2, 0), (-2, 0), (0, 2), (0, -2)):
+        er = np.minimum(er, np.roll(np.roll(solid, dy, 0), dx, 1))
+    edge = (solid - er)[..., None]
+    out = out * (1.0 - 0.7 * edge)
+    a[..., :3] = np.clip(out, 0, 1)
+    img.pixels[:] = a.ravel()
+    img.filepath_raw = path
+    img.file_format = "PNG"
+    img.save()
+    bpy.data.images.remove(img)
+
+
 if __name__ == "__main__":
+    import json
     import render_sprite
     render_sprite.main()
+    _job = json.load(open(render_sprite.args(), encoding="utf-8"))
+    for _f in _job["frames"]:
+        painted_pass(os.path.abspath(_f))
