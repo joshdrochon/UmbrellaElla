@@ -81,7 +81,9 @@ class Tiers(img.ImageWork):
         t = os.path.join(self.repo, "tools")
         shutil.rmtree(os.path.join(t, "__pycache__"), ignore_errors=True)   # a rewrite in the same second keeps a stale .pyc
         with open(os.path.join(t, "art_check.py"), "w") as fh:
-            fh.write("def measure(p, st): return {}\ndef evaluate(m, st): return %s\n" % ("[]" if passing else "['too flat']"))
+            r = "[]" if passing else "['too flat']"
+            fh.write("def measure(p, st): return {}\ndef evaluate(m, st): return %s\n"
+                     "def sprite_failures(p, st, effect=False): return %s\n" % (r, r))
         with open(os.path.join(t, "art_judge.py"), "w") as fh:
             fh.write("def element(i, files, refs, roots, only): return None, [(files[0], %s, 'x')], []\n" % (
                 "9.0" if passing else "0.0"))
