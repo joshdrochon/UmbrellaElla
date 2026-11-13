@@ -25,14 +25,14 @@ COM-05,Stream/Twin/Needle never run out (only Small tested),proven,move
 COM-05,catch gives no weapon charge,proven,move
 COM-06,"fold-ready, snap open, pulse, cock, reset cycle tied to emission",proven,move
 COM-07,canopy strands converge around dark body (art),proven,move
-COM-07,shoulder-braced body family used for Stream,proven,move
+COM-07,shoulder-braced body family used for Stream,i,move
 COM-07,posture/art adds no damage or aim (beam),i,move
 COM-09,Needle penetrates wings during clock opening,i,move
 COM-09,Needle never bypasses clock protection/order,i,move
 COM-11,locked-weapon UI shows levels 1/10/20/30,proven,move
 COM-11,XP display derived from tuned curve,i,move
 COM-11,damage ranks applied once to baseline,i,move
-COM-11,RegularFall vs ShoulderFall poses per spell,proven,move
+COM-11,RegularFall vs ShoulderFall poses per spell,i,move
 COM-11,only Small uses fold/open/cock,proven,move
 COM-11,required routes clearable with basic fire,i,move
 FLOW-05,Enemy HP/cadence/count multipliers applied to real enemies (GetRunScaling has no consumer),ii,progression
@@ -49,7 +49,7 @@ FLOW-06,Telegraphs/recovery/scheduling/projectile speed/safe placement preserved
 FLOW-06,No automatic increase in incoming damage,i,progression
 FLOW-08,Quit reload restores checkpoint upgrades (ranks),i,progression
 FLOW-08,only XP asserted,i,progression
-FLOW-09,Exactly 3 lives on retry in both modes (Start Game not tested),i,keeper
+FLOW-09,Exactly 3 lives on retry in both modes (Start Game not tested),proven,keeper
 FLOW-09,"3-life reset keeps purchased max lives (Health.World.RetryRestoresFullLivesAndHealth asserts 4 lives, not 3)",ii,keeper
 FLOW-09,Rollback applied before full heal (ordering),ii,keeper
 FLOW-09,Level-checkpoint retry fully heals (only event-driven retry tested),ii,keeper
@@ -78,9 +78,9 @@ FLOW-22,Earned data separate from tuning/bindings,i,progression
 FLOW-22,Two corrupt copies error is recoverable,i,progression
 FLOW-22,Shadow progress restored on relaunch,i,progression
 FLOW-22,Tutorial replay uses shadow progress,ii,progression
-OWL-06,Rules apply in BOTH modes (no Director's Cut keeper test),i,keeper
+OWL-06,Rules apply in BOTH modes (no Director's Cut keeper test),proven,keeper
 OWL-06,"Retained/restored capacity, max lives, upgrades on retry",ii,keeper
-OWL-06,Normal phase advancement carries Ella's health,i,keeper
+OWL-06,Normal phase advancement carries Ella's health,proven,keeper
 OWL-07,Complete fight contract (OWL-06..35 rows themselves partial),ii,keeper
 OWL-07,No player resource system (no test),i,keeper
 OWL-07,"Gameplay state, not animation length, owns damage/transitions",i,keeper
@@ -94,10 +94,10 @@ OWL-09,Wings damaged from lift,i,keeper
 OWL-09,No new gusts after wing depletion,i,keeper
 OWL-09,Depleted wings remain visible as cover,i,keeper
 OWL-09,Middle/rear break cancels cast and removes attack,i,keeper
-OWL-10,Both modes checkpoint at each phase start,i,keeper
-OWL-10,No mid-mechanism checkpoint after a mechanism breaks,i,keeper
+OWL-10,Both modes checkpoint at each phase start,proven,keeper
+OWL-10,No mid-mechanism checkpoint after a mechanism breaks,proven,keeper
 OWL-10,"Retained/restored capacity, max lives, upgrades on retry",ii,keeper
-OWL-10,Initial phase advancement carries Ella's health,i,keeper
+OWL-10,Initial phase advancement carries Ella's health,proven,keeper
 OWL-11,Wings/clock aim at captured positions,i,keeper
 OWL-11,Mechanisms use fixed-left fan,i,keeper
 OWL-11,No homing,i,keeper
@@ -115,8 +115,8 @@ OWL-12,Player can leave via rise/fall/current/evade,i,keeper
 OWL-12,Traveling missiles continue during electrical stun,proven,keeper
 OWL-13,Yellow shots are aimed,i,keeper
 OWL-13,Independent 2.3s cadence,i,keeper
-OWL-13,Keeper yellow ordinary contact deals 1 health,i,keeper
-OWL-13,Shoot alone never auto-catches,i,keeper
+OWL-13,Keeper yellow ordinary contact deals 1 health,proven,keeper
+OWL-13,Shoot alone never auto-catches,proven,keeper
 OWL-13,No absorption cooldown or energy reward,i,keeper
 OWL-13,Speeds 195/210 (no mechanism/clock yellow test),proven,keeper
 OWL-15,Gust in wing act only,i,keeper

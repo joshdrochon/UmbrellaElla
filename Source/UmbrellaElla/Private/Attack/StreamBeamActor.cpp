@@ -23,7 +23,7 @@ namespace
 	/** Each strand is drawn as two straight parts: canopy to body edge, then along the edge to the tip. */
 	constexpr int32 BeamStrandSegments = 2;
 
-	void PaintPart(UStaticMeshComponent* Part, UObject* Outer, const FLinearColor& Color)
+	void BeamPaintPart(UStaticMeshComponent* Part, UObject* Outer, const FLinearColor& Color)
 	{
 		ArtSlot::SetFlatUnlit(Part, Outer, Color);
 		if (!ArtSlot::IsUnlit(Part))
@@ -118,7 +118,7 @@ void AStreamBeamActor::SetBeam(const FVector& Muzzle, float Length, float Width)
 		if (UStaticMesh* Mesh = LoadObject<UStaticMesh>(nullptr, BeamCubePath, nullptr, LOAD_NoWarn | LOAD_Quiet))
 		{
 			Visual->SetStaticMesh(Mesh);
-			PaintPart(Visual, this, BodyColor);
+			BeamPaintPart(Visual, this, BodyColor);
 		}
 	}
 	Visual->SetWorldScale3D(FVector(FMath::Max(EffectiveLength, MinVisualLength) / CubeSize, BeamWidth / CubeSize * VisualDepthFraction, BeamWidth / CubeSize));
@@ -138,7 +138,7 @@ UStaticMeshComponent* AStreamBeamActor::MakePart(const FName& Name, const FLinea
 		Part->SetStaticMesh(Mesh);
 	}
 	Part->RegisterComponent();
-	PaintPart(Part, this, Color);
+	BeamPaintPart(Part, this, Color);
 	return Part;
 }
 

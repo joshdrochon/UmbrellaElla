@@ -90,3 +90,21 @@ broken on purpose -> its test FAILED (3/3 and 6/6), restored -> PASS. `TEST_FILT
 Note: `HealthTuning.PostHitProtectionSeconds` is 0.65; the GDD SURV-05 text says 0.6. Not changed (health's number, not a clause here).
 Env: one test run hung at editor start in UBT `-Mode=ValidatePlatforms` (dotnet idle 10 min); killed, rerun passed.
 Overlap: a `testmove` worker was started on the same lane=move `i` rows. These 12 are done here; it should skip them.
+
+## Keeper clauses routed to move (Nov 13)
+Gate review fixes: `PaintPart` renamed `BeamPaintPart`; clause-proof rows for COM-07 pose and COM-11 pose removed (no consumer draws the pose yet).
+8 `i` clauses proven in `MoveKeeperProofTests.cpp` (real Ella + Encounter Director, both modes). Break-tested: retry broadcast removed,
+extra checkpoint on part break, yellow fallback damage x1.25 -> 3/3 FAILED; restored -> 3/3 PASS.
+| Clause | Test |
+|---|---|
+| FLOW-09 exactly 3 lives on retry, both modes | `Move.World.KeeperRetryGivesThreeLivesInBothModes` |
+| OWL-06 both modes, phase advance carries health; OWL-10 checkpoint per phase, none mid-mechanism, health carried | `Move.World.KeeperPhasesCarryHealthAndCheckpointInBothModes` |
+| OWL-13 yellow contact 1 health, Shoot alone never catches | `Move.World.KeeperYellowContactCostsOneAndShootNeverCatches` |
+
+Not done, and why:
+- FLOW-09 ii "keeps purchased max lives": GDD says retry gives exactly 3 current lives and keeps the bought maximum. Health restores `MaxLives` and ignores
+  the retry unless `Event.Amount == MaxLives` (`UmbrellaHealthComponent.cpp:54-58, 139-144`). With max 4 the retry does nothing. Health lane's bug; not proven.
+- OWL-06/OWL-10 ii capacity/upgrades on retry: same code path, blocked on the above.
+- OWL-16 dash protection: dash grants none in tuning (`MotorTuning.h:42`, dash invulnerability OFF) and no code exists. Needs a decision: build optional dash protection, or reword the clause.
+- OWL-13 absorb during fight (no cooldown/energy) is already proven by `Move.World.RepeatedCatchesHaveNoCooldown`/`CatchGivesNoChargeButRepairs`; aimed shots and 2.3 s cadence are model-level (keeper lane).
+- FLOW-09 rollback ordering / level-checkpoint heal, OWL-09 reach and lift: not started (need the keeper rollback API and a defined "supported owl size").

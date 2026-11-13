@@ -29,9 +29,7 @@ MOVE-15,hop protection actually blocks damage in Health,test:UmbrellaElla.Move.W
 MOVE-15,hop vs post-hit protection asserted distinct,test:UmbrellaElla.Move.World.HopProtectionBlocksHealthDamage
 COM-06,"fold-ready, snap open, pulse, cock, reset cycle tied to emission",test:UmbrellaElla.Move.World.CanopyCycleTiedToEmission
 COM-07,canopy strands converge around dark body (art),test:UmbrellaElla.Move.World.StreamStrandsConvergeOnDarkBody
-COM-07,shoulder-braced body family used for Stream,test:UmbrellaElla.Move.World.SpellBodyPoses
 COM-11,locked-weapon UI shows levels 1/10/20/30,test:UmbrellaElla.Move.WheelShowsUnlockLevels
-COM-11,RegularFall vs ShoulderFall poses per spell,test:UmbrellaElla.Move.World.SpellBodyPoses
 COM-11,only Small uses fold/open/cock,test:UmbrellaElla.Move.SmallCanopyCycle
 FLOW-30,"antique bronze/gold look, smoky translucent face, etched rim",test:UmbrellaElla.Move.ClockDialLook
 FLOW-32,absorbed energy visibly flows into the clock,test:UmbrellaElla.Move.World.HealEnergyFlowsIntoClock
@@ -53,3 +51,11 @@ FLOW-33,handover grants no new protection,test:UmbrellaElla.Move.World.LifeHando
 FLOW-33,normal checkpoint passage does not heal,test:UmbrellaElla.Move.World.CheckpointPassageDoesNotHeal
 FLOW-33,ordinary red/yellow projectile damage is 1 (no bound key),test:UmbrellaElla.Move.World.OrdinaryProjectileDamageIsOne
 FLOW-32,life hand unchanged on partial damage/heal,test:UmbrellaElla.Move.LifeHandSteadyOnPartialChanges
+FLOW-09,Exactly 3 lives on retry in both modes (Start Game not tested),test:UmbrellaElla.Move.World.KeeperRetryGivesThreeLivesInBothModes
+OWL-06,Rules apply in BOTH modes (no Director's Cut keeper test),test:UmbrellaElla.Move.World.KeeperPhasesCarryHealthAndCheckpointInBothModes
+OWL-06,Normal phase advancement carries Ella's health,test:UmbrellaElla.Move.World.KeeperPhasesCarryHealthAndCheckpointInBothModes
+OWL-10,Both modes checkpoint at each phase start,test:UmbrellaElla.Move.World.KeeperPhasesCarryHealthAndCheckpointInBothModes
+OWL-10,No mid-mechanism checkpoint after a mechanism breaks,test:UmbrellaElla.Move.World.KeeperPhasesCarryHealthAndCheckpointInBothModes
+OWL-10,Initial phase advancement carries Ella's health,test:UmbrellaElla.Move.World.KeeperPhasesCarryHealthAndCheckpointInBothModes
+OWL-13,Keeper yellow ordinary contact deals 1 health,test:UmbrellaElla.Move.World.KeeperYellowContactCostsOneAndShootNeverCatches
+OWL-13,Shoot alone never auto-catches,test:UmbrellaElla.Move.World.KeeperYellowContactCostsOneAndShootNeverCatches
