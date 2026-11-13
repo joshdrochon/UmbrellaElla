@@ -6,10 +6,8 @@ Q1 and Q5 answered. All 7 Director's Cut lines in `pipeline/story/lines.csv` are
 Blind story critic: `STORY_CRITIC: PASS lines=7` (4 rounds; fixes only what it named: no "Mother:" label, no "bronze",
 no falling light, clear clock-hand lines). Not run: the consistency repeat of the critic.
 
-Blocked on the build lead (outside my lane, `docs/build/requests/storyship.md` item 10 has the exact diff):
-`tools/story_check.py` only accepts `CONFIRMED <date> (Richard)` and looks for a NAR-01 record the SH1.0 manifest lacks;
-the calibration row `bad-ship-proposed` uses P1 (now CONFIRMED) and must use P9.
-With the diff applied here: `story_check` PASS, `--calibrate` PASS rows=22. On this branch as committed (diff not
-applied) `story_check` FAILS 26 problems, and the gate's critic step will see them.
+Request #10 diff applied (story_check, calibration); tests/test_story_check.py updated to D-new-story-canon (P9 now the
+PROPOSED negative; NAR-* records authorize). `unittest tests.test_story_check` 27 OK, `story_check` PASS, `--calibrate` PASS rows=22,
+blind story critic run twice: both `PASS lines=7` (consistent).
 
 No Unreal code or tests changed in this slice (text data only).

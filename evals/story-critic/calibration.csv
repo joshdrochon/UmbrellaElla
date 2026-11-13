@@ -15,7 +15,7 @@ bad-caps,button,RETRY NOW,,no,shouting,caps,yes,S3
 bad-name,intro_card,Ella's brother Tomas waits far below.,P1,no,a name the bible does not have,name,yes,S2
 bad-length,tooltip,"This setting changes how quickly every single projectile in the whole encounter travels across the screen toward you.",,no,too long for a tooltip,length,yes,S4
 bad-nofact,clue,The hand is missing.,,no,narrative line citing nothing,fact,yes,S1
-bad-ship-proposed,intro_card,Her mother stole the hand of the clock.,P1,yes,PROPOSED fact marked to ship,ship,yes,S1
+bad-ship-proposed,intro_card,Her mother stole the hand of the clock.,P9,yes,PROPOSED fact marked to ship,ship,yes,S1
 bad-nar,end_card,The owl departs. Ella is still in the air.,F3,yes,narrative surface while NAR-01 is DEFERRED,nar,yes,S1
 critic-pun,screen,"Owl be back for you, little one.",,no,a pun breaks the quiet tone,tone,no,S3
 critic-unclear,tooltip,Adjusts the thing for the other thing.,,no,does not say what the setting does,clarity,no,S6

@@ -60,7 +60,7 @@ class RepoStoryFilesPass(unittest.TestCase):
 
     def test_strixon_is_denied_and_nar01_is_deferred(self):
         self.assertIn("Strixon", [d["term"] for d in rules()["deny"]])
-        self.assertFalse(sc.nar_authorized(os.path.join(ROOT, sc.MANIFEST)))
+        self.assertTrue(sc.nar_authorized(os.path.join(ROOT, sc.MANIFEST)))   # SH1.0 NAR-* records are authorized
         names = {n["name"]: n["status"] for n in bible()["names"]}
         self.assertEqual(names["Keeper of Time"], "PROPOSED")       # the owl's title is a proposal, not canon
         self.assertTrue(all(f["status"] != "GDD" for fid, f in bible()["facts"].items() if fid.startswith("P")))
@@ -81,10 +81,8 @@ class BibleBrokenOnPurpose(unittest.TestCase):
         self.assertTrue(any("does not list" in m for _, _, m in p), p)
 
     def test_story_chat_row_marked_gdd_fails(self):
-        p = self.problems("Ella was meant to die. Her mother would not accept it and stole, from the owl, the clock hand "
-                          "that marked Ella's last hour. | PROPOSED | S3 |",
-                          "Ella was meant to die. Her mother would not accept it and stole, from the owl, the clock hand "
-                          "that marked Ella's last hour. | GDD | S3 |")
+        p = self.problems("a life she does not know she was meant to lose. | PROPOSED | S3 (the post's closing line) |",
+                          "a life she does not know she was meant to lose. | GDD | S3 (the post's closing line) |")
         self.assertTrue(any("cites a GDD source" in m for _, _, m in p), p)
 
     def test_self_confirmed_status_word_fails(self):
@@ -107,8 +105,12 @@ class LinesBrokenOnPurpose(unittest.TestCase):
         self.assertEqual(kinds("The owl departs. Ella is still in the air.", surface="end_card", facts="F3"), set())
         self.assertEqual(kinds("The owl departs. She is still in the air.", surface="end_card", facts="F3",
                                ship="yes", nar_ok=True), set())
-        self.assertIn("ship", kinds("The owl departs. Ella is still in the air.", surface="end_card", facts="F3",
-                                    ship="yes", nar_ok=True))   # GDD 1.3 has her name only as a DEFERRED idea
+        # Ella is CONFIRMED (agent default, D-new-story-canon): her name ships
+        self.assertEqual(kinds("The owl departs. Ella is still in the air.", surface="end_card", facts="F3",
+                               ship="yes", nar_ok=True), set())
+        # a still-PROPOSED fact (P9) never ships
+        self.assertIn("ship", kinds("Her mother defied death out of love.", surface="intro_card", facts="P9",
+                                    ship="yes", nar_ok=True))
 
     def test_each_rule_fails_its_line(self):
         cases = [
@@ -125,7 +127,7 @@ class LinesBrokenOnPurpose(unittest.TestCase):
             ("contradiction", dict(text="The evil owl waits.", surface="screen")),
             ("fact", dict(text="The hand is gone.", surface="clue")),
             ("fact", dict(text="The hand is gone.", surface="clue", facts="Z9")),
-            ("ship", dict(text="Her mother stole the hand.", surface="intro_card", facts="P1", ship="yes")),
+            ("ship", dict(text="Her mother defied death out of love.", surface="intro_card", facts="P9", ship="yes")),
             ("ship", dict(text="Umbrella Ella", surface="title", ship="yes")),
             ("nar", dict(text="The owl departs.", surface="end_card", facts="F3", ship="yes")),
             ("surface", dict(text="Hello there.", surface="poster")),
@@ -290,7 +292,7 @@ class CheckPrStoryRule(unittest.TestCase):
         base = subprocess.run(["git", "rev-parse", "HEAD"], cwd=self.root, capture_output=True, text=True).stdout.strip()
         p = os.path.join(self.root, sc.BIBLE)
         text = sc.read_text(p).replace("| P1 | Ella was meant to die.", "| P1 | Ella was meant to die.", 1)
-        text = text.replace("last hour. | PROPOSED | S3 |", "last hour. | CONFIRMED 2026-11-12 (Richard) | S3 |", 1)
+        text = text.replace("lose. | PROPOSED | S3 (the", "lose. | CONFIRMED 2026-11-12 (Richard) | S3 (the", 1)
         with open(p, "w", encoding="utf-8") as fh:
             fh.write(text)
         b = sc.sha8(sc.read_text(p))
@@ -298,8 +300,8 @@ class CheckPrStoryRule(unittest.TestCase):
               + self.critic.replace(self.critic.split("bible=")[1][:8], b))
         changed = ("pipeline/story/story-bible.md",)
         self.assertTrue(any("STORY CONFIRM" in x for x in self.probs(ev, changed, base)))
-        self.assertTrue(any("STORY CONFIRM" in x for x in self.probs(ev + "\nSTORY CONFIRM: by=Josh P1", changed, base)))
-        self.assertEqual(self.probs(ev + "\nSTORY CONFIRM: by=Richard P1", changed, base), [])
+        self.assertTrue(any("STORY CONFIRM" in x for x in self.probs(ev + "\nSTORY CONFIRM: by=Josh P9", changed, base)))
+        self.assertEqual(self.probs(ev + "\nSTORY CONFIRM: by=Richard P9", changed, base), [])
 
 
 class StoryCardsAndHumans(unittest.TestCase):
