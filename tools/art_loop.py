@@ -1738,7 +1738,10 @@ def main(argv=None):
             return cmd_run(a, refs, rh)
         if a.cmd == "gate-rerun":
             # The answers stay for triage (Nov 13: a failed re-run left nothing to read): ../logs/gate-rerun-<piece>/
-            keep = os.path.join(os.path.dirname(os.path.abspath(a.root)), "UmbrellaElla-areas", "logs", f"gate-rerun-{a.piece}")
+            common = subprocess.run(["git", "-C", a.root, "rev-parse", "--path-format=absolute", "--git-common-dir"],
+                                    capture_output=True, text=True).stdout.strip()   # the main checkout, from the gate or a lane
+            main = os.path.dirname(common) if common else os.path.abspath(a.root)
+            keep = os.path.join(os.path.dirname(main), "UmbrellaElla-areas", "logs", f"gate-rerun-{a.piece}")
             shutil.rmtree(keep, ignore_errors=True)
             try:
                 os.makedirs(keep)

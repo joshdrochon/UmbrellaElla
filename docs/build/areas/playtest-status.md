@@ -98,3 +98,14 @@ Log: `docs/build/playtest-logs/run-2026-11-12i.log` (commit 10959f90, `-SmokePla
 | CAM-07 | FAIL | Reopen cases caught, but the required mill current is live on 0 of 955 ticks in the HAZ run (`case=persist`). Route/mill current not active there; not in the playtest lane. |
 | FLOW-25 | FAIL | Drawn width 200 = usable 200 now. Backdrop covers 0 of 9 stages (field/art lane). |
 | HAZ-16 | FAIL | Unchanged: 1920x1080 impossible on this display, guard one-shot, designer call. |
+
+## QA-36 run after merging main with enemies2 + screenfix (Nov 13)
+Log (PLAYTEST_ lines only): `docs/build/playtest-logs/run-2026-11-13.log`. Build exit 0. `-SmokePlaytest -SmokeQuitAfter=20` via run_game.sh (640x360); HAZ-16 via `tools/build/agent_play.py --rule HAZ-16 --health both --attempts 1` at 1280x720 and 1728x1117 (live Sonnet player).
+| Row | Result | Why |
+|---|---|---|
+| CAM-04 | PASS | mill_lower_v2 ranges. |
+| CAM-07 | PASS | Mill currents live while the guard lived. |
+| FLOW-28 | PASS | Health carries, handoff fires. |
+| FLOW-25 | FAIL | Drawn width 200 = usable 200, lead ok; `stages_covered=0` of 9, checker: "route stage without background". |
+| HAZ-16 | FAIL | 1728x1117 healthy and low: cleared, not boring. 1280x720 healthy: cleared, not boring; 1280x720 low: cleared but boring=1. Checker: "1280x720/low: rejected as boring". Warning not recognised by the player in any run. 1 attempt per group. |
+QA36 PASS=3/5; FAIL: FLOW-25 (backdrop covers 0 of 9 route stages), HAZ-16 (1280x720 low-health run called boring)
