@@ -48,12 +48,29 @@ def fails(lines, pattern=FAIL_LINE):
     return {re.sub(r":\d+(:\d+)?\b", "", l.strip()) for l in lines if re.match(pattern, l)}
 
 
+GDD_GAP = re.compile(r"^\s*FAIL\s+(?:broken\s+(?P<b>[A-Z]+-\d+[\w.]*):|NOT_IN_GAME\s+P\d\s+(?P<n>[A-Z]+-\d+[\w.]*)\s|(?P<k>[A-Z]+-\d+[\w.]*)$)")   # bare "FAIL <key>": baselines cached by af58e9dd
+
+
+def gdd_keys(lines):
+    """gdd_check fails for the no-new-FAIL compare (Nov 13). Only two forms name the same open gap and are compared by GDD
+    key: a broken binding (the value's source vanished) and a NOT_IN_GAME P0 row (the value is listed as missing). So
+    moving a value from one to the other, or rewording its owner/missing text, is not a new fail (measured: CAM-05.h.3,
+    CAM-05.value.2 moved broken -> NOT_IN_GAME in the hotfix; CAM-05.value changed owner). Every other FAIL line
+    (stale, unbindable, not_in_game format errors, mismatches, UNBOUND) is compared as its full line, as before."""
+    out = set()
+    for l in fails(lines):
+        m = GDD_GAP.match(l)
+        out.add(("GAP " + (m.group("b") or m.group("n") or m.group("k"))) if m else l)
+    return out
+
+
 def blocking_lines():
     # The checks are independent, so they run in parallel (Nov 12: a serial baseline took ~10 min per gate run).
     from concurrent.futures import ThreadPoolExecutor
     with ThreadPoolExecutor(max_workers=len(BLOCKING)) as ex:
         res = dict(zip(BLOCKING, ex.map(lambda a: run(a)[1], BLOCKING.values())))
-    return {name: fails(res[name], FAIL_LINES.get(name, FAIL_LINE)) for name in BLOCKING}
+    return {name: (gdd_keys(res[name]) if name == "gdd_check" else fails(res[name], FAIL_LINES.get(name, FAIL_LINE)))
+            for name in BLOCKING}
 
 
 def on_base(base, path):
@@ -75,7 +92,8 @@ def baseline_for_new_checks(base):
             subprocess.run(["tar", "-x", "-C", tmp], input=tar, capture_output=True)
         for n, a in new.items():
             p = subprocess.run([sys.executable] + a, cwd=tmp, capture_output=True, text=True)
-            out[n] = fails((p.stdout + p.stderr).splitlines(), FAIL_LINES.get(n, FAIL_LINE))
+            ls = (p.stdout + p.stderr).splitlines()
+            out[n] = gdd_keys(ls) if n == "gdd_check" else fails(ls, FAIL_LINES.get(n, FAIL_LINE))
     return out
 
 
@@ -93,6 +111,8 @@ def main():
     if os.path.exists(basefile):
         for row in open(basefile):
             n, _, l = row.rstrip("\n").partition("\t"); before.setdefault(n, set()).add(l)
+    if "gdd_check" in before:   # a cached baseline holds the full lines: normalise them the same way
+        before["gdd_check"] = gdd_keys(before["gdd_check"])
     for n, ls in baseline_for_new_checks(base).items():
         before[n] = before.get(n, set()) | ls
     problems = []
