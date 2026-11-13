@@ -158,7 +158,7 @@ bool FStoryInPlayCuesTest::RunTest(const FString& Parameters)
 	Model.OnEvent(Make(EUmbrellaEventType::PhaseStarted, TEXT("wings")));
 	Model.OnEvent(Make(EUmbrellaEventType::CheckpointReached, TEXT("wings")));
 	Run(Model, 0.2f);
-	TestEqual(TEXT("clock hand clue on arrival"), ActiveText(Model), FString(TEXT("The clock has one hand. The other is gone.")));
+	TestEqual(TEXT("clock hand clue on arrival"), ActiveText(Model), FString(TEXT("The clock keeps one hand. The mounting beside it is empty.")));
 	Run(Model, 6.0f);
 	Model.OnEvent(Make(EUmbrellaEventType::PhaseStarted, TEXT("wings")));
 	Run(Model, 6.0f);

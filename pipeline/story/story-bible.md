@@ -15,11 +15,12 @@ implementation authority (the GDD SH1.0 revision note (every filled requirement 
 |---|---|---|
 | GDD | Stated by the current GDD snapshot (`docs/gdd/CURRENT`). Cite the section. | yes |
 | CONFIRMED <YYYY-MM-DD> (Richard) | Richard confirmed it. The PR that sets it has his `STORY CONFIRM:` line (`tools/check_pr.py` rule story). | yes |
+| CONFIRMED <YYYY-MM-DD> (agent default; team may override) | Confirmed by the agent default in `D-new-story-canon` (Josh, Nov 12: no one waits for sign-off). Counts as CONFIRMED for shipping until the team overrides it; the team or Richard can change it at any time. | yes |
 | DEFERRED | Listed in the GDD's narrative inventory as an idea, with no authority (NAR-01). | no |
 | PROPOSED | A design proposal: from the team's #story chat, a teammate's study, or written by the story agent. | no |
 | OPEN | No answer yet. A row in `docs/decisions.md` holds the question. | no |
 
-A line in `pipeline/story/lines.csv` with `ship=yes` may use only names and facts marked GDD or CONFIRMED
+A line in `pipeline/story/lines.csv` with `ship=yes` may use only names and facts marked GDD or CONFIRMED (Richard or agent default)
 (`story_check.py` fails it otherwise). Narrative surfaces (intro card, end card, clue, store description, narration)
 also wait for NAR-01 to be authorised in `docs/feature-manifest.json`.
 
