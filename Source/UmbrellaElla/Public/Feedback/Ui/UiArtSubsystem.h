@@ -8,6 +8,7 @@
 
 class SWidget;
 class UTexture2D;
+enum class EArtSlotDraw : uint8;
 struct FSlateBrush;
 
 namespace UmbrellaUiArtConst
@@ -79,8 +80,8 @@ public:
 	void ShowScreenArt(EFlowScreen Screen, UTexture2D* Texture);
 	void ClearScreenArt();
 
-	/** Draw one table piece for a screen (null removes it). Tests pass a transient texture. Refused (false) when the piece is not on that screen. */
-	bool ShowPiece(const FString& Visual, EFlowScreen Screen, UTexture2D* Texture);
+	/** Draw one table piece for a screen (null removes it). Tests pass a transient texture. Refused (not Drawn) when the piece is not on that screen. */
+	EArtSlotDraw DrawPiece(const FString& Visual, EFlowScreen Screen, UTexture2D* Texture);
 	void ClearPieces();
 	int32 PieceCount() const { return PieceWidgets.Num(); }
 	bool IsShowingPiece(const FString& Visual) const { return ShownPieces.Contains(Visual); }

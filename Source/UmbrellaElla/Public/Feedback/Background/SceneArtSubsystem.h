@@ -1,7 +1,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Harness/UmbrellaFeatureFlags.h"
 #include "Subsystems/WorldSubsystem.h"
 #include "SceneArtSubsystem.generated.h"
 
@@ -68,8 +67,8 @@ public:
 	/** First panel of a slot, or null. */
 	UStaticMeshComponent* FindPanel(const FString& Visual, int32 Index = 0) const;
 
-	/** The flag a visual is built behind (BG-03 sky, water, clocks; BG-04 land; FLOW-25 frame and route ends). Pure. */
-	static EFeatureId FeatureFor(const FString& Visual);
+	/** True when the flag a visual is built behind is on (sky, water and clocks; land; frame and route ends each have their own). */
+	static bool IsVisualEnabled(const FString& Visual);
 
 	/** World X a panel sits at for a camera X. Pure. */
 	static float PanelX(const FSceneArtSpec& Spec, float CameraX);

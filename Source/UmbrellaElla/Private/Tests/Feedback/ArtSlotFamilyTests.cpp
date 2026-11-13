@@ -198,17 +198,17 @@ bool FArtSlotUiPieces::RunTest(const FString& Parameters)
 	if (TestNotNull(TEXT("ui art subsystem"), Ui))
 	{
 		UTexture2D* Texture = FamilyTestTexture();
-		TestFalse(TEXT("nothing without a picture"), Ui->ShowPiece(TEXT("ui:title-lockup"), EFlowScreen::Title, nullptr));
-		TestTrue(TEXT("lockup shows on Title"), Ui->ShowPiece(TEXT("ui:title-lockup"), EFlowScreen::Title, Texture));
+		TestFalse(TEXT("nothing without a picture"), Ui->DrawPiece(TEXT("ui:title-lockup"), EFlowScreen::Title, nullptr) == EArtSlotDraw::Drawn);
+		TestTrue(TEXT("lockup shows on Title"), Ui->DrawPiece(TEXT("ui:title-lockup"), EFlowScreen::Title, Texture) == EArtSlotDraw::Drawn);
 		TestTrue(TEXT("lockup is tracked"), Ui->IsShowingPiece(TEXT("ui:title-lockup")));
-		TestFalse(TEXT("a second lockup is refused"), Ui->ShowPiece(TEXT("ui:title-lockup"), EFlowScreen::Title, Texture));
-		TestFalse(TEXT("lockup is not drawn on Settings"), Ui->ShowPiece(TEXT("ui:title-lockup"), EFlowScreen::Settings, Texture));
-		TestTrue(TEXT("settings head shows on Settings"), Ui->ShowPiece(TEXT("ui:head-Settings"), EFlowScreen::Settings, Texture));
-		TestFalse(TEXT("settings head is not drawn on Paused"), Ui->ShowPiece(TEXT("ui:head-Paused"), EFlowScreen::Settings, Texture));
+		TestFalse(TEXT("a second lockup is refused"), Ui->DrawPiece(TEXT("ui:title-lockup"), EFlowScreen::Title, Texture) == EArtSlotDraw::Drawn);
+		TestFalse(TEXT("lockup is not drawn on Settings"), Ui->DrawPiece(TEXT("ui:title-lockup"), EFlowScreen::Settings, Texture) == EArtSlotDraw::Drawn);
+		TestTrue(TEXT("settings head shows on Settings"), Ui->DrawPiece(TEXT("ui:head-Settings"), EFlowScreen::Settings, Texture) == EArtSlotDraw::Drawn);
+		TestFalse(TEXT("settings head is not drawn on Paused"), Ui->DrawPiece(TEXT("ui:head-Paused"), EFlowScreen::Settings, Texture) == EArtSlotDraw::Drawn);
 		TestEqual(TEXT("two pieces up"), Ui->PieceCount(), 2);
 		Ui->ClearPieces();
 		TestEqual(TEXT("cleared"), Ui->PieceCount(), 0);
-		TestFalse(TEXT("unknown piece refused"), Ui->ShowPiece(TEXT("ui:nothing"), EFlowScreen::Title, Texture));
+		TestFalse(TEXT("unknown piece refused"), Ui->DrawPiece(TEXT("ui:nothing"), EFlowScreen::Title, Texture) == EArtSlotDraw::Drawn);
 	}
 	FamilyTestEnd(World);
 	return true;

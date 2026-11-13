@@ -1,11 +1,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Core/UmbrellaEvent.h"
 #include "Subsystems/WorldSubsystem.h"
 #include "KeeperPresenterSubsystem.generated.h"
 
 class AActor;
+struct FUmbrellaEvent;
 class UStaticMeshComponent;
 class UTexture2D;
 enum class EArtSlotDraw : uint8;
@@ -53,8 +53,9 @@ public:
 	virtual bool IsTickableInEditor() const override { return false; }
 
 	/** Show or hide a state layer on every Keeper: the damage masks once a part is destroyed, the departure while it leaves. */
-	void SetStateLayerShown(AActor* Keeper, const FString& VisualId, bool bShown);
-	bool AreMasksShown() const { return bMasksShown; }
+	void ShowStateLayer(AActor* Keeper, const FString& VisualId);
+	void HideStateLayer(AActor* Keeper, const FString& VisualId);
+	bool IsShowingMasks() const { return bMasksShown; }
 
 	/** Attach the stand-in to a Keeper (safe to call twice). The presented count tells whether one was added. */
 	void ShowStandIn(AActor* Keeper);

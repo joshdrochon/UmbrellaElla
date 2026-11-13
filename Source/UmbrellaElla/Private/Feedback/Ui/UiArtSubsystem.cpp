@@ -62,12 +62,12 @@ void UUiArtSubsystem::ClearPieces()
 	ShownPieces.Reset();
 }
 
-bool UUiArtSubsystem::ShowPiece(const FString& Visual, EFlowScreen Screen, UTexture2D* Texture)
+EArtSlotDraw UUiArtSubsystem::DrawPiece(const FString& Visual, EFlowScreen Screen, UTexture2D* Texture)
 {
 	const UmbrellaUiPieceConst::FUiPiece* Piece = FindPiece(Visual);
 	if (!Piece || !(Piece->Screens & UiScreenBit(Screen)) || !IsValid(Texture) || !IsFeatureEnabled(EFeatureId::ART_08) || ShownPieces.Contains(Visual))
 	{
-		return false;
+		return EArtSlotDraw::NoTexture;
 	}
 	TSharedPtr<FSlateBrush> PieceBrush = MakeShared<FSlateBrush>();
 	PieceBrush->SetResourceObject(Texture);
@@ -90,7 +90,7 @@ bool UUiArtSubsystem::ShowPiece(const FString& Visual, EFlowScreen Screen, UText
 	PieceBrushes.Add(PieceBrush);
 	PieceTextures.Add(TStrongObjectPtr<UTexture2D>(Texture));
 	ShownPieces.Add(Visual);
-	return true;
+	return EArtSlotDraw::Drawn;
 }
 
 void UUiArtSubsystem::ShowPiecesFor(EFlowScreen Screen)
@@ -104,7 +104,7 @@ void UUiArtSubsystem::ShowPiecesFor(EFlowScreen Screen)
 		}
 		const FArtSlotRow* Row = ArtSlot::Find(Piece.Visual);
 		UTexture2D* Texture = Row ? ArtSlot::LoadTexture(*Row) : nullptr;
-		ShowPiece(Piece.Visual, Screen, Texture);
+		DrawPiece(Piece.Visual, Screen, Texture);
 	}
 }
 

@@ -1,5 +1,6 @@
 #include "Feedback/Anim/KeeperPresenterSubsystem.h"
 #include "Components/StaticMeshComponent.h"
+#include "Core/UmbrellaEvent.h"
 #include "Core/UmbrellaEventBus.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/World.h"
@@ -49,11 +50,19 @@ void UKeeperPresenterSubsystem::HandlePartDestroyed(const FUmbrellaEvent&)
 	bMasksShown = true;
 }
 
-void UKeeperPresenterSubsystem::SetStateLayerShown(AActor* Keeper, const FString& VisualId, bool bShown)
+void UKeeperPresenterSubsystem::ShowStateLayer(AActor* Keeper, const FString& VisualId)
 {
 	if (UStaticMeshComponent* Layer = FindPart(Keeper, VisualId))
 	{
-		Layer->SetVisibility(bShown);
+		Layer->SetVisibility(true);
+	}
+}
+
+void UKeeperPresenterSubsystem::HideStateLayer(AActor* Keeper, const FString& VisualId)
+{
+	if (UStaticMeshComponent* Layer = FindPart(Keeper, VisualId))
+	{
+		Layer->SetVisibility(false);
 	}
 }
 
@@ -68,8 +77,22 @@ void UKeeperPresenterSubsystem::Tick(float DeltaTime)
 			Keepers.RemoveAtSwap(Index);
 			continue;
 		}
-		SetStateLayerShown(Keeper, UmbrellaKeeperPresenterConst::MaskVisual, bMasksShown);
-		SetStateLayerShown(Keeper, UmbrellaKeeperPresenterConst::DepartureVisual, Owl->IsDeparting());
+		if (bMasksShown)
+		{
+			ShowStateLayer(Keeper, UmbrellaKeeperPresenterConst::MaskVisual);
+		}
+		else
+		{
+			HideStateLayer(Keeper, UmbrellaKeeperPresenterConst::MaskVisual);
+		}
+		if (Owl->IsDeparting())
+		{
+			ShowStateLayer(Keeper, UmbrellaKeeperPresenterConst::DepartureVisual);
+		}
+		else
+		{
+			HideStateLayer(Keeper, UmbrellaKeeperPresenterConst::DepartureVisual);
+		}
 	}
 }
 
