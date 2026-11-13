@@ -179,7 +179,7 @@ int32 UUmbrellaVfxDirectorSubsystem::Play(FName Key, const FVector& Location, AA
 			LastFlashClock = Clock;
 		}
 	}
-	const float LayerY = IsFeatureEnabled(EFeatureId::VFX_06) ? VfxCatalog::LayerY(Row->Layer) : VfxCatalog::LayerY(EVfxLayer::Vfx);
+	const float LayerY = IsFeatureEnabled(EFeatureId::VFX_06) ? VfxCatalog::RowY(*Row) : VfxCatalog::LayerY(EVfxLayer::Vfx);
 	const FVector At(Location.X, LayerY, Location.Z);
 	AActor* Actor = World->SpawnActor<AActor>(At, FRotator::ZeroRotator);
 	if (!IsValid(Actor))
@@ -651,7 +651,7 @@ void UUmbrellaVfxDirectorSubsystem::StepDemo()
 		}
 		// Just behind the effect's own layer: the scene art (bg, arena) now draws at the depths the old backdrop used and would hide it.
 		const FVfxArtRow* DemoRow = VfxCatalog::Find(DemoKey);
-		const float DemoLayerY = DemoRow ? VfxCatalog::LayerY(DemoRow->Layer) : UmbrellaDrawOrder::VfxY;
+		const float DemoLayerY = DemoRow ? VfxCatalog::RowY(*DemoRow) : UmbrellaDrawOrder::VfxY;
 		SpawnDemoBackdrop(FVector(DemoCentre(Player).X, DemoLayerY - UmbrellaVfxDirectorConst::DemoBackdropDepth, DemoCentre(Player).Z));
 	}
 	const int32 LiveOfKey = GetLiveCount(DemoKey);
@@ -805,7 +805,7 @@ void UUmbrellaVfxDirectorSubsystem::StepShaft(float DeltaSeconds)
 	for (int32 Index = 0; Index < UmbrellaVfxDirectorConst::ShaftParts; ++Index)
 	{
 		const FVfxArtRow* Row = (Index == UmbrellaVfxDirectorConst::ShaftParts - 1) ? UmbraRow : ShaftRow;
-		const FVector Location(Centres[Index].X, VfxCatalog::LayerY(Row->Layer), Centres[Index].Z);
+		const FVector Location(Centres[Index].X, VfxCatalog::RowY(*Row), Centres[Index].Z);
 		AActor* Part = ShaftActors[Index].Get();
 		if (!IsValid(Part))
 		{
