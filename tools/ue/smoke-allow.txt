@@ -2,3 +2,4 @@
 # tools/ue_run.py). One line each: <decision id> | <regex>. The id must be a row in docs/decisions.md, so
 # this list only grows through a decision. Crash patterns (SMOKE_BAD) can never be allowed.
 # Example: D<n> | LogAudio: Error: No default audio device
+D-new-smoke-concurrency | LogAudio: Display: No default SoundConcurrencyObject specified \(or failed to load\)
