@@ -4,7 +4,7 @@
   "bg-layer:Base": {
    "art_ref_check": "not run",
    "calibration": null,
-   "copy": "Art/Source/StandIns/bg-base/move_final2.png",
+   "copy": "pipeline/art/proof/standins/bg-base/move_final2.png",
    "lane": "move",
    "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
    "panel_pairs": null,
@@ -21,7 +21,7 @@
     "passed": 6,
     "sessions": 6
    },
-   "copy": "Art/Source/StandIns/bg-clock-water-wind/r1_keyed.png",
+   "copy": "pipeline/art/proof/standins/bg-clock-water-wind/r1_keyed.png",
    "lane": "artscene2",
    "note": "",
    "panel_pairs": {
@@ -40,7 +40,7 @@
     "passed": 9,
     "sessions": 9
    },
-   "copy": "Art/Source/StandIns/skyline/skyline.png",
+   "copy": "pipeline/art/proof/standins/skyline/skyline.png",
    "lane": "artscene",
    "note": "",
    "panel_pairs": {
@@ -59,7 +59,7 @@
     "passed": 6,
     "sessions": 6
    },
-   "copy": "Art/Source/StandIns/bg-architecture/r2_keyed.png",
+   "copy": "pipeline/art/proof/standins/bg-architecture/r2_keyed.png",
    "lane": "artscene2",
    "note": "",
    "panel_pairs": {
@@ -78,7 +78,7 @@
     "passed": 4,
     "sessions": 6
    },
-   "copy": "Art/Source/StandIns/paper/paper_r1.png",
+   "copy": "pipeline/art/proof/standins/paper/paper_r1.png",
    "lane": "artella",
    "note": "",
    "panel_pairs": {
@@ -94,7 +94,7 @@
   "bg:atmosphere": {
    "art_ref_check": "not run",
    "calibration": null,
-   "copy": "Art/Source/StandIns/bg-atmosphere/move_final2.png",
+   "copy": "pipeline/art/proof/standins/bg-atmosphere/move_final2.png",
    "lane": "move",
    "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
    "panel_pairs": null,
@@ -111,7 +111,7 @@
     "passed": 9,
     "sessions": 9
    },
-   "copy": "Art/Source/StandIns/bg-clock/r2_keyed.png",
+   "copy": "pipeline/art/proof/standins/bg-clock/r2_keyed.png",
    "lane": "artscene2",
    "note": "",
    "panel_pairs": {
@@ -130,7 +130,7 @@
     "passed": 6,
     "sessions": 6
    },
-   "copy": "Art/Source/StandIns/bg-land/r4_keyed.png",
+   "copy": "pipeline/art/proof/standins/bg-land/r4_keyed.png",
    "lane": "artscene2",
    "note": "",
    "panel_pairs": {
@@ -146,7 +146,7 @@
   "bg:start-end": {
    "art_ref_check": "not run",
    "calibration": null,
-   "copy": "Art/Source/StandIns/bg-start-end/artella_final1.png",
+   "copy": "pipeline/art/proof/standins/bg-start-end/artella_final1.png",
    "lane": "artella",
    "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
    "panel_pairs": null,
@@ -160,7 +160,7 @@
   "bg:water": {
    "art_ref_check": "not run",
    "calibration": null,
-   "copy": "Art/Source/StandIns/bg-water/artscene2_r4_keyed.png",
+   "copy": "pipeline/art/proof/standins/bg-water/artscene2_r4_keyed.png",
    "lane": "artscene2",
    "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
    "panel_pairs": null,
@@ -177,7 +177,7 @@
     "passed": 3,
     "sessions": 3
    },
-   "copy": "Art/Source/StandIns/ella-down/ella-down_N24_grid.png",
+   "copy": "pipeline/art/proof/standins/ella-down/ella-down_N24_grid.png",
    "lane": "artella2",
    "note": "",
    "panel_pairs": {
@@ -196,7 +196,7 @@
     "passed": 6,
     "sessions": 6
    },
-   "copy": "Art/Source/StandIns/ella-hurt/ella-hurt_N24_strip.png",
+   "copy": "pipeline/art/proof/standins/ella-hurt/ella-hurt_N24_strip.png",
    "lane": "artella2",
    "note": "",
    "panel_pairs": {
@@ -212,7 +212,7 @@
   "ella-state:Idle": {
    "art_ref_check": null,
    "calibration": null,
-   "copy": "Art/Source/StandIns/ella-up-open/Ella_idle_N24_grid.png",
+   "copy": "pipeline/art/proof/standins/ella-up-open/Ella_idle_N24_grid.png",
    "lane": "artvideo",
    "note": "Josh-approved 24-frame idle grid (approvals.json); piece already counts as passed, imported as _PH for the game to draw",
    "panel_pairs": null,
@@ -228,7 +228,7 @@
     "passed": 30,
     "sessions": 43
    },
-   "copy": "Art/Source/StandIns/enemy-armillary/ArmillaryF_motion.png",
+   "copy": "pipeline/art/proof/standins/enemy-armillary/ArmillaryF_motion.png",
    "lane": "artenemy",
    "note": "",
    "panel_pairs": {
@@ -249,7 +249,7 @@
     "passed": 30,
     "sessions": 43
    },
-   "copy": "Art/Source/StandIns/enemy-armillary/ArmillaryF_motion.png",
+   "copy": "pipeline/art/proof/standins/enemy-armillary/ArmillaryF_motion.png",
    "lane": "artenemy",
    "note": "",
    "panel_pairs": {
@@ -267,7 +267,7 @@
   "enemy:EscapementRepeater:Female": {
    "art_ref_check": "not run",
    "calibration": null,
-   "copy": "Art/Source/StandIns/enemy-repeater/repeater-attack_N24_grid.png",
+   "copy": "pipeline/art/proof/standins/enemy-repeater/repeater-attack_N24_grid.png",
    "lane": "videoframes",
    "note": "only candidate for this slot (Veo clip cut to a 24-frame grid; for the repeater the attack clip). No panel record.",
    "panel_pairs": null,
@@ -281,7 +281,7 @@
   "enemy:EscapementRepeater:Male": {
    "art_ref_check": "not run",
    "calibration": null,
-   "copy": "Art/Source/StandIns/enemy-repeater/repeater-attack_N24_grid.png",
+   "copy": "pipeline/art/proof/standins/enemy-repeater/repeater-attack_N24_grid.png",
    "lane": "videoframes",
    "note": "only candidate for this slot (Veo clip cut to a 24-frame grid; for the repeater the attack clip). No panel record.",
    "panel_pairs": null,
@@ -295,7 +295,7 @@
   "enemy:Floodstrider:Female": {
    "art_ref_check": "not run",
    "calibration": null,
-   "copy": "Art/Source/StandIns/enemy-floodstrider/move_draft3_clean.png",
+   "copy": "pipeline/art/proof/standins/enemy-floodstrider/move_draft3_clean.png",
    "lane": "move",
    "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
    "panel_pairs": null,
@@ -309,7 +309,7 @@
   "enemy:Floodstrider:Male": {
    "art_ref_check": "not run",
    "calibration": null,
-   "copy": "Art/Source/StandIns/enemy-floodstrider/move_draft3_clean.png",
+   "copy": "pipeline/art/proof/standins/enemy-floodstrider/move_draft3_clean.png",
    "lane": "move",
    "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
    "panel_pairs": null,
@@ -326,7 +326,7 @@
     "passed": 13,
     "sessions": 15
    },
-   "copy": "Art/Source/StandIns/enemy-courier/sheet.png",
+   "copy": "pipeline/art/proof/standins/enemy-courier/sheet.png",
    "lane": "artenemy2",
    "note": "",
    "panel_pairs": {
@@ -345,7 +345,7 @@
     "passed": 13,
     "sessions": 15
    },
-   "copy": "Art/Source/StandIns/enemy-courier/sheet.png",
+   "copy": "pipeline/art/proof/standins/enemy-courier/sheet.png",
    "lane": "artenemy2",
    "note": "",
    "panel_pairs": {
@@ -364,7 +364,7 @@
     "passed": 18,
     "sessions": 20
    },
-   "copy": "Art/Source/StandIns/enemy-sundial/aim_g0.75_scaled.png",
+   "copy": "pipeline/art/proof/standins/enemy-sundial/aim_g0.75_scaled.png",
    "lane": "artenemy",
    "note": "",
    "panel_pairs": {
@@ -384,7 +384,7 @@
     "passed": 18,
     "sessions": 20
    },
-   "copy": "Art/Source/StandIns/enemy-sundial/aim_g0.75_scaled.png",
+   "copy": "pipeline/art/proof/standins/enemy-sundial/aim_g0.75_scaled.png",
    "lane": "artenemy",
    "note": "",
    "panel_pairs": {
@@ -404,7 +404,7 @@
     "passed": 21,
     "sessions": 27
    },
-   "copy": "Art/Source/StandIns/owl/keyed_3.png",
+   "copy": "pipeline/art/proof/standins/owl/keyed_3.png",
    "lane": "artella",
    "note": "",
    "panel_pairs": {
@@ -420,7 +420,7 @@
   "keeper:clock-cover-glass-hands": {
    "art_ref_check": "not run",
    "calibration": null,
-   "copy": "Art/Source/StandIns/keeper-clock/move_draft3_clean.png",
+   "copy": "pipeline/art/proof/standins/keeper-clock/move_draft3_clean.png",
    "lane": "move",
    "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
    "panel_pairs": null,
@@ -434,7 +434,7 @@
   "keeper:mechanism-front": {
    "art_ref_check": "not run",
    "calibration": null,
-   "copy": "Art/Source/StandIns/keeper-mech-front/move_final2.png",
+   "copy": "pipeline/art/proof/standins/keeper-mech-front/move_final2.png",
    "lane": "move",
    "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
    "panel_pairs": null,
@@ -448,7 +448,7 @@
   "keeper:mechanism-middle": {
    "art_ref_check": "not run",
    "calibration": null,
-   "copy": "Art/Source/StandIns/keeper-mech-middle/move_draft3_clean.png",
+   "copy": "pipeline/art/proof/standins/keeper-mech-middle/move_draft3_clean.png",
    "lane": "move",
    "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
    "panel_pairs": null,
@@ -462,7 +462,7 @@
   "keeper:mechanism-rear": {
    "art_ref_check": "not run",
    "calibration": null,
-   "copy": "Art/Source/StandIns/keeper-mech-rear/move_draft3_clean.png",
+   "copy": "pipeline/art/proof/standins/keeper-mech-rear/move_draft3_clean.png",
    "lane": "move",
    "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
    "panel_pairs": null,
@@ -476,7 +476,7 @@
   "keeper:talon-empty-and-closed": {
    "art_ref_check": "not run",
    "calibration": null,
-   "copy": "Art/Source/StandIns/keeper-talon/move_final2.png",
+   "copy": "pipeline/art/proof/standins/keeper-talon/move_final2.png",
    "lane": "move",
    "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
    "panel_pairs": null,
@@ -490,7 +490,7 @@
   "keeper:wings-gust-wear": {
    "art_ref_check": "not run",
    "calibration": null,
-   "copy": "Art/Source/StandIns/keeper-wing/move_final2.png",
+   "copy": "pipeline/art/proof/standins/keeper-wing/move_final2.png",
    "lane": "move",
    "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
    "panel_pairs": null,
@@ -507,7 +507,7 @@
     "passed": 6,
     "sessions": 6
    },
-   "copy": "Art/Source/StandIns/ui-credits/capture_credits_r22_1568.png",
+   "copy": "pipeline/art/proof/standins/ui-credits/capture_credits_r22_1568.png",
    "lane": "artui",
    "note": "",
    "panel_pairs": {
@@ -526,7 +526,7 @@
     "passed": 6,
     "sessions": 6
    },
-   "copy": "Art/Source/StandIns/ui-defeated/capture_defeated_r21_1568.png",
+   "copy": "pipeline/art/proof/standins/ui-defeated/capture_defeated_r21_1568.png",
    "lane": "artui",
    "note": "",
    "panel_pairs": {
@@ -542,7 +542,7 @@
   "screen:LevelUp": {
    "art_ref_check": "not run",
    "calibration": null,
-   "copy": "Art/Source/StandIns/ui-level-up/move_final2.png",
+   "copy": "pipeline/art/proof/standins/ui-level-up/move_final2.png",
    "lane": "move",
    "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
    "panel_pairs": null,
@@ -559,7 +559,7 @@
     "passed": 6,
     "sessions": 6
    },
-   "copy": "Art/Source/StandIns/ui-pause/capture_pause_r21_1568.png",
+   "copy": "pipeline/art/proof/standins/ui-pause/capture_pause_r21_1568.png",
    "lane": "artui",
    "note": "",
    "panel_pairs": {
@@ -578,7 +578,7 @@
     "passed": 6,
     "sessions": 7
    },
-   "copy": "Art/Source/StandIns/ui-hud-clock/capture_r16_hud.png",
+   "copy": "pipeline/art/proof/standins/ui-hud-clock/capture_r16_hud.png",
    "lane": "artella",
    "note": "",
    "panel_pairs": {
@@ -594,7 +594,7 @@
   "screen:Purchase": {
    "art_ref_check": "not run",
    "calibration": null,
-   "copy": "Art/Source/StandIns/ui-purchase/artella_draft2.png",
+   "copy": "pipeline/art/proof/standins/ui-purchase/artella_draft2.png",
    "lane": "artella",
    "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
    "panel_pairs": null,
@@ -611,7 +611,7 @@
     "passed": 6,
     "sessions": 6
    },
-   "copy": "Art/Source/StandIns/ui-pause/capture_pause_r21_1568.png",
+   "copy": "pipeline/art/proof/standins/ui-pause/capture_pause_r21_1568.png",
    "lane": "artui",
    "note": "",
    "panel_pairs": {
@@ -630,7 +630,7 @@
     "passed": 6,
     "sessions": 6
    },
-   "copy": "Art/Source/StandIns/ui-settings/capture_settings_r21_1568.png",
+   "copy": "pipeline/art/proof/standins/ui-settings/capture_settings_r21_1568.png",
    "lane": "artui",
    "note": "",
    "panel_pairs": {
@@ -646,7 +646,7 @@
   "screen:Statistics": {
    "art_ref_check": "not run",
    "calibration": null,
-   "copy": "Art/Source/StandIns/ui-journey-complete/artella_final2.png",
+   "copy": "pipeline/art/proof/standins/ui-journey-complete/artella_final2.png",
    "lane": "artella",
    "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
    "panel_pairs": null,
@@ -663,7 +663,7 @@
     "passed": 6,
     "sessions": 6
    },
-   "copy": "Art/Source/StandIns/ui-story-text/capture_story.png",
+   "copy": "pipeline/art/proof/standins/ui-story-text/capture_story.png",
    "lane": "artella",
    "note": "",
    "panel_pairs": {
@@ -682,7 +682,7 @@
     "passed": 6,
     "sessions": 6
    },
-   "copy": "Art/Source/StandIns/ui-title/capture_title_r21_1568.png",
+   "copy": "pipeline/art/proof/standins/ui-title/capture_title_r21_1568.png",
    "lane": "artui",
    "note": "",
    "panel_pairs": {
@@ -701,7 +701,7 @@
     "passed": 6,
     "sessions": 6
    },
-   "copy": "Art/Source/StandIns/wand-shot/g3_fit.png",
+   "copy": "pipeline/art/proof/standins/wand-shot/g3_fit.png",
    "lane": "artshots",
    "note": "",
    "panel_pairs": {
@@ -720,7 +720,7 @@
     "passed": 12,
     "sessions": 12
    },
-   "copy": "Art/Source/StandIns/owl-bolt/OwlBolt_Still_00.png",
+   "copy": "pipeline/art/proof/standins/owl-bolt/OwlBolt_Still_00.png",
    "lane": "artella",
    "note": "",
    "panel_pairs": {
@@ -739,7 +739,7 @@
     "passed": 8,
     "sessions": 9
    },
-   "copy": "Art/Source/StandIns/bolt-hit/BoltHit_Still_00.png",
+   "copy": "pipeline/art/proof/standins/bolt-hit/BoltHit_Still_00.png",
    "lane": "artella",
    "note": "",
    "panel_pairs": {
@@ -755,7 +755,7 @@
   "shot:stream-beam": {
    "art_ref_check": "not run",
    "calibration": null,
-   "copy": "Art/Source/StandIns/stream-beam/move_final2.png",
+   "copy": "pipeline/art/proof/standins/stream-beam/move_final2.png",
    "lane": "move",
    "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
    "panel_pairs": null,
@@ -769,7 +769,7 @@
   "shot:yellow": {
    "art_ref_check": "not run",
    "calibration": null,
-   "copy": "Art/Source/StandIns/yellow-shot/move_draft3_clean.png",
+   "copy": "pipeline/art/proof/standins/yellow-shot/move_draft3_clean.png",
    "lane": "move",
    "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
    "panel_pairs": null,
@@ -786,7 +786,7 @@
     "passed": 9,
     "sessions": 9
    },
-   "copy": "Art/Source/StandIns/vfx-clock-beat/sheet4.png",
+   "copy": "pipeline/art/proof/standins/vfx-clock-beat/sheet4.png",
    "lane": "artella",
    "note": "",
    "panel_pairs": {
@@ -802,7 +802,7 @@
   "vfx-sheet:VFX_ClockOpen": {
    "art_ref_check": "not run",
    "calibration": null,
-   "copy": "Art/Source/StandIns/vfx-clock-open/move_draft3_clean.png",
+   "copy": "pipeline/art/proof/standins/vfx-clock-open/move_draft3_clean.png",
    "lane": "move",
    "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
    "panel_pairs": null,
@@ -816,7 +816,7 @@
   "vfx-sheet:VFX_Departure": {
    "art_ref_check": "not run",
    "calibration": null,
-   "copy": "Art/Source/StandIns/vfx-departure/move_final3.png",
+   "copy": "pipeline/art/proof/standins/vfx-departure/move_final3.png",
    "lane": "move",
    "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
    "panel_pairs": null,
@@ -830,7 +830,7 @@
   "vfx-sheet:VFX_EyeExposed": {
    "art_ref_check": "not run",
    "calibration": null,
-   "copy": "Art/Source/StandIns/vfx-eye-exposed/move_draft3_clean.png",
+   "copy": "pipeline/art/proof/standins/vfx-eye-exposed/move_draft3_clean.png",
    "lane": "move",
    "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
    "panel_pairs": null,
@@ -844,7 +844,7 @@
   "vfx-sheet:VFX_GoldImpact": {
    "art_ref_check": "not run",
    "calibration": null,
-   "copy": "Art/Source/StandIns/gold-impact/gold-impact_N24_grid.png",
+   "copy": "pipeline/art/proof/standins/gold-impact/gold-impact_N24_grid.png",
    "lane": "videoframes",
    "note": "only candidate for this slot (Veo clip cut to a 24-frame grid; for the repeater the attack clip). No panel record.",
    "panel_pairs": null,
@@ -861,7 +861,7 @@
     "passed": 6,
     "sessions": 6
    },
-   "copy": "Art/Source/StandIns/wand-shot/g3_fit.png",
+   "copy": "pipeline/art/proof/standins/wand-shot/g3_fit.png",
    "lane": "artshots",
    "note": "",
    "panel_pairs": {
@@ -880,7 +880,7 @@
     "passed": 6,
     "sessions": 6
    },
-   "copy": "Art/Source/StandIns/wand-shot/g3_fit.png",
+   "copy": "pipeline/art/proof/standins/wand-shot/g3_fit.png",
    "lane": "artshots",
    "note": "",
    "panel_pairs": {
@@ -896,7 +896,7 @@
   "vfx-sheet:VFX_KeeperRecovery": {
    "art_ref_check": "not run",
    "calibration": null,
-   "copy": "Art/Source/StandIns/vfx-keeper-recovery/move_draft3_clean.png",
+   "copy": "pipeline/art/proof/standins/vfx-keeper-recovery/move_draft3_clean.png",
    "lane": "move",
    "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
    "panel_pairs": null,
@@ -910,7 +910,7 @@
   "vfx-sheet:VFX_KeeperStrike": {
    "art_ref_check": "not run",
    "calibration": null,
-   "copy": "Art/Source/StandIns/vfx-keeper-strike/move_draft3_clean.png",
+   "copy": "pipeline/art/proof/standins/vfx-keeper-strike/move_draft3_clean.png",
    "lane": "move",
    "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
    "panel_pairs": null,
@@ -924,7 +924,7 @@
   "vfx-sheet:VFX_Restoration": {
    "art_ref_check": "not run",
    "calibration": null,
-   "copy": "Art/Source/StandIns/vfx-restoration/move_draft3_clean.png",
+   "copy": "pipeline/art/proof/standins/vfx-restoration/move_draft3_clean.png",
    "lane": "move",
    "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
    "panel_pairs": null,
@@ -941,7 +941,7 @@
     "passed": 6,
     "sessions": 6
    },
-   "copy": "Art/Source/StandIns/wand-shot/g3_fit.png",
+   "copy": "pipeline/art/proof/standins/wand-shot/g3_fit.png",
    "lane": "artshots",
    "note": "",
    "panel_pairs": {
@@ -957,7 +957,7 @@
   "wind:current-field": {
    "art_ref_check": "not run",
    "calibration": null,
-   "copy": "Art/Source/StandIns/wind-zone/artella_WindZone_Still_00.png",
+   "copy": "pipeline/art/proof/standins/wind-zone/artella_WindZone_Still_00.png",
    "lane": "artella",
    "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
    "panel_pairs": null,
@@ -971,7 +971,7 @@
   "wind:decor-lines": {
    "art_ref_check": "not run",
    "calibration": null,
-   "copy": "Art/Source/StandIns/wind-lines/artella_WindLines_Still_00.png",
+   "copy": "pipeline/art/proof/standins/wind-lines/artella_WindLines_Still_00.png",
    "lane": "artella",
    "note": "no panel or art_ref_check record exists for this piece; chosen as the latest round (clean/keyed variant where present). Unscored first draft.",
    "panel_pairs": null,
