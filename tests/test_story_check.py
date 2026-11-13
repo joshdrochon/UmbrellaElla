@@ -112,6 +112,15 @@ class LinesBrokenOnPurpose(unittest.TestCase):
         self.assertIn("ship", kinds("Her mother defied death out of love.", surface="intro_card", facts="P9",
                                     ship="yes", nar_ok=True))
 
+    def test_length_exception_applies_only_to_its_id(self):
+        r = rules()
+        self.assertIn("ui-title-umbrella-ella-the-stolen-hour", r["length_exceptions"])
+        five = "one two three four five"
+        ok = sc.line_problems([row(five, surface="title", rid="ui-title-umbrella-ella-the-stolen-hour")], bible(), r, False)
+        self.assertNotIn("length", {k for k, _, _ in ok})
+        bad = sc.line_problems([row(five, surface="title", rid="other-id")], bible(), r, False)
+        self.assertIn("length", {k for k, _, _ in bad})
+
     def test_each_rule_fails_its_line(self):
         cases = [
             ("deny", dict(text="Strixon waits above.", surface="screen")),
@@ -128,7 +137,7 @@ class LinesBrokenOnPurpose(unittest.TestCase):
             ("fact", dict(text="The hand is gone.", surface="clue")),
             ("fact", dict(text="The hand is gone.", surface="clue", facts="Z9")),
             ("ship", dict(text="Her mother defied death out of love.", surface="intro_card", facts="P9", ship="yes")),
-            ("ship", dict(text="Umbrella Ella", surface="title", ship="yes")),
+            ("ship", dict(text="The Last Hour", surface="title", ship="yes")),
             ("nar", dict(text="The owl departs.", surface="end_card", facts="F3", ship="yes")),
             ("surface", dict(text="Hello there.", surface="poster")),
         ]
