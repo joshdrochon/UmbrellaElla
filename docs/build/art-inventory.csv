@@ -54,11 +54,11 @@ screen:Story,Source Flow/FlowRules.h EFlowScreen,ui-story-text,artui,no,/Game/Um
 screen:Title,Source Flow/FlowRules.h EFlowScreen,ui-title,artui,no,/Game/UmbrellaElla/Art/UI/T_Screen_Title,-
 screen:Tutorial,Source Flow/FlowRules.h EFlowScreen,ui-tutorial,artui,no,/Game/UmbrellaElla/Art/UI/T_Screen_Tutorial,-
 screen:TutorialPaused,Source Flow/FlowRules.h EFlowScreen,ui-tutorial,artui,no,/Game/UmbrellaElla/Art/UI/T_Screen_TutorialPaused,-
-shot:gold,GDD ANIM-05,wand-shot,artshots,no,/Game/UmbrellaElla/Art/Shots/T_WandShot,-
-shot:red,GDD VFX-04,owl-bolt,artshots,no,/Game/UmbrellaElla/Art/Shots/T_OwlBolt,-
-shot:red-impact,GDD VFX-04,bolt-hit,artshots,no,/Game/UmbrellaElla/Art/Shots/T_BoltHit,-
+shot:gold,GDD ANIM-05,wand-shot,artshots,no,/Game/UmbrellaElla/Art/Shots/T_WandShot,UShotPresenterSubsystem
+shot:red,GDD VFX-04,owl-bolt,artshots,no,/Game/UmbrellaElla/Art/Shots/T_OwlBolt,UShotPresenterSubsystem
+shot:red-impact,GDD VFX-04,bolt-hit,artshots,no,/Game/UmbrellaElla/Art/Shots/T_BoltHit,UUmbrellaVfxSubsystem
 shot:stream-beam,GDD ANIM-05,stream-beam,artshots,no,/Game/UmbrellaElla/Art/Shots/T_StreamBeam,-
-shot:yellow,GDD VFX-04,yellow-shot,artshots,no,/Game/UmbrellaElla/Art/Shots/T_YellowShot,-
+shot:yellow,GDD VFX-04,yellow-shot,artshots,no,/Game/UmbrellaElla/Art/Shots/T_YellowShot,UShotPresenterSubsystem
 ui:device-and-remap-prompts,GDD ART-08,ui-settings,artui,no,/Game/UmbrellaElla/Art/UI/T_Prompts,-
 ui:spell-wheel,GDD ART-08,ui-spell-wheel,artui,no,/Game/UmbrellaElla/Art/UI/T_SpellWheel,-
 ui:xp-ring,GDD ART-08,ui-xp-ring,artui,no,/Game/UmbrellaElla/Art/UI/T_XpRing,-

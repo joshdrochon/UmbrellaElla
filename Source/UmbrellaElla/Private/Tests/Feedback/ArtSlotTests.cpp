@@ -9,6 +9,10 @@
 #include "Feedback/Anim/EllaAnimPresenterComponent.h"
 #include "Feedback/Anim/EnemyPresenterSubsystem.h"
 #include "Feedback/Anim/KeeperPresenterSubsystem.h"
+#include "Feedback/Anim/ShotPresenterSubsystem.h"
+#include "Feedback/Vfx/UmbrellaVfxSubsystem.h"
+#include "Core/UmbrellaEvent.h"
+#include "Projectile/UmbrellaProjectile.h"
 #include "Feedback/Background/UmbrellaBackdropSubsystem.h"
 #include "GameFramework/Actor.h"
 #include "Materials/MaterialInstanceDynamic.h"
@@ -292,6 +296,59 @@ bool FBackdropCoversRoute::RunTest(const FString& Parameters)
 		{
 			const FBox2D Box = UUmbrellaBackdropSubsystem::LayerFootprint(EndCamera, Backdrop->GetBuiltSpecs()[Index].Parallax);
 			TestTrue(TEXT("panel actor is at its footprint centre"), FMath::IsNearlyEqual(static_cast<float>(Backdrop->GetLayers()[Index]->GetActorLocation().X), static_cast<float>(Box.GetCenter().X), 1.0f));
+		}
+	}
+	ArtSlotTestEnd(World);
+	return true;
+}
+
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FArtSlotShots, "UmbrellaElla.Feedback.World.ArtSlotShots",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+
+bool FArtSlotShots::RunTest(const FString& Parameters)
+{
+	UWorld* World = ArtSlotTestWorld();
+	if (!TestNotNull(TEXT("world"), World))
+	{
+		return false;
+	}
+	TestEqual(TEXT("player shot slot"), UShotPresenterSubsystem::VisualIdFor(EUmbrellaShotKind::PlayerBlast), FString(TEXT("shot:gold")));
+	TestEqual(TEXT("owl bolt slot"), UShotPresenterSubsystem::VisualIdFor(EUmbrellaShotKind::EnemyRed), FString(TEXT("shot:red")));
+	TestEqual(TEXT("yellow shot slot"), UShotPresenterSubsystem::VisualIdFor(EUmbrellaShotKind::EnemyYellow), FString(TEXT("shot:yellow")));
+	UShotPresenterSubsystem* Presenter = World->GetSubsystem<UShotPresenterSubsystem>();
+	FUmbrellaShotSpec Spec;
+	Spec.Kind = EUmbrellaShotKind::EnemyRed;
+	Spec.Velocity = FVector(100.0, 0.0, 0.0);
+	AUmbrellaProjectile* Shot = AUmbrellaProjectile::Fire(World, Spec);
+	if (TestNotNull(TEXT("shot presenter"), Presenter) && TestNotNull(TEXT("shot"), Shot))
+	{
+		UStaticMeshComponent* Mesh = Cast<UStaticMeshComponent>(Shot->GetRootComponent());
+		const FVector SphereScale = Mesh ? Mesh->GetRelativeScale3D() : FVector::ZeroVector;
+		UTexture2D* Texture = ArtSlotTestTexture();
+		TestTrue(TEXT("shot takes a picture"), Presenter->ShowArt(Shot, Texture) == EArtSlotDraw::Drawn);
+		TestTrue(TEXT("second picture refused"), Presenter->ShowArt(Shot, Texture) != EArtSlotDraw::Drawn);
+		if (TestNotNull(TEXT("shot visual"), Mesh))
+		{
+			TestTrue(TEXT("shot shows the picture"), ArtSlot::HasArt(Mesh) && ArtSlotParamTexture(Mesh) == Texture);
+			TestEqual(TEXT("shot art keeps the sphere width"), Mesh->GetRelativeScale3D().X, SphereScale.X);
+			TestEqual(TEXT("shot art keeps the sphere height"), Mesh->GetRelativeScale3D().Y, SphereScale.Z);
+			TestEqual(TEXT("shot art has no collision"), static_cast<int32>(Mesh->GetCollisionEnabled()), static_cast<int32>(ECollisionEnabled::NoCollision));
+		}
+	}
+	UUmbrellaVfxSubsystem* Vfx = World->GetSubsystem<UUmbrellaVfxSubsystem>();
+	if (TestNotNull(TEXT("vfx"), Vfx))
+	{
+		FUmbrellaEvent Event;
+		Event.Type = EUmbrellaEventType::ProjectileContact;
+		Vfx->PlayForEvent(Event);
+		AActor* Hit = Vfx->GetLastActor();
+		if (TestNotNull(TEXT("impact effect"), Hit))
+		{
+			UTexture2D* Texture = ArtSlotTestTexture();
+			TestTrue(TEXT("bolt hit takes a picture"), Vfx->ShowImpactArt(Hit, Texture) == EArtSlotDraw::Drawn);
+			const UStaticMeshComponent* HitMesh = Cast<UStaticMeshComponent>(Hit->GetRootComponent());
+			TestTrue(TEXT("bolt hit shows the picture"), HitMesh && ArtSlot::HasArt(HitMesh) && ArtSlotParamTexture(HitMesh) == Texture);
 		}
 	}
 	ArtSlotTestEnd(World);
