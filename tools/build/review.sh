@@ -10,11 +10,11 @@ case "$A" in
   arena) ROLE=level-designer ;; story) ROLE=story ;; flow|settings) ROLE=ui-ux ;; *) ROLE=dev-lead ;;
 esac
 CARDS="pipeline/roles/$ROLE.md"
-git diff --name-only HEAD^1 HEAD | grep -q '^Source/' && [ "$ROLE" != dev-lead ] && CARDS="$CARDS and pipeline/roles/dev-lead.md (C++ changed)"
-git diff --name-only HEAD^1 HEAD | grep -q '^Audio/' && CARDS="$CARDS and pipeline/roles/audio.md (sound changed)"
+git diff --name-only ${REVIEW_RANGE:-HEAD^1 HEAD} | grep -q '^Source/' && [ "$ROLE" != dev-lead ] && CARDS="$CARDS and pipeline/roles/dev-lead.md (C++ changed)"
+git diff --name-only ${REVIEW_RANGE:-HEAD^1 HEAD} | grep -q '^Audio/' && CARDS="$CARDS and pipeline/roles/audio.md (sound changed)"
 PROMPT="You are the independent reviewer for one merge into Umbrella Ella's main branch. You did not write this code
 and you are not the build lead. Do not edit, commit or push anything; read only.
-Your role cards: $CARDS. Follow their review rules, adapted: there is no PR, the merge diff is \`git diff HEAD^1 HEAD\`
+Your role cards: $CARDS. Follow their review rules, adapted: there is no PR, the merge diff is \`git diff ${REVIEW_RANGE:-HEAD^1 HEAD}\`
 in this checkout, the area brief is docs/build/areas/$A.md (its Rule IDs and definition of done) and the rules every
 area follows are docs/build/worker-rules.md. Check the diff against the GDD rows of those Rule IDs
 (docs/gdd/GDD-SH1.0.md, docs/feature-manifest.json). The gate evidence (build, tests, checks) is in $EV; do not rerun

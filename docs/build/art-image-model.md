@@ -73,3 +73,8 @@ and the sheet's `.sprite.json` (`anchor`, `anchor_band`, `span_mode`); `--no-reg
 FAIL above `frame_register.JITTER_LIMITS` (3 px, 2%), measured once on the team's reference animations
 (`pipeline/art/reference/Test_Assets`: Witch Cast and Owl Flap loops 0 px / 0%, the Witch Guard Transition 2.5 px as the largest
 real motion; the numbers and source are in that file). Lanes cut with `frames` and need no script of their own.
+
+## Shared references
+An art lane may add its own lane name to the `cards` list of a reference in `pipeline/art/references.json` that its
+pieces are judged against (additions only; never edit or remove another lane's entries). That is in-lane, not a
+cross-lane edit.
