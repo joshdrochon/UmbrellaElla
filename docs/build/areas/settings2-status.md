@@ -39,3 +39,7 @@ Evidence: not re-run after this fix; the build lead's gate runs build and tests 
 - Failing: `UmbrellaElla.Feedback.World.ArtSlotKeeperEnemy` ("keeper takes a picture": Keeper ShowArt not Drawn). Keeper
   presenter is not in this lane and no settings2 change touches it; not triaged against main. Keeper lane / build lead to check.
 - Left: Keeper hover has no reader; screen shake does not exist.
+
+## Merge of origin/main 7aabf929 (Nov 13, 53a93252)
+- Main's wording kept where storyinventory fixed a line; lines.csv matches source (only story-ending-page-2 differs from main: the shorter ending line, source already matches).
+- lane_precheck: FAIL on two tests that also fail on a clean origin/main (checked in a detached worktree): `test_story_check.RepoStoryFilesPass.test_strixon_is_denied_and_nar_is_authorized` (P-facts status GDD in the bible) and `test_assetgen_image_method.StripFrames.test_three_figures_cut_to_equal_frames_on_one_baseline`. Neither touches the settings2 lane. Needs the story lane / build lead.
