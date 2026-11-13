@@ -107,8 +107,10 @@ OWL-11,One-shot reduced volley (assertion has vacuous OR),i,keeper
 OWL-11,Queued/traveling shots keep counts/paths,i,keeper
 OWL-11,"Recovery: yellow <=0.15s, red >=0.6s, longer red kept",i,keeper
 OWL-11,Four shots (no spec key bound for 4),i,keeper
-OWL-11,Spreads 36/70/48 deg (no test uses spread fields),proven,keeper
-OWL-11,Speeds 270/300 (no mechanism/clock speed test),proven,keeper
+OWL-11,Spreads 36/70/48 deg (value only),proven,keeper
+OWL-11,Fan spreads 36/70/48 deg applied when firing,i,keeper
+OWL-11,Speeds 270/300 (value only),proven,keeper
+OWL-11,Shot speeds 270/300 applied in flight,i,keeper
 OWL-12,No separate timed prefire delay,i,keeper
 OWL-12,"Captured lane shown, no hidden tracking",i,keeper
 OWL-12,Player can leave via rise/fall/current/evade,i,keeper
@@ -118,18 +120,23 @@ OWL-13,Independent 2.3s cadence,i,keeper
 OWL-13,Keeper yellow ordinary contact deals 1 health,proven,keeper
 OWL-13,Shoot alone never auto-catches,proven,keeper
 OWL-13,No absorption cooldown or energy reward,i,keeper
-OWL-13,Speeds 195/210 (no mechanism/clock yellow test),proven,keeper
+OWL-13,Speeds 195/210 (value only),proven,keeper
+OWL-13,Yellow shot speeds 195/210 applied in flight,i,keeper
 OWL-15,Gust in wing act only,i,keeper
 OWL-15,Shared physical scheduler 6.5s from attack start,i,keeper
 OWL-15,Talon priority over gust,i,keeper
 OWL-15,"Wing gather/load then flap cue, readable direction",ii,keeper
 OWL-15,Complete owl warning/strike/recovery animation verified,ii,keeper
-OWL-16,Gust damage 1 health (only hit count checked),proven,keeper
+OWL-16,Gust damage 1 health (value only),proven,keeper
+OWL-16,Gust deals 1 health in play,i,keeper
 OWL-16,Bypasses hop protection,i,keeper
 OWL-16,Dash protection blocks damage not push,ii,keeper
-OWL-16,"Speed 350 (bound, but no test exercises speed)",proven,keeper
-OWL-16,"Band width 120 (bound, no test exercises it)",proven,keeper
-OWL-16,"Lifetime 3s (bound, no test exercises it)",proven,keeper
+OWL-16,Speed 350 (value only),proven,keeper
+OWL-16,Gust travels at speed 350,i,keeper
+OWL-16,Band width 120 (value only),proven,keeper
+OWL-16,Gust band is 120 wide in play,i,keeper
+OWL-16,Lifetime 3s (value only),proven,keeper
+OWL-16,Gust expires after 3s,i,keeper
 OWL-17,Wing recovery follows the flap,ii,keeper
 OWL-17,Stun clears active gusts,i,keeper
 OWL-17,No new gusts after depletion/stun,i,keeper
@@ -141,13 +148,15 @@ OWL-18,Cooldown must be clear to trigger,i,keeper
 OWL-18,No test that talon stays idle outside 270,i,keeper
 OWL-19,Empty space and recovery do no damage,i,keeper
 OWL-19,Vertical-exit check suppresses impossible launches,proven,keeper
-OWL-19,"Tip width 48 (bound, no test exercises width)",proven,keeper
+OWL-19,Tip width 48 (value only),proven,keeper
+OWL-19,Sweep tip is 48 wide in play,i,keeper
 OWL-19,Sweep aims at captured target,i,keeper
 OWL-20,Quiet recovery 1s,proven,keeper
 OWL-20,Shared scheduling with talon,i,keeper
 OWL-20,Must re-enter <=270 after leaving to rearm,i,keeper
 OWL-20,No rearm on simple exit at attack radius,i,keeper
-OWL-20,"Cooldown 3.5s from commitment (bound, behavior not asserted)",proven,keeper
+OWL-20,Cooldown 3.5s from commitment (value only),proven,keeper
+OWL-20,Talon cooldown 3.5s from commitment enforced,i,keeper
 OWL-21,front head locks Ella's destination (move after lock not tested),i,keeper
 OWL-21,0.9s warning duration,proven,keeper
 OWL-21,"closed claw grips armillary outer ring, load/release/follow-through",ii,keeper
@@ -233,9 +242,11 @@ OWL-35,new-run reset clears state,i,keeper
 OWL-35,phase reset clears state,i,keeper
 OWL-35,XP policy applied,i,keeper
 HAZ-02,land is solid and harmless for Ella on contact,i,enemies2
-HAZ-03,"fixed camera at (960,540) (binding is RoomSize/2, no camera checked)",proven,enemies2
+HAZ-03,"fixed camera at (960,540) (value only)",proven,enemies2
+HAZ-03,Camera is fixed at runtime,i,enemies2
 HAZ-03,guard is stationary (never moves),i,enemies2
-HAZ-03,"guard contact damage 0 (bound, but no test exercises contact)",proven,enemies2
+HAZ-03,guard contact damage 0 (value only),proven,enemies2
+HAZ-03,Guard contact deals 0 damage in play,i,enemies2
 HAZ-04,entry must be from the left,i,enemies2
 HAZ-04,source and muzzle fully visible check,i,enemies2
 HAZ-04,engagement validity required at warning start (only release tested),i,enemies2
