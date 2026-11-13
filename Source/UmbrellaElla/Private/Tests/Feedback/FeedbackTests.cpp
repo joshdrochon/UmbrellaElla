@@ -1,3 +1,4 @@
+#include "Feedback/Art/ArtSlot.h"
 #include "Engine/Engine.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/World.h"
@@ -68,11 +69,20 @@ bool FFeedbackStandIn::RunTest(const FString& Parameters)
 	UEllaAnimPresenterComponent* Presenter = NewObject<UEllaAnimPresenterComponent>(Owner);
 	Presenter->RegisterComponent();
 	Presenter->BuildVisual();
-	TestTrue(TEXT("no art shows the stand-in"), Presenter->IsShowingStandIn());
+	// A shipped Ella asset (T_Ella_Idle_PH) is drawn instead of the stand-in; the stand-in checks run only when no state has art.
+	const FArtSlotRow* IdleRow = ArtSlot::Find(TEXT("ella-state:Idle"));
+	const bool bIdleArt = IdleRow && ArtSlot::LoadTexture(*IdleRow) != nullptr;
 	TestNotNull(TEXT("stand-in component"), Presenter->GetStandIn());
+	if (!bIdleArt)
+	{
+		TestTrue(TEXT("no art shows the stand-in"), Presenter->IsShowingStandIn());
+	}
 	Presenter->SetVisualState(EEllaVisualState::Absorb);
 	TestEqual(TEXT("absorb state shown"), static_cast<int32>(Presenter->GetVisualState()), static_cast<int32>(EEllaVisualState::Absorb));
-	TestEqual(TEXT("absorb widens the stand-in"), Presenter->GetStandIn()->GetRelativeScale3D(), UEllaAnimPresenterComponent::StandInScaleFor(EEllaVisualState::Absorb));
+	if (!bIdleArt)
+	{
+		TestEqual(TEXT("absorb widens the stand-in"), Presenter->GetStandIn()->GetRelativeScale3D(), UEllaAnimPresenterComponent::StandInScaleFor(EEllaVisualState::Absorb));
+	}
 	Presenter->TickComponent(10.0f, LEVELTICK_All, nullptr);
 	TestEqual(TEXT("transient state returns to idle"), static_cast<int32>(Presenter->GetVisualState()), static_cast<int32>(EEllaVisualState::Idle));
 	FUmbrellaEvent Down;

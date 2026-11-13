@@ -34,3 +34,14 @@ Rule IDs: ART-08, ART-05 (screen:* slots), FLOW-25 context.
 - Cause: the test, not the slot code. `T_Keeper_Owl_PH` now exists, so the keeper stand-in draws it on spawn and a later `ShowArt` is correctly refused. The test assumed no asset.
 - Fix: the test finds the `KeeperStandIn` mesh; if it already has art, only the "second picture is refused" check runs.
 - Run: build exit 0; `TEST_FILTER=UmbrellaElla.Feedback+UmbrellaElla.Field` PASS tests=39 failed=0.
+
+## Session 5 (Nov 13): consumers for the 40 unconsumed slots, by art priority
+Rule IDs: ART-05, ANIM-05, ANIM-06, BG-02..BG-06 (scene), FLOW-25 (frame).
+- Scene backgrounds + frame (`USceneArtSubsystem`, Feedback/Background): bg:atmosphere, bg:land, bg:water, bg:clocks, bg:start-end (two panels: route start and end), scene:gameplay-frame. A panel exists only when its asset exists (the stand-in backdrop stays the fallback). Backdrop-sized panels scroll with the backdrop's parallax; frame and start/end are one camera view big. Test `World.ArtSlotScene`.
+- shot:stream-beam: `UShotPresenterSubsystem::ShowBeamArt`, re-sized every tick. Test `World.ArtSlotBeam`. The beam rescales its cube after the swap; fix in `docs/build/requests/artslots.md` (request 3).
+- Keeper parts: wings, mechanism front/middle/rear, clock cover, talon draw as layers over the body when their asset exists. Test `World.ArtSlotKeeperParts`.
+- Slot rules for the ui:* rows (T_UI_ClockFace, Grain, Ground, HeadPaused, HeadSettings, Panel, TitleLockup); ui:font is a font, no slot. `art_slots.py check` was failing on main for these rows; it passes now (107 slots).
+- Fixed `PresenterStandIn` (T_Ella_Idle_PH now exists, so Ella draws art; the stand-in checks run only without it).
+- Run: build exit 0; `TEST_FILTER=UmbrellaElla.Feedback` PASS tests=38 failed=0; `tests.test_art_slots` OK; module_check 0.
+- Not run: in-game capture (no Scene/Shots/Keeper part asset exists yet; the panels are untested with real art). Unsure of the art aspect: backdrop-sized panels are 4800x2400 like bg-layer panels.
+- Still no consumer (need another lane or a design call): ella:free-fall/hop-cartwheel-dash/mode-transition/condition/living-critical (need Motor/Health state events), umbrella:prop/repair (no prop in Ella's shell), keeper:part-masks-7-6-4-0 and living-departure (need part-health and departure events), menu-backdrop:Clocks/Drift (SFlowBackground is in UI/Menus, another lane), ui:* pieces (HUD/menu widgets in the UI lane), world:* (level geometry), vfx-material rows (materials, nothing to import).
