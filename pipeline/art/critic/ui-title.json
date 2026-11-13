@@ -454,6 +454,45 @@
    "commit": "36ba934c5afb",
    "gap": "Y's title and menu lettering is cropped off the left edge, and its flat digital finish lacks the etched, textured ink-on-paper feel X has.; Y's title and menu text are clipped off the left edge, and its flat, cartoonish inking has less etched detail and paper grain than X.; X crops its title and menu text off the left edge, and its scene is flatter and smoother, with no etched line work or aged-paper grain.",
    "at": "2026-11-13T13:45:04Z"
+  },
+  {
+   "piece": "ui-title",
+   "round": 19,
+   "verdict": "ours",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "ours",
+    "reference": "ours"
+   },
+   "panel": 3,
+   "calibration": {
+    "sessions": 6,
+    "passed": 6
+   },
+   "missing": [],
+   "critic_sessions": [
+    "ui-title-r19-00-reference-c1",
+    "ui-title-r19-00-reference-c2",
+    "ui-title-r19-00-reference-c3",
+    "ui-title-r19-01-quality_bar-c1",
+    "ui-title-r19-01-quality_bar-c2",
+    "ui-title-r19-01-quality_bar-c3"
+   ],
+   "manifest": "cf6f243324b7bf456b6ea5e94a0efc2142e0cb6cb0efb3ec9f7fe5b092f00331",
+   "evidence": "pipeline/art/critic/ui-title/19",
+   "prompt": "art_loop PANEL_PROMPT 8f1e148c4dd0",
+   "files": "e742a618cfa4c7b22a3aeb6dfc40a4f02f23adbaa8f4109047d0d36c7a208151",
+   "file": "pipeline/art/proof/artui/ui-title/capture_title_r21_1568.png",
+   "card": "artui",
+   "refs": "669f6f2ac14d",
+   "commit": "11db5a1ceb59",
+   "gap": "",
+   "at": "2026-11-13T14:08:34Z"
   }
  ]
 }
