@@ -51,12 +51,20 @@ def _keychain(name):
         return None
 
 
+def clean(v):
+    """A key as pasted: surrounding whitespace (CR, newline) and one pair of matching quotes removed."""
+    v = (v or "").strip()
+    if len(v) >= 2 and v[0] == v[-1] and v[0] in "\"'":
+        v = v[1:-1].strip()
+    return v
+
+
 def lookup(name):
     """(value, where) with where 'env' | 'keychain', or (None, None). The value is never printed."""
-    v = (os.environ.get(name) or "").strip()
+    v = clean(os.environ.get(name))
     if v:
         return v, "env"
-    v = _keychain(name)
+    v = clean(_keychain(name))
     return (v, "keychain") if v else (None, None)
 
 

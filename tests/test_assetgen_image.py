@@ -298,5 +298,25 @@ class SpendCap(ImageWork):
         self.assertEqual(len(c["calls"]), 3)
 
 
+class KeyAsPasted(unittest.TestCase):
+    """A key pasted with quotes or a CR still works (keys.py strips them); an empty or quotes-only value is no key."""
+    def test_quotes_and_whitespace_stripped(self):
+        import keys
+        for raw in (FAKE_KEY, f'"{FAKE_KEY}"', f"'{FAKE_KEY}'", f" {FAKE_KEY}\r\n", f'  "{FAKE_KEY}" \n'):
+            self.assertEqual(keys.clean(raw), FAKE_KEY, repr(raw))
+        old = dict(os.environ)
+        try:
+            os.environ["KEYS_NO_KEYCHAIN"] = "1"
+            os.environ["GEMINI_API_KEY"] = f'"{FAKE_KEY}"\r'
+            self.assertEqual(keys.lookup("GEMINI_API_KEY"), (FAKE_KEY, "env"))
+            for empty in ("", '""', "''", "  \r\n"):
+                os.environ["GEMINI_API_KEY"] = empty
+                self.assertEqual(keys.lookup("GEMINI_API_KEY"), (None, None), repr(empty))
+        finally:
+            os.environ.clear()
+            os.environ.update(old)
+        self.assertEqual(keys.clean('"abc'), '"abc')   # unmatched quote is kept, not guessed at
+
+
 if __name__ == "__main__":
     unittest.main()
