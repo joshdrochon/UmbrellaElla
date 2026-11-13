@@ -145,3 +145,52 @@ Ours-vs-model notes (what is the model, what is our prompt/tools):
   Fix the provenance tool field (my lane, follow-up).
 
 Not done: any retry (the lead asked for 3 calls only), in-engine capture, art loop round 2.
+
+## Round 2 (Nov 13; main merged at c2f1142; outputs under Art/Source/ImageProof/R2/)
+Done first: provenance tool name fixed (clean/frames/crop write "tools/assetgen.py (pure Python)", not GIMP 3; tests);
+new `assetgen.py crop` (one figure from a painted sheet, the strip reference). Prompt review per
+docs/build/art-image-model.md: draft prompts in Art/Source/ImageProof/prompt.md, a fresh Sonnet session in an empty
+/tmp folder (copies of the key art, the umbrella crop, Ella-Rising-02, Ella-Shooting-03, round 1 outputs, the art
+bible, GDD ART-03..07, ANIM-02..05, Ella shared identity, Small Blasts body; Bash/Edit/Write disallowed) wrote
+prompt-review.md; applied in full with its three leans: idle 4 frames (style.json IdleFloat [4, 6]), two in-jam
+inputs (side profile + open umbrella cropped from the new sheet), the pulse kept as a separate object. (A first
+review session ran on Opus by mistake; discarded unread, rerun on Sonnet per worker-rules.)
+
+Calls (3 Pro, 21:9, 2K): sheet $0.141, idle $0.141, attack $0.141. Shared counter $0.840 of $33.82.
+
+| | round 1 | round 2 |
+|---|---|---|
+| Sheet: hair | short bob | long, to mid-back, all views |
+| Sheet: back view | dropped the umbrella | holds it |
+| Sheet: finial | plain spike | still a spike (collar added); crown only in attack frame 1 |
+| Idle pose | one hand, walking under the umbrella | same: one hand, walking (pose wording failed twice) |
+| Idle identity | kept | kept (hat, mask, long hair, scarf, diamond terminal) |
+| Idle height spread | 6.3% | 0.1% |
+| Idle art_ref_check | PASS 0.695-0.732 | PASS 0.729-0.744 |
+| Attack identity | kept costume; ghost heads from the sheet | no ghosts, but no hat, no mask: bare visible face (breaks GDD ART-06) |
+| Attack layout | ghosts | each frame inside a drawn black box; legs walking |
+| Attack pose | level lance at chest | shaft at hip, canopy behind, pulse ahead of the terminal (as asked) |
+| Attack height spread | 8.5% | 12.5% (box borders cut as figures) |
+| Attack art_ref_check | FAIL 0.2 | FAIL 0.2 |
+| art_check off_band (max 0.01) | 0.124 / 0.139 | 0.070 / 0.084 (still FAIL) |
+| Panel idle | reference wins, cal 4/6 | reference wins (both pairs), cal 5/6 |
+| Panel attack | reference wins, beat QB, cal 6/6 | reference wins, beat QB, cal 5/6 |
+| Cost | $0.416 | $0.424 |
+
+Consistency verdict: FAIL for the set. The sheet now holds the full identity; the idle strip keeps it; the attack
+strip loses hat and mask (a bare face), so the three images are not one character.
+
+Ours vs model:
+- Idle walk, same failure twice: ours first. The side-profile input shows her standing, umbrella closed at her side;
+  the model copied that stance over the text ("do not copy the pose" did not hold). Next to try: no figure input on
+  the idle call (text + the open-umbrella crop only), or a sheet whose side view already hangs from an open umbrella.
+- Attack face: model (the input shows the mask, and I asks for it); ours possible: the prompt grew to ~550 words with
+  the identity block last. Next to try: identity block before the frame list, shorter frame text.
+- Attack boxes: model (S asks for no frames or grid lines). Our `frames` reads each box as one figure; a box-strip
+  needs cropping by thirds first.
+- Finial: model; three wordings now, still a spike on the sheet.
+- off_band: still the style block's bronze/ivory rim vs the art_check bands; rule question for the Art Director.
+- screen_check aspect FAIL when run standalone on a sprite frame (round 1's frame too); the art_loop verdict runs it
+  in sprite mode and passes. Not a defect in the art.
+
+ROUND2: not improved
