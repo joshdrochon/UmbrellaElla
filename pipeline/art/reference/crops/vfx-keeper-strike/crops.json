@@ -1,0 +1,32 @@
+{
+ "element": "vfx-keeper-strike",
+ "note": "crops of the effect cut from the concept sheets; originals untouched",
+ "crops": [
+  {
+   "file": "travel.png",
+   "source": "pipeline/art/reference/discord/20261110-0258_Ricky_1.png",
+   "box": [
+    410,
+    755,
+    595,
+    805
+   ],
+   "key": "red",
+   "pieces": "largest",
+   "opaque_px": 4162
+  },
+  {
+   "file": "release.png",
+   "source": "pipeline/art/reference/discord/20261110-0258_Ricky_1.png",
+   "box": [
+    217,
+    731,
+    374,
+    827
+   ],
+   "key": "red",
+   "pieces": "all",
+   "opaque_px": 5038
+  }
+ ]
+}

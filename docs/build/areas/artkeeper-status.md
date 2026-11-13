@@ -86,3 +86,52 @@ NEEDS HUMAN: Art Director / Josh: decide whether the Blender articulated route (
 
 ## Candidates moved (Nov 13)
 Per art-image-model.md "Where candidates live": every raw paint, keyed cut, round prompt and the Blender Owl_Flap render/job now sit under pipeline/art/proof/Keeper/owl/ (Keeper_R*, Paint/R*, Owl_Flap). Provenance, critic/owl.json, job.json and the builder docstring updated. Art/Source/Keeper holds only the tracked keeper_idle_PH placeholder. pipeline_check: only 2 unrelated agent_play.py problems (not mine); submission_check assets PASS.
+
+## Nov 13 session: context capture attempt
+- Merged main + artslots. Slot T_Keeper_Owl now exists. Imported R10 keyed_3 as Content/UmbrellaElla/Art/Keeper/T_Keeper_Owl_PH.uasset (stays _PH), build exit 0.
+- Capture run: black frame with HUD only (no Keeper fight started by the smoke run; relative -SmokeShot path lands in the engine folder). Both written in docs/build/requests/artkeeper.md. Context pair still cannot be made.
+- No new paint round: R6-R10 plateaued at the same panel gap (organic/feathered read, one wing); spend stays 10.89 of 33.82 (shared). The open decision is unchanged: Blender articulated route vs more paint.
+- Owl stays tracked _PH; nothing shipped.
+NEEDS HUMAN: Josh / lead: smoke switch to start the Keeper fight (request 1), and the Blender-vs-paint decision.
+
+## Nov 13 later session: still blocked (no new paint, spend unchanged)
+- Merged main and area/artslots. Rechecked: Source still has no -SmokeKeeper/-SmokeSection/-SmokeMap handling and a relative -SmokeShot path still resolves into the engine folder, so the in-engine context pair cannot be made (docs/build/requests/artkeeper.md items 1 and 2, both outside my lane).
+- Paint plateaued R6-R10 at the same panel gap; another round would cost money without moving it, so none was run.
+- Owl stays tracked _PH; nothing shipped.
+NEEDS HUMAN: lead: (1) smoke switch to start the Keeper fight, (2) ProjectDir-relative -SmokeShot path, (3) Blender-articulated vs paint decision.
+
+## Nov 12 session: still blocked (no new paint, spend unchanged)
+- Merged main (artslots already in). Source still has no -SmokeKeeper/-SmokeSection handling and -SmokeShot is still not ProjectDir-relative, so the context pair cannot be made (docs/build/requests/artkeeper.md items 1-2). Paint plateaued R6-R10; no round run.
+- Owl stays tracked _PH; nothing shipped.
+NEEDS HUMAN: lead: smoke switch to start the Keeper fight, ProjectDir-relative -SmokeShot, Blender-vs-paint decision.
+
+## Nov 12 later session: still blocked (no new paint, spend unchanged)
+- Merged main and artslots: both already in. Source still has no -SmokeKeeper/-SmokeSection handling (only tools/ scripts mention it), so the context pair cannot be made (docs/build/requests/artkeeper.md items 1-2). Paint plateaued R6-R10; no round run.
+- Owl stays tracked _PH; nothing shipped.
+NEEDS HUMAN: lead: smoke switch to start the Keeper fight, ProjectDir-relative -SmokeShot, Blender-vs-paint decision.
+
+## Nov 12 session (lane now owl, keeper-wing, keeper-talon): blocked, no paint run
+- Merged main (already in). No GEMINI_API_KEY in this session (tools/keys.py status: missing; keychain empty), so no image call is possible; spend unchanged at 11.10 of 33.82.
+- Context capture still blocked: SmokeHookSubsystem has no -SmokeKeeper/-SmokeSection/-SmokeMap and relative -SmokeShot still lands in the engine folder (docs/build/requests/artkeeper.md 1-2; the frame-based smoke shot from screenfix is not on main). assetgen has no tiers yet.
+- keeper-wing and keeper-talon: no work started (no prompt, no prompt-review.md); both need the fresh-session prompt review before the first paid call.
+NEEDS HUMAN: lead: set GEMINI_API_KEY for this worker, land the screenfix smoke shot, then restart.
+
+## Nov 13 later session 2: still blocked (no new paint, spend unchanged)
+- Merged main (art_loop change) and artslots (already in). GEMINI_API_KEY present. Source still has no -SmokeKeeper/-SmokeSection/-SmokeMap handling and relative -SmokeShot is still not ProjectDir-relative (docs/build/requests/artkeeper.md 1-2). Paint plateaued R6-R10; no round run.
+- Owl stays tracked _PH; nothing shipped.
+NEEDS HUMAN: lead: smoke switch to start the Keeper fight, ProjectDir-relative -SmokeShot, Blender-vs-paint decision.
+
+## Nov 13 session 3: still blocked (no new paint, spend unchanged)
+- Merged main and area/artslots: both already in. Source still has no -SmokeKeeper/-SmokeSection handling and relative -SmokeShot is still not ProjectDir-relative (requests items 1-2), so the context pair cannot be made and no round can pass. Paint plateaued R6-R10; a new round would repeat R8-R10.
+- Owl stays tracked _PH; nothing shipped.
+NEEDS HUMAN: lead: smoke switch to start the Keeper fight, ProjectDir-relative -SmokeShot, Blender-vs-paint decision.
+
+## Nov 13 session 4: still blocked (no new paint, spend unchanged)
+- Merged main and area/artslots: both already in. Source still has no -SmokeKeeper/-SmokeSection/-SmokeMap handling (grep empty), so the context pair cannot be made (docs/build/requests/artkeeper.md items 1-2). Paint plateaued R6-R10; no round run.
+- Owl stays tracked _PH; nothing shipped.
+NEEDS HUMAN: lead: smoke switch to start the Keeper fight, ProjectDir-relative -SmokeShot, Blender-vs-paint decision.
+
+## Nov 13 session 5: still blocked (no new paint, spend unchanged)
+- Merged main (one conflict in tools/build/art_inventory.py, kept both rule sets) and area/artslots (already in). Source still has no -SmokeKeeper/-SmokeSection/-SmokeMap handling (grep empty), so the context pair cannot be made (docs/build/requests/artkeeper.md items 1-2). Paint plateaued R6-R10; no round run.
+- Owl stays tracked _PH; nothing shipped.
+NEEDS HUMAN: lead: smoke switch to start the Keeper fight, ProjectDir-relative -SmokeShot, Blender-vs-paint decision.

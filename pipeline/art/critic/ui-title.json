@@ -1,0 +1,376 @@
+{
+ "id": "ui-title",
+ "records": [
+  {
+   "piece": "ui-title",
+   "round": 8,
+   "verdict": "reference",
+   "checks": false,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "fail"
+   },
+   "pairs": {
+    "quality_bar": "ours",
+    "reference": "reference"
+   },
+   "panel": 2,
+   "calibration": {
+    "sessions": 6,
+    "passed": 5
+   },
+   "missing": [
+    "reference:pipeline/art/reference/discord/20261112-0443_Ricky_title-screen.png (2/3 calibrated sessions)"
+   ],
+   "critic_sessions": [
+    "ui-title-r7-00-reference-c1",
+    "ui-title-r7-00-reference-c2",
+    "ui-title-r7-00-reference-c3",
+    "ui-title-r7-01-quality_bar-c1",
+    "ui-title-r7-01-quality_bar-c2",
+    "ui-title-r7-01-quality_bar-c3"
+   ],
+   "manifest": "",
+   "evidence": "",
+   "prompt": "",
+   "files": "6c1926a531b29cbe56ad2f9a826007f429e02fd029182a34d1fe9818f8d4f4c3",
+   "file": "../../../../../../tmp/uishots3/title.png",
+   "card": "artui",
+   "refs": "d1afca932485",
+   "commit": "de34beb46113",
+   "gap": "X has a smoother digital finish with no inked line or paper grain, its dark cliff face reads as a muddy blob, and its lettering is plain next to Y's etched, clock-hand lockup.; Y's lettering is a plain, clean typeface, and its scene is smoother and more digital, with little etched line work or paper grain.",
+   "at": "2026-11-13T04:59:22Z"
+  },
+  {
+   "piece": "ui-title",
+   "round": 9,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "ours",
+    "reference": "reference"
+   },
+   "panel": 2,
+   "calibration": {
+    "sessions": 6,
+    "passed": 5
+   },
+   "missing": [
+    "reference:pipeline/art/reference/discord/20261112-0443_Ricky_title-screen.png (2/3 calibrated sessions)"
+   ],
+   "critic_sessions": [
+    "ui-title-r7-00-reference-c1",
+    "ui-title-r7-00-reference-c2",
+    "ui-title-r7-00-reference-c3",
+    "ui-title-r7-01-quality_bar-c1",
+    "ui-title-r7-01-quality_bar-c2",
+    "ui-title-r7-01-quality_bar-c3"
+   ],
+   "manifest": "",
+   "evidence": "",
+   "prompt": "",
+   "files": "6c1926a531b29cbe56ad2f9a826007f429e02fd029182a34d1fe9818f8d4f4c3",
+   "file": "../../../../../../tmp/uishots3/title.png",
+   "card": "artui",
+   "refs": "669f6f2ac14d",
+   "commit": "de34beb46113",
+   "gap": "X has a smoother digital finish with no inked line or paper grain, its dark cliff face reads as a muddy blob, and its lettering is plain next to Y's etched, clock-hand lockup.; Y's lettering is a plain, clean typeface, and its scene is smoother and more digital, with little etched line work or paper grain.",
+   "at": "2026-11-13T04:59:54Z"
+  },
+  {
+   "piece": "ui-title",
+   "round": 10,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "ours",
+    "reference": "reference"
+   },
+   "panel": 2,
+   "calibration": {
+    "sessions": 6,
+    "passed": 5
+   },
+   "missing": [
+    "reference:pipeline/art/reference/discord/20261112-0443_Ricky_title-screen.png (2/3 calibrated sessions)"
+   ],
+   "critic_sessions": [
+    "ui-title-r10-00-reference-c1",
+    "ui-title-r10-00-reference-c2",
+    "ui-title-r10-00-reference-c3",
+    "ui-title-r10-01-quality_bar-c1",
+    "ui-title-r10-01-quality_bar-c2",
+    "ui-title-r10-01-quality_bar-c3"
+   ],
+   "manifest": "",
+   "evidence": "",
+   "prompt": "",
+   "files": "0db2f415c599f5c89753e803c9b1a15710e1e286ca1596d32674c1d03ea6944e",
+   "file": "../../../../../../tmp/uishots4/title.png",
+   "card": "artui",
+   "refs": "669f6f2ac14d",
+   "commit": "118c41d8840a",
+   "gap": "Y is smooth and digital, with no etched ink linework or grain, and its plain lettering lacks the aged, distressed finish.; Y has plain typeset lettering and smoother, digital-looking rendering, so it lacks X's etched ink linework and gritty paper texture.",
+   "at": "2026-11-13T05:02:46Z"
+  },
+  {
+   "piece": "ui-title",
+   "round": 11,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "ours",
+    "reference": "reference"
+   },
+   "panel": 3,
+   "calibration": {
+    "sessions": 6,
+    "passed": 6
+   },
+   "missing": [
+    "reference:pipeline/art/reference/discord/20261112-0443_Ricky_title-screen.png"
+   ],
+   "critic_sessions": [
+    "ui-title-r11-00-reference-c1",
+    "ui-title-r11-00-reference-c2",
+    "ui-title-r11-00-reference-c3",
+    "ui-title-r11-01-quality_bar-c1",
+    "ui-title-r11-01-quality_bar-c2",
+    "ui-title-r11-01-quality_bar-c3"
+   ],
+   "manifest": "",
+   "evidence": "",
+   "prompt": "",
+   "files": "a590608b42bf0694f74633fba27a8cd183c4e2ae445b2ad968a03cd0c6f93fdd",
+   "file": "../../../../../../tmp/uishots5/title.png",
+   "card": "artui",
+   "refs": "669f6f2ac14d",
+   "commit": "72489fe3a036",
+   "gap": "X is cleaner and more digital, with no etched line work, grain or paper texture, and its clock hands cut through the title lettering.; X looks smooth and digital. It lacks Y's grainy aged-paper texture, etched ink linework and worn lettering, and its clean fills and bright amber sky break the near-black, restrained value structure.; X is cleaner and more digital, with smooth gradients, no paper grain and no distressed ink in the lettering or scene.",
+   "at": "2026-11-13T05:11:25Z"
+  },
+  {
+   "piece": "ui-title",
+   "round": 12,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "reference",
+    "reference": "reference"
+   },
+   "panel": 1,
+   "calibration": {
+    "sessions": 6,
+    "passed": 3
+   },
+   "missing": [
+    "quality_bar:pipeline/art/reference/discord/20261111-0319_Ricky_roadwarden-sundial-casters.png (2/3 calibrated sessions)",
+    "reference:pipeline/art/reference/discord/20261112-0443_Ricky_title-screen.png (1/3 calibrated sessions)"
+   ],
+   "critic_sessions": [
+    "ui-title-r12-00-reference-c1",
+    "ui-title-r12-00-reference-c2",
+    "ui-title-r12-00-reference-c3",
+    "ui-title-r12-01-quality_bar-c1",
+    "ui-title-r12-01-quality_bar-c2",
+    "ui-title-r12-01-quality_bar-c3"
+   ],
+   "manifest": "",
+   "evidence": "",
+   "prompt": "",
+   "files": "9fea1187d483a040f60b6bd930fd0c3ed9a4eb343b630ce5e5f20d1017da62c6",
+   "file": "../../../../../../tmp/uishots6/title.png",
+   "card": "artui",
+   "refs": "669f6f2ac14d",
+   "commit": "f31c71b01d08",
+   "gap": "X's scene is smooth and digital, with a clean flat-cream title lockup, so it lacks Y's grainy etched texture, worn lettering and layered misty depth.",
+   "at": "2026-11-13T05:17:53Z"
+  },
+  {
+   "piece": "ui-title",
+   "round": 13,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "ours",
+    "reference": "reference"
+   },
+   "panel": 1,
+   "calibration": {
+    "sessions": 6,
+    "passed": 4
+   },
+   "missing": [
+    "reference:pipeline/art/reference/discord/20261112-0443_Ricky_title-screen.png (1/3 calibrated sessions)"
+   ],
+   "critic_sessions": [
+    "ui-title-r13-00-reference-c1",
+    "ui-title-r13-00-reference-c2",
+    "ui-title-r13-00-reference-c3",
+    "ui-title-r13-01-quality_bar-c1",
+    "ui-title-r13-01-quality_bar-c2",
+    "ui-title-r13-01-quality_bar-c3"
+   ],
+   "manifest": "",
+   "evidence": "",
+   "prompt": "",
+   "files": "9fea1187d483a040f60b6bd930fd0c3ed9a4eb343b630ce5e5f20d1017da62c6",
+   "file": "../../../../../../tmp/uishots6/title.png",
+   "card": "artui",
+   "refs": "669f6f2ac14d",
+   "commit": "f31c71b01d08",
+   "gap": "Y is flatter and more digital. It has clean vector-like edges, little etched line work and little paper grain, so the scene feels pasted together instead of inked.",
+   "at": "2026-11-13T05:19:16Z"
+  },
+  {
+   "piece": "ui-title",
+   "round": 14,
+   "verdict": "ours",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "ours",
+    "reference": "ours"
+   },
+   "panel": 3,
+   "calibration": {
+    "sessions": 6,
+    "passed": 6
+   },
+   "missing": [],
+   "critic_sessions": [
+    "ui-title-r14-00-reference-c1",
+    "ui-title-r14-00-reference-c2",
+    "ui-title-r14-00-reference-c3",
+    "ui-title-r14-01-quality_bar-c1",
+    "ui-title-r14-01-quality_bar-c2",
+    "ui-title-r14-01-quality_bar-c3"
+   ],
+   "manifest": "ebee8f4aedcafbd3a1a9fceee74c2801b3445b0539d13c08d8961203b0a962c0",
+   "evidence": "pipeline/art/critic/ui-title/14",
+   "prompt": "art_loop PANEL_PROMPT 8f1e148c4dd0",
+   "files": "9fea1187d483a040f60b6bd930fd0c3ed9a4eb343b630ce5e5f20d1017da62c6",
+   "file": "../../../../../../tmp/uishots/title.png",
+   "card": "artui",
+   "refs": "669f6f2ac14d",
+   "commit": "d7982cdeeb7a",
+   "gap": "",
+   "at": "2026-11-13T05:59:03Z"
+  },
+  {
+   "piece": "ui-title",
+   "round": 15,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "ours",
+    "reference": "reference"
+   },
+   "panel": 3,
+   "calibration": {
+    "sessions": 8,
+    "passed": 6
+   },
+   "missing": [
+    "reference:pipeline/art/reference/discord/20261112-0443_Ricky_title-screen.png"
+   ],
+   "critic_sessions": [
+    "ui-title-r15-00-reference-c1",
+    "ui-title-r15-00-reference-c2",
+    "ui-title-r15-00-reference-c3",
+    "ui-title-r15-01-quality_bar-c1",
+    "ui-title-r15-01-quality_bar-c2",
+    "ui-title-r15-01-quality_bar-c3",
+    "ui-title-r15-00-reference-c4",
+    "ui-title-r15-00-reference-c5"
+   ],
+   "manifest": "",
+   "evidence": "",
+   "prompt": "",
+   "files": "9fea1187d483a040f60b6bd930fd0c3ed9a4eb343b630ce5e5f20d1017da62c6",
+   "file": "pipeline/art/proof/artui/ui-title/capture_title.png",
+   "card": "artui",
+   "refs": "669f6f2ac14d",
+   "commit": "93ed3aa5eef1",
+   "gap": "X has flatter, cleaner vector-like fills with less paper grain and etched texture. Its title lockup collides with the clock hands, and its menu is small and weak.",
+   "at": "2026-11-13T06:17:50Z"
+  },
+  {
+   "piece": "ui-title",
+   "round": 16,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "ours",
+    "reference": "reference"
+   },
+   "panel": 3,
+   "calibration": {
+    "sessions": 7,
+    "passed": 6
+   },
+   "missing": [
+    "reference:pipeline/art/reference/discord/20261112-0443_Ricky_title-screen.png"
+   ],
+   "critic_sessions": [
+    "ui-title-r16-00-reference-c1",
+    "ui-title-r16-00-reference-c2",
+    "ui-title-r16-00-reference-c3",
+    "ui-title-r16-01-quality_bar-c1",
+    "ui-title-r16-01-quality_bar-c2",
+    "ui-title-r16-01-quality_bar-c3",
+    "ui-title-r16-01-quality_bar-c4"
+   ],
+   "manifest": "",
+   "evidence": "",
+   "prompt": "",
+   "files": "9fea1187d483a040f60b6bd930fd0c3ed9a4eb343b630ce5e5f20d1017da62c6",
+   "file": "pipeline/art/proof/artui/ui-title/capture_r16_title.png",
+   "card": "artui",
+   "refs": "669f6f2ac14d",
+   "commit": "04051fef0b71",
+   "gap": "X is smoother and more digital, with less etched ink detail and paper grain. Its clock hands also collide with the title and subtitle.; Both are the same painted scene, with a cold blue-grey mist that breaks the two-accent palette and a title lockup that isn't etched into the scene.",
+   "at": "2026-11-13T07:07:40Z"
+  }
+ ]
+}

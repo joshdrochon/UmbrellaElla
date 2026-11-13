@@ -894,7 +894,8 @@
     "0.10c",
     "MVP 2",
     "MVP 15",
-    "artfx"
+    "artfx",
+    "artui"
    ],
    "judge": true,
    "required": true,
@@ -934,7 +935,8 @@
    ],
    "what": "The title-screen target (Josh, 11 Nov): card 0.21b's title screen builds to this frame. Layout, title lockup, menu placement and mood: a painted, misty sepia scene of floating islands with a cottage and a windmill; a clock face top-left; the title lettered 'UMBRELLA GIRL' in an ornate serif with a clock-hand flourish; a menu with START GAME and DIRECTOR'S CUT. The title text and the painted look are open questions for the team (docs/decisions.md D-new-title-screen): look and layout only, never the wording. Reference only, never shipped Title text (Josh, Nov 12, D-new-title-text): the game title reads \"Umbrella Ella The Stolen Hour\" with no colon, on two lines (\"Umbrella Ella\" / \"The Stolen Hour\"), and the menu items read \"Start Game\" and \"Director's Cut\". Judge layout, lockup placement, menu placement, mood and style against this image; the reference's \"UMBRELLA GIRL\" wording is outdated and a difference in title wording is never a reason to fail the menu.",
    "cards": [
-    "0.21b"
+    "0.21b",
+    "artui"
    ],
    "consulted_by": [
     "0.20",
@@ -1437,6 +1439,231 @@
    "judge": false,
    "required": false,
    "origin": "GDD SH1.0 (docs/gdd/GDD-SH1.0.md, 12 Nov), written; no image"
+  },
+  {
+   "id": "crop-keeper-warning-tell-ring",
+   "path": "pipeline/art/reference/crops/vfx-keeper-warning/tell-ring.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for the Keeper attack warning (tell): box [60, 740, 150, 815] of 20261110-0258_Ricky_1.png, key red (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of Ricky's #art-direction sheet (13 Nov, artfx2, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "crop-keeper-warning-firing-tell",
+   "path": "pipeline/art/reference/crops/vfx-keeper-warning/firing-tell.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for the Keeper attack warning (tell): box [610, 315, 675, 360] of 20261110-0258_Ricky_1.png, key red (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of Ricky's #art-direction sheet (13 Nov, artfx2, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "crop-keeper-strike-travel",
+   "path": "pipeline/art/reference/crops/vfx-keeper-strike/travel.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for the Keeper strike (shot in travel and release): box [410, 755, 595, 805] of 20261110-0258_Ricky_1.png, key red (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of Ricky's #art-direction sheet (13 Nov, artfx2, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "crop-keeper-strike-release",
+   "path": "pipeline/art/reference/crops/vfx-keeper-strike/release.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for the Keeper strike (shot in travel and release): box [217, 731, 374, 827] of 20261110-0258_Ricky_1.png, key red (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of Ricky's #art-direction sheet (13 Nov, artfx2, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "crop-keeper-recovery-fade",
+   "path": "pipeline/art/reference/crops/vfx-keeper-recovery/fade.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for the Keeper recovery (shot fading out): box [600, 755, 745, 800] of 20261110-0258_Ricky_1.png, key red (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of Ricky's #art-direction sheet (13 Nov, artfx2, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "crop-clock-beat-shot-row",
+   "path": "pipeline/art/reference/crops/vfx-clock-beat/shot-row.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for the clock double beat (red shot path and clock-hand arc): box [570, 270, 1160, 330] of 20261110-0800_Ricky_1.png, key red (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of Ricky's #art-direction sheet (13 Nov, artfx2, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "crop-clock-beat-hand-arc",
+   "path": "pipeline/art/reference/crops/vfx-clock-beat/hand-arc.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for the clock double beat (red shot path and clock-hand arc): box [1190, 160, 1370, 300] of 20261110-0800_Ricky_1.png, key red (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of Ricky's #art-direction sheet (13 Nov, artfx2, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "crop-clock-open-clock-face",
+   "path": "pipeline/art/reference/crops/vfx-clock-open/clock-face.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for the Keeper clock face: box [130, 165, 400, 430] of 20261110-0800_Ricky_1.png, key ellipse (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of Ricky's #art-direction sheet (13 Nov, artfx2, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "crop-clock-open-clock-cracked",
+   "path": "pipeline/art/reference/crops/vfx-clock-open/clock-cracked.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for the Keeper clock face: box [1265, 540, 1485, 790] of 20261110-1220_Ricky_1.png, key ellipse (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of Ricky's #art-direction sheet (13 Nov, artfx2, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "crop-eye-exposed-clock-detail",
+   "path": "pipeline/art/reference/crops/vfx-eye-exposed/clock-detail.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for the exposed clock glass and cracks: box [1265, 540, 1485, 790] of 20261110-1220_Ricky_1.png, key paper (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of Ricky's #art-direction sheet (13 Nov, artfx2, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "crop-eye-exposed-glass-crack",
+   "path": "pipeline/art/reference/crops/vfx-eye-exposed/glass-crack.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for the exposed clock glass and cracks: box [170, 120, 330, 260] of 20261110-1220_Ricky_1.png, key ellipse (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of Ricky's #art-direction sheet (13 Nov, artfx2, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "crop-departure-loose-hardware",
+   "path": "pipeline/art/reference/crops/vfx-departure/loose-hardware.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for loose hardware falling as the Keeper departs: box [330, 730, 480, 850] of 20261110-1220_Ricky_1.png, key paper (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of Ricky's #art-direction sheet (13 Nov, artfx2, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "crop-departure-hardware-falls",
+   "path": "pipeline/art/reference/crops/vfx-departure/hardware-falls.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for loose hardware falling as the Keeper departs: box [950, 740, 1130, 860] of 20261110-1220_Ricky_1.png, key paper (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of Ricky's #art-direction sheet (13 Nov, artfx2, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "crop-restoration-umbrella-glow",
+   "path": "pipeline/art/reference/crops/vfx-restoration/umbrella-glow.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for light returning after the blackout (umbrella glow and gold shot on a dark ground): box [380, 320, 600, 450] of 20261111-0318_Ricky_other-realm.png, key dark (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of Ricky's #art-direction sheet (13 Nov, artfx2, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "crop-restoration-gold-shot",
+   "path": "pipeline/art/reference/crops/vfx-restoration/gold-shot.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for light returning after the blackout (umbrella glow and gold shot on a dark ground): box [1290, 225, 1420, 260] of 20261111-0318_Ricky_other-realm.png, key dark (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of Ricky's #art-direction sheet (13 Nov, artfx2, D-new-vfx-calibration), keyed to an alpha mask; reference only"
   }
  ],
  "elements": {
@@ -2732,10 +2959,15 @@
    "score_min": 0.334,
    "detail_min": 0.077,
    "calibration": {
-    "method": "inherits the thresholds of wand-shot until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
     "margin": 0.02,
-    "measured": "2026-11-12",
-    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+    "measured": "2026-11-13",
+    "loo": {
+     "wand-star": 0.354
+    },
+    "detail": {
+     "wand-star": 0.097
+    }
    }
   },
   "vfx-gold-fade": {
@@ -2750,10 +2982,15 @@
    "score_min": 0.334,
    "detail_min": 0.077,
    "calibration": {
-    "method": "inherits the thresholds of wand-shot until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
     "margin": 0.02,
-    "measured": "2026-11-12",
-    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+    "measured": "2026-11-13",
+    "loo": {
+     "wand-star": 0.354
+    },
+    "detail": {
+     "wand-star": 0.097
+    }
    }
   },
   "vfx-stream-start": {
@@ -2765,12 +3002,16 @@
    ],
    "owner": "artfx",
    "score_min": 0.334,
-   "detail_min": 0.077,
+   "detail_min": 0.212,
    "calibration": {
-    "method": "inherits the thresholds of wand-shot until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "method": "no team image: leave-one-out and detail on the element's own references under pipeline/art/reference/ (quality bar included) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
     "margin": 0.02,
-    "measured": "2026-11-12",
-    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+    "measured": "2026-11-13",
+    "loo": {},
+    "detail": {
+     "bar-casters": 0.232
+    },
+    "note": "one image and nothing to compare it with: score_min not measurable (kept)"
    }
   },
   "vfx-stream-sustain": {
@@ -2782,12 +3023,16 @@
    ],
    "owner": "artfx",
    "score_min": 0.334,
-   "detail_min": 0.077,
+   "detail_min": 0.212,
    "calibration": {
-    "method": "inherits the thresholds of wand-shot until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "method": "no team image: leave-one-out and detail on the element's own references under pipeline/art/reference/ (quality bar included) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
     "margin": 0.02,
-    "measured": "2026-11-12",
-    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+    "measured": "2026-11-13",
+    "loo": {},
+    "detail": {
+     "bar-casters": 0.232
+    },
+    "note": "one image and nothing to compare it with: score_min not measurable (kept)"
    }
   },
   "vfx-needle-channel": {
@@ -2799,12 +3044,16 @@
    ],
    "owner": "artfx",
    "score_min": 0.334,
-   "detail_min": 0.077,
+   "detail_min": 0.212,
    "calibration": {
-    "method": "inherits the thresholds of wand-shot until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "method": "no team image: leave-one-out and detail on the element's own references under pipeline/art/reference/ (quality bar included) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
     "margin": 0.02,
-    "measured": "2026-11-12",
-    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+    "measured": "2026-11-13",
+    "loo": {},
+    "detail": {
+     "bar-casters": 0.232
+    },
+    "note": "one image and nothing to compare it with: score_min not measurable (kept)"
    }
   },
   "vfx-needle-sliver": {
@@ -2816,12 +3065,16 @@
    ],
    "owner": "artfx",
    "score_min": 0.334,
-   "detail_min": 0.077,
+   "detail_min": 0.212,
    "calibration": {
-    "method": "inherits the thresholds of wand-shot until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "method": "no team image: leave-one-out and detail on the element's own references under pipeline/art/reference/ (quality bar included) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
     "margin": 0.02,
-    "measured": "2026-11-12",
-    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+    "measured": "2026-11-13",
+    "loo": {},
+    "detail": {
+     "bar-casters": 0.232
+    },
+    "note": "one image and nothing to compare it with: score_min not measurable (kept)"
    }
   },
   "vfx-needle-pierce": {
@@ -2833,12 +3086,16 @@
    ],
    "owner": "artfx",
    "score_min": 0.334,
-   "detail_min": 0.077,
+   "detail_min": 0.212,
    "calibration": {
-    "method": "inherits the thresholds of wand-shot until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "method": "no team image: leave-one-out and detail on the element's own references under pipeline/art/reference/ (quality bar included) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
     "margin": 0.02,
-    "measured": "2026-11-12",
-    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+    "measured": "2026-11-13",
+    "loo": {},
+    "detail": {
+     "bar-casters": 0.232
+    },
+    "note": "one image and nothing to compare it with: score_min not measurable (kept)"
    }
   },
   "vfx-blocked": {
@@ -2853,105 +3110,183 @@
    "score_min": 0.334,
    "detail_min": 0.077,
    "calibration": {
-    "method": "inherits the thresholds of wand-shot until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
     "margin": 0.02,
-    "measured": "2026-11-12",
-    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+    "measured": "2026-11-13",
+    "loo": {
+     "wand-star": 0.354
+    },
+    "detail": {
+     "wand-star": 0.097
+    }
    }
   },
   "vfx-keeper-warning": {
    "what": "the Keeper attack warning (art sheet VFX_KeeperWarning, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
    "refs": [
+    "crop-keeper-warning-tell-ring",
+    "crop-keeper-warning-firing-tell",
+    "discord-crop-red-release",
+    "red-shot-sh10",
+    "bar-casters"
+   ],
+   "owner": "artfx",
+   "score_min": 0.699,
+   "detail_min": 0.178,
+   "calibration": {
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
+    "margin": 0.02,
+    "measured": "2026-11-13",
+    "loo": {
+     "crop-keeper-warning-tell-ring": 0.736,
+     "crop-keeper-warning-firing-tell": 0.798,
+     "discord-crop-red-release": 0.719
+    },
+    "detail": {
+     "crop-keeper-warning-tell-ring": 0.298,
+     "crop-keeper-warning-firing-tell": 0.198,
+     "discord-crop-red-release": 0.382
+    }
+   },
+   "context": [
     "d-red-shots",
     "study-keeper-red-shots",
     "red-shot-sh10",
     "bar-casters",
     "d-talon-rake"
-   ],
-   "owner": "artfx",
-   "score_min": 0.729,
-   "detail_min": 0.281,
-   "calibration": {
-    "method": "inherits the thresholds of owl-bolt until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
-    "margin": 0.02,
-    "measured": "2026-11-12",
-    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
-   }
+   ]
   },
   "vfx-keeper-strike": {
    "what": "the Keeper strike (art sheet VFX_KeeperStrike, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
    "refs": [
+    "crop-keeper-strike-travel",
+    "crop-keeper-strike-release",
+    "discord-crop-red-shot",
+    "red-shot-sh10",
+    "bar-casters"
+   ],
+   "owner": "artfx",
+   "score_min": 0.728,
+   "detail_min": 0.281,
+   "calibration": {
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
+    "margin": 0.02,
+    "measured": "2026-11-13",
+    "loo": {
+     "crop-keeper-strike-travel": 0.802,
+     "crop-keeper-strike-release": 0.748,
+     "discord-crop-red-shot": 0.802
+    },
+    "detail": {
+     "crop-keeper-strike-travel": 0.35,
+     "crop-keeper-strike-release": 0.382,
+     "discord-crop-red-shot": 0.301
+    }
+   },
+   "context": [
     "d-red-shots",
     "study-keeper-red-shots",
     "red-shot-sh10",
     "bar-casters",
     "d-talon-rake"
-   ],
-   "owner": "artfx",
-   "score_min": 0.729,
-   "detail_min": 0.281,
-   "calibration": {
-    "method": "inherits the thresholds of owl-bolt until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
-    "margin": 0.02,
-    "measured": "2026-11-12",
-    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
-   }
+   ]
   },
   "vfx-keeper-recovery": {
    "what": "the Keeper recovery cue (art sheet VFX_KeeperRecovery, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
    "refs": [
+    "crop-keeper-recovery-fade",
+    "discord-crop-red-shot",
+    "red-shot-sh10",
+    "bar-casters"
+   ],
+   "owner": "artfx",
+   "score_min": 0.711,
+   "detail_min": 0.249,
+   "calibration": {
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
+    "margin": 0.02,
+    "measured": "2026-11-13",
+    "loo": {
+     "crop-keeper-recovery-fade": 0.731,
+     "discord-crop-red-shot": 0.731
+    },
+    "detail": {
+     "crop-keeper-recovery-fade": 0.269,
+     "discord-crop-red-shot": 0.301
+    }
+   },
+   "context": [
     "d-red-shots",
     "study-keeper-red-shots",
     "red-shot-sh10",
     "bar-casters",
     "d-talon-rake"
-   ],
-   "owner": "artfx",
-   "score_min": 0.729,
-   "detail_min": 0.281,
-   "calibration": {
-    "method": "inherits the thresholds of owl-bolt until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
-    "margin": 0.02,
-    "measured": "2026-11-12",
-    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
-   }
+   ]
   },
   "vfx-clock-beat": {
    "what": "the Keeper clock double beat (art sheet VFX_ClockBeat, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
    "refs": [
+    "crop-clock-beat-shot-row",
+    "crop-clock-beat-hand-arc",
+    "discord-crop-red-shot",
+    "red-shot-sh10",
+    "bar-casters"
+   ],
+   "owner": "artfx",
+   "score_min": 0.546,
+   "detail_min": 0.151,
+   "calibration": {
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
+    "margin": 0.02,
+    "measured": "2026-11-13",
+    "loo": {
+     "crop-clock-beat-shot-row": 0.566,
+     "crop-clock-beat-hand-arc": 0.772,
+     "discord-crop-red-shot": 0.772
+    },
+    "detail": {
+     "crop-clock-beat-shot-row": 0.45,
+     "crop-clock-beat-hand-arc": 0.171,
+     "discord-crop-red-shot": 0.301
+    }
+   },
+   "context": [
     "d-red-shots",
     "study-keeper-red-shots",
     "red-shot-sh10",
     "bar-casters",
     "d-clock-double-beat"
-   ],
-   "owner": "artfx",
-   "score_min": 0.729,
-   "detail_min": 0.281,
-   "calibration": {
-    "method": "inherits the thresholds of owl-bolt until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
-    "margin": 0.02,
-    "measured": "2026-11-12",
-    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
-   }
+   ]
   },
   "vfx-clock-open": {
    "what": "the Keeper clock opening (art sheet VFX_ClockOpen, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
    "refs": [
+    "crop-clock-open-clock-face",
+    "crop-clock-open-clock-cracked",
+    "bar-casters"
+   ],
+   "owner": "artfx",
+   "score_min": 0.95,
+   "detail_min": 0.204,
+   "calibration": {
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
+    "margin": 0.02,
+    "measured": "2026-11-13",
+    "loo": {
+     "crop-clock-open-clock-face": 0.97,
+     "crop-clock-open-clock-cracked": 0.97
+    },
+    "detail": {
+     "crop-clock-open-clock-face": 0.224,
+     "crop-clock-open-clock-cracked": 0.293
+    }
+   },
+   "context": [
     "d-clock-double-beat",
     "d-clock-damage",
     "d-yellow-shots",
     "bar-casters"
-   ],
-   "owner": "artfx",
-   "score_min": 0.729,
-   "detail_min": 0.281,
-   "calibration": {
-    "method": "inherits the thresholds of owl-bolt until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
-    "margin": 0.02,
-    "measured": "2026-11-12",
-    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
-   }
+   ]
   },
   "vfx-part-hit": {
    "what": "a Keeper part hit (art sheet VFX_PartHit, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
@@ -2961,13 +3296,20 @@
     "bar-casters"
    ],
    "owner": "artfx",
-   "score_min": 0.666,
-   "detail_min": 0.362,
+   "score_min": 0.973,
+   "detail_min": 0.444,
    "calibration": {
-    "method": "inherits the thresholds of bolt-hit until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
     "margin": 0.02,
-    "measured": "2026-11-12",
-    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+    "measured": "2026-11-13",
+    "loo": {
+     "d-gear-break": 0.993,
+     "d-clock-damage": 0.993
+    },
+    "detail": {
+     "d-gear-break": 0.464,
+     "d-clock-damage": 0.491
+    }
    }
   },
   "vfx-part-break": {
@@ -2978,31 +3320,50 @@
     "bar-casters"
    ],
    "owner": "artfx",
-   "score_min": 0.666,
-   "detail_min": 0.362,
+   "score_min": 0.973,
+   "detail_min": 0.444,
    "calibration": {
-    "method": "inherits the thresholds of bolt-hit until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
     "margin": 0.02,
-    "measured": "2026-11-12",
-    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+    "measured": "2026-11-13",
+    "loo": {
+     "d-gear-break": 0.993,
+     "d-clock-damage": 0.993
+    },
+    "detail": {
+     "d-gear-break": 0.464,
+     "d-clock-damage": 0.491
+    }
    }
   },
   "vfx-eye-exposed": {
    "what": "the exposed Keeper eye (art sheet VFX_EyeExposed, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
    "refs": [
-    "d-clock-damage",
-    "d-yellow-shots",
+    "crop-eye-exposed-clock-detail",
+    "crop-eye-exposed-glass-crack",
     "bar-casters"
    ],
    "owner": "artfx",
-   "score_min": 0.666,
-   "detail_min": 0.362,
+   "score_min": 0.802,
+   "detail_min": 0.276,
    "calibration": {
-    "method": "inherits the thresholds of bolt-hit until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
     "margin": 0.02,
-    "measured": "2026-11-12",
-    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
-   }
+    "measured": "2026-11-13",
+    "loo": {
+     "crop-eye-exposed-clock-detail": 0.822,
+     "crop-eye-exposed-glass-crack": 0.822
+    },
+    "detail": {
+     "crop-eye-exposed-clock-detail": 0.296,
+     "crop-eye-exposed-glass-crack": 0.443
+    }
+   },
+   "context": [
+    "d-clock-damage",
+    "d-yellow-shots",
+    "bar-casters"
+   ]
   },
   "vfx-stun": {
    "what": "the Keeper stun loop (art sheet VFX_Stun, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
@@ -3011,13 +3372,18 @@
     "bar-casters"
    ],
    "owner": "artfx",
-   "score_min": 0.666,
-   "detail_min": 0.362,
+   "score_min": 0.716,
+   "detail_min": 0.444,
    "calibration": {
-    "method": "inherits the thresholds of bolt-hit until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
     "margin": 0.02,
-    "measured": "2026-11-12",
-    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+    "measured": "2026-11-13",
+    "loo": {
+     "d-gear-break": 0.736
+    },
+    "detail": {
+     "d-gear-break": 0.464
+    }
    }
   },
   "vfx-slow": {
@@ -3027,13 +3393,18 @@
     "bar-other-realm"
    ],
    "owner": "artfx",
-   "score_min": 0.582,
-   "detail_min": 0.079,
+   "score_min": 0.715,
+   "detail_min": 0.378,
    "calibration": {
-    "method": "inherits the thresholds of wind-zone until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
     "margin": 0.02,
-    "measured": "2026-11-12",
-    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+    "measured": "2026-11-13",
+    "loo": {
+     "d-clock-double-beat": 0.735
+    },
+    "detail": {
+     "d-clock-double-beat": 0.398
+    }
    }
   },
   "vfx-gust": {
@@ -3043,13 +3414,18 @@
     "bar-other-realm"
    ],
    "owner": "artfx",
-   "score_min": 0.582,
-   "detail_min": 0.408,
+   "score_min": 0.721,
+   "detail_min": 0.462,
    "calibration": {
-    "method": "inherits the thresholds of wind-lines until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
     "margin": 0.02,
-    "measured": "2026-11-12",
-    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+    "measured": "2026-11-13",
+    "loo": {
+     "d-wing-gust": 0.741
+    },
+    "detail": {
+     "d-wing-gust": 0.482
+    }
    }
   },
   "vfx-gust-puff": {
@@ -3059,13 +3435,18 @@
     "bar-other-realm"
    ],
    "owner": "artfx",
-   "score_min": 0.582,
-   "detail_min": 0.408,
+   "score_min": 0.721,
+   "detail_min": 0.462,
    "calibration": {
-    "method": "inherits the thresholds of wind-lines until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
     "margin": 0.02,
-    "measured": "2026-11-12",
-    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+    "measured": "2026-11-13",
+    "loo": {
+     "d-wing-gust": 0.741
+    },
+    "detail": {
+     "d-wing-gust": 0.482
+    }
    }
   },
   "vfx-blackout": {
@@ -3076,45 +3457,72 @@
    ],
    "owner": "artfx",
    "score_min": 0.5,
-   "detail_min": 0.085,
+   "detail_min": 0.079,
    "calibration": {
-    "method": "inherits the thresholds of paper until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "method": "no team image: leave-one-out and detail on the element's own references under pipeline/art/reference/ (quality bar included) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
     "margin": 0.02,
-    "measured": "2026-11-12",
-    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+    "measured": "2026-11-13",
+    "loo": {},
+    "detail": {
+     "bar-other-realm": 0.099
+    },
+    "note": "one image and nothing to compare it with: score_min not measurable (kept)"
    }
   },
   "vfx-restoration": {
    "what": "the restoration after blackout (art sheet VFX_Restoration, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
    "refs": [
-    "study-environment",
-    "bar-other-realm"
+    "crop-restoration-umbrella-glow",
+    "crop-restoration-gold-shot"
    ],
    "owner": "artfx",
-   "score_min": 0.5,
-   "detail_min": 0.085,
+   "score_min": 0.348,
+   "detail_min": 0.296,
    "calibration": {
-    "method": "inherits the thresholds of paper until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
     "margin": 0.02,
-    "measured": "2026-11-12",
-    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
-   }
+    "measured": "2026-11-13",
+    "loo": {
+     "crop-restoration-umbrella-glow": 0.368,
+     "crop-restoration-gold-shot": 0.368
+    },
+    "detail": {
+     "crop-restoration-umbrella-glow": 0.316,
+     "crop-restoration-gold-shot": 0.528
+    }
+   },
+   "context": [
+    "study-environment",
+    "bar-other-realm"
+   ]
   },
   "vfx-departure": {
    "what": "the Keeper's living departure (art sheet VFX_Departure, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
    "refs": [
-    "d-clock-damage",
+    "crop-departure-loose-hardware",
+    "crop-departure-hardware-falls",
     "bar-casters"
    ],
    "owner": "artfx",
-   "score_min": 0.729,
-   "detail_min": 0.281,
+   "score_min": 0.573,
+   "detail_min": 0.609,
    "calibration": {
-    "method": "inherits the thresholds of owl-bolt until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
     "margin": 0.02,
-    "measured": "2026-11-12",
-    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
-   }
+    "measured": "2026-11-13",
+    "loo": {
+     "crop-departure-loose-hardware": 0.599,
+     "crop-departure-hardware-falls": 0.593
+    },
+    "detail": {
+     "crop-departure-loose-hardware": 0.629,
+     "crop-departure-hardware-falls": 0.654
+    }
+   },
+   "context": [
+    "d-clock-damage",
+    "bar-casters"
+   ]
   },
   "vfx-light-shaft": {
    "what": "the light shaft falling into the abyss (NAR-05) (art sheet VFX_LightShaft, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
@@ -3124,12 +3532,16 @@
    ],
    "owner": "artfx",
    "score_min": 0.5,
-   "detail_min": 0.085,
+   "detail_min": 0.079,
    "calibration": {
-    "method": "inherits the thresholds of paper until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "method": "no team image: leave-one-out and detail on the element's own references under pipeline/art/reference/ (quality bar included) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
     "margin": 0.02,
-    "measured": "2026-11-12",
-    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+    "measured": "2026-11-13",
+    "loo": {},
+    "detail": {
+     "bar-other-realm": 0.099
+    },
+    "note": "one image and nothing to compare it with: score_min not measurable (kept)"
    }
   },
   "vfx-umbra": {
@@ -3140,12 +3552,16 @@
    ],
    "owner": "artfx",
    "score_min": 0.5,
-   "detail_min": 0.085,
+   "detail_min": 0.079,
    "calibration": {
-    "method": "inherits the thresholds of paper until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "method": "no team image: leave-one-out and detail on the element's own references under pipeline/art/reference/ (quality bar included) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
     "margin": 0.02,
-    "measured": "2026-11-12",
-    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+    "measured": "2026-11-13",
+    "loo": {},
+    "detail": {
+     "bar-other-realm": 0.099
+    },
+    "note": "one image and nothing to compare it with: score_min not measurable (kept)"
    }
   },
   "vfx-light-spill": {
@@ -3160,10 +3576,15 @@
    "score_min": 0.334,
    "detail_min": 0.077,
    "calibration": {
-    "method": "inherits the thresholds of wand-shot until art_judge.py calibrate measures this piece (art inventory, 12 Nov)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
     "margin": 0.02,
-    "measured": "2026-11-12",
-    "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
+    "measured": "2026-11-13",
+    "loo": {
+     "wand-star": 0.354
+    },
+    "detail": {
+     "wand-star": 0.097
+    }
    }
   }
  },
