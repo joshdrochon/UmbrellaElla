@@ -30,9 +30,14 @@ print(len(rows))
 P
   n=$(python3 -c "import csv;print(sum(1 for r in csv.DictReader(open('pipeline/story/lines.csv')) if r.get('text') and (r.get('ship') or '').strip().lower()!='no'))")
   [ "$n" = 0 ] && { echo "story critic: PASS (no shipped lines in pipeline/story/lines.csv; held lines are ship=no)"; exit 0; }
-  ask "$W/packet.md" > "$OUT" 2>&1
-  line=$(grep -m1 "^STORY_CRITIC:" "$OUT"); echo "$line"
-  echo "$line" | grep -q "^STORY_CRITIC: PASS" && python3 tools/story_check.py --critic "$line" >/dev/null 2>&1 && exit 0
+  # A panel of 3 fresh sessions, all must pass (Nov 12: one session passed lines another failed on the same bible).
+  : > "$OUT"; ok=1
+  for i in 1 2 3; do
+    ask "$W/packet.md" > "$OUT.$i" 2>&1; cat "$OUT.$i" >> "$OUT"
+    line=$(grep -m1 "^STORY_CRITIC:" "$OUT.$i"); echo "critic $i: $line"
+    echo "$line" | grep -q "^STORY_CRITIC: PASS" && python3 tools/story_check.py --critic "$line" >/dev/null 2>&1 || ok=0
+  done
+  [ $ok = 1 ] && exit 0
   echo "story critic: FAIL ($OUT)"; exit 1
 fi
 if [ "$K" = encounter ]; then
