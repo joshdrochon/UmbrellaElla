@@ -16,6 +16,10 @@ EFlowScreen FFlowRules::Next(EFlowScreen From, EFlowCommand Command)
 		return Command == EFlowCommand::StartMode ? EFlowScreen::Playing : From;
 	case EFlowScreen::Purchase:
 		// Done, Back and Pause (Escape, F1, Menu, B) all return to the title; the Start press that opened it is then repeated.
+		if (Command == EFlowCommand::LeaveRefuge)
+		{
+			return EFlowScreen::Resuming;
+		}
 		return (Command == EFlowCommand::Continue || Command == EFlowCommand::Back || Command == EFlowCommand::Pause) ? EFlowScreen::Title : From;
 	case EFlowScreen::Tutorial:
 		// Pause then Skip works on every page; finishing the last page ends the tutorial the same way as Skip.
@@ -52,6 +56,8 @@ EFlowScreen FFlowRules::Next(EFlowScreen From, EFlowCommand Command)
 			return EFlowScreen::Story;
 		case EFlowCommand::OpenLevelUp:
 			return EFlowScreen::LevelUp;
+		case EFlowCommand::EnterRefuge:
+			return EFlowScreen::Purchase;
 		default:
 			return From;
 		}
