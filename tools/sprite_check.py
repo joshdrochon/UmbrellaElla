@@ -60,6 +60,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from png import read_png  # noqa: E402
+import frame_register  # noqa: E402
 from art_check import DEFAULT_STYLE, delta_e, rgb_to_lab  # noqa: E402
 
 LFS_POINTER = b"version https://git-lfs"
@@ -194,7 +195,7 @@ def evaluate_frame(m, k):
 
 def check(paths, style, kind="silhouette", grid=None, size=None, frames=None, pow2=None,
           margin=0, spacing=0, loop=False, anim=None, fps=None, tile_axes="x",
-          drift_max=None, drift_reason=None, feet_rows=None):
+          drift_max=None, drift_reason=None, feet_rows=None, anchor_band=None, span_mode=None):
     sp = style["sprite"]
     if kind not in sp["kinds"]:
         raise ValueError(f"unknown kind '{kind}' (style.json has {sorted(sp['kinds'])})")
@@ -252,6 +253,24 @@ def check(paths, style, kind="silhouette", grid=None, size=None, frames=None, po
             if max(dx, dy) > lim:
                 fl.append(f"pivot: feet point (bottom-center of the lowest {n_rows} opaque rows) drifts {dx:g} px in x, "
                           f"{dy:g} px in y across frames (limit {lim}; the feet will jump)")
+    if (loop or (anim is not None and kind == "silhouette")) and len(frame_rows) > 1:
+        # jitter: anchor offset (px) and scale drift (%) between consecutive frames, limits measured on the team's
+        # reference animations (tools/frame_register.py JITTER_LIMITS). One-shots are not wrapped; loops are.
+        keep = [i for i, (_, m) in enumerate(measured) if m["visible"]]   # original frame numbers of the live frames
+        live = [(len(frame_rows[i][1][0]) if frame_rows[i][1] else 0, len(frame_rows[i][1]), frame_rows[i][1]) for i in keep]
+        band = anchor_band or (feet_rows if feet_rows is not None else sp["pivot_feet_rows"])   # what the cutter registered on
+        jit = frame_register.jitter(live, clear=sp["alpha_clear_max"], band=band, span_mode=span_mode or "base", loop=loop)
+        jit["worst"] = [keep[w] for w in jit["worst"]]
+        report["jitter"] = {k_: round(v, 2) for k_, v in jit.items() if k_ != "worst"}
+        lim = dict(frame_register.JITTER_LIMITS)
+        if drift_max is not None and (drift_reason or "").strip():   # the sidecar's reasoned pivot override covers this too
+            lim["offset_px"] = max(lim["offset_px"], drift_max)
+        if jit["offset_px"] > lim["offset_px"]:
+            fl.append(f"jitter: anchor moves {jit['offset_px']:g} px between frames {jit['worst'][0]} and "
+                      f"{jit['worst'][0] + 1} (limit {lim['offset_px']:g}; register the strip: assetgen frames)")
+        if jit["scale_pct"] > lim["scale_pct"]:
+            fl.append(f"jitter: figure scale drifts {jit['scale_pct']:.1f}% between frames {jit['worst'][1]} and "
+                      f"{jit['worst'][1] + 1} (limit {lim['scale_pct']:g}%; register the strip: assetgen frames)")
     if anim is not None:
         table = style.get("anims", {})
         row = table.get(anim) if anim != "note" else None
@@ -311,7 +330,7 @@ def scan(folder, style, fail_lfs_pointer=False):
                                      meta.get("margin", 0), meta.get("spacing", 0), meta.get("loop", False),
                                      meta.get("anim"), meta.get("fps"), meta.get("tile_axes", "x"),
                                      meta.get("pivot_drift_max_px"), meta.get("pivot_drift_reason"),
-                                     meta.get("feet_rows")))
+                                     meta.get("feet_rows"), meta.get("anchor_band"), meta.get("span_mode")))
     return reports, skipped
 
 
