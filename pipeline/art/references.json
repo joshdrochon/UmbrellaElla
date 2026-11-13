@@ -1787,6 +1787,321 @@
      "title-screen": 0.269
     }
    }
+  },
+  "ui-title": {
+   "what": "the title screen: game title lockup, Start Game, Director's Cut, Settings, Quit, in the title-screen reference's layout and style. Title text is \"Umbrella Ella The Stolen Hour\" (D-new-title-text); a difference in wording is never a reason to fail.",
+   "refs": [
+    "title-screen"
+   ],
+   "score_min": 0.5,
+   "detail_min": 0.249,
+   "ui": {
+    "widgets": [
+     "SFlowMenu",
+     "SFlowBackground"
+    ],
+    "screens": [
+     "EFlowScreen::Title"
+    ]
+   },
+   "calibration": {
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "loo": {},
+    "detail": {
+     "title-screen": 0.269
+    },
+    "note": "one team image and nothing to compare it with: score_min not measurable"
+   }
+  },
+  "ui-pause": {
+   "what": "the pause menu (also shown while resuming and when the tutorial is paused): heading and a column of menu items over the paper ground, in the title-screen reference's lettering and style",
+   "refs": [
+    "title-screen"
+   ],
+   "score_min": 0.5,
+   "detail_min": 0.249,
+   "ui": {
+    "widgets": [
+     "SFlowMenu",
+     "SFlowBackground"
+    ],
+    "screens": [
+     "EFlowScreen::Paused",
+     "EFlowScreen::Resuming",
+     "EFlowScreen::TutorialPaused"
+    ]
+   },
+   "calibration": {
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "loo": {},
+    "detail": {
+     "title-screen": 0.269
+    },
+    "note": "one team image and nothing to compare it with: score_min not measurable"
+   }
+  },
+  "ui-settings": {
+   "what": "the settings screen: page tabs, sliders, key bindings, Back and Save, in the title-screen reference's lettering and style",
+   "refs": [
+    "title-screen"
+   ],
+   "score_min": 0.5,
+   "detail_min": 0.249,
+   "ui": {
+    "widgets": [
+     "USettingsMenuWidget",
+     "SFlowMenu"
+    ],
+    "screens": [
+     "EFlowScreen::Settings"
+    ]
+   },
+   "calibration": {
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "loo": {},
+    "detail": {
+     "title-screen": 0.269
+    },
+    "note": "one team image and nothing to compare it with: score_min not measurable"
+   }
+  },
+  "ui-credits": {
+   "what": "the credits roll: names and roles as moving text over the paper ground, in the title-screen reference's lettering and style",
+   "refs": [
+    "title-screen"
+   ],
+   "score_min": 0.5,
+   "detail_min": 0.249,
+   "ui": {
+    "widgets": [
+     "SFlowTextScreen"
+    ],
+    "screens": [
+     "EFlowScreen::Credits"
+    ]
+   },
+   "calibration": {
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "loo": {},
+    "detail": {
+     "title-screen": 0.269
+    },
+    "note": "one team image and nothing to compare it with: score_min not measurable"
+   }
+  },
+  "ui-defeated": {
+   "what": "the Defeated screen: heading, Retry and the way back to the title, in the title-screen reference's lettering and style (the flat navy UMG screen of 12 Nov is the known-bad)",
+   "refs": [
+    "title-screen"
+   ],
+   "score_min": 0.5,
+   "detail_min": 0.249,
+   "ui": {
+    "widgets": [
+     "SFlowMenu"
+    ],
+    "screens": [
+     "EFlowScreen::Defeat"
+    ]
+   },
+   "calibration": {
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "loo": {},
+    "detail": {
+     "title-screen": 0.269
+    },
+    "note": "one team image and nothing to compare it with: score_min not measurable"
+   }
+  },
+  "ui-story-text": {
+   "what": "the win story text: ending story pages and the bottom and centre captions as ink lettering over the paper ground or the scene, in the title-screen reference's lettering and style",
+   "refs": [
+    "title-screen"
+   ],
+   "score_min": 0.5,
+   "detail_min": 0.249,
+   "ui": {
+    "widgets": [
+     "SFlowTextScreen",
+     "UStoryCaptionWidget"
+    ],
+    "screens": [
+     "EFlowScreen::Story"
+    ]
+   },
+   "calibration": {
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "loo": {},
+    "detail": {
+     "title-screen": 0.269
+    },
+    "note": "one team image and nothing to compare it with: score_min not measurable"
+   }
+  },
+  "ui-journey-complete": {
+   "what": "the Journey Complete screen: eight stat rows, Try Again and Main Menu, in the title-screen reference's lettering and style",
+   "refs": [
+    "title-screen"
+   ],
+   "score_min": 0.5,
+   "detail_min": 0.249,
+   "ui": {
+    "widgets": [
+     "UJourneyCompleteWidget"
+    ],
+    "screens": []
+   },
+   "calibration": {
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "loo": {},
+    "detail": {
+     "title-screen": 0.269
+    },
+    "note": "one team image and nothing to compare it with: score_min not measurable"
+   }
+  },
+  "ui-purchase": {
+   "what": "the Ella and Spells purchase screen: level and points, one row per track with minus and plus, Confirm, Cancel and Done, in the title-screen reference's lettering and style",
+   "refs": [
+    "title-screen"
+   ],
+   "score_min": 0.5,
+   "detail_min": 0.249,
+   "ui": {
+    "widgets": [
+     "UProgressionPurchaseWidget",
+     "SFlowPurchaseDoneBox"
+    ],
+    "screens": [
+     "EFlowScreen::Purchase"
+    ]
+   },
+   "calibration": {
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "loo": {},
+    "detail": {
+     "title-screen": 0.269
+    },
+    "note": "one team image and nothing to compare it with: score_min not measurable"
+   }
+  },
+  "ui-level-up": {
+   "what": "the level-up screen: the new level as a heading and its menu items, in the title-screen reference's lettering and style",
+   "refs": [
+    "title-screen"
+   ],
+   "score_min": 0.5,
+   "detail_min": 0.249,
+   "ui": {
+    "widgets": [
+     "SFlowMenu"
+    ],
+    "screens": [
+     "EFlowScreen::LevelUp"
+    ]
+   },
+   "calibration": {
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "loo": {},
+    "detail": {
+     "title-screen": 0.269
+    },
+    "note": "one team image and nothing to compare it with: score_min not measurable"
+   }
+  },
+  "ui-tutorial": {
+   "what": "the first-start tutorial pages: heading, instruction text, Next and Skip, in the title-screen reference's lettering and style",
+   "refs": [
+    "title-screen"
+   ],
+   "score_min": 0.5,
+   "detail_min": 0.249,
+   "ui": {
+    "widgets": [
+     "SFlowMenu"
+    ],
+    "screens": [
+     "EFlowScreen::Tutorial"
+    ]
+   },
+   "calibration": {
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "loo": {},
+    "detail": {
+     "title-screen": 0.269
+    },
+    "note": "one team image and nothing to compare it with: score_min not measurable"
+   }
+  },
+  "ui-hud-clock": {
+   "what": "the gameplay HUD: the one clock with the health and life hands, numerals and gold arc (and the Director's Cut banner), drawn like the title-screen reference's clock face",
+   "refs": [
+    "title-screen"
+   ],
+   "score_min": 0.5,
+   "detail_min": 0.249,
+   "ui": {
+    "widgets": [
+     "AUmbrellaHUD"
+    ],
+    "screens": [
+     "EFlowScreen::Playing"
+    ]
+   },
+   "calibration": {
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "loo": {},
+    "detail": {
+     "title-screen": 0.269
+    },
+    "note": "one team image and nothing to compare it with: score_min not measurable"
+   }
+  },
+  "ui-xp-ring": {
+   "what": "the Director's Cut XP ring: a thin glowing gold ring around the HUD clock, in the title-screen reference's gold line work",
+   "refs": [
+    "title-screen"
+   ],
+   "score_min": 0.5,
+   "detail_min": 0.249,
+   "ui": {
+    "widgets": [
+     "UXpRingWidget"
+    ],
+    "screens": []
+   },
+   "calibration": {
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "loo": {},
+    "detail": {
+     "title-screen": 0.269
+    },
+    "note": "one team image and nothing to compare it with: score_min not measurable"
+   }
   }
  },
  "scene": {
@@ -1879,7 +2194,19 @@
    "scene": "bar-other-realm",
    "skyline": "bar-other-realm",
    "paper": "bar-other-realm",
-   "menu-screen": "bar-other-realm"
+   "menu-screen": "bar-other-realm",
+   "ui-title": "bar-other-realm",
+   "ui-pause": "bar-other-realm",
+   "ui-settings": "bar-other-realm",
+   "ui-credits": "bar-other-realm",
+   "ui-defeated": "bar-other-realm",
+   "ui-story-text": "bar-other-realm",
+   "ui-journey-complete": "bar-other-realm",
+   "ui-purchase": "bar-other-realm",
+   "ui-level-up": "bar-other-realm",
+   "ui-tutorial": "bar-other-realm",
+   "ui-hud-clock": "bar-other-realm",
+   "ui-xp-ring": "bar-other-realm"
   },
   "default": "bar-casters",
   "palette_note": "The quality-bar colours (ash-blue flow, the yellows) and the GDD SH1.0 shot reds (crimson #FF3658, coral #FF7848, shadow #8F173C: the same values as bar-casters; the key art's rust of D-new-owl-shot-look is superseded, D-new-sh10-art-conflicts) are in style.json as capped accents (Josh, DECIDED 2026-11-10, D-new-palette-accents): art_check.py accepts them only in their role, hue band and share cap."
