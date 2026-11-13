@@ -93,6 +93,8 @@ public:
 	int32 GetEffectCount() const { return EffectCount; }
 
 private:
+	/** Bus handler: plays the event unless the effect director shows it. */
+	void HandleBusEvent(const FUmbrellaEvent& Event);
 	/** True when the flag that gates this event's effect family is on. */
 	static bool IsEffectEnabled(const FUmbrellaEvent& Event);
 	TArray<FDelegateHandle> Handles;

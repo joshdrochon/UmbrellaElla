@@ -1,4 +1,6 @@
 #include "Engine/Engine.h"
+#include "Components/CapsuleComponent.h"
+#include "Core/UmbrellaEvent.h"
 #include "BrokenMill/BrokenMillRoom.h"
 #include "BrokenMill/BrokenMillRules.h"
 #include "BrokenMill/BrokenMillTuning.h"
@@ -17,10 +19,10 @@
 #include "Misc/AutomationTest.h"
 #include "Projectile/UmbrellaProjectile.h"
 #include "Trap/UmbrellaTrap.h"
+#include "Tests/BrokenMill/BrokenMillTestFixture.h"
 
 #if WITH_AUTOMATION_TESTS
 
-#define UMBRELLAELLA_MILL_FLAGS (EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
 
 namespace
 {
@@ -44,50 +46,6 @@ namespace
 		return Guard;
 	}
 
-	/** Real Ella plus a built room at an offset; the room's target is Ella. */
-	struct FMillIntegratedFixture
-	{
-		FUmbrellaTestWorld Test;
-		AEllaCharacter* Ella = nullptr;
-		ABrokenMillRoom* Room = nullptr;
-
-		bool Setup(const FVector2D& EllaRoomPoint)
-		{
-			UWorld* World = Test.GetWorld();
-			if (!World)
-			{
-				return false;
-			}
-			Room = World->SpawnActor<ABrokenMillRoom>(ABrokenMillRoom::StaticClass(), FTransform(FVector(10000.0, 0.0, 0.0)));
-			if (!Room)
-			{
-				return false;
-			}
-			Room->BuildRoom();
-			Ella = Test.SpawnElla(Room->RoomToWorld(EllaRoomPoint));
-			if (Ella)
-			{
-				Room->SetTargetActor(Ella);
-			}
-			return Ella != nullptr;
-		}
-
-		/** Tick with Ella's height pinned (a held trim), so only the Motor's sideways motion moves her. */
-		void TickPinnedZ(float Seconds, float Dt)
-		{
-			const double Z = Ella->GetActorLocation().Z;
-			for (int32 Frame = 0; Frame < FMath::RoundToInt(Seconds / Dt); ++Frame)
-			{
-				Test.TickFrames(1, Dt);
-				FVector Location = Ella->GetActorLocation();
-				Location.Z = Z;
-				Ella->SetActorLocation(Location);
-			}
-		}
-
-		int32 CountShots() const { return Test.CountActors<AUmbrellaProjectile>(); }
-		FVector2D EllaRoom() const { return Room->WorldToRoom(Ella->GetActorLocation()); }
-	};
 }
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMillGeometryEstimates, "UmbrellaElla.BrokenMill.GeometryEstimatesMatchGdd", UMBRELLAELLA_MILL_FLAGS)
@@ -173,6 +131,18 @@ bool FMillWinds::RunTest(const FString& Parameters)
 	TestFalse(TEXT("no height is in both fields"), bOverlap);
 	TestTrue(TEXT("missed-current assist near x650 z150"), FBrokenMillRules::IsInMissedCurrentAssist(T, FVector2D(650.0, 150.0)));
 	TestFalse(TEXT("no assist up high"), FBrokenMillRules::IsInMissedCurrentAssist(T, FVector2D(650.0, 600.0)));
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMillEligibleWind, "UmbrellaElla.BrokenMill.EligibleWindByRoot", UMBRELLAELLA_MILL_FLAGS)
+bool FMillEligibleWind::RunTest(const FString& Parameters)
+{
+	const FBrokenMillTuning T;
+	TestEqual(TEXT("early reopen z 420 in the column: reset"), FBrokenMillRules::GetEligibleWind(T, FVector2D(700.0, 420.0)), EMillWind::UpperReset);
+	TestEqual(TEXT("late reopen z 270 in the column: onward"), FBrokenMillRules::GetEligibleWind(T, FVector2D(700.0, 270.0)), EMillWind::LowerOnward);
+	TestEqual(TEXT("gap z 345: neither"), FBrokenMillRules::GetEligibleWind(T, FVector2D(700.0, 345.0)), EMillWind::None);
+	TestEqual(TEXT("left of the column: neither"), FBrokenMillRules::GetEligibleWind(T, FVector2D(590.0, 420.0)), EMillWind::None);
+	TestEqual(TEXT("right of the column: neither"), FBrokenMillRules::GetEligibleWind(T, FVector2D(810.0, 270.0)), EMillWind::None);
 	return true;
 }
 
@@ -315,8 +285,8 @@ bool FMillWorldCancelAbortPause::RunTest(const FString& Parameters)
 	const float Dt = 1.0f / 60.0f;
 	{
 		// Pause: the warning clock stands still, then resumes and the single shot comes.
-		FMillIntegratedFixture F;
-		if (!TestTrue(TEXT("fixture"), F.Setup(FVector2D(600.0, 650.0))))
+		BrokenMillTest::FMillIntegratedFixture F;
+		if (!TestNotNull(TEXT("fixture"), F.Spawn(FVector2D(600.0, 650.0))))
 		{
 			return false;
 		}
@@ -336,8 +306,8 @@ bool FMillWorldCancelAbortPause::RunTest(const FString& Parameters)
 		// Cancel: Ella passes behind the guard during the warning. POSITION-DRIVEN: this proves the room reacts to Ella's
 		// X crossing the muzzle, not that the Motor can carry her there (dashes reach ~85 units per 0.3 s, so no dash chain
 		// covers the ~700 units from the activation region to the muzzle inside the 1.1 s warning).
-		FMillIntegratedFixture F;
-		if (!TestTrue(TEXT("fixture"), F.Setup(FVector2D(600.0, 650.0))))
+		BrokenMillTest::FMillIntegratedFixture F;
+		if (!TestNotNull(TEXT("fixture"), F.Spawn(FVector2D(600.0, 650.0))))
 		{
 			return false;
 		}
@@ -351,8 +321,8 @@ bool FMillWorldCancelAbortPause::RunTest(const FString& Parameters)
 	}
 	{
 		// Abort: the real Motor dashes Ella back (RequestDash) out of shot range before the release; quiet recovery, no shot.
-		FMillIntegratedFixture F;
-		if (!TestTrue(TEXT("fixture"), F.Setup(FVector2D(600.0, 650.0))))
+		BrokenMillTest::FMillIntegratedFixture F;
+		if (!TestNotNull(TEXT("fixture"), F.Spawn(FVector2D(600.0, 650.0))))
 		{
 			return false;
 		}
@@ -375,52 +345,263 @@ bool FMillWorldCancelAbortPause::RunTest(const FString& Parameters)
 	return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMillWorldWindPass, "UmbrellaElla.BrokenMill.World.WindCarriesEllaPastOneShotPerPass", UMBRELLAELLA_MILL_FLAGS)
-bool FMillWorldWindPass::RunTest(const FString& Parameters)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMillWorldRealWinds, "UmbrellaElla.BrokenMill.World.RealWindsPickedByReopenHeight", UMBRELLAELLA_MILL_FLAGS)
+bool FMillWorldRealWinds::RunTest(const FString& Parameters)
 {
+	// HAZ-14: early/late reopening selects each wind without theft, through the REAL wind volumes' overlap events.
 	const float Dt = 1.0f / 60.0f;
-	FMillIntegratedFixture F;
-	if (!TestTrue(TEXT("fixture"), F.Setup(FVector2D(480.0, 650.0))))
+	const float MeasureSeconds = 0.4f;
+	const float MinCarry = 20.0f;
+	struct FMillReopenCase
+	{
+		float ReopenZ;
+		int32 ExpectedSign;
+		const TCHAR* Label;
+	};
+	const FMillReopenCase Cases[] = {{420.0f, -1, TEXT("early reopen z 420")}, {270.0f, 1, TEXT("late reopen z 270")}, {345.0f, 0, TEXT("gap reopen z 345")}};
+	for (const FMillReopenCase& Case : Cases)
+	{
+		BrokenMillTest::FMillIntegratedFixture F;
+		if (!TestNotNull(TEXT("fixture"), F.Spawn(FVector2D(700.0, 600.0), true)) || !TestNotNull(TEXT("reset wind"), F.Room->GetUpperWind()) || !TestNotNull(TEXT("onward wind"), F.Room->GetLowerWind()))
+		{
+			return false;
+		}
+		TestEqual(TEXT("Ella answers to the bus id"), F.Ella->GetFName(), UmbrellaPlayerIds::Ella);
+		BrokenMillTest::FMillEllaEventLog Log;
+		Log.Attach(F.Test.GetWorld(), F.Ella->GetFName());
+		const FName Upper = F.Room->GetUpperWind()->GetFName();
+		const FName Lower = F.Room->GetLowerWind()->GetFName();
+		F.Test.TickFrames(2, Dt);
+		UUmbrellaStateComponent* State = F.Ella->GetUmbrellaState();
+		State->SetRideHeld(true);
+		State->SetAbsorbHeld(true);
+		const double StartX = F.EllaRoom().X;
+		F.TickUntilRootBelow(Case.ReopenZ, 3.0f, Dt);
+		const FVector2D AtReopen = F.EllaRoom();
+		TestTrue(FString::Printf(TEXT("%s: falling through the reset band never rode it"), Case.Label), FMath::Abs(AtReopen.X - StartX) < 1.0);
+		State->SetAbsorbHeld(false);
+		F.Test.TickFrames(1, Dt);
+		const bool bInUpper = Log.IsInside(Upper);
+		const bool bInLower = Log.IsInside(Lower);
+		AddInfo(FString::Printf(TEXT("%s: actual reopen root z %.1f; inside reset=%d onward=%d; capsule half height %.1f"), Case.Label, AtReopen.Y, bInUpper ? 1 : 0, bInLower ? 1 : 0,
+			F.Ella->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()));
+		TestEqual(FString::Printf(TEXT("%s: reset band touching Ella"), Case.Label), bInUpper, Case.ExpectedSign < 0);
+		TestEqual(FString::Printf(TEXT("%s: onward band touching Ella"), Case.Label), bInLower, Case.ExpectedSign > 0);
+		if (Case.ExpectedSign == 0)
+		{
+			// Rising 120/s from the gap reaches the reset band (z 360) in about 0.1 s; before that nothing carries her.
+			F.Test.TickSeconds(0.05f, Dt);
+			TestTrue(TEXT("gap: no current moved her"), FMath::Abs(F.EllaRoom().X - AtReopen.X) < 1.0);
+			continue;
+		}
+		F.Test.TickSeconds(MeasureSeconds, Dt);
+		const double Carried = F.EllaRoom().X - AtReopen.X;
+		AddInfo(FString::Printf(TEXT("%s: carried %.1f units in %.1f s"), Case.Label, Carried, MeasureSeconds));
+		TestTrue(FString::Printf(TEXT("%s: the Motor rides the real current"), Case.Label), F.Ella->GetMotor()->IsRiding());
+		TestTrue(FString::Printf(TEXT("%s: carried the chosen way"), Case.Label), Carried * Case.ExpectedSign > MinCarry);
+		// Transient after the measurement: record where free rising takes her (the local restoring field is not built).
+		float StolenAt = -1.0f;
+		for (float Elapsed = 0.0f; Elapsed < 1.5f; Elapsed += Dt)
+		{
+			F.Test.TickFrames(1, Dt);
+			if (StolenAt < 0.0f && Case.ExpectedSign > 0 && Log.IsInside(Upper))
+			{
+				StolenAt = MeasureSeconds + Elapsed;
+			}
+		}
+		AddInfo(FString::Printf(TEXT("%s: 1.9 s after reopen root (%.1f, %.1f); reached reset band after %.2f s (-1 = never)"), Case.Label, F.EllaRoom().X, F.EllaRoom().Y, StolenAt));
+	}
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMillWorldFallingPass, "UmbrellaElla.BrokenMill.World.FallingPassRidesOnwardOneShot", UMBRELLAELLA_MILL_FLAGS)
+bool FMillWorldFallingPass::RunTest(const FString& Parameters)
+{
+	// HAZ-14/15: warned in the commit region, Ella falls through the firing column and reopens late; the real onward
+	// current carries her right while the single snapshot shot flies at where she was and misses.
+	const float Dt = 1.0f / 60.0f;
+	const FVector2D Entry(600.0, 650.0);
+	BrokenMillTest::FMillIntegratedFixture F;
+	if (!TestNotNull(TEXT("fixture"), F.Spawn(Entry, true)))
 	{
 		return false;
 	}
-	AWindCurrent* Lower = F.Room->GetLowerWind();
-	if (!TestNotNull(TEXT("onward wind"), Lower) || !TestNotNull(TEXT("reset wind"), F.Room->GetUpperWind()))
+	BrokenMillTest::FMillEllaEventLog Log;
+	Log.Attach(F.Test.GetWorld(), F.Ella->GetFName());
+	F.Test.TickFrames(2, Dt);
+	TestEqual(TEXT("warning on entry"), F.Room->GetEventCount(EMillGuardEvent::WarningStarted), 1);
+	const FVector Captured = F.Room->GetGuard().CapturedTarget;
+	UUmbrellaStateComponent* State = F.Ella->GetUmbrellaState();
+	State->SetRideHeld(true);
+	State->SetAbsorbHeld(true);
+	F.TickUntilRootBelow(270.0f, 3.0f, Dt);
+	State->SetAbsorbHeld(false);
+	const FVector2D AtReopen = F.EllaRoom();
+	TestEqual(TEXT("one shot released during the fall"), F.Room->GetEventCount(EMillGuardEvent::ShotReleased), 1);
+	AUmbrellaProjectile* Shot = nullptr;
+	for (TActorIterator<AUmbrellaProjectile> It(F.Test.GetWorld()); It; ++It)
+	{
+		Shot = *It;
+	}
+	if (TestNotNull(TEXT("the shot is live"), Shot))
+	{
+		const FVector2D Aim = (FVector2D(Captured.X, Captured.Z) - F.Room->GetMillTuning().GuardMuzzle).GetSafeNormal();
+		const FVector2D Flight = FVector2D(Shot->GetSpec().Velocity.X, Shot->GetSpec().Velocity.Z).GetSafeNormal();
+		TestTrue(TEXT("aimed at the target captured at warning start, never retargeted"), FVector2D::DotProduct(Aim, Flight) > 0.999);
+	}
+	F.Test.TickSeconds(0.4f, Dt);
+	TestTrue(TEXT("the real onward current carries her right"), F.EllaRoom().X - AtReopen.X > 20.0);
+	// Fall away below the room so she cannot re-enter the commit region while the shot lives.
+	State->SetAbsorbHeld(true);
+	F.Test.TickSeconds(F.Room->GetMillTuning().ShotRange / F.Room->GetMillTuning().ShotSpeed + 0.2f, Dt);
+	TestEqual(TEXT("shot gone"), F.CountShots(), 0);
+	TestEqual(TEXT("the snapshot shot never touched Ella"), Log.ShotContactsOnElla(), 0);
+	TestEqual(TEXT("one warning for the whole pass"), F.Room->GetEventCount(EMillGuardEvent::WarningStarted), 1);
+	// Fresh entry (position-driven: no current in the room carries her back up to z 650).
+	State->SetAbsorbHeld(false);
+	F.Ella->SetActorLocation(F.Room->RoomToWorld(Entry));
+	F.Test.TickSeconds(0.1f, Dt);
+	TestEqual(TEXT("a fresh entry rearms and warns again"), F.Room->GetEventCount(EMillGuardEvent::WarningStarted), 2);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMillWorldFreeRise, "UmbrellaElla.BrokenMill.World.FreeRiseLeavesRegionShotMisses", UMBRELLAELLA_MILL_FLAGS)
+bool FMillWorldFreeRise::RunTest(const FString& Parameters)
+{
+	// HAZ-15: the 1.1 s tell is a snapshot. Rising freely at 120/s Ella leaves the 70-tall commit region before the
+	// release; the guard still fires once, straight at the captured point, and the shot misses.
+	const float Dt = 1.0f / 60.0f;
+	const FBrokenMillTuning& T = GetDefault<UUmbrellaTuning>()->BrokenMill;
+	BrokenMillTest::FMillIntegratedFixture F;
+	if (!TestNotNull(TEXT("fixture"), F.Spawn(FVector2D(600.0, T.ActivationZ.X + 10.0f))))
 	{
 		return false;
 	}
-	TestTrue(TEXT("onward wind pushes right"), Lower->GetDirection().X > 0.0);
-	TestTrue(TEXT("reset wind pushes left"), F.Room->GetUpperWind()->GetDirection().X < 0.0);
-	// The wind actor's overlap event names the pawn by actor name; the Motor answers to the id "Ella" (or none).
-	// Until the Field lane and the Motor agree (docs/build/requests/enemies.md), put the current on the bus the way the
-	// Motor reads it, with the force and direction label taken from the real wind actor.
-	FUmbrellaEvent Entered;
-	Entered.Type = EUmbrellaEventType::WindEntered;
-	Entered.SourceId = Lower->GetFName();
-	Entered.TargetId = UmbrellaPlayerIds::Ella;
-	Entered.Detail = AWindCurrent::DirectionLabel(Lower->GetDirection());
-	Entered.Value = Lower->GetForce();
-	UUmbrellaEventBus::Get(F.Test.GetWorld())->Broadcast(Entered);
-	F.Ella->GetInputAdapter()->ApplyPress(EUmbrellaInputAction::Ride);
+	BrokenMillTest::FMillEllaEventLog Log;
+	Log.Attach(F.Test.GetWorld(), F.Ella->GetFName());
+	F.Test.TickFrames(1, Dt);
+	TestEqual(TEXT("warning on entry"), F.Room->GetEventCount(EMillGuardEvent::WarningStarted), 1);
+	const FVector Captured = F.Room->GetGuard().CapturedTarget;
+	float LeftRegionAt = -1.0f;
+	float Elapsed = 0.0f;
+	FVector2D AtRelease = FVector2D::ZeroVector;
+	while (F.Room->GetEventCount(EMillGuardEvent::ShotReleased) + F.Room->GetEventCount(EMillGuardEvent::WarningAborted) == 0 && Elapsed < 2.0f)
+	{
+		F.Test.TickFrames(1, Dt);
+		Elapsed += Dt;
+		if (LeftRegionAt < 0.0f && F.EllaRoom().Y > T.ActivationZ.Y)
+		{
+			LeftRegionAt = Elapsed;
+		}
+		AtRelease = F.EllaRoom();
+	}
+	AddInfo(FString::Printf(TEXT("left the region after %.2f s; root at release (%.1f, %.1f)"), LeftRegionAt, AtRelease.X, AtRelease.Y));
+	TestTrue(TEXT("free rise left the region before the release"), LeftRegionAt > 0.0f && LeftRegionAt < T.WarningSeconds);
+	TestTrue(TEXT("engagement is still valid where she rose to"), FBrokenMillRules::IsEngagementValid(T, AtRelease, true));
+	TestEqual(TEXT("one shot released (leaving the region does not abort)"), F.Room->GetEventCount(EMillGuardEvent::ShotReleased), 1);
+	for (TActorIterator<AUmbrellaProjectile> It(F.Test.GetWorld()); It; ++It)
+	{
+		const FVector2D Aim = (FVector2D(Captured.X, Captured.Z) - T.GuardMuzzle).GetSafeNormal();
+		const FVector2D Flight = FVector2D(It->GetSpec().Velocity.X, It->GetSpec().Velocity.Z).GetSafeNormal();
+		TestTrue(TEXT("straight at the captured point"), FVector2D::DotProduct(Aim, Flight) > 0.999);
+	}
+	F.Test.TickSeconds(FBrokenMillRules::GetGuardShotLifetime(T) + 0.2f, Dt);
+	TestEqual(TEXT("shot gone"), F.CountShots(), 0);
+	TestEqual(TEXT("the shot missed the risen Ella"), Log.ShotContactsOnElla(), 0);
+	TestEqual(TEXT("no second warning"), F.Room->GetEventCount(EMillGuardEvent::WarningStarted), 1);
+	return true;
+}
 
-	F.TickPinnedZ(0.5f, Dt);
-	TestTrue(TEXT("the current carries Ella right"), F.Ella->GetActorLocation().X > F.Room->RoomToWorld(FVector2D(480.0, 650.0)).X + 50.0);
-	TestEqual(TEXT("guard warned once on entry"), F.Room->GetEventCount(EMillGuardEvent::WarningStarted), 1);
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMillWorldMissedCurrent, "UmbrellaElla.BrokenMill.World.MissedCurrentFallsAndMinimumLiftRescue", UMBRELLAELLA_MILL_FLAGS)
+bool FMillWorldMissedCurrent::RunTest(const FString& Parameters)
+{
+	// HAZ-15: ordinary-fall and optional-freefall misses of the onward current, the actual reopening heights, and the
+	// rescue envelope at minimum lift with no dash or hop ever requested.
+	const float Dt = 1.0f / 60.0f;
+	const FBrokenMillTuning& T = GetDefault<UUmbrellaTuning>()->BrokenMill;
+	const FMotorTuning& Motor = GetDefault<UUmbrellaTuning>()->Motor;
+	const float MinLift = GetDefault<UUmbrellaTuning>()->Health.MinLift;
+	const FVector2D Start(650.0, 300.0);
+	const float MissTop = 270.0f;
+	const float MissLow = 150.0f;
 
-	F.TickPinnedZ(1.5f, Dt);
-	TestEqual(TEXT("one shot released for the pass"), F.Room->GetEventCount(EMillGuardEvent::ShotReleased), 1);
-	TestEqual(TEXT("still one warning (no second while recovering)"), F.Room->GetEventCount(EMillGuardEvent::WarningStarted), 1);
+	// 1. Fall times 270 -> 150 (GDD: 0.364 s ordinary, 0.197 s free fall; nominal, not a recovery guarantee).
+	for (const bool bFreeFall : {false, true})
+	{
+		BrokenMillTest::FMillIntegratedFixture F;
+		if (!TestNotNull(TEXT("fixture"), F.Spawn(Start, true)))
+		{
+			return false;
+		}
+		UUmbrellaStateComponent* State = F.Ella->GetUmbrellaState();
+		State->SetRideHeld(true);
+		State->SetAbsorbHeld(true);
+		State->SetShootHeld(bFreeFall);
+		F.TickUntilRootBelow(MissTop, 2.0f, Dt);
+		const float FromZ = F.EllaRoom().Y;
+		const float Seconds = F.TickUntilRootBelow(MissLow, 2.0f, Dt);
+		const float Speed = bFreeFall ? Motor.FreeFallSpeed : Motor.FallSpeed;
+		const float Expected = (MissTop - MissLow) / Speed;
+		AddInfo(FString::Printf(TEXT("%s miss: z %.1f -> %.1f in %.3f s (nominal %.3f s)"), bFreeFall ? TEXT("free-fall") : TEXT("ordinary"), FromZ, F.EllaRoom().Y, Seconds, Expected));
+		TestTrue(FString::Printf(TEXT("%s fall 270->150 within a frame of nominal"), bFreeFall ? TEXT("free-fall") : TEXT("ordinary")), FMath::Abs(Seconds - Expected) <= Dt + KINDA_SMALL_NUMBER);
+		TestTrue(TEXT("falling never rode the onward current"), FMath::Abs(F.EllaRoom().X - Start.X) < 1.0);
+	}
 
-	F.TickPinnedZ(2.0f, Dt);
-	TestTrue(TEXT("Ella is carried past the guard muzzle"), F.EllaRoom().X > F.Room->GetMillTuning().GuardMuzzle.X);
-	TestEqual(TEXT("passing behind started no new warning"), F.Room->GetEventCount(EMillGuardEvent::WarningStarted), 1);
-
-	// Recovery over and the shot gone: a fresh entry from the left is a new pass and the guard warns again.
-	F.TickPinnedZ(3.0f, Dt);
-	TestEqual(TEXT("shot is gone"), F.CountShots(), 0);
-	F.Ella->SetActorLocation(F.Room->RoomToWorld(FVector2D(480.0, 650.0)));
-	F.TickPinnedZ(0.3f, Dt);
-	TestEqual(TEXT("second pass rearms and warns again"), F.Room->GetEventCount(EMillGuardEvent::WarningStarted), 2);
+	// 2. Rescue envelope at minimum lift: reopen at each height, rise at 0.3 x 120 = 36/s back into the onward band.
+	const float FloorContactRoot = T.FloorTop + T.MaxHalfHeight;
+	for (const float ReopenZ : {200.0f, 170.0f, 150.0f, 130.0f})
+	{
+		BrokenMillTest::FMillIntegratedFixture F;
+		if (!TestNotNull(TEXT("fixture"), F.Spawn(Start, true)))
+		{
+			return false;
+		}
+		BrokenMillTest::FMillEllaEventLog Log;
+		Log.Attach(F.Test.GetWorld(), F.Ella->GetFName());
+		const FName Lower = F.Room->GetLowerWind()->GetFName();
+		BrokenMillTest::MillSetLiftByHealth(F.Test.GetWorld(), 0.0f, 0);
+		F.Test.TickFrames(1, Dt);
+		TestTrue(TEXT("Motor at minimum lift"), FMath::IsNearlyEqual(F.Ella->GetMotor()->GetLiftMultiplier(), MinLift, 0.001f));
+		UUmbrellaStateComponent* State = F.Ella->GetUmbrellaState();
+		State->SetRideHeld(true);
+		State->SetAbsorbHeld(true);
+		F.TickUntilRootBelow(ReopenZ, 2.0f, Dt);
+		const float ReopenRoot = F.EllaRoom().Y;
+		State->SetAbsorbHeld(false);
+		float MinRoot = ReopenRoot;
+		float RescuedAt = -1.0f;
+		float SpeedSample = -1.0f;
+		const float MaxRescueSeconds = (T.LowerOnwardZ.X - ReopenRoot) / (Motor.RiseSpeed * MinLift) + 0.5f;
+		for (float Elapsed = 0.0f; Elapsed < MaxRescueSeconds && RescuedAt < 0.0f; Elapsed += Dt)
+		{
+			F.Test.TickFrames(1, Dt);
+			MinRoot = FMath::Min(MinRoot, static_cast<float>(F.EllaRoom().Y));
+			if (SpeedSample < 0.0f && Elapsed >= 1.0f - KINDA_SMALL_NUMBER)
+			{
+				SpeedSample = (F.EllaRoom().Y - ReopenRoot) / (Elapsed + Dt);
+			}
+			if (Log.IsInside(Lower))
+			{
+				RescuedAt = Elapsed + Dt;
+			}
+		}
+		TestTrue(TEXT("no sideways motion before the rescue (no dash, no hop, no assist push)"), FMath::Abs(F.EllaRoom().X - Start.X) < 1.0);
+		const double BandX = F.EllaRoom().X;
+		F.Test.TickSeconds(0.5f, Dt);
+		const double Carried = F.EllaRoom().X - BandX;
+		const float RealHalfHeight = F.Ella->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+		AddInfo(FString::Printf(TEXT("reopen at %.0f: actual root %.1f, lowest %.1f, floor clearance %.1f (GDD half height %.0f) / %.1f (real capsule %.0f), rise %.1f/s, back in onward band after %.2f s, carried %.1f in 0.5 s"),
+			ReopenZ, ReopenRoot, MinRoot, MinRoot - FloorContactRoot, T.MaxHalfHeight, MinRoot - T.FloorTop - RealHalfHeight, RealHalfHeight, SpeedSample, RescuedAt, Carried));
+		TestTrue(TEXT("reopening is immediate (no hidden sink)"), MinRoot >= ReopenRoot - KINDA_SMALL_NUMBER);
+		TestTrue(TEXT("actual reopen within one ordinary-fall frame of the decision height"), ReopenZ - ReopenRoot <= Motor.FallSpeed * Dt + KINDA_SMALL_NUMBER);
+		TestTrue(TEXT("clear of the floor with the GDD hurtbox"), MinRoot >= FloorContactRoot);
+		if (SpeedSample > 0.0f)
+		{
+			TestTrue(TEXT("minimum-lift rise about 36/s"), FMath::IsNearlyEqual(SpeedSample, Motor.RiseSpeed * MinLift, 1.0f));
+		}
+		TestTrue(TEXT("rescued: back in the real onward current"), RescuedAt > 0.0f);
+		TestTrue(TEXT("rescued: the current carries her onward"), Carried > 10.0);
+	}
 	return true;
 }
 

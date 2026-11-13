@@ -1,0 +1,25 @@
+{
+ "id": "OwlBoltLaunch",
+ "records": [
+  {
+   "files": "73723fc0e252471b9bcb7701d174f8d5ad585a0e04ecf2e732c84747b6dd16de",
+   "verdict": "pass",
+   "style_pass": true,
+   "gap": "none",
+   "card": "AUDIO-R2-OwlBoltLaunch",
+   "round": 1,
+   "critic": "critic-OwlBoltLaunch-1794532695-7656",
+   "at": "2026-11-13T01:18Z"
+  },
+  {
+   "files": "73723fc0e252471b9bcb7701d174f8d5ad585a0e04ecf2e732c84747b6dd16de",
+   "verdict": "pass",
+   "style_pass": true,
+   "gap": "none",
+   "card": "AUDIO-R2C-OwlBoltLaunch",
+   "round": 1,
+   "critic": "critic-OwlBoltLaunch-1794533345-31744",
+   "at": "2026-11-13T01:29Z"
+  }
+ ]
+}
