@@ -167,3 +167,42 @@ class CalibrationTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class FitPacket(unittest.TestCase):
+    def test_large_frame_is_cropped_at_full_detail_not_shrunk(self):
+        d = tempfile.mkdtemp()
+        big = os.path.join(d, "enemy.png")
+        w, h = 1792, 2400
+        rows = [[(0, 0, 0, 0)] * w for _ in range(h)]
+        for y in range(900, 1500):
+            for x in range(700, 1000):
+                rows[y][x] = (200, 40, 40, 255)
+        write_png(big, w, h, rows)
+        out = art_loop.fit_packet(big)
+        cw, ch, crop = read_png(out)
+        self.assertLessEqual(max(cw, ch), art_loop.PACKET_MAX)
+        self.assertEqual((cw, ch), (300, 600))   # the subject's box, one source pixel per packet pixel
+        self.assertTrue(all(px == (200, 40, 40, 255) for r in crop for px in r))
+
+    def test_oversize_subject_is_windowed_and_small_images_untouched(self):
+        d = tempfile.mkdtemp()
+        full = os.path.join(d, "full.png")
+        write_png(full, 1792, 2400, [[(9, 9, 9, 255)] * 1792 for _ in range(2400)])
+        cw, ch, _ = read_png(art_loop.fit_packet(full))
+        self.assertEqual((cw, ch), (art_loop.PACKET_MAX, art_loop.PACKET_MAX))
+        small = os.path.join(d, "s.png")
+        write_png(small, 64, 64, gold_burst())
+        self.assertEqual(art_loop.fit_packet(small), small)
+
+    def test_blind_packet_images_are_within_limit(self):
+        d = tempfile.mkdtemp()
+        a, b = os.path.join(d, "a.png"), os.path.join(d, "b.png")
+        write_png(a, 1792, 2400, [[(30, 60, 90, 255)] * 1792 for _ in range(2400)])
+        write_png(b, 32, 32, [[(1, 2, 3, 255)] * 32 for _ in range(32)])
+        import random
+        out = os.path.join(d, "p")
+        art_loop._pair(out, a, b, random.Random(1))
+        for f in ("X.png", "Y.png"):
+            w, h, _ = read_png(os.path.join(out, f))
+            self.assertLessEqual(max(w, h), art_loop.PACKET_MAX)

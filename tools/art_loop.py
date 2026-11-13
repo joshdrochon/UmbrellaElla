@@ -388,6 +388,32 @@ def flatten_on_ground(src):
     return out
 
 
+PACKET_MAX = 1568   # longest edge the critic's image viewer keeps at full detail; larger images are shrunk before it sees them
+
+
+def fit_packet(src, limit=PACKET_MAX):
+    """src itself when its longest edge is within limit; else a full-detail crop (never a resize): the subject's opaque
+    bounding box (a fully opaque image: its centre), cut to at most limit x limit around the box centre. Cached by content.
+    A large frame shown whole is shrunk by the viewer, and the critic then calls the figure a coarse pixel figure."""
+    import tempfile
+    from png import read_png, write_png
+    w, h, rows = read_png(src)
+    if max(w, h) <= limit:
+        return src
+    cache = os.path.join(tempfile.gettempdir(), "art-loop-cache")
+    os.makedirs(cache, exist_ok=True)
+    out = os.path.join(cache, f"fit{limit}-" + content_sha(src)[:16] + ".png")
+    if not os.path.isfile(out):
+        ys = [y for y, r in enumerate(rows) if any(px[3] > 0 for px in r)] or [0, h - 1]
+        xs = [x for r in rows for x, px in enumerate(r) if px[3] > 0] or [0, w - 1]
+        x0, x1, y0, y1 = min(xs), max(xs), min(ys), max(ys)
+        cw, ch = min(x1 - x0 + 1, limit), min(y1 - y0 + 1, limit)
+        x = int(min(max((x0 + x1 + 1 - cw) // 2, 0), w - cw))
+        y = int(min(max((y0 + y1 + 1 - ch) // 2, 0), h - ch))
+        write_png(out, cw, ch, [r[x:x + cw] for r in rows[y:y + ch]])
+    return out
+
+
 def _pair(folder, mine, other, rnd, frame_src=None, frame=None):
     os.makedirs(folder)
     mine_x = rnd.random() < 0.5
@@ -395,11 +421,11 @@ def _pair(folder, mine, other, rnd, frame_src=None, frame=None):
     if frame_src is not None:
         cell = (a if mine_x else b) + ".cell.png"
         frame_of(frame_src, frame, cell)
-        shutil.copy(flatten_on_ground(cell), a if mine_x else b)
+        shutil.copy(fit_packet(flatten_on_ground(cell)), a if mine_x else b)
         os.remove(cell)
     else:
-        shutil.copy(flatten_on_ground(mine), a if mine_x else b)
-    shutil.copy(flatten_on_ground(other), b if mine_x else a)
+        shutil.copy(fit_packet(flatten_on_ground(mine)), a if mine_x else b)
+    shutil.copy(fit_packet(flatten_on_ground(other)), b if mine_x else a)
     return "X" if mine_x else "Y"
 
 
