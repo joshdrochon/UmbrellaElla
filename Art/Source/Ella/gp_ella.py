@@ -464,27 +464,78 @@ def draw_open():
     hand((163, 152), 4.8)
 
 
+def bent_legs(hip_l, knee_l, ankle_l, hip_r, knee_r, ankle_r):
+    for pts3 in ((hip_r, knee_r, ankle_r), (hip_l, knee_l, ankle_l)):
+        pts = catmull(list(pts3), 8)
+        poly = [(x - 8, y) for x, y in pts] + [(x + 8, y) for x, y in pts[::-1]]
+        shape(poly, 0.12, hatch=80, cont=1.4, n_grain=40, lo=(28, 24, 22), mid=(56, 50, 46), hi=(94, 84, 74), spacing=3.0)
+        x, y = pts3[2]
+        boot = catmull([(x - 10, y - 14), (x + 9, y - 14), (x + 11, y + 6), (x + 4, y + 12), (x - 16, y + 12), (x - 12, y + 2)], 5, True)
+        shape(boot, 0.2, light=(-1, -1), hatch=40, cont=1.7, n_grain=40, hi=(120, 104, 86), spacing=2.8)
+        for k in range(3):
+            tapered((x - 8, y - 10 + k * 5), (x + 8, y - 8 + k * 5), 0.9, BONE, opacity=.8)
+
+
+def furled(cx, top, bottom):
+    """Closed umbrella: pleated furled cone, gold collar, ferrule and diamond terminal (reads as a folded umbrella)."""
+    w = 21
+    cone = catmull([(cx - w, top), (cx + w, top), (cx + w * .8, top + (bottom - top) * .45), (cx + w * .35, bottom - 8),
+                    (cx, bottom), (cx - w * .35, bottom - 8), (cx - w * .8, top + (bottom - top) * .45)], 5, True)
+    shape(cone, 0.4, light=(-1, -.4), hatch=84, cont=1.9, n_grain=120, spacing=2.6)
+    for k in range(-3, 4):
+        x0 = cx + k * w / 3.3
+        add(catmull([(x0, top + 2), (cx + (x0 - cx) * .7, (top + bottom) / 2), (cx + (x0 - cx) * .15, bottom - 6)], 6), 0.9, INK, "line")
+        add([(x0 - 1.4, top + 4), (cx + (x0 - cx) * .7 - 1.4, (top + bottom) / 2)], 0.5, LIGHT, "line", opacity=.8)
+    shape([(cx - w - 3, top - 3), (cx + w + 3, top - 3), (cx + w + 2, top + 8), (cx - w - 2, top + 8)], 0.6, hatch=None,
+          cont=1.3, lo=DEEP, mid=(120, 100, 76), hi=(190, 160, 110))
+    terminal((cx, bottom + 14), 0.9)
+
+
 def draw_closed():
-    hair_and_scarf((108, 202), 0.6)
+    """Free fall: Ella crouched over a closed umbrella held upright under her, one hand on the hat."""
+    furled(158, 446, 506)
+    shaft((158, 214), (158, 450), 3.4)
+    hair_and_scarf((108, 202), 0.7)
     body(lean=0)
-    legs()
-    # closed umbrella held low like a cane
-    shaft((166, 150), (176, 440), 4.0)
-    umbrella(176, 176, 0.32, tilt=170, open_=0.18)
-    arm((130, 212), (160, 300))
-    hand((166, 304))
+    bent_legs((108, 380), (150, 396), (142, 438), (136, 384), (178, 402), (172, 438))
     hat((108, 192), -6)
+    shaft((158, 214), (158, 300), 3.4)
+    arm((130, 212), (156, 296))
+    hand((158, 300))
+    arm((126, 212), (108, 176), 10)
+    hand((104, 170))
+    terminal((158, 208), 0.7)
 
 
 def draw_attack():
+    """ATTACK_DESCENT: umbrella level like a lance in both hands, canopy open behind (left), spell leaving the canopy."""
+    pivot = (160.0, 140.0)
+    T = umbrella(-36, 214, 0.95, tilt=-90, open_=0.8)
+    # spell leaving the canopy: a gold streaked bolt forward of the shaft tip
+    tip = 330
+    shaft((-44, 214), (tip, 214), 2.8)
+    terminal((tip + 8, 214), 0.8)
+    for k, dy in enumerate((-9, 0, 9)):
+        tapered((tip + 22, 214 + dy), (tip + 70 - abs(dy) * 2, 214 + dy * 1.6), 2.6 - abs(dy) * .1, (233, 196, 106), opacity=.95)
+    glow = catmull([(tip + 20, 205), (tip + 54, 200), (tip + 78, 214), (tip + 54, 228), (tip + 20, 223)], 5, True)
+    shape(glow, 0.9, hatch=None, cont=1.2, lo=(150, 110, 50), mid=(226, 186, 96), hi=(250, 226, 150))
+    LEAN[0] = -22.0
     hair_and_scarf((108, 202))
     body(lean=2)
     legs()
-    T = umbrella(244, 200, 0.7, tilt=-80)
-    shaft((130, 234), (210, 206), 2.6)
-    arm((130, 212), (190, 214))
-    hand((196, 212))
-    hat((108, 192))
+    hat((108, 192), -6)
+    LEAN[0] = 0.0
+    sh = lean_pt_at((130, 214), -22.0, pivot)
+    arm((sh[0] + 4, sh[1]), (178, 214), 11)
+    hand((184, 214))
+    arm((sh[0] - 4, sh[1] + 6), (238, 212), 10)
+    hand((240, 212), 5.2)
+
+
+def lean_pt_at(q, deg, pivot):
+    a = math.radians(deg)
+    x, y = q[0] - pivot[0], q[1] - pivot[1]
+    return (pivot[0] + x * math.cos(a) + y * math.sin(a), pivot[1] - x * math.sin(a) + y * math.cos(a))
 
 
 def draw_shield():
