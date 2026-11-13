@@ -189,6 +189,12 @@ int32 FFlowRules::StoryPageAt(float Elapsed, float PageSeconds, int32 PageCount)
 	return Page < PageCount ? Page : INDEX_NONE;
 }
 
+FName FFlowRules::MusicFor(EFlowScreen Screen)
+{
+	// Sound list: MusicTitle is the Start and End music (one track, the same slow background on both screens).
+	return Screen == EFlowScreen::Title || Screen == EFlowScreen::Credits ? FName(TEXT("MusicTitle")) : NAME_None;
+}
+
 bool FFlowRules::IsTimelineDone(float Elapsed, float Duration)
 {
 	return Elapsed >= Duration;
