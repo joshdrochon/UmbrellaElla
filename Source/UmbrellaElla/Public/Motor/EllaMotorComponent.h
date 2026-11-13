@@ -1,7 +1,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Motor/MotorTuning.h"
 #include "Components/ActorComponent.h"
 #include "Motor/MotorModel.h"
 #include "Umbrella/UmbrellaAction.h"
@@ -11,6 +10,7 @@ class UEnhancedInputComponent;
 class UUmbrellaStateComponent;
 class UUmbrellaEventBus;
 struct FUmbrellaEvent;
+struct FMotorTuning;
 
 /**
  * Player Motor: the only writer of Ella's velocity and position. Reads the action from the Umbrella State, requests

@@ -8,6 +8,7 @@
 #include "Engine/World.h"
 #include "Harness/UmbrellaFeatureFlags.h"
 #include "Motor/HeroSizeRules.h"
+#include "Motor/MotorTuning.h"
 #include "Projectile/UmbrellaProjectile.h"
 #include "Umbrella/UmbrellaAction.h"
 #include "Umbrella/UmbrellaPlayerIds.h"

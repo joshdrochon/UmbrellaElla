@@ -3,7 +3,6 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Attack/SpellRules.h"
-#include "Motor/MotorTuning.h"
 #include "Core/UmbrellaPlayMode.h"
 #include "Projectile/UmbrellaShotSpec.h"
 #include "AttackEmitterComponent.generated.h"
@@ -12,6 +11,7 @@ class UEnhancedInputComponent;
 class UUmbrellaStateComponent;
 class AStreamBeamActor;
 struct FAttackTuning;
+struct FMotorTuning;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnEquippedSpellChanged, EUmbrellaSpell);
 
