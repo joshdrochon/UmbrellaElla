@@ -7,7 +7,7 @@ Menus are plain UMG `UUserWidget`s. No CommonUI plugin (D-new-umg): a few small 
 
 Words: every string comes from the Story role's `pipeline/story/lines.csv` (same id as the `ST_UI.csv` key); `python3 tools/story_check.py --table Content/UmbrellaElla/UI/ST_UI.csv` and `--scan` print PASS.
 
-Screens: title (Start Game, Start Director's Cut; FLOW-34) → tutorial (first start, Pause then Skip; FLOW-03) → play → pause (Continue, Settings, Quit; FLOW-35) → settings (Sound, Controller, Credits; Game Options in Director's Cut only) → win ending and credits (FLOW-04) → statistics (Director's Cut, FLOW-49) → fail card → restart → quit.
+Screens: title (Start Game, Director's Cut; FLOW-34) → tutorial (first start, Pause then Skip; FLOW-03) → play → pause (Continue, Settings, Quit; FLOW-35) → settings (Sound, Controller, Credits; Game Options in Director's Cut only) → win ending and credits (FLOW-04) → statistics (Director's Cut, FLOW-49) → fail card → restart → quit.
 
 1. Title: Play has focus when the screen opens. One press of Confirm starts the encounter (`play-presses 1`).
 2. Focus wraps top to bottom and bottom to top on the title, pause and settings screens. Set the first and last button's Navigation to Wrap. [VERIFY UMG Wrap navigation rule on 5.8.4]

@@ -269,3 +269,29 @@ class ReferenceAssignments(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class PacketGroundFlattens(unittest.TestCase):
+    """Critic packets show every image on one paper ground (Nov 12 critic defect: transparent sprites shown on black)."""
+
+    def setUp(self):
+        import tempfile
+        self.d = tempfile.mkdtemp()
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "tools"))
+
+    def test_opaque_png_is_returned_unchanged(self):
+        import art_loop
+        from png import write_png
+        f = os.path.join(self.d, "opaque.png")
+        write_png(f, 1, 1, [[(1, 2, 3, 255)]])
+        self.assertEqual(art_loop.flatten_on_ground(f), f)
+
+    def test_transparent_png_is_composited_onto_the_ground(self):
+        import art_loop
+        from png import read_png, write_png
+        f = os.path.join(self.d, "clear.png")
+        write_png(f, 2, 1, [[(0, 0, 0, 0), (10, 20, 30, 255)]])
+        _, _, rows = read_png(art_loop.flatten_on_ground(f))
+        self.assertEqual(rows[0][0], art_loop.PACKET_GROUND + (255,))
+        self.assertEqual(rows[0][1], (10, 20, 30, 255))
+        self.assertTrue(all(px[3] == 255 for px in rows[0]))

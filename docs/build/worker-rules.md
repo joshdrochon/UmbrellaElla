@@ -35,6 +35,8 @@ exactly one area, lanes disjoint).
      (flow), `UI/UmbrellaHUD` (health). Fill in your own; call others only through their public functions and events.
 
 ## Hard rules
+- Never write an absolute home path (`/Users/...`, `~/...` beyond `~/.umbrella-ella.env`) into a repo file; use paths
+  relative to the repo or `../UmbrellaElla-areas/...`. `python3 tools/pipeline_check.py` (in every gate) rejects them.
 - Unity builds merge many `.cpp` files into one: never put generic names (`Step`, `Count`, `Tolerance`) at file scope
   or in an anonymous namespace; prefix them with your area (`KeeperTestStep`), or `-Wshadow` breaks another area's build.
 - Stay in your file lane (your area file lists it). Never edit another lane's files, `Core/`, `Harness/`, the

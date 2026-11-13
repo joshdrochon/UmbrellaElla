@@ -137,4 +137,8 @@ struct UMBRELLAELLA_API FFlowTuning
 	/** Gap under the purchase screen's Done button (pixels; no GDD value, layout only). */
 	UPROPERTY(Config, EditAnywhere, meta = (ClampMin = "0.0"))
 	float PurchaseDoneBottomMargin = 32.0f;
+
+	/** Seed of the Director's Cut route (no GDD value; a fixed seed keeps retries on the same route). */
+	UPROPERTY(Config, EditAnywhere)
+	int32 DirectorsCutRouteSeed = 1;
 };
