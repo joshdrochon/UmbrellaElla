@@ -2098,7 +2098,7 @@ FAL_QUEUE = "https://queue.fal.run/"
 FAL_API = "https://api.fal.ai/v1/"
 FAL_PRICE_FALLBACK = 0.15       # USD per second, used only when the live price cannot be read
 FAL_VIDEO_SECONDS = 4           # fal's shortest Veo 3.1 clip (4s, 6s, 8s); the trial uses its first ~2 s
-FAL_VIDEO_PIECE_CAP_USD = 1.00  # per-piece cap of a video piece, inside the shared IMAGE_SPEND_CAP_USD counter
+FAL_VIDEO_PIECE_CAP_USD = 1.00  # per-piece cap of a video piece, inside the fal cap (FAL_SPEND_CAP_USD) of the shared counter
 FAL_POLL_SECONDS = 5
 FAL_POLL_TRIES = 120
 FAL_INFO = {"name": "fal.ai (Google Veo 3.1 Fast, image-to-video)",
@@ -2216,7 +2216,7 @@ def cmd_video_model(a, argv, root):
     write_provenance(root, a.out, "fal-video", prompt, FAL_VIDEO_MODEL, inputs=[a.input], origin="generated in jam",
                      info=FAL_INFO, seed=seed,
                      note=f"video model fal {FAL_VIDEO_MODEL}, {FAL_VIDEO_SECONDS} s, audio off; ${cost:.3f} counted against the "
-                          f"shared image cap; full request in {rel(req, root)}")
+                          f"fal image cap; full request in {rel(req, root)}")
     log_image_prompt(root, prompt, "fal", FAL_VIDEO_MODEL, a.out, cost)
     print(f"VIDEO {rel(a.out, root)} via=fal model={FAL_VIDEO_MODEL} {len(data)} bytes seed={seed} cost=${cost:.3f} "
           f"spent=${spent:.3f} of ${cap:.2f}")
