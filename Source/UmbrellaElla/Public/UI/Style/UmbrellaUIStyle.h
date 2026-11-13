@@ -13,6 +13,10 @@ namespace UmbrellaUIStyleConstants
 {
 	/** Smallest text size any screen may use (accessibility U1: 18 px at 1080p). */
 	static constexpr int32 MinTextSize = 18;
+	/** Menu control hint: inset from the bottom-right corner, and the gap between the Confirm and Back hints. */
+	static constexpr float PromptInsetX = 64.0f;
+	static constexpr float PromptInsetY = 44.0f;
+	static constexpr float PromptGap = 40.0f;
 
 	static constexpr FColor Cream = FColor(233, 220, 195);
 	static constexpr FColor Dim = FColor(168, 156, 136);
