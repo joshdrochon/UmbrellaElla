@@ -26,7 +26,7 @@ public:
 	explicit FUmbrellaSoundLabelHud(TSharedRef<FUmbrellaSoundLabelBoard> InBoard);
 	~FUmbrellaSoundLabelHud();
 
-	/** Starts the per-frame tick (needs to be owned by a TSharedPtr) (ages the lines) and keeps trying to Connect until the world has a local player. */
+	/** Starts the per-frame tick (needs to be owned by a TSharedPtr; ages the lines, not while the game is paused) and keeps trying to Connect until the world has a local player. */
 	void Arm(UWorld* World);
 	/** Maps F9 and adds the list to the viewport; does nothing without a local player controller (IsAttached says). */
 	void Connect(UWorld* World);

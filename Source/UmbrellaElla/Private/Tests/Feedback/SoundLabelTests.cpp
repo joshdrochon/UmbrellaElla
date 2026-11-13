@@ -97,6 +97,20 @@ bool FSoundLabelHudKey::RunTest(const FString& Parameters)
 	return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FSoundLabelViewOrigin, "UmbrellaElla.SoundLabel.ListSitsInsideThe16By9View",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+
+bool FSoundLabelViewOrigin::RunTest(const FString& Parameters)
+{
+	const FVector2D Exact = UmbrellaSoundLabel::ViewOrigin(FVector2D(1920.0, 1080.0));
+	TestEqual(TEXT("16:9 viewport, no offset"), Exact.X + Exact.Y, 0.0, 0.01);
+	TestTrue(TEXT("viewport wider than 16:9: bars at the sides"), UmbrellaSoundLabel::ViewOrigin(FVector2D(2000.0, 900.0)).X > 0.0);
+	TestEqual(TEXT("side bar is half the spare width"), UmbrellaSoundLabel::ViewOrigin(FVector2D(2000.0, 900.0)).X, (2000.0 - 1600.0) * 0.5, 0.01);
+	TestEqual(TEXT("tall viewport: bar at the top"), UmbrellaSoundLabel::ViewOrigin(FVector2D(1600.0, 1000.0)).Y, (1000.0 - 900.0) * 0.5, 0.01);
+	TestEqual(TEXT("empty viewport"), UmbrellaSoundLabel::ViewOrigin(FVector2D::ZeroVector).X, 0.0, 0.01);
+	return true;
+}
+
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FSoundLabelCuePlay, "UmbrellaElla.SoundLabel.World.PlayingACueAddsALabelAndALogLine",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
 

@@ -10,7 +10,6 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Feedback/Audio/SoundLabelBoard.h"
-#include "Framework/Application/SlateApplication.h"
 #include "GameFramework/PlayerController.h"
 #include "InputAction.h"
 #include "InputMappingContext.h"
@@ -48,7 +47,16 @@ namespace
 			}
 			ChildSlot
 			.HAlign(HAlign_Left).VAlign(VAlign_Top)
-			.Padding(UmbrellaSoundLabel::ScreenPaddingPixels)
+			.Padding(TAttribute<FMargin>::CreateLambda([]()
+			{
+				FVector2D Size = FVector2D::ZeroVector;
+				if (GEngine && GEngine->GameViewport)
+				{
+					GEngine->GameViewport->GetViewportSize(Size);
+				}
+				const FVector2D Origin = UmbrellaSoundLabel::ViewOrigin(Size);
+				return FMargin(Origin.X + UmbrellaSoundLabel::ScreenPaddingPixels, Origin.Y + UmbrellaSoundLabel::ScreenPaddingPixels, 0.0f, 0.0f);
+			}))
 			[
 				Rows
 			];
@@ -108,7 +116,11 @@ void FUmbrellaSoundLabelHud::Arm(UWorld* World)
 
 void FUmbrellaSoundLabelHud::OnFrame(float DeltaSeconds)
 {
-	Board->Advance(DeltaSeconds);
+	UWorld* World = AttachedWorld.Get();
+	if (World == nullptr || !World->IsPaused())
+	{
+		Board->Advance(DeltaSeconds);
+	}
 	if (!bConnected && AttachedWorld.IsValid())
 	{
 		Connect(AttachedWorld.Get());

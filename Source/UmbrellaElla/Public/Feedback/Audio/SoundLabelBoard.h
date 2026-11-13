@@ -20,6 +20,23 @@ namespace UmbrellaSoundLabel
 	inline constexpr int32 ViewportZOrder = 900;
 	/** Mapping priority; the key is not consumed, so it never blocks gameplay input. */
 	inline constexpr int32 ContextPriority = 100;
+	/** The play view is 16:9 (ArenaCameraTuning CameraAspectRatio); the list sits inside it, not in the letterbox bars. */
+	inline constexpr float ViewAspect = 16.0f / 9.0f;
+
+	/** Top-left corner of the centred 16:9 view inside a viewport of this size (zero when the viewport is not larger). */
+	inline FVector2D ViewOrigin(const FVector2D& ViewportSize)
+	{
+		if (ViewportSize.X <= 0.0 || ViewportSize.Y <= 0.0)
+		{
+			return FVector2D::ZeroVector;
+		}
+		const double Wide = ViewportSize.Y * ViewAspect;
+		if (Wide <= ViewportSize.X)
+		{
+			return FVector2D((ViewportSize.X - Wide) * 0.5, 0.0);
+		}
+		return FVector2D(0.0, (ViewportSize.Y - ViewportSize.X / ViewAspect) * 0.5);
+	}
 }
 
 /** One played sound: what the label list shows and the game log prints. */

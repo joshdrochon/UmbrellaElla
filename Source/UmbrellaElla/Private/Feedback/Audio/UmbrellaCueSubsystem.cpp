@@ -8,8 +8,8 @@
 #include "Core/UmbrellaEventBus.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundBase.h"
-#include "Misc/ScopeExit.h"
 #include "Components/AudioComponent.h"
+#include "Misc/ScopeExit.h"
 #if UMBRELLAELLA_WORKBENCH
 #include "Feedback/Audio/SoundLabelBoard.h"
 #include "Feedback/Audio/SoundLabelHud.h"
