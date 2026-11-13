@@ -1,4 +1,4 @@
-> Generated from `pipeline/unreal/commands-and-packaging.md`, `.github/workflows/pipeline-checks.yml`, `.github/CODEOWNERS.example`, `tools/pipeline_check.py`, `tools/module_check.py`, `tools/ue_run.py`, `tools/ue/common.ps1`, `tools/ue/common.sh`, `tools/ue/build.ps1`, `tools/ue/build.sh`, `tools/ue/validate.ps1`, `tools/ue/validate.sh`, `tools/export_package.py` at `a11903f` — edit the sources, not this file.
+> Generated from `pipeline/unreal/commands-and-packaging.md`, `.github/workflows/pipeline-checks.yml`, `.github/CODEOWNERS.example`, `tools/pipeline_check.py`, `tools/affected_tests.py`, `tools/module_check.py`, `tools/ue_run.py`, `tools/ue/common.ps1`, `tools/ue/common.sh`, `tools/ue/build.ps1`, `tools/ue/build.sh`, `tools/ue/validate.ps1`, `tools/ue/validate.sh`, `tools/export_package.py` at `b201a66` — edit the sources, not this file.
 > Rebuild: `python3 tools/export_package.py`. Check: `python3 tools/export_package.py --check`.
 
 # Technical Development Pipeline
@@ -17,7 +17,7 @@ A readable copy for people. Agents load these rules from the repo paths listed b
 
 - Commands and packaging: `pipeline/unreal/commands-and-packaging.md`
 - CI and repo settings: `.github/workflows/pipeline-checks.yml`, `.github/CODEOWNERS.example`
-- Commands and checks: `tools/pipeline_check.py`, `tools/module_check.py`, `tools/ue_run.py`, `tools/ue/common.ps1`, `tools/ue/common.sh`, `tools/ue/build.ps1`, `tools/ue/build.sh`, `tools/ue/validate.ps1`, `tools/ue/validate.sh`, `tools/export_package.py`
+- Commands and checks: `tools/pipeline_check.py`, `tools/affected_tests.py`, `tools/module_check.py`, `tools/ue_run.py`, `tools/ue/common.ps1`, `tools/ue/common.sh`, `tools/ue/build.ps1`, `tools/ue/build.sh`, `tools/ue/validate.ps1`, `tools/ue/validate.sh`, `tools/export_package.py`
 
 ## Commands and packaging
 
@@ -71,13 +71,19 @@ permissions:
 # CI profile (pipeline/agent-ops/README.md "CI profile"): a committed .pipeline-ci-full at the root turns on the long
 # pipeline suites (the Linux unit tests, the windows job). The installer never ships it, so a game repo runs the fast
 # game checks only; the pipeline source repo and the pipeline test repo keep it.
+# Build mode: docs/build/MODE says `direct` (or there is no MODE file and HANDOFF.md exists) when the team builds
+# directly: a build lead merges area/* branches into main after the local gate (tools/build/gate.sh) and pushes. Then
+# the card-only work is skipped (card readiness, PR body, the LFS art pulls for the PR ship gate) and so are the checks
+# the local gate judges against main instead of absolutely (ui_check ci, bake_preset, the audio WAV scans): an
+# unfinished game fails them by design. The fast checks keep running, so a red main still means something broke.
+# The Unreal build never runs on GitHub runners; the local gate builds and tests it.
 jobs:
   profile:
-    if: github.event_name != 'issues'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
       full: ${{ steps.marker.outputs.full }}
+      direct: ${{ steps.mode.outputs.direct }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -88,9 +94,17 @@ jobs:
           if [ -f .pipeline-ci-full ]; then full=true; else full=false; fi
           echo "CI profile: full=$full"
           echo "full=$full" >> "${GITHUB_OUTPUT:-/dev/null}"
+      - name: Build mode from docs/build/MODE (direct = local build lead merges, no cards or PRs)
+        id: mode
+        run: |
+          if [ -f docs/build/MODE ]; then mode=$(tr -d '[:space:]' < docs/build/MODE); elif [ -f HANDOFF.md ]; then mode=direct; else mode=cards; fi
+          if [ "$mode" = direct ]; then direct=true; else direct=false; fi
+          echo "build mode: $mode (direct=$direct)"
+          echo "direct=$direct" >> "${GITHUB_OUTPUT:-/dev/null}"
   card:
     # Card readiness when a card is filed or edited, not only when its PR opens (AGENTS.md section 8).
-    if: github.event_name == 'issues' && contains(github.event.issue.labels.*.name, 'task')
+    needs: profile
+    if: github.event_name == 'issues' && contains(github.event.issue.labels.*.name, 'task') && needs.profile.outputs.direct != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -108,27 +122,33 @@ jobs:
     if: ${{ !cancelled() && github.event_name != 'issues' }}
     runs-on: ubuntu-latest
     timeout-minutes: ${{ needs.profile.outputs.full == 'true' && 180 || 20 }}   # full: the unit tests take about 100 min
+    env:
+      DIRECT: ${{ needs.profile.outputs.direct }}   # 'true': direct local build, the card-only steps below skip
     steps:
       - uses: actions/checkout@v4
         with:
           lfs: false   # pointers are enough for these checks; saves LFS bandwidth
+          fetch-depth: 0   # check_pr rule gate reads the PR's commits (base..head) for kickoff's gate-commit trailer
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
       - name: Repo guardrails and the cross-doc consistency gate (decision IDs, card IDs, paths, owners, Day-0 cycles)
         run: python3 tools/pipeline_check.py
       - name: List the LFS art the ship gate re-measures (references, team art, the GDD's images)
+        if: env.DIRECT != 'true'
         id: lfsart
         run: |
           git lfs ls-files -l -I 'pipeline/art/reference/**,Assets/**,Mockups/**,docs/gdd/**' | sort > "$RUNNER_TEMP/lfs-art.txt"
           echo "key=$(python3 -c 'import hashlib,sys; print(hashlib.sha256(open(sys.argv[1],"rb").read()).hexdigest()[:16])' "$RUNNER_TEMP/lfs-art.txt")" >> "${GITHUB_OUTPUT:-/dev/null}"
       - name: Restore the LFS art cache (bandwidth is spent only when the art set changes)
+        if: env.DIRECT != 'true'
         uses: actions/cache@v4
         with:
           path: .git/lfs/objects
           key: lfs-art-${{ runner.os }}-${{ steps.lfsart.outputs.key }}
           restore-keys: lfs-art-${{ runner.os }}-
       - name: Pull the art the ship gate re-measures (check_pr artship re-runs the art checks on every shipped image against these; the art calibration and ship-gate unit tests read them too)
+        if: env.DIRECT != 'true'
         run: git lfs pull --include='pipeline/art/reference/**,Assets/**,Mockups/**,docs/gdd/**'
       - name: Pull the key art from LFS so the art calibration test runs (it skips on a pointer; full CI profile only)
         if: hashFiles('.pipeline-ci-full') != ''
@@ -141,7 +161,7 @@ jobs:
           BASE: ${{ github.event.pull_request.base.sha }}
         run: |
           if [ -n "$BASE" ]; then
-            git fetch --no-tags --depth=1 origin "$BASE"
+            git cat-file -e "$BASE^{commit}" 2>/dev/null || git fetch --no-tags origin "$BASE"   # no --depth: a shallow mark would cut base..head
             # merged GDD snapshots never change: every pin on the base branch is still the same (dry run B H9)
             git show "$BASE:docs/feature-manifest.json" > "$RUNNER_TEMP/base-manifest.json"
             python3 tools/manifest_check.py --pins-from "$RUNNER_TEMP/base-manifest.json"
@@ -158,7 +178,7 @@ jobs:
         env:
           BASE: ${{ github.event.pull_request.base.sha }}
         run: |
-          git fetch --no-tags --depth=1 origin "$BASE"
+          git cat-file -e "$BASE^{commit}" 2>/dev/null || git fetch --no-tags origin "$BASE"   # no --depth: a shallow mark would cut base..head
           inc=$(git diff --name-only "$BASE" HEAD -- 'Art/**/*.png' | paste -sd, -)
           if [ -n "$inc" ]; then git lfs pull --include="$inc"; fi
       - name: Sprite sheets with a .sprite.json sidecar (skips LFS pointers and a missing Art/; the TD human adds --require-dir on card 0.10b)
@@ -171,14 +191,19 @@ jobs:
       - name: Owl encounter data (Level Designer)
         run: python3 tools/encounter_check.py
       - name: UI inputs that exist yet (UI and UX; skips inputs not created)
+        if: env.DIRECT != 'true'
         run: python3 tools/ui_check.py ci
       - name: Feel data limits (Game Designer)
         run: python3 tools/feel_check.py
       - name: Shipped defaults equal the baked preset; before the G4 bake, every C++ default follows the tuning rules
+        if: env.DIRECT != 'true'
         run: |
           if [ -f pipeline/qa/baked.json ]; then python3 tools/bake_preset.py check; else python3 tools/bake_preset.py defaults; fi
       - name: Submission duties and the deadline guard stay wired (Producer; dry run B M2)
         run: python3 tools/submission_check.py wiring
+      - name: No undeclared game commits before the jam start (direct build; tools/build/gate.sh runs it on every merge)
+        if: env.DIRECT == 'true'
+        run: python3 tools/submission_check.py prejam
       - name: Official Rules (docs/rules) - jam rules cite them, deadline = section 4, pre-jam assets (7(h)), English (7(i))
         run: |
           python3 tools/submission_check.py rules
@@ -207,21 +232,23 @@ jobs:
           python3 tools/story_check.py --calibrate
           if [ -f Content/UmbrellaElla/UI/ST_UI.csv ]; then python3 tools/story_check.py --scan Content/UmbrellaElla/UI/ST_UI.csv pipeline/submission/itch-page.md; else python3 tools/story_check.py --scan pipeline/submission/itch-page.md; fi
       - name: Audio source WAVs (skips LFS pointers and a missing Audio/Source; add --require-dir once card 0.15 or the first audio card merges)
+        if: env.DIRECT != 'true'
         run: python3 tools/audio_check.py --scan Audio/Source
       - name: Audio quality bar, measured (pipeline/audio/style-target.md; skips LFS pointers and a missing Audio/Source)
+        if: env.DIRECT != 'true'
         run: python3 tools/audio_style_check.py check Audio/Source
       - name: PR body has task, evidence header, package evidence where paths or the linked card need it, linked risks
-        if: github.event_name == 'pull_request'
+        if: (github.event_name == 'pull_request') && env.DIRECT != 'true'
         env:
           BASE: ${{ github.event.pull_request.base.sha }}
           GH_TOKEN: ${{ github.token }}
         run: |
-          git fetch --no-tags --depth=1 origin "$BASE"
+          git cat-file -e "$BASE^{commit}" 2>/dev/null || git fetch --no-tags origin "$BASE"   # no --depth: a shallow mark would cut base..head
           git diff --name-only "$BASE" HEAD > "$RUNNER_TEMP/changed.txt"
           n=$(python3 -c "import json,os,re; b=json.load(open(os.environ['GITHUB_EVENT_PATH']))['pull_request'].get('body') or ''; m=re.search(r'(?i)\b(?:Closes|Fixes|Resolves|Part of)\s+#(\d+)', b); print(m.group(1) if m else '')")
           # a lane_guard revert PR names the commit it reverts; check_pr compares the diff with its inverse (final-10 A H3)
           rv=$(python3 -c "import json,os,re; b=json.load(open(os.environ['GITHUB_EVENT_PATH']))['pull_request'].get('body') or ''; m=re.search(r'(?m)^[ \t]*Revert of: ([0-9a-f]{40})', b); print(m.group(1) if m else '')")
-          if [ -n "$rv" ]; then git fetch --no-tags --depth=2 origin "$rv"; fi
+          if [ -n "$rv" ]; then git cat-file -e "$rv^{commit}" 2>/dev/null || git fetch --no-tags origin "$rv"; fi
           if [ -n "$n" ]; then
             # the card's own Done-when decides package evidence too, not only the PR's copy (dry run A H4)
             gh issue view "$n" --repo "$GITHUB_REPOSITORY" --json title,body > "$RUNNER_TEMP/card.json"
@@ -230,7 +257,7 @@ jobs:
             python3 tools/check_pr.py --changed "$RUNNER_TEMP/changed.txt" --base "$BASE"
           fi
       - name: Linked task card is ready (Producer)
-        if: github.event_name == 'pull_request'
+        if: (github.event_name == 'pull_request') && env.DIRECT != 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -242,7 +269,7 @@ jobs:
     # Linux job, plus one headless Blender render. Suites that drive the Mac tools/ue/*.sh scripts skip on Windows.
     # Full CI profile only (.pipeline-ci-full): Windows minutes count double on the game repo's plan.
     needs: profile
-    if: github.event_name != 'issues' && needs.profile.outputs.full == 'true'
+    if: github.event_name != 'issues' && needs.profile.outputs.full == 'true' && needs.profile.outputs.direct != 'true'
     runs-on: windows-latest
     timeout-minutes: 300   # the Linux suite takes about 100 min; Windows starts processes and git more slowly
     env:
@@ -362,7 +389,8 @@ Checks (each one exists because of a finding in docs/audit.md):
   repomap     docs/repo-map.md (tools/repo_map.py): a pipeline folder the installer ships is missing from it, or its
               "Pipeline folders" section names a path that does not exist. Team folders never fail it; skipped while
               the map is absent
-  package     MegaPipeline/ is stale, hand-edited, or a repo doc lands in no package file (tools/export_package.py --check;
+  package     MegaPipeline/ is stale, hand-edited, or a repo doc lands in no package file (pipeline repos only, not an
+              installed game repo; tools/export_package.py --check;
               skipped while MegaPipeline/ is absent)
 Also prints the total size of LFS-tracked files (from the pointers; nothing is downloaded).
 
@@ -376,7 +404,47 @@ Run in CI by:
 - `.github/workflows/pipeline-checks.yml`: Repo guardrails and the cross-doc consistency gate (decision IDs, card IDs, paths, owners, Day-0 cycles)
 - `.github/workflows/pipeline-checks.yml`: Repo guardrails and the cross-doc consistency gate
 
-Tests: `tests/test_agent_ops_hook.py`, `tests/test_export_package.py`, `tests/test_honest_jam.py`, `tests/test_lane_guard.py`, `tests/test_pipeline_check.py`, `tests/test_practice.py`, `tests/test_repo_map.py`
+Tests: `tests/test_affected_tests.py`, `tests/test_agent_ops_hook.py`, `tests/test_export_package.py`, `tests/test_honest_jam.py`, `tests/test_lane_guard.py`, `tests/test_pipeline_check.py`, `tests/test_practice.py`, `tests/test_repo_map.py`
+
+### `tools/affected_tests.py`
+
+Usage text from the file:
+
+```text
+Pick the pipeline unit tests a change needs, inside a time budget. Stdlib only.
+
+Card sessions (builder and reviewer) run this, never `unittest discover`: the full suite runs in the pipeline repos'
+CI (.pipeline-ci-full). A selection aims at BUDGET seconds of test time (5 min, measured in tests/timings.json). The
+budget picks tests; it never fails a run: a run over it prints one WARNING line and carries on.
+
+How a changed path maps to test modules, nearest first:
+  0  the test file itself; tests/test_<name>.py for tools/<name>.py; the docs tests (DOC_TESTS) for a doc
+  1  a test that imports the changed tool or test helper, or names its path (`tools/kickoff.py`)
+  2  a test that names a changed doc's path (`docs/decisions.md`), or a changed tool's file name (`kickoff.py`)
+  3  a test that names only a doc's file name (`"decisions.md"`, often a sandbox copy list) or its folder
+     (`pipeline/roles`), or imports a tool which imports the changed tool
+Nearest first, then cheapest first, whole modules fill the budget. A module too slow to fit runs only its classes
+that name the change, cheapest first, while they fit; the rest is listed as left for CI with its time.
+Game files (Source/, Content/, Config/, ...) map to no Python test. A Source/ change maps to Unreal automation test
+prefixes instead, printed as a `tools/ue/test.sh` line (never run here; the card's Unreal steps run it):
+  Source/<Module>/{Public,Private}/<Area>/...   UmbrellaElla.<Area> (when a test has that name) plus the prefixes of
+                                                every test file under Private/Tests/ that includes the changed header
+  Source/<Module>/Private/Tests/<Area>/x.cpp    the prefixes of the test names in that file
+  a test helper header (Tests/Shared/x.h)       the prefixes of the test files that include it
+  *.Build.cs, *.Target.cs, a module's own file, or nothing found: the whole set, UmbrellaElla
+
+Usage: python3 tools/affected_tests.py [FILE ...]          print the selection and the command (default files:
+                                                            git diff origin/main...HEAD plus uncommitted changes)
+       python3 tools/affected_tests.py --run [FILE ...]    run it, one unittest process per target, and print the time
+       python3 tools/affected_tests.py --base REF          diff against REF instead of origin/main
+       python3 tools/affected_tests.py --budget SECONDS    another budget (default 300)
+       python3 tools/affected_tests.py --measure           time every module and class into tests/timings.json
+                                                            (the full suite: pipeline repos only, never a card session)
+       python3 tools/affected_tests.py --measure tests/test_x.py   time only that module (a new one) into the file
+Exit 0 = nothing failed (time never fails), 1 = a selected test failed, 2 = usage error.
+```
+
+Tests: `tests/test__card_session_guard.py`, `tests/test_affected_tests.py`
 
 ### `tools/module_check.py`
 
@@ -732,7 +800,7 @@ Usage text from the file:
 Compile the editor target on Windows. -NonUnity runs the stricter non-merged build.
 ```
 
-Tests: `tests/test_agent_ops_hook.py`, `tests/test_check_pr.py`, `tests/test_day0_cards.py`, `tests/test_final10_fixes.py`, `tests/test_final9_fixes.py`, `tests/test_kickoff.py`, `tests/test_kickoff_unattended.py`, `tests/test_score_review.py`, `tests/test_ue_scripts.py`, `tests/test_ui_check.py`
+Tests: `tests/kickoff_sandbox.py`, `tests/test_agent_ops_hook.py`, `tests/test_area.py`, `tests/test_check_pr.py`, `tests/test_day0_cards.py`, `tests/test_final10_fixes.py`, `tests/test_final9_fixes.py`, `tests/test_honest_jam.py`, `tests/test_kickoff.py`, `tests/test_kickoff_unattended.py`, `tests/test_score_review.py`, `tests/test_ue_scripts.py`, `tests/test_ui_check.py`
 
 ### `tools/ue/build.sh`
 
@@ -742,7 +810,7 @@ Usage text from the file:
 Compile the editor target on Mac. Fails on compile errors; prints the warning count. NONUNITY=1 = strict build.
 ```
 
-Tests: `tests/test_agent_ops_hook.py`, `tests/test_check_card.py`, `tests/test_check_pr.py`, `tests/test_day0_cards.py`, `tests/test_final10_fixes.py`, `tests/test_final9_fixes.py`, `tests/test_honest_jam.py`, `tests/test_journal.py`, `tests/test_kickoff.py`, `tests/test_kickoff_unattended.py`, `tests/test_score_review.py`, `tests/test_ue_scripts.py`, `tests/test_ui_check.py`
+Tests: `tests/kickoff_sandbox.py`, `tests/test_affected_tests.py`, `tests/test_agent_ops_hook.py`, `tests/test_area.py`, `tests/test_check_card.py`, `tests/test_check_pr.py`, `tests/test_day0_cards.py`, `tests/test_final10_fixes.py`, `tests/test_final9_fixes.py`, `tests/test_honest_jam.py`, `tests/test_journal.py`, `tests/test_kickoff.py`, `tests/test_kickoff_unattended.py`, `tests/test_score_review.py`, `tests/test_ue_scripts.py`, `tests/test_ui_check.py`
 
 ### `tools/ue/validate.ps1`
 

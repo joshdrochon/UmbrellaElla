@@ -3,19 +3,18 @@
 
   post-commit  journals each commit (tools/journal.py commit-hook). Never blocks or fails a commit: with no card
                (JAM_CARD unset and a branch that is not ue-<id>-...), or no python, it does nothing.
-  pre-commit   tools/git_gate.py pre-commit: rejects a commit that changes a gate path (gates.json gate_paths)
-               unless a human makes it by the human route (`JAM_HUMAN=<name>`, no agent env; tools/git_gate.py).
-  pre-push     tools/git_gate.py pre-push: the same rule for every commit the push sends, then `git lfs pre-push`
-               (chained: the stock LFS pre-push hook is replaced by this one, so LFS objects still upload).
-Both gate hooks run the committed HEAD copy of tools/git_gate.py and gates.json, so an edit in the working tree
-cannot switch them off. tools/kickoff.py installs them on every run; the TD human may also run this once per clone
-(card 0.17).
+  pre-push     `git lfs pre-push` only (chained: the stock LFS pre-push hook is replaced by this one, so LFS objects
+               still upload). It checks nothing else.
+No hook checks gate paths (Josh, 12 Nov): an agent's gate-path change is caught on the PR by tools/check_pr.py rule
+gate and by kickoff's merge gate, not locally. An older install's gate pre-commit hook (the jam-git-gate mark) is
+removed, and `--check` fails while it is still there. tools/kickoff.py installs the hooks on every run; the TD human
+may also run this once per clone (card 0.17).
 Git LFS writes its own post-commit hook (`git lfs post-commit`, which keeps lockable files read-only). This hook
 chains it: it runs `git lfs post-commit` first, so installing over the stock LFS hook keeps the LFS protection
 (final-8 dry run A H5). Any other hook this script did not write is left alone (exit 1); move it first.
 
 Usage: python3 tools/install_git_hooks.py [--repo PATH] [--check]
-  --check   exit 0 only if every hook is installed and current
+  --check   exit 0 only if every hook is installed and current, and no old gate hook is left
 Exit 0 = installed (or current), 1 = a foreign hook is in the way or a hook is missing, 2 = not a git repo.
 """
 import argparse
@@ -39,25 +38,17 @@ py=$(command -v python3 || command -v python) || exit 0
 "$py" "$root/tools/journal.py" commit-hook >/dev/null 2>&1
 exit 0
 """
-GATE_MARK = "# jam-git-gate (tools/install_git_hooks.py)"
-_RUN_GATE = """root=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
-py=$(command -v python3 || command -v python) || {{ echo "{name}: no python3, so the gate-path check cannot run (blocked)" >&2; exit 1; }}
-gate=$(mktemp "${{TMPDIR:-/tmp}}/git_gate.XXXXXX") || exit 1
-git show HEAD:tools/git_gate.py > "$gate" 2>/dev/null || cp "$root/tools/git_gate.py" "$gate" 2>/dev/null || {{ rm -f "$gate"; exit 0; }}
-"""
-PRE_COMMIT = ("#!/bin/sh\n" + GATE_MARK + "\n# Gate paths need a human (tools/git_gate.py). Every agent hits this, not only Claude Code.\n"
-              + _RUN_GATE.format(name="pre-commit") +
-              '(cd "$root" && "$py" "$gate" pre-commit); rc=$?\nrm -f "$gate"\nexit $rc\n')
-PRE_PUSH = ("#!/bin/sh\n" + GATE_MARK + "\n# Gate paths need a human (tools/git_gate.py), then Git LFS uploads (chained).\n"
-            "refs=$(mktemp \"${TMPDIR:-/tmp}/git_refs.XXXXXX\") || exit 1\ncat > \"$refs\"\n"
-            + _RUN_GATE.format(name="pre-push") +
-            '(cd "$root" && "$py" "$gate" pre-push "$1" "$2" --refs "$refs"); rc=$?\nrm -f "$gate"\n'
-            'if [ $rc -ne 0 ]; then rm -f "$refs"; exit $rc; fi\n'
-            'if command -v git-lfs >/dev/null 2>&1; then git lfs pre-push "$@" < "$refs"; rc=$?\n'
+GATE_MARK = "# jam-git-gate (tools/install_git_hooks.py)"   # the retired gate hooks: replaced or removed
+LFS_MARK = "# jam-lfs-pre-push (tools/install_git_hooks.py)"
+PRE_PUSH = ("#!/bin/sh\n" + LFS_MARK + "\n# Git LFS uploads (chained; the stock LFS pre-push hook is replaced by this one). "
+            "No gate check here:\n# check_pr.py rule gate and kickoff's merge gate catch gate-path changes on the PR.\n"
+            "root=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0\nrc=0\n"
+            'if command -v git-lfs >/dev/null 2>&1; then git lfs pre-push "$@"; rc=$?\n'
             'elif git config --get filter.lfs.process >/dev/null 2>&1 || grep -qs "filter=lfs" "$root/.gitattributes"; then\n'
             '  echo "pre-push: this repo uses Git LFS but git-lfs is not on PATH; LFS objects were not uploaded" >&2\nfi\n'
-            'rm -f "$refs"\nexit $rc\n')
-HOOKS = {"post-commit": (MARK, HOOK), "pre-commit": (GATE_MARK, PRE_COMMIT), "pre-push": (GATE_MARK, PRE_PUSH)}
+            'exit $rc\n')
+HOOKS = {"post-commit": ((MARK,), HOOK), "pre-push": ((LFS_MARK, GATE_MARK), PRE_PUSH)}
+RETIRED = {"pre-commit": GATE_MARK}   # hooks an older install wrote that no longer exist
 LFS_LINE = re.compile(r'^git lfs (?:post-commit|pre-push) "\$@"$')
 LFS_GUARD = re.compile(r"^command -v git-lfs >/dev/null 2>&1 \|\| \{.*\}$")
 
@@ -86,13 +77,13 @@ def main(argv=None):
         print(f"install_git_hooks: {a.repo} is not a git repo", file=sys.stderr)
         return 2
     code = 0
-    for name, (mark, body) in HOOKS.items():
+    for name, (marks, body) in HOOKS.items():
         path = hook_path(a.repo, name)
         current = None
         if os.path.exists(path):
             with open(path, encoding="utf-8", errors="replace") as fh:
                 current = fh.read()
-        if current is not None and mark not in current and not is_lfs_hook(current):
+        if current is not None and not any(m in current for m in marks) and not is_lfs_hook(current):
             print(f"install_git_hooks: {path} exists and is not ours or the stock Git LFS hook; move it, then run this "
                   "again", file=sys.stderr)
             code = 1
@@ -107,6 +98,22 @@ def main(argv=None):
             fh.write(body)
         os.chmod(path, os.stat(path).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
         print(f"install_git_hooks: {name} installed ({path})")
+    for name, mark in RETIRED.items():
+        path = hook_path(a.repo, name)
+        try:
+            with open(path, encoding="utf-8", errors="replace") as fh:
+                ours = mark in fh.read()
+        except OSError:
+            continue
+        if not ours:
+            continue   # someone else's hook: not ours to judge or remove
+        if a.check:
+            print(f"install_git_hooks: {name} is the old gate hook; run `python3 tools/install_git_hooks.py` to "
+                  f"remove it ({path})")
+            code = 1
+            continue
+        os.remove(path)
+        print(f"install_git_hooks: {name} old gate hook removed ({path})")
     return code
 
 

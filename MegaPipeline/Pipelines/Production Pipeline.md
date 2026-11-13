@@ -1,4 +1,4 @@
-> Generated from `docs/jam-brief.md`, `docs/jam-rules.md`, `pipeline/day0-cards.md`, `pipeline/human-checkpoints.md`, `pipeline/how-to-run-the-jam.md`, `pipeline/what-the-pipeline-controls.md`, `pipeline/checklists/card-ready.md`, `pipeline/templates/task-card.md`, `pipeline/templates/spike-card.md`, `pipeline/templates/gate-record.md`, `pipeline/templates/tracker-table.md`, `pipeline/templates/clock-workflow.yml`, `.github/ISSUE_TEMPLATE/task.yml`, `.github/workflows/blocked-report.yml`, `.github/workflows/main-red.yml`, `tools/check_card.py`, `tools/lane_guard.py`, `tools/status_board.py` at `a11903f` — edit the sources, not this file.
+> Generated from `docs/jam-brief.md`, `docs/jam-rules.md`, `pipeline/day0-cards.md`, `pipeline/human-checkpoints.md`, `pipeline/how-to-run-the-jam.md`, `pipeline/what-the-pipeline-controls.md`, `pipeline/checklists/card-ready.md`, `pipeline/templates/task-card.md`, `pipeline/templates/spike-card.md`, `pipeline/templates/gate-record.md`, `pipeline/templates/tracker-table.md`, `pipeline/templates/clock-workflow.yml`, `.github/ISSUE_TEMPLATE/task.yml`, `.github/workflows/blocked-report.yml`, `.github/workflows/main-red.yml`, `tools/check_card.py`, `tools/lane_guard.py`, `tools/status_board.py` at `b201a66` — edit the sources, not this file.
 > Rebuild: `python3 tools/export_package.py`. Check: `python3 tools/export_package.py --check`.
 
 # Production Pipeline
@@ -51,17 +51,15 @@ Theme in game: TBD
 
 ##### Clock (card 0.0 sets it; times ISO 8601 with UTC offset, Hard stop a daily `HH:MM-HH:MM` window; time zone D-new-clock)
 Submission deadline: 2026-11-15T17:59-08:00
-Hard stop: 02:00-08:00
-Card 0.9 cutoff: 2026-11-12T18:00-08:00
+Hard stop: TBD
+Card 0.9 cutoff: TBD
 
 | Gate | Due |
 |---|---|
-| G1 | 2026-11-12T22:00-08:00 |
-| G2 | 2026-11-13T22:00-08:00 |
-| G3 | 2026-11-14T20:00-08:00 |
-| G4 | 2026-11-15T14:00-08:00 |
-
-Set by card 0.0 (agent default; D-new-clock).
+| G1 | TBD |
+| G2 | TBD |
+| G3 | TBD |
+| G4 | TBD |
 
 Checked by `python3 tools/check_card.py --clock` (D-new-tune-day: G3 at least 20 h before the deadline).
 
@@ -116,26 +114,23 @@ Trigger: a gate over 2 hours late cuts the next item, without debate. GDD SH1.0 
 Rows marked **BLOCKER** stop Day 1.
 | Role | Person | Confirmed? | Day-1 blocker |
 |---|---|---|---|
-| Scope decision-maker (final call on cuts) | RickTheBuilder (Rick Rispoli) | default (agent) | BLOCKER |
-| Creative director (tie-breaker on look, feel and theme; D34) | RickTheBuilder (Rick Rispoli; GDD SH1.0: "Rick's creative approval") | default (agent) | before Nov 11 |
-| Producer / time keeper, human (D-new-producer) | Richard (GDD SH1.0 credits: Producer; GitHub login GetEmEtoG by elimination, the person edits the row) | default (agent) | BLOCKER |
-| Integration owner (merges to main, keeps it building; one integrator owns cross-lane edits) | joshdrochon (Josh Rochon; GDD SH1.0 credits: Technical Lead) | default (agent) | BLOCKER |
-| Packaging and submission owner | joshdrochon (Josh Rochon; the Mac G1 package and the zip, D-new-g1-mac-path; a human entrant submits, Official Rules §17) | default (agent) | BLOCKER |
-| Windows packaging machine (owner, machine name, OS) | RickTheBuilder (owner; machine name and OS unset until the owner edits this row; no Windows machine is confirmed yet) | default (agent) | BLOCKER |
-| Game design owner (GDD revisions, feature statuses, P0; D-new-sh10-design-owner) | RickTheBuilder (GDD SH1.0 revision note: "Rick approves all filled requirements") | default (agent) | BLOCKER |
-| Technical Director, human (code-owner seat, D26) | joshdrochon (Josh Rochon; GDD SH1.0 credits: Technical Lead) | default (agent) | BLOCKER |
-| GDD author (GDD SH1.0 document owner: Team Glass Umbrella) | RickTheBuilder | default (agent) | |
-| Human testers (GDD SH1.0 HAZ-16, QA-29..QA-42 human checks) | Richard, RickTheBuilder | default (agent) | before G2 |
-| Audio owner (approves the mix by ear) | Richard | default (agent) | before card 0.4c |
-| Playtest lead | Richard | default (agent) | before G1 |
+| Scope decision-maker (final call on cuts) | Rick (proposed) | no | BLOCKER |
+| Creative director (tie-breaker on look, feel and theme; D34) | Rick (proposed; GDD SH1.0: "Rick's creative approval") | no | before Nov 11 |
+| Producer / time keeper, human (D-new-producer) | Richard (proposed; GDD SH1.0 credits: Producer) | no | BLOCKER |
+| Integration owner (merges to main, keeps it building; one integrator owns cross-lane edits) | TBD | no | BLOCKER |
+| Packaging and submission owner | TBD | no | BLOCKER |
+| Windows packaging machine (owner, machine name, OS) | TBD | no | BLOCKER |
+| Game design owner (GDD revisions, feature statuses, P0; D-new-sh10-design-owner) | Rick (GDD SH1.0 revision note: "Rick approves all filled requirements") | no | BLOCKER |
+| Technical Director, human (code-owner seat, D26) | Josh (GDD SH1.0 credits: Technical Lead) | no | BLOCKER |
+| GDD author (GDD SH1.0 document owner: Team Glass Umbrella) | Rick | no | |
+| Human testers (GDD SH1.0 HAZ-16, QA-29..QA-42 human checks) | TBD | no | before G2 |
+| Audio owner (approves the mix by ear) | TBD | no | before card 0.4c |
+| Playtest lead | TBD | no | before G1 |
 
 ##### Team hours (card 0.0: one row per teammate)
 | Person | Hours D1/D2/D3/D4 | Away windows | Built UE C++ before (y/n) | Confirmed? |
 |---|---|---|---|---|
-| RickTheBuilder (Rick Rispoli) | 18/18/18/10 | none | n | default (agent) |
-| Richard | 18/18/18/10 | none | n | default (agent) |
-| joshdrochon (Josh Rochon) | 18/18/18/10 | none | y | default (agent) |
-
+| TBD | TBD | TBD | TBD | no |
 
 ##### Hard limits
 - Main opens in the editor and packages at every merge. A broken main stops feature work until fixed.
@@ -229,13 +224,13 @@ and `tests/test_day0_cards.py` fail a row whose owner or reviewer is a person, a
 without its `HUMAN <kind>:` tag (`check_card.day0_owner_problems`).
 
 **Gate paths.** `tools/**`, `tests/**`, `.github/**`, `pipeline/art/style.json`, `pipeline/agent-ops/**` and the rest of
-`pipeline/agent-ops/gates.json` are gate files. The hook and the git hooks block every agent session from committing them, during the jam too.
+`pipeline/agent-ops/gates.json` are gate files. No agent session commits them, during the jam too: no local git hook stops it, so `check_pr.py` rule gate on the PR and kickoff's merge gate catch it.
 Where a lane below holds one, the owner agent still does the work: it writes the change as a git patch to `$JAM_OUTBOX/gate.patch`
 (and tests it from that copy); kickoff keeps it as `.pipeline/gate-patches/UE-<id>/` and applies it itself with
 `python3 tools/git_gate.py apply UE-<id> --auto`. The tools decide, not a person: every patched path is in the card's lane, no
 guardrail enforcer (`git_gate.py` GUARD_CORE) changes, and no guardrail file loosens (gates.json and `.claude/settings*.json`).
-It commits as `GATE EDIT: by=kickoff`, CI's `check_pr.py` rule gate re-runs the same checks, and kickoff's merge gate runs
-this checkout's rule gate too. A refused patch goes back to the builder with the reasons.
+It commits with the trailer `GATE EDIT: by=kickoff`; CI's `check_pr.py` rule gate finds that commit in the PR's git history
+(never the PR body) and re-runs the same checks, and kickoff's merge gate runs this checkout's rule gate too. A refused patch goes back to the builder with the reasons.
 Editor scripts that are not gates live in `pipeline/unreal/editor_scripts/`.
 
 **Other card fields.** The table has no Budget, Inputs, Out of scope, Used by or Needs column. When filing, the Producer writes
@@ -268,8 +263,8 @@ Out of scope = anything outside the lane, Used by = the cards that list it in Af
 | 0.7 | Measure the palette | Art Director / TD human | Technical Director | `pipeline/art/style.json`, `pipeline/art/reference/**` | – | The Art Director agent measures the key art (`art_check.py --measure-palette`) and writes the `style.json` values as the card's gate patch, measurements pasted (no art sign-off: the art gate is automated; `style.json` stays a guardrail file)<br>Kickoff applies it itself through the tool checks (`python3 tools/git_gate.py apply UE-0.7 --auto`: every path in the card's lane, no guardrail enforcer changed, no guardrail file loosened; the PR has a `GATE EDIT: by=kickoff` line naming the patched paths)<br>`python3 tools/art_check.py --references` exits 0: every required picture in `pipeline/art/references.json` is present (pasted)<br>`git lfs ls-files` lists `pipeline/art/reference/target-keyart.png`<br>`art_check.py --extract` output pasted; palette replaced with measured values and `palette_status: measured`<br>`paper_texture_min` set to half the reference's measured `paper_texture` (about 0.38), so a near-flat frame fails<br>`python3 -m unittest tests.test_art_check` prints OK with 0 skipped (ReferenceCalibrationTests ran)<br>The key art still passes with the measured palette: `python3 tools/art_ref_check.py --card 0.10 --scene pipeline/art/reference/target-keyart.png` prints PASS (pasted) |
 | 0.8 | Graybox arena | Integrator / integration owner | Dev Lead | `Content/UmbrellaElla/Maps/L_Graybox.umap`, its `+MapsToCook` line in `Config/DefaultGame.ini`, `Content/UmbrellaElla/Blueprints/BP_Ella.uasset`, `Content/UmbrellaElla/Blueprints/BP_GameMode.uasset` | 0.3 | L_Graybox is one screen with a fixed camera: top and side bounds, a bottom exit volume, a hero start and a Keeper placeholder in the 1920 x 1080 cm Keeper arena (`docs/feature-manifest.json` approved_parameters.fixtures, D-new-sh10-units; `pipeline/level/encounter.json` arena)<br>The placed arena camera (the GameMode's view target) has Constrain Aspect Ratio on and Aspect Ratio 1.777778, so any other window ratio shows black letterbox or pillarbox bars (GDD SH1.0 Keeper fight: fixed 16:9, D-new-sh10-camera; `pipeline/unreal-rules.md` Display), and no collision or hitbox component is visible in game (property values pasted)<br>`+MapsToCook=(FilePath="/Game/UmbrellaElla/Maps/L_Graybox")` is in `Config/DefaultGame.ini`<br>`BP_Ella` (parent `AEllaCharacter`) sets the `IA_*` and `IMC_*` references, and `BP_GameMode` sets DefaultPawnClass to `BP_Ella`. L_Graybox's World Settings GameMode Override is `BP_GameMode` (property values pasted)<br>A Development package opens it: `grep -c L_Graybox` on the packaged run's log prints 1 or more (pasted). If card 0.6 has not merged yet, the PR uses the same `SMOKE_BOOTSTRAP` line as card 0.3; once it has, it pastes SMOKE_OK (input=none with `SMOKE_REQUIRE_INPUT=0` only until MVP 2's QA-01 row is merged) |
 | 0.8a | Owl dump and arena eval cameras | Integrator / integration owner | Dev Lead | `pipeline/unreal/editor_scripts/dump_owl.py`, `Content/UmbrellaElla/Maps/L_Graybox.umap` | 0.5b, 0.8, 0.12 | The editor script writes every `DA_OwlPattern_*` and `DA_Phase_*` as JSON in the `encounter.json` shape. No owl assets exist yet (card 0.8b makes them)<br>On the empty dump, `python3 tools/encounter_check.py --data` FAILS with E28 (pasted): the dump path works end to end. The 0 problems line is card 0.8b's<br>`-EvalCam=CAM_Eval_Arena` and `-EvalCam=CAM_Eval_Stress` each log `EVALCAM_OK` (pasted) |
-| 0.8b | Encounter data v1 matches assets | Level Designer | Game Designer | `pipeline/level/encounter.json`, `pipeline/level/encounter.md`, `Content/UmbrellaElla/Data/Owl/**` | 0.8a | The assets equal the GDD SH1.0 Keeper fight in the `GDD-SH1.0` baseline preset (`pipeline/level/encounter.json`): wings 180, mechanisms 100 / 110 / 120, clock 320 HP; red fans, yellow packets, gust, talon, three casts, double beat; every number in its numbers_from_gdd<br>`python3 tools/encounter_check.py` prints `encounter_check: 0 problem(s)` (pasted)<br>`python3 tools/encounter_check.py --data` on the card 0.8a dump prints `encounter_check: 0 problem(s)` (pasted)<br>The card has a `Coverage signed:` line with a name and date, and the Art Director's verdict is a separate review |
-| 0.9 | Pipeline smoke on every machine | QA and Build / human Producer | Dev Lead | `scratch/**` on a branch `ue-0.9-NAME` that is never merged | 0.3, 0.17 | kickoff runs this card's session on the machine it runs on (`tools/kickoff.sh`, Windows `tools\kickoff.ps1`); the session does every line below<br>`python3 tools/pipeline_check.py` and `python3 -m unittest discover -s tests` exit 0 on each machine, or the error is posted<br>`gh issue view --comments` on the card 0.9 issue shows 1 comment per machine, written by that machine's session: machine, OS, `Engine/Build/Build.version`, results, blockers<br>Each machine's session opens 1 PR from a trivial card and `check_pr.py` exits 0 on it in CI<br>Done by the Clock's card 0.9 cutoff. A teammate whose build is not green by then takes only non-C++ cards (D24); the Producer agent posts it on the tracker |
+| 0.8b | Encounter data v1 matches assets | Level Designer | Game Designer | `pipeline/level/encounter.json`, `pipeline/level/encounter.md`, `Content/UmbrellaElla/Data/Owl/**` | 0.8a | The assets equal the GDD SH1.0 Keeper fight in the `GDD-SH1.0` baseline preset (`pipeline/level/encounter.json`): wings 180, mechanisms 100 / 110 / 120, clock 320 HP; red fans, yellow packets, gust, talon, three casts, double beat; every number in its numbers_from_gdd<br>`python3 tools/encounter_check.py` prints `encounter_check: 0 problem(s)` (pasted)<br>`python3 tools/encounter_check.py --data` on the card 0.8a dump prints `encounter_check: 0 problem(s)` (pasted)<br>The card has a `Coverage signed:` line with a name and date<br>The tells are data on this card, checked by the two runs above (S6 telegraph, S11 art and sound ids, and the same rules on the asset dump); the card puts nothing on screen, so it has no capture for an art review and its one reviewer is the Game Designer |
+| 0.9 | Pipeline smoke on every machine | QA and Build / human Producer | Dev Lead | `scratch/**` on a branch `ue-0.9-NAME` that is never merged | 0.3, 0.17 | kickoff runs this card's session on the machine it runs on (`tools/kickoff.sh`, Windows `tools\kickoff.ps1`); the session does every line below<br>`python3 tools/pipeline_check.py` and `python3 tools/affected_tests.py --run tools/kickoff.py tools/check_card.py` exit 0 on each machine (the kickoff and card tests, a 5-minute target; the full suite is CI's), or the error is posted<br>`gh issue view --comments` on the card 0.9 issue shows 1 comment per machine, written by that machine's session: machine, OS, `Engine/Build/Build.version`, results, blockers<br>Each machine's session opens 1 PR from a trivial card and `check_pr.py` exits 0 on it in CI<br>Done by the Clock's card 0.9 cutoff. A teammate whose build is not green by then takes only non-C++ cards (D24); the Producer agent posts it on the tracker |
 | 0.10a | Swatch and locked post-process | Integrator / TD human | Art Director | `Content/UmbrellaElla/Maps/L_StyleFrame.umap`, its `+MapsToCook` line in `Config/DefaultGame.ini`, its row in `pipeline/qa/no-player-maps.txt`, `pipeline/art/style.json` `unreal_import.texture.mips` (a gate file: the card's gate patch), `Content/UmbrellaElla/Art/Swatch/**`, `Art/Source/Swatch/**` | 0.8, 0.12 | Before the swatch import (the first art import), the agent sets `pipeline/art/style.json` `unreal_import.texture.mips` from D13, or D13's default (`mips`, 2x with mipmaps) while it is open, in the card's gate patch: `tests/test_sprite_check.py` fails once L_StyleFrame exists with it still null<br>Kickoff applies it itself through the tool checks (`python3 tools/git_gate.py apply UE-0.10a --auto`: every path in the card's lane, no guardrail enforcer changed, no guardrail file loosened; the PR has a `GATE EDIT: by=kickoff` line naming the patched paths)<br>The swatch sprite made by `python3 tools/make_art_calibration.py --swatch` is imported and placed in front of `CAM_Eval_Swatch` in L_StyleFrame, with its `+MapsToCook` line and an `L_StyleFrame` row (card 0.10a, style frame, no player) in `pipeline/qa/no-player-maps.txt` (the daily smokes every cooked map; a map with no player logs input=none)<br>The post-process volume is set as `pipeline/art/art-bible.md` locks it (values pasted)<br>`python3 tools/art_check.py --swatch` on the `-EvalCam=CAM_Eval_Swatch` capture prints PASS (pasted) |
 | 0.10b | Anchor sprites | Asset Specialist / TD human | Art Director | `Art/Source/Anchors/**`, `Content/UmbrellaElla/Art/Anchors/**`, `pipeline/art/provenance.csv`, `.github/workflows/pipeline-checks.yml` (sprite step) | 0.7, 0.10a | Five anchors are imported at the card 0.3 Pixels Per Unreal Unit: Ella open, Ella closed, the owl, one clockwork bolt, the paper layer<br>Each source PNG under `Art/Source/Anchors/` has a `.sprite.json` sidecar (frame grid and pivot from the `layout` entries of `pipeline/art/references.json`, SpriteLayout.json and Asset Notes.md; drawn new, never copied from a reference) and `python3 tools/sprite_check.py --scan Art --require-dir` prints 0 problems (pasted)<br>`--require-dir` on the CI sprite step is the card's gate patch<br>Kickoff applies it itself through the tool checks (`python3 tools/git_gate.py apply UE-0.10b --auto`: every path in the card's lane, no guardrail enforcer changed, no guardrail file loosened; the PR has a `GATE EDIT: by=kickoff` line naming the patched paths)<br>Each has a provenance row<br>Round trip on one anchor: edit its layered source (one visible change), re-export, Reimport over the same `T_`/`SPR_` asset; `--import-report` errors=0 and `--sources Content/UmbrellaElla/Art Art/Source` PASS pasted, the map still loads, and the minutes it took are pasted. Over 10 min: the TD files a card for a one-command reimport + check + capture loop<br>Each anchor is generated with `python3 tools/assetgen.py image` and is an art-loop piece (`python3 tools/art_loop.py pieces --card 0.10b`): kickoff runs builder and blind-critic rounds until it reaches the bar, and this PR pastes, for this commit, `python3 tools/art_ref_check.py --card 0.10b --element ID FILES` PASS and the `art_loop: PASS card=0.10b piece=...` line of each piece (`python3 tools/art_loop.py evidence --card 0.10b`). No human approves the look; the stuck rule (3 rounds with no improvement) raises NEEDS HUMAN |
 | 0.10 | Style frame: the key-art scene, the first visual milestone (D-new-port-9) | Integrator / integration owner | Art Director | `Content/UmbrellaElla/Maps/L_StyleFrame.umap`, `pipeline/art/references.json` (scene thresholds only) | 0.10a, 0.10b, 0.10c, 0.4d, 0.12 | L_StyleFrame rebuilds `pipeline/art/reference/target-keyart.png` at the gameplay camera (art-bible Target frame) from the anchors and the card 0.10c art: owl large on the right with the chest clock gold, Ella small on the left, the skyline, wind lines, a harmless wind current (WIND-03), red and yellow shots and Small Blasts pulses, with a `CAM_Eval_StyleFrame` camera<br>Captured with `-EvalCam=CAM_Eval_StyleFrame` from a Development package at 1920x1080: `art_check.py` and `screen_check.py` print PASS on it, and the full frame is an art-loop piece (`python3 tools/art_loop.py pieces --card 0.10`): kickoff runs builder and blind-critic rounds until it reaches the bar, and this PR pastes, for this commit, `python3 tools/art_ref_check.py --card 0.10 --scene CAPTURE` PASS and the `art_loop: PASS card=0.10 piece=...` line of each piece (`python3 tools/art_loop.py evidence --card 0.10`). No human approves the look; the stuck rule (3 rounds with no improvement) raises NEEDS HUMAN<br>`python3 tools/art_check.py --gate` on that `CAM_Eval_StyleFrame` capture prints `ART_GATE: PASS` (numeric check, every `pipeline/art/references.json` picture present, the calibrated judge, and the blind X/Y row against the key art; pasted).<br>Pixels Per Unreal Unit confirmed: Ella is 80–100 px tall in the 1080p capture (D-new-port-10). A different value goes to a TD card, and the anchors are re-imported before any other asset card<br>If the key art itself fails a `scene` threshold in `pipeline/art/references.json`, or the capture passes by a wide margin, the thresholds are recalibrated on it in this PR and `python3 -m unittest tests.test_art_judge` prints OK (pasted). The Art Director's follow-up card adds the capture to `evals/art-judge/anchors/` (the G2 anchor) in a gate patch. No other asset cards before this |
@@ -279,13 +274,13 @@ Out of scope = anything outside the lane, Used by = the cards that list it in Af
 | 0.13 | Movement envelope test (after the MVP 2 movement cards merge) | Gameplay Dev | Dev Lead | `Source/UmbrellaElla/Private/Tests/Move/**` | 0.5 | `UmbrellaElla.Move.World.FeelEnvelope` passes headless and logs the `FEEL_ENVELOPE` line in `docs/feel-spec.md` section 7 (pasted)<br>`python3 tools/encounter_check.py --envelope` on that line prints `envelope_check: 0 problem(s)`: the game matches `feel.json`, so the encounter sim uses the game's numbers (pasted)<br>Each value is read from the running world, not computed from the tuning structs<br>The test-map row for `UmbrellaElla.Move.World.FeelEnvelope` is set to merged with this card's number |
 | 0.14 | Balance targets | Game Designer | Producer | `docs/balance.md` | 0.13 | The Game Designer agent proposes every target in `docs/balance.md` from the 0.13 envelope<br>The Game Designer agent marks each Status cell in the targets table `accepted (agent default)` and adds one DECIDED row for them (dated, `agent default; Game Designer; the team may override`) (`grep -cE 'proposed [[:punct:]]$' docs/balance.md` prints 0)<br>The envelope table holds the 0.13 output line and its commit |
 | 0.14b | Yellow catch, heal and wind feedback (before the MVP 4 absorption card) | Audio | UI and UX | `pipeline/audio/sound-list.csv` (rows below), `pipeline/ui/signals.json` (rows below), `Audio/Source/ShieldCatch/**`, `Audio/Source/ShieldHeal/**`, `Audio/Source/GustCatch/**` | 0.4c | Sound-list rows ShieldCatch and ShieldHeal (the yellow catch and heal, P0, GDD SH1.0 UMB-05, FLOW-32) and GustCatch (the safe current, P0, WIND-03) keep their fallback paths; `python3 tools/audio_check.py --list` prints PASS (pasted)<br>`pipeline/ui/signals.json` rows shield-catch, shield-heal and wind-enter name those sounds and a visual (catch flash, wear steps back, wind boundary lines); `python3 tools/ui_check.py signals` prints PASS (pasted)<br>`SW_ShieldCatch_00.wav`, `SW_ShieldHeal_00.wav` and `SW_GustCatch_00.wav` pass `python3 tools/audio_check.py --scan Audio/Source` (pasted)<br>The MVP 4 absorption card (UMB-05, SURV-05) lists this card in After; a full-health catch plays ShieldCatch only (FLOW-32) |
-| 0.15 | Fallback CC0 art and audio set (D-new-fallback) | Asset Specialist | Art Director | `pipeline/art/fallback-cc0.csv`, `pipeline/art/fallback/**`, `pipeline/art/provenance.csv` | 0.2 | `pipeline/art/fallback-cc0.csv` has 21 rows: 14 sounds, one at each `fallback` path in `pipeline/audio/sound-list.csv` (under `pipeline/art/fallback/audio/`: WandBolt, OwlBoltWindup, OwlBoltLaunch, GustWindup, ArcWindup, HitOwl, PlayerHurt, ShieldCatch, ShieldHeal, UmbrellaOpen, UmbrellaClose, EndEvent, PhaseChime, GustCatch), and 7 placeholder sprites (the art lane sets which)<br>`python3 tools/audio_check.py --list --release` prints PASS (pasted), and the Audio owner approves the 14 sounds on the card<br>`grep -c CC0 pipeline/art/provenance.csv` prints 21 or more: each fallback file has a provenance row with its licence URL<br>Each file is listed in `docs/pre-jam-declaration.md` if picked before Nov 12. The files stay out of `Content/` until the art-or-audio risk in `docs/jam-brief.md` fires |
+| 0.15 | Fallback CC0 art and audio set (D-new-fallback) | Asset Specialist | Art Director | `pipeline/art/fallback-cc0.csv`, `pipeline/art/fallback/**`, `pipeline/art/provenance.csv` | 0.2 | `pipeline/art/fallback-cc0.csv` has 21 rows: 14 sounds, one at each `fallback` path in `pipeline/audio/sound-list.csv` (under `pipeline/art/fallback/audio/`: WandBolt, OwlBoltWindup, OwlBoltLaunch, GustWindup, ArcWindup, HitOwl, PlayerHurt, ShieldCatch, ShieldHeal, UmbrellaOpen, UmbrellaClose, EndEvent, PhaseChime, GustCatch), and 7 placeholder sprites (the art lane sets which)<br>`python3 tools/audio_check.py --list --release` prints PASS (pasted)<br>`python3 tools/audio_style_check.py check pipeline/art/fallback/ --ids WandBolt,OwlBoltLaunch,GustWindup,HitOwl,PlayerHurt,ShieldCatch,ShieldHeal,UmbrellaOpen,UmbrellaClose,EndEvent,PhaseChime,GustCatch` prints `audio_style check: PASS files=12` or more (pasted): the measured bar stands in for a listen (OwlBoltWindup and ArcWindup are cut rows with no style family)<br>`grep -c CC0 pipeline/art/provenance.csv` prints 21 or more: each fallback file has a provenance row with its licence URL<br>Each file is listed in `docs/pre-jam-declaration.md` if picked before Nov 12. The files stay out of `Content/` until the art-or-audio risk in `docs/jam-brief.md` fires |
 | 0.16 | Install the scheduled clock run (D-new-schedule, D-new-clock-install) | Agent Ops / TD human | Producer | `.github/workflows/clock.yml` | 0.0, 0.1 | The agent writes `.github/workflows/clock.yml` as the card's gate patch; `cmp pipeline/templates/clock-workflow.yml .github/workflows/clock.yml` exits 0 (an exact copy)<br>Kickoff applies it itself through the tool checks (`python3 tools/git_gate.py apply UE-0.16 --auto`: every path in the card's lane, no guardrail enforcer changed, no guardrail file loosened; the PR has a `GATE EDIT: by=kickoff` line naming the patched paths)<br>After the merge kickoff sets the repo variables itself (`gh variable set`, `tools/kickoff.py` repo_settings; an agent session never does) and posts the read-back on the card: `gh variable list` shows PIPELINE_CLOCK=on and TRACKER_ISSUE set to the card 0.1 tracker number<br>After kickoff's `gh workflow run clock`, `gh run list -w clock` lists 1 run or more that is not `skipped`; its link is posted on the tracker<br>Done by the Clock's card 0.9 cutoff |
 | 0.17 | Install agent settings | Agent Ops / TD human | Technical Director | `.claude/**`, `.gitignore` | 0.0 | The agent makes the `.gitignore` lines and the `.claude/` files `python3 tools/secrets_check.py --install` writes, as the card's gate patch<br>Kickoff applies it itself through the tool checks (`python3 tools/git_gate.py apply UE-0.17 --auto`: every path in the card's lane, no guardrail enforcer changed, no guardrail file loosened; the PR has a `GATE EDIT: by=kickoff` line naming the patched paths); `python3 tools/secrets_check.py --rules secret,secretfile,gitignore,settings,agents` exits 0 on the branch (pasted). Rules `mcp` and `components` are card 0.4a's<br>After the merge kickoff sets branch protection on `main` itself (required status check `checks`, the job name in `pipeline-checks.yml`, the `card` job runs on issues only; no force push, no delete; no required review: the card's reviewer agent approves and kickoff merges) and lets GitHub Actions create pull requests (`main-red.yml` opens revert PRs), and posts the `gh api` read-back on the card (`tools/kickoff.py` repo_settings)<br>`python3 tools/install_git_hooks.py --check` exits 0 on every clone: kickoff installs the hooks on each machine it runs on, and each card 0.9 session pastes the check on the card 0.9 smoke issue<br>Each card 0.9 session pastes `python3 tools/secrets_check.py --rules settings,agents` from its machine on the card 0.9 smoke issue (`pipeline/agent-ops/README.md`)<br>Done by the Clock's card 0.9 cutoff |
 | 0.18 | Guardrail rehearsal | Agent Ops / TD human | QA and Build | `scratch/**` on a branch `ue-0.18-rehearsal` that is never merged, `pipeline/agent-ops/` ([VERIFY] tags only) | 0.17, 0.3 | One fake card, run by the Agent Ops agent in a sandboxed session, hits every block and ask in `pipeline/agent-ops/README.md` (pastes on the card; an ask nobody answers counts as refused)<br>`prompt_log.py attempts --card 0.18` exits 1 after two planted build failures (pasted)<br>A sandboxed role session posts one `gh issue comment` on this card, so the `~/.config/gh` read deny does not block `gh` (pasted)<br>Each `VERIFY on 0.18` tag is removed in the card's gate patch with its paste<br>Kickoff applies it itself through the tool checks (`python3 tools/git_gate.py apply UE-0.18 --auto`: every path in the card's lane, no guardrail enforcer changed, no guardrail file loosened; the PR has a `GATE EDIT: by=kickoff` line naming the patched paths); `grep -rI "VERIFY on 0.18" pipeline/agent-ops` prints 0 lines (exit 1)<br>Done by the Clock's card 0.9 cutoff |
 | 0.19 | Theme fit (Nov 11, 1 hour) | Game Designer | Producer | `docs/jam-brief.md` Theme lines | – | Within 1 hour of the kickoff, 3 one-paragraph pitches that tie the umbrella-and-owl encounter to the theme (DEC-10) are on the tracker<br>The Game Designer agent picks one by the pitches' fit to DEC-10 and records it as a DECIDED row (theme pick; dated, `agent default; Game Designer; the team may override`) linked on the tracker<br>`Theme:` and `Theme in game:` lines are filled in `docs/jam-brief.md`, and `python3 tools/submission_check.py theme` exits 0 (pasted)<br>The theme reaches the GDD with its next published revision (`docs/gdd/README.md`); this card does not wait for it<br>`python3 tools/check_pr.py` exits 0 on the PR |
 | 0.20 | UI string table, text styles and DPI rule | Technical Director | UI and UX | `Content/UmbrellaElla/UI/ST_UI.csv`, `Content/UmbrellaElla/UI/text-styles.csv`, `Config/DefaultEngine.ini` | 0.3 | `python3 tools/ui_check.py strings`, `fonts` and `config` exit 0 (pasted)<br>The table imports in 5.8.4 (editor log line pasted)<br>`python3 tools/story_check.py --scan Content/UmbrellaElla/UI/ST_UI.csv` prints PASS (pasted; the placeholder text has no deny-list name or off-tone word, and card 0.30 writes the final words) |
-| 0.21 | Menu and settings C++ | Gameplay Dev | Dev Lead | `Source/UmbrellaElla/Public/UI/**`, `Source/UmbrellaElla/Private/UI/**`, `Source/UmbrellaElla/Private/Tests/UI/**`, `Source/UmbrellaElla/Private/Smoke/**` | 0.20, 0.6 | The C++ behind the Start (Start Game, Start Director's Cut), pause (Continue, Settings, Quit), settings, win ending and fail screens in `pipeline/ui/menus.md` (no `WBP_*` assets)<br>Master volume: `FUITuning::MasterVolume` in `Public/UI/UITuning.h` defaults to 80 (pipeline default; GDD SH1.0 FLOW-37 prints only the 0-100 range) on a line ending `// bake: FLOW-37.master_volume`, the game applies it to `SM_Master` at startup, and `python3 tools/bake_preset.py defaults` prints PASS (pasted)<br>With `-SmokeQuitAfter`, the smoke hook passes the title through the title's own Play path (the function the Play button calls) before its input check and logs `SMOKE_TITLE skipped=FUNCTION`; `tools/ue/smoke.sh` on GameDefaultMap still prints input=ok (pasted)<br>`UmbrellaElla.Flow.TitleToPlayToWinEnding` (in `Tests/UI/`) passes, and its test-map row is set to merged with this card's number (the card whose lane holds the test owns it)<br>`check_automation_report.py --require $(python3 tools/ui_check.py tests)` prints PASS for the P0 UI tests (pasted)<br>`check_automation_report.py --require UmbrellaElla.Flow.World.MenuBlocksGameplayInput` prints PASS (pasted); the TD reviews it<br>Settings remaps keyboard and mouse and the controller, and the tutorial can be skipped (`pipeline/ui/menus.md` Required screens): `check_automation_report.py --require UmbrellaElla.UI.World.RemapUpdatesPrompt --require UmbrellaElla.UI.World.RemapGamepadUpdatesPrompt --require UmbrellaElla.UI.World.TutorialSkipReachesPlay --require UmbrellaElla.UI.World.TutorialShowsControlGlyphs` prints PASS (pasted); a garbage `GameUserSettings.ini` falls back to 1920x1080 (`UmbrellaElla.Settings.BadIniFallsBackToDefaults` asserts it) |
+| 0.21 | Menu and settings C++ | Gameplay Dev | Dev Lead | `Source/UmbrellaElla/Public/UI/**`, `Source/UmbrellaElla/Private/UI/**`, `Source/UmbrellaElla/Private/Tests/UI/**`, `Source/UmbrellaElla/Private/Smoke/**` | 0.20, 0.6 | The C++ behind the Start (Start Game, Start Director's Cut), pause (Continue, Settings, Quit), settings, win ending and fail screens in `pipeline/ui/menus.md` (no `WBP_*` assets)<br>Master volume: `FUITuning::MasterVolume` in `Public/UI/UITuning.h` defaults to 80 (pipeline default; GDD SH1.0 FLOW-37 prints only the 0-100 range) on a line ending `// bake: FLOW-37.master_volume`, the game applies it to `SM_Master` at startup, and `python3 tools/bake_preset.py defaults` prints PASS (pasted)<br>With `-SmokeQuitAfter`, the smoke hook passes the title through the title's own Play path (the function the Play button calls) before its input check and logs `SMOKE_TITLE skipped=FUNCTION`; `tools/ue/smoke.sh` on GameDefaultMap still prints input=ok (pasted)<br>`UmbrellaElla.Flow.TitleToPlayToWinEnding` (in `Tests/UI/`) passes, and its test-map row is set to merged with this card's number (the card whose lane holds the test owns it)<br>`check_automation_report.py --require $(python3 tools/ui_check.py tests)` prints PASS for the P0 UI tests (pasted)<br>`check_automation_report.py --require UmbrellaElla.Flow.World.MenuBlocksGameplayInput` prints PASS (pasted)<br>Settings remaps keyboard and mouse and the controller, and the tutorial can be skipped (`pipeline/ui/menus.md` Required screens): `check_automation_report.py --require UmbrellaElla.UI.World.RemapUpdatesPrompt --require UmbrellaElla.UI.World.RemapGamepadUpdatesPrompt --require UmbrellaElla.UI.World.TutorialSkipReachesPlay --require UmbrellaElla.UI.World.TutorialShowsControlGlyphs` prints PASS (pasted); a garbage `GameUserSettings.ini` falls back to 1920x1080 (`UmbrellaElla.Settings.BadIniFallsBackToDefaults` asserts it) |
 | 0.21b | Menu layouts | Integrator / integration owner | UI and UX | `Content/UmbrellaElla/UI/**` | 0.21 | Start, pause, settings, win ending and fail `WBP_*` screens as in `pipeline/ui/menus.md`, bound to the card 0.21 C++<br>A UIFLOW line passes `python3 tools/ui_check.py flow-check` (pasted)<br>The `Theme in game:` line in `docs/jam-brief.md` shows on the Start or win ending screen (1080p capture pasted)<br>HUD and pause stay inside the 16:9 view: `python3 tools/screen_check.py` prints PASS with `bars=pillarbox` on a 2560x1080 windowed screenshot of each (a widget in the bars breaks the bars and FAILS), pasted<br>A 1920x1080 capture of the HUD over play passes `python3 tools/art_ref_check.py --card 0.21b --scene CAPTURE` (the HUD keeps the key-art look; PASS line for this commit pasted)<br>Each tutorial screen shows keyboard and gamepad glyphs in our style, no placeholder dots or boxes: `python3 tools/screen_check.py --strict` prints PASS on a 1080p capture of each (pasted), and a UIFLOW line with `tutorial-skip pass` and `remap-gamepad pass` passes `python3 tools/ui_check.py flow-check` (pasted)<br>Each menu screen and transition meets the menu style bar (`pipeline/ui/menus.md` Menu look): it is an art-loop piece `menu-screen`, judged blind against the brand references and the written menu target until the critic cannot pick them over ours; the `art_loop: PASS card=0.21b piece=...` lines for this commit are pasted (`python3 tools/art_loop.py evidence --card 0.21b`) |
 | 0.22 | Capture boxes, G2 set | UI and UX | Art Director | `pipeline/ui/captures/**` | 0.21b, 0.12 | `boxes.json` for HUD and pause at 1.0 and at 2.0, and `swatches.json` for `CAM_Eval_Stress`<br>`python3 tools/ui_check.py contrast`, `layout --scale 2` and `grayscale` exit 0 on them (pasted) |
 | 0.23 | Run logger | Gameplay Dev | Dev Lead | `Source/UmbrellaElla/Private/RunLog/**` | 0.5 | `UmbrellaElla.Flow.RunLogWritesRow` passes headless: one hit, one fail and one survive each write one row with the columns in `pipeline/qa/playtests.md`<br>A packaged Development run writes the CSV; `python3 tools/encounter_check.py --playtest Saved/Playtest/run.csv` exits 0 on it (pasted), and its real path replaces the [VERIFY] in `pipeline/qa/playtests.md` |
@@ -355,11 +350,11 @@ untagged person step, and any other kind. Everything else on a card is the owner
 
 No person on a Day-0 card does these any more; the tools do them, and the guardrails stay enforced by tools and CI:
 - Gate patches: kickoff applies a session's `$JAM_OUTBOX/gate.patch` itself (`python3 tools/git_gate.py apply UE-<id> --auto`,
-  `GATE EDIT: by=kickoff`). It refuses a patch with a path outside the card's lane, a change to a guardrail enforcer
+  commit trailer `GATE EDIT: by=kickoff`). It refuses a patch with a path outside the card's lane, a change to a guardrail enforcer
   (`git_gate.py` GUARD_CORE: the hooks, `check_pr.py`, `kickoff.py`, `secrets_check.py`), or a loosened guardrail file
   (gates.json or `.claude/settings*.json`: a deny entry dropped, an allow entry added, `mcp_enabled` or
-  `native_windows_shell` opened). CI's `check_pr.py` rule gate re-runs those checks, and kickoff's merge gate runs this
-  checkout's rule gate too. A refused patch goes back to the builder; a loosening never goes through the pipeline.
+  `native_windows_shell` opened). CI's `check_pr.py` rule gate finds that commit in the PR's git history and re-runs those
+  checks, and kickoff's merge gate runs this checkout's rule gate too. A refused patch goes back to the builder; a loosening never goes through the pipeline.
 - Repo settings: after cards 0.16 and 0.17 merge, kickoff sets the variables, branch protection and the Actions setting
   itself with fixed commands (`tools/kickoff.py` repo_settings) and posts the read-back.
 - Machine work: a card that says `Runs on: the Windows packaging machine` is built by the kickoff running there, and
@@ -461,7 +456,7 @@ Agents follow `AGENTS.md` and own every card; you only sign off where
 
 ##### Start: one command, Claude Code or Codex
 1. Type `tools/kickoff.sh` (Windows: `tools\kickoff.ps1`). It prints the version, checks every connection
-   and starts your agent (asking if you have both); a problem prints one line saying what to type.
+   and starts your agent (asking if you have both); a problem prints what to type.
    API keys: once per machine (`python3 tools/keys.py status`). MCP servers stay off until the kickoff record.
 2. Then it files the cards, runs each ready card in a fresh session, opens PRs, runs the reviewer and merges;
    it stops only for a human. `--agent codex` or `claude` picks the agent. First night: `--max-cards 5` stops after
@@ -471,23 +466,27 @@ Agents follow `AGENTS.md` and own every card; you only sign off where
 4. Answer the needs-human queue (below), then run it again: it resumes. One card:
    `tools/start_session.sh <role> <card>`.
 
+##### Build modes
+`docs/build/MODE`: `direct` (no cards or PRs) or `cards` (below). README explains.
+
 ##### A/B test a build
-`tools/kickoff.sh --prompt-file my-prompt.txt` records your prompt and adds it to every session; each run prints
-`RUN #<n>: pipeline <version> | GDD <revision> | ...`. Record it: `python3 tools/journal.py run-outcome
---run <n> --outcome pass|fail`; `python3 tools/journal.py compare <a> <b>` shows two runs side by side.
+`tools/kickoff.sh --prompt-file my-prompt.txt` records your prompt and adds it to every session; each run prints a
+`RUN #<n>: ...` line. Record it: `python3 tools/journal.py run-outcome
+--run <n> --outcome pass|fail`; `python3 tools/journal.py compare <a> <b>` diffs two runs.
 
 ##### Another boss fight (encounter presets)
-Fights are data in `pipeline/level/encounter.json` (Encounter Designer role). GDD 1.3 is the default and the only
-shipped one; a proposal like Ricky's `OWL-FIGHT-RICKY` (Richard decides, `D-new-encounter-ricky`) loads only in
-workbench and practice builds; `python3 tools/encounter_check.py --presets --gdd 1.3` lists them.
+Fights are data in `pipeline/level/encounter.json` (Encounter Designer role); GDD 1.3 ships. A proposal such as
+`OWL-FIGHT-RICKY` (`D-new-encounter-ricky`) loads only in workbench and practice builds; `python3
+tools/encounter_check.py --presets --gdd 1.3` lists them.
 
 ##### How a PR merges
 kickoff squash-merges it (nobody clicks merge) once:
 1. CI (`pipeline-checks`) is green and the card's reviewer role posted `approve` from a different session.
 2. Evidence pastes real output per Done-when line; "Not run" lines name who runs them.
+   Unit tests: `tools/affected_tests.py`; the full suite is CI's.
 3. `tools/check_pr.py` passes on the head. A gate-path change is the agent's gate patch; kickoff applies it
    (`git_gate.py apply --auto`).
-A `merge PR #N: ...` ask names the blocker: fix it, run kickoff again, or label the card `cut` / `superseded`.
+A `merge PR #N: ...` ask names the blocker: fix it and rerun kickoff, or label the card `cut` / `superseded`.
 `tools\ue\daily.ps1` within 1 h: kickoff runs it (Windows, `native_windows_shell: allow`) or its owner posts `DAILY`.
 `main` red: a revert PR opens itself; the integration owner merges it within 30 min.
 
@@ -498,10 +497,10 @@ Each jam hour the Producer runs:
       | python3 tools/check_card.py --needs-human
 
 Each line reads `#<issue> <who>: <what> <link>`. If you are the named person or seat:
-1. Do the thing (fix a blocked merge, decide the row, play the build, run the Windows step).
-2. Reply on the issue: what you did, with a link.
-3. Remove the `needs-human` label; the next session picks the card up.
-An ask naming no one, or off the checkpoint list, goes back to the agent.
+1. Do it (fix a blocked merge, decide the row, play the build, run the Windows step).
+2. Reply on the issue: what you did, linked.
+3. Remove the `needs-human` label; the next session picks it up.
+An ask naming no one, or off the list, goes back to the agent.
 `GRACE EXPIRED -> <role>` (2 h, no human answer): that director session decides it; a later human answer wins (`pipeline/human-checkpoints.md`).
 Then `python3 tools/status_board.py --source gh` rewrites `Saved/status-board.md`; link it on the tracker.
 
@@ -544,7 +543,7 @@ If it is not on the first list, no tool will catch it. Say so on the card.
 | Audio list and source files | `tools/audio_check.py` |
 | A card is complete before work starts; gate records are filled and true | `tools/check_card.py` |
 | A PR has its evidence, and the evidence is for this commit | `tools/check_pr.py` |
-| Agents stay in their lane and off gate files | `pipeline/agent-ops/hook.py`, `tools/git_gate.py`, `tools/check_card.py --lanes` |
+| Agents stay in their lane and off gate files | `pipeline/agent-ops/hook.py`, `tools/check_pr.py` rule gate and kickoff's merge gate (no local git hook), `tools/check_card.py --lanes` |
 | No secrets in the repo | `tools/secrets_check.py` |
 | Docs agree with each other; no dead links | `tools/pipeline_check.py` |
 | Submission zip, page, credits, rules | `tools/submission_check.py` |
@@ -585,6 +584,7 @@ A card that fails a line is not ready. `pipeline/templates/task-card.md` lists t
 - A stretch card names which open-vs-close decision it changes. One that changes none goes to the end of the stretch order.
 - When a new GDD revision lands, run `tools/gdd_impact.py` (`docs/gdd/README.md`); every open card it lists is re-checked, and `check_card.py` fails a card whose Features changed since its `GDD revision`.
 - Features are authorized in `docs/feature-manifest.json`, or the card is `Hook only` for an OPEN or PROPOSED ID (check_card enforces).
+- A Python test line names its modules (`python3 -m unittest tests.test_x`) or `tools/affected_tests.py --run`; the full suite is CI's, never a card's.
 - Done-when has at least one blocked, negative or interrupted check besides the normal path (owl outside the firing lane: no shot; a hit during invulnerability does no damage).
 - `Out of scope`, `Used by` and `Needs` are filled. If `Used by` names something in another lane, the follow-up card (usually Integrator) is filed now and its number is in `Used by` (check_card enforces). For an Asset Specialist card, that Integrator card is open with a Budget, so `--hours` counts its human time on the same day (`--hours` fails the asset card otherwise).
 - A card that creates tests named in `pipeline/qa/test-map.md` has a Done-when line that writes its issue number and `merged` in that row (the file is row-scoped; `--lanes` ignores it).
@@ -623,11 +623,14 @@ Do not touch:  <paths owned by other lanes; always includes Content/UmbrellaElla
 Out of scope:  <behaviors not to build, e.g. "no new animation states, no stretch mechanics"; the reviewer rejects them>
 Used by:       <BPs, maps, widgets or components that read what this card changes, with the follow-up card (#<n> or UE-<n>);
                "none" if nothing outside this lane reads it>
-Needs:         <build | tests | editor MCP | Windows packaging machine>; the agent states what it can run (AGENTS.md §1)
+Needs:         <build | tests | editor MCP | Windows packaging machine>; the agent states what it can run (AGENTS.md §1).
+               tests = Unreal automation tests. Python unit tests: `tools/affected_tests.py --run` (5 min target)
 Binary locks:  <.uasset/.umap files to `git lfs lock` before editing; "none" if none>
 
 Done when:     <each line checkable: a number with a unit, a test name, or a command with its result on the same line
-               ("`tools/ue/smoke.sh` prints PASS"). "exits 0" without the command, or "eventually", fails check_card>
+               ("`tools/ue/smoke.sh` prints PASS"). "exits 0" without the command, or "eventually", fails check_card.
+               A Python test line names its modules (`python3 -m unittest tests.test_x`); the full suite is CI's and
+               a line asking for it fails check_card. Builder runs these lines, the reviewer re-runs only what it doubts>
   - [ ] tools/ue/build.sh (or tools\ue\build.ps1) exits 0 and the log is attached
   - [ ] <automation test name> passes
   - [ ] <negative or blocked case test, e.g. owl outside the firing lane → no shot>
@@ -870,7 +873,7 @@ body:
     validations: {required: true}
   - type: textarea
     id: done
-    attributes: {label: "Done when (each line checkable)"}
+    attributes: {label: "Done when (each line checkable)", description: "The builder runs these lines; the reviewer re-runs only what it doubts. A Python test line names its modules (python3 -m unittest tests.test_x); the full suite is CI's."}
     validations: {required: true}
   - type: input
     id: budget
@@ -890,6 +893,7 @@ body:
 # Daily: for every open card with the `blocked` label, post on the tracker the cards that wait on it
 # (tools/check_card.py --blocked-by). Every other card keeps working. Does nothing until the repo variable
 # TRACKER_ISSUE is set. The logic lives in tools/lane_guard.py (tests/test_lane_guard.py).
+# Direct local build (docs/build/MODE says `direct`, or no MODE file and HANDOFF.md exists): skipped, there are no cards.
 name: blocked-report
 on:
   schedule:
@@ -899,9 +903,28 @@ permissions:
   contents: read
   issues: write
 jobs:
-  blocked:
+  mode:
     if: vars.TRACKER_ISSUE != ''
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      direct: ${{ steps.mode.outputs.direct }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: false
+      - name: Build mode from docs/build/MODE (direct = local build lead merges, no cards or PRs)
+        id: mode
+        run: |
+          if [ -f docs/build/MODE ]; then mode=$(tr -d '[:space:]' < docs/build/MODE); elif [ -f HANDOFF.md ]; then mode=direct; else mode=cards; fi
+          if [ "$mode" = direct ]; then direct=true; else direct=false; fi
+          echo "build mode: $mode (direct=$direct)"
+          echo "direct=$direct" >> "${GITHUB_OUTPUT:-/dev/null}"
+  blocked:
+    needs: mode
+    if: vars.TRACKER_ISSUE != '' && needs.mode.outputs.direct != 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
     env:
       GH_TOKEN: ${{ github.token }}
       GH_REPO: ${{ github.repository }}
@@ -928,6 +951,8 @@ jobs:
 # required `checks` job would never report on the revert PR. Workaround: add a REVERT_TOKEN secret (a fine-grained
 # PAT or GitHub App token: contents and pull-requests write); the step below uses it. Without it, the integration
 # owner closes and reopens the revert PR (a human event starts pipeline-checks).
+# Direct local build (docs/build/MODE says `direct`, or no MODE file and HANDOFF.md exists): skipped. The build lead
+# pushes main only after the local gate passes, and pipeline-checks still reports a red main.
 name: main-red
 on:
   push:
@@ -940,8 +965,27 @@ concurrency:
   group: main-red
   cancel-in-progress: false
 jobs:
-  revert-first:
+  mode:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      direct: ${{ steps.mode.outputs.direct }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: false
+      - name: Build mode from docs/build/MODE (direct = local build lead merges, no cards or PRs)
+        id: mode
+        run: |
+          if [ -f docs/build/MODE ]; then mode=$(tr -d '[:space:]' < docs/build/MODE); elif [ -f HANDOFF.md ]; then mode=direct; else mode=cards; fi
+          if [ "$mode" = direct ]; then direct=true; else direct=false; fi
+          echo "build mode: $mode (direct=$direct)"
+          echo "direct=$direct" >> "${GITHUB_OUTPUT:-/dev/null}"
+  revert-first:
+    needs: mode
+    if: needs.mode.outputs.direct != 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
     env:
       GH_TOKEN: ${{ secrets.REVERT_TOKEN || github.token }}
       GH_REPO: ${{ github.repository }}
@@ -995,7 +1039,8 @@ Checks:
             an automation test name UmbrellaElla.<Area>.<Behavior>, SMOKE_OK, "marked DECIDED", or a
             command result ("exits 0", "prints PASS", "lists 8") on a line that names the command
             (`backticks`, tools/..., *.py/*.sh/*.ps1, gh/git/grep). A line that says "works" /
-            "looks good" / "feels right" needs one of these; a hedge ("eventually", "should") always fails
+            "looks good" / "feels right" needs one of these; a hedge ("eventually", "should") always fails, and so
+            does a line that asks for the full unit suite (`unittest discover`: CI's job, never a card session's)
   GDD ref   tooling cards write "none" ("n/a" is read as an unfilled placeholder)
   gdd       GDD revision names a snapshot in docs/gdd/ (GDD-<rev>.md). A card on an older revision than docs/gdd/CURRENT
             fails only if one of its Features changed between the two (tools/gdd_impact.py); other cards stay valid
@@ -1094,7 +1139,7 @@ Run in CI by:
 - `.github/workflows/pipeline-checks.yml`: Task card is ready (Producer)
 - `.github/workflows/pipeline-checks.yml`: Linked task card is ready (Producer)
 
-Tests: `tests/test_audio_loop.py`, `tests/test_check_card.py`, `tests/test_day0_cards.py`, `tests/test_doc_consistency.py`, `tests/test_final10_fixes.py`, `tests/test_final8_fixes.py`, `tests/test_final9_fixes.py`, `tests/test_honest_jam.py`, `tests/test_lane_guard.py`, `tests/test_pipeline_check.py`, `tests/test_plan_checks.py`, `tests/test_practice.py`, `tests/test_smoke_visual.py`, `tests/test_story_check.py`, `tests/test_ui_check.py`
+Tests: `tests/test_affected_tests.py`, `tests/test_audio_loop.py`, `tests/test_check_card.py`, `tests/test_day0_cards.py`, `tests/test_doc_consistency.py`, `tests/test_final10_fixes.py`, `tests/test_final8_fixes.py`, `tests/test_final9_fixes.py`, `tests/test_honest_jam.py`, `tests/test_lane_guard.py`, `tests/test_pipeline_check.py`, `tests/test_plan_checks.py`, `tests/test_practice.py`, `tests/test_smoke_visual.py`, `tests/test_story_check.py`, `tests/test_ui_check.py`
 
 ### `tools/lane_guard.py`
 

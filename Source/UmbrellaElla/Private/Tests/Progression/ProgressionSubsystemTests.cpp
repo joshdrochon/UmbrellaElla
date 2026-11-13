@@ -186,6 +186,7 @@ bool FProgWorldRuns::RunTest(const FString& Parameters)
 	Rig.StartDirectorsCut();
 	Rig.Kill(TEXT("Rear"));
 	Rig.Send(EUmbrellaEventType::EncounterCompleted, TEXT("Win"));
+	TestEqual(TEXT("only success completes an encounter"), Rig.Progression->GetCompletedRuns(), 0);
 	Rig.Send(EUmbrellaEventType::RunCompleted, TEXT("Win"));
 	TestEqual(TEXT("a win counts once"), Rig.Progression->GetCompletedRuns(), 1);
 	TestEqual(TEXT("growth kept"), Rig.Progression->GetXp(), 100);
@@ -194,6 +195,56 @@ bool FProgWorldRuns::RunTest(const FString& Parameters)
 	TestEqual(TEXT("next run cadence x1.03"), Rig.Progression->GetRunScaling().Cadence, 1.03, 1e-4);
 	TestFalse(TEXT("not the final hour"), Rig.Progression->IsFinalHourRun());
 	TestEqual(TEXT("xp survives into the next run"), Rig.Progression->GetXp(), 100);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FProgWorldRunStartRealloc, "UmbrellaElla.Progression.World.RunStartReallocationSurvivesBossRetry", EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+bool FProgWorldRunStartRealloc::RunTest(const FString& Parameters)
+{
+	FProgressionRig Rig;
+	if (!TestNotNull(TEXT("bus"), Rig.Bus))
+	{
+		return false;
+	}
+	Rig.StartDirectorsCut();
+	Rig.Kill(TEXT("Clock"));
+	Rig.Kill(TEXT("Clock"));
+	FPurchaseContext Refuge;
+	Refuge.Kind = EPurchaseContextKind::SafeRefuge;
+	Rig.Progression->SetPurchaseContext(Refuge);
+	TArray<int32> Want = Rig.Progression->GetEffectiveProfile().Ranks;
+	Want[static_cast<int32>(EProgressionTrack::HitCapacity)] = 1;
+	Rig.Progression->CommitRanks(Want);
+	Rig.Send(EUmbrellaEventType::EncounterCompleted, TEXT("success"));
+	TestEqual(TEXT("run won"), Rig.Progression->GetCompletedRuns(), 1);
+
+	Rig.StartDirectorsCut();
+	FPurchaseContext Start;
+	Start.Kind = EPurchaseContextKind::RunStart;
+	Rig.Progression->SetPurchaseContext(Start);
+	Want[static_cast<int32>(EProgressionTrack::HitCapacity)] = 0;
+	Want[static_cast<int32>(EProgressionTrack::Lives)] = 1;
+	TestEqual(TEXT("reallocate"), static_cast<int32>(Rig.Progression->CommitRanks(Want)), static_cast<int32>(EProgressionCommit::Ok));
+	Rig.Send(EUmbrellaEventType::CheckpointReached, TEXT("Phase2"));
+	Rig.Send(EUmbrellaEventType::CheckpointRetried, TEXT("Phase2"));
+	TestEqual(TEXT("hit capacity stays reallocated"), Rig.Progression->GetHitCapacity(), 3);
+	TestEqual(TEXT("lives stay reallocated"), Rig.Progression->GetRank(EProgressionTrack::Lives), 1);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FProgWorldQuitMidRun, "UmbrellaElla.Progression.World.RestartAfterQuitDropsUncheckpointedXp", EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+bool FProgWorldQuitMidRun::RunTest(const FString& Parameters)
+{
+	FProgressionRig Rig;
+	if (!TestNotNull(TEXT("bus"), Rig.Bus))
+	{
+		return false;
+	}
+	Rig.StartDirectorsCut();
+	Rig.Kill(TEXT("Roadwarden"));
+	TestTrue(TEXT("xp earned"), Rig.Progression->GetXp() > 0);
+	Rig.StartDirectorsCut();
+	TestEqual(TEXT("back at the checkpoint"), Rig.Progression->GetXp(), 0);
 	return true;
 }
 

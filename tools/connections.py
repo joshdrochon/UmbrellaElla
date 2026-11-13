@@ -160,8 +160,8 @@ def p_github(root):
     r.required = uses_lfs
     out.append(r)
     rc, text = _run([sys.executable, os.path.join(HERE, "install_git_hooks.py"), "--repo", root, "--check"])
-    out.append(ok("git hooks (gate guard, journal, LFS)", "install_git_hooks.py --check") if rc == 0 else
-               missing("git hooks (gate guard, journal, LFS)", "run `python3 tools/install_git_hooks.py`"))
+    out.append(ok("git hooks (journal, LFS)", "install_git_hooks.py --check") if rc == 0 else
+               missing("git hooks (journal, LFS)", "run `python3 tools/install_git_hooks.py`"))
     return out
 
 

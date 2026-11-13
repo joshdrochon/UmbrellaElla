@@ -1,4 +1,4 @@
-> Generated from `pipeline/roles/encounter-designer.md`, `.claude/agents/encounter-designer.md` at `a11903f` — edit the sources, not this file.
+> Generated from `pipeline/roles/encounter-designer.md`, `.claude/agents/encounter-designer.md` at `b201a66` — edit the sources, not this file.
 > Rebuild: `python3 tools/export_package.py`. Check: `python3 tools/export_package.py --check`.
 
 # Role: Encounter Designer (the boss fight as a whole)

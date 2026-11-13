@@ -1,4 +1,4 @@
-> Generated from `pipeline/qa/test-map.md`, `pipeline/qa/playtests.md`, `pipeline/qa/presets.json`, `pipeline/qa/no-player-maps.txt`, `pipeline/templates/test-note.md`, `tools/ue/daily-checklist.md`, `tools/ue/smoke-allow.txt`, `tools/check_automation_report.py`, `tools/ue/test.ps1`, `tools/ue/test.sh`, `tools/ue/daily.ps1`, `tools/ue/daily.sh`, `tools/ue/package.ps1`, `tools/ue/package.sh`, `tools/ue/smoke.ps1`, `tools/ue/smoke.sh` at `a11903f` — edit the sources, not this file.
+> Generated from `pipeline/qa/test-map.md`, `pipeline/qa/playtests.md`, `pipeline/qa/presets.json`, `pipeline/qa/no-player-maps.txt`, `pipeline/templates/test-note.md`, `tools/ue/daily-checklist.md`, `tools/ue/smoke-allow.txt`, `tools/check_automation_report.py`, `tools/ue/test.ps1`, `tools/ue/test.sh`, `tools/ue/daily.ps1`, `tools/ue/daily.sh`, `tools/ue/package.ps1`, `tools/ue/package.sh`, `tools/ue/smoke.ps1`, `tools/ue/smoke.sh` at `b201a66` — edit the sources, not this file.
 > Rebuild: `python3 tools/export_package.py`. Check: `python3 tools/export_package.py --check`.
 
 # QA Pipeline
@@ -478,7 +478,7 @@ removed before the run; any file left there after the run fails it. Save slots a
 are hashed before the run; any change after it fails (state-check).
 ```
 
-Tests: `tests/test_day0_cards.py`, `tests/test_final10_fixes.py`, `tests/test_practice.py`, `tests/test_ue_scripts.py`
+Tests: `tests/test_affected_tests.py`, `tests/test_day0_cards.py`, `tests/test_final10_fixes.py`, `tests/test_practice.py`, `tests/test_ue_scripts.py`
 
 ### `tools/ue/test.sh`
 
@@ -494,7 +494,7 @@ removed before the run; any file left there after the run fails it. Save slots (
 Saved/Config/*/GameUserSettings.ini are hashed before the run; any change after it fails (state-check).
 ```
 
-Tests: `tests/test_day0_cards.py`, `tests/test_final10_fixes.py`, `tests/test_git_gate.py`, `tests/test_honest_jam.py`, `tests/test_journal.py`, `tests/test_practice.py`, `tests/test_ue_scripts.py`
+Tests: `tests/test_affected_tests.py`, `tests/test_day0_cards.py`, `tests/test_final10_fixes.py`, `tests/test_git_gate.py`, `tests/test_honest_jam.py`, `tests/test_journal.py`, `tests/test_practice.py`, `tests/test_ue_scripts.py`
 
 ### `tools/ue/daily.ps1`
 

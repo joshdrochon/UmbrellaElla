@@ -168,6 +168,11 @@ void UProgressionSubsystem::HandleEvent(const FUmbrellaEvent& Event)
 	switch (Event.Type)
 	{
 	case EUmbrellaEventType::ModeSelected:
+		// An unfinished run left by quitting to the menu: only the last checkpoint's XP and ranks are kept (FLOW-08).
+		if (bRunActive && !bShadowActive && IsFeatureEnabled(EFeatureId::FLOW_08))
+		{
+			FProgressionRules::QuitReload(Profile);
+		}
 		if (NameHas(Event.Detail, TEXT("Director")))
 		{
 			SetPlayMode(EUmbrellaPlayMode::DirectorsCut);
@@ -216,8 +221,13 @@ void UProgressionSubsystem::HandleEvent(const FUmbrellaEvent& Event)
 	case EUmbrellaEventType::CheckpointRetried:
 		RetryFromCheckpoint();
 		break;
-	case EUmbrellaEventType::RunCompleted:
 	case EUmbrellaEventType::EncounterCompleted:
+		if (Event.Detail == FName(TEXT("success")))
+		{
+			CompleteRun();
+		}
+		break;
+	case EUmbrellaEventType::RunCompleted:
 		CompleteRun();
 		break;
 	default:
@@ -325,7 +335,7 @@ bool UProgressionSubsystem::IsRunActive() const
 
 bool UProgressionSubsystem::IsFinalHourRun() const
 {
-	return bFinalHour;
+	return bFinalHour && IsFeatureEnabled(EFeatureId::FLOW_06);
 }
 
 FRunScaling UProgressionSubsystem::GetRunScaling() const
@@ -480,6 +490,12 @@ EProgressionCommit UProgressionSubsystem::CommitRanks(const TArray<int32>& NewRa
 	const EProgressionCommit Result = FProgressionRules::TryCommitRanks(GetTuning(), Profile, NewRanks, PurchaseContext);
 	if (Result == EProgressionCommit::Ok)
 	{
+		// The run-start checkpoint is written before the run-2 reallocation; re-stamp it so a quit or boss retry keeps the new ranks.
+		if (bRunActive && PurchaseContext.Kind == EPurchaseContextKind::RunStart && Profile.bCheckpointValid
+			&& Profile.CheckpointKind == EProgressionCheckpointKind::Level)
+		{
+			FProgressionRules::ReachCheckpoint(Profile, EProgressionCheckpointKind::Level);
+		}
 		Persist();
 		ChangedDelegate.Broadcast();
 	}

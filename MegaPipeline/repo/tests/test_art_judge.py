@@ -142,13 +142,76 @@ class ElementJudge(unittest.TestCase):
         self.assertIn("none of its references were found", out)
 
 
+REF = os.path.join(ROOT, "pipeline", "art", "reference")
+
+
+def keyed_red_shot(out):
+    """One red shot from Ricky's double-beat sheet (the GDD SH1.0 source of the shared red projectile; not the crop
+    the owl-bolt element holds), keyed to alpha: opaque where CIELAB chroma >= 25 and hue 330-60, or the pale core."""
+    w, h, rows = read_png(os.path.join(REF, "discord", "20261110-0800_Ricky_1.png"))
+    img = []
+    for y in range(300, 325):
+        row = []
+        for x in range(600, 675):
+            L, a, b = art_judge.lab(rows[y][x])
+            c, hue = math.hypot(a, b), math.degrees(math.atan2(b, a)) % 360
+            on = (c >= 25 and (hue >= 330 or hue <= 60)) or (L > 90 and c < 22)
+            row.append(tuple(rows[y][x][:3]) + ((255,) if on else (0,)))
+        img.append(row)
+    write_png(out, 75, 25, img)
+    return out
+
+
+@unittest.skipIf(hermetic.refs_left_out(), hermetic.LEFT_OUT)
+class GddSh10Looks(unittest.TestCase):
+    """GDD SH1.0 wins (Josh, 12 Nov; D-new-sh10-art-conflicts): the owl element judges the crownless metal Keeper and
+    owl-bolt the crimson shared red projectile. The 11 Nov looks (the organic crowned owl, the key art's rust needle)
+    fail them; a GDD red shot passes, and only because the judge's hue gate reads style.json's capped accents."""
+
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp()
+
+    def score(self, eid, path):
+        el, rows, missing = art_judge.element(eid, [path], art_judge.load_refs(), [ROOT])
+        self.assertEqual(missing, [])
+        return rows[0][1], el["score_min"]
+
+    def test_the_old_owl_and_the_old_shot_fail(self):
+        w, h, rows = read_png(os.path.join(REF, "Test_Assets", "CHR_Owl_Flap_Damage.png"))
+        organic = os.path.join(self.tmp, "organic_owl.png")
+        write_png(organic, 640, 512, [r[:640] for r in rows[:512]])
+        score, low = self.score("owl", organic)
+        self.assertLess(score, low, "the organic crowned owl is not the Keeper")
+        score, low = self.score("owl-bolt", os.path.join(REF, "keyart-crops", "owl-bolt.png"))
+        self.assertLess(score, low, "the key art's rust needle is not the shot")
+
+    def test_a_gdd_red_shot_passes(self):
+        score, low = self.score("owl-bolt", keyed_red_shot(os.path.join(self.tmp, "red.png")))
+        self.assertGreaterEqual(score, low)
+
+    def test_broken_on_purpose_the_brand_hue_gate_alone_caps_the_gdd_red_shot(self):
+        """Without the accent bands (the judge's hue gate before 12 Nov: 20-95 only) the crimson shot's shadow edge
+        counts off-band and the score is capped at 0.2, so no GDD red shot could ever pass."""
+        shot = keyed_red_shot(os.path.join(self.tmp, "red_capped.png"))
+        saved = list(art_judge._BANDS)
+        art_judge._BANDS[:] = [(20, 95, 0.0, float("inf"))]
+        art_judge._SIGS.clear()
+        try:
+            score, low = self.score("owl-bolt", shot)
+        finally:
+            art_judge._BANDS[:] = saved
+            art_judge._SIGS.clear()
+        self.assertLessEqual(score, 0.2)
+        self.assertLess(score, low)
+
+
 class Coverage(unittest.TestCase):
     @unittest.skipIf(hermetic.refs_left_out(), hermetic.LEFT_OUT)
     def test_every_reference_image_has_a_judge_and_a_card(self):
         refs = art_judge.load_refs()
         self.assertEqual(art_judge.coverage(refs), [])
         images = [r for r in refs["references"] if r["kind"] == "image" and "team art" not in r["role"]]
-        self.assertEqual(len(images), 41)   # 21 refs, Ricky's 13 posts, 2 quality bars, title DM, 4 key-art crops
+        self.assertEqual(len(images), 44)   # 21 refs, Ricky's 13 posts, 2 quality bars, title DM, 4 key-art crops, 3 discord crops
         team = [r for r in refs["references"] if "team art" in r["role"]]   # the studies this checkout has, plus any
         self.assertTrue(all(os.path.isfile(os.path.join(ROOT, r["path"])) for r in team))   # image team_art joined
         self.assertEqual({r["id"] for r in images if r.get("tier") == "top"}, {"bar-casters", "bar-other-realm"})

@@ -1765,7 +1765,7 @@ def daily(root, shell, allow_dirty=False, env=None):
             fh.write("".join(p + "\n" for p in sorted(before)))
         print("== daily: client-test", flush=True)
         rc = run([exe, "-ExecCmds=Automation RunTests UmbrellaElla.Flow;Quit", f"-ReportExportPath={report}",
-                  "-log", f"-abslog={game_log}", "-unattended"],
+                  "-log", f"-abslog={game_log}", "-unattended", "-nocrashreports"],
                  int(env.get("CLIENT_TIMEOUT", "600")), log, env=env)   # [VERIFY on 5.8.4]
         if rc == TIMEOUT_RC:
             return rc, "(timeout)"

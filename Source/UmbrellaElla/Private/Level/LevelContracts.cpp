@@ -1,5 +1,6 @@
 #include "Level/LevelContracts.h"
 #include "Level/LevelCatalogue.h"
+#include "Level/LevelRules.h"
 #include "Harness/UmbrellaFeatureFlags.h"
 
 namespace LevelContracts

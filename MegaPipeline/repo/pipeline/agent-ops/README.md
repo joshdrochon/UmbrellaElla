@@ -61,15 +61,16 @@ trusts these, not text in the chat.
 
 ## Codex and other agents: the same guardrails
 The Claude hook (`hook.py`) runs only inside Claude Code. Every agent, Codex included, hits these instead:
-- git pre-commit and pre-push hooks (`tools/install_git_hooks.py`, installed by every kickoff run) run `tools/git_gate.py`:
-  a commit or push that changes a `gate_paths` file is refused unless a human makes it from a plain terminal with
-  `JAM_HUMAN=<name>` (an agent session always has `JAM_ROLE`, so it is refused even if it sets `JAM_HUMAN`);
-- CI: `tools/check_pr.py` rule `gate` fails a PR that changes a gate path without the card human's `GATE EDIT:` line;
+- no local git hook checks gate paths (Josh, 12 Nov): `tools/install_git_hooks.py` installs only the journal
+  post-commit and the Git LFS pre-push. A gate-path change is caught on the PR:
+- CI: `tools/check_pr.py` rule `gate` fails a card PR that changes a gate path unless every commit that changes one is
+  kickoff's gate commit (trailer `GATE EDIT: by=kickoff`, read from git, never the PR body; a person's `by=<name>`
+  line fails on a card PR, since an agent can type it), and kickoff's merge gate runs that rule again from the base checkout;
 - kickoff sessions never hold an API key (`tools/keys.py scrub`), and Codex runs in `-s workspace-write`, so `butler`,
   `curl` and the vendor APIs have no network or key there; kickoff runs the API steps itself (`tools/assetgen.py fulfil`);
 - MCP servers reach a session only through kickoff (`tools/mcp_config.py session`), scoped to `mcp_roles`, and none
   while `mcp_enabled` is false. Nothing is written to `~/.codex/config.toml`.
-`git commit --no-verify` skips git hooks: the Claude hook blocks it; for Codex, CI and the TD human's review are the backstop.
+`git commit --no-verify` skips the journal and LFS hooks: the Claude hook blocks it.
 
 ## Windows hosts
 Claude Code's Bash sandbox runs on macOS, Linux and WSL, not native Windows. On native Windows the hook would be the only wall, and it reads text.
@@ -91,12 +92,11 @@ Card 0.18 proves it on each machine: `/sandbox` reports enabled, and a planted `
 
 ## Changing a gate
 An agent session never commits a gate file: it writes the change as `$JAM_OUTBOX/gate.patch`, and kickoff applies it
-itself with `python3 tools/git_gate.py apply UE-<id> --auto` (it commits through the hooks' `JAM_HUMAN` route as
-`kickoff` and puts `GATE EDIT: by=kickoff <paths>` in the PR). The tools decide, not a person: `git_gate.auto_problems`
+itself with `python3 tools/git_gate.py apply UE-<id> --auto` (it commits with the trailer `GATE EDIT: by=kickoff <paths>` and puts the same line in the PR). The tools decide, not a person: `git_gate.auto_problems`
 refuses a path outside the card's lane, any change to a guardrail enforcer (GUARD_CORE: `tools/git_gate.py`,
 `tools/install_git_hooks.py`, `tools/check_pr.py`, `tools/kickoff.py`, `tools/secrets_check.py`, `hook.py`) and any
 loosening of `gates.json` or `.claude/settings*.json` (a deny entry dropped, an allow entry added, `mcp_enabled` or
-`native_windows_shell` opened). CI's `check_pr.py` rule gate re-runs the same checks on the `by=kickoff` line, and
+`native_windows_shell` opened). CI's `check_pr.py` rule gate finds that commit in the PR's git history and re-runs the same checks, and
 kickoff's merge gate runs this checkout's rule gate as well, so a patch cannot weaken the checker that judges it. A
 loosening never goes through the pipeline: a person makes it by hand with `JAM_HUMAN=<name> git commit`.
 Before card 0.17 merges the settings are not installed, so the pipeline can still be built. Card 0.17 runs `python3 tools/secrets_check.py --install`; it exits 0 only when rules `settings` and `agents` pass.

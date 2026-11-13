@@ -10,7 +10,7 @@ PREFIX = {"Motor": "Move", "Umbrella": "Move", "Attack": "Move", "Input": "Move"
           "Health": "Health", "Defense": "Health", "UI": "Health", "Projectile": "Projectile",
           "Owl": "Keeper", "Encounter": "Keeper", "Keeper": "Keeper", "Flow": "Flow", "Smoke": "Flow",
           "Arena": "Arena", "Field": "Field", "Feedback": "Feedback", "Level": "Level", "Hazard": "Level",
-          "Enemy": "Enemy", "Trap": "Trap", "BrokenMill": "Trap", "Progression": "Progression",
+          "Enemy": "Enemy", "Trap": "Trap", "BrokenMill": "BrokenMill", "Progression": "Progression",
           "Persistence": "Persistence", "Story": "Story", "DirectorsCut": "Story", "Settings": "Settings"}
 SUB = {"UI/Menus": "Flow", "UI/Progression": "Progression", "UI/Story": "Story", "UI/Settings": "Settings"}
 prefixes, full = set(), False
@@ -25,6 +25,8 @@ for f in files:
         full = True; continue          # shared contracts: everything depends on them
     sub = "/".join(parts[3:5])
     p = SUB.get(sub) or PREFIX.get(d)
+    if parts[3] == "Tests":
+        prefixes.add(d)               # a test folder's own name is its test prefix (UmbrellaElla.<Folder>.*)
     if p:
         prefixes.add(p)
     else:
@@ -33,6 +35,10 @@ any_ = lambda *pre: any(f.startswith(pre) for f in files)
 ext = lambda *e: any(f.lower().endswith(e) for f in files)
 src = any_("Source/")
 print(f"SRC={int(src)}")
+# The Flow world tests drive Start Game, defeat, retry and the win end to end, so every Source merge runs them too:
+# areas talk through bus events, and a listener in one area can break another's path (story widgets broke Flow, Nov 12).
+if prefixes:
+    prefixes.add("Flow.World")
 print(f"TESTS={'UmbrellaElla' if full else '+'.join('UmbrellaElla.' + p for p in sorted(prefixes))}")
 print(f"MODULE={int(src)}")
 print(f"MANIFEST={int(any_('docs/feature-manifest.json', 'docs/gdd/', 'Source/'))}")

@@ -6,7 +6,7 @@ debug draws, 16:9) run first and cannot be overridden; this judge adds what they
 
   scene SHOT [--refs-root DIR ...]     a build screenshot against the key-art composition (references.json "scene"):
         owl large on the right, chest clock glowing gold inside it, Ella small on the left, a black jagged skyline
-        band along the bottom, rust-red bolts, paper texture; plus a perceptual similarity to the scene references
+        band along the bottom, red owl shots, paper texture; plus a perceptual similarity to the scene references
         (16x9 luminance layout correlation and edge-orientation histogram on a downscaled frame). Prints
         `art_judge: scene PASS|FAIL score=<s> ...`, one line per miss and a FIX: line. The smoke runs it on every
         gameplay map's screenshot (tools/ue_run.py shot_checks), so the daily and kickoff do too.
@@ -345,7 +345,7 @@ def scene_problems(m, t):
         out.append(("clock", f"gold share {m['gold_share']} with {m['clock_in_owl']:.0%} inside the owl; want >= "
                              f"{t['gold_share_min']} and >= {t['clock_in_owl_min']:.0%} (chest clock glowing gold)"))
     if m["rust_share"] < t["rust_share_min"]:
-        out.append(("bolts", f"rust share {m['rust_share']} < {t['rust_share_min']} (red cross-shaped owl bolts)"))
+        out.append(("bolts", f"rust share {m['rust_share']} < {t['rust_share_min']} (red owl shots)"))
     return out
 
 
@@ -354,7 +354,7 @@ FIX = {"skyline": "add or rescale the black jagged skyline layer so it spans the
        "ella": "place Ella small on the left at her art-bible size",
        "scale": "rescale the art so the owl dwarfs Ella",
        "clock": "the chest clock must read gold inside the owl: fix its material or regenerate it",
-       "bolts": "owl bolts must be rust-red crosses: regenerate them against their references",
+       "bolts": "owl shots must read red (GDD SH1.0 shared red projectile): regenerate them against their references",
        "similarity": "the frame does not look like the key art: compare with pipeline/art/reference/target-keyart.png "
                      "and rebuild layout, value structure and etched texture"}
 
@@ -406,6 +406,25 @@ def first_frame(path):
 
 
 _SIGS = {}
+STYLE = os.path.join(ROOT, "pipeline", "art", "style.json")
+_BANDS = []
+
+
+def hue_allowed(hue, chroma):
+    """A saturated hue is allowed in the brand gold/rust bands (style.json hue_gate) or in a capped accent's band at
+    its chroma (style.json accents: the GDD SH1.0 crimson shots, hue 5-50, fall partly below the brand band)."""
+    if not _BANDS:
+        try:
+            with open(STYLE, encoding="utf-8") as fh:
+                st = json.load(fh)
+        except (OSError, ValueError):
+            st = {}
+        _BANDS.extend((lo, hi, 0.0, float("inf"))
+                      for lo, hi in (st.get("hue_gate") or {}).get("allowed_hue_bands_deg") or [[20, 95]])
+        for role in ((st.get("accents") or {}).get("roles") or {}).values():
+            c0, c1 = role.get("chroma") or [0, float("inf")]
+            _BANDS.extend((lo, hi, c0, c1) for lo, hi in role.get("hue_bands_deg") or [])
+    return any(lo <= hue <= hi and c0 <= chroma <= c1 for lo, hi, c0, c1 in _BANDS)
 
 
 def signature(path, cell=None):
@@ -451,8 +470,8 @@ def _signature(path, cell=None):
     for p in opaque:
         L, a, b = lab(p)
         hue = math.degrees(math.atan2(b, a)) % 360
-        if math.hypot(a, b) > 18 and not 20 <= hue <= 95:
-            off += 1   # a hue outside the gold and rust bands (art bible pillar 3)
+        if math.hypot(a, b) > 18 and not hue_allowed(hue, math.hypot(a, b)):
+            off += 1   # a hue outside the gold and rust bands and the capped accents (art bible pillar 3)
         k = tuple(int(v) // 6 for v in p[:3])
         counts[k] = counts.get(k, 0) + 1
     flat = max(counts.values()) / len(opaque) if counts else 0.0

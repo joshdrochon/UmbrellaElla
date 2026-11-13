@@ -55,10 +55,10 @@ if [ -n "${SMOKE_RES:-}" ]; then
 fi
 rc=0
 if [ "${SMOKE_MODE:-}" = "alive" ]; then
-  "$PY" "$REPO/tools/ue_run.py" alive --seconds "${SMOKE_ALIVE_SECONDS:-15}" --max-boot-s "${SMOKE_MAX_BOOT_S:-0}" --log "$OUTLOG" -- "$EXE" -unattended ${ARGS[@]+"${ARGS[@]}"} || rc=$?
+  "$PY" "$REPO/tools/ue_run.py" alive --seconds "${SMOKE_ALIVE_SECONDS:-15}" --max-boot-s "${SMOKE_MAX_BOOT_S:-0}" --log "$OUTLOG" -- "$EXE" -unattended -nocrashreports ${ARGS[@]+"${ARGS[@]}"} || rc=$?
 else
   "$PY" "$REPO/tools/ue_run.py" run --timeout "${SMOKE_TIMEOUT:-120}" --log "$OUTLOG" -- \
-    "$EXE" -SmokeQuitAfter=15 -log -abslog="$GAMELOG" -unattended ${ARGS[@]+"${ARGS[@]}"} >/dev/null || rc=$?   # -abslog [VERIFY]
+    "$EXE" -SmokeQuitAfter=15 -log -abslog="$GAMELOG" -unattended -nocrashreports ${ARGS[@]+"${ARGS[@]}"} >/dev/null || rc=$?   # -abslog [VERIFY]
   LOGS=("$OUTLOG"); [ -f "$GAMELOG" ] && LOGS+=("$GAMELOG")
   echo "smoke logs: ${LOGS[*]}"
   if [ -f "$INFO/BUILD_INFO.txt" ]; then EXPECT+=(--expect-commit "$(sed -n 's/^commit=//p' "$INFO/BUILD_INFO.txt")"); fi

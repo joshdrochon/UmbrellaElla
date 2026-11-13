@@ -14,7 +14,7 @@ Wired by pipeline/agent-ops/settings.json (copied to .claude/settings.json):
           Interpreter one-liners (python -c, perl -e, node -e, ruby -e): network modules are blocked, a gate path
           with a write call is blocked, a delete under delete_ask_paths asks. Every shell call on native Windows
           is blocked (gates.json native_windows_shell): no sandbox there.
-          `git commit|push --no-verify` and `git -c core.hooksPath` are blocked (they skip tools/git_gate.py).
+          `git commit|push --no-verify` and `git -c core.hooksPath` are blocked (they skip the journal and Git LFS hooks).
           In a practice repo (.pipeline-practice) every `butler` command is blocked.
           The role comes from JAM_ROLE (launch command) and the subagent type, never from transcript text.
   log     PostToolUse, PostToolUseFailure, UserPromptSubmit, Stop. Appends one JSON line to
@@ -511,8 +511,8 @@ def guard(data, gates):
                            "from the team repo, by a human (tools/practice.py).")
         if re.search(r"(?<![\w-])git\b[^|;&\n]*\s(?:commit|push)\b[^|;&\n]*\s(?:--no-verify|-n)\b", command) or \
                 re.search(r"(?<![\w-])git\b[^|;&\n]*-c\s+core\.hooksPath", command, re.I):
-            reasons.append("`--no-verify` / `core.hooksPath` skips the git hooks that stop gate-path commits for every "
-                           "agent (tools/git_gate.py). Commit normally.")
+            reasons.append("`--no-verify` / `core.hooksPath` skips the git hooks (the journal and the Git LFS upload, "
+                           "tools/install_git_hooks.py). Commit normally.")
         net_hits, targets = shell_findings(command, gates)
         for n in net_hits:
             reasons.append(f"'{n}' is a network command. Build agents have no network tools; ask a human.")

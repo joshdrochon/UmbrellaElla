@@ -1,7 +1,7 @@
-"""Agent-agnostic gate guard (tools/git_gate.py + the hooks tools/install_git_hooks.py writes): an agent commit or
-push that touches a gate path is refused whatever the agent (Claude Code, Codex, a stub), a human commit through the
-JAM_HUMAN route passes, and CI (check_pr rule gate) fails the PR without the human's GATE EDIT line. Each check has
-a passing case and a case broken on purpose."""
+"""Gate paths without a git-level guard (Josh, 12 Nov): tools/install_git_hooks.py installs no gate check, so an
+agent's gate-path commit and push land locally, and CI (check_pr rule gate) fails the PR without the human's or
+kickoff's GATE EDIT line. tools/git_gate.py stays a library for kickoff's tool route (apply --auto) and check_pr.
+Each check has a passing case and a case broken on purpose."""
 import json
 import os
 import shutil
@@ -70,121 +70,87 @@ class Repo:
         return self.git("commit", "-q", "-m", f"edit {rel}", env=clean_env(**env))
 
 
-class PreCommitHook(unittest.TestCase):
+class NoGateHook(unittest.TestCase):
+    """The installer writes post-commit (journal) and pre-push (Git LFS only); nothing checks gate paths locally."""
+
     def setUp(self):
         self.r = Repo()
         self.addCleanup(self.r.close)
         self.r.install()
+        self.hooks = os.path.join(self.r.dir, ".git", "hooks")
 
-    def test_agent_commit_to_a_gate_path_is_blocked(self):
-        for var, val in (("JAM_ROLE", "gameplay-dev"), ("CODEX_SANDBOX", "seatbelt"), ("CLAUDECODE", "1")):
-            with self.subTest(var=var):
-                p = self.r.commit("tools/check_x.py", **{var: val})
-                self.assertNotEqual(p.returncode, 0)
-                self.assertIn("git_gate: BLOCKED", p.stderr)
-                self.assertIn("tools/check_x.py", p.stderr)
-                self.r.git("reset", "-q", "--hard", "HEAD", hooks=False)
+    def tool(self, *a):
+        return subprocess.run([PY, os.path.join(ROOT, "tools", "install_git_hooks.py"), "--repo", self.r.dir, *a],
+                              capture_output=True, text=True)
 
-    def test_agent_that_sets_jam_human_is_still_blocked(self):
-        p = self.r.commit("AGENTS.md", JAM_ROLE="producer", JAM_HUMAN="Josh")
-        self.assertNotEqual(p.returncode, 0)
-        self.assertIn("JAM_ROLE is set", p.stderr)
+    def read(self, name):
+        with open(os.path.join(self.hooks, name), encoding="utf-8") as fh:
+            return fh.read()
 
-    def test_unmarked_commit_is_blocked_and_the_human_route_passes(self):
-        self.assertNotEqual(self.r.commit("tools/check_x.py").returncode, 0)
-        p = self.r.git("commit", "-q", "-m", "human gate edit", env=clean_env(JAM_HUMAN="Josh"))
-        self.assertEqual(p.returncode, 0, p.stderr)
-        self.assertIn("changed by human Josh", p.stderr)
+    def test_no_pre_commit_and_pre_push_is_lfs_only(self):
+        self.assertFalse(os.path.exists(os.path.join(self.hooks, "pre-commit")))
+        push = self.read("pre-push")
+        self.assertIn('git lfs pre-push "$@"', push)
+        self.assertNotIn("git_gate", push)
+        self.assertEqual(self.tool("--check").returncode, 0)
 
-    def test_agent_commit_outside_gates_passes(self):
-        p = self.r.commit("docs/notes.md", JAM_ROLE="gameplay-dev")
-        self.assertEqual(p.returncode, 0, p.stderr)
-
-    def test_editing_gates_json_in_the_same_commit_does_not_unlock(self):
-        gates = os.path.join(self.r.dir, "pipeline", "agent-ops", "gates.json")
-        with open(gates, encoding="utf-8") as fh:
-            g = json.load(fh)
-        g["gate_paths"] = []
-        with open(gates, "w", encoding="utf-8") as fh:
-            json.dump(g, fh)
-        p = self.r.commit("tools/check_x.py", JAM_ROLE="gameplay-dev")
-        self.assertNotEqual(p.returncode, 0, "the committed HEAD gate list decides, not the working tree")
-
-    def test_broken_on_purpose_without_the_hook_the_commit_lands(self):
-        os.remove(os.path.join(self.r.dir, ".git", "hooks", "pre-commit"))
-        p = self.r.commit("tools/check_x.py", JAM_ROLE="gameplay-dev")
-        self.assertEqual(p.returncode, 0, "no hook, no guard: the hook is what blocks it")
-
-
-class PrePushHook(unittest.TestCase):
-    def setUp(self):
-        self.r = Repo()
-        self.addCleanup(self.r.close)
+    def test_an_agent_gate_commit_and_push_land_locally(self):
+        """No local hook stops it: check_pr's gate rule on the PR does (CheckPrGateRule)."""
         self.r.git("checkout", "-q", "-b", "ue-12-x")
-        self.r.write("tools/check_x.py", "change\n")
-        self.r.git("add", "-A")
-        self.r.git("commit", "-q", "-m", "slipped past pre-commit", hooks=False)
-        self.r.install()
-
-    def test_agent_push_of_a_gate_commit_is_blocked(self):
-        p = self.r.git("push", "origin", "ue-12-x", env=clean_env(JAM_KICKOFF="1"))
-        self.assertNotEqual(p.returncode, 0)
-        self.assertIn("git_gate: BLOCKED", p.stderr)
-
-    def test_human_push_passes(self):
-        p = self.r.git("push", "origin", "ue-12-x", env=clean_env(JAM_HUMAN="Josh"))
+        p = self.r.commit("tools/check_x.py", JAM_ROLE="gameplay-dev")
+        self.assertEqual(p.returncode, 0, p.stderr)
+        p = self.r.git("push", "-q", "origin", "ue-12-x", env=clean_env(JAM_KICKOFF="1"))
         self.assertEqual(p.returncode, 0, p.stderr)
 
-    def test_hooks_chain_lfs_and_check_reports_current(self):
-        p = subprocess.run([PY, os.path.join(ROOT, "tools", "install_git_hooks.py"), "--repo", self.r.dir, "--check"],
-                           capture_output=True, text=True)
-        self.assertEqual(p.returncode, 0, p.stdout)
-        with open(os.path.join(self.r.dir, ".git", "hooks", "pre-push"), encoding="utf-8") as fh:
-            self.assertIn('git lfs pre-push "$@"', fh.read())
-        os.remove(os.path.join(self.r.dir, ".git", "hooks", "pre-push"))   # broken on purpose
-        p = subprocess.run([PY, os.path.join(ROOT, "tools", "install_git_hooks.py"), "--repo", self.r.dir, "--check"],
-                           capture_output=True, text=True)
-        self.assertEqual(p.returncode, 1)
+    def test_broken_on_purpose_a_missing_pre_push_fails_check(self):
+        os.remove(os.path.join(self.hooks, "pre-push"))
+        self.assertEqual(self.tool("--check").returncode, 1)
+        self.assertEqual(self.tool().returncode, 0)
+        self.assertEqual(self.tool("--check").returncode, 0)
 
+    def test_an_old_gate_hook_is_removed_and_fails_check_until_then(self):
+        old = "#!/bin/sh\n# jam-git-gate (tools/install_git_hooks.py)\nexit 1\n"
+        for name in ("pre-commit", "pre-push"):
+            with open(os.path.join(self.hooks, name), "w", encoding="utf-8") as fh:
+                fh.write(old)
+        p = self.tool("--check")
+        self.assertEqual(p.returncode, 1, "broken on purpose: an old gate hook is still installed")
+        self.assertIn("old gate hook", p.stdout)
+        p = self.tool()
+        self.assertEqual(p.returncode, 0, p.stderr)
+        self.assertFalse(os.path.exists(os.path.join(self.hooks, "pre-commit")))
+        self.assertNotIn("jam-git-gate", self.read("pre-push"))
+        self.assertEqual(self.tool("--check").returncode, 0)
 
-class DecideUnit(unittest.TestCase):
-    GATES = {"gate_paths": ["tools/**", "AGENTS.md"], "agent_env": ["JAM_ROLE", "CODEX_SANDBOX"]}
-
-    def test_rules(self):
-        self.assertEqual(git_gate.decide(["docs/a.md"], {"JAM_ROLE": "x"}, self.GATES)[0], True)
-        self.assertEqual(git_gate.decide(["tools/a.py"], {"JAM_HUMAN": "Ana"}, self.GATES)[0], True)
-        self.assertEqual(git_gate.decide(["tools"], {}, self.GATES)[0], False)
-        self.assertEqual(git_gate.decide(["AGENTS.md"], {"CODEX_SANDBOX": "seatbelt", "JAM_HUMAN": "Ana"},
-                                         self.GATES)[0], False)
+    def test_a_foreign_pre_commit_is_left_alone(self):
+        with open(os.path.join(self.hooks, "pre-commit"), "w", encoding="utf-8") as fh:
+            fh.write("#!/bin/sh\necho mine\n")
+        self.assertEqual(self.tool().returncode, 0)
+        self.assertEqual(self.tool("--check").returncode, 0)
+        self.assertIn("echo mine", self.read("pre-commit"))
 
 
 class CheckPrGateRule(unittest.TestCase):
-    """CI backstop: a PR that changes a gate path needs the card human's GATE EDIT line."""
+    """CI backstop: on a card PR a gate-path change passes only through kickoff's tool route, read from git (the
+    repo-backed cases are in ApplyGatePatch). A person's GATE EDIT line in the body passes only on a PR with no card."""
     CARD = {"title": "[UE-0.3] Skeleton", "body": "### Human who runs and merges this\n\nJosh\n"}
 
-    def probs(self, evidence, changed=("tools/ue/test.sh", "Source/A.cpp")):
-        s = {"Evidence": evidence, "What changed": ""}
-        return check_pr.gate_problems(s, list(changed), ROOT, self.CARD)
+    def probs(self, evidence, changed=("tools/ue/test.sh", "Source/A.cpp"), card=CARD, task="Part of #4"):
+        s = {"Evidence": evidence, "What changed": "", "Task": task}
+        return check_pr.gate_problems(s, list(changed), ROOT, card)
 
-    def test_human_line_passes(self):
-        self.assertEqual(self.probs("GATE EDIT: by=Josh tools/ue/test.sh\n"), [])
+    def test_card_pr_human_line_alone_fails(self):
+        self.assertTrue(self.probs("GATE EDIT: by=Josh tools/ue/test.sh\n"))
+        self.assertTrue(self.probs("GATE EDIT: by=Josh tools/ue/test.sh\n", card=None), "the Task link makes it a card PR")
+        self.assertTrue(self.probs("GATE EDIT: by=kickoff tools/ue/test.sh\n"), "a body line is not the git record")
 
-    def test_broken_no_line_or_wrong_human_fails(self):
-        self.assertTrue(self.probs("all good\n"))
-        got = self.probs("GATE EDIT: by=Rick tools/ue/test.sh\n")
-        self.assertTrue(got and "not the card's Human Josh" in got[0], got)
-        self.assertTrue(self.probs("GATE EDIT: by=agent tools/ue/test.sh\n"))
+    def test_no_card_pr_takes_a_person_line(self):
+        self.assertEqual(self.probs("GATE EDIT: by=Josh tools/ue/test.sh\n", card=None, task=""), [])
+        self.assertTrue(self.probs("all good\n", card=None, task=""))
+        self.assertTrue(self.probs("GATE EDIT: by=agent tools/ue/test.sh\n", card=None, task=""))
 
     def test_no_gate_path_needs_nothing(self):
         self.assertEqual(self.probs("", changed=("Source/A.cpp",)), [])
-
-    def test_the_td_human_may_sign_another_cards_gate_patch(self):
-        card = {"title": "[UE-0.7] Palette", "body": "### Human who runs and merges this\n\nRick (sign-off: guardrails)\n"}
-        s = {"Evidence": "GATE EDIT: by=Josh pipeline/art/style.json\n", "What changed": ""}
-        self.assertEqual(check_pr.td_human(ROOT), "Josh")   # docs/jam-brief.md People: the TD human seat
-        self.assertEqual(check_pr.gate_problems(s, ["pipeline/art/style.json"], ROOT, card), [])
-        s["Evidence"] = "GATE EDIT: by=Ana pipeline/art/style.json\n"   # broken on purpose: neither Rick nor the TD
-        self.assertTrue(check_pr.gate_problems(s, ["pipeline/art/style.json"], ROOT, card))
 
 
 LANE = "### File lane, do-not-touch paths, binary files to lock\n\nLane: "
@@ -214,18 +180,6 @@ class ToolRoute(unittest.TestCase):
                        dict(self.GATES, role_deny={"audio": []}), dict(self.GATES, mcp_allow=["exec_python"]),
                        {k: v for k, v in self.GATES.items() if k != "role_deny"}):
             self.assertTrue(self.probs([g], lanes, broken), broken)
-
-    def test_check_pr_rechecks_a_kickoff_line(self):
-        base = subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True).stdout.strip()
-        card = {"title": "[UE-0.0] People", "body": LANE + "`.github/CODEOWNERS`\n"}
-        s = {"Evidence": "GATE EDIT: by=kickoff .github/CODEOWNERS\n", "What changed": ""}
-        self.assertEqual(check_pr.gate_problems(s, [".github/CODEOWNERS"], ROOT, card, None, base), [])
-        other = {"title": "[UE-0.16] Clock", "body": LANE + "`.github/workflows/clock.yml`\n"}
-        self.assertTrue(check_pr.gate_problems(s, [".github/CODEOWNERS"], ROOT, other, None, base))   # not its lane
-        self.assertTrue(check_pr.gate_problems(s, [".github/CODEOWNERS"], ROOT, card, None, None))   # no base
-        self.assertTrue(check_pr.gate_problems({"Evidence": "", "What changed": ""}, ["./.github/CODEOWNERS"], ROOT,
-                                               card, None, base), "a dot path is still a gate path")
-
 
 class ClaudeHookBlocksNoVerify(unittest.TestCase):
     def guard(self, command, proj):
@@ -315,6 +269,55 @@ class ApplyGatePatch(unittest.TestCase):
         self.assertEqual(rc, 0, lines)
         msg = subprocess.run(["git", "log", "-1", "--format=%B"], cwd=self.wt, capture_output=True, text=True).stdout
         self.assertIn("GATE EDIT: by=kickoff tools/ue/art_dump.py", msg)
+
+    CARD = {"title": "[UE-0.4d] Art dump", "body": LANE + "`tools/ue/art_dump.py`\n"}
+
+    def wt_git(self, *args, env=None):
+        return subprocess.run(["git", "-c", "user.email=t@t", "-c", "user.name=t", "-c", "core.hooksPath=/dev/null",
+                               *args], cwd=self.wt, capture_output=True, text=True, env=env or clean_env()).stdout.strip()
+
+    def gate(self, evidence=""):
+        """check_pr rule gate on the card's branch: base = main, head = the worktree HEAD (the git record)."""
+        s = {"Task": "Part of #9. Card ID: UE-0.4d", "Evidence": evidence, "What changed": ""}
+        base, head = self.wt_git("rev-parse", "main"), self.wt_git("rev-parse", "HEAD")
+        changed = self.wt_git("diff", "--name-only", f"{base}..{head}").split()
+        return check_pr.gate_problems(s, changed, self.r.dir, self.CARD, head, base)
+
+    def test_agent_commit_with_a_human_gate_edit_line_fails(self):
+        os.makedirs(os.path.join(self.wt, "tools", "ue"))
+        with open(os.path.join(self.wt, "tools", "ue", "art_dump.py"), "w") as fh:
+            fh.write("print('dump')\n")
+        self.wt_git("add", "-A")
+        self.wt_git("commit", "-q", "-m", "UE-0.4d: art dump\n\nGATE EDIT: by=Josh tools/ue/art_dump.py",
+                    env=clean_env(JAM_ROLE="technical-director"))
+        got = self.gate("GATE EDIT: by=Josh tools/ue/art_dump.py\n")
+        self.assertTrue(got, "an agent's own gate commit plus a by=Josh line must fail")
+        self.assertTrue(any("not kickoff's gate commit" in p for p in got), got)
+        self.assertTrue(any("by=Josh" in p and "card PR" in p for p in got), got)
+
+    def test_kickoff_route_passes_and_a_later_agent_commit_fails(self):
+        meta = os.path.join(self.r.dir, ".pipeline", "gate-patches", "UE-0.4d", "meta.json")
+        with open(meta) as fh:
+            m = json.load(fh)
+        with open(meta, "w") as fh:
+            json.dump(dict(m, lanes=["tools/ue/art_dump.py"]), fh)
+        rc, lines = self.apply(by="kickoff", no_pr=True)
+        self.assertEqual(rc, 0, lines)
+        self.assertEqual(self.gate(), [], "kickoff's gate commit (trailer by=kickoff) passes with no body line")
+        with open(os.path.join(self.wt, "tools", "ue", "art_dump.py"), "a") as fh:
+            fh.write("import os\n")
+        self.wt_git("commit", "-q", "-am", "UE-0.4d: tweak", env=clean_env(JAM_ROLE="technical-director"))
+        got = self.gate("GATE EDIT: by=kickoff tools/ue/art_dump.py\n")
+        self.assertTrue(got and "not kickoff's gate commit" in got[0], "broken on purpose: an agent edit after it")
+
+    def test_a_kickoff_trailer_outside_the_lane_fails_the_recheck(self):
+        os.makedirs(os.path.join(self.wt, "tools", "ue"))
+        with open(os.path.join(self.wt, "tools", "kickoff_extra.py"), "w") as fh:
+            fh.write("x = 1\n")
+        self.wt_git("add", "-A")
+        self.wt_git("commit", "-q", "-m", "forged\n\nGATE EDIT: by=kickoff tools/kickoff_extra.py")
+        got = self.gate()
+        self.assertTrue(got and "re-check" in got[0], got)
 
     def test_pr_body_gets_the_line_under_evidence(self):
         body = "## Task\nx\n\n## Evidence\nbuild ok\n"
