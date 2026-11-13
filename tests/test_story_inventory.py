@@ -22,6 +22,17 @@ def put(root, rel, text):
         fh.write(text)
 
 
+class SurfaceOf(unittest.TestCase):
+    def test_labels_name_things_and_actions_stay_buttons(self):
+        f = lambda t: story_inventory.surface_of({"text": t, "screen": "settings", "kind": "ui"})
+        self.assertEqual(f("Movement speed"), "label")
+        self.assertEqual(f("Deaths"), "label")
+        self.assertEqual(f("Paused"), "label")
+        self.assertEqual(f("Quit"), "button")
+        self.assertEqual(f("Keep Editing"), "button")
+        self.assertEqual(f("A long sentence about many things here"), "screen")
+
+
 class Inventory(unittest.TestCase):
     def setUp(self):
         self.root = tempfile.mkdtemp()

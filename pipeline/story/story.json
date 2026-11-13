@@ -54,6 +54,7 @@
   "surfaces": {
     "title":       {"max_words": 4,   "story": false, "where": "title screen and store page title"},
     "button":      {"max_words": 3,   "story": false, "where": "menu buttons (pipeline/ui/menus.md)"},
+    "label":       {"max_words": 4,   "story": false, "where": "stat, setting and menu labels: a label names a thing, not an action"},
     "screen":      {"max_words": 20,  "story": false, "where": "headings and one-line text on pause, Survived and fail screens"},
     "prompt":      {"max_words": 8,   "story": false, "where": "control prompts (Confirm / Back, key hints)"},
     "tooltip":     {"max_words": 14,  "story": false, "where": "settings row help text"},

@@ -149,6 +149,12 @@ def slug(text, taken):
     return out
 
 
+# First words that make a short UI text an action (a button); anything else short is a label (names a thing).
+LABEL_ACTIONS = {"Start", "Play", "Resume", "Restart", "Quit", "Back", "Confirm", "Cancel", "Save", "Discard", "Keep", "Reset",
+                 "Open", "Skip", "Done", "Next", "Begin", "Retry", "Continue", "Try", "Main", "Sound", "Controller", "Credits",
+                 "Game", "Settings"}
+
+
 def surface_of(it):
     t, screen = it["text"], it["screen"]
     words = len(t.split())
@@ -158,7 +164,11 @@ def surface_of(it):
         return "end_card"
     if it["kind"] == "story-table":
         return "end_card" if screen == "ending" else "clue"
-    return "button" if words <= 3 else "screen"
+    if words <= 3 and t.split()[0] in LABEL_ACTIONS:
+        return "button"
+    if words <= 4:
+        return "label"
+    return "screen"
 
 
 def facts_of(it):
