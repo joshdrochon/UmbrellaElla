@@ -10,7 +10,7 @@
  "aspect_ratio": "16:9",
  "image_size": "2K",
  "input_images": [
-  "pipeline/art/proof/ImageProof/Keeper_R8/keeper_grid.png"
+  "pipeline/art/proof/Keeper/owl/Keeper_R8/keeper_grid.png"
  ],
  "cost_usd": 0.141776,
  "reply": {

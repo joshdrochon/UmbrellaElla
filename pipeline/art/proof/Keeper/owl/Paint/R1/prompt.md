@@ -1,5 +1,5 @@
 # Keeper owl paint, round 1 (D-new-art-image-model)
-Model gemini-3-pro-image-preview, aspect 21:9, 2K. One call, strip of 4 flap poses. Input: Art/Source/Keeper/Raw/Owl_Flap/Owl_Flap_00.png (our in-jam Blender render, identity only; pose differs per figure, so the text leads).
+Model gemini-3-pro-image-preview, aspect 21:9, 2K. One call, strip of 4 flap poses. Input: pipeline/art/proof/Keeper/owl/Owl_Flap/Owl_Flap_00.png (our in-jam Blender render, identity only; pose differs per figure, so the text leads).
 
 ## Call
 The Keeper of Time, a large fabricated mechanical owl, in pure side view facing left, hovering and flapping slowly. One 21:9 strip of 4 poses in a row, level camera, same scale, each owl whole and about 70% of the canvas height, evenly spaced with wide empty green gaps. Pose 1: both wings raised high above the back, tips pointing up. Pose 2: wings half way down, held level and spread wide. Pose 3: wings swept low below the body, tips pointing down. Pose 4: wings half way up, level and spread. Body, head, clock, legs and the three hanging mechanisms stay the same size and place in all four; only the wings move.

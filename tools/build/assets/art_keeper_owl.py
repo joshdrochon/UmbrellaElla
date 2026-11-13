@@ -1,6 +1,6 @@
 """Keeper of Time owl, Blender builder (run by Blender, never python3):
 
-  blender -b --factory-startup -P tools/build/assets/art_keeper_owl.py -- --job Art/Source/Keeper/Raw/Owl_Flap/Owl_Flap.job.json
+  blender -b --factory-startup -P tools/build/assets/art_keeper_owl.py -- --job pipeline/art/proof/Keeper/owl/Owl_Flap/Owl_Flap.job.json
 
 GDD SH1.0 OWL-08 / ART-06: a crownless fabricated metal owl, left-facing side profile, rigid perforated vane wings on
 articulated spars, two short mechanical legs, a chest clock (aged face, Roman markers, one hand) and three hanging

@@ -1,5 +1,5 @@
 # artkeeper status (piece: owl)
-Builder: `tools/build/assets/art_keeper_owl.py` (Blender, side-view crownless metal Keeper: plated body, chest clock, rigid ribbed/perforated vane wings, two legs, armillary + lantern + gear on chains). Job: `Art/Source/Keeper/Raw/Owl_Flap/Owl_Flap.job.json`, render: `blender -b --factory-startup -P tools/build/assets/art_keeper_owl.py -- --job <job>`.
+Builder: `tools/build/assets/art_keeper_owl.py` (Blender, side-view crownless metal Keeper: plated body, chest clock, rigid ribbed/perforated vane wings, two legs, armillary + lantern + gear on chains). Job: `pipeline/art/proof/Keeper/owl/Owl_Flap/Owl_Flap.job.json`, render: `blender -b --factory-startup -P tools/build/assets/art_keeper_owl.py -- --job <job>`.
 
 | Round | art_ref_check | Blind panel (reference pair, critic c1) | Gap |
 |---|---|---|---|
@@ -13,14 +13,14 @@ Result: owl does NOT pass the blind panel. It stays the tracked `_PH` placeholde
 Stuck rule: critic gap unchanged 3 rounds (deterministic score best 0.716): NEEDS HUMAN: Art Director / Josh. Next step that could move it: a painted-texture pass (hand-authored etching/grain image textures or a compositor hatch layer) rather than more geometry.
 
 ## Gemini rollout, round 1 (Nov 13)
-- Merged main. Prompt for a 4-pose flap grid written and reviewed by a fresh session: Art/Source/Keeper/Paint/R1/{prompt.md,prompt-review.md,final_prompt.txt}. Review applied: 2x2 grid at 16:9 (a 21:9 row makes the owl too small), one hand on the clock, mechanism eyes and left/right anchors, palette hexes, no-patina bronze.
+- Merged main. Prompt for a 4-pose flap grid written and reviewed by a fresh session: pipeline/art/proof/Keeper/owl/Paint/R1/{prompt.md,prompt-review.md,final_prompt.txt}. Review applied: 2x2 grid at 16:9 (a 21:9 row makes the owl too small), one hand on the clock, mechanism eyes and left/right anchors, palette hexes, no-patina bronze.
 - Input is our Blender render Owl_Flap_00.png; added provenance rows for Owl_Flap_00-05 so assetgen accepts it as an in-jam input.
 - BLOCKED: no paid call made. GEMINI_API_KEY is not set in this shell (tools/keys.py status), and worker rules forbid reading ~/.umbrella-ella.env. Spend so far by us: 0.
-- To continue: run from a shell that has the key: python3 tools/assetgen.py image --provider gemini --aspect 16:9 --image-size 2K --input Art/Source/Keeper/Raw/Owl_Flap/Owl_Flap_00.png --out pipeline/art/proof/ImageProof/Keeper_R1/keeper_grid.png --prompt "$(cat Art/Source/Keeper/Paint/R1/final_prompt.txt)"; then cut the 2x2 cells, key green, run art_check/art_ref_check, blind panel.
+- To continue: run from a shell that has the key: python3 tools/assetgen.py image --provider gemini --aspect 16:9 --image-size 2K --input pipeline/art/proof/Keeper/owl/Owl_Flap/Owl_Flap_00.png --out pipeline/art/proof/Keeper/owl/Keeper_R1/keeper_grid.png --prompt "$(cat pipeline/art/proof/Keeper/owl/Paint/R1/final_prompt.txt)"; then cut the 2x2 cells, key green, run art_check/art_ref_check, blind panel.
 - Open for Josh: GDD says each mechanism's chain runs to the head's top eye; the prompt leaves that route out.
 
 ## Gemini rollout, round 1 result (Nov 13)
-- Prompt updated per Josh/lead: GDD wins, each mechanism's chain runs from its underside eye to a second eye on top of the head. Call: gemini-3-pro-image-preview 2K 16:9, cost $0.139, shared spend counter 1.781 of 33.82. Output pipeline/art/proof/ImageProof/Keeper_R1/keeper_grid.png (note: default model gemini-2.5-flash refuses --image-size, pass --model gemini-3-pro-image-preview).
+- Prompt updated per Josh/lead: GDD wins, each mechanism's chain runs from its underside eye to a second eye on top of the head. Call: gemini-3-pro-image-preview 2K 16:9, cost $0.139, shared spend counter 1.781 of 33.82. Output pipeline/art/proof/Keeper/owl/Keeper_R1/keeper_grid.png (note: default model gemini-2.5-flash refuses --image-size, pass --model gemini-3-pro-image-preview).
 - Look: painted etched/bronze, far closer to the references than the Blender render. Not yet judged by the panel (not cut, not keyed).
 - Gaps (ours, prompt): wings read as feathered, not rigid vane plates; cage is see-through (chroma green inside would key out); rear gear hidden behind torso; chains do not all reach a top eye; cell 3 wings cover the mechanisms; black grid lines between cells; owl position drifts between cells.
 - Next: round 2 prompt fixes these, then cut, key, art_check/art_ref_check, blind panel.
@@ -42,7 +42,7 @@ Stuck rule: critic gap unchanged 3 rounds (deterministic score best 0.716): NEED
 - Triage: check is sound (reference vs itself = 1.0). Failing term is value: our dark-pixel share 0.75 vs reference 0.30. Verdict: ours (prompt asked for #3A2C25/#1D1713 metal, too dark). R5 lightens metal to mid-tone bronze and keeps ink near black.
 
 ## Round 5 (Nov 13), cost $0.141, spent 4.000 of 33.82
-- Prompt: R4 with lighter bronze/pewter metal (Art/Source/Keeper/Paint/R5). Cut (crop 6px off divider lines), keyed.
+- Prompt: R4 with lighter bronze/pewter metal (pipeline/art/proof/Keeper/owl/Paint/R5). Cut (crop 6px off divider lines), keyed.
 - art_ref_check owl: PASS 0.819 (cell 3; cells 0-2: 0.795/0.816/0.625; min 0.698). Value term fixed: the R4 triage was right (ours: too dark).
 - Quick blind pair (reference, seed 5, cell 3): reference wins; calibration pairs correct. Quality-bar pair: a calibration/off-subject pair swallowed the verdict, one pair SAME. Full panel not run: it needs an in-engine capture and this piece still fails on look, so no point spending 18 sessions.
 - Gaps (ours, prompt): wings feathered again (R4 had vane plates), head reads parrot/plated, mechanisms clump near the legs, no top-eye chain route, one stray chain loop. Model drifts on wing structure between runs with the same words.
@@ -83,3 +83,6 @@ Stuck rule: critic gap unchanged 3 rounds (deterministic score best 0.716): NEED
 - Verdict: the look has plateaued at the R8 level; remaining panel gaps (organic/feathered read, single clear wing, small glossy head) have not moved by prompt wording across R6-R10. Owl stays the tracked `_PH`; nothing shipped.
 - Blocker for the lead: (1) no Keeper `_PH` slot, so the context pair cannot be made (docs/build/requests/artkeeper.md); (2) panel calibration counts only 16/27 sessions, so even a good round would stay "missing" until the critic sessions calibrate more reliably: lead to check the calibration folders (not loosening the bar). 
 NEEDS HUMAN: Art Director / Josh: decide whether the Blender articulated route (rigid parts, Blender-rendered vanes with painted texture) should take over, since pure painting has plateaued 3 rounds.
+
+## Candidates moved (Nov 13)
+Per art-image-model.md "Where candidates live": every raw paint, keyed cut, round prompt and the Blender Owl_Flap render/job now sit under pipeline/art/proof/Keeper/owl/ (Keeper_R*, Paint/R*, Owl_Flap). Provenance, critic/owl.json, job.json and the builder docstring updated. Art/Source/Keeper holds only the tracked keeper_idle_PH placeholder. pipeline_check: only 2 unrelated agent_play.py problems (not mine); submission_check assets PASS.

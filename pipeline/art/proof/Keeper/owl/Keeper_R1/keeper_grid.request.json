@@ -10,7 +10,7 @@
  "aspect_ratio": "16:9",
  "image_size": "2K",
  "input_images": [
-  "Art/Source/Keeper/Raw/Owl_Flap/Owl_Flap_00.png"
+  "pipeline/art/proof/Keeper/owl/Owl_Flap/Owl_Flap_00.png"
  ],
  "cost_usd": 0.13918,
  "reply": {

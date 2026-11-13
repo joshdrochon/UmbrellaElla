@@ -124,14 +124,14 @@
   ],
   "samples": 16
  },
- "out_dir": "Art/Source/Keeper/Raw/Owl_Flap",
+ "out_dir": "pipeline/art/proof/Keeper/owl/Owl_Flap",
  "frames": [
-  "Art/Source/Keeper/Raw/Owl_Flap/Owl_Flap_00.png",
-  "Art/Source/Keeper/Raw/Owl_Flap/Owl_Flap_01.png",
-  "Art/Source/Keeper/Raw/Owl_Flap/Owl_Flap_02.png",
-  "Art/Source/Keeper/Raw/Owl_Flap/Owl_Flap_03.png",
-  "Art/Source/Keeper/Raw/Owl_Flap/Owl_Flap_04.png",
-  "Art/Source/Keeper/Raw/Owl_Flap/Owl_Flap_05.png"
+  "pipeline/art/proof/Keeper/owl/Owl_Flap/Owl_Flap_00.png",
+  "pipeline/art/proof/Keeper/owl/Owl_Flap/Owl_Flap_01.png",
+  "pipeline/art/proof/Keeper/owl/Owl_Flap/Owl_Flap_02.png",
+  "pipeline/art/proof/Keeper/owl/Owl_Flap/Owl_Flap_03.png",
+  "pipeline/art/proof/Keeper/owl/Owl_Flap/Owl_Flap_04.png",
+  "pipeline/art/proof/Keeper/owl/Owl_Flap/Owl_Flap_05.png"
  ],
- "blend": "Art/Source/Keeper/Raw/Owl_Flap/Owl_Flap.blend"
+ "blend": "pipeline/art/proof/Keeper/owl/Owl_Flap/Owl_Flap.blend"
 }
