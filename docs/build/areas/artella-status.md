@@ -114,3 +114,17 @@ Files under `pipeline/art/proof/artella/preview/<state>/` (state = open, attack,
 `<state>_preview.gif`, `<state>_preview.mp4` (960x600), `<state>_strip.png` (all frames side by side, dark ground).
 Seen in the previews: the attack frame has a cut-off fragment at its right canvas edge (frame crop), not part of the figure.
 In-game capture (1280x720): see "Preview capture" below.
+
+### Preview, registered (Nov 13): jitter fix
+Script: `pipeline/art/proof/artella/register_ella.py` (pillow, numpy, scipy, ffmpeg). Anchor = bottom-centre of the lowest solid band
+(4% of height) of the alpha mask, specks under 2% of the main part ignored. Each frame is scaled so mask height = strip median, then
+translated so the anchor is on one pixel. Registered frames: `pipeline/art/proof/artella/registered/<state>/`; previews rewritten in
+place (`preview/<state>/<state>_preview.gif`, `.mp4`, `_strip.png` = paper | dark, 8 FPS). Numbers: `registration_report.json`.
+| State | max anchor offset px, before -> after | max scale drift %, before -> after |
+|---|---|---|
+| open | 38.5 -> 0.5 | 0.2 -> 0.0 |
+| attack | 80.3 -> 0.3 | 2.6 -> 0.0 |
+| shield | 180.3 -> 0.4 | 7.4 -> 0.0 |
+| closed | 107.6 -> 0.6 | 0.1 -> 0.0 |
+Not fixed (source cut, not registration): shield and attack cells clip the figure at the cell edge (umbrella and scarf fragments on
+the left of frames 1-2). Needs a re-cut of the paint with wider cells; no paint done here.
