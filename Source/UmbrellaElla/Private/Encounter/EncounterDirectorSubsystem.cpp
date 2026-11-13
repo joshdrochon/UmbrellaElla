@@ -21,6 +21,9 @@ namespace
 	const FName KeeperSource(TEXT("KeeperOfTime"));
 	const FName PlayerTarget(TEXT("Ella"));
 	const FName SuccessDetail(TEXT("success"));
+	/** AnimationCue details: the rear second clack and the double-beat reprise. */
+	const FName KeeperRearClackCue(TEXT("KeeperRearSecondClack"));
+	const FName KeeperBeatRepriseCue(TEXT("KeeperBeatReprise"));
 
 	FName PartName(EKeeperPart Part)
 	{
@@ -138,6 +141,22 @@ FVector2D UEncounterDirectorSubsystem::PlayerPosition() const
 float UEncounterDirectorSubsystem::PlayerRadius() const
 {
 	return GetDefault<UUmbrellaTuning>()->Encounter.PlayerRadius;
+}
+
+void UEncounterDirectorSubsystem::FillVerticalBounds(FKeeperTickInput& Input) const
+{
+	if (!Arena)
+	{
+		return;
+	}
+	const FMotorTuning& Motor = GetDefault<UUmbrellaTuning>()->Motor;
+	// Slowest controllable rise and fall: full trim against the move.
+	const float Trim = 1.0f - Motor.VerticalTrimPct / KeeperPercentScale;
+	Input.bHasVerticalBounds = true;
+	Input.FloorZ = Arena->LocalPoint(0.0f, 0.0f).Z;
+	Input.CeilingZ = Arena->LocalPoint(0.0f, 1.0f).Z;
+	Input.EllaClimbRate = Motor.RiseSpeed * Trim;
+	Input.EllaDropRate = Motor.FallSpeed * Trim;
 }
 
 FVector UEncounterDirectorSubsystem::FindAnchor()
@@ -372,6 +391,7 @@ void UEncounterDirectorSubsystem::AdvanceFight(float DeltaSeconds)
 	FKeeperTickInput Input;
 	Input.PlayerPos = PlayerPosition();
 	Input.PlayerRadius = PlayerRadius();
+	FillVerticalBounds(Input);
 	TArray<FKeeperCommand> Commands;
 	bGustPushThisStep = false;
 	Model.Step(DeltaSeconds, Input, Commands);
@@ -431,11 +451,21 @@ void UEncounterDirectorSubsystem::ProcessCommands(TArray<FKeeperCommand>& Comman
 			break;
 		}
 		case EKeeperCommandType::PhysicalWarning:
-			Broadcast(EUmbrellaEventType::BossAttackTelegraphed, Command.Name, KeeperSource, GetDefault<UUmbrellaTuning>()->Keeper.CastWarningSeconds, Command.Serial);
+			Broadcast(EUmbrellaEventType::BossAttackTelegraphed, Command.Name, KeeperSource, Command.Value, Command.Serial);
 			if (Keeper)
 			{
 				Keeper->ShowTelegraph(Command);
 			}
+			break;
+		case EKeeperCommandType::PhysicalStrike:
+			if (Command.Stage == EKeeperStage::Pause)
+			{
+				// The stopped head and second clack advertise an unfinished stroke, not recovery.
+				Broadcast(EUmbrellaEventType::AnimationCue, KeeperRearClackCue, KeeperSource, Command.Value, Command.Serial);
+			}
+			break;
+		case EKeeperCommandType::BeatReprise:
+			Broadcast(EUmbrellaEventType::AnimationCue, KeeperBeatRepriseCue, KeeperSource, 0.0f, 0);
 			break;
 		case EKeeperCommandType::DamagePlayer:
 			DeliverDamage(Command.Name, Command.Damage);

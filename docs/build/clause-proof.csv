@@ -1,4 +1,10 @@
 rule,clause,proof
+OWL-30,"new fire stops during stun, traveling missiles continue",test:UmbrellaElla.Keeper.StunHoldsQueuedFire
+OWL-12,Traveling missiles continue during electrical stun,test:UmbrellaElla.Keeper.StunHoldsQueuedFire
+OWL-19,Vertical-exit check suppresses impossible launches,test:UmbrellaElla.Keeper.TalonVerticalExitSuppressesImpossibleLaunch
+OWL-25,telegraph shows enough curve for a viable exit,test:UmbrellaElla.Keeper.MiddleWarningShowsTheCurve
+OWL-27,second clack / stopped head signals unfinished movement,test:UmbrellaElla.Keeper.RearPauseSignalsUnfinishedStroke
+OWL-28,"clock-hand move, tick and path cue mark the reprise",test:UmbrellaElla.Keeper.DoubleBeatRepriseCue
 OWL-11,Spreads 36/70/48 deg (no test uses spread fields),gdd:OWL-11.clock_spreads
 OWL-11,Speeds 270/300 (no mechanism/clock speed test),gdd:OWL-11.speeds
 OWL-13,Speeds 195/210 (no mechanism/clock yellow test),gdd:OWL-13.speeds
