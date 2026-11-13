@@ -4,6 +4,7 @@
 #include "Components/ActorComponent.h"
 #include "Motor/MotorModel.h"
 #include "Umbrella/UmbrellaAction.h"
+#include "Health/UmbrellaHitProtectionSource.h"
 #include "EllaMotorComponent.generated.h"
 
 class UEnhancedInputComponent;
@@ -17,7 +18,7 @@ struct FMotorTuning;
  * from the Input Adapter, and WindEntered / WindExited / PlayerHealthChanged from the event bus. Lane a.
  */
 UCLASS(ClassGroup = (UmbrellaElla), meta = (BlueprintSpawnableComponent))
-class UMBRELLAELLA_API UEllaMotorComponent : public UActorComponent
+class UMBRELLAELLA_API UEllaMotorComponent : public UActorComponent, public IUmbrellaHitProtectionSource
 {
 	GENERATED_BODY()
 
@@ -44,6 +45,9 @@ public:
 	/** X = horizontal, Y = 0, Z = vertical, units/s. */
 	FVector GetVelocity() const;
 	bool IsHopProtected() const;
+
+	/** Health asks this before an ordinary hit lands: the hop protection window. */
+	virtual bool IsProtectingFromHits() const override { return IsHopProtected(); }
 	bool IsRiding() const;
 	float GetLiftMultiplier() const { return LiftMultiplier; }
 
