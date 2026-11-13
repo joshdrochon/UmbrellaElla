@@ -120,6 +120,8 @@ private:
 	void SyncProgressionMode(EUmbrellaPlayMode Mode);
 	void EnterScreen(EFlowScreen To, EFlowCommand Cause);
 	void ShowScreenWidget();
+	/** Starts or stops music for the screen just entered (Start screen, story and credits). */
+	void PlayFlowMusic(EFlowScreen To);
 	void ClearScreenWidget();
 	void SetInputBlocked(bool bBlocked);
 	void ApplyPawnInputBlock();
