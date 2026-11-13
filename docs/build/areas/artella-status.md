@@ -199,3 +199,6 @@ Next (needs a lane I do not own): a shot taken while Ella is alive and on screen
 
 ## Round 28 (Nov 13 late): merged main, new capture at frame 250
 Merged main (conflict in tools/assetgen.py, not my lane: took main's version). artslots had nothing new. Frame 60 = shaders not ready, frame 600 = after Ella's defeat, so queued one capture at `-SmokeShotFrames=250` (log /tmp/artella_cap250.log, ~16 ue_slot waiters, load ~28). No paint, no spend (15.08 of 33.82). Next: if the shot shows Ella, run the up-open panel; then shield R3 and closed R3. If Ella is still absent, the fix is a no-damage smoke flag (request for the smoke lane).
+
+## Round 29 (Nov 13 late): merged main and artslots (nothing new); frame-250 capture still queued
+The frame-250 capture (pid 30354) is waiting on ue_slot, no log or shot yet; load ~32. No paint, no panel, no spend (15.08 of 33.82). Verdict: env (slot queue), not the art. Next: if the shot shows Ella, up-open panel; then shield R3 and closed R3. If Ella is absent, request a no-damage smoke flag from the smoke lane.
