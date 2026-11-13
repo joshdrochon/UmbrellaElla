@@ -18,6 +18,7 @@ void UKeeperPresenterSubsystem::PostInitialize()
 		if (UUmbrellaEventBus* Bus = UUmbrellaEventBus::Get(World))
 		{
 			PartHandle = Bus->On(EUmbrellaEventType::BossPartDestroyed).AddUObject(this, &UKeeperPresenterSubsystem::HandlePartDestroyed);
+			RestartHandle = Bus->On(EUmbrellaEventType::CheckpointRetried).AddUObject(this, &UKeeperPresenterSubsystem::HandleRestart);
 		}
 	}
 }
@@ -30,6 +31,7 @@ void UKeeperPresenterSubsystem::Deinitialize()
 		if (UUmbrellaEventBus* Bus = UUmbrellaEventBus::Get(World))
 		{
 			Bus->On(EUmbrellaEventType::BossPartDestroyed).Remove(PartHandle);
+			Bus->On(EUmbrellaEventType::CheckpointRetried).Remove(RestartHandle);
 		}
 	}
 	Super::Deinitialize();
@@ -40,6 +42,7 @@ void UKeeperPresenterSubsystem::HandleActorSpawned(AActor* Actor)
 	if (Cast<AKeeperOfTime>(Actor))
 	{
 		bMasksShown = false;
+		PartsDestroyed = 0;
 		Keepers.Add(Actor);
 		ShowStandIn(Actor);
 	}
@@ -47,7 +50,14 @@ void UKeeperPresenterSubsystem::HandleActorSpawned(AActor* Actor)
 
 void UKeeperPresenterSubsystem::HandlePartDestroyed(const FUmbrellaEvent&)
 {
+	++PartsDestroyed;
 	bMasksShown = true;
+}
+
+void UKeeperPresenterSubsystem::HandleRestart(const FUmbrellaEvent&)
+{
+	PartsDestroyed = 0;
+	bMasksShown = false;
 }
 
 void UKeeperPresenterSubsystem::ShowStateLayer(AActor* Keeper, const FString& VisualId)

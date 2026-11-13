@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Core/UmbrellaPlayMode.h"
 #include "Flow/FlowRules.h"
 #include "Subsystems/WorldSubsystem.h"
 #include "UObject/StrongObjectPtr.h"
@@ -40,6 +41,8 @@ namespace UmbrellaUiPieceConst
 		EHorizontalAlignment Horizontal;
 		EVerticalAlignment Vertical;
 		bool bBelowMenu;
+		/** Shown only in Director's Cut only (Start Game has no XP ring). */
+		bool bDirectorOnly = false;
 	};
 	/** Back to front. Pieces without a screen of their own sit at their native size, aligned to the frame. */
 	static const FUiPiece Pieces[] = {
@@ -52,8 +55,8 @@ namespace UmbrellaUiPieceConst
 		{ TEXT("ui:head-Paused"), PauseScreens, false, HAlign_Center, VAlign_Top, false },
 		{ TEXT("ui:head-Settings"), UiScreenBit(EFlowScreen::Settings), false, HAlign_Center, VAlign_Top, false },
 		{ TEXT("ui:device-and-remap-prompts"), UiScreenBit(EFlowScreen::Settings), false, HAlign_Center, VAlign_Bottom, false },
-		{ TEXT("ui:clock-face"), HudScreens, false, HAlign_Center, VAlign_Top, false },
-		{ TEXT("ui:xp-ring"), HudScreens, false, HAlign_Left, VAlign_Top, false },
+		{ TEXT("ui:clock-face"), HudScreens, false, HAlign_Left, VAlign_Top, false },
+		{ TEXT("ui:xp-ring"), HudScreens, false, HAlign_Left, VAlign_Top, false, true },
 		{ TEXT("ui:spell-wheel"), UiScreenBit(EFlowScreen::Purchase) | UiScreenBit(EFlowScreen::LevelUp), false, HAlign_Center, VAlign_Center, false },
 	};
 }
@@ -81,7 +84,7 @@ public:
 	void ClearScreenArt();
 
 	/** Draw one table piece for a screen (null removes it). Tests pass a transient texture. Refused (not Drawn) when the piece is not on that screen. */
-	EArtSlotDraw DrawPiece(const FString& Visual, EFlowScreen Screen, UTexture2D* Texture);
+	EArtSlotDraw DrawPiece(const FString& Visual, EFlowScreen Screen, UTexture2D* Texture, EUmbrellaPlayMode Mode = EUmbrellaPlayMode::DirectorsCut);
 	void ClearPieces();
 	int32 PieceCount() const { return PieceWidgets.Num(); }
 	bool IsShowingPiece(const FString& Visual) const { return ShownPieces.Contains(Visual); }
@@ -105,5 +108,5 @@ private:
 	TArray<TSharedPtr<FSlateBrush>> PieceBrushes;
 	TArray<TStrongObjectPtr<UTexture2D>> PieceTextures;
 	TSet<FString> ShownPieces;
-	void ShowPiecesFor(EFlowScreen Screen);
+	void ShowPiecesFor(EFlowScreen Screen, EUmbrellaPlayMode Mode);
 };

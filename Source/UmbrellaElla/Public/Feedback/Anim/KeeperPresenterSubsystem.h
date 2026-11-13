@@ -76,6 +76,10 @@ private:
 	FDelegateHandle SpawnHandle;
 	void HandlePartDestroyed(const FUmbrellaEvent& Event);
 	FDelegateHandle PartHandle;
+	void HandleRestart(const FUmbrellaEvent& Event);
+	FDelegateHandle RestartHandle;
+	/** Single mask layer: shown while any part is destroyed since the last spawn or retry (an approximation of the 7/6/4/0 steps). */
+	int32 PartsDestroyed = 0;
 	TArray<TWeakObjectPtr<AActor>> Keepers;
 	bool bMasksShown = false;
 	int32 PresentedCount = 0;

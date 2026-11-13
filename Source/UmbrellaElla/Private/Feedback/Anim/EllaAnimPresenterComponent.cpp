@@ -157,7 +157,6 @@ namespace
 		EUmbrellaEventType::CatchFailed,
 		EUmbrellaEventType::LifeLost,
 		EUmbrellaEventType::PlayerDefeated,
-		EUmbrellaEventType::ModeSelected,
 	};
 }
 
@@ -251,11 +250,6 @@ void UEllaAnimPresenterComponent::TickComponent(float DeltaTime, ELevelTick Tick
 
 void UEllaAnimPresenterComponent::HandleEvent(const FUmbrellaEvent& Event)
 {
-	if (Event.Type == EUmbrellaEventType::ModeSelected)
-	{
-		TransitionLeft = UmbrellaEllaOverlayConst::TransitionHoldSeconds;
-		return;
-	}
 	if (Event.Type == EUmbrellaEventType::CatchSucceeded)
 	{
 		RepairLeft = UmbrellaEllaOverlayConst::RepairHoldSeconds;
