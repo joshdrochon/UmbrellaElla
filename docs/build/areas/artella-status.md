@@ -205,3 +205,7 @@ The frame-250 capture (pid 30354) is waiting on ue_slot, no log or shot yet; loa
 
 ## Round 30 (Nov 13 late): nothing new; frame-250 capture still queued
 Main and artslots: nothing new. Capture pid 30354 still waits on ue_slot (empty log, no shot); load ~28. No paint, no panel, no spend (15.08 of 33.82). Verdict: env (slot queue), not the art. Next: if the shot shows Ella, up-open panel; then shield R3 and closed R3. If Ella is absent, request a no-damage smoke flag from the smoke lane.
+
+## Round 31 (Nov 13 late): frame-250 shot landed, still not usable; merged screenfix fix
+`ella-up-open-shot.png` (03:09) shows "Preparing Textures (1)" on black, no Ella: shot taken before textures finish under load. Discarded, no panel. Merged area/screenfix (2db3d92c); ArtSlot.cpp conflicted, took screenfix's version (not my lane). No paint, no spend (15.08 of 33.82).
+Blocker: no capture with Ella on screen. Shield R3 and closed R3 need a context pair too. Next: retry capture with a later frame (e.g. 400) when load drops, or a smoke flag that waits for textures and keeps Ella alive.
