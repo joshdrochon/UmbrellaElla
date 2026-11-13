@@ -338,7 +338,10 @@ def _pair(folder, mine, other, rnd, frame_src=None, frame=None):
     mine_x = rnd.random() < 0.5
     a, b = (os.path.join(folder, "X.png"), os.path.join(folder, "Y.png"))
     if frame_src is not None:
-        frame_of(frame_src, frame, a if mine_x else b)
+        cell = (a if mine_x else b) + ".cell.png"
+        frame_of(frame_src, frame, cell)
+        shutil.copy(flatten_on_ground(cell), a if mine_x else b)
+        os.remove(cell)
     else:
         shutil.copy(flatten_on_ground(mine), a if mine_x else b)
     shutil.copy(flatten_on_ground(other), b if mine_x else a)
