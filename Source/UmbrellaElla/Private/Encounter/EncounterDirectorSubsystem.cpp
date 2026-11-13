@@ -155,8 +155,8 @@ void UEncounterDirectorSubsystem::FillVerticalBounds(FKeeperTickInput& Input) co
 	Input.bHasVerticalBounds = true;
 	Input.FloorZ = Arena->LocalPoint(0.0f, 0.0f).Z;
 	Input.CeilingZ = Arena->LocalPoint(0.0f, 1.0f).Z;
-	Input.RiseSpeed = Motor.RiseSpeed * Trim;
-	Input.FallSpeed = Motor.FallSpeed * Trim;
+	Input.EllaClimbRate = Motor.RiseSpeed * Trim;
+	Input.EllaDropRate = Motor.FallSpeed * Trim;
 }
 
 FVector UEncounterDirectorSubsystem::FindAnchor()

@@ -5,3 +5,23 @@ OWL-19,Vertical-exit check suppresses impossible launches,test:UmbrellaElla.Keep
 OWL-25,telegraph shows enough curve for a viable exit,test:UmbrellaElla.Keeper.MiddleWarningShowsTheCurve
 OWL-27,second clack / stopped head signals unfinished movement,test:UmbrellaElla.Keeper.RearPauseSignalsUnfinishedStroke
 OWL-28,"clock-hand move, tick and path cue mark the reprise",test:UmbrellaElla.Keeper.DoubleBeatRepriseCue
+OWL-11,Spreads 36/70/48 deg (no test uses spread fields),gdd:OWL-11.clock_spreads
+OWL-11,Speeds 270/300 (no mechanism/clock speed test),gdd:OWL-11.speeds
+OWL-13,Speeds 195/210 (no mechanism/clock yellow test),gdd:OWL-13.speeds
+OWL-16,Gust damage 1 health (only hit count checked),gdd:OWL-16.prototype_damage
+OWL-16,"Speed 350 (bound, but no test exercises speed)",gdd:OWL-16.units
+OWL-16,"Band width 120 (bound, no test exercises it)",gdd:OWL-16.band_width
+OWL-16,"Lifetime 3s (bound, no test exercises it)",gdd:OWL-16.lifetime
+OWL-19,"Tip width 48 (bound, no test exercises width)",gdd:OWL-19.tip_width
+OWL-20,Quiet recovery 1s,gdd:OWL-20.quiet_recovery
+OWL-20,"Cooldown 3.5s from commitment (bound, behavior not asserted)",gdd:OWL-20.cooldown
+OWL-21,0.9s warning duration,gdd:OWL-21.destination_during
+OWL-22,reach 800,gdd:OWL-22.reach
+OWL-22,speed basis 400 units/s,gdd:OWL-22.speed_basis
+OWL-22,head width 32,gdd:OWL-22.full_width
+OWL-26,0.9s warning before rear stroke,gdd:OWL-26.after
+OWL-31,slow lasts 3s,gdd:OWL-31.cooldown
+OWL-31,3s slow cooldown,gdd:OWL-31.cooldown
+OWL-32,eye window lasts 2s,gdd:OWL-32.eye
+HAZ-03,"fixed camera at (960,540) (binding is RoomSize/2, no camera checked)",gdd:HAZ-03.fixed_camera
+HAZ-03,"guard contact damage 0 (bound, but no test exercises contact)",gdd:HAZ-03.contact_damage

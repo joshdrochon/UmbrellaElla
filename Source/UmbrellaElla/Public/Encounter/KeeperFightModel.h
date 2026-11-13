@@ -135,8 +135,8 @@ struct UMBRELLAELLA_API FKeeperTickInput
 	bool bHasVerticalBounds = false;
 	float FloorZ = 0.0f;
 	float CeilingZ = 0.0f;
-	float RiseSpeed = 0.0f;
-	float FallSpeed = 0.0f;
+	float EllaClimbRate = 0.0f;
+	float EllaDropRate = 0.0f;
 };
 
 /** Result of one player shot on a part. */

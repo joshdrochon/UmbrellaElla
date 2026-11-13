@@ -126,8 +126,8 @@ bool FKeeperTalonVerticalExit::RunTest(const FString& Parameters)
 	R.Start(EKeeperPhase::Wings, Only);
 	R.Input.PlayerPos = R.Model.GetClaw() + FVector2D(-150.0f, 0.0f);
 	R.Input.bHasVerticalBounds = true;
-	R.Input.RiseSpeed = 96.0f;
-	R.Input.FallSpeed = 264.0f;
+	R.Input.EllaClimbRate = 96.0f;
+	R.Input.EllaDropRate = 264.0f;
 	// Pinned: floor and ceiling hug Ella, no room to leave the 48-wide tip band.
 	R.Input.FloorZ = R.Input.PlayerPos.Y - R.Input.PlayerRadius - 5.0f;
 	R.Input.CeilingZ = R.Input.PlayerPos.Y + R.Input.PlayerRadius + 5.0f;
@@ -138,8 +138,8 @@ bool FKeeperTalonVerticalExit::RunTest(const FString& Parameters)
 	R.Input.FloorZ = R.Input.PlayerPos.Y - 1000.0f;
 	R.Input.CeilingZ = R.Input.PlayerPos.Y + 1000.0f;
 	FKeeperTickInput Slow = R.Input;
-	Slow.RiseSpeed = 1.0f;
-	Slow.FallSpeed = 1.0f;
+	Slow.EllaClimbRate = 1.0f;
+	Slow.EllaDropRate = 1.0f;
 	TestFalse(TEXT("too slow to clear in the warning"), FKeeperFightModel::CanExitVertically(Slow, R.Tuning.TalonTipWidth * 0.5f, R.Tuning.TalonWarningSeconds));
 	// Room above: the talon launches.
 	R.Run(KeeperContractStep * 2.0f);

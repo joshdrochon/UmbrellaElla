@@ -69,8 +69,8 @@ bool FKeeperFightModel::CanExitVertically(const FKeeperTickInput& Input, float N
 	// Conservative: Ella must clear the band by rising or falling at her slowest speed, inside the playable space.
 	const float Z = Input.PlayerPos.Y;
 	const float Need = NeededClearance + Input.PlayerRadius;
-	const bool bUp = Input.RiseSpeed > 0.0f && Z + Need + Input.PlayerRadius <= Input.CeilingZ && Need <= Input.RiseSpeed * Seconds;
-	const bool bDown = Input.FallSpeed > 0.0f && Z - Need - Input.PlayerRadius >= Input.FloorZ && Need <= Input.FallSpeed * Seconds;
+	const bool bUp = Input.EllaClimbRate > 0.0f && Z + Need + Input.PlayerRadius <= Input.CeilingZ && Need <= Input.EllaClimbRate * Seconds;
+	const bool bDown = Input.EllaDropRate > 0.0f && Z - Need - Input.PlayerRadius >= Input.FloorZ && Need <= Input.EllaDropRate * Seconds;
 	return bUp || bDown;
 }
 

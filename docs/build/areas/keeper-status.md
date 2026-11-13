@@ -50,10 +50,10 @@ COM-12..COM-18 and `Enemy/**` moved to the enemies area. Removed from this branc
 Build exit 0, `UmbrellaElla.Keeper` PASS 34, module_check, manifest_check, encounter_check 0 problems.
 
 ## Clause pass (Nov 13, docs/build/clause-audit.csv lane=keeper, 158 clauses)
-Tags: `done` = built here + proven in clause-proof.csv; `i` = code exists, test missing (testkeeper); `art` = visual only;
-`ext:<lane>` = needs another lane (see requests 6, 7). Counts: done 6, i 127, art 13, ext 12.
+Main's tags (ruleaudit lane) win; my 6 clauses below are now `proven`. Keeper ii left that need another lane: FLOW-09 x3 and
+OWL-06/10 retained capacity (health, progression: requests 6, 7), OWL-16 dash protection (health/move). The rest of the ii are art.
 
-| Clause (tag ii -> done) | Code | Proof (break-tested: removing the code fails the test) |
+| Clause (now proven) | Code | Proof (break-tested: removing the code fails the test) |
 |---|---|---|
 | OWL-30 new fire stops during stun; OWL-12 missiles continue | model `Step`: stun holds the pending queue | Keeper.StunHoldsQueuedFire |
 | OWL-19 vertical-exit check | `CanExitVertically`, director `FillVerticalBounds` (arena floor/ceiling, slowest trimmed rise/fall) | Keeper.TalonVerticalExitSuppressesImpossibleLaunch |
