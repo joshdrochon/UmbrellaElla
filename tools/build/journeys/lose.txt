@@ -1,0 +1,33 @@
+# LOSE path (fastest route): Start screen -> Start Game -> hits until Defeated -> Retry -> defeated again -> Quit to Title.
+firstrun
+wait Title 60
+idle 2
+shot 01_start_screen
+music any                      # the title track plays on the Start screen (FLOW-34)
+click Start Game               # the mouse, not a key
+trywait Tutorial 5
+shot 02_tutorial
+keyuntil Playing Enter 0.8 30  # page through the first-start tutorial with Enter
+idle 3
+shot 03_playing_keeper
+shot 03b_playing_keeper_later
+idle 8                         # the Keeper attacks a still Ella for 8 s (natural hits, if any)
+log natural
+hits Defeat 1 1.2 90           # assisted: 1 damage per 1.2 s through Ella's Health hit path until Defeated
+idle 1
+shot 04_defeated
+click Retry
+wait Playing 15
+retrycheck
+idle 2
+shot 05_after_retry
+idle 5
+shot 05b_after_retry_7s
+hits Defeat 1 1.2 90
+idle 1
+click Quit to Title
+wait Title 60
+idle 2
+shot 06_back_at_start
+music any
+end
