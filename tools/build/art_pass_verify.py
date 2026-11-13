@@ -186,9 +186,30 @@ def verify_record(root, piece, rec, newest=True, remeasure=True):
     return probs
 
 
+APPROVALS = "pipeline/art/approvals.json"
+
+
+def owner_approved(root):
+    """Pieces the owner approved by eye (Josh, Nov 13; like MusicTitle approved by ear): pipeline/art/approvals.json,
+    written only by the build lead on main (the gate fails any lane that changes it). Each entry names the piece, the
+    approver, the date, the origin text and the sha256 of the shipped file; it counts only while that file is unchanged.
+    The technical checks (key, registration, jitter, sprite_check, inventory, slot load) still run on the file."""
+    try:
+        entries = json.load(open(os.path.join(root, APPROVALS))).get("approvals", [])
+    except (OSError, ValueError):
+        return set()
+    out = set()
+    for e in entries:
+        f = os.path.join(root, e.get("file") or "")
+        if e.get("piece") and e.get("approver") and e.get("date") and os.path.isfile(f) \
+                and art_loop.content_sha(f) == e.get("sha256"):
+            out.add(e["piece"])
+    return out
+
+
 def verified_pieces(root, records=None, remeasure=False):
-    """Pieces whose newest record says passed and verifies."""
-    done = set()
+    """Pieces whose newest record says passed and verifies, plus owner-approved pieces."""
+    done = set(owner_approved(root)) if records is None else set()
     for piece, recs in (records if records is not None else load_piece_records(root)).items():
         if recs and claims_pass(recs[-1]) and not verify_record(root, piece, recs[-1], True, remeasure):
             done.add(piece)
