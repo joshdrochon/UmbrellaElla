@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Attack/AttackTuning.h"
 #include "Attack/SpellRules.h"
 #include "Core/UmbrellaPlayMode.h"
 #include "Projectile/UmbrellaShotSpec.h"
@@ -67,6 +68,10 @@ public:
 	/** Burst shots still waiting to leave . */
 	int32 GetPendingBurstShots() const { return PendingBurstDelays.Num(); }
 
+	/** Tests pass their own tuning copy by const reference; the class default is never written. */
+	void SetTuningOverride(const FAttackTuning& InTuning) { TuningOverride = &InTuning; }
+	void ClearTuningOverride() { TuningOverride = nullptr; }
+
 	int32 GetShotsFired() const { return ShotsFired; }
 	const FUmbrellaShotSpec& GetLastShot() const { return LastShot; }
 
@@ -78,6 +83,9 @@ protected:
 	virtual void EndPlay(const EEndPlayReason::Type Reason) override;
 
 private:
+	const FAttackTuning& ActiveTuning() const;
+	/** Borrowed from the caller (a test); must outlive its use. */
+	const FAttackTuning* TuningOverride = nullptr;
 	void FireVolley();
 	void ShowBeam(const FAttackTuning& Tuning);
 	void HideBeam();

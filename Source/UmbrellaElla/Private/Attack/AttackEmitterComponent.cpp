@@ -29,6 +29,11 @@ void UAttackEmitterComponent::TickComponent(float DeltaTime, ELevelTick TickType
 	StepEmitter(DeltaTime);
 }
 
+const FAttackTuning& UAttackEmitterComponent::ActiveTuning() const
+{
+	return TuningOverride ? *TuningOverride : GetDefault<UUmbrellaTuning>()->Attack;
+}
+
 void UAttackEmitterComponent::StepEmitter(float DeltaSeconds)
 {
 	AActor* Owner = GetOwner();
@@ -36,7 +41,7 @@ void UAttackEmitterComponent::StepEmitter(float DeltaSeconds)
 	{
 		return;
 	}
-	const FAttackTuning& Tuning = GetDefault<UUmbrellaTuning>()->Attack;
+	const FAttackTuning& Tuning = ActiveTuning();
 
 	// A spell key held past the wheel time opens the wheel (it pauses gameplay).
 	if (HeldKey != EUmbrellaSpell::Count && !bWheelOpen)
@@ -129,7 +134,7 @@ void UAttackEmitterComponent::ShowBeam(const FAttackTuning& Tuning)
 
 void UAttackEmitterComponent::FireVolley()
 {
-	const FAttackTuning& Tuning = GetDefault<UUmbrellaTuning>()->Attack;
+	const FAttackTuning& Tuning = ActiveTuning();
 	FVector Muzzle = GetOwner()->GetActorLocation() + Tuning.MuzzleOffset;
 	Muzzle.Y = UmbrellaDrawOrder::ProjectileY;
 	for (const FUmbrellaShotSpec& Spec : SpellRules::BuildVolley(Equipped, Muzzle, Tuning))
@@ -171,7 +176,7 @@ void UAttackEmitterComponent::SetDirectorLevel(int32 Level)
 
 bool UAttackEmitterComponent::CanEquip(EUmbrellaSpell Spell) const
 {
-	return SpellRules::IsAvailable(Spell, PlayMode, DirectorLevel, GetDefault<UUmbrellaTuning>()->Attack);
+	return SpellRules::IsAvailable(Spell, PlayMode, DirectorLevel, ActiveTuning());
 }
 
 void UAttackEmitterComponent::SelectSpell(EUmbrellaSpell Spell)
@@ -184,7 +189,7 @@ void UAttackEmitterComponent::SelectSpell(EUmbrellaSpell Spell)
 
 void UAttackEmitterComponent::CycleSpell(int32 Direction)
 {
-	Equip(SpellRules::Cycle(Equipped, Direction, PlayMode, DirectorLevel, GetDefault<UUmbrellaTuning>()->Attack));
+	Equip(SpellRules::Cycle(Equipped, Direction, PlayMode, DirectorLevel, ActiveTuning()));
 }
 
 void UAttackEmitterComponent::Equip(EUmbrellaSpell Spell)
@@ -273,5 +278,5 @@ void UAttackEmitterComponent::EndPlay(const EEndPlayReason::Type Reason)
 
 float UAttackEmitterComponent::GetStreamLength() const
 {
-	return StreamHeldSeconds > 0.0f && UmbrellaState && UmbrellaActionRules::CanFire(UmbrellaState->GetAction()) ? SpellRules::StreamLength(StreamHeldSeconds, GetDefault<UUmbrellaTuning>()->Attack) : 0.0f;
+	return StreamHeldSeconds > 0.0f && UmbrellaState && UmbrellaActionRules::CanFire(UmbrellaState->GetAction()) ? SpellRules::StreamLength(StreamHeldSeconds, ActiveTuning()) : 0.0f;
 }

@@ -304,19 +304,18 @@ bool FMoveSpellBurstRulesTest::RunTest(const FString& Parameters)
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMoveWorldBurstTest, "UmbrellaElla.Move.World.SmallBlastBurst", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
 bool FMoveWorldBurstTest::RunTest(const FString& Parameters)
 {
-	UUmbrellaTuning* Tuning = GetMutableDefault<UUmbrellaTuning>();
-	const int32 SavedCount = Tuning->Attack.SmallBurstCount;
 	for (const int32 Count : {1, 3, 5})
 	{
-		Tuning->Attack.SmallBurstCount = Count;
+		FAttackTuning Tuned = Attack();
+		Tuned.SmallBurstCount = Count;
 		FUmbrellaTestWorld Test;
 		AEllaCharacter* Ella = Test.SpawnElla();
 		if (!TestNotNull(TEXT("Ella spawned"), Ella))
 		{
-			Tuning->Attack.SmallBurstCount = SavedCount;
 			return false;
 		}
 		UAttackEmitterComponent* Emitter = Ella->GetAttack();
+		Emitter->SetTuningOverride(Tuned);
 		Ella->GetInputAdapter()->ApplyPress(EUmbrellaInputAction::Shoot);
 		// 0.05 s: only the first shot of the first burst has left.
 		Test.TickSeconds(0.05f, 1.0f / 120.0f);
@@ -333,7 +332,6 @@ bool FMoveWorldBurstTest::RunTest(const FString& Parameters)
 		Test.TickSeconds(1.0f, 1.0f / 60.0f);
 		TestEqual(TEXT("nothing fires after release"), Emitter->GetShotsFired(), AfterRelease);
 	}
-	Tuning->Attack.SmallBurstCount = SavedCount;
 	return true;
 }
 
