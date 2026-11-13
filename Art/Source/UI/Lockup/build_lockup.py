@@ -23,6 +23,9 @@ SRC = os.environ.get("LOCKUP_SRC") or os.path.join(ROOT, "pipeline", "art", "pro
 if not os.path.isabs(SRC):
     SRC = os.path.join(ROOT, SRC)
 CANVAS_W, CANVAS_H = 1584, 672   # UmbrellaUI::LockupImagePixelWidth/Height
+BBOX_FLOOR = 0.12       # brightness that counts as painted content for the crop
+EDGE = 8                # px band on the source edge that is never content
+BBOX_MIN_PX = 4         # a row/column needs this many content pixels to count
 MARGIN = 12            # px of empty canvas kept around the fitted content
 OUT = os.path.join(ROOT, "Art", "Source", "UI", "Ground", "Raw", "T_UI_TitleLockup_PH.png")
 ALPHA_FLOOR = 0.035     # below this brightness a pixel is background (jpeg-ish noise in the black)
@@ -44,10 +47,15 @@ def write_png(path, rgba):
 img = bpy.data.images.load(SRC)
 w, h = img.size
 px = np.array(img.pixels[:], dtype=np.float32).reshape(h, w, 4)[::-1, :, :3]   # Blender rows run bottom to top
-# Crop to the painted content, then box-shrink or nearest-grow it to fit the canvas, centred.
-mask = px.max(axis=2) > ALPHA_FLOOR
-ys, xs = np.nonzero(mask)
-px = px[ys.min(): ys.max() + 1, xs.min(): xs.max() + 1]
+# The model leaves a few grey pixels on the image edge: blank an EDGE band, then crop to the painted content, then box-shrink or nearest-grow it to fit the canvas, centred.
+px[:EDGE] = 0.0
+px[-EDGE:] = 0.0
+px[:, :EDGE] = 0.0
+px[:, -EDGE:] = 0.0
+mask = px.max(axis=2) > BBOX_FLOOR
+rows = np.nonzero(mask.sum(axis=1) >= BBOX_MIN_PX)[0]    # a stray dark-grey corner speck in the paint is not content
+cols = np.nonzero(mask.sum(axis=0) >= BBOX_MIN_PX)[0]
+px = px[rows.min(): rows.max() + 1, cols.min(): cols.max() + 1]
 ch, cw = px.shape[:2]
 scale = min((CANVAS_W - 2 * MARGIN) / cw, (CANVAS_H - 2 * MARGIN) / ch)
 nw, nh = max(1, int(cw * scale)), max(1, int(ch * scale))
