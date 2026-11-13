@@ -53,6 +53,15 @@ struct FVfxArtRow
 	uint32 LightHex;
 };
 
+namespace UmbrellaVfxLayerConst
+{
+	/**
+	 * Backdrop-layer effects (the light shaft) sit this far behind the arena layer (screenfix B2). At
+	 * BackgroundNearY the shaft hid behind the scene pictures (up to BackgroundNearY + 15), leaving only the dark umbra.
+	 */
+	static constexpr float BackdropBehindArena = 10.0f;
+}
+
 namespace VfxCatalogData
 {
 	/** Colours: GDD SH1.0 shot colours (pipeline/art/references.json vfx_spec). */

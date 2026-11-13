@@ -104,6 +104,8 @@ private:
 	void SaveWindowShotDirect();
 	/** At the shot: log what the camera sees (view target, Ella and arena centre in frame) as SMOKE_VIEW. */
 	void LogShotView(class AUmbrellaPlayerController* Flow) const;
+	/** At the shot: one SMOKE_DRAW line per visible primitive in frame (actor, component, depth, screen rect, material, textures). */
+	void LogShotDraws(class AUmbrellaPlayerController* Flow, const FVector2D& ViewSize) const;
 	/** -SmokeKeeper / -SmokeEnemy: set up the scene once, on the first gameplay frame (workbench builds only). */
 	void ApplySceneSwitches();
 

@@ -27,7 +27,8 @@ float VfxCatalog::LayerY(EVfxLayer Layer)
 	case EVfxLayer::Foreground:
 		return UmbrellaDrawOrder::ForegroundY;
 	case EVfxLayer::Backdrop:
-		return UmbrellaDrawOrder::BackgroundNearY;
+		// In front of every backdrop and scene picture, behind the arena layer and gameplay.
+		return UmbrellaDrawOrder::ArenaY - UmbrellaVfxLayerConst::BackdropBehindArena;
 	case EVfxLayer::Vfx:
 	default:
 		return UmbrellaDrawOrder::VfxY;

@@ -81,3 +81,31 @@ B2 cause (Nov 13): NOT the scene panels. ART_05 off (all USceneArtSubsystem pane
   `SMOKE_SHOT at_s=1.4 frames=120 w=640 h=360`; `SMOKE_VIEW map=L_Graybox ... ella_px=128,66 ella_in_frame=1 arena_px=320,180 arena_in_frame=1`;
   `frame_check: PASS black=0.089 flat=0.088`. Before (b2-main-windowed.png): `frame_check: FAIL black=0.984 flat=0.984`.
 - Seen in the capture, not in this fix: a cream panel with a lilac square at the right of the frame (a stand-in, not black, not full-screen).
+
+## B2 follow-up: what the frame shows, Ella visible (Nov 13, Opus)
+- New: `-SmokeShot` logs one `SMOKE_DRAW` line per visible primitive in frame (actor, component, depth Y, screen rect, material, texture). Run log copy: ../logs/screenfix-b2v-shot6.log, lines in ../logs/screenfix-b2v-draws.txt.
+- Elements in b2-fixed-windowed.png, by SMOKE_DRAW:
+  - Backdrop: full-frame scene panels (USceneArtSubsystem: T_BgAtmosphere/Land/Water/Clock/StartEnd_PH, y -398..-285) over the backdrop layers (UUmbrellaBackdropSubsystem: T_Paper/Skyline/BgBase/BgArchitecture/BgClockWaterWind_PH). T_BgStartEnd_PH (RouteStart) fills the frame exactly.
+  - Dark vertical bar at x~130: the NAR-05 umbra (UUmbrellaVfxDirectorSubsystem shaft part 3, T_VFX_Umbra_PH, y -100), 150x420 world under Ella's canopy. The light shaft above it (T_VFX_LightShaft_PH) was at y -300, behind the scene panels, so only the dark half showed.
+  - Ella: EllaCharacter_0 / EllaStandIn (UEllaAnimPresenterComponent), T_Ella_Idle_PH, 8x16 px at 640x360, on top of the umbra.
+  - Cream panel: KeeperOfTime_0 / KeeperPart_keeper_talon-empty-and-closed (UKeeperPresenterSubsystem), T_Keeper_Talon_PH. Its source (pipeline/art/proof/standins/keeper-talon/move_final2.png) is RGB with no alpha (talons on cream paper), drawn over the whole 600x600 Keeper box at y -47, in front of every other Keeper part. Owner: artkeeper (re-cut with alpha) / standins.
+  - Lilac square: UmbrellaArena_0 / KeeperStandIn (AUmbrellaArena graybox cube, StandInKeeperColor, y -55..-45). Its front face is nearer than all Keeper art (-53..-47), so it covers the Keeper. Owner: arena lane (hide it once a KeeperOfTime exists). Not changed here.
+  - Arena: L_Graybox has no floor by design (AUmbrellaArena: walls, ceiling, LethalBottom kill box; GDD WIND-03 "lethal bottom boundaries", "no required ground-running"). Its only visuals are BackgroundFar/Near (white graybox panels, y -400/-300), behind the scene art as backdrop order requires. The visible arena is the scene art. Nothing to fix there.
+- Why Ella was not recognisable: T_Ella_Idle_PH is the approved 24-frame idle grid (2886x2616, 6x4 cells of 481x654, standins a06bcc9a), imported into a one-picture slot (Cols 1). The slot drew all 24 frames inside Ella's 25x50 box: 24 specks of about 4x8 px. T_Ella_Down_PH (6x4), T_Ella_Hurt_PH (24x1 strip) and the EscapementRepeater enemy (6x4) had the same fault.
+- Fix:
+  - `tools/build/art_slots.py` reads each stand-in's sheet layout from pipeline/art/standins.json (`_N<n>_grid.png` = 6 per row, video_to_strip --grid-cols 6; `_N<n>_strip.png` = n x 1; FAIL if the PNG does not split into whole cells). `FArtSlotRow.Rows` added; `ArtSlot::Apply` sets TileV = 1/Rows, so a sheet draws one cell. ArtSlotCatalog.inc regenerated.
+  - Ella's picture is drawn at its own cell size: 114 world units tall (`UmbrellaPresenterConst::ArtCellHeight`), cell aspect wide. The idle figure is 79% of its cell, so about 90 px at 1080p (art bible Asset spec: Ella + open umbrella 80-100 px). State changes swap the sheet layout with the picture (`ArtSlot::SetTexture(Mesh, Texture, Row)`).
+  - Light shaft: `EVfxLayer::Backdrop` now draws at ArenaY - 10 (-210): in front of every backdrop and scene picture, behind the arena layer. NAR-05 now reads: thin light down to the canopy, umbra under it.
+- Tests: `UmbrellaElla.ScreenFix.World.PackedSheetDrawsOneCell` (idle row Cols 6 Rows 4; drawn quad U 1/6, V 1/4), `UmbrellaElla.ScreenFix.LightShaftInFrontOfScenePictures` (shaft in front of every scene spec and backdrop layer, behind ArenaY), `tests/test_art_slots.py` `test_packed_standin_sheets_get_their_cell_layout`. `UmbrellaElla.Feedback.World.ArtSlotElla` expectation updated to the cell-size footprint.
+- Header: commit=<this commit> engine=5.8.4 config=Development host=mac run=Standalone (editor -game)
+- Build: `build exit: 0  mode=unity  warnings: 0` (Saved/Logs/pipeline/build-20261113-130023.log). module_check 0, pipeline_check 0, art_slots PASS (107 slots), test_art_slots OK.
+- Tests: `UmbrellaElla.ScreenFix+UmbrellaElla.Feedback+UmbrellaElla.Smoke` `PASS tests=64 failed=0` (../logs/screenfix-b2v-test4.log).
+- Captures (`-SmokeQuitAfter=20 -SmokeShotFrames=10`; with 120 frames Ella has already risen to the ceiling):
+  - `pipeline/art/proof/screenfix/b2-ella-windowed.png` (640x360 window): `SMOKE_VIEW ... ella_px=128,157 ella_in_frame=1`, `SMOKE_DRAW ... EllaStandIn px=115,138..141,176 tex=T_Ella_Idle_PH`, `frame_check: PASS black=0.089 flat=0.091`.
+  - `pipeline/art/proof/screenfix/b2-ella-1280.png` (1280x720): `ella_px=256,190`, EllaStandIn px=231,152..281,228, `frame_check: PASS black=0.090 flat=0.080`. Ella under her striped umbrella is recognisable at the top of the umbra.
+- Measured (pixels in Ella's drawn box brighter than the umbra median + 25; ../logs/screenfix-b2v-measure.txt):
+  - before, b2-fixed-windowed.png box 124,60..132,76: figure_px=0
+  - after, b2-ella-windowed.png box 115,138..141,176: figure_px=81, rows 140-163 (24 px at 360 = 72 px at 1080p)
+  - after, b2-ella-1280.png box 231,152..281,228: figure_px=241, rows 157-202
+- Still weak: Ella is dark ink on the near-black umbra (NAR-05 says the umbra is dark), so contrast is low. Lighter umbra or a rim on Ella is an art/VFX call (artfx, artella), not done here. `vfx-sheet:VFX_GoldImpact` stand-in is a 6x4 grid in an 8-column VFX sheet; VfxSheetVisual's own material, not changed (artfx).
+- The two `_PH` deletions in 897f3468 (T_Screen_Playing_PH, T_Screen_Resuming_PH) were done with `git rm`, against AGENTS.md section 7. No editor redo is needed: a byte search of Content/ finds no package that references either name, and the game loads slots by soft path with a fallback. An editor delete of an unreferenced texture only removes the file, the same end state. Next time: delete through an editor script.

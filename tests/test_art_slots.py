@@ -32,6 +32,18 @@ class ArtSlots(unittest.TestCase):
         self.assertEqual(by["enemy:Floodstrider:Male"], "UEnemyPresenterSubsystem")
         self.assertEqual(by["vfx-sheet:VFX_Gust"], "VfxSheetVisual")
 
+    def test_packed_standin_sheets_get_their_cell_layout(self):
+        # B2 follow-up: a 24-frame grid drawn as one picture showed Ella as 24 specks.
+        self.assertEqual(art_slots.sheet_layout("x/Ella_idle_N24_grid.png", (2886, 2616)), (6, 4))
+        self.assertEqual(art_slots.sheet_layout("x/ella-hurt_N24_strip.png", (23688, 565)), (24, 1))
+        self.assertIsNone(art_slots.sheet_layout("x/artella_final1.png", (1920, 1080)))
+        with self.assertRaises(SystemExit):
+            art_slots.sheet_layout("x/odd_N24_grid.png", (2887, 2616))
+        rows = art_slots.cpp_rows(["ella-state:Idle", "bg-layer:Sky", "vfx-sheet:VFX_Gust"])
+        self.assertIn('TEXT("T_Ella_Idle"), 6, false, TEXT("UEllaAnimPresenterComponent"), 4 }', rows)
+        self.assertIn('TEXT("T_Paper"), 1, true, TEXT("UUmbrellaBackdropSubsystem"), 1 }', rows)
+        self.assertIn('TEXT("T_VFX_Gust"), 8, false, TEXT("VfxSheetVisual"), 1 }', rows)
+
     def test_import_script_resolves_visual_id_and_slot_path(self):
         import import_art_candidate as imp
         self.assertEqual(imp.resolve("bg-layer:FarLand"), ("/Game/UmbrellaElla/Art/Scene", "T_Skyline_PH", False))

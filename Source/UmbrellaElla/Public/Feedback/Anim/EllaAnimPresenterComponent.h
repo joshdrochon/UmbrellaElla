@@ -21,6 +21,12 @@ namespace UmbrellaPresenterConst
 	static const FVector ShootMul(1.4, 1.0, 1.0);
 	static const FVector AbsorbMul(1.8, 1.0, 0.8);
 	static const FVector HurtMul(1.0, 1.0, 0.8);
+	/**
+	 * Box height (relative units) of one Ella picture cell (screenfix B2): 2.28 x 100 x actor scale 0.5 = 114 world
+	 * units, so the idle figure (79% of its 481x654 cell) stands about 90 px at 1080p, inside the art bible Asset spec
+	 * "Ella + open umbrella 80-100 px", and near her 88-unit capsule. The stand-in box (StandInScale) drew it at 40 px.
+	 */
+	static constexpr double ArtCellHeight = 2.28;
 }
 
 namespace UmbrellaEllaOverlayConst
@@ -95,6 +101,9 @@ public:
 	/** Stand-in scale for a state (shape stands in for the flipbook of that state). */
 	static FVector StandInScaleFor(EEllaVisualState State);
 
+	/** Box scale for a drawn picture: ArtCellHeight tall, as wide as one cell of the row's sheet. Pure. */
+	static FVector ArtBoxScaleFor(const UTexture2D* Texture, const struct FArtSlotRow& Row);
+
 	/** True while the stand-in quad shows a state picture from the art slots (T_Ella_<State>[_PH]). */
 	bool IsShowingArt() const;
 
@@ -143,6 +152,8 @@ private:
 	void LoadSlotFlipbooks();
 	void DrawArt();
 	UTexture2D* TextureForState(EEllaVisualState State) const;
+	/** The slot row a loaded state picture came from (its sheet layout); the idle row when unknown. */
+	const struct FArtSlotRow* RowForTexture(const UTexture2D* Texture) const;
 
 	EEllaVisualState VisualState = EEllaVisualState::Idle;
 	float StateTimeLeft = 0.0f;

@@ -197,9 +197,11 @@ bool FArtSlotElla::RunTest(const FString& Parameters)
 		TestTrue(TEXT("hurt picture shown"), ArtSlotParamTexture(Presenter->GetStandIn()) == Hurt);
 		Presenter->SetVisualState(EEllaVisualState::Shoot);
 		TestTrue(TEXT("a state without a picture shows idle"), ArtSlotParamTexture(Presenter->GetStandIn()) == Idle);
-		const FVector Down = ArtSlot::PlaneScaleFor(UEllaAnimPresenterComponent::StandInScaleFor(EEllaVisualState::Down));
+		// screenfix B2: a picture is drawn at its own cell size (art bible height, cell aspect), not the stand-in box.
+		const FArtSlotRow* DownRow = ArtSlot::Find(TEXT("ella-state:Idle"));
+		const FVector Down = DownRow ? ArtSlot::PlaneScaleFor(UEllaAnimPresenterComponent::ArtBoxScaleFor(Idle, *DownRow)) : FVector::ZeroVector;
 		Presenter->SetVisualState(EEllaVisualState::Down);
-		TestEqual(TEXT("art keeps the state footprint"), Presenter->GetStandIn()->GetRelativeScale3D(), Down);
+		TestEqual(TEXT("art is drawn at its cell size"), Presenter->GetStandIn()->GetRelativeScale3D(), Down);
 		TestEqual(TEXT("art has no collision"), static_cast<int32>(Presenter->GetStandIn()->GetCollisionEnabled()), static_cast<int32>(ECollisionEnabled::NoCollision));
 	}
 	// A state with its own art and no Idle art still draws (review item 2).
