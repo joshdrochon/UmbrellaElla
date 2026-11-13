@@ -246,6 +246,22 @@ def newly_passed(root, base, remeasure=False):
     return out
 
 
+def base_link_problems(root):
+    """Shared-layer pieces (Josh, Nov 13): an element with "base": "<piece>" in references.json is judged only on what it
+    adds to that base, so its pass counts only if the base piece itself has a verified pass in the same tree."""
+    try:
+        refs, _ = art_loop.refs_and_hash(root)
+    except Exception:
+        return []
+    done = verified_pieces(root)
+    out = []
+    for piece, el in (refs.get("elements") or {}).items():
+        b = (el or {}).get("base")
+        if b and piece in done and b not in done:
+            out.append(f"FAIL art_pass_verify: {piece} passed on top of base {b}, which has no verified pass")
+    return out
+
+
 def main(argv=None):
     a = list(sys.argv[1:] if argv is None else argv)
     root = ROOT
@@ -257,6 +273,7 @@ def main(argv=None):
     if cmd == "check":
         base = a[a.index("--base") + 1] if "--base" in a else None
         lines = check(root, base, "--no-remeasure" not in a)
+        lines += base_link_problems(root)
         print("\n".join(lines))
         print(f"art_pass_verify: {'FAIL' if lines else 'PASS'} ({len(verified_pieces(root))} verified passes, "
               f"{len(lines)} problems)")
