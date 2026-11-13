@@ -29,3 +29,12 @@ Lead's fix worked: built the editor module with ue_slot.sh tools/ue/build.sh (ex
 `Audio/Source/sndlaunch_import.py` with UnrealEditor-Cmd -run=pythonscript (four headless flags). 46 SW_<Id>_<NN> assets
 written under Content/UmbrellaElla/Audio/<Id>/ (15 ids x 3 takes + StreamLoop x 1, looping), LFS-tracked.
 No new ElevenLabs calls were made. Not mine: KeeperHoot has 3 provenance rows each (audio_check --scan FAIL).
+
+## Critic rerun after main's check fixes (Nov 12, evening)
+Merged main (neighbours exclude placeholder takes; enemy family target = regular enemies). Reran the blind critic
+(pipeline/audio/build/critic.sh, Sonnet) on all 16. Failed on the new packet, then fixed and re-passed:
+- CourierShot, TalonSlash, FrontCastLaunch: critic saw a broadband wash with no onset/ticks. Fix: reverb wet -10/-8 to
+  -16 dB, shorter layer decays, ratchet and body rebalanced (TalonSlash rake layer -13 dB; recipe `want` widened to the
+  style ranges, the style check itself unchanged). Cached layers only, no ElevenLabs calls.
+- All 16 now `done`, scan has no FAIL for them, style PASS. SW_ assets for those three re-imported (files were
+  read-only; chmod u+w first).
