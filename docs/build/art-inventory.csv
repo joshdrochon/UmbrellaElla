@@ -1,101 +1,101 @@
-visual,source,piece,owner,passed
-bg-layer:Base,Source Feedback/Background LayerSpecs,bg-base,artscene,no
-bg-layer:ClockWaterWind,Source Feedback/Background LayerSpecs,bg-clock-water-wind,artscene,no
-bg-layer:FarLand,Source Feedback/Background LayerSpecs,skyline,artscene,no
-bg-layer:NearArchitecture,Source Feedback/Background LayerSpecs,bg-architecture,artscene,no
-bg-layer:Sky,Source Feedback/Background LayerSpecs,paper,artscene,no
-bg:atmosphere,GDD BG-03,bg-atmosphere,artscene,no
-bg:clocks,GDD BG-03,bg-clock,artscene,no
-bg:land,GDD BG-04,bg-land,artscene,no
-bg:start-end,GDD ART-04,bg-start-end,artscene,no
-bg:water,GDD BG-03,bg-water,artscene,no
-ella-state:Absorb,Source Feedback/Anim EEllaVisualState,ella-shield,artella,no
-ella-state:Down,Source Feedback/Anim EEllaVisualState,ella-down,artella,no
-ella-state:Hurt,Source Feedback/Anim EEllaVisualState,ella-hurt,artella,no
-ella-state:Idle,Source Feedback/Anim EEllaVisualState,ella-up-open,artella,no
-ella-state:Shoot,Source Feedback/Anim EEllaVisualState,ella-attack,artella,no
-ella:condition-100-to-0,GDD ANIM-04,ella-condition,artenemy,no
-ella:free-fall,GDD ANIM-03,ella-closed,artella,no
-ella:hop-cartwheel-dash,GDD ANIM-03,ella-motion,artella,no
-ella:living-critical,GDD ANIM-04,ella-condition,artenemy,no
-ella:mode-transition,GDD ANIM-03,ella-transition,artella,no
-enemy:ArmillaryLauncher:Female,Source Enemy/EnemyTypes.h + GDD ANIM-08,enemy-armillary,artenemy,no
-enemy:ArmillaryLauncher:Male,Source Enemy/EnemyTypes.h + GDD ANIM-08,enemy-armillary,artenemy,no
-enemy:EscapementRepeater:Female,Source Enemy/EnemyTypes.h + GDD ANIM-08,enemy-repeater,artenemy,no
-enemy:EscapementRepeater:Male,Source Enemy/EnemyTypes.h + GDD ANIM-08,enemy-repeater,artenemy,no
-enemy:Floodstrider:Female,Source Enemy/EnemyTypes.h + GDD ANIM-08,enemy-floodstrider,artenemy,no
-enemy:Floodstrider:Male,Source Enemy/EnemyTypes.h + GDD ANIM-08,enemy-floodstrider,artenemy,no
-enemy:SkyCourier:Female,Source Enemy/EnemyTypes.h + GDD ANIM-08,enemy-courier,artenemy,no
-enemy:SkyCourier:Male,Source Enemy/EnemyTypes.h + GDD ANIM-08,enemy-courier,artenemy,no
-enemy:SundialCaster:Female,Source Enemy/EnemyTypes.h + GDD ANIM-08,enemy-sundial,artenemy,no
-enemy:SundialCaster:Male,Source Enemy/EnemyTypes.h + GDD ANIM-08,enemy-sundial,artenemy,no
-keeper:body-hover-flap,GDD ANIM-06; Art/Source/Keeper/Raw/keeper_idle_PH.png; Art/Source/Keeper/Raw/keeper_idle_PH/Owl_Flap.blend; Art/Source/Keeper/Raw/keeper_idle_PH/Owl_Flap_00.png; Art/Source/Keeper/Raw/keeper_idle_PH/Owl_Flap_01.png; Art/Source/Keeper/Raw/keeper_idle_PH/Owl_Flap_02.png; Art/Source/Keeper/Raw/keeper_idle_PH/Owl_Flap_03.png; Art/Source/Keeper/Raw/keeper_idle_PH/Owl_Flap_04.png; Art/Source/Keeper/Raw/keeper_idle_PH/Owl_Flap_05.png,owl,artkeeper,no
-keeper:clock-cover-glass-hands,GDD ANIM-06,keeper-clock,artkeeper,no
-keeper:living-departure,GDD ANIM-06,keeper-departure,artkeeper,no
-keeper:mechanism-front,GDD ANIM-06,keeper-mech-front,artkeeper,no
-keeper:mechanism-middle,GDD ANIM-06,keeper-mech-middle,artkeeper,no
-keeper:mechanism-rear,GDD ANIM-06,keeper-mech-rear,artkeeper,no
-keeper:part-masks-7-6-4-0,GDD ANIM-06,keeper-damage,artkeeper,no
-keeper:talon-empty-and-closed,GDD ANIM-06,keeper-talon,artkeeper,no
-keeper:wings-gust-wear,GDD ANIM-06,keeper-wing,artkeeper,no
-menu-backdrop:Clocks,Source UI/Menus EFlowBackdrop,ui-pause,artui,no
-menu-backdrop:Drift,Source UI/Menus EFlowBackdrop,menu-screen,artscene,no
-scene:gameplay-frame,GDD ART-07,scene,artscene,no
-screen:Credits,Source Flow/FlowRules.h EFlowScreen,ui-credits,artui,no
-screen:Defeat,Source Flow/FlowRules.h EFlowScreen,ui-defeated,artui,no
-screen:LevelUp,Source Flow/FlowRules.h EFlowScreen,ui-level-up,artui,no
-screen:Paused,Source Flow/FlowRules.h EFlowScreen,ui-pause,artui,no
-screen:Playing,Source Flow/FlowRules.h EFlowScreen,ui-hud-clock,artui,no
-screen:Purchase,Source Flow/FlowRules.h EFlowScreen,ui-purchase,artui,no
-screen:Resuming,Source Flow/FlowRules.h EFlowScreen,ui-pause,artui,no
-screen:Settings,Source Flow/FlowRules.h EFlowScreen,ui-settings,artui,no
-screen:Statistics,Source Flow/FlowRules.h EFlowScreen,ui-journey-complete,artui,no
-screen:Story,Source Flow/FlowRules.h EFlowScreen,ui-story-text,artui,no
-screen:Title,Source Flow/FlowRules.h EFlowScreen,ui-title,artui,no
-screen:Tutorial,Source Flow/FlowRules.h EFlowScreen,ui-tutorial,artui,no
-screen:TutorialPaused,Source Flow/FlowRules.h EFlowScreen,ui-tutorial,artui,no
-shot:gold,GDD ANIM-05,wand-shot,artshots,no
-shot:red,GDD VFX-04,owl-bolt,artshots,no
-shot:red-impact,GDD VFX-04,bolt-hit,artshots,no
-shot:stream-beam,GDD ANIM-05,stream-beam,artshots,no
-shot:yellow,GDD VFX-04,yellow-shot,artshots,no
-ui:device-and-remap-prompts,GDD ART-08,ui-settings,artui,no
-ui:spell-wheel,GDD ART-08,ui-spell-wheel,artui,no
-ui:xp-ring,GDD ART-08,ui-xp-ring,artui,no
-umbrella:prop,GDD ART-06,umbrella,artella,no
-umbrella:repair,GDD ANIM-03,umbrella-repair,artella,no
-vfx-material:M_VFX_Sheet,Content/UmbrellaElla/Art/VFX/M_VFX_Sheet_PH.uasset,vfx-light-spill,artfx,no
-vfx-material:M_VFX_Spill,Content/UmbrellaElla/Art/VFX/M_VFX_Spill_PH.uasset,vfx-light-spill,artfx,no
-vfx-sheet:VFX_Blackout,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_Blackout_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_Blackout_PH.uasset,vfx-blackout,artfx,no
-vfx-sheet:VFX_Blocked,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_Blocked_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_Blocked_PH.uasset,vfx-blocked,artfx,no
-vfx-sheet:VFX_ClockBeat,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_ClockBeat_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_ClockBeat_PH.uasset,vfx-clock-beat,artfx,no
-vfx-sheet:VFX_ClockOpen,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_ClockOpen_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_ClockOpen_PH.uasset,vfx-clock-open,artfx,no
-vfx-sheet:VFX_Departure,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_Departure_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_Departure_PH.uasset,vfx-departure,artfx,no
-vfx-sheet:VFX_EyeExposed,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_EyeExposed_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_EyeExposed_PH.uasset,vfx-eye-exposed,artfx,no
-vfx-sheet:VFX_GoldFade,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_GoldFade_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_GoldFade_PH.uasset,vfx-gold-fade,artfx,no
-vfx-sheet:VFX_GoldImpact,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_GoldImpact_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_GoldImpact_PH.uasset,vfx-gold-impact,artfx,no
-vfx-sheet:VFX_GoldRelease,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_GoldRelease_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_GoldRelease_PH.uasset,wand-shot,artshots,no
-vfx-sheet:VFX_GoldTravel,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_GoldTravel_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_GoldTravel_PH.uasset,wand-shot,artshots,no
-vfx-sheet:VFX_Gust,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_Gust_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_Gust_PH.uasset,vfx-gust,artfx,no
-vfx-sheet:VFX_GustPuff,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_GustPuff_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_GustPuff_PH.uasset,vfx-gust-puff,artfx,no
-vfx-sheet:VFX_KeeperRecovery,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_KeeperRecovery_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_KeeperRecovery_PH.uasset,vfx-keeper-recovery,artfx,no
-vfx-sheet:VFX_KeeperStrike,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_KeeperStrike_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_KeeperStrike_PH.uasset,vfx-keeper-strike,artfx,no
-vfx-sheet:VFX_KeeperWarning,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_KeeperWarning_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_KeeperWarning_PH.uasset,vfx-keeper-warning,artfx,no
-vfx-sheet:VFX_LightShaft,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_LightShaft_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_LightShaft_PH.uasset,vfx-light-shaft,artfx,no
-vfx-sheet:VFX_NeedleChannel,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_NeedleChannel_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_NeedleChannel_PH.uasset,vfx-needle-channel,artfx,no
-vfx-sheet:VFX_NeedlePierce,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_NeedlePierce_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_NeedlePierce_PH.uasset,vfx-needle-pierce,artfx,no
-vfx-sheet:VFX_NeedleSliver,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_NeedleSliver_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_NeedleSliver_PH.uasset,vfx-needle-sliver,artfx,no
-vfx-sheet:VFX_PartBreak,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_PartBreak_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_PartBreak_PH.uasset,vfx-part-break,artfx,no
-vfx-sheet:VFX_PartHit,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_PartHit_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_PartHit_PH.uasset,vfx-part-hit,artfx,no
-vfx-sheet:VFX_Restoration,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_Restoration_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_Restoration_PH.uasset,vfx-restoration,artfx,no
-vfx-sheet:VFX_Slow,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_Slow_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_Slow_PH.uasset,vfx-slow,artfx,no
-vfx-sheet:VFX_StreamStart,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_StreamStart_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_StreamStart_PH.uasset,vfx-stream-start,artfx,no
-vfx-sheet:VFX_StreamSustain,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_StreamSustain_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_StreamSustain_PH.uasset,vfx-stream-sustain,artfx,no
-vfx-sheet:VFX_Stun,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_Stun_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_Stun_PH.uasset,vfx-stun,artfx,no
-vfx-sheet:VFX_TwinStarHead,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_TwinStarHead_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_TwinStarHead_PH.uasset,wand-shot,artshots,no
-vfx-sheet:VFX_Umbra,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_Umbra_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_Umbra_PH.uasset,vfx-umbra,artfx,no
-wind:current-field,GDD ANIM-08,wind-zone,artshots,no
-wind:decor-lines,GDD ART-06,wind-lines,artshots,no
-world:mill-and-traps,GDD ANIM-08,world-mill,artscene,no
-world:refuge-and-yellow-bay,GDD ANIM-08,world-refuge,artscene,no
-world:solids,GDD ANIM-08,world-solids,artscene,no
+visual,source,piece,owner,passed,slot,drawn_by
+bg-layer:Base,Source Feedback/Background LayerSpecs,bg-base,artscene,no,/Game/UmbrellaElla/Art/Scene/T_BgBase,UUmbrellaBackdropSubsystem
+bg-layer:ClockWaterWind,Source Feedback/Background LayerSpecs,bg-clock-water-wind,artscene,no,/Game/UmbrellaElla/Art/Scene/T_BgClockWaterWind,UUmbrellaBackdropSubsystem
+bg-layer:FarLand,Source Feedback/Background LayerSpecs,skyline,artscene,no,/Game/UmbrellaElla/Art/Scene/T_Skyline,UUmbrellaBackdropSubsystem
+bg-layer:NearArchitecture,Source Feedback/Background LayerSpecs,bg-architecture,artscene,no,/Game/UmbrellaElla/Art/Scene/T_BgArchitecture,UUmbrellaBackdropSubsystem
+bg-layer:Sky,Source Feedback/Background LayerSpecs,paper,artscene,no,/Game/UmbrellaElla/Art/Scene/T_Paper,UUmbrellaBackdropSubsystem
+bg:atmosphere,GDD BG-03,bg-atmosphere,artscene,no,/Game/UmbrellaElla/Art/Scene/T_BgAtmosphere,-
+bg:clocks,GDD BG-03,bg-clock,artscene,no,/Game/UmbrellaElla/Art/Scene/T_BgClock,-
+bg:land,GDD BG-04,bg-land,artscene,no,/Game/UmbrellaElla/Art/Scene/T_BgLand,-
+bg:start-end,GDD ART-04,bg-start-end,artscene,no,/Game/UmbrellaElla/Art/Scene/T_BgStartEnd,-
+bg:water,GDD BG-03,bg-water,artscene,no,/Game/UmbrellaElla/Art/Scene/T_BgWater,-
+ella-state:Absorb,Source Feedback/Anim EEllaVisualState,ella-shield,artella,no,/Game/UmbrellaElla/Art/Ella/T_Ella_Absorb,UEllaAnimPresenterComponent
+ella-state:Down,Source Feedback/Anim EEllaVisualState,ella-down,artella,no,/Game/UmbrellaElla/Art/Ella/T_Ella_Down,UEllaAnimPresenterComponent
+ella-state:Hurt,Source Feedback/Anim EEllaVisualState,ella-hurt,artella,no,/Game/UmbrellaElla/Art/Ella/T_Ella_Hurt,UEllaAnimPresenterComponent
+ella-state:Idle,Source Feedback/Anim EEllaVisualState,ella-up-open,artella,no,/Game/UmbrellaElla/Art/Ella/T_Ella_Idle,UEllaAnimPresenterComponent
+ella-state:Shoot,Source Feedback/Anim EEllaVisualState,ella-attack,artella,no,/Game/UmbrellaElla/Art/Ella/T_Ella_Shoot,UEllaAnimPresenterComponent
+ella:condition-100-to-0,GDD ANIM-04,ella-condition,artenemy,no,/Game/UmbrellaElla/Art/Ella/T_Ella_Condition,-
+ella:free-fall,GDD ANIM-03,ella-closed,artella,no,/Game/UmbrellaElla/Art/Ella/T_Ella_FreeFall,-
+ella:hop-cartwheel-dash,GDD ANIM-03,ella-motion,artella,no,/Game/UmbrellaElla/Art/Ella/T_Ella_Motion,-
+ella:living-critical,GDD ANIM-04,ella-condition,artenemy,no,/Game/UmbrellaElla/Art/Ella/T_Ella_Critical,-
+ella:mode-transition,GDD ANIM-03,ella-transition,artella,no,/Game/UmbrellaElla/Art/Ella/T_Ella_Transition,-
+enemy:ArmillaryLauncher:Female,Source Enemy/EnemyTypes.h + GDD ANIM-08,enemy-armillary,artenemy,no,/Game/UmbrellaElla/Art/Enemy/T_Enemy_ArmillaryLauncher_Female,UEnemyPresenterSubsystem
+enemy:ArmillaryLauncher:Male,Source Enemy/EnemyTypes.h + GDD ANIM-08,enemy-armillary,artenemy,no,/Game/UmbrellaElla/Art/Enemy/T_Enemy_ArmillaryLauncher_Male,UEnemyPresenterSubsystem
+enemy:EscapementRepeater:Female,Source Enemy/EnemyTypes.h + GDD ANIM-08,enemy-repeater,artenemy,no,/Game/UmbrellaElla/Art/Enemy/T_Enemy_EscapementRepeater_Female,UEnemyPresenterSubsystem
+enemy:EscapementRepeater:Male,Source Enemy/EnemyTypes.h + GDD ANIM-08,enemy-repeater,artenemy,no,/Game/UmbrellaElla/Art/Enemy/T_Enemy_EscapementRepeater_Male,UEnemyPresenterSubsystem
+enemy:Floodstrider:Female,Source Enemy/EnemyTypes.h + GDD ANIM-08,enemy-floodstrider,artenemy,no,/Game/UmbrellaElla/Art/Enemy/T_Enemy_Floodstrider_Female,UEnemyPresenterSubsystem
+enemy:Floodstrider:Male,Source Enemy/EnemyTypes.h + GDD ANIM-08,enemy-floodstrider,artenemy,no,/Game/UmbrellaElla/Art/Enemy/T_Enemy_Floodstrider_Male,UEnemyPresenterSubsystem
+enemy:SkyCourier:Female,Source Enemy/EnemyTypes.h + GDD ANIM-08,enemy-courier,artenemy,no,/Game/UmbrellaElla/Art/Enemy/T_Enemy_SkyCourier_Female,UEnemyPresenterSubsystem
+enemy:SkyCourier:Male,Source Enemy/EnemyTypes.h + GDD ANIM-08,enemy-courier,artenemy,no,/Game/UmbrellaElla/Art/Enemy/T_Enemy_SkyCourier_Male,UEnemyPresenterSubsystem
+enemy:SundialCaster:Female,Source Enemy/EnemyTypes.h + GDD ANIM-08,enemy-sundial,artenemy,no,/Game/UmbrellaElla/Art/Enemy/T_Enemy_SundialCaster_Female,UEnemyPresenterSubsystem
+enemy:SundialCaster:Male,Source Enemy/EnemyTypes.h + GDD ANIM-08,enemy-sundial,artenemy,no,/Game/UmbrellaElla/Art/Enemy/T_Enemy_SundialCaster_Male,UEnemyPresenterSubsystem
+keeper:body-hover-flap,GDD ANIM-06; Art/Source/Keeper/Raw/keeper_idle_PH.png; Art/Source/Keeper/Raw/keeper_idle_PH/Owl_Flap.blend; Art/Source/Keeper/Raw/keeper_idle_PH/Owl_Flap_00.png; Art/Source/Keeper/Raw/keeper_idle_PH/Owl_Flap_01.png; Art/Source/Keeper/Raw/keeper_idle_PH/Owl_Flap_02.png; Art/Source/Keeper/Raw/keeper_idle_PH/Owl_Flap_03.png; Art/Source/Keeper/Raw/keeper_idle_PH/Owl_Flap_04.png; Art/Source/Keeper/Raw/keeper_idle_PH/Owl_Flap_05.png,owl,artkeeper,no,/Game/UmbrellaElla/Art/Keeper/T_Keeper_Owl,UKeeperPresenterSubsystem
+keeper:clock-cover-glass-hands,GDD ANIM-06,keeper-clock,artkeeper,no,/Game/UmbrellaElla/Art/Keeper/T_Keeper_Clock,-
+keeper:living-departure,GDD ANIM-06,keeper-departure,artkeeper,no,/Game/UmbrellaElla/Art/Keeper/T_Keeper_Departure,-
+keeper:mechanism-front,GDD ANIM-06,keeper-mech-front,artkeeper,no,/Game/UmbrellaElla/Art/Keeper/T_Keeper_MechFront,-
+keeper:mechanism-middle,GDD ANIM-06,keeper-mech-middle,artkeeper,no,/Game/UmbrellaElla/Art/Keeper/T_Keeper_MechMiddle,-
+keeper:mechanism-rear,GDD ANIM-06,keeper-mech-rear,artkeeper,no,/Game/UmbrellaElla/Art/Keeper/T_Keeper_MechRear,-
+keeper:part-masks-7-6-4-0,GDD ANIM-06,keeper-damage,artkeeper,no,/Game/UmbrellaElla/Art/Keeper/T_Keeper_DamageMasks,-
+keeper:talon-empty-and-closed,GDD ANIM-06,keeper-talon,artkeeper,no,/Game/UmbrellaElla/Art/Keeper/T_Keeper_Talon,-
+keeper:wings-gust-wear,GDD ANIM-06,keeper-wing,artkeeper,no,/Game/UmbrellaElla/Art/Keeper/T_Keeper_Wing,-
+menu-backdrop:Clocks,Source UI/Menus EFlowBackdrop,ui-pause,artui,no,/Game/UmbrellaElla/Art/UI/T_MenuBackdrop_Clocks,-
+menu-backdrop:Drift,Source UI/Menus EFlowBackdrop,menu-screen,artscene,no,/Game/UmbrellaElla/Art/UI/T_MenuBackdrop_Drift,-
+scene:gameplay-frame,GDD ART-07,scene,artscene,no,/Game/UmbrellaElla/Art/Scene/T_Frame,-
+screen:Credits,Source Flow/FlowRules.h EFlowScreen,ui-credits,artui,no,/Game/UmbrellaElla/Art/UI/T_Screen_Credits,-
+screen:Defeat,Source Flow/FlowRules.h EFlowScreen,ui-defeated,artui,no,/Game/UmbrellaElla/Art/UI/T_Screen_Defeat,-
+screen:LevelUp,Source Flow/FlowRules.h EFlowScreen,ui-level-up,artui,no,/Game/UmbrellaElla/Art/UI/T_Screen_LevelUp,-
+screen:Paused,Source Flow/FlowRules.h EFlowScreen,ui-pause,artui,no,/Game/UmbrellaElla/Art/UI/T_Screen_Paused,-
+screen:Playing,Source Flow/FlowRules.h EFlowScreen,ui-hud-clock,artui,no,/Game/UmbrellaElla/Art/UI/T_Screen_Playing,-
+screen:Purchase,Source Flow/FlowRules.h EFlowScreen,ui-purchase,artui,no,/Game/UmbrellaElla/Art/UI/T_Screen_Purchase,-
+screen:Resuming,Source Flow/FlowRules.h EFlowScreen,ui-pause,artui,no,/Game/UmbrellaElla/Art/UI/T_Screen_Resuming,-
+screen:Settings,Source Flow/FlowRules.h EFlowScreen,ui-settings,artui,no,/Game/UmbrellaElla/Art/UI/T_Screen_Settings,-
+screen:Statistics,Source Flow/FlowRules.h EFlowScreen,ui-journey-complete,artui,no,/Game/UmbrellaElla/Art/UI/T_Screen_Statistics,-
+screen:Story,Source Flow/FlowRules.h EFlowScreen,ui-story-text,artui,no,/Game/UmbrellaElla/Art/UI/T_Screen_Story,-
+screen:Title,Source Flow/FlowRules.h EFlowScreen,ui-title,artui,no,/Game/UmbrellaElla/Art/UI/T_Screen_Title,-
+screen:Tutorial,Source Flow/FlowRules.h EFlowScreen,ui-tutorial,artui,no,/Game/UmbrellaElla/Art/UI/T_Screen_Tutorial,-
+screen:TutorialPaused,Source Flow/FlowRules.h EFlowScreen,ui-tutorial,artui,no,/Game/UmbrellaElla/Art/UI/T_Screen_TutorialPaused,-
+shot:gold,GDD ANIM-05,wand-shot,artshots,no,/Game/UmbrellaElla/Art/Shots/T_WandShot,-
+shot:red,GDD VFX-04,owl-bolt,artshots,no,/Game/UmbrellaElla/Art/Shots/T_OwlBolt,-
+shot:red-impact,GDD VFX-04,bolt-hit,artshots,no,/Game/UmbrellaElla/Art/Shots/T_BoltHit,-
+shot:stream-beam,GDD ANIM-05,stream-beam,artshots,no,/Game/UmbrellaElla/Art/Shots/T_StreamBeam,-
+shot:yellow,GDD VFX-04,yellow-shot,artshots,no,/Game/UmbrellaElla/Art/Shots/T_YellowShot,-
+ui:device-and-remap-prompts,GDD ART-08,ui-settings,artui,no,/Game/UmbrellaElla/Art/UI/T_Prompts,-
+ui:spell-wheel,GDD ART-08,ui-spell-wheel,artui,no,/Game/UmbrellaElla/Art/UI/T_SpellWheel,-
+ui:xp-ring,GDD ART-08,ui-xp-ring,artui,no,/Game/UmbrellaElla/Art/UI/T_XpRing,-
+umbrella:prop,GDD ART-06,umbrella,artella,no,/Game/UmbrellaElla/Art/Ella/T_Umbrella,-
+umbrella:repair,GDD ANIM-03,umbrella-repair,artella,no,/Game/UmbrellaElla/Art/Ella/T_UmbrellaRepair,-
+vfx-material:M_VFX_Sheet,Content/UmbrellaElla/Art/VFX/M_VFX_Sheet_PH.uasset,vfx-light-spill,artfx,no,/Game/UmbrellaElla/Art/VFX/M_VFX_Sheet,-
+vfx-material:M_VFX_Spill,Content/UmbrellaElla/Art/VFX/M_VFX_Spill_PH.uasset,vfx-light-spill,artfx,no,/Game/UmbrellaElla/Art/VFX/M_VFX_Spill,-
+vfx-sheet:VFX_Blackout,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_Blackout_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_Blackout_PH.uasset,vfx-blackout,artfx,no,/Game/UmbrellaElla/Art/VFX/T_VFX_Blackout,VfxSheetVisual
+vfx-sheet:VFX_Blocked,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_Blocked_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_Blocked_PH.uasset,vfx-blocked,artfx,no,/Game/UmbrellaElla/Art/VFX/T_VFX_Blocked,VfxSheetVisual
+vfx-sheet:VFX_ClockBeat,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_ClockBeat_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_ClockBeat_PH.uasset,vfx-clock-beat,artfx,no,/Game/UmbrellaElla/Art/VFX/T_VFX_ClockBeat,VfxSheetVisual
+vfx-sheet:VFX_ClockOpen,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_ClockOpen_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_ClockOpen_PH.uasset,vfx-clock-open,artfx,no,/Game/UmbrellaElla/Art/VFX/T_VFX_ClockOpen,VfxSheetVisual
+vfx-sheet:VFX_Departure,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_Departure_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_Departure_PH.uasset,vfx-departure,artfx,no,/Game/UmbrellaElla/Art/VFX/T_VFX_Departure,VfxSheetVisual
+vfx-sheet:VFX_EyeExposed,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_EyeExposed_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_EyeExposed_PH.uasset,vfx-eye-exposed,artfx,no,/Game/UmbrellaElla/Art/VFX/T_VFX_EyeExposed,VfxSheetVisual
+vfx-sheet:VFX_GoldFade,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_GoldFade_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_GoldFade_PH.uasset,vfx-gold-fade,artfx,no,/Game/UmbrellaElla/Art/VFX/T_VFX_GoldFade,VfxSheetVisual
+vfx-sheet:VFX_GoldImpact,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_GoldImpact_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_GoldImpact_PH.uasset,vfx-gold-impact,artfx,no,/Game/UmbrellaElla/Art/VFX/T_VFX_GoldImpact,VfxSheetVisual
+vfx-sheet:VFX_GoldRelease,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_GoldRelease_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_GoldRelease_PH.uasset,wand-shot,artshots,no,/Game/UmbrellaElla/Art/VFX/T_VFX_GoldRelease,VfxSheetVisual
+vfx-sheet:VFX_GoldTravel,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_GoldTravel_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_GoldTravel_PH.uasset,wand-shot,artshots,no,/Game/UmbrellaElla/Art/VFX/T_VFX_GoldTravel,VfxSheetVisual
+vfx-sheet:VFX_Gust,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_Gust_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_Gust_PH.uasset,vfx-gust,artfx,no,/Game/UmbrellaElla/Art/VFX/T_VFX_Gust,VfxSheetVisual
+vfx-sheet:VFX_GustPuff,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_GustPuff_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_GustPuff_PH.uasset,vfx-gust-puff,artfx,no,/Game/UmbrellaElla/Art/VFX/T_VFX_GustPuff,VfxSheetVisual
+vfx-sheet:VFX_KeeperRecovery,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_KeeperRecovery_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_KeeperRecovery_PH.uasset,vfx-keeper-recovery,artfx,no,/Game/UmbrellaElla/Art/VFX/T_VFX_KeeperRecovery,VfxSheetVisual
+vfx-sheet:VFX_KeeperStrike,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_KeeperStrike_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_KeeperStrike_PH.uasset,vfx-keeper-strike,artfx,no,/Game/UmbrellaElla/Art/VFX/T_VFX_KeeperStrike,VfxSheetVisual
+vfx-sheet:VFX_KeeperWarning,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_KeeperWarning_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_KeeperWarning_PH.uasset,vfx-keeper-warning,artfx,no,/Game/UmbrellaElla/Art/VFX/T_VFX_KeeperWarning,VfxSheetVisual
+vfx-sheet:VFX_LightShaft,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_LightShaft_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_LightShaft_PH.uasset,vfx-light-shaft,artfx,no,/Game/UmbrellaElla/Art/VFX/T_VFX_LightShaft,VfxSheetVisual
+vfx-sheet:VFX_NeedleChannel,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_NeedleChannel_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_NeedleChannel_PH.uasset,vfx-needle-channel,artfx,no,/Game/UmbrellaElla/Art/VFX/T_VFX_NeedleChannel,VfxSheetVisual
+vfx-sheet:VFX_NeedlePierce,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_NeedlePierce_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_NeedlePierce_PH.uasset,vfx-needle-pierce,artfx,no,/Game/UmbrellaElla/Art/VFX/T_VFX_NeedlePierce,VfxSheetVisual
+vfx-sheet:VFX_NeedleSliver,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_NeedleSliver_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_NeedleSliver_PH.uasset,vfx-needle-sliver,artfx,no,/Game/UmbrellaElla/Art/VFX/T_VFX_NeedleSliver,VfxSheetVisual
+vfx-sheet:VFX_PartBreak,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_PartBreak_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_PartBreak_PH.uasset,vfx-part-break,artfx,no,/Game/UmbrellaElla/Art/VFX/T_VFX_PartBreak,VfxSheetVisual
+vfx-sheet:VFX_PartHit,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_PartHit_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_PartHit_PH.uasset,vfx-part-hit,artfx,no,/Game/UmbrellaElla/Art/VFX/T_VFX_PartHit,VfxSheetVisual
+vfx-sheet:VFX_Restoration,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_Restoration_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_Restoration_PH.uasset,vfx-restoration,artfx,no,/Game/UmbrellaElla/Art/VFX/T_VFX_Restoration,VfxSheetVisual
+vfx-sheet:VFX_Slow,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_Slow_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_Slow_PH.uasset,vfx-slow,artfx,no,/Game/UmbrellaElla/Art/VFX/T_VFX_Slow,VfxSheetVisual
+vfx-sheet:VFX_StreamStart,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_StreamStart_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_StreamStart_PH.uasset,vfx-stream-start,artfx,no,/Game/UmbrellaElla/Art/VFX/T_VFX_StreamStart,VfxSheetVisual
+vfx-sheet:VFX_StreamSustain,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_StreamSustain_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_StreamSustain_PH.uasset,vfx-stream-sustain,artfx,no,/Game/UmbrellaElla/Art/VFX/T_VFX_StreamSustain,VfxSheetVisual
+vfx-sheet:VFX_Stun,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_Stun_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_Stun_PH.uasset,vfx-stun,artfx,no,/Game/UmbrellaElla/Art/VFX/T_VFX_Stun,VfxSheetVisual
+vfx-sheet:VFX_TwinStarHead,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_TwinStarHead_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_TwinStarHead_PH.uasset,wand-shot,artshots,no,/Game/UmbrellaElla/Art/VFX/T_VFX_TwinStarHead,VfxSheetVisual
+vfx-sheet:VFX_Umbra,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_Umbra_PH.png; Content/UmbrellaElla/Art/VFX/T_VFX_Umbra_PH.uasset,vfx-umbra,artfx,no,/Game/UmbrellaElla/Art/VFX/T_VFX_Umbra,VfxSheetVisual
+wind:current-field,GDD ANIM-08,wind-zone,artshots,no,/Game/UmbrellaElla/Art/Shots/T_WindZone,-
+wind:decor-lines,GDD ART-06,wind-lines,artshots,no,/Game/UmbrellaElla/Art/Shots/T_WindLines,-
+world:mill-and-traps,GDD ANIM-08,world-mill,artscene,no,/Game/UmbrellaElla/Art/Scene/T_WorldMill,-
+world:refuge-and-yellow-bay,GDD ANIM-08,world-refuge,artscene,no,/Game/UmbrellaElla/Art/Scene/T_WorldRefuge,-
+world:solids,GDD ANIM-08,world-solids,artscene,no,/Game/UmbrellaElla/Art/Scene/T_WorldSolids,-

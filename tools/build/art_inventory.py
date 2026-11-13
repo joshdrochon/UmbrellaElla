@@ -28,10 +28,11 @@ import sys
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 sys.path.insert(0, os.path.join(ROOT, "tools"))
 sys.path.insert(0, os.path.join(ROOT, "tools", "build"))
+import art_slots   # noqa: E402  (slot name + drawing class per visual; the CSV carries both)
 CSV = os.path.join("docs", "build", "art-inventory.csv")
 CRITIC = os.path.join("pipeline", "art", "critic")
 LANES = ("artella", "artkeeper", "artscene", "artui", "artshots", "artfx", "artenemy")
-HEADER = ["visual", "source", "piece", "owner", "passed"]
+HEADER = ["visual", "source", "piece", "owner", "passed", "slot", "drawn_by"]
 
 # Owner lane of the pieces that existed before the inventory (a new piece carries `owner` in references.json).
 OWNERS = {
@@ -145,6 +146,8 @@ def art_files():
             rel_dir = os.path.relpath(dp, ROOT).replace(os.sep, "/")
             if top == "Content" and "/Art" not in "/" + rel_dir + "/":
                 continue
+            if top == "Content" and "/Art/Slots/" in "/" + rel_dir + "/":
+                continue   # M_ArtSlot_Unlit: the one draw material for every slot, not a visual (tools/build/art_slots.py)
             for f in fn:
                 if f.startswith(".") or f.lower().endswith(NOT_ART):
                     continue
@@ -293,7 +296,8 @@ def build(records=None):
                             % (piece, visual, owner, "/".join(LANES)))
             continue
         if not visual.startswith("widget:"):   # a widget class must have a piece but is not a row: its screen is
-            rows.append([visual, source, piece, owner, "yes" if piece in done else "no"])
+            rows.append([visual, source, piece, owner, "yes" if piece in done else "no",
+                         art_slots.slot_path(visual), art_slots.consumer(visual)])
     for visual, rule, piece in STATIC:
         for r in rule.split("/"):
             if ids and r not in ids:
