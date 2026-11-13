@@ -37,7 +37,7 @@
 average over 100 from other workers' Unreal builds). The same modules run directly: 935 tests, 18 failures, none in an
 art judge or calibration test. Not re-run on the base commit, so "already failing on main" is read from the messages,
 not measured:
-- tests.test_smoke_visual (14): ue_run exits 2, `tools/ue/smoke-allow.txt:5: D-new-smoke-concurrency is not a row in
+- tests.test_smoke_visual (14): ue_run exits 2, `tools/ue/smoke-allow.txt:5: the retired smoke-concurrency allow line is not a row in
   docs/decisions.md`.
 - tests.test_provenance.test_repo: provenance rows for files under pipeline/art/reference/discord-crops/.
 - tests.test_final9_fixes (workbench-check on UmbrellaElla.Target.cs), tests.test_audio_check.AudioDumpTool
