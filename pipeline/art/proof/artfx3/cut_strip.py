@@ -16,7 +16,7 @@ w, h = img.size
 px = np.array(img.pixels[:], dtype=np.float32).reshape(h, w, 4)
 r, g, b = px[..., 0], px[..., 1], px[..., 2]
 green = g - np.maximum(r, b)
-alpha = np.clip(1.0 - (green - 0.12) / 0.30, 0.0, 1.0)
+alpha = np.clip(1.0 - (green - 0.12) / float(__import__('os').environ.get('KEYW', '0.30')), 0.0, 1.0)  # KEYW: narrower when the painted green is muted
 alpha[green < 0.12] = 1.0
 g2 = np.minimum(g, np.maximum(r, b) + 0.02)
 # palette grade (artfx3): the model paints lemon-yellow golds and olive shadows; pull hues 48..110 deg toward gold (42 deg)
@@ -28,7 +28,7 @@ newh = np.where((hue > 44) & (hue < 110), 38.0 + 4.0 * t, hue)
 newh = np.where((newh < 24) | (newh > 330), 26.0, newh)
 sat = np.minimum(sat, SATCAP)
 if __import__('os').environ.get('NOGRADE'):  # blue-white effects: keep the painted hue
-    newh, sat = hue, np.where(mx > 0, d / (mx + 1e-6), 0); c = mx * sat; hp = (newh % 360) / 60.0; x = c * (1 - np.abs(hp % 2 - 1)); m0 = mx - c
+    newh, sat = hue, np.minimum(np.where(mx > 0, d / (mx + 1e-6), 0), float(__import__('os').environ.get('NOGRADE_SAT', '1.0'))); c = mx * sat; hp = (newh % 360) / 60.0; x = c * (1 - np.abs(hp % 2 - 1)); m0 = mx - c
 conds = [hp < 1, hp < 2, hp < 3, hp < 4, hp < 5]
 r2 = np.select(conds, [c, x, 0 * c, 0 * c, x], c) + m0
 g3 = np.select(conds, [x, c, c, x, 0 * c], 0 * c) + m0
