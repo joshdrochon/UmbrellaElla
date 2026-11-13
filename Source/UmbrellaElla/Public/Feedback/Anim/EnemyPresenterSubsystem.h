@@ -43,8 +43,14 @@ public:
 	/** Swap the stand-in for a picture (the slot load does this at spawn; tests pass a transient texture). */
 	EArtSlotDraw ShowArt(AUmbrellaEnemy* Enemy, UTexture2D* Texture);
 
-	/** Art slot id for a type and gender, e.g. "enemy:SundialCaster:Female". Pure. */
-	static FString VisualIdFor(EEnemyType Type, EEnemyGender Gender);
+	/** Art slot id for a type, gender and Roadwarden equipment, e.g. "enemy:ArmillaryLauncher:Female". Equipment is ignored for other types. Pure. */
+	static FString VisualIdFor(EEnemyType Type, EEnemyGender Gender, ERoadwardenEquipment Equipment = ERoadwardenEquipment::SundialCaster);
+
+	/** Set a Roadwarden's equipment variant (the enemy does not store it yet: request artslots 2). Redraws the art slot if it is not yet drawn. */
+	void SetEquipment(AUmbrellaEnemy* Enemy, ERoadwardenEquipment Equipment);
+	ERoadwardenEquipment GetEquipment(const AUmbrellaEnemy* Enemy) const;
+	/** Slot id for this enemy, using its stored equipment. */
+	FString VisualIdOf(const AUmbrellaEnemy* Enemy) const;
 
 	/** Apply the enemy's current state to its stand-in. */
 	void Refresh(AUmbrellaEnemy* Enemy);
@@ -63,5 +69,6 @@ private:
 	static UStaticMeshComponent* FindStandIn(const AActor* Enemy);
 	FDelegateHandle SpawnHandle;
 	TArray<TWeakObjectPtr<AUmbrellaEnemy>> Enemies;
+	TMap<TWeakObjectPtr<const AUmbrellaEnemy>, ERoadwardenEquipment> EquipmentByEnemy;
 	int32 PresentedCount = 0;
 };
