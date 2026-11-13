@@ -23,6 +23,8 @@ namespace UmbrellaVfxDirectorConst
 	static constexpr float DemoOffsetX = 150.0f;
 	static constexpr float DemoOffsetZ = 30.0f;
 	/** Art capture only: wall seconds into the demo when the scene (no UI) is written to Saved/Screenshots. */
+	/** Zoomed capture (label it 'zoomed'): ortho width 1920 -> 480 is a camera 4x closer; the effect keeps its own size. */
+	static constexpr float DemoZoomedOrthoWidth = 480.0f;
 	static constexpr float DemoShotSeconds = 4.0f;
 	/** Art capture only: the sheet cell the demo effect holds while shown (the bright, readable beat of a doubled four-frame sheet). */
 	static constexpr int32 DemoHoldFrame = 2;
@@ -177,6 +179,7 @@ private:
 	bool bDemoShotTaken = false;
 	TWeakObjectPtr<AActor> DemoBackdrop;
 	void StepDemo();
+	FVector DemoCentre(const AActor* Player) const;
 	void SpawnDemoBackdrop(const FVector& Around);
 #endif
 	float Clock = 0.0f;
