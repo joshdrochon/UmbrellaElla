@@ -86,3 +86,8 @@ No gameplay timing, collision or state is written by any of it (tests check the 
 - Reverted the `cards` additions in `pipeline/art/references.json` (outside the lane); the exact diff is request 6 in `docs/build/requests/artfx.md`. The slice 4 line above describing the edit as done is superseded.
 - `-VfxDemo` is compiled out of shipping builds (`#if !UE_BUILD_SHIPPING`, header and cpp), `StepDemo` returns early with no key, and its timer is wall time. Rule test `UmbrellaElla.Feedback.VfxDemoRules`.
 - Not run: UE build and the new test (the lead's slot).
+
+## Review fix round 2 (Nov 13)
+- Lead ruling: the `cards` additions in `pipeline/art/references.json` (19 refs, additions only) are in-lane per `docs/build/art-image-model.md` "Shared references" on main. Restored; request 6 withdrawn. `art_loop.py pieces --card artfx` lists the 26 `vfx-*` pieces again.
+- Demo test `UmbrellaElla.Feedback.VfxDemoRules` kept (uses `FName(TEXT(...))`); `StepDemo` early-returns with no key and times on wall time.
+- Not run: UE build and tests (the lead's slot).
