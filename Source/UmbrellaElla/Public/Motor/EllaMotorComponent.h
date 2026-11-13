@@ -67,6 +67,8 @@ private:
 
 	FMotorModelState Model;
 	TMap<FName, FVector2D> ActiveCurrents;
+	/** Local vertical fields of currents Ella is in: x gain, y centre z, z compensation. */
+	TMap<FName, FVector> ActiveLocalFields;
 	/** Hostile sources (GUST_Band) by SourceId; they bypass the voluntary ride path. */
 	TMap<FName, FVector2D> ForcedPushes;
 	FBox2D PlayBounds = FBox2D(ForceInit);
