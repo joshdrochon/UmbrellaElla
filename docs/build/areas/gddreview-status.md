@@ -17,7 +17,7 @@ None. `gdd_check` reports MISMATCH=0 on the merged tree (main fixed HAZ-10 in b0
 | HAZ-13.wind | 360 | 300 (`FBrokenMillTuning.WindSpeed`, `FFieldTuning.DefaultWindForce`) | residual-drift estimate uses 360; unreconciled |
 | HAZ-03.guard_feet | x 1450 | guard centred at x 1440 | no feet field; z 390 does match |
 | HAZ-08.inside_eligibility / value.4 | eligibility 185-275 | `LowerOnwardZ` 210-330 | GDD sentence conflicts with HAZ-06 |
-| CAM-05.h.3 | 0.7H band "near" | `LevelPlan::HighFraction` 0.75 | bound with tol 0.06 because the GDD says "near" |
+| CAM-05.h.3 / value.2 | 0.7H / 0.5H bands "near" | none (`LevelPlan::HighFraction` 0.75 and `MidHeightFraction` 0.5 removed in 3935a344) | moved to not_in_game, owner level |
 | HAZ-06 / HAZ-08 | lowered step centre 230, half-width 45, ascent start x 1640, root z 400, lift end (330,680), core z 300-780 | no field, no test literal (envelope 185-285 is a test literal, bound) | Broken Mill coordinates the game does not hold |
 | HAZ-14 | HeroSize 0.75/1.3, hitbox 0.75/1 | test inputs only | HeroSize has no tuning field |
 

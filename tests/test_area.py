@@ -416,7 +416,12 @@ class ModeQuestionOnATerminal(unittest.TestCase):
         self.sb = ks.KickoffSandbox(thj.PEOPLE)
         self.addCleanup(self.sb.close)
         os.remove(os.path.join(self.sb.repo, "docs", "build", "MODE"))
-        self.sb.git("commit", "-q", "-am", "no MODE file")
+        # a repo with no build lead yet: the copy must not carry this repo's own HANDOFF.md (added in 6a205554), or
+        # direct mode starts building the real areas instead of stopping at "no HANDOFF.md"
+        if os.path.exists(os.path.join(self.sb.repo, "HANDOFF.md")):
+            os.remove(os.path.join(self.sb.repo, "HANDOFF.md"))
+        self.sb.git("commit", "-q", "-am", "no MODE file, no HANDOFF.md")
+        self.sb.git("push", "-q", "origin", "main")   # direct mode reads HANDOFF.md from origin/main
         self.env = self.sb.env()
         for k in ("CI", "GITHUB_ACTIONS"):
             self.env.pop(k, None)

@@ -225,3 +225,9 @@ Ask for screenfix: keep the game log from run_game.sh, and check why a ready sho
 
 ## Round 34 (Nov 13 late): merged main and artslots, nothing new; blocked on request #4
 Nothing newer on main or artslots. The only capture (05:51) is HUD-only. No paint, no panel, no spend (15.08 of 33.82). Wrote request #4 (ready shot draws no world, keep the game log). Stopped: only the smoke/screenfix lane can fix it.
+
+## Round 35 (Nov 13): merged main 642dfc82, rebuilt, frame-600 capture draws the world but Ella is not in frame
+Merged main (clean), `build exit: 0` at 642dfc82. Capture `-SmokeShotFrames=600` at 1280x720 landed (07:21): world, Keeper parts, clock, shots now draw (artslots works).
+Ella is not usable: at most a tiny figure at the top edge (~x255,y28) inside a dark column; the middle and bottom are empty grey. No SMOKE_VIEW line is reachable (run_game.sh keeps no game log), so `ella_in_frame=1` is unconfirmed and I treat it as 0.
+No context pair, no panel, no paint, no spend (15.08 of 33.82). Shield R3 and closed R3 not started (need a context pair).
+Ask (smoke/screenfix lane): keep the run_game.sh game log so SMOKE_VIEW can be read; get Ella on screen at the shot. Not retrying the same command.

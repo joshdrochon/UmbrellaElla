@@ -282,6 +282,8 @@ def passed_pieces(records=None, root=None):
             continue
         if art_loop.content_sha(full) == r["files"] and not art_pass_verify.verify_record(root, piece, r, True, False):
             done.add(piece)   # a pass counts only when its raw panel evidence verifies (tools/build/art_pass_verify.py)
+    if records is None:   # owner approvals by eye (pipeline/art/approvals.json, lead-only; counts while the file's sha matches)
+        done |= art_pass_verify.owner_approved(root)
     return done
 
 
