@@ -1,90 +1,129 @@
 {
- "id": "ui-tutorial",
- "records": [
-  {
-   "piece": "ui-tutorial",
-   "round": 1,
-   "verdict": "reference",
-   "checks": true,
-   "results": {
-    "art_check": "pass",
-    "screen_check": "pass",
-    "art_ref_check": "pass"
-   },
-   "pairs": {
-    "quality_bar": "ours",
-    "reference": "reference"
-   },
-   "panel": 3,
-   "calibration": {
-    "sessions": 7,
-    "passed": 6
-   },
-   "missing": [
-    "reference:pipeline/art/reference/discord/20261112-0443_Ricky_title-screen.png"
-   ],
-   "critic_sessions": [
-    "ui-tutorial-r1-00-reference-c1",
-    "ui-tutorial-r1-00-reference-c2",
-    "ui-tutorial-r1-00-reference-c3",
-    "ui-tutorial-r1-01-quality_bar-c1",
-    "ui-tutorial-r1-01-quality_bar-c2",
-    "ui-tutorial-r1-01-quality_bar-c3",
-    "ui-tutorial-r1-00-reference-c4"
-   ],
-   "manifest": "",
-   "evidence": "",
-   "prompt": "",
-   "files": "7ce60615742d462d70fdc516ab46da914df6d3d908a6b0c39b0cd5dd8e93270d",
-   "file": "../../../../../../tmp/uishots/tutorial.png",
-   "card": "artui",
-   "refs": "669f6f2ac14d",
-   "commit": "d7982cdeeb7a",
-   "gap": "X is softer and lower in detail, with a coarser finish, and its body text runs into the ruined arch.; X is smoother and more digital, with less etched detail and paper grain. Its body text also runs into the ruined arch.; X has plain, flat UI lettering and a body-text line that collides with the ruin arch, so its type lacks the etched, aged-paper finish of Y's lettering.",
-   "at": "2026-11-13T06:09:34Z"
-  },
-  {
-   "piece": "ui-tutorial",
-   "round": 2,
-   "verdict": "reference",
-   "checks": true,
-   "results": {
-    "art_check": "pass",
-    "screen_check": "pass",
-    "art_ref_check": "pass"
-   },
-   "pairs": {
-    "quality_bar": "ours",
-    "reference": "reference"
-   },
-   "panel": 3,
-   "calibration": {
-    "sessions": 8,
-    "passed": 6
-   },
-   "missing": [
-    "reference:pipeline/art/reference/discord/20261112-0443_Ricky_title-screen.png"
-   ],
-   "critic_sessions": [
-    "ui-tutorial-r2-00-reference-c1",
-    "ui-tutorial-r2-00-reference-c2",
-    "ui-tutorial-r2-00-reference-c3",
-    "ui-tutorial-r2-01-quality_bar-c1",
-    "ui-tutorial-r2-01-quality_bar-c2",
-    "ui-tutorial-r2-01-quality_bar-c3",
-    "ui-tutorial-r2-00-reference-c4",
-    "ui-tutorial-r2-01-quality_bar-c4"
-   ],
-   "manifest": "",
-   "evidence": "",
-   "prompt": "",
-   "files": "7ce60615742d462d70fdc516ab46da914df6d3d908a6b0c39b0cd5dd8e93270d",
-   "file": "pipeline/art/proof/artui/ui-tutorial/capture_r16_tutorial.png",
-   "card": "artui",
-   "refs": "669f6f2ac14d",
-   "commit": "61ba52ca34e4",
-   "gap": "Y's tutorial text runs over the ruin arch, and its heading is plain small-caps. Its scene is also softer and grainier, with less fine etching than X's lettering and rock edges.; Y's lettering is smoother and less etched, and the body text runs over the ruin arch. Its linework is also softer, with less ink-and-paper grain.",
-   "at": "2026-11-13T07:00:39Z"
-  }
- ]
+  "id": "ui-tutorial",
+  "records": [
+    {
+      "piece": "ui-tutorial",
+      "round": 1,
+      "verdict": "reference",
+      "checks": true,
+      "results": {
+        "art_check": "pass",
+        "screen_check": "pass",
+        "art_ref_check": "pass"
+      },
+      "pairs": {
+        "quality_bar": "ours",
+        "reference": "reference"
+      },
+      "panel": 3,
+      "calibration": {
+        "sessions": 7,
+        "passed": 6
+      },
+      "missing": [
+        "reference:pipeline/art/reference/discord/20261112-0443_Ricky_title-screen.png"
+      ],
+      "critic_sessions": [
+        "ui-tutorial-r1-00-reference-c1",
+        "ui-tutorial-r1-00-reference-c2",
+        "ui-tutorial-r1-00-reference-c3",
+        "ui-tutorial-r1-01-quality_bar-c1",
+        "ui-tutorial-r1-01-quality_bar-c2",
+        "ui-tutorial-r1-01-quality_bar-c3",
+        "ui-tutorial-r1-00-reference-c4"
+      ],
+      "manifest": "",
+      "evidence": "",
+      "prompt": "",
+      "files": "7ce60615742d462d70fdc516ab46da914df6d3d908a6b0c39b0cd5dd8e93270d",
+      "file": "../../../../../../tmp/uishots/tutorial.png",
+      "card": "artui",
+      "refs": "669f6f2ac14d",
+      "commit": "d7982cdeeb7a",
+      "gap": "X is softer and lower in detail, with a coarser finish, and its body text runs into the ruined arch.; X is smoother and more digital, with less etched detail and paper grain. Its body text also runs into the ruined arch.; X has plain, flat UI lettering and a body-text line that collides with the ruin arch, so its type lacks the etched, aged-paper finish of Y's lettering.",
+      "at": "2026-11-13T06:09:34Z"
+    },
+    {
+      "piece": "ui-tutorial",
+      "round": 2,
+      "verdict": "reference",
+      "checks": true,
+      "results": {
+        "art_check": "pass",
+        "screen_check": "pass",
+        "art_ref_check": "pass"
+      },
+      "pairs": {
+        "quality_bar": "ours",
+        "reference": "reference"
+      },
+      "panel": 3,
+      "calibration": {
+        "sessions": 8,
+        "passed": 6
+      },
+      "missing": [
+        "reference:pipeline/art/reference/discord/20261112-0443_Ricky_title-screen.png"
+      ],
+      "critic_sessions": [
+        "ui-tutorial-r2-00-reference-c1",
+        "ui-tutorial-r2-00-reference-c2",
+        "ui-tutorial-r2-00-reference-c3",
+        "ui-tutorial-r2-01-quality_bar-c1",
+        "ui-tutorial-r2-01-quality_bar-c2",
+        "ui-tutorial-r2-01-quality_bar-c3",
+        "ui-tutorial-r2-00-reference-c4",
+        "ui-tutorial-r2-01-quality_bar-c4"
+      ],
+      "manifest": "",
+      "evidence": "",
+      "prompt": "",
+      "files": "7ce60615742d462d70fdc516ab46da914df6d3d908a6b0c39b0cd5dd8e93270d",
+      "file": "pipeline/art/proof/artui/ui-tutorial/capture_r16_tutorial.png",
+      "card": "artui",
+      "refs": "669f6f2ac14d",
+      "commit": "61ba52ca34e4",
+      "gap": "Y's tutorial text runs over the ruin arch, and its heading is plain small-caps. Its scene is also softer and grainier, with less fine etching than X's lettering and rock edges.; Y's lettering is smoother and less etched, and the body text runs over the ruin arch. Its linework is also softer, with less ink-and-paper grain.",
+      "at": "2026-11-13T07:00:39Z"
+    },
+    {
+      "piece": "ui-tutorial",
+      "round": 2,
+      "verdict": "ours",
+      "checks": true,
+      "results": {
+        "art_check": "pass",
+        "screen_check": "pass",
+        "art_ref_check": "pass"
+      },
+      "pairs": {
+        "quality_bar": "ours",
+        "reference": "ours"
+      },
+      "panel": 3,
+      "calibration": {
+        "sessions": 6,
+        "passed": 6
+      },
+      "missing": [],
+      "critic_sessions": [
+        "ui-tutorial-r2-00-reference-c1",
+        "ui-tutorial-r2-00-reference-c2",
+        "ui-tutorial-r2-00-reference-c3",
+        "ui-tutorial-r2-01-quality_bar-c1",
+        "ui-tutorial-r2-01-quality_bar-c2",
+        "ui-tutorial-r2-01-quality_bar-c3"
+      ],
+      "manifest": "a1bcc92a17d22fc0d4db74f390fafafc7387df0781ecd17c3069e20a32f282b4",
+      "evidence": "pipeline/art/critic/ui-tutorial/2",
+      "prompt": "art_loop PANEL_PROMPT 8f1e148c4dd0",
+      "files": "ed36a563648d2ede59f5d0b80221507b3628506859d3378049b435b6bc6419c9",
+      "file": "pipeline/art/proof/artui2/ui-tutorial/capture_tutorial.png",
+      "card": "artui",
+      "refs": "669f6f2ac14d",
+      "commit": "6e0574f70e6c",
+      "gap": "",
+      "at": "2026-11-13T07:10:47Z"
+    }
+  ]
 }
