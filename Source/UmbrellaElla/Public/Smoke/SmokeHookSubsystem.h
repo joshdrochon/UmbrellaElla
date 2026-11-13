@@ -4,6 +4,7 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "InputCoreTypes.h"
 #include "Tickable.h"
+#include "Smoke/PlaytestRun.h"
 #include "SmokeHookSubsystem.generated.h"
 
 /**
@@ -78,6 +79,10 @@ private:
 	float InputVz = 0.0f;
 	float PadAttackVz = 0.0f;
 	float PadPeakVx = 0.0f;
+
+	/** -SmokePlaytest: the scripted measurement run (null otherwise). */
+	TUniquePtr<FPlaytestRun> Playtest;
+	bool bPlaytestStarted = false;
 
 	EStage Stage = EStage::WaitingForStart;
 	TArray<float> FrameSeconds;

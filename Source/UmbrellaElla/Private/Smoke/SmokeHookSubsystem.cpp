@@ -153,16 +153,36 @@ void USmokeHookSubsystem::Tick(float DeltaTime)
 
 	TickInputCheck(Flow);
 
-	const bool bInputSettled = InputStep == EInputStep::Done;
-	if (Flow && Flow->GetScreen() == EFlowScreen::Defeat && (bInputSettled || Elapsed >= QuitAfterSeconds + InputGraceSeconds))
+	if (FParse::Param(FCommandLine::Get(), TEXT("SmokePlaytest")))
+	{
+		if (!Playtest)
+		{
+			Playtest = MakeUnique<FPlaytestRun>();
+		}
+		// Start once the shot is out and the input check is over, so neither disturbs the other.
+		if (!bPlaytestStarted && bShotChecked && InputStep == EInputStep::Done && Flow && Flow->GetScreen() != EFlowScreen::Defeat)
+		{
+			bPlaytestStarted = true;
+			Playtest->Begin(GetWorld());
+		}
+		else if (bPlaytestStarted && !Playtest->IsDone())
+		{
+			Playtest->Tick(DeltaTime);
+		}
+	}
+	const bool bPlaytestSettled = !Playtest || (bPlaytestStarted && Playtest->IsDone());
+
+	const bool bInputSettled = InputStep == EInputStep::Done && bPlaytestSettled;
+	const float GraceSeconds = Playtest ? InputGraceSeconds + FPlaytestRun::HazRunSeconds + FPlaytestRun::PlaytestSetupGraceSeconds : InputGraceSeconds;
+	if (Flow && Flow->GetScreen() == EFlowScreen::Defeat && (bInputSettled || Elapsed >= QuitAfterSeconds + GraceSeconds))
 	{
 		LogEnd(TEXT("fail"));
 	}
-	else if (Flow && (Flow->GetScreen() == EFlowScreen::Story || Flow->GetScreen() == EFlowScreen::Credits) && (bInputSettled || Elapsed >= QuitAfterSeconds + InputGraceSeconds))
+	else if (Flow && (Flow->GetScreen() == EFlowScreen::Story || Flow->GetScreen() == EFlowScreen::Credits) && (bInputSettled || Elapsed >= QuitAfterSeconds + GraceSeconds))
 	{
 		LogEnd(TEXT("survived"));
 	}
-	else if (Elapsed >= QuitAfterSeconds && (bInputSettled || Elapsed >= QuitAfterSeconds + InputGraceSeconds))
+	else if (Elapsed >= QuitAfterSeconds && (bInputSettled || Elapsed >= QuitAfterSeconds + GraceSeconds))
 	{
 		LogEnd(TEXT("quit"));
 	}
