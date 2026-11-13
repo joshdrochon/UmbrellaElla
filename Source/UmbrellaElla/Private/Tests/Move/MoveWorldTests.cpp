@@ -4,7 +4,10 @@
 #if WITH_AUTOMATION_TESTS
 
 #include "Attack/AttackEmitterComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Core/EllaCharacter.h"
+#include "Core/UmbrellaTuning.h"
+#include "Motor/HeroSizeRules.h"
 #include "Core/UmbrellaEventBus.h"
 #include "Field/WindCurrent.h"
 #include "EngineUtils.h"
@@ -361,6 +364,90 @@ bool FMoveWorldSavedRemapTest::RunTest(const FString& Parameters)
 	}
 	TestTrue(TEXT("live IMC_Default maps Shoot to the saved F"), bHasF);
 	IFileManager::Get().Delete(*Path);
+	return true;
+}
+
+
+namespace
+{
+	/** Tuning copy with HeroSize and hitbox scale overridden. Workbench builds (editor tests) only; elsewhere the baked values. */
+	FMotorTuning MoveTuningWithHeroSize(FMotorTuning Base, float HeroSize, float Hitbox)
+	{
+#if UMBRELLAELLA_WORKBENCH
+		Base.HeroSize = HeroSize;
+		Base.HitboxScale = Hitbox;
+#endif
+		return Base;
+	}
+
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMoveHeroSizeRuleTest, "UmbrellaElla.Move.HeroSizeRules", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FMoveHeroSizeRuleTest::RunTest(const FString& Parameters)
+{
+	FMotorTuning Tuning;
+	TestEqual(TEXT("reference HeroSize 1"), Tuning.HeroSize, 1.0f);
+	TestEqual(TEXT("range lower 0.75"), Tuning.HeroSizeMin, 0.75f);
+	TestEqual(TEXT("range upper 1.3"), Tuning.HeroSizeMax, 1.3f);
+	TestEqual(TEXT("hitbox range 0.75..1"), Tuning.HitboxScaleMin, 0.75f);
+	TestEqual(TEXT("hitbox upper 1"), Tuning.HitboxScaleMax, 1.0f);
+	TestEqual(TEXT("actor scale 0.5 at HeroSize 1"), HeroSizeRules::ActorScale(Tuning), 0.5f);
+#if UMBRELLAELLA_WORKBENCH
+	Tuning = MoveTuningWithHeroSize(Tuning, 1.3f, 1.0f);
+	TestEqual(TEXT("muzzle 57.2 / 7.8 at HeroSize 1.3"), static_cast<float>(HeroSizeRules::MuzzleOffset(FVector(44.0, 0.0, 6.0), Tuning).X), 57.2f, 0.01f);
+	TestEqual(TEXT("muzzle Z 7.8 at HeroSize 1.3"), static_cast<float>(HeroSizeRules::MuzzleOffset(FVector(44.0, 0.0, 6.0), Tuning).Z), 7.8f, 0.01f);
+	Tuning = MoveTuningWithHeroSize(Tuning, 5.0f, 1.0f);
+	TestEqual(TEXT("HeroSize clamps to the range"), HeroSizeRules::ClampedHeroSize(Tuning), 1.3f);
+	Tuning = MoveTuningWithHeroSize(Tuning, 5.0f, 0.1f);
+	TestEqual(TEXT("hitbox scale clamps to the range"), HeroSizeRules::ClampedHitboxScale(Tuning), 0.75f);
+#endif
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMoveWorldHeroSizeTest, "UmbrellaElla.Move.World.HeroSizeScalesHurtboxAndMuzzle", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FMoveWorldHeroSizeTest::RunTest(const FString& Parameters)
+{
+	float RefHalfHeight = 0.0f;
+	{
+		FUmbrellaTestWorld Test;
+		AEllaCharacter* Ella = Test.SpawnElla();
+		if (!TestNotNull(TEXT("Ella spawned"), Ella))
+		{
+			return false;
+		}
+		const FMotorTuning Tuned = MoveTuningWithHeroSize(GetDefault<UUmbrellaTuning>()->Motor, 1.0f, 1.0f);
+		Ella->GetMotor()->ApplyHeroSize(Tuned);
+		Ella->GetAttack()->SetMotorTuningOverride(Tuned);
+		TestEqual(TEXT("actor scale 0.5 at HeroSize 1"), static_cast<float>(Ella->GetActorScale3D().X), 0.5f, 0.0001f);
+		RefHalfHeight = Ella->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+	}
+#if !UMBRELLAELLA_WORKBENCH
+	return true; // the 0.75/1.3 cases need the workbench tuning override
+#endif
+	const float Cases[][2] = {{0.75f, 1.0f}, {1.3f, 1.0f}, {1.0f, 0.75f}, {1.3f, 0.75f}};
+	for (const float (&Case)[2] : Cases)
+	{
+		FUmbrellaTestWorld Test;
+		AEllaCharacter* Ella = Test.SpawnElla();
+		if (!TestNotNull(TEXT("Ella spawned"), Ella))
+		{
+			return false;
+		}
+		const FMotorTuning Tuned = MoveTuningWithHeroSize(GetDefault<UUmbrellaTuning>()->Motor, Case[0], Case[1]);
+		Ella->GetMotor()->ApplyHeroSize(Tuned);
+		Ella->GetAttack()->SetMotorTuningOverride(Tuned);
+		TestEqual(TEXT("actor scale 0.5 x HeroSize"), static_cast<float>(Ella->GetActorScale3D().X), 0.5f * Case[0], 0.0001f);
+		TestEqual(TEXT("hurtbox follows HeroSize and hitbox scale"), Ella->GetCapsuleComponent()->GetScaledCapsuleHalfHeight(), RefHalfHeight * Case[0] * Case[1], 0.01f);
+
+		Ella->GetInputAdapter()->ApplyPress(EUmbrellaInputAction::Shoot);
+		Test.TickSeconds(0.5f, 1.0f / 60.0f);
+		const FUmbrellaShotSpec& Shot = Ella->GetAttack()->GetLastShot();
+		const FVector Offset = Shot.Origin - Ella->GetActorLocation();
+		TestTrue(TEXT("a shot was fired"), Ella->GetAttack()->GetShotsFired() > 0);
+		TestEqual(TEXT("blast radius stays 6 (HAZ-10)"), Shot.Radius, 6.0f, 0.001f);
+		// The first shot leaves from the muzzle at the moment of the volley; Ella has since fallen, so compare X only.
+		TestEqual(TEXT("muzzle X follows HeroSize"), static_cast<float>(Offset.X), 44.0f * Case[0], 0.5f);
+	}
 	return true;
 }
 

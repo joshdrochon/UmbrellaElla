@@ -46,7 +46,9 @@ WORKER_LAUNCH_ID="$(date +%s)-$$-$RANDOM"; echo "$WORKER_LAUNCH_ID" > "$BASE/.la
 export WORKER_LAUNCH_ID WORKER_LAUNCH_FILE="$BASE/.launch-$A"
 # Workers carry none of the launching session's CLAUDE_* variables (session id, PID, messaging socket): three mass
 # SIGTERMs (20:29, 22:15, 01:35) hit every worker tied to the lead's session at once.
-env $(env | sed -n 's/^\(CLAUDE[A-Z_]*\)=.*/-u \1/p' | tr '\n' ' ') nohup python3 -c '
+# CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS=0 (set after the strip): a worker ending its turn stopped its own running art_loop
+# panels (artella2, Nov 13); it now waits for them.
+env $(env | sed -n 's/^\(CLAUDE[A-Z_]*\)=.*/-u \1/p' | tr '\n' ' ') CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS=0 nohup python3 -c '
 import os, signal, subprocess, sys, time
 os.setsid()
 for s in (signal.SIGHUP, signal.SIGINT): signal.signal(s, signal.SIG_IGN)
