@@ -66,3 +66,6 @@
 
 ## Slice 11 (Nov 13): no change, still blocked
 - Merged main and artslots: up to date. No paint, no spend. Blockers as in slice 10 (import_art_candidate exits without importing, so no capture and no panel; keeper-warning flat at 3 flash drafts; shared spend near cap). All 8 pieces remain `_PH`.
+
+## Slice 12 (Nov 13): no change, still blocked
+- Merged main and artslots: up to date. No paint, no spend. Blockers unchanged from slice 11 (import_art_candidate exits without importing, so no capture and no panel; keeper-warning flat at 3 flash drafts; shared spend near cap). All 8 pieces remain `_PH`.
