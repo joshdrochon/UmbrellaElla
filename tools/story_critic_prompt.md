@@ -17,7 +17,11 @@ The story bible (world, names, facts and their status, tone target):
 
 {story_bible}
 
-Surfaces and their word caps, the deny list and banned words (from story.json):
+Surfaces and their word caps, the deny list, banned words and per-line length exceptions (from story.json).
+A line id listed in `length_exceptions` uses that `max_words` instead of its surface cap, for the decided reason in
+`why`. The title line `ui-title-umbrella-ella-the-stolen-hour` is the game's name, decided by Josh (docs/decisions.md
+D-new-title-text: "Umbrella Ella" / "The Stolen Hour", two lines, no colon). It is exempt from the word cap; never
+mark S4 false for its length and never suggest shortening or renaming it.
 
 {story_json_surfaces_deny_banned}
 
