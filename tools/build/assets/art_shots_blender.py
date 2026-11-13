@@ -222,6 +222,16 @@ def shot(m, rnd, shell, mid, body, core, spill, trail_a, trail_b, shade="redshad
     poly_part(r, "body", m[mid], shot_outline(0.86, 0.72, 0.1), y=-0.06, name="mid")
     poly_part(r, "body", m[body], shot_outline(0.7, 0.4, 0.25), y=-0.12, name="body")
     poly_part(r, "body", m[core], shot_outline(0.62, 0.17, 0.4), y=-0.18, name="core")
+    # etched line work: thin ink slivers from near the tip back along each spike, and a few short barbs in the shell
+    sx, sz = 0.82, 1.4
+    tip = (1.1 * sx, 0.0)
+    spikes = [(0.45, 0.32), (-0.3, 0.62), (-1.2, 0.4)]
+    for k, (ex, ez) in enumerate(spikes):
+        for sgn in (1, -1):
+            x1, z1 = ex * sx, sgn * ez * sz * 0.92
+            x0, z0 = tip[0] - 0.55 - 0.05 * k, sgn * 0.03
+            w = 0.022
+            poly_part(r, "body", m["ink"], [(x0, z0 + w), (x1, z1), (x0, z0 - w)], y=-0.2, thick=0.01, name="etch%d%d" % (k, sgn > 0))
     streak = [(-1.2, 0.22), (-2.0, 0.15), (-2.7, 0.04), (-2.7, -0.04), (-2.0, -0.15), (-1.2, -0.22)]
     poly_part(r, "body", m["g_st_r" if shell == "g_shell" else "g_st_a"], streak, y=0.02, thick=0.02, name="streak")
     poly_part(r, "body", m["g_st_c" if shell == "g_shell" else "g_st_y"],

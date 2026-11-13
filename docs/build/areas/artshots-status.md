@@ -34,3 +34,13 @@ started picking ours over the old rust needle. Not yet unanimous ours/SAME, so n
 ## Next
 owl-bolt: single sharper head (one point, not stacked teeth), shorter tail, visible etched interior line work; re-run panel.
 Then bolt-hit detail, then wind pieces once their calibration is fixed.
+
+## Round 6 (after merge of main 4ed1d35, critic-packet fix): owl-bolt re-run, earlier rounds treated as invalid
+- Panel on Still4 (best render), 12 critics, packet now flattens transparent renders onto paper: reference/quality-bar picked over ours in
+  9 of 12 real folders (ours 2, SAME 0-1). Gap every time: flat vector fills, no etched line or paper grain; head reads as a jagged
+  double-saw not one clean point; tail ends in loose squares. Same gap as rounds 3-5, so the old evidence was not the cause.
+- Critic sanity: calibration folders 23/24 right (reference vs itself = SAME, known-bad = loses). Critic is sane; ours genuinely fails.
+- Tried: etched ink slivers from the head along each spike (Still6). Visually almost no change; not re-panelled (would not pass).
+- Still blocked as before: `context` pair needs an in-engine capture; bolt-hit/wind-lines/wind-zone fail deterministic checks
+  (wind calibration numbers are the lead's to re-measure, see Blockers above).
+- Next real step: a shaded (radial/gradient) shell with a bounded glow mask and finer etched hatch, not more line slivers.
