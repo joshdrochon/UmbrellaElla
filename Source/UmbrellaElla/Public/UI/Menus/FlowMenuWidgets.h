@@ -101,6 +101,8 @@ public:
 
 private:
 	void HandleHovered(int32 Index);
+	void MoveSelection(int32 Step);
+	EActiveTimerReturnType KeepFocus(double InCurrentTime, float InDeltaTime);
 	FText GetConfirmPrompt() const;
 	FText GetBackPrompt() const;
 

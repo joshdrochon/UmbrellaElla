@@ -208,6 +208,8 @@ void SFlowMenu::Construct(const FArguments& InArgs)
 	// Start Game (or whatever comes first) is the choice the moment the screen opens, with or without focus.
 	SelectedIndex = Buttons.Num() > 0 ? 0 : INDEX_NONE;
 	LastOpenedMenu = SharedThis(this);
+	// A click can hand focus to the game viewport; take it back so the keys and the pad keep working.
+	RegisterActiveTimer(0.0f, FWidgetActiveTimerDelegate::CreateSP(this, &SFlowMenu::KeepFocus));
 
 	ChildSlot
 	[
@@ -282,6 +284,28 @@ bool SFlowMenu::ChooseSelected()
 	return Chosen.ExecuteIfBound();
 }
 
+void SFlowMenu::MoveSelection(int32 Step)
+{
+	if (Buttons.Num() > 0)
+	{
+		SelectItem(FMath::Clamp(SelectedIndex + Step, 0, Buttons.Num() - 1));
+	}
+}
+
+EActiveTimerReturnType SFlowMenu::KeepFocus(double InCurrentTime, float InDeltaTime)
+{
+	if (FSlateApplication::IsInitialized() && Buttons.IsValidIndex(SelectedIndex) && GetVisibility().IsVisible())
+	{
+		const TSharedPtr<SWidget> Focused = FSlateApplication::Get().GetUserFocusedWidget(0);
+		// Only from nothing or the game viewport: another widget (the settings page) may own focus on purpose.
+		if (!Focused.IsValid() || Focused->GetType() == FName(TEXT("SViewport")))
+		{
+			FSlateApplication::Get().SetAllUserFocus(Buttons[SelectedIndex], EFocusCause::SetDirectly);
+		}
+	}
+	return EActiveTimerReturnType::Continue;
+}
+
 void SFlowMenu::HandleHovered(int32 Index)
 {
 	bGamepadPrompts = false;
@@ -353,8 +377,14 @@ FReply SFlowMenu::OnKeyDown(const FGeometry& MyGeometry, const FKeyEvent& InKeyE
 	{
 		return ChooseSelected() ? FReply::Handled() : FReply::Unhandled();
 	}
-	// WASD walks the buttons like the arrow keys (arrows and the D-pad navigate through Slate already).
 	const bool bWasdKey = Key == EKeys::W || Key == EKeys::A || Key == EKeys::S || Key == EKeys::D;
+	// Up and Down move the selection here, not through Slate's focus walk, so they work whatever holds focus.
+	if ((Intent == EFlowMenuIntent::Up || Intent == EFlowMenuIntent::Down) && (bWasdNavigation || !bWasdKey))
+	{
+		MoveSelection(Intent == EFlowMenuIntent::Down ? 1 : -1);
+		return FReply::Handled();
+	}
+	// WASD walks the buttons like the arrow keys (left and right still go through Slate).
 	if (bWasdNavigation && bWasdKey && FSlateApplication::IsInitialized())
 	{
 		const FKey Arrow = Intent == EFlowMenuIntent::Up ? EKeys::Up : Intent == EFlowMenuIntent::Down ? EKeys::Down

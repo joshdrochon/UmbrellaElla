@@ -266,4 +266,36 @@ bool FFlowMenuMouseMarkerOnRow::RunTest(const FString& Parameters)
 	return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFlowMenuMouseEmptyClickKeepsKeys, "UmbrellaElla.Flow.MenuMouse.EmptyClickKeepsSelectionAndKeys",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FFlowMenuMouseEmptyClickKeepsKeys::RunTest(const FString& Parameters)
+{
+	if (!FSlateApplication::IsInitialized())
+	{
+		AddError(TEXT("needs Slate"));
+		return false;
+	}
+	const FGeometry Geometry = FGeometry::MakeRoot(FVector2D(1920.0, 1080.0), FSlateLayoutTransform());
+	for (const FlowMenuMouseTest::FMenuCase& Case : FlowMenuMouseTest::Menus())
+	{
+		int32 Chosen = INDEX_NONE;
+		bool bBack = false;
+		const TSharedRef<SFlowMenu> Menu = FlowMenuMouseTest::Build(Case, Chosen, bBack);
+		// A click on empty space: the selection stays, one row is still lit.
+		Menu->OnMouseButtonDown(Geometry, FlowMenuMouseTest::MouseAt(FVector2f(1.0f, 1.0f)));
+		TestEqual(FString::Printf(TEXT("%s: empty click keeps the selection"), Case.Name), Menu->GetSelectedIndex(), 0);
+		TestEqual(FString::Printf(TEXT("%s: one row still lit"), Case.Name), FlowMenuMouseTest::LitCount(Menu), 1);
+		// Down after the click moves the selection to the next row (Start: Director's Cut).
+		const FKeyEvent Down(EKeys::Down, FModifierKeysState(), 0, false, 0, 0);
+		const bool bHandled = Menu->OnKeyDown(Geometry, Down).IsEventHandled();
+		const int32 Expected = Menu->GetItemCount() > 1 ? 1 : 0;
+		TestTrue(FString::Printf(TEXT("%s: Down is handled"), Case.Name), bHandled);
+		TestEqual(FString::Printf(TEXT("%s: Down moves the selection after a click"), Case.Name), Menu->GetSelectedIndex(), Expected);
+		Menu->OnMouseButtonDown(Geometry, FlowMenuMouseTest::MouseAt(FVector2f(2.0f, 2.0f)));
+		TestEqual(FString::Printf(TEXT("%s: second empty click keeps it"), Case.Name), Menu->GetSelectedIndex(), Expected);
+		TestEqual(FString::Printf(TEXT("%s: still one lit"), Case.Name), FlowMenuMouseTest::LitCount(Menu), 1);
+	}
+	return true;
+}
+
 #endif
