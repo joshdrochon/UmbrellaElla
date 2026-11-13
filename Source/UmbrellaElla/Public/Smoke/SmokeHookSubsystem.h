@@ -70,6 +70,9 @@ public:
 	/** The -SmokeShotFrames=N value: N when it is at least 1, else the default. */
 	static int32 ResolveShotFrames(int32 Requested);
 
+	/** SMOKE_VIEW (plain rule function): true when a projected point lies inside a ViewW x ViewH frame (projection succeeded). */
+	static bool IsPixelInFrame(bool bProjected, const FVector2D& Pixel, const FVector2D& ViewSize);
+
 	static constexpr int32 DefaultShotFrames = 60;
 	/** The shot may take this long (seconds past -SmokeQuitAfter) before the run quits without it. */
 	static constexpr double ShotMaxWaitSeconds = 1200.0;
@@ -99,6 +102,8 @@ private:
 	FString BuildEffectiveLine(const TCHAR* At, const TCHAR* Outcome) const;
 	void LogEnd(const TCHAR* Outcome);
 	void SaveWindowShotDirect();
+	/** At the shot: log what the camera sees (view target, Ella and arena centre in frame) as SMOKE_VIEW. */
+	void LogShotView(class AUmbrellaPlayerController* Flow) const;
 	/** -SmokeKeeper / -SmokeEnemy: set up the scene once, on the first gameplay frame (workbench builds only). */
 	void ApplySceneSwitches();
 
