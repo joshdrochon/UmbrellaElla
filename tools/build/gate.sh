@@ -25,6 +25,7 @@ cd "$G"; git reset -q --hard main; MAIN=$(git rev-parse HEAD)
 T1=$(date +%s); python3 tools/build/quality_gate.py baseline "$L/quality-base.txt" 2>/dev/null; step "baseline"
 T1=$(date +%s)
 if ! git -c core.hooksPath=/dev/null merge -q --no-ff -m "Merge area/$A ($(git rev-parse --short "$C")) into main" "$C" 2>/dev/null; then
+  if git diff --name-only --diff-filter=U | grep -qx docs/build/rule-status.csv; then python3 tools/build/rule_status_merge.py || true; fi
   bad=$(git diff --name-only --diff-filter=U | grep -v -E '^docs/build/(areas/[a-z]+\.md|worker-rules\.md|areas\.py)$')
   if [ -n "$bad" ]; then echo "GATE FAIL: merge conflict in: $bad"; git merge --abort; exit 1; fi
   git diff --name-only --diff-filter=U | xargs git checkout --ours -- && git add -A docs/build && git -c core.hooksPath=/dev/null commit -q --no-edit
