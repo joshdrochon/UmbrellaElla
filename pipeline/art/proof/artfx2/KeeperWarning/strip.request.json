@@ -1,0 +1,39 @@
+{
+ "provider": "gemini",
+ "tier": "draft",
+ "tool": "Gemini API image generation (Google)",
+ "model": "gemini-2.5-flash-image",
+ "openrouter_model": null,
+ "fal_model": null,
+ "model_version": "gemini-2.5-flash-image",
+ "prompt": "Four animation frames of one effect for a 2D side-view game, painted side by side on one wide flat green field: the red attack warning (tell) a clockwork owl Keeper shows before it strikes: a glowing aiming ring that tightens. Only the effect is drawn, no creature. The four frames stand in one row on the same horizontal centre line, centres at exactly one eighth, three eighths, five eighths and seven eighths of the picture width, evenly spaced, never touching each other or the edge. Flat, face-on, seen at game-sprite distance; the largest frame spans about a fifth of the picture width.\n\nThe look is the glowing red shot of a dark etched storybook game: a hot, near-white cream core #FFF5DC, then a bright crimson #FF3658 body, a coral #FF7848 inner edge, and a deep shadow red #8F173C on the lower edge, with fine etched hatching in the shadow and a thin near-black ink edge #171614. Every shape is drawn as ink and wash, not glossy: bold near-black ink outlines about 3 px wide, dense etched cross-hatching and ink contour lines across the crimson and shadow areas, and a visible fine paper grain and ink speckle inside the shapes. Only a very thin, hard-edged glow rim. A few tiny ember sparks float around.\n\nFrame 1 (the tell appears): a thin broken crimson ring made of four arcs with gaps, four small coral tick marks pointing inward at the top, bottom, left and right, a faint cream spark in the centre. Frame 2 (the ring tightens): a complete crimson ring, thicker, with a coral inner edge and a short coral crosshair line through the centre, a bright cream dot at the centre. Frame 3 (the lock): a smaller, hotter double ring, one thin ring inside one bold ring, four sharp coral spikes pointing at the centre, a white-hot cream core with a small starburst. Frame 4 (the strike is about to fire): a bright thin ring flashing to cream-white at its rim with radiating short crimson rays, the most intense frame, a few ember shards flying out.\n\nEach shape is fully opaque with painted glow, no see-through colour. Colours only: crimson #FF3658, coral #FF7848, shadow red #8F173C, cream #FFF5DC, ink #171614. Outside the shapes the picture is one perfectly flat, pure green #00FF00 filling the canvas. No text, labels, grid, frames or watermark.",
+ "seed": "",
+ "size": "1024x1024",
+ "quality": "medium",
+ "aspect_ratio": "21:9",
+ "image_size": null,
+ "input_images": [],
+ "cost_usd": 0.039169,
+ "reply": {
+  "usage": {
+   "promptTokenCount": 563,
+   "candidatesTokenCount": 1290,
+   "totalTokenCount": 1853,
+   "promptTokensDetails": [
+    {
+     "modality": "TEXT",
+     "tokenCount": 563
+    }
+   ],
+   "candidatesTokensDetails": [
+    {
+     "modality": "IMAGE",
+     "tokenCount": 1290
+    }
+   ],
+   "serviceTier": "standard"
+  },
+  "finish": "STOP"
+ },
+ "date": "2026-11-13T14:19+00:00"
+}

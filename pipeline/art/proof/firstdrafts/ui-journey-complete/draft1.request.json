@@ -1,0 +1,39 @@
+{
+ "provider": "gemini",
+ "tier": "draft",
+ "tool": "Gemini API image generation (Google)",
+ "model": "gemini-2.5-flash-image",
+ "openrouter_model": null,
+ "fal_model": null,
+ "model_version": "gemini-2.5-flash-image",
+ "prompt": "A wide picture for a 2D game, piece ui-journey-complete. A dark game menu screen in the same etched look as a clockwork title screen: charcoal and muted sepia ground, gold line work, etched clock faces and gears as ornament, hand-lettered engraved headings. Fill the whole canvas, no border. The Journey Complete screen: a large engraved heading, eight stat rows with gold numbers, two buttons Try Again and Main Menu. Style: a dark painterly etched storybook illustration, ink and wash with fine etched cross-hatching and a faint paper grain inside the shapes only. Large shapes have a clean near-black ink outline #171614 about 2 px wide at this size. One light source sits in front and slightly above: upper edges brighter, lower edges shaded with fine hatching. Palette: charcoal and ash-blue darks, muted sepia, bone ivory #FFF5DC, warm gold #E9C46A, bronze #94611E, with only tiny accents of crimson #FF3658. ",
+ "seed": "",
+ "size": "1024x1024",
+ "quality": "medium",
+ "aspect_ratio": "16:9",
+ "image_size": null,
+ "input_images": [],
+ "cost_usd": 0.039068,
+ "reply": {
+  "usage": {
+   "promptTokenCount": 226,
+   "candidatesTokenCount": 1290,
+   "totalTokenCount": 1516,
+   "promptTokensDetails": [
+    {
+     "modality": "TEXT",
+     "tokenCount": 226
+    }
+   ],
+   "candidatesTokensDetails": [
+    {
+     "modality": "IMAGE",
+     "tokenCount": 1290
+    }
+   ],
+   "serviceTier": "standard"
+  },
+  "finish": "STOP"
+ },
+ "date": "2026-11-13T16:52+00:00"
+}

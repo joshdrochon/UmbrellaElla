@@ -1,0 +1,29 @@
+{
+ "frames": 4,
+ "frame": [
+  647,
+  498
+ ],
+ "figure_heights": [
+  402,
+  482,
+  401,
+  404
+ ],
+ "figure_widths": [
+  580,
+  631,
+  560,
+  579
+ ],
+ "height_spread_pct": 16.8,
+ "pivot": "bottom-centre",
+ "cut": "gaps",
+ "source": "pipeline/art/proof/artfx/TwinStarHead/keyed.png",
+ "outputs": [
+  "pipeline/art/proof/artfx/TwinStarHead/Raw/star_00.png",
+  "pipeline/art/proof/artfx/TwinStarHead/Raw/star_01.png",
+  "pipeline/art/proof/artfx/TwinStarHead/Raw/star_02.png",
+  "pipeline/art/proof/artfx/TwinStarHead/Raw/star_03.png"
+ ]
+}

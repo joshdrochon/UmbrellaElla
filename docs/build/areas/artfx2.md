@@ -1,0 +1,5 @@
+# Area: artfx2
+
+Started by the build lead from this brief (2026-11-12). It is the definition of done.
+
+Area artfx2: an art loop split from artfx (Josh: maximum art loops). You own ONLY these pieces: vfx-keeper-recovery vfx-keeper-strike vfx-keeper-warning vfx-clock-beat vfx-clock-open vfx-eye-exposed vfx-departure vfx-restoration. First: git merge origin/area/artfx (its prompts, candidates, references and status are your starting point) and merge main; read docs/build/areas/artfx-status.md for what was tried. List your pieces with tools/art_loop.py pieces --card artfx and work only on yours. Rules: no human review, loop to the bar; Spend OK (shared counter, check it before each call); draft on the cheap flash image model, final candidates only on 3-pro-image (once tools/assetgen.py has tiers; until then use few calls); candidates under pipeline/art/proof/<lane>/<piece>/; judge only through tools/art_loop.py on the fixed checks; context capture per docs/build/art-image-model.md (the frame-based smoke shot is coming from screenfix); verify passes with python3 tools/build/art_pass_verify.py. Commit after each round.

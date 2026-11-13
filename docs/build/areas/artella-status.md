@@ -225,3 +225,20 @@ Ask for screenfix: keep the game log from run_game.sh, and check why a ready sho
 
 ## Round 34 (Nov 13 late): merged main and artslots, nothing new; blocked on request #4
 Nothing newer on main or artslots. The only capture (05:51) is HUD-only. No paint, no panel, no spend (15.08 of 33.82). Wrote request #4 (ready shot draws no world, keep the game log). Stopped: only the smoke/screenfix lane can fix it.
+
+## Round 35 (Nov 13): merged main 642dfc82, rebuilt, frame-600 capture draws the world but Ella is not in frame
+Merged main (clean), `build exit: 0` at 642dfc82. Capture `-SmokeShotFrames=600` at 1280x720 landed (07:21): world, Keeper parts, clock, shots now draw (artslots works).
+Ella is not usable: at most a tiny figure at the top edge (~x255,y28) inside a dark column; the middle and bottom are empty grey. No SMOKE_VIEW line is reachable (run_game.sh keeps no game log), so `ella_in_frame=1` is unconfirmed and I treat it as 0.
+No context pair, no panel, no paint, no spend (15.08 of 33.82). Shield R3 and closed R3 not started (need a context pair).
+Ask (smoke/screenfix lane): keep the run_game.sh game log so SMOKE_VIEW can be read; get Ella on screen at the shot. Not retrying the same command.
+
+## Round 36 (Nov 13): screenfix log works, Ella is in frame but tiny; up-open context pair judged and fails 2 of 3
+Merged main 39c69db9, `build exit: 0`. Capture `-SmokeShotFrames=600` (1280x720), kept log `Saved/Logs/runs/run-20261113-155226-79237.log`:
+`SMOKE_VIEW map=L_Graybox ... ella=1 ella_px=256,29 ella_in_frame=1 ... w=1280 h=720`. Ella is in frame, near the top edge, about 12x35 px (the Idle `_PH` flipbook).
+Panel round 7 (auto crop): the locator cut the lilac placeholder blocks and Keeper parts, not Ella (critic: "X is not Ella at all"). Locator defect on a tiny figure, not the art. Also `verdict` rejected the panel
+(panel.json stores an absolute `ours`, the keys a relative one); worked around in /tmp only.
+Hand crop: native pixels, rect x206 y0 100x130, no upscaling. Context pair, 3 fresh sessions, calibration 6/6 valid: ours won 1, the key art won 2.
+Gap: Ella is a tiny soft smudge in the game, no etched line, mask or terminal readable. Reference and quality-bar pairs: ours or SAME in most sessions, as before.
+Verdict: ours/scale. At this size (12x35 px of 1280x720) no paint passes a context pair against key-art Ella. Not shipped, no import.
+Shield R3 and closed R3 not painted: they would hit the same context result, so no spend (15.08 of 33.82).
+Ask (lead): Ella's in-game scale (a game-side or art-slot size) or accept a context pair against a sprite-sized key-art crop; also fix `verdict` abs/relative `ours`.

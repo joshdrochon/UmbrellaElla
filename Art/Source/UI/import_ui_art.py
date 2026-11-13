@@ -1,5 +1,5 @@
 """Import the UI art as textures (rebuildable). Sources: Art/Source/UI/Ground/Raw/*.png (build_ground.py).
-Run: UnrealEditor-Cmd UmbrellaElla.uproject -run=pythonscript -script=Art/Source/UI/import_ui_art.py -unattended -nullrhi -nosplash -nocrashreports
+Run (always through the engine slot, Nov 13): tools/build/ue_slot.sh "$UE_ROOT/Engine/Binaries/Mac/UnrealEditor-Cmd" "$PWD/UmbrellaElla.uproject" -run=pythonscript -script=Art/Source/UI/import_ui_art.py -unattended -nullrhi -nosplash -nocrashreports
 Destination /Game/UmbrellaElla/UI. `_PH`: tracked placeholders until the art loop passes them (docs/build/worker-rules.md)."""
 import os
 import unreal

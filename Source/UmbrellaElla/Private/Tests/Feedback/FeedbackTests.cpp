@@ -1,3 +1,4 @@
+#include "Feedback/Art/ArtSlot.h"
 #include "Engine/Engine.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/World.h"
@@ -68,11 +69,20 @@ bool FFeedbackStandIn::RunTest(const FString& Parameters)
 	UEllaAnimPresenterComponent* Presenter = NewObject<UEllaAnimPresenterComponent>(Owner);
 	Presenter->RegisterComponent();
 	Presenter->BuildVisual();
-	TestTrue(TEXT("no art shows the stand-in"), Presenter->IsShowingStandIn());
+	// A shipped Ella asset (T_Ella_Idle_PH) is drawn instead of the stand-in; the stand-in checks run only when no state has art.
+	const FArtSlotRow* IdleRow = ArtSlot::Find(TEXT("ella-state:Idle"));
+	const bool bIdleArt = IdleRow && ArtSlot::LoadTexture(*IdleRow) != nullptr;
 	TestNotNull(TEXT("stand-in component"), Presenter->GetStandIn());
+	if (!bIdleArt)
+	{
+		TestTrue(TEXT("no art shows the stand-in"), Presenter->IsShowingStandIn());
+	}
 	Presenter->SetVisualState(EEllaVisualState::Absorb);
 	TestEqual(TEXT("absorb state shown"), static_cast<int32>(Presenter->GetVisualState()), static_cast<int32>(EEllaVisualState::Absorb));
-	TestEqual(TEXT("absorb widens the stand-in"), Presenter->GetStandIn()->GetRelativeScale3D(), UEllaAnimPresenterComponent::StandInScaleFor(EEllaVisualState::Absorb));
+	if (!bIdleArt)
+	{
+		TestEqual(TEXT("absorb widens the stand-in"), Presenter->GetStandIn()->GetRelativeScale3D(), UEllaAnimPresenterComponent::StandInScaleFor(EEllaVisualState::Absorb));
+	}
 	Presenter->TickComponent(10.0f, LEVELTICK_All, nullptr);
 	TestEqual(TEXT("transient state returns to idle"), static_cast<int32>(Presenter->GetVisualState()), static_cast<int32>(EEllaVisualState::Idle));
 	FUmbrellaEvent Down;
@@ -415,7 +425,16 @@ bool FFeedbackEnemyStandIn::RunTest(const FString& Parameters)
 					bFound = true;
 					TestEqual(TEXT("stand-in never collides"), static_cast<int32>(Mesh->GetCollisionEnabled()), static_cast<int32>(ECollisionEnabled::NoCollision));
 					TestEqual(TEXT("stand-in is on the character layer"), static_cast<float>(Mesh->GetComponentLocation().Y), UmbrellaDrawOrder::KeeperY);
-					TestEqual(TEXT("patrol shape"), Mesh->GetComponentScale(), UEnemyPresenterSubsystem::StandInScaleFor(EEnemyState::Patrol, Enemy->GetGender()));
+					const FVector PatrolBox = UEnemyPresenterSubsystem::StandInScaleFor(EEnemyState::Patrol, Enemy->GetGender());
+					// Filled: the slot's stand-in texture is drawn on a plane that keeps the patrol footprint.
+					const FArtSlotRow* Row = ArtSlot::Find(*Presenter->VisualIdOf(Enemy));
+					TestTrue(TEXT("stand-in shows its slot texture"), Row && ArtSlot::LoadTexture(*Row) && ArtSlot::HasArt(Mesh));
+					TestEqual(TEXT("patrol shape with art"), Mesh->GetComponentScale(), ArtSlot::PlaneScaleFor(PatrolBox));
+					// Empty: with the slot's art cleared, the stand-in keeps the patrol box shape.
+					ArtSlot::SetFlatUnlit(Mesh, Enemy, UmbrellaArtSlotConst::StandInEnemyColor);
+					Presenter->Refresh(Enemy);
+					TestFalse(TEXT("cleared stand-in has no art"), ArtSlot::HasArt(Mesh));
+					TestEqual(TEXT("patrol shape"), Mesh->GetComponentScale(), PatrolBox);
 				}
 			}
 			TestTrue(TEXT("stand-in exists"), bFound);

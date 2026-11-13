@@ -1,0 +1,37 @@
+{
+ "provider": "gemini",
+ "tool": "Gemini API image generation (Google)",
+ "model": "gemini-3-pro-image-preview",
+ "model_version": "gemini-3-pro-image-preview",
+ "prompt": "A horizontal strip of four equal cells, left to right, showing four animation frames of one small magic impact burst for a\n2D side-view game: the gold spark that flashes where Ella's shot lands, flaring open and then scattering. Only the burst is\ndrawn; the thing it hits is not shown. Every frame is centred on the same point of its own cell, on the same horizontal\ncentre line, with wide empty gaps of flat green between the cells, so no frame touches another or the edge of the picture.\nEach cell is taller than it is wide. The picture is a flat, face-on emblem with no perspective and no depth, seen at the\ndistance of a game sprite. The largest frame spans about half the width of its cell.\n\nThe burst is built like the gold sparkle stars of the shot study: a sharp, angular, faceted star with four long, hair-thin\npoints on the horizontal and vertical axes and four much shorter points on the diagonals, a small bright core, and a few\nfine hair-thin spark streaks around it. Every point is a slim straight-edged blade, like a cut spear tip. The points keep\nexactly these angles in every frame; only their length, the core and the spread change.\n\nFrame 1 (impact): a tight, hard, bright core of pale cream #FFF5DC with the eight points only just starting, very short and\nsharp. The whole frame spans about a fifth of the cell width. Frame 2 (full flare): the full star, the four axis points\nlong and thin, the four diagonal points about a third as long, warm gold #E9C46A, with a larger cream core and a few hair-thin\ngold spark streaks between the points. It spans about two fifths of the cell width. Frame 3 (break apart): the points have\nseparated from the centre and fly outward as eight thin gold blades with clear green gaps behind them; the core is small and\na dimmer cream-gold. It spans about half the cell width. Frame 4 (fade): the centre is empty green; a loose ring of five or\nsix tiny pointed diamond sparks and two or three short broken gold dashes, thin and pale, spans about half the cell width,\nthe faintest frame of the four.\n\nThe only colours are warm gold #E9C46A, amber #F5AA28, deep bronze #94611E and pale cream #FFF5DC, plus the near-black ink\noutline: one warm gold family, with every hue in the effect lying between amber and cream. The lower edge of each shape is\nshaded with a few fine etched hatching lines in amber and bronze. Light comes from one source, in front and slightly above,\nso upper edges are brighter and lower edges are shaded. The glow stays inside each shape: the core is the brightest point\nand the light fades toward the ink outline. Outside the ink outline the picture is only the flat green.\n\nStyle: a dark painterly etched storybook illustration, ink and wash with fine etched cross-hatching and a faint paper grain\ninside the shapes only. The large shapes (core, star body, blades) have a clean near-black ink outline #171614 about 2 px\nwide at this size; the hair-thin streaks and tiny sparks carry a hairline ink edge so they stay gold rather than turning\nblack. The background is one perfectly flat, even, uniform pure green #00FF00 filling the canvas edge to edge, the same\ngreen in every cell and every gap, with the shapes cut cleanly against it. The effect is made only of gold, amber, bronze,\ncream and ink. The image contains only the four bursts on green, with no text, labels, numbers, grid lines, frames or watermark.",
+ "seed": "",
+ "size": "1024x1024",
+ "quality": "medium",
+ "aspect_ratio": "21:9",
+ "image_size": "2K",
+ "input_images": [],
+ "cost_usd": 0.139464,
+ "reply": {
+  "usage": {
+   "promptTokenCount": 806,
+   "candidatesTokenCount": 1846,
+   "totalTokenCount": 2973,
+   "promptTokensDetails": [
+    {
+     "modality": "TEXT",
+     "tokenCount": 806
+    }
+   ],
+   "candidatesTokensDetails": [
+    {
+     "modality": "IMAGE",
+     "tokenCount": 1120
+    }
+   ],
+   "thoughtsTokenCount": 321,
+   "serviceTier": "standard"
+  },
+  "finish": "STOP"
+ },
+ "date": "2026-11-13T04:06+00:00"
+}

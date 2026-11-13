@@ -1,0 +1,87 @@
+{
+ "frames": 24,
+ "frame": [
+  481,
+  654
+ ],
+ "pivot": "bottom-centre",
+ "anchor": [
+  260,
+  530
+ ],
+ "fps": 6.13,
+ "cut": "video frames, chroma-keyed, feet-anchor registered",
+ "outputs": [
+  "/tmp/v24/Ella_idle_N24_00.png",
+  "/tmp/v24/Ella_idle_N24_01.png",
+  "/tmp/v24/Ella_idle_N24_02.png",
+  "/tmp/v24/Ella_idle_N24_03.png",
+  "/tmp/v24/Ella_idle_N24_04.png",
+  "/tmp/v24/Ella_idle_N24_05.png",
+  "/tmp/v24/Ella_idle_N24_06.png",
+  "/tmp/v24/Ella_idle_N24_07.png",
+  "/tmp/v24/Ella_idle_N24_08.png",
+  "/tmp/v24/Ella_idle_N24_09.png",
+  "/tmp/v24/Ella_idle_N24_10.png",
+  "/tmp/v24/Ella_idle_N24_11.png",
+  "/tmp/v24/Ella_idle_N24_12.png",
+  "/tmp/v24/Ella_idle_N24_13.png",
+  "/tmp/v24/Ella_idle_N24_14.png",
+  "/tmp/v24/Ella_idle_N24_15.png",
+  "/tmp/v24/Ella_idle_N24_16.png",
+  "/tmp/v24/Ella_idle_N24_17.png",
+  "/tmp/v24/Ella_idle_N24_18.png",
+  "/tmp/v24/Ella_idle_N24_19.png",
+  "/tmp/v24/Ella_idle_N24_20.png",
+  "/tmp/v24/Ella_idle_N24_21.png",
+  "/tmp/v24/Ella_idle_N24_22.png",
+  "/tmp/v24/Ella_idle_N24_23.png"
+ ],
+ "strip": "/tmp/v24/Ella_idle_N24_strip.png",
+ "loop": {
+  "indices": [
+   0,
+   2,
+   4,
+   6,
+   8,
+   10,
+   12,
+   14,
+   16,
+   18,
+   20,
+   22,
+   24,
+   25,
+   27,
+   29,
+   31,
+   33,
+   35,
+   37,
+   39,
+   41,
+   43,
+   45
+  ],
+  "mean_step": 43.36,
+  "max_step": 86.1,
+  "last_to_first": 19.77,
+  "loop_ratio": 0.46,
+  "loops": true
+ },
+ "jitter_before": {
+  "max_anchor_step_px": 50.47,
+  "max_height_step_pct": 4.43,
+  "max_anchor_from_first_px": 111.45,
+  "height_range_pct": 19.65
+ },
+ "jitter_after": {
+  "max_anchor_step_px": 0.83,
+  "max_height_step_pct": 4.43,
+  "max_anchor_from_first_px": 0.7,
+  "height_range_pct": 19.65
+ },
+ "source": "pipeline/art/proof/artvideo/ella-idle/ella-idle.mp4"
+}

@@ -7,7 +7,7 @@
 #include "Core/UmbrellaTuning.h"
 #include "Encounter/EncounterDirectorSubsystem.h"
 #include "Engine/World.h"
-#include "Engine/World.h"
+#include "Feedback/Audio/UmbrellaCueSubsystem.h"
 #include "Engine/GameViewportClient.h"
 #include "Engine/LocalPlayer.h"
 #include "EnhancedInputComponent.h"
@@ -22,6 +22,7 @@
 #include "Flow/FlowTutorialText.h"
 #include "Misc/ConfigCacheIni.h"
 #include "Engine/GameInstance.h"
+#include "Feedback/Audio/UmbrellaCueSubsystem.h"
 #include "Progression/ProgressionSubsystem.h"
 #include "Settings/SettingsMenuSubsystem.h"
 #include "Story/StorySubsystem.h"
@@ -176,6 +177,8 @@ void AUmbrellaPlayerController::BeginPlay()
 	SetInputBlocked(true);
 	ShowScreenWidget();
 	SetInputModeFor(Screen);
+	// FLOW-34: the Start screen has music from the moment it opens; picking a mode carries the same track on.
+	PlayFlowMusic(Screen);
 
 	const AGameModeBase* GameMode = GetWorld() ? GetWorld()->GetAuthGameMode() : nullptr;
 	if (GameMode && IsFeatureEnabled(EFeatureId::FLOW_49) && FFlowRules::IsTryAgainStart(GameMode->OptionsString))
@@ -524,6 +527,7 @@ void AUmbrellaPlayerController::EnterScreen(EFlowScreen To, EFlowCommand Cause)
 
 	ApplyPawnInputBlock();
 	ShowScreenWidget();
+	PlayFlowMusic(To);
 	if (!(To == EFlowScreen::Settings && bSettingsOpened))
 	{
 		SetInputModeFor(To);
@@ -532,6 +536,25 @@ void AUmbrellaPlayerController::EnterScreen(EFlowScreen To, EFlowCommand Cause)
 	if (From == EFlowScreen::Credits && To == EFlowScreen::Title)
 	{
 		ReturnToTitle();
+	}
+}
+
+void AUmbrellaPlayerController::PlayFlowMusic(EFlowScreen To)
+{
+	UUmbrellaCueSubsystem* Cues = GetWorld() ? GetWorld()->GetSubsystem<UUmbrellaCueSubsystem>() : nullptr;
+	if (!Cues)
+	{
+		return;
+	}
+	const FName Music = FFlowRules::MusicFor(To);
+	if (To == EFlowScreen::Story && IsFeatureEnabled(EFeatureId::FLOW_04))
+	{
+		// FLOW-04: the win sting and the story text play without the run's music; credits bring it back.
+		Cues->StopMusic();
+	}
+	else if (!Music.IsNone() && IsFeatureEnabled(To == EFlowScreen::Title ? EFeatureId::FLOW_34 : EFeatureId::FLOW_04))
+	{
+		Cues->EnsureMusic(Music);
 	}
 }
 
@@ -654,7 +677,7 @@ void AUmbrellaPlayerController::RefreshTimedText()
 			Lines.Add(Line.ToString());
 		}
 		const float Progress = FMath::Clamp(CreditsElapsed / Tuning.CreditsSeconds, 0.0f, 1.0f);
-		TextScreen->SetText(FText::FromString(FString::Join(Lines, TEXT("\n\n"))), FMath::Lerp(-Tuning.CreditsTravel, Tuning.CreditsTravel, Progress));
+		TextScreen->SetCredits(Lines, FMath::Lerp(-Tuning.CreditsTravel, Tuning.CreditsTravel, Progress));
 	}
 }
 

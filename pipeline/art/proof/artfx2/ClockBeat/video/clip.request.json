@@ -1,0 +1,23 @@
+{
+ "provider": "fal",
+ "model": "fal-ai/veo3.1/fast/image-to-video",
+ "prompt": "The crimson clock-beat bolt streaks, then swells into a glowing ring pulse that breaks into dashed fragments. Flat 2D ink-lined paper-cut style, fixed camera, no camera motion, effect stays centred. Flat solid chroma green background (pure #00FF00), the whole frame outside the character stays that one green, no floor, no shadows, no gradient, no text. Static locked camera, no zoom, no pan, no cut. The character stays in place and keeps her size; only a small gentle idle movement. No sound.",
+ "negative_prompt": "camera movement, zoom, cut, text, subtitles, logo, background scenery, shadows on the background, people other than the character, sound",
+ "seed": 7,
+ "duration_s": 4,
+ "generate_audio": false,
+ "resolution": "720p",
+ "aspect_ratio": "16:9",
+ "input_image": "pipeline/art/proof/artfx2/ClockBeat/video/input.png",
+ "unit_usd_per_s": 0.15,
+ "cost_usd": 0.6,
+ "reply": {
+  "request_id": "01a1d479-c88e-7833-9fe6-91cbf7de7cb4",
+  "video": {
+   "content_type": "video/mp4",
+   "file_name": "edffd839130d43819340c4411d3292f6.mp4",
+   "file_size": 1746243
+  }
+ },
+ "date": "2026-11-13T10:35+00:00"
+}

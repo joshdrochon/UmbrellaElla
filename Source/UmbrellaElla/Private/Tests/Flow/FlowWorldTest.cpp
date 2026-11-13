@@ -10,6 +10,14 @@
 #include "Engine/LocalPlayer.h"
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
+#include "EnhancedActionKeyMapping.h"
+#include "Feedback/Audio/UmbrellaCueSubsystem.h"
+#include "Flow/FlowRules.h"
+#include "HAL/FileManager.h"
+#include "Input/EllaInputAdapterComponent.h"
+#include "InputMappingContext.h"
+#include "Misc/Paths.h"
+#include "Settings/SettingsMenuSubsystem.h"
 #include "Encounter/EncounterDirectorSubsystem.h"
 #include "Flow/UmbrellaPlayerController.h"
 #include "Level/LevelCatalogue.h"
@@ -342,6 +350,104 @@ bool FFlowWorldWinTest::RunTest(const FString& Parameters)
 	}
 	TestEqual(TEXT("title after the credits"), Test.Controller->GetScreen(), EFlowScreen::Title);
 	TestTrue(TEXT("the title was requested"), Test.Controller->HasRequestedTitleReturn());
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFlowWorldTitleMusicTest, "UmbrellaElla.Flow.World.TitlePlaysMusic",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FFlowWorldTitleMusicTest::RunTest(const FString& Parameters)
+{
+	// FLOW-34: the Start screen offers its buttons "with music".
+	FFlowTestWorld Test;
+	TestEqual(TEXT("the title is up"), Test.Controller->GetScreen(), EFlowScreen::Title);
+	const UUmbrellaCueSubsystem* Cues = Test.World->GetSubsystem<UUmbrellaCueSubsystem>();
+	if (!TestNotNull(TEXT("cue subsystem"), Cues))
+	{
+		return false;
+	}
+	TestTrue(TEXT("the title music row has an imported take"), Cues->CanPlaySound(FFlowRules::TitleMusicId()));
+	TestEqual(TEXT("the title screen started the title music"), Cues->GetLastSoundId(), FFlowRules::TitleMusicId());
+	TestEqual(TEXT("one sound started on the title"), Cues->GetSoundCueCount(), 1);
+	return true;
+}
+
+namespace
+{
+	/** True when Context maps Action to Key. */
+	bool FlowContextMaps(const UInputMappingContext* Context, const UInputAction* Action, const FKey& Key)
+	{
+		if (!Context)
+		{
+			return false;
+		}
+		for (const FEnhancedActionKeyMapping& Mapping : Context->GetMappings())
+		{
+			if (Mapping.Action == Action && Mapping.Key == Key)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFlowWorldPauseRemapTest, "UmbrellaElla.Flow.World.PauseSettingsRemapsControllerButton",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FFlowWorldPauseRemapTest::RunTest(const FString& Parameters)
+{
+	// MOVE-09: from Pause -> Settings a controller button is remapped; after Continue (and after a Retry) gameplay uses it.
+	FFlowTestWorld Test;
+	Test.Instance->Init();
+	USettingsMenuSubsystem* Settings = Test.Instance->GetSubsystem<USettingsMenuSubsystem>();
+	if (!TestNotNull(TEXT("settings subsystem"), Settings))
+	{
+		return false;
+	}
+	const FString Path = FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("UmbrellaEllaTests"), TEXT("Flow"), TEXT("remap.ini"));
+	IFileManager::Get().Delete(*Path);
+	Settings->SetStorePath(Path);
+	Settings->ReloadFromStore();
+	Test.Controller->SetPlayer(NewObject<ULocalPlayer>(GEngine, GEngine->LocalPlayerClass));
+	Test.Controller->StartGame();
+	const AEllaCharacter* Ella = Cast<AEllaCharacter>(Test.Controller->GetPawn());
+	UEllaInputAdapterComponent* Adapter = Ella ? Ella->GetInputAdapter() : nullptr;
+	if (!TestNotNull(TEXT("Ella's input adapter"), Adapter) || !TestNotNull(TEXT("live gameplay context"), Adapter->GetMappingContext()))
+	{
+		return false;
+	}
+	const UInputAction* Shoot = Adapter->GetInputAction(EUmbrellaInputAction::Shoot);
+	TestTrue(TEXT("default: right trigger shoots"), FlowContextMaps(Adapter->GetMappingContext(), Shoot, EKeys::Gamepad_RightTrigger));
+
+	Test.Controller->ApplyCommand(EFlowCommand::Pause);
+	Test.Controller->ApplyCommand(EFlowCommand::OpenSettings);
+	TestEqual(TEXT("pause opened Settings"), Test.Controller->GetScreen(), EFlowScreen::Settings);
+	// The Controller page's capture + Save: Shoot's controller slot (J, mouse, then the trigger) gets the face button.
+	constexpr int32 FlowShootPadSlot = 2;
+	TestTrue(TEXT("the controller slot can take a controller button"),
+		Settings->EditSession().CanRemap(EUmbrellaInputAction::Shoot, FlowShootPadSlot, EKeys::Gamepad_FaceButton_Right));
+	Settings->EditSession().Remap(EUmbrellaInputAction::Shoot, FlowShootPadSlot, EKeys::Gamepad_FaceButton_Right);
+	Settings->SaveSettings(ESettingsPage::Controller);
+	Settings->ApplySavedBindings(Test.Controller);
+	Settings->CloseSettings();
+	Test.Controller->TickFlow(0.1f);
+	TestEqual(TEXT("closing Settings returns to Pause"), Test.Controller->GetScreen(), EFlowScreen::Paused);
+	Test.Controller->ApplyCommand(EFlowCommand::Continue);
+	for (int32 FlowRemapStep = 0; FlowRemapStep < 20 && Test.Controller->GetScreen() == EFlowScreen::Resuming; ++FlowRemapStep)
+	{
+		Test.Controller->TickFlow(0.5f);
+	}
+	TestEqual(TEXT("playing again"), Test.Controller->GetScreen(), EFlowScreen::Playing);
+	TestFalse(TEXT("gameplay input is back"), Test.Controller->IsGameplayInputBlocked());
+	TestTrue(TEXT("the remapped face button shoots"), FlowContextMaps(Adapter->GetMappingContext(), Shoot, EKeys::Gamepad_FaceButton_Right));
+	TestFalse(TEXT("the old trigger no longer shoots"), FlowContextMaps(Adapter->GetMappingContext(), Shoot, EKeys::Gamepad_RightTrigger));
+
+	Test.Broadcast(EUmbrellaEventType::PlayerDefeated);
+	Test.Controller->ApplyCommand(EFlowCommand::Retry);
+	const AEllaCharacter* After = Cast<AEllaCharacter>(Test.Controller->GetPawn());
+	UEllaInputAdapterComponent* AfterAdapter = After ? After->GetInputAdapter() : nullptr;
+	TestTrue(TEXT("the remap survives Retry"), AfterAdapter
+		&& FlowContextMaps(AfterAdapter->GetMappingContext(), AfterAdapter->GetInputAction(EUmbrellaInputAction::Shoot), EKeys::Gamepad_FaceButton_Right));
+	IFileManager::Get().Delete(*Path);
 	return true;
 }
 

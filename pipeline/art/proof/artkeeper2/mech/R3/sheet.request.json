@@ -1,0 +1,45 @@
+{
+ "provider": "gemini",
+ "tier": "draft",
+ "tool": "Gemini API image generation (Google)",
+ "model": "gemini-2.5-flash-image",
+ "openrouter_model": null,
+ "fal_model": null,
+ "model_version": "gemini-2.5-flash-image",
+ "prompt": "A single concept sheet of three separate hanging mechanism heads belonging to a crownless clockwork owl, the Keeper of Time, drawn as three isolated objects side by side on one flat background, evenly spaced with clear gaps, each hanging straight down from its own short chain, each about 55% of the canvas height including its chain. Straight-on orthographic side view, level camera, no perspective, every object fully inside the frame and centred in its third. 16:9 landscape.\n\nLeft, the front mechanism: an armillary sphere. A solid, thick brass outer ring with several thinner brass hoops crossing inside it at different angles, and a small round central ball floating at the crossing point, a clearly open skeletal sphere. At its top, a small round eyelet ring (the top eye) with one short chain running straight up from it to the top edge of the frame.\n\nMiddle, the middle mechanism: a ribbed cage cylinder like a small lantern, taller than wide and noticeably narrower than the other two. A rounded cap on top, a stack of horizontal brass ribs separated by dark gaps around a hollow barrel, and a flat base. At its top, a small round eyelet ring (the top eye) with one short chain running straight up to the top edge of the frame.\n\nRight, the rear mechanism: a gear ring. A flat toothed brass cogwheel seen face-on as a round disc, with a ring of evenly spaced teeth, several spokes and a central hub with a short spindle. It is about as wide as the armillary sphere. At its top, a small round eyelet ring (the top eye) with one short chain running straight up to the top edge of the frame.\n\nThe three shapes are clearly different silhouettes: open sphere, tall cage, flat toothed wheel. Nothing else is attached to any of them: each is one rigid, fabricated metal object made of dull, desaturated, tarnished brass and iron (grey-brown, never golden yellow, never orange) with small rivets, and each chain is plain metal links.\n\nStyle: a dark etched storybook engraving for a 2D game sprite, in brown-black ink with a sepia wash, fine cross-hatching and visible paper tooth. Strictly muted palette, every colour low saturation, no bright gold and no yellow; ink #171614, soot #292622, umber #463C32, mid-tone bronze #695640, taupe #918173, warm ivory highlights. Bronze stays a dull grey-brown mid tone, never near black, never saturated gold. A heavy dark outer contour around each object and a thin candle-cream rim light (#FFF3D6) on the lit edges. The look matches the Keeper's body in the supplied image: the same aged brass, engraved line and ink treatment.\n\nBackground: one perfectly flat, uniform, pure green #00FF00 filling the canvas edge to edge, no vignette, no gradient, no texture, no shadow, no lighting falloff, identical green in every corner, with the objects floating on it without cast shadows, and no text or labels. Every part of the objects is brass, iron, ivory or sepia; none of it is green.\n\nStyle (required): dark, muted ink on aged paper, like an etched storybook engraving. Etched ink linework with near-black ink outlines; crosshatch and fine line hatching for every shadow and form; visible aged paper grain and fibre texture under all colour; hand-printed, slightly uneven ink. No flat fills, no vector shapes, no smooth digital gradients, no glossy 3D rendering.",
+ "seed": "",
+ "size": "1024x1024",
+ "quality": "medium",
+ "aspect_ratio": "16:9",
+ "image_size": null,
+ "input_images": [
+  "pipeline/art/proof/Keeper/owl/Keeper_R10/keyed_3.png"
+ ],
+ "cost_usd": 0.039308,
+ "reply": {
+  "usage": {
+   "promptTokenCount": 1028,
+   "candidatesTokenCount": 1290,
+   "totalTokenCount": 2318,
+   "promptTokensDetails": [
+    {
+     "modality": "TEXT",
+     "tokenCount": 770
+    },
+    {
+     "modality": "IMAGE",
+     "tokenCount": 258
+    }
+   ],
+   "candidatesTokensDetails": [
+    {
+     "modality": "IMAGE",
+     "tokenCount": 1290
+    }
+   ],
+   "serviceTier": "standard"
+  },
+  "finish": "STOP"
+ },
+ "date": "2026-11-13T17:15+00:00"
+}

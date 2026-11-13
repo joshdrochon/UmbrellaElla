@@ -1,0 +1,40 @@
+{
+ "provider": "gemini",
+ "tier": "final",
+ "tool": "Gemini API image generation (Google)",
+ "model": "gemini-3-pro-image-preview",
+ "openrouter_model": null,
+ "fal_model": null,
+ "model_version": "gemini-3-pro-image-preview",
+ "prompt": "A wide picture for a 2D game, piece bg-start-end. Fill the whole canvas edge to edge, no characters, no text, no border. The start and end screen background: dark charcoal and muted sepia, faint blue, small gold lights drifting slowly, distant etched clockwork silhouettes in haze. No characters. Style: a dark painterly etched storybook illustration, ink and wash with fine etched cross-hatching and a faint paper grain inside the shapes only. Large shapes have a clean near-black ink outline #171614 about 2 px wide at this size. One light source sits in front and slightly above: upper edges brighter, lower edges shaded with fine hatching. Palette: charcoal and ash-blue darks, muted sepia, bone ivory #FFF5DC, warm gold #E9C46A, bronze #94611E, with only tiny accents of crimson #FF3658. ",
+ "seed": "",
+ "size": "1024x1024",
+ "quality": "medium",
+ "aspect_ratio": "16:9",
+ "image_size": "2K",
+ "input_images": [],
+ "cost_usd": 0.137486,
+ "reply": {
+  "usage": {
+   "promptTokenCount": 201,
+   "candidatesTokenCount": 1354,
+   "totalTokenCount": 1812,
+   "promptTokensDetails": [
+    {
+     "modality": "TEXT",
+     "tokenCount": 201
+    }
+   ],
+   "candidatesTokensDetails": [
+    {
+     "modality": "IMAGE",
+     "tokenCount": 1120
+    }
+   ],
+   "thoughtsTokenCount": 257,
+   "serviceTier": "standard"
+  },
+  "finish": "STOP"
+ },
+ "date": "2026-11-13T16:54+00:00"
+}

@@ -1,0 +1,81 @@
+{
+ "video": "pipeline/art/proof/videoframes/armillary-attack/armillary-attack.mp4",
+ "fps": 12,
+ "source_frames": 48,
+ "loop_end": 47,
+ "end_candidates": {
+  "28": 44.57,
+  "29": 43.57,
+  "30": 40.75,
+  "31": 41.86,
+  "32": 41.94,
+  "33": 41.9,
+  "34": 41.92,
+  "35": 41.99,
+  "36": 41.96,
+  "37": 39.92,
+  "38": 39.9,
+  "39": 39.88,
+  "40": 39.85,
+  "41": 39.89,
+  "42": 39.84,
+  "43": 39.83,
+  "44": 41.77,
+  "45": 39.55,
+  "46": 38.98,
+  "47": 38.6
+ },
+ "jitter_before": {
+  "max_anchor_step_px": 0.92,
+  "max_height_step_pct": 2.91,
+  "max_anchor_from_first_px": 1.01,
+  "height_range_pct": 2.99
+ },
+ "jitter_after": {
+  "max_anchor_step_px": 0.96,
+  "max_height_step_pct": 2.91,
+  "max_anchor_from_first_px": 0.57,
+  "height_range_pct": 2.99
+ },
+ "green_inside_px_max": 0,
+ "sets": {
+  "24": {
+   "strip": "pipeline/art/proof/videoframes/armillary-attack/armillary-attack_N24_strip.png",
+   "gif": "pipeline/art/proof/videoframes/armillary-attack/armillary-attack_N24_preview.gif",
+   "loop": {
+    "indices": [
+     0,
+     2,
+     4,
+     6,
+     8,
+     10,
+     12,
+     14,
+     16,
+     18,
+     20,
+     22,
+     24,
+     26,
+     28,
+     30,
+     32,
+     34,
+     36,
+     38,
+     40,
+     42,
+     44,
+     46
+    ],
+    "mean_step": 15.9,
+    "max_step": 43.15,
+    "last_to_first": 38.98,
+    "loop_ratio": 2.45,
+    "loops": true
+   },
+   "fps": 6.0
+  }
+ }
+}

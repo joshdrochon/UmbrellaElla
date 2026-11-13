@@ -1122,7 +1122,11 @@ def panel_passed(rec):
     cal = rec.get("calibration") or {}
     return bool(rec.get("verdict") in ("ours", "same") and rec.get("checks") and "combos" in rec
                 and not missing_pairs(rec) and rec.get("panel", 0) >= PANEL
-                and cal.get("sessions", 0) > 0 and cal.get("passed") == cal.get("sessions")
+                # Calibration gates each vote, not the round (Nov 13): a session that missed a calibration pair is not
+                # counted and ask_calibrated draws a fresh one; requiring every session to calibrate made those redraws
+                # useless (ella-transition, ui-defeated: verdict ours on every pair, refused for 9/12 calibration).
+                # Each pair still needs PANEL calibrated sessions, all ours or SAME (panel >= PANEL above).
+                and cal.get("sessions", 0) > 0 and cal.get("passed", 0) >= PANEL
                 and all((rec.get("results") or {}).get(c) == "pass" for c in CHECKS))
 
 

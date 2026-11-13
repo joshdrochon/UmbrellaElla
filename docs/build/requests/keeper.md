@@ -5,3 +5,9 @@
 3. projectile: Keeper parts block `UmbrellaCollision::PlayerShot` (box components, query only). Call `ReceiveShot` on the hit component; `Consumed` removes the shot, `Ignored` lets it pass (broken parts pass).
 4. arena: `GetKeeperAnchorLocation()` is still the zero stub; the director uses whatever it returns.
 5. flow: `UEncounterDirectorSubsystem::SetPaused(bool)` for the pause menu; `ResetForRestart()` on Retry (resumes at the checkpoint phase); `EncounterCompleted.Value` is the departure time in seconds.
+6. health (FLOW-09, found Nov 13): `UUmbrellaHealthComponent::OnCheckpointRetried` resets only when `Event.Amount == State.MaxLives`.
+   The director sends `Amount` = 3 (exactly 3 current lives, GDD FLOW-09). With purchased max lives (4+) the retry does not heal at all.
+   Wanted: on a Keeper `CheckpointRetried` for Ella, set current lives to `Event.Amount` (3), keep `MaxLives`, full active health.
+7. health + progression (FLOW-09 ordering): GDD says apply the boss-checkpoint rollback first, then heal with the resulting capacity.
+   Both listen to the same `CheckpointRetried`; bus order decides. Wanted: Health heals after Progression's `RetryFromCheckpoint`
+   (e.g. Health defers its reset to next tick, or Progression broadcasts a follow-up the Health lane listens to).

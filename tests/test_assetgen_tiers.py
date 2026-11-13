@@ -3,6 +3,7 @@ mapped Google models, each provider's cap refuses at its limit, provider/tier/mo
 only, never the network."""
 import json
 import os
+import shutil
 import sys
 import textwrap
 import unittest
@@ -12,6 +13,7 @@ ROOT = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(ROOT, "tools"))
 import assetgen  # noqa: E402
+os.environ["ASSETGEN_NO_STYLE"] = "1"   # the fake client draws from the prompt; the style block has its own test
 import test_assetgen_image as img  # noqa: E402
 
 DRAFT = "gemini-2.5-flash-image"
@@ -52,7 +54,7 @@ FAL_STUB = textwrap.dedent('''
         with open(os.environ["HTTP_STUB_LOG"], "a") as fh:
             fh.write(json.dumps({{"url": url, "model": url.split("fal.run/")[1], "key_sent": {key!r} in json.dumps(headers),
                                  "inputs": 0}}) + "\\n")
-        data = base64.b64encode(base._png()).decode()
+        data = base64.b64encode(base.base._png()).decode()
         return json.dumps({{"images": [{{"url": "data:image/png;base64," + data}}]}}).encode()
 
     def get(url, headers):
@@ -77,8 +79,11 @@ class Tiers(img.ImageWork):
     def stub_checks(self, passing):
         """Replace the temp repo's art_check / art_judge with stubs that pass or fail (no real measuring)."""
         t = os.path.join(self.repo, "tools")
+        shutil.rmtree(os.path.join(t, "__pycache__"), ignore_errors=True)   # a rewrite in the same second keeps a stale .pyc
         with open(os.path.join(t, "art_check.py"), "w") as fh:
-            fh.write("def measure(p, st): return {}\ndef evaluate(m, st): return %s\n" % ("[]" if passing else "['too flat']"))
+            r = "[]" if passing else "['too flat']"
+            fh.write("def measure(p, st): return {}\ndef evaluate(m, st): return %s\n"
+                     "def sprite_failures(p, st, effect=False): return %s\n" % (r, r))
         with open(os.path.join(t, "art_judge.py"), "w") as fh:
             fh.write("def element(i, files, refs, roots, only): return None, [(files[0], %s, 'x')], []\n" % (
                 "9.0" if passing else "0.0"))
@@ -404,3 +409,48 @@ class Batch(img.ImageWork):
 
 if __name__ == "__main__":
     unittest.main()
+
+class StyleBlock(unittest.TestCase):
+    """Every paid image prompt carries the shared style block once (Nov 13: panels failed flat fills, missing etched
+    ink and weak paper texture)."""
+    def test_added_once(self):
+        old = os.environ.pop("ASSETGEN_NO_STYLE", None)
+        try:
+            p = assetgen.with_style("a gold burst")
+            self.assertIn("crosshatch", p)
+            self.assertIn("No flat fills", p)
+            self.assertEqual(assetgen.with_style(p), p)
+        finally:
+            if old is not None:
+                os.environ["ASSETGEN_NO_STYLE"] = old
+
+
+class SpendByProvider(unittest.TestCase):
+    """The counter and the status line give each provider's spend against its own cap (Nov 13)."""
+    def test_each_provider_against_its_own_cap(self):
+        d = {"spent_usd": 34.97, "calls": [{"provider": "fal", "cost_usd": 12.0}, {"provider": "openrouter", "cost_usd": 0.5},
+                                           {"provider": "gemini", "cost_usd": 22.47}]}
+        b = assetgen.by_provider(d, 33.82)
+        self.assertAlmostEqual(b["gemini"]["spent_usd"], 22.47)
+        self.assertAlmostEqual(b["gemini"]["left_usd"], 11.35)
+        self.assertAlmostEqual(b["fal"]["spent_usd"], 12.0)
+        self.assertAlmostEqual(b["openrouter"]["spent_usd"], 0.5)
+        self.assertIn("gemini $22.47/$33.82", assetgen.spend_line(d, 33.82))
+
+
+class GeminiDirectLock(unittest.TestCase):
+    """Josh, Nov 13: once the counter has gemini_direct_locked, a gemini request goes to OpenRouter, then fal, never
+    Gemini-direct."""
+    def test_locked_routes_to_openrouter_then_fal(self):
+        old = assetgen.gemini_direct_locked, assetgen.openrouter_remaining
+        try:
+            assetgen.gemini_direct_locked = lambda: True
+            assetgen.openrouter_remaining = lambda: 5.0
+            m = assetgen.IMAGE_TIERS["draft"]
+            self.assertEqual(assetgen.pick_provider("gemini", m, {"OPENROUTER_API_KEY": True, "FAL_KEY": True}), "openrouter")
+            assetgen.openrouter_remaining = lambda: 0.0
+            self.assertEqual(assetgen.pick_provider("gemini", m, {"OPENROUTER_API_KEY": True, "FAL_KEY": True}), "fal")
+            with self.assertRaises(assetgen.ImageRefused):
+                assetgen.pick_provider("gemini", m, {"OPENROUTER_API_KEY": False, "FAL_KEY": False})
+        finally:
+            assetgen.gemini_direct_locked, assetgen.openrouter_remaining = old

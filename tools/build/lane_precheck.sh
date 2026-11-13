@@ -8,6 +8,9 @@
 #        the result to ../logs/precheck-<area>.result: "RUNNING <time>" first, then the PRECHECK line and problems.
 #        Poll that file until its first line starts with PRECHECK.
 set -u
+# Out of background QoS (Nov 13): a worker session runs at background QoS, which pins its children to efficiency cores;
+# pipeline_check took ~10 min there vs 15 s at normal QoS. The checks are short; Josh's apps stay at higher priority.
+taskpolicy -B -p $$ 2>/dev/null
 A="$1"
 # The main checkout, wherever this copy lives: the main repo's tools/build or a lane worktree's (Nov 13: the worktree
 # copy took the worktree as the repo root and looked for ../UmbrellaElla-areas inside the areas folder).
@@ -25,7 +28,7 @@ $1"; }
 git -C "$ROOT" fetch -q origin
 [ -n "$(git status --porcelain --untracked-files=no)" ] && add "uncommitted changes in tracked files (commit or revert)"
 if ! git merge-tree --write-tree origin/main HEAD >/dev/null 2>&1; then
-  c=$(git merge-tree --write-tree --name-only origin/main HEAD 2>/dev/null | sed -n '2,/^$/p' | grep -v '^$' | grep -v -E '^docs/build/(rule-status\.csv|areas/|requests/)' | head -5 | tr '\n' ' ')
+  c=$(git merge-tree --write-tree --name-only origin/main HEAD 2>/dev/null | sed -n '2,/^$/p' | grep -v '^$' | grep -v -E '^docs/build/(rule-status\.csv|clause-audit\.csv|clause-proof\.csv|areas/|requests/)' | head -5 | tr '\n' ' ')
   [ -n "$c" ] && add "merge conflict with main in: $c (merge main and resolve)"
 fi
 p=$(python3 tools/build/art_inventory.py check 2>&1 | grep -E "FAIL" | head -3); [ -n "$p" ] && add "$p"
@@ -34,7 +37,13 @@ if [ -f "$L/quality-base.txt" ]; then
   p=$(QUALITY_SPRITE_BASE=origin/main python3 tools/build/quality_gate.py check origin/main "$L/quality-base.txt" 2>&1 | grep -E "new FAIL" | head -5)
   [ -n "$p" ] && add "$p"
 fi
+# The gate's other checks, minus the Unreal build and tests (Nov 13, Josh: a tip reaches the gate only after these pass).
+p=$(python3 tools/module_check.py 2>&1 | grep -E "^\[" | head -3); [ -n "$p" ] && add "$p"
+p=$(python3 tools/manifest_check.py 2>&1 | grep -iE "^(FAIL|\[)" | head -3); [ -n "$p" ] && add "$p"
+p=$(python3 tools/build/art_pass_verify.py check --base origin/main 2>&1 | grep -E "FAIL" | head -3); [ -n "$p" ] && add "$p"
+[ -f tools/build/clause_check.py ] && { p=$(python3 tools/build/clause_check.py origin/main 2>&1 | grep -E "FAIL " | head -3); [ -n "$p" ] && add "$p"; }
 # Python tests only on request (PRECHECK_TESTS=1): under load they ran 20-50 min per lane (Nov 13); the gate runs them.
 p=""; [ -n "${PRECHECK_TESTS:-}" ] && p=$(python3 tools/affected_tests.py --base origin/main --run 2>&1 | grep -E "^(FAIL|ERROR)" | head -3 2>/dev/null); [ -n "$p" ] && add "$p"
-if [ -z "$out" ]; then echo "PRECHECK PASS"; exit 0; fi
-echo "PRECHECK FAIL$out"; exit 1
+SHA=$(git rev-parse HEAD)
+if [ -z "$out" ]; then echo "PRECHECK PASS sha=$SHA"; exit 0; fi
+echo "PRECHECK FAIL sha=$SHA$out"; exit 1
