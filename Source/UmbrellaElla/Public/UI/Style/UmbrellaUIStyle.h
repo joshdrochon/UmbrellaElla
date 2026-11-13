@@ -123,6 +123,7 @@ namespace UmbrellaUIStyleConstants
 	static constexpr int32 CreditsTitleSize = 52;
 	static constexpr int32 CreditsNameSize = 36;
 	static constexpr int32 CreditsRoleSize = 22;
+	static constexpr int32 CreditsSubtitleSize = CreditsRoleSize + 6;   // the title's "The Stolen Hour" line on the credits roll
 	static constexpr float CreditsGap = 30.0f;
 	static constexpr int32 LockupNameSize = 74;
 	static constexpr int32 LockupSubtitleSize = 38;

@@ -334,7 +334,7 @@ void SFlowTextScreen::SetCredits(const TArray<FString>& Lines, float ScrollOffse
 			AddRow(TitleName, FUmbrellaUIStyle::DisplayFont(UmbrellaUI::CreditsTitleSize), FUmbrellaUIStyle::Cream(), 0.0f);
 			if (!TitleSubtitle.IsEmpty())
 			{
-				AddRow(TEXT("The ") + TitleSubtitle, FUmbrellaUIStyle::DisplayFontSpaced(UmbrellaUI::CreditsRoleSize + 6, UmbrellaUI::LockupSubtitleSpacing), FUmbrellaUIStyle::Gold(), 0.0f);
+				AddRow(TEXT("The ") + TitleSubtitle, FUmbrellaUIStyle::DisplayFontSpaced(UmbrellaUI::CreditsSubtitleSize, UmbrellaUI::LockupSubtitleSpacing), FUmbrellaUIStyle::Gold(), 0.0f);
 			}
 			CreditsBox->AddSlot().AutoHeight().Padding(0.0f, UmbrellaUI::HeadingGap, UmbrellaUI::HeadingWidth - UmbrellaUI::ColumnWidth, UmbrellaUI::SectionGap)
 			[
