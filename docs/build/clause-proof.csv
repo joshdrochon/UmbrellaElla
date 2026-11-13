@@ -25,6 +25,8 @@ OWL-31,3s slow cooldown,gdd:OWL-31.cooldown
 OWL-32,eye window lasts 2s,gdd:OWL-32.eye
 HAZ-03,"fixed camera at (960,540) (binding is RoomSize/2, no camera checked)",gdd:HAZ-03.fixed_camera
 HAZ-03,"guard contact damage 0 (bound, but no test exercises contact)",gdd:HAZ-03.contact_damage
+FLOW-34,title music plays,test:UmbrellaElla.Flow.World.TitlePlaysMusic
+MOVE-09,controller button remap,test:UmbrellaElla.Flow.World.PauseSettingsRemapsControllerButton
 MOVE-09,mouse click selects in menus,test:UmbrellaElla.Flow.MenuMouse.ClickChoosesEachItem
 MOVE-15,hop protection actually blocks damage in Health,test:UmbrellaElla.Move.World.HopProtectionBlocksHealthDamage
 MOVE-15,hop vs post-hit protection asserted distinct,test:UmbrellaElla.Move.World.HopProtectionBlocksHealthDamage
