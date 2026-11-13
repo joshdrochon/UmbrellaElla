@@ -17,10 +17,8 @@ import bpy  # noqa: E402
 import stand_ins  # noqa: E402
 from stand_ins import Rig, glow, hex_rgb  # noqa: E402
 
-SHOT_EDGE_TOP = [(1.0, 0.06), (0.6, 0.38), (0.5, 0.15), (0.0, 0.62), (-0.1, 0.22), (-0.7, 0.56),
-                 (-0.8, 0.15), (-1.45, 0.34), (-1.5, 0.08)]
-SHOT_EDGE_BOT = [(1.05, -0.05), (0.7, -0.33), (0.55, -0.13), (0.1, -0.52), (0.0, -0.19), (-0.6, -0.6),
-                 (-0.7, -0.14), (-1.4, -0.3), (-1.45, -0.07)]
+SHOT_EDGE_TOP = [(1.1, 0.04), (0.45, 0.32), (0.35, 0.12), (-0.3, 0.62), (-0.4, 0.14), (-1.2, 0.4), (-1.3, 0.06)]
+SHOT_EDGE_BOT = [(1.15, -0.04), (0.55, -0.28), (0.4, -0.1), (-0.2, -0.54), (-0.3, -0.12), (-1.15, -0.36), (-1.25, -0.05)]
 
 
 def alpha_glow(name, hexcol, alpha, strength=1.0):
@@ -41,7 +39,7 @@ def alpha_glow(name, hexcol, alpha, strength=1.0):
     return m
 
 
-def graded(name, head_hex, tail_hex, x_tail=-2.6, x_head=1.4, grain=0.15, cut=0.38, snap=0.0):
+def graded(name, head_hex, tail_hex, x_tail=-2.6, x_head=1.4, grain=0.12, cut=0.38, snap=0.0, hatch=9.0):
     """An emission colour that shifts from head_hex at the head to tail_hex at the tail, with paper grain (painted, not
     a flat fill: the critic's 'flat fills, no paper texture' gap)."""
     m = bpy.data.materials.new(name)
@@ -65,10 +63,37 @@ def graded(name, head_hex, tail_hex, x_tail=-2.6, x_head=1.4, grain=0.15, cut=0.
     gm.color_ramp.interpolation = "CONSTANT"
     gm.color_ramp.elements[0].position, gm.color_ramp.elements[0].color = 0.0, (1, 1, 1, 1)
     g2 = 1.0 - grain
-    gm.color_ramp.elements[1].position, gm.color_ramp.elements[1].color = 0.55, (g2, g2, g2, 1)
+    gm.color_ramp.elements[1].position, gm.color_ramp.elements[1].color = 0.5, (g2, g2, g2, 1)
     mul = nt.nodes.new("ShaderNodeVectorMath")
     mul.operation = "MULTIPLY"
+    mul2 = nt.nodes.new("ShaderNodeVectorMath")
+    mul2.operation = "MULTIPLY"
+    wave = nt.nodes.new("ShaderNodeTexWave")   # engraved hatch: thin diagonal lines, a darker shade of the same colour
+    wave.wave_type = "BANDS"
+    wave.bands_direction = "DIAGONAL"
+    wave.inputs["Scale"].default_value = hatch
+    wave.inputs["Distortion"].default_value = 1.2
+    wave.inputs["Detail"].default_value = 0.0
+    hr = nt.nodes.new("ShaderNodeValToRGB")
+    hr.color_ramp.interpolation = "CONSTANT"
+    hr.color_ramp.elements[0].position, hr.color_ramp.elements[0].color = 0.0, (1, 1, 1, 1)
+    hr.color_ramp.elements[1].position, hr.color_ramp.elements[1].color = 0.9, (0.92, 0.92, 0.92, 1)
+    mot = nt.nodes.new("ShaderNodeTexNoise")   # paper mottle: slow blotches, two levels
+    mot.inputs["Scale"].default_value = 5.0
+    mot.inputs["Detail"].default_value = 3.0
+    mr = nt.nodes.new("ShaderNodeValToRGB")
+    mr.color_ramp.interpolation = "CONSTANT"
+    mr.color_ramp.elements[0].position, mr.color_ramp.elements[0].color = 0.0, (1, 1, 1, 1)
+    mr.color_ramp.elements[1].position, mr.color_ramp.elements[1].color = 0.52, (0.95, 0.95, 0.95, 1)
+    mul3 = nt.nodes.new("ShaderNodeVectorMath")
+    mul3.operation = "MULTIPLY"
     L = nt.links.new
+    L(coord.outputs["Object"], wave.inputs["Vector"])
+    L(wave.outputs["Fac"], hr.inputs["Fac"])
+    L(coord.outputs["Object"], mot.inputs["Vector"])
+    L(mot.outputs["Fac"], mr.inputs["Fac"])
+    L(hr.outputs[0], mul2.inputs[1])
+    L(mr.outputs[0], mul3.inputs[1])
     L(coord.outputs["Object"], sep.inputs[0])
     if snap:   # one grain value per output pixel: the sub-pixel samples do not average it away
         sn = nt.nodes.new("ShaderNodeVectorMath")
@@ -81,7 +106,9 @@ def graded(name, head_hex, tail_hex, x_tail=-2.6, x_head=1.4, grain=0.15, cut=0.
     L(sep.outputs["X"], ramp.inputs["Value"])
     L(ramp.outputs[0], mix.inputs[0])
     L(noise.outputs["Value"], gm.inputs[0])
-    L(mix.outputs[0], mul.inputs[0])
+    L(mix.outputs[0], mul3.inputs[0])
+    L(mul3.outputs[0], mul2.inputs[0])
+    L(mul2.outputs[0], mul.inputs[0])
     L(gm.outputs[0], mul.inputs[1])
     L(mul.outputs[0], emi.inputs["Color"])
     L(emi.outputs["Emission"], out.inputs["Surface"])
@@ -179,7 +206,7 @@ def poly_part(r, bone, mat, pts, y=0.0, thick=0.04, name="poly", ink=False):
 
 
 def shot_outline(sx, sz, dx=0.0, head=1.5, tail=-2.2, grow=0.0):
-    sx, sz, dx = sx * 0.82, sz * 1.3, dx * 0.82   # a stubbier build: the tuned aspect of the red-shot crops
+    sx, sz, dx = sx * 0.82, sz * 1.4, dx * 0.82   # a stubbier build: the tuned aspect of the red-shot crops
     top = [(x * sx + dx, z * sz + grow) for x, z in SHOT_EDGE_TOP]
     bot = [(x * sx + dx, z * sz - grow) for x, z in SHOT_EDGE_BOT]
     return [(head * sx + dx + grow, 0.0)] + top + [(tail * sx + dx - grow, 0.0)] + list(reversed(bot))
@@ -189,19 +216,18 @@ def shot(m, rnd, shell, mid, body, core, spill, trail_a, trail_b):
     """bar-casters' shared projectile: bright core, shell, trail, light spill; one pointed angular geometry."""
     r = Rig("Shot")
     r.bone("body", (-0.5, 0, 0), (0.5, 0, 0))
-    glow_plane(r, "body", m[spill])
     poly_part(r, "body", m["ink"], shot_outline(1.0, 1.0, 0.0, 1.5, -2.35, grow=0.04), y=0.04, thick=0.02, name="ink")
     poly_part(r, "body", m[shell], shot_outline(1.0, 1.0), y=0.0, name="shell")
     poly_part(r, "body", m["redshadow"], shot_outline(0.95, 0.3, -0.05), y=-0.03, name="shade")
     poly_part(r, "body", m[mid], shot_outline(0.86, 0.72, 0.1), y=-0.06, name="mid")
     poly_part(r, "body", m[body], shot_outline(0.7, 0.4, 0.25), y=-0.12, name="body")
     poly_part(r, "body", m[core], shot_outline(0.62, 0.17, 0.4), y=-0.18, name="core")
-    streak = [(-1.3, 0.12), (-2.5, 0.07), (-3.5, 0.025), (-3.5, -0.025), (-2.5, -0.07), (-1.3, -0.12)]
-    poly_part(r, "body", m["redshadow" if shell == "g_shell" else "yshadow"], streak, y=0.02, thick=0.02, name="streak")
-    poly_part(r, "body", m["red" if shell == "g_shell" else "yellow"],
+    streak = [(-1.2, 0.22), (-2.0, 0.15), (-2.7, 0.04), (-2.7, -0.04), (-2.0, -0.15), (-1.2, -0.22)]
+    poly_part(r, "body", m["g_st_r" if shell == "g_shell" else "g_st_y"], streak, y=0.02, thick=0.02, name="streak")
+    poly_part(r, "body", m["g_st_c" if shell == "g_shell" else "g_st_a"],
               [(x * 0.95, z * 0.45) for x, z in streak], y=-0.01, thick=0.02, name="streak_core")
     rr = random.Random(9)
-    x = -2.1
+    x = -2.2
     for i in range(6):   # broken-off shards thinning down the trail
         w, h = 0.2 - 0.02 * i, 0.075 - 0.007 * i
         z = rr.uniform(-0.3, 0.3)
@@ -235,9 +261,13 @@ def materials(colours, look):
     mats["yshadow"] = glow("yshadow", c("yellow shadow", "#94611e"))
     mats["g_shell"] = graded("g_shell", c("red", "#ff3658"), c("red shadow", "#8f173c"), snap=sn_)
     mats["g_mid"] = graded("g_mid", c("coral", "#ff7848"), c("red", "#ff3658"), snap=sn_)
-    mats["g_core"] = graded("g_core", c("core", "#fff5dc"), c("coral", "#ff7848"), x_tail=-1.8, snap=sn_)
+    mats["g_core"] = graded("g_core", c("core", "#fff5dc"), c("coral", "#ff7848"), x_tail=-1.8, snap=sn_, grain=0.3)
     mats["g_ys"] = graded("g_ys", c("yellow", "#ffd84a"), c("yellow shadow", "#94611e"), snap=sn_)
     mats["g_ym"] = graded("g_ym", c("amber", "#f5aa28"), c("yellow", "#ffd84a"), snap=sn_)
+    mats["g_st_r"] = graded("g_st_r", c("red", "#ff3658"), c("red", "#ff3658"), snap=sn_)
+    mats["g_st_c"] = graded("g_st_c", c("coral", "#ff7848"), c("coral", "#ff7848"), snap=sn_)
+    mats["g_st_y"] = graded("g_st_y", c("yellow", "#ffd84a"), c("yellow", "#ffd84a"), snap=sn_)
+    mats["g_st_a"] = graded("g_st_a", c("amber", "#f5aa28"), c("amber", "#f5aa28"), snap=sn_)
     mats["spill_red"] = radial_glow("spill_red", c("red", "#ff3658"), 0.45, 2.6, 1.05, -0.5)
     mats["spill_gold"] = radial_glow("spill_gold", c("yellow", "#ffd84a"), 0.45, 2.6, 1.05, -0.5)
     return mats
