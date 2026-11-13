@@ -85,6 +85,55 @@
    "commit": "04051fef0b71",
    "gap": "Y is a tiny flat clock on a pure black field, with glaring white hands, thin numerals and an overlapping debug text label. It has no paper texture, depth or etched finish.; Y is a tiny clock on pure black. It has flat white hands, thin plain numerals, no paper texture and no value structure. Debug text also cuts across the face.; X is a tiny, flat, glowing clock on pure black with a plain sans-serif debug overlay, so it has no ink-on-paper texture, etched gold line work or value structure.; Y's clock is a flat, tiny, white-and-yellow vector on pure black, with no etched gold line work, no paper texture and no ink-and-paper finish, and a debug text overlay sits on top of it.; Y is a tiny clock with flat white hands, a plain sans font and debug text over the face, so it has no etched gold line work, aged-paper texture or ink-and-gold finish.; Y is a tiny flat clock with a plain sans-serif font, a white blob hand, a flat yellow arc and a black void around it, with no etched line work or aged-paper texture.",
    "at": "2026-11-13T07:04:27Z"
+  },
+  {
+   "piece": "ui-hud-clock",
+   "round": 3,
+   "verdict": "reference",
+   "checks": false,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "fail",
+    "art_ref_check": "fail"
+   },
+   "pairs": {
+    "quality_bar": "reference",
+    "reference": "reference"
+   },
+   "panel": 3,
+   "calibration": {
+    "sessions": 13,
+    "passed": 6
+   },
+   "missing": [
+    "quality_bar:pipeline/art/reference/discord/20261111-0319_Ricky_roadwarden-sundial-casters.png",
+    "reference:pipeline/art/reference/discord/20261112-0443_Ricky_title-screen.png"
+   ],
+   "critic_sessions": [
+    "ui-hud-clock-r3-00-reference-c1",
+    "ui-hud-clock-r3-00-reference-c2",
+    "ui-hud-clock-r3-00-reference-c3",
+    "ui-hud-clock-r3-01-quality_bar-c1",
+    "ui-hud-clock-r3-01-quality_bar-c2",
+    "ui-hud-clock-r3-01-quality_bar-c3",
+    "ui-hud-clock-r3-00-reference-c4",
+    "ui-hud-clock-r3-00-reference-c5",
+    "ui-hud-clock-r3-00-reference-c6",
+    "ui-hud-clock-r3-01-quality_bar-c4",
+    "ui-hud-clock-r3-01-quality_bar-c5",
+    "ui-hud-clock-r3-01-quality_bar-c6",
+    "ui-hud-clock-r3-00-reference-c7"
+   ],
+   "manifest": "",
+   "evidence": "",
+   "prompt": "",
+   "files": "b93856a0fc8af0528f10841dc87e28fcf81375079ab3e46c052430c1a1714742",
+   "file": "pipeline/art/proof/artui/ui-hud-clock/capture_r17_hud.png",
+   "card": "artui",
+   "refs": "669f6f2ac14d",
+   "commit": "783fb1f1b6bd",
+   "gap": "X is a tiny, flat clock with plain white hands and no etched detail or paper texture, and the \"Preparing Shaders\" debug text sits over the dial.; X is a tiny clock on a black void with white flat-filled hands and plain sans numerals. It also has stray debug text over it, and no etched gold line work or paper texture.; Y is a tiny, flat, near-white clock on pure black, with no etched gold detail, no paper texture and an unfinished look (stray debug text over the face).; Y is a flat, small clock with plain sans-serif text. It has no etched gold line work, no paper texture, no ink-like value structure, and an overlaid debug message cuts across it.; X is a small flat white and yellow clock on pure black, with no etched gold line work, no paper texture, and a stray \"Preparing Shaders\" debug overlay across the face.; Y is a tiny, flat, smooth-filled clock. It has no etched line work or paper texture, and a white debug \"Preparing Shaders\" overlay sits on top of it.",
+   "at": "2026-11-13T10:51:46Z"
   }
  ]
 }

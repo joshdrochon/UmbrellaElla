@@ -1,133 +1,174 @@
 {
-  "id": "ui-defeated",
-  "records": [
-    {
-      "piece": "ui-defeated",
-      "round": 1,
-      "verdict": "reference",
-      "checks": true,
-      "results": {
-        "art_check": "pass",
-        "screen_check": "pass",
-        "art_ref_check": "pass"
-      },
-      "pairs": {
-        "quality_bar": "ours",
-        "reference": "reference"
-      },
-      "panel": 3,
-      "calibration": {
-        "sessions": 6,
-        "passed": 6
-      },
-      "missing": [
-        "reference:pipeline/art/reference/discord/20261112-0443_Ricky_title-screen.png"
-      ],
-      "critic_sessions": [
-        "ui-defeated-r1-00-reference-c1",
-        "ui-defeated-r1-00-reference-c2",
-        "ui-defeated-r1-00-reference-c3",
-        "ui-defeated-r1-01-quality_bar-c1",
-        "ui-defeated-r1-01-quality_bar-c2",
-        "ui-defeated-r1-01-quality_bar-c3"
-      ],
-      "manifest": "",
-      "evidence": "",
-      "prompt": "",
-      "files": "9be875a2a6d1b04513c35ef854bab9764b8de93dae3d1000d7c62b1465b377ab",
-      "file": "../../../../../../tmp/uishots/defeated.png",
-      "card": "artui",
-      "refs": "669f6f2ac14d",
-      "commit": "d7982cdeeb7a",
-      "gap": "X's art is smoother and flatter, with less paper grain, etched linework and painterly depth, and its plain lettering has no hand-lettered finish.",
-      "at": "2026-11-13T06:04:44Z"
-    },
-    {
-      "piece": "ui-defeated",
-      "round": 2,
-      "verdict": "reference",
-      "checks": true,
-      "results": {
-        "art_check": "pass",
-        "screen_check": "pass",
-        "art_ref_check": "pass"
-      },
-      "pairs": {
-        "quality_bar": "ours",
-        "reference": "reference"
-      },
-      "panel": 3,
-      "calibration": {
-        "sessions": 8,
-        "passed": 6
-      },
-      "missing": [
-        "reference:pipeline/art/reference/discord/20261112-0443_Ricky_title-screen.png"
-      ],
-      "critic_sessions": [
-        "ui-defeated-r2-00-reference-c1",
-        "ui-defeated-r2-00-reference-c2",
-        "ui-defeated-r2-00-reference-c3",
-        "ui-defeated-r2-01-quality_bar-c1",
-        "ui-defeated-r2-01-quality_bar-c2",
-        "ui-defeated-r2-01-quality_bar-c3",
-        "ui-defeated-r2-00-reference-c4",
-        "ui-defeated-r2-00-reference-c5"
-      ],
-      "manifest": "",
-      "evidence": "",
-      "prompt": "",
-      "files": "9be875a2a6d1b04513c35ef854bab9764b8de93dae3d1000d7c62b1465b377ab",
-      "file": "pipeline/art/proof/artui2/ui-defeated/capture_defeated.png",
-      "card": "artui",
-      "refs": "669f6f2ac14d",
-      "commit": "39e849a9e8e7",
-      "gap": "Y's Defeated heading is flat orange with no etched or inked lettering, and its scene is smoother and less textured than X's.",
-      "at": "2026-11-13T06:55:23Z"
-    },
-    {
-      "piece": "ui-defeated",
-      "round": 3,
-      "verdict": "reference",
-      "checks": true,
-      "results": {
-        "art_check": "pass",
-        "screen_check": "pass",
-        "art_ref_check": "pass"
-      },
-      "pairs": {
-        "quality_bar": "ours",
-        "reference": "reference"
-      },
-      "panel": 3,
-      "calibration": {
-        "sessions": 9,
-        "passed": 6
-      },
-      "missing": [
-        "reference:pipeline/art/reference/discord/20261112-0443_Ricky_title-screen.png"
-      ],
-      "critic_sessions": [
-        "ui-defeated-r3-00-reference-c1",
-        "ui-defeated-r3-00-reference-c2",
-        "ui-defeated-r3-00-reference-c3",
-        "ui-defeated-r3-01-quality_bar-c1",
-        "ui-defeated-r3-01-quality_bar-c2",
-        "ui-defeated-r3-01-quality_bar-c3",
-        "ui-defeated-r3-00-reference-c4",
-        "ui-defeated-r3-00-reference-c5",
-        "ui-defeated-r3-00-reference-c6"
-      ],
-      "manifest": "",
-      "evidence": "",
-      "prompt": "",
-      "files": "9be875a2a6d1b04513c35ef854bab9764b8de93dae3d1000d7c62b1465b377ab",
-      "file": "pipeline/art/proof/artui2/ui-defeated/capture_defeated.png",
-      "card": "artui",
-      "refs": "669f6f2ac14d",
-      "commit": "6e0574f70e6c",
-      "gap": "X is softer and blurrier, with less fine etched linework, less paper grain and weaker gold edge-lighting on the rock.",
-      "at": "2026-11-13T07:09:53Z"
-    }
-  ]
+ "id": "ui-defeated",
+ "records": [
+  {
+   "piece": "ui-defeated",
+   "round": 1,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "ours",
+    "reference": "reference"
+   },
+   "panel": 3,
+   "calibration": {
+    "sessions": 6,
+    "passed": 6
+   },
+   "missing": [
+    "reference:pipeline/art/reference/discord/20261112-0443_Ricky_title-screen.png"
+   ],
+   "critic_sessions": [
+    "ui-defeated-r1-00-reference-c1",
+    "ui-defeated-r1-00-reference-c2",
+    "ui-defeated-r1-00-reference-c3",
+    "ui-defeated-r1-01-quality_bar-c1",
+    "ui-defeated-r1-01-quality_bar-c2",
+    "ui-defeated-r1-01-quality_bar-c3"
+   ],
+   "manifest": "",
+   "evidence": "",
+   "prompt": "",
+   "files": "9be875a2a6d1b04513c35ef854bab9764b8de93dae3d1000d7c62b1465b377ab",
+   "file": "../../../../../../tmp/uishots/defeated.png",
+   "card": "artui",
+   "refs": "669f6f2ac14d",
+   "commit": "d7982cdeeb7a",
+   "gap": "X's art is smoother and flatter, with less paper grain, etched linework and painterly depth, and its plain lettering has no hand-lettered finish.",
+   "at": "2026-11-13T06:04:44Z"
+  },
+  {
+   "piece": "ui-defeated",
+   "round": 2,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "ours",
+    "reference": "reference"
+   },
+   "panel": 3,
+   "calibration": {
+    "sessions": 8,
+    "passed": 6
+   },
+   "missing": [
+    "reference:pipeline/art/reference/discord/20261112-0443_Ricky_title-screen.png"
+   ],
+   "critic_sessions": [
+    "ui-defeated-r2-00-reference-c1",
+    "ui-defeated-r2-00-reference-c2",
+    "ui-defeated-r2-00-reference-c3",
+    "ui-defeated-r2-01-quality_bar-c1",
+    "ui-defeated-r2-01-quality_bar-c2",
+    "ui-defeated-r2-01-quality_bar-c3",
+    "ui-defeated-r2-00-reference-c4",
+    "ui-defeated-r2-00-reference-c5"
+   ],
+   "manifest": "",
+   "evidence": "",
+   "prompt": "",
+   "files": "9be875a2a6d1b04513c35ef854bab9764b8de93dae3d1000d7c62b1465b377ab",
+   "file": "pipeline/art/proof/artui2/ui-defeated/capture_defeated.png",
+   "card": "artui",
+   "refs": "669f6f2ac14d",
+   "commit": "39e849a9e8e7",
+   "gap": "Y's Defeated heading is flat orange with no etched or inked lettering, and its scene is smoother and less textured than X's.",
+   "at": "2026-11-13T06:55:23Z"
+  },
+  {
+   "piece": "ui-defeated",
+   "round": 3,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "ours",
+    "reference": "reference"
+   },
+   "panel": 3,
+   "calibration": {
+    "sessions": 9,
+    "passed": 6
+   },
+   "missing": [
+    "reference:pipeline/art/reference/discord/20261112-0443_Ricky_title-screen.png"
+   ],
+   "critic_sessions": [
+    "ui-defeated-r3-00-reference-c1",
+    "ui-defeated-r3-00-reference-c2",
+    "ui-defeated-r3-00-reference-c3",
+    "ui-defeated-r3-01-quality_bar-c1",
+    "ui-defeated-r3-01-quality_bar-c2",
+    "ui-defeated-r3-01-quality_bar-c3",
+    "ui-defeated-r3-00-reference-c4",
+    "ui-defeated-r3-00-reference-c5",
+    "ui-defeated-r3-00-reference-c6"
+   ],
+   "manifest": "",
+   "evidence": "",
+   "prompt": "",
+   "files": "9be875a2a6d1b04513c35ef854bab9764b8de93dae3d1000d7c62b1465b377ab",
+   "file": "pipeline/art/proof/artui2/ui-defeated/capture_defeated.png",
+   "card": "artui",
+   "refs": "669f6f2ac14d",
+   "commit": "6e0574f70e6c",
+   "gap": "X is softer and blurrier, with less fine etched linework, less paper grain and weaker gold edge-lighting on the rock.",
+   "at": "2026-11-13T07:09:53Z"
+  },
+  {
+   "piece": "ui-defeated",
+   "round": 4,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "ours",
+    "reference": "reference"
+   },
+   "panel": 3,
+   "calibration": {
+    "sessions": 6,
+    "passed": 6
+   },
+   "missing": [
+    "reference:pipeline/art/reference/discord/20261112-0443_Ricky_title-screen.png"
+   ],
+   "critic_sessions": [
+    "ui-defeated-r4-00-reference-c1",
+    "ui-defeated-r4-00-reference-c2",
+    "ui-defeated-r4-00-reference-c3",
+    "ui-defeated-r4-01-quality_bar-c1",
+    "ui-defeated-r4-01-quality_bar-c2",
+    "ui-defeated-r4-01-quality_bar-c3"
+   ],
+   "manifest": "",
+   "evidence": "",
+   "prompt": "",
+   "files": "9be875a2a6d1b04513c35ef854bab9764b8de93dae3d1000d7c62b1465b377ab",
+   "file": "pipeline/art/proof/artui/ui-defeated/capture_r17_defeated.png",
+   "card": "artui",
+   "refs": "669f6f2ac14d",
+   "commit": "783fb1f1b6bd",
+   "gap": "Y has a smoother, more digital finish, with less grain, less etched linework and a flatter, less textured paper surface than X.; X has smoother, more digital rendering with plainer lettering, lacking Y's etched linework, paper grain and ornate hand-drawn letterforms.; X is smoother and more digital, with less grain, fewer etched edge details and flatter cloud and rock surfaces than Y's textured paper finish.",
+   "at": "2026-11-13T10:25:48Z"
+  }
+ ]
 }

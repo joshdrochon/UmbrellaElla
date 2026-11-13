@@ -126,6 +126,50 @@
    "commit": "9c3c278ce84a",
    "gap": "Both show the title screen, not a settings screen. The clock and cloud areas are soft and hazy, and the menu text has little etched weight.; X's settings panel is a muddy, murky slab with soft, low-resolution lettering. It lacks Y's crisp etched lettering and its depth of ink and paper finish.",
    "at": "2026-11-13T09:55:07Z"
+  },
+  {
+   "piece": "ui-settings",
+   "round": 4,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "ours",
+    "reference": "reference"
+   },
+   "panel": 3,
+   "calibration": {
+    "sessions": 9,
+    "passed": 6
+   },
+   "missing": [
+    "reference:pipeline/art/reference/discord/20261112-0443_Ricky_title-screen.png"
+   ],
+   "critic_sessions": [
+    "ui-settings-r4-00-reference-c1",
+    "ui-settings-r4-00-reference-c2",
+    "ui-settings-r4-00-reference-c3",
+    "ui-settings-r4-01-quality_bar-c1",
+    "ui-settings-r4-01-quality_bar-c2",
+    "ui-settings-r4-01-quality_bar-c3",
+    "ui-settings-r4-00-reference-c4",
+    "ui-settings-r4-01-quality_bar-c4",
+    "ui-settings-r4-00-reference-c5"
+   ],
+   "manifest": "",
+   "evidence": "",
+   "prompt": "",
+   "files": "b8ef76b4101fcb3c03094c7c72571ae82e47e03b27adf6bddead0b2fd71621d4",
+   "file": "pipeline/art/proof/artui/ui-settings/capture_r17_settings.png",
+   "card": "artui",
+   "refs": "669f6f2ac14d",
+   "commit": "783fb1f1b6bd",
+   "gap": "X has a flat, thin-lettered parchment panel with sparse layout and weak value depth, so it lacks Y's etched, textured finish and strong lettering.; X's panel and lettering are smaller and flatter, with a muddier value structure and less fine etched detail than Y's inked, gold-edged painting.",
+   "at": "2026-11-13T10:45:14Z"
   }
  ]
 }
