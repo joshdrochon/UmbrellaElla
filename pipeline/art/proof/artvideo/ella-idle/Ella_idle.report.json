@@ -1,0 +1,91 @@
+{
+ "video": "pipeline/art/proof/artvideo/ella-idle/ella-idle.mp4",
+ "fps": 12,
+ "source_frames": 48,
+ "loop_end": 46,
+ "end_candidates": {
+  "28": 67.34,
+  "29": 56.87,
+  "30": 41.89,
+  "31": 18.53,
+  "32": 23.84,
+  "33": 17.41,
+  "34": 8.0,
+  "35": 17.37,
+  "36": 25.79,
+  "37": 29.21,
+  "38": 31.93,
+  "39": 29.38,
+  "40": 24.53,
+  "41": 15.14,
+  "42": 20.6,
+  "43": 22.32,
+  "44": 21.62,
+  "45": 19.77,
+  "46": 7.44,
+  "47": 19.16
+ },
+ "jitter_before": {
+  "max_anchor_step_px": 50.47,
+  "max_height_step_pct": 4.43,
+  "max_anchor_from_first_px": 111.45,
+  "height_range_pct": 19.65
+ },
+ "jitter_after": {
+  "max_anchor_step_px": 0.83,
+  "max_height_step_pct": 4.43,
+  "max_anchor_from_first_px": 0.7,
+  "height_range_pct": 19.65
+ },
+ "green_inside_px_max": 15,
+ "sets": {
+  "8": {
+   "strip": "pipeline/art/proof/artvideo/ella-idle/Ella_idle_N8_strip.png",
+   "gif": "pipeline/art/proof/artvideo/ella-idle/Ella_idle_N8_preview.gif",
+   "loop": {
+    "indices": [
+     0,
+     6,
+     12,
+     18,
+     24,
+     29,
+     35,
+     41
+    ],
+    "mean_step": 65.15,
+    "max_step": 83.12,
+    "last_to_first": 15.14,
+    "loop_ratio": 0.23,
+    "loops": true
+   },
+   "fps": 2.04
+  },
+  "12": {
+   "strip": "pipeline/art/proof/artvideo/ella-idle/Ella_idle_N12_strip.png",
+   "gif": "pipeline/art/proof/artvideo/ella-idle/Ella_idle_N12_preview.gif",
+   "loop": {
+    "indices": [
+     0,
+     4,
+     8,
+     12,
+     16,
+     20,
+     24,
+     27,
+     31,
+     35,
+     39,
+     43
+    ],
+    "mean_step": 56.84,
+    "max_step": 83.8,
+    "last_to_first": 22.32,
+    "loop_ratio": 0.39,
+    "loops": true
+   },
+   "fps": 3.06
+  }
+ }
+}

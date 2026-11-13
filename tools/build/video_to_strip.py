@@ -44,12 +44,12 @@ def run(cmd):
         raise ValueError("ffmpeg failed: " + r.stderr[-400:])
 
 
-def extract(video, out_dir, fps, height, trim_start=0.0):
+def extract(video, out_dir, fps, height, trim_start=0.0, crop=None):
     os.makedirs(out_dir, exist_ok=True)
     for old in glob.glob(os.path.join(out_dir, "raw_*.png")):
         os.remove(old)
     run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-ss", str(trim_start), "-i", video,
-         "-vf", f"fps={fps},scale=-2:{height}:flags=lanczos", os.path.join(out_dir, "raw_%03d.png")])
+         "-vf", f"fps={fps},scale=-2:{height}:flags=lanczos" + (f",crop={crop}" if crop else ""), os.path.join(out_dir, "raw_%03d.png")])
     return sorted(glob.glob(os.path.join(out_dir, "raw_*.png")))
 
 
@@ -200,6 +200,10 @@ def write_set(out_dir, stem, frames, idx, fps, anchor, extra):
     with open(os.path.join(out_dir, f"{stem}.frames.json"), "w", encoding="utf-8") as fh:
         json.dump(side, fh, indent=1)
         fh.write("\n")
+    with open(os.path.splitext(strip)[0] + ".sprite.json", "w", encoding="utf-8") as fh:   # what tools/art_loop.py reads
+        json.dump({"frames": len(picked), "grid": [picked[0][0], picked[0][1]], "fps": side["fps"], "loop": True,
+                   "pivot": "bottom-centre"}, fh, indent=1)
+        fh.write("\n")
     return names, strip, side
 
 
@@ -221,10 +225,10 @@ def gif(frames_dir, stem, count, fps, out, paper=None):
         ["-filter_complex", fc, "-map", "[o]", "-frames:v", str(count), "-loop", "0", out])
 
 
-def convert(video, out_dir, stem, counts, fps, height, trim_start=0.0, paper=None, key_fn=None):
+def convert(video, out_dir, stem, counts, fps, height, trim_start=0.0, paper=None, crop=None):
     ag = _assetgen()
     os.makedirs(out_dir, exist_ok=True)
-    raws = extract(video, os.path.join(out_dir, "raw"), fps, height, trim_start)
+    raws = extract(video, os.path.join(out_dir, "raw"), fps, height, trim_start, crop)
     if len(raws) < 4:
         raise ValueError(f"only {len(raws)} frames at {fps} fps; need at least 4")
     keyed_dir = os.path.join(out_dir, "keyed")
@@ -264,9 +268,10 @@ def main(argv=None):
     ap.add_argument("--height", type=int, default=540)
     ap.add_argument("--trim-start", type=float, default=0.0)
     ap.add_argument("--paper")
+    ap.add_argument("--crop", help="ffmpeg crop w:h:x:y after scaling (pure-Python keying is slow: crop to the figure)")
     a = ap.parse_args(argv)
     try:
-        r = convert(a.video, a.out, a.stem, a.counts, a.fps, a.height, a.trim_start, a.paper)
+        r = convert(a.video, a.out, a.stem, a.counts, a.fps, a.height, a.trim_start, a.paper, a.crop)
     except (ValueError, subprocess.CalledProcessError) as e:
         print(f"FAIL: video_to_strip: {e}")
         return 1
