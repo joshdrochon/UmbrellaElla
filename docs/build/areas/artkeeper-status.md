@@ -40,3 +40,10 @@ Stuck rule: critic gap unchanged 3 rounds (deterministic score best 0.716): NEED
 ## Round 4 deterministic checks (Nov 13) and triage
 - Cut cells (ffmpeg crop, divider lines gone), keyed with assetgen clean (enclosed-key warnings are the real gaps between chains and mechanisms). Best cell art_ref_check owl 0.629 (min 0.698); detail 0.76 (floor 0.301) fine; edges 0.95; silhouette IoU 0.52.
 - Triage: check is sound (reference vs itself = 1.0). Failing term is value: our dark-pixel share 0.75 vs reference 0.30. Verdict: ours (prompt asked for #3A2C25/#1D1713 metal, too dark). R5 lightens metal to mid-tone bronze and keeps ink near black.
+
+## Round 5 (Nov 13), cost $0.141, spent 4.000 of 33.82
+- Prompt: R4 with lighter bronze/pewter metal (Art/Source/Keeper/Paint/R5). Cut (crop 6px off divider lines), keyed.
+- art_ref_check owl: PASS 0.819 (cell 3; cells 0-2: 0.795/0.816/0.625; min 0.698). Value term fixed: the R4 triage was right (ours: too dark).
+- Quick blind pair (reference, seed 5, cell 3): reference wins; calibration pairs correct. Quality-bar pair: a calibration/off-subject pair swallowed the verdict, one pair SAME. Full panel not run: it needs an in-engine capture and this piece still fails on look, so no point spending 18 sessions.
+- Gaps (ours, prompt): wings feathered again (R4 had vane plates), head reads parrot/plated, mechanisms clump near the legs, no top-eye chain route, one stray chain loop. Model drifts on wing structure between runs with the same words.
+- R6: R4 wing wording back, keep R5 palette, shorter mechanism block, no chain over the back.
