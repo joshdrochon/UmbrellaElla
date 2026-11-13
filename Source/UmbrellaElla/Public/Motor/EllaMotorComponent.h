@@ -43,7 +43,7 @@ public:
 	void ClearPlayBounds();
 
 	/** Lowest root Z Ella may reach: the arena bottom plus her capsule half-height, so she stays on screen even with
-	 *  play bounds cleared. Lowest() when no arena exists. Hitting it is the lethal bottom (WIND-03); the health lane
+	 *  play bounds cleared. Lowest() when no arena exists. Hitting it is the lethal bottom (GDD current boundaries); the health lane
 	 *  reads IsAtPlayFloor() to apply its rule. */
 	float GetPlayFloorZ() const;
 	bool IsAtPlayFloor() const { return bAtPlayFloor; }
