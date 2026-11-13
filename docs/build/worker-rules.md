@@ -15,8 +15,10 @@ exactly one area, lanes disjoint).
 Default model (Josh, Nov 12, latest): Sonnet (`claude-sonnet-5-5`) for every worker, reviewer and critic. A job moves
 to a stronger model only with evidence Sonnet was not effective, through the repeat-failure rule below (triage first).
 A worker runs Sonnet. When it fails the same gate check twice, or a builder/critic loop goes 2 rounds with the same gap
-and no better score, the build lead restarts that one worker with `WORKER_MODEL=claude-fable-5-2 tools/build/start_area.sh
+and no better score, the build lead restarts that one worker with `WORKER_MODEL=claude-opus-5-5 tools/build/start_area.sh
 <area> "..."` and logs it in the build log (area, failing check, before/after). Others stay on Sonnet.
+Fable (`claude-fable-5-2`) only by an explicit emergency call from the build lead for a very challenging task, told to
+Josh when made (Josh, Nov 12 late); never as the routine escalation.
 
 ## Repeat failures: triage before any retry or escalation (Josh, Nov 12)
 When the same check fails twice, or a loop goes flat (2 rounds, same gap, no better score):
@@ -77,6 +79,9 @@ When the same check fails twice, or a loop goes flat (2 rounds, same gap, no bet
 - Never print, log or commit `~/.umbrella-ella.env` or any key value. Any area that generates assets through an API (audio,
   image: the snd* lanes, audio, imagegen, the art loops once the lead says Spend OK) may source it in the one shell that
   runs generation, and nowhere else.
+  Spend OK is given for all seven art loops (Nov 12, cap in IMAGE_SPEND_CAP_USD). Load the key in the same command as the
+  call, never on its own: `set -a; . ~/.umbrella-ella.env; set +a; python3 tools/assetgen.py image ...` (the file's lines
+  have no `export`, so a plain `source` doesn't reach python). Never echo, cat or grep the file.
 
 ## Unreal commands (Mac; many workers share this machine, so always through the slot lock)
     tools/build/ue_slot.sh tools/ue/build.sh                 # compile (editor target); must end "build exit: 0"

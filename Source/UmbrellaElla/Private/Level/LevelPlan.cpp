@@ -2,6 +2,8 @@
 #include "Arena/ArenaCameraTuning.h"
 #include "Core/UmbrellaDrawOrder.h"
 #include "Core/UmbrellaTuning.h"
+#include "Enemy/EnemyRules.h"
+#include "Enemy/EnemyTuning.h"
 #include "Harness/UmbrellaFeatureFlags.h"
 #include "Level/LevelRules.h"
 #include "Math/RandomStream.h"
@@ -23,8 +25,9 @@ namespace
 		FLevelPlacement P;
 		P.Kind = Kind;
 		P.Slot = Slot;
-		P.Location = FVector(X, UmbrellaDrawOrder::HazardY, Z);
-		P.Size = FVector(W, LevelPlanConst::DepthSize, H);
+		// Gameplay pieces sit in Ella's plane so she collides with land, overlaps currents and traps, and is shot.
+		P.Location = FVector(X, UmbrellaDrawOrder::EllaY, Z);
+		P.Size = FVector(W, LevelPlanConst::SolidDepth, H);
 		return P;
 	}
 }
@@ -43,56 +46,55 @@ namespace LevelPlan
 		const float FloorThick = LevelPlanConst::FloorThicknessFraction * H;
 		// Separate seeded stream for enemy colours, so layout and colour never share draws.
 		FRandomStream Colours(static_cast<int32>(Route.Seed & LevelPlanConst::SeedMask));
+		TArray<int32> FreeColourEnemies;
 
 		for (int32 Slot = 0; Slot < Route.Slots.Num(); ++Slot)
 		{
 			const FChunkVariant& V = Route.Slots[Slot];
 			const float X0 = LevelCatalogue::SlotStartX(Slot);
-			const float Mid = X0 + 0.5f * Chunk;
-			Out.Add(MakePlacement(ELevelPlacementKind::Floor, Slot, Mid, 0.5f * FloorThick, Chunk, FloorThick));
-			// Variant B mirrors the lane arrangement: mechanics sit in the second half.
-			const float Shift = V.Variant == 'B' ? LevelPlanConst::VariantShiftFraction * Chunk : -LevelPlanConst::VariantShiftFraction * Chunk;
-			int32 Index = 0;
-			for (const EChunkMechanic M : V.Mechanics)
+			Out.Add(MakePlacement(ELevelPlacementKind::Floor, Slot, X0 + 0.5f * Chunk, 0.5f * FloorThick, Chunk, FloorThick));
+			const FChunkLayout Layout = ChunkLayouts::Get(V.Chunk, V.Variant);
+			for (const FChunkPiece& Piece : Layout.Pieces)
 			{
-				const float X = Mid + Shift + Index * LevelPlanConst::MechanicSpacingFraction * Chunk;
-				++Index;
-				FLevelPlacement P;
-				switch (M)
+				const FVector2D C = Piece.Centre();
+				const FVector2D Size = Piece.Rect.GetSize();
+				FLevelPlacement P = MakePlacement(ELevelPlacementKind::Solid, Slot, X0 + C.X * Chunk, C.Y * H, Size.X * Chunk, Size.Y * H);
+				P.Mechanic = Piece.Mechanic;
+				switch (Piece.Kind)
 				{
-				case EChunkMechanic::Column:
-					P = MakePlacement(ELevelPlacementKind::Column, Slot, X, FloorThick + 0.5f * LevelPlanConst::ColumnHeightFraction * H,
-						LevelPlanConst::ColumnWidthFraction * H, LevelPlanConst::ColumnHeightFraction * H);
+				case EChunkPieceKind::Wind:
+					P.Kind = ELevelPlacementKind::Wind;
+					P.WindDirection = Piece.Direction;
+					P.WindRole = Piece.Role;
+					P.bBypass = Piece.bBypass;
 					break;
-				case EChunkMechanic::Mill:
-				case EChunkMechanic::Shutter:
-				case EChunkMechanic::Bellows:
-					P = MakePlacement(ELevelPlacementKind::Trap, Slot, X, LevelPlanConst::MidHeightFraction * H,
-						LevelPlanConst::TrapSizeFraction * H, LevelPlanConst::TrapSizeFraction * H);
+				case EChunkPieceKind::Trap:
+					P.Kind = ELevelPlacementKind::Trap;
 					break;
-				case EChunkMechanic::BridgeTooth:
-					P = MakePlacement(ELevelPlacementKind::Trap, Slot, X, H - 0.5f * LevelPlanConst::TrapSizeFraction * H,
-						LevelPlanConst::TrapSizeFraction * H, LevelPlanConst::TrapSizeFraction * H);
+				case EChunkPieceKind::Enemy:
+				{
+					P.Kind = ELevelPlacementKind::Enemy;
+					const FVector2D Body = ChunkLayouts::HazardRect(Piece).GetSize();
+					P.Size = FVector(Body.X * Chunk, LevelPlanConst::SolidDepth, Body.Y * H);
+					P.bYellowShot = Piece.Colour == EChunkShotColour::Yellow;
+					if (Piece.Colour == EChunkShotColour::Any)
+					{
+						FreeColourEnemies.Add(Out.Num());
+					}
 					break;
-				case EChunkMechanic::Warden:
-				case EChunkMechanic::Stilt:
-					P = MakePlacement(ELevelPlacementKind::Enemy, Slot, X, FloorThick + 0.5f * LevelPlanConst::EnemySizeFraction * H,
-						LevelPlanConst::EnemySizeFraction * H, LevelPlanConst::EnemySizeFraction * H);
-					break;
-				case EChunkMechanic::Courier:
-					P = MakePlacement(ELevelPlacementKind::Enemy, Slot, X, LevelPlanConst::HighFraction * H,
-						LevelPlanConst::EnemySizeFraction * H, LevelPlanConst::EnemySizeFraction * H);
-					break;
+				}
 				default:
 					break;
 				}
-				P.Mechanic = M;
-				if (P.Kind == ELevelPlacementKind::Enemy)
-				{
-					P.bYellowShot = Colours.FRand() < 0.5f;
-				}
 				Out.Add(P);
 			}
+		}
+		// Enemies the chunk leaves open get the level-wide red:yellow target from the seeded colour stream.
+		const TArray<EUmbrellaShotKind> Assigned = FEnemyRules::AssignShotColors(FreeColourEnemies.Num(), 0,
+			GetDefault<UUmbrellaTuning>()->Enemy.RedPerYellow, Colours);
+		for (int32 I = 0; I < FreeColourEnemies.Num() && I < Assigned.Num(); ++I)
+		{
+			Out[FreeColourEnemies[I]].bYellowShot = Assigned[I] == EUmbrellaShotKind::EnemyYellow;
 		}
 
 		if (IsFeatureEnabled(EFeatureId::FLOW_27))
@@ -119,7 +121,7 @@ namespace LevelPlan
 		const float H = LevelPlanArena().ArenaHeight;
 		const float RefugeLength = LevelPlanField().RefugeLengthFraction * LevelPlanField().ChunkLength;
 		const float X = LevelCatalogue::RefugeStartX(Checkpoint) + LevelPlanConst::StandInsetFraction * RefugeLength;
-		return FVector(X, UmbrellaDrawOrder::EllaY, LevelPlanConst::FloorThicknessFraction * H + LevelPlanConst::EnemySizeFraction * H);
+		return FVector(X, UmbrellaDrawOrder::EllaY, LevelPlanConst::FloorThicknessFraction * H + LevelPlanConst::CheckpointStandFraction * H);
 	}
 
 	int32 CheckpointReachedAt(float EllaX)
