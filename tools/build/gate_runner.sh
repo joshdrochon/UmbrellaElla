@@ -8,7 +8,8 @@ if [ "${1:-}" = add ]; then shift; for a in "$@"; do grep -qx "$a" "$Q" || echo 
   [ -d "$L/gate-runner.lock" ] || nohup "$0" run >> "$L/gate-runner.out" 2>&1 &
   exit 0; fi
 mkdir "$L/gate-runner.lock" 2>/dev/null || { echo "a runner is already running"; exit 0; }
-trap 'rmdir "$L/gate-runner.lock"' EXIT
+trap 'rc=$?; rmdir "$L/gate-runner.lock"; echo "$(date +%H:%M) runner $$ exit rc=$rc ($( [ -s "$Q" ] || [ -s "$L/gate-groups" ] && echo "work still queued" || echo "queue empty"))"' EXIT
+trap 'echo "$(date +%H:%M) runner $$ got SIGTERM/SIGHUP"; exit 143' TERM HUP
 GRP="$L/gate-groups"; touch "$GRP"
 # Batches (Josh, Nov 12): up to 8 queued lanes that merge cleanly together are gated in one run (one build and test
 # run, a review per lane). A failed batch is bisected: its two halves go to gate-groups and are gated next, down to
