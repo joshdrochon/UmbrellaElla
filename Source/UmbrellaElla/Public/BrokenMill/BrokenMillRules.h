@@ -155,6 +155,21 @@ struct UMBRELLAELLA_API FBrokenMillRules
 	/** Margin between the protected core plus Ella half width plus bullet radius and where the leftmost ray ends. */
 	static float GetReturnMargin(const FBrokenMillTuning& Tuning);
 
+	/** Guard feet (GuardFeetX, bottom of the target box). */
+	static FVector2D GetGuardFeet(const FBrokenMillTuning& Tuning);
+	/** Lowered underpass step root envelope: LoweredStepEnvelope (185-285). */
+	static FVector2D GetLoweredStepEnvelope(const FBrokenMillTuning& Tuning);
+	/** The ascent toward the exit has started: Ella is right of AscentStartX. */
+	static bool IsInAscent(const FBrokenMillTuning& Tuning, const FVector2D& Ella);
+	/** AscentStartX leaves the island edge, Ella's half width and the margin behind it. */
+	static bool IsAscentStartClear(const FBrokenMillTuning& Tuning);
+	/** Inside the protected root core box (ProtectedCoreX x ProtectedCoreZ). */
+	static bool IsInProtectedCore(const FBrokenMillTuning& Tuning, const FVector2D& Root);
+	/** Inside the vertical lift: |x - end x| <= half-width and z at or below the end z. */
+	static bool IsInVerticalLift(const FBrokenMillTuning& Tuning, const FVector2D& Root);
+	/** The root has dropped to the reopen height, so the decision to reopen is now. */
+	static bool IsRootAtReopen(const FBrokenMillTuning& Tuning, float RootZ);
+
 	/** Ella root range [min, max] that lets a shot hit the target, with the island blocking low lines. */
 	static FVector2D GetFiringWindowRoot(const FBrokenMillTuning& Tuning);
 

@@ -24,7 +24,8 @@ Blender headless; scripts and recipes in pipeline/art/blender/)
           page must say "active"), 4 s, audio off, the prompt gets the flat chroma-green background text. Same guards as `image`
           (in-jam input, FAL_KEY, shared counter), priced from fal's live per-second price, its own 1 USD per-piece cap.
           Writes the mp4, <stem>.request.json and the provenance row (model, prompt, input image, seed, cost).
-  image   --prompt P --out pipeline/art/proof/ImageProof/<name>.png (proof images; shipped art goes under Art/) [--provider gemini|openai|openrouter] [--tier draft|final] [--input OURS.png ...] [--model M]
+  batch   --jobs jobs.json [--workers 4]   up to 4 paid `image` calls at once (each job = one image argument list); same caps per call
+  image   --prompt P --out pipeline/art/proof/ImageProof/<name>.png (proof images; shipped art goes under Art/) [--provider gemini|openai|openrouter|fal] [--tier draft|final] [--input OURS.png ...] [--model M]
           [--size WxH] [--aspect 4:1] [--image-size 0.5K|1K|2K|4K] [--seed S] [--quality low|medium|high]
           Image model (D-new-art-image-model; default gemini, key GEMINI_API_KEY; openai optional, OPENAI_API_KEY):
           one still from the prompt. Order: every --input is guarded first (GDD ART-03 / BG-02: a file under
@@ -56,7 +57,7 @@ Blender headless; scripts and recipes in pipeline/art/blender/)
   clean   --in PNG --out PNG --chroma 00FF00 [--grow 2] [--hue-tol 40]   image-model output painted on flat chroma:
           HSV key, the mask grown 1-2 px, the cut edge despilled; FAILs when the corners are not the key colour and
           WARNs on green inside the subject or key colour enclosed by it. --via rembg: the rembg cut-out fallback
-  frames  --in KEYED_STRIP --count N --out-dir DIR [--frame WxH] [--pad 8] [--stem S]   one painted strip of N poses
+  frames  --in KEYED_STRIP --count N --out-dir DIR [--frame WxH] [--pad 8] [--stem S] [--no-register]   one painted strip of N poses
           cut into N equal frames, each figure at its own scale on one bottom-centre baseline; <stem>.frames.json
           records the figure heights and their spread (scale drift). Then `sheet` assembles them
   crop    --in SHEET --mask KEYED_SHEET --count N --figure K --out PNG [--pad 24]   figure K of N cut out of a painted
@@ -108,6 +109,7 @@ import shutil
 import struct
 import subprocess
 import sys
+import threading
 import time
 import wave
 import zipfile
@@ -205,10 +207,18 @@ PY_TOOL = {"name": "tools/assetgen.py (pure Python)",
            "licence": "team code (no third-party application); output belongs to the team"}
 
 
+_FILE_WRITES = threading.RLock()   # batch threads share provenance.csv and the prompt log
+
+
 def write_provenance(root, out, tid, prompt="", model="", inputs=(), origin="generated in jam", note="", info=None,
                      seed=""):
     """Add or replace the row for `out` (one row per asset path). info: {name, licence} for a source that is not
     an asset-tools.json tool (the team's reference art in a practice repo)."""
+    with _FILE_WRITES:
+        return _write_provenance(root, out, tid, prompt, model, inputs, origin, note, info, seed)
+
+
+def _write_provenance(root, out, tid, prompt, model, inputs, origin, note, info, seed):
     path = os.path.join(root, PROVENANCE)
     rows = []
     if os.path.isfile(path):
@@ -520,8 +530,9 @@ def cmd_image(a, argv, root):
 
 # ---------- image model providers (D-new-art-image-model) ----------
 IMAGE_PROVIDERS = {"gemini": ("gemini-image", "GEMINI_API_KEY"), "openai": ("openai-image", "OPENAI_API_KEY"),
-                   "openrouter": ("gemini-image", "OPENROUTER_API_KEY")}   # openrouter: Google's models, Google's price table
-GOOGLE_PROVIDERS = ("gemini", "openrouter")
+                   "openrouter": ("gemini-image", "OPENROUTER_API_KEY"),   # openrouter, fal: Google's models, Google's price table
+                   "fal": ("gemini-image", "FAL_KEY")}
+GOOGLE_PROVIDERS = ("gemini", "openrouter", "fal")
 # Tiers (Josh, Nov 12): drafts on the cheap flash model, final candidates on Pro. Ids checked against the key's
 # models.list (image-models) on Nov 12: gemini-2.5-flash-image and gemini-3-pro-image-preview both exist and are priced.
 IMAGE_TIERS = {"draft": "gemini-2.5-flash-image", "final": "gemini-3-pro-image-preview"}
@@ -535,6 +546,14 @@ OPENROUTER_NEAR_CALLS = 5    # OpenRouter is used only when Gemini's remaining c
 OPENROUTER_INFO = {"name": "OpenRouter (Google Gemini image models)",
                    "licence": "OpenRouter Terms; output of the Google model: Gemini API Additional Terms of Service "
                               "(Google claims no ownership of generated output)"}
+# fal serves the SAME Google models only (checked free, Nov 13: both exist on fal). Same rule: other ids refused.
+FAL_MODELS = {"gemini-2.5-flash-image": "fal-ai/gemini-25-flash-image",
+              "gemini-3-pro-image-preview": "fal-ai/gemini-3-pro-image-preview"}
+FAL_ENDPOINT = "https://fal.run/"
+FAL_CAP_USD = 74.84   # hard cap on fal spend in the shared counter (FAL_SPEND_CAP_USD overrides)
+FAL_INFO = {"name": "fal (Google Gemini image models)",
+            "licence": "fal Terms; output of the Google model: Gemini API Additional Terms of Service "
+                       "(Google claims no ownership of generated output)"}
 GEMINI_RATIOS = ("1:1", "2:3", "3:2", "3:4", "4:3", "4:5", "5:4", "9:16", "16:9", "21:9")
 GEMINI_IMAGE_SIZES = ("0.5K", "1K", "2K", "4K")
 OPENAI_SIZES = {"1024x1024": 1.0, "1024x1536": 1.5, "1536x1024": 1.5}
@@ -751,11 +770,18 @@ def openrouter_cap():
     return float(v) if v else OPENROUTER_CAP_USD
 
 
+def fal_cap():
+    v = (os.environ.get("FAL_SPEND_CAP_USD") or "").strip()
+    return float(v) if v else FAL_CAP_USD
+
+
 def provider_spent(d):
-    """(openrouter USD, every other provider's USD) in the counter. spent_usd stays the total of both."""
-    orr = sum(float(c.get("cost_usd") or 0) for c in d["calls"]
-              if c.get("provider") == "openrouter" and not c.get("refunded"))
-    return round(orr, 6), round(max(0.0, d["spent_usd"] - orr), 6)
+    """(openrouter USD, every other provider's USD, fal USD) in the counter. spent_usd stays the total of all."""
+    def of(name):
+        return sum(float(c.get("cost_usd") or 0) for c in d["calls"]
+                   if c.get("provider") == name and not c.get("refunded"))
+    orr, fal = of("openrouter"), of("fal")
+    return round(orr, 6), round(max(0.0, d["spent_usd"] - orr - fal), 6), round(fal, 6)
 
 
 PIECE_CAP_USD = 0.50   # Josh, Nov 13: per-piece image spend cap, both providers, keyed by piece in the counter
@@ -854,12 +880,13 @@ def spend_reserve(cost, entry):
     its provider (OpenRouter has its own hard cap; every other provider shares IMAGE_SPEND_CAP_USD).
     Returns the call's index in the counter (spend_settle updates it)."""
     path, cap = spend_settings()
-    on_or = entry.get("provider") == "openrouter"
+    which = entry.get("provider")
     with _SpendLock(path):
         d = _read_spend(path)
-        or_spent, other_spent = provider_spent(d)
-        spent, limit, name = (or_spent, openrouter_cap(), "OpenRouter image cap") if on_or else \
-            (other_spent, cap, "total image cap (IMAGE_SPEND_CAP_USD)")
+        or_spent, other_spent, fal_spent = provider_spent(d)
+        spent, limit, name = {"openrouter": (or_spent, openrouter_cap(), "OpenRouter image cap"),
+                              "fal": (fal_spent, fal_cap(), "fal image cap (FAL_SPEND_CAP_USD)")}.get(
+            which, (other_spent, cap, "total image cap (IMAGE_SPEND_CAP_USD)"))
         if spent + cost > limit + 1e-9:
             raise ImageRefused(f"CAP REACHED: spent ${spent:.3f} of the ${limit:.2f} {name}; this call "
                                f"(${cost:.3f}) would pass it. No call made. "
@@ -879,9 +906,10 @@ def spend_reserve(cost, entry):
         d["spent_usd"] = round(d["spent_usd"] + cost, 6)
         d["cap_usd"] = cap
         d["openrouter_cap_usd"] = openrouter_cap()
+        d["fal_cap_usd"] = fal_cap()
         d["calls"].append(dict(entry, cost_usd=cost, status="reserved", ts=now_iso()))
         _write_spend(path, d)
-        return len(d["calls"]) - 1, (or_spent if on_or else other_spent) + cost, limit
+        return len(d["calls"]) - 1, spent + cost, limit
 
 
 def gemini_remaining():
@@ -894,6 +922,24 @@ def gemini_remaining():
         return cap - provider_spent(_read_spend(path))[1]
 
 
+def openrouter_remaining():
+    """USD left under OpenRouter's own cap (None when no counter is configured)."""
+    try:
+        path, _ = spend_settings()
+    except ImageRefused:
+        return None
+    with _SpendLock(path):
+        return openrouter_cap() - provider_spent(_read_spend(path))[0]
+
+
+def fal_model(model):
+    """fal's id for our model; ImageRefused for any model that is not one of the two Google image models."""
+    if model not in FAL_MODELS:
+        raise ImageRefused(f"FAL REFUSED: {model!r} is not one of the Google models fal may serve "
+                           f"({', '.join(FAL_MODELS)}); no fallback to another model")
+    return FAL_MODELS[model]
+
+
 def openrouter_model(model):
     """OpenRouter's id for our model; ImageRefused for any model that is not one of the two Google image models."""
     if model not in OPENROUTER_MODELS:
@@ -903,20 +949,34 @@ def openrouter_model(model):
 
 
 def pick_provider(provider, model, key_present=None):
-    """The provider that serves this call. An explicit openrouter is checked against the mapping. gemini moves to
-    OpenRouter only when its remaining cap is below the cost of OPENROUTER_NEAR_CALLS final calls, the model is
-    mapped and an OpenRouter key exists; otherwise it stays on gemini (no silent model change)."""
+    """The provider that serves this call. An explicit openrouter or fal is checked against its mapping. Order is
+    gemini, then OpenRouter, then fal: gemini moves to OpenRouter only when its remaining cap is below the cost of
+    OPENROUTER_NEAR_CALLS final calls, the model is mapped and an OpenRouter key exists; OpenRouter moves on to fal
+    only when OpenRouter's own remaining cap is also that low and a fal key exists. Otherwise no silent change.
+    key_present, for tests: dict of key name -> bool, or a bool for the OpenRouter key."""
     if provider == "openrouter":
         openrouter_model(model)
         return provider
-    if provider != "gemini" or model not in OPENROUTER_MODELS:
+    if provider == "fal":
+        fal_model(model)
         return provider
+    if provider != "gemini" or model not in OPENROUTER_MODELS or model not in FAL_MODELS:
+        return provider
+    def has(name):
+        if isinstance(key_present, dict):
+            return key_present.get(name, False)
+        if key_present is not None:
+            return key_present if name == "OPENROUTER_API_KEY" else False
+        return bool(keys.get(name))
     left = gemini_remaining()
     final_cost = image_price(tool("gemini-image"), IMAGE_TIERS["final"], "medium", "1024x1024", 0, "2K")
-    if left is None or left >= OPENROUTER_NEAR_CALLS * final_cost:
+    near = OPENROUTER_NEAR_CALLS * final_cost
+    if left is None or left >= near or not has("OPENROUTER_API_KEY"):
         return provider
-    has_key = keys.get("OPENROUTER_API_KEY") if key_present is None else key_present
-    return "openrouter" if has_key else provider
+    or_left = openrouter_remaining()
+    if or_left is not None and or_left < near and has("FAL_KEY"):
+        return "fal"
+    return "openrouter"
 
 
 def spend_settle(index, status, refund=False, cost=None, **extra):
@@ -955,7 +1015,7 @@ def log_image_prompt(root, prompt, provider, model, out, cost):
            "prompt": prompt}
     d = os.path.join(root, "Saved", "agent-log")
     os.makedirs(d, exist_ok=True)
-    with open(os.path.join(d, ts[:10] + ".jsonl"), "a", encoding="utf-8") as fh:
+    with _FILE_WRITES, open(os.path.join(d, ts[:10] + ".jsonl"), "a", encoding="utf-8") as fh:
         fh.write(json.dumps(rec, sort_keys=True) + "\n")
 
 
@@ -1049,6 +1109,31 @@ def openrouter_request(t, model, prompt, inputs, aspect, image_size, key):
     raise RuntimeError(f"openrouter returned no image (model={reply.get('model')!r}; error={str(reply.get('error'))[:160]!r})")
 
 
+def fal_request(t, model, prompt, inputs, aspect, image_size, key):
+    """One image through fal for the mapped Google model (never any other); inputs use the model's /edit route."""
+    import base64
+    body = {"prompt": prompt, "num_images": 1, "aspect_ratio": aspect, "output_format": "png"}
+    if image_size:
+        body["resolution"] = image_size
+    path = fal_model(model)
+    if inputs:
+        path += "/edit"
+        body["image_urls"] = [f"data:{_mime(f)};base64," + base64.b64encode(open(f, "rb").read()).decode() for f in inputs]
+    raw = http_post(FAL_ENDPOINT + path, {"Authorization": f"Key {key}", "Content-Type": "application/json"},
+                    json.dumps(body).encode())
+    reply = json.loads(raw)
+    for im in reply.get("images") or []:
+        url = im.get("url") or ""
+        if url.startswith("data:") and "," in url:
+            data = base64.b64decode(url.split(",", 1)[1])
+        elif url.startswith("https://"):
+            data = http_get(url, {})
+        else:
+            continue
+        return data, fal_model(model), {"description": str(reply.get("description") or "")[:200]}
+    raise RuntimeError(f"fal returned no image (model={fal_model(model)!r}; error={str(reply.get('detail') or reply.get('error'))[:160]!r})")
+
+
 def _multipart(fields, files):
     import uuid
     b = "----assetgen" + uuid.uuid4().hex
@@ -1139,6 +1224,8 @@ def cmd_image_model(a, argv, root, provider):
             data, version, meta = gemini_request(t, model, a.prompt, inputs, aspect, image_size, a.seed, k)
         elif provider == "openrouter":
             data, version, meta = openrouter_request(t, model, a.prompt, inputs, aspect, image_size, k)
+        elif provider == "fal":
+            data, version, meta = fal_request(t, model, a.prompt, inputs, aspect, image_size, k)
         else:
             data, version, meta = openai_request(t, model, a.prompt, inputs, a.size, a.quality, k)
     except Exception as e:   # noqa: BLE001  the call failed: settle the counter, report, never a placeholder
@@ -1159,16 +1246,17 @@ def cmd_image_model(a, argv, root, provider):
     else:
         seed = "none (no seed parameter)" if provider == "openai" else "none (seed not sent)"
     with open(os.path.splitext(a.out)[0] + ".request.json", "w", encoding="utf-8") as fh:
-        json.dump({"provider": provider, "tier": tier, "tool": t["name"] if provider != "openrouter" else OPENROUTER_INFO["name"],
-                   "model": model, "openrouter_model": OPENROUTER_MODELS.get(model) if provider == "openrouter" else None, "model_version": version,
+        json.dump({"provider": provider, "tier": tier, "tool": {"openrouter": OPENROUTER_INFO["name"], "fal": FAL_INFO["name"]}.get(provider, t["name"]),
+                   "model": model, "openrouter_model": OPENROUTER_MODELS.get(model) if provider == "openrouter" else None,
+                   "fal_model": FAL_MODELS.get(model) if provider == "fal" else None, "model_version": version,
                    "prompt": a.prompt, "seed": seed, "size": a.size, "quality": a.quality, "aspect_ratio": aspect,
                    "image_size": image_size,
                    "input_images": [rel(f, root) for f in inputs], "cost_usd": cost, "reply": meta,
                    "date": now_iso()}, fh, indent=1)
         fh.write("\n")
-    cap_name = "OpenRouter image cap" if provider == "openrouter" else "shared image cap"
+    cap_name = {"openrouter": "OpenRouter image cap", "fal": "fal image cap"}.get(provider, "shared image cap")
     write_provenance(root, a.out, tid, a.prompt, version, inputs=inputs, origin="generated in jam",
-                     info=OPENROUTER_INFO if provider == "openrouter" else None,
+                     info={"openrouter": OPENROUTER_INFO, "fal": FAL_INFO}.get(provider),
                      note=f"image model provider={provider} tier={tier} model={model}; ${cost:.3f} counted against the {cap_name}; full prompt in "
                           f"{rel(os.path.splitext(a.out)[0] + '.request.json', root)}", seed=seed)
     log_image_prompt(root, a.prompt, provider, version, a.out, cost)
@@ -1178,6 +1266,85 @@ def cmd_image_model(a, argv, root, provider):
           f"aspect={aspect or a.size} image_size={image_size or '-'} thinking_tokens={thoughts} cost=${cost:.3f} "
           f"spent=${spent:.3f} of ${cap:.2f} ({how})")
     return 0
+
+
+# ---------- batch: up to 4 paid generation calls at once (Josh, Nov 13) ----------
+BATCH_MAX_WORKERS = 4
+BATCH_PROVIDERS = ("gemini", "openai", "openrouter", "fal")   # paid calls only; Blender, keying, scans stay outside
+
+
+class _ThreadOut:
+    """sys.stdout that gives each batch thread its own buffer, so job lines never interleave."""
+
+    def __init__(self, real):
+        self.real, self.local = real, threading.local()
+
+    def write(self, s):
+        buf = getattr(self.local, "buf", None)
+        return buf.write(s) if buf is not None else self.real.write(s)
+
+    def flush(self):
+        self.real.flush()
+
+    def __getattr__(self, name):
+        return getattr(self.real, name)
+
+
+def batch_jobs(path):
+    """The jobs file: a JSON list; each job is the list of `image` arguments (strings) for one call."""
+    with open(path, encoding="utf-8") as fh:
+        jobs = json.load(fh)
+    if not isinstance(jobs, list) or not jobs or not all(isinstance(j, list) and all(isinstance(x, str) for x in j) for j in jobs):
+        raise ValueError(f"{path}: expected a non-empty JSON list of argument lists, e.g. [[\"--prompt\", \"..\", \"--out\", \"..\", \"--piece\", \"..\"]]")
+    return jobs
+
+
+def run_batch(jobs, root, workers):
+    """Run each job (an `image` argument list) through cmd_image on up to `workers` threads. Every job goes through the
+    same reserve -> call -> settle path as a single `image` call (file-locked counter, provider and per-piece caps,
+    draft-first, context-shot guard), so concurrency can never overspend; a refused or failed job does not stop
+    the others. Returns [(job index, exit code, output)] in job order."""
+    from concurrent.futures import ThreadPoolExecutor
+    workers = max(1, min(int(workers), BATCH_MAX_WORKERS))
+    proxy = _ThreadOut(sys.stdout)
+
+    def one(i):
+        buf = io.StringIO()
+        proxy.local.buf = buf
+        try:
+            args = parser().parse_args(["image"] + jobs[i])
+            if args.provider not in BATCH_PROVIDERS:
+                print(f"REFUSED: batch: provider {args.provider} is not a paid generation call; run it outside the batch")
+                rc = 2
+            else:
+                rc = cmd_image(args, ["image"] + jobs[i], root)
+        except SystemExit:
+            print(f"REFUSED: batch: job {i} has bad arguments")
+            rc = 2
+        except Exception as e:   # noqa: BLE001  one job's crash never stops the others
+            print(f"FAIL: batch job {i}: {type(e).__name__}: {str(e)[:200]}")
+            rc = 1
+        finally:
+            proxy.local.buf = None
+        return i, rc, buf.getvalue()
+
+    real, sys.stdout = sys.stdout, proxy
+    try:
+        with ThreadPoolExecutor(max_workers=workers) as ex:
+            return sorted(ex.map(one, range(len(jobs))))
+    finally:
+        sys.stdout = real
+
+
+def cmd_batch(a, argv, root):
+    results = run_batch(batch_jobs(a.jobs), root, a.workers)
+    for i, rc, out in results:
+        for line in out.splitlines():
+            print(f"[{i}] {line}")
+    bad = [i for i, rc, _ in results if rc]
+    print(f"BATCH {len(results) - len(bad)}/{len(results)} ok, {len(bad)} refused or failed"
+          + (f" (jobs {', '.join(map(str, bad))})" if bad else "") + f", workers={min(a.workers, BATCH_MAX_WORKERS)}")
+    return 1 if bad else 0
 
 
 def cmd_image_models(a, argv, root):
@@ -1435,10 +1602,13 @@ def figure_boxes(src, count, min_gap=6, min_px=50, cells=False, inset=0):
     return w, h, rows, boxes
 
 
-def split_strip(src, count, min_gap=6, pad=8, frame=None, min_px=50, cells=False, inset=0):
+def split_strip(src, count, min_gap=6, pad=8, frame=None, min_px=50, cells=False, inset=0,
+                register=True, band=None, span_mode="base"):
     """Cut a keyed strip (transparent background) of `count` figures side by side (or stacked when the strip is
-    taller than wide) into `count` equal frames. Each figure keeps its scale and is placed bottom-centre on one
-    baseline (fixed pivot). Returns (frames as (w, h, rows), stats)."""
+    taller than wide) into `count` equal frames. Each figure is placed bottom-centre on one baseline, then (register)
+    registered by tools/frame_register.py: scaled about its anchor (bottom-centre of the lowest `band` mask rows) to
+    the strip's median span and moved so every anchor sits on one pixel, which removes the frame-to-frame jitter a
+    painted strip has. Returns (frames as (w, h, rows), stats); stats["anchor"] goes to the sidecar."""
     w, h, rows, boxes = figure_boxes(src, count, min_gap, min_px, cells=cells, inset=inset)
     bw = max(b[2] - b[0] + 1 for b in boxes)
     bh = max(b[3] - b[1] + 1 for b in boxes)
@@ -1463,13 +1633,24 @@ def split_strip(src, count, min_gap=6, pad=8, frame=None, min_px=50, cells=False
     stats = {"frames": count, "frame": [fw, fh], "figure_heights": heights, "figure_widths": widths,
              "height_spread_pct": round(100.0 * (max(heights) - min(heights)) / max(heights), 1),
              "pivot": "bottom-centre", "cut": f"equal cells, inset {inset} px" if cells else "gaps"}
+    if register:
+        import frame_register as fr
+        frames, info = fr.register(frames, band=band or fr.BAND, span_mode=span_mode)
+        stats.update({"anchor": info["anchor"], "registration": {k: info[k] for k in ("span", "span_mode", "band", "frames")},
+                      "jitter": fr.jitter(frames, band=band or fr.BAND, span_mode=span_mode)})
+        edge = [i for i, (w_, h_, r_) in enumerate(frames)
+                if any(px[3] for px in r_[0]) or any(px[3] for px in r_[-1])
+                or any(row[0][3] or row[-1][3] for row in r_)]
+        if edge:
+            stats["registration"]["touches_edge"] = edge   # registration moved a figure into the frame edge: raise --pad
     return frames, stats
 
 
 def cmd_frames(a, argv, root):
     frame = tuple(int(v) for v in a.frame.lower().split("x")) if a.frame else None
     try:
-        frames, st = split_strip(a.inp, a.count, pad=a.pad, frame=frame, cells=a.cells, inset=a.inset)
+        frames, st = split_strip(a.inp, a.count, pad=a.pad, frame=frame, cells=a.cells, inset=a.inset,
+                                 register=not a.no_register, band=a.anchor_band, span_mode=a.span)
     except ValueError as e:
         print(f"FAIL: frames: {e}")
         return 1
@@ -1488,6 +1669,11 @@ def cmd_frames(a, argv, root):
         fh_.write("\n")
     print(f"FRAMES {a.count} from {rel(a.inp, root)} frame={st['frame'][0]}x{st['frame'][1]} "
           f"heights={st['figure_heights']} spread={st['height_spread_pct']}% -> {rel(a.out_dir, root)}")
+    if "anchor" in st:
+        print(f"REGISTERED anchor={st['anchor'][0]},{st['anchor'][1]} offset={st['jitter']['offset_px']:g}px "
+              f"scale_drift={st['jitter']['scale_pct']:.1f}%" +
+              (f" TOUCHES_EDGE frames {st['registration']['touches_edge']}: raise --pad"
+               if st["registration"].get("touches_edge") else ""))
     return 0
 
 
@@ -1541,6 +1727,16 @@ def cmd_sheet(a, argv, root):
         used = "python"
     side = {"kind": a.kind, "grid": [fw, fh], "frames": len(frames), "size": [fw, fh], "margin": 0, "spacing": 0,
             "loop": True, "anim": a.anim, "fps": a.fps}
+    for f in frames:   # the anchor `frames` registered the strip on (<stem>.frames.json beside the cut frames)
+        rec = os.path.join(os.path.dirname(f), re.sub(r"_\d+$", "", os.path.splitext(os.path.basename(f))[0]) + ".frames.json")
+        if os.path.isfile(rec):
+            with open(rec, encoding="utf-8") as fh_:
+                j = json.load(fh_)
+            if "anchor" in j:
+                side["anchor"] = j["anchor"]
+                side["anchor_band"] = j["registration"]["band"]
+                side["span_mode"] = j["registration"]["span_mode"]
+        break
     with open(os.path.splitext(a.out)[0] + ".sprite.json", "w", encoding="utf-8") as fh_:
         json.dump(side, fh_, indent=2)
         fh_.write("\n")
@@ -2034,7 +2230,7 @@ def parser():
     p.add_argument("--prompt", required=True)
     p.add_argument("--out", required=True)
     p.add_argument("--size", default="1024x1024")
-    p.add_argument("--provider", choices=("gemini", "openai", "openrouter", "blender", "placeholder", "reference"),
+    p.add_argument("--provider", choices=("gemini", "openai", "openrouter", "fal", "blender", "placeholder", "reference"),
                    default="gemini")
     p.add_argument("--tier", choices=tuple(IMAGE_TIERS), default="draft",
                    help="draft: gemini-2.5-flash-image (cheap); final: gemini-3-pro-image-preview (art_loop final candidates)")
@@ -2057,6 +2253,9 @@ def parser():
     p.add_argument("--piece", help="the video piece id (its own 1 USD cap in the shared counter)")
     p.add_argument("--model", help=f"only {FAL_VIDEO_MODEL} is accepted")
     p.add_argument("--seed", type=int)
+    p = sub.add_parser("batch")
+    p.add_argument("--jobs", required=True, help="JSON list; each job is one `image` argument list (paid providers only)")
+    p.add_argument("--workers", type=int, default=BATCH_MAX_WORKERS, help="concurrent calls, at most 4")
     p = sub.add_parser("clean")
     p.add_argument("--in", dest="inp", required=True)
     p.add_argument("--out", required=True)
@@ -2076,6 +2275,10 @@ def parser():
     p.add_argument("--cells", action="store_true",
                    help="cut into --count equal cells (thirds for 3), not at gaps: touching figures or a boxed strip")
     p.add_argument("--inset", type=int, default=0, help="with --cells: px dropped at every cell edge (box lines)")
+    p.add_argument("--no-register", action="store_true", help="skip frame registration (tools/frame_register.py)")
+    p.add_argument("--anchor-band", type=int, help="rows of the lowest mask part that make the anchor (default 8; "
+                   "a tall umbrella handle or long skirt may want more)")
+    p.add_argument("--span", default="base", help="what stands for scale: base (default), height, width or a row count")
     p = sub.add_parser("image-models")
     p = sub.add_parser("crop")
     p.add_argument("--in", dest="inp", required=True, help="the painted sheet (key-colour background)")
@@ -2133,7 +2336,7 @@ def parser():
     return ap
 
 
-CMDS = {"image": cmd_image, "video": cmd_video, "clean": cmd_clean, "sheet": cmd_sheet, "blender": cmd_blender,
+CMDS = {"image": cmd_image, "video": cmd_video, "batch": cmd_batch, "clean": cmd_clean, "sheet": cmd_sheet, "blender": cmd_blender,
         "frames": cmd_frames, "image-models": cmd_image_models, "crop": cmd_crop,
         "sfx": lambda a, v, r: cmd_audio(a, v, r), "music": lambda a, v, r: cmd_audio(a, v, r, music=True),
         "edit": cmd_edit, "capture": cmd_capture, "cut": cmd_cut, "zip": cmd_zip, "fulfil": cmd_fulfil}
