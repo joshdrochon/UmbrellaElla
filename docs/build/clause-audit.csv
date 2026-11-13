@@ -9,8 +9,8 @@ MOVE-11,same movement/controls asserted inside a boss encounter,i,move
 MOVE-11,same rules asserted inside a level route,i,move
 MOVE-12,"no ammo/energy for Stream, Twin, Needle (only Small tested)",i,move
 MOVE-13,same profile asserted in every level/boss encounter,i,move
-MOVE-15,hop protection actually blocks damage in Health,ii,move
-MOVE-15,hop vs post-hit protection asserted distinct,i,move
+MOVE-15,hop protection actually blocks damage in Health,proven,move
+MOVE-15,hop vs post-hit protection asserted distinct,proven,move
 MOVE-15,qualifying route rejects developer protection setting,i,move
 MOVE-19,right stick selects a spell,i,move
 MOVE-20,Absorb/Free fall disengage Ride (only Shoot tested),i,move
@@ -23,17 +23,17 @@ MOVE-22,effective profile recorded before qualifying play,i,move
 MOVE-22,encounter display vs collision scale tested independently,i,move
 COM-05,Stream/Twin/Needle never run out (only Small tested),i,move
 COM-05,catch gives no weapon charge,i,move
-COM-06,"fold-ready, snap open, pulse, cock, reset cycle tied to emission",ii,move
-COM-07,canopy strands converge around dark body (art),ii,move
-COM-07,shoulder-braced body family used for Stream,ii,move
+COM-06,"fold-ready, snap open, pulse, cock, reset cycle tied to emission",proven,move
+COM-07,canopy strands converge around dark body (art),proven,move
+COM-07,shoulder-braced body family used for Stream,proven,move
 COM-07,posture/art adds no damage or aim (beam),i,move
 COM-09,Needle penetrates wings during clock opening,i,move
 COM-09,Needle never bypasses clock protection/order,i,move
-COM-11,locked-weapon UI shows levels 1/10/20/30,ii,move
+COM-11,locked-weapon UI shows levels 1/10/20/30,proven,move
 COM-11,XP display derived from tuned curve,i,move
 COM-11,damage ranks applied once to baseline,i,move
-COM-11,RegularFall vs ShoulderFall poses per spell,ii,move
-COM-11,only Small uses fold/open/cock,ii,move
+COM-11,RegularFall vs ShoulderFall poses per spell,proven,move
+COM-11,only Small uses fold/open/cock,proven,move
 COM-11,required routes clearable with basic fire,i,move
 FLOW-05,Enemy HP/cadence/count multipliers applied to real enemies (GetRunScaling has no consumer),ii,progression
 FLOW-05,Ordinary firing cooldowns divided by cadence multiplier,ii,progression
@@ -415,12 +415,12 @@ COM-18,Courier need not die to supply healing,i,enemies2
 COM-18,descent window and left reset before every enemy,ii,enemies2
 HAZ-24,no horizontal whole-chunk mirror,i,levelchunks
 FLOW-30,clock HUD actually drawn in game (only layout math tested),i,move
-FLOW-30,"antique bronze/gold look, smoky translucent face, etched rim",ii,move
+FLOW-30,"antique bronze/gold look, smoky translucent face, etched rim",proven,move
 FLOW-30,warm gold upper-right arc,i,move
 FLOW-30,"no extra clocks, umbrella HUD units or numeric count",i,move
 FLOW-30,hands high-contrast/readable over face across scenes,i,move
 FLOW-31,life-loss transition adds no protection window,i,move
-FLOW-32,absorbed energy visibly flows into the clock,ii,move
+FLOW-32,absorbed energy visibly flows into the clock,proven,move
 FLOW-32,gold arc restores on heal / drains on hit,i,move
 FLOW-32,life hand unchanged on partial damage/heal,i,move
 FLOW-32,reserve handover shown without invulnerability/reset pause,i,move

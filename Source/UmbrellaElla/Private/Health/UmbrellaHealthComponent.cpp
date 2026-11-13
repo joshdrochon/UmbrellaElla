@@ -4,6 +4,7 @@
 #include "Core/UmbrellaTuning.h"
 #include "Engine/World.h"
 #include "Harness/UmbrellaFeatureFlags.h"
+#include "Health/UmbrellaHitProtectionSource.h"
 #include "Projectile/UmbrellaShotSpec.h"
 #include "Umbrella/UmbrellaPlayerIds.h"
 
@@ -92,6 +93,11 @@ EHitResult UUmbrellaHealthComponent::TakeHitAt(float RawDamage, FName SourceId, 
 	{
 		return EHitResult::Blocked;
 	}
+	// Hop protection (MOVE-15) is its own window: it blocks the hit and starts no post-hit window.
+	if (!bBypass && IsOwnerHitProtected())
+	{
+		return EHitResult::Blocked;
+	}
 	const FHealthTuning& Tuning = GetDefault<UUmbrellaTuning>()->Health;
 	const float Scaled = HealthRules::ScaleDamage(RawDamage, DefenseRank, Tuning);
 	if (Scaled <= 0.0f)
@@ -164,6 +170,25 @@ float UUmbrellaHealthComponent::GetLiftMultiplier() const
 		return 1.0f;
 	}
 	return HealthRules::LiftMultiplier(State, GetDefault<UUmbrellaTuning>()->Health.MinLift);
+}
+
+bool UUmbrellaHealthComponent::IsOwnerHitProtected() const
+{
+	const AActor* Owner = GetOwner();
+	if (!Owner || !IsFeatureEnabled(EFeatureId::MOVE_15))
+	{
+		return false;
+	}
+	TInlineComponentArray<UActorComponent*> Components(Owner);
+	for (const UActorComponent* Component : Components)
+	{
+		const IUmbrellaHitProtectionSource* Source = Cast<IUmbrellaHitProtectionSource>(Component);
+		if (Source && Source->IsProtectingFromHits())
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 float UUmbrellaHealthComponent::GetProtectionRemaining(double NowSeconds) const

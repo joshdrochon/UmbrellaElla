@@ -43,3 +43,25 @@ Shared test helper for other areas: `Private/Tests/Shared/UmbrellaTestWorld.h` (
 
 ## Settings integration (MOVE-17)
 Adapter applies saved bindings in BindInput via ApplySavedBindings (soft dependency on USettingsMenuSubsystem). Test: UmbrellaElla.Move.World.SavedRemapReachesLiveContext. Move tests: 26 pass.
+
+## Clause audit: every `ii` clause for lane move built (Nov 13)
+Each test was proven by breaking its code on purpose: with the code disabled the test FAILED (round 1: all 8 new tests
+failed; round 2: "only Small cycles" and the smoky face), then PASSED with the code restored
+(`TEST_FILTER=UmbrellaElla.Move+Health+UI+Feedback`: 118/118). Rows in `docs/build/clause-proof.csv`; tags set to `proven`.
+
+| Clause | Code | Test |
+|---|---|---|
+| MOVE-15 hop protection blocks damage in Health (+ i: distinct from post-hit) | `Health/UmbrellaHitProtectionSource.h` (interface, motor implements it), `UmbrellaHealthComponent::IsOwnerHitProtected` | `Move.World.HopProtectionBlocksHealthDamage` |
+| COM-06 fold-ready / snap open + pulse / cock / reset tied to emission | `Attack/SpellPresentation` canopy cycle, stepped and pulsed by the emitter | `Move.World.CanopyCycleTiedToEmission` |
+| COM-11 only Small uses fold/open/cock | same | `Move.SmallCanopyCycle` |
+| COM-07 shoulder-braced Stream; COM-11 RegularFall vs ShoulderFall | `SpellPresentationRules::BodyPoseFor`, `UAttackEmitterComponent::GetBodyPose` | `Move.World.SpellBodyPoses` |
+| COM-07 canopy strands converge around a dark body | `SpellPresentationRules::BeamStrands`, strand parts in `AStreamBeamActor` (dark body, no collision) | `Move.World.StreamStrandsConvergeOnDarkBody` |
+| COM-11 locked-weapon UI shows 1/10/20/30 | `SpellPresentationRules::WheelEntries`, wheel drawn by `AUmbrellaHUD` while open | `Move.WheelShowsUnlockLevels` |
+| FLOW-30 bronze/gold, smoky translucent face, etched rim | `ClockHudRules::BuildDialPlan` (smoky face always under the art; etched ring + 48 fine marks) | `Move.ClockDialLook` |
+| FLOW-32 absorbed energy flows into the clock | HUD listens to PlayerHealthChanged `Heal` only; motes from Ella to the clock (`ClockHudRules::StepEnergy/EnergyPosition`) | `Move.World.HealEnergyFlowsIntoClock` |
+
+Lane note: FLOW-30/32 live in `UI/` and `Health/` (health's files); the lead moved those clauses to lane move (9e65976a).
+Open for the presenter (Feedback lane): read `GetBodyPose()` and `GetCanopyPhase()` to pick the RegularFall/ShoulderFall
+and fold/open/cock pictures; nothing draws them on Ella yet. Strands and the wheel are code-built stand-ins, not passed art.
+Prototype defaults (no GDD number): canopy open 0.06 s + cock 0.08 s, 4 strands, energy flow 0.5 s, wheel label "Lv N".
+Not run: on-screen check of the wheel, motes and dial (no canvas in tests).
