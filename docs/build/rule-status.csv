@@ -1,7 +1,7 @@
 id,area,status,evidence,note,owner
-FLOW-02,flow,built,Flow.TitleStartsPlaying; Flow.World.StartGameReachesFight; Flow.World.DirectorsCutReachesSameFight,,
-FLOW-03,flow,built,Flow.TutorialPauseSkip; Flow.World.TutorialFirstStartSkippable,tracking/replay left OPEN in GDD,
-FLOW-04,flow,built,Flow.WinStoryThenCredits; Flow.World.EncounterCompletedReachesCredits,Credits carry placeholder names for Josh to supply,
+FLOW-02,flow,partial,Flow.TitleStartsPlaying; Flow.World.StartGameReachesFight; Flow.World.DirectorsCutReachesSameFight,unproven: Director's Cut arrives at the Keeper with wings still to destroy; no boss-specific tutorial on Director's Cut arrival,titlemusic
+FLOW-03,flow,partial,Flow.TutorialPauseSkip; Flow.World.TutorialFirstStartSkippable,unproven: Director's Cut tutorial Skip begins the first level (only Resuming asserted); both tutorials teach the same controls (only page counts compared) | was: tracking/replay left OPEN in GDD,titlemusic
+FLOW-04,flow,partial,Flow.WinStoryThenCredits; Flow.World.EncounterCompletedReachesCredits,unproven: credits roll with music; credits use the Start screen background | was: Credits carry placeholder names for Josh to supply,titlemusic
 MOVE-04,move,built,Move.DefaultBindings; Move.World.InputAssetsBuilt,hardware input not run,
 MOVE-05,move,built,Move.DefaultBindings; Move.World.InputAssetsBuilt,hardware input not run,
 MOVE-06,move,built,Move.DefaultBindings; Move.World.InputAssetsBuilt,hardware input not run,
@@ -145,31 +145,31 @@ FLOW-28,arena,partial,Level.CheckpointsAndHandoff; Flow.World.RetryOnRoutePlaces
 FLOW-29,progression,built,Progression.World.PurchaseNeedsContext,,
 NAR-02,story,built,Story.StartGameHasNoStory; Story.InPlayCues; Story.World.ReactsToBus,text captions only; voice optional later,
 NAR-03,story,built,Story.CueTable; story_check PASS,"blind story critic failed the ""Mother:"" label; logged as critic defect (requests/storyship.md)",
-NAR-04,story,built,Story.OpeningOncePerRun; Story.SkipRules; Flow.World.OpeningSkipGoesToStory,Flow routes the skip press (dcb08d4); 95 tests PASS on 1ab85de,
+NAR-04,story,partial,Story.OpeningOncePerRun; Story.SkipRules; Flow.World.OpeningSkipGoesToStory,unproven: start confirmation consumed so it cannot also fire/hop | was: Flow routes the skip press (dcb08d4); 95 tests PASS on 1ab85de,settings2
 NAR-05,story,partial,Story.InPlayCues,caption stand-in; the light shaft and umbra visual is not built,artfx;storyflow
 NAR-06,story,partial,Story.ClueOnPhaseStartedWings,caption stand-in; clock-hand and bronze shaft visual clue needs Keeper art,artkeeper
-NAR-07,story,built,Story.EndingSequence; Flow.EndingTimelineRules; Flow.World.DirectorsCutEndingOneTimeline; Flow.World.LaterWinSkipsToStatistics,one ending timeline owned by Flow (dcb08d4); 95 tests PASS on 1ab85de,
+NAR-07,story,partial,Story.EndingSequence; Flow.EndingTimelineRules; Flow.World.DirectorsCutEndingOneTimeline; Flow.World.LaterWinSkipsToStatistics,unproven: Keeper withdraws alive into darkness | was: one ending timeline owned by Flow (dcb08d4); 95 tests PASS on 1ab85de,agentplay
 NAR-08,story,built,Story.OpeningOncePerRun; Story.LateModeSelectedShowsOpeningOnce,"retry sends no ModeSelected, new run sends one",
 FLOW-30,health,built,Health.ClockHudInsideSixteenByNineView; Health.ClockHudTextAtLeast18Px,HUD not seen on screen,
 FLOW-48,progression,partial,Progression.RingFillAndMax,UXpRingWidget drawn and shown in Director's Cut; no test reads the drawing; look not passed,artui
 FLOW-31,health,built,Health.LifeHandAdvancesTowardXIIAndEndsAtXII; Health.World.LastLifeBroadcastsDefeatedOnce,life-hand angles open (requests/health.md),
 FLOW-32,health,built,Health.DrawnHandFollowsWithoutGameplayDelay; Health.World.FullHealthCatchIsValidAndNotHealing,,
 FLOW-33,health,built,Health.DamageScaleByDefenseRank; Health.DamageOverflowCarriesAcrossLives,,
-FLOW-34,flow,built,Flow.TitleStartsPlaying; Flow.StartAndPauseDesignRetained,,
-FLOW-35,flow,built,Flow.PauseCycle; Flow.World.MenuBlocksGameplayInput,"drifting background, not seen on screen",
+FLOW-34,flow,partial,Flow.TitleStartsPlaying; Flow.StartAndPauseDesignRetained,"unproven: title music plays; background moves slowly; background art contains no characters; second button label is 'Director's Cut', GDD says 'Start Director's Cut'",titlemusic
+FLOW-35,flow,partial,Flow.PauseCycle; Flow.World.MenuBlocksGameplayInput,"unproven: Quit exits the game; pause background animates ticking clocks and falling objects; pause background motion never advances gameplay | was: drifting background, not seen on screen",titlemusic
 FLOW-36,settings,built,Settings.PagesByMode; Settings.SaveAppliesCurrentPage; Settings.BackDiscardsUnsaved; Settings.SliderRange; Settings.Credits,Slate layout not seen on screen,
 FLOW-37,settings,built,Settings.PagesByMode; Settings.SaveAppliesCurrentPage; Settings.BackDiscardsUnsaved; Settings.SliderRange; Settings.Credits,Slate layout not seen on screen,
 FLOW-38,settings,built,Settings.PagesByMode; Settings.SaveAppliesCurrentPage; Settings.BackDiscardsUnsaved; Settings.SliderRange; Settings.Credits,Slate layout not seen on screen,
-FLOW-39,settings,built,Settings.Credits,"Rick Rispoli is Executive Producer (D-new-credits-ep)",
-FLOW-40,settings,built,Settings.PagesByMode; Settings.SaveAppliesCurrentPage; Settings.BackDiscardsUnsaved; Settings.SliderRange; Settings.Credits,Slate layout not seen on screen,
-FLOW-49,story,built,Story.JourneyStatistics; Flow.World.DirectorsCutEndingOneTimeline,Journey Complete follows Flow credits; Try Again / Main Menu bound (dcb08d4); keyboard focus on the widget is an artui follow-up,
+FLOW-39,settings,partial,Settings.Credits,"unproven: Richard - Producer credit line; end credits roll (FlowStoryText) lists the full team, only one role checked | was: Rick Rispoli is Executive Producer (D-new-credits-ep)",settings2
+FLOW-40,settings,partial,Settings.PagesByMode; Settings.SaveAppliesCurrentPage; Settings.BackDiscardsUnsaved; Settings.SliderRange; Settings.Credits,"unproven: each page (Sound, Controller, Credits, Game Options) shows Back and Save buttons | was: Slate layout not seen on screen",settings2
+FLOW-49,story,partial,Story.JourneyStatistics; Flow.World.DirectorsCutEndingOneTimeline,unproven: title text 'Journey Complete'; Main Menu button; approved Gothic storybook look; readable controller/keyboard focus | was: Journey Complete follows Flow credits; Try Again / Main Menu bound (dcb08d4); keyboard focus on the widget is an artui follow-up,settings2
 FLOW-41,flow,built,Flow.TitleStartsPlaying; Flow.StartAndPauseDesignRetained,,
 FLOW-42,progression,built,Progression.DraftStagesWithoutChangingLiveValues; Flow.PurchaseScreenReturnsToTitle; Flow.World.LeavingPurchaseDiscardsDraft,layout never seen; level-up widget not wired,
-FLOW-43,settings,built,Settings.PagesByMode; Settings.SaveAppliesCurrentPage; Settings.BackDiscardsUnsaved; Settings.SliderRange; Settings.Credits,Slate layout not seen on screen,
+FLOW-43,settings,partial,Settings.PagesByMode; Settings.SaveAppliesCurrentPage; Settings.BackDiscardsUnsaved; Settings.SliderRange; Settings.Credits,unproven: dirty Back 'Save' choice saves; named setups independent of earned character state; HP-max tuning requires explicit encounter restart; reset never erases the earned profile | was: Slate layout not seen on screen,settings2
 FLOW-44,settings,partial,Settings.PagesByMode,candidate option names only; contents OPEN in GDD,settings2
 FLOW-45,settings,partial,Settings.World.ReducedFlashReachesVfx,"reduced flash wired; Settings exposes GetSavedTextScalePercent/IsReducedMotionSaved but no HUD, XP ring or Flow screen calls them (grep on main 1ab85de); requests/settings.md item 6 not applied",settings2
 ART-03,arena,built,Feedback.World.PresenterStandIn,stand-in box when no art,
-ART-04,flow,built,Flow.World.StartGameReachesFight (shared background),,
+ART-04,flow,partial,Flow.World.StartGameReachesFight (shared background),unproven: credits/End screen uses the Start background (only Story+Title flag tested); background moves slowly; background art contains no characters,titlemusic
 ART-05,visuals,partial,,no art-loop pass on main; Ella mode readability is the artella pieces,artella
 ART-06,visuals,partial,,no art-loop pass on main; overall look carried by the scene pieces,artscene
 ART-07,visuals,partial,,camera-scale review and target resolutions/aspect not in any art brief,artenemy
