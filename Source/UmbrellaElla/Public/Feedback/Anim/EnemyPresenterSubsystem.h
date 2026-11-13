@@ -7,6 +7,8 @@
 
 class AUmbrellaEnemy;
 class UStaticMeshComponent;
+class UTexture2D;
+enum class EArtSlotDraw : uint8;
 
 namespace UmbrellaEnemyPresenterConst
 {
@@ -37,6 +39,12 @@ public:
 
 	/** Attach the stand-in to an enemy (safe to call twice). */
 	void ShowStandIn(AUmbrellaEnemy* Enemy);
+
+	/** Swap the stand-in for a picture (the slot load does this at spawn; tests pass a transient texture). */
+	EArtSlotDraw ShowArt(AUmbrellaEnemy* Enemy, UTexture2D* Texture);
+
+	/** Art slot id for a type and gender, e.g. "enemy:SundialCaster:Female". Pure. */
+	static FString VisualIdFor(EEnemyType Type, EEnemyGender Gender);
 
 	/** Apply the enemy's current state to its stand-in. */
 	void Refresh(AUmbrellaEnemy* Enemy);
