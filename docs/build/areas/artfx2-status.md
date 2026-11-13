@@ -69,3 +69,10 @@
 
 ## Slice 12 (Nov 13): no change, still blocked
 - Merged main and artslots: up to date. No paint, no spend. Blockers unchanged from slice 11 (import_art_candidate exits without importing, so no capture and no panel; keeper-warning flat at 3 flash drafts; shared spend near cap). All 8 pieces remain `_PH`.
+
+## Slice 13 (Nov 13): merged main, PresenterStandIn passes, keeper-warning draft 4
+- Merged origin/main (conflicts in tools/assetgen.py and tests/test_assetgen_video.py: took main's). 73 untracked artvideo files that blocked the merge were moved to `../logs/artfx2-untracked-backup`. references.json merged clean (bar-casters-vfx kept).
+- PresenterStandIn: build exit 0; `UmbrellaElla.Feedback` PASS 39/39 at the merged tip, including `Feedback.World.PresenterStandIn`. Main's test already skips stand-in checks when Ella idle art exists; no code change needed from this lane.
+- vfx-keeper-warning draft 4 (flash $0.039, `KeeperWarning/prompt.v4.txt`, sheet4): art_judge 0.594 vs min 0.699, best so far (0.462/0.568/0.515/0.594), still no pass. No panel, nothing shipped.
+- Spend 33.57 of 33.82 (shared). About 0.25 left, so I stopped painting instead of draining the cap on a flat piece.
+- Left: all 8 pieces `_PH`. Needs more spend cap (or a pro-tier try) and the in-engine capture (import_art_candidate) for the panel.
