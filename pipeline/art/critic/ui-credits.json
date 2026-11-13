@@ -43,6 +43,47 @@
    "commit": "d7982cdeeb7a",
    "gap": "X's credits are plain default sans-serif text with placeholder brackets and no etched, aged-paper lettering or layout hierarchy; X sets its names in plain flat sans-serif with no etched or ink character and weak hierarchy, and the lettering sits loosely over the painting.; X sets its credits in plain flat sans-serif with no etched or inked lettering, no gold/rust accents, and no ornament or hierarchy tying it to the painted ground.; Y's credits are plain default sans-serif lines with placeholder text, with no etched or gold-accented lettering, no hierarchy and no finish on the painted ground.; X sets the names in plain default sans type, with placeholder text left in and no etched or gold-edged lettering, and the text doesn't sit well on the painted ground.",
    "at": "2026-11-13T06:08:00Z"
+  },
+  {
+   "piece": "ui-credits",
+   "round": 2,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "ours",
+    "reference": "reference"
+   },
+   "panel": 3,
+   "calibration": {
+    "sessions": 6,
+    "passed": 6
+   },
+   "missing": [
+    "reference:pipeline/art/reference/discord/20261112-0443_Ricky_title-screen.png"
+   ],
+   "critic_sessions": [
+    "ui-credits-r2-00-reference-c1",
+    "ui-credits-r2-00-reference-c2",
+    "ui-credits-r2-00-reference-c3",
+    "ui-credits-r2-01-quality_bar-c1",
+    "ui-credits-r2-01-quality_bar-c2",
+    "ui-credits-r2-01-quality_bar-c3"
+   ],
+   "manifest": "",
+   "evidence": "",
+   "prompt": "",
+   "files": "5998d53d1479ca582bbb4ecc395ff74cc1aa72ef8f55ff4270f1475219acd946",
+   "file": "pipeline/art/proof/artui2/ui-credits/capture_credits.png",
+   "card": "artui",
+   "refs": "669f6f2ac14d",
+   "commit": "6e0574f70e6c",
+   "gap": "Y's credit lettering is a plain, evenly spaced serif on a muddy ground, with no etched or gilded finish, no hierarchy and no framing, so it reads as unfinished (placeholder brackets included).; Y's credits are plain, evenly weighted type with no hierarchy, no gold or rust accents and no etched ornament, and bracketed placeholder text shows in the lettering.",
+   "at": "2026-11-13T07:07:54Z"
   }
  ]
 }
