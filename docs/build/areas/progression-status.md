@@ -77,3 +77,11 @@ Still `ii` (12), blocked on other lanes (exact diffs in `docs/build/requests/pro
 Defaults I chose (yours to change): Final Hour intro stays 4 s then removes itself, no skip input, shown every Extreme run start
 (GDD leaves duration/skip/repeat OPEN). Tutorial replay starts on `ModeSelected` Detail containing `Tutorial` (flow does not send it yet).
 Not run: PIE/visual check of the intro and review block.
+
+## Keeper clauses (Nov 13, lead queue top)
+Evidence: `build exit: 0`; `UmbrellaElla.Progression` PASS tests=38 failed=0; break build (no capacity push on retry, no keeper part XP) failed exactly
+`KeeperRetryRestoresEllaCapacity` and `KeeperEventStringsDriveXpAndCheckpoints` (2/38), restored. Not run: module_check, PIE.
+- OWL-06, OWL-10 retained/restored capacity: boss retry puts the checkpoint's max lives and hit capacity back on Ella, level retry keeps a purchase
+  (`World.KeeperRetryRestoresEllaCapacity`; code already in `RetryFromCheckpoint` -> `NotifyChanged`).
+- OWL-35 XP policy: keeper parts pay 60/60/80/100/150, eye 0, rollback pays again (`World.KeeperEventStringsDriveXpAndCheckpoints`).
+- Request 7 ordering (Health heals after this rollback) is still Health's lane; Progression applies capacity synchronously on the same event.

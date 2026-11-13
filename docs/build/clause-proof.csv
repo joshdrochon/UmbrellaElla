@@ -33,3 +33,6 @@ FLOW-42,Review screen shows complete costs and effects,test:UmbrellaElla.Progres
 SURV-06,+1 life per point (lives value after purchase),test:UmbrellaElla.Progression.World.LifePurchaseRaisesEllaLives
 FLOW-06,Final Hour intro screen shown before the Extreme run,test:UmbrellaElla.Progression.World.FinalHourIntroBeforeExtremeRun
 FLOW-06,Exact text 'Your borrowed time has run its course...' shown,test:UmbrellaElla.Progression.World.FinalHourIntroBeforeExtremeRun
+OWL-06,"Retained/restored capacity, max lives, upgrades on retry",test:UmbrellaElla.Progression.World.KeeperRetryRestoresEllaCapacity
+OWL-10,"Retained/restored capacity, max lives, upgrades on retry",test:UmbrellaElla.Progression.World.KeeperRetryRestoresEllaCapacity
+OWL-35,XP policy applied,test:UmbrellaElla.Progression.World.KeeperEventStringsDriveXpAndCheckpoints

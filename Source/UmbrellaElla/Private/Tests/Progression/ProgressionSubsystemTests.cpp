@@ -474,6 +474,53 @@ bool FProgWorldLivesToHealth::RunTest(const FString& Parameters)
 	return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FProgWorldRetryCapacity, "UmbrellaElla.Progression.World.KeeperRetryRestoresEllaCapacity", EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+bool FProgWorldRetryCapacity::RunTest(const FString& Parameters)
+{
+	// OWL-06 / OWL-10: a Keeper retry uses the checkpoint-restored capacity and max lives (boss checkpoint rolls a later
+	// purchase back); a level checkpoint retains it. Progression pushes the result to Ella before she is healed.
+	FProgressionRig Rig;
+	if (!TestNotNull(TEXT("bus"), Rig.Bus))
+	{
+		return false;
+	}
+	FActorSpawnParameters Params;
+	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	AEllaCharacter* Ella = Rig.World->SpawnActor<AEllaCharacter>(AEllaCharacter::StaticClass(), FTransform(FVector::ZeroVector), Params);
+	if (!TestNotNull(TEXT("ella"), Ella) || !TestNotNull(TEXT("health"), Ella->GetHealth()))
+	{
+		return false;
+	}
+	Rig.StartDirectorsCut();
+	Rig.Kill(TEXT("Clock"));
+	Rig.Kill(TEXT("Clock"));
+	FPurchaseContext Refuge;
+	Refuge.Kind = EPurchaseContextKind::SafeRefuge;
+	Rig.Progression->SetPurchaseContext(Refuge);
+	const int32 LivesTrack = static_cast<int32>(EProgressionTrack::Lives);
+	const int32 HitsTrack = static_cast<int32>(EProgressionTrack::HitCapacity);
+	TArray<int32> Want = Rig.Progression->GetEffectiveProfile().Ranks;
+	Rig.Send(EUmbrellaEventType::CheckpointReached, TEXT("Phase2"));
+	Want[LivesTrack] = 1;
+	Want[HitsTrack] = 1;
+	TestEqual(TEXT("buy after the boss checkpoint"), static_cast<int32>(Rig.Progression->CommitRanks(Want)), static_cast<int32>(EProgressionCommit::Ok));
+	TestEqual(TEXT("four lives before the loss"), Ella->GetHealth()->GetState().MaxLives, 4);
+	TestEqual(TEXT("four hits before the loss"), Ella->GetHealth()->GetState().Capacity, 4.0f, 1e-4f);
+	Rig.Send(EUmbrellaEventType::CheckpointRetried, TEXT("Phase2"));
+	TestEqual(TEXT("keeper retry restores the checkpoint's max lives"), Ella->GetHealth()->GetState().MaxLives, 3);
+	TestEqual(TEXT("keeper retry restores the checkpoint's capacity"), Ella->GetHealth()->GetState().Capacity, 3.0f, 1e-4f);
+
+	// Retained: a purchase made before a level checkpoint is kept by a level retry.
+	Rig.StartDirectorsCut();
+	TestEqual(TEXT("buy before a level checkpoint"), static_cast<int32>(Rig.Progression->CommitRanks(Want)), static_cast<int32>(EProgressionCommit::Ok));
+	Rig.Send(EUmbrellaEventType::CheckpointReached, TEXT("CP1"));
+	Rig.Send(EUmbrellaEventType::CheckpointRetried, TEXT("CP1"));
+	TestEqual(TEXT("level retry keeps the max lives"), Ella->GetHealth()->GetState().MaxLives, 4);
+	TestEqual(TEXT("level retry keeps the capacity"), Ella->GetHealth()->GetState().Capacity, 4.0f, 1e-4f);
+	Ella->Destroy();
+	return true;
+}
+
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FProgWorldFinalHourIntro, "UmbrellaElla.Progression.World.FinalHourIntroBeforeExtremeRun", EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
 bool FProgWorldFinalHourIntro::RunTest(const FString& Parameters)
 {
