@@ -85,3 +85,10 @@ Evidence: `build exit: 0`; `UmbrellaElla.Progression` PASS tests=38 failed=0; br
   (`World.KeeperRetryRestoresEllaCapacity`; code already in `RetryFromCheckpoint` -> `NotifyChanged`).
 - OWL-35 XP policy: keeper parts pay 60/60/80/100/150, eye 0, rollback pays again (`World.KeeperEventStringsDriveXpAndCheckpoints`).
 - Request 7 ordering (Health heals after this rollback) is still Health's lane; Progression applies capacity synchronously on the same event.
+
+## Lead resume (Nov 13, origin/main beccfa60): blocked
+All 12 remaining `ii` clauses of lane progression (FLOW-05 x7, FLOW-06 x2, FLOW-17 health fraction, FLOW-21 x2) need code in other lanes.
+Checked on origin/main: no file outside `Progression/` calls `GetRunScaling`, `ScaledHp` or `ScaledFiringCooldown` (request 3, enemies/keeper/level
+lanes), and `UUmbrellaHealthComponent::SetCapacity` still clamps Active (`UmbrellaHealthComponent.cpp:156`, request 4, health lane).
+The progression rule functions and their tests are done. Nothing left I can build in my lane for `ii`; the 28 `i` clauses (code there, test
+missing) were not in this brief.
