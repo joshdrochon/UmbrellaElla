@@ -55,8 +55,10 @@ public:
 	static constexpr float MinHealthLeft = 0.1f;
 	/** Spacing of the camera-lead and frame samples along the route, world units. */
 	static constexpr float LeadSampleStep = 100.0f;
-	/** Room X where the broken-mill run starts Ella, left of the firing column. */
-	static constexpr float RoomStartX = 640.0f;
+	/** The broken-mill run starts Ella this far inside the commit region's left edge (ActivationX.X), where a natural pass starts. */
+	static constexpr float RoomStartEntryOffset = 10.0f;
+	/** Room height where the broken-mill run starts Ella (enemies2 request item 3). */
+	static constexpr float RoomStartZ = 680.0f;
 	/** Health damage taken before the carry-health measurement. */
 	static constexpr float CarryDamage = 1.0f;
 	/** The low-health run starts with this share of one life. */

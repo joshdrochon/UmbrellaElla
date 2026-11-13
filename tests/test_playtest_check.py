@@ -36,6 +36,12 @@ class T(unittest.TestCase):
         r = pc.evaluate(GOOD.replace("required_current_active=1", "required_current_active=0"))
         self.assertFalse(r["CAM-07"]["pass"])
 
+    def test_persist_dead_ticks_fail_even_when_cleared(self):
+        line = "PLAYTEST_CAM07 case=persist samples=80 samples_live=0 required_current_active=0 challenge_clear=1"
+        self.assertFalse(pc.evaluate(GOOD + line)["CAM-07"]["pass"])
+        ok = "PLAYTEST_CAM07 case=persist samples=80 samples_live=80 required_current_active=1 challenge_clear=1"
+        self.assertTrue(pc.evaluate(GOOD + ok)["CAM-07"]["pass"])
+
     def test_teleport_fails(self):
         r = pc.evaluate(GOOD.replace("teleport=0", "teleport=1", 1))
         self.assertFalse(r["HAZ-16"]["pass"])

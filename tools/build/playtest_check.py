@@ -105,6 +105,9 @@ def check_cam07(recs):
     for r in recs:
         if r.get("challenge_clear") != "1" and r.get("required_current_active") != "1":
             errs.append("required current gone before challenge clear")
+        # A clear at the end does not excuse ticks where the current was off while the guard lived.
+        if r.get("case") == "persist" and _f(r, "samples") > 0 and _f(r, "samples_live") < _f(r, "samples"):
+            errs.append("required current live on %s of %s ticks while the guard lived" % (r.get("samples_live"), r.get("samples")))
     return errs
 
 
