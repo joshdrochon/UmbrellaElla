@@ -55,3 +55,10 @@ Rule IDs: ART-05..ART-10, ANIM-02..ANIM-08, BG-02..BG-06, VFX-02/03, FLOW-25.
 - Run (at a793e2b0/efdf7bd7): Feedback PASS 41/41; module_check 0; `art_slots.py check` PASS (107 slots).
 - Not run: in-game capture with real art (assets for several slots do not exist yet).
 - Left: nothing in the brief with an asset-independent consumer missing.
+
+## Session 7 (Nov 13): review round 1 fixes
+- ui:clock-face now top-left; ui:xp-ring shows only in Director's Cut (`bDirectorOnly`, mode read from the controller).
+- ella:mode-transition no longer driven by ModeSelected (that is the menu pick). It stays unconsumed until a rise/fall/fire/absorb mode-change event exists.
+- Keeper masks: a single layer shown while any part is destroyed; reset on spawn and on CheckpointRetried. It is a single-layer approximation of the 7/6/4/0 steps (no per-part count event).
+- WorldArt: a piece joins `Done` only after Apply draws it. Overlay depth constant renamed `OverlayDepthStep`.
+- Open: `CriticalFraction` (1/3) is a visual trigger only, not a gameplay threshold (ANIM-04). `ui:spell-wheel` stays on Purchase/LevelUp: no spell-wheel screen exists, those are the nearest screens (call for the Producer).
