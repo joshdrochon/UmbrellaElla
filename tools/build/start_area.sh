@@ -36,16 +36,26 @@ if [ ! -f "docs/build/areas/$A.md" ] && [ -n "${2:-}" ]; then
 fi
 # Own session (setsid): a worker must never die with the shell, tool call or helper script that started it
 # (Nov 12 20:29: ~10 workers died silently together). The exit line records how each worker ended.
-export WORKER_PROMPT="$PROMPT" WORKER_MODEL_ID="$MODEL" WORKER_LOG="$BASE/logs/$A.log"
+export WORKER_PROMPT="$PROMPT" WORKER_MODEL_ID="$MODEL" WORKER_LOG="$BASE/logs/$A.log" WORKER_STOP="$BASE/.stop-$A"
+rm -f "$BASE/.stop-$A"   # an intentional stop (lead, switch, pause) touches this file before killing; then no resume
 env -u CLAUDECODE -u CLAUDE_CODE_ENTRYPOINT nohup python3 -c '
 import os, signal, subprocess, sys, time
 os.setsid()
 for s in (signal.SIGHUP, signal.SIGINT): signal.signal(s, signal.SIG_IGN)
 log = open(os.environ["WORKER_LOG"], "a")
-p = subprocess.Popen(["claude", "-p", os.environ["WORKER_PROMPT"], "--permission-mode", "bypassPermissions",
-                      "--disallowedTools", "Bash(git push:*)", "--model", os.environ["WORKER_MODEL_ID"]],
-                     stdout=log, stderr=subprocess.STDOUT)
-rc = p.wait()
-log.write("\nWORKER_EXIT rc=%s signal=%s at %s\n" % (rc, -rc if rc < 0 else 0, time.strftime("%H:%M:%S"))); log.close()
+prompt = os.environ["WORKER_PROMPT"]
+for attempt in range(3):
+    p = subprocess.Popen(["claude", "-p", prompt, "--permission-mode", "bypassPermissions",
+                          "--disallowedTools", "Bash(git push:*)", "--model", os.environ["WORKER_MODEL_ID"]],
+                         stdout=log, stderr=subprocess.STDOUT)
+    rc = p.wait()
+    log.write("\nWORKER_EXIT rc=%s signal=%s at %s\n" % (rc, -rc if rc < 0 else 0, time.strftime("%H:%M:%S"))); log.flush()
+    # Killed from outside (SIGTERM 143 / signal) mid-work: resume once more, up to 3 runs (Nov 12: mass SIGTERM 20:29, 22:15).
+    if (rc not in (143, 137) and rc >= 0) or os.path.exists(os.environ["WORKER_STOP"]):
+        break
+    log.write("WORKER_RESUME after outside kill (run %d)\n" % (attempt + 2)); log.flush(); time.sleep(20)
+    prompt = ("Lead: your previous session was killed from outside mid-work. Resume exactly where your status file and git log "
+              "say you were; commit anything finished first. Original brief follows.\n\n" + os.environ["WORKER_PROMPT"])
+log.close()
 ' >/dev/null 2>&1 &
 echo "$A worker ($MODEL) pid $! worktree $WT log $BASE/logs/$A.log"
