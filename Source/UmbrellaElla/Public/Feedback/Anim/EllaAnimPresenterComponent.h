@@ -62,6 +62,12 @@ public:
 	/** True while the stand-in quad shows a state picture from the art slots (T_Ella_<State>[_PH]). */
 	bool IsShowingArt() const;
 
+	/** Slot name of a state's flipbook (Open, Attack, Shield, Closed); empty when the state has none. Pure. */
+	static FString FlipbookSlotName(EEllaVisualState State);
+
+	/** Object paths tried for a state's flipbook: FB_Ella_<Name>_PH first, then FB_Ella_<Name>. Pure. */
+	static TArray<FString> FlipbookSlotPaths(EEllaVisualState State);
+
 	/** Set the picture for a state (what the slot load does; tests pass a transient texture). Idle also draws the stand-in as art. */
 	void SetStateTexture(EEllaVisualState State, UTexture2D* Texture);
 
@@ -82,6 +88,7 @@ private:
 	void HandleEvent(const FUmbrellaEvent& Event);
 	void ApplyState();
 	void LoadSlotArt();
+	void LoadSlotFlipbooks();
 	void DrawArt();
 	UTexture2D* TextureForState(EEllaVisualState State) const;
 

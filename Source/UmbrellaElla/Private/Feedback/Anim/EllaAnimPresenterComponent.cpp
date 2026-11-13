@@ -44,6 +44,61 @@ UTexture2D* UEllaAnimPresenterComponent::TextureForState(EEllaVisualState State)
 	return Idle ? Idle->Get() : nullptr;
 }
 
+FString UEllaAnimPresenterComponent::FlipbookSlotName(EEllaVisualState State)
+{
+	switch (State)
+	{
+	case EEllaVisualState::Idle:
+		return TEXT("Open");
+	case EEllaVisualState::Shoot:
+		return TEXT("Attack");
+	case EEllaVisualState::Absorb:
+		return TEXT("Shield");
+	case EEllaVisualState::Down:
+		return TEXT("Closed");
+	default:
+		return FString();
+	}
+}
+
+TArray<FString> UEllaAnimPresenterComponent::FlipbookSlotPaths(EEllaVisualState State)
+{
+	TArray<FString> Paths;
+	const FString Name = FlipbookSlotName(State);
+	if (!Name.IsEmpty())
+	{
+		const FString Base = FString::Printf(TEXT("%s/Ella/FB_Ella_%s"), UmbrellaArtSlotConst::GameRoot, *Name);
+		const FString Leaf = FString::Printf(TEXT("FB_Ella_%s"), *Name);
+		Paths.Add(FString::Printf(TEXT("%s%s.%s%s"), *Base, UmbrellaArtSlotConst::PlaceholderSuffix, *Leaf, UmbrellaArtSlotConst::PlaceholderSuffix));
+		Paths.Add(FString::Printf(TEXT("%s.%s"), *Base, *Leaf));
+	}
+	return Paths;
+}
+
+void UEllaAnimPresenterComponent::LoadSlotFlipbooks()
+{
+	const UEnum* States = StaticEnum<EEllaVisualState>();
+	for (int32 Index = 0; Index < States->NumEnums() - 1; ++Index)
+	{
+		const EEllaVisualState State = static_cast<EEllaVisualState>(States->GetValueByIndex(Index));
+		for (const FString& Path : FlipbookSlotPaths(State))
+		{
+			if (UPaperFlipbook* Found = LoadObject<UPaperFlipbook>(nullptr, *Path, nullptr, LOAD_NoWarn | LOAD_Quiet))
+			{
+				StateFlipbooks.Add(State, Found);
+				break;
+			}
+		}
+	}
+	if (!IsValid(IdleFlipbook))
+	{
+		if (const TObjectPtr<UPaperFlipbook>* Idle = StateFlipbooks.Find(EEllaVisualState::Idle))
+		{
+			IdleFlipbook = *Idle;
+		}
+	}
+}
+
 void UEllaAnimPresenterComponent::LoadSlotArt()
 {
 	const UEnum* States = StaticEnum<EEllaVisualState>();
@@ -215,6 +270,7 @@ void UEllaAnimPresenterComponent::BuildVisual()
 	{
 		return;
 	}
+	LoadSlotFlipbooks();
 	if (IsValid(IdleFlipbook))
 	{
 		Flipbook = NewObject<UPaperFlipbookComponent>(Owner, TEXT("EllaFlipbook"));

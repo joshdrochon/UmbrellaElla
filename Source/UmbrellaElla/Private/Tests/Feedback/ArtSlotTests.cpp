@@ -185,6 +185,24 @@ bool FArtSlotElla::RunTest(const FString& Parameters)
 	return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FArtSlotEllaFlipbookPaths, "UmbrellaElla.Feedback.ArtSlotEllaFlipbookPaths",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+
+bool FArtSlotEllaFlipbookPaths::RunTest(const FString& Parameters)
+{
+	const TArray<FString> Open = UEllaAnimPresenterComponent::FlipbookSlotPaths(EEllaVisualState::Idle);
+	if (TestEqual(TEXT("two paths per state"), Open.Num(), 2))
+	{
+		TestEqual(TEXT("placeholder first"), Open[0], FString(TEXT("/Game/UmbrellaElla/Art/Ella/FB_Ella_Open_PH.FB_Ella_Open_PH")));
+		TestEqual(TEXT("shipped second"), Open[1], FString(TEXT("/Game/UmbrellaElla/Art/Ella/FB_Ella_Open.FB_Ella_Open")));
+	}
+	TestEqual(TEXT("shoot is Attack"), UEllaAnimPresenterComponent::FlipbookSlotName(EEllaVisualState::Shoot), FString(TEXT("Attack")));
+	TestEqual(TEXT("absorb is Shield"), UEllaAnimPresenterComponent::FlipbookSlotName(EEllaVisualState::Absorb), FString(TEXT("Shield")));
+	TestEqual(TEXT("down is Closed"), UEllaAnimPresenterComponent::FlipbookSlotName(EEllaVisualState::Down), FString(TEXT("Closed")));
+	TestEqual(TEXT("hurt has no flipbook slot"), UEllaAnimPresenterComponent::FlipbookSlotPaths(EEllaVisualState::Hurt).Num(), 0);
+	return true;
+}
+
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FArtSlotKeeperEnemy, "UmbrellaElla.Feedback.World.ArtSlotKeeperEnemy",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
 
