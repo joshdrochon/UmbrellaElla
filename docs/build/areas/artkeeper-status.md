@@ -115,3 +115,8 @@ NEEDS HUMAN: lead: smoke switch to start the Keeper fight, ProjectDir-relative -
 - Context capture still blocked: SmokeHookSubsystem has no -SmokeKeeper/-SmokeSection/-SmokeMap and relative -SmokeShot still lands in the engine folder (docs/build/requests/artkeeper.md 1-2; the frame-based smoke shot from screenfix is not on main). assetgen has no tiers yet.
 - keeper-wing and keeper-talon: no work started (no prompt, no prompt-review.md); both need the fresh-session prompt review before the first paid call.
 NEEDS HUMAN: lead: set GEMINI_API_KEY for this worker, land the screenfix smoke shot, then restart.
+
+## Nov 13 later session 2: still blocked (no new paint, spend unchanged)
+- Merged main (art_loop change) and artslots (already in). GEMINI_API_KEY present. Source still has no -SmokeKeeper/-SmokeSection/-SmokeMap handling and relative -SmokeShot is still not ProjectDir-relative (docs/build/requests/artkeeper.md 1-2). Paint plateaued R6-R10; no round run.
+- Owl stays tracked _PH; nothing shipped.
+NEEDS HUMAN: lead: smoke switch to start the Keeper fight, ProjectDir-relative -SmokeShot, Blender-vs-paint decision.
