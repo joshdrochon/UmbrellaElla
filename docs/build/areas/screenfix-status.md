@@ -46,3 +46,13 @@
 - Affected checks: `UmbrellaElla.Flow` 30/30 success. Python affected set: 212 tests, 5 failures + 1 error, all in
   `test_gdd_check` and `test_area`; the same 6 fail on a clean origin/main checkout, so not from this change.
   `affected_tests.py --base origin/main` itself takes over 10 min to list on this machine.
+
+## Gate review round 1 (Nov 13) - evidence
+- Hotfix for SettingsMenuWidget.cpp include order not on origin/main yet (3e4cf07d: line 1 is still the Slate include). Not merged. The measured lines below used a local, reverted include fix.
+- Header: commit=7bd5cb8bc2e2177354d2e67d7fa76b3d6cd41ffd engine=5.8.4 config=Development host=mac run=Standalone
+- Build: `build exit: 0  mode=unity  commit=7bd5cb8bc2e2177354d2e67d7fa76b3d6cd41ffd  warnings: 0  log: Saved/Logs/pipeline/build-20261113-061232.log` (copy: ../logs/screenfix-build.log)
+- Tests (Saved/Logs/pipeline/test-20261113-064452.log): `TEST COMPLETE. EXIT CODE: 0`; UmbrellaElla.Flow all `{Success}` (30/30). Smoke+ScreenFix PASS tests=17 failed=0 (earlier slice, same code).
+- run_game.sh (../logs/screenfix-shot.log): `SMOKE_VIEW map=L_Graybox view_target=UmbrellaArena_0 ... ella_in_frame=1 ... arena_in_frame=1 w=1280 h=720`; `frame_check: PASS ... black=0.001 flat=0.717 top_colour=(88, 80, 80)`.
+- Python failures seen on clean main (per lead, fixed by the hotfix): test_gdd_check x4, test_area terminal question, story strixon. I did not capture per-test IDs: the re-run of `unittest tests.test_gdd_check tests.test_area` hit the 10 min limit and was killed.
+- affected_tests.py slowness filed in docs/build/requests/screenfix.md.
+- Left: merge origin/main when the hotfix lands, then re-paste build and test lines.
