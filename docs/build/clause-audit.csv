@@ -1,351 +1,455 @@
 rule,clause,tag,lane
-FLOW-02,Director's Cut arrives at the Keeper with wings still to destroy,?,flow
-FLOW-02,no boss-specific tutorial on Director's Cut arrival,?,flow
-FLOW-03,Director's Cut tutorial Skip begins the first level (only Resuming asserted),?,flow
-FLOW-03,both tutorials teach the same controls (only page counts compared),?,flow
-FLOW-04,credits roll with music,?,flow
-FLOW-04,credits use the Start screen background,?,flow
-MOVE-11,same movement/controls asserted inside a boss encounter,?,move
-MOVE-11,same rules asserted inside a level route,?,move
-MOVE-12,"no ammo/energy for Stream, Twin, Needle (only Small tested)",?,move
-MOVE-13,same profile asserted in every level/boss encounter,?,move
-MOVE-15,hop protection actually blocks damage in Health,?,move
-MOVE-15,hop vs post-hit protection asserted distinct,?,move
-MOVE-15,qualifying route rejects developer protection setting,?,move
-MOVE-19,right stick selects a spell,?,move
-MOVE-20,Absorb/Free fall disengage Ride (only Shoot tested),?,move
-MOVE-20,remapped controls keep the four combinations,?,move
-UMB-05,catch gives no ammo/stored-energy reward,?,move
-UMB-05,repair not disabled by reward eligibility,?,move
-WIND-03,riding a current deals zero damage,?,levelchunks
-WIND-03,safe supports/solids/lethal bottoms explicitly tagged,?,levelchunks
-MOVE-22,effective profile recorded before qualifying play,?,move
-MOVE-22,encounter display vs collision scale tested independently,?,move
-COM-05,Stream/Twin/Needle never run out (only Small tested),?,move
-COM-05,catch gives no weapon charge,?,move
-COM-06,"fold-ready, snap open, pulse, cock, reset cycle tied to emission",?,move
-COM-07,canopy strands converge around dark body (art),?,move
-COM-07,shoulder-braced body family used for Stream,?,move
-COM-07,posture/art adds no damage or aim (beam),?,move
-COM-09,Needle penetrates wings during clock opening,?,move
-COM-09,Needle never bypasses clock protection/order,?,move
-COM-11,locked-weapon UI shows levels 1/10/20/30,?,move
-COM-11,XP display derived from tuned curve,?,move
-COM-11,damage ranks applied once to baseline,?,move
-COM-11,RegularFall vs ShoulderFall poses per spell,?,move
-COM-11,only Small uses fold/open/cock,?,move
-COM-11,required routes clearable with basic fire,?,move
-FLOW-05,Enemy HP/cadence/count multipliers applied to real enemies (GetRunScaling has no consumer),?,progression
-FLOW-05,Ordinary firing cooldowns divided by cadence multiplier,?,progression
-FLOW-05,Projectiles/telegraphs/recoveries/pauses/protection not accelerated,?,progression
-FLOW-05,Physical boss scheduling intact under scaling,?,progression
-FLOW-05,Extra enemies only in authored slots under local threat caps,?,progression
-FLOW-05,"Warnings, escapes, early yellow healing, generator limits preserved",?,progression
-FLOW-05,No unsafe mandatory encounter from more enemies,?,progression
-FLOW-06,Final Hour intro screen shown before the Extreme run,?,progression
-FLOW-06,Exact text 'Your borrowed time has run its course...' shown,?,progression
-FLOW-06,Final Hour multipliers applied to real enemies,?,progression
-FLOW-06,Telegraphs/recovery/scheduling/projectile speed/safe placement preserved,?,progression
-FLOW-06,No automatic increase in incoming damage,?,progression
-FLOW-08,Quit reload restores checkpoint upgrades (ranks),?,progression
-FLOW-08,only XP asserted,?,progression
-FLOW-09,Exactly 3 lives on retry in both modes (Start Game not tested),?,keeper
-FLOW-09,"3-life reset keeps purchased max lives (Health.World.RetryRestoresFullLivesAndHealth asserts 4 lives, not 3)",?,keeper
-FLOW-09,Rollback applied before full heal (ordering),?,keeper
-FLOW-09,Level-checkpoint retry fully heals (only event-driven retry tested),?,keeper
-FLOW-10,Upgrades (ranks) retained into next run after win,?,progression
-FLOW-10,Unlocks/weapons retained into next run after win,?,progression
-FLOW-13,Level checkpoint after boss checkpoint does not exempt gains from rollback,?,progression
-FLOW-13,Living Keeper departure grants no reward,?,progression
-FLOW-15,MAX displayed in UI at cap,?,progression
-FLOW-15,Spell access survives refunds,?,progression
-FLOW-15,No traversal XP,?,progression
-FLOW-15,Start Game has no stat upgrades (purchase not tested),?,progression
-FLOW-17,Health purchase/refund preserves current health fraction,?,progression
-FLOW-17,Fractional health retained without per-hit rounding (C++),?,progression
-FLOW-17,Defense does not cancel gust displacement,?,progression
-FLOW-17,Defense does not make lethal boundaries safe,?,progression
-FLOW-17,Damage ranks don't change rate/geometry/protection/penetration/aim,?,progression
-FLOW-17,Effects derived from baseline once,?,progression
-FLOW-19,Living Keeper departure gives no kill reward,?,progression
-FLOW-19,CP2/CP3 passage and reload give no XP (only CP1 tested),?,progression
-FLOW-20,Quit/reload restores checkpoint upgrades (only XP asserted),?,progression
-FLOW-20,No catch XP in world (only rule-table 'Absorb' label),?,progression
-FLOW-21,Enemy count advanced in-world after win (only HP/cadence asserted),?,progression
-FLOW-21,Levers applied to real enemies within generator/fairness limits,?,progression
-FLOW-21,Weapons/unlocks and upgrades retained into next run,?,progression
-FLOW-22,Earned data separate from tuning/bindings,?,progression
-FLOW-22,Two corrupt copies error is recoverable,?,progression
-FLOW-22,Shadow progress restored on relaunch,?,progression
-FLOW-22,Tutorial replay uses shadow progress,?,progression
-OWL-06,Rules apply in BOTH modes (no Director's Cut keeper test),?,keeper
-OWL-06,"Retained/restored capacity, max lives, upgrades on retry",?,keeper
-OWL-06,Normal phase advancement carries Ella's health,?,keeper
-OWL-07,Complete fight contract (OWL-06..35 rows themselves partial),?,keeper
-OWL-07,No player resource system (no test),?,keeper
-OWL-07,"Gameplay state, not animation length, owns damage/transitions",?,keeper
-OWL-08,Crownless metallic owl in side profile (visual),?,keeper
-OWL-08,"Exactly two feet, two wings, central clock (visual)",?,keeper
-OWL-08,Three visually distinct hanging mechanisms,?,keeper
-OWL-08,"Front/middle/rear identity, attachment, reachability through movement",?,keeper
-OWL-08,"Front is armillary/ring, not duplicated",?,keeper
-OWL-09,Wings reachable at supported owl sizes,?,keeper
-OWL-09,Wings damaged from lift,?,keeper
-OWL-09,No new gusts after wing depletion,?,keeper
-OWL-09,Depleted wings remain visible as cover,?,keeper
-OWL-09,Middle/rear break cancels cast and removes attack,?,keeper
-OWL-10,Both modes checkpoint at each phase start,?,keeper
-OWL-10,No mid-mechanism checkpoint after a mechanism breaks,?,keeper
-OWL-10,"Retained/restored capacity, max lives, upgrades on retry",?,keeper
-OWL-10,Initial phase advancement carries Ella's health,?,keeper
-OWL-11,Wings/clock aim at captured positions,?,keeper
-OWL-11,Mechanisms use fixed-left fan,?,keeper
-OWL-11,No homing,?,keeper
-OWL-11,Spacing 0.09s,?,keeper
-OWL-11,Normal interval 1.35s,?,keeper
-OWL-11,One-shot reduced volley (assertion has vacuous OR),?,keeper
-OWL-11,Queued/traveling shots keep counts/paths,?,keeper
-OWL-11,"Recovery: yellow <=0.15s, red >=0.6s, longer red kept",?,keeper
-OWL-11,Four shots (no spec key bound for 4),?,keeper
-OWL-11,Spreads 36/70/48 deg (no test uses spread fields),?,keeper
-OWL-11,Speeds 270/300 (no mechanism/clock speed test),?,keeper
-OWL-12,No separate timed prefire delay,?,keeper
-OWL-12,"Captured lane shown, no hidden tracking",?,keeper
-OWL-12,Player can leave via rise/fall/current/evade,?,keeper
-OWL-12,Traveling missiles continue during electrical stun,?,keeper
-OWL-13,Yellow shots are aimed,?,keeper
-OWL-13,Independent 2.3s cadence,?,keeper
-OWL-13,Keeper yellow ordinary contact deals 1 health,?,keeper
-OWL-13,Shoot alone never auto-catches,?,keeper
-OWL-13,No absorption cooldown or energy reward,?,keeper
-OWL-13,Speeds 195/210 (no mechanism/clock yellow test),?,keeper
-OWL-15,Gust in wing act only,?,keeper
-OWL-15,Shared physical scheduler 6.5s from attack start,?,keeper
-OWL-15,Talon priority over gust,?,keeper
-OWL-15,"Wing gather/load then flap cue, readable direction",?,keeper
-OWL-15,Complete owl warning/strike/recovery animation verified,?,keeper
-OWL-16,Gust damage 1 health (only hit count checked),?,keeper
-OWL-16,Bypasses hop protection,?,keeper
-OWL-16,Dash protection blocks damage not push,?,keeper
-OWL-16,"Speed 350 (bound, but no test exercises speed)",?,keeper
-OWL-16,"Band width 120 (bound, no test exercises it)",?,keeper
-OWL-16,"Lifetime 3s (bound, no test exercises it)",?,keeper
-OWL-17,Wing recovery follows the flap,?,keeper
-OWL-17,Stun clears active gusts,?,keeper
-OWL-17,No new gusts after depletion/stun,?,keeper
-OWL-17,Depleted wing smoke remains (visual),?,keeper
-OWL-17,Hostile fronts distinct from voluntary wind (geometry/motion),?,keeper
-OWL-18,"Empty claw draws back, distinct from carrying claw (visual)",?,keeper
-OWL-18,"Strike direction captured at commitment, no tracking",?,keeper
-OWL-18,Cooldown must be clear to trigger,?,keeper
-OWL-18,No test that talon stays idle outside 270,?,keeper
-OWL-19,Empty space and recovery do no damage,?,keeper
-OWL-19,Vertical-exit check suppresses impossible launches,?,keeper
-OWL-19,"Tip width 48 (bound, no test exercises width)",?,keeper
-OWL-19,Sweep aims at captured target,?,keeper
-OWL-20,Quiet recovery 1s,?,keeper
-OWL-20,Shared scheduling with talon,?,keeper
-OWL-20,Must re-enter <=270 after leaving to rearm,?,keeper
-OWL-20,No rearm on simple exit at attack radius,?,keeper
-OWL-20,"Cooldown 3.5s from commitment (bound, behavior not asserted)",?,keeper
-OWL-21,front head locks Ella's destination (move after lock not tested),?,keeper
-OWL-21,0.9s warning duration,?,keeper
-OWL-21,"closed claw grips armillary outer ring, load/release/follow-through",?,keeper
-OWL-21,original attachments pay out,?,keeper
-OWL-21,no duplicate ring or floating grasp,?,keeper
-OWL-21,choreography does not change lock window or collision,?,keeper
-OWL-22,committed straight outward head path,?,keeper
-OWL-22,reach 800,?,keeper
-OWL-22,speed basis 400 units/s,?,keeper
-OWL-22,head width 32,?,keeper
-OWL-22,only the outward moving head damages,?,keeper
-OWL-22,links harmless,?,keeper
-OWL-22,visible position = shootable target = damaging sweep,?,keeper
-OWL-23,return home is harmless,?,keeper
-OWL-23,return takes 1.2s then settles,?,keeper
-OWL-23,broken part's attack stays removed until explicit reset,?,keeper
-OWL-23,explicit reset restores the attack,?,keeper
-OWL-24,middle cast keeps same endpoint/warning/head/link/return contract,?,keeper
-OWL-24,±80-unit sine offset,?,keeper
-OWL-24,sign uses GLOBAL physical serial (talon counts) in real casts,?,keeper
-OWL-24,no every-cast alternation (talon-intervening case untested),?,keeper
-OWL-25,shown and collides on the actual curved path,?,keeper
-OWL-25,moving middle head shootable on the curve,?,keeper
-OWL-25,timing uses straight-distance basis (not constant 400/s),?,keeper
-OWL-25,telegraph shows enough curve for a viable exit,?,keeper
-OWL-25,destroying the middle cancels its cast (only front tested),?,keeper
-OWL-25,dedicated art follows curved geometry,?,keeper
-OWL-26,0.9s warning before rear stroke,?,keeper
-OWL-26,first stroke stops at half of outward stroke,?,keeper
-OWL-26,"continues to ORIGINAL captured endpoint, no re-aim",?,keeper
-OWL-26,"both strokes share one serial, damage at most once",?,keeper
-OWL-26,chain links harmless,?,keeper
-OWL-26,1.2s return harmless,?,keeper
-OWL-27,second clack / stopped head signals unfinished movement,?,keeper
-OWL-27,destruction cancels either rear stroke or pause immediately,?,keeper
-OWL-27,held-in-claw artwork reconciled to mid-flight pause,?,keeper
-OWL-28,repeat without re-aim (player never moved in test),?,keeper
-OWL-28,0.6s wait after last shot,?,keeper
-OWL-28,at least 0.85s recovery after repeat,?,keeper
-OWL-28,yellow keeps its own timer,?,keeper
-OWL-28,"clock-hand move, tick and path cue mark the reprise",?,keeper
-OWL-28,destroyed hazards not resurrected / world not rewound,?,keeper
-OWL-29,exposure cycle uses unscaled active-gameplay time,?,keeper
-OWL-29,needle never bypasses magic or target order,?,keeper
-OWL-29,clock exposure independent of volley cadence,?,keeper
-OWL-30,mechanism break opens the clock,?,keeper
-OWL-30,break clears gusts,?,keeper
-OWL-30,"new fire stops during stun, traveling missiles continue",?,keeper
-OWL-30,fire pause freezes physical timers and pending emissions,?,keeper
-OWL-30,fire pause is not stun,?,keeper
-OWL-30,blackout cancels the physical move,?,keeper
-OWL-31,hit at 128-HP floor does not start slow,?,keeper
-OWL-31,slow cooldown must be ready,?,keeper
-OWL-31,slow lasts 3s,?,keeper
-OWL-31,3s slow cooldown,?,keeper
-OWL-31,new clock opening resets slow/eye flags and clears eye,?,keeper
-OWL-31,extending an opening does not reset flags,?,keeper
-OWL-31,lethal final-clock hit clears all effects,?,keeper
-OWL-32,eye-when-slow-off enabled by default and works with slow off,?,keeper
-OWL-32,eye window lasts 2s,?,keeper
-OWL-32,eye needs cooldown ready and unused per-opening chance,?,keeper
-OWL-32,eye outlasts clock closing until its timer ends,?,keeper
-OWL-32,new clock opening clears the eye,?,keeper
-OWL-32,5s eye cooldown starts on eye hit,?,keeper
-OWL-32,blackout clears physical moves and gusts,?,keeper
-OWL-32,shaft/clock/fresh-shot cues and ground danger kept,?,keeper
-OWL-32,prior damaged body restored at blackout expiry,?,keeper
-OWL-32,blackout does not extend clock exposure,?,keeper
-OWL-33,slow/eye/cooldowns/stun/blackout/clock timers run unscaled,?,keeper
-OWL-33,physical attack timing scaled at x0.35,?,keeper
-OWL-33,player projectiles stay unscaled,?,keeper
-OWL-33,fire pause suspends physical timers,?,keeper
-OWL-33,traveling missiles continue during fire pause,?,keeper
-OWL-33,"decorative menu clocks may run while paused, no gameplay/VFX advance",?,keeper
-OWL-34,full warning→stroke→recovery→idle sequence asserted,?,keeper
-OWL-34,blackout and presentation locks respected by scheduler,?,keeper
-OWL-34,fire pause freezes pending emissions,?,keeper
-OWL-34,reduced projectile pressure during physical activity (assertion has vacuous OR),?,keeper
-OWL-34,overlapping escape routes tested,?,keeper
-OWL-35,living departure lasts ~2.5s as presentation only,?,keeper
-OWL-35,"retry clears casts, gusts, queued repeats, locks",?,keeper
-OWL-35,new-run reset clears state,?,keeper
-OWL-35,phase reset clears state,?,keeper
-OWL-35,XP policy applied,?,keeper
-HAZ-02,land is solid and harmless for Ella on contact,?,enemies2
-HAZ-03,"fixed camera at (960,540) (binding is RoomSize/2, no camera checked)",?,enemies2
-HAZ-03,guard is stationary (never moves),?,enemies2
-HAZ-03,"guard contact damage 0 (bound, but no test exercises contact)",?,enemies2
-HAZ-04,entry must be from the left,?,enemies2
-HAZ-04,source and muzzle fully visible check,?,enemies2
-HAZ-04,engagement validity required at warning start (only release tested),?,enemies2
-HAZ-05,recovery must complete before rearm,?,enemies2
-HAZ-05,no warning in reset/underpass (room only flags assist and exit),?,enemies2
-HAZ-05,launched projectile actor persists after guard disabled,?,enemies2
-HAZ-05,pause freezes all gameplay clocks (only guard clock tested),?,enemies2
-HAZ-05,no arbitrary seam culling of danger,?,enemies2
-HAZ-17,gate checks incoming velocity/mode,?,enemies2
-HAZ-17,gate checks low health,?,enemies2
-HAZ-17,gate checks dash state,?,enemies2
-HAZ-17,gate checks pending warnings,?,enemies2
-HAZ-17,gate checks delayed impacts,?,enemies2
-HAZ-17,one active owner,?,enemies2
-HAZ-17,no new simultaneous timing demand without proof,?,enemies2
-HAZ-17,exact fallback specified,?,enemies2
-HAZ-17,"integrate with progression, preserve earned state",?,enemies2
-HAZ-17,catalogue not silently replaced,?,enemies2
-CAM-03,required paths work with direct steering OFF,?,levelchunks
-CAM-03,no mandatory dash/spell/invulnerability on required paths,?,levelchunks
-CAM-05,support incoming speed and settle excess momentum at interface,?,levelchunks
-CAM-06,opening height >= 2rz+2m (no failing-height case),?,levelchunks
-CAM-06,openings checked against full trap sweeps,?,levelchunks
-CAM-06,unassisted recovery climb limited to ~0.15H or lift route (not in game),?,levelchunks
-CAM-06,enlarged unqualified profiles get wider variants or labels,?,levelchunks
-CAM-08,"next current, hazard and safe exit revealed before commitment",?,levelchunks
-CAM-08,reveal holds when backtracking left (real chunks),?,levelchunks
-CAM-08,"clearance includes reaction, braking, height-change time",?,levelchunks
-CAM-08,upper limits and bottom danger readable,?,levelchunks
-HAZ-19,lethal world boundaries separately marked,?,enemies2
-HAZ-19,collision follows visible moving parts,?,enemies2
-HAZ-19,air mill visible hub and four blades,?,enemies2
-HAZ-19,"never require tip-threading, destroying or invulnerability",?,enemies2
-HAZ-19,foreground mill distinct from decorative distant windmill,?,enemies2
-HAZ-20,visible crank/tension warning,?,enemies2
-HAZ-20,clearly open look in recovery,?,enemies2
-HAZ-20,hazard-free waiting pocket,?,enemies2
-HAZ-20,always-open low bypass in every variant (07B has upper detour),?,enemies2
-HAZ-20,"damage only on visible panels, never the gap",?,enemies2
-HAZ-20,committed travel never trapped without exit,?,enemies2
-HAZ-21,visible nozzle warning,?,enemies2
-HAZ-21,warning locks one lane,?,enemies2
-HAZ-21,push actually applied toward safe catch space (Motor ignores it),?,enemies2
-HAZ-21,cannot Ride or absorb the gust,?,enemies2
-HAZ-21,required wind never silently redirected,?,enemies2
-HAZ-21,distinct cues: transport curls vs jagged hostile front,?,enemies2
-HAZ-22,high-contrast projection visible on approach,?,enemies2
-HAZ-22,no surprise activation,?,enemies2
-HAZ-22,no confusing decorative tiles,?,enemies2
-HAZ-23,retime/reject encounter instead of freezing geometry,?,enemies2
-HAZ-23,no attacks from UNcleared neighbours (test checks cleared),?,enemies2
-HAZ-23,no pursuers past cleared exits,?,enemies2
-HAZ-23,no shots through refuges,?,enemies2
-HAZ-23,clear at observed safe boundary,?,enemies2
-HAZ-31,neither variant requires a timed dash,?,levelchunks
-HAZ-32,bellows source and whole path visible,?,levelchunks
-HAZ-33,no hidden roof-face collision,?,levelchunks
-HAZ-34,net progress right (no test asserts it),?,levelchunks
-HAZ-34,sequence order low->reset->upper not asserted,?,levelchunks
-HAZ-35,A Warden fire starts only after crossing clears,?,levelchunks
-HAZ-36,A alternate attack windows,?,levelchunks
-HAZ-36,B stilt and Courier on the right (X not checked),?,levelchunks
-HAZ-36,no unavoidable simultaneous lanes,?,levelchunks
-HAZ-36,B bypass specifically avoids the stilt,?,levelchunks
-HAZ-37,refuge CP2 placed after group B,?,levelchunks
-HAZ-37,once-only journey clue at CP2,?,levelchunks
-HAZ-37,refuge CP3 after group C,?,levelchunks
-HAZ-37,quiet arrival before Keeper,?,levelchunks
-HAZ-37,recovery/story ordering stays fixed,?,levelchunks
-HAZ-40,"separate layout, cosmetic and story random streams",?,levelchunks
-HAZ-40,new run saves seed and generator/catalog/profile versions,?,levelchunks
-HAZ-40,saved variants immutable and ordered,?,levelchunks
-HAZ-40,retry preserves resolved layout,?,levelchunks
-HAZ-40,"route check: minimum lift, gun windows, pressure",?,levelchunks
-HAZ-40,route check: story/recovery order,?,levelchunks
-HAZ-40,at most 32 attempts then named verified fallback,?,levelchunks
-HAZ-40,fallback failure branch force-tested,?,levelchunks
-FLOW-27,refuge core permanent harmless lift/reacquisition,?,levelchunks
-FLOW-27,clear cycling space,?,levelchunks
-FLOW-27,no incoming threat lane into core,?,levelchunks
-FLOW-27,no forced damage or timer in refuge,?,levelchunks
-FLOW-27,optional yellow bay ahead/right expires shots before core,?,levelchunks
-FLOW-27,ordinary yellow contact still hurts,?,levelchunks
-FLOW-29,Defeat/retry context alone is inspection-only,?,progression
-FLOW-29,'Active' eligibility condition,?,progression
-FLOW-29,CP0 alone is not a purchase zone,?,progression
-NAR-04,start confirmation consumed so it cannot also fire/hop,?,settings2
-NAR-07,Keeper withdraws alive into darkness,?,settings2
-FLOW-34,title music plays,?,flow
-FLOW-34,background moves slowly,?,flow
-FLOW-34,background art contains no characters,?,flow
-FLOW-34,"second button label is 'Director's Cut', GDD says 'Start Director's Cut'",?,flow
-FLOW-35,Quit exits the game,?,flow
-FLOW-35,pause background animates ticking clocks and falling objects,?,flow
-FLOW-35,pause background motion never advances gameplay,?,flow
-FLOW-39,Richard - Producer credit line,?,settings2
-FLOW-39,"end credits roll (FlowStoryText) lists the full team, only one role checked",?,settings2
-FLOW-40,"each page (Sound, Controller, Credits, Game Options) shows Back and Save buttons",?,settings2
-FLOW-49,title text 'Journey Complete',?,settings2
-FLOW-49,Main Menu button,?,settings2
-FLOW-49,approved Gothic storybook look,?,settings2
-FLOW-49,readable controller/keyboard focus,?,settings2
-FLOW-42,Review screen shows complete costs and effects,?,progression
-FLOW-42,Confirm saves the staged draft atomically (draft commit untested),?,progression
-FLOW-42,Context change discards unconfirmed draft,?,progression
-FLOW-42,Start Game has no upgrades (purchase path),?,progression
-FLOW-43,dirty Back 'Save' choice saves,?,settings2
-FLOW-43,named setups independent of earned character state,?,settings2
-FLOW-43,HP-max tuning requires explicit encounter restart,?,settings2
-FLOW-43,reset never erases the earned profile,?,settings2
-ART-04,credits/End screen uses the Start background (only Story+Title flag tested),?,flow
-ART-04,background moves slowly,?,flow
-ART-04,background art contains no characters,?,flow
+FLOW-02,Director's Cut arrives at the Keeper with wings still to destroy,i,flow
+FLOW-02,no boss-specific tutorial on Director's Cut arrival,i,flow
+FLOW-03,Director's Cut tutorial Skip begins the first level (only Resuming asserted),i,flow
+FLOW-03,both tutorials teach the same controls (only page counts compared),i,flow
+FLOW-04,credits roll with music,i,flow
+FLOW-04,credits use the Start screen background,i,flow
+MOVE-11,same movement/controls asserted inside a boss encounter,i,move
+MOVE-11,same rules asserted inside a level route,i,move
+MOVE-12,"no ammo/energy for Stream, Twin, Needle (only Small tested)",i,move
+MOVE-13,same profile asserted in every level/boss encounter,i,move
+MOVE-15,hop protection actually blocks damage in Health,ii,move
+MOVE-15,hop vs post-hit protection asserted distinct,i,move
+MOVE-15,qualifying route rejects developer protection setting,i,move
+MOVE-19,right stick selects a spell,i,move
+MOVE-20,Absorb/Free fall disengage Ride (only Shoot tested),i,move
+MOVE-20,remapped controls keep the four combinations,i,move
+UMB-05,catch gives no ammo/stored-energy reward,i,move
+UMB-05,repair not disabled by reward eligibility,i,move
+WIND-03,riding a current deals zero damage,i,levelchunks
+WIND-03,safe supports/solids/lethal bottoms explicitly tagged,ii,levelchunks
+MOVE-22,effective profile recorded before qualifying play,i,move
+MOVE-22,encounter display vs collision scale tested independently,i,move
+COM-05,Stream/Twin/Needle never run out (only Small tested),i,move
+COM-05,catch gives no weapon charge,i,move
+COM-06,"fold-ready, snap open, pulse, cock, reset cycle tied to emission",ii,move
+COM-07,canopy strands converge around dark body (art),ii,move
+COM-07,shoulder-braced body family used for Stream,ii,move
+COM-07,posture/art adds no damage or aim (beam),i,move
+COM-09,Needle penetrates wings during clock opening,i,move
+COM-09,Needle never bypasses clock protection/order,i,move
+COM-11,locked-weapon UI shows levels 1/10/20/30,ii,move
+COM-11,XP display derived from tuned curve,i,move
+COM-11,damage ranks applied once to baseline,i,move
+COM-11,RegularFall vs ShoulderFall poses per spell,ii,move
+COM-11,only Small uses fold/open/cock,ii,move
+COM-11,required routes clearable with basic fire,i,move
+FLOW-05,Enemy HP/cadence/count multipliers applied to real enemies (GetRunScaling has no consumer),ii,progression
+FLOW-05,Ordinary firing cooldowns divided by cadence multiplier,ii,progression
+FLOW-05,Projectiles/telegraphs/recoveries/pauses/protection not accelerated,ii,progression
+FLOW-05,Physical boss scheduling intact under scaling,ii,progression
+FLOW-05,Extra enemies only in authored slots under local threat caps,ii,progression
+FLOW-05,"Warnings, escapes, early yellow healing, generator limits preserved",ii,progression
+FLOW-05,No unsafe mandatory encounter from more enemies,ii,progression
+FLOW-06,Final Hour intro screen shown before the Extreme run,ii,progression
+FLOW-06,Exact text 'Your borrowed time has run its course...' shown,ii,progression
+FLOW-06,Final Hour multipliers applied to real enemies,ii,progression
+FLOW-06,Telegraphs/recovery/scheduling/projectile speed/safe placement preserved,ii,progression
+FLOW-06,No automatic increase in incoming damage,i,progression
+FLOW-08,Quit reload restores checkpoint upgrades (ranks),i,progression
+FLOW-08,only XP asserted,i,progression
+FLOW-09,Exactly 3 lives on retry in both modes (Start Game not tested),i,keeper
+FLOW-09,"3-life reset keeps purchased max lives (Health.World.RetryRestoresFullLivesAndHealth asserts 4 lives, not 3)",ii,keeper
+FLOW-09,Rollback applied before full heal (ordering),ii,keeper
+FLOW-09,Level-checkpoint retry fully heals (only event-driven retry tested),ii,keeper
+FLOW-10,Upgrades (ranks) retained into next run after win,i,progression
+FLOW-10,Unlocks/weapons retained into next run after win,i,progression
+FLOW-13,Level checkpoint after boss checkpoint does not exempt gains from rollback,ii,progression
+FLOW-13,Living Keeper departure grants no reward,i,progression
+FLOW-15,MAX displayed in UI at cap,i,progression
+FLOW-15,Spell access survives refunds,i,progression
+FLOW-15,No traversal XP,i,progression
+FLOW-15,Start Game has no stat upgrades (purchase not tested),i,progression
+FLOW-17,Health purchase/refund preserves current health fraction,ii,progression
+FLOW-17,Fractional health retained without per-hit rounding (C++),i,progression
+FLOW-17,Defense does not cancel gust displacement,i,progression
+FLOW-17,Defense does not make lethal boundaries safe,i,progression
+FLOW-17,Damage ranks don't change rate/geometry/protection/penetration/aim,ii,progression
+FLOW-17,Effects derived from baseline once,ii,progression
+FLOW-19,Living Keeper departure gives no kill reward,i,progression
+FLOW-19,CP2/CP3 passage and reload give no XP (only CP1 tested),i,progression
+FLOW-20,Quit/reload restores checkpoint upgrades (only XP asserted),i,progression
+FLOW-20,No catch XP in world (only rule-table 'Absorb' label),i,progression
+FLOW-21,Enemy count advanced in-world after win (only HP/cadence asserted),ii,progression
+FLOW-21,Levers applied to real enemies within generator/fairness limits,ii,progression
+FLOW-21,Weapons/unlocks and upgrades retained into next run,i,progression
+FLOW-22,Earned data separate from tuning/bindings,i,progression
+FLOW-22,Two corrupt copies error is recoverable,i,progression
+FLOW-22,Shadow progress restored on relaunch,i,progression
+FLOW-22,Tutorial replay uses shadow progress,ii,progression
+OWL-06,Rules apply in BOTH modes (no Director's Cut keeper test),i,keeper
+OWL-06,"Retained/restored capacity, max lives, upgrades on retry",ii,keeper
+OWL-06,Normal phase advancement carries Ella's health,i,keeper
+OWL-07,Complete fight contract (OWL-06..35 rows themselves partial),ii,keeper
+OWL-07,No player resource system (no test),i,keeper
+OWL-07,"Gameplay state, not animation length, owns damage/transitions",i,keeper
+OWL-08,Crownless metallic owl in side profile (visual),ii,keeper
+OWL-08,"Exactly two feet, two wings, central clock (visual)",ii,keeper
+OWL-08,Three visually distinct hanging mechanisms,ii,keeper
+OWL-08,"Front/middle/rear identity, attachment, reachability through movement",ii,keeper
+OWL-08,"Front is armillary/ring, not duplicated",ii,keeper
+OWL-09,Wings reachable at supported owl sizes,i,keeper
+OWL-09,Wings damaged from lift,i,keeper
+OWL-09,No new gusts after wing depletion,i,keeper
+OWL-09,Depleted wings remain visible as cover,i,keeper
+OWL-09,Middle/rear break cancels cast and removes attack,i,keeper
+OWL-10,Both modes checkpoint at each phase start,i,keeper
+OWL-10,No mid-mechanism checkpoint after a mechanism breaks,i,keeper
+OWL-10,"Retained/restored capacity, max lives, upgrades on retry",ii,keeper
+OWL-10,Initial phase advancement carries Ella's health,i,keeper
+OWL-11,Wings/clock aim at captured positions,i,keeper
+OWL-11,Mechanisms use fixed-left fan,i,keeper
+OWL-11,No homing,i,keeper
+OWL-11,Spacing 0.09s,i,keeper
+OWL-11,Normal interval 1.35s,i,keeper
+OWL-11,One-shot reduced volley (assertion has vacuous OR),i,keeper
+OWL-11,Queued/traveling shots keep counts/paths,i,keeper
+OWL-11,"Recovery: yellow <=0.15s, red >=0.6s, longer red kept",i,keeper
+OWL-11,Four shots (no spec key bound for 4),i,keeper
+OWL-11,Spreads 36/70/48 deg (no test uses spread fields),proven,keeper
+OWL-11,Speeds 270/300 (no mechanism/clock speed test),proven,keeper
+OWL-12,No separate timed prefire delay,i,keeper
+OWL-12,"Captured lane shown, no hidden tracking",i,keeper
+OWL-12,Player can leave via rise/fall/current/evade,i,keeper
+OWL-12,Traveling missiles continue during electrical stun,i,keeper
+OWL-13,Yellow shots are aimed,i,keeper
+OWL-13,Independent 2.3s cadence,i,keeper
+OWL-13,Keeper yellow ordinary contact deals 1 health,i,keeper
+OWL-13,Shoot alone never auto-catches,i,keeper
+OWL-13,No absorption cooldown or energy reward,i,keeper
+OWL-13,Speeds 195/210 (no mechanism/clock yellow test),proven,keeper
+OWL-15,Gust in wing act only,i,keeper
+OWL-15,Shared physical scheduler 6.5s from attack start,i,keeper
+OWL-15,Talon priority over gust,i,keeper
+OWL-15,"Wing gather/load then flap cue, readable direction",ii,keeper
+OWL-15,Complete owl warning/strike/recovery animation verified,ii,keeper
+OWL-16,Gust damage 1 health (only hit count checked),proven,keeper
+OWL-16,Bypasses hop protection,i,keeper
+OWL-16,Dash protection blocks damage not push,ii,keeper
+OWL-16,"Speed 350 (bound, but no test exercises speed)",proven,keeper
+OWL-16,"Band width 120 (bound, no test exercises it)",proven,keeper
+OWL-16,"Lifetime 3s (bound, no test exercises it)",proven,keeper
+OWL-17,Wing recovery follows the flap,ii,keeper
+OWL-17,Stun clears active gusts,i,keeper
+OWL-17,No new gusts after depletion/stun,i,keeper
+OWL-17,Depleted wing smoke remains (visual),ii,keeper
+OWL-17,Hostile fronts distinct from voluntary wind (geometry/motion),i,keeper
+OWL-18,"Empty claw draws back, distinct from carrying claw (visual)",ii,keeper
+OWL-18,"Strike direction captured at commitment, no tracking",i,keeper
+OWL-18,Cooldown must be clear to trigger,i,keeper
+OWL-18,No test that talon stays idle outside 270,i,keeper
+OWL-19,Empty space and recovery do no damage,i,keeper
+OWL-19,Vertical-exit check suppresses impossible launches,ii,keeper
+OWL-19,"Tip width 48 (bound, no test exercises width)",proven,keeper
+OWL-19,Sweep aims at captured target,i,keeper
+OWL-20,Quiet recovery 1s,proven,keeper
+OWL-20,Shared scheduling with talon,i,keeper
+OWL-20,Must re-enter <=270 after leaving to rearm,i,keeper
+OWL-20,No rearm on simple exit at attack radius,i,keeper
+OWL-20,"Cooldown 3.5s from commitment (bound, behavior not asserted)",proven,keeper
+OWL-21,front head locks Ella's destination (move after lock not tested),i,keeper
+OWL-21,0.9s warning duration,proven,keeper
+OWL-21,"closed claw grips armillary outer ring, load/release/follow-through",ii,keeper
+OWL-21,original attachments pay out,ii,keeper
+OWL-21,no duplicate ring or floating grasp,ii,keeper
+OWL-21,choreography does not change lock window or collision,ii,keeper
+OWL-22,committed straight outward head path,i,keeper
+OWL-22,reach 800,proven,keeper
+OWL-22,speed basis 400 units/s,proven,keeper
+OWL-22,head width 32,proven,keeper
+OWL-22,only the outward moving head damages,i,keeper
+OWL-22,links harmless,i,keeper
+OWL-22,visible position = shootable target = damaging sweep,i,keeper
+OWL-23,return home is harmless,i,keeper
+OWL-23,return takes 1.2s then settles,i,keeper
+OWL-23,broken part's attack stays removed until explicit reset,i,keeper
+OWL-23,explicit reset restores the attack,i,keeper
+OWL-24,middle cast keeps same endpoint/warning/head/link/return contract,i,keeper
+OWL-24,±80-unit sine offset,i,keeper
+OWL-24,sign uses GLOBAL physical serial (talon counts) in real casts,i,keeper
+OWL-24,no every-cast alternation (talon-intervening case untested),i,keeper
+OWL-25,shown and collides on the actual curved path,i,keeper
+OWL-25,moving middle head shootable on the curve,i,keeper
+OWL-25,timing uses straight-distance basis (not constant 400/s),i,keeper
+OWL-25,telegraph shows enough curve for a viable exit,ii,keeper
+OWL-25,destroying the middle cancels its cast (only front tested),i,keeper
+OWL-25,dedicated art follows curved geometry,ii,keeper
+OWL-26,0.9s warning before rear stroke,proven,keeper
+OWL-26,first stroke stops at half of outward stroke,i,keeper
+OWL-26,"continues to ORIGINAL captured endpoint, no re-aim",i,keeper
+OWL-26,"both strokes share one serial, damage at most once",i,keeper
+OWL-26,chain links harmless,i,keeper
+OWL-26,1.2s return harmless,i,keeper
+OWL-27,second clack / stopped head signals unfinished movement,ii,keeper
+OWL-27,destruction cancels either rear stroke or pause immediately,i,keeper
+OWL-27,held-in-claw artwork reconciled to mid-flight pause,ii,keeper
+OWL-28,repeat without re-aim (player never moved in test),i,keeper
+OWL-28,0.6s wait after last shot,i,keeper
+OWL-28,at least 0.85s recovery after repeat,i,keeper
+OWL-28,yellow keeps its own timer,i,keeper
+OWL-28,"clock-hand move, tick and path cue mark the reprise",ii,keeper
+OWL-28,destroyed hazards not resurrected / world not rewound,i,keeper
+OWL-29,exposure cycle uses unscaled active-gameplay time,i,keeper
+OWL-29,needle never bypasses magic or target order,i,keeper
+OWL-29,clock exposure independent of volley cadence,i,keeper
+OWL-30,mechanism break opens the clock,i,keeper
+OWL-30,break clears gusts,i,keeper
+OWL-30,"new fire stops during stun, traveling missiles continue",i,keeper
+OWL-30,fire pause freezes physical timers and pending emissions,i,keeper
+OWL-30,fire pause is not stun,i,keeper
+OWL-30,blackout cancels the physical move,i,keeper
+OWL-31,hit at 128-HP floor does not start slow,i,keeper
+OWL-31,slow cooldown must be ready,i,keeper
+OWL-31,slow lasts 3s,proven,keeper
+OWL-31,3s slow cooldown,proven,keeper
+OWL-31,new clock opening resets slow/eye flags and clears eye,i,keeper
+OWL-31,extending an opening does not reset flags,i,keeper
+OWL-31,lethal final-clock hit clears all effects,i,keeper
+OWL-32,eye-when-slow-off enabled by default and works with slow off,i,keeper
+OWL-32,eye window lasts 2s,proven,keeper
+OWL-32,eye needs cooldown ready and unused per-opening chance,i,keeper
+OWL-32,eye outlasts clock closing until its timer ends,i,keeper
+OWL-32,new clock opening clears the eye,i,keeper
+OWL-32,5s eye cooldown starts on eye hit,i,keeper
+OWL-32,blackout clears physical moves and gusts,i,keeper
+OWL-32,shaft/clock/fresh-shot cues and ground danger kept,i,keeper
+OWL-32,prior damaged body restored at blackout expiry,i,keeper
+OWL-32,blackout does not extend clock exposure,i,keeper
+OWL-33,slow/eye/cooldowns/stun/blackout/clock timers run unscaled,i,keeper
+OWL-33,physical attack timing scaled at x0.35,i,keeper
+OWL-33,player projectiles stay unscaled,i,keeper
+OWL-33,fire pause suspends physical timers,i,keeper
+OWL-33,traveling missiles continue during fire pause,i,keeper
+OWL-33,"decorative menu clocks may run while paused, no gameplay/VFX advance",i,keeper
+OWL-34,full warning→stroke→recovery→idle sequence asserted,i,keeper
+OWL-34,blackout and presentation locks respected by scheduler,i,keeper
+OWL-34,fire pause freezes pending emissions,i,keeper
+OWL-34,reduced projectile pressure during physical activity (assertion has vacuous OR),i,keeper
+OWL-34,overlapping escape routes tested,i,keeper
+OWL-35,living departure lasts ~2.5s as presentation only,i,keeper
+OWL-35,"retry clears casts, gusts, queued repeats, locks",i,keeper
+OWL-35,new-run reset clears state,i,keeper
+OWL-35,phase reset clears state,i,keeper
+OWL-35,XP policy applied,i,keeper
+HAZ-02,land is solid and harmless for Ella on contact,i,enemies2
+HAZ-03,"fixed camera at (960,540) (binding is RoomSize/2, no camera checked)",proven,enemies2
+HAZ-03,guard is stationary (never moves),i,enemies2
+HAZ-03,"guard contact damage 0 (bound, but no test exercises contact)",proven,enemies2
+HAZ-04,entry must be from the left,i,enemies2
+HAZ-04,source and muzzle fully visible check,i,enemies2
+HAZ-04,engagement validity required at warning start (only release tested),i,enemies2
+HAZ-05,recovery must complete before rearm,i,enemies2
+HAZ-05,no warning in reset/underpass (room only flags assist and exit),i,enemies2
+HAZ-05,launched projectile actor persists after guard disabled,i,enemies2
+HAZ-05,pause freezes all gameplay clocks (only guard clock tested),i,enemies2
+HAZ-05,no arbitrary seam culling of danger,i,enemies2
+HAZ-17,gate checks incoming velocity/mode,ii,enemies2
+HAZ-17,gate checks low health,ii,enemies2
+HAZ-17,gate checks dash state,ii,enemies2
+HAZ-17,gate checks pending warnings,i,enemies2
+HAZ-17,gate checks delayed impacts,i,enemies2
+HAZ-17,one active owner,i,enemies2
+HAZ-17,no new simultaneous timing demand without proof,i,enemies2
+HAZ-17,exact fallback specified,ii,enemies2
+HAZ-17,"integrate with progression, preserve earned state",ii,enemies2
+HAZ-17,catalogue not silently replaced,ii,enemies2
+CAM-03,required paths work with direct steering OFF,ii,levelchunks
+CAM-03,no mandatory dash/spell/invulnerability on required paths,ii,levelchunks
+CAM-05,support incoming speed and settle excess momentum at interface,ii,levelchunks
+CAM-06,opening height >= 2rz+2m (no failing-height case),i,levelchunks
+CAM-06,openings checked against full trap sweeps,ii,levelchunks
+CAM-06,unassisted recovery climb limited to ~0.15H or lift route (not in game),ii,levelchunks
+CAM-06,enlarged unqualified profiles get wider variants or labels,ii,levelchunks
+CAM-08,"next current, hazard and safe exit revealed before commitment",ii,levelchunks
+CAM-08,reveal holds when backtracking left (real chunks),i,levelchunks
+CAM-08,"clearance includes reaction, braking, height-change time",ii,levelchunks
+CAM-08,upper limits and bottom danger readable,ii,levelchunks
+HAZ-19,lethal world boundaries separately marked,ii,enemies2
+HAZ-19,collision follows visible moving parts,ii,enemies2
+HAZ-19,air mill visible hub and four blades,ii,enemies2
+HAZ-19,"never require tip-threading, destroying or invulnerability",ii,enemies2
+HAZ-19,foreground mill distinct from decorative distant windmill,ii,enemies2
+HAZ-20,visible crank/tension warning,ii,enemies2
+HAZ-20,clearly open look in recovery,ii,enemies2
+HAZ-20,hazard-free waiting pocket,i,enemies2
+HAZ-20,always-open low bypass in every variant (07B has upper detour),i,enemies2
+HAZ-20,"damage only on visible panels, never the gap",ii,enemies2
+HAZ-20,committed travel never trapped without exit,ii,enemies2
+HAZ-21,visible nozzle warning,ii,enemies2
+HAZ-21,warning locks one lane,ii,enemies2
+HAZ-21,push actually applied toward safe catch space (Motor ignores it),ii,enemies2
+HAZ-21,cannot Ride or absorb the gust,ii,enemies2
+HAZ-21,required wind never silently redirected,ii,enemies2
+HAZ-21,distinct cues: transport curls vs jagged hostile front,ii,enemies2
+HAZ-22,high-contrast projection visible on approach,ii,enemies2
+HAZ-22,no surprise activation,i,enemies2
+HAZ-22,no confusing decorative tiles,ii,enemies2
+HAZ-23,retime/reject encounter instead of freezing geometry,ii,enemies2
+HAZ-23,no attacks from UNcleared neighbours (test checks cleared),ii,enemies2
+HAZ-23,no pursuers past cleared exits,ii,enemies2
+HAZ-23,no shots through refuges,ii,enemies2
+HAZ-23,clear at observed safe boundary,ii,enemies2
+HAZ-31,neither variant requires a timed dash,ii,levelchunks
+HAZ-32,bellows source and whole path visible,ii,levelchunks
+HAZ-33,no hidden roof-face collision,i,levelchunks
+HAZ-34,net progress right (no test asserts it),i,levelchunks
+HAZ-34,sequence order low->reset->upper not asserted,i,levelchunks
+HAZ-35,A Warden fire starts only after crossing clears,ii,levelchunks
+HAZ-36,A alternate attack windows,ii,levelchunks
+HAZ-36,B stilt and Courier on the right (X not checked),i,levelchunks
+HAZ-36,no unavoidable simultaneous lanes,ii,levelchunks
+HAZ-36,B bypass specifically avoids the stilt,i,levelchunks
+HAZ-37,refuge CP2 placed after group B,i,levelchunks
+HAZ-37,once-only journey clue at CP2,ii,levelchunks
+HAZ-37,refuge CP3 after group C,i,levelchunks
+HAZ-37,quiet arrival before Keeper,i,levelchunks
+HAZ-37,recovery/story ordering stays fixed,i,levelchunks
+HAZ-40,"separate layout, cosmetic and story random streams",ii,levelchunks
+HAZ-40,new run saves seed and generator/catalog/profile versions,ii,levelchunks
+HAZ-40,saved variants immutable and ordered,ii,levelchunks
+HAZ-40,retry preserves resolved layout,ii,levelchunks
+HAZ-40,"route check: minimum lift, gun windows, pressure",ii,levelchunks
+HAZ-40,route check: story/recovery order,i,levelchunks
+HAZ-40,at most 32 attempts then named verified fallback,i,levelchunks
+HAZ-40,fallback failure branch force-tested,i,levelchunks
+FLOW-27,refuge core permanent harmless lift/reacquisition,ii,levelchunks
+FLOW-27,clear cycling space,ii,levelchunks
+FLOW-27,no incoming threat lane into core,ii,levelchunks
+FLOW-27,no forced damage or timer in refuge,i,levelchunks
+FLOW-27,optional yellow bay ahead/right expires shots before core,ii,levelchunks
+FLOW-27,ordinary yellow contact still hurts,i,levelchunks
+FLOW-29,Defeat/retry context alone is inspection-only,i,progression
+FLOW-29,'Active' eligibility condition,i,progression
+FLOW-29,CP0 alone is not a purchase zone,i,progression
+NAR-04,start confirmation consumed so it cannot also fire/hop,i,settings2
+NAR-07,Keeper withdraws alive into darkness,i,settings2
+FLOW-34,title music plays,ii,flow
+FLOW-34,background moves slowly,i,flow
+FLOW-34,background art contains no characters,i,flow
+FLOW-34,"second button label is 'Director's Cut', GDD says 'Start Director's Cut'",ii,flow
+FLOW-35,Quit exits the game,i,flow
+FLOW-35,pause background animates ticking clocks and falling objects,i,flow
+FLOW-35,pause background motion never advances gameplay,i,flow
+FLOW-39,Richard - Producer credit line,i,settings2
+FLOW-39,"end credits roll (FlowStoryText) lists the full team, only one role checked",i,settings2
+FLOW-40,"each page (Sound, Controller, Credits, Game Options) shows Back and Save buttons",i,settings2
+FLOW-49,title text 'Journey Complete',i,settings2
+FLOW-49,Main Menu button,i,settings2
+FLOW-49,approved Gothic storybook look,ii,settings2
+FLOW-49,readable controller/keyboard focus,ii,settings2
+FLOW-42,Review screen shows complete costs and effects,ii,progression
+FLOW-42,Confirm saves the staged draft atomically (draft commit untested),i,progression
+FLOW-42,Context change discards unconfirmed draft,i,progression
+FLOW-42,Start Game has no upgrades (purchase path),i,progression
+FLOW-43,dirty Back 'Save' choice saves,i,settings2
+FLOW-43,named setups independent of earned character state,ii,settings2
+FLOW-43,HP-max tuning requires explicit encounter restart,ii,settings2
+FLOW-43,reset never erases the earned profile,i,settings2
+ART-04,credits/End screen uses the Start background (only Story+Title flag tested),i,flow
+ART-04,background moves slowly,i,flow
+ART-04,background art contains no characters,i,flow
+MOVE-07,arrow-key trim aliases,i,move
+MOVE-07,fire goes right while traveling left,i,move
+MOVE-07,right stick selects spells,i,move
+MOVE-08,D-pad left/right and [ cycle spells,i,flow
+MOVE-08,keys 2/3 bound to Stream/Twin,i,flow
+MOVE-08,right-stick directions select spells,i,flow
+MOVE-08,Escape/Menu opens pause during play,i,flow
+MOVE-08,Cross/A/Enter triggers retry on defeat screen,i,flow
+MOVE-09,mouse click selects in menus,i,flow
+MOVE-09,controller button remap,ii,flow
+MOVE-10,controller (gamepad) button remap in Controller menu,i,settings2
+MOVE-17,controller (gamepad) button remap in Controller menu,i,settings2
+SURV-05,clock HUD actually drawn in game,i,move
+SURV-05,"no extra clocks, umbrella icons or numeric count",i,move
+SURV-05,Shoot-only fall does not auto-catch,i,move
+SURV-05,no absorption cooldown (repeated world catches),i,move
+SURV-06,+1 life per point (lives value after purchase),ii,progression
+SURV-06,previous-rank dependency for three-rank tracks,i,progression
+FLOW-24,story events deterministic on retry,ii,levelchunks
+COM-12,Floodstrider/Courier male+female art present,ii,enemies2
+COM-12,identity consistent across actions/colours/damage states,ii,enemies2
+COM-12,gender parity tested only for Roadwarden,i,enemies2
+COM-12,Floodstrider two-person four-stilt rig,ii,enemies2
+COM-12,woman-carrier/man-operator version and per-role alternatives,ii,enemies2
+COM-12,carrier/operator roles stay distinct,ii,enemies2
+COM-12,enemy contact damage OFF,i,enemies2
+COM-12,zero HP stops new/delayed fire,i,enemies2
+COM-12,non-graphic defeat/disable/withdrawal visual,i,enemies2
+COM-12,launched projectiles obey ownership/exit after defeat,i,enemies2
+COM-12,equipment art adds no extra shots,i,enemies2
+COM-13,Roadwarden equipment variants fire red and yellow,ii,enemies2
+COM-13,Floodstrider crew versions fire red and yellow,i,enemies2
+COM-13,Courier gender variants fire red and yellow,i,enemies2
+FLOW-46,Floodstriders placed high without platform,i,enemies2
+FLOW-46,shot colour chosen independently of gender,i,enemies2
+FLOW-46,MIX02 authored yellow reserved first,i,enemies2
+FLOW-46,collision clearance of placed enemies,ii,enemies2
+FLOW-46,simultaneous-threat limits preserved,ii,enemies2
+FLOW-46,"unsafe/unreachable encounters rejected, ratio not forced",ii,enemies2
+HAZ-41,spawned enemy stays on its floating area in world,ii,levelchunks
+HAZ-41,holes and gaps in support accounted for,ii,levelchunks
+HAZ-41,patrol span shrinks to available surface,ii,levelchunks
+HAZ-41,turn/attack motion kept within support,ii,levelchunks
+FLOW-47,QA-40/41/42 automated tests as defined,ii,levelchunks
+FLOW-47,short/long stilt configs validated,ii,levelchunks
+FLOW-47,"actual body/weapon extents validated, not spawn points",i,levelchunks
+FLOW-47,safe firing/catch-lane test,ii,levelchunks
+FLOW-47,"seeded record: seed, revision, enemy type/colour/transform, results",ii,levelchunks
+COM-14,female Roadwarden red/yellow firing,i,enemies2
+COM-14,patrol cannot move target behind fixed-right fire,i,enemies2
+COM-14,equipment variants keep same burst/cadence,ii,enemies2
+COM-15,two-person rig on four stilts,ii,enemies2
+COM-15,adjustable short/long stilt heights,i,enemies2
+COM-15,placed high without floating platform,ii,enemies2
+COM-15,male/female crew fire red and yellow,i,enemies2
+COM-15,harmless legs leave real underbody passage,ii,enemies2
+COM-15,gender keeps crew count/HP/scale/targeting/stilts,i,enemies2
+COM-16,male/female propeller art,ii,enemies2
+COM-16,four mounts never give simultaneous shots,i,enemies2
+COM-17,launched shots resolve normally after withdrawal,i,enemies2
+COM-17,duplicate callback rejected in world,i,enemies2
+COM-18,all required traversal works with basic fire,i,enemies2
+COM-18,Courier need not die to supply healing,i,enemies2
+COM-18,descent window and left reset before every enemy,ii,enemies2
+HAZ-24,no horizontal whole-chunk mirror,i,levelchunks
+FLOW-30,clock HUD actually drawn in game (only layout math tested),i,move
+FLOW-30,"antique bronze/gold look, smoky translucent face, etched rim",ii,move
+FLOW-30,warm gold upper-right arc,i,move
+FLOW-30,"no extra clocks, umbrella HUD units or numeric count",i,move
+FLOW-30,hands high-contrast/readable over face across scenes,i,move
+FLOW-31,life-loss transition adds no protection window,i,move
+FLOW-32,absorbed energy visibly flows into the clock,ii,move
+FLOW-32,gold arc restores on heal / drains on hit,i,move
+FLOW-32,life hand unchanged on partial damage/heal,i,move
+FLOW-32,reserve handover shown without invulnerability/reset pause,i,move
+FLOW-33,ordinary red/yellow projectile damage is 1 (no bound key),i,move
+FLOW-33,same-shot heal overflow into spent reserve,i,move
+FLOW-33,handover grants no new protection,i,move
+FLOW-33,progression rollback applied before health restore,i,move
+FLOW-33,normal checkpoint passage does not heal,i,move
+FLOW-33,+1 life per point in Director's Cut,i,move
+VFX-06,no dynamic VFX/illumination baked into base sprites,ii,standins
+VFX-06,"effects off: character stays dark, posed, damaged",i,standins
+VFX-06,audio cleared on retry/phase reset/defeat,i,standins
+VFX-06,effects cleared on defeat,i,standins
+VFX-06,destroyed parts not restored incorrectly,i,standins
+VFX-09,effects inspected at camera scale on every background/state,i,standins
+VFX-09,visual threat extent matches hitboxes,i,standins
+VFX-09,glow never implies range or hides safe gap,i,standins
+VFX-09,red/yellow distinguishable without colour,ii,standins
+VFX-09,warning/active/recovery distinguishable without colour,i,standins
+VFX-09,VFX/animation obey pause/slow/cancel timing,i,standins
+VFX-09,"no added delays, re-aims or beats",i,standins
+CORE-04,"movement owns input mode, position/velocity, locks",i,move
+CORE-04,"weapons own emission/trajectory/hit identity, not ammo",i,move
+CORE-04,"encounter owns targets, scheduling, cancellation",i,move
+CORE-04,attack model owns target/path/warning/stroke/recovery,i,move
+CORE-04,presentation never infers damage from animation completion,i,move
+CORE-04,"story owns facts/cues, not combat success",i,move
+CORE-04,level owns route/checkpoints/spawns,i,move
+CORE-04,tuning owns validated persistence,i,move
+CORE-05,stable anchors and event identities,i,move
+CORE-05,cosmetic swaps keep target order and attack timing,i,move
+CORE-05,settings and earned growth independent,i,move
