@@ -83,3 +83,8 @@ Minor, from review: freeze or protect Ella during Story/Credits; menu strings mo
 - Not mine, noted: audio's cue table also starts `MusicTitle` on ModeSelected, so the title music keeps playing into the fight.
 - rule-status.csv FLOW-34 note still lists these clauses as unproven; left for the rule-status owner (the i clauses
   "background moves slowly" and "no characters" are still unproven there).
+
+## Resume (Nov 13, after merging origin/main beccfa60)
+- Lane flow has one `ii` clause left: FLOW-34 "Start Director's Cut" label. Still blocked: main's pipeline/story/lines.csv
+  row 89 still reads "Director's Cut" (story lane). The exact diff is in docs/build/requests/flow.md. No other flow clause is
+  untagged or `ii`.
