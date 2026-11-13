@@ -21,7 +21,7 @@
 - Off-band now measured on source pixels, ink (L* <= 35) ignored; test `tests/test_art_judge_ink.py` (crisp ink-lined crimson passes, flood-filled teal fails). Calibrated all 26 vfx-* elements (D-new-vfx-calibration): refs pass their own element (1.0), crushed copies fail (0.2). One-image elements keep their inherited score_min.
 - Re-judge clock-beat (min now 0.945): sheet3 0.2 (offband gate still fires, 0.02 before), sheet4 0.553, sheet5 0.612. The gap is now the work (shape/edge/value vs the refs), not the check.
 - Open for the lead: the measured mins are 0.93-0.97 because the refs are near-identical to each other; that is a near-clone bar for new paint. If it is too tight, that is a bar decision, not mine.
-- Left: repaint toward the ref silhouette and value, then the other 7 pieces. `pipeline_check` shows 2 problems from main (missing tools/build/agent_play.py), not this lane.
+- Left: repaint toward the ref silhouette and value, then the other 7 pieces. `pipeline_check` shows 2 problems from main (a missing agent play tool), not this lane.
 
 ## Slice 4 (Nov 13): blocked, calibration bar measures sheet layout
 - Triage: check defect. vfx refs are whole opaque concept sheets (mask 1.0, aspect 1.34-1.49); calibrated min 0.945 is a layout match no sprite can reach. Crops of the shot score each other 0.53-0.73; clock-beat sheet5 scores 0.52-0.55 against them. Details and the exact fix: `docs/build/requests/artfx2.md` request 2.
