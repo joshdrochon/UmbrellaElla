@@ -96,6 +96,9 @@ struct UMBRELLAELLA_API FFlowRules
 	/** True once Elapsed has reached Duration. */
 	static bool IsTimelineDone(float Elapsed, float Duration);
 
+	/** The looping sound-list row a screen starts (Start and credits share the title track), or NAME_None to leave music as is. */
+	static FName MusicFor(EFlowScreen Screen);
+
 	/** Story Skip keys (opening caption, ending): Enter and the gamepad View button; no gameplay action uses them, so a skip press never reaches play. */
 	static TArray<FKey> StorySkipKeys();
 
