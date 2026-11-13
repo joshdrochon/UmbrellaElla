@@ -12,3 +12,9 @@ vfx-eye-exposed, vfx-keeper-recovery, vfx-keeper-strike, vfx-restoration, yellow
 Prompts: `pipeline/art/proof/firstdrafts/make_jobs.py`. One flash draft each into `pipeline/art/proof/firstdrafts/<piece>/draft1.png`.
 
 ## Progress
+
+## Result (2026-11-13)
+- 28 of 28 pieces now have a flash draft: `pipeline/art/proof/firstdrafts/<piece>/draft1.png` (gemini-2.5-flash-image). Sprite pieces also have `draft1_clean.png` (chroma key #00FF00). No panel, not judged.
+- Effect strips (stream-beam, vfx-*) were drawn at 21:9; flash has no 4:1.
+- Final model (gemini-3-pro-image-preview, 2K): 1 of 28 made, `bg-start-end/final1.png`. The other 27 are refused by assetgen's DRAFT FIRST guard: `--from-draft` must pass art_check, and these drafts fail it (on_palette, off_band, paper_texture, dark_share). Raw drafts on a green key fail by design; the keyed copies still fail on palette/accents. The guard was not loosened. A pass needs redrawn drafts or the art lanes' loop.
+- Spend: gemini only, about $1.09 for 28 drafts + $0.137 for the one final. No OpenRouter or fal calls. Shared counter was $30.0 of $33.82 at start; headroom for all 27 finals (~$3.6) was not there either.

@@ -34,23 +34,29 @@ J = {
  "keeper-talon": ("16:9", "A metal owl's talon in side view in two poses: an open raking claw, and a closed gripping fist. Dark iron with bronze joints and fine cross-hatching. "+SPRITE),
  "keeper-wing": ("16:9", KEEPER+"Only the wings, in four poses in a row: gathered, mid-flap, spread front, recovery. Rigid perforated vane wings, one worn with a missing vane. "+SPRITE),
  "menu-screen": ("16:9", UI+"A pause screen: a centered engraved panel with a ring of gold clock gears, three menu rows."),
- "stream-beam": ("4:1", "Ella's Streamed Blast: a long horizontal gold #E9C46A beam with ivory #FFF5DC interior strands and a bright core, seen as three stages in a row: start-up flare, the sustained beam, the stop fade. Angular, faceted, spark edges. "+SPRITE),
+ "stream-beam": ("21:9", "Ella's Streamed Blast: a long horizontal gold #E9C46A beam with ivory #FFF5DC interior strands and a bright core, seen as three stages in a row: start-up flare, the sustained beam, the stop fade. Angular, faceted, spark edges. "+SPRITE),
  "ui-journey-complete": ("16:9", UI+"The Journey Complete screen: a large engraved heading, eight stat rows with gold numbers, two buttons Try Again and Main Menu."),
  "ui-level-up": ("16:9", UI+"The level-up screen: a big engraved level number as the heading and a short list of menu items below."),
  "ui-purchase": ("16:9", UI+"The Ella and Spells purchase screen: level and points at the top, rows with a minus and a plus button each, buttons Confirm, Cancel and Done."),
  "ui-spell-wheel": ("1:1", "A spell wheel: a circular etched ring with four spell slots shown as locked, available and equipped, lettered and engraved like clock work, gold line work on dark charcoal, a still ring of gears. Fill the canvas, no border."),
  "ui-xp-ring": ("1:1", "A game HUD clock face with a thin glowing gold ring around it as an experience ring, etched clock numerals, one long hand, gold line work on dark charcoal. "+SPRITE),
- "vfx-clock-open": ("4:1", "The Keeper's chest clock opening: four stages in a row, cover plates sliding apart, glass catching light, hands visible. Brass and gold, flat side view. "+SPRITE),
- "vfx-departure": ("4:1", "The Keeper's departure effect: four stages in a row, soft gold sparks and curling pale wind lifting upward and fading. "+SPRITE),
- "vfx-eye-exposed": ("4:1", "An exposed amber eye of a metal owl: four stages in a row, a glowing amber #FFC76A eye with a vertical slit, a ring flare and tiny sparks. "+SPRITE),
- "vfx-keeper-recovery": ("4:1", "The Keeper's recovery cue: four stages in a row, cool pale blue mist and small gears settling, a steady faint ring. "+SPRITE),
- "vfx-keeper-strike": ("4:1", "The Keeper's strike effect: four stages in a row, a curved crimson #FF3658 slash with coral #FF7848 edge and pale core, angular shards. "+SPRITE),
- "vfx-restoration": ("4:1", "The restoration after blackout: four stages in a row, warm gold light blooming from a point and spreading as a soft ring, small sparks. "+SPRITE),
+ "vfx-clock-open": ("21:9", "The Keeper's chest clock opening: four stages in a row, cover plates sliding apart, glass catching light, hands visible. Brass and gold, flat side view. "+SPRITE),
+ "vfx-departure": ("21:9", "The Keeper's departure effect: four stages in a row, soft gold sparks and curling pale wind lifting upward and fading. "+SPRITE),
+ "vfx-eye-exposed": ("21:9", "An exposed amber eye of a metal owl: four stages in a row, a glowing amber #FFC76A eye with a vertical slit, a ring flare and tiny sparks. "+SPRITE),
+ "vfx-keeper-recovery": ("21:9", "The Keeper's recovery cue: four stages in a row, cool pale blue mist and small gears settling, a steady faint ring. "+SPRITE),
+ "vfx-keeper-strike": ("21:9", "The Keeper's strike effect: four stages in a row, a curved crimson #FF3658 slash with coral #FF7848 edge and pale core, angular shards. "+SPRITE),
+ "vfx-restoration": ("21:9", "The restoration after blackout: four stages in a row, warm gold light blooming from a point and spreading as a soft ring, small sparks. "+SPRITE),
  "yellow-shot": ("1:1", "The yellow shot: a pointed angular projectile in side view, one sharp faceted blade, yellow #FFD84A and amber #F5AA28 with deep #94611E shadow, a pale core #FFF5DC, a short trail. "+SPRITE),
 }
 jobs=[]
 for p,(asp,body) in J.items():
-    prompt=("A "+{"16:9":"wide","4:1":"very wide 4:1","1:1":"square"}[asp]+" picture for a 2D game, piece "+p+". "+body+" "+STYLE)
-    jobs.append(["--prompt",prompt,"--out",f"pipeline/art/proof/firstdrafts/{p}/draft1.png","--tier","draft","--aspect",asp])
+    prompt=("A "+{"16:9":"wide","21:9":"very wide 21:9","1:1":"square"}[asp]+" picture for a 2D game, piece "+p+". "+body+" "+STYLE)
+    jobs.append(["--prompt",prompt,"--out",f"pipeline/art/proof/firstdrafts/{p}/draft1.png","--tier","draft","--aspect",asp,"--piece",p])
+if len(sys.argv)>2 and sys.argv[2]=="final":
+    for j in jobs:
+        p=j[j.index("--piece")+1]
+        j[j.index("--out")+1]=f"pipeline/art/proof/firstdrafts/{p}/final1.png"
+        j[j.index("--tier")+1]="final"
+        j+=["--image-size","2K","--from-draft",f"pipeline/art/proof/firstdrafts/{p}/draft1.png"]
 json.dump(jobs,open(sys.argv[1],"w"),indent=1)
 print(len(jobs))
