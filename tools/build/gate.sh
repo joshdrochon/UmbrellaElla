@@ -12,7 +12,7 @@
 # Exit 0 = merged, 1 = failed, 3 = held for review changes (send them to the area worker once, then rerun).
 set -u
 A="${1#area/}"; C="${2:-area/$A}"; ROOT="$(cd "$(dirname "$0")/../.." && pwd)"; BASE="$(dirname "$ROOT")/UmbrellaElla-areas"
-G="$BASE/gate"; L="$BASE/logs"; mkdir -p "$L"; T0=$(date +%s); fail=0
+G="${GATE_DIR:-$BASE/gate}"; GB="${GATE_BRANCH:-gate}"; L="$BASE/logs"; mkdir -p "$L"; T0=$(date +%s); fail=0
 # A head the gate failed or held is never gated again; the lane needs new commits (Josh, Nov 12). Lane verdicts are
 # recorded on exit (1 FAIL, 3 HOLD); exits that are not the lane's fault set NORECORD=1 first.
 TIP="$(git -C "$ROOT" rev-parse "$C" 2>/dev/null)"; NORECORD=0
@@ -26,7 +26,7 @@ if [ "$A" != artinventory ] && { git -C "$ROOT" diff --name-only "main...$C" 2>/
   git -C "$ROOT" cat-file -e main:tools/build/art_pass_verify.py 2>/dev/null || { NORECORD=1; echo "GATE FAIL: area/$A waits for tools/build/art_pass_verify.py on main (pass records must be re-verified)"; exit 1; }
 fi
 cd "$ROOT"; git fetch -q origin
-[ -d "$G" ] || git worktree add -q "$G" -B gate main
+[ -d "$G" ] || git worktree add -q "$G" -B "$GB" main
 mkdir -p "$G/Saved/Config/MacEditor"; cp -n "$ROOT/Saved/Config/MacEditor/GameUserSettings.ini" "$G/Saved/Config/MacEditor/" 2>/dev/null
 cd "$G"; git reset -q --hard main; MAIN=$(git rev-parse HEAD)
 T1=$(date +%s); python3 tools/build/quality_gate.py baseline "$L/quality-base.txt" 2>/dev/null; step "baseline"
@@ -122,13 +122,15 @@ if [ $rv != 0 ] && [ "$n" = 0 ]; then
 fi
 [ $rv != 0 ] && echo "review changes after the one round: merge goes ahead; add $L/review-$A.txt items to HANDOFF follow-ups"
 echo 0 > "$ROUND"
+# Dry run (GATE_NOPUSH=1, with GATE_DIR/GATE_BRANCH for a separate checkout): every check ran; main is not touched.
+if [ -n "${GATE_NOPUSH:-}" ]; then echo "GATE DRY PASS: area/$A $(git rev-parse --short HEAD) (main untouched, $(( $(date +%s) - T0 )) s)"; exit 0; fi
 cd "$ROOT"
-if ! git merge -q --ff-only gate 2>/dev/null; then
-  base=$(git merge-base main gate)
+if ! git merge -q --ff-only "$GB" 2>/dev/null; then
+  base=$(git merge-base main "$GB")
   if git diff --name-only "$base" main | grep -q -E '^(Source|Config|Content|Plugins)/|\.uproject$'; then
     NORECORD=1; echo "GATE FAIL: main moved with game-file changes during the gate; rerun"; exit 1
   fi
-  git -c core.hooksPath=/dev/null merge -q --no-edit -m "Merge gate result for area/$A" gate || { git merge --abort; echo "GATE FAIL: merge"; exit 1; }
+  git -c core.hooksPath=/dev/null merge -q --no-edit -m "Merge gate result for area/$A" "$GB" || { git merge --abort; echo "GATE FAIL: merge"; exit 1; }
 fi
 git push -q origin main 2>/dev/null || { git fetch -q origin && git -c core.hooksPath=/dev/null merge -q --no-edit origin/main && git push -q origin main; } || { echo "GATE FAIL: push"; exit 1; }
 echo "GATE PASS: main $(git rev-parse --short HEAD) pushed ($(( $(date +%s) - T0 )) s)"
