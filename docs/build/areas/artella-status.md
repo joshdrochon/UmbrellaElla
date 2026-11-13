@@ -96,3 +96,8 @@ Merged main and artslots; `FB_Ella` loader still absent from Source (request #2 
 Critic noise on attack (calibration 3/6) is the critic's, not a defect found in the images; reasons match the references. Verdict: work.
 Nothing shipped. Every pass is blocked anyway by the `context` pair (request #2). Next once the slot exists: import up-open as `FB_Ella_Open_PH`, capture, finish its panel.
 Next paints: shield R3 (terminal, finial, mask, gold in prompt), closed R3 (airborne folded umbrella, ref check 0.2).
+
+## Round 11 (Nov 13): re-checked after merging main, still blocked on request #2
+Merged main; origin/area/artslots has nothing new. `grep -rn "Art/Ella" Source` finds no Ella loader (only VFX paths). `Content/UmbrellaElla/Art/` has only `VFX/`.
+No `context` capture is possible, so no Ella piece can pass. No paint spend this round (R3 for shield/closed would not change that).
+Stopped on the blocker: lead must add the `FB_Ella_<State>_PH` loader in the feedback lane (docs/build/requests/artella.md #2). Then: import ella-up-open as `FB_Ella_Open_PH`, capture, finish its panel; paint shield R3 and closed R3.
