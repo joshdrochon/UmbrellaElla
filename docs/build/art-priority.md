@@ -96,3 +96,11 @@ hard high-rank one. Log the reason in your status when you deviate.
 | 84 | keeper-departure | Keeper departure pose |
 | 85 | ui-journey-complete | Journey Complete screen |
 | 86 | ui-credits | credits |
+
+## Animation bar (Josh, Nov 13)
+The Ella idle video is the animation bar. Once its owner approval is recorded (pipeline/art/approvals.json, the
+24-frame strip), that strip and its GIF preview become the motion quality reference in every animated piece's panel:
+motion smoothness, frame-to-frame consistency and style. The lead wires it in after the approval lands.
+
+## Polish (only if time allows, after every piece passes)
+- ella-idle: a slight umbrella sway in the idle loop (Josh, Nov 13). Not now.
