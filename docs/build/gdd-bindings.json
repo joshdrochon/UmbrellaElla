@@ -1,0 +1,2203 @@
+{
+ "_note": "Hand-written, reviewed. Spec key (docs/build/gdd-spec.json) -> where the game holds the value. Read by tools/build/gdd_check.py. A key the spec no longer has fails as stale; a spec key not listed is UNBOUND (reported).",
+ "_kinds": "tuning: FStruct.Field[.X|.Y|.Z] default in a *Tuning.h; const: path:Symbol; playtest: {line,match,field}; scale: game*scale = GDD unit",
+ "COM-06.burst_option": {
+  "tuning": "FAttackTuning.SmallBurstCount"
+ },
+ "COM-06.damage": {
+  "tuning": "FAttackTuning.SmallDamage"
+ },
+ "COM-06.range": {
+  "tuning": "FAttackTuning.SmallRange"
+ },
+ "COM-06.shots": {
+  "tuning": "FAttackTuning.SmallBurstMax"
+ },
+ "COM-06.spacing": {
+  "tuning": "FAttackTuning.SmallBurstSpacing"
+ },
+ "COM-06.speed": {
+  "tuning": "FAttackTuning.SmallSpeed"
+ },
+ "COM-06.traveling_shots": {
+  "tuning": "FAttackTuning.SmallShotsPerSecond"
+ },
+ "COM-07.continuous_beam": {
+  "tuning": "FAttackTuning.StreamTicksPerSecond"
+ },
+ "COM-07.damage": {
+  "tuning": "FAttackTuning.StreamTickDamage"
+ },
+ "COM-07.growth": {
+  "tuning": "FAttackTuning.StreamGrowthSpeed"
+ },
+ "COM-07.range": {
+  "tuning": "FAttackTuning.StreamMaxRange"
+ },
+ "COM-07.width": {
+  "tuning": "FAttackTuning.StreamWidth"
+ },
+ "COM-08.damage": {
+  "tuning": "FAttackTuning.TwinDamage"
+ },
+ "COM-08.range": {
+  "tuning": "FAttackTuning.TwinRange"
+ },
+ "COM-08.speed": {
+  "tuning": "FAttackTuning.TwinSpeed"
+ },
+ "COM-08.units": {
+  "tuning": "FAttackTuning.TwinSeparation"
+ },
+ "COM-08.units.2": {
+  "tuning": "FAttackTuning.TwinVolleysPerSecond"
+ },
+ "COM-09.damage": {
+  "tuning": "FAttackTuning.NeedleDamage"
+ },
+ "COM-09.range": {
+  "tuning": "FAttackTuning.NeedleRange"
+ },
+ "COM-09.shots": {
+  "tuning": "FAttackTuning.NeedleShotsPerSecond"
+ },
+ "COM-09.size_multiplier": {
+  "tuning": "FAttackTuning.NeedleSizeMultiplier"
+ },
+ "COM-09.speed": {
+  "tuning": "FAttackTuning.NeedleSpeed"
+ },
+ "COM-14.adjustable_baseline": {
+  "tuning": "FEnemyTuning.RoadwardenHp"
+ },
+ "COM-14.aim": {
+  "tuning": "FEnemyTuning.RoadwardenAimSeconds"
+ },
+ "COM-14.cycle": {
+  "tuning": "FEnemyTuning.RoadwardenCycleSeconds"
+ },
+ "COM-14.incoming_damage": {
+  "tuning": "FEnemyTuning.IncomingDamage"
+ },
+ "COM-14.patrol_span": {
+  "tuning": "FEnemyTuning.RoadwardenPatrolSpan"
+ },
+ "COM-14.recovery": {
+  "tuning": "FEnemyTuning.RoadwardenRecoverySeconds"
+ },
+ "COM-14.shot_speed": {
+  "tuning": "FEnemyTuning.RoadwardenShotSpeed"
+ },
+ "COM-14.units": {
+  "tuning": "FEnemyTuning.RoadwardenPatrolSpeed"
+ },
+ "COM-14.value": {
+  "tuning": "FEnemyTuning.RoadwardenTorso.Y"
+ },
+ "COM-14.x": {
+  "tuning": "FEnemyTuning.RoadwardenTorso.X"
+ },
+ "COM-15.adjustable_baseline": {
+  "tuning": "FEnemyTuning.FloodstriderHp"
+ },
+ "COM-15.brace": {
+  "tuning": "FEnemyTuning.FloodstriderAimSeconds"
+ },
+ "COM-15.cycle": {
+  "tuning": "FEnemyTuning.FloodstriderCycleSeconds"
+ },
+ "COM-15.incoming_damage": {
+  "tuning": "FEnemyTuning.IncomingDamage"
+ },
+ "COM-15.patrol_span": {
+  "tuning": "FEnemyTuning.FloodstriderPatrolSpan"
+ },
+ "COM-15.recovery": {
+  "tuning": "FEnemyTuning.FloodstriderRecoverySeconds"
+ },
+ "COM-15.settle": {
+  "tuning": "FEnemyTuning.FloodstriderPatrolSpeed"
+ },
+ "COM-15.shot_speed": {
+  "tuning": "FEnemyTuning.FloodstriderShotSpeed"
+ },
+ "COM-15.target_torso": {
+  "tuning": "FEnemyTuning.FloodstriderTorso.X"
+ },
+ "COM-15.value": {
+  "tuning": "FEnemyTuning.FloodstriderTorso.Y"
+ },
+ "COM-15.value.2": {
+  "tuning": "FEnemyTuning.FloodstriderStiltHeight"
+ },
+ "COM-16.adjustable_baseline": {
+  "tuning": "FEnemyTuning.CourierHp"
+ },
+ "COM-16.aim": {
+  "tuning": "FEnemyTuning.CourierAimSeconds"
+ },
+ "COM-16.cycle": {
+  "tuning": "FEnemyTuning.CourierCycleSeconds"
+ },
+ "COM-16.hover": {
+  "tuning": "FEnemyTuning.CourierPatrolSpeed"
+ },
+ "COM-16.incoming_damage": {
+  "tuning": "FEnemyTuning.IncomingDamage"
+ },
+ "COM-16.patrol_span": {
+  "tuning": "FEnemyTuning.CourierPatrolSpan"
+ },
+ "COM-16.recovery": {
+  "tuning": "FEnemyTuning.CourierRecoverySeconds"
+ },
+ "COM-16.shot_speed": {
+  "tuning": "FEnemyTuning.CourierShotSpeed"
+ },
+ "COM-16.value": {
+  "tuning": "FEnemyTuning.CourierBody.Y"
+ },
+ "COM-16.x": {
+  "tuning": "FEnemyTuning.CourierBody.X"
+ },
+ "FLOW-05.c": {
+  "tuning": "FProgressionTuning.HpMultiplierStep"
+ },
+ "FLOW-05.c.2": {
+  "tuning": "FProgressionTuning.CadenceMultiplierStep"
+ },
+ "FLOW-05.c.3": {
+  "tuning": "FProgressionTuning.CountMultiplierStep"
+ },
+ "FLOW-05.value": {
+  "tuning": "FProgressionTuning.HpMultiplierCap"
+ },
+ "FLOW-05.value.3": {
+  "tuning": "FProgressionTuning.CadenceMultiplierCap"
+ },
+ "FLOW-05.value.5": {
+  "tuning": "FProgressionTuning.CountMultiplierCap"
+ },
+ "FLOW-06.eligible": {
+  "tuning": "FProgressionTuning.FinalHourCadenceMultiplier"
+ },
+ "FLOW-06.ordinary": {
+  "tuning": "FProgressionTuning.FinalHourHpMultiplier"
+ },
+ "FLOW-06.value": {
+  "tuning": "FProgressionTuning.FinalHourCountMultiplier"
+ },
+ "FLOW-15.assumes_roughly": {
+  "tuning": "FProgressionTuning.TargetXpPerRun"
+ },
+ "FLOW-15.hits": {
+  "tuning": "FProgressionTuning.StartHitsPerLife"
+ },
+ "FLOW-15.hits.2": {
+  "tuning": "FProgressionTuning.StartHitsPerLife"
+ },
+ "FLOW-15.hits.3": {
+  "tuning": "FProgressionTuning.MaxHitsPerLife"
+ },
+ "FLOW-15.l_costs": {
+  "tuning": "FProgressionTuning.XpCurveBase"
+ },
+ "FLOW-15.level_cap": {
+  "tuning": "FProgressionTuning.LevelCap"
+ },
+ "FLOW-15.lives": {
+  "tuning": "FProgressionTuning.StartLives"
+ },
+ "FLOW-15.lives.2": {
+  "tuning": "FProgressionTuning.MaxLivesCap"
+ },
+ "FLOW-15.recovery": {
+  "tuning": "FProgressionTuning.RecoveryRanks"
+ },
+ "FLOW-15.total": {
+  "tuning": "FProgressionTuning.StartLives"
+ },
+ "FLOW-16.level": {
+  "tuning": "FProgressionTuning.UnlockLevelSmall"
+ },
+ "FLOW-16.level.2": {
+  "tuning": "FProgressionTuning.UnlockLevelStreamed"
+ },
+ "FLOW-16.level.3": {
+  "tuning": "FProgressionTuning.UnlockLevelTwin"
+ },
+ "FLOW-16.level.4": {
+  "tuning": "FProgressionTuning.UnlockLevelNeedle"
+ },
+ "FLOW-19.ordinary_courier": {
+  "tuning": "FProgressionTuning.XpRoadwarden"
+ },
+ "FLOW-19.value": {
+  "tuning": "FProgressionTuning.XpFloodstrider"
+ },
+ "FLOW-19.value.2": {
+  "tuning": "FProgressionTuning.XpWings"
+ },
+ "FLOW-19.value.3": {
+  "tuning": "FProgressionTuning.XpFront"
+ },
+ "FLOW-19.value.4": {
+  "tuning": "FProgressionTuning.XpMiddle"
+ },
+ "FLOW-19.value.5": {
+  "tuning": "FProgressionTuning.XpRear"
+ },
+ "FLOW-19.value.6": {
+  "tuning": "FProgressionTuning.XpClock"
+ },
+ "FLOW-19.xp": {
+  "tuning": "FProgressionTuning.XpCourier"
+ },
+ "FLOW-33.healing_retains": {
+  "tuning": "FHealthTuning.HealPerYellow"
+ },
+ "FLOW-33.hp": {
+  "tuning": "FKeeperTuning.GustDamage"
+ },
+ "FLOW-33.independently_reach": {
+  "tuning": "FProgressionTuning.MaxHitsPerLife"
+ },
+ "FLOW-33.modes_start": {
+  "tuning": "FProgressionTuning.StartHitsPerLife"
+ },
+ "FLOW-33.pct": {
+  "tuning": "FProgressionTuning.DamageReductionRankIII",
+  "scale": 100
+ },
+ "FLOW-33.talon_damage": {
+  "tuning": "FKeeperTuning.TalonDamage"
+ },
+ "FLOW-33.value": {
+  "tuning": "FHealthTuning.TrapDamage"
+ },
+ "FLOW-33.value.18": {
+  "tuning": "FProgressionTuning.StartLives"
+ },
+ "FLOW-33.value.2": {
+  "tuning": "FKeeperTuning.ChainDamage"
+ },
+ "FLOW-33.value.4": {
+  "tuning": "FHealthTuning.OldDamageDivisor"
+ },
+ "FLOW-33.value.7": {
+  "tuning": "FProgressionTuning.DamageReductionRankI",
+  "scale": 100
+ },
+ "FLOW-33.value.8": {
+  "tuning": "FProgressionTuning.DamageReductionRankII",
+  "scale": 100
+ },
+ "HAZ-03.compare": {
+  "tuning": "FBrokenMillTuning.GuardHpComparison"
+ },
+ "HAZ-03.contact_damage": {
+  "tuning": "FBrokenMillTuning.ContactDamage"
+ },
+ "HAZ-03.introductory_guard": {
+  "tuning": "FBrokenMillTuning.GuardHp"
+ },
+ "HAZ-03.muzzle": {
+  "tuning": "FBrokenMillTuning.GuardMuzzle.X"
+ },
+ "HAZ-03.proposed": {
+  "tuning": "FBrokenMillTuning.RoomSize.X"
+ },
+ "HAZ-03.room": {
+  "tuning": "FBrokenMillTuning.RoomSize.Y"
+ },
+ "HAZ-03.rotor_centre": {
+  "tuning": "FBrokenMillTuning.RotorCentre.X"
+ },
+ "HAZ-03.shared": {
+  "tuning": "FBrokenMillTuning.TargetSize.X"
+ },
+ "HAZ-03.swept_radius": {
+  "tuning": "FBrokenMillTuning.RotorRadius"
+ },
+ "HAZ-03.target": {
+  "tuning": "FBrokenMillTuning.TargetSize.Y"
+ },
+ "HAZ-03.target_centred": {
+  "tuning": "FBrokenMillTuning.TargetCentre.X"
+ },
+ "HAZ-03.top": {
+  "tuning": "FBrokenMillTuning.IslandXRange.Y"
+ },
+ "HAZ-03.top.2": {
+  "tuning": "FBrokenMillTuning.IslandTop"
+ },
+ "HAZ-03.underside": {
+  "tuning": "FBrokenMillTuning.IslandUnderside"
+ },
+ "HAZ-03.value.2": {
+  "tuning": "FBrokenMillTuning.RotorCentre.Y"
+ },
+ "HAZ-03.value.3": {
+  "tuning": "FBrokenMillTuning.IslandTop"
+ },
+ "HAZ-03.value.4": {
+  "tuning": "FBrokenMillTuning.IslandXRange.X"
+ },
+ "HAZ-03.value.5": {
+  "tuning": "FBrokenMillTuning.GuardMuzzle.Y"
+ },
+ "HAZ-03.value.6": {
+  "tuning": "FBrokenMillTuning.TargetCentre.Y"
+ },
+ "HAZ-04.value": {
+  "tuning": "FBrokenMillTuning.ActivationX.X"
+ },
+ "HAZ-04.value.2": {
+  "tuning": "FBrokenMillTuning.ActivationX.Y"
+ },
+ "HAZ-04.value.3": {
+  "tuning": "FBrokenMillTuning.ActivationZ.X"
+ },
+ "HAZ-04.value.4": {
+  "tuning": "FBrokenMillTuning.ActivationZ.Y"
+ },
+ "HAZ-04.warning": {
+  "tuning": "FBrokenMillTuning.WarningSeconds"
+ },
+ "HAZ-05.enemy_bullets": {
+  "tuning": "FBrokenMillTuning.MaxActiveEnemyBullets"
+ },
+ "HAZ-05.incoming_damage": {
+  "tuning": "FBrokenMillTuning.ShotDamage"
+ },
+ "HAZ-05.projectile_speed": {
+  "tuning": "FBrokenMillTuning.ShotSpeed"
+ },
+ "HAZ-05.radius": {
+  "tuning": "FBrokenMillTuning.ShotRadius"
+ },
+ "HAZ-05.range": {
+  "tuning": "FBrokenMillTuning.ShotRange"
+ },
+ "HAZ-05.recovery": {
+  "tuning": "FBrokenMillTuning.RecoverySeconds"
+ },
+ "HAZ-06.eligiblez": {
+  "tuning": "FBrokenMillTuning.UpperResetZ.X"
+ },
+ "HAZ-06.eligiblez.2": {
+  "tuning": "FBrokenMillTuning.LowerOnwardZ.X"
+ },
+ "HAZ-06.toward_exit": {
+  "tuning": "FBrokenMillTuning.ExitPoint.X"
+ },
+ "HAZ-06.value": {
+  "tuning": "FBrokenMillTuning.FiringColumnX.X"
+ },
+ "HAZ-06.value.14": {
+  "tuning": "FBrokenMillTuning.LowerOnwardZ.Y"
+ },
+ "HAZ-06.value.19": {
+  "tuning": "FBrokenMillTuning.ExitPoint.Y"
+ },
+ "HAZ-06.value.2": {
+  "tuning": "FBrokenMillTuning.FiringColumnX.Y"
+ },
+ "HAZ-06.value.5": {
+  "tuning": "FBrokenMillTuning.UpperResetZ.Y"
+ },
+ "HAZ-06.value.8": {
+  "tuning": "FBrokenMillTuning.ProtectedCoreX.X"
+ },
+ "HAZ-06.value.9": {
+  "tuning": "FBrokenMillTuning.ProtectedCoreX.Y"
+ },
+ "HAZ-07.falling": {
+  "playtest": {
+   "line": "PLAYTEST_CAM07",
+   "field": "decision_height"
+  }
+ },
+ "HAZ-07.restoring_gain": {
+  "tuning": "FBrokenMillTuning.LocalRestoringGain"
+ },
+ "HAZ-07.sends": {
+  "tuning": "FBrokenMillTuning.MissedCurrentAssistPoint.Y"
+ },
+ "HAZ-07.value": {
+  "tuning": "FBrokenMillTuning.MissedCurrentAssistPoint.X"
+ },
+ "HAZ-07.vertical_compensation": {
+  "tuning": "FBrokenMillTuning.LocalVerticalCompensation"
+ },
+ "HAZ-08.floor": {
+  "tuning": "FBrokenMillTuning.FloorTop"
+ },
+ "HAZ-08.island_right": {
+  "tuning": "FBrokenMillTuning.IslandXRange.Y"
+ },
+ "HAZ-08.proposed": {
+  "tuning": "FBrokenMillTuning.LocalRestoringGain"
+ },
+ "HAZ-08.value": {
+  "tuning": "FBrokenMillTuning.MaxHalfHeight"
+ },
+ "HAZ-08.value.3": {
+  "tuning": "FBrokenMillTuning.LocalVerticalCompensation"
+ },
+ "HAZ-08.value.6": {
+  "tuning": "FBrokenMillTuning.MaxHalfWidth"
+ },
+ "HAZ-09.bullet": {
+  "tuning": "FBrokenMillTuning.ShotRadius"
+ },
+ "HAZ-09.radius": {
+  "tuning": "FBrokenMillTuning.ShotRadius"
+ },
+ "HAZ-09.radius.2": {
+  "tuning": "FBrokenMillTuning.FriendlyShotRadius"
+ },
+ "HAZ-09.rotor": {
+  "tuning": "FBrokenMillTuning.RotorRadius"
+ },
+ "HAZ-09.value.2": {
+  "tuning": "FBrokenMillTuning.RayEndX"
+ },
+ "HAZ-09.value.3": {
+  "tuning": "FBrokenMillTuning.MaxHalfWidth"
+ },
+ "HAZ-10.burst": {
+  "tuning": "FAttackTuning.SmallBurstCount"
+ },
+ "HAZ-10.effective_damage": {
+  "tuning": "FAttackTuning.SmallDamage"
+ },
+ "HAZ-10.fall": {
+  "tuning": "FMotorTuning.FallSpeed"
+ },
+ "HAZ-10.lift": {
+  "tuning": "FHealthTuning.MinLift"
+ },
+ "HAZ-10.pct": {
+  "tuning": "FMotorTuning.VerticalTrimPct"
+ },
+ "HAZ-10.radius": {
+  "tuning": "FAttackTuning.BlastRadius"
+ },
+ "HAZ-10.range": {
+  "tuning": "FAttackTuning.SmallRange"
+ },
+ "HAZ-10.rise": {
+  "tuning": "FMotorTuning.RiseSpeed"
+ },
+ "HAZ-10.small_blasts": {
+  "tuning": "FAttackTuning.SmallShotsPerSecond"
+ },
+ "HAZ-10.speed": {
+  "tuning": "FAttackTuning.SmallSpeed"
+ },
+ "HAZ-10.value": {
+  "tuning": "FAttackTuning.MuzzleOffset.Z"
+ },
+ "HAZ-10.yields_muzzle": {
+  "tuning": "FAttackTuning.MuzzleOffset.X"
+ },
+ "MOVE-21.cooldown": {
+  "tuning": "FMotorTuning.HopCooldownSeconds"
+ },
+ "MOVE-21.cooldown.2": {
+  "tuning": "FMotorTuning.DashCooldownSeconds"
+ },
+ "MOVE-21.falling_dash": {
+  "tuning": "FMotorTuning.DashDistance"
+ },
+ "MOVE-21.free_fall": {
+  "tuning": "FMotorTuning.RiseSpeed"
+ },
+ "MOVE-21.hop": {
+  "tuning": "FMotorTuning.HopDistance"
+ },
+ "MOVE-21.protection": {
+  "tuning": "FMotorTuning.HopProtectionSeconds"
+ },
+ "MOVE-21.s": {
+  "tuning": "FMotorTuning.HopDurationSeconds"
+ },
+ "MOVE-21.s.2": {
+  "tuning": "FMotorTuning.DashDurationSeconds"
+ },
+ "MOVE-21.units": {
+  "tuning": "FMotorTuning.FreeFallSpeed"
+ },
+ "MOVE-21.units.2": {
+  "tuning": "FMotorTuning.HorizontalMaxSpeed"
+ },
+ "MOVE-21.value": {
+  "tuning": "FMotorTuning.FallSpeed"
+ },
+ "MOVE-21.value.2": {
+  "tuning": "FMotorTuning.FreeFallDashMultiplier"
+ },
+ "MOVE-21.vertical_trim": {
+  "tuning": "FMotorTuning.VerticalTrimPct"
+ },
+ "MOVE-22.acceleration": {
+  "tuning": "FMotorTuning.WindAcceleration"
+ },
+ "MOVE-22.falling_decay": {
+  "tuning": "FMotorTuning.WindFallingDecay"
+ },
+ "MOVE-22.open_decay": {
+  "tuning": "FMotorTuning.WindOpenDecay"
+ },
+ "OWL-08.clock": {
+  "tuning": "FKeeperTuning.ClockHp"
+ },
+ "OWL-08.rear": {
+  "tuning": "FKeeperTuning.FrontHp"
+ },
+ "OWL-08.reserve": {
+  "tuning": "FKeeperTuning.ClockReserveHp"
+ },
+ "OWL-08.shared_wings": {
+  "tuning": "FKeeperTuning.WingsHp"
+ },
+ "OWL-08.value": {
+  "tuning": "FKeeperTuning.MiddleHp"
+ },
+ "OWL-08.value.2": {
+  "tuning": "FKeeperTuning.RearHp"
+ },
+ "OWL-11.clock_spreads": {
+  "tuning": "FKeeperTuning.RedSpreadWingsDeg"
+ },
+ "OWL-11.deg": {
+  "tuning": "FKeeperTuning.RedSpreadClockDeg"
+ },
+ "OWL-11.effective": {
+  "tuning": "FKeeperTuning.RedSpreadMechanismsDeg"
+ },
+ "OWL-11.incoming_damage": {
+  "tuning": "FKeeperTuning.ProjectileDamage"
+ },
+ "OWL-11.least": {
+  "tuning": "FKeeperTuning.RedRecoveryMinSeconds"
+ },
+ "OWL-11.most": {
+  "tuning": "FKeeperTuning.YellowRecoveryMaxSeconds"
+ },
+ "OWL-11.normal": {
+  "tuning": "FKeeperTuning.RedSpeedClock"
+ },
+ "OWL-11.normal_interval": {
+  "tuning": "FKeeperTuning.RedIntervalSeconds"
+ },
+ "OWL-11.spacing": {
+  "tuning": "FKeeperTuning.RedSpacingSeconds"
+ },
+ "OWL-11.speeds": {
+  "tuning": "FKeeperTuning.RedSpeedWings"
+ },
+ "OWL-11.value": {
+  "tuning": "FKeeperTuning.RedSpeedMechanisms"
+ },
+ "OWL-11.world": {
+  "tuning": "FKeeperTuning.ReducedIntervalSeconds"
+ },
+ "OWL-13.independent": {
+  "tuning": "FKeeperTuning.YellowIntervalSeconds"
+ },
+ "OWL-13.prototype_damage": {
+  "tuning": "FKeeperTuning.ProjectileDamage"
+ },
+ "OWL-13.size": {
+  "tuning": "FKeeperTuning.YellowSize"
+ },
+ "OWL-13.speeds": {
+  "tuning": "FKeeperTuning.YellowSpeedWings"
+ },
+ "OWL-13.value": {
+  "tuning": "FKeeperTuning.YellowSpeedMechanisms"
+ },
+ "OWL-13.value.2": {
+  "tuning": "FKeeperTuning.YellowSpeedClock"
+ },
+ "OWL-15.physical_scheduler": {
+  "tuning": "FKeeperTuning.PhysicalIntervalSeconds"
+ },
+ "OWL-15.warning": {
+  "tuning": "FKeeperTuning.GustWarningSeconds"
+ },
+ "OWL-16.band_width": {
+  "tuning": "FKeeperTuning.GustBandWidth"
+ },
+ "OWL-16.lifetime": {
+  "tuning": "FKeeperTuning.GustLifetimeSeconds"
+ },
+ "OWL-16.prototype_damage": {
+  "tuning": "FKeeperTuning.GustDamage"
+ },
+ "OWL-16.push": {
+  "tuning": "FKeeperTuning.GustPush"
+ },
+ "OWL-16.units": {
+  "tuning": "FKeeperTuning.GustSpeed"
+ },
+ "OWL-18.warning": {
+  "tuning": "FKeeperTuning.TalonWarningSeconds"
+ },
+ "OWL-18.within": {
+  "tuning": "FKeeperTuning.TalonReach"
+ },
+ "OWL-19.prototype_damage": {
+  "tuning": "FKeeperTuning.TalonDamage"
+ },
+ "OWL-19.s": {
+  "tuning": "FKeeperTuning.TalonStrikeSeconds"
+ },
+ "OWL-19.tip_width": {
+  "tuning": "FKeeperTuning.TalonTipWidth"
+ },
+ "OWL-20.cooldown": {
+  "tuning": "FKeeperTuning.TalonCooldownSeconds"
+ },
+ "OWL-20.distance": {
+  "tuning": "FKeeperTuning.TalonReach"
+ },
+ "OWL-20.leaving_beyond": {
+  "tuning": "FKeeperTuning.TalonRearmExit"
+ },
+ "OWL-20.quiet_recovery": {
+  "tuning": "FKeeperTuning.TalonRecoverySeconds"
+ },
+ "OWL-21.destination_during": {
+  "tuning": "FKeeperTuning.CastWarningSeconds"
+ },
+ "OWL-22.full_width": {
+  "tuning": "FKeeperTuning.ChainHeadWidth"
+ },
+ "OWL-22.reach": {
+  "tuning": "FKeeperTuning.ChainReach"
+ },
+ "OWL-22.speed_basis": {
+  "tuning": "FKeeperTuning.ChainSpeed"
+ },
+ "OWL-23.s": {
+  "tuning": "FKeeperTuning.ChainReturnSeconds"
+ },
+ "OWL-24.value": {
+  "tuning": "FKeeperTuning.MiddleOffset"
+ },
+ "OWL-26.safe": {
+  "tuning": "FKeeperTuning.RearPauseSeconds"
+ },
+ "OWL-28.least": {
+  "tuning": "FKeeperTuning.BeatRecoverySeconds"
+ },
+ "OWL-28.shot_wait": {
+  "tuning": "FKeeperTuning.BeatRepeatWaitSeconds"
+ },
+ "OWL-29.cycle_attempts": {
+  "tuning": "FKeeperTuning.FinalExposureSeconds"
+ },
+ "OWL-29.exposure_every": {
+  "tuning": "FKeeperTuning.FinalExposureCycleSeconds"
+ },
+ "OWL-29.protection": {
+  "tuning": "FKeeperTuning.ClockProtectRecoverySeconds"
+ },
+ "OWL-29.s": {
+  "tuning": "FKeeperTuning.ClockOpenSeconds"
+ },
+ "OWL-29.value": {
+  "tuning": "FKeeperTuning.ClockReserveHp"
+ },
+ "OWL-30.causes": {
+  "tuning": "FKeeperTuning.BreakStunSeconds"
+ },
+ "OWL-30.freezes": {
+  "tuning": "FKeeperTuning.FirePauseSeconds"
+ },
+ "OWL-31.cooldown": {
+  "tuning": "FKeeperTuning.SlowCooldownSeconds"
+ },
+ "OWL-31.start": {
+  "tuning": "FKeeperTuning.SlowSeconds"
+ },
+ "OWL-31.value": {
+  "tuning": "FKeeperTuning.SlowWorldScale"
+ },
+ "OWL-32.blackout": {
+  "tuning": "FKeeperTuning.BlackoutSeconds"
+ },
+ "OWL-32.eye": {
+  "tuning": "FKeeperTuning.EyeCooldownSeconds"
+ },
+ "OWL-35.lasts_roughly": {
+  "tuning": "FKeeperTuning.DepartureSeconds"
+ },
+ "SURV-05.before": {
+  "tuning": "FHealthTuning.MaxLives"
+ },
+ "SURV-05.initial_capacity": {
+  "tuning": "FHealthTuning.HitsPerLife"
+ },
+ "SURV-05.lift": {
+  "tuning": "FHealthTuning.MinLift"
+ },
+ "SURV-05.protection": {
+  "tuning": "FHealthTuning.PostHitProtectionSeconds"
+ },
+ "UMB-05.capture_distance": {
+  "tuning": "FUmbrellaFlightTuning.CaptureDistance"
+ },
+ "UMB-05.forward_range": {
+  "tuning": "FUmbrellaFlightTuning.AbsorbRange"
+ },
+ "UMB-05.full_cone": {
+  "tuning": "FUmbrellaFlightTuning.AbsorbConeDegrees"
+ },
+ "UMB-05.pull_speed": {
+  "tuning": "FUmbrellaFlightTuning.PullSpeed"
+ },
+ "UMB-05.value": {
+  "tuning": "FHealthTuning.HealPerYellow"
+ },
+ "UMB-05.value.2": {
+  "tuning": "FHealthTuning.HealPerRecoveryRank"
+ },
+ "MOVE-08.hold": {
+  "tuning": "FAttackTuning.WheelHoldSeconds"
+ },
+ "SURV-05.value.3": {
+  "tuning": "FHealthTuning.MinLift"
+ },
+ "COM-11.value": {
+  "tuning": "FProgressionTuning.UnlockLevelStreamed"
+ },
+ "COM-11.value.2": {
+  "tuning": "FProgressionTuning.UnlockLevelTwin"
+ },
+ "COM-11.value.3": {
+  "tuning": "FProgressionTuning.UnlockLevelNeedle"
+ },
+ "FLOW-09.exactly": {
+  "tuning": "FEncounterTuning.RetryLives"
+ },
+ "FLOW-09.restore": {
+  "tuning": "FEncounterTuning.RetryLives"
+ },
+ "FLOW-15.healing": {
+  "tuning": "FHealthTuning.HealPerYellow"
+ },
+ "FLOW-15.value.14": {
+  "tuning": "FProgressionTuning.RankCostII"
+ },
+ "SURV-06.total": {
+  "tuning": "FProgressionTuning.StartLives"
+ },
+ "SURV-06.hits": {
+  "tuning": "FProgressionTuning.StartHitsPerLife"
+ },
+ "SURV-06.hits.2": {
+  "tuning": "FProgressionTuning.StartHitsPerLife"
+ },
+ "SURV-06.independent_maximums": {
+  "tuning": "FProgressionTuning.MaxHitsPerLife"
+ },
+ "SURV-06.value": {
+  "tuning": "FProgressionTuning.MaxHitsPerLife"
+ },
+ "SURV-06.active": {
+  "tuning": "FHealthTuning.HealPerYellow"
+ },
+ "SURV-06.adds": {
+  "tuning": "FHealthTuning.HealPerRecoveryRank"
+ },
+ "SURV-06.value.6": {
+  "tuning": "FHealthTuning.HealPerYellow"
+ },
+ "SURV-06.value.10": {
+  "tuning": "FProgressionTuning.RankCostII"
+ },
+ "SURV-06.value.11": {
+  "tuning": "FProgressionTuning.RankGateLevelII"
+ },
+ "SURV-06.value.12": {
+  "tuning": "FProgressionTuning.RankGateLevelIII"
+ },
+ "SURV-06.caps": {
+  "tuning": "FProgressionTuning.MaxHitsPerLife"
+ },
+ "SURV-06.cut_cap": {
+  "tuning": "FProgressionTuning.LevelCap"
+ },
+ "SURV-07.absorbed_yellow": {
+  "tuning": "FHealthTuning.HealPerYellow"
+ },
+ "SURV-07.value.3": {
+  "tuning": "FHealthTuning.HealPerRecoveryRank"
+ },
+ "SURV-07.restoration_rule": {
+  "tuning": "FHealthTuning.HealPerYellow"
+ },
+ "SURV-07.capacity": {
+  "tuning": "FHealthTuning.HitsPerLife"
+ },
+ "SURV-07.giving": {
+  "tuning": "FHealthTuning.HealPerYellow"
+ },
+ "SURV-07.retains_baseline": {
+  "tuning": "FHealthTuning.HealPerYellow"
+ },
+ "SURV-07.value.7": {
+  "tuning": "FProgressionTuning.DamageReductionRankI",
+  "scale": 100
+ },
+ "SURV-07.value.8": {
+  "tuning": "FProgressionTuning.DamageReductionRankII",
+  "scale": 100
+ },
+ "SURV-07.pct.2": {
+  "tuning": "FProgressionTuning.DamageReductionRankIII",
+  "scale": 100
+ },
+ "SURV-07.suction_range": {
+  "tuning": "FProgressionTuning.SuctionRangeBase"
+ },
+ "SURV-07.full_cone": {
+  "tuning": "FProgressionTuning.SuctionConeBaseDegrees"
+ },
+ "SURV-07.value.14": {
+  "tuning": "FProgressionTuning.SpellDamageRankI"
+ },
+ "SURV-07.value.15": {
+  "tuning": "FProgressionTuning.SpellDamageRankII"
+ },
+ "SURV-07.value.16": {
+  "tuning": "FProgressionTuning.SpellDamageRankIII"
+ },
+ "FLOW-23.matching_small": {
+  "tuning": "FProgressionTuning.UnlockLevelSmall"
+ },
+ "FLOW-23.stream": {
+  "tuning": "FProgressionTuning.UnlockLevelStreamed"
+ },
+ "FLOW-23.twin": {
+  "tuning": "FProgressionTuning.UnlockLevelTwin"
+ },
+ "FLOW-23.needle": {
+  "tuning": "FProgressionTuning.UnlockLevelNeedle"
+ },
+ "FLOW-23.provisional_curve": {
+  "tuning": "FProgressionTuning.XpCurveBase"
+ },
+ "OWL-06.exactly": {
+  "tuning": "FEncounterTuning.RetryLives"
+ },
+ "OWL-10.exactly": {
+  "tuning": "FEncounterTuning.RetryLives"
+ },
+ "OWL-11.value.3": {
+  "tuning": "FKeeperTuning.RedIntervalSeconds"
+ },
+ "OWL-22.prototype_damage": {
+  "tuning": "FKeeperTuning.ChainDamage"
+ },
+ "OWL-25.not_constant": {
+  "tuning": "FKeeperTuning.ChainSpeed"
+ },
+ "OWL-26.after": {
+  "tuning": "FKeeperTuning.CastWarningSeconds"
+ },
+ "OWL-26.return": {
+  "tuning": "FKeeperTuning.ChainReturnSeconds"
+ },
+ "OWL-32.only": {
+  "tuning": "FKeeperTuning.EyeWindowSeconds"
+ },
+ "OWL-33.exposure": {
+  "tuning": "FKeeperTuning.FinalExposureCycleSeconds"
+ },
+ "OWL-33.during": {
+  "tuning": "FKeeperTuning.SlowWorldScale"
+ },
+ "FLOW-24.length_baseline": {
+  "tuning": "FFieldTuning.ChunkLength"
+ },
+ "FLOW-26.uses_adjustable": {
+  "tuning": "FBrokenMillTuning.GuardHp"
+ },
+ "FLOW-26.x": {
+  "tuning": "FBrokenMillTuning.TargetSize.X"
+ },
+ "FLOW-26.target": {
+  "tuning": "FBrokenMillTuning.TargetSize.Y"
+ },
+ "FLOW-26.warning": {
+  "tuning": "FBrokenMillTuning.WarningSeconds"
+ },
+ "FLOW-26.projectile_speed": {
+  "tuning": "FBrokenMillTuning.ShotSpeed"
+ },
+ "FLOW-26.radius": {
+  "tuning": "FBrokenMillTuning.ShotRadius"
+ },
+ "FLOW-26.incoming_damage": {
+  "tuning": "FBrokenMillTuning.ShotDamage"
+ },
+ "FLOW-26.range": {
+  "tuning": "FBrokenMillTuning.ShotRange"
+ },
+ "FLOW-26.restoring_gain": {
+  "tuning": "FBrokenMillTuning.LocalRestoringGain"
+ },
+ "CAM-05.h": {
+  "tuning": "FFieldTuning.InterfaceHeightFraction"
+ },
+ "CAM-05.w": {
+  "tuning": "FFieldTuning.VestibuleFraction"
+ },
+ "CAM-05.h.2": {
+  "tuning": "FFieldTuning.MinClearanceHeightFraction"
+ },
+ "CAM-06.h": {
+  "tuning": "FFieldTuning.ClearanceMarginHeightFraction"
+ },
+ "CAM-08.cue_target": {
+  "tuning": "FFieldTuning.AttackCueSeconds"
+ },
+ "HAZ-19.initially_deal": {
+  "tuning": "FTrapTuning.ContactDamage"
+ },
+ "HAZ-20.closed_strike": {
+  "tuning": "FTrapTuning.ShutterStrikeSeconds"
+ },
+ "HAZ-20.open_recovery": {
+  "tuning": "FTrapTuning.ShutterRecoverySeconds"
+ },
+ "HAZ-21.nozzle_warning": {
+  "tuning": "FTrapTuning.BellowsWarningSeconds"
+ },
+ "HAZ-21.recovery": {
+  "tuning": "FTrapTuning.BellowsRecoverySeconds"
+ },
+ "HAZ-21.prototype_damage": {
+  "tuning": "FTrapTuning.ContactDamage"
+ },
+ "COM-13.shared": {
+  "tuning": "FHealthTuning.HealPerYellow"
+ },
+ "COM-13.formula": {
+  "tuning": "FHealthTuning.HealPerRecoveryRank"
+ },
+ "HAZ-39.seed": {
+  "tuning": "FFieldTuning.FallbackSeed"
+ },
+ "HAZ-40.most": {
+  "tuning": "FFieldTuning.MaxCandidateAttempts"
+ },
+ "FLOW-31.starting": {
+  "tuning": "FProgressionTuning.StartLives"
+ },
+ "FLOW-32.dropping_heals": {
+  "tuning": "FHealthTuning.HealPerYellow"
+ },
+ "FLOW-32.value": {
+  "tuning": "FHealthTuning.HealPerRecoveryRank"
+ },
+ "FLOW-33.former_incoming": {
+  "tuning": "FHealthTuning.OldDamageDivisor"
+ },
+ "FLOW-33.multiplier": {
+  "tuning": "FHealthTuning.MinLift"
+ },
+ "FLOW-33.restore_exactly": {
+  "tuning": "FEncounterTuning.RetryLives"
+ },
+ "FLOW-42.each": {
+  "tuning": "FProgressionTuning.MaxHitsPerLife"
+ },
+ "FLOW-42.healing": {
+  "tuning": "FHealthTuning.HealPerYellow"
+ },
+ "QA-30.trap_damage": {
+  "tuning": "FHealthTuning.TrapDamage"
+ },
+ "QA-30.chain": {
+  "tuning": "FKeeperTuning.ChainDamage"
+ },
+ "QA-30.talon": {
+  "tuning": "FKeeperTuning.TalonDamage"
+ },
+ "QA-30.lift": {
+  "tuning": "FHealthTuning.MinLift"
+ },
+ "QA-30.initially": {
+  "tuning": "FHealthTuning.HealPerYellow"
+ },
+ "QA-30.value.7": {
+  "tuning": "FHealthTuning.HealPerYellow"
+ },
+ "QA-30.value.8": {
+  "tuning": "FHealthTuning.HealPerRecoveryRank"
+ },
+ "QA-30.return_exactly": {
+  "tuning": "FEncounterTuning.RetryLives"
+ },
+ "QA-30.game_stays": {
+  "tuning": "FProgressionTuning.StartLives"
+ },
+ "QA-30.value.10": {
+  "tuning": "FProgressionTuning.StartLives"
+ },
+ "QA-30.independent_caps": {
+  "tuning": "FProgressionTuning.MaxHitsPerLife"
+ },
+ "QA-30.heal": {
+  "tuning": "FHealthTuning.HealPerYellow"
+ },
+ "QA-30.value.19": {
+  "tuning": "FProgressionTuning.RankCostII"
+ },
+ "QA-30.curve": {
+  "tuning": "FProgressionTuning.XpCurveBase"
+ },
+ "QA-34.exactly": {
+  "tuning": "FEncounterTuning.RetryLives"
+ },
+ "QA-35.value": {
+  "tuning": "FProgressionTuning.CountMultiplierCap"
+ },
+ "QA-35.c": {
+  "tuning": "FProgressionTuning.CountMultiplierStep"
+ },
+ "QA-35.value.3": {
+  "tuning": "FProgressionTuning.CadenceMultiplierCap"
+ },
+ "QA-35.c.2": {
+  "tuning": "FProgressionTuning.CadenceMultiplierStep"
+ },
+ "QA-35.hour_uses": {
+  "tuning": "FProgressionTuning.FinalHourHpMultiplier"
+ },
+ "QA-35.value.5": {
+  "tuning": "FProgressionTuning.FinalHourCadenceMultiplier"
+ },
+ "QA-42.restores_exactly": {
+  "tuning": "FEncounterTuning.RetryLives"
+ },
+ "SURV-06.lives": {
+  "tuning": "FProgressionTuning.StartLives"
+ },
+ "HAZ-03.fixed_camera": {
+  "expr": "FBrokenMillTuning.RoomSize.X / 2"
+ },
+ "HAZ-03.value": {
+  "expr": "FBrokenMillTuning.RoomSize.Y / 2"
+ },
+ "HAZ-03.s": {
+  "tuning": "FEnemyTuning.RoadwardenHp"
+ },
+ "HAZ-03.value.7": {
+  "tuning": "FEnemyTuning.RoadwardenPatrolSpan"
+ },
+ "HAZ-06.value.3": {
+  "expr": "(FBrokenMillTuning.UpperResetZ.X + FBrokenMillTuning.UpperResetZ.Y) / 2"
+ },
+ "HAZ-06.value.4": {
+  "expr": "(FBrokenMillTuning.UpperResetZ.Y - FBrokenMillTuning.UpperResetZ.X) / 2"
+ },
+ "HAZ-06.value.12": {
+  "expr": "(FBrokenMillTuning.LowerOnwardZ.X + FBrokenMillTuning.LowerOnwardZ.Y) / 2"
+ },
+ "HAZ-06.value.13": {
+  "expr": "(FBrokenMillTuning.LowerOnwardZ.Y - FBrokenMillTuning.LowerOnwardZ.X) / 2"
+ },
+ "HAZ-06.value.15": {
+  "expr": "FBrokenMillTuning.UpperResetZ.X - FBrokenMillTuning.LowerOnwardZ.Y"
+ },
+ "HAZ-06.value.16": {
+  "tuning": "FBrokenMillTuning.LowerOnwardZ.Y"
+ },
+ "HAZ-06.value.17": {
+  "tuning": "FBrokenMillTuning.UpperResetZ.X"
+ },
+ "HAZ-06.root_envelopez": {
+  "const": "Source/UmbrellaElla/Private/Tests/BrokenMill/BrokenMillMeasureTests.cpp:Envelope"
+ },
+ "HAZ-06.value.18": {
+  "const": "Source/UmbrellaElla/Private/Tests/BrokenMill/BrokenMillMeasureTests.cpp:Envelope",
+  "index": 1
+ },
+ "HAZ-07.takes_only": {
+  "expr": "(270 - FBrokenMillTuning.MissedCurrentAssistPoint.Y) / FMotorTuning.FreeFallSpeed",
+  "tol": 0.0006
+ },
+ "HAZ-07.ordinary": {
+  "expr": "(270 - FBrokenMillTuning.MissedCurrentAssistPoint.Y) / FMotorTuning.FallSpeed",
+  "tol": 0.0006
+ },
+ "HAZ-07.takes": {
+  "tuning": "FBrokenMillTuning.MissedCurrentAssistPoint.Y"
+ },
+ "HAZ-08.below_underside": {
+  "tuning": "FBrokenMillTuning.IslandUnderside"
+ },
+ "HAZ-08.collision_envelope": {
+  "const": "Source/UmbrellaElla/Private/Tests/BrokenMill/BrokenMillMeasureTests.cpp:Envelope"
+ },
+ "HAZ-08.value.5": {
+  "const": "Source/UmbrellaElla/Private/Tests/BrokenMill/BrokenMillMeasureTests.cpp:Envelope",
+  "index": 1
+ },
+ "HAZ-08.root": {
+  "const": "Source/UmbrellaElla/Private/Tests/BrokenMill/BrokenMillMeasureTests.cpp:Envelope",
+  "index": 1
+ },
+ "HAZ-08.root.2": {
+  "const": "Source/UmbrellaElla/Private/Tests/BrokenMill/BrokenMillMeasureTests.cpp:Envelope"
+ },
+ "HAZ-08.offsets": {
+  "expr": "((FMotorTuning.RiseSpeed * (1 + FMotorTuning.VerticalTrimPct / 100)) + FBrokenMillTuning.LocalVerticalCompensation) / FBrokenMillTuning.LocalRestoringGain"
+ },
+ "HAZ-08.roots": {
+  "expr": "(FMotorTuning.RiseSpeed * FHealthTuning.MinLift * (1 - FMotorTuning.VerticalTrimPct / 100) + FBrokenMillTuning.LocalVerticalCompensation) / FBrokenMillTuning.LocalRestoringGain"
+ },
+ "HAZ-08.roots.2": {
+  "expr": "230 + ((FMotorTuning.RiseSpeed * (1 + FMotorTuning.VerticalTrimPct / 100)) + FBrokenMillTuning.LocalVerticalCompensation) / FBrokenMillTuning.LocalRestoringGain"
+ },
+ "HAZ-08.inside": {
+  "expr": "230 + (FMotorTuning.RiseSpeed * FHealthTuning.MinLift * (1 - FMotorTuning.VerticalTrimPct / 100) + FBrokenMillTuning.LocalVerticalCompensation) / FBrokenMillTuning.LocalRestoringGain"
+ },
+ "HAZ-08.leaves": {
+  "expr": "185 - FBrokenMillTuning.MaxHalfHeight - FBrokenMillTuning.FloorTop"
+ },
+ "HAZ-08.underside": {
+  "expr": "FBrokenMillTuning.IslandUnderside - (285 + FBrokenMillTuning.MaxHalfHeight)"
+ },
+ "HAZ-08.value.7": {
+  "expr": "FBrokenMillTuning.IslandXRange.Y + FBrokenMillTuning.MaxHalfWidth + 24",
+  "tol": 0.5
+ },
+ "HAZ-09.centre": {
+  "expr": "((FBrokenMillTuning.TargetCentre.Y + FBrokenMillTuning.TargetSize.Y / 2) + FBrokenMillTuning.FriendlyShotRadius)"
+ },
+ "HAZ-09.value.5": {
+  "expr": "((FBrokenMillTuning.TargetCentre.Y + FBrokenMillTuning.TargetSize.Y / 2) + FBrokenMillTuning.FriendlyShotRadius) + FBrokenMillTuning.FriendlyShotRadius"
+ },
+ "HAZ-09.rotor_low": {
+  "expr": "FBrokenMillTuning.RotorCentre.Y - FBrokenMillTuning.RotorRadius"
+ },
+ "HAZ-09.leaves": {
+  "expr": "(FBrokenMillTuning.RotorCentre.Y - FBrokenMillTuning.RotorRadius) - (((FBrokenMillTuning.TargetCentre.Y + FBrokenMillTuning.TargetSize.Y / 2) + FBrokenMillTuning.FriendlyShotRadius) + FBrokenMillTuning.FriendlyShotRadius)"
+ },
+ "HAZ-09.value.4": {
+  "expr": "FBrokenMillTuning.ProtectedCoreX.Y + FBrokenMillTuning.MaxHalfWidth + FBrokenMillTuning.ShotRadius"
+ },
+ "HAZ-09.margin": {
+  "expr": "FBrokenMillTuning.RayEndX - (FBrokenMillTuning.ProtectedCoreX.Y + FBrokenMillTuning.MaxHalfWidth + FBrokenMillTuning.ShotRadius)",
+  "tol": 0.5
+ },
+ "HAZ-09.right": {
+  "expr": "FBrokenMillTuning.ProtectedCoreX.Y"
+ },
+ "HAZ-09.value": {
+  "playtest": {
+   "line": "PLAYTEST_MILL_HAZ09",
+   "match": {},
+   "field": "nearest_ray_rotor_centre_distance"
+  }
+ },
+ "HAZ-09.radius_leaves": {
+  "playtest": {
+   "line": "PLAYTEST_MILL_HAZ09",
+   "match": {},
+   "field": "least_rotor_clearance"
+  },
+  "tol": 3
+ },
+ "HAZ-09.range": {
+  "tuning": "FBrokenMillTuning.ShotRange"
+ },
+ "HAZ-11.alone": {
+  "expr": "((FBrokenMillTuning.TargetCentre.Y + FBrokenMillTuning.TargetSize.Y / 2) + FBrokenMillTuning.FriendlyShotRadius - FBrokenMillTuning.MuzzleOffset.Y)"
+ },
+ "HAZ-11.has": {
+  "expr": "((FBrokenMillTuning.TargetCentre.Y + FBrokenMillTuning.TargetSize.Y / 2) + FBrokenMillTuning.FriendlyShotRadius - FBrokenMillTuning.MuzzleOffset.Y)"
+ },
+ "HAZ-11.width.2": {
+  "expr": "((FBrokenMillTuning.TargetCentre.Y + FBrokenMillTuning.TargetSize.Y / 2) + FBrokenMillTuning.FriendlyShotRadius - FBrokenMillTuning.MuzzleOffset.Y)"
+ },
+ "HAZ-11.root": {
+  "expr": "((FBrokenMillTuning.TargetCentre.Y - FBrokenMillTuning.TargetSize.Y / 2) - FBrokenMillTuning.FriendlyShotRadius - FBrokenMillTuning.MuzzleOffset.Y)"
+ },
+ "HAZ-11.root_band": {
+  "expr": "max((FBrokenMillTuning.TargetCentre.Y - FBrokenMillTuning.TargetSize.Y / 2) - FBrokenMillTuning.FriendlyShotRadius - FBrokenMillTuning.MuzzleOffset.Y, FBrokenMillTuning.IslandTop + FBrokenMillTuning.IslandShotMargin + FBrokenMillTuning.FriendlyShotRadius - FBrokenMillTuning.MuzzleOffset.Y)"
+ },
+ "HAZ-11.value.3": {
+  "expr": "max((FBrokenMillTuning.TargetCentre.Y - FBrokenMillTuning.TargetSize.Y / 2) - FBrokenMillTuning.FriendlyShotRadius - FBrokenMillTuning.MuzzleOffset.Y, FBrokenMillTuning.IslandTop + FBrokenMillTuning.IslandShotMargin + FBrokenMillTuning.FriendlyShotRadius - FBrokenMillTuning.MuzzleOffset.Y)"
+ },
+ "HAZ-11.has_width": {
+  "expr": "(((FBrokenMillTuning.TargetCentre.Y + FBrokenMillTuning.TargetSize.Y / 2) + FBrokenMillTuning.FriendlyShotRadius - FBrokenMillTuning.MuzzleOffset.Y) - max((FBrokenMillTuning.TargetCentre.Y - FBrokenMillTuning.TargetSize.Y / 2) - FBrokenMillTuning.FriendlyShotRadius - FBrokenMillTuning.MuzzleOffset.Y, FBrokenMillTuning.IslandTop + FBrokenMillTuning.IslandShotMargin + FBrokenMillTuning.FriendlyShotRadius - FBrokenMillTuning.MuzzleOffset.Y))"
+ },
+ "HAZ-11.width.3": {
+  "expr": "((FBrokenMillTuning.TargetCentre.Y + FBrokenMillTuning.TargetSize.Y / 2) + FBrokenMillTuning.FriendlyShotRadius - FBrokenMillTuning.MuzzleOffset.Y) - ((FBrokenMillTuning.TargetCentre.Y - FBrokenMillTuning.TargetSize.Y / 2) - FBrokenMillTuning.FriendlyShotRadius - FBrokenMillTuning.MuzzleOffset.Y)"
+ },
+ "HAZ-11.width": {
+  "expr": "(2 * ((FEnemyTuning.RoadwardenTorso.Y / 2) + FBrokenMillTuning.FriendlyShotRadius))"
+ },
+ "HAZ-11.fall": {
+  "expr": "(FBrokenMillTuning.FallSpeed * (1 - FBrokenMillTuning.FallTrimFraction))"
+ },
+ "HAZ-11.comparison": {
+  "expr": "(FBrokenMillTuning.FallSpeed * (1 + FBrokenMillTuning.FallTrimFraction))"
+ },
+ "HAZ-11.value.4": {
+  "tuning": "FMotorTuning.FallSpeed"
+ },
+ "HAZ-11.s": {
+  "expr": "(2 * ((FEnemyTuning.RoadwardenTorso.Y / 2) + FBrokenMillTuning.FriendlyShotRadius)) / (FBrokenMillTuning.FallSpeed * (1 + FBrokenMillTuning.FallTrimFraction))",
+  "tol": 0.0006
+ },
+ "HAZ-11.value.5": {
+  "expr": "(2 * ((FEnemyTuning.RoadwardenTorso.Y / 2) + FBrokenMillTuning.FriendlyShotRadius)) / (FBrokenMillTuning.FallSpeed * (1 - FBrokenMillTuning.FallTrimFraction))",
+  "tol": 0.0006
+ },
+ "HAZ-11.value.6": {
+  "expr": "(2 * ((FEnemyTuning.RoadwardenTorso.Y / 2) + FBrokenMillTuning.FriendlyShotRadius)) / FMotorTuning.FallSpeed",
+  "tol": 0.0006
+ },
+ "HAZ-11.value.7": {
+  "expr": "(((FBrokenMillTuning.TargetCentre.Y + FBrokenMillTuning.TargetSize.Y / 2) + FBrokenMillTuning.FriendlyShotRadius - FBrokenMillTuning.MuzzleOffset.Y) - max((FBrokenMillTuning.TargetCentre.Y - FBrokenMillTuning.TargetSize.Y / 2) - FBrokenMillTuning.FriendlyShotRadius - FBrokenMillTuning.MuzzleOffset.Y, FBrokenMillTuning.IslandTop + FBrokenMillTuning.IslandShotMargin + FBrokenMillTuning.FriendlyShotRadius - FBrokenMillTuning.MuzzleOffset.Y)) / (FBrokenMillTuning.FallSpeed * (1 - FBrokenMillTuning.FallTrimFraction))",
+  "tol": 0.0006
+ },
+ "HAZ-11.value.8": {
+  "expr": "(((FBrokenMillTuning.TargetCentre.Y + FBrokenMillTuning.TargetSize.Y / 2) + FBrokenMillTuning.FriendlyShotRadius - FBrokenMillTuning.MuzzleOffset.Y) - max((FBrokenMillTuning.TargetCentre.Y - FBrokenMillTuning.TargetSize.Y / 2) - FBrokenMillTuning.FriendlyShotRadius - FBrokenMillTuning.MuzzleOffset.Y, FBrokenMillTuning.IslandTop + FBrokenMillTuning.IslandShotMargin + FBrokenMillTuning.FriendlyShotRadius - FBrokenMillTuning.MuzzleOffset.Y)) / FMotorTuning.FallSpeed",
+  "tol": 0.0006
+ },
+ "HAZ-11.s.2": {
+  "expr": "(((FBrokenMillTuning.TargetCentre.Y + FBrokenMillTuning.TargetSize.Y / 2) + FBrokenMillTuning.FriendlyShotRadius - FBrokenMillTuning.MuzzleOffset.Y) - max((FBrokenMillTuning.TargetCentre.Y - FBrokenMillTuning.TargetSize.Y / 2) - FBrokenMillTuning.FriendlyShotRadius - FBrokenMillTuning.MuzzleOffset.Y, FBrokenMillTuning.IslandTop + FBrokenMillTuning.IslandShotMargin + FBrokenMillTuning.FriendlyShotRadius - FBrokenMillTuning.MuzzleOffset.Y)) / (FBrokenMillTuning.FallSpeed * (1 + FBrokenMillTuning.FallTrimFraction))",
+  "tol": 0.0006
+ },
+ "HAZ-11.ellaz": {
+  "tuning": "FBrokenMillTuning.MuzzleOffset.Y"
+ },
+ "HAZ-11.so_ellaz": {
+  "tuning": "FBrokenMillTuning.MuzzleOffset.Y"
+ },
+ "HAZ-11.giving": {
+  "tuning": "FBrokenMillTuning.FriendlyShotRadius"
+ },
+ "HAZ-11.value.2": {
+  "tuning": "FBrokenMillTuning.FriendlyShotRadius"
+ },
+ "HAZ-11.so": {
+  "tuning": "FBrokenMillTuning.IslandShotMargin"
+ },
+ "HAZ-11.lower_edge": {
+  "tuning": "FBrokenMillTuning.IslandTop"
+ },
+ "HAZ-11.proxy_atz": {
+  "expr": "(FBrokenMillTuning.TargetCentre.Y - FBrokenMillTuning.TargetSize.Y / 2)"
+ },
+ "HAZ-11.value": {
+  "expr": "(FEnemyTuning.RoadwardenTorso.Y / 2)"
+ },
+ "HAZ-11.targetz.2": {
+  "expr": "(FEnemyTuning.RoadwardenTorso.Y / 2)"
+ },
+ "HAZ-11.targetz": {
+  "expr": "-((FEnemyTuning.RoadwardenTorso.Y / 2) + FBrokenMillTuning.FriendlyShotRadius + FBrokenMillTuning.MuzzleOffset.Y)"
+ },
+ "HAZ-12.periodt": {
+  "expr": "(1 / FBrokenMillTuning.FriendlyShotsPerSecond)"
+ },
+ "HAZ-12.window": {
+  "expr": "(((FBrokenMillTuning.TargetCentre.Y + FBrokenMillTuning.TargetSize.Y / 2) + FBrokenMillTuning.FriendlyShotRadius - FBrokenMillTuning.MuzzleOffset.Y) - max((FBrokenMillTuning.TargetCentre.Y - FBrokenMillTuning.TargetSize.Y / 2) - FBrokenMillTuning.FriendlyShotRadius - FBrokenMillTuning.MuzzleOffset.Y, FBrokenMillTuning.IslandTop + FBrokenMillTuning.IslandShotMargin + FBrokenMillTuning.FriendlyShotRadius - FBrokenMillTuning.MuzzleOffset.Y)) / FMotorTuning.FallSpeed",
+  "tol": 0.0006
+ },
+ "HAZ-12.hits_need": {
+  "expr": "3 * (1 / FBrokenMillTuning.FriendlyShotsPerSecond)",
+  "tol": 0.0006
+ },
+ "HAZ-12.occur": {
+  "expr": "5 * (1 / FBrokenMillTuning.FriendlyShotsPerSecond)"
+ },
+ "HAZ-12.hp": {
+  "tuning": "FBrokenMillTuning.GuardHpComparison"
+ },
+ "HAZ-12.value.6": {
+  "tuning": "FBrokenMillTuning.GuardHp"
+ },
+ "HAZ-12.value.9": {
+  "expr": "680 - 1 * FMotorTuning.FallSpeed * (1 / FBrokenMillTuning.FriendlyShotsPerSecond)"
+ },
+ "HAZ-12.value.10": {
+  "expr": "680 - 2 * FMotorTuning.FallSpeed * (1 / FBrokenMillTuning.FriendlyShotsPerSecond)"
+ },
+ "HAZ-12.value.11": {
+  "expr": "680 - 3 * FMotorTuning.FallSpeed * (1 / FBrokenMillTuning.FriendlyShotsPerSecond)"
+ },
+ "HAZ-12.only": {
+  "expr": "680 - 3 * FMotorTuning.FallSpeed * (1 / FBrokenMillTuning.FriendlyShotsPerSecond)"
+ },
+ "HAZ-12.value.12": {
+  "expr": "680 - 4 * FMotorTuning.FallSpeed * (1 / FBrokenMillTuning.FriendlyShotsPerSecond)"
+ },
+ "HAZ-12.value.14": {
+  "expr": "680 - 4 * FMotorTuning.FallSpeed * (1 / FBrokenMillTuning.FriendlyShotsPerSecond)"
+ },
+ "HAZ-12.value.13": {
+  "expr": "680 - 5 * FMotorTuning.FallSpeed * (1 / FBrokenMillTuning.FriendlyShotsPerSecond)"
+ },
+ "HAZ-12.boundary_cases": {
+  "expr": "floor((((FBrokenMillTuning.TargetCentre.Y + FBrokenMillTuning.TargetSize.Y / 2) + FBrokenMillTuning.FriendlyShotRadius - FBrokenMillTuning.MuzzleOffset.Y) - max((FBrokenMillTuning.TargetCentre.Y - FBrokenMillTuning.TargetSize.Y / 2) - FBrokenMillTuning.FriendlyShotRadius - FBrokenMillTuning.MuzzleOffset.Y, FBrokenMillTuning.IslandTop + FBrokenMillTuning.IslandShotMargin + FBrokenMillTuning.FriendlyShotRadius - FBrokenMillTuning.MuzzleOffset.Y)) / (FBrokenMillTuning.FallSpeed * (1 - FBrokenMillTuning.FallTrimFraction)) / (1 / FBrokenMillTuning.FriendlyShotsPerSecond))"
+ },
+ "HAZ-12.value": {
+  "expr": "floor((((FBrokenMillTuning.TargetCentre.Y + FBrokenMillTuning.TargetSize.Y / 2) + FBrokenMillTuning.FriendlyShotRadius - FBrokenMillTuning.MuzzleOffset.Y) - max((FBrokenMillTuning.TargetCentre.Y - FBrokenMillTuning.TargetSize.Y / 2) - FBrokenMillTuning.FriendlyShotRadius - FBrokenMillTuning.MuzzleOffset.Y, FBrokenMillTuning.IslandTop + FBrokenMillTuning.IslandShotMargin + FBrokenMillTuning.FriendlyShotRadius - FBrokenMillTuning.MuzzleOffset.Y)) / (FBrokenMillTuning.FallSpeed * (1 - FBrokenMillTuning.FallTrimFraction)) / (1 / FBrokenMillTuning.FriendlyShotsPerSecond)) + 1"
+ },
+ "HAZ-12.value.2": {
+  "expr": "floor((((FBrokenMillTuning.TargetCentre.Y + FBrokenMillTuning.TargetSize.Y / 2) + FBrokenMillTuning.FriendlyShotRadius - FBrokenMillTuning.MuzzleOffset.Y) - max((FBrokenMillTuning.TargetCentre.Y - FBrokenMillTuning.TargetSize.Y / 2) - FBrokenMillTuning.FriendlyShotRadius - FBrokenMillTuning.MuzzleOffset.Y, FBrokenMillTuning.IslandTop + FBrokenMillTuning.IslandShotMargin + FBrokenMillTuning.FriendlyShotRadius - FBrokenMillTuning.MuzzleOffset.Y)) / FMotorTuning.FallSpeed / (1 / FBrokenMillTuning.FriendlyShotsPerSecond))"
+ },
+ "HAZ-12.value.3": {
+  "expr": "floor((((FBrokenMillTuning.TargetCentre.Y + FBrokenMillTuning.TargetSize.Y / 2) + FBrokenMillTuning.FriendlyShotRadius - FBrokenMillTuning.MuzzleOffset.Y) - max((FBrokenMillTuning.TargetCentre.Y - FBrokenMillTuning.TargetSize.Y / 2) - FBrokenMillTuning.FriendlyShotRadius - FBrokenMillTuning.MuzzleOffset.Y, FBrokenMillTuning.IslandTop + FBrokenMillTuning.IslandShotMargin + FBrokenMillTuning.FriendlyShotRadius - FBrokenMillTuning.MuzzleOffset.Y)) / FMotorTuning.FallSpeed / (1 / FBrokenMillTuning.FriendlyShotsPerSecond)) + 1"
+ },
+ "HAZ-12.value.4": {
+  "expr": "floor((((FBrokenMillTuning.TargetCentre.Y + FBrokenMillTuning.TargetSize.Y / 2) + FBrokenMillTuning.FriendlyShotRadius - FBrokenMillTuning.MuzzleOffset.Y) - max((FBrokenMillTuning.TargetCentre.Y - FBrokenMillTuning.TargetSize.Y / 2) - FBrokenMillTuning.FriendlyShotRadius - FBrokenMillTuning.MuzzleOffset.Y, FBrokenMillTuning.IslandTop + FBrokenMillTuning.IslandShotMargin + FBrokenMillTuning.FriendlyShotRadius - FBrokenMillTuning.MuzzleOffset.Y)) / (FBrokenMillTuning.FallSpeed * (1 + FBrokenMillTuning.FallTrimFraction)) / (1 / FBrokenMillTuning.FriendlyShotsPerSecond))"
+ },
+ "HAZ-12.value.5": {
+  "expr": "floor((((FBrokenMillTuning.TargetCentre.Y + FBrokenMillTuning.TargetSize.Y / 2) + FBrokenMillTuning.FriendlyShotRadius - FBrokenMillTuning.MuzzleOffset.Y) - max((FBrokenMillTuning.TargetCentre.Y - FBrokenMillTuning.TargetSize.Y / 2) - FBrokenMillTuning.FriendlyShotRadius - FBrokenMillTuning.MuzzleOffset.Y, FBrokenMillTuning.IslandTop + FBrokenMillTuning.IslandShotMargin + FBrokenMillTuning.FriendlyShotRadius - FBrokenMillTuning.MuzzleOffset.Y)) / (FBrokenMillTuning.FallSpeed * (1 + FBrokenMillTuning.FallTrimFraction)) / (1 / FBrokenMillTuning.FriendlyShotsPerSecond)) + 1"
+ },
+ "HAZ-13.muzzle": {
+  "const": "Source/UmbrellaElla/Private/Tests/BrokenMill/BrokenMillMeasureTests.cpp:RootX"
+ },
+ "HAZ-13.muzzle.2": {
+  "expr": "650 + FBrokenMillTuning.MuzzleOffset.X"
+ },
+ "HAZ-13.value.2": {
+  "expr": "650 + FBrokenMillTuning.MuzzleOffset.X"
+ },
+ "HAZ-13.muzzle.3": {
+  "expr": "FBrokenMillTuning.MuzzleOffset.X * 1.3"
+ },
+ "HAZ-13.value.5": {
+  "expr": "FBrokenMillTuning.MuzzleOffset.Y * 1.3",
+  "tol": 0.05
+ },
+ "HAZ-13.band": {
+  "expr": "FBrokenMillTuning.MuzzleOffset.Y * (1.3 - 1)",
+  "tol": 0.05
+ },
+ "HAZ-13.target_left": {
+  "expr": "FBrokenMillTuning.TargetCentre.X - FBrokenMillTuning.TargetSize.X / 2"
+ },
+ "HAZ-13.first_contact": {
+  "expr": "FBrokenMillTuning.TargetCentre.X - FBrokenMillTuning.TargetSize.X / 2"
+ },
+ "HAZ-13.value": {
+  "tuning": "FBrokenMillTuning.FriendlyShotRadius"
+ },
+ "HAZ-13.value.3": {
+  "tuning": "FBrokenMillTuning.FriendlyShotSpeed"
+ },
+ "HAZ-13.decay": {
+  "tuning": "FMotorTuning.WindFallingDecay"
+ },
+ "HAZ-13.s": {
+  "expr": "(FBrokenMillTuning.TargetCentre.X - FBrokenMillTuning.TargetSize.X / 2 - FBrokenMillTuning.FriendlyShotRadius - (650 + FBrokenMillTuning.MuzzleOffset.X)) / FBrokenMillTuning.FriendlyShotSpeed",
+  "tol": 0.0006
+ },
+ "HAZ-13.drift_makes": {
+  "expr": "(FBrokenMillTuning.TargetCentre.X - FBrokenMillTuning.TargetSize.X / 2 - FBrokenMillTuning.FriendlyShotRadius - (650 + 30 + FBrokenMillTuning.MuzzleOffset.X)) / FBrokenMillTuning.FriendlyShotSpeed",
+  "tol": 0.0006
+ },
+ "HAZ-13.estimates": {
+  "expr": "360 / FMotorTuning.WindFallingDecay"
+ },
+ "HAZ-13.value.4": {
+  "expr": "360 / FMotorTuning.WindFallingDecay"
+ },
+ "HAZ-15.test_snapshot": {
+  "tuning": "FBrokenMillTuning.WarningSeconds"
+ },
+ "HAZ-16.compare": {
+  "tuning": "FBrokenMillTuning.GuardHpComparison"
+ },
+ "HAZ-16.natural": {
+  "tuning": "FBrokenMillTuning.GuardHp"
+ },
+ "HAZ-20.tension_warning": {
+  "tuning": "FTrapTuning.ShutterWarningSeconds"
+ },
+ "HAZ-05.lifetime": {
+  "expr": "FBrokenMillTuning.ShotRange / FBrokenMillTuning.ShotSpeed"
+ },
+ "COM-17.value": {
+  "expr": "FEnemyTuning.CourierEmissionSlots - 1"
+ },
+ "COM-11.unlock_levels": {
+  "tuning": "FProgressionTuning.UnlockLevelSmall"
+ },
+ "FLOW-09.value": {
+  "tuning": "FProgressionTuning.StartLives"
+ },
+ "FLOW-15.earned": {
+  "expr": "FProgressionTuning.LevelCap - 1"
+ },
+ "FLOW-15.value.2": {
+  "expr": "FProgressionTuning.LevelCap - 1"
+ },
+ "FLOW-23.cumulative": {
+  "expr": "FProgressionTuning.LevelCap - 1"
+ },
+ "FLOW-23.has": {
+  "expr": "FProgressionTuning.LevelCap - 1"
+ },
+ "SURV-06.awards": {
+  "expr": "FProgressionTuning.LevelCap - 1"
+ },
+ "QA-30.milestone": {
+  "expr": "FProgressionTuning.LevelCap - 1"
+ },
+ "QA-30.supplies": {
+  "expr": "FProgressionTuning.LevelCap - 1"
+ },
+ "FLOW-15.reach_level": {
+  "expr": "FProgressionTuning.LevelCap"
+ },
+ "FLOW-15.value.9": {
+  "expr": "FProgressionTuning.LevelCap"
+ },
+ "FLOW-23.level.2": {
+  "expr": "FProgressionTuning.LevelCap"
+ },
+ "FLOW-23.use": {
+  "expr": "FProgressionTuning.LevelCap"
+ },
+ "FLOW-23.value.2": {
+  "expr": "FProgressionTuning.LevelCap"
+ },
+ "FLOW-48.level": {
+  "expr": "FProgressionTuning.LevelCap"
+ },
+ "QA-30.value.26": {
+  "expr": "FProgressionTuning.LevelCap"
+ },
+ "QA-30.verify_level": {
+  "expr": "FProgressionTuning.LevelCap"
+ },
+ "QA-30.overflow": {
+  "expr": "FProgressionTuning.LevelCap"
+ },
+ "QA-35.reach": {
+  "expr": "FProgressionTuning.LevelCap"
+ },
+ "QA-35.without": {
+  "expr": "FProgressionTuning.LevelCap"
+ },
+ "FLOW-15.value.3": {
+  "expr": "xp_to(10, FProgressionTuning.XpCurveBase)"
+ },
+ "FLOW-15.value.4": {
+  "expr": "xp_to(20, FProgressionTuning.XpCurveBase)"
+ },
+ "FLOW-15.value.6": {
+  "expr": "xp_to(30, FProgressionTuning.XpCurveBase)"
+ },
+ "FLOW-15.value.8": {
+  "expr": "xp_to(FProgressionTuning.LevelCap, FProgressionTuning.XpCurveBase)"
+ },
+ "FLOW-23.cumulative.2": {
+  "expr": "xp_to(FProgressionTuning.LevelCap, FProgressionTuning.XpCurveBase)"
+ },
+ "QA-30.milestone_totals": {
+  "expr": "xp_to(10, FProgressionTuning.XpCurveBase)"
+ },
+ "QA-30.value.21": {
+  "expr": "xp_to(20, FProgressionTuning.XpCurveBase)"
+ },
+ "QA-30.value.22": {
+  "expr": "xp_to(30, FProgressionTuning.XpCurveBase)"
+ },
+ "QA-30.value.23": {
+  "expr": "xp_to(FProgressionTuning.LevelCap, FProgressionTuning.XpCurveBase)"
+ },
+ "FLOW-15.hit_capacity": {
+  "expr": "(FProgressionTuning.MaxHitsPerLife - FProgressionTuning.StartHitsPerLife)"
+ },
+ "FLOW-15.lives.4": {
+  "expr": "(FProgressionTuning.MaxLivesCap - FProgressionTuning.StartLives)"
+ },
+ "FLOW-15.other_tracks": {
+  "expr": "(7 * (FProgressionTuning.RankCostI + FProgressionTuning.RankCostII + FProgressionTuning.RankCostIII))"
+ },
+ "FLOW-15.costs_total": {
+  "expr": "(FProgressionTuning.MaxHitsPerLife - FProgressionTuning.StartHitsPerLife) + (FProgressionTuning.MaxLivesCap - FProgressionTuning.StartLives) + (7 * (FProgressionTuning.RankCostI + FProgressionTuning.RankCostII + FProgressionTuning.RankCostIII)) + (FProgressionTuning.RecoveryRanks * FProgressionTuning.RankCostI)"
+ },
+ "SURV-06.total_points": {
+  "expr": "(FProgressionTuning.MaxHitsPerLife - FProgressionTuning.StartHitsPerLife) + (FProgressionTuning.MaxLivesCap - FProgressionTuning.StartLives)"
+ },
+ "SURV-06.value.14": {
+  "expr": "(7 * (FProgressionTuning.RankCostI + FProgressionTuning.RankCostII + FProgressionTuning.RankCostIII))"
+ },
+ "SURV-06.value.15": {
+  "expr": "(FProgressionTuning.RecoveryRanks * FProgressionTuning.RankCostI)"
+ },
+ "QA-30.exactly_matching": {
+  "expr": "(FProgressionTuning.MaxHitsPerLife - FProgressionTuning.StartHitsPerLife) + (FProgressionTuning.MaxLivesCap - FProgressionTuning.StartLives)"
+ },
+ "QA-30.life.2": {
+  "expr": "(7 * (FProgressionTuning.RankCostI + FProgressionTuning.RankCostII + FProgressionTuning.RankCostIII))"
+ },
+ "QA-30.recovery": {
+  "expr": "(FProgressionTuning.RecoveryRanks * FProgressionTuning.RankCostI)"
+ },
+ "FLOW-15.lives.3": {
+  "expr": "FProgressionTuning.MaxHitsPerLife * FProgressionTuning.MaxLivesCap"
+ },
+ "QA-30.supports.2": {
+  "expr": "FProgressionTuning.MaxHitsPerLife * FProgressionTuning.MaxLivesCap"
+ },
+ "QA-30.supports": {
+  "tuning": "FProgressionTuning.MaxHitsPerLife"
+ },
+ "QA-30.value.14": {
+  "tuning": "FProgressionTuning.MaxHitsPerLife"
+ },
+ "QA-30.x.3": {
+  "tuning": "FProgressionTuning.MaxLivesCap"
+ },
+ "QA-30.full": {
+  "tuning": "FProgressionTuning.MaxHitsPerLife"
+ },
+ "FLOW-15.rank": {
+  "tuning": "FProgressionTuning.RankCostIII"
+ },
+ "FLOW-15.value.13": {
+  "tuning": "FProgressionTuning.RankCostI"
+ },
+ "SURV-06.rank_costs": {
+  "tuning": "FProgressionTuning.RankCostI"
+ },
+ "SURV-06.levels": {
+  "tuning": "FProgressionTuning.RankCostIII"
+ },
+ "SURV-06.levels.2": {
+  "tuning": "FProgressionTuning.RankGateLevelI"
+ },
+ "QA-30.costs": {
+  "tuning": "FProgressionTuning.RankCostIII"
+ },
+ "QA-30.value.18": {
+  "tuning": "FProgressionTuning.RankCostI"
+ },
+ "QA-30.ranks_cost": {
+  "tuning": "FProgressionTuning.RankCostI"
+ },
+ "FLOW-15.value.10": {
+  "expr": "(FHealthTuning.HealPerYellow + 1 * FHealthTuning.HealPerRecoveryRank)",
+  "tol": 0.0006
+ },
+ "FLOW-15.value.11": {
+  "expr": "(FHealthTuning.HealPerYellow + 2 * FHealthTuning.HealPerRecoveryRank)",
+  "tol": 0.0006
+ },
+ "FLOW-15.value.12": {
+  "expr": "(FHealthTuning.HealPerYellow + 3 * FHealthTuning.HealPerRecoveryRank)",
+  "tol": 0.0006
+ },
+ "FLOW-33.value.15": {
+  "expr": "(FHealthTuning.HealPerYellow + 1 * FHealthTuning.HealPerRecoveryRank)",
+  "tol": 0.0006
+ },
+ "FLOW-33.value.16": {
+  "expr": "(FHealthTuning.HealPerYellow + 2 * FHealthTuning.HealPerRecoveryRank)",
+  "tol": 0.0006
+ },
+ "FLOW-33.value.17": {
+  "expr": "(FHealthTuning.HealPerYellow + 3 * FHealthTuning.HealPerRecoveryRank)",
+  "tol": 0.0006
+ },
+ "FLOW-42.value.2": {
+  "expr": "(FHealthTuning.HealPerYellow + 1 * FHealthTuning.HealPerRecoveryRank)",
+  "tol": 0.0006
+ },
+ "FLOW-42.value.3": {
+  "expr": "(FHealthTuning.HealPerYellow + 2 * FHealthTuning.HealPerRecoveryRank)",
+  "tol": 0.0006
+ },
+ "FLOW-42.value.4": {
+  "expr": "(FHealthTuning.HealPerYellow + 3 * FHealthTuning.HealPerRecoveryRank)",
+  "tol": 0.0006
+ },
+ "SURV-06.value.5": {
+  "expr": "(FHealthTuning.HealPerYellow + 1 * FHealthTuning.HealPerRecoveryRank)",
+  "tol": 0.0006
+ },
+ "SURV-06.value.7": {
+  "expr": "(FHealthTuning.HealPerYellow + 1 * FHealthTuning.HealPerRecoveryRank)",
+  "tol": 0.0006
+ },
+ "SURV-06.value.8": {
+  "expr": "(FHealthTuning.HealPerYellow + 2 * FHealthTuning.HealPerRecoveryRank)",
+  "tol": 0.0006
+ },
+ "SURV-06.value.9": {
+  "expr": "(FHealthTuning.HealPerYellow + 3 * FHealthTuning.HealPerRecoveryRank)",
+  "tol": 0.0006
+ },
+ "SURV-07.after": {
+  "expr": "(FHealthTuning.HealPerYellow + 1 * FHealthTuning.HealPerRecoveryRank)",
+  "tol": 0.0006
+ },
+ "SURV-07.value.4": {
+  "expr": "(FHealthTuning.HealPerYellow + 1 * FHealthTuning.HealPerRecoveryRank)",
+  "tol": 0.0006
+ },
+ "SURV-07.value.5": {
+  "expr": "(FHealthTuning.HealPerYellow + 2 * FHealthTuning.HealPerRecoveryRank)",
+  "tol": 0.0006
+ },
+ "SURV-07.healing": {
+  "expr": "(FHealthTuning.HealPerYellow + 3 * FHealthTuning.HealPerRecoveryRank)",
+  "tol": 0.0006
+ },
+ "QA-30.after": {
+  "expr": "(FHealthTuning.HealPerYellow + 1 * FHealthTuning.HealPerRecoveryRank)",
+  "tol": 0.0006
+ },
+ "QA-30.value.15": {
+  "expr": "(FHealthTuning.HealPerYellow + 1 * FHealthTuning.HealPerRecoveryRank)",
+  "tol": 0.0006
+ },
+ "QA-30.value.16": {
+  "expr": "(FHealthTuning.HealPerYellow + 2 * FHealthTuning.HealPerRecoveryRank)",
+  "tol": 0.0006
+ },
+ "QA-30.value.17": {
+  "expr": "(FHealthTuning.HealPerYellow + 3 * FHealthTuning.HealPerRecoveryRank)",
+  "tol": 0.0006
+ },
+ "SURV-07.restore_approximately": {
+  "expr": "(FHealthTuning.HealPerYellow + 0 * FHealthTuning.HealPerRecoveryRank) / FHealthTuning.HitsPerLife * 100",
+  "tol": 0.06
+ },
+ "SURV-07.pct": {
+  "expr": "(FHealthTuning.HealPerYellow + 1 * FHealthTuning.HealPerRecoveryRank) / FHealthTuning.HitsPerLife * 100",
+  "tol": 0.06
+ },
+ "QA-30.approximately": {
+  "expr": "(FHealthTuning.HealPerYellow + 0 * FHealthTuning.HealPerRecoveryRank) / FHealthTuning.HitsPerLife * 100",
+  "tol": 0.06
+ },
+ "QA-30.pct": {
+  "expr": "(FHealthTuning.HealPerYellow + 1 * FHealthTuning.HealPerRecoveryRank) / FHealthTuning.HitsPerLife * 100",
+  "tol": 0.06
+ },
+ "FLOW-33.value.9": {
+  "expr": "1 - FProgressionTuning.DamageReductionRankI",
+  "tol": 0.0006
+ },
+ "FLOW-33.value.10": {
+  "expr": "1 - FProgressionTuning.DamageReductionRankII",
+  "tol": 0.0006
+ },
+ "FLOW-33.value.11": {
+  "expr": "1 - FProgressionTuning.DamageReductionRankIII",
+  "tol": 0.0006
+ },
+ "QA-30.value.2": {
+  "expr": "1 - FProgressionTuning.DamageReductionRankI",
+  "tol": 0.0006
+ },
+ "QA-30.value.3": {
+  "expr": "1 - FProgressionTuning.DamageReductionRankII",
+  "tol": 0.0006
+ },
+ "QA-30.without": {
+  "expr": "1 - FProgressionTuning.DamageReductionRankIII",
+  "tol": 0.0006
+ },
+ "SURV-07.value.9": {
+  "expr": "FProgressionTuning.SuctionRangeBase + 1 * FProgressionTuning.SuctionRangePerRank"
+ },
+ "SURV-07.value.10": {
+  "expr": "FProgressionTuning.SuctionRangeBase + 2 * FProgressionTuning.SuctionRangePerRank"
+ },
+ "SURV-07.value.11": {
+  "expr": "FProgressionTuning.SuctionRangeBase + 3 * FProgressionTuning.SuctionRangePerRank"
+ },
+ "SURV-07.value.12": {
+  "expr": "FProgressionTuning.SuctionConeBaseDegrees + 1 * FProgressionTuning.SuctionConePerRankDegrees"
+ },
+ "SURV-07.value.13": {
+  "expr": "FProgressionTuning.SuctionConeBaseDegrees + 2 * FProgressionTuning.SuctionConePerRankDegrees"
+ },
+ "SURV-07.deg": {
+  "expr": "FProgressionTuning.SuctionConeBaseDegrees + 3 * FProgressionTuning.SuctionConePerRankDegrees"
+ },
+ "FLOW-31.value": {
+  "expr": "FProgressionTuning.StartLives - 1"
+ },
+ "FLOW-31.value.2": {
+  "expr": "FProgressionTuning.StartLives - 2"
+ },
+ "SURV-05.value": {
+  "expr": "FProgressionTuning.StartLives - 1"
+ },
+ "SURV-05.value.2": {
+  "expr": "FProgressionTuning.StartLives - 2"
+ },
+ "SURV-05.initially": {
+  "tuning": "FProgressionTuning.StartLives"
+ },
+ "QA-30.value.9": {
+  "tuning": "FProgressionTuning.StartLives"
+ },
+ "QA-42.value.2": {
+  "tuning": "FProgressionTuning.StartLives"
+ },
+ "QA-30.above": {
+  "tuning": "FProgressionTuning.StartLives"
+ },
+ "QA-30.counts_below": {
+  "tuning": "FProgressionTuning.StartLives"
+ },
+ "QA-30.equal": {
+  "tuning": "FProgressionTuning.StartLives"
+ },
+ "QA-30.active_capacity": {
+  "tuning": "FProgressionTuning.StartHitsPerLife"
+ },
+ "QA-30.ordinary_baseline": {
+  "tuning": "FProgressionTuning.StartHitsPerLife"
+ },
+ "QA-30.value": {
+  "expr": "FProgressionTuning.StartHitsPerLife - 1"
+ },
+ "QA-30.reserves": {
+  "expr": "FProgressionTuning.StartLives - 1"
+ },
+ "QA-30.capacity": {
+  "tuning": "FHealthTuning.HitsPerLife"
+ },
+ "SURV-05.value.4": {
+  "expr": "1 - FHealthTuning.MinLift"
+ },
+ "FLOW-33.value.12": {
+  "expr": "1 - FHealthTuning.MinLift"
+ },
+ "QA-30.value.4": {
+  "expr": "1 - FHealthTuning.MinLift"
+ },
+ "QA-31.levels": {
+  "tuning": "FProgressionTuning.UnlockLevelSmall"
+ },
+ "QA-31.value": {
+  "tuning": "FProgressionTuning.UnlockLevelStreamed"
+ },
+ "QA-31.value.2": {
+  "tuning": "FProgressionTuning.UnlockLevelTwin"
+ },
+ "QA-31.including": {
+  "tuning": "FProgressionTuning.UnlockLevelNeedle"
+ },
+ "QA-31.value.3": {
+  "tuning": "FProgressionTuning.UnlockLevelStreamed"
+ },
+ "QA-31.value.5": {
+  "tuning": "FProgressionTuning.UnlockLevelTwin"
+ },
+ "QA-31.value.7": {
+  "tuning": "FProgressionTuning.UnlockLevelNeedle"
+ },
+ "QA-31.including_boundaries": {
+  "expr": "FProgressionTuning.UnlockLevelStreamed - 1"
+ },
+ "QA-31.value.4": {
+  "expr": "FProgressionTuning.UnlockLevelTwin - 1"
+ },
+ "QA-31.value.6": {
+  "expr": "FProgressionTuning.UnlockLevelNeedle - 1"
+ },
+ "QA-35.value.6": {
+  "tuning": "FProgressionTuning.FinalHourCountMultiplier"
+ },
+ "FLOW-37.value": {
+  "const": "Source/UmbrellaElla/Public/Settings/SettingsConstants.h:SliderMin"
+ },
+ "FLOW-37.value.2": {
+  "const": "Source/UmbrellaElla/Public/Settings/SettingsConstants.h:SliderMax"
+ },
+ "FLOW-45.text_scale": {
+  "const": "Source/UmbrellaElla/Public/Settings/SettingsConstants.h:TextScaleMin"
+ },
+ "FLOW-45.pct": {
+  "const": "Source/UmbrellaElla/Public/Settings/SettingsConstants.h:TextScaleMax"
+ },
+ "QA-38.sound_sliders": {
+  "const": "Source/UmbrellaElla/Public/Settings/SettingsConstants.h:SliderMin"
+ },
+ "QA-38.save": {
+  "const": "Source/UmbrellaElla/Public/Settings/SettingsConstants.h:SliderMax"
+ },
+ "ART-07.value": {
+  "tuning": "FHudTuning.ViewAspectWidth"
+ },
+ "ART-07.value.2": {
+  "tuning": "FHudTuning.ViewAspectHeight"
+ },
+ "NAR-07.roughly": {
+  "tuning": "FStoryTuning.EndingHoldSeconds"
+ },
+ "CAM-06.units": {
+  "expr": "FMotorTuning.RiseSpeed * FHealthTuning.MinLift"
+ },
+ "OWL-11.value.2": {
+  "expr": "FKeeperTuning.ReducedIntervalSeconds / FKeeperTuning.RedIntervalSeconds",
+  "tol": 0.001
+ },
+ "OWL-08.protected": {
+  "expr": "FKeeperTuning.ClockReserveHp / FKeeperTuning.ClockHp * 100"
+ },
+ "CAM-05.value.2": {
+  "const": "Source/UmbrellaElla/Public/Level/LevelPlan.h:MidHeightFraction"
+ },
+ "CAM-05.h.3": {
+  "const": "Source/UmbrellaElla/Public/Level/LevelPlan.h:HighFraction",
+  "tol": 0.06
+ },
+ "unbindable": {
+  "ANIM-04.boots": "0 in “review states 100/75/50/25/5/0, boots fading by 75 and”: art/animation/narrative spec in prose (review state, mask or ordinal), no game field",
+  "ANIM-04.living": "50 in “boots fading by 75 and hat by 50, living mask/scarf retai”: art/animation/narrative spec in prose (review state, mask or ordinal), no game field",
+  "ANIM-04.review_states": "100 in “display. Visual review states 100/75/50/25/5/0, boots fadi”: art/animation/narrative spec in prose (review state, mask or ordinal), no game field",
+  "ANIM-04.value": "75 in “lay. Visual review states 100/75/50/25/5/0, boots fading”: art/animation/narrative spec in prose (review state, mask or ordinal), no game field",
+  "ANIM-04.value.2": "50 in “. Visual review states 100/75/50/25/5/0, boots fading by”: art/animation/narrative spec in prose (review state, mask or ordinal), no game field",
+  "ANIM-04.value.3": "25 in “isual review states 100/75/50/25/5/0, boots fading by 75”: art/animation/narrative spec in prose (review state, mask or ordinal), no game field",
+  "ANIM-04.value.4": "5 in “al review states 100/75/50/25/5/0, boots fading by 75 an”: art/animation/narrative spec in prose (review state, mask or ordinal), no game field",
+  "ANIM-04.value.5": "75 in “75/50/25/5/0, boots fading by 75 and hat by 50, living ma”: art/animation/narrative spec in prose (review state, mask or ordinal), no game field",
+  "ANIM-06.masks": "7 = bitmask of all three surviving mechanisms in \"masks 7->6->4->0\"; the Keeper holds a mechanism set, not these integers",
+  "ANIM-06.value": "6 = second surviving-mechanism mask; see ANIM-06.masks",
+  "ANIM-06.value.2": "4 = third surviving-mechanism mask; see ANIM-06.masks",
+  "ANIM-06.value.3": "0 = last surviving-mechanism mask (none left); see ANIM-06.masks",
+  "ART-03.pm": "2 in \"2pm Japan-time kickoff\": a calendar time",
+  "ART-05.intended_audience": "13 in \"intended audience 13+\": an audience age, not a game value",
+  "ART-07.gameplay_context": "2 in \"2D side-plane view\": a dimension word",
+  "ART-10.value": "1 = the yellow side of the level-wide 2-red:1-yellow target; the game holds only the red count per yellow (FEnemyTuning.RedPerYellow=2, bound under COM-14), the yellow 1 is implicit in it",
+  "CAM-06.height": "2 = coefficient in \"height >= 2rz+2m\"; formula operand",
+  "CAM-06.opening_width": "2 = coefficient in \"opening width >= 2rx+2m\"; formula operand",
+  "CAM-06.rx": "2 = coefficient of rx in the opening-width formula",
+  "CAM-06.rz": "2 = coefficient of rz in the opening-height formula",
+  "COM-14.target": "1 = the yellow side of the level-wide 2-red:1-yellow target; the game holds only the red count per yellow (FEnemyTuning.RedPerYellow=2, bound under COM-14), the yellow 1 is implicit in it",
+  "COM-15.target": "1 = the yellow side of the level-wide 2-red:1-yellow target; the game holds only the red count per yellow (FEnemyTuning.RedPerYellow=2, bound under COM-14), the yellow 1 is implicit in it",
+  "COM-16.target": "1 = the yellow side of the level-wide 2-red:1-yellow target; the game holds only the red count per yellow (FEnemyTuning.RedPerYellow=2, bound under COM-14), the yellow 1 is implicit in it",
+  "COM-17.slot_identities": "0 = first stable slot identity of 0-7; an index origin (the last, 7, is bound to CourierEmissionSlots-1)",
+  "COM-17.target": "1 = the yellow side of the level-wide 2-red:1-yellow target; the game holds only the red count per yellow (FEnemyTuning.RedPerYellow=2, bound under COM-14), the yellow 1 is implicit in it",
+  "FLOW-05.value.2": "1 in min(2, 1 + 0.10C) HP multiplier; cap and step are bound",
+  "FLOW-05.value.4": "1 in min(1.30, 1 + 0.03C) cadence multiplier; cap and step are bound",
+  "FLOW-05.value.6": "1 in min(2, 1 + 0.10C) count multiplier; cap and step are bound",
+  "FLOW-11.cut_run": "run ordinal 2 (\"run 2 and later\"); the game gates on CompletedRuns >= 1 (ProgressionRules.cpp:395) with no named constant",
+  "FLOW-15.around": "10 = pacing target of completed Director's Cut runs (\"around 10\"); a playtest target with no log line and no game field",
+  "FLOW-15.forcing": "10 in “e XP curve rather than forcing10 identical runs.”: operand/ordinal of a rule whose governing number is bound elsewhere in this rule",
+  "FLOW-15.l": "the -1 in (L-1) of the XP formula 100 + floor((L-1)/2); the formula is verified by the bound xp_to totals (916/1981/3096/7000)",
+  "FLOW-15.l.2": "the L=1 start of \"L=1...61\" (first level of the curve); a range origin",
+  "FLOW-15.level": "10 = milestone level of the 916 XP total (bound via xp_to); chosen to equal the Stream unlock level but a separate concept",
+  "FLOW-15.point_buys": "+1 hit capacity per point; the purchase adds 1 in ProgressionRules, no named constant",
+  "FLOW-15.start_level": "1 = starting level; the game starts a profile at level 1 with no named constant",
+  "FLOW-15.targeting_roughly": "600 = lower end of the 600-800 XP-per-run band; the game holds the 700 midpoint (TargetXpPerRun, bound under FLOW-15.assumes_roughly), not the band ends",
+  "FLOW-15.total.2": "+1 life per point; see FLOW-15.point_buys",
+  "FLOW-15.value": "2 = divisor in floor((L-1)/2); hard-coded as \"/ 2\" in ProgressionRules.cpp:47, no named constant. Verified indirectly by the bound xp_to totals",
+  "FLOW-15.value.5": "20 = milestone level of the 1981 XP total (bound); see FLOW-15.level",
+  "FLOW-15.value.7": "30 = milestone level of the 3096 XP total (bound); see FLOW-15.level",
+  "FLOW-15.xp": "800 = upper end of the 600-800 XP-per-run band; see FLOW-15.targeting_roughly",
+  "FLOW-18.cut_run": "run ordinal 2 (\"run 2 onward\"); see FLOW-11.cut_run",
+  "FLOW-19.checkpoint_cp": "1 in checkpoint label CP1; identifier",
+  "FLOW-19.cp": "2 in checkpoint label CP2; identifier",
+  "FLOW-19.cp.2": "3 in checkpoint label CP3; identifier",
+  "FLOW-23.l": "the -1 in (L-1) of the provisional curve; see FLOW-15.l",
+  "FLOW-23.level": "the -1 in \"(level-1) unspent points\"; points per level after the first, a formula operand (61 total is bound as LevelCap-1)",
+  "FLOW-23.levels": "1 = first level of \"levels 1-61\"; range origin",
+  "FLOW-23.levels.2": "1 = first level of \"levels 1-62 use zero partial XP\"; range origin",
+  "FLOW-23.value": "2 = divisor in floor((L-1)/2); see FLOW-15.value",
+  "FLOW-24.authored": "12 authored challenges = the 12 chunks of the catalogue; held as the LevelCatalogue table length, not a named constant",
+  "FLOW-24.minutes": "8 = upper end of the 5-8 minute first-run target; the check compares one value, the target is a range and no playtest line reports first-run minutes yet",
+  "FLOW-24.playtest_target": "5 = lower end of the 5-8 minute first-run target; see FLOW-24.minutes",
+  "FLOW-29.cp": "0 in label CP0 (\"CP0 alone is not a purchase point\"); identifier",
+  "FLOW-29.run": "run ordinal 2 (\"run 2 onward\"); see FLOW-11.cut_run",
+  "FLOW-33.therefore_deals": "1 = ordinary hit damage at rank 0 (full); ranks I-III (0.9/0.8/0.7) are bound",
+  "FLOW-33.value.13": "0 = lower clamp of clamp(active health / capacity, 0, 1) in the lift formula; the 0.3/0.7 weights are bound",
+  "FLOW-33.value.14": "1 = upper clamp of clamp(active health / capacity, 0, 1); see FLOW-33.value.13",
+  "FLOW-33.value.19": "+1 per point to reach 11; see FLOW-15.point_buys",
+  "FLOW-33.value.3": "10 = old incoming-damage value \"8/10/12\" divided by the bound divisor 8; the game holds only the divisor (FHealthTuning.OldDamageDivisor)",
+  "FLOW-33.value.5": "1 in damage x (1 - reduction); formula operand, the reductions are bound",
+  "FLOW-33.value.6": "0 = rank-0 reduction in \"0/10/20/30%\"; ranks I-III are bound",
+  "FLOW-33.values": "12 = old incoming-damage value \"8/10/12\"; see FLOW-33.value.3",
+  "FLOW-42.run": "run ordinal 2 (\"run 2 onward\"); see FLOW-11.cut_run",
+  "FLOW-42.value": "+1 per upgrade point up to 11; see FLOW-15.point_buys",
+  "FLOW-46.including_ch": "3 in chunk label CH03; identifier",
+  "FLOW-46.mix": "2 in mix label MIX02; identifier",
+  "HAZ-02.approved_p": "the 0 in the label \"P0\"; a priority label, not a quantity",
+  "HAZ-02.value": "24 = 12 chunks x 2 variants of the catalogue; the game holds it only as the length of the LevelCatalogue table (LevelCatalogue.h \"12 chunks x 2 variants\"), with no named constant a check can read",
+  "HAZ-08.equilibrium": "+47 = equilibrium offset at the superseded gain 1.4 ((144-78)/1.4); the game holds gain 2.4, whose offsets +27.5/-20.5 are bound",
+  "HAZ-08.gain": "1.4 is the earlier restoring gain that the GDD replaces with the proposed 2.4 (FBrokenMillTuning.LocalRestoringGain, bound under HAZ-07); the game never holds 1.4",
+  "HAZ-08.inside_eligibility": "185 = lower end of the \"eligibility 185-275\" band quoted in this sentence; the game holds LowerOnwardZ 210-330 (bound under HAZ-06), so 185-275 may be a GDD inconsistency, flagged in the status file",
+  "HAZ-08.value.4": "275 = upper end of the \"eligibility 185-275\" band; see HAZ-08.inside_eligibility",
+  "HAZ-12.occur_atz": "z 680 = first emission height of the worked case; see HAZ-12.value.7",
+  "HAZ-12.value.7": "z 680 start of the worked case (\"From root z 680\"); held only as the Entry height literal in BrokenMillMeasureTests (not a named constant) - the emission heights derived from it are bound",
+  "HAZ-12.value.8": "the 0 in \"emissions at 0/.2/.4/.6/.8/1 s\": the first emission time of the worked case, a sequence origin",
+  "HAZ-13.wind": "360 = wind strength in the residual-drift estimate; the game holds 300 (FBrokenMillTuning.WindSpeed and FFieldTuning.DefaultWindForce), so 360 is not reconciled; flagged in the status file",
+  "HAZ-14.prior": "1 = the \"prior 1 HP\" health fixture the GDD retires; the game no longer holds it",
+  "HAZ-14.trim": "-1 = lowest trim step of the test matrix \"trim -1/0/+1\"; a test input",
+  "HAZ-14.value": "0 = the neutral trim in the test matrix \"trim -1/0/+1\"; VerticalTrim is a test input, the +/-20% trim is bound (FMotorTuning.VerticalTrimPct)",
+  "HAZ-14.value.3": "100 = the \"prior 100 HP\" health fixture the GDD retires; the game no longer holds it",
+  "HAZ-16.healthy": "1080 = vertical resolution of the acceptance run 1920x1080; a display setting for the human check, not a game value",
+  "HAZ-16.value": "720 = vertical resolution of the 1280x720 acceptance run; a display setting",
+  "HAZ-16.x": "1280 x 720 acceptance resolution; a display setting for the human check",
+  "HAZ-16.x.2": "1920 x 1080 acceptance resolution; a display setting for the human check",
+  "HAZ-25.ch": "1 in “CH01 Drop-and-catch: A middle”: chunk label or catalogue content (a number inside the chunk name CHnn), not a tuned quantity",
+  "HAZ-25.w": "0.45 W = where the middle current of chunk CH01 ends; authored chunk content",
+  "HAZ-26.ch": "2 in “CH02 Rooftop line: A low righ”: chunk label or catalogue content (a number inside the chunk name CHnn), not a tuned quantity",
+  "HAZ-27.ch": "3 in “CH03 Yellow crossing: A Couri”: chunk label or catalogue content (a number inside the chunk name CHnn), not a tuned quantity",
+  "HAZ-28.ch": "4 in “CH04 Underbridge: A stilt fee”: chunk label or catalogue content (a number inside the chunk name CHnn), not a tuned quantity",
+  "HAZ-29.ch": "5 in “CH05 Over-and-under: A high r”: chunk label or catalogue content (a number inside the chunk name CHnn), not a tuned quantity",
+  "HAZ-30.ch": "6 in “CH06 Countercurrent mill: A l”: chunk label or catalogue content (a number inside the chunk name CHnn), not a tuned quantity",
+  "HAZ-31.ch": "7 in “CH07 Shutter pocket: A upper”: chunk label or catalogue content (a number inside the chunk name CHnn), not a tuned quantity",
+  "HAZ-32.ch": "8 in “CH08 Bellows lane: A middle h”: chunk label or catalogue content (a number inside the chunk name CHnn), not a tuned quantity",
+  "HAZ-33.ch": "9 in “CH09 Eave transfer: A high ea”: chunk label or catalogue content (a number inside the chunk name CHnn), not a tuned quantity",
+  "HAZ-34.ch": "10 in “CH10 Switchback: A right low”: chunk label or catalogue content (a number inside the chunk name CHnn), not a tuned quantity",
+  "HAZ-35.ch": "11 in “CH11 Warden and mill: A high”: chunk label or catalogue content (a number inside the chunk name CHnn), not a tuned quantity",
+  "HAZ-36.ch": "12 in “CH12 Stilt and Courier: A sti”: chunk label or catalogue content (a number inside the chunk name CHnn), not a tuned quantity",
+  "HAZ-37.ch": "1 in “ine-slot grammar: group A = CH01, CH02, CH03; refuge CP1.”: chunk label or catalogue content (a number inside the chunk name CHnn), not a tuned quantity",
+  "HAZ-37.ch.10": "10 in “ney clue. Group C = CH09 or CH10; a not-yet-used CH05/06/”: chunk label or catalogue content (chunk-content fraction authored in the level catalogue), not a tuned quantity",
+  "HAZ-37.ch.11": "5 in “H09 or CH10; a not-yet-used CH05/06/07/08; CH11 or CH12 u”: chunk label or catalogue content (chunk-content fraction authored in the level catalogue), not a tuned quantity",
+  "HAZ-37.ch.12": "11 in “not-yet-used CH05/06/07/08; CH11 or CH12 using only intro”: chunk label or catalogue content (chunk-content fraction authored in the level catalogue), not a tuned quantity",
+  "HAZ-37.ch.13": "12 in “used CH05/06/07/08; CH11 or CH12 using only introduced co”: chunk label or catalogue content (chunk-content fraction authored in the level catalogue), not a tuned quantity",
+  "HAZ-37.ch.2": "2 in “ot grammar: group A = CH01, CH02, CH03; refuge CP1. Group”: chunk label or catalogue content (chunk-content fraction authored in the level catalogue), not a tuned quantity",
+  "HAZ-37.ch.3": "3 in “mmar: group A = CH01, CH02, CH03; refuge CP1. Group B = C”: chunk label or catalogue content (chunk-content fraction authored in the level catalogue), not a tuned quantity",
+  "HAZ-37.ch.4": "4 in “CH03; refuge CP1. Group B = CH04, CH05 or CH06, CH07 or C”: chunk label or catalogue content (chunk-content fraction authored in the level catalogue), not a tuned quantity",
+  "HAZ-37.ch.5": "5 in “refuge CP1. Group B = CH04, CH05 or CH06, CH07 or CH08; r”: chunk label or catalogue content (chunk-content fraction authored in the level catalogue), not a tuned quantity",
+  "HAZ-37.ch.6": "6 in “P1. Group B = CH04, CH05 or CH06, CH07 or CH08; refuge CP”: chunk label or catalogue content (chunk-content fraction authored in the level catalogue), not a tuned quantity",
+  "HAZ-37.ch.7": "7 in “oup B = CH04, CH05 or CH06, CH07 or CH08; refuge CP2 and”: chunk label or catalogue content (chunk-content fraction authored in the level catalogue), not a tuned quantity",
+  "HAZ-37.ch.8": "8 in “CH04, CH05 or CH06, CH07 or CH08; refuge CP2 and once-onl”: chunk label or catalogue content (chunk-content fraction authored in the level catalogue), not a tuned quantity",
+  "HAZ-37.ch.9": "9 in “nly journey clue. Group C = CH09 or CH10; a not-yet-used”: chunk label or catalogue content (chunk-content fraction authored in the level catalogue), not a tuned quantity",
+  "HAZ-37.refuge_cp": "1 in “= CH01, CH02, CH03; refuge CP1. Group B = CH04, CH05 or”: chunk label or catalogue content (chunk-content fraction authored in the level catalogue), not a tuned quantity",
+  "HAZ-37.refuge_cp.2": "2 in “CH06, CH07 or CH08; refuge CP2 and once-only journey cl”: chunk label or catalogue content (chunk-content fraction authored in the level catalogue), not a tuned quantity",
+  "HAZ-37.refuge_cp.3": "3 in “oduced combinations. Refuge CP3 → quiet arrival → comple”: chunk label or catalogue content (chunk-content fraction authored in the level catalogue), not a tuned quantity",
+  "HAZ-37.value": "6 in “or CH10; a not-yet-used CH05/06/07/08; CH11 or CH12 usin”: chunk label or catalogue content (chunk-content fraction authored in the level catalogue), not a tuned quantity",
+  "HAZ-37.value.2": "7 in “CH10; a not-yet-used CH05/06/07/08; CH11 or CH12 using o”: chunk label or catalogue content (chunk-content fraction authored in the level catalogue), not a tuned quantity",
+  "HAZ-37.value.3": "8 in “10; a not-yet-used CH05/06/07/08; CH11 or CH12 using only”: chunk label or catalogue content (chunk-content fraction authored in the level catalogue), not a tuned quantity",
+  "HAZ-39.b": "1 in “,07A;09A,08A,11A. Seed 1002 = 01B,02B,03A;04B,06A,08B;10A”: chunk label or catalogue content (chunk-content fraction authored in the level catalogue), not a tuned quantity",
+  "HAZ-39.b.10": "7 in “ed 1003 = 01A,02B,03B;04A,06B,07B;09B,08A,12A. These exam”: chunk label or catalogue content (chunk-content fraction authored in the level catalogue), not a tuned quantity",
+  "HAZ-39.b.11": "9 in “003 = 01A,02B,03B;04A,06B,07B;09B,08A,12A. These examples”: chunk label or catalogue content (chunk-content fraction authored in the level catalogue), not a tuned quantity",
+  "HAZ-39.b.2": "2 in “;09A,08A,11A. Seed 1002 = 01B,02B,03A;04B,06A,08B;10A,05B”: chunk label or catalogue content (chunk-content fraction authored in the level catalogue), not a tuned quantity",
+  "HAZ-39.b.3": "4 in “,11A. Seed 1002 = 01B,02B,03A;04B,06A,08B;10A,05B,12B. Se”: chunk label or catalogue content (chunk-content fraction authored in the level catalogue), not a tuned quantity",
+  "HAZ-39.b.4": "8 in “ed 1002 = 01B,02B,03A;04B,06A,08B;10A,05B,12B. Seed 1003”: chunk label or catalogue content (chunk-content fraction authored in the level catalogue), not a tuned quantity",
+  "HAZ-39.b.5": "5 in “= 01B,02B,03A;04B,06A,08B;10A,05B,12B. Seed 1003 = 01A,02”: chunk label or catalogue content (chunk-content fraction authored in the level catalogue), not a tuned quantity",
+  "HAZ-39.b.6": "12 in “B,02B,03A;04B,06A,08B;10A,05B,12B. Seed 1003 = 01A,02B,03”: chunk label or catalogue content (chunk-content fraction authored in the level catalogue), not a tuned quantity",
+  "HAZ-39.b.7": "2 in “;10A,05B,12B. Seed 1003 = 01A,02B,03B;04A,06B,07B;09B,08A”: chunk label or catalogue content (chunk-content fraction authored in the level catalogue), not a tuned quantity",
+  "HAZ-39.b.8": "3 in “,05B,12B. Seed 1003 = 01A,02B,03B;04A,06B,07B;09B,08A,12A”: chunk label or catalogue content (chunk-content fraction authored in the level catalogue), not a tuned quantity",
+  "HAZ-39.b.9": "6 in “. Seed 1003 = 01A,02B,03B;04A,06B,07B;09B,08A,12A. These”: chunk label or catalogue content (chunk-content fraction authored in the level catalogue), not a tuned quantity",
+  "HAZ-39.seed.2": "1002 in “04A,05A,07A;09A,08A,11A. Seed 1002 = 01B,02B,03A;04B,06A,08”: chunk label or catalogue content (chunk-content fraction authored in the level catalogue), not a tuned quantity",
+  "HAZ-39.seed.3": "1003 in “04B,06A,08B;10A,05B,12B. Seed 1003 = 01A,02B,03B;04A,06B,07”: chunk label or catalogue content (chunk-content fraction authored in the level catalogue), not a tuned quantity",
+  "HAZ-39.value": "1 in “NOT test passes: seed 1001 = 01A,02A,03A;04A,05A,07A;09A”: chunk label or catalogue content (chunk-content fraction authored in the level catalogue), not a tuned quantity",
+  "HAZ-39.value.10": "3 in “,08A,11A. Seed 1002 = 01B,02B,03A;04B,06A,08B;10A,05B,12B”: chunk label or catalogue content (chunk-content fraction authored in the level catalogue), not a tuned quantity",
+  "HAZ-39.value.11": "6 in “. Seed 1002 = 01B,02B,03A;04B,06A,08B;10A,05B,12B. Seed 1”: chunk label or catalogue content (chunk-content fraction authored in the level catalogue), not a tuned quantity",
+  "HAZ-39.value.12": "10 in “002 = 01B,02B,03A;04B,06A,08B;10A,05B,12B. Seed 1003 = 01”: chunk label or catalogue content (chunk-content fraction authored in the level catalogue), not a tuned quantity",
+  "HAZ-39.value.13": "1 in “,08B;10A,05B,12B. Seed 1003 = 01A,02B,03B;04A,06B,07B;09B”: chunk label or catalogue content (chunk-content fraction authored in the level catalogue), not a tuned quantity",
+  "HAZ-39.value.14": "4 in “,12B. Seed 1003 = 01A,02B,03B;04A,06B,07B;09B,08A,12A. Th”: chunk label or catalogue content (chunk-content fraction authored in the level catalogue), not a tuned quantity",
+  "HAZ-39.value.15": "8 in “= 01A,02B,03B;04A,06B,07B;09B,08A,12A. These examples do”: chunk label or catalogue content (chunk-content fraction authored in the level catalogue), not a tuned quantity",
+  "HAZ-39.value.16": "12 in “A,02B,03B;04A,06B,07B;09B,08A,12A. These examples do not”: chunk label or catalogue content (chunk-content fraction authored in the level catalogue), not a tuned quantity",
+  "HAZ-39.value.2": "2 in “test passes: seed 1001 = 01A,02A,03A;04A,05A,07A;09A,08A”: chunk label or catalogue content (chunk-content fraction authored in the level catalogue), not a tuned quantity",
+  "HAZ-39.value.3": "3 in “t passes: seed 1001 = 01A,02A,03A;04A,05A,07A;09A,08A,11A”: chunk label or catalogue content (chunk-content fraction authored in the level catalogue), not a tuned quantity",
+  "HAZ-39.value.4": "4 in “sses: seed 1001 = 01A,02A,03A;04A,05A,07A;09A,08A,11A. Se”: chunk label or catalogue content (chunk-content fraction authored in the level catalogue), not a tuned quantity",
+  "HAZ-39.value.5": "5 in “: seed 1001 = 01A,02A,03A;04A,05A,07A;09A,08A,11A. Seed 1”: chunk label or catalogue content (chunk-content fraction authored in the level catalogue), not a tuned quantity",
+  "HAZ-39.value.6": "7 in “ed 1001 = 01A,02A,03A;04A,05A,07A;09A,08A,11A. Seed 1002”: chunk label or catalogue content (chunk-content fraction authored in the level catalogue), not a tuned quantity",
+  "HAZ-39.value.7": "9 in “001 = 01A,02A,03A;04A,05A,07A;09A,08A,11A. Seed 1002 = 01”: chunk label or catalogue content (chunk-content fraction authored in the level catalogue), not a tuned quantity",
+  "HAZ-39.value.8": "8 in “= 01A,02A,03A;04A,05A,07A;09A,08A,11A. Seed 1002 = 01B,02”: chunk label or catalogue content (chunk-content fraction authored in the level catalogue), not a tuned quantity",
+  "HAZ-39.value.9": "11 in “A,02A,03A;04A,05A,07A;09A,08A,11A. Seed 1002 = 01B,02B,03”: chunk label or catalogue content (chunk-content fraction authored in the level catalogue), not a tuned quantity",
+  "MOVE-05.l": "2 in L2 (trigger label); identifier",
+  "MOVE-05.r": "2 in R2 (trigger label); identifier",
+  "MOVE-06.l": "1 in L1; identifier",
+  "MOVE-06.r": "1 in R1; identifier",
+  "MOVE-08.f": "1 in key label F1; identifier",
+  "MOVE-08.keyboard": "1 = first of keyboard keys 1-4 (spell select); a key label",
+  "MOVE-08.value": "4 = last of keyboard keys 1-4; a key label",
+  "OWL-06.phase": "1 = Keeper phase 1 (wings); a phase ordinal",
+  "OWL-06.phase.2": "2 = Keeper phase 2 (three hanging mechanisms); a phase ordinal",
+  "OWL-06.phase.3": "3 = Keeper phase 3 (clock); a phase ordinal",
+  "OWL-10.phase": "1 = Keeper phase 1; a phase ordinal",
+  "OWL-10.phase.2": "2 = Keeper phase 2; a phase ordinal",
+  "OWL-10.phase.3": "3 = Keeper phase 3; a phase ordinal",
+  "QA-30.defense_results": "1 = rank-0 defense result (full damage); ranks I-III are bound",
+  "QA-30.exercise": "3 in the exercised build 3 x 4; a test fixture of the QA plan",
+  "QA-30.hits": "+1 hit capacity per point restated in the QA plan; see FLOW-15.point_buys",
+  "QA-30.l": "the -1 in (L-1); see FLOW-15.l",
+  "QA-30.l.2": "the L=1 start of L=1...61; see FLOW-15.l.2",
+  "QA-30.levels": "10 = milestone level of the 916 XP check (bound via xp_to); see FLOW-15.level",
+  "QA-30.life": "+1 life per point restated in the QA plan; see FLOW-15.point_buys",
+  "QA-30.value.11": "4 in the exercised build 3 x 4; a test fixture",
+  "QA-30.value.12": "3 in the exercised build 4 x 3; a test fixture",
+  "QA-30.value.13": "4 in the exercised build 4 x 3; a test fixture",
+  "QA-30.value.20": "2 = divisor in floor((L-1)/2); see FLOW-15.value",
+  "QA-30.value.24": "20 = milestone level of the 1981 XP check; see FLOW-15.level",
+  "QA-30.value.25": "30 = milestone level of the 3096 XP check; see FLOW-15.level",
+  "QA-30.value.5": "0 = lower clamp of the lift formula, restated in the QA plan; see FLOW-33.value.13",
+  "QA-30.value.6": "1 = upper clamp of the lift formula, restated in the QA plan",
+  "QA-30.x": "4 in the exercised build 3 x 4; a test fixture",
+  "QA-30.x.2": "4 in the exercised build 4 x 4; a test fixture",
+  "QA-35.run": "run ordinal 2 (\"start of run 2+\"); see FLOW-11.cut_run",
+  "QA-35.value.2": "1 in the multiplier min(2, 1 + 0.10C) (HP/count); the cap 2 and step 0.10 are bound under FLOW-05",
+  "QA-35.value.4": "1 in the multiplier min(1.30, 1 + 0.03C) (cadence); the cap and step are bound under FLOW-05",
+  "QA-36.adjustable": "5 = lower end of the 5-8 minute journey target restated from FLOW-24; a range end, no playtest line reports it",
+  "QA-36.value": "8 = upper end of the 5-8 minute journey target restated from FLOW-24; a range end, no playtest line reports it",
+  "QA-37.value": "1 = the yellow side of the level-wide 2-red:1-yellow target; the game holds only the red count per yellow (FEnemyTuning.RedPerYellow=2, bound under COM-14), the yellow 1 is implicit in it",
+  "QA-39.readable": "13 in \"readable 13+ presentation\": an audience age, not a game value",
+  "QA-42.including_ch": "3 in chunk label CH03; identifier",
+  "QA-42.mix": "2 in mix label MIX02; identifier",
+  "QA-42.value": "1 = the yellow side of the level-wide 2-red:1-yellow target; the game holds only the red count per yellow (FEnemyTuning.RedPerYellow=2, bound under COM-14), the yellow 1 is implicit in it",
+  "SURV-05.value.5": "0 = lower clamp of clamp(active health / capacity, 0, 1); see FLOW-33.value.13",
+  "SURV-05.value.6": "1 = upper clamp; see FLOW-33.value.13",
+  "SURV-06.level": "31 = the old 30-point/level-31 limit the GDD says is superseded; the game no longer holds it",
+  "SURV-06.life": "+1 life per point; see FLOW-15.point_buys",
+  "SURV-06.point_buys": "+1 hit capacity per point; see FLOW-15.point_buys",
+  "SURV-06.value.13": "+1 increment per point (caps 11 are bound); see FLOW-15.point_buys",
+  "SURV-06.value.2": "4 in the example build 3 x 4; an example",
+  "SURV-06.value.3": "3 in the example build 4 x 3; an example",
+  "SURV-06.value.4": "4 in the example build 4 x 4; an example",
+  "SURV-06.x": "3 in the example build 3 x 4; examples, \"not a forced build\"",
+  "SURV-06.x.2": "4 in the example build 4 x 3; an example",
+  "SURV-06.x.3": "4 in the example build 4 x 4; an example",
+  "SURV-07.damage_multiplier": "1 = rank-0 spell damage multiplier (identity); ranks I-III (1.25/1.65/2.25) are bound",
+  "SURV-07.damage_reduction": "0 = rank-0 damage reduction (none); ranks I-III are bound",
+  "SURV-07.do": "175 = last of the old player HP list 100/125/150/175 that the GDD says does not define this model; the game holds no HP list",
+  "SURV-07.hp_values": "100 = first of the old player HP list; see SURV-07.do",
+  "SURV-07.ranks": "0 = rank 0 of the recovery ladder \"ranks 0/I/II/III\"; a rank index",
+  "SURV-07.value": "125 = old player HP list; see SURV-07.do",
+  "SURV-07.value.2": "150 = old player HP list; see SURV-07.do",
+  "SURV-07.value.6": "0 = rank 0 of the other-track ladder \"0 -> I -> II -> III\"; a rank index",
+  "VFX-11.approved_p": "0 in “d implementation is approved P0; no generated asset, com”: art/animation/narrative spec in prose (review state, mask or ordinal), no game field"
+ },
+ "not_in_game": {
+  "CAM-05.value": {
+   "owner": "arena (FFieldTuning)",
+   "missing": "a lower internal camera band 'near 0.3H' (the clearance rule 0.3 is a different field)",
+   "was": "0.3 = lower internal band \"near 0.3H\", an authoring guide; the game has no matching field (FFieldTuning.MinClearanceHeightFraction=0.3 is the clearance rule, bound under CAM-05.h.2, a different concept)"
+  },
+  "CAM-06.h.2": {
+   "owner": "arena (FFieldTuning)",
+   "missing": "a recovery-climb guide 'about 0.15H'",
+   "was": "0.15 = recovery climb \"about 0.15H\" in the camera guideline; an authoring guide with no field"
+  },
+  "HAZ-03.guard_feet": {
+   "owner": "enemies2 (Broken Mill, FBrokenMillTuning)",
+   "missing": "guard feet x (1450); only the mesh centre x 1440 exists",
+   "was": "x of the guard feet (1450,390): FBrokenMillTuning has no feet field; the guard mesh is centred on TargetCentre.X=1440, which is not the same point, so a binding would be a guess. Z 390 equals TargetCentre.Y-TargetSize.Y/2 (see HAZ-11.proxy_atz)."
+  },
+  "HAZ-06.lowers_toz": {
+   "owner": "enemies2 (Broken Mill, FBrokenMillTuning)",
+   "missing": "centre 230 of the lowered step (only the 185-285 envelope is a test literal)",
+   "was": "230 = centre of the lowered underpass step (envelope 185-285 is 230 +/- 45); the game holds the resulting envelope as a test literal (HAZ-06.root_envelopez, bound) but not the centre/half-width pair"
+  },
+  "HAZ-06.after": {
+   "owner": "enemies2 (Broken Mill, FBrokenMillTuning)",
+   "missing": "root reopen height z 400",
+   "was": "z 400 where the root reopens after the useful firing window: an approximate design height (\"near\") next to the 402 window floor (HAZ-11.root_band, bound); the game has no field for it"
+  },
+  "HAZ-06.before": {
+   "owner": "enemies2 (Broken Mill, FBrokenMillTuning)",
+   "missing": "lowered-step half-width 45",
+   "was": "45 = half-width of the lowered step 230 +/- 45; see HAZ-06.lowers_toz: no tuning field"
+  },
+  "HAZ-06.toward": {
+   "owner": "enemies2 (Broken Mill, FBrokenMillTuning)",
+   "missing": "ascent start x 1640",
+   "was": "x 1640 where the ascent toward the exit starts (\"Rise after x 1640\"): a design coordinate with no field in FBrokenMillTuning and no test literal; HAZ-08 says to measure it"
+  },
+  "HAZ-06.value.10": {
+   "owner": "enemies2 (Broken Mill, FBrokenMillTuning)",
+   "missing": "protected root core lower z 300",
+   "was": "z 300 lower edge of the protected root core (x 260-360 is FBrokenMillTuning.ProtectedCoreX); no field for the core z range"
+  },
+  "HAZ-06.value.11": {
+   "owner": "enemies2 (Broken Mill, FBrokenMillTuning)",
+   "missing": "protected root core upper z 780",
+   "was": "z 780 upper edge of the protected root core; see HAZ-06.value.10"
+  },
+  "HAZ-06.value.6": {
+   "owner": "enemies2 (Broken Mill, FBrokenMillTuning)",
+   "missing": "vertical-lift end x 330",
+   "was": "x 330 of the vertical-lift end point (330,680); no field holds the lift end"
+  },
+  "HAZ-06.value.7": {
+   "owner": "enemies2 (Broken Mill, FBrokenMillTuning)",
+   "missing": "vertical-lift end z 680 (only a test literal)",
+   "was": "z 680 of the vertical-lift end point (330,680); also the entry height of BrokenMillMeasureTests (Entry z 680), but not a named constant"
+  },
+  "HAZ-06.vertical_lift": {
+   "owner": "enemies2 (Broken Mill, FBrokenMillTuning)",
+   "missing": "vertical-lift half-width 30",
+   "was": "30 = half-width of the vertical lift ending at (330,680); no field holds it"
+  },
+  "HAZ-08.above_centre": {
+   "owner": "enemies2 (Broken Mill, FBrokenMillTuning)",
+   "missing": "lowered-step centre 230",
+   "was": "230 = centre of the lowered underpass step; see HAZ-06.lowers_toz (no field)"
+  },
+  "HAZ-08.choosex": {
+   "owner": "enemies2 (Broken Mill, FBrokenMillTuning)",
+   "missing": "chosen ascent start x 1640",
+   "was": "x 1640 chosen start of the ascent; a design coordinate with no field or test literal (\"Measure actual bends\"); same value as HAZ-06.toward"
+  },
+  "HAZ-08.margin": {
+   "owner": "enemies2 (Broken Mill, FBrokenMillTuning)",
+   "missing": "ascent start margin 24",
+   "was": "24 = margin added to 1570+23.4 to choose x 1640; a design margin with no field"
+  },
+  "HAZ-08.value.2": {
+   "owner": "enemies2 (Broken Mill, FBrokenMillTuning)",
+   "missing": "lowered-step half-width 45",
+   "was": "45 = half-width of the lowered step 230 +/- 45; see HAZ-06.before (no field)"
+  },
+  "HAZ-10.actor_scale": {
+   "owner": "motor (Core UmbrellaTuning request for a HeroSize field)",
+   "missing": "Ella actor scale 0.5 at HeroSize 1",
+   "was": "0.5 = Ella actor scale at HeroSize 1; no tuning field holds it (the muzzle offset it yields, +44/+6, is bound and currently mismatches)"
+  },
+  "HAZ-10.herosize": {
+   "owner": "motor (Core UmbrellaTuning request for a HeroSize field)",
+   "missing": "HeroSize field (reference value 1)",
+   "was": "1 = HeroSize of the reference muzzle offset; a test input, not a tuning field"
+  },
+  "HAZ-13.herosize": {
+   "owner": "motor (Core UmbrellaTuning request for a HeroSize field)",
+   "missing": "HeroSize field (upper range 1.3)",
+   "was": "1.3 = upper HeroSize of the supported range; HeroSize is a test-matrix input (BrokenMillTests GetMuzzleOffset(T, 1.3f)), not a tuning field"
+  },
+  "HAZ-14.herosize": {
+   "owner": "motor (Core UmbrellaTuning request for a HeroSize field)",
+   "missing": "HeroSize field (range 0.75-1.3)",
+   "was": "1 = HeroSize of the lowest-matrix pair in \"HeroSize 0.75/1.3\"; HeroSize is a test input (see HAZ-13.herosize)"
+  },
+  "HAZ-14.herosize.2": {
+   "owner": "motor (Core UmbrellaTuning request for a HeroSize field)",
+   "missing": "HeroSize field (lower range 0.75)",
+   "was": "0.75 = lower HeroSize of the supported range; a test input (see HAZ-13.herosize)"
+  },
+  "HAZ-14.value.2": {
+   "owner": "motor (Core UmbrellaTuning request for a HeroSize field)",
+   "missing": "HeroSize field (upper range 1.3)",
+   "was": "1.3 = upper HeroSize of the supported range; a test input (see HAZ-13.herosize)"
+  },
+  "HAZ-14.across": {
+   "owner": "motor (hitbox scale field)",
+   "missing": "hitbox scale field (upper 1)",
+   "was": "1 = upper hitbox scale of \"hitbox 0.75/1\"; a test-matrix input, no tuning field"
+  },
+  "HAZ-14.hitbox": {
+   "owner": "motor (hitbox scale field)",
+   "missing": "hitbox scale field (lower 0.75)",
+   "was": "0.75 = lower hitbox scale of \"hitbox 0.75/1\"; a test-matrix input, no tuning field"
+  }
+ }
+}
