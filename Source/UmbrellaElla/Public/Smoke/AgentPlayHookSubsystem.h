@@ -43,6 +43,12 @@ public:
 	static constexpr double PausedFrameFactor = 4.0;
 	static constexpr double MillisPerSecond = 1000.0;
 	static constexpr uint8 OpaqueAlpha = 255;
+	/** A window pixel at or below this in every channel counts as empty (the scene shows through). */
+	static constexpr uint8 EmptyPixelMax = 2;
+	/** The test light: shines toward -Y (into the screen), at this brightness in lux. */
+	static constexpr float AgentPlayLightPitch = 0.0f;
+	static constexpr float AgentPlayLightYaw = -90.0f;
+	static constexpr float AgentPlayLightLux = 6.0f;
 	/** Default game seconds an attempt may last, and real seconds the hook waits for a turn file. */
 	static constexpr float DefaultMaxGameSeconds = 90.0f;
 	static constexpr float DefaultIdleTimeoutSeconds = 600.0f;
@@ -54,8 +60,6 @@ public:
 	static constexpr double LowHealthClockStart = 1000.0;
 	/** Room X Ella starts at, left of the firing column (the same start as the scripted run). */
 	static constexpr float RoomStartX = 640.0f;
-	/** The scratch room sits this far left of the route, so the level director never meets it. */
-	static constexpr double ScratchRoomX = -60000.0;
 	/** A step longer than speed x time x this, plus the slack, counts as a teleport (same measure as the scripted run). */
 	static constexpr float TeleportSlack = 2.0f;
 	static constexpr float TeleportSpeedShare = 2.5f;
@@ -94,6 +98,7 @@ private:
 	float IdleTimeoutSeconds = DefaultIdleTimeoutSeconds;
 	bool bLow = false;
 	bool bSelectedStart = false;
+	bool bLitByHook = false;
 
 	TWeakObjectPtr<AEllaCharacter> Ella;
 	TWeakObjectPtr<ABrokenMillRoom> Room;

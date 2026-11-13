@@ -6,6 +6,9 @@
 #include "Attack/AttackEmitterComponent.h"
 #include "BrokenMill/BrokenMillRoom.h"
 #include "BrokenMill/BrokenMillTuning.h"
+#include "Arena/UmbrellaArena.h"
+#include "Components/DirectionalLightComponent.h"
+#include "Engine/DirectionalLight.h"
 #include "Core/EllaCharacter.h"
 #include "Core/UmbrellaTuning.h"
 #include "Engine/Engine.h"
@@ -125,7 +128,13 @@ void UAgentPlayHookSubsystem::TickSetup()
 	}
 	Ella = Pawn;
 	Pawn->GetMotor()->ClearPlayBounds();
-	ABrokenMillRoom* NewRoom = World->SpawnActor<ABrokenMillRoom>(ABrokenMillRoom::StaticClass(), FTransform(FVector(ScratchRoomX, 0.0, 0.0)));
+	// The room goes where the play camera looks: its start point is the game's own player start, so the screen shows it.
+	// (A far-off scratch room would sit outside the arena camera and the player would see a black screen.)
+	AUmbrellaArena* Arena = Cast<AUmbrellaArena>(Pawn->GetWorld() ? Pawn->GetWorld()->GetFirstPlayerController()->GetViewTarget() : nullptr);
+	const FBrokenMillTuning& RoomTuning = GetDefault<UUmbrellaTuning>()->BrokenMill;
+	const FVector PlayerStart = Arena ? Arena->GetPlayerStartLocation() : Pawn->GetActorLocation();
+	const FVector RoomOrigin(PlayerStart.X - RoomStartX, 0.0, PlayerStart.Z - RoomTuning.TargetCentre.Y);
+	ABrokenMillRoom* NewRoom = World->SpawnActor<ABrokenMillRoom>(ABrokenMillRoom::StaticClass(), FTransform(RoomOrigin));
 	if (!NewRoom)
 	{
 		Finish(TEXT("setup_failed"));
@@ -154,6 +163,29 @@ void UAgentPlayHookSubsystem::TickSetup()
 	NewRoom->ResetForRestart();
 	NewRoom->SetSimulationPaused(false);
 
+	{
+		APlayerController* View = World->GetFirstPlayerController();
+		FVector CameraLocation = FVector::ZeroVector;
+		FRotator CameraRotation = FRotator::ZeroRotator;
+		if (View)
+		{
+			View->GetPlayerViewPoint(CameraLocation, CameraRotation);
+		}
+		UE_LOG(LogUmbrellaElla, Log, TEXT("AGENTPLAY_SETUP ella=%s room_origin=%s camera=%s cam_rot=%s arena=%d"), *Pawn->GetActorLocation().ToString(),
+			*RoomOrigin.ToString(), *CameraLocation.ToString(), *CameraRotation.ToString(), Arena ? 1 : 0);
+	}
+	if (!FParse::Param(FCommandLine::Get(), TEXT("AgentPlayNoLight")))
+	{
+		// The graybox world has no lights, so lit placeholder cubes render black on screen. One plain light facing the
+		// camera makes the placeholders readable; it changes no gameplay and is named in the result (lit_by_hook).
+		FActorSpawnParameters LightParams;
+		LightParams.Name = FName(TEXT("AgentPlayLight"));
+		if (ADirectionalLight* Light = World->SpawnActor<ADirectionalLight>(FVector::ZeroVector, FRotator(AgentPlayLightPitch, AgentPlayLightYaw, 0.0), LightParams))
+		{
+			Light->GetLightComponent()->SetIntensity(AgentPlayLightLux);
+			bLitByHook = true;
+		}
+	}
 	HealthAtStart = AgentPlayTotalHealth(Pawn);
 	StartGuardHp = NewRoom->GetGuardHp();
 	ShotsAtStart = Pawn->GetAttack()->GetShotsFired();
@@ -368,6 +400,21 @@ void UAgentPlayHookSubsystem::WriteFrame()
 	{
 		return;
 	}
+	// The offscreen Slate window read-back carries the UI but not the 3D scene (black behind it): read the scene from the
+	// viewport and show it wherever the window shows nothing, so the frame is what a person would see.
+	FViewport* SceneViewport = GEngine->GameViewport->Viewport;
+	TArray<FColor> Scene;
+	if (SceneViewport && SceneViewport->GetSizeXY() == FIntPoint(Size.X, Size.Y) && SceneViewport->ReadPixels(Scene) && Scene.Num() == Bitmap.Num())
+	{
+		for (int32 Index = 0; Index < Bitmap.Num(); ++Index)
+		{
+			const FColor& Ui = Bitmap[Index];
+			if (Ui.R <= EmptyPixelMax && Ui.G <= EmptyPixelMax && Ui.B <= EmptyPixelMax)
+			{
+				Bitmap[Index] = Scene[Index];
+			}
+		}
+	}
 	for (FColor& Color : Bitmap)
 	{
 		Color.A = OpaqueAlpha;
@@ -426,6 +473,7 @@ void UAgentPlayHookSubsystem::WriteResult(const TCHAR* Outcome) const
 	Json += FString::Printf(TEXT("\"turns\":%d,\"game_s\":%.2f,\"shots\":%d,\"useful_hits\":%d,\"damage\":%.2f,"), Turns, Play, Shots, UsefulHits, Damage);
 	Json += FString::Printf(TEXT("\"guard_hp_start\":%.1f,\"guard_hp_end\":%.1f,\"warnings\":%d,"), StartGuardHp, GuardHp, WarningsSeen);
 	Json += FString::Printf(TEXT("\"reset_s\":%.2f,\"idle_s\":%.2f,\"idle_share\":%.3f,"), OffLineSeconds, IdleSeconds, AgentPlayRules::IdleShare(IdleSeconds, Play));
+	Json += FString::Printf(TEXT("\"lit_by_hook\":%d,"), bLitByHook ? 1 : 0);
 	Json += FString::Printf(TEXT("\"teleport_steps\":%d,\"autoaim\":0,\"invuln\":0,\"teleport\":%d}"), TeleportSteps, TeleportSteps > 0 ? 1 : 0);
 	WriteTextAtomic(FilePath(TEXT("result.json")), Json);
 	UE_LOG(LogUmbrellaElla, Log, TEXT("AGENTPLAY_RESULT %s"), *Json);

@@ -42,7 +42,7 @@ MAX_TURN_MS = 3000
 MAX_LINES = 24
 FRAMES_PER_TURN = 2
 MAX_TURNS = 30
-GAME_START_TIMEOUT_S = 300
+GAME_START_TIMEOUT_S = 600
 TURN_TIMEOUT_S = 120
 STOP_TIMEOUT_S = 15
 POLL_S = 0.2
@@ -225,7 +225,8 @@ class Game:
 
     def start(self):
         os.makedirs(self.dir, exist_ok=True)
-        args = ["-AgentPlay=" + self.dir, "-AgentPlayMaxSeconds=%d" % self.max_game_s, "-log"]
+        args = ["-AgentPlay=" + self.dir, "-AgentPlayMaxSeconds=%d" % self.max_game_s,
+                "-abslog=" + os.path.join(self.dir, "ue.log")]
         if self.low:
             args.append("-AgentPlayLow")
         if self.comparison:
