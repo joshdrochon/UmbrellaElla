@@ -2,6 +2,8 @@
 #include "EnhancedInputSubsystems.h"
 #include "Core/UmbrellaTuning.h"
 #include "Engine/GameInstance.h"
+#include "Engine/GameViewportClient.h"
+#include "Feedback/Ui/UiArtSubsystem.h"
 #include "Engine/LocalPlayer.h"
 #include "Engine/World.h"
 #include "Feedback/Vfx/UmbrellaVfxSubsystem.h"
@@ -333,10 +335,16 @@ void USettingsMenuSubsystem::OpenSettings(APlayerController* Controller)
 	if (OpenWidget)
 	{
 		OpenWidget->Setup(this, PlayMode);
-		OpenWidget->AddToPlayerScreen();
+		// Same layer as the flow menus (viewport overlay), above them and their art, so Settings is what the player sees.
+		OpenSlate = OpenWidget->TakeWidget();
+		if (UGameViewportClient* Viewport = FindViewport(Controller))
+		{
+			Viewport->AddViewportWidgetContent(OpenSlate.ToSharedRef(), SettingsLayer::ZOrder());
+			OpenViewport = Viewport;
+		}
 		Controller->SetShowMouseCursor(true);
 		FInputModeUIOnly InputMode;
-		InputMode.SetWidgetToFocus(OpenWidget->TakeWidget());
+		InputMode.SetWidgetToFocus(OpenSlate);
 		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
 		Controller->SetInputMode(InputMode);
 		OpenWidget->SetUserFocus(Controller);
@@ -348,6 +356,12 @@ void USettingsMenuSubsystem::CloseSettings()
 {
 	if (OpenWidget)
 	{
+		if (UGameViewportClient* Viewport = OpenViewport.Get(); Viewport && OpenSlate.IsValid())
+		{
+			Viewport->RemoveViewportWidgetContent(OpenSlate.ToSharedRef());
+		}
+		OpenViewport.Reset();
+		OpenSlate.Reset();
 		OpenWidget->RemoveFromParent();
 		OpenWidget = nullptr;
 		if (APlayerController* Controller = OpenController.Get())
@@ -359,6 +373,26 @@ void USettingsMenuSubsystem::CloseSettings()
 		// A draft left on another page must not reappear on the next open.
 		Session.Discard();
 	}
+}
+
+int32 SettingsLayer::ZOrder()
+{
+	return GetDefault<UUmbrellaTuning>()->Flow.MenuContextPriority + UmbrellaUiArtConst::ZOrderAboveMenu + AboveMenuArt;
+}
+
+void USettingsMenuSubsystem::SetViewportForTests(UGameViewportClient* Viewport)
+{
+	TestViewport = Viewport;
+}
+
+UGameViewportClient* USettingsMenuSubsystem::FindViewport(const APlayerController* Controller) const
+{
+	if (UGameViewportClient* Viewport = TestViewport.Get())
+	{
+		return Viewport;
+	}
+	const UWorld* World = Controller ? Controller->GetWorld() : nullptr;
+	return World ? World->GetGameViewport() : nullptr;
 }
 
 bool USettingsMenuSubsystem::IsSettingsOpen() const

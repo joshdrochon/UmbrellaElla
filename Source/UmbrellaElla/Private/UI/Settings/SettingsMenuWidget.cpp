@@ -1,4 +1,5 @@
 #include "UI/Settings/SettingsMenuWidget.h"
+#include "Flow/FlowRules.h"
 #include "Widgets/Layout/SScaleBox.h"
 #include "Widgets/Images/SImage.h"
 #include "Widgets/Layout/SBox.h"
@@ -762,6 +763,18 @@ FReply USettingsMenuWidget::NativeOnKeyDown(const FGeometry& InGeometry, const F
 	if (IsCapturingKey())
 	{
 		CaptureKey(InKeyEvent.GetKey());
+		return FReply::Handled();
+	}
+	if (FFlowRules::MenuIntentForKey(InKeyEvent.GetKey()) == EFlowMenuIntent::Back)
+	{
+		if (bBackPrompt)
+		{
+			ChooseBack(ESettingsBackChoice::KeepEditing);
+		}
+		else
+		{
+			PressBack();
+		}
 		return FReply::Handled();
 	}
 	return Super::NativeOnKeyDown(InGeometry, InKeyEvent);

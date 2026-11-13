@@ -43,3 +43,15 @@ Evidence: not re-run after this fix; the build lead's gate runs build and tests 
 ## Merge of origin/main 7aabf929 (Nov 13, 53a93252)
 - Main's wording kept where storyinventory fixed a line; lines.csv matches source (only story-ending-page-2 differs from main: the shorter ending line, source already matches).
 - lane_precheck: FAIL on two tests that also fail on a clean origin/main (checked in a detached worktree): `test_story_check.RepoStoryFilesPass.test_strixon_is_denied_and_nar_is_authorized` (P-facts status GDD in the bible) and `test_assetgen_image_method.StripFrames.test_three_figures_cut_to_equal_frames_on_one_baseline`. Neither touches the settings2 lane. Needs the story lane / build lead.
+
+## Handoff blocker B3 + Pause step 5 (Nov 13)
+- B3: Settings drew under the Paused menu. It was added with `AddToPlayerScreen` (player layer, which UE draws under
+  every viewport overlay); the flow menus use `AddViewportWidgetContent` at `Flow.MenuContextPriority` and their art at +1.
+  Settings now goes into the same viewport overlay at `SettingsLayer::ZOrder()` (menus + art + 1) and is removed on close.
+- Pause step 5: Escape (and the flow menus' other Back keys: F1, gamepad B, Start) inside Settings backs out like Back;
+  with the Save / Discard / Keep Editing prompt up it keeps editing; during a remap it still cancels the remap.
+- Tests: `UmbrellaElla.Settings.World.DrawsAboveFlowMenus` (top overlay widget is Settings, stays on top when a flow
+  menu is re-added, gone on close), `UmbrellaElla.Settings.World.EscapeBacksOut`. Break-proven: with the old code
+  (AddToPlayerScreen, no Back key) both fail on 7 asserts. Settings + Flow: 66 of 66 pass, build 0 warnings.
+- The reader WIP that was uncommitted in this worktree (HUD AccessibleTextScale, XP ring paint plan, flow backdrop
+  PaintTime, SettingsReaderTests.cpp) is set aside on local branch `settings2-wip-readers`, not merged here.
