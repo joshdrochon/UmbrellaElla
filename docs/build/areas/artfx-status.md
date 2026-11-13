@@ -151,3 +151,10 @@ No gameplay timing, collision or state is written by any of it (tests check the 
 
 ## Slice 20 (Nov 13): main unchanged since slice 19; still blocked on request 7
 - Merge main: already up to date. No change to art_loop.py, references or art-image-model.md for the effect bar or context reference. No paint, spend unchanged. All slots stay `_PH`.
+
+## Slice 21 (Nov 13): merged main (screenfix), reimported sheets, gust capture shows no effect
+- Merged origin/main (e99e1856); one conflict in `ArtSlot.cpp` (duplicate `LoadCallCount`), resolved to main's. Build exit 0.
+- Reimported all VFX sheets into the `_PH` slots with `import_vfx.py` (needed `chmod u+w` on the read-only uassets first; without it every save fails). Committed. Slots stay tracked `_PH`.
+- Request 7 still open, so `vfx-gold-impact` (default bar-casters) cannot pass. Gust, gust-puff, light-shaft, umbra, blackout, slow use bar-other-realm, so they are not blocked by it.
+- Gust capture (`-VfxDemo=GustTravel`, 1920x1080, `Saved/Logs/pipeline/vfx-gust-shot.png`): the shot shows the graybox, clock and a red dot, no gust and no demo backdrop. The `-VfxDemo` path takes effect keys that the demo recognises (`SmallBlastImpact` worked); `GustTravel` does not draw. Not run: panel (a capture without the piece would only judge the scene).
+- Next: make the demo accept the Keeper-family keys (or find which key draws VFX_Gust), recapture, then panel gust. No paint, spend unchanged.
