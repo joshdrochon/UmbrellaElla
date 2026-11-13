@@ -69,3 +69,16 @@
   soft" with thin lettering and paper texture, next to a full-res reference. Same as round 1: capture size, 640x360.
 - STILL BLOCKED on one thing: a capture larger than 640x360 through run_game.sh (e.g. env `RUN_GAME_RES` read into
   ResX/ResY, lead-owned file). Without it no screen can beat a 1080p reference on detail. No paint spend ($0).
+
+## Round log 2 (12 Nov, artui worker, after lead e10efbd9)
+- `artui` added to `cards` of `title-screen` and `bar-other-realm` (references.json, additions only); `ui_check.py ci` PASS.
+- Captures at 1280x720 via `RUN_RES=1280x720 tools/build/run_game.sh -UIShots=...`: works, all 9 screens.
+- `ui-title` round 4 (ground r1, 1280x720): checks pass (art_ref score 0.957), calibration 6/6, quality_bar pair: ours wins/same,
+  reference pair: reference wins. Gap: "smoother, more digital surfaces; lacks grain, hand-made lettering, gold-edged rock".
+  Triage: work (capture size no longer the cause).
+- Ground r2 painted ($0.139, spent $6.675 total; prompt_r2.md: heavy grain, hand-inked contours, gold-rimmed rock edges).
+  Brighter than the reference. Rounds 5 and 6: calibration 4/6, 1/3 calibrated sessions, score 0.866: no valid verdict.
+  Not adopted; shipped ground stays r1 (r2 files kept under Art/Source/UI/Ground/Painted/ for the next try).
+- Next: darker r3 ground (keep the r1 value structure, add grain and gold edges), and a rougher inked title lettering pass
+  (Art/Source/UI/Font/build_font.py: pen-wobble/distress). Then panel the other 11 screens; none judged yet.
+- Note: UE import saves fail silently on read-only `.uasset` (LFS lockable); `chmod u+w` before `import_ui_art.py`.
