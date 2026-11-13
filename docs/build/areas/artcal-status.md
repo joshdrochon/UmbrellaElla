@@ -31,3 +31,15 @@
 - The wind-zone element is weak: its reference is a whole opaque scene, so hue-shifted, pixelated and flat-white
   variants of it (make_art_calibration B1, B2, B5) still score about 1.0. Only crushed and grey-silhouette fail.
   A keyed crop of the ribbons as the reference would fix that (new reference, outside this lane).
+
+## Affected tests (12 Nov, commit 7ad7ebd)
+`python3 tools/affected_tests.py --run` was stopped twice at its time limit with no result (cause: env, machine load
+average over 100 from other workers' Unreal builds). The same modules run directly: 935 tests, 18 failures, none in an
+art judge or calibration test. Not re-run on the base commit, so "already failing on main" is read from the messages,
+not measured:
+- tests.test_smoke_visual (14): ue_run exits 2, `tools/ue/smoke-allow.txt:5: D-new-smoke-concurrency is not a row in
+  docs/decisions.md`.
+- tests.test_provenance.test_repo: provenance rows for files under pipeline/art/reference/discord-crops/.
+- tests.test_final9_fixes (workbench-check on UmbrellaElla.Target.cs), tests.test_audio_check.AudioDumpTool
+  (home copy differs from staged), tests.test_assetgen.AudioSteps (25 tracked audio placeholders in the repo).
+All outside this lane; for the build lead.
