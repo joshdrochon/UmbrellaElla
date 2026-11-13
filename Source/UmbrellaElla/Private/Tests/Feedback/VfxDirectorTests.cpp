@@ -646,3 +646,14 @@ bool FVfxArtShaftWorld::RunTest(const FString& Parameters)
 }
 
 #endif
+
+#if !UE_BUILD_SHIPPING
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FVfxArtDemoRules, "UmbrellaElla.Feedback.VfxDemoRules", VfxArtTestFlags)
+bool FVfxArtDemoRules::RunTest(const FString& Parameters)
+{
+	TestTrue(TEXT("a demo key plays when none of it is live"), UmbrellaVfxDirectorConst::ShouldPlayDemo(FName(TEXT("spell-twin-stars")), 0));
+	TestFalse(TEXT("a demo key does not play while one is live"), UmbrellaVfxDirectorConst::ShouldPlayDemo(FName(TEXT("spell-twin-stars")), 1));
+	TestFalse(TEXT("an empty demo key does nothing"), UmbrellaVfxDirectorConst::ShouldPlayDemo(NAME_None, 0));
+	return true;
+}
+#endif

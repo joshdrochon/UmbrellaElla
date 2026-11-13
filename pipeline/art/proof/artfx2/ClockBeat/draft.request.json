@@ -1,0 +1,36 @@
+{
+ "provider": "gemini",
+ "tool": "Gemini API image generation (Google)",
+ "model": "gemini-3.1-flash-image-preview",
+ "model_version": "gemini-3.1-flash-image-preview",
+ "prompt": "Four animation frames of one effect for a 2D side-view game, painted side by side on one wide, flat green field: the double beat of the Keeper owl's chest clock, a red pulse that ripples out of the clock face. Only the effect is drawn; no clock, owl or background. The four frames stand in one row on the same horizontal centre line, their centres at exactly one eighth, three eighths, five eighths and seven eighths of the picture width, evenly spaced, never touching each other or the edge. The picture is flat and face-on, seen at the distance of a game sprite. The largest frame spans about a fifth of the picture width.\n\nFrame 1 (first beat starts): a small hard core of pale coral #FF8C7A inside a thin ring of rust red #C8321E, the ring only a third of full size. Frame 2 (first beat open): the red ring has grown wide and thin, with a faint second smaller coral ring just starting inside it, and a few short sharp red tick marks around it like clock ticks. Frame 3 (second beat): the first ring is large and fading; the second coral ring is now bright and mid sized; sharp angular red shards fly outward. Frame 4 (fade): both rings very large, thin and broken into dashed arcs, the faintest frame.\n\nColours: rust red #C8321E, deep red shadow #7A1A12, coral #FF8C7A, pale cream #FFF5DC core. Every shape has a clean near-black ink outline #171614 about 2 px wide, with fine etched hatching on the shaded lower edges. Dark painterly etched storybook style, ink and wash. Light comes from one source in front and slightly above. Outside the outline the picture is one perfectly flat, even, pure green #00FF00 filling the canvas. No text, labels, grid lines, frames or watermark.",
+ "seed": "",
+ "size": "1024x1024",
+ "quality": "medium",
+ "aspect_ratio": "21:9",
+ "image_size": "1K",
+ "input_images": [],
+ "cost_usd": 0.067211,
+ "reply": {
+  "usage": {
+   "promptTokenCount": 421,
+   "candidatesTokenCount": 1591,
+   "totalTokenCount": 2012,
+   "promptTokensDetails": [
+    {
+     "modality": "TEXT",
+     "tokenCount": 421
+    }
+   ],
+   "candidatesTokensDetails": [
+    {
+     "modality": "IMAGE",
+     "tokenCount": 1120
+    }
+   ],
+   "serviceTier": "standard"
+  },
+  "finish": "STOP"
+ },
+ "date": "2026-11-13T06:48+00:00"
+}

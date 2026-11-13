@@ -1858,13 +1858,6 @@
  "OWL-08.protected": {
   "expr": "FKeeperTuning.ClockReserveHp / FKeeperTuning.ClockHp * 100"
  },
- "CAM-05.value.2": {
-  "const": "Source/UmbrellaElla/Public/Level/LevelPlan.h:MidHeightFraction"
- },
- "CAM-05.h.3": {
-  "const": "Source/UmbrellaElla/Public/Level/LevelPlan.h:HighFraction",
-  "tol": 0.06
- },
  "unbindable": {
   "ANIM-04.boots": "0 in “review states 100/75/50/25/5/0, boots fading by 75 and”: art/animation/narrative spec in prose (review state, mask or ordinal), no game field",
   "ANIM-04.living": "50 in “boots fading by 75 and hat by 50, living mask/scarf retai”: art/animation/narrative spec in prose (review state, mask or ordinal), no game field",
@@ -2077,7 +2070,7 @@
  },
  "not_in_game": {
   "CAM-05.value": {
-   "owner": "arena (FFieldTuning)",
+   "owner": "level (ChunkLayoutConst)",
    "missing": "a lower internal camera band 'near 0.3H' (the clearance rule 0.3 is a different field)",
    "was": "0.3 = lower internal band \"near 0.3H\", an authoring guide; the game has no matching field (FFieldTuning.MinClearanceHeightFraction=0.3 is the clearance rule, bound under CAM-05.h.2, a different concept)"
   },
@@ -2086,45 +2079,15 @@
    "missing": "a recovery-climb guide 'about 0.15H'",
    "was": "0.15 = recovery climb \"about 0.15H\" in the camera guideline; an authoring guide with no field"
   },
-  "HAZ-10.actor_scale": {
-   "owner": "motor (Core UmbrellaTuning request for a HeroSize field)",
-   "missing": "Ella actor scale 0.5 at HeroSize 1",
-   "was": "0.5 = Ella actor scale at HeroSize 1; no tuning field holds it (the muzzle offset it yields, +44/+6, is bound and currently mismatches)"
+  "CAM-05.value.2": {
+   "owner": "level (ChunkLayoutConst)",
+   "missing": "a middle internal camera band 'near 0.5H' (InterfaceLow/High 0.35-0.65 is the entrance/exit interface, bound under CAM-05.h)",
+   "was": "0.5 = LevelPlanConst::MidHeightFraction, removed by 3935a344 (authored chunk layouts replaced the placeholder columns)"
   },
-  "HAZ-10.herosize": {
-   "owner": "motor (Core UmbrellaTuning request for a HeroSize field)",
-   "missing": "HeroSize field (reference value 1)",
-   "was": "1 = HeroSize of the reference muzzle offset; a test input, not a tuning field"
-  },
-  "HAZ-13.herosize": {
-   "owner": "motor (Core UmbrellaTuning request for a HeroSize field)",
-   "missing": "HeroSize field (upper range 1.3)",
-   "was": "1.3 = upper HeroSize of the supported range; HeroSize is a test-matrix input (BrokenMillTests GetMuzzleOffset(T, 1.3f)), not a tuning field"
-  },
-  "HAZ-14.herosize": {
-   "owner": "motor (Core UmbrellaTuning request for a HeroSize field)",
-   "missing": "HeroSize field (range 0.75-1.3)",
-   "was": "1 = HeroSize of the lowest-matrix pair in \"HeroSize 0.75/1.3\"; HeroSize is a test input (see HAZ-13.herosize)"
-  },
-  "HAZ-14.herosize.2": {
-   "owner": "motor (Core UmbrellaTuning request for a HeroSize field)",
-   "missing": "HeroSize field (lower range 0.75)",
-   "was": "0.75 = lower HeroSize of the supported range; a test input (see HAZ-13.herosize)"
-  },
-  "HAZ-14.value.2": {
-   "owner": "motor (Core UmbrellaTuning request for a HeroSize field)",
-   "missing": "HeroSize field (upper range 1.3)",
-   "was": "1.3 = upper HeroSize of the supported range; a test input (see HAZ-13.herosize)"
-  },
-  "HAZ-14.across": {
-   "owner": "motor (hitbox scale field)",
-   "missing": "hitbox scale field (upper 1)",
-   "was": "1 = upper hitbox scale of \"hitbox 0.75/1\"; a test-matrix input, no tuning field"
-  },
-  "HAZ-14.hitbox": {
-   "owner": "motor (hitbox scale field)",
-   "missing": "hitbox scale field (lower 0.75)",
-   "was": "0.75 = lower hitbox scale of \"hitbox 0.75/1\"; a test-matrix input, no tuning field"
+  "CAM-05.h.3": {
+   "owner": "level (ChunkLayoutConst)",
+   "missing": "an upper internal camera band 'near 0.7H'",
+   "was": "0.7 = LevelPlanConst::HighFraction 0.75 (tol 0.06), removed by 3935a344 (authored chunk layouts replaced the placeholder columns)"
   }
  },
  "HAZ-03.guard_feet": {
@@ -2168,5 +2131,29 @@
  },
  "HAZ-06.vertical_lift": {
   "tuning": "FBrokenMillTuning.VerticalLiftHalfWidth"
+ },
+ "HAZ-14.herosize": {
+  "tuning": "FMotorTuning.HeroSize"
+ },
+ "HAZ-14.across": {
+  "tuning": "FMotorTuning.HitboxScaleMax"
+ },
+ "HAZ-10.actor_scale": {
+  "tuning": "FMotorTuning.ActorScaleAtReference"
+ },
+ "HAZ-13.herosize": {
+  "tuning": "FMotorTuning.HeroSizeMax"
+ },
+ "HAZ-14.value.2": {
+  "tuning": "FMotorTuning.HeroSizeMax"
+ },
+ "HAZ-10.herosize": {
+  "tuning": "FMotorTuning.HeroSize"
+ },
+ "HAZ-14.herosize.2": {
+  "tuning": "FMotorTuning.HeroSizeMin"
+ },
+ "HAZ-14.hitbox": {
+  "tuning": "FMotorTuning.HitboxScaleMin"
  }
 }
