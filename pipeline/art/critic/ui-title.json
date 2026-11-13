@@ -1,0 +1,87 @@
+{
+ "id": "ui-title",
+ "records": [
+  {
+   "piece": "ui-title",
+   "round": 8,
+   "verdict": "reference",
+   "checks": false,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "fail"
+   },
+   "pairs": {
+    "quality_bar": "ours",
+    "reference": "reference"
+   },
+   "panel": 2,
+   "calibration": {
+    "sessions": 6,
+    "passed": 5
+   },
+   "missing": [
+    "reference:pipeline/art/reference/discord/20261112-0443_Ricky_title-screen.png (2/3 calibrated sessions)"
+   ],
+   "critic_sessions": [
+    "ui-title-r7-00-reference-c1",
+    "ui-title-r7-00-reference-c2",
+    "ui-title-r7-00-reference-c3",
+    "ui-title-r7-01-quality_bar-c1",
+    "ui-title-r7-01-quality_bar-c2",
+    "ui-title-r7-01-quality_bar-c3"
+   ],
+   "manifest": "",
+   "evidence": "",
+   "prompt": "",
+   "files": "6c1926a531b29cbe56ad2f9a826007f429e02fd029182a34d1fe9818f8d4f4c3",
+   "file": "../../../../../../tmp/uishots3/title.png",
+   "card": "artui",
+   "refs": "d1afca932485",
+   "commit": "de34beb46113",
+   "gap": "X has a smoother digital finish with no inked line or paper grain, its dark cliff face reads as a muddy blob, and its lettering is plain next to Y's etched, clock-hand lockup.; Y's lettering is a plain, clean typeface, and its scene is smoother and more digital, with little etched line work or paper grain.",
+   "at": "2026-11-13T04:59:22Z"
+  },
+  {
+   "piece": "ui-title",
+   "round": 9,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "ours",
+    "reference": "reference"
+   },
+   "panel": 2,
+   "calibration": {
+    "sessions": 6,
+    "passed": 5
+   },
+   "missing": [
+    "reference:pipeline/art/reference/discord/20261112-0443_Ricky_title-screen.png (2/3 calibrated sessions)"
+   ],
+   "critic_sessions": [
+    "ui-title-r7-00-reference-c1",
+    "ui-title-r7-00-reference-c2",
+    "ui-title-r7-00-reference-c3",
+    "ui-title-r7-01-quality_bar-c1",
+    "ui-title-r7-01-quality_bar-c2",
+    "ui-title-r7-01-quality_bar-c3"
+   ],
+   "manifest": "",
+   "evidence": "",
+   "prompt": "",
+   "files": "6c1926a531b29cbe56ad2f9a826007f429e02fd029182a34d1fe9818f8d4f4c3",
+   "file": "../../../../../../tmp/uishots3/title.png",
+   "card": "artui",
+   "refs": "669f6f2ac14d",
+   "commit": "de34beb46113",
+   "gap": "X has a smoother digital finish with no inked line or paper grain, its dark cliff face reads as a muddy blob, and its lettering is plain next to Y's etched, clock-hand lockup.; Y's lettering is a plain, clean typeface, and its scene is smoother and more digital, with little etched line work or paper grain.",
+   "at": "2026-11-13T04:59:54Z"
+  }
+ ]
+}

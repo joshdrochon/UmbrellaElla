@@ -88,3 +88,9 @@ Ground paints r1/r2 (+ requests, prompts) now under `pipeline/art/proof/artui/ui
 `Art/Source/UI` holds only the font and the tracked `_PH` ground/clock-face. Main merged (references.json taken from main;
 all 12 screen elements plus `ui-spell-wheel` present); `ui_check.py ci` PASS. `pipeline_check` has 2 problems, both
 missing `tools/build/agent_play.py` on main (not my lane).
+
+## Round 7-9 (12 Nov, artui worker)
+- references.json: `artui` re-added to `cards` of `title-screen` and `bar-other-realm` (main's merge had dropped it); art_ref_check PASS 0.958.
+- Ground r3 (a, b) painted from r1 as input ($0.278, spent $8.935 of $33.82; prompt_r3.md). r3a (darker, border cropped, 2640x1485) shipped as the `_PH` ground; r3b kept in proof/ (paper frame too heavy).
+- Panel on ui-title (1280x720, r3a): calibration 5/6, quality_bar pair ours wins, reference pair: reference wins. Gap (both sessions): "smoother digital finish, no inked line or paper grain; plain lettering next to the etched clock-hand lockup". Triage: work (lettering + grain), not capture size.
+- Next: etched/distressed lettering in build_font.py plus a paper-grain overlay in the ground painter.
