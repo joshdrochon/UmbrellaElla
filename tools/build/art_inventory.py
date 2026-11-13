@@ -146,8 +146,6 @@ def art_files():
             rel_dir = os.path.relpath(dp, ROOT).replace(os.sep, "/")
             if top == "Content" and "/Art" not in "/" + rel_dir + "/":
                 continue
-            if top == "Content" and "/Art/Slots/" in "/" + rel_dir + "/":
-                continue   # M_ArtSlot_Unlit: the one draw material for every slot, not a visual (tools/build/art_slots.py)
             for f in fn:
                 if f.startswith(".") or f.lower().endswith(NOT_ART):
                     continue

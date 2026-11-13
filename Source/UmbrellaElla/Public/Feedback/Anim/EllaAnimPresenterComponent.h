@@ -65,7 +65,7 @@ public:
 	/** Slot name of a state's flipbook (Open, Attack, Shield, Closed); empty when the state has none. Pure. */
 	static FString FlipbookSlotName(EEllaVisualState State);
 
-	/** Object paths tried for a state's flipbook: FB_Ella_<Name>_PH first, then FB_Ella_<Name>. Pure. */
+	/** Object paths tried for a state's flipbook: FB_Ella_<Name> first (passed art), then FB_Ella_<Name>_PH. Pure. */
 	static TArray<FString> FlipbookSlotPaths(EEllaVisualState State);
 
 	/** Set the picture for a state (what the slot load does; tests pass a transient texture). Idle also draws the stand-in as art. */
