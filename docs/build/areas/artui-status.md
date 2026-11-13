@@ -166,3 +166,7 @@ missing the agent-play script on main (not my lane).
 - Derived screens (pause, settings, credits, defeated, story, tutorial, hud) share this base and lose on the same gap; judging them before the title passes only repeats it. Not re-run.
 - Spend: none this session. Shared counter $28.27 of $33.82, about $5.5 left across all lanes; not spent on a sixth lettering attempt on Sonnet.
 - Next (Opus worker): hand-painted, distressed title lettering with a clock-hand flourish as the reference has (current lockup is smoother), then re-panel the title, then the derived screens on the diff only.
+
+## Resume 5 (13 Nov, artui worker)
+- Merged origin/main (rules text only). Nothing new for this lane; inventory artui 25, 2 passed (tutorial). No image spend, no panel run.
+- STOPPED on the Opus restart already written as request 5 in `docs/build/requests/artui.md` (ui-title flat about 10 rounds, triage = work). Derived screens wait on the title lettering.
