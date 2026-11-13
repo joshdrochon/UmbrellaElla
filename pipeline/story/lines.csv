@@ -115,7 +115,7 @@ ui-settings-game-options-enemy-shot-speed,label,Enemy shot speed,,yes,screen=set
 ui-settings-game-options-ella-s-hit-area,label,Ella's hit area,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
 credit-rick-rispoli-executive-producer,screen,Rick Rispoli - Executive Producer,,yes,screen=credits; where=SettingsModel.cpp
 ui-tutorial-while-dropping-shoot-with-j,screen,"While dropping, shoot with J or the left mouse button. Basic shots never run out.",,yes,screen=tutorial; where=FlowTutorialText.cpp
-ui-tutorial-shoot-with-j-or-the,screen,Shoot with J or the left mouse button. Cycle spells with [ and ] or press 1 to 4.,,yes,screen=tutorial; where=FlowTutorialText.cpp
+ui-tutorial-shoot-with-j-or-the,screen,Shoot with J or the left mouse button. Cycle spells with [ and ] or press 1 to 4.,,yes,screen=tutorial; mode=Director's Cut only (Start Game shows its own Small Blasts page); where=FlowTutorialText.cpp
 ui-settings-game-options-all-four-spells-unlocked,label,All four spells unlocked,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
 ui-settings-sound-controller-and-credits-have,screen,"Sound, Controller and Credits have their own pages.",,yes,screen=settings; where=FlowMenuText.cpp
 ui-FinalHourIntroWidget-your-borrowed-time-has-run,screen,"Your borrowed time has run its course. Now, face the Final Hour.",,yes,screen=FinalHourIntroWidget; where=FinalHourIntroWidget.cpp

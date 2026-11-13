@@ -42,6 +42,9 @@ public:
 	void SetPlayMode(EUmbrellaPlayMode Mode);
 	EUmbrellaPlayMode GetPlayMode() const { return PlayMode; }
 
+	/** The class the Music slider scales; the music component plays through it. */
+	USoundClass* GetMusicClass() const { return MusicClass; }
+
 	/** The draft the widgets edit. */
 	FSettingsSession& EditSession() { return Session; }
 	const FSettingsSession& GetSession() const { return Session; }
