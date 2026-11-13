@@ -202,3 +202,6 @@ Merged main (conflict in tools/assetgen.py, not my lane: took main's version). a
 
 ## Round 29 (Nov 13 late): merged main and artslots (nothing new); frame-250 capture still queued
 The frame-250 capture (pid 30354) is waiting on ue_slot, no log or shot yet; load ~32. No paint, no panel, no spend (15.08 of 33.82). Verdict: env (slot queue), not the art. Next: if the shot shows Ella, up-open panel; then shield R3 and closed R3. If Ella is absent, request a no-damage smoke flag from the smoke lane.
+
+## Round 30 (Nov 13 late): nothing new; frame-250 capture still queued
+Main and artslots: nothing new. Capture pid 30354 still waits on ue_slot (empty log, no shot); load ~28. No paint, no panel, no spend (15.08 of 33.82). Verdict: env (slot queue), not the art. Next: if the shot shows Ella, up-open panel; then shield R3 and closed R3. If Ella is absent, request a no-damage smoke flag from the smoke lane.
