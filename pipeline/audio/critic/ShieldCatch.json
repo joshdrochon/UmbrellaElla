@@ -1,0 +1,25 @@
+{
+ "id": "ShieldCatch",
+ "records": [
+  {
+   "files": "90c1994d619fc18eb465843cec7705aae82cd08e317515b7fdf7b892d8f670f9",
+   "verdict": "pass",
+   "style_pass": true,
+   "gap": "none",
+   "card": "AUDIO-R2-ShieldCatch",
+   "round": 2,
+   "critic": "critic-ShieldCatch-1794533344-13997",
+   "at": "2026-11-13T01:29Z"
+  },
+  {
+   "files": "90c1994d619fc18eb465843cec7705aae82cd08e317515b7fdf7b892d8f670f9",
+   "verdict": "pass",
+   "style_pass": true,
+   "gap": "none",
+   "card": "AUDIO-R2C-ShieldCatch",
+   "round": 1,
+   "critic": "critic-ShieldCatch-1794533344-14906",
+   "at": "2026-11-13T01:29Z"
+  }
+ ]
+}

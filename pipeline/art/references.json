@@ -1544,7 +1544,7 @@
     "detail": {
      "keyart-umbrella": 0.458
     },
-    "note": "one team image and nothing to compare it with: score_min not measurable"
+    "note": "one image and nothing to compare it with: score_min not measurable (kept)"
    }
   },
   "owl": {
@@ -1700,7 +1700,7 @@
     "detail": {
      "keyart-wind-lines": 0.428
     },
-    "note": "one team image and nothing to compare it with: score_min not measurable"
+    "note": "one image and nothing to compare it with: score_min not measurable (kept)"
    }
   },
   "wind-zone": {
@@ -1709,14 +1709,16 @@
     "bar-other-realm"
    ],
    "score_min": 0.582,
-   "detail_min": 0.421,
+   "detail_min": 0.079,
    "calibration": {
-    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
+    "method": "no team image: leave-one-out and detail on the element's own references under pipeline/art/reference/ (quality bar included)",
     "margin": 0.02,
     "measured": "2026-11-12",
     "loo": {},
-    "detail": {},
-    "note": "one team image and nothing to compare it with: score_min not measurable"
+    "detail": {
+     "bar-other-realm": 0.099
+    },
+    "note": "one image and nothing to compare it with: score_min not measurable (kept)"
    }
   },
   "skyline": {
@@ -1758,7 +1760,7 @@
     "detail": {
      "star-paper": 0.105
     },
-    "note": "one team image and nothing to compare it with: score_min not measurable"
+    "note": "one image and nothing to compare it with: score_min not measurable (kept)"
    }
   },
   "menu-screen": {

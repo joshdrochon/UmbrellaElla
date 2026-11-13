@@ -1,4 +1,5 @@
 #include "Feedback/Vfx/UmbrellaVfxSubsystem.h"
+#include "Feedback/Vfx/UmbrellaVfxDirectorSubsystem.h"
 #include "Components/PointLightComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Core/UmbrellaDrawOrder.h"
@@ -31,7 +32,7 @@ void UUmbrellaVfxSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	{
 		for (const EUmbrellaEventType Type : VfxEvents)
 		{
-			Handles.Add(Bus->On(Type).AddUObject(this, &UUmbrellaVfxSubsystem::PlayForEvent));
+			Handles.Add(Bus->On(Type).AddUObject(this, &UUmbrellaVfxSubsystem::HandleBusEvent));
 		}
 	}
 }
@@ -151,6 +152,17 @@ bool UUmbrellaVfxSubsystem::IsEffectEnabled(const FUmbrellaEvent& Event)
 		return IsFeatureEnabled(EFeatureId::VFX_05);
 	default:
 		return IsFeatureEnabled(EFeatureId::VFX_04);
+	}
+}
+
+void UUmbrellaVfxSubsystem::HandleBusEvent(const FUmbrellaEvent& Event)
+{
+	// Player shots and Keeper events belong to the effect director; showing them here too would double the feedback.
+	const UWorld* World = GetWorld();
+	const bool bDirectorShows = IsValid(World) && World->GetSubsystem<UUmbrellaVfxDirectorSubsystem>() && UUmbrellaVfxDirectorSubsystem::IsDirectorEvent(Event);
+	if (!bDirectorShows)
+	{
+		PlayForEvent(Event);
 	}
 }
 

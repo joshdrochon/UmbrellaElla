@@ -1,0 +1,35 @@
+{
+ "seconds": 0.6,
+ "lufs": -22,
+ "fade_out": 0.2,
+ "takes": 1,
+ "post": "anull",
+ "reverb": {
+  "rt60": 0.22,
+  "wet_db": -14,
+  "damp_hz": 6000,
+  "predelay_ms": 4
+ },
+ "layers": {
+  "flick": {
+   "prompt": "one single crisp flick of a stiff paper page edge, dry, close, isolated",
+   "secs": 0.5,
+   "filter": "atrim=0:0.05,asetpts=PTS-STARTPTS,highpass=f=1200,lowpass=f=7000",
+   "norm_lufs": -20,
+   "gain_db": 0,
+   "start_db": -24,
+   "decay": 50
+  },
+  "page": {
+   "prompt": "one old thick paper book page turning, soft paper rustle, dry, close, isolated, no other sounds",
+   "secs": 1.0,
+   "filter": "atrim=0:0.45,asetpts=PTS-STARTPTS,highpass=f=700,lowpass=f=6500",
+   "norm_lufs": -20,
+   "gain_db": -9,
+   "start_db": -40,
+   "decay": 7,
+   "delay_ms": 25
+  }
+ },
+ "post_gain_db": 1.3
+}

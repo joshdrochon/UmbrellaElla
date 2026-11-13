@@ -1,0 +1,63 @@
+{
+ "seconds": 0.7,
+ "lufs": -22,
+ "fade_out": 0.2,
+ "takes": 1,
+ "post": "anull",
+ "reverb": {
+  "rt60": 0.22,
+  "wet_db": -14,
+  "damp_hz": 6000,
+  "predelay_ms": 4
+ },
+ "layers": {
+  "g1": {
+   "prompt": "one single fine brass gear tooth click, tiny and crisp, dry, close, isolated, no other sounds",
+   "secs": 0.5,
+   "filter": "atrim=0:0.04,asetpts=PTS-STARTPTS,highpass=f=1200,lowpass=f=6000",
+   "norm_lufs": -20,
+   "gain_db": 0,
+   "start_db": -24,
+   "decay": 70
+  },
+  "g2": {
+   "prompt": "one single fine brass gear tooth click, tiny and crisp, dry, close, isolated, no other sounds",
+   "secs": 0.5,
+   "filter": "atrim=0:0.04,asetpts=PTS-STARTPTS,highpass=f=1000,lowpass=f=5000",
+   "norm_lufs": -20,
+   "gain_db": -2,
+   "start_db": -24,
+   "decay": 70,
+   "delay_ms": 55
+  },
+  "g3": {
+   "prompt": "one single fine brass gear tooth click, tiny and crisp, dry, close, isolated, no other sounds",
+   "secs": 0.5,
+   "filter": "atrim=0:0.04,asetpts=PTS-STARTPTS,highpass=f=800,lowpass=f=4000",
+   "norm_lufs": -20,
+   "gain_db": -4,
+   "start_db": -24,
+   "decay": 70,
+   "delay_ms": 110
+  },
+  "n1": {
+   "kind": "synth",
+   "prompt": "synthesised music-box comb note at 1760 Hz: partials at 2x, 3.01x and 5.4x, each with its own exponential decay",
+   "secs": 0.4,
+   "trim": 0.4,
+   "expr": "0.6*exp(-20*t)*sin(2*PI*1760*t)+0.240*exp(-28.0*t)*sin(2*PI*3520*t)+0.120*exp(-40*t)*sin(2*PI*5297.6*t)+0.060*exp(-70.0*t)*sin(2*PI*9504.0*t)",
+   "gain_db": -7,
+   "delay_ms": 10
+  },
+  "n2": {
+   "kind": "synth",
+   "prompt": "synthesised music-box comb note at 1175 Hz: partials at 2x, 3.01x and 5.4x, each with its own exponential decay",
+   "secs": 0.5,
+   "trim": 0.5,
+   "expr": "0.6*exp(-16*t)*sin(2*PI*1175*t)+0.240*exp(-22.4*t)*sin(2*PI*2350*t)+0.120*exp(-32*t)*sin(2*PI*3536.7*t)+0.060*exp(-56.0*t)*sin(2*PI*6345.0*t)",
+   "gain_db": -8,
+   "delay_ms": 130
+  }
+ },
+ "post_gain_db": -1.4
+}

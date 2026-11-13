@@ -1,0 +1,44 @@
+{
+ "seconds": 0.55,
+ "lufs": -22,
+ "fade_out": 0.15,
+ "takes": 1,
+ "post": "anull",
+ "reverb": {
+  "rt60": 0.22,
+  "wet_db": -14,
+  "damp_hz": 6000,
+  "predelay_ms": 4
+ },
+ "layers": {
+  "g1": {
+   "prompt": "one single fine brass gear tooth click, tiny and crisp, dry, close, isolated, no other sounds",
+   "secs": 0.5,
+   "filter": "atrim=0:0.05,asetpts=PTS-STARTPTS,highpass=f=1200,lowpass=f=6000",
+   "norm_lufs": -20,
+   "gain_db": 0,
+   "start_db": -24,
+   "decay": 60
+  },
+  "g2": {
+   "prompt": "one single small brass clock latch clicking open, crisp metal click, dry, close, isolated, no other sounds",
+   "secs": 0.5,
+   "filter": "atrim=0:0.07,asetpts=PTS-STARTPTS,highpass=f=900,lowpass=f=5000",
+   "norm_lufs": -20,
+   "gain_db": -2,
+   "start_db": -24,
+   "decay": 45,
+   "delay_ms": 70
+  },
+  "note": {
+   "kind": "synth",
+   "prompt": "synthesised music-box comb note at 1568 Hz: partials at 2x, 3.01x and 5.4x, each with its own exponential decay",
+   "secs": 0.45,
+   "trim": 0.45,
+   "expr": "0.6*exp(-16*t)*sin(2*PI*1568*t)+0.240*exp(-22.4*t)*sin(2*PI*3136*t)+0.120*exp(-32*t)*sin(2*PI*4719.7*t)+0.060*exp(-56.0*t)*sin(2*PI*8467.2*t)",
+   "gain_db": -7,
+   "delay_ms": 75
+  }
+ },
+ "post_gain_db": -1.1
+}

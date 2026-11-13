@@ -43,10 +43,28 @@ public:
 	/** Flow asks before routing a skip press to play: true while the opening or a skippable ending is on screen. */
 	bool IsSkipPressForStory() const;
 
-	/** Skip press from flow (after IsSkipPressForStory()). */
+	/** Skip press from flow (after IsSkipPressForStory()). An ending skip moves the model to Statistics. */
 	void HandleSkipPressed();
 
+	/** Flow's ending clock moved on (StoryText, Credits, Statistics); Statistics shows Journey Complete. */
+	void EnterEndingStage(EStoryEndingStage Stage);
+
+	/** The Director's Cut ending story lines in order (flow shows them as its story pages). */
+	TArray<FString> GetEndingLines() const { return Model.GetEndingLines(); }
+
+	/** Trigger for the light shaft and umbra visual (artfx lane): poll this. */
+	bool IsLightShaftOn() const { return Model.IsLightShaftOn(); }
+
+	/** Journey Complete while it is on screen (flow gives it keyboard and controller focus), else null. */
+	UJourneyCompleteWidget* GetStatisticsWidget() const { return bStatisticsShown ? Statistics.Get() : nullptr; }
+
 	const FStoryModel& GetModel() const { return Model; }
+
+	/** Replace the saved flags (tests and the smoke hook; pair with KeepProgressInMemoryOnly()). */
+	void SetProgress(const FStoryProgress& Progress) { Model.SetProgress(Progress); }
+
+	/** Never write the saved flags to disk from this world (tests and the smoke hook). */
+	void KeepProgressInMemoryOnly() { bProgressInMemoryOnly = true; }
 
 	/** Bound by flow: Try Again / Main Menu from the statistics screen. */
 	FOnStorySimple& GetTryAgainDelegate() const { return TryAgainDelegate; }
@@ -75,4 +93,5 @@ private:
 	TObjectPtr<UJourneyCompleteWidget> Statistics;
 
 	bool bStatisticsShown = false;
+	bool bProgressInMemoryOnly = false;
 };

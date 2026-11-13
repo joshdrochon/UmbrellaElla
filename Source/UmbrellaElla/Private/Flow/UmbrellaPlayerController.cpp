@@ -23,6 +23,8 @@
 #include "Engine/GameInstance.h"
 #include "Progression/ProgressionSubsystem.h"
 #include "Settings/SettingsMenuSubsystem.h"
+#include "Story/StorySubsystem.h"
+#include "UI/Story/StoryWidgets.h"
 #include "UI/Progression/ProgressionPurchaseWidget.h"
 #include "UI/Progression/XpRingWidget.h"
 #include "Widgets/Input/SButton.h"
@@ -36,7 +38,9 @@
 
 // Rule IDs built here: FLOW-02 (two routes), FLOW-04 (win: story, credits), FLOW-34 (Start screen), FLOW-35 (Pause),
 // ART-04 (same moving background on Start and End), FLOW-03 (first-start tutorial, Pause then Skip), FLOW-41 (Start and
-// Pause design retained), MOVE-08 (pause keys: Escape, F1, Menu), MOVE-09 (menu navigation, WASD included). Each is checked through IsFeatureEnabled below.
+// Pause design retained), MOVE-08 (pause keys: Escape, F1, Menu), MOVE-09 (menu navigation, WASD included), NAR-04 (story
+// Skip press routed to the story first and consumed), NAR-07 and FLOW-49 (one ending timeline: hold, story, credits, then
+// Journey Complete in Director's Cut). Each is checked through IsFeatureEnabled below.
 
 /** Bottom-centred holder of the purchase screen's Done button. Back keys (Escape, F1, B, Menu) pressed while it has focus call OnBack. */
 class SFlowPurchaseDoneBox final : public SCompoundWidget
@@ -114,9 +118,20 @@ void AUmbrellaPlayerController::SetupInputComponent()
 		MenuContext->MapKey(PauseAction, EKeys::Gamepad_Special_Right);
 	}
 
+	// Story Skip: keys no gameplay action uses, so the press never leaks into play (NAR-04). Exact keys are OPEN.
+	SkipAction = NewObject<UInputAction>(this, TEXT("IA_StorySkip"));
+	SkipAction->ValueType = EInputActionValueType::Boolean;
+	SkipAction->bConsumeInput = false;
+	SkipAction->Triggers.Add(NewObject<UInputTriggerPressed>(SkipAction));
+	for (const FKey& Key : FFlowRules::StorySkipKeys())
+	{
+		MenuContext->MapKey(SkipAction, Key);
+	}
+
 	if (UEnhancedInputComponent* Input = Cast<UEnhancedInputComponent>(InputComponent))
 	{
 		Input->BindAction(PauseAction, ETriggerEvent::Triggered, this, &AUmbrellaPlayerController::OnPausePressed);
+		Input->BindAction(SkipAction, ETriggerEvent::Triggered, this, &AUmbrellaPlayerController::OnSkipPressed);
 	}
 }
 
@@ -129,6 +144,12 @@ void AUmbrellaPlayerController::BeginPlay()
 		DefeatHandle = Bus->On(EUmbrellaEventType::PlayerDefeated).AddUObject(this, &AUmbrellaPlayerController::HandlePlayerDefeated);
 		CompletedHandle = Bus->On(EUmbrellaEventType::EncounterCompleted).AddUObject(this, &AUmbrellaPlayerController::HandleEncounterCompleted);
 		LevelHandle = Bus->On(EUmbrellaEventType::LevelGained).AddUObject(this, &AUmbrellaPlayerController::HandleLevelGained);
+	}
+	if (UStorySubsystem* Story = GetStory())
+	{
+		// FLOW-49: Journey Complete's buttons.
+		StoryTryAgainHandle = Story->GetTryAgainDelegate().AddUObject(this, &AUmbrellaPlayerController::TryAgain);
+		StoryMainMenuHandle = Story->GetMainMenuDelegate().AddUObject(this, &AUmbrellaPlayerController::ReturnToTitleFromStatistics);
 	}
 
 	const UUmbrellaTuning* Tuning = GetDefault<UUmbrellaTuning>();
@@ -154,6 +175,14 @@ void AUmbrellaPlayerController::BeginPlay()
 	SetInputBlocked(true);
 	ShowScreenWidget();
 	SetInputModeFor(Screen);
+
+	const AGameModeBase* GameMode = GetWorld() ? GetWorld()->GetAuthGameMode() : nullptr;
+	if (GameMode && IsFeatureEnabled(EFeatureId::FLOW_49) && FFlowRules::IsTryAgainStart(GameMode->OptionsString))
+	{
+		// Try Again from Journey Complete: a fresh world, straight into a new Director's Cut run (purchase screen first
+		// when there is something to spend). BeginRun broadcasts ModeSelected, so story starts the run's stats from zero.
+		StartDirectorsCut();
+	}
 }
 
 void AUmbrellaPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -163,6 +192,11 @@ void AUmbrellaPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason
 		Bus->On(EUmbrellaEventType::PlayerDefeated).Remove(DefeatHandle);
 		Bus->On(EUmbrellaEventType::EncounterCompleted).Remove(CompletedHandle);
 		Bus->On(EUmbrellaEventType::LevelGained).Remove(LevelHandle);
+	}
+	if (UStorySubsystem* Story = GetStory())
+	{
+		Story->GetTryAgainDelegate().Remove(StoryTryAgainHandle);
+		Story->GetMainMenuDelegate().Remove(StoryMainMenuHandle);
 	}
 	ClearScreenWidget();
 	Super::EndPlay(EndPlayReason);
@@ -451,6 +485,24 @@ void AUmbrellaPlayerController::EnterScreen(EFlowScreen To, EFlowCommand Cause)
 	NeutralSeconds = 0.0f;
 	StoryElapsed = To == EFlowScreen::Story ? 0.0f : StoryElapsed;
 	CreditsElapsed = To == EFlowScreen::Credits ? 0.0f : CreditsElapsed;
+	bEndingTextShown = To == EFlowScreen::Story ? false : bEndingTextShown;
+
+	// One ending timeline (NAR-07, FLOW-49): flow's clock, story follows it (stats frozen, first win saved at Statistics).
+	if (UStorySubsystem* Story = PlayMode == EUmbrellaPlayMode::DirectorsCut ? GetStory() : nullptr)
+	{
+		if (To == EFlowScreen::Story)
+		{
+			Story->ShowDirectorsCutEnding();
+		}
+		else if (To == EFlowScreen::Credits)
+		{
+			Story->EnterEndingStage(EStoryEndingStage::Credits);
+		}
+		else if (To == EFlowScreen::Statistics)
+		{
+			Story->EnterEndingStage(EStoryEndingStage::Statistics);
+		}
+	}
 
 	if (Cause == EFlowCommand::Retry)
 	{
@@ -506,7 +558,23 @@ void AUmbrellaPlayerController::TickFlow(float DeltaSeconds)
 		break;
 	case EFlowScreen::Story:
 		StoryElapsed += DeltaSeconds;
-		if (FFlowRules::StoryPageAt(StoryElapsed, Tuning->Flow.StoryPageSeconds, FFlowStoryText::GetEndingPages().Num()) == INDEX_NONE)
+		if (IsInEndingHold())
+		{
+			// NAR-07: hold on Ella under her umbrella while the light still falls; no ending background yet.
+			break;
+		}
+		if (!bEndingTextShown)
+		{
+			bEndingTextShown = true;
+			if (UStorySubsystem* Story = PlayMode == EUmbrellaPlayMode::DirectorsCut ? GetStory() : nullptr)
+			{
+				Story->EnterEndingStage(EStoryEndingStage::StoryText);
+			}
+			ShowScreenWidget();
+			SetInputModeFor(Screen);
+		}
+		if (FFlowRules::EndingPageAt(StoryElapsed, IsFeatureEnabled(EFeatureId::NAR_07) ? Tuning->Story.EndingHoldSeconds : 0.0f,
+			GetEndingPageSeconds(), GetEndingPages().Num()) == INDEX_NONE)
 		{
 			ApplyCommand(EFlowCommand::TimelineDone);
 		}
@@ -519,7 +587,7 @@ void AUmbrellaPlayerController::TickFlow(float DeltaSeconds)
 		CreditsElapsed += DeltaSeconds;
 		if (FFlowRules::IsTimelineDone(CreditsElapsed, Tuning->Flow.CreditsSeconds))
 		{
-			ApplyCommand(EFlowCommand::TimelineDone);
+			ApplyCommand(FFlowRules::AfterCredits(PlayMode, IsFeatureEnabled(EFeatureId::FLOW_49)));
 		}
 		else
 		{
@@ -569,8 +637,9 @@ void AUmbrellaPlayerController::RefreshTimedText()
 	const FFlowTuning& Tuning = GetDefault<UUmbrellaTuning>()->Flow;
 	if (Screen == EFlowScreen::Story)
 	{
-		const TArray<FText> Pages = FFlowStoryText::GetEndingPages();
-		const int32 Page = FFlowRules::StoryPageAt(StoryElapsed, Tuning.StoryPageSeconds, Pages.Num());
+		const TArray<FText> Pages = GetEndingPages();
+		const float Hold = IsFeatureEnabled(EFeatureId::NAR_07) ? GetDefault<UUmbrellaTuning>()->Story.EndingHoldSeconds : 0.0f;
+		const int32 Page = FFlowRules::EndingPageAt(StoryElapsed, Hold, GetEndingPageSeconds(), Pages.Num());
 		if (Pages.IsValidIndex(Page))
 		{
 			TextScreen->SetText(Pages[Page], 0.0f);
@@ -697,9 +766,16 @@ void AUmbrellaPlayerController::ShowScreenWidget()
 		Menu = SNew(SFlowMenu).WasdNavigation(IsFeatureEnabled(EFeatureId::MOVE_09)).Tuning(Tuning).Heading(FFlowMenuText::DefeatHeading()).HeadingColor(FUmbrellaUIStyle::Warn()).Items(Items);
 		break;
 	}
+	case EFlowScreen::Statistics:
+		// Story's Journey Complete widget is the screen; flow only gives it focus (SetInputModeFor).
+		return;
 	case EFlowScreen::Story:
 	case EFlowScreen::Credits:
 	{
+		if (Screen == EFlowScreen::Story && IsInEndingHold())
+		{
+			return;
+		}
 		TextScreen = SNew(SFlowTextScreen).Tuning(Tuning);
 		ScreenWidget = TextScreen;
 		RefreshTimedText();
@@ -747,6 +823,10 @@ void AUmbrellaPlayerController::SetInputModeFor(EFlowScreen To)
 	if (ScreenWidget.IsValid())
 	{
 		Mode.SetWidgetToFocus(ScreenWidget);
+	}
+	else if (UJourneyCompleteWidget* Statistics = To == EFlowScreen::Statistics && GetStory() ? GetStory()->GetStatisticsWidget() : nullptr)
+	{
+		Mode.SetWidgetToFocus(Statistics->TakeWidget());
 	}
 	SetInputMode(Mode);
 }
@@ -867,5 +947,88 @@ void AUmbrellaPlayerController::HandleLevelGained(const FUmbrellaEvent& Event)
 	{
 		LevelUpShown = Event.Amount;
 		ApplyCommand(EFlowCommand::OpenLevelUp);
+	}
+}
+
+UStorySubsystem* AUmbrellaPlayerController::GetStory() const
+{
+	return GetWorld() ? GetWorld()->GetSubsystem<UStorySubsystem>() : nullptr;
+}
+
+TArray<FText> AUmbrellaPlayerController::GetEndingPages() const
+{
+	// Director's Cut shows the story's ending lines (story lane text); Start Game keeps flow's ending pages.
+	const UStorySubsystem* Story = PlayMode == EUmbrellaPlayMode::DirectorsCut && IsFeatureEnabled(EFeatureId::NAR_07) ? GetStory() : nullptr;
+	const TArray<FString> Lines = Story ? Story->GetEndingLines() : TArray<FString>();
+	if (Lines.Num() == 0)
+	{
+		return FFlowStoryText::GetEndingPages();
+	}
+	TArray<FText> Pages;
+	for (const FString& Line : Lines)
+	{
+		Pages.Add(FText::FromString(Line));
+	}
+	return Pages;
+}
+
+float AUmbrellaPlayerController::GetEndingPageSeconds() const
+{
+	const UUmbrellaTuning* Tuning = GetDefault<UUmbrellaTuning>();
+	const bool bStoryLines = PlayMode == EUmbrellaPlayMode::DirectorsCut && IsFeatureEnabled(EFeatureId::NAR_07) && GetStory()
+		&& GetStory()->GetEndingLines().Num() > 0;
+	return bStoryLines ? Tuning->Story.EndingLineSeconds : Tuning->Flow.StoryPageSeconds;
+}
+
+bool AUmbrellaPlayerController::IsInEndingHold() const
+{
+	return Screen == EFlowScreen::Story && IsFeatureEnabled(EFeatureId::NAR_07)
+		&& FFlowRules::IsEndingHoldAt(StoryElapsed, GetDefault<UUmbrellaTuning>()->Story.EndingHoldSeconds);
+}
+
+void AUmbrellaPlayerController::OnSkipPressed()
+{
+	PressSkip();
+}
+
+void AUmbrellaPlayerController::PressSkip()
+{
+	UStorySubsystem* Story = GetStory();
+	if (!Story)
+	{
+		return;
+	}
+	const bool bOpening = Screen == EFlowScreen::Playing && IsFeatureEnabled(EFeatureId::NAR_04);
+	const bool bEnding = (Screen == EFlowScreen::Story || Screen == EFlowScreen::Credits) && IsFeatureEnabled(EFeatureId::NAR_07);
+	if ((bOpening || bEnding) && Story->IsSkipPressForStory())
+	{
+		// The press is the story's: the opening clears (once seen before) or the ending skips; nothing reaches play.
+		Story->HandleSkipPressed();
+	}
+	if (bEnding && Story->GetModel().ShouldShowStatistics())
+	{
+		ApplyCommand(EFlowCommand::ShowStatistics);
+	}
+}
+
+void AUmbrellaPlayerController::TryAgain()
+{
+	if (Screen != EFlowScreen::Statistics || !IsFeatureEnabled(EFeatureId::FLOW_49))
+	{
+		return;
+	}
+	bTryAgainRequested = true;
+	if (GetWorld() && GetWorld()->GetGameViewport())
+	{
+		SetPause(false);
+		UGameplayStatics::OpenLevel(this, FName(*UGameplayStatics::GetCurrentLevelName(this)), true, FFlowRules::TryAgainOption());
+	}
+}
+
+void AUmbrellaPlayerController::ReturnToTitleFromStatistics()
+{
+	if (Screen == EFlowScreen::Statistics)
+	{
+		ReturnToTitle();
 	}
 }

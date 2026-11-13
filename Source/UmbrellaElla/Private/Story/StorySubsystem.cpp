@@ -147,6 +147,12 @@ void UStorySubsystem::HandleSkipPressed()
 	Refresh();
 }
 
+void UStorySubsystem::EnterEndingStage(EStoryEndingStage Stage)
+{
+	Model.EnterEndingStage(Stage);
+	Refresh();
+}
+
 void UStorySubsystem::HandleTryAgain()
 {
 	TryAgainDelegate.Broadcast();
@@ -178,15 +184,18 @@ void UStorySubsystem::Refresh()
 {
 	if (Model.HasProgressToSave())
 	{
-		SaveProgress(ProgressPath(), Model.GetProgress());
+		if (!bProgressInMemoryOnly)
+		{
+			SaveProgress(ProgressPath(), Model.GetProgress());
+		}
 		Model.MarkProgressSaved();
 	}
 	EnsureWidgets();
 	if (Caption)
 	{
+		// In-play captions only; the ending lines are flow's story pages (one ending timeline).
 		const FStoryCue* Cue = Model.GetActiveCue();
-		const EStoryCaptionPlace Place = Model.GetEndingStage() == EStoryEndingStage::StoryText ? EStoryCaptionPlace::Centre : EStoryCaptionPlace::Bottom;
-		Caption->SetCaption(Cue ? Cue->Text : FString(), Place);
+		Caption->SetCaption(Cue ? Cue->Text : FString(), EStoryCaptionPlace::Bottom);
 	}
 	if (Model.ShouldShowStatistics() && !bStatisticsShown && IsFeatureEnabled(EFeatureId::FLOW_49))
 	{

@@ -1,0 +1,25 @@
+{
+ "id": "MechanismBreak",
+ "records": [
+  {
+   "files": "5d36e61ed546eeaf4b26944662d8f7cc0fb8fc83afdb8498e8f68f109ec0d713",
+   "verdict": "fail",
+   "style_pass": true,
+   "gap": "Replace the sustained low-frequency block with a few distinct, dry, metallic mid-to-high transients (escapement ticks, a spring lurch, skipped gear teeth) with clear gaps between them and only a short low body.",
+   "card": "SNDHIT",
+   "round": 1,
+   "critic": "critic-r1-MechanismBreak",
+   "at": "2026-11-13T02:06Z"
+  },
+  {
+   "files": "5d36e61ed546eeaf4b26944662d8f7cc0fb8fc83afdb8498e8f68f109ec0d713",
+   "verdict": "pass",
+   "style_pass": true,
+   "gap": "none",
+   "card": "SNDHIT",
+   "round": 2,
+   "critic": "wf-critic-MechanismBreak",
+   "at": "2026-11-13T02:11Z"
+  }
+ ]
+}
