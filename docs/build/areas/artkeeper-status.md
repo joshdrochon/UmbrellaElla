@@ -32,3 +32,7 @@ Stuck rule: critic gap unchanged 3 rounds (deterministic score best 0.716): NEED
 ## Round 3 (Nov 13), cost $0.141, spent 2.541 of 33.82
 - Best owl so far (round owl head, clock, legs, bronze palette, etched look). Gaps (model ignores placement): all three mechanisms bunch at the beak/neck instead of front / middle / rear; no top-of-head eye or chain route; wings still read feathered; divider lines remain (cropped out at cut time, ours).
 - R4: explicit positions for each mechanism and chain route.
+
+## Round 4 (Nov 13), cost $0.144, spent 3.238 of 33.82
+- Big gain: riveted perforated vane wings, round owl head, clock, three mechanisms spread front/middle/rear with underside eyes. Gaps: chains do not converge on a top-of-head eye (gear chain starts at the tail, armillary chain at the brow); cell 1 wing tip touches the top edge.
+- Next: cut cells (crop divider lines), key green, run art_check / art_ref_check / sprite checks, blind panel.
