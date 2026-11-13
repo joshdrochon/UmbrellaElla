@@ -13,3 +13,7 @@ GDD estimate assumes wind 360, decay 12 (about 30 residual units). Room wind is 
 measured residual drift is 20.2. Either raise the room WindSpeed and the clamp together or accept 20 and update the GDD row.
 
 HAZ-09 shot radius, HAZ-10 muzzle/radius/cadence and HeroSize are in requests/enemies2.md item 4 (Attack lane).
+
+## 3. Island shot margin (BrokenMill room, enemies2 lane)
+After D-new-smallblast-fixture the exposed band is 390.5-519.5 vs GDD 402-520. `IslandShotMargin` (12) is only in the rule; the
+island collider stops a shot at its top (390). Make the room block at IslandTop + IslandShotMargin, or drop the margin from the GDD row.
