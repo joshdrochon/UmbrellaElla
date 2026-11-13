@@ -21,6 +21,6 @@ if [ -f "$L/quality-base.txt" ]; then
   p=$(python3 tools/build/quality_gate.py check origin/main "$L/quality-base.txt" 2>&1 | grep -E "new FAIL" | head -5)
   [ -n "$p" ] && add "$p"
 fi
-[ -z "${PRECHECK_FAST:-}" ] && p=$(python3 tools/affected_tests.py --base origin/main --run 2>&1 | grep -E "^(FAIL|ERROR)" | head -3 2>/dev/null); [ -n "$p" ] && add "$p"
+p=""; [ -z "${PRECHECK_FAST:-}" ] && p=$(python3 tools/affected_tests.py --base origin/main --run 2>&1 | grep -E "^(FAIL|ERROR)" | head -3 2>/dev/null); [ -n "$p" ] && add "$p"
 if [ -z "$out" ]; then echo "PRECHECK PASS"; exit 0; fi
 echo "PRECHECK FAIL$out"; exit 1
