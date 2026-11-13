@@ -81,7 +81,7 @@ def build_keeper(m, rnd):
     for k in range(12):
         a = 2 * math.pi * k / 12
         add("primitive_cube_add", "body", ink, loc=(cx + 0.58 * math.cos(a), cy - 0.15, cz + 0.58 * math.sin(a)), rot=(0, -a, 0),
-            size=1, scale=(0.14 if k % 3 == 0 else 0.08, 0.02, 0.04))
+            size=1, scale=(0.2 if k % 3 == 0 else 0.12, 0.02, 0.07))
     add("primitive_cube_add", "body", ink, loc=(cx + 0.05, cy - 0.17, cz + 0.27), rot=(0, -0.2, 0), size=1, scale=(0.06, 0.02, 0.56))
     add("primitive_cube_add", "body", ink, loc=(cx + 0.2, cy - 0.17, cz - 0.05), rot=(0, 1.1, 0), size=1, scale=(0.05, 0.02, 0.4))
     add("primitive_uv_sphere_add", "body", ink, loc=(cx, cy - 0.18, cz), segments=10, ring_count=6, radius=0.07)
@@ -161,14 +161,15 @@ def build_keeper(m, rnd):
             minor_radius=0.045, major_segments=24, minor_segments=6)
     add("primitive_uv_sphere_add", "mech", gold, loc=(1.4, -0.58, -2.15), segments=10, ring_count=6, radius=0.11)
     chain(1.8, -0.5, 3.3, -1.5, -0.45)   # lantern cage
-    add("primitive_cylinder_add", "mech", ink, loc=(3.4, -0.45, -2.1), vertices=6, radius=0.4, depth=0.9)
     add("primitive_cone_add", "mech", lite, loc=(3.4, -0.45, -1.45), vertices=6, radius1=0.5, radius2=0.12, depth=0.35)
     add("primitive_torus_add", "mech", lite, loc=(3.4, -0.45, -1.2), major_radius=0.1, minor_radius=0.03, major_segments=12, minor_segments=5)
     add("primitive_cylinder_add", "mech", lite, loc=(3.4, -0.45, -2.62), vertices=6, radius=0.48, depth=0.12)
     add("primitive_uv_sphere_add", "mech", aged, loc=(3.4, -0.9, -2.1), segments=10, ring_count=6, radius=0.18)
     for k in range(6):
         a = 2 * math.pi * k / 6
-        add("primitive_cube_add", "mech", ink, loc=(3.4 + 0.44 * math.cos(a), -0.45 + 0.44 * math.sin(a), -2.1), size=1, scale=(0.07, 0.07, 0.9))
+        add("primitive_cube_add", "mech", ink, loc=(3.4 + 0.44 * math.cos(a), -0.45 + 0.44 * math.sin(a), -2.1), size=1, scale=(0.09, 0.09, 0.9))
+    for zz in (-1.75, -2.1, -2.45):   # cage hoops
+        add("primitive_torus_add", "mech", plate, loc=(3.4, -0.45, zz), major_radius=0.44, minor_radius=0.04, major_segments=16, minor_segments=5)
     chain(-0.3, -0.85, -0.9, -1.9, -0.5)   # gear
     add("primitive_cylinder_add", "mech", plate, loc=(-0.95, -0.55, -2.25), rot=(S, 0, 0), vertices=20, radius=0.36, depth=0.1)
     for k in range(10):
@@ -222,7 +223,7 @@ def materials(colours, look):
     d["plate"] = etched("plate", ["#5e4f3f", "#7d6a55", "#9d8c78"], look, hatch=0.22)
     d["feather"] = etched("feather", ["#4d4034", "#6d5c4a", "#8c7b68"], look, hatch=0.22)
     d["lite"] = etched("lite", ["#7d6a55", "#a09080", "#bdb09c"], look, hatch=0.18)
-    d["aged"] = si.glow("aged", "#b8873a")
+    d["aged"] = si.glow("aged", "#b8873a", 0.8)
     d["rust"] = si.glow("rust", c("rust-red", "#743422"))
     return d
 
@@ -261,12 +262,12 @@ def painted_pass(path, seed=7):
     hl = (((xx * 0.6 + yy) % 7.0) < 0.9) & (lum > 0.38)
     out = rgb * (1.0 - hatch[..., None])
     out = out * (0.86 + 0.28 * mottle[..., None])
-    out = np.where(hl[..., None], np.minimum(out * 1.22 + 0.02, 1.0), out)
+    
     # scratches: sparse short dark strokes
     sc = np.zeros((h, w), dtype=np.float32)
-    for _ in range(260):
+    for _ in range(120):
         x0, y0 = rng.integers(0, w), rng.integers(0, h)
-        ln = rng.integers(6, 22)
+        ln = rng.integers(5, 14)
         for t in range(ln):
             x, y = int(x0 + t * 0.9), int(y0 + t * 0.45)
             if 0 <= x < w and 0 <= y < h:
