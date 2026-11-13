@@ -43,3 +43,17 @@
    can never win that pair. Until it is changed no screen can get a pass line, whatever the critics answer.
 2. `DirectoriesToAlwaysCook` for `/Game/UmbrellaElla/UI` (not verified in a package; workers do not package).
 3. `ui_check.py widgets` misses `final` widget classes (left as is: fixing it fails main on the progression lane's ring).
+
+## Round log (12 Nov, artui worker)
+- Captured 9 screens with `-UIShots` (title, pause, settings, credits, defeated, story, tutorial, hud, known-bad). Title and
+  Defeated read on-bar by eye: painted ground, Storybook lettering, gold focus mark.
+- Blind panel on `ui-title` (round 1, `art_loop.py panel`, 6 fresh sonnet sessions): verdict `reference`, checks fail,
+  calibration 4/6. Critic gap: "X is a small, soft render; thin lettering, less etched texture" (reference is full-res).
+  Triage: ours = capture size. The safe launch (`run_game.sh`) is 640x360 and the ResX/ResY it passes first cannot be
+  overridden; I tried `FSystemResolution::RequestResolutionChange` and `r.SetRes` from the capture driver, the PNG stayed
+  640x360 (reverted, nothing committed). A 640 px frame will lose the detail pair against a 1080p reference whatever we paint.
+- Also failing before any judging: `art_ref_check` says "card artui has no references assigned" (art_judge.card_refs reads
+  `cards` on each reference; `title-screen` etc. list no `artui`), and the `context` pair cannot be won (request 1).
+- BLOCKED (not the work): needs the lead. (a) a capture at 1280x720 or larger through run_game.sh (e.g. honour an env
+  `RUN_GAME_RES`), (b) `artui` added to the `cards` of the references the screen elements use (`references.json`
+  reference entries are outside my "screen elements only" lane), (c) request 1. No paint spend this round ($0).
