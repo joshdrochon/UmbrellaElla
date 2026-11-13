@@ -29,7 +29,10 @@ cd "$ROOT"; git fetch -q origin
 [ -d "$G" ] || git worktree add -q "$G" -B "$GB" main
 mkdir -p "$G/Saved/Config/MacEditor"; cp -n "$ROOT/Saved/Config/MacEditor/GameUserSettings.ini" "$G/Saved/Config/MacEditor/" 2>/dev/null
 cd "$G"; git reset -q --hard main; MAIN=$(git rev-parse HEAD)
-T1=$(date +%s); python3 tools/build/quality_gate.py baseline "$L/quality-base.txt" 2>/dev/null; step "baseline"
+# The baseline depends only on main, so it is computed once per main SHA and reused (Nov 12: ~10 min per gate run).
+T1=$(date +%s); QB="$L/quality-base-$MAIN.txt"
+if [ -s "$QB" ]; then cp "$QB" "$L/quality-base.txt"; step "baseline (cached for $(git rev-parse --short HEAD))"
+else python3 tools/build/quality_gate.py baseline "$QB.tmp" 2>/dev/null && mv "$QB.tmp" "$QB"; cp "$QB" "$L/quality-base.txt" 2>/dev/null; step "baseline"; fi
 T1=$(date +%s)
 if ! git -c core.hooksPath=/dev/null merge -q --no-ff -m "Merge area/$A ($(git rev-parse --short "$C")) into main" "$C" 2>/dev/null; then
   if git diff --name-only --diff-filter=U | grep -qx docs/build/rule-status.csv; then python3 tools/build/rule_status_merge.py || true; fi
