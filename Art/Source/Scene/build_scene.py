@@ -290,11 +290,11 @@ class Sky:
                 half = (w * 1.06 / 2) * (1 - f) if style < 0.55 else (w * 0.85 / 2)
                 zz = h + rh * f * (1.0 if style < 0.55 else 0.7)
                 if half > 2:
-                    curve_strand([(x + w / 2 - half, zz), (x + w / 2 + half, zz)], 0.7, det, self.y - 0.2)
+                    curve_strand([(x + w / 2 - half, zz), (x + w / 2 + half, zz)], 1.0, det, self.y - 0.2)
             for gx in range(1, int(w // 9)):   # eave brackets / wall courses
                 curve_strand([(x + gx * 9, h - 6), (x + gx * 9, h - 1)], 0.6, det, self.y - 0.2)
             for row in range(1, int(h // 11)):  # stone courses
-                curve_strand([(x + 1, row * 11.0), (x + w - 1, row * 11.0)], 0.5, det, self.y - 0.2)
+                curve_strand([(x + 1, row * 11.0), (x + w - 1, row * 11.0)], 0.8, det, self.y - 0.2)
         nwin = max(1, int(w // 12))
         for i in range(nwin):
             for row in range(max(1, int((h - 70) // 26))):
@@ -421,12 +421,19 @@ def build_skyline(o, rnd):
     ink = emission_mat("ink", ink_col)
     far = emission_mat("far", lambda nt: _rgb(nt, "#2b211b"))
     gold = emission_mat("gold", gold_col)
-    detail = emission_mat("detail", lambda nt: _rgb(nt, "#4a3a2f"))
+    detail = emission_mat("detail", lambda nt: _rgb(nt, "#70594a"))
     gothic_layer(w, random.Random(seed + 100), Sky(far, far, -0.5), hscale=0.8)
     near = Sky(ink, gold, -1.0)
     near.detail = detail
     gothic_layer(w, random.Random(seed), near)
     poly([(0, -4), (0, 86), (w, 86), (w, -4)], ink, -1.2)   # solid ground band
+    rg = random.Random(seed + 7)
+    for zc in (18, 38, 60):      # etched stone courses and joints in the ground band
+        curve_strand([(0, zc), (w, zc)], 0.9, detail, -1.4)
+        xj = rg.uniform(0, 20)
+        while xj < w:
+            curve_strand([(xj, zc), (xj, zc + (20 if zc < 60 else 24))], 0.8, detail, -1.4)
+            xj += rg.uniform(26, 58)
     ink_lines(sc, "#4a3a2f", 1.0)
     return sc, w, h
 
@@ -460,8 +467,8 @@ def etch_post(path, seed, mode):
     px = np.array(img.pixels[:], dtype=np.float32).reshape(h, w, 4)[::-1].copy()   # top row first
     rng = np.random.default_rng(seed)
     # 1. hand jitter: displace sampling coords by two noise scales (wobbly, slightly torn edges)
-    dx = _smooth_field(rng, h, w, 9, 1.6) + _smooth_field(rng, h, w, 3, 0.7)
-    dy = _smooth_field(rng, h, w, 9, 1.6) + _smooth_field(rng, h, w, 3, 0.7)
+    dx = _smooth_field(rng, h, w, 9, 1.0) + _smooth_field(rng, h, w, 3, 0.4)
+    dy = _smooth_field(rng, h, w, 9, 1.0) + _smooth_field(rng, h, w, 3, 0.4)
     yy, xx = np.mgrid[0:h, 0:w]
     sy = np.clip((yy + dy).round().astype(int), 0, h - 1)
     sx = np.clip((xx + dx).round().astype(int), 0, w - 1)
@@ -469,10 +476,11 @@ def etch_post(path, seed, mode):
     a = px[..., 3]
     rgb = px[..., :3]
     lum = rgb.mean(axis=2)
-    ink = (a > 0.5) & (lum < 0.25)
     gold = (a > 0.5) & (rgb[..., 0] > 0.45) & (rgb[..., 2] < 0.45)
+    ink = (a > 0.5) & ~gold
+    strand = np.clip((lum - 0.10) / 0.22, 0, 1) * ink   # lighter etched strands survive the ink pass
     # 2. ink bleed: ragged alpha edge from fine noise on a slightly blurred mask
-    ragged = _blur(a, 1) + rng.normal(0, 0.18, a.shape)
+    ragged = _blur(a, 1) + rng.normal(0, 0.09, a.shape)
     a = np.clip((ragged - 0.45) * 4.0, 0, 1) * (a > 0.02)
     # 3. ink variation + paper grain + fibres in the dark mass
     grain = rng.normal(0, 1, (h, w)).astype(np.float32)
@@ -492,11 +500,12 @@ def etch_post(path, seed, mode):
     rim = np.clip(a - up, 0, 1) * (a > 0.5)
     rim = _blur(rim, 1) * 1.2
     dark = dark + rim[..., None] * np.array([0.30, 0.20, 0.13])[None, None, :]
+    dark = dark * (1 - strand[..., None]) + rgb * strand[..., None] * 1.05
     out = np.where(ink[..., None], dark, rgb)
     # 6. window glow: gold stays bright with grain; soft halo bleeds into the ink
     halo = _blur(gold.astype(np.float32), 4)
-    out = out + (halo * (~gold) * (a > 0.5))[..., None] * np.array([0.30, 0.19, 0.06])[None, None, :]
-    gcol = np.array([0.86, 0.60, 0.26])[None, None, :] * (0.82 + 0.18 * np.clip(grain * 0.5 + 0.5, 0, 1))[..., None]
+    out = out + (halo * (~gold) * (a > 0.5))[..., None] * np.array([0.22, 0.17, 0.07])[None, None, :]
+    gcol = np.array([0.91, 0.77, 0.42])[None, None, :] * (0.90 + 0.10 * np.clip(grain * 0.5 + 0.5, 0, 1))[..., None]
     out = np.where(gold[..., None], gcol, out)
     res = np.concatenate([np.clip(out, 0, 1), a[..., None]], axis=2)[::-1]
     img.pixels = res.astype(np.float32).ravel().tolist()
