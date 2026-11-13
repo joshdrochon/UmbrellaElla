@@ -42,6 +42,47 @@
    "commit": "d7982cdeeb7a",
    "gap": "X is cleaner and smoother, with less etched line detail, thinner paper grain and less value depth in the mist and rock than Y.; X has softer, grainier, flatter rendering with less fine etched linework, and its stray thin clock circles read as pasted-on overlays.",
    "at": "2026-11-13T06:01:23Z"
+  },
+  {
+   "piece": "ui-pause",
+   "round": 2,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "ours",
+    "reference": "reference"
+   },
+   "panel": 3,
+   "calibration": {
+    "sessions": 6,
+    "passed": 6
+   },
+   "missing": [
+    "reference:pipeline/art/reference/discord/20261112-0443_Ricky_title-screen.png"
+   ],
+   "critic_sessions": [
+    "ui-pause-r2-00-reference-c1",
+    "ui-pause-r2-00-reference-c2",
+    "ui-pause-r2-00-reference-c3",
+    "ui-pause-r2-01-quality_bar-c1",
+    "ui-pause-r2-01-quality_bar-c2",
+    "ui-pause-r2-01-quality_bar-c3"
+   ],
+   "manifest": "",
+   "evidence": "",
+   "prompt": "",
+   "files": "9bd281d55551683144c52bba0f8b1c0e700ff558678eaf44d6b20ea73ae96838",
+   "file": "pipeline/art/proof/artui/ui-pause/capture_r16_pause.png",
+   "card": "artui",
+   "refs": "669f6f2ac14d",
+   "commit": "61ba52ca34e4",
+   "gap": "Y has less fine etched detail and its paper grain is flatter, with broader, softer value masses and a heading that is weaker than X's lettering.; Y has cleaner, cartoonish outlines and smoother digital shading, so it lacks X's etched fine linework, inked paper grain and refined lettering.",
+   "at": "2026-11-13T06:49:45Z"
   }
  ]
 }

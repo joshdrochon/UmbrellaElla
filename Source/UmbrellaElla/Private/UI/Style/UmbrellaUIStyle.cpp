@@ -186,6 +186,11 @@ FUmbrellaHandBlade FUmbrellaUIStyle::HandBlade(const FVector2D& Center, const FV
 
 FSlateFontInfo FUmbrellaUIStyle::BodyFont(int32 Size)
 {
+	// Body copy is lettered in the storybook face too (critics: plain sans reads as default UI); engine face is the fallback.
+	if (HasDisplayFont())
+	{
+		return DisplayFontSpaced(Size, UmbrellaUI::BodyLetterSpacing);
+	}
 	return FCoreStyle::GetDefaultFontStyle(TEXT("Regular"), ClampTextSize(Size));
 }
 

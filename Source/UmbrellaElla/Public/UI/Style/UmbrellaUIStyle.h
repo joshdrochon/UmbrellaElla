@@ -24,6 +24,9 @@ namespace UmbrellaUIStyleConstants
 	/** Letter spacing of the display face, in 1/1000 em (the reference letters its menu wide). */
 	static constexpr int32 DisplayLetterSpacing = 70;
 
+	/** Letter spacing of body copy, also set in the storybook face. */
+	static constexpr int32 BodyLetterSpacing = 40;
+
 	/** Painted size of the ground texture. */
 	static constexpr float GroundWidth = 1920.0f;
 	static constexpr float GroundHeight = 1080.0f;
