@@ -4,7 +4,7 @@
 
 struct FMotorTuning;
 
-/** Plain HeroSize rules: clamped size, applied actor scale, hitbox scale. Muzzle offset follows HeroSize; blast radius does not (HAZ-10 fixes radius 6). */
+/** Plain HeroSize rules: clamped size, applied actor scale, hitbox scale. Muzzle offset follows HeroSize; blast radius does not (radius stays 6). */
 namespace HeroSizeRules
 {
 	UMBRELLAELLA_API float ClampedHeroSize(const FMotorTuning& Tuning);

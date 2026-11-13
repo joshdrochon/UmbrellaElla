@@ -79,7 +79,7 @@ struct UMBRELLAELLA_API FMotorTuning
 
 	/** HeroSize: Ella's size multiplier; 1 is the reference the muzzle fixture (+44/+6) is measured at. Clamped to HeroSizeMin..HeroSizeMax. */
 	UPROPERTY(Config, EditAnywhere, Category = "Motor|HeroSize", meta = (ClampMin = "0.75", ClampMax = "1.3"))
-	float HeroSize = 1.0f; // bake: HAZ-10.herosize (gdd-bindings also sends HAZ-14.herosize here)
+	float HeroSize = 1.0f; // bake: HAZ-10.herosize
 
 	/** Lowest supported HeroSize. */
 	UPROPERTY(Config, EditAnywhere, Category = "Motor|HeroSize", meta = (ClampMin = "0"))
@@ -87,7 +87,7 @@ struct UMBRELLAELLA_API FMotorTuning
 
 	/** Highest supported HeroSize. */
 	UPROPERTY(Config, EditAnywhere, Category = "Motor|HeroSize", meta = (ClampMin = "0"))
-	float HeroSizeMax = 1.3f; // bake: HAZ-13.herosize (also HAZ-14.value.2)
+	float HeroSizeMax = 1.3f; // bake: HAZ-13.herosize
 
 	/** Ella's actor scale at HeroSize 1; the applied scale is this times HeroSize (GDD). */
 	UPROPERTY(Config, EditAnywhere, Category = "Motor|HeroSize", meta = (ClampMin = "0.01"))
