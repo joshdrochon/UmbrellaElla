@@ -347,6 +347,22 @@ def gothic_layer(w, rnd, sk, hscale=1.0, dense=1.0):
         sk.block(cx + d * 130 - 30, 90, 150, rnd, roof=70)
 
 
+def ink_lines(sc, hexc, px):
+    sc.render.use_freestyle = True
+    sc.render.line_thickness_mode = "ABSOLUTE"
+    sc.render.line_thickness = px
+    vl = sc.view_layers[0]
+    vl.use_freestyle = True
+    fs = vl.freestyle_settings
+    ls = fs.linesets[0] if len(fs.linesets) else fs.linesets.new("ink")
+    ls.select_by_visibility = True
+    ls.select_silhouette = ls.select_border = ls.select_crease = True
+    if ls.linestyle is None:
+        ls.linestyle = bpy.data.linestyles.new("ink")
+    ls.linestyle.color = hexrgb(hexc)[:3]
+    ls.linestyle.thickness = px
+
+
 def build_skyline(o, rnd):
     w, h = 3200, 720
     sc = reset(w, h, True)
@@ -378,13 +394,14 @@ def build_skyline(o, rnd):
 
     def gold_col(nt):
         g = tex(nt, "ShaderNodeTexNoise", 400.0, seed + 6, noise_dimensions="3D", detail=2.0)
-        return ramp(nt, g.outputs["Fac"], [(0.0, hexrgb("#b9792c")), (1.0, hexrgb("#e3a54a"))])
+        return ramp(nt, g.outputs["Fac"], [(0.0, hexrgb("#c8a257")), (1.0, hexrgb("#e9c46a"))])
     ink = emission_mat("ink", ink_col)
     far = emission_mat("far", lambda nt: _rgb(nt, "#2b211b"))
     gold = emission_mat("gold", gold_col)
     gothic_layer(w, random.Random(seed + 100), Sky(far, far, -0.5), hscale=0.8)
     gothic_layer(w, random.Random(seed), Sky(ink, gold, -1.0))
     poly([(0, -4), (0, 38), (w, 38), (w, -4)], ink, -1.2)   # solid ground band
+    ink_lines(sc, "#6a5444", 1.3)
     return sc, w, h
 
 
