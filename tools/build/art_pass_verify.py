@@ -57,6 +57,32 @@ def load_piece_records(root):
     return out
 
 
+NEAR_COPY_SSIM = 0.80   # our two text-only paints of one prompt score 0.98 together; our UI capture vs the pre-jam title 0.37
+
+
+def _piece_reference_paths(root, piece):
+    try:
+        refs, _ = art_loop.refs_and_hash(root)
+        import art_judge
+        byid = art_judge.refs_by_id(refs)
+        el = (refs.get("elements") or {}).get(piece) or {}
+        return [byid[r]["path"] for r in el.get("refs", []) if r in byid and byid[r].get("path")]
+    except Exception:
+        return []
+
+
+def _ssim(a, b):
+    """Grey SSIM at 640x360 through ffmpeg (no Python image library needed); None when it cannot be measured."""
+    import subprocess, re as _re
+    if not os.path.isfile(b):
+        return None
+    p = subprocess.run(["ffmpeg", "-hide_banner", "-i", a, "-i", b, "-lavfi",
+                        "[0:v]scale=640:360,format=gray[x];[1:v]scale=640:360,format=gray[y];[x][y]ssim", "-f", "null", "-"],
+                       capture_output=True, text=True)
+    m = _re.search(r"All:([0-9.]+)", p.stderr)
+    return float(m.group(1)) if m else None
+
+
 def verify_record(root, piece, rec, newest=True, remeasure=True):
     """Problems (empty = the record verifies) for one record that says passed. A record that does not say passed has
     nothing to verify."""
@@ -130,6 +156,14 @@ def verify_record(root, piece, rec, newest=True, remeasure=True):
     for c in art_loop.CHECKS:
         if (man.get("results") or {}).get(c) != "pass":
             probs.append(f"the manifest has no PASS for {c}")
+    # Near-copy guard (Josh, Nov 13): a pass must be our own work in the style, not a copy of pre-jam reference art.
+    # SSIM of the judged image against every reference image of the piece above NEAR_COPY_SSIM fails the pass.
+    full_img = os.path.join(root, rec.get("file") or "")
+    if os.path.isfile(full_img):
+        for rpath in _piece_reference_paths(root, piece):
+            sim = _ssim(full_img, os.path.join(root, rpath))
+            if sim is not None and sim > NEAR_COPY_SSIM:
+                probs.append(f"near-copy of pre-jam reference {rpath} (SSIM {sim:.2f} > {NEAR_COPY_SSIM}): a pass must be new work, not the reference")
     shipped = man.get("shipped") or {}
     if shipped.get("sha256") != rec.get("files") or shipped.get("file") != rec.get("file"):
         probs.append("the record's image hash is not the one the panel judged")
