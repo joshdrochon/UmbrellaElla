@@ -22,3 +22,12 @@ Passed already, skipped: screen:Tutorial, screen:TutorialPaused.
 Build, tests, in-engine capture, art_ref_check on the unscored drafts (near-copy-of-reference check not run for them). Sprite-sheet layout of the first drafts is not verified against each presenter; some drafts may not be grids.
 
 Location note: copies live in pipeline/art/proof/standins/<piece>/, not pipeline/art/proof/standins/ (art_inventory.py counts every file under Art/ as an unmapped visual and sprite_check --scan Art wants a sidecar for each, so precheck failed on them).
+
+## OWL-32 / OWL-33 visual and projectile-scale clauses (Nov 13): not built, blocked on lane
+No clause-proof rows added. Findings (read-only):
+- The brief says "stand-in art at the GDD scale", but the 16 open OWL-32/33 clause-audit rows are rule behaviour (eye window, blackout clears, time domains), not art. No stand-in slot is involved; the art slots for Slow, Blackout, LightShaft stay in the no-candidate list above.
+- `OWL-33 player projectiles stay unscaled`: true today only because nothing scales time. `AUmbrellaProjectile::Tick` advances by raw DeltaSeconds and the world has no time dilation. A test would pass without any code, so it cannot be break-proven.
+- `OWL-33 physical attack timing scaled at x0.35` for missiles already in flight: not implemented. The model scales only queued emissions (`KeeperFightModel.cpp:399`); `EncounterDirectorSubsystem::ProcessCommands` fires `Spec.Velocity = Command.B` unscaled, and shots in flight keep full speed during slow. Fix needs Projectile (a per-shot time scale for enemy kinds, player kinds fixed at 1) plus a director call each Step: both outside the standins lane.
+- Blackout cue-kept and menu-clock clauses sit in VFX/UI lanes.
+Request for the build lead: assign the in-flight enemy-shot scale to the projectile lane (enemy kinds x `GetWorldScale()`, player kinds x 1, test with a slowed model and one shot of each kind).
+Not run: build, tests (no code changed).
