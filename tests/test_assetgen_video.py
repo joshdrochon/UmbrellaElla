@@ -112,7 +112,7 @@ class Video(img.ImageWork):
         self.assertAlmostEqual(self.counter()["spent_usd"], 0.60)
 
     def test_total_cap_refuses(self):
-        rc, o = self.vid(IMAGE_SPEND_CAP_USD="0.50")
+        rc, o = self.vid(FAL_SPEND_CAP_USD="0.50")   # fal has its own cap since imagetiers
         self.assertEqual(rc, 2, o)
         self.assertIn("CAP REACHED", o)
 

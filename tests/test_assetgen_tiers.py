@@ -17,6 +17,7 @@ import test_assetgen_image as img  # noqa: E402
 DRAFT = "gemini-2.5-flash-image"
 FINAL = "gemini-3-pro-image-preview"
 OR_KEY = "sk-or-FAKE-0123456789"
+FAL_KEY = "fal-FAKE-0123456789:abcdef"
 
 OR_STUB = textwrap.dedent('''
     import base64, importlib.util, json, os
@@ -39,6 +40,25 @@ OR_STUB = textwrap.dedent('''
         return base.get(url, headers)
 ''')
 
+FAL_STUB = textwrap.dedent('''
+    import base64, importlib.util, json, os
+    spec = importlib.util.spec_from_file_location("base_stub", {base!r})
+    base = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(base)
+
+    def post(url, headers, body):
+        if "fal.run" not in url:
+            return base.post(url, headers, body)
+        with open(os.environ["HTTP_STUB_LOG"], "a") as fh:
+            fh.write(json.dumps({{"url": url, "model": url.split("fal.run/")[1], "key_sent": {key!r} in json.dumps(headers),
+                                 "inputs": 0}}) + "\\n")
+        data = base64.b64encode(base._png()).decode()
+        return json.dumps({{"images": [{{"url": "data:image/png;base64," + data}}]}}).encode()
+
+    def get(url, headers):
+        return base.get(url, headers)
+''')
+
 
 class Tiers(img.ImageWork):
     def setUp(self):
@@ -47,6 +67,9 @@ class Tiers(img.ImageWork):
         self.stub = os.path.join(self.d, "or_stub.py")
         with open(self.stub, "w", encoding="utf-8") as fh:
             fh.write(OR_STUB.format(base=base, key=OR_KEY))
+        self.fal_stub = os.path.join(self.d, "fal_stub.py")
+        with open(self.fal_stub, "w", encoding="utf-8") as fh:
+            fh.write(FAL_STUB.format(base=self.stub, key=FAL_KEY))
 
     def img_env(self, **extra):
         return super().img_env(**dict({"OPENROUTER_API_KEY": OR_KEY}, **extra))
@@ -145,6 +168,81 @@ class Tiers(img.ImageWork):
         self.assertEqual(rc, 0, o)
         self.assertEqual(self.last_call()["provider"], "gemini")
 
+    # ---- fal, third provider ----
+    def paint_fal(self, out, *args, **env):
+        env.setdefault("FAL_KEY", FAL_KEY)
+        self.stub, keep = self.fal_stub, self.stub
+        try:
+            return self.paint(out, *args, **env)
+        finally:
+            self.stub = keep
+
+    def test_fal_serves_the_mapped_google_model_and_records_it(self):
+        rc, o = self.paint_fal("Art/Source/Ella/f.png", "--provider", "fal")
+        self.assertEqual(rc, 0, o)
+        call = self.http()[-1]
+        self.assertEqual((call["model"], call["key_sent"]), ("fal-ai/gemini-25-flash-image", True))
+        row = self.prov_row("Art/Source/Ella/f.png")
+        self.assertIn(f"provider=fal tier=draft model={DRAFT}", row["origin"])
+        self.assertIn("fal", row["tool"])
+        self.assertEqual((self.last_call()["provider"], self.last_call()["model"]), ("fal", DRAFT))
+        self.assertNotIn(FAL_KEY, open(os.path.join(self.repo, "pipeline/art/provenance.csv")).read())
+        self.assertNotIn(FAL_KEY, o)
+
+    def test_non_matching_fal_model_is_rejected_with_no_call(self):
+        for m in ("gemini-3.1-flash-image-preview", "gpt-image-1", "fal-ai/gemini-25-flash-image", "flux/dev"):
+            rc, o = self.paint_fal("Art/Source/Ella/x.png", "--provider", "fal", "--model", m, "--image-size", "1K")
+            self.assertEqual(rc, 2, o)
+            self.assertIn("FAL REFUSED", o)
+        self.assertEqual(self.http(), [])
+        self.assertEqual(self.counter()["calls"], [])
+        with self.assertRaises(assetgen.ImageRefused):
+            assetgen.fal_model("some-other-model")
+
+    def test_fal_cap_refuses_at_its_limit_and_other_providers_are_unaffected(self):
+        env = dict(FAL_SPEND_CAP_USD="0.08")
+        self.assertEqual(self.paint_fal("Art/Source/Ella/1.png", "--provider", "fal", **env)[0], 0)
+        self.assertEqual(self.paint_fal("Art/Source/Ella/2.png", "--provider", "fal", **env)[0], 0)
+        n = len(self.http())
+        rc, o = self.paint_fal("Art/Source/Ella/3.png", "--provider", "fal", **env)
+        self.assertEqual(rc, 2, o)
+        self.assertIn("fal image cap", o)
+        self.assertEqual(len(self.http()), n)
+        self.assertEqual(self.paint("Art/Source/Ella/g.png", **env)[0], 0, "gemini still has its own room")
+
+    def test_fal_default_cap_and_gemini_cap_ignores_fal_spend(self):
+        self.assertEqual(assetgen.FAL_CAP_USD, 74.84)
+        self.assertEqual(assetgen.fal_cap(), 74.84)
+        self.assertEqual(self.paint_fal("Art/Source/Ella/f.png", "--provider", "fal", IMAGE_SPEND_CAP_USD="0.08")[0], 0)
+        self.assertEqual(self.paint("Art/Source/Ella/1.png", IMAGE_SPEND_CAP_USD="0.08")[0], 0)
+        self.assertEqual(self.paint("Art/Source/Ella/2.png", IMAGE_SPEND_CAP_USD="0.08")[0], 0)
+
+    def test_fal_chosen_only_when_gemini_and_openrouter_are_both_near_their_caps(self):
+        keys_on = {"OPENROUTER_API_KEY": True, "FAL_KEY": True}
+        env = {"IMAGE_SPEND_CAP_USD": "0.64", "IMAGE_SPEND_OPENROUTER_CAP_USD": "19.89"}
+        def pick(**e):
+            old = {k: os.environ.get(k) for k in e}
+            os.environ.update(e)
+            try:
+                os.environ["ASSETGEN_SPEND_FILE"] = os.environ.get("ASSETGEN_SPEND_FILE", "")
+                return assetgen.pick_provider("gemini", DRAFT, keys_on)
+            finally:
+                for k, v in old.items():
+                    os.environ.pop(k, None) if v is None else os.environ.__setitem__(k, v)
+        # gemini roomy: stays gemini
+        self.assertEqual(self.paint("Art/Source/Ella/a.png", IMAGE_SPEND_CAP_USD="5")[0], 0)
+        self.assertEqual(self.last_call()["provider"], "gemini")
+        # gemini near, openrouter roomy: openrouter, not fal
+        self.assertEqual(self.paint_fal("Art/Source/Ella/b.png", **env)[0], 0)
+        self.assertEqual(self.last_call()["provider"], "openrouter")
+        # gemini near, openrouter near too (cap 0.60 left < 0.67): fal
+        env2 = dict(env, IMAGE_SPEND_OPENROUTER_CAP_USD="0.60")
+        self.assertEqual(self.paint_fal("Art/Source/Ella/c.png", **env2)[0], 0)
+        self.assertEqual(self.last_call()["provider"], "fal")
+        # same, no fal key: stays on openrouter
+        self.assertEqual(self.paint_fal("Art/Source/Ella/d.png", FAL_KEY="", **env2)[0], 0)
+        self.assertEqual(self.last_call()["provider"], "openrouter")
+
 
 class SpendGuards(Tiers):
     """Josh's image-spend guards (Nov 13): piece named, in-game context shot, draft first, per-piece cap."""
@@ -194,6 +292,114 @@ class SpendGuards(Tiers):
         self.assertIn("triage art vs check before more spend", open(log).read())
         # another piece is unaffected
         self.assertEqual(self.paint("Art/Source/Ella/y.png", "--piece", "ui-pause", **env)[0], 0)
+
+
+SLOW_STUB = textwrap.dedent('''
+    import importlib.util, json, os, time
+    spec = importlib.util.spec_from_file_location("base_stub", {base!r})
+    base = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(base)
+
+    def _mark(kind):
+        with open(os.environ["PEAK_LOG"], "a") as fh:
+            fh.write(kind + "\\n")
+
+    def post(url, headers, body):
+        _mark("start")
+        time.sleep(0.5)
+        try:
+            return base.post(url, headers, body)
+        finally:
+            _mark("end")
+
+    def get(url, headers):
+        return base.get(url, headers)
+''')
+
+
+BATCH_PIECES = ["ui-title", "ui-hud-clock", "ui-pause", "ui-settings", "ui-defeated", "ui-credits"]   # screens: no context shot needed
+
+
+class Batch(img.ImageWork):
+    """assetgen.py batch: up to 4 paid calls at once through the same locked counter (fake provider, no paid calls)."""
+
+    def setUp(self):
+        super().setUp()
+        base_stub = self.stub
+        self.stub = os.path.join(self.d, "slow_stub.py")
+        with open(self.stub, "w", encoding="utf-8") as fh:
+            fh.write(SLOW_STUB.format(base=base_stub))
+        self.peak_log = os.path.join(self.d, "peak.log")
+
+    def run_batch(self, n, workers=4, cap="1.00", extra=(), pieces=None, **env):
+        jobs = [["--prompt", f"Ella {i}", "--out", f"Art/Source/Ella/b{i}.png", "--piece", (pieces or {}).get(i, BATCH_PIECES[i]),
+                 *extra] for i in range(n)]
+        jf = os.path.join(self.d, "jobs.json")
+        json.dump(jobs, open(jf, "w"))
+        return self.ag("batch", "--jobs", jf, "--workers", str(workers), **self.img_env(
+            IMAGE_SPEND_CAP_USD=cap, PEAK_LOG=self.peak_log, **env))
+
+    def peak(self):
+        cur = top = 0
+        for ln in open(self.peak_log).read().split():
+            cur += 1 if ln == "start" else -1
+            top = max(top, cur)
+        return top
+
+    def test_four_calls_run_at_once_and_all_land(self):
+        rc, o = self.run_batch(4)
+        self.assertEqual(rc, 0, o)
+        self.assertEqual(self.peak(), 4)
+        self.assertEqual(len(self.counter()["calls"]), 4)
+        self.assertIn("BATCH 4/4 ok", o)
+        rows = self.prov()
+        for i in range(4):
+            self.assertIn(f"Art/Source/Ella/b{i}.png", rows)
+
+    def test_never_more_than_four_at_once(self):
+        rc, o = self.run_batch(6, workers=9)
+        self.assertEqual(rc, 0, o)
+        self.assertEqual(self.peak(), 4)
+        self.assertEqual(len(self.counter()["calls"]), 6)
+
+    def test_concurrent_calls_never_exceed_the_cap_and_a_refused_one_does_not_block_the_rest(self):
+        # cap fits exactly 2 draft calls (0.039 each); 4 race for it
+        rc, o = self.run_batch(4, cap="0.09")
+        self.assertEqual(rc, 1, o)
+        c = self.counter()
+        self.assertLessEqual(c["spent_usd"], 0.09 + 1e-9)
+        self.assertEqual(len(c["calls"]), 2)
+        self.assertEqual(len(self.http_calls()), 2)
+        self.assertIn("BATCH 2/4 ok, 2 refused or failed", o)
+        self.assertEqual(o.count("CAP REACHED"), 2)
+
+    def test_refused_job_does_not_stop_the_others(self):
+        # job 1 has no piece id's draft for final: refused; the others still paint
+        jobs = [["--prompt", "a", "--out", "Art/Source/Ella/ok0.png", "--piece", "ui-title"],
+                ["--prompt", "b", "--out", "Art/Source/Ella/bad.png", "--piece", "ui-pause", "--tier", "final", "--image-size", "2K"],
+                ["--prompt", "c", "--out", "Art/Source/Ella/ok2.png", "--piece", "ui-settings"]]
+        jf = os.path.join(self.d, "jobs.json")
+        json.dump(jobs, open(jf, "w"))
+        rc, o = self.ag("batch", "--jobs", jf, **self.img_env(PEAK_LOG=self.peak_log))
+        self.assertEqual(rc, 1, o)
+        self.assertIn("DRAFT FIRST", o)
+        self.assertIn("BATCH 2/3 ok", o)
+        self.assertEqual(len(self.counter()["calls"]), 2)
+
+    def test_per_piece_cap_holds_under_concurrency(self):
+        # 4 draft calls of the same piece at 0.039: the 0.50 piece cap is not reached, all pass; cap 0.50 enforced below
+        rc, o = self.run_batch(4, pieces={i: "ui-title" for i in range(4)}, extra=("--tier", "draft"))
+        self.assertEqual(rc, 0, o)
+        self.assertLessEqual(sum(c["cost_usd"] for c in self.counter()["calls"]), assetgen.PIECE_CAP_USD)
+
+    def test_local_providers_stay_outside_the_batch(self):
+        rc, o = self.run_batch(2, extra=("--provider", "placeholder"))
+        self.assertEqual(rc, 1, o)
+        self.assertIn("not a paid generation call", o)
+        self.assertEqual(self.counter()["calls"], [])
+
+    def http_calls(self):
+        return self.http()
 
 
 if __name__ == "__main__":
