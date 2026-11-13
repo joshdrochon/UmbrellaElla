@@ -18,7 +18,11 @@ Usage: playtest_check.py LOG [--json]   exit 0 = every row passes, 1 = a row fai
 """
 import json
 import re
+import os
 import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import playtest_calibration as CAL  # noqa: E402
 
 ROWS = ("CAM-04", "CAM-07", "FLOW-25", "FLOW-28", "HAZ-16")
 LINE = re.compile(r"PLAYTEST_(CAM04T|CAM04|CAM07|FLOW25|FLOW28|HAZ16)\b(.*)")
@@ -66,6 +70,9 @@ def check_cam04(recs, transients=()):
         for k in TRANSIENTS:
             if _f(t, k) < 0:
                 errs.append("transients: %s never reached" % k)
+        for k, (lo, hi) in CAL.TRANSIENT_RANGES.items():
+            if k in t and _f(t, k) >= 0 and not lo <= _f(t, k) <= hi:
+                errs.append("transients: %s %.2f outside fixed range %.2f-%.2f (%s)" % (k, _f(t, k), lo, hi, CAL.PROFILE))
     return errs
 
 
@@ -146,8 +153,10 @@ def evaluate(text, relay=False):
         if key not in recs:
             result[row] = {"pass": False, "errors": ["no measurement (NOT RUN)"]}
             continue
+        unmeasured = sorted({r["not_measured"] for r in recs[key] if r.get("not_measured")})
         try:
-            errs = fn(recs[key], recs.get("CAM04T", [])) if key == "CAM04" else fn(recs[key])
+            errs = ["NOT MEASURED: %s" % u for u in unmeasured]
+            errs += fn(recs[key], recs.get("CAM04T", [])) if key == "CAM04" else fn(recs[key])
         except (KeyError, ValueError) as e:
             errs = ["malformed line: %s" % e]
         result[row] = {"pass": not errs, "errors": errs}

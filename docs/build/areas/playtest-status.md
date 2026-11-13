@@ -37,3 +37,18 @@ Evidence: build exit 0, `UmbrellaElla.Smoke` tests PASS (4), module_check 0 prob
 ## Left
 - Wind field drawing (FLOW-25), clearing threats before the Keeper handoff (FLOW-28), guard HP vs one-shot (HAZ-16).
 - 1920x1080 needs a display or fullscreen path that allows it; packaged-game run not done (build lead packages).
+
+## Reviewer fixes (Nov 12 evening; every run through tools/build/run_game.sh)
+- Fixed calibration: `tools/build/playtest_calibration.py` (profile mill_lower_v1) holds frozen ranges for the CAM-04 motor transients; the checker judges against them, not against the run's own numbers.
+- Per-tick sampling: HAZ run checks every tick for teleport (`IsTeleportStep`, share 2.5 from a measured worst legit 2.02x at 0.16 s frames) and for both required currents live (`IsCurrentLive`, CAM07 `case=persist`).
+- Measured falls: CAM-07 on-time/late/missed are free falls and reopens driven by the motor; FLOW-28 is a route driver calling the level director per tick, then reading threats at the handoff.
+- `not_measured=<reason>` on a line makes the row `NOT MEASURED` (fail), never pass. FLOW-25 backdrop coverage uses `IsFrameCovered` per route slot.
+- Evidence: build exit 0, `UmbrellaElla.Smoke` PASS (5), `tests.test_playtest_check` 20 OK, module_check 0 problems. Log `docs/build/playtest-logs/run-2026-11-12c.log` (640x360 window, no sound).
+
+| Row | Result | Why |
+|---|---|---|
+| CAM-04 | FAIL | Real run: Ella never rides (actor-name vs `Ella` id, see requests/playtest.md #1, still on main). With the relay she rides but rises out the top of the band in about 0.5 s, before the far edge. |
+| CAM-07 | FAIL real / pass with relay | Same wind bug; with the relay on-time and late reopens are caught with the body above the floor, and both currents stay live every tick. |
+| FLOW-25 | FAIL | Drawn wind width 0 vs 200; backdrop covers 0 of 9 route stages in the frame test. |
+| FLOW-28 | FAIL | Health carries (2 to 2), handoff fires, framing settles, but 5 enemies alive at handoff. |
+| HAZ-16 | FAIL | Guard dies in about 1 s (boring). Not run: 1920x1080 (run_game.sh fixes 640x360) and low-health run in this log. |

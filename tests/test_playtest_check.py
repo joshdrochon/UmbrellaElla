@@ -95,6 +95,21 @@ class T(unittest.TestCase):
         extra = "PLAYTEST_CAM04 profile=v2 health=min trim=0.00 entered=1 exit_edge=right qualified=1 relay=1"
         self.assertFalse(pc.evaluate(bad + extra)["CAM-04"]["pass"])
 
+    def test_not_measured_is_not_a_pass(self):
+        r = pc.evaluate(GOOD.replace("boss_began=1", "boss_began=1 not_measured=route_not_finished_in_time"))
+        self.assertFalse(r["FLOW-28"]["pass"])
+        self.assertIn("NOT MEASURED", r["FLOW-28"]["errors"][0])
+
+    def test_transient_outside_fixed_range_fails(self):
+        r = pc.evaluate(GOOD.replace("accel_t90=0.77", "accel_t90=2.50"))
+        self.assertFalse(r["CAM-04"]["pass"])
+        self.assertIn("fixed range", "; ".join(r["CAM-04"]["errors"]))
+
+    def test_transient_range_is_not_the_run_own_value(self):
+        # a slow motor cannot pass by being measured slow: ranges are the frozen mill_lower_v1 numbers
+        r = pc.evaluate(GOOD.replace("brake_t10=1.53", "brake_t10=9.00"))
+        self.assertFalse(r["CAM-04"]["pass"])
+
 
 if __name__ == "__main__":
     unittest.main()

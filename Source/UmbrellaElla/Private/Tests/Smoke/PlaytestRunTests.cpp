@@ -32,4 +32,21 @@ bool FSmokePlaytestLines::RunTest(const FString& Parameters)
 	return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FSmokePlaytestTeleportAndFrame, "UmbrellaElla.Smoke.PlaytestTeleportStepAndFrameCover",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+bool FSmokePlaytestTeleportAndFrame::RunTest(const FString& Parameters)
+{
+	TestFalse(TEXT("walking pace is not a teleport"), FPlaytestRun::IsTeleportStep(5.0f, 300.0f, 300.0f, 1.0f / 60.0f));
+	TestTrue(TEXT("a jump far beyond her speed is"), FPlaytestRun::IsTeleportStep(900.0f, 300.0f, 300.0f, 1.0f / 60.0f));
+	TestFalse(TEXT("the faster of before/after sets the allowance"), FPlaytestRun::IsTeleportStep(100.0f, 0.0f, 300.0f, 0.2f));
+
+	const FBox2D Frame(FVector2D(0.0, 0.0), FVector2D(1000.0, 500.0));
+	TestTrue(TEXT("one layer covers"), FPlaytestRun::IsFrameCovered(Frame, {FBox2D(FVector2D(-10.0, -10.0), FVector2D(1010.0, 600.0))}));
+	TestTrue(TEXT("two layers meeting cover"), FPlaytestRun::IsFrameCovered(Frame, {FBox2D(FVector2D(-10.0, -10.0), FVector2D(600.0, 600.0)), FBox2D(FVector2D(590.0, -10.0), FVector2D(1010.0, 600.0))}));
+	TestFalse(TEXT("a gap leaves it uncovered"), FPlaytestRun::IsFrameCovered(Frame, {FBox2D(FVector2D(-10.0, -10.0), FVector2D(400.0, 600.0)), FBox2D(FVector2D(600.0, -10.0), FVector2D(1010.0, 600.0))}));
+	TestFalse(TEXT("a layer too short does not count"), FPlaytestRun::IsFrameCovered(Frame, {FBox2D(FVector2D(-10.0, -10.0), FVector2D(1010.0, 300.0))}));
+	TestFalse(TEXT("no layers"), FPlaytestRun::IsFrameCovered(Frame, {}));
+	return true;
+}
+
 #endif

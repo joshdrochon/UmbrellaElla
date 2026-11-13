@@ -34,7 +34,7 @@ enum class EPlaytestPhase : uint8
  * Motor, Health and Attack components of the live game and logs one PLAYTEST_* line per scenario for
  * tools/build/playtest_check.py, which compares them with fixed recorded calibration ranges (profile mill_lower_v1).
  * Ella is moved only by her own motor and the room's real wind volumes, except where a line says so (start placement,
- * the FLOW-28 route driver). Anything the run cannot measure is listed in that line's not_measured= field, never typed in
+ * the route driver). Anything the run cannot measure is listed in that line's not_measured= field, never typed in
  * as a value. Plain rule functions below are the unit-testable part; UmbrellaElla.Smoke.World.PlaytestRunEmitsLines runs
  * the whole thing in a transient world.
  */
@@ -45,7 +45,7 @@ public:
 	static constexpr const TCHAR* CalibrationProfile = TEXT("mill_lower_v1");
 	/** Hold time of the HAZ run in real seconds (Broken Mill room, natural attempts, no aids). */
 	static constexpr float HazRunSeconds = 25.0f;
-	/** Longest scripted route travel for FLOW-28 before it gives up, seconds. */
+	/** Longest scripted route travel for the playtest before it gives up, seconds. */
 	static constexpr float FlowTravelMaxSeconds = 20.0f;
 	/** Extra wait past the hook grace for the synchronous scenarios and the flow check, seconds. */
 	static constexpr float PlaytestSetupGraceSeconds = 10.0f;
@@ -85,16 +85,16 @@ public:
 	/** World X of the scratch room: far left of the route start, so the level director never sees Ella past a checkpoint. */
 	static constexpr double ScratchRoomX = -60000.0;
 	/** A step longer than speed x time x this, plus PlaytestTeleportSlack, is a teleport. */
-	static constexpr float PlaytestTeleportSpeedShare = 1.5f;
+	static constexpr float PlaytestTeleportSpeedShare = 2.5f; // measured: worst legitimate step was 2.02x speed*dt at 0.16 s frames (run 2026-11-12, 1.6 fps)
 	static constexpr float PlaytestTeleportSlack = 2.0f;
-	/** FLOW-28 route driver: scripted travel speed along the route, world units per second. */
+	/** the playtest route driver: scripted travel speed along the route, world units per second. */
 	static constexpr float FlowTravelSpeed = 4000.0f;
-	/** FLOW-28: how long after the handoff the camera is watched for settling, seconds. */
+	/** the playtest: how long after the handoff the camera is watched for settling, seconds. */
 	static constexpr float FlowSettleSeconds = 0.5f;
-	/** FLOW-28: camera X movement below this over the settle window counts as settled, world units. */
+	/** the playtest: camera X movement below this over the settle window counts as settled, world units. */
 	static constexpr float FlowSettleTolerance = 1.0f;
 
-	/** Level director seed of the FLOW-25 and FLOW-28 route. */
+	/** Level director seed of the flow routes. */
 	static constexpr int64 RouteSeed = 1;
 	/** Start of the fake clock used for scripted damage, seconds. */
 	static constexpr double CarryClockStart = 1000.0;
@@ -127,13 +127,13 @@ public:
 
 	~FPlaytestRun();
 
-	/** Run the synchronous scenarios (CAM-04, CAM-07 falls, FLOW-25) and start the broken-mill run. Ella defaults to player 0's pawn. */
+	/** Run the synchronous scenarios (falls, the playtest) and start the broken-mill run. Ella defaults to player 0's pawn. */
 	void Start(UWorld* World, AEllaCharacter* EllaOverride = nullptr);
 
-	/** Measure FLOW-28 on this director instead of the game mode's (world tests have no game mode). */
+	/** Measure the playtest on this director instead of the game mode's (world tests have no game mode). */
 	void UseDirector(AUmbrellaLevelDirector* Director);
 
-	/** Advance the real-time part (HAZ run, then the FLOW-28 route). Check IsDone for the end. */
+	/** Advance the real-time part (HAZ run, then the the playtest route). Check IsDone for the end. */
 	void Advance(float DeltaSeconds);
 
 	bool IsDone() const { return Phase == EPlaytestPhase::Done; }
@@ -178,16 +178,19 @@ private:
 	float StartGuardHp = 0.0f;
 	int32 ShotsAtStart = 0;
 	int32 TeleportSteps = 0;
+	float WorstTeleportStep = 0.0f;
+	float WorstTeleportDt = 0.0f;
+	float WorstTeleportSpeed = 0.0f;
 	float ProtectedSeconds = 0.0f;
 	FVector LastEllaLocation = FVector::ZeroVector;
 	float LastEllaSpeed = 0.0f;
 
-	// CAM-07 persistence: required currents sampled every HAZ tick while the guard lives.
+	// the playtest persistence: required currents sampled every HAZ tick while the guard lives.
 	int32 CurrentSamples = 0;
 	int32 CurrentSamplesLive = 0;
 	bool bGuardDiedWhileSampling = false;
 
-	// FLOW-28 route.
+	// the playtest route.
 	float FlowElapsed = 0.0f;
 	float FlowTravelX = 0.0f;
 	int32 FlowHealthBefore = 0;

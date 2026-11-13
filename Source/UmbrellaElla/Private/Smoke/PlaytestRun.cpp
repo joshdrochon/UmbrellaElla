@@ -681,9 +681,16 @@ void FPlaytestRun::AdvanceHaz(float DeltaSeconds)
 	// Per-tick samples: teleport check against her own speed, and both required currents while the guard lives.
 	const FVector Now = Ella->GetActorLocation();
 	const float Speed = Ella->GetMotor()->GetVelocity().Size();
-	if (DeltaSeconds > 0.0f && IsTeleportStep(static_cast<float>(FVector::Dist(Now, LastEllaLocation)), LastEllaSpeed, Speed, DeltaSeconds))
+	const float StepDistance = static_cast<float>(FVector::Dist(Now, LastEllaLocation));
+	if (DeltaSeconds > 0.0f && IsTeleportStep(StepDistance, LastEllaSpeed, Speed, DeltaSeconds))
 	{
 		++TeleportSteps;
+		if (StepDistance > WorstTeleportStep)
+		{
+			WorstTeleportStep = StepDistance;
+			WorstTeleportDt = DeltaSeconds;
+			WorstTeleportSpeed = FMath::Max(LastEllaSpeed, Speed);
+		}
 	}
 	LastEllaLocation = Now;
 	LastEllaSpeed = Speed;
@@ -724,9 +731,9 @@ void FPlaytestRun::FinishHaz()
 		{TEXT("health"), bLow ? TEXT("low") : TEXT("healthy")}, {TEXT("attempts"), FString::FromInt(Ella->GetAttack()->GetShotsFired() - ShotsAtStart)},
 		{TEXT("useful_hits"), FString::FromInt(UsefulHits)}, {TEXT("damage"), PlaytestNum(Damage)}, {TEXT("reset_s"), PlaytestNum(IdleSeconds)}, {TEXT("run_s"), PlaytestNum(HazElapsed)},
 		{TEXT("warned"), PlaytestBool(Mill->GetEventCount(EMillGuardEvent::WarningStarted) > 0)}, {TEXT("autoaim"), TEXT("0")},
-		{TEXT("invuln"), TEXT("0")}, {TEXT("teleport"), PlaytestBool(TeleportSteps > 0)}, {TEXT("teleport_steps"), FString::FromInt(TeleportSteps)},
+		{TEXT("invuln"), TEXT("0")}, {TEXT("teleport"), PlaytestBool(TeleportSteps > 0)}, {TEXT("teleport_steps"), FString::FromInt(TeleportSteps)}, {TEXT("worst_step"), PlaytestNum(WorstTeleportStep)}, {TEXT("worst_dt"), PlaytestNum(WorstTeleportDt)}, {TEXT("worst_speed"), PlaytestNum(WorstTeleportSpeed)},
 		{TEXT("boring"), PlaytestBool(bBoring)}, {TEXT("cleared"), PlaytestBool(bCleared)}});
-	// CAM-07 persistence: both required currents were live on every tick while the guard lived.
+	// persistence: both required currents were live on every tick while the guard lived.
 	Emit(TEXT("CAM07"), {{TEXT("case"), TEXT("persist")}, {TEXT("samples"), FString::FromInt(CurrentSamples)},
 		{TEXT("samples_live"), FString::FromInt(CurrentSamplesLive)},
 		{TEXT("required_current_active"), PlaytestBool(CurrentSamples > 0 && CurrentSamplesLive == CurrentSamples)},
