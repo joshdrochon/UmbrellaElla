@@ -106,3 +106,11 @@ Stopped on the blocker: lead must add the `FB_Ella_<State>_PH` loader in the fee
 Merged main. Per art-image-model.md "Where candidates live": Paint R1/R2 (paints, keys, posts, frames) now under
 `pipeline/art/proof/artella/<piece>/<round>/`; Blender/GP/3D renders under `pipeline/art/proof/artella/raw/`. Provenance paths updated (51 rows);
 `paint.py` writes to the new path. `Art/Source/Ella/Raw/Ella_*_PH` (the tracked placeholders) and the scripts stay. Blocker unchanged: request #2 (Ella slot loader).
+
+## Preview (Nov 13): per-state looping previews for the team (candidates stay _PH, not shipped)
+Script: `tools/build/assets/art_ella_preview.py` (ffmpeg; 8 FPS; left = paper tile `SKY_StarPaper_Tile.png`, right = flat dark #1c1c22; sprite scaled to 540 px high).
+Candidates shown: open = up-open R1 (4 frames), attack = attack R2, shield = shield R2, closed = closed R2 (3 frames each).
+Files under `pipeline/art/proof/artella/preview/<state>/` (state = open, attack, shield, closed):
+`<state>_preview.gif`, `<state>_preview.mp4` (960x600), `<state>_strip.png` (all frames side by side, dark ground).
+Seen in the previews: the attack frame has a cut-off fragment at its right canvas edge (frame crop), not part of the figure.
+In-game capture (1280x720): see "Preview capture" below.
