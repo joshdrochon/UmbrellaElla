@@ -23,6 +23,25 @@ struct UMBRELLAELLA_API FRunScaling
 };
 
 /**
+ * Every value the ranks drive, derived from the baseline in one pass (effects are derived from baseline once,
+ * never compounded on a previous result). Damage ranks feed only SpellDamage: rate, geometry, protection, penetration and
+ * aim are not progression outputs at all.
+ */
+struct UMBRELLAELLA_API FProgressionEffects
+{
+	int32 HitCapacity = 0;
+	int32 MaxLives = 0;
+	float YellowHeal = 0.0f;
+	float DamageReduction = 0.0f;
+	float SuctionRange = 0.0f;
+	float SuctionConeDegrees = 0.0f;
+	float SpellDamage[static_cast<int32>(EProgressionSpell::Count)] = {};
+
+	bool operator==(const FProgressionEffects& Other) const;
+	bool operator!=(const FProgressionEffects& Other) const { return !(*this == Other); }
+};
+
+/**
  * Plain rule functions for Director's Cut progression (Director's Cut, GDD section 4). They mirror tools/progression_model.py;
  * tests compare the numbers. Nothing here touches the world, the event bus or the disk.
  * INV-1: level, points and unlocks are derived from Xp and Ranks, never stored.
@@ -62,17 +81,33 @@ struct UMBRELLAELLA_API FProgressionRules
 	// ---- Rank values other modules read
 	static int32 HitCapacity(const FProgressionTuning& Tuning, const TArray<int32>& Ranks);
 	static int32 MaxLives(const FProgressionTuning& Tuning, const TArray<int32>& Ranks);
-	static float HealPerYellow(const FProgressionTuning& Tuning, const TArray<int32>& Ranks);
+	static float YellowHealFor(const FProgressionTuning& Tuning, const TArray<int32>& Ranks);
 	static float DamageReduction(const FProgressionTuning& Tuning, const TArray<int32>& Ranks);
 	static float SuctionRange(const FProgressionTuning& Tuning, const TArray<int32>& Ranks);
 	static float SuctionConeDegrees(const FProgressionTuning& Tuning, const TArray<int32>& Ranks);
 	static float SpellDamageMultiplier(const FProgressionTuning& Tuning, const TArray<int32>& Ranks, EProgressionSpell Spell);
+	/** All rank-driven values from the baseline, in one pass. */
+	static FProgressionEffects DeriveEffects(const FProgressionTuning& Tuning, const TArray<int32>& Ranks);
+	/** The value one track drives at these ranks (hits, lives, heal, reduction, range, cone or that spell's damage). */
+	static float TrackValue(const FProgressionTuning& Tuning, const TArray<int32>& Ranks, EProgressionTrack Track);
+	/**
+	 * Active health after a capacity purchase or refund keeps the current fraction: Active / Old x New,
+	 * no rounding, never above the new capacity, and an empty life stays empty (no silent resurrection).
+	 */
+	static float ActiveHealthAfterCapacityChange(float Active, float OldCapacity, float NewCapacity);
 
 	// ---- Run scaling
 	static FRunScaling RunScaling(const FProgressionTuning& Tuning, int32 CompletedRuns, bool bFinalHour);
 	/** Final Hour replaces the ordinary scaling when every stat is at maximum, evaluated when the run starts. */
 	static FRunScaling NextRunScaling(const FProgressionTuning& Tuning, const FProgressionProfile& Profile);
 	/** round(base x count multiplier), never above the legal slots; OutShortfall is the recorded shortfall. */
+	/**
+	 * An ordinary firing cooldown under this run's scaling: Cooldown / Cadence. Telegraphs, recoveries, committed-
+	 * path pauses, protection windows and projectile speeds are not cooldowns and must not go through this.
+	 */
+	static float ScaledFiringCooldown(float Cooldown, const FRunScaling& Scaling);
+	/** Enemy or boss-part hit points under this run's scaling: Hp x Hp multiplier. */
+	static float ScaledHp(float Hp, const FRunScaling& Scaling);
 	static int32 EnemyCount(const FProgressionTuning& Tuning, int32 BaseCount, const FRunScaling& Scaling, int32 LegalSlots, int32& OutShortfall);
 
 	// ---- Kill XP. A label that is not a rewardable kill gives 0 (Courier withdrawal, absorption, checkpoints).

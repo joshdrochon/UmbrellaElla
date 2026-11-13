@@ -1,8 +1,10 @@
 #include "Motor/EllaMotorComponent.h"
+#include "Arena/UmbrellaArena.h"
 #include "Core/UmbrellaDrawOrder.h"
 #include "Core/UmbrellaEventBus.h"
 #include "Core/UmbrellaTuning.h"
 #include "Components/CapsuleComponent.h"
+#include "EngineUtils.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Harness/UmbrellaFeatureFlags.h"
@@ -139,6 +141,14 @@ void UEllaMotorComponent::StepMotor(float DeltaSeconds)
 		Location.X = FMath::Clamp(Location.X, PlayBounds.Min.X, PlayBounds.Max.X);
 		Location.Z = FMath::Clamp(Location.Z, PlayBounds.Min.Y, PlayBounds.Max.Y);
 	}
+	// The arena bottom holds even when a harness clears the play bounds: Ella never drops out of the play space.
+	const float FloorZ = GetPlayFloorZ();
+	bAtPlayFloor = Location.Z <= FloorZ;
+	Location.Z = ClampToPlayFloor(static_cast<float>(Location.Z), FloorZ);
+	if (bAtPlayFloor && Model.Velocity.Y < 0.0f)
+	{
+		Model.Velocity.Y = 0.0f;
+	}
 	Owner->SetActorLocation(Location);
 	if (const ACharacter* Character = Cast<ACharacter>(Owner))
 	{
@@ -178,6 +188,29 @@ void UEllaMotorComponent::SetPlayBounds(const FBox2D& Bounds)
 void UEllaMotorComponent::ClearPlayBounds()
 {
 	PlayBounds = FBox2D(ForceInit);
+}
+
+float UEllaMotorComponent::GetPlayFloorZ() const
+{
+	const UWorld* World = GetWorld();
+	if (!World)
+	{
+		return TNumericLimits<float>::Lowest();
+	}
+	TActorIterator<AUmbrellaArena> It(const_cast<UWorld*>(World));
+	if (!It)
+	{
+		return TNumericLimits<float>::Lowest();
+	}
+	float HalfHeight = 0.0f;
+	if (const ACharacter* Character = Cast<ACharacter>(GetOwner()))
+	{
+		if (const UCapsuleComponent* Capsule = Character->GetCapsuleComponent())
+		{
+			HalfHeight = Capsule->GetScaledCapsuleHalfHeight();
+		}
+	}
+	return static_cast<float>(It->LocalPoint(0.0f, 0.0f).Z) + HalfHeight;
 }
 
 FVector UEllaMotorComponent::GetVelocity() const

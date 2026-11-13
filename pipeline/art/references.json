@@ -2022,6 +2022,246 @@
    "judge": true,
    "required": true,
    "origin": "Crop of bar-casters (Discord #art-direction, Ricky, 2026-11-11T03:19Z), cut unchanged by the lead, 2026-11-13"
+  },
+  {
+   "id": "crop-needle-sliver-travel",
+   "path": "pipeline/art/reference/crops/vfx-needle-sliver/travel.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for the Needle sliver in travel: box [480, 465, 620, 500] of 20261110-0328_Ricky_1.png, key gold (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of Ricky's #art-direction sheet (13 Nov, artfx3, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "crop-needle-sliver-shot-diagram",
+   "path": "pipeline/art/reference/crops/vfx-needle-sliver/shot-diagram.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for the Needle sliver in travel: box [1025, 190, 1420, 290] of 20261110-0328_Ricky_1.png, key gold (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of Ricky's #art-direction sheet (13 Nov, artfx3, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "crop-needle-channel-tell-ring",
+   "path": "pipeline/art/reference/crops/vfx-needle-channel/tell-ring.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for the Needle channel (tell ring and lit shot): box [85, 465, 130, 510] of 20261110-0328_Ricky_1.png, key gold (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of Ricky's #art-direction sheet (13 Nov, artfx3, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "crop-needle-channel-lit-flame",
+   "path": "pipeline/art/reference/crops/vfx-needle-channel/lit-flame.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for the Needle channel (tell ring and lit shot): box [650, 825, 725, 860] of 20261110-0328_Ricky_1.png, key gold (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of Ricky's #art-direction sheet (13 Nov, artfx3, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "crop-needle-pierce-release",
+   "path": "pipeline/art/reference/crops/vfx-needle-pierce/release.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for the Needle penetration (release burst and fading shot): box [245, 455, 390, 515] of 20261110-0328_Ricky_1.png, key gold (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of Ricky's #art-direction sheet (13 Nov, artfx3, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "crop-needle-pierce-fade",
+   "path": "pipeline/art/reference/crops/vfx-needle-pierce/fade.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for the Needle penetration (release burst and fading shot): box [695, 470, 810, 495] of 20261110-0328_Ricky_1.png, key gold (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of Ricky's #art-direction sheet (13 Nov, artfx3, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "crop-stream-start-release-burst",
+   "path": "pipeline/art/reference/crops/vfx-stream-start/release-burst.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for the Streamed Blast startup (release burst and lit flame): box [245, 455, 330, 515] of 20261110-0328_Ricky_1.png, key gold (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of Ricky's #art-direction sheet (13 Nov, artfx3, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "crop-stream-start-fall-flame",
+   "path": "pipeline/art/reference/crops/vfx-stream-start/fall-flame.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for the Streamed Blast startup (release burst and lit flame): box [995, 825, 1070, 860] of 20261110-0328_Ricky_1.png, key gold (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of Ricky's #art-direction sheet (13 Nov, artfx3, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "crop-part-hit-gear-swing",
+   "path": "pipeline/art/reference/crops/vfx-part-hit/gear-swing.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for a Keeper part hit (gear swinging on its chain): box [725, 340, 920, 430] of 20261110-1047_Ricky_1.png, key paper (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of Ricky's #art-direction sheet (13 Nov, artfx3, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "crop-part-break-rim-failure",
+   "path": "pipeline/art/reference/crops/vfx-part-break/rim-failure.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for a Keeper part break (rim and spoke failure, wreckage): box [1200, 345, 1340, 440] of 20261110-1047_Ricky_1.png, key paper (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of Ricky's #art-direction sheet (13 Nov, artfx3, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "crop-part-break-wreckage",
+   "path": "pipeline/art/reference/crops/vfx-part-break/wreckage.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for a Keeper part break (rim and spoke failure, wreckage): box [400, 780, 520, 858] of 20261110-1047_Ricky_1.png, key paper (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of Ricky's #art-direction sheet (13 Nov, artfx3, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "crop-part-hit-gear-intact",
+   "path": "pipeline/art/reference/crops/vfx-part-hit/gear-intact.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for a Keeper part hit (gear swinging on its chain): box [225, 355, 320, 440] of 20261110-1047_Ricky_1.png, key paper (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of Ricky's #art-direction sheet (13 Nov, artfx3, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "crop-stream-sustain-pull-in",
+   "path": "pipeline/art/reference/crops/vfx-stream-sustain/pull-in.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for the Streamed Blast sustain (lit flame): box [330, 595, 440, 655] of 20261110-0328_Ricky_1.png, key gold (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of Ricky's #art-direction sheet (13 Nov, artfx3, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "crop-stream-sustain-rising-flame",
+   "path": "pipeline/art/reference/crops/vfx-stream-sustain/rising-flame.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for the Streamed Blast sustain (lit flame): box [285, 808, 360, 850] of 20261110-0328_Ricky_1.png, key gold (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of Ricky's #art-direction sheet (13 Nov, artfx3, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "crop-stun-arcs-shoulder",
+   "path": "pipeline/art/reference/crops/vfx-stun/arcs-shoulder.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for the Keeper stun (blue-white fault arcs): box [170, 570, 350, 720] of 20261110-1220_Ricky_1.png, key halo (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of Ricky's #art-direction sheet (13 Nov, artfx3, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "crop-stun-arcs-clock",
+   "path": "pipeline/art/reference/crops/vfx-stun/arcs-clock.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for the Keeper stun (blue-white fault arcs): box [780, 540, 1000, 720] of 20261110-1220_Ricky_1.png, key halo (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of Ricky's #art-direction sheet (13 Nov, artfx3, D-new-vfx-calibration), keyed to an alpha mask; reference only"
   }
  ],
  "elements": {
@@ -2716,6 +2956,33 @@
    },
    "owner": "artui"
   },
+  "ui-final-hour-intro": {
+   "what": "a game story card (the Final Hour intro shown before the Extreme run; the title screen sets its style): a full-screen dark card with a short lettered passage; judge lettering, layout, mood and finish, not which words it shows",
+   "refs": [
+    "title-screen"
+   ],
+   "score_min": 0.5,
+   "detail_min": 0.249,
+   "ui": {
+    "widgets": [
+     "UFinalHourIntroWidget",
+     "SUmbrellaRule",
+     "SUmbrellaGround"
+    ],
+    "screens": []
+   },
+   "calibration": {
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "loo": {},
+    "detail": {
+     "title-screen": 0.269
+    },
+    "note": "one team image and nothing to compare it with: score_min not measurable"
+   },
+   "owner": "artui"
+  },
   "ui-xp-ring": {
    "what": "a game's HUD clock with a thin glowing gold ring around it (the experience ring) as it sits in the frame; the title screen's clock faces and gold line work set its style",
    "refs": [
@@ -2863,7 +3130,10 @@
     "margin": 0.02,
     "measured": "2026-11-12",
     "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
-   }
+   },
+   "base": "owl",
+   "base_mode": "reuse",
+   "new": "the clock face and hands the Keeper carries: the timepiece itself, painted to match the owl body's ink, brass and palette"
   },
   "keeper-talon": {
    "what": "the Keeper's talon (ANIM-06): the empty rake and the closed front grasp, release",
@@ -2920,7 +3190,10 @@
     "margin": 0.02,
     "measured": "2026-11-12",
     "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
-   }
+   },
+   "base": "owl",
+   "base_mode": "reuse",
+   "new": "the front mechanism: the grasp-and-throw armillary sphere on chains, in the owl's brass and ink"
   },
   "keeper-mech-middle": {
    "what": "the Keeper's middle mechanism (ANIM-06): the curved cast",
@@ -2938,7 +3211,10 @@
     "margin": 0.02,
     "measured": "2026-11-12",
     "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
-   }
+   },
+   "base": "owl",
+   "base_mode": "reuse",
+   "new": "the middle mechanism: the curved-cast cage cylinder, in the owl's brass and ink"
   },
   "keeper-mech-rear": {
    "what": "the Keeper's rear mechanism (ANIM-06): first stroke, safe pause, second stroke",
@@ -2956,7 +3232,10 @@
     "margin": 0.02,
     "measured": "2026-11-12",
     "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
-   }
+   },
+   "base": "owl",
+   "base_mode": "reuse",
+   "new": "the rear mechanism: the gear ring for the first stroke, safe pause and second stroke, in the owl's brass and ink"
   },
   "keeper-damage": {
    "what": "the Keeper's part damage (ANIM-06): surviving-mechanism masks 7, 6, 4, 0, break, stun",
@@ -2975,7 +3254,10 @@
     "margin": 0.02,
     "measured": "2026-11-12",
     "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
-   }
+   },
+   "base": "owl",
+   "base_mode": "reuse",
+   "new": "the damage masks: the owl body and mechanisms with parts gone, cracked or stunned, same ink and brass"
   },
   "keeper-departure": {
    "what": "the Keeper's living departure and phase/retry reset (ANIM-06): it leaves alive, not defeated",
@@ -2992,7 +3274,10 @@
     "margin": 0.02,
     "measured": "2026-11-12",
     "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
-   }
+   },
+   "base": "owl",
+   "base_mode": "reuse",
+   "new": "the living departure: the owl leaving alive, same body and palette, with a reset glow, not a defeat"
   },
   "enemy-sundial": {
    "what": "Roadwarden, Sundial Caster (GDD SH1.0 ANIM-08, ART-10): one enemy figure, male or female, as a transparent sprite set (idle, aim, fire red or yellow, recover, hit, defeat)",
@@ -3372,116 +3657,144 @@
   "vfx-stream-start": {
    "what": "the Streamed Blast startup (art sheet VFX_StreamStart, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
    "refs": [
-    "study-ella-streamed-blast",
-    "study-ella-stored-thunder",
-    "bar-casters"
+    "crop-stream-start-release-burst",
+    "crop-stream-start-fall-flame"
    ],
    "owner": "artfx",
-   "score_min": 0.334,
-   "detail_min": 0.212,
+   "score_min": 0.704,
+   "detail_min": 0.323,
    "calibration": {
-    "method": "no team image: leave-one-out and detail on the element's own references under pipeline/art/reference/ (quality bar included) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
     "margin": 0.02,
     "measured": "2026-11-13",
-    "loo": {},
-    "detail": {
-     "bar-casters": 0.232
+    "loo": {
+     "crop-stream-start-release-burst": 0.724,
+     "crop-stream-start-fall-flame": 0.724
     },
-    "note": "one image and nothing to compare it with: score_min not measurable (kept)"
-   }
+    "detail": {
+     "crop-stream-start-release-burst": 0.343,
+     "crop-stream-start-fall-flame": 0.615
+    }
+   },
+   "context": [
+    "study-ella-streamed-blast",
+    "study-ella-stored-thunder",
+    "bar-casters",
+    "d-yellow-shots"
+   ]
   },
   "vfx-stream-sustain": {
    "what": "the Streamed Blast sustain loop (art sheet VFX_StreamSustain, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
    "refs": [
-    "study-ella-streamed-blast",
-    "study-ella-stored-thunder",
-    "bar-casters"
+    "crop-stream-sustain-rising-flame",
+    "crop-stream-sustain-pull-in"
    ],
    "owner": "artfx",
-   "score_min": 0.334,
-   "detail_min": 0.212,
+   "score_min": 0.73,
+   "detail_min": 0.498,
    "calibration": {
-    "method": "no team image: leave-one-out and detail on the element's own references under pipeline/art/reference/ (quality bar included) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
     "margin": 0.02,
     "measured": "2026-11-13",
-    "loo": {},
-    "detail": {
-     "bar-casters": 0.232
+    "loo": {
+     "crop-stream-sustain-rising-flame": 0.75,
+     "crop-stream-sustain-pull-in": 0.75
     },
-    "note": "one image and nothing to compare it with: score_min not measurable (kept)"
+    "detail": {
+     "crop-stream-sustain-rising-flame": 0.614,
+     "crop-stream-sustain-pull-in": 0.518
+    }
    },
-   "base": "vfx-stream-start",
-   "base_mode": "repaint",
-   "new": "the held beam body: same beam ink and colour, repeating along its length"
+   "context": [
+    "d-yellow-shots"
+   ]
   },
   "vfx-needle-channel": {
    "what": "the Needle channel (art sheet VFX_NeedleChannel, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
    "refs": [
-    "study-ella-needle-1",
-    "study-ella-needle-2",
-    "bar-casters"
+    "crop-needle-channel-tell-ring",
+    "crop-needle-channel-lit-flame"
    ],
    "owner": "artfx",
-   "score_min": 0.334,
-   "detail_min": 0.212,
+   "score_min": 0.573,
+   "detail_min": 0.485,
    "calibration": {
-    "method": "no team image: leave-one-out and detail on the element's own references under pipeline/art/reference/ (quality bar included) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
     "margin": 0.02,
     "measured": "2026-11-13",
-    "loo": {},
-    "detail": {
-     "bar-casters": 0.232
+    "loo": {
+     "crop-needle-channel-tell-ring": 0.593,
+     "crop-needle-channel-lit-flame": 0.593
     },
-    "note": "one image and nothing to compare it with: score_min not measurable (kept)"
-   }
+    "detail": {
+     "crop-needle-channel-tell-ring": 0.505,
+     "crop-needle-channel-lit-flame": 0.611
+    }
+   },
+   "context": [
+    "study-ella-needle-1",
+    "study-ella-needle-2",
+    "bar-casters",
+    "d-yellow-shots"
+   ]
   },
   "vfx-needle-sliver": {
    "what": "the Needle sliver in travel (art sheet VFX_NeedleSliver, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
    "refs": [
-    "study-ella-needle-1",
-    "study-ella-needle-2",
-    "bar-casters"
+    "crop-needle-sliver-travel",
+    "crop-needle-sliver-shot-diagram"
    ],
    "owner": "artfx",
-   "score_min": 0.334,
-   "detail_min": 0.212,
+   "score_min": 0.807,
+   "detail_min": 0.373,
    "calibration": {
-    "method": "no team image: leave-one-out and detail on the element's own references under pipeline/art/reference/ (quality bar included) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
     "margin": 0.02,
     "measured": "2026-11-13",
-    "loo": {},
-    "detail": {
-     "bar-casters": 0.232
+    "loo": {
+     "crop-needle-sliver-travel": 0.827,
+     "crop-needle-sliver-shot-diagram": 0.827
     },
-    "note": "one image and nothing to compare it with: score_min not measurable (kept)"
+    "detail": {
+     "crop-needle-sliver-travel": 0.427,
+     "crop-needle-sliver-shot-diagram": 0.393
+    }
    },
-   "base": "vfx-needle-channel",
-   "base_mode": "repaint",
-   "new": "the thin sliver left behind: same needle line and colour"
+   "context": [
+    "study-ella-needle-1",
+    "study-ella-needle-2",
+    "bar-casters",
+    "d-yellow-shots"
+   ]
   },
   "vfx-needle-pierce": {
    "what": "the Needle penetration (art sheet VFX_NeedlePierce, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
    "refs": [
-    "study-ella-needle-1",
-    "study-ella-needle-2",
-    "bar-casters"
+    "crop-needle-pierce-release",
+    "crop-needle-pierce-fade"
    ],
    "owner": "artfx",
-   "score_min": 0.334,
-   "detail_min": 0.212,
+   "score_min": 0.656,
+   "detail_min": 0.356,
    "calibration": {
-    "method": "no team image: leave-one-out and detail on the element's own references under pipeline/art/reference/ (quality bar included) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
     "margin": 0.02,
     "measured": "2026-11-13",
-    "loo": {},
-    "detail": {
-     "bar-casters": 0.232
+    "loo": {
+     "crop-needle-pierce-release": 0.676,
+     "crop-needle-pierce-fade": 0.676
     },
-    "note": "one image and nothing to compare it with: score_min not measurable (kept)"
+    "detail": {
+     "crop-needle-pierce-release": 0.376,
+     "crop-needle-pierce-fade": 0.406
+    }
    },
-   "base": "vfx-needle-channel",
-   "base_mode": "repaint",
-   "new": "the needle going through a target: same line style, with an exit flare"
+   "context": [
+    "study-ella-needle-1",
+    "study-ella-needle-2",
+    "bar-casters",
+    "d-yellow-shots"
+   ]
   },
   "vfx-blocked": {
    "what": "the protected-contact block cue (art sheet VFX_Blocked, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
@@ -3688,56 +4001,54 @@
   "vfx-part-hit": {
    "what": "a Keeper part hit (art sheet VFX_PartHit, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
    "refs": [
-    "d-gear-break",
-    "d-clock-damage",
-    "bar-casters"
+    "crop-part-hit-gear-swing",
+    "crop-part-hit-gear-intact"
    ],
    "owner": "artfx",
-   "score_min": 0.973,
-   "detail_min": 0.444,
+   "score_min": 0.627,
+   "detail_min": 0.644,
    "calibration": {
-    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
     "margin": 0.02,
     "measured": "2026-11-13",
     "loo": {
-     "d-gear-break": 0.993,
-     "d-clock-damage": 0.993
+     "crop-part-hit-gear-swing": 0.647,
+     "crop-part-hit-gear-intact": 0.647
     },
     "detail": {
-     "d-gear-break": 0.464,
-     "d-clock-damage": 0.491
+     "crop-part-hit-gear-swing": 0.687,
+     "crop-part-hit-gear-intact": 0.664
     }
    },
-   "base": "vfx-gold-impact",
-   "base_mode": "repaint",
-   "new": "a small hit flash on an enemy part, same burst style at a smaller scale"
+   "context": []
   },
   "vfx-part-break": {
    "what": "a Keeper part break (art sheet VFX_PartBreak, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
    "refs": [
-    "d-gear-break",
-    "d-clock-damage",
-    "bar-casters"
+    "crop-part-break-rim-failure",
+    "crop-part-break-wreckage"
    ],
    "owner": "artfx",
-   "score_min": 0.973,
-   "detail_min": 0.444,
+   "score_min": 0.684,
+   "detail_min": 0.642,
    "calibration": {
-    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
     "margin": 0.02,
     "measured": "2026-11-13",
     "loo": {
-     "d-gear-break": 0.993,
-     "d-clock-damage": 0.993
+     "crop-part-break-rim-failure": 0.704,
+     "crop-part-break-wreckage": 0.704
     },
     "detail": {
-     "d-gear-break": 0.464,
-     "d-clock-damage": 0.491
+     "crop-part-break-rim-failure": 0.672,
+     "crop-part-break-wreckage": 0.662
     }
    },
-   "base": "vfx-part-hit",
-   "base_mode": "repaint",
-   "new": "the part breaking apart: shards and a larger flash on the hit style"
+   "context": [
+    "d-gear-break",
+    "d-clock-damage",
+    "bar-casters"
+   ]
   },
   "vfx-eye-exposed": {
    "what": "the exposed Keeper eye (art sheet VFX_EyeExposed, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
@@ -3771,23 +4082,26 @@
   "vfx-stun": {
    "what": "the Keeper stun loop (art sheet VFX_Stun, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
    "refs": [
-    "d-gear-break",
-    "bar-casters"
+    "crop-stun-arcs-shoulder",
+    "crop-stun-arcs-clock"
    ],
    "owner": "artfx",
-   "score_min": 0.716,
-   "detail_min": 0.444,
+   "score_min": 0.764,
+   "detail_min": 0.384,
    "calibration": {
-    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded) (D-new-vfx-calibration, 13 Nov: off-band ignores ink pixels L*<=35; bar = lowest known-good minus 0.02)",
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
     "margin": 0.02,
     "measured": "2026-11-13",
     "loo": {
-     "d-gear-break": 0.736
+     "crop-stun-arcs-shoulder": 0.784,
+     "crop-stun-arcs-clock": 0.784
     },
     "detail": {
-     "d-gear-break": 0.464
+     "crop-stun-arcs-shoulder": 0.404,
+     "crop-stun-arcs-clock": 0.413
     }
-   }
+   },
+   "context": []
   },
   "vfx-slow": {
    "what": "the Keeper slow field (art sheet VFX_Slow, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",

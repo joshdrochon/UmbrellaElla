@@ -1,0 +1,32 @@
+{
+ "element": "vfx-needle-sliver",
+ "note": "crops of the effect cut from the concept sheets; originals untouched",
+ "crops": [
+  {
+   "file": "travel.png",
+   "source": "pipeline/art/reference/discord/20261110-0328_Ricky_1.png",
+   "box": [
+    480,
+    465,
+    620,
+    500
+   ],
+   "key": "gold",
+   "pieces": "all",
+   "opaque_px": 1423
+  },
+  {
+   "file": "shot-diagram.png",
+   "source": "pipeline/art/reference/discord/20261110-0328_Ricky_1.png",
+   "box": [
+    1025,
+    190,
+    1420,
+    290
+   ],
+   "key": "gold",
+   "pieces": "largest",
+   "opaque_px": 16557
+  }
+ ]
+}

@@ -1,3 +1,5 @@
+#include "Arena/UmbrellaArena.h"
+#include "Attack/StreamBeamActor.h"
 #include "Components/StaticMeshComponent.h"
 #include "Feedback/Art/ArtSlot.h"
 #include "Core/UmbrellaDrawOrder.h"
@@ -10,7 +12,6 @@
 #include "Feedback/Anim/EnemyPresenterSubsystem.h"
 #include "Feedback/Anim/KeeperPresenterSubsystem.h"
 #include "Feedback/Anim/ShotPresenterSubsystem.h"
-#include "Attack/StreamBeamActor.h"
 #include "Feedback/Anim/WindPresenterSubsystem.h"
 #include "Field/WindCurrent.h"
 #include "Feedback/Vfx/UmbrellaVfxDirectorSubsystem.h"
@@ -19,6 +20,7 @@
 #include "Tests/Shared/UmbrellaTestWorld.h"
 #include "Feedback/Vfx/UmbrellaVfxSubsystem.h"
 #include "Core/UmbrellaEvent.h"
+#include "Core/UmbrellaEventBus.h"
 #include "Projectile/UmbrellaProjectile.h"
 #include "Feedback/Background/UmbrellaBackdropSubsystem.h"
 #include "Feedback/Background/SceneArtSubsystem.h"
@@ -27,6 +29,7 @@
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Misc/AutomationTest.h"
 #include "Owl/KeeperOfTime.h"
+#include "Owl/KeeperLook.h"
 #include "Feedback/Ui/UiArtSubsystem.h"
 
 #if WITH_AUTOMATION_TESTS
@@ -38,6 +41,23 @@ namespace
 		UTexture2D* Texture = UTexture2D::CreateTransient(4, 4);
 		Texture->AddToRoot();
 		return Texture;
+	}
+
+	UTexture2D* ArtSlotSizedTestTexture(int32 Width, int32 Height)
+	{
+		UTexture2D* Texture = UTexture2D::CreateTransient(Width, Height);
+		Texture->AddToRoot();
+		return Texture;
+	}
+
+	float ArtSlotParamScalar(const UStaticMeshComponent* Mesh, const TCHAR* Name)
+	{
+		float Out = -1.0f;
+		if (const UMaterialInstanceDynamic* Dynamic = Cast<UMaterialInstanceDynamic>(Mesh->GetMaterial(0)))
+		{
+			Dynamic->GetScalarParameterValue(FName(Name), Out);
+		}
+		return Out;
 	}
 
 	UTexture2D* ArtSlotParamTexture(const UStaticMeshComponent* Mesh)
@@ -58,6 +78,12 @@ namespace
 			GEngine->CreateNewWorldContext(EWorldType::Game).SetCurrentWorld(World);
 		}
 		return World;
+	}
+
+	/** Test-only empty state: put the flat stand-in material back, so the slot holds no art (HasArt false). */
+	void ArtSlotTestClearArt(UStaticMeshComponent* Mesh, UObject* Outer)
+	{
+		ArtSlot::SetFlatUnlit(Mesh, Outer, UmbrellaArtSlotConst::StandInDefaultColor);
 	}
 
 	void ArtSlotTestEnd(UWorld* World)
@@ -180,7 +206,8 @@ bool FArtSlotElla::RunTest(const FString& Parameters)
 	{
 		TestTrue(TEXT("no asset keeps the stand-in"), Presenter->IsShowingStandIn());
 		UTexture2D* Idle = ArtSlotTestTexture();
-		UTexture2D* Hurt = ArtSlotTestTexture();
+		// Hurt is a 24x1 strip (2x2 cells), Idle a 6x4 grid: different cell shapes, so per-state sizing shows.
+		UTexture2D* Hurt = ArtSlotSizedTestTexture(48, 2);
 		Presenter->SetStateTexture(EEllaVisualState::Idle, Idle);
 		TestTrue(TEXT("idle picture draws art"), Presenter->IsShowingArt());
 		TestFalse(TEXT("art is not the stand-in"), Presenter->IsShowingStandIn());
@@ -190,9 +217,27 @@ bool FArtSlotElla::RunTest(const FString& Parameters)
 		TestTrue(TEXT("hurt picture shown"), ArtSlotParamTexture(Presenter->GetStandIn()) == Hurt);
 		Presenter->SetVisualState(EEllaVisualState::Shoot);
 		TestTrue(TEXT("a state without a picture shows idle"), ArtSlotParamTexture(Presenter->GetStandIn()) == Idle);
-		const FVector Down = ArtSlot::PlaneScaleFor(UEllaAnimPresenterComponent::StandInScaleFor(EEllaVisualState::Down));
-		Presenter->SetVisualState(EEllaVisualState::Down);
-		TestEqual(TEXT("art keeps the state footprint"), Presenter->GetStandIn()->GetRelativeScale3D(), Down);
+		// screenfix B2: a picture is drawn at its own cell size (art bible height, cell aspect), not the stand-in box.
+		// Each state uses its own sheet layout: Hurt (24x1 strip) and Idle (6x4 grid) differ.
+		const FArtSlotRow* IdleRow = ArtSlot::Find(TEXT("ella-state:Idle"));
+		const FArtSlotRow* HurtRow = ArtSlot::Find(TEXT("ella-state:Hurt"));
+		if (TestNotNull(TEXT("idle row"), IdleRow) && TestNotNull(TEXT("hurt row"), HurtRow))
+		{
+			TestEqual(TEXT("hurt row is a 24x1 strip"), FIntPoint(HurtRow->Cols, HurtRow->Rows), FIntPoint(24, 1));
+			TestEqual(TEXT("idle row is a 6x4 grid"), FIntPoint(IdleRow->Cols, IdleRow->Rows), FIntPoint(6, 4));
+			const FVector IdleScale = ArtSlot::PlaneScaleFor(UEllaAnimPresenterComponent::ArtBoxScaleFor(Idle, *IdleRow));
+			const FVector HurtScale = ArtSlot::PlaneScaleFor(UEllaAnimPresenterComponent::ArtBoxScaleFor(Hurt, *HurtRow));
+			TestFalse(TEXT("hurt and idle cells have different shapes"), HurtScale.Equals(IdleScale));
+			Presenter->SetVisualState(EEllaVisualState::Hurt);
+			TestEqual(TEXT("hurt art is drawn at the hurt cell size"), Presenter->GetStandIn()->GetRelativeScale3D(), HurtScale);
+			TestEqual(TEXT("hurt strip draws its one row"), ArtSlotParamScalar(Presenter->GetStandIn(), TEXT("TileV")), 1.0f);
+			TestEqual(TEXT("hurt strip is cut in 24 columns"), ArtSlotParamScalar(Presenter->GetStandIn(), TEXT("Cols")), 24.0f);
+			Presenter->SetVisualState(EEllaVisualState::Down);
+			TestTrue(TEXT("down without its own picture shows idle"), ArtSlotParamTexture(Presenter->GetStandIn()) == Idle);
+			TestEqual(TEXT("down falls back to the idle cell size"), Presenter->GetStandIn()->GetRelativeScale3D(), IdleScale);
+			TestEqual(TEXT("idle grid draws one of its 4 rows"), ArtSlotParamScalar(Presenter->GetStandIn(), TEXT("TileV")), 0.25f);
+			TestEqual(TEXT("idle grid is cut in 6 columns"), ArtSlotParamScalar(Presenter->GetStandIn(), TEXT("Cols")), 6.0f);
+		}
 		TestEqual(TEXT("art has no collision"), static_cast<int32>(Presenter->GetStandIn()->GetCollisionEnabled()), static_cast<int32>(ECollisionEnabled::NoCollision));
 	}
 	// A state with its own art and no Idle art still draws (review item 2).
@@ -247,26 +292,28 @@ bool FArtSlotKeeperEnemy::RunTest(const FString& Parameters)
 	if (TestNotNull(TEXT("keeper presenter"), KeeperPresenter) && TestNotNull(TEXT("keeper"), Keeper))
 	{
 		UTexture2D* Texture = ArtSlotTestTexture();
-		// When the slot's own asset exists (T_Keeper_Owl_PH is on main), the stand-in already shows it at spawn, so a
-		// second picture is refused; without the asset the first picture is drawn and the second refused.
-		const UStaticMeshComponent* KeeperMesh = FindObjectFast<UStaticMeshComponent>(Keeper, FName(TEXT("KeeperStandIn")));
-		if (KeeperMesh && ArtSlot::HasArt(KeeperMesh))
+		UStaticMeshComponent* KeeperMesh = FindObjectFast<UStaticMeshComponent>(Keeper, FName(TEXT("KeeperStandIn")));
+		const FArtSlotRow* KeeperRow = ArtSlot::Find(TEXT("keeper:body-hover-flap"));
+		if (TestNotNull(TEXT("keeper stand-in"), KeeperMesh) && TestNotNull(TEXT("keeper row"), KeeperRow))
 		{
-			TestTrue(TEXT("keeper already shows its slot art"), ArtSlot::HasArt(KeeperMesh));
-		}
-		else
-		{
+			// Filled: the slot's stand-in texture is drawn at spawn, and a second picture is refused.
+			UTexture2D* SlotArt = ArtSlot::LoadTexture(*KeeperRow);
+			TestTrue(TEXT("keeper shows its slot stand-in texture"), SlotArt && ArtSlot::HasArt(KeeperMesh) && ArtSlotParamTexture(KeeperMesh) == SlotArt);
+			TestTrue(TEXT("a filled keeper refuses a picture"), KeeperPresenter->ShowArt(Keeper, Texture) != EArtSlotDraw::Drawn);
+			// Empty: with the slot's art cleared, the first picture is drawn and the second refused.
+			ArtSlotTestClearArt(KeeperMesh, Keeper);
+			TestFalse(TEXT("cleared keeper has no art"), ArtSlot::HasArt(KeeperMesh));
 			TestTrue(TEXT("keeper takes a picture"), KeeperPresenter->ShowArt(Keeper, Texture) == EArtSlotDraw::Drawn);
+			TestTrue(TEXT("keeper shows the picture"), ArtSlot::HasArt(KeeperMesh) && ArtSlotParamTexture(KeeperMesh) == Texture);
+			TestTrue(TEXT("a second picture is refused"), KeeperPresenter->ShowArt(Keeper, Texture) != EArtSlotDraw::Drawn);
 		}
-		TestTrue(TEXT("a second picture is refused"), KeeperPresenter->ShowArt(Keeper, Texture) != EArtSlotDraw::Drawn);
 	}
 	UEnemyPresenterSubsystem* EnemyPresenter = World->GetSubsystem<UEnemyPresenterSubsystem>();
 	AUmbrellaEnemy* Enemy = World->SpawnActor<AUmbrellaEnemy>();
 	if (TestNotNull(TEXT("enemy presenter"), EnemyPresenter) && TestNotNull(TEXT("enemy"), Enemy))
 	{
 		UTexture2D* Texture = ArtSlotTestTexture();
-		TestTrue(TEXT("enemy takes a picture"), EnemyPresenter->ShowArt(Enemy, Texture) == EArtSlotDraw::Drawn);
-		const UStaticMeshComponent* Mesh = nullptr;
+		UStaticMeshComponent* Mesh = nullptr;
 		TInlineComponentArray<UStaticMeshComponent*> Meshes(Enemy);
 		for (UStaticMeshComponent* Candidate : Meshes)
 		{
@@ -275,8 +322,17 @@ bool FArtSlotKeeperEnemy::RunTest(const FString& Parameters)
 				Mesh = Candidate;
 			}
 		}
-		if (TestNotNull(TEXT("enemy stand-in"), Mesh))
+		const FArtSlotRow* EnemyRow = ArtSlot::Find(*EnemyPresenter->VisualIdOf(Enemy));
+		if (TestNotNull(TEXT("enemy stand-in"), Mesh) && TestNotNull(TEXT("enemy row"), EnemyRow))
 		{
+			// Filled: the slot's stand-in texture is drawn at spawn, and a picture is refused.
+			UTexture2D* SlotArt = ArtSlot::LoadTexture(*EnemyRow);
+			TestTrue(TEXT("enemy shows its slot stand-in texture"), SlotArt && ArtSlot::HasArt(Mesh) && ArtSlotParamTexture(Mesh) == SlotArt);
+			TestTrue(TEXT("a filled enemy refuses a picture"), EnemyPresenter->ShowArt(Enemy, Texture) != EArtSlotDraw::Drawn);
+			// Empty: with the slot's art cleared, the picture is drawn.
+			ArtSlotTestClearArt(Mesh, Enemy);
+			TestFalse(TEXT("cleared enemy has no art"), ArtSlot::HasArt(Mesh));
+			TestTrue(TEXT("enemy takes a picture"), EnemyPresenter->ShowArt(Enemy, Texture) == EArtSlotDraw::Drawn);
 			TestTrue(TEXT("enemy shows the picture"), ArtSlot::HasArt(Mesh) && ArtSlotParamTexture(Mesh) == Texture);
 			TestEqual(TEXT("enemy art has no collision"), static_cast<int32>(Mesh->GetCollisionEnabled()), static_cast<int32>(ECollisionEnabled::NoCollision));
 		}
@@ -314,11 +370,26 @@ bool FArtSlotLoaderCache::RunTest(const FString& Parameters)
 			ArtSlot::Apply(MakeMesh(), Texture, *Row, FVector::OneVector);
 		}
 		TestEqual(TEXT("five more draws load nothing"), ArtSlot::LoadCallCount(), After);
-		ArtSlot::LoadTexture(*Row);
+		// Hits are cached, misses are retried (an asset imported later is still found): a repeat load costs exactly
+		// one try per path before the first that resolves.
+		const TArray<FString> Paths = ArtSlot::TexturePaths(*Row);
+		int32 HitIndex = INDEX_NONE;
+		for (int32 Index = 0; Index < Paths.Num() && HitIndex == INDEX_NONE; ++Index)
+		{
+			HitIndex = LoadObject<UTexture2D>(nullptr, *Paths[Index], nullptr, LOAD_NoWarn | LOAD_Quiet) ? Index : INDEX_NONE;
+		}
+		// Filled: the slot's stand-in texture exists, loads once, and later loads return it without reloading it.
+		UTexture2D* SlotArt = ArtSlot::LoadTexture(*Row);
 		const int32 AfterTexture = ArtSlot::LoadCallCount();
-		ArtSlot::LoadTexture(*Row);
-		const bool bFound = ArtSlot::LoadTexture(*Row) != nullptr;
-		TestTrue(TEXT("a texture that exists loads once"), !bFound || ArtSlot::LoadCallCount() == AfterTexture);
+		TestTrue(TEXT("the filled slot has its stand-in texture"), SlotArt != nullptr && HitIndex != INDEX_NONE);
+		TestTrue(TEXT("a repeat load returns the same texture"), ArtSlot::LoadTexture(*Row) == SlotArt);
+		TestEqual(TEXT("a texture that exists loads once"), ArtSlot::LoadCallCount() - AfterTexture, HitIndex);
+		// Empty: a test-only row with no asset finds nothing and retries every path.
+		const FArtSlotRow EmptyRow = { TEXT("test:empty"), TEXT("Test"), TEXT("T_ArtSlotTestNoSuchArt"), 1, false, TEXT("-") };
+		const int32 BeforeEmpty = ArtSlot::LoadCallCount();
+		TestNull(TEXT("an empty slot loads no texture"), ArtSlot::LoadTexture(EmptyRow));
+		TestEqual(TEXT("an empty slot tries every path"), ArtSlot::LoadCallCount() - BeforeEmpty, ArtSlot::TexturePaths(EmptyRow).Num());
+		TestEqual(TEXT("an empty slot draws nothing"), static_cast<int32>(ArtSlot::ApplyRow(MakeMesh(), EmptyRow, FVector::OneVector)), static_cast<int32>(EArtSlotDraw::NoTexture));
 	}
 	ArtSlotTestEnd(World);
 	return true;
@@ -483,8 +554,16 @@ bool FArtSlotShots::RunTest(const FString& Parameters)
 		if (TestNotNull(TEXT("impact effect"), Hit))
 		{
 			UTexture2D* Texture = ArtSlotTestTexture();
+			UStaticMeshComponent* HitMesh = Cast<UStaticMeshComponent>(Hit->GetRootComponent());
+			const FArtSlotRow* ImpactRow = ArtSlot::Find(TEXT("shot:red-impact"));
+			// Filled: the impact slot's stand-in texture is drawn when the effect plays, and a picture is refused.
+			UTexture2D* SlotArt = ImpactRow ? ArtSlot::LoadTexture(*ImpactRow) : nullptr;
+			TestTrue(TEXT("bolt hit shows its slot stand-in texture"), SlotArt && HitMesh && ArtSlot::HasArt(HitMesh) && ArtSlotParamTexture(HitMesh) == SlotArt);
+			TestTrue(TEXT("a filled bolt hit refuses a picture"), Vfx->ShowImpactArt(Hit, Texture) != EArtSlotDraw::Drawn);
+			// Empty: with the slot's art cleared, the picture is drawn.
+			ArtSlotTestClearArt(HitMesh, Hit);
+			TestFalse(TEXT("cleared bolt hit has no art"), HitMesh && ArtSlot::HasArt(HitMesh));
 			TestTrue(TEXT("bolt hit takes a picture"), Vfx->ShowImpactArt(Hit, Texture) == EArtSlotDraw::Drawn);
-			const UStaticMeshComponent* HitMesh = Cast<UStaticMeshComponent>(Hit->GetRootComponent());
 			TestTrue(TEXT("bolt hit shows the picture"), HitMesh && ArtSlot::HasArt(HitMesh) && ArtSlotParamTexture(HitMesh) == Texture);
 		}
 	}
@@ -651,6 +730,11 @@ bool FArtSlotScene::RunTest(const FString& Parameters)
 			}
 		}
 
+		for (const FName Visual : Visuals)
+		{
+			TestEqual(*FString::Printf(TEXT("%s follows its own flag (all on by default)"), *Visual.ToString()), USceneArtSubsystem::IsVisualEnabled(Visual.ToString()), true);
+		}
+
 		// Depth: backdrop pictures sit between the sky and the play layer; the frame is in front of play.
 		for (const FSceneArtSpec& Spec : USceneArtSubsystem::Specs())
 		{
@@ -767,8 +851,285 @@ bool FArtSlotKeeperParts::RunTest(const FString& Parameters)
 				TestEqual(*FString::Printf(TEXT("%s is the body width"), *Id), static_cast<float>(Part->GetComponentScale().X), static_cast<float>(UmbrellaKeeperPresenterConst::StandInScale.X));
 			}
 		}
+		// State layers: hidden until a part is destroyed (masks) or the Keeper departs (departure).
+		const UStaticMeshComponent* Masks = UKeeperPresenterSubsystem::FindPart(Keeper, UmbrellaKeeperPresenterConst::MaskVisual);
+		const UStaticMeshComponent* Departure = UKeeperPresenterSubsystem::FindPart(Keeper, UmbrellaKeeperPresenterConst::DepartureVisual);
+		if (TestNotNull(TEXT("mask layer"), Masks) && TestNotNull(TEXT("departure layer"), Departure))
+		{
+			Presenter->Tick(0.0f);
+			TestFalse(TEXT("masks hidden at full health"), Masks->IsVisible());
+			TestFalse(TEXT("departure hidden while the Keeper stays"), Departure->IsVisible());
+			FUmbrellaEvent Event;
+			Event.Type = EUmbrellaEventType::BossPartDestroyed;
+			UUmbrellaEventBus::Get(World)->Broadcast(Event);
+			Keeper->BeginDeparture(1.0f);
+			Presenter->Tick(0.0f);
+			TestTrue(TEXT("masks shown after a part is destroyed"), Masks->IsVisible());
+			TestTrue(TEXT("departure shown while the Keeper leaves"), Departure->IsVisible());
+		}
 	}
 	ArtSlotTestEnd(World);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FArtSlotKeeperStandInHidden, "UmbrellaElla.Feedback.World.KeeperStandInHiddenUnderArt",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+
+bool FArtSlotKeeperStandInHidden::RunTest(const FString& Parameters)
+{
+	UWorld* World = ArtSlotTestWorld();
+	if (!TestNotNull(TEXT("world"), World))
+	{
+		return false;
+	}
+	UKeeperPresenterSubsystem* Presenter = World->GetSubsystem<UKeeperPresenterSubsystem>();
+	// The arena's graybox Keeper square shows while no Keeper art draws.
+	AUmbrellaArena* Arena = World->SpawnActor<AUmbrellaArena>();
+	if (Arena && !Arena->GetKeeperStandIn())
+	{
+		Arena->BuildPlaceholders();
+	}
+	if (TestNotNull(TEXT("arena"), Arena) && TestNotNull(TEXT("arena keeper square"), Arena->GetKeeperStandIn()) && Presenter)
+	{
+		Presenter->SyncArenaStandIn();
+		TestTrue(TEXT("arena keeper square shows with no Keeper"), Arena->GetKeeperStandIn()->IsVisible());
+	}
+	AKeeperOfTime* Keeper = World->SpawnActor<AKeeperOfTime>();
+	if (TestNotNull(TEXT("keeper presenter"), Presenter) && TestNotNull(TEXT("keeper"), Keeper) && Arena && Arena->GetKeeperStandIn())
+	{
+		const UUmbrellaTuning* Tuning = GetDefault<UUmbrellaTuning>();
+		FKeeperFightModel Model;
+		TArray<FKeeperCommand> Commands;
+		Model.Init(Tuning->Keeper, Tuning->Encounter, FKeeperRuleSwitches());
+		Model.BeginPhase(EKeeperPhase::Wings, Commands);
+		const EKeeperPart BodyParts[] = {EKeeperPart::Wings, EKeeperPart::Clock, EKeeperPart::Front, EKeeperPart::Middle, EKeeperPart::Rear};
+		if (!Keeper->HasActorBegunPlay())
+		{
+			Keeper->DispatchBeginPlay();
+		}
+
+		// The body sprite draws (at spawn when its asset exists, else a transient picture): wings, clock and the three
+		// mechanism cubes hide and stay hidden across Refresh.
+		Presenter->ShowStandIn(Keeper);
+		const UStaticMeshComponent* Body = FindObjectFast<UStaticMeshComponent>(Keeper, FName(TEXT("KeeperStandIn")));
+		if (TestNotNull(TEXT("body stand-in"), Body) && !ArtSlot::HasArt(Body))
+		{
+			TestTrue(TEXT("body takes a picture"), Presenter->ShowArt(Keeper, ArtSlotTestTexture()) == EArtSlotDraw::Drawn);
+		}
+		Keeper->Refresh(Model, 0.0f);
+		for (const EKeeperPart Part : BodyParts)
+		{
+			TestTrue(*FString::Printf(TEXT("part %d marked as drawn by art"), static_cast<int32>(Part)), Keeper->IsPartArtDrawn(Part));
+			const UStaticMeshComponent* Cube = Keeper->GetStandInVisual(Part);
+			if (TestNotNull(TEXT("stand-in cube"), Cube))
+			{
+				TestFalse(*FString::Printf(TEXT("cube %d hidden under the body art"), static_cast<int32>(Part)), Cube->IsVisible());
+			}
+		}
+		TestTrue(TEXT("presenter reports Keeper art"), UKeeperPresenterSubsystem::HasKeeperArt(Keeper));
+		Presenter->SyncArenaStandIn();
+		TestTrue(TEXT("presenter sees Keeper art"), Presenter->HasAnyKeeperArt());
+		TestFalse(TEXT("arena keeper square hidden while Keeper art draws"), Arena->GetKeeperStandIn()->IsVisible());
+		Presenter->Tick(0.0f);
+		TestFalse(TEXT("arena keeper square stays hidden across Tick"), Arena->GetKeeperStandIn()->IsVisible());
+		TestFalse(TEXT("the exposed-eye cue is not covered by the body art"), Keeper->IsPartArtDrawn(EKeeperPart::Eye));
+		TestTrue(TEXT("hit regions stay"), Keeper->GetPartComponent(EKeeperPart::Wings) != nullptr);
+
+		// No art over a part: its cube shows again on the next Refresh (a stand-in shows when no art does).
+		for (const EKeeperPart Part : BodyParts)
+		{
+			Keeper->ClearPartArtDrawn(Part);
+		}
+		Keeper->Refresh(Model, 0.0f);
+		for (const EKeeperPart Part : BodyParts)
+		{
+			TestTrue(*FString::Printf(TEXT("cube %d shows with no art"), static_cast<int32>(Part)), Keeper->GetStandInVisual(Part)->IsVisible());
+		}
+
+		// A part layer covers its own cube only (drawn now, or already at spawn when its asset exists).
+		const FString FrontId = TEXT("keeper:mechanism-front");
+		if (!UKeeperPresenterSubsystem::FindPart(Keeper, FrontId))
+		{
+			TestTrue(TEXT("front layer takes a picture"), Presenter->ShowPartArt(Keeper, FrontId, ArtSlotTestTexture()) == EArtSlotDraw::Drawn);
+			Keeper->Refresh(Model, 0.0f);
+			TestTrue(TEXT("front mechanism layer covers the front cube"), Keeper->IsPartArtDrawn(EKeeperPart::Front));
+			TestFalse(TEXT("front cube hidden under its layer"), Keeper->GetStandInVisual(EKeeperPart::Front)->IsVisible());
+			TestTrue(TEXT("rear cube still shows with no art over it"), Keeper->GetStandInVisual(EKeeperPart::Rear)->IsVisible());
+		}
+
+		// A part layer that is destroyed uncovers its cube: the presenter clears the cover on its next Tick.
+		if (UStaticMeshComponent* FrontLayer = UKeeperPresenterSubsystem::FindPart(Keeper, FrontId))
+		{
+			UStaticMeshComponent* BodyMesh = FindObjectFast<UStaticMeshComponent>(Keeper, FName(TEXT("KeeperStandIn")));
+			if (BodyMesh && ArtSlot::HasArt(BodyMesh))
+			{
+				ArtSlotTestClearArt(BodyMesh, Keeper);
+			}
+			Presenter->Tick(0.0f);
+			Keeper->Refresh(Model, 0.0f);
+			TestTrue(TEXT("front layer still covers the front cube"), Keeper->IsPartArtDrawn(EKeeperPart::Front));
+			FrontLayer->DestroyComponent();
+			Presenter->Tick(0.0f);
+			Keeper->Refresh(Model, 0.0f);
+			TestFalse(TEXT("destroyed front layer no longer covers the front cube"), Keeper->IsPartArtDrawn(EKeeperPart::Front));
+			TestTrue(TEXT("front cube shows once its layer is destroyed"), Keeper->GetStandInVisual(EKeeperPart::Front)->IsVisible());
+		}
+
+		// The Keeper leaves: no Keeper art draws, so the arena square shows again (synced on destroy, no Tick needed).
+		Keeper->Destroy();
+		TestFalse(TEXT("presenter sees no Keeper art once it is gone"), Presenter->HasAnyKeeperArt());
+		TestTrue(TEXT("arena keeper square shows again with no Keeper art"), Arena->GetKeeperStandIn()->IsVisible());
+	}
+	ArtSlotTestEnd(World);
+	return true;
+}
+
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FArtSlotKeeperStateCues, "UmbrellaElla.Feedback.World.KeeperStateCuesShowUnderArt",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+
+bool FArtSlotKeeperStateCues::RunTest(const FString& Parameters)
+{
+	UWorld* World = ArtSlotTestWorld();
+	if (!TestNotNull(TEXT("world"), World))
+	{
+		return false;
+	}
+	UKeeperPresenterSubsystem* Presenter = World->GetSubsystem<UKeeperPresenterSubsystem>();
+	AKeeperOfTime* Keeper = World->SpawnActor<AKeeperOfTime>();
+	if (TestNotNull(TEXT("keeper presenter"), Presenter) && TestNotNull(TEXT("keeper"), Keeper))
+	{
+		if (!Keeper->HasActorBegunPlay())
+		{
+			Keeper->DispatchBeginPlay();
+		}
+		Presenter->ShowStandIn(Keeper);
+		const UStaticMeshComponent* Body = FindObjectFast<UStaticMeshComponent>(Keeper, FName(TEXT("KeeperStandIn")));
+		if (TestNotNull(TEXT("body stand-in"), Body) && !ArtSlot::HasArt(Body))
+		{
+			TestTrue(TEXT("body takes a picture"), Presenter->ShowArt(Keeper, ArtSlotTestTexture()) == EArtSlotDraw::Drawn);
+		}
+		const UUmbrellaTuning* Tuning = GetDefault<UUmbrellaTuning>();
+		FKeeperFightModel Model;
+		TArray<FKeeperCommand> Commands;
+		FKeeperTickInput Input;
+		Input.PlayerPos = FVector2D(-500.0f, 0.0f);
+		Input.PlayerRadius = 10.0f;
+		Model.Init(Tuning->Keeper, Tuning->Encounter, FKeeperRuleSwitches());
+
+		// Default states: wings alive, clock closed, mechanisms alive. The static art shows these, so the cubes hide.
+		Model.BeginPhase(EKeeperPhase::Wings, Commands);
+		Keeper->Refresh(Model, 0.0f);
+		for (const EKeeperPart Part : {EKeeperPart::Wings, EKeeperPart::Clock, EKeeperPart::Front, EKeeperPart::Middle, EKeeperPart::Rear})
+		{
+			TestTrue(*FString::Printf(TEXT("part %d is under art"), static_cast<int32>(Part)), Keeper->IsPartArtDrawn(Part));
+			TestFalse(*FString::Printf(TEXT("part %d cube hidden in its default state"), static_cast<int32>(Part)), Keeper->GetStandInVisual(Part)->IsVisible());
+		}
+
+		// Mechanisms phase: the wings are broken. One hit on the front mechanism opens the clock.
+		Model.BeginPhase(EKeeperPhase::Mechanisms, Commands);
+		for (float T = 0.0f; T < Tuning->Encounter.PhaseTransitionSeconds + 0.1f; T += 1.0f / 60.0f)
+		{
+			Model.Step(1.0f / 60.0f, Input, Commands);
+		}
+		Model.ApplyPlayerHit(EKeeperPart::Front, 1.0f, Commands);
+		TestTrue(TEXT("model: wings broken"), Model.IsPartBroken(EKeeperPart::Wings));
+		TestTrue(TEXT("model: clock open"), Model.IsClockOpen());
+		Keeper->Refresh(Model, 0.0f);
+		TestTrue(TEXT("wings still under the body art"), Keeper->IsPartArtDrawn(EKeeperPart::Wings));
+		TestTrue(TEXT("broken wing shows its cue under the body art"), Keeper->GetStandInVisual(EKeeperPart::Wings)->IsVisible());
+		TestTrue(TEXT("open clock shows its cue under the body art"), Keeper->GetStandInVisual(EKeeperPart::Clock)->IsVisible());
+		TestFalse(TEXT("live rear mechanism stays hidden under the art"), Keeper->GetStandInVisual(EKeeperPart::Rear)->IsVisible());
+		// The cue is the state colour, not the generic lilac stand-in.
+		auto CueColour = [](const UStaticMeshComponent* Cube)
+		{
+			FLinearColor Colour = FLinearColor::Transparent;
+			if (const UMaterialInstanceDynamic* Dynamic = Cube ? Cast<UMaterialInstanceDynamic>(Cube->GetMaterial(0)) : nullptr)
+			{
+				Dynamic->GetVectorParameterValue(FHashedMaterialParameterInfo(TEXT("Tint")), Colour);
+			}
+			return Colour;
+		};
+		TestTrue(TEXT("broken wing cue is the broken colour"), CueColour(Keeper->GetStandInVisual(EKeeperPart::Wings)).Equals(KeeperLook::Broken));
+		TestTrue(TEXT("open clock cue is the open colour"), CueColour(Keeper->GetStandInVisual(EKeeperPart::Clock)).Equals(KeeperLook::ClockOpen));
+
+		// A broken mechanism shows its cue too.
+		Model.ApplyPlayerHit(EKeeperPart::Front, Tuning->Keeper.FrontHp * 10.0f, Commands);
+		TestTrue(TEXT("model: front broken"), Model.IsPartBroken(EKeeperPart::Front));
+		Keeper->Refresh(Model, 0.0f);
+		TestTrue(TEXT("broken front mechanism shows its cue under the art"), Keeper->GetStandInVisual(EKeeperPart::Front)->IsVisible());
+		Keeper->Destroy();
+	}
+	ArtSlotTestEnd(World);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FArtSlotKeeperPaperAlpha, "UmbrellaElla.Feedback.KeeperPaperStandInsHaveAlpha",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FArtSlotKeeperPaperAlpha::RunTest(const FString& Parameters)
+{
+#if WITH_EDITORONLY_DATA
+	// The talon, wing and front-mechanism stand-ins were ink on cream paper with no alpha, so each drew a paper box over
+	// the whole Keeper. Their keyed sources must be transparent at every corner, mostly clear, and keep the drawing.
+	static const TCHAR* const KeeperPaperPaths[] = {
+		TEXT("/Game/UmbrellaElla/Art/Keeper/T_Keeper_Talon_PH.T_Keeper_Talon_PH"),
+		TEXT("/Game/UmbrellaElla/Art/Keeper/T_Keeper_Wing_PH.T_Keeper_Wing_PH"),
+		TEXT("/Game/UmbrellaElla/Art/Keeper/T_Keeper_MechFront_PH.T_Keeper_MechFront_PH"),
+	};
+	for (const TCHAR* Path : KeeperPaperPaths)
+	{
+		UTexture2D* Picture = LoadObject<UTexture2D>(nullptr, Path);
+		if (!TestNotNull(*FString::Printf(TEXT("%s loads"), Path), Picture))
+		{
+			continue;
+		}
+		TestFalse(*FString::Printf(TEXT("%s keeps its alpha channel"), Path), Picture->CompressionNoAlpha);
+		const ETextureSourceFormat Format = Picture->Source.GetFormat();
+		const bool bEight = Format == TSF_BGRA8;
+		TArray64<uint8> Mip;
+		if (!TestTrue(*FString::Printf(TEXT("%s source is 8 or 16 bit RGBA"), Path), bEight || Format == TSF_RGBA16)
+			|| !TestTrue(*FString::Printf(TEXT("%s source mip reads"), Path), Picture->Source.GetMipData(Mip, 0)))
+		{
+			continue;
+		}
+		const int64 W = Picture->Source.GetSizeX();
+		const int64 H = Picture->Source.GetSizeY();
+		const int64 Bpp = Picture->Source.GetBytesPerPixel();
+		if (!TestEqual(*FString::Printf(TEXT("%s mip size"), Path), Mip.Num(), W * H * Bpp))
+		{
+			continue;
+		}
+		const auto KeeperPaperAlpha = [&](int64 X, int64 Y) -> float
+		{
+			const uint8* Pixel = Mip.GetData() + (Y * W + X) * Bpp;
+			return bEight ? Pixel[3] / 255.0f : *reinterpret_cast<const uint16*>(Pixel + 6) / 65535.0f;
+		};
+		const int64 Corners[4][2] = {{0, 0}, {W - 1, 0}, {0, H - 1}, {W - 1, H - 1}};
+		for (const auto& Corner : Corners)
+		{
+			TestTrue(*FString::Printf(TEXT("%s corner (%lld,%lld) is transparent"), Path, Corner[0], Corner[1]), KeeperPaperAlpha(Corner[0], Corner[1]) < 0.05f);
+		}
+		int64 Opaque = 0;
+		int64 Clear = 0;
+		int64 Samples = 0;
+		for (int64 Y = 0; Y < H; Y += 4)
+		{
+			for (int64 X = 0; X < W; X += 4)
+			{
+				const float A = KeeperPaperAlpha(X, Y);
+				Opaque += A > 0.5f ? 1 : 0;
+				Clear += A < 0.05f ? 1 : 0;
+				++Samples;
+			}
+		}
+		const double OpaqueShare = static_cast<double>(Opaque) / Samples;
+		const double ClearShare = static_cast<double>(Clear) / Samples;
+		AddInfo(FString::Printf(TEXT("%s %lldx%lld opaque %.3f clear %.3f"), Path, W, H, OpaqueShare, ClearShare));
+		TestTrue(*FString::Printf(TEXT("%s paper is keyed: over half is clear"), Path), ClearShare > 0.5);
+		TestTrue(*FString::Printf(TEXT("%s drawing stays: over a tenth is opaque"), Path), OpaqueShare > 0.1);
+	}
+#endif
 	return true;
 }
 

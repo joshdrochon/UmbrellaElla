@@ -1,0 +1,2 @@
+STRIPS ella-hurt source_frames=48 loop_end=38 jitter 12.57 -> 0.93 px
+  N=24 fps=7.38 loop last->first 51.69 vs mean step 38.67 loops=True -> pipeline/art/proof/videoframes/ella-hurt/ella-hurt_N24_strip.png

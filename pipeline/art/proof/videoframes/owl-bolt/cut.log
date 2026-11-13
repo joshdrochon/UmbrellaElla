@@ -1,0 +1,2 @@
+STRIPS owl-bolt source_frames=48 loop_end=36 jitter 2.5 -> 0.77 px
+  N=24 fps=7.78 loop last->first 13.03 vs mean step 21.4 loops=True -> pipeline/art/proof/videoframes/owl-bolt/owl-bolt_N24_strip.png

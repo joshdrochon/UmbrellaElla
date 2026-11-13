@@ -1,0 +1,32 @@
+{
+ "element": "vfx-part-hit",
+ "note": "crops of the effect cut from the concept sheets; originals untouched",
+ "crops": [
+  {
+   "file": "gear-swing.png",
+   "source": "pipeline/art/reference/discord/20261110-1047_Ricky_1.png",
+   "box": [
+    725,
+    340,
+    920,
+    430
+   ],
+   "key": "paper",
+   "pieces": "all",
+   "opaque_px": 3825
+  },
+  {
+   "file": "gear-intact.png",
+   "source": "pipeline/art/reference/discord/20261110-1047_Ricky_1.png",
+   "box": [
+    225,
+    355,
+    320,
+    440
+   ],
+   "key": "paper",
+   "pieces": "all",
+   "opaque_px": 2913
+  }
+ ]
+}

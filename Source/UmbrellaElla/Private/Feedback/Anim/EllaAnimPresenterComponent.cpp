@@ -1,5 +1,10 @@
 #include "Feedback/Anim/EllaAnimPresenterComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Core/EllaCharacter.h"
+#include "Health/UmbrellaHealthComponent.h"
+#include "Motor/EllaMotorComponent.h"
+#include "Motor/MotorTuning.h"
+#include "Umbrella/UmbrellaStateComponent.h"
 #include "Arena/ArenaCameraTuning.h"
 #include "Core/UmbrellaEvent.h"
 #include "Core/UmbrellaEventBus.h"
@@ -129,10 +134,10 @@ void UEllaAnimPresenterComponent::LoadSlotArt()
 void UEllaAnimPresenterComponent::DrawArt()
 {
 	UTexture2D* Texture = TextureForState(VisualState);
-	const FArtSlotRow* Row = ArtSlot::Find(TEXT("ella-state:Idle"));
+	const FArtSlotRow* Row = RowForTexture(Texture);
 	if (IsValid(StandIn) && !ArtSlot::HasArt(StandIn) && Texture && Row)
 	{
-		ArtSlot::Apply(StandIn, Texture, *Row, StandInScaleFor(VisualState));
+		ArtSlot::Apply(StandIn, Texture, *Row, ArtBoxScaleFor(Texture, *Row));
 	}
 }
 
@@ -174,6 +179,29 @@ EEllaVisualState UEllaAnimPresenterComponent::StateForEvent(const FUmbrellaEvent
 	}
 }
 
+FVector UEllaAnimPresenterComponent::ArtBoxScaleFor(const UTexture2D* Texture, const FArtSlotRow& Row)
+{
+	const double Height = UmbrellaPresenterConst::ArtCellHeight;
+	return FVector(Height * ArtSlot::CellAspect(Texture, Row), UmbrellaPresenterConst::StandInScale.Y, Height);
+}
+
+const FArtSlotRow* UEllaAnimPresenterComponent::RowForTexture(const UTexture2D* Texture) const
+{
+	const UEnum* States = StaticEnum<EEllaVisualState>();
+	for (const TPair<EEllaVisualState, TObjectPtr<UTexture2D>>& Pair : StateTextures)
+	{
+		if (Texture && Pair.Value.Get() == Texture)
+		{
+			const FString Visual = TEXT("ella-state:") + States->GetNameStringByValue(static_cast<int64>(Pair.Key));
+			if (const FArtSlotRow* Row = ArtSlot::Find(*Visual))
+			{
+				return Row;
+			}
+		}
+	}
+	return ArtSlot::Find(TEXT("ella-state:Idle"));
+}
+
 FVector UEllaAnimPresenterComponent::StandInScaleFor(EEllaVisualState State)
 {
 	switch (State)
@@ -210,9 +238,12 @@ void UEllaAnimPresenterComponent::ApplyState()
 	{
 		ArtSlot::SetBoxScale(StandIn, StandInScaleFor(VisualState));
 		DrawArt();
-		if (ArtSlot::HasArt(StandIn))
+		UTexture2D* Picture = TextureForState(VisualState);
+		const FArtSlotRow* PictureRow = RowForTexture(Picture);
+		if (ArtSlot::HasArt(StandIn) && Picture && PictureRow)
 		{
-			ArtSlot::SetTexture(StandIn, TextureForState(VisualState));
+			ArtSlot::SetTexture(StandIn, Picture, *PictureRow);
+			ArtSlot::SetBoxScale(StandIn, ArtBoxScaleFor(Picture, *PictureRow));
 		}
 	}
 	if (IsValid(Flipbook))
@@ -230,6 +261,9 @@ void UEllaAnimPresenterComponent::ApplyState()
 void UEllaAnimPresenterComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	TransitionLeft = FMath::Max(0.0f, TransitionLeft - DeltaTime);
+	RepairLeft = FMath::Max(0.0f, RepairLeft - DeltaTime);
+	UpdateOverlays(ReadOverlayInput());
 	if (StateTimeLeft > 0.0f)
 	{
 		StateTimeLeft -= DeltaTime;
@@ -242,6 +276,10 @@ void UEllaAnimPresenterComponent::TickComponent(float DeltaTime, ELevelTick Tick
 
 void UEllaAnimPresenterComponent::HandleEvent(const FUmbrellaEvent& Event)
 {
+	if (Event.Type == EUmbrellaEventType::CatchSucceeded)
+	{
+		RepairLeft = UmbrellaEllaOverlayConst::RepairHoldSeconds;
+	}
 	const AActor* Owner = GetOwner();
 	const EEllaVisualState State = StateForEvent(Event, IsValid(Owner) ? Owner->GetFName() : NAME_None);
 	if (State != EEllaVisualState::Idle)
@@ -304,4 +342,122 @@ void UEllaAnimPresenterComponent::BuildVisual()
 	ArtSlot::SetFlatUnlit(StandIn, Owner, UmbrellaArtSlotConst::StandInEllaColor);
 	StandIn->RegisterComponent();
 	LoadSlotArt();
+	LoadOverlays();
+}
+
+bool UEllaAnimPresenterComponent::ShouldShowOverlay(const FString& Visual, const FEllaOverlayInput& Input)
+{
+	if (Visual == TEXT("umbrella:prop"))
+	{
+		return true;
+	}
+	if (Visual == TEXT("ella:condition-100-to-0"))
+	{
+		return Input.HealthFraction < 1.0f;
+	}
+	if (Visual == TEXT("ella:free-fall"))
+	{
+		return Input.bFreeFall;
+	}
+	if (Visual == TEXT("ella:hop-cartwheel-dash"))
+	{
+		return Input.bMoving;
+	}
+	if (Visual == TEXT("ella:mode-transition"))
+	{
+		return Input.TransitionLeft > 0.0f;
+	}
+	if (Visual == TEXT("ella:living-critical"))
+	{
+		return Input.HealthFraction <= UmbrellaEllaOverlayConst::CriticalFraction;
+	}
+	if (Visual == TEXT("umbrella:repair"))
+	{
+		return Input.RepairLeft > 0.0f;
+	}
+	return false;
+}
+
+UStaticMeshComponent* UEllaAnimPresenterComponent::FindOverlay(const FString& Visual) const
+{
+	const TObjectPtr<UStaticMeshComponent>* Found = OverlayParts.Find(FName(*Visual));
+	return Found ? Found->Get() : nullptr;
+}
+
+EArtSlotDraw UEllaAnimPresenterComponent::ShowOverlayArt(const FString& Visual, UTexture2D* Texture)
+{
+	AActor* Owner = GetOwner();
+	const FArtSlotRow* Row = ArtSlot::Find(*Visual);
+	const UmbrellaEllaOverlayConst::FOverlay* Layer = nullptr;
+	for (const UmbrellaEllaOverlayConst::FOverlay& Candidate : UmbrellaEllaOverlayConst::Overlays)
+	{
+		Layer = Visual == Candidate.Visual ? &Candidate : Layer;
+	}
+	if (!IsValid(Owner) || !Owner->GetRootComponent() || !Row || !Layer || !IsFeatureEnabled(EFeatureId::ANIM_04) || FindOverlay(Visual))
+	{
+		return EArtSlotDraw::NoTexture;
+	}
+	UTexture2D* Picture = Texture ? Texture : ArtSlot::LoadTexture(*Row);
+	if (!Picture)
+	{
+		return EArtSlotDraw::NoTexture;
+	}
+	UStaticMeshComponent* Part = NewObject<UStaticMeshComponent>(Owner);
+	Part->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Part->SetGenerateOverlapEvents(false);
+	Part->SetupAttachment(Owner->GetRootComponent());
+	const EArtSlotDraw Result = ArtSlot::Apply(Part, Picture, *Row, UmbrellaPresenterConst::StandInScale);
+	if (Result != EArtSlotDraw::Drawn)
+	{
+		Part->DestroyComponent();
+		return Result;
+	}
+	Part->RegisterComponent();
+	ArtSlot::SetWorldBoxScale(Part, UmbrellaPresenterConst::StandInScale);
+	Part->SetWorldLocation(Owner->GetActorLocation() + FVector(0.0, Layer->DepthOffset, 0.0));
+	Part->SetVisibility(false);
+	OverlayParts.Add(FName(*Visual), Part);
+	return Result;
+}
+
+void UEllaAnimPresenterComponent::LoadOverlays()
+{
+	for (const UmbrellaEllaOverlayConst::FOverlay& Layer : UmbrellaEllaOverlayConst::Overlays)
+	{
+		ShowOverlayArt(Layer.Visual, nullptr);
+	}
+}
+
+FEllaOverlayInput UEllaAnimPresenterComponent::ReadOverlayInput() const
+{
+	FEllaOverlayInput Input;
+	Input.TransitionLeft = TransitionLeft;
+	Input.RepairLeft = RepairLeft;
+	const AActor* Owner = GetOwner();
+	if (const UUmbrellaStateComponent* State = IsValid(Owner) ? Owner->FindComponentByClass<UUmbrellaStateComponent>() : nullptr)
+	{
+		Input.bFreeFall = State->GetAction() == EUmbrellaAction::FreeFall;
+	}
+	if (const UEllaMotorComponent* Motor = IsValid(Owner) ? Owner->FindComponentByClass<UEllaMotorComponent>() : nullptr)
+	{
+		const FMotorTuning& Tuning = GetDefault<UUmbrellaTuning>()->Motor;
+		Input.bMoving = Motor->IsHopProtected() || FMath::Abs(Motor->GetVelocity().X) >= Tuning.HopDistance / FMath::Max(Tuning.HopDurationSeconds, KINDA_SMALL_NUMBER);
+	}
+	if (const UUmbrellaHealthComponent* Health = IsValid(Owner) ? Owner->FindComponentByClass<UUmbrellaHealthComponent>() : nullptr)
+	{
+		const FHealthState& HealthNow = Health->GetState();
+		Input.HealthFraction = HealthNow.Capacity > 0.0f ? FMath::Clamp(HealthNow.Active / HealthNow.Capacity, 0.0f, 1.0f) : 1.0f;
+	}
+	return Input;
+}
+
+void UEllaAnimPresenterComponent::UpdateOverlays(const FEllaOverlayInput& Input)
+{
+	for (const TPair<FName, TObjectPtr<UStaticMeshComponent>>& Pair : OverlayParts)
+	{
+		if (IsValid(Pair.Value))
+		{
+			Pair.Value->SetVisibility(ShouldShowOverlay(Pair.Key.ToString(), Input));
+		}
+	}
 }

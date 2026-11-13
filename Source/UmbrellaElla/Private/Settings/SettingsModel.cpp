@@ -191,7 +191,7 @@ FText SettingsRules::ActionDisplayName(EUmbrellaInputAction Action)
 	switch (Action)
 	{
 	case EUmbrellaInputAction::Shoot:
-		return LOCTEXT("Shoot", "Small Blasts");
+		return LOCTEXT("Shoot", "Shoot");
 	case EUmbrellaInputAction::Absorb:
 		return LOCTEXT("Absorb", "Absorb");
 	case EUmbrellaInputAction::Hop:

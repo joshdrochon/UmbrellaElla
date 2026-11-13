@@ -1,0 +1,13 @@
+A single concept sheet of three separate hanging mechanism heads belonging to a crownless clockwork owl, the Keeper of Time, drawn as three isolated objects side by side on one flat background, evenly spaced with clear gaps, each hanging straight down from its own short chain, each about 55% of the canvas height including its chain. Straight-on orthographic side view, level camera, no perspective, every object fully inside the frame and centred in its third. 16:9 landscape.
+
+Left, the front mechanism: an armillary sphere. A solid, thick brass outer ring with several thinner brass hoops crossing inside it at different angles, and a small round central ball floating at the crossing point, a clearly open skeletal sphere. At its top, a small round eyelet ring (the top eye) with one short chain running straight up from it to the top edge of the frame.
+
+Middle, the middle mechanism: a ribbed cage cylinder like a small lantern, taller than wide and noticeably narrower than the other two. A rounded cap on top, a stack of horizontal brass ribs separated by dark gaps around a hollow barrel, and a flat base. At its top, a small round eyelet ring (the top eye) with one short chain running straight up to the top edge of the frame.
+
+Right, the rear mechanism: a gear ring. A flat toothed brass cogwheel seen face-on as a round disc, with a ring of evenly spaced teeth, several spokes and a central hub with a short spindle. It is about as wide as the armillary sphere. At its top, a small round eyelet ring (the top eye) with one short chain running straight up to the top edge of the frame.
+
+The three shapes are clearly different silhouettes: open sphere, tall cage, flat toothed wheel. Nothing else is attached to any of them: each is one rigid, fabricated metal object made of aged brass and dull iron with small rivets, and each chain is plain metal links.
+
+Style: a dark etched storybook engraving for a 2D game sprite, in brown-black ink with a sepia wash, fine cross-hatching and visible paper tooth. Quiet palette: ink #171614, soot #292622, umber #463C32, mid-tone bronze #695640, taupe #918173, warm ivory highlights. Bronze stays a mid tone, never near black. A heavy dark outer contour around each object and a thin candle-cream rim light (#FFF3D6) on the lit edges. The look matches the Keeper's body in the supplied image: the same aged brass, engraved line and ink treatment.
+
+Background: one flat, uniform, pure green #00FF00 filling the canvas edge to edge, empty, with the objects floating on it without cast shadows, and no text or labels. Every part of the objects is brass, iron, ivory or sepia; none of it is green.

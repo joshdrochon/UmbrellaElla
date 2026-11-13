@@ -1,0 +1,2 @@
+STRIPS repeater-turn source_frames=48 loop_end=47 jitter 40.26 -> 0.91 px
+  N=24 fps=6.0 loop last->first 91.24 vs mean step 34.92 loops=True -> pipeline/art/proof/videoframes/repeater-turn/repeater-turn_N24_strip.png

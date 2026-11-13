@@ -1,7 +1,9 @@
 #include "UI/Menus/FlowMenuWidgets.h"
+#include "Flow/FlowMenuText.h"
 #include "Flow/FlowRules.h"
 #include "Brushes/SlateRoundedBoxBrush.h"
 #include "Framework/Application/SlateApplication.h"
+#include "Layout/WidgetPath.h"
 #include "Rendering/DrawElements.h"
 #include "Styling/CoreStyle.h"
 #include "UI/Style/UmbrellaUIStyle.h"
@@ -18,6 +20,14 @@ namespace
 	{
 		return Value - FMath::FloorToFloat(Value);
 	}
+
+	/** The control hint: small, dim, set in from the bottom-right corner, Confirm then Back with a gap between. */
+	constexpr int32 PromptTextSize = UmbrellaUI::MinTextSize + 2;
+	constexpr float PromptInsetX = UmbrellaUI::PromptInsetX;
+	constexpr float PromptInsetY = UmbrellaUI::PromptInsetY;
+	constexpr float PromptGap = UmbrellaUI::PromptGap;
+
+	TWeakPtr<SFlowMenu> LastOpenedMenu;
 }
 
 void SFlowBackground::Construct(const FArguments& InArgs)
@@ -173,24 +183,33 @@ void SFlowMenu::Construct(const FArguments& InArgs)
 	}
 	for (const FFlowMenuItem& Item : InArgs._Items)
 	{
+		const int32 Index = Buttons.Num();
 		TSharedRef<SUmbrellaButton> Button = SNew(SUmbrellaButton)
 			.Text(Item.Label)
 			.FontSize(Tuning.MenuFontSize)
 			.Ornament(true)
-			.OnClicked_Lambda([Chosen = Item.OnChosen]()
+			.LitOnlyWhenSelected(true)
+			.Selected_Lambda([this, Index]() { return SelectedIndex == Index; })
+			.OnClicked_Lambda([this, Index]()
 			{
-				Chosen.ExecuteIfBound();
+				SelectedIndex = Index;
+				ConfirmSelection();
 				return FReply::Handled();
 			});
-		if (!FirstButton.IsValid())
-		{
-			FirstButton = Button;
-		}
+		Button->SetOnHovered(FSimpleDelegate::CreateSP(this, &SFlowMenu::HandleHovered, Index));
+		Buttons.Add(Button);
+		Choices.Add(Item.OnChosen);
+		Labels.Add(Item.Label);
 		Column->AddSlot().AutoHeight().HAlign(HAlign_Left).Padding(0.0f, UmbrellaUI::ItemGap)
 		[
 			Button
 		];
 	}
+	// Start Game (or whatever comes first) is the choice the moment the screen opens, with or without focus.
+	SelectedIndex = Buttons.Num() > 0 ? 0 : INDEX_NONE;
+	LastOpenedMenu = SharedThis(this);
+	// A click can hand focus to the game viewport; take it back so the keys and the pad keep working.
+	RegisterActiveTimer(KeepFocusIntervalSeconds, FWidgetActiveTimerDelegate::CreateSP(this, &SFlowMenu::KeepFocus));
 
 	ChildSlot
 	[
@@ -206,12 +225,148 @@ void SFlowMenu::Construct(const FArguments& InArgs)
 				Column
 			]
 		]
+		+ SOverlay::Slot().HAlign(HAlign_Right).VAlign(VAlign_Bottom).Padding(0.0f, 0.0f, PromptInsetX, PromptInsetY)
+		[
+			SNew(SHorizontalBox).Visibility(EVisibility::HitTestInvisible)
+			+ SHorizontalBox::Slot().AutoWidth()
+			[
+				SNew(STextBlock).Text(this, &SFlowMenu::GetConfirmPrompt).Font(FUmbrellaUIStyle::BodyFont(PromptTextSize))
+					.ColorAndOpacity(FUmbrellaUIStyle::Dim())
+					.ShadowOffset(FVector2D(UmbrellaUI::ShadowOffset, UmbrellaUI::ShadowOffset)).ShadowColorAndOpacity(FUmbrellaUIStyle::Shadow())
+			]
+			+ SHorizontalBox::Slot().AutoWidth().Padding(PromptGap, 0.0f, 0.0f, 0.0f)
+			[
+				SNew(STextBlock).Text(this, &SFlowMenu::GetBackPrompt).Font(FUmbrellaUIStyle::BodyFont(PromptTextSize))
+					.ColorAndOpacity(FUmbrellaUIStyle::Dim())
+					.ShadowOffset(FVector2D(UmbrellaUI::ShadowOffset, UmbrellaUI::ShadowOffset)).ShadowColorAndOpacity(FUmbrellaUIStyle::Shadow())
+					.Visibility(BackDelegate.IsBound() ? EVisibility::HitTestInvisible : EVisibility::Collapsed)
+			]
+		]
 	];
+}
+
+TSharedPtr<SFlowMenu> SFlowMenu::GetLastOpened()
+{
+	return LastOpenedMenu.Pin();
+}
+
+TSharedPtr<SUmbrellaButton> SFlowMenu::GetItemButton(int32 Index) const
+{
+	return Buttons.IsValidIndex(Index) ? Buttons[Index] : nullptr;
+}
+
+int32 SFlowMenu::FindItem(const FText& Label) const
+{
+	return Labels.IndexOfByPredicate([&Label](const FText& Each) { return Each.EqualTo(Label); });
+}
+
+void SFlowMenu::SelectItem(int32 Index)
+{
+	if (!Buttons.IsValidIndex(Index))
+	{
+		return;
+	}
+	SelectedIndex = Index;
+	if (FSlateApplication::IsInitialized() && !Buttons[Index]->HasAnyUserFocus().IsSet())
+	{
+		FSlateApplication::Get().SetAllUserFocus(Buttons[Index], EFocusCause::Mouse);
+	}
+}
+
+bool SFlowMenu::CanConfirmSelection() const
+{
+	return Choices.IsValidIndex(SelectedIndex) && Choices[SelectedIndex].IsBound();
+}
+
+void SFlowMenu::ConfirmSelection()
+{
+	if (!CanConfirmSelection())
+	{
+		return;
+	}
+	// Copy first: the action usually closes this menu, which destroys the array.
+	const FSimpleDelegate Chosen = Choices[SelectedIndex];
+	Chosen.ExecuteIfBound();
+}
+
+void SFlowMenu::MoveSelection(int32 Step)
+{
+	if (Buttons.Num() > 0)
+	{
+		SelectItem(FMath::Clamp(SelectedIndex + Step, 0, Buttons.Num() - 1));
+	}
+}
+
+EActiveTimerReturnType SFlowMenu::KeepFocus(double InCurrentTime, float InDeltaTime)
+{
+	if (FSlateApplication::IsInitialized() && Buttons.IsValidIndex(SelectedIndex) && GetVisibility().IsVisible())
+	{
+		const TSharedPtr<SWidget> Focused = FSlateApplication::Get().GetUserFocusedWidget(0);
+		// Only from nothing or the game viewport: another widget (the settings page) may own focus on purpose.
+		if (!Focused.IsValid() || Focused->GetType() == FName(TEXT("SViewport")))
+		{
+			FSlateApplication::Get().SetAllUserFocus(Buttons[SelectedIndex], EFocusCause::SetDirectly);
+		}
+	}
+	return EActiveTimerReturnType::Continue;
+}
+
+void SFlowMenu::HandleHovered(int32 Index)
+{
+	bGamepadPrompts = false;
+	SelectItem(Index);
+}
+
+FText SFlowMenu::GetConfirmPrompt() const
+{
+	return FFlowMenuText::ConfirmPrompt(bGamepadPrompts);
+}
+
+FText SFlowMenu::GetBackPrompt() const
+{
+	return FFlowMenuText::BackPrompt(bGamepadPrompts);
 }
 
 bool SFlowMenu::SupportsKeyboardFocus() const
 {
 	return true;
+}
+
+FReply SFlowMenu::OnPreviewKeyDown(const FGeometry& MyGeometry, const FKeyEvent& InKeyEvent)
+{
+	// Only watches which device spoke last, for the hint's wording; the key goes on to the focused button.
+	bGamepadPrompts = InKeyEvent.GetKey().IsGamepadKey();
+	return FReply::Unhandled();
+}
+
+FReply SFlowMenu::OnMouseMove(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)
+{
+	bGamepadPrompts = false;
+	return FReply::Unhandled();
+}
+
+FReply SFlowMenu::OnMouseButtonDown(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)
+{
+	// A click on the empty ground keeps keys and the pad on the menu (the game viewport would otherwise take focus).
+	if (Buttons.IsValidIndex(SelectedIndex))
+	{
+		return FReply::Handled().SetUserFocus(Buttons[SelectedIndex].ToSharedRef(), EFocusCause::SetDirectly);
+	}
+	return FReply::Handled();
+}
+
+void SFlowMenu::OnFocusChanging(const FWeakWidgetPath& PreviousFocusPath, const FWidgetPath& NewWidgetPath, const FFocusEvent& InFocusEvent)
+{
+	SCompoundWidget::OnFocusChanging(PreviousFocusPath, NewWidgetPath, InFocusEvent);
+	// Keys and the pad move Slate focus between the rows; the selection follows it.
+	for (int32 Index = 0; Index < Buttons.Num(); ++Index)
+	{
+		if (NewWidgetPath.ContainsWidget(Buttons[Index].Get()))
+		{
+			SelectedIndex = Index;
+			return;
+		}
+	}
 }
 
 FReply SFlowMenu::OnKeyDown(const FGeometry& MyGeometry, const FKeyEvent& InKeyEvent)
@@ -222,8 +377,24 @@ FReply SFlowMenu::OnKeyDown(const FGeometry& MyGeometry, const FKeyEvent& InKeyE
 	{
 		return BackDelegate.ExecuteIfBound() ? FReply::Handled() : FReply::Unhandled();
 	}
-	// WASD walks the buttons like the arrow keys (arrows and the D-pad navigate through Slate already).
+	// Confirm reaching the menu itself (no row held focus): choose the selected row, as the mark shows.
+	if (Intent == EFlowMenuIntent::Confirm && !InKeyEvent.IsRepeat())
+	{
+		if (!CanConfirmSelection())
+		{
+			return FReply::Unhandled();
+		}
+		ConfirmSelection();
+		return FReply::Handled();
+	}
 	const bool bWasdKey = Key == EKeys::W || Key == EKeys::A || Key == EKeys::S || Key == EKeys::D;
+	// Up and Down move the selection here, not through Slate's focus walk, so they work whatever holds focus.
+	if ((Intent == EFlowMenuIntent::Up || Intent == EFlowMenuIntent::Down) && (bWasdNavigation || !bWasdKey))
+	{
+		MoveSelection(Intent == EFlowMenuIntent::Down ? 1 : -1);
+		return FReply::Handled();
+	}
+	// WASD walks the buttons like the arrow keys (left and right still go through Slate).
 	if (bWasdNavigation && bWasdKey && FSlateApplication::IsInitialized())
 	{
 		const FKey Arrow = Intent == EFlowMenuIntent::Up ? EKeys::Up : Intent == EFlowMenuIntent::Down ? EKeys::Down
@@ -236,20 +407,20 @@ FReply SFlowMenu::OnKeyDown(const FGeometry& MyGeometry, const FKeyEvent& InKeyE
 
 FReply SFlowMenu::OnFocusReceived(const FGeometry& MyGeometry, const FFocusEvent& InFocusEvent)
 {
-	// The menu itself is only a holder: focus given to it (the input mode does that) lands on the first button, so the
-	// player always sees which item a key or pad press will choose.
-	if (FirstButton.IsValid())
+	// The menu itself is only a holder: focus given to it (the input mode does that) lands on the selected button, so
+	// a key or pad press chooses the row the mark is on.
+	if (Buttons.IsValidIndex(SelectedIndex))
 	{
-		return FReply::Handled().SetUserFocus(FirstButton.ToSharedRef(), EFocusCause::SetDirectly);
+		return FReply::Handled().SetUserFocus(Buttons[SelectedIndex].ToSharedRef(), EFocusCause::SetDirectly);
 	}
 	return SCompoundWidget::OnFocusReceived(MyGeometry, InFocusEvent);
 }
 
 void SFlowMenu::FocusFirstItem()
 {
-	if (FirstButton.IsValid() && FSlateApplication::IsInitialized())
+	if (Buttons.IsValidIndex(SelectedIndex) && FSlateApplication::IsInitialized())
 	{
-		FSlateApplication::Get().SetAllUserFocus(FirstButton, EFocusCause::SetDirectly);
+		FSlateApplication::Get().SetAllUserFocus(Buttons[SelectedIndex], EFocusCause::SetDirectly);
 	}
 	else if (FSlateApplication::IsInitialized())
 	{
@@ -277,7 +448,84 @@ void SFlowTextScreen::Construct(const FArguments& InArgs)
 					.RenderTransform(this, &SFlowTextScreen::GetScrollTransform)
 			]
 		]
+		+ SOverlay::Slot().HAlign(HAlign_Left).VAlign(VAlign_Center).Padding(UmbrellaUI::ColumnLeft, 0.0f, 0.0f, 0.0f)
+		[
+			SNew(SBox).WidthOverride(FMath::Min(Tuning.TextBlockWidth, UmbrellaUI::ColumnWidth))
+			[
+				SAssignNew(CreditsBox, SVerticalBox)
+				.Visibility(EVisibility::Collapsed)
+				.RenderTransform(this, &SFlowTextScreen::GetScrollTransform)
+			]
+		]
 	];
+}
+
+void SFlowTextScreen::SetCredits(const TArray<FString>& Lines, float ScrollOffset)
+{
+	Scroll = ScrollOffset;
+	if (!CreditsBox.IsValid())
+	{
+		return;
+	}
+	if (TextBlock.IsValid())
+	{
+		TextBlock->SetVisibility(EVisibility::Collapsed);
+	}
+	CreditsBox->SetVisibility(EVisibility::HitTestInvisible);
+	if (Lines == CreditsShown)
+	{
+		return;
+	}
+	CreditsShown = Lines;
+	CreditsBox->ClearChildren();
+	const auto AddRow = [this](const FString& Text, const FSlateFontInfo& Font, const FLinearColor& Color, float Above)
+	{
+		CreditsBox->AddSlot().AutoHeight().Padding(0.0f, Above, 0.0f, 0.0f)
+		[
+			SNew(STextBlock).Text(FText::FromString(Text)).Font(Font).ColorAndOpacity(Color)
+				.ShadowOffset(FVector2D(UmbrellaUI::ShadowOffset, UmbrellaUI::ShadowOffset)).ShadowColorAndOpacity(FUmbrellaUIStyle::Shadow())
+		];
+	};
+	const auto IsRole = [](const FString& Line)
+	{
+		return Line.Contains(TEXT("Producer")) || Line.Contains(TEXT("Lead")) || Line.Contains(TEXT("Director"))
+			|| Line.Contains(TEXT("Designer")) || Line.Contains(TEXT("Artist")) || Line.Contains(TEXT("Composer"));
+	};
+	for (int32 Index = 0; Index < Lines.Num(); ++Index)
+	{
+		FString Name, Role;
+		if (Index == 0)
+		{
+			// "Umbrella Ella The Stolen Hour": the name on one row, the subtitle under it, as on the title screen.
+			FString TitleName, TitleSubtitle;
+			if (!Lines[0].Split(TEXT(" The "), &TitleName, &TitleSubtitle))
+			{
+				TitleName = Lines[0];
+			}
+			AddRow(TitleName, FUmbrellaUIStyle::DisplayFont(UmbrellaUI::CreditsTitleSize), FUmbrellaUIStyle::Cream(), 0.0f);
+			if (!TitleSubtitle.IsEmpty())
+			{
+				AddRow(TEXT("The ") + TitleSubtitle, FUmbrellaUIStyle::DisplayFontSpaced(UmbrellaUI::CreditsSubtitleSize, UmbrellaUI::LockupSubtitleSpacing), FUmbrellaUIStyle::Gold(), 0.0f);
+			}
+			CreditsBox->AddSlot().AutoHeight().Padding(0.0f, UmbrellaUI::HeadingGap, UmbrellaUI::HeadingWidth - UmbrellaUI::ColumnWidth, UmbrellaUI::SectionGap)
+			[
+				SNew(SUmbrellaRule)
+			];
+		}
+		else if (Lines[Index].Split(TEXT(" - "), &Name, &Role))
+		{
+			AddRow(Name, FUmbrellaUIStyle::DisplayFont(UmbrellaUI::CreditsNameSize), FUmbrellaUIStyle::Cream(), UmbrellaUI::CreditsGap);
+			AddRow(Role, FUmbrellaUIStyle::DisplayFontSpaced(UmbrellaUI::CreditsRoleSize, UmbrellaUI::LockupSubtitleSpacing), FUmbrellaUIStyle::Gold(), 0.0f);
+		}
+		else if (IsRole(Lines[Index]))
+		{
+			AddRow(Lines[Index], FUmbrellaUIStyle::DisplayFontSpaced(UmbrellaUI::CreditsRoleSize, UmbrellaUI::LockupSubtitleSpacing), FUmbrellaUIStyle::Gold(), 0.0f);
+		}
+		else
+		{
+			AddRow(Lines[Index], FUmbrellaUIStyle::DisplayFont(UmbrellaUI::CreditsNameSize), FUmbrellaUIStyle::Cream(), UmbrellaUI::CreditsGap);
+		}
+	}
 }
 
 void SFlowTextScreen::SetText(const FText& NewText, float ScrollOffset)

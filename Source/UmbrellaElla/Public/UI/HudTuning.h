@@ -84,4 +84,54 @@ struct UMBRELLAELLA_API FHudTuning
 
 	UPROPERTY(Config, EditAnywhere)
 	FLinearColor NumeralColor = FLinearColor(0.95f, 0.85f, 0.65f, 1.0f);
+
+	/** Etched rim: a fine inner ring and fine minute marks inside the bronze rim (units: px, fractions of the radius). */
+	UPROPERTY(Config, EditAnywhere)
+	FLinearColor EtchColor = FLinearColor(0.85f, 0.62f, 0.28f, 0.85f);
+
+	UPROPERTY(Config, EditAnywhere, meta = (ClampMin = "0.5"))
+	float EtchThickness = 1.0f;
+
+	UPROPERTY(Config, EditAnywhere, meta = (ClampMin = "0.01", ClampMax = "0.3"))
+	float EtchRingInsetFraction = 0.07f;
+
+	UPROPERTY(Config, EditAnywhere, meta = (ClampMin = "12", ClampMax = "120"))
+	int32 EtchMarkCount = 60;
+
+	UPROPERTY(Config, EditAnywhere, meta = (ClampMin = "0.01", ClampMax = "0.2"))
+	float EtchMarkLengthFraction = 0.05f;
+
+	/** Absorbed energy flowing into the clock: seconds a mote takes from Ella to the clock, its size (px),
+	 *  how far its path bows upward (fraction of the straight distance), and its colour. Presentation only. */
+	UPROPERTY(Config, EditAnywhere, meta = (ClampMin = "0.05"))
+	float EnergyFlowSeconds = 0.5f;
+
+	UPROPERTY(Config, EditAnywhere, meta = (ClampMin = "1.0"))
+	float EnergyMoteSizePx = 8.0f;
+
+	UPROPERTY(Config, EditAnywhere, meta = (ClampMin = "0.0", ClampMax = "1.0"))
+	float EnergyArcBow = 0.2f;
+
+	/** Trail dots behind each mote and their spacing in flow time (s). */
+	UPROPERTY(Config, EditAnywhere, meta = (ClampMin = "0", ClampMax = "8"))
+	int32 EnergyTrailDots = 3;
+
+	UPROPERTY(Config, EditAnywhere, meta = (ClampMin = "0.01"))
+	float EnergyTrailSpacingSeconds = 0.04f;
+
+	UPROPERTY(Config, EditAnywhere)
+	FLinearColor EnergyColor = FLinearColor(1.0f, 0.82f, 0.35f, 0.95f);
+
+	/** Spell wheel, drawn while the wheel is open: radius as a fraction of view height, colours. */
+	UPROPERTY(Config, EditAnywhere, meta = (ClampMin = "0.05", ClampMax = "0.45"))
+	float WheelRadiusFraction = 0.2f;
+
+	UPROPERTY(Config, EditAnywhere)
+	FLinearColor WheelTextColor = FLinearColor(0.95f, 0.88f, 0.7f, 1.0f);
+
+	UPROPERTY(Config, EditAnywhere)
+	FLinearColor WheelLockedColor = FLinearColor(0.55f, 0.5f, 0.45f, 1.0f);
+
+	UPROPERTY(Config, EditAnywhere)
+	FLinearColor WheelPreviewColor = FLinearColor(1.0f, 0.78f, 0.25f, 1.0f);
 };

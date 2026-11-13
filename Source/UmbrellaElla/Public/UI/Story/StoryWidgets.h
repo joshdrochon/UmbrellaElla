@@ -63,4 +63,6 @@ private:
 	mutable FOnStoryChoice MainMenuDelegate;
 	TArray<TPair<FString, FString>> Rows;
 	TSharedPtr<SVerticalBox> RowBox;
+	TSharedPtr<class SUmbrellaButton> TryAgainButton;
+	TSharedPtr<class SUmbrellaButton> MainMenuButton;
 };

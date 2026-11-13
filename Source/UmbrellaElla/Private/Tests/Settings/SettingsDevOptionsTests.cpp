@@ -270,10 +270,15 @@ bool FSettingsAccessLiveTest::RunTest(const FString& Parameters)
 	TestEqual(TEXT("camera shake readers get 0"), UmbrellaAccessibility::GetShakeScale(World), 0.0f);
 	TestTrue(TEXT("readers see reduced flash"), UmbrellaAccessibility::IsReducedFlash(World));
 	TestEqual(TEXT("readers see 150% text"), UmbrellaAccessibility::GetTextScale(World), 1.5f);
+	// World-free readers (Slate, subsystems with no world context) see the same saved values.
+	TestEqual(TEXT("published text 150%"), UmbrellaAccessibility::PublishedTextScalePercent(), 150);
+	TestEqual(TEXT("flow menu font 28 -> 42"), UmbrellaAccessibility::PublishedFontSize(28), 42);
+	TestTrue(TEXT("published reduced motion"), UmbrellaAccessibility::IsPublishedReducedMotion());
 
 	Subsystem->EditSession().SetReducedMotion(false);
 	Subsystem->SaveSettings(ESettingsPage::Sound);
 	TestFalse(TEXT("motion back on"), UmbrellaAccessibility::IsReducedMotion(World));
+	TestFalse(TEXT("published motion back on"), UmbrellaAccessibility::IsPublishedReducedMotion());
 	TestFalse(TEXT("nothing left in the live tuning"), Subsystem->IsLiveTuningApplied());
 
 	Subsystem->OnSettingsSaved().Remove(Handle);

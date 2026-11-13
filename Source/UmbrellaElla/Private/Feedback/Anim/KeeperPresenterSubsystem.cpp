@@ -1,5 +1,9 @@
 #include "Feedback/Anim/KeeperPresenterSubsystem.h"
+#include "Arena/UmbrellaArena.h"
+#include "EngineUtils.h"
 #include "Components/StaticMeshComponent.h"
+#include "Core/UmbrellaEvent.h"
+#include "Core/UmbrellaEventBus.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/World.h"
 #include "Feedback/Art/ArtSlot.h"
@@ -7,12 +11,67 @@
 #include "Harness/UmbrellaFeatureFlags.h"
 #include "Owl/KeeperOfTime.h"
 
+namespace
+{
+	/**
+	 * Which Keeper stand-in cubes a drawn slot covers. The body sprite paints wings, clock and the three mechanisms at
+	 * home; a part layer covers its own part. The exposed eye, chain head, talon tip, gust and telegraph are state cues
+	 * with no slot art at their position, so their cubes stay.
+	 */
+	TArray<EKeeperPart> KeeperPartsCoveredBy(const FString& VisualId)
+	{
+		TArray<EKeeperPart> Covered;
+		if (VisualId == TEXT("keeper:body-hover-flap"))
+		{
+			Covered = {EKeeperPart::Wings, EKeeperPart::Clock, EKeeperPart::Front, EKeeperPart::Middle, EKeeperPart::Rear};
+		}
+		else if (VisualId == TEXT("keeper:wings-gust-wear"))
+		{
+			Covered = {EKeeperPart::Wings};
+		}
+		else if (VisualId == TEXT("keeper:clock-cover-glass-hands"))
+		{
+			Covered = {EKeeperPart::Clock};
+		}
+		else if (VisualId == TEXT("keeper:mechanism-front"))
+		{
+			Covered = {EKeeperPart::Front};
+		}
+		else if (VisualId == TEXT("keeper:mechanism-middle"))
+		{
+			Covered = {EKeeperPart::Middle};
+		}
+		else if (VisualId == TEXT("keeper:mechanism-rear"))
+		{
+			Covered = {EKeeperPart::Rear};
+		}
+		return Covered;
+	}
+
+	void KeeperCoverStandIns(AActor* Keeper, const FString& VisualId)
+	{
+		if (AKeeperOfTime* Owl = Cast<AKeeperOfTime>(Keeper))
+		{
+			for (const EKeeperPart Part : KeeperPartsCoveredBy(VisualId))
+			{
+				Owl->MarkPartArtDrawn(Part);
+			}
+		}
+	}
+}
+
 void UKeeperPresenterSubsystem::PostInitialize()
 {
 	Super::PostInitialize();
 	if (UWorld* World = GetWorld())
 	{
 		SpawnHandle = World->AddOnActorSpawnedHandler(FOnActorSpawned::FDelegate::CreateUObject(this, &UKeeperPresenterSubsystem::HandleActorSpawned));
+		DestroyHandle = World->AddOnActorDestroyedHandler(FOnActorDestroyed::FDelegate::CreateUObject(this, &UKeeperPresenterSubsystem::HandleActorDestroyed));
+		if (UUmbrellaEventBus* Bus = UUmbrellaEventBus::Get(World))
+		{
+			PartHandle = Bus->On(EUmbrellaEventType::BossPartDestroyed).AddUObject(this, &UKeeperPresenterSubsystem::HandlePartDestroyed);
+			RestartHandle = Bus->On(EUmbrellaEventType::CheckpointRetried).AddUObject(this, &UKeeperPresenterSubsystem::HandleRestart);
+		}
 	}
 }
 
@@ -21,6 +80,12 @@ void UKeeperPresenterSubsystem::Deinitialize()
 	if (UWorld* World = GetWorld())
 	{
 		World->RemoveOnActorSpawnedHandler(SpawnHandle);
+		World->RemoveOnActorDestroyedHandler(DestroyHandle);
+		if (UUmbrellaEventBus* Bus = UUmbrellaEventBus::Get(World))
+		{
+			Bus->On(EUmbrellaEventType::BossPartDestroyed).Remove(PartHandle);
+			Bus->On(EUmbrellaEventType::CheckpointRetried).Remove(RestartHandle);
+		}
 	}
 	Super::Deinitialize();
 }
@@ -29,8 +94,188 @@ void UKeeperPresenterSubsystem::HandleActorSpawned(AActor* Actor)
 {
 	if (Cast<AKeeperOfTime>(Actor))
 	{
+		bMasksShown = false;
+		PartsDestroyed = 0;
+		Keepers.Add(Actor);
 		ShowStandIn(Actor);
 	}
+	else if (AUmbrellaArena* Arena = Cast<AUmbrellaArena>(Actor))
+	{
+		Arena->SetKeeperArtShown(bArenaArtShown);
+	}
+}
+
+void UKeeperPresenterSubsystem::HandleActorDestroyed(AActor* Actor)
+{
+	if (Cast<AKeeperOfTime>(Actor))
+	{
+		Keepers.Remove(TWeakObjectPtr<AActor>(Actor));
+		SyncArenaStandIn();
+	}
+}
+
+void UKeeperPresenterSubsystem::SyncPartCover(AKeeperOfTime* Owl)
+{
+	if (!Owl)
+	{
+		return;
+	}
+	// What the art draws now: the body picture and every part layer that still exists.
+	uint8 Covered = 0;
+	auto Add = [&Covered](const FString& VisualId)
+	{
+		for (const EKeeperPart Part : KeeperPartsCoveredBy(VisualId))
+		{
+			Covered |= static_cast<uint8>(1u << static_cast<uint8>(Part));
+		}
+	};
+	static const FName StandInName(TEXT("KeeperStandIn"));
+	const UStaticMeshComponent* Body = FindObjectFast<UStaticMeshComponent>(Owl, StandInName);
+	if (Body && ArtSlot::HasArt(Body))
+	{
+		Add(TEXT("keeper:body-hover-flap"));
+	}
+	for (const UmbrellaKeeperPresenterConst::FKeeperPartLayer& Layer : UmbrellaKeeperPresenterConst::PartLayers)
+	{
+		if (FindPart(Owl, Layer.Visual))
+		{
+			Add(Layer.Visual);
+		}
+	}
+	for (uint8 Index = 0; Index < static_cast<uint8>(EKeeperPart::Count); ++Index)
+	{
+		const EKeeperPart Part = static_cast<EKeeperPart>(Index);
+		const bool bCovered = (Covered & (1u << Index)) != 0;
+		if (bCovered && !Owl->IsPartArtDrawn(Part))
+		{
+			Owl->MarkPartArtDrawn(Part);
+		}
+		else if (!bCovered && Owl->IsPartArtDrawn(Part))
+		{
+			Owl->ClearPartArtDrawn(Part);
+		}
+	}
+}
+
+void UKeeperPresenterSubsystem::HandlePartDestroyed(const FUmbrellaEvent&)
+{
+	++PartsDestroyed;
+	bMasksShown = true;
+}
+
+void UKeeperPresenterSubsystem::HandleRestart(const FUmbrellaEvent&)
+{
+	PartsDestroyed = 0;
+	bMasksShown = false;
+}
+
+void UKeeperPresenterSubsystem::ShowStateLayer(AActor* Keeper, const FString& VisualId)
+{
+	if (UStaticMeshComponent* Layer = FindPart(Keeper, VisualId))
+	{
+		Layer->SetVisibility(true);
+	}
+}
+
+void UKeeperPresenterSubsystem::HideStateLayer(AActor* Keeper, const FString& VisualId)
+{
+	if (UStaticMeshComponent* Layer = FindPart(Keeper, VisualId))
+	{
+		Layer->SetVisibility(false);
+	}
+}
+
+bool UKeeperPresenterSubsystem::HasKeeperArt(const AActor* Keeper)
+{
+	if (!IsValid(Keeper))
+	{
+		return false;
+	}
+	static const FName StandInName(TEXT("KeeperStandIn"));
+	const UStaticMeshComponent* Body = FindObjectFast<UStaticMeshComponent>(const_cast<AActor*>(Keeper), StandInName);
+	if (Body && ArtSlot::HasArt(Body))
+	{
+		return true;
+	}
+	for (const UmbrellaKeeperPresenterConst::FKeeperPartLayer& Layer : UmbrellaKeeperPresenterConst::PartLayers)
+	{
+		if (FindPart(Keeper, Layer.Visual))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+bool UKeeperPresenterSubsystem::HasAnyKeeperArt() const
+{
+	for (const TWeakObjectPtr<AActor>& Keeper : Keepers)
+	{
+		if (HasKeeperArt(Keeper.Get()))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+void UKeeperPresenterSubsystem::SyncArenaStandIn()
+{
+	const bool bArt = HasAnyKeeperArt();
+	bArenaArtShown = bArt;
+	if (UWorld* World = GetWorld())
+	{
+		for (TActorIterator<AUmbrellaArena> It(World); It; ++It)
+		{
+			if (It->IsKeeperArtShown() != bArt)
+			{
+				It->SetKeeperArtShown(bArt);
+			}
+		}
+	}
+}
+
+void UKeeperPresenterSubsystem::Tick(float DeltaTime)
+{
+	bool bKeeperGone = false;
+	for (int32 Index = Keepers.Num() - 1; Index >= 0; --Index)
+	{
+		AActor* Keeper = Keepers[Index].Get();
+		AKeeperOfTime* Owl = Cast<AKeeperOfTime>(Keeper);
+		if (!Owl)
+		{
+			Keepers.RemoveAtSwap(Index);
+			bKeeperGone = true;
+			continue;
+		}
+		SyncPartCover(Owl);
+		if (bMasksShown)
+		{
+			ShowStateLayer(Keeper, UmbrellaKeeperPresenterConst::MaskVisual);
+		}
+		else
+		{
+			HideStateLayer(Keeper, UmbrellaKeeperPresenterConst::MaskVisual);
+		}
+		if (Owl->IsDeparting())
+		{
+			ShowStateLayer(Keeper, UmbrellaKeeperPresenterConst::DepartureVisual);
+		}
+		else
+		{
+			HideStateLayer(Keeper, UmbrellaKeeperPresenterConst::DepartureVisual);
+		}
+	}
+	// The arena square changes only when a Keeper goes or its art does; no world search otherwise.
+	if (bKeeperGone || HasAnyKeeperArt() != bArenaArtShown)
+	{
+		SyncArenaStandIn();
+	}
+}
+
+TStatId UKeeperPresenterSubsystem::GetStatId() const
+{
+	RETURN_QUICK_DECLARE_CYCLE_STAT(UKeeperPresenterSubsystem, STATGROUP_Tickables);
 }
 
 EArtSlotDraw UKeeperPresenterSubsystem::ShowArt(AActor* Keeper, UTexture2D* Texture)
@@ -42,7 +287,13 @@ EArtSlotDraw UKeeperPresenterSubsystem::ShowArt(AActor* Keeper, UTexture2D* Text
 	{
 		return EArtSlotDraw::NoTexture;
 	}
-	return ArtSlot::Apply(Mesh, Texture, *Row, UmbrellaKeeperPresenterConst::StandInScale);
+	const EArtSlotDraw Result = ArtSlot::Apply(Mesh, Texture, *Row, UmbrellaKeeperPresenterConst::StandInScale);
+	if (Result == EArtSlotDraw::Drawn)
+	{
+		KeeperCoverStandIns(Keeper, Row->Visual);
+		SyncArenaStandIn();
+	}
+	return Result;
 }
 
 namespace
@@ -57,7 +308,9 @@ namespace
 
 UStaticMeshComponent* UKeeperPresenterSubsystem::FindPart(const AActor* Keeper, const FString& VisualId)
 {
-	return IsValid(Keeper) ? FindObjectFast<UStaticMeshComponent>(const_cast<AActor*>(Keeper), KeeperPartName(VisualId)) : nullptr;
+	UStaticMeshComponent* Part = IsValid(Keeper) ? FindObjectFast<UStaticMeshComponent>(const_cast<AActor*>(Keeper), KeeperPartName(VisualId)) : nullptr;
+	// A destroyed layer waits for garbage collection under the same name; it no longer draws.
+	return IsValid(Part) ? Part : nullptr;
 }
 
 EArtSlotDraw UKeeperPresenterSubsystem::ShowPartArt(AActor* Keeper, const FString& VisualId, UTexture2D* Texture)
@@ -77,6 +330,11 @@ EArtSlotDraw UKeeperPresenterSubsystem::ShowPartArt(AActor* Keeper, const FStrin
 	{
 		return EArtSlotDraw::NoTexture;
 	}
+	if (UStaticMeshComponent* Stale = FindObjectFast<UStaticMeshComponent>(Keeper, KeeperPartName(VisualId)))
+	{
+		// A destroyed layer still holds the name until garbage collection; move it aside so the new layer can take it.
+		Stale->Rename(nullptr, GetTransientPackage(), REN_DontCreateRedirectors);
+	}
 	UStaticMeshComponent* Part = NewObject<UStaticMeshComponent>(Keeper, KeeperPartName(VisualId));
 	Part->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Part->SetGenerateOverlapEvents(false);
@@ -90,6 +348,10 @@ EArtSlotDraw UKeeperPresenterSubsystem::ShowPartArt(AActor* Keeper, const FStrin
 	Part->RegisterComponent();
 	ArtSlot::SetWorldBoxScale(Part, UmbrellaKeeperPresenterConst::StandInScale);
 	Part->SetWorldLocation(Keeper->GetActorLocation() + FVector(0.0, Layer->DepthOffset, 0.0));
+	KeeperCoverStandIns(Keeper, VisualId);
+	SyncArenaStandIn();
+	// State layers start hidden; Tick shows them while their state holds.
+	Part->SetVisibility(VisualId != UmbrellaKeeperPresenterConst::MaskVisual && VisualId != UmbrellaKeeperPresenterConst::DepartureVisual);
 	return Result;
 }
 
@@ -124,7 +386,10 @@ void UKeeperPresenterSubsystem::ShowStandIn(AActor* Keeper)
 	// Art slot keeper:body-hover-flap; the cube stays when no asset exists.
 	if (const FArtSlotRow* Row = ArtSlot::Find(TEXT("keeper:body-hover-flap")))
 	{
-		ArtSlot::ApplyRow(Mesh, *Row, UmbrellaKeeperPresenterConst::StandInScale);
+		if (ArtSlot::ApplyRow(Mesh, *Row, UmbrellaKeeperPresenterConst::StandInScale) == EArtSlotDraw::Drawn)
+		{
+			KeeperCoverStandIns(Keeper, Row->Visual);
+		}
 	}
 	Mesh->RegisterComponent();
 	// Part slots (wings, mechanism, clock cover, talon) are layers over the body that exist only when their asset does.
@@ -133,4 +398,5 @@ void UKeeperPresenterSubsystem::ShowStandIn(AActor* Keeper)
 		ShowPartArt(Keeper, Layer.Visual, nullptr);
 	}
 	++PresentedCount;
+	SyncArenaStandIn();
 }

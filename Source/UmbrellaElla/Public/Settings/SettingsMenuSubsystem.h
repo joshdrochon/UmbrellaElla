@@ -15,6 +15,18 @@ class UWorld;
 class USettingsMenuWidget;
 class UInputMappingContext;
 class USoundClass;
+class UGameViewportClient;
+class SWidget;
+
+/** Where the Settings menu draws (B3: the player layer sits under every viewport overlay, so the Paused menu covered it). */
+namespace SettingsLayer
+{
+	/** Settings sits this far above the menu art, which sits UmbrellaUiArtConst::ZOrderAboveMenu above the flow menus. */
+	constexpr int32 AboveMenuArt = 1;
+
+	/** Viewport overlay Z order of the Settings menu: above the flow menus (Flow.MenuContextPriority) and their art. */
+	UMBRELLAELLA_API int32 ZOrder();
+}
 
 /**
  * Player settings: Sound, Controller, Credits and (Director's Cut only) Game Options. Owns the draft and the saved
@@ -38,9 +50,18 @@ public:
 
 	bool IsSettingsOpen() const;
 
+	/** The open menu widget (null when closed). */
+	USettingsMenuWidget* GetOpenWidget() const { return OpenWidget; }
+
+	/** Tests: draw into this viewport instead of the world's game viewport (test worlds have none). */
+	void SetViewportForTests(UGameViewportClient* Viewport);
+
 	/** The mode the menus run in. Flow sets it when a run starts; it decides if Game Options exists. */
 	void SetPlayMode(EUmbrellaPlayMode Mode);
 	EUmbrellaPlayMode GetPlayMode() const { return PlayMode; }
+
+	/** The class the Music slider scales; the music component plays through it. */
+	USoundClass* GetMusicClass() const { return MusicClass; }
 
 	/** The draft the widgets edit. */
 	FSettingsSession& EditSession() { return Session; }
@@ -117,6 +138,7 @@ private:
 	void RestoreBaselineTuning();
 #endif
 	void ApplyReducedMotionToRings();
+	UGameViewportClient* FindViewport(const APlayerController* Controller) const;
 
 	FDelegateHandle WorldInitHandle;
 	FTSTicker::FDelegateHandle PlayModeTicker;
@@ -142,4 +164,7 @@ private:
 	UPROPERTY(Transient)
 	TObjectPtr<USettingsMenuWidget> OpenWidget;
 	TWeakObjectPtr<APlayerController> OpenController;
+	TWeakObjectPtr<UGameViewportClient> OpenViewport;
+	TSharedPtr<SWidget> OpenSlate;
+	TWeakObjectPtr<UGameViewportClient> TestViewport;
 };

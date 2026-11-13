@@ -110,7 +110,7 @@ VFX_SHEET = {
 MATERIAL = {"M_VFX_Sheet": "vfx-light-spill", "M_VFX_Spill": "vfx-light-spill"}
 # A widget class (UUserWidget, SCompoundWidget, SLeafWidget, AHUD) is a visual; the piece judges its screen.
 WIDGET = {"USettingsMenuWidget": "ui-settings", "UXpRingWidget": "ui-xp-ring",
-          "UStoryCaptionWidget": "ui-story-text", "UJourneyCompleteWidget": "ui-journey-complete",
+          "UStoryCaptionWidget": "ui-story-text", "UJourneyCompleteWidget": "ui-journey-complete", "UFinalHourIntroWidget": "ui-final-hour-intro",
           "AUmbrellaHUD": "ui-hud-clock", "SFlowBackground": "menu-screen", "SFlowMenu": "ui-title",
           "SFlowTextScreen": "ui-credits", "UProgressionPurchaseWidget": "ui-purchase",
           "SUmbrellaGround": "ui-title", "SUmbrellaRule": "ui-title"}
@@ -123,6 +123,9 @@ FILE_RULES = [
     (r"^Content/[^/]+/Art/Ella/T_Ella_Idle(?:_PH)?\.uasset$", "ella-state:Idle"),
     (r"^Art/Source/Keeper/", "keeper:body-hover-flap"),
     (r"^Content/[^/]+/Art/Keeper/T_Keeper_Owl(?:_PH)?\.uasset$", "keeper:body-hover-flap"),
+    (r"^Content/[^/]+/Art/Shots/T_WindZone(?:_PH)?\.uasset$", "wind:current-field"),   # stand-in imports (Nov 13)
+    (r"^Content/[^/]+/Art/Shots/T_WindLines(?:_PH)?\.uasset$", "wind:decor-lines"),
+    (r"^Content/[^/]+/Art/UI/T_Screen_(\w+?)(?:_PH)?\.uasset$", "screen:{1}"),
     (r"^Content/[^/]+/Art/Ella/T_Ella_Idle(?:_PH)?\.uasset$", "ella-state:Idle"),
     (r"^Art/Source/UI/Font/UmbrellaStorybook\.ttf$", "ui:font"),
     (r"^Art/Source/UI/Ground/Raw/T_UI_(Ground|Grain)_PH\.png$", "ui:ground-{1}"),
@@ -212,6 +215,7 @@ def discover():
                                      os.path.join(dp, f), ROOT)), re.M):
                 put("widget:" + m.group(1), "Source " + os.path.relpath(os.path.join(dp, f),
                     os.path.join(ROOT, "Source/UmbrellaElla/Public")).replace(os.sep, "/"), WIDGET.get(m.group(1)))
+    by_slot = None
     for rel in art_files():
         for rx, vis in FILE_RULES:
             m = re.match(rx, rel)
@@ -228,6 +232,23 @@ def discover():
                     put(visual, rel, UI_FILE_PIECE.get(visual, SCREEN.get(visual[len("ui:head-"):]) if visual.startswith("ui:head-") else rows.get(visual, [None, None])[1]))
                 break
         else:
+            # A slot texture (Nov 13: stand-in imports into every drawn slot): Content/<Proj>/Art/<Dir>/T_<Name>[_PH].uasset
+            # is the visual whose art slot path is /Game/<Proj>/Art/<Dir>/T_<Name>, so it shares that visual's piece.
+            m = re.match(r"^Content/([^/]+)/(Art/.+?)(?:_PH)?\.uasset$", rel)
+            if m:
+                if by_slot is None:
+                    by_slot = {}
+                    for v in list(rows):
+                        try:
+                            p = art_slots.slot_path(v)
+                        except Exception:   # noqa: BLE001  a visual with no slot table entry
+                            p = None
+                        if p:
+                            by_slot.setdefault(p.rsplit(".", 1)[0], v)
+                v = by_slot.get("/Game/%s/%s" % (m.group(1), m.group(2)))
+                if v:
+                    put(v, rel, rows[v][1])
+                    continue
             put("file:" + rel, rel, None)
     return rows
 

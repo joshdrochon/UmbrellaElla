@@ -1,0 +1,32 @@
+# Pause and Settings open and close (Start Game run). Escape pauses; Continue by mouse; Settings by mouse, Back by mouse;
+# Escape on the pause menu resumes; Escape inside Settings backs out.
+firstrun
+wait Title 60
+click Start Game
+keyuntil Playing Enter 0.8 30
+idle 1
+key Escape
+wait Paused 5
+shot p01_paused
+click Continue
+wait Playing 10
+key Escape
+wait Paused 5
+click Settings
+wait Settings 5
+idle 1
+shot p02_settings
+texts
+click Back
+wait Paused 5
+shot p03_paused_after_settings
+click Settings
+wait Settings 5
+key Escape                     # GDD menus: Escape backs out (FLOW-36)
+wait Paused 3
+shot p03b_paused_after_escape
+key Escape                     # Escape on the pause menu resumes
+wait Playing 10
+idle 1
+shot p04_playing_again
+end

@@ -81,7 +81,9 @@ class Tiers(img.ImageWork):
         t = os.path.join(self.repo, "tools")
         shutil.rmtree(os.path.join(t, "__pycache__"), ignore_errors=True)   # a rewrite in the same second keeps a stale .pyc
         with open(os.path.join(t, "art_check.py"), "w") as fh:
-            fh.write("def measure(p, st): return {}\ndef evaluate(m, st): return %s\n" % ("[]" if passing else "['too flat']"))
+            r = "[]" if passing else "['too flat']"
+            fh.write("def measure(p, st): return {}\ndef evaluate(m, st): return %s\n"
+                     "def sprite_failures(p, st, effect=False): return %s\n" % (r, r))
         with open(os.path.join(t, "art_judge.py"), "w") as fh:
             fh.write("def element(i, files, refs, roots, only): return None, [(files[0], %s, 'x')], []\n" % (
                 "9.0" if passing else "0.0"))
@@ -421,3 +423,34 @@ class StyleBlock(unittest.TestCase):
         finally:
             if old is not None:
                 os.environ["ASSETGEN_NO_STYLE"] = old
+
+
+class SpendByProvider(unittest.TestCase):
+    """The counter and the status line give each provider's spend against its own cap (Nov 13)."""
+    def test_each_provider_against_its_own_cap(self):
+        d = {"spent_usd": 34.97, "calls": [{"provider": "fal", "cost_usd": 12.0}, {"provider": "openrouter", "cost_usd": 0.5},
+                                           {"provider": "gemini", "cost_usd": 22.47}]}
+        b = assetgen.by_provider(d, 33.82)
+        self.assertAlmostEqual(b["gemini"]["spent_usd"], 22.47)
+        self.assertAlmostEqual(b["gemini"]["left_usd"], 11.35)
+        self.assertAlmostEqual(b["fal"]["spent_usd"], 12.0)
+        self.assertAlmostEqual(b["openrouter"]["spent_usd"], 0.5)
+        self.assertIn("gemini $22.47/$33.82", assetgen.spend_line(d, 33.82))
+
+
+class GeminiDirectLock(unittest.TestCase):
+    """Josh, Nov 13: once the counter has gemini_direct_locked, a gemini request goes to OpenRouter, then fal, never
+    Gemini-direct."""
+    def test_locked_routes_to_openrouter_then_fal(self):
+        old = assetgen.gemini_direct_locked, assetgen.openrouter_remaining
+        try:
+            assetgen.gemini_direct_locked = lambda: True
+            assetgen.openrouter_remaining = lambda: 5.0
+            m = assetgen.IMAGE_TIERS["draft"]
+            self.assertEqual(assetgen.pick_provider("gemini", m, {"OPENROUTER_API_KEY": True, "FAL_KEY": True}), "openrouter")
+            assetgen.openrouter_remaining = lambda: 0.0
+            self.assertEqual(assetgen.pick_provider("gemini", m, {"OPENROUTER_API_KEY": True, "FAL_KEY": True}), "fal")
+            with self.assertRaises(assetgen.ImageRefused):
+                assetgen.pick_provider("gemini", m, {"OPENROUTER_API_KEY": False, "FAL_KEY": False})
+        finally:
+            assetgen.gemini_direct_locked, assetgen.openrouter_remaining = old

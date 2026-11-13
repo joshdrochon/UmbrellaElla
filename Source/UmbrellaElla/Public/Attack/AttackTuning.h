@@ -87,10 +87,6 @@ struct UMBRELLAELLA_API FAttackTuning
 	UPROPERTY(Config, EditAnywhere, Category = "Attack", meta = (ClampMin = "0"))
 	float StreamDepthHalfExtent = 12.0f;
 
-	/** Placeholder beam tint (art never changes the hitbox). */
-	UPROPERTY(Config, EditAnywhere, Category = "Attack")
-	FLinearColor StreamPlaceholderColor = FLinearColor(0.55f, 0.85f, 1.0f);
-
 	/** Player blast collision radius, units (fixed collider data, never read from art). */
 	UPROPERTY(Config, EditAnywhere, Category = "Attack", meta = (ClampMin = "0"))
 	float BlastRadius = 6.0f; // GDD fixture (D-new-smallblast-fixture)
@@ -115,4 +111,36 @@ struct UMBRELLAELLA_API FAttackTuning
 	/** Holding a spell key this long opens the wheel (flick selects at once). */
 	UPROPERTY(Config, EditAnywhere, Category = "Attack", meta = (ClampMin = "0"))
 	float WheelHoldSeconds = 0.3f;
+
+	/** Small Blasts canopy cycle, presentation only: seconds the canopy shows snapped open and pulsing after an emission,
+	 *  then seconds it closes and cocks back to folded-ready. Together under the 0.2 s shot interval, so it is ready again
+	 *  before the next shot; it never delays or gates a shot. No GDD number (prototype default). */
+	UPROPERTY(Config, EditAnywhere, Category = "Attack", meta = (ClampMin = "0.01"))
+	float SmallCanopyOpenSeconds = 0.06f;
+
+	UPROPERTY(Config, EditAnywhere, Category = "Attack", meta = (ClampMin = "0.01"))
+	float SmallCanopyCockSeconds = 0.08f;
+
+	/** Streamed Blast stand-in strands: how many canopy-interior strands run beside the dark beam body. */
+	UPROPERTY(Config, EditAnywhere, Category = "Attack", meta = (ClampMin = "2", ClampMax = "8"))
+	int32 StreamStrandCount = 4;
+
+	/** Strand spread at the muzzle (half height, units: the canopy interior) and the share of the beam length over
+	 *  which they converge onto the body edge. Looks only: the beam box stays the hitbox. */
+	UPROPERTY(Config, EditAnywhere, Category = "Attack", meta = (ClampMin = "0"))
+	float StreamStrandCanopySpread = 28.0f;
+
+	UPROPERTY(Config, EditAnywhere, Category = "Attack", meta = (ClampMin = "0.05", ClampMax = "1.0"))
+	float StreamStrandConvergeShare = 0.35f;
+
+	/** Strand thickness (units). */
+	UPROPERTY(Config, EditAnywhere, Category = "Attack", meta = (ClampMin = "0.5"))
+	float StreamStrandThickness = 3.0f;
+
+	/** The beam body is dark; the strands around it carry the light. */
+	UPROPERTY(Config, EditAnywhere, Category = "Attack")
+	FLinearColor StreamBodyColor = FLinearColor(0.05f, 0.06f, 0.09f);
+
+	UPROPERTY(Config, EditAnywhere, Category = "Attack")
+	FLinearColor StreamStrandColor = FLinearColor(0.55f, 0.85f, 1.0f);
 };
