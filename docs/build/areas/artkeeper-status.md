@@ -18,3 +18,9 @@ Stuck rule: critic gap unchanged 3 rounds (deterministic score best 0.716): NEED
 - BLOCKED: no paid call made. GEMINI_API_KEY is not set in this shell (tools/keys.py status), and worker rules forbid reading ~/.umbrella-ella.env. Spend so far by us: 0.
 - To continue: run from a shell that has the key: python3 tools/assetgen.py image --provider gemini --aspect 16:9 --image-size 2K --input Art/Source/Keeper/Raw/Owl_Flap/Owl_Flap_00.png --out pipeline/art/proof/ImageProof/Keeper_R1/keeper_grid.png --prompt "$(cat Art/Source/Keeper/Paint/R1/final_prompt.txt)"; then cut the 2x2 cells, key green, run art_check/art_ref_check, blind panel.
 - Open for Josh: GDD says each mechanism's chain runs to the head's top eye; the prompt leaves that route out.
+
+## Gemini rollout, round 1 result (Nov 13)
+- Prompt updated per Josh/lead: GDD wins, each mechanism's chain runs from its underside eye to a second eye on top of the head. Call: gemini-3-pro-image-preview 2K 16:9, cost $0.139, shared spend counter 1.781 of 33.82. Output pipeline/art/proof/ImageProof/Keeper_R1/keeper_grid.png (note: default model gemini-2.5-flash refuses --image-size, pass --model gemini-3-pro-image-preview).
+- Look: painted etched/bronze, far closer to the references than the Blender render. Not yet judged by the panel (not cut, not keyed).
+- Gaps (ours, prompt): wings read as feathered, not rigid vane plates; cage is see-through (chroma green inside would key out); rear gear hidden behind torso; chains do not all reach a top eye; cell 3 wings cover the mechanisms; black grid lines between cells; owl position drifts between cells.
+- Next: round 2 prompt fixes these, then cut, key, art_check/art_ref_check, blind panel.
