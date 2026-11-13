@@ -71,7 +71,10 @@ def check_cam04(recs, transients=()):
             if _f(t, k) < 0:
                 errs.append("transients: %s never reached" % k)
         for k, (lo, hi) in CAL.TRANSIENT_RANGES.items():
-            if k in t and _f(t, k) >= 0 and not lo <= _f(t, k) <= hi:
+            # Only the time keys use a negative value for "never reached"; a steady velocity can be really negative.
+            if k in t and (k in TRANSIENTS and _f(t, k) < 0):
+                continue
+            if k in t and not lo <= _f(t, k) <= hi:
                 errs.append("transients: %s %.2f outside fixed range %.2f-%.2f (%s)" % (k, _f(t, k), lo, hi, CAL.PROFILE))
     return errs
 

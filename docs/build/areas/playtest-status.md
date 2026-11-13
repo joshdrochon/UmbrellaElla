@@ -67,3 +67,16 @@ Main has no levelchunks route winds and no motor-id fix yet (requests/playtest.m
 | FLOW-28 | FAIL | 5 enemies alive at handoff (health carries 2 to 2). Re-run after levelchunks. |
 | HAZ-16 | FAIL | Not run at 1280x720/1920x1080 (run_game.sh fixes 640x360); guard one-shot is a designer call. |
 Nothing left to fix inside the playtest lane. Re-run `-SmokePlaytest` after the Motor fix, a drawn wind field and levelchunks merge.
+
+## QA-36 run on main with windfix (1ded91d5) merged (Nov 12 20:1x; run_game.sh, 640x360, no sound)
+Log: `docs/build/playtest-logs/run-2026-11-12g.log` (commit ac4403d2, `-SmokePlaytest -SmokeQuitAfter=20`, no relay). Build exit 0.
+Check fixed: a real negative `steady_vz` was skipped as "never reached"; only the time keys use a negative sentinel now (test added, 22 OK).
+| Row | Result | Why |
+|---|---|---|
+| CAM-04 | FAIL | Ella now rides and exits the right edge in all 6 profiles (exit_root_z 217 to 259, inside the 210-330 band). Against the frozen `mill_lower_v1` ranges: steady_vz -54 (range 115-125), accel_t90 0.43 (0.45-0.95), reacq_t90 0.42 (0.45-0.95). v1 predates the windfix restoring field (centre z 230), so the vertical figure changed by design. |
+| CAM-07 | FAIL | On-time and late reopens caught; but both currents are live on 0 of 78 ticks while the guard lived (route/mill current not active in the HAZ run). |
+| FLOW-25 | FAIL | Drawn wind width 0 vs usable 200; backdrop 0 of 9 stages. |
+| FLOW-28 | FAIL | 5 enemies alive at handoff (health 2 to 2). |
+| HAZ-16 | FAIL | Guard dies in 1.4 s (boring, 1 useful hit); only 640x360 and healthy runs here. |
+Decision for the lead (not mine, it moves a bar): recalibrate CAM-04 as `mill_lower_v2` from the post-windfix motor, or change the motor. I did not touch the ranges.
+Nothing else is fixable in the playtest lane: wind drawing (FLOW-25), mill current in the HAZ run (CAM-07), handoff clear (FLOW-28), guard HP (HAZ-16).

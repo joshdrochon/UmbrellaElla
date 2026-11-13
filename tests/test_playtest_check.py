@@ -116,6 +116,11 @@ class T(unittest.TestCase):
         r = pc.evaluate(GOOD.replace("brake_t10=1.53", "brake_t10=9.00"))
         self.assertFalse(r["CAM-04"]["pass"])
 
+    def test_negative_steady_velocity_is_judged_not_skipped(self):
+        r = pc.evaluate(GOOD.replace("rode=1 accel_t90=0.77", "rode=1 steady_vz=-54.00 accel_t90=0.77"))
+        self.assertFalse(r["CAM-04"]["pass"])
+        self.assertIn("steady_vz", "; ".join(r["CAM-04"]["errors"]))
+
 
 if __name__ == "__main__":
     unittest.main()
