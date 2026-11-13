@@ -11,3 +11,9 @@
   receiving contract's frame count and size; sidecar .sprite.json; tools/sprite_check.py must pass.
 - Blender stays for real 3D, the Keeper's articulated parts and frame-consistent motion.
 - Every image gets its provenance row and prompt log line (assetgen writes both). Paid calls only after Spend OK.
+- Spend: Josh's Spend OK (Nov 12) is a hard total cap of $33.82 across every image call by every worker; the shared counter
+  (IMAGE_SPEND_FILE) stops all calls at the cap. Spend on the pieces furthest from the bar and most seen first: Ella's
+  four states, the Keeper, scene/skyline, UI screens, then effects and enemies. Paint few, judge, then paint again.
+- When something goes wrong (an API error, a bad output, a piece not passing), check whether it is on us first: our request,
+  prompt and parameters; our post-processing (cutting, background, scaling, colour space); our critic or check. Only then
+  blame the model or the provider. Write the verdict in your status file like the triage rule: "ours: <what>" or "model".
