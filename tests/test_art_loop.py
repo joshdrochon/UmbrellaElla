@@ -204,7 +204,7 @@ class Evidence(unittest.TestCase):
         shutil.copy(os.path.join(ROOT, "pipeline", "day0-cards.md"), os.path.join(tmp, "pipeline"))
         refs, rh = art_loop.refs_and_hash(tmp)
         pieces = art_loop.pieces(refs, "0.10c")
-        self.assertEqual(set(pieces), {"skyline", "wand-shot", "wind-lines", "wind-zone"})
+        self.assertTrue({"skyline", "wand-shot", "wind-lines", "wind-zone"} <= set(pieces))   # the piece list grows
         commit = art_loop.head(tmp)
         for p in pieces:
             art_loop.log_round(tmp, "0.10c", p, {"round": 1, "verdict": "reference", "gap": "g", "checks": True,

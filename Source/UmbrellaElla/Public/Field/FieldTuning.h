@@ -80,6 +80,10 @@ struct UMBRELLAELLA_API FFieldTuning
 	UPROPERTY(EditAnywhere, Category = "Readability")
 	FLinearColor LiftFieldColour = FLinearColor(0.55f, 0.92f, 0.62f);
 
+	/** Rescue currents (up, or any current with a local vertical field); follows the kind, not the direction. // bake: FLOW-25.rescue_field_colour */
+	UPROPERTY(EditAnywhere, Category = "Readability")
+	FLinearColor RescueFieldColour = FLinearColor(0.95f, 0.45f, 0.70f);
+
 	/** Leftward return / reset currents. */
 	UPROPERTY(EditAnywhere, Category = "Readability")
 	FLinearColor ReturnFieldColour = FLinearColor(0.98f, 0.80f, 0.45f);

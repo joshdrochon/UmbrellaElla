@@ -13,3 +13,18 @@ Rule IDs: ART-05..ART-10, ANIM-02..ANIM-08, BG-02..BG-06, VFX-02/03, FLOW-25 (br
 - Honest gap: vfx-sheet rows show frame 0 only. `ArtSlot.cpp` sets `Frame` to 0 and no frame driver exists yet.
 - Run: `TEST_FILTER=UmbrellaElla.Feedback` PASS tests=29 failed=0 (includes all ArtSlot* tests); `python3 -m unittest tests.test_art_slots` OK (5); `art_slots.py check` PASS (100 slots); `module_check` 0 problems; build exit 0.
 - Left: vfx-sheet frame driver; Roadwarden variants map to one slot (see docs/build/requests/artslots.md); Apply caching.
+
+## Follow-ups (Nov 12, session 2)
+Run: build exit 0; `TEST_FILTER=UmbrellaElla.Feedback` PASS tests=32 failed=0; art_slots check PASS; module_check 0; manifest_check 0; `tests.test_art_slots` OK.
+1. Shot slots (ANIM-05, VFX-04): new `UShotPresenterSubsystem` draws shot:gold / shot:red / shot:yellow on projectiles (Projectile/ is a Core contract, so it swaps the sphere on the first tick instead of editing it). Bolt hit: `UUmbrellaVfxSubsystem::ShowImpactArt` draws shot:red-impact on ShotImpact. Test `World.ArtSlotShots`. Not drawn yet: shot:stream-beam (no consumer).
+2. Sheet frames (VFX-02/03): the effect director already drove frames (`StepLive`, artfx); my "no frame driver" note was wrong. Added `World.ArtSlotSheetFrames`, which reads the sheet material's Frame and shows it advancing. No VFX sheet sidecar exists: columns come from the catalogue row (8 cells, one row).
+3. Wind (FLOW-25): new `UWindPresenterSubsystem` (outside Field/, which is another lane): wind:current-field replaces the colour card, wind:decor-lines and the vfx-sheet:VFX_Gust sheet are overlays that exist only when their asset does; the picture is re-applied after the current refreshes its card. The card stays as fallback. Test `World.ArtSlotWind` fails if a wind slot asset exists and the wind does not draw it. No T_WindZone/T_WindLines asset exists yet; the _PH gust sheet draws today.
+Left: 4 Roadwarden variant slots, 5 loader caching, 6 UI slots.
+
+## Session 3 (Nov 12): UI screen slots
+Rule IDs: ART-08, ART-05 (screen:* slots), FLOW-25 context.
+- New `UUiArtSubsystem` (Feedback/Ui/): draws `screen:<Screen>` as a click-through full-frame overlay above the flow menus when the asset exists; menus stay the fallback. One lookup per screen change (loader cache).
+- Test `UmbrellaElla.Feedback.World.ArtSlotUiScreens` (a row and asset per screen, click-through, swap, clear).
+- Run: build exit 0; `TEST_FILTER=UmbrellaElla.Feedback` PASS tests=35 failed=0; art_slots check PASS (100); `tests.test_art_slots` OK; module_check 0.
+- Not run: in-game capture (no T_Screen_* asset exists yet).
+- Left: nothing in the brief.

@@ -9,6 +9,7 @@
 #include "Feedback/Build/BuildIdentity.h"
 #include "Components/SceneComponent.h"
 #include "GameFramework/Actor.h"
+#include "Level/ChunkLayouts.h"
 #include "Level/LevelPlan.h"
 #include "Level/UmbrellaLevelDirector.h"
 #include "Misc/AutomationTest.h"
@@ -149,6 +150,51 @@ bool FLevelWorldRoute::RunTest(const FString& Parameters)
 		TestEqual(TEXT("checkpoint 4 does not exist"), Director->PlaceAtCheckpoint(Ella, 4), 0);
 		Director->ClearRoute();
 		TestEqual(TEXT("cleared"), Director->GetSlotsSpawned(), 0);
+	}
+	LevelDirTestDestroyWorld(World);
+	return bOk;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FLevelWorldVariantLayouts, "UmbrellaElla.Level.World.EachVariantSpawnsItsLayout", UMBRELLAELLA_LEVELDIR_FLAGS)
+bool FLevelWorldVariantLayouts::RunTest(const FString& Parameters)
+{
+	UWorld* World = LevelDirTestMakeWorld();
+	AUmbrellaLevelDirector* Director = World->SpawnActor<AUmbrellaLevelDirector>();
+	bool bOk = TestNotNull(TEXT("director"), Director);
+	if (bOk)
+	{
+		for (const FChunkVariant& V : LevelCatalogue::All())
+		{
+			const FChunkLayout Layout = ChunkLayouts::Get(V.Chunk, V.Variant);
+			FRoute One;
+			One.Slots.Add(V);
+			TestEqual(*FString::Printf(TEXT("%s built"), *V.Label()), Director->BuildRouteFrom(One), 1);
+			int32 Traps = 0;
+			int32 Enemies = 0;
+			int32 WindsByRole[4] = {0, 0, 0, 0};
+			for (const AActor* A : Director->GetSpawned())
+			{
+				Traps += Cast<AUmbrellaTrap>(A) != nullptr;
+				Enemies += Cast<AUmbrellaEnemy>(A) != nullptr;
+			}
+			for (const AActor* A : Director->GetSpawned())
+			{
+				if (const AWindCurrent* W = Cast<AWindCurrent>(A))
+				{
+					const FVector D = W->GetDirection();
+					const int32 Role = FMath::Abs(D.Z) > FMath::Abs(D.X) ? (D.Z < 0.0 ? 1 : 2) : (D.X < 0.0 ? 3 : 0);
+					++WindsByRole[Role];
+				}
+			}
+			TestEqual(*FString::Printf(TEXT("%s traps"), *V.Label()), Traps, Layout.Of(EChunkPieceKind::Trap).Num());
+			TestEqual(*FString::Printf(TEXT("%s enemies"), *V.Label()), Enemies, Layout.Of(EChunkPieceKind::Enemy).Num());
+			TestEqual(*FString::Printf(TEXT("%s transport currents"), *V.Label()), WindsByRole[0], Layout.Winds(EWindRole::Transport).Num());
+			TestEqual(*FString::Printf(TEXT("%s descent currents"), *V.Label()), WindsByRole[1], Layout.Winds(EWindRole::Descent).Num());
+			TestEqual(*FString::Printf(TEXT("%s lift currents"), *V.Label()), WindsByRole[2], Layout.Winds(EWindRole::Lift).Num());
+			TestEqual(*FString::Printf(TEXT("%s return currents"), *V.Label()), WindsByRole[3], Layout.Winds(EWindRole::Return).Num());
+			TestTrue(*FString::Printf(TEXT("%s has a layout"), *V.Label()), Layout.Pieces.Num() > 0);
+		}
+		Director->ClearRoute();
 	}
 	LevelDirTestDestroyWorld(World);
 	return bOk;

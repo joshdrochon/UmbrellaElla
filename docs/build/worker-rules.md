@@ -20,6 +20,20 @@ and no better score, the build lead restarts that one worker with `WORKER_MODEL=
 Fable (`claude-fable-5-2`) only by an explicit emergency call from the build lead for a very challenging task, told to
 Josh when made (Josh, Nov 12 late); never as the routine escalation.
 
+## Never re-judge unchanged work (Josh, Nov 13)
+Critics, panels and tests run only on new or changed items: work that already has a passing record with a matching hash is not re-judged or re-tested, unless the check itself changed.
+
+## Never search outside your worktree (Josh, Nov 12 late)
+`find`, `bfs`, `mdfind`, `grep -r` and the like run only inside your worktree, `../logs` and the engine folder you were
+pointed to. Never search `/`, `~` or another lane's worktree: a `find /` for one screenshot lagged Josh's Mac. If a file
+is missing, say so in your status instead of hunting for it.
+
+## Numbers-only work never uses a smart model (Josh, Nov 12 late)
+Work that only measures or applies numbers (loudness normalise, peak limit, fades, trims, lengths, resizes, crops,
+counts, format conversions) runs as a plain script (ffmpeg loudnorm, alimiter, afade, silenceremove, atrim; Python),
+with its check re-run after, and no LLM per item. If a model is truly needed for numbers-only work, use Haiku
+(`claude-haiku-5-5`), never Sonnet or Opus. Sonnet is for judgement: blind critics, critic-fail remixes, code.
+
 ## Repeat failures: triage before any retry or escalation (Josh, Nov 12)
 When the same check fails twice, or a loop goes flat (2 rounds, same gap, no better score):
 1. Triage first. Is the failure in the work, or in the rule, check or source? Test the check on a known-good input
