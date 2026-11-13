@@ -63,7 +63,7 @@ void ABrokenMillRoom::BuildRoom()
 	TargetBox->SetBoxExtent(FVector(T.TargetSize.X * 0.5, T.DepthHalfExtent, T.TargetSize.Y * 0.5));
 	TargetBox->SetRelativeLocation(FVector(T.TargetCentre.X, 0.0, T.TargetCentre.Y));
 	BrokenMillPlaceholder::ApplyCube(GuardVisual, this, T.TargetSize, T.GuardColor, T.PlaceholderCubeSize, T.PlaceholderDepthScale);
-	GuardVisual->SetRelativeLocation(FVector(T.TargetCentre.X, UmbrellaDrawOrder::HazardY, T.TargetCentre.Y));
+	GuardVisual->SetRelativeLocation(FVector(FBrokenMillRules::GetGuardFeet(T).X, UmbrellaDrawOrder::HazardY, T.TargetCentre.Y));
 	BrokenMillPlaceholder::ApplyCube(TellVisual, this, FVector2D(T.TellSize, T.TellSize), T.TellColor, T.PlaceholderCubeSize, T.PlaceholderDepthScale);
 	if (UWorld* World = GetWorld())
 	{
@@ -221,7 +221,7 @@ EMillGuardEvent ABrokenMillRoom::StepSeconds(float DeltaSeconds)
 		Inputs.bEngagementValid = FBrokenMillRules::IsEngagementValid(Tuning(), Ella, true);
 		Inputs.bPassedBehind = Ella.X > Tuning().GuardMuzzle.X;
 		// Assist and exit are the no-warning phases of the room (reset is the upper band, which stays warned).
-		Inputs.bInNoWarningPhase = FBrokenMillRules::IsInMissedCurrentAssist(Tuning(), Ella) || Ella.X >= Tuning().ExitPoint.X;
+		Inputs.bInNoWarningPhase = FBrokenMillRules::IsInMissedCurrentAssist(Tuning(), Ella) || Ella.X >= Tuning().ExitPoint.X || FBrokenMillRules::IsInAscent(Tuning(), Ella);
 		if (IsFeatureEnabled(EFeatureId::HAZ_07))
 		{
 			ApplyWindEligibility(FBrokenMillRules::GetEligibleWind(Tuning(), Ella));
@@ -247,13 +247,19 @@ EMillGuardEvent ABrokenMillRoom::StepSeconds(float DeltaSeconds)
 void ABrokenMillRoom::ApplyWindEligibility(EMillWind Eligible)
 {
 	// Both currents stay live (actor and volume collision enabled, overlap events on) for the guard's whole life, as
-	// CAM-07 requires. Eligibility only switches the volume's response to pawns: an Ignore response ends the overlap,
+	// CAM-07 requires (flag CAM_07; off keeps the older whole-actor gate). Eligibility only switches the volume's response to pawns: an Ignore response ends the overlap,
 	// so the wind actor itself sends WindExited (and WindEntered when it comes back with Ella inside). The Motor
 	// still only rides while overhead with Ride held.
-	auto Gate = [](AWindCurrent* Wind, bool bEligible)
+	const bool bBothLive = IsFeatureEnabled(EFeatureId::CAM_07);
+	auto Gate = [bBothLive](AWindCurrent* Wind, bool bEligible)
 	{
 		if (!IsValid(Wind))
 		{
+			return;
+		}
+		if (!bBothLive)
+		{
+			Wind->SetActorEnableCollision(bEligible);
 			return;
 		}
 		if (UBoxComponent* Volume = Wind->FindComponentByClass<UBoxComponent>())

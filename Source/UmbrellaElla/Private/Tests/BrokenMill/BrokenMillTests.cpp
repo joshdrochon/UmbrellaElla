@@ -61,6 +61,25 @@ bool FMillGeometryEstimates::RunTest(const FString& Parameters)
 	return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMillGddRoomNumbers, "UmbrellaElla.BrokenMill.GddRoomNumbersHeld", UMBRELLAELLA_MILL_FLAGS)
+bool FMillGddRoomNumbers::RunTest(const FString& Parameters)
+{
+	const FBrokenMillTuning T;
+	TestEqual(TEXT("guard feet x 1450"), FBrokenMillRules::GetGuardFeet(T).X, 1450.0);
+	TestEqual(TEXT("guard feet z 390"), FBrokenMillRules::GetGuardFeet(T).Y, 390.0);
+	TestEqual(TEXT("lowered step envelope low"), FBrokenMillRules::GetLoweredStepEnvelope(T).X, 185.0);
+	TestEqual(TEXT("lowered step envelope high"), FBrokenMillRules::GetLoweredStepEnvelope(T).Y, 285.0);
+	TestTrue(TEXT("ascent start 1640 clears island edge + half width + margin"), FBrokenMillRules::IsAscentStartClear(T));
+	TestFalse(TEXT("x 1639 is not yet the ascent"), FBrokenMillRules::IsInAscent(T, FVector2D(1639.0, 300.0)));
+	TestTrue(TEXT("x 1640 starts the ascent"), FBrokenMillRules::IsInAscent(T, FVector2D(1640.0, 300.0)));
+	TestTrue(TEXT("core z 300-780, x 260-360"), FBrokenMillRules::IsInProtectedCore(T, FVector2D(300.0, 300.0)) && FBrokenMillRules::IsInProtectedCore(T, FVector2D(360.0, 780.0)));
+	TestFalse(TEXT("outside the core"), FBrokenMillRules::IsInProtectedCore(T, FVector2D(300.0, 781.0)) || FBrokenMillRules::IsInProtectedCore(T, FVector2D(361.0, 500.0)));
+	TestTrue(TEXT("lift end (330,680) half-width 30"), FBrokenMillRules::IsInVerticalLift(T, FVector2D(300.0, 680.0)) && FBrokenMillRules::IsInVerticalLift(T, FVector2D(360.0, 500.0)));
+	TestFalse(TEXT("outside the lift"), FBrokenMillRules::IsInVerticalLift(T, FVector2D(361.0, 500.0)) || FBrokenMillRules::IsInVerticalLift(T, FVector2D(330.0, 681.0)));
+	TestTrue(TEXT("reopen at z 400"), FBrokenMillRules::IsRootAtReopen(T, 400.0f) && !FBrokenMillRules::IsRootAtReopen(T, 401.0f));
+	return true;
+}
+
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMillFiringWindows, "UmbrellaElla.BrokenMill.FiringWindowsMatchGdd", UMBRELLAELLA_MILL_FLAGS)
 bool FMillFiringWindows::RunTest(const FString& Parameters)
 {
