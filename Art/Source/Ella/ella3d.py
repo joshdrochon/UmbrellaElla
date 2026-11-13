@@ -6,7 +6,9 @@ World: X right (she faces +X), Z up, camera orthographic on -Y. Units are metres
 Proportions are read off the Rehearsal Ella silhouettes and GDD SH1.0 ART-06 (no reference pixel is used).
 """
 import math
+import os
 import random
+import shutil
 import sys
 
 import bmesh
@@ -36,6 +38,62 @@ def perp(d):
     """In-plane left normal of an XZ direction."""
     return Vector((-d.z, 0, d.x))
 
+
+ETCH = {"hi_pct": 84.0, "gamma": 0.68, "range": 0.68, "ink": 0.55}
+for kv in os.environ.get("ELLA_ETCH", "").split(","):       # tuning override, e.g. ELLA_ETCH=gamma=0.9,range=0.55
+    if "=" in kv:
+        ETCH[kv.split("=")[0]] = float(kv.split("=")[1])
+
+
+def etch(path):
+    """Ink pass on the render, inside Blender (numpy): crush the values toward near-black ink, cut tone-following
+    hatching (wider strokes where the form is darker, a cross-cut in the deepest shadow) and add paper grain.
+    The emissive gold (spell, eye glints) is left clean: only the magic gives light (ART-06)."""
+    import numpy as np
+    img = bpy.data.images.load(path)
+    w, h = img.size
+    px = np.array(img.pixels[:], dtype=np.float32).reshape(h, w, 4)
+    lin, al = px[..., :3], px[..., 3:]
+    srgb_ = np.where(lin <= 0.0031308, lin * 12.92, 1.055 * np.power(np.clip(lin, 0, None), 1 / 2.4) - 0.055)
+    lum = srgb_ @ np.array([0.299, 0.587, 0.114], dtype=np.float32)
+    mx_, mn_ = srgb_.max(-1), srgb_.min(-1)
+    gold = np.clip(((mx_ - mn_) - 0.10) / 0.08, 0, 1) * np.clip((lum - 0.60) / 0.1, 0, 1)
+    rs = np.random.RandomState(SEED)
+    yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
+    wob = sum(a_ * np.sin(xx * fx + yy * fy + ph_) for a_, fx, fy, ph_ in
+              [(rs.uniform(1.0, 2.2), rs.uniform(-0.05, 0.05), rs.uniform(-0.05, 0.05), rs.uniform(0, 6.28))
+               for _ in range(6)])
+    body = lum[(al[..., 0] > 0.9) & (gold < 0.5)]
+    lo_, hi_ = np.percentile(body, 3), np.percentile(body, ETCH["hi_pct"])
+    tone = np.clip((lum - lo_) / max(hi_ - lo_, 1e-3), 0, 1) ** ETCH["gamma"]   # 0 = deepest shadow, 1 = lit
+    out_l = 0.03 + ETCH["range"] * tone                                         # ink range: near-black to worn bone
+
+    def hatch(deg, period, lo, hi):
+        r_ = math.radians(deg)
+        ph_ = (xx * math.cos(r_) + yy * math.sin(r_) + wob) / period
+        sn_ = 0.5 + 0.5 * np.sin(2 * math.pi * ph_)
+        thr = lo + (hi - lo) * tone                                    # darker form: lower threshold, wider stroke
+        return np.clip((sn_ - thr) / 0.18, 0, 1)
+
+    ink = np.maximum(hatch(38, 4.6, 0.25, 1.3), hatch(-52, 5.2, 0.65, 2.6))
+    grain = rs.normal(0, 1, (h, w)).astype(np.float32)
+    grain = (grain + np.roll(grain, 1, 0) + np.roll(grain, 1, 1)) / 3
+    out_l = out_l * (1 - ETCH["ink"] * ink) * (1 + 0.07 * grain)
+    scale = (out_l / np.maximum(lum, 1e-3))[..., None]
+    res = np.clip(srgb_ * scale, 0, 1)
+    grey = out_l[..., None] * np.array([1.05, 1.0, 0.92], dtype=np.float32)   # warm ink grey
+    res = np.clip(0.4 * res + 0.6 * grey, 0, 1)
+    res = res * (1 - gold[..., None]) + srgb_ * gold[..., None]
+    lin2 = np.where(res <= 0.04045, res / 12.92, np.power((res + 0.055) / 1.055, 2.4))
+    img.pixels = np.concatenate([lin2, al], -1).ravel().tolist()
+    img.save()
+
+
+
+if os.environ.get("ELLA_ETCH_ONLY"):    # ink pass alone on a kept raw render: ELLA_RAW=<raw.png> ELLA_ETCH_ONLY=1
+    shutil.copy(os.environ["ELLA_RAW"], OUT)
+    etch(OUT)
+    sys.exit(0)
 
 # ------------------------------------------------------------------ scene
 bpy.ops.wm.read_factory_settings(use_empty=True)
@@ -188,7 +246,7 @@ def material(name, base, hi, rough=0.6, metal=0.0, hatch=140.0, hatch_amt=0.5, b
     lines = max(4, round(hatch))                       # strokes round the form; whole number so the seam closes
     jit = N.new("ShaderNodeMath")                      # wobble the strokes so they are hand-cut, not ruled
     jit.operation = "MULTIPLY_ADD"
-    jit.inputs[1].default_value = 0.012
+    jit.inputs[1].default_value = 0.035
     L.new(nz.outputs["Fac"], jit.inputs[0])
     L.new(uv.outputs["X"], jit.inputs[2])
     su = N.new("ShaderNodeMath")
@@ -264,21 +322,22 @@ def emission(name, col, strength):
     return m
 
 
-M_CLOTH = material("cloth", (56, 49, 43), (117, 103, 88), rough=0.78, hatch=500, hatch_amt=0.55, bump=0.5)
-M_COAT = material("coat", (49, 42, 39), (106, 93, 80), rough=0.7, hatch=120, hatch_amt=0.5, bump=0.45,
+M_CLOTH = material("cloth", (56, 49, 43), (117, 103, 88), rough=0.95, hatch=500, hatch_amt=0.55, bump=0.5)
+M_COAT = material("coat", (49, 42, 39), (106, 93, 80), rough=0.95, hatch=120, hatch_amt=0.5, bump=0.45,
                   hatch_dir=(1.0, 0.0, 0.3))
-M_HAT = material("hat", (43, 38, 35), (97, 85, 74), rough=0.72, hatch=150, hatch_amt=0.5, bump=0.5)
-M_HAIR = material("hair", (70, 56, 44), (150, 126, 98), rough=0.5, hatch=60, hatch_amt=0.25, bump=0.15, noise=6)
-M_SCARF = material("scarf", (120, 104, 84), (190, 172, 142), rough=0.8, hatch=200, hatch_amt=0.45, bump=0.4)
-M_SKIN = material("skin", (150, 126, 104), (196, 172, 146), rough=0.55, hatch=60, hatch_amt=0.2, bump=0.1)
-M_LEG = material("stocking", (51, 46, 42), (108, 95, 85), rough=0.6, hatch=100, hatch_amt=0.6, bump=0.4,
+M_HAT = material("hat", (43, 38, 35), (97, 85, 74), rough=0.95, hatch=150, hatch_amt=0.5, bump=0.5)
+M_HAIR = material("hair", (70, 56, 44), (150, 126, 98), rough=0.95, hatch=60, hatch_amt=0.25, bump=0.15, noise=6)
+M_HAIR_D = material("hair_d", (40, 32, 26), (92, 76, 60), rough=0.95, hatch=60, hatch_amt=0.25, bump=0.15, noise=6)
+M_SCARF = material("scarf", (120, 104, 84), (190, 172, 142), rough=0.95, hatch=200, hatch_amt=0.45, bump=0.4)
+M_SKIN = material("skin", (150, 126, 104), (196, 172, 146), rough=0.95, hatch=60, hatch_amt=0.2, bump=0.1)
+M_LEG = material("stocking", (51, 46, 42), (108, 95, 85), rough=0.95, hatch=100, hatch_amt=0.6, bump=0.4,
                  hatch_dir=(1.0, 0.0, 1.0))
-M_BOOT = material("boot", (54, 46, 38), (119, 100, 80), rough=0.42, hatch=100, hatch_amt=0.3, bump=0.25)
-M_METAL = material("metal", (58, 46, 34), (150, 122, 84), rough=0.36, metal=0.85, hatch=40, hatch_amt=0.25,
+M_BOOT = material("boot", (54, 46, 38), (119, 100, 80), rough=0.7, hatch=100, hatch_amt=0.3, bump=0.25)
+M_METAL = material("metal", (58, 46, 34), (150, 122, 84), rough=0.55, metal=0.6, hatch=40, hatch_amt=0.25,
                    bump=0.2)
-M_CANOPY = material("canopy", (49, 43, 41), (109, 98, 85), rough=0.66, hatch=1100, hatch_amt=0.6, bump=0.6,
+M_CANOPY = material("canopy", (49, 43, 41), (109, 98, 85), rough=0.95, hatch=1100, hatch_amt=0.6, bump=0.6,
                     hatch_dir=(1.0, 0.0, 1.0), cross=11.0, cross_w=0.7)
-M_MASK = material("mask", (20, 18, 17), (40, 35, 32), rough=0.85, hatch=100, hatch_amt=0.5, bump=0.3)
+M_MASK = material("mask", (20, 18, 17), (40, 35, 32), rough=0.95, hatch=100, hatch_amt=0.5, bump=0.3)
 M_GOLD = emission("gold", (233, 196, 106), 3.2)
 
 
@@ -647,6 +706,10 @@ def hat():
     sphere("hat_buckle", base + hu * 0.06 - hs * 0.11 + Vector((0, -0.05, 0)), 0.02, M_METAL, scale=(0.5, 1, 1.1))
 
 
+HAIR_COL = bpy.data.collections.new("hair")     # strands: no ink outline (hundreds of curves)
+COL.children.link(HAIR_COL)
+
+
 def curve_strand(name, pts, radii, mat, bevel=0.012, res=3):
     cu = bpy.data.curves.new(name, "CURVE")
     cu.dimensions = "3D"
@@ -661,38 +724,44 @@ def curve_strand(name, pts, radii, mat, bevel=0.012, res=3):
     sp.use_endpoint_u = True
     sp.order_u = 4
     ob = bpy.data.objects.new(name, cu)
-    COL.objects.link(ob)
+    HAIR_COL.objects.link(ob)
     cu.materials.append(mat)
     return ob
 
 
 def hair():
+    """Long hair as clumps of fine strands (each clump follows one wavy guide), streaming with the wind."""
     rng = random.Random(SEED + 11)
     wperp = perp(WIND)
     length = P.get("hair_len", 1.0)
-    for i in range(200):
-        thick = i < 120
-        # roots on the back and sides of the head under the brim
+    for i in range(46):
         a = rng.uniform(-1.1, 1.1)
         yy = rng.uniform(-0.10, 0.10)
         root = head_c + WIND * (0.07 * math.cos(a)) + wperp * (0.085 * math.sin(a)) + Vector((0, yy, 0)) - hd * 0.02
-        ln = rng.uniform(0.45, 0.95) * length * (1.0 if thick else 1.12)
-        amp = rng.uniform(0.04, 0.10)
-        freq = rng.uniform(1.6, 2.8)
+        ln = rng.uniform(0.5, 0.95) * length
+        amp = rng.uniform(0.03, 0.08)
+        freq = rng.uniform(1.4, 2.4)
         phs = rng.uniform(0, 6.28)
-        drift = rng.uniform(-0.30, 0.22)          # fan the locks out
+        drift = rng.uniform(-0.30, 0.20)
         fall = rng.uniform(0.0, 0.16)
-        pts, radii = [], []
-        n = 14
-        for k in range(n):
-            t = k / (n - 1)
-            p = root + WIND * (ln * t) + wperp * (drift * ln * t * t + amp * math.sin(freq * 2 * math.pi * t + phs) * t) \
-                + Vector((0, yy * 0.8 * t + 0.03 * math.sin(phs + 5 * t), -fall * t * t))
-            pts.append(p)
-            radii.append(max(0.04, (1 - t) ** 0.7) * (1.0 if thick else 0.35))
-        curve_strand("hair", pts, radii, M_HAIR, bevel=rng.uniform(0.011, 0.022) if thick else 0.006)
-    # hair cap under the hat so no scalp shows
-    sphere("hair_cap", head_c + WIND * 0.035 - hd * 0.005, 0.112, M_HAIR, scale=(1.0, 1.0, 1.05))
+        for j in range(9):
+            oy, oz = rng.uniform(-0.02, 0.02), rng.uniform(-0.022, 0.022)
+            lj = ln * rng.uniform(0.8, 1.08)
+            dph = rng.uniform(-0.35, 0.35)
+            spread = rng.uniform(-0.05, 0.05)
+            pts, radii = [], []
+            n = 16
+            for k in range(n):
+                t = k / (n - 1)
+                p = root + WIND * (lj * t) \
+                    + wperp * (drift * lj * t * t + amp * math.sin(freq * 2 * math.pi * t + phs + dph * t) * t
+                               + oz * (1 - 0.5 * t) + spread * t * t) \
+                    + Vector((0, yy * 0.8 * t + oy + 0.03 * math.sin(phs + 5 * t), -fall * t * t))
+                pts.append(p)
+                radii.append(max(0.05, (1 - t) ** 0.6))
+            curve_strand("hair", pts, radii, M_HAIR if (i + j) % 3 else M_HAIR_D, bevel=rng.uniform(0.0045, 0.0085),
+                         res=2)
+    sphere("hair_cap", head_c + WIND * 0.035 - hd * 0.005, 0.112, M_HAIR_D, scale=(1.0, 1.0, 1.05))
 
 
 def ribbon(name, centre, width_fn, mat, y0=0.0, rag_seed=0):
@@ -788,7 +857,7 @@ sun("fill", (80, 0, -70), 0.9, (0.85, 0.88, 1.0), 0.6)
 mn = Vector((1e9, 1e9, 1e9))
 mx = Vector((-1e9, -1e9, -1e9))
 deps = bpy.context.evaluated_depsgraph_get()
-for ob in COL.objects:
+for ob in scn.objects:
     if ob.type in ("MESH", "CURVE"):
         for c in ob.bound_box:
             w = ob.matrix_world @ Vector(c)
@@ -827,5 +896,23 @@ scn.view_settings.look = "None"
 scn.render.image_settings.file_format = "PNG"
 scn.render.image_settings.color_mode = "RGBA"
 scn.render.filepath = OUT
+scn.render.use_freestyle = True
+scn.render.line_thickness = 1.25
+vl = bpy.context.view_layer
+vl.freestyle_settings.crease_angle = math.radians(120)
+ls = vl.freestyle_settings.linesets.new("ink") if not vl.freestyle_settings.linesets else vl.freestyle_settings.linesets[0]
+ls.select_silhouette = ls.select_border = ls.select_crease = True
+ls.select_by_collection = True
+ls.collection = HAIR_COL
+ls.collection_negation = 'EXCLUSIVE'
+if ls.linestyle is None:
+    ls.linestyle = bpy.data.linestyles.new("ink")
+ls.linestyle.color = (0.012, 0.010, 0.009)
+ls.linestyle.thickness = 1.25
 bpy.ops.render.render(write_still=True)
-print("ella3d: wrote", OUT, POSE)
+
+
+RAW = os.environ.get("ELLA_RAW")        # optional: keep the un-etched render here, to retune the ink pass alone
+if RAW:
+    shutil.copy(OUT, RAW)
+etch(OUT)
