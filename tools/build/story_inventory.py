@@ -154,6 +154,9 @@ LABEL_ACTIONS = {"Start", "Play", "Resume", "Restart", "Quit", "Back", "Confirm"
                  "Open", "Skip", "Done", "Next", "Begin", "Retry", "Continue", "Try", "Main", "Sound", "Controller", "Credits",
                  "Game", "Settings"}
 
+# A page tab is a button only as the bare name ("Sound"); "Sound Effects" is a setting label.
+PAGE_TABS = {"Sound", "Controller", "Credits", "Game", "Settings"}
+
 
 # Short texts that head a screen or state a status; they are screen lines, not labels or buttons.
 HEADING_TEXTS = {"Paused", "Defeated", "Journey Complete", "Unsaved changes."}
@@ -172,7 +175,7 @@ def surface_of(it):
         return "screen"
     if screen == "settings-controller":
         return "label"
-    if words <= 3 and t.split()[0] in LABEL_ACTIONS:
+    if words <= 3 and t.split()[0] in LABEL_ACTIONS and not (words > 1 and t.split()[0] in PAGE_TABS):
         return "button"
     if words <= 4:
         return "label"

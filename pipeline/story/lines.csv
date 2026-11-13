@@ -17,8 +17,8 @@ ui-settings-save,button,Save,,yes,screen=settings; where=SettingsMenuWidget.cpp
 ui-settings-discard,button,Discard,,yes,screen=settings; where=SettingsMenuWidget.cpp
 ui-settings-keep-editing,button,Keep Editing,,yes,screen=settings; where=SettingsMenuWidget.cpp
 ui-settings-back,button,Back,,yes,screen=settings; where=SettingsMenuWidget.cpp
-ui-settings-master-volume,button,Master Volume,,yes,screen=settings; where=SettingsMenuWidget.cpp
-ui-settings-sound-effects,button,Sound Effects,,yes,screen=settings; where=SettingsMenuWidget.cpp
+ui-settings-master-volume,label,Master Volume,,yes,screen=settings; where=SettingsMenuWidget.cpp
+ui-settings-sound-effects,label,Sound Effects,,yes,screen=settings; where=SettingsMenuWidget.cpp
 ui-settings-music,label,Music,,yes,screen=settings; where=SettingsMenuWidget.cpp
 ui-settings-text-size,label,Text Size %,,yes,screen=settings; where=SettingsMenuWidget.cpp
 ui-settings-reduced-motion,label,Reduced motion,,yes,screen=settings; where=SettingsMenuWidget.cpp
@@ -42,22 +42,22 @@ ui-purchase-cancel,button,Cancel,,yes,screen=purchase; where=ProgressionPurchase
 ui-journey-complete-journey-complete,screen,Journey Complete,,yes,screen=journey-complete; where=StoryWidgets.cpp
 ui-journey-complete-try-again,button,Try Again,,yes,screen=journey-complete; where=StoryWidgets.cpp
 ui-journey-complete-main-menu,button,Main Menu,,yes,screen=journey-complete; where=StoryWidgets.cpp
-ui-settings-game-options-entry-and-retries-lives,screen,Entry and retries (lives),,yes,screen=settings-game-options; where=DeveloperOptions.cpp
+ui-settings-game-options-entry-and-retries-lives,label,Entry and retries (lives),,yes,screen=settings-game-options; where=DeveloperOptions.cpp
 ui-settings-game-options-movement-speed,label,Movement speed,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
 ui-settings-game-options-hop-distance,label,Hop distance,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
 ui-settings-game-options-dash-distance,label,Dash distance,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
 ui-settings-game-options-wind-current-strength,label,Wind current strength,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
-ui-settings-game-options-absorb-range-and-pull,screen,Absorb range and pull,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
+ui-settings-game-options-absorb-range-and-pull,label,Absorb range and pull,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
 ui-settings-game-options-experience-gained,label,Experience gained,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
 ui-settings-game-options-keeper-part-health,label,Keeper part health,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
 ui-settings-game-options-keeper-clock-health,label,Keeper clock health,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
 ui-settings-game-options-part-break-stun-time,label,Part-break stun time,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
 ui-settings-game-options-keeper-slow-attack,label,Keeper slow attack,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
 ui-settings-game-options-eye-blackout-time,label,Eye blackout time,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
-ui-settings-game-options-first-play-tutorials,button,First-play tutorials,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
-ui-settings-game-options-remap-controls,button,Remap controls,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
-ui-settings-game-options-menu-background-motion,button,Menu background motion,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
-ui-settings-game-options-off,button,Off,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
+ui-settings-game-options-first-play-tutorials,label,First-play tutorials,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
+ui-settings-game-options-remap-controls,label,Remap controls,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
+ui-settings-game-options-menu-background-motion,label,Menu background motion,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
+ui-settings-game-options-off,label,Off,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
 ui-settings-game-options-open,button,Open,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
 ui-settings-controller-shoot,label,Shoot,,yes,screen=settings-controller; where=SettingsModel.cpp
 ui-settings-controller-absorb,label,Absorb,,yes,screen=settings-controller; where=SettingsModel.cpp
@@ -80,7 +80,7 @@ ui-journey-complete-enemies-defeated,label,Enemies defeated,,yes,screen=journey-
 ui-journey-complete-deaths,label,Deaths,,yes,screen=journey-complete; where=StoryRules.cpp
 ui-journey-complete-distance-flown,label,Distance flown,,yes,screen=journey-complete; where=StoryRules.cpp
 ui-journey-complete-shots-fired,label,Shots fired,,yes,screen=journey-complete; where=StoryRules.cpp
-ui-journey-complete-shots-fired-at-you,screen,Shots fired at you,,yes,screen=journey-complete; where=StoryRules.cpp
+ui-journey-complete-shots-fired-at-you,label,Shots fired at you,,yes,screen=journey-complete; where=StoryRules.cpp
 ui-journey-complete-damage-taken,label,Damage taken,,yes,screen=journey-complete; where=StoryRules.cpp
 ui-journey-complete-health-restored,label,Health restored,,yes,screen=journey-complete; where=StoryRules.cpp
 ui-title-umbrella-ella-the-stolen-hour,title,"Umbrella Ella
