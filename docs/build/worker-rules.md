@@ -11,6 +11,11 @@ Re-check whenever a worker finishes, an area merges, or new work unblocks: start
 split a big area when its later list has independent parts (new area file + `docs/build/areas.py`, every Rule ID in
 exactly one area, lanes disjoint).
 
+## When a worker moves to Opus (Josh, Nov 12)
+A worker runs Sonnet. When it fails the same gate check twice, or a builder/critic loop goes 2 rounds with the same gap
+and no better score, the build lead restarts that one worker with `WORKER_MODEL=claude-opus-5-5 tools/build/start_area.sh
+<area> "..."` and logs it in the build log (area, failing check, before/after). Others stay on Sonnet.
+
 ## Read first (in this order, only what you need)
 1. Your area file `docs/build/areas/<name>.md` (Rule IDs, GDD sections, file lane, done).
 2. `docs/jam-brief.md` (MVP and gates), the GDD sections your area file names (`docs/gdd/GDD-SH1.0.md`), and your
