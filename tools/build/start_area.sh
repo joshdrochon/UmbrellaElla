@@ -21,6 +21,9 @@ Keep working until your area is done or you are truly blocked. $EXTRA"
 # Model split (Josh, Nov 12): Fable for the hardest jobs (art loops, audio), Opus for the rest; WORKER_MODEL overrides.
 case "$A" in art*|audio|snd*) DEFAULT_MODEL=claude-fable-5-2 ;; *) DEFAULT_MODEL=claude-opus-5-5 ;; esac
 MODEL="${WORKER_MODEL:-$DEFAULT_MODEL}"
+# Image spend (Josh Spend OK): one counter shared by every worker on this Mac, one hard total cap set by the lead.
+export IMAGE_SPEND_FILE="$BASE/logs/image-spend.json"
+[ -f "$BASE/logs/image-cap-usd.txt" ] && export IMAGE_SPEND_CAP_USD="$(cat "$BASE/logs/image-cap-usd.txt")"
 cd "$WT"
 env -u CLAUDECODE -u CLAUDE_CODE_ENTRYPOINT nohup claude -p "$PROMPT" --permission-mode bypassPermissions \
   --disallowedTools "Bash(git push:*)" --model "$MODEL" >> "$BASE/logs/$A.log" 2>&1 &
