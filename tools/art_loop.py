@@ -1737,11 +1737,18 @@ def main(argv=None):
         if a.cmd == "run":
             return cmd_run(a, refs, rh)
         if a.cmd == "gate-rerun":
-            tmp = tempfile.mkdtemp(prefix="art-rerun-")
+            # The answers stay for triage (Nov 13: a failed re-run left nothing to read): ../logs/gate-rerun-<piece>/
+            common = subprocess.run(["git", "-C", a.root, "rev-parse", "--path-format=absolute", "--git-common-dir"],
+                                    capture_output=True, text=True).stdout.strip()   # the main checkout, from the gate or a lane
+            main = os.path.dirname(common) if common else os.path.abspath(a.root)
+            keep = os.path.join(os.path.dirname(main), "UmbrellaElla-areas", "logs", f"gate-rerun-{a.piece}")
+            shutil.rmtree(keep, ignore_errors=True)
             try:
-                good, rec = rerun(a.root, a.piece, tmp)
-            finally:
-                shutil.rmtree(tmp, ignore_errors=True)
+                os.makedirs(keep)
+                tmp = keep
+            except OSError:
+                tmp = tempfile.mkdtemp(prefix="art-rerun-")
+            good, rec = rerun(a.root, a.piece, tmp)
             print(f"art_loop: gate re-run piece={a.piece} verdict={rec['verdict']} pairs="
                   + ",".join(f"{k}:{v}" for k, v in rec["pairs"].items())
                   + f" panel={rec['panel']} calibration={rec['calibration']['passed']}/{rec['calibration']['sessions']}"

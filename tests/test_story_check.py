@@ -342,3 +342,19 @@ class StoryCardsAndHumans(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class CriticJudgesOnlyChangedLines(unittest.TestCase):
+    """A line whose exact text already passed keeps its verdict; only new or changed text goes to the critic (Nov 13)."""
+    def test_only_lines_without_a_pass_on_their_text(self):
+        import tempfile
+        d = tempfile.mkdtemp()
+        lines, res = os.path.join(d, "lines.csv"), os.path.join(d, "res.csv")
+        with open(lines, "w") as f:
+            f.write("id,surface,text,facts,ship,note\nkept,button,Main Menu,,,\nchanged,button,Go to Menu,,,\n"
+                    "new,button,Credits,,,\nheld,button,Secret,,no,\n")
+        with open(res, "w") as f:
+            f.write("id,verdict,text_hash,bible_hash,gaps\n"
+                    f"kept,pass,{sc.text_hash('Main Menu')},b,\n"
+                    f"changed,pass,{sc.text_hash('Main Menu')},b,\n")
+        self.assertEqual([r["id"] for r in sc.lines_to_judge(lines, res)], ["changed", "new"])

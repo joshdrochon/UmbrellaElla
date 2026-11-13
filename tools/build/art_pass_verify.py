@@ -61,13 +61,24 @@ def load_piece_records(root):
 NEAR_COPY_SSIM = 0.80   # our two text-only paints of one prompt score 0.98 together; our UI capture vs the pre-jam title 0.37
 
 
+OUR_WORK_DIRS = ("pipeline/art/proof/",)   # our own jam captures and passed bases, never pre-jam reference art
+
+
+def _our_work(path):
+    """A reference that is our own jam work (a passed base or capture a derived screen shares, Josh's shared-layer rule)
+    is not pre-jam art, so the near-copy guard skips it (Nov 13: ui-defeated failed against our passed ui-tutorial
+    capture, SSIM 0.91, by design of the shared background)."""
+    return os.path.normpath(path).replace(os.sep, "/").startswith(OUR_WORK_DIRS)
+
+
 def _piece_reference_paths(root, piece):
     try:
         refs, _ = art_loop.refs_and_hash(root)
         import art_judge
         byid = art_judge.refs_by_id(refs)
         el = (refs.get("elements") or {}).get(piece) or {}
-        return [byid[r]["path"] for r in el.get("refs", []) if r in byid and byid[r].get("path")]
+        return [byid[r]["path"] for r in el.get("refs", []) if r in byid and byid[r].get("path")
+                and not _our_work(byid[r]["path"])]
     except Exception:
         return []
 
@@ -259,8 +270,10 @@ def check(root, base=None, remeasure=True):
 
 
 def newly_passed(root, base, remeasure=False):
+    """Panel-verified pieces new in this merge. Owner approvals (approvals.json) have no panel to re-run, by Josh's
+    decision (Nov 13: the gate failed artvideo with "ella-up-open: no record with evidence to re-run")."""
     out = []
-    for piece in sorted(verified_pieces(root, remeasure=remeasure)):
+    for piece in sorted(verified_pieces(root, records=load_piece_records(root), remeasure=remeasure)):
         new = load_piece_records(root)[piece][-1]
         old = base_records(root, base, piece)
         if not (old and old[-1] == new):

@@ -177,3 +177,51 @@ Next: when the shot lands, run the up-open panel; then paint shield R3 and close
 
 ## Round 23 (Nov 13 late): duplicate session, did nothing
 Merged main + artslots (clean). Another artella session (pid 69829) is already running the ella-attack and ella-shield panels (pids 64847/64848) and the up-open capture is queued on ue_slot. A second worker would collide on the same pieces and spend. No paint (15.08 of 33.82), no panel. Resume after those finish: up-open panel on the capture, then shield R3 and closed R3.
+
+## Round 22 (Nov 13 late): frame-based shot (screenfix merged) ran, still no usable capture
+Merged main (screenfix in). Checks: ella-up-open art_ref_check PASS 0.728, ella-attack PASS 0.649 (art_check up-open PASS). Panel not run: no `context` pair.
+`RUN_RES=1280x720 run_game.sh -SmokeShot=<abs> -SmokeShotFrames=60 -SmokeQuitAfter=300` waited for a slot, then wrote a 640x360 shot of "Preparing Shaders (3)" on black, no Ella
+(frame 60 is before shaders finish at load ~60). Discarded. Verdict: ours/env (load), not the art. Next: retry with a larger -SmokeShotFrames (e.g. 600) when load drops.
+
+## Round 24 (Nov 13 late): merged main, capture still queued
+Merged main (artslots had nothing new). Two earlier up-open capture launches (pids 85916, 88232, from 1:15 AM) are still waiting on ue_slot; no shot file yet. Load ~29. No paint, no panel, no spend (15.08 of 33.82). Verdict: env (slot queue), not the art. Next: when the shot lands, run the up-open panel; then shield R3 and closed R3.
+
+## Round 25 (Nov 13 late): merged main and artslots, capture still queued
+Nothing new on main or artslots. The up-open capture (pid 85916, since 1:15 AM) is still waiting on ue_slot (~30 ue_slot processes, load ~25); no shot file. No paint, no panel, no spend (15.08 of 33.82). Verdict: env (slot queue), not the art. Next: when the shot lands, up-open panel; then shield R3 and closed R3.
+
+## Round 26 (Nov 13 late): merged main, relaunched the capture with frame 600
+Both queued captures used -SmokeShotFrames=60, which Round 22 showed lands on "Preparing Shaders". Killed them and queued one with -SmokeShotFrames=600 (log /tmp/artella_cap.log). Load ~28. No paint, no panel, no spend (15.08 of 33.82). Next: when the shot lands, up-open panel; then shield R3 and closed R3.
+
+## Round 27 (Nov 13 late): the frame-600 capture landed; it has no Ella, so no panel
+The Round 26 capture (pid 935, `-SmokeShotFrames=600`, 1280x720) waited for a slot and wrote `Saved/Logs/pipeline/ella-up-open-shot.png` at 03:01. Shaders are done (no "Preparing Shaders"), but the frame is black with only the HUD clock top-left: no Ella, no ground. Game log: map L_Graybox, `SMOKE_OK` fps=15.5 worst_ms=953.8, `SMOKE_EFFECTIVE outcome=fail` (Ella was hit to defeat at frame 147 of the log clock, shots and PlayerDefeated events just before the shot).
+Verdict: env/ours (smoke run is a fail run on a loaded machine; Ella is defeated or off-screen at the shot), not the art. A shot with no Ella cannot be a `context` pair, so the up-open panel was not run. No paint, no spend (15.08 of 33.82). Shield R3 and closed R3 not started: they need a context pair too.
+Next (needs a lane I do not own): a shot taken while Ella is alive and on screen (shot frame earlier than defeat but after shaders, or a no-damage smoke mode). I will not retry the same command.
+
+## Round 28 (Nov 13 late): merged main, new capture at frame 250
+Merged main (conflict in tools/assetgen.py, not my lane: took main's version). artslots had nothing new. Frame 60 = shaders not ready, frame 600 = after Ella's defeat, so queued one capture at `-SmokeShotFrames=250` (log /tmp/artella_cap250.log, ~16 ue_slot waiters, load ~28). No paint, no spend (15.08 of 33.82). Next: if the shot shows Ella, run the up-open panel; then shield R3 and closed R3. If Ella is still absent, the fix is a no-damage smoke flag (request for the smoke lane).
+
+## Round 29 (Nov 13 late): merged main and artslots (nothing new); frame-250 capture still queued
+The frame-250 capture (pid 30354) is waiting on ue_slot, no log or shot yet; load ~32. No paint, no panel, no spend (15.08 of 33.82). Verdict: env (slot queue), not the art. Next: if the shot shows Ella, up-open panel; then shield R3 and closed R3. If Ella is absent, request a no-damage smoke flag from the smoke lane.
+
+## Round 30 (Nov 13 late): nothing new; frame-250 capture still queued
+Main and artslots: nothing new. Capture pid 30354 still waits on ue_slot (empty log, no shot); load ~28. No paint, no panel, no spend (15.08 of 33.82). Verdict: env (slot queue), not the art. Next: if the shot shows Ella, up-open panel; then shield R3 and closed R3. If Ella is absent, request a no-damage smoke flag from the smoke lane.
+
+## Round 31 (Nov 13 late): frame-250 shot landed, still not usable; merged screenfix fix
+`ella-up-open-shot.png` (03:09) shows "Preparing Textures (1)" on black, no Ella: shot taken before textures finish under load. Discarded, no panel. Merged area/screenfix (2db3d92c); ArtSlot.cpp conflicted, took screenfix's version (not my lane). No paint, no spend (15.08 of 33.82).
+Blocker: no capture with Ella on screen. Shield R3 and closed R3 need a context pair too. Next: retry capture with a later frame (e.g. 400) when load drops, or a smoke flag that waits for textures and keeps Ella alive.
+
+## Round 32 (Nov 13 late): lead's retry at -SmokeShotFrames=3000, still "Preparing Textures (1)"
+Ran once as told: `RUN_RES=1280x720 ue_slot.sh run_game.sh -SmokeShot=<abs> -SmokeShotFrames=3000 -SmokeQuitAfter=600` (load ~47). Shot written 03:46, 1280x720, again "Preparing Textures (1)" on black, no Ella. Discarded, no panel. The shot also landed within seconds of the game starting, so the frame counter or shot timing does not wait the way the flag implies. Verdict: env/smoke-shot, not the art. Not retrying.
+Blocked until screenfix ships a shot that waits for texture streaming and keeps Ella alive. Then: up-open panel, shield R3, closed R3. No paint, no spend (15.08 of 33.82).
+
+## Round 33 (Nov 13 late): merged main e99e1856 (screenfix ready-shot wait), capture relaunched
+Finished the pending artslots merge (ArtSlotTests.cpp conflict, took main's version, not my lane). Main had nothing newer. Relaunched the up-open capture
+with the ready-shot wait: `-SmokeShotFrames=30` counts frames after shaders, textures and a live Ella are ready (log /tmp/artella_cap_ready.log). No paint, no spend (15.08 of 33.82).
+Next: if the shot shows Ella, run the up-open context pair and panel; then shield R3 and closed R3.
+
+Round 33 result: the ready-shot capture landed (05:51, 1280x720, `-SmokeShotFrames=30`). No "Preparing" text any more, but the frame is black with only the HUD clock: no Ella, no ground, no sky.
+Ready-wait passed (so shaders, textures and a live player were reported ready), yet the world draws nothing. run_game.sh keeps no game log under Saved/Logs, so I cannot see SMOKE_SHOT_READY, the map or the camera. Verdict: smoke/screenfix lane (world not rendered in the shot, or camera not on Ella), not the art.
+Ask for screenfix: keep the game log from run_game.sh, and check why a ready shot shows only the HUD. Not retrying the same command. Up-open still lacks only `context`. No paint, no spend (15.08 of 33.82).
+
+## Round 34 (Nov 13 late): merged main and artslots, nothing new; blocked on request #4
+Nothing newer on main or artslots. The only capture (05:51) is HUD-only. No paint, no panel, no spend (15.08 of 33.82). Wrote request #4 (ready shot draws no world, keep the game log). Stopped: only the smoke/screenfix lane can fix it.

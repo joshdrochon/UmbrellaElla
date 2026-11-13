@@ -895,14 +895,12 @@ def spend_reserve(cost, entry):
         if piece:
             ps = round(sum(float(c.get("cost_usd") or 0) for c in d["calls"]
                            if c.get("piece") == piece and not c.get("refunded")), 6)
-            pcap = float(entry.pop("piece_cap", None) or piece_cap())   # video calls carry their own per-piece cap
-            if ps + cost > pcap + 1e-9:
-                msg = (f"PIECE CAP: piece {piece} has spent ${ps:.3f} of the ${pcap:.2f} per-piece cap; this "
+            if ps + cost > piece_cap() + 1e-9:
+                msg = (f"PIECE CAP: piece {piece} has spent ${ps:.3f} of the ${piece_cap():.2f} per-piece cap; this "
                        f"call (${cost:.3f}) would pass it. triage art vs check before more spend. No call made")
                 log_piece_cap(entry.get("root") or os.getcwd(), f"piece={piece} provider={entry.get('provider')} {msg}")
                 raise ImageRefused(msg)
         entry.pop("root", None)
-        entry.pop("piece_cap", None)
         d["spent_usd"] = round(d["spent_usd"] + cost, 6)
         d["cap_usd"] = cap
         d["openrouter_cap_usd"] = openrouter_cap()

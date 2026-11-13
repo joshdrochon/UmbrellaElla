@@ -34,7 +34,7 @@ Other modes (rules in style.json; detail in pipeline/art/import-rules.md):
               so every imported asset can be edited and re-exported (asset-specialist.md checklist)
   --names DIR          asset names under DIR (Content/UmbrellaElla/Art) match style.json "naming"
   --import-report F    an editor dump of texture/sprite/flipbook settings (JSON) meets "unreal_import"
-  --config DIR         Config/*.ini carry the Paper2D import defaults in "unreal_import.config"
+  --config DIR         Config/*.ini carry the Paper2D import subprocess, defaults in "unreal_import.config"
   --uproject FILE      the .uproject enables Paper2D and does not list PaperZD ("unreal_import.uproject")
   --width-ratio OPEN CLOSED   umbrella open vs closed sheet: opaque box width ratio >= sprite.umbrella_width_ratio_min
 
@@ -56,6 +56,7 @@ import configparser
 import json
 import os
 import re
+import subprocess
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -293,7 +294,13 @@ def sidecar_exempt(path, folder, sp):
     return any(part.lower() in exempt for part in rel.split(os.sep))
 
 
-def scan(folder, style, fail_lfs_pointer=False):
+def changed_since(base, root="."):
+    """Repo-relative paths changed between BASE and the working tree (committed, staged or not)."""
+    p = subprocess.run(["git", "diff", "--name-only", base], cwd=root, capture_output=True, text=True)
+    return {os.path.normpath(x) for x in p.stdout.split()}
+
+
+def scan(folder, style, fail_lfs_pointer=False, only=None):
     """Check every PNG under folder against its .sprite.json sidecar. Returns (reports, skipped).
     A PNG with no sidecar outside an exempt folder is a failed report, not a skip. A sidecar PNG that is
     still a Git LFS pointer is a skip, or a failed report with fail_lfs_pointer (CI after git lfs pull)."""
@@ -304,6 +311,8 @@ def scan(folder, style, fail_lfs_pointer=False):
                 continue
             p = os.path.join(d, f)
             side = os.path.splitext(p)[0] + ".sprite.json"
+            if only is not None and os.path.normpath(p) not in only and os.path.normpath(side) not in only:
+                continue   # --only-changed: a lane pre-check judges only the art it changed (the gate scans all)
             with open(p, "rb") as fh:
                 head = fh.read(len(LFS_POINTER))
             if not os.path.isfile(side):
@@ -721,6 +730,7 @@ def main(argv=None):
     ap.add_argument("--frames", type=int, help="expected number of non-empty frames")
     ap.add_argument("--pow2", action="store_true", default=None, help="require power-of-two textures")
     ap.add_argument("--scan", metavar="DIR", help="check every PNG under DIR against its .sprite.json sidecar")
+    ap.add_argument("--only-changed", metavar="BASE", help="with --scan: only PNGs (or sidecars) changed since BASE (lane pre-check)")
     ap.add_argument("--names", metavar="DIR", help="check asset names under DIR (Content/UmbrellaElla/Art)")
     ap.add_argument("--import-report", metavar="JSON", help="check an editor dump of asset import settings")
     ap.add_argument("--gate", action="store_true",
@@ -791,7 +801,8 @@ def main(argv=None):
             if not os.path.isdir(a.scan):
                 print(f"sprite_check: {'FAIL' if a.require_dir else 'SKIP'} no {a.scan}/ folder")
                 return 1 if a.require_dir else 0
-            reports, skipped = scan(a.scan, style, a.fail_lfs_pointer)
+            reports, skipped = scan(a.scan, style, a.fail_lfs_pointer,
+                                    changed_since(a.only_changed) if a.only_changed else None)
         elif a.images:
             reports, skipped = [check(a.images, style, a.kind, a.grid, a.size, a.frames, a.pow2)], []
         else:
