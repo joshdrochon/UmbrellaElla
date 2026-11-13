@@ -40,6 +40,7 @@ if ! git -c core.hooksPath=/dev/null merge -q --no-ff -m "Merge area/$A ($(git r
   if [ -n "$bad" ]; then echo "GATE FAIL: merge conflict in: $bad"; git merge --abort; exit 1; fi
   git diff --name-only --diff-filter=U | xargs git checkout --ours -- && git add -A docs/build && git -c core.hooksPath=/dev/null commit -q --no-edit
 fi
+git merge-base --is-ancestor "$TIP" HEAD || { NORECORD=1; echo "GATE FAIL: the merge of area/$A did not happen (git refused it; see the merge output above)"; exit 1; }
 step "merge $(git rev-parse --short HEAD)"
 # Branches that each kept a row for the same take merge into duplicates; collapse them to the row the critic record backs.
 if python3 tools/build/provenance_dedupe.py | grep -q "rows -> 1"; then
