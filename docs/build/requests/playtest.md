@@ -1,7 +1,7 @@
 # playtest requests
 
 ## 1. Real wind currents never move Ella (blocks CAM-04, CAM-07; affects every wind in the game)
-Found by the played `-SmokePlaytest` run, Nov 12 (log `docs/build/playtest-logs/run-2026-11-12b.log`, line `PLAYTEST_WINDDIAG`):
+Found by the played `-SmokePlaytest` run, Nov 12 (log `the playtest run log run-2026-11-12b (playtest worktree, not committed)`, line `PLAYTEST_WINDDIAG`):
 `ella_id=EllaCharacter_0 contract_id=Ella overlap=1 rode_from_volume=0 rode_with_contract_id=1`.
 Ella is inside the Broken Mill lower current, the volume broadcasts `WindEntered`, and the Motor drops it.
 

@@ -3,8 +3,12 @@
   provenance.py generated <Id>          the critic passed: one 'generated in jam' row per take (layers from recipes.py)
   provenance.py placeholder <Id> <gap>  the critic failed: the takes' rows read 'placeholder: audio critic fail (<gap>)'
   provenance.py dedupe                  keep the last row of every Audio/ path, at the first row's position
+  provenance.py record <Id> [state dir] copy the critic rounds on the current takes from the audio_loop state
+                                        (default Saved/AudioLoop) to pipeline/audio/critic/<Id>.json (committed)
+`generated` needs a passing record on the current bytes; `placeholder` refuses while the latest record on them passes
+(tools/audio_check.py --scan fails on either mismatch).
 """
-import csv, sys, datetime
+import csv, sys, datetime, json, glob
 from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 PROV = ROOT / "pipeline/art/provenance.csv"
@@ -36,7 +40,53 @@ def dedupe(rows):
     return out
 
 
+def _check():
+    sys.path.insert(0, str(ROOT / "tools"))
+    import audio_check
+    return audio_check
+
+
+def takes(sid):
+    return sorted(str(f) for f in (ROOT / "Audio/Source" / sid).glob("*.wav"))
+
+
+def latest(sid):
+    """The latest committed critic record on the current takes, or None."""
+    return _check().critic_verdict(sid, takes(sid), str(ROOT))
+
+
+def passed(sid):
+    r = latest(sid)
+    return bool(r and r.get("verdict") == "pass" and r.get("style_pass"))
+
+
+def record(sid, state="Saved/AudioLoop"):
+    ac = _check()
+    h = ac.takes_hash(takes(sid))
+    out = ROOT / ac.CRITIC_DIR / f"{sid}.json"
+    recs = ac.critic_records(sid, str(ROOT))
+    have = {(r.get("card"), r.get("round"), r.get("files")) for r in recs}
+    for f in sorted(glob.glob(str(ROOT / state / "*" / "state.json"))):
+        st = json.load(open(f, encoding="utf-8"))
+        for r in st.get("pieces", {}).get(sid, {}).get("rounds", []):
+            key = (st.get("card"), r.get("n"), r.get("files"))
+            if r.get("files") == h and r.get("verdict") in ("pass", "fail") and key not in have:
+                have.add(key)
+                recs.append({"files": h, "verdict": r["verdict"], "style_pass": bool(r.get("style_pass")),
+                             "gap": r.get("gap", ""), "card": st.get("card"), "round": r.get("n"),
+                             "critic": r.get("critic", ""), "at": r.get("judged") or r.get("at", "")})
+    recs.sort(key=lambda r: r.get("at", ""))
+    if not any(r["files"] == h for r in recs):
+        sys.exit(f"{sid}: no critic round on the current takes ({h[:12]}) under {state}")
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps({"id": sid, "records": recs}, indent=1) + "\n", encoding="utf-8")
+    r = latest(sid)
+    print(f"{sid}: {len(recs)} record(s); latest on {h[:12]}: {r['verdict']} (card {r['card']} round {r['round']})")
+
+
 def generated(rows, sid):
+    if not passed(sid):
+        sys.exit(f"{sid}: no passing critic record on the current takes; run `provenance.py record {sid}` after the critic passes")
     sys.path.insert(0, str(Path(__file__).parent))
     from recipes import RECIPES
     rec = RECIPES[sid]
@@ -64,6 +114,10 @@ def generated(rows, sid):
 
 
 def placeholder(rows, sid, gap):
+    if passed(sid):
+        r = latest(sid)
+        sys.exit(f"{sid}: the blind critic passed these bytes (card {r['card']} round {r['round']}); not marked placeholder. "
+                 "Record the failing round first (provenance.py record) if a later critic failed them")
     n = 0
     for r in rows[1:]:
         if r and r[0].startswith(f"Audio/Source/{sid}/"):
@@ -77,6 +131,9 @@ def placeholder(rows, sid, gap):
 
 if __name__ == "__main__":
     cmd = sys.argv[1]
+    if cmd == "record":
+        record(*sys.argv[2:4])
+        sys.exit(0)
     rows = dedupe(load())
     if cmd == "generated":
         rows = generated(rows, sys.argv[2])
