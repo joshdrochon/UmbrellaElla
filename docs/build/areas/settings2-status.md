@@ -55,3 +55,8 @@ Evidence: not re-run after this fix; the build lead's gate runs build and tests 
   (AddToPlayerScreen, no Back key) both fail on 7 asserts. Settings + Flow: 66 of 66 pass, build 0 warnings.
 - The reader WIP that was uncommitted in this worktree (HUD AccessibleTextScale, XP ring paint plan, flow backdrop
   PaintTime, SettingsReaderTests.cpp) is set aside on local branch `settings2-wip-readers`, not merged here.
+- Real game (pause_settings.txt, on a local branch with origin/area/agentplay's journey hook merged; main lacks it):
+  21 pass, 4 fail. Step 24 "Escape inside Settings -> Paused" now PASSES (was the step-5 FAIL). Step 25 "click Back"
+  fails only because Escape already closed Settings (the script's fallback for the old bug). The 3 `shot` steps FAIL
+  in this run: no PNG is written, the hook logs `out=/joanmiguel/Desktop/...` (the `/Users` prefix is lost), an
+  agentplay-lane path bug. So B3 has test proof (top overlay widget is Settings) but no picture yet: agentplay to re-shoot p02.
