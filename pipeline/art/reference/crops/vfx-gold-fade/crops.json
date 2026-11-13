@@ -1,0 +1,32 @@
+{
+ "element": "vfx-gold-fade",
+ "note": "crops of the effect cut from the concept sheets; originals untouched",
+ "crops": [
+  {
+   "file": "gold-shot-a.png",
+   "source": "pipeline/art/reference/discord/20261111-0318_Ricky_other-realm.png",
+   "box": [
+    1290,
+    225,
+    1420,
+    260
+   ],
+   "key": "dark",
+   "pieces": "all",
+   "opaque_px": 497
+  },
+  {
+   "file": "gold-shot-b.png",
+   "source": "pipeline/art/reference/discord/20261111-0318_Ricky_other-realm.png",
+   "box": [
+    1210,
+    280,
+    1315,
+    308
+   ],
+   "key": "dark",
+   "pieces": "all",
+   "opaque_px": 428
+  }
+ ]
+}

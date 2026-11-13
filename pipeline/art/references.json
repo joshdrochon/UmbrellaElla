@@ -1664,6 +1664,342 @@
    "judge": true,
    "required": true,
    "origin": "crop of Ricky's #art-direction sheet (13 Nov, artfx2, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "crop-gold-impact-gold-shot-a",
+   "path": "pipeline/art/reference/crops/vfx-gold-impact/gold-shot-a.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for vfx-gold-impact: box [1290, 225, 1420, 260] of 20261111-0318_Ricky_other-realm.png, key dark (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5",
+    "artfx"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of a team concept sheet (13 Nov, artfx, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "crop-gold-impact-gold-shot-b",
+   "path": "pipeline/art/reference/crops/vfx-gold-impact/gold-shot-b.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for vfx-gold-impact: box [1210, 280, 1315, 308] of 20261111-0318_Ricky_other-realm.png, key dark (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5",
+    "artfx"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of a team concept sheet (13 Nov, artfx, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "crop-gold-impact-umbrella-glow",
+   "path": "pipeline/art/reference/crops/vfx-gold-impact/umbrella-glow.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for vfx-gold-impact: box [380, 320, 600, 450] of 20261111-0318_Ricky_other-realm.png, key dark (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5",
+    "artfx"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of a team concept sheet (13 Nov, artfx, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "crop-gold-fade-gold-shot-a",
+   "path": "pipeline/art/reference/crops/vfx-gold-fade/gold-shot-a.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for vfx-gold-fade: box [1290, 225, 1420, 260] of 20261111-0318_Ricky_other-realm.png, key dark (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5",
+    "artfx"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of a team concept sheet (13 Nov, artfx, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "crop-gold-fade-gold-shot-b",
+   "path": "pipeline/art/reference/crops/vfx-gold-fade/gold-shot-b.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for vfx-gold-fade: box [1210, 280, 1315, 308] of 20261111-0318_Ricky_other-realm.png, key dark (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5",
+    "artfx"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of a team concept sheet (13 Nov, artfx, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "crop-blocked-gold-shot-b",
+   "path": "pipeline/art/reference/crops/vfx-blocked/gold-shot-b.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for vfx-blocked: box [1210, 280, 1315, 308] of 20261111-0318_Ricky_other-realm.png, key dark (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5",
+    "artfx"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of a team concept sheet (13 Nov, artfx, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "crop-blocked-umbrella-glow",
+   "path": "pipeline/art/reference/crops/vfx-blocked/umbrella-glow.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for vfx-blocked: box [380, 320, 600, 450] of 20261111-0318_Ricky_other-realm.png, key dark (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5",
+    "artfx"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of a team concept sheet (13 Nov, artfx, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "crop-slow-clock-face",
+   "path": "pipeline/art/reference/crops/vfx-slow/clock-face.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for vfx-slow: box [130, 165, 400, 430] of 20261110-0800_Ricky_1.png, key ellipse (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5",
+    "artfx"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of a team concept sheet (13 Nov, artfx, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "crop-slow-reload-arc",
+   "path": "pipeline/art/reference/crops/vfx-slow/reload-arc.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for vfx-slow: box [290, 450, 420, 600] of 20261110-0800_Ricky_1.png, key red (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5",
+    "artfx"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of a team concept sheet (13 Nov, artfx, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "crop-gust-damaging-gust",
+   "path": "pipeline/art/reference/crops/vfx-gust/damaging-gust.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for vfx-gust: box [866, 490, 1145, 645] of 20261110-0348_Ricky_1.png, key gale (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5",
+    "artfx"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of a team concept sheet (13 Nov, artfx, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "crop-gust-flow-ribbon",
+   "path": "pipeline/art/reference/crops/vfx-gust/flow-ribbon.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for vfx-gust: box [1000, 140, 1672, 260] of 20261111-0318_Ricky_other-realm.png, key dark (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5",
+    "artfx"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of a team concept sheet (13 Nov, artfx, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "crop-gust-puff-flap",
+   "path": "pipeline/art/reference/crops/vfx-gust-puff/flap.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for vfx-gust-puff: box [232, 500, 400, 650] of 20261110-0348_Ricky_1.png, key gale2 (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5",
+    "artfx"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of a team concept sheet (13 Nov, artfx, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "crop-gust-puff-gust-front",
+   "path": "pipeline/art/reference/crops/vfx-gust-puff/gust-front.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for vfx-gust-puff: box [440, 500, 560, 650] of 20261110-0348_Ricky_1.png, key gale2 (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5",
+    "artfx"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of a team concept sheet (13 Nov, artfx, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "crop-blackout-fog-low",
+   "path": "pipeline/art/reference/crops/vfx-blackout/fog-low.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for vfx-blackout: box [150, 560, 760, 700] of 20261111-0318_Ricky_other-realm.png, key all (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5",
+    "artfx"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of a team concept sheet (13 Nov, artfx, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "crop-blackout-fog-arch",
+   "path": "pipeline/art/reference/crops/vfx-blackout/fog-arch.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for vfx-blackout: box [100, 60, 620, 230] of 20261111-0318_Ricky_other-realm.png, key all (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5",
+    "artfx"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of a team concept sheet (13 Nov, artfx, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "crop-light-shaft-umbrella-glow",
+   "path": "pipeline/art/reference/crops/vfx-light-shaft/umbrella-glow.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for vfx-light-shaft: box [380, 320, 600, 450] of 20261111-0318_Ricky_other-realm.png, key dark (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5",
+    "artfx"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of a team concept sheet (13 Nov, artfx, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "crop-light-shaft-flow-ribbon",
+   "path": "pipeline/art/reference/crops/vfx-light-shaft/flow-ribbon.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for vfx-light-shaft: box [1000, 140, 1672, 260] of 20261111-0318_Ricky_other-realm.png, key dark (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5",
+    "artfx"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of a team concept sheet (13 Nov, artfx, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "crop-umbra-fog-low",
+   "path": "pipeline/art/reference/crops/vfx-umbra/fog-low.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for vfx-umbra: box [150, 560, 760, 700] of 20261111-0318_Ricky_other-realm.png, key all (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5",
+    "artfx"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of a team concept sheet (13 Nov, artfx, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "crop-umbra-fog-arch",
+   "path": "pipeline/art/reference/crops/vfx-umbra/fog-arch.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for vfx-umbra: box [100, 60, 620, 230] of 20261111-0318_Ricky_other-realm.png, key all (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5",
+    "artfx"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of a team concept sheet (13 Nov, artfx, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "crop-light-spill-umbrella-glow",
+   "path": "pipeline/art/reference/crops/vfx-light-spill/umbrella-glow.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for vfx-light-spill: box [380, 320, 600, 450] of 20261111-0318_Ricky_other-realm.png, key dark (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5",
+    "artfx"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of a team concept sheet (13 Nov, artfx, D-new-vfx-calibration), keyed to an alpha mask; reference only"
+  },
+  {
+   "id": "crop-light-spill-gold-shot-a",
+   "path": "pipeline/art/reference/crops/vfx-light-spill/gold-shot-a.png",
+   "kind": "image",
+   "role": [
+    "effects"
+   ],
+   "what": "Crop of the effect itself for vfx-light-spill: box [1290, 225, 1420, 260] of 20261111-0318_Ricky_other-realm.png, key dark (crops.json beside it). Reference only; the whole sheet stays as context.",
+   "cards": [
+    "MVP 5",
+    "artfx"
+   ],
+   "judge": true,
+   "required": true,
+   "origin": "crop of a team concept sheet (13 Nov, artfx, D-new-vfx-calibration), keyed to an alpha mask; reference only"
   }
  ],
  "elements": {
@@ -2950,10 +3286,9 @@
   "vfx-gold-impact": {
    "what": "Ella's gold impact burst (art sheet VFX_GoldImpact, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
    "refs": [
-    "wand-star",
-    "study-ella-small-blasts",
-    "study-ella-twin-stars",
-    "bar-casters"
+    "crop-gold-impact-gold-shot-a",
+    "crop-gold-impact-gold-shot-b",
+    "crop-gold-impact-umbrella-glow"
    ],
    "owner": "artfx",
    "score_min": 0.334,
@@ -2968,15 +3303,19 @@
     "detail": {
      "wand-star": 0.097
     }
-   }
+   },
+   "context": [
+    "wand-star",
+    "study-ella-small-blasts",
+    "study-ella-twin-stars",
+    "bar-casters"
+   ]
   },
   "vfx-gold-fade": {
    "what": "the gold shot fading out (art sheet VFX_GoldFade, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
    "refs": [
-    "wand-star",
-    "study-ella-small-blasts",
-    "study-ella-twin-stars",
-    "bar-casters"
+    "crop-gold-fade-gold-shot-a",
+    "crop-gold-fade-gold-shot-b"
    ],
    "owner": "artfx",
    "score_min": 0.334,
@@ -2991,7 +3330,13 @@
     "detail": {
      "wand-star": 0.097
     }
-   }
+   },
+   "context": [
+    "wand-star",
+    "study-ella-small-blasts",
+    "study-ella-twin-stars",
+    "bar-casters"
+   ]
   },
   "vfx-stream-start": {
    "what": "the Streamed Blast startup (art sheet VFX_StreamStart, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
@@ -3101,10 +3446,8 @@
   "vfx-blocked": {
    "what": "the protected-contact block cue (art sheet VFX_Blocked, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
    "refs": [
-    "wand-star",
-    "study-ella-small-blasts",
-    "study-ella-twin-stars",
-    "bar-casters"
+    "crop-blocked-gold-shot-b",
+    "crop-blocked-umbrella-glow"
    ],
    "owner": "artfx",
    "score_min": 0.334,
@@ -3119,7 +3462,13 @@
     "detail": {
      "wand-star": 0.097
     }
-   }
+   },
+   "context": [
+    "wand-star",
+    "study-ella-small-blasts",
+    "study-ella-twin-stars",
+    "bar-casters"
+   ]
   },
   "vfx-keeper-warning": {
    "what": "the Keeper attack warning (art sheet VFX_KeeperWarning, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
@@ -3389,8 +3738,8 @@
   "vfx-slow": {
    "what": "the Keeper slow field (art sheet VFX_Slow, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
    "refs": [
-    "d-clock-double-beat",
-    "bar-other-realm"
+    "crop-slow-clock-face",
+    "crop-slow-reload-arc"
    ],
    "owner": "artfx",
    "score_min": 0.715,
@@ -3405,13 +3754,17 @@
     "detail": {
      "d-clock-double-beat": 0.398
     }
-   }
+   },
+   "context": [
+    "d-clock-double-beat",
+    "bar-other-realm"
+   ]
   },
   "vfx-gust": {
    "what": "the hostile wing gust in travel (art sheet VFX_Gust, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
    "refs": [
-    "d-wing-gust",
-    "bar-other-realm"
+    "crop-gust-damaging-gust",
+    "crop-gust-flow-ribbon"
    ],
    "owner": "artfx",
    "score_min": 0.721,
@@ -3426,13 +3779,17 @@
     "detail": {
      "d-wing-gust": 0.482
     }
-   }
+   },
+   "context": [
+    "d-wing-gust",
+    "bar-other-realm"
+   ]
   },
   "vfx-gust-puff": {
    "what": "the wing gust warning, release and expiry puff (art sheet VFX_GustPuff, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
    "refs": [
-    "d-wing-gust",
-    "bar-other-realm"
+    "crop-gust-puff-flap",
+    "crop-gust-puff-gust-front"
    ],
    "owner": "artfx",
    "score_min": 0.721,
@@ -3447,13 +3804,17 @@
     "detail": {
      "d-wing-gust": 0.482
     }
-   }
+   },
+   "context": [
+    "d-wing-gust",
+    "bar-other-realm"
+   ]
   },
   "vfx-blackout": {
    "what": "the blackout veil (art sheet VFX_Blackout, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
    "refs": [
-    "study-environment",
-    "bar-other-realm"
+    "crop-blackout-fog-low",
+    "crop-blackout-fog-arch"
    ],
    "owner": "artfx",
    "score_min": 0.5,
@@ -3467,7 +3828,11 @@
      "bar-other-realm": 0.099
     },
     "note": "one image and nothing to compare it with: score_min not measurable (kept)"
-   }
+   },
+   "context": [
+    "study-environment",
+    "bar-other-realm"
+   ]
   },
   "vfx-restoration": {
    "what": "the restoration after blackout (art sheet VFX_Restoration, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
@@ -3527,8 +3892,8 @@
   "vfx-light-shaft": {
    "what": "the light shaft falling into the abyss (NAR-05) (art sheet VFX_LightShaft, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
    "refs": [
-    "study-environment",
-    "bar-other-realm"
+    "crop-light-shaft-umbrella-glow",
+    "crop-light-shaft-flow-ribbon"
    ],
    "owner": "artfx",
    "score_min": 0.5,
@@ -3542,13 +3907,17 @@
      "bar-other-realm": 0.099
     },
     "note": "one image and nothing to compare it with: score_min not measurable (kept)"
-   }
+   },
+   "context": [
+    "study-environment",
+    "bar-other-realm"
+   ]
   },
   "vfx-umbra": {
    "what": "the umbrella's umbra shadow (NAR-05) (art sheet VFX_Umbra, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
    "refs": [
-    "study-environment",
-    "bar-other-realm"
+    "crop-umbra-fog-low",
+    "crop-umbra-fog-arch"
    ],
    "owner": "artfx",
    "score_min": 0.5,
@@ -3562,15 +3931,17 @@
      "bar-other-realm": 0.099
     },
     "note": "one image and nothing to compare it with: score_min not measurable (kept)"
-   }
+   },
+   "context": [
+    "study-environment",
+    "bar-other-realm"
+   ]
   },
   "vfx-light-spill": {
    "what": "the lit-material spill on nearby surfaces (VFX-07, VFX-08) (art sheet M_VFX_Spill_PH / M_VFX_Sheet_PH, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
    "refs": [
-    "wand-star",
-    "study-ella-small-blasts",
-    "study-ella-twin-stars",
-    "bar-casters"
+    "crop-light-spill-umbrella-glow",
+    "crop-light-spill-gold-shot-a"
    ],
    "owner": "artfx",
    "score_min": 0.334,
@@ -3585,7 +3956,13 @@
     "detail": {
      "wand-star": 0.097
     }
-   }
+   },
+   "context": [
+    "wand-star",
+    "study-ella-small-blasts",
+    "study-ella-twin-stars",
+    "bar-casters"
+   ]
   }
  },
  "scene": {

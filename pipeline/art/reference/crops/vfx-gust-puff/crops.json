@@ -1,0 +1,32 @@
+{
+ "element": "vfx-gust-puff",
+ "note": "crops of the effect cut from the concept sheets; originals untouched",
+ "crops": [
+  {
+   "file": "flap.png",
+   "source": "pipeline/art/reference/discord/20261110-0348_Ricky_1.png",
+   "box": [
+    232,
+    500,
+    400,
+    650
+   ],
+   "key": "gale2",
+   "pieces": "all",
+   "opaque_px": 1449
+  },
+  {
+   "file": "gust-front.png",
+   "source": "pipeline/art/reference/discord/20261110-0348_Ricky_1.png",
+   "box": [
+    440,
+    500,
+    560,
+    650
+   ],
+   "key": "gale2",
+   "pieces": "all",
+   "opaque_px": 2309
+  }
+ ]
+}
