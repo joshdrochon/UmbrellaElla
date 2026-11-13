@@ -28,7 +28,8 @@ newh = np.where((hue > 44) & (hue < 110), 38.0 + 4.0 * t, hue)
 newh = np.where((newh < 24) | (newh > 330), 26.0, newh)
 sat = np.minimum(sat, SATCAP)
 if __import__('os').environ.get('NOGRADE'):  # blue-white effects: keep the painted hue
-    newh, sat = hue, np.minimum(np.where(mx > 0, d / (mx + 1e-6), 0), float(__import__('os').environ.get('NOGRADE_SAT', '1.0'))); c = mx * sat; hp = (newh % 360) / 60.0; x = c * (1 - np.abs(hp % 2 - 1)); m0 = mx - c
+    newh, sat = hue, np.minimum(np.where(mx > 0, d / (mx + 1e-6), 0), float(__import__('os').environ.get('NOGRADE_SAT', '1.0')))
+c = mx * sat; hp = (newh % 360) / 60.0; x = c * (1 - np.abs(hp % 2 - 1)); m0 = mx - c
 conds = [hp < 1, hp < 2, hp < 3, hp < 4, hp < 5]
 r2 = np.select(conds, [c, x, 0 * c, 0 * c, x], c) + m0
 g3 = np.select(conds, [x, c, c, x, 0 * c], 0 * c) + m0

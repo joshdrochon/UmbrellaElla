@@ -54,3 +54,6 @@ Still blocked: origin/main (80aacfd8) has no SmokeShotFrames in Source/; screenf
 
 ## 2026-11-13 (style block, stun)
 Merged main 3e2c0b2a; SmokeShotFrames is on main now, paid calls work (draft model needs `--model gemini-3.1-flash-image-preview` for 8:1). Repainted vfx-stun with prompt3 (arcs) plus the shared style block: `Stun/draft4.png`, cut with NOGRADE=1 into `sheet7.png` (ivory/pale-blue arcs with brass shards, reads as stun). art_judge per frame: frames 0-5 score 0.2 (style gate), frames 6-7 0.639, bar 0.764. Whole strip 0.397. Still a placeholder. Cost about $0.10. Other seven pieces not repainted: about $4 of the shared cap is left for every lane. Next: another stun seed or 3-pro-image final, then the other pieces best-ranked first (stream-sustain, needle-channel).
+
+## 2026-11-13 (stream-sustain draft4)
+Fixed `cut_strip.py` (the graded path crashed: `hp` was only defined under NOGRADE). Repainted vfx-stream-sustain: `StreamSustain/draft4.png`, cut to `sheet8.png`. Whole strip 0.468 against 0.73: still a placeholder. Cost $0.10. Shared counter $31.22 of $33.82, so about $2.6 is left for every lane; no pass is reachable on that for eight pieces. Request written in docs/build/requests/artfx3.md. Per-frame judge needs PIL, which is not installed here (Blender can crop instead).
