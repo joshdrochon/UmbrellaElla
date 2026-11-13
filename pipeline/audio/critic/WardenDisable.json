@@ -1,0 +1,35 @@
+{
+ "id": "WardenDisable",
+ "records": [
+  {
+   "files": "7918632b4093ec6c29420d89498cf5502d1b5cfb300faf7ecd68233fbd9d3ffc",
+   "verdict": "fail",
+   "style_pass": true,
+   "gap": "Add one heavy, distinct spring-release and gear-clank transient at the start, then let the following ticks and whirr drop clearly in level and spacing so the sound has a hit, a body and a wind-down instead of an even tick texture.",
+   "card": "SNDHIT",
+   "round": 1,
+   "critic": "critic-r1-WardenDisable",
+   "at": "2026-11-13T02:06Z"
+  },
+  {
+   "files": "7918632b4093ec6c29420d89498cf5502d1b5cfb300faf7ecd68233fbd9d3ffc",
+   "verdict": "pass",
+   "style_pass": true,
+   "gap": "none",
+   "card": "SNDHIT",
+   "round": 2,
+   "critic": "wf-critic-WardenDisable",
+   "at": "2026-11-13T02:11Z"
+  },
+  {
+   "files": "7918632b4093ec6c29420d89498cf5502d1b5cfb300faf7ecd68233fbd9d3ffc",
+   "verdict": "pass",
+   "style_pass": true,
+   "gap": "none",
+   "card": "SNDHIT",
+   "round": 3,
+   "critic": "critic-WardenDisable-1794537826-23821",
+   "at": "2026-11-13T02:44Z"
+  }
+ ]
+}

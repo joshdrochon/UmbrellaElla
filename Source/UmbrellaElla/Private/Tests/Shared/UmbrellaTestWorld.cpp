@@ -1,5 +1,5 @@
-#include "Misc/AutomationTest.h"
 #include "Tests/Shared/UmbrellaTestWorld.h"
+#include "Misc/AutomationTest.h"
 
 #if WITH_AUTOMATION_TESTS
 

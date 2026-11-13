@@ -629,5 +629,32 @@ class TeamArt(unittest.TestCase):
         self.assertEqual(probs, [])
 
 
+class HueBandCanonTest(unittest.TestCase):
+    """The off_band gate (hue_gate) against the canon: every canonical warm colour is inside it, a greenish pale
+    yellow (the Gemini proof's rim light, e.g. 224,224,160, hue ~100) is not. Triage 12 Nov: the check is right."""
+
+    def inside(self, rgb):
+        import math
+        lab = art_check.rgb_to_lab(rgb)
+        chroma = math.hypot(lab[1], lab[2])
+        hue = math.degrees(math.atan2(lab[2], lab[1])) % 360
+        gate = STYLE["hue_gate"]
+        return chroma <= gate["chroma_min"] or any(lo <= hue <= hi for lo, hi in gate["allowed_hue_bands_deg"])
+
+    def test_canonical_warm_colours_pass(self):
+        canon = [c["hex"] for c in STYLE["palette"]]   # bronze/umber/ink/paper and the by-eye golds
+        canon += ["#e9c46a", "#ffc76a", "#ffd84a", "#f5aa28", "#94611e", "#fff5dc", "#fff3d6"]   # GDD SH1.0 golds, ivory
+        for h in canon:
+            self.assertTrue(self.inside(art_check.hex_to_rgb(h)), h)
+
+    def test_greenish_pale_yellow_fails(self):
+        for rgb in [(224, 224, 160), (224, 224, 128), (200, 200, 120)]:
+            self.assertFalse(self.inside(rgb), rgb)
+
+    def test_key_art_off_band_is_zero(self):
+        key = os.path.join(ROOT, "pipeline", "art", "reference", "target-keyart.png")
+        self.assertEqual(art_check.measure(key, STYLE)["off_band"], 0.0)
+
+
 if __name__ == "__main__":
     unittest.main()
