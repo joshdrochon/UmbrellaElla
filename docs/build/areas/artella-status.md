@@ -142,3 +142,7 @@ My pieces now: ella-up-open, ella-attack, ella-shield, ella-closed, ella-motion.
 A context capture launch via ue_slot/run_game.sh is running (T_Ella_Idle_PH = up-open frame 00); result below if it lands.
 Round 14 result: the capture landed (640x360) but shows "Preparing Shaders (3)" on black, no Ella: the time-based shot (5 s) fires before shaders finish on a loaded machine
 (ours/env, not the art). Discarded, so no `context` pair. Needs the frame-based shot from screenfix. ella-up-open still blocked only on `context`.
+
+## Round 15 (Nov 13 late): re-checked, still blocked on a reliable context capture
+Merged main and artslots. The frame-based shot is still not in: `SmokeHookSubsystem.cpp:132` fires on `Elapsed >= SmokeShotDelaySeconds` (5 s, tuning), with no command-line override. Machine load ~27.
+The Round 14 capture showed "Preparing Shaders" on black. No paint spend (counter unchanged, 15.08 of 33.82); a new paint could not pass without `context`.
