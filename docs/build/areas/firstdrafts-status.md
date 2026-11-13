@@ -37,3 +37,11 @@ Re-ran the guard (`draft_checks_passed`) on every existing draft; no new drafts 
   - art_check near miss when keyed: yellow-shot off_style .0209 (cap .02), keeper-clock .037, vfx-restoration .028; menu-screen, ui-purchase, ui-spell-wheel .025-.032; ui-xp-ring .15+.
   - Not retried: the shared counter reads $34.93 of the $33.82 cap (assetgen converts to OpenRouter/fal by itself, but I stopped paying for redraws that need a flash model that can do 4:1 strips and a keyed ground).
 - Check defect candidate: art_ref_check element scores compare the silhouette mask; a paper-ground draft has no mask, so any sprite draft scores 0.2 unless cut out first. The guard does not cut the ground.
+
+## Round 4: re-check against the new guard, keyed redraws (2026-11-13)
+- Re-ran `draft_checks_passed` on every draft1/draft1_clean/draft2 (no spend): no new pass among them. Keyed the cream ground out of draft2 (`key_out`, tol 60/80/110): one new pass, keeper-damage (tol 110, `draft2_clean.png`).
+- Final made: keeper-damage (`final2.png`, gemini-3-pro 2K via OpenRouter, $0.139). Finals now 10 of 28.
+- Redraw on a green key (flash, `draft3.png`, one seed each, 4 at a time, 15 pieces, 15/15 ok, about $0.59 OpenRouter) then `clean --chroma 00FF00` (keeper-departure: the model drew a paper ground, key refused). Guard on `draft3_clean.png`: 0 of 14 pass (all fail on_palette/off_style from key fringe, or art_ref_check for mech-middle .531 and clock-open .624). Flat, so no further spend.
+- Still no final (18): ella-condition, ella-motion, enemy-floodstrider, keeper-clock, keeper-departure, keeper-mech-middle, keeper-mech-rear, menu-screen, ui-purchase, ui-spell-wheel, ui-xp-ring, vfx-clock-open, vfx-departure, vfx-eye-exposed, vfx-keeper-recovery, vfx-keeper-strike, vfx-restoration, yellow-shot.
+- Check defect candidate: keyed copies fail off_style/on_palette at .03 to .26 because the cut leaves halo pixels; a feathered cut or rembg may pass them.
+- Spend by provider: gemini $33.82/$33.82 (exhausted), openrouter about $0.98/$19.89, fal $10.80/$74.84.
