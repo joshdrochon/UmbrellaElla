@@ -4,15 +4,13 @@
 #include "Core/EllaCharacter.h"
 #include "Core/UmbrellaDrawOrder.h"
 #include "Core/UmbrellaEventBus.h"
+#include "Core/UmbrellaTuning.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/Texture2D.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Materials/MaterialInterface.h"
-#include "Core/UmbrellaTuning.h"
-#include "Engine/StaticMesh.h"
 #include "GameFramework/Pawn.h"
 #include "Harness/UmbrellaFeatureFlags.h"
-#include "Materials/MaterialInstanceDynamic.h"
 #include "Umbrella/UmbrellaPlayerIds.h"
 
 namespace
@@ -89,6 +87,10 @@ FName AWindCurrent::RoleLabel(const FVector& InDirection)
 FLinearColor AWindCurrent::FieldColourFor(FName Role)
 {
 	const FFieldTuning& T = GetDefault<UUmbrellaTuning>()->Field;
+	if (Role == TEXT("Rescue"))
+	{
+		return T.RescueFieldColour;
+	}
 	if (Role == TEXT("Return"))
 	{
 		return T.ReturnFieldColour;
@@ -104,14 +106,14 @@ FLinearColor AWindCurrent::FieldColourFor(FName Role)
 	return T.TransportFieldColour;
 }
 
-float AWindCurrent::GetUsableWidth() const
+FLinearColor AWindCurrent::GetDrawnColour() const
 {
-	return 2.0f * Volume->GetScaledBoxExtent().X;
-}
-
-float AWindCurrent::GetDrawnWidth() const
-{
-	return Field->IsVisible() && Field->GetStaticMesh() ? 2.0f * Field->Bounds.BoxExtent.X : 0.0f;
+	FLinearColor Colour = FLinearColor::Transparent;
+	if (const UMaterialInstanceDynamic* Material = Cast<UMaterialInstanceDynamic>(Field->GetMaterial(0)))
+	{
+		Material->GetVectorParameterValue(FMaterialParameterInfo(WindFieldColourParameter), Colour);
+	}
+	return Colour;
 }
 
 void AWindCurrent::RefreshField()
@@ -136,7 +138,7 @@ void AWindCurrent::RefreshField()
 			Material = UMaterialInstanceDynamic::Create(Base, this);
 			Field->SetMaterial(0, Material);
 		}
-		Material->SetVectorParameterValue(WindFieldColourParameter, FieldColourFor(GetKind() == EWindKind::Rescue ? FName(TEXT("Lift")) : RoleLabel(Direction)));
+		Material->SetVectorParameterValue(WindFieldColourParameter, FieldColourFor(GetKind() == EWindKind::Rescue ? FName(TEXT("Rescue")) : RoleLabel(Direction)));
 	}
 	const FVector Extent = Volume->GetUnscaledBoxExtent();
 	Field->SetRelativeScale3D(FVector(2.0 * Extent.X / WindCurrentConst::CubeSize, GetDefault<UUmbrellaTuning>()->Field.FieldDepthScale, 2.0 * Extent.Z / WindCurrentConst::CubeSize));

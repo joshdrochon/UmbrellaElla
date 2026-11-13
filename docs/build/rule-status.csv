@@ -83,7 +83,7 @@ OWL-33,keeper,built,Keeper.SlowStretchesWorldTimersNotClockTimers,,
 OWL-34,keeper,built,Keeper.PhysicalSchedulerSerialisesMoves,,
 OWL-35,keeper,built,Keeper.FinalClockHitEndsFight; Keeper.World.FinalClockHitEndsInSuccess,,
 FLOW-24,arena,built,Level.RefugesAndLength; Level.NineSlotGrammar,,
-FLOW-25,arena,partial,Level.ContractsReadabilityCatchCheckpoint; Field.World.DrawnWidthMatchesUsable,wind fields now drawn at full usable width with distinct transport/descent/rescue stand-in looks (loads T_VFX_Gust when painted); backdrop coverage goes to artslots; QA-36 re-measure left,playtest
+FLOW-25,arena,partial,Level.ContractsReadabilityCatchCheckpoint; Field.World.CurrentDrawsItsUsableWidth,wind fields now drawn at full usable width with distinct transport/descent/rescue stand-in colours (rescue has its own); painted gust art left; backdrop coverage goes to artslots; QA-36 re-measure left,playtest
 FLOW-26,arena,blocked,,"GDD row says the design is authored, not implemented; nothing to build until the GDD changes",ORPHAN
 HAZ-02,enemies,built,BrokenMill.GeometryEstimatesMatchGdd; BrokenMill.ActivationAndEngagement; BrokenMill.GuardOneShotPerPass; BrokenMill.TwoWindsNeverSteal,rule layer; BrokenMillRoom.cpp spawns both wind bands,
 HAZ-03,enemies,built,BrokenMill.GeometryEstimatesMatchGdd; BrokenMill.ActivationAndEngagement; BrokenMill.GuardOneShotPerPass; BrokenMill.TwoWindsNeverSteal,rule layer; BrokenMillRoom.cpp spawns both wind bands,

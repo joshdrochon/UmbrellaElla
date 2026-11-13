@@ -58,8 +58,6 @@ public:
 	static FLinearColor FieldColourFor(FName Role);
 
 	/** Width of the usable volume (what moves Ella) and of the drawn field (what the player sees), in units. */
-	float GetUsableWidth() const;
-	float GetDrawnWidth() const;
 	UStaticMeshComponent* GetField() const { return Field; }
 
 	/** Optional local vertical field carried on WindEntered (Detail "Dir@gain,centreZ,compensation"):
@@ -73,7 +71,8 @@ public:
 	/** Width and height (X, Z) of the usable volume and of the drawn field, in world units. Drawn is 0 when nothing is drawn. */
 	FVector2D GetUsableSize() const;
 	FVector2D GetDrawnSize() const;
-	bool IsDrawn() const { return GetDrawnWidth() > 0.0f; }
+	/** Colour parameter currently on the drawn field (transparent when nothing is drawn). */
+	FLinearColor GetDrawnColour() const;
 
 	/** Broadcast the enter/exit event for a pawn; separate so tests can call it without physics. */
 	void BroadcastEntered(const AActor* Other) const;

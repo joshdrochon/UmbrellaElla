@@ -136,13 +136,13 @@ bool FWindWorldDrawsField::RunTest(const FString& Parameters)
 	const UStaticMeshComponent* Field = Wind->GetField();
 	TestTrue(TEXT("field is drawn"), Field && Field->IsVisible() && Field->GetStaticMesh() != nullptr);
 	TestEqual(TEXT("field never collides"), Field ? Field->GetCollisionEnabled() : ECollisionEnabled::QueryAndPhysics, ECollisionEnabled::NoCollision);
-	TestEqual(TEXT("usable width"), Wind->GetUsableWidth(), 200.0f, 0.5f);
-	TestEqual(TEXT("drawn width equals usable width"), Wind->GetDrawnWidth(), Wind->GetUsableWidth(), 0.5f);
+	TestEqual(TEXT("usable width"), static_cast<float>(Wind->GetUsableSize().X), 200.0f, 0.5f);
+	TestEqual(TEXT("drawn width equals usable width"), static_cast<float>(Wind->GetDrawnSize().X), static_cast<float>(Wind->GetUsableSize().X), 0.5f);
 	TestEqual(TEXT("drawn height equals usable height"), Field ? static_cast<float>(Field->Bounds.BoxExtent.Z) : 0.0f, 150.0f, 0.5f);
-	TestTrue(TEXT("readability contract holds"), LevelContracts::IsWindFieldDrawnTrue(Wind->GetDrawnWidth(), Wind->GetUsableWidth(), 1.0f));
+	TestTrue(TEXT("readability contract holds"), LevelContracts::IsWindFieldDrawnTrue(static_cast<float>(Wind->GetDrawnSize().X), static_cast<float>(Wind->GetUsableSize().X), 1.0f));
 	TestTrue(TEXT("field is behind Ella"), Field && Field->GetComponentLocation().Y < Wind->GetActorLocation().Y);
 	Wind->SetHalfExtent(40.0f, 150.0f);
-	TestEqual(TEXT("a resized current redraws"), Wind->GetDrawnWidth(), 80.0f, 0.5f);
+	TestEqual(TEXT("a resized current redraws"), static_cast<float>(Wind->GetDrawnSize().X), 80.0f, 0.5f);
 	// Transport, descent, lift (rescue) and return read differently.
 	TestEqual(TEXT("right is transport"), AWindCurrent::RoleLabel(FVector(1.0, 0.0, 0.0)), FName(TEXT("Transport")));
 	TestEqual(TEXT("down is descent"), AWindCurrent::RoleLabel(FVector(0.0, 0.0, -1.0)), FName(TEXT("Descent")));
@@ -153,7 +153,17 @@ bool FWindWorldDrawsField::RunTest(const FString& Parameters)
 	TestEqual(TEXT("up is rescue kind"), AWindCurrent::KindFor(FVector(0, 0, 1), false), EWindKind::Rescue);
 	TestEqual(TEXT("local field is rescue kind"), AWindCurrent::KindFor(FVector(1, 0, 0), true), EWindKind::Rescue);
 	TestEqual(TEXT("drawn height equals usable via size"), static_cast<float>(Wind->GetDrawnSize().Y), static_cast<float>(Wind->GetUsableSize().Y), 0.5f);
-	TestTrue(TEXT("IsDrawn"), Wind->IsDrawn());
+	TestTrue(TEXT("drawn size is non-zero"), Wind->GetDrawnSize().X > 0.0);
+	// The three kinds draw in three distinct colours (read from the material, not the tuning).
+	TArray<FLinearColor> KindColours;
+	for (const FVector& Dir : {FVector(1, 0, 0), FVector(0, 0, -1), FVector(0, 0, 1)})
+	{
+		Wind->SetCurrent(Dir, 300.0f);
+		KindColours.Add(Wind->GetDrawnColour());
+	}
+	TestTrue(TEXT("transport, descent and rescue colours are distinct"),
+		KindColours[0] != KindColours[1] && KindColours[1] != KindColours[2] && KindColours[0] != KindColours[2]);
+	TestTrue(TEXT("a drawn colour is set"), KindColours[0] != FLinearColor::Transparent);
 	TSet<FLinearColor> Colours;
 	for (const TCHAR* Role : {TEXT("Transport"), TEXT("Descent"), TEXT("Lift"), TEXT("Return")})
 	{
