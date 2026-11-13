@@ -1,0 +1,72 @@
+{
+ "character": "bolt-hit",
+ "anim": "Still",
+ "builder": "burst_red",
+ "asset": "BoltHit",
+ "frame_size": [
+  512,
+  512
+ ],
+ "pivot_px": [
+  256,
+  256
+ ],
+ "faces": "right",
+ "px_per_unit": 120.0,
+ "fps": 0,
+ "loop": false,
+ "layout": "recipe",
+ "poses": [
+  {
+   "index": 0,
+   "rot": {}
+  }
+ ],
+ "colours": {
+  "paper-light": "#aa8f7f",
+  "paper-mid": "#93786b",
+  "paper-stain": "#7b6157",
+  "etch-line": "#c4a999",
+  "owl-umber": "#3a2c25",
+  "owl-feather": "#5c473e",
+  "silhouette": "#1d1713",
+  "spark-white": "#fff3d6",
+  "gold": "#e9c46a",
+  "amber-eye": "#ffc76a",
+  "rust-red": "#743422",
+  "ink": "#171614",
+  "wind-ash-blue": "#555e60",
+  "red": "#ff3658",
+  "coral": "#ff7848",
+  "red shadow": "#8f173c",
+  "yellow": "#ffd84a",
+  "amber": "#f5aa28",
+  "yellow shadow": "#94611e",
+  "core": "#fff5dc"
+ },
+ "look": {
+  "shades": [
+   "ink",
+   "silhouette",
+   "owl-umber"
+  ],
+  "ink": "ink",
+  "line_px": 4.0,
+  "grain": 0.06,
+  "grain_scale": 180.0,
+  "seed": 11,
+  "light_deg": [
+   62,
+   0,
+   18
+  ],
+  "samples": 24,
+  "filter_px": 0.6,
+  "snap": 0.008333
+ },
+ "out_dir": "Art/Source/BoltHit/Raw/Still4",
+ "frames": [
+  "Art/Source/BoltHit/Raw/Still4/BoltHit_Still_00.png"
+ ],
+ "blend": "Art/Source/BoltHit/Raw/Still4/BoltHit_Still.blend"
+}

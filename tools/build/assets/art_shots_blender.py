@@ -77,7 +77,7 @@ def graded(name, head_hex, tail_hex, x_tail=-2.6, x_head=1.4, grain=0.12, cut=0.
     hr = nt.nodes.new("ShaderNodeValToRGB")
     hr.color_ramp.interpolation = "CONSTANT"
     hr.color_ramp.elements[0].position, hr.color_ramp.elements[0].color = 0.0, (1, 1, 1, 1)
-    hr.color_ramp.elements[1].position, hr.color_ramp.elements[1].color = 0.9, (0.92, 0.92, 0.92, 1)
+    hr.color_ramp.elements[1].position, hr.color_ramp.elements[1].color = 0.9, (0.92, 0.92, 0.92, 1)   # an etched ink line
     mot = nt.nodes.new("ShaderNodeTexNoise")   # paper mottle: slow blotches, two levels
     mot.inputs["Scale"].default_value = 5.0
     mot.inputs["Detail"].default_value = 3.0
@@ -212,19 +212,19 @@ def shot_outline(sx, sz, dx=0.0, head=1.5, tail=-2.2, grow=0.0):
     return [(head * sx + dx + grow, 0.0)] + top + [(tail * sx + dx - grow, 0.0)] + list(reversed(bot))
 
 
-def shot(m, rnd, shell, mid, body, core, spill, trail_a, trail_b):
+def shot(m, rnd, shell, mid, body, core, spill, trail_a, trail_b, shade="redshadow"):
     """bar-casters' shared projectile: bright core, shell, trail, light spill; one pointed angular geometry."""
     r = Rig("Shot")
     r.bone("body", (-0.5, 0, 0), (0.5, 0, 0))
     poly_part(r, "body", m["ink"], shot_outline(1.0, 1.0, 0.0, 1.5, -2.35, grow=0.04), y=0.04, thick=0.02, name="ink")
     poly_part(r, "body", m[shell], shot_outline(1.0, 1.0), y=0.0, name="shell")
-    poly_part(r, "body", m["redshadow"], shot_outline(0.95, 0.3, -0.05), y=-0.03, name="shade")
+    poly_part(r, "body", m[shade], shot_outline(0.95, 0.3, -0.05), y=-0.03, name="shade")
     poly_part(r, "body", m[mid], shot_outline(0.86, 0.72, 0.1), y=-0.06, name="mid")
     poly_part(r, "body", m[body], shot_outline(0.7, 0.4, 0.25), y=-0.12, name="body")
     poly_part(r, "body", m[core], shot_outline(0.62, 0.17, 0.4), y=-0.18, name="core")
     streak = [(-1.2, 0.22), (-2.0, 0.15), (-2.7, 0.04), (-2.7, -0.04), (-2.0, -0.15), (-1.2, -0.22)]
-    poly_part(r, "body", m["g_st_r" if shell == "g_shell" else "g_st_y"], streak, y=0.02, thick=0.02, name="streak")
-    poly_part(r, "body", m["g_st_c" if shell == "g_shell" else "g_st_a"],
+    poly_part(r, "body", m["g_st_r" if shell == "g_shell" else "g_st_a"], streak, y=0.02, thick=0.02, name="streak")
+    poly_part(r, "body", m["g_st_c" if shell == "g_shell" else "g_st_y"],
               [(x * 0.95, z * 0.45) for x, z in streak], y=-0.01, thick=0.02, name="streak_core")
     rr = random.Random(9)
     x = -2.2
@@ -237,12 +237,60 @@ def shot(m, rnd, shell, mid, body, core, spill, trail_a, trail_b):
     return r.build(), {}
 
 
+def star_pts(n, r_out, r_in, rot=0.0, jit=0.0, rnd=None, sx=1.45, k=0.7):
+    pts = []
+    for i in range(2 * n):
+        r = r_out if i % 2 == 0 else r_in
+        if rnd and i % 2 == 0:
+            r *= 1.0 + jit * (rnd.random() - 0.5) * 2
+        a = rot + math.pi * i / n
+        pts.append((k * sx * r * math.cos(a), k * r * math.sin(a)))
+    return pts
+
+
+def burst(m, rnd, shell, mid, body, core, shard_a, shard_b, shade):
+    """The shot's release / impact burst (bar-casters RELEASE frame): a spiked starburst round a bright core, flung
+    shards. One pointed angular geometry (OWL-14), the same layers as the travelling shot."""
+    r = Rig("Burst")
+    r.bone("body", (-0.5, 0, 0), (0.5, 0, 0))
+    poly_part(r, "body", m["ink"], star_pts(9, 2.12, 0.62, 0.2, 0.18, random.Random(3)), y=0.05, thick=0.02, name="ink")
+    poly_part(r, "body", m[shell], star_pts(9, 1.95, 0.55, 0.2, 0.18, random.Random(3)), y=0.0, name="shell")
+    poly_part(r, "body", m[shade], star_pts(9, 1.9, 0.52, 0.2 + 0.17, 0.18, random.Random(3)), y=-0.02, name="facet")
+    for i in range(18):   # etched spokes: down every ray, and short ones in the valleys and across the glow
+        a = 0.2 + math.pi * i / 9
+        ca, sa = math.cos(a), math.sin(a)
+        L0, L1, w = (0.5, 1.7, 0.04) if i % 2 == 0 else (0.45, 0.95, 0.03)
+        pts = [(0.7 * 1.45 * (ca * L0 - sa * w), 0.7 * (sa * L0 + ca * w)), (0.7 * 1.45 * ca * L1, 0.7 * sa * L1),
+               (0.7 * 1.45 * (ca * L0 + sa * w), 0.7 * (sa * L0 - ca * w))]
+        poly_part(r, "body", m["ink"], pts, y=-0.03, thick=0.02, name="spoke%d" % i)
+    poly_part(r, "body", m[mid], star_pts(9, 1.28, 0.4, 0.2 + math.pi / 9, 0.15, random.Random(4)), y=-0.06, name="mid")
+    poly_part(r, "body", m[body], star_pts(6, 0.95, 0.3, 0.6, 0.1, random.Random(5)), y=-0.1, name="body")
+    poly_part(r, "body", m[core], star_pts(4, 0.55, 0.17, 0.0, 0.0), y=-0.14, name="core")
+    rr = random.Random(11)
+    for i in range(10):   # flung shards, rotated squares
+        a = rr.uniform(0, 2 * math.pi)
+        d = rr.uniform(1.55, 2.0) if i < 10 else 1.8
+        h = rr.uniform(0.05, 0.1)
+        cx, cz = 0.7 * 1.45 * d * math.cos(a), 0.7 * d * math.sin(a)
+        c, sn = math.cos(a), math.sin(a)
+        pts = [(cx + c * dx - sn * dz, cz + sn * dx + c * dz) for dx, dz in ((-h * 1.6, -h), (h * 1.6, -h), (h * 1.6, h), (-h * 1.6, h))]
+        poly_part(r, "body", m[shard_a if i % 2 else shard_b], pts, y=-0.02, thick=0.02, name="fleck%d" % i)
+    return r.build(), {}
+
+
+def build_burst_red(m, rnd):
+    return burst(m, rnd, "g_shell", "g_mid", "g_core", "core", "g_st_r", "g_st_c", "coral")
+
+
+stand_ins.BUILDERS["burst_red"] = build_burst_red
+
+
 def build_shot_red(m, rnd):
     return shot(m, rnd, "g_shell", "g_mid", "g_core", "core", "spill_red", "red", "redshadow")
 
 
 def build_shot_gold(m, rnd):
-    return shot(m, rnd, "g_ys", "g_ym", "g_core", "core", "spill_gold", "yellow", "yshadow")
+    return shot(m, rnd, "g_wand", "g_wm", "g_core", "core", "spill_gold", "gold", "yshadow", shade="yshadow")
 
 
 stand_ins.BUILDERS["shot_red"] = build_shot_red
@@ -268,6 +316,9 @@ def materials(colours, look):
     mats["g_st_c"] = graded("g_st_c", c("coral", "#ff7848"), c("coral", "#ff7848"), snap=sn_)
     mats["g_st_y"] = graded("g_st_y", c("yellow", "#ffd84a"), c("yellow", "#ffd84a"), snap=sn_)
     mats["g_st_a"] = graded("g_st_a", c("amber", "#f5aa28"), c("amber", "#f5aa28"), snap=sn_)
+    mats["g_wand"] = graded("g_wand", c("gold", "#e9c46a"), c("amber", "#f5aa28"), snap=sn_)
+    mats["g_wm"] = graded("g_wm", c("amber-eye", "#ffc76a"), c("gold", "#e9c46a"), snap=sn_)
+    mats["gold"] = glow("gold2", c("gold", "#e9c46a"))
     mats["spill_red"] = radial_glow("spill_red", c("red", "#ff3658"), 0.45, 2.6, 1.05, -0.5)
     mats["spill_gold"] = radial_glow("spill_gold", c("yellow", "#ffd84a"), 0.45, 2.6, 1.05, -0.5)
     return mats

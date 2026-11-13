@@ -19,6 +19,7 @@ BLENDER = os.environ.get("BLENDER", "/Applications/Blender.app/Contents/MacOS/Bl
 # piece -> (recipe to borrow look/colours from, builder, asset, frame size, pivot, px per unit, faces)
 PIECES = {
     "owl-bolt": ("bolt", "shot_red", "OwlBolt", (160, 80), (46, 40), 30.0, "left"),
+    "bolt-hit": ("bolt", "burst_red", "BoltHit", (128, 128), (64, 64), 30.0, "right"),
     "wand-shot": ("bolt", "shot_gold", "WandShot", (128, 64), (99, 32), 24.0, "right"),
 }
 
