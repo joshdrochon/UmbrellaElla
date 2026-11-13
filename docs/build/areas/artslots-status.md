@@ -28,3 +28,9 @@ Rule IDs: ART-08, ART-05 (screen:* slots), FLOW-25 context.
 - Run: build exit 0; `TEST_FILTER=UmbrellaElla.Feedback` PASS tests=35 failed=0; art_slots check PASS (100); `tests.test_art_slots` OK; module_check 0.
 - Not run: in-game capture (no T_Screen_* asset exists yet).
 - Left: nothing in the brief.
+
+## Session 4 (Nov 13): Feedback+Field world test fix
+- Main merge (6c04ed2f) run: only `UmbrellaElla.Feedback.World.ArtSlotKeeperEnemy` failed (ArtSlotWind and CurrentDrawsItsUsableWidth passed; already fixed on main).
+- Cause: the test, not the slot code. `T_Keeper_Owl_PH` now exists, so the keeper stand-in draws it on spawn and a later `ShowArt` is correctly refused. The test assumed no asset.
+- Fix: the test finds the `KeeperStandIn` mesh; if it already has art, only the "second picture is refused" check runs.
+- Run: build exit 0; `TEST_FILTER=UmbrellaElla.Feedback+UmbrellaElla.Field` PASS tests=39 failed=0.
