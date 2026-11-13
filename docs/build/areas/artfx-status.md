@@ -45,3 +45,9 @@ No gameplay timing, collision or state is written by any of it (tests check the 
 - Blind probe, 1 fresh Sonnet session per pair, not a panel: reference pair ours wins (calibration 2/2 right); quality-bar pair ours wins but that session missed calibration A, so it does not count. No motion or context pair run, so no pass. Not shipped: stays a `_PH` slot, no `.artloop.json`.
 - Ours vs model: panel-coloured green boxes appeared behind each cell (prompt said "green identical in every cell"; model drew darker cell panels). The HSV key removed them, but drop that sentence next time. Glow on frames 2 and 4 spills onto the panel; keyed edge looks clean.
 - Left: panel of 3 per pair, motion pair, in-engine context capture; paint release/impact/fade and Keeper warning/strike with the same method; import to `Content/.../Art/VFX` only after a pass.
+
+## Slice 3 (Nov 13): blocked, no new paint
+- Merged main (d3cf6ee5). Re-checked request 4: `pipeline/art/references.json` still has no judge element for the VFX pieces, and `art_loop.py pieces --card artfx` lists none. `wand-shot` belongs to the artshots lane (card 0.10b).
+- So no blind panel can open for any artfx piece and nothing can ship. More Gemini calls would only add `_PH` candidates that cannot pass, so I made none (spend stays 1.81 of 33.82).
+- Verdict: "check/source gap, not the work". Needs the lead to add elements (spell-small-blasts, spell-stream, spell-twin-stars, spell-needle, keeper-warning, keeper-strike, clock-beat, light-shaft) with refs and calibration, or to rule that artshots' `wand-shot` pass covers the four spell heads.
+- Once that lands: paint release/impact/fade and Keeper warning/strike with the Twin Star method (drop "green identical in every cell" from the prompt), run a panel of 3 per pair plus motion and in-engine context pairs.
