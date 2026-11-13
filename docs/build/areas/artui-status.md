@@ -78,7 +78,7 @@
   Triage: work (capture size no longer the cause).
 - Ground r2 painted ($0.139, spent $6.675 total; prompt_r2.md: heavy grain, hand-inked contours, gold-rimmed rock edges).
   Brighter than the reference. Rounds 5 and 6: calibration 4/6, 1/3 calibrated sessions, score 0.866: no valid verdict.
-  Not adopted; shipped ground stays r1 (r2 files kept under Art/Source/UI/Ground/Painted/ for the next try).
+  Not adopted; shipped ground stays r1 (r2 files kept under pipeline/art/proof/artui/ui-title/ for the next try).
 - Next: darker r3 ground (keep the r1 value structure, add grain and gold edges), and a rougher inked title lettering pass
   (Art/Source/UI/Font/build_font.py: pen-wobble/distress). Then panel the other 11 screens; none judged yet.
 - Note: UE import saves fail silently on read-only `.uasset` (LFS lockable); `chmod u+w` before `import_ui_art.py`.
