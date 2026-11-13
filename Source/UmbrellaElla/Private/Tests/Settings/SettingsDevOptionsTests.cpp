@@ -274,18 +274,18 @@ bool FSettingsAccessLiveTest::RunTest(const FString& Parameters)
 	// World-free readers (Slate menus, story text, HUD numerals, backdrop, VFX loops) see the same saved values.
 	TestEqual(TEXT("published text 150%"), UmbrellaAccessibility::PublishedTextScalePercent(), 150);
 	TestEqual(TEXT("flow menu font 28 -> 42"), UmbrellaAccessibility::PublishedFontSize(28), 42);
-	TestTrue(TEXT("published reduced motion"), UmbrellaAccessibility::PublishedReducedMotion());
+	TestTrue(TEXT("published reduced motion"), UmbrellaAccessibility::IsPublishedReducedMotion());
 	const FVfxArtRow* LoopRow = VfxCatalog::Find(TEXT("SmallBlastTravel"));
 	if (TestNotNull(TEXT("looping vfx row"), LoopRow))
 	{
-		TestEqual(TEXT("loop holds frame 0 under reduced motion"), VfxCatalog::FrameAt(*LoopRow, 0.37f, UmbrellaAccessibility::PublishedReducedMotion()), 0);
+		TestEqual(TEXT("loop holds frame 0 under reduced motion"), VfxCatalog::FrameAt(*LoopRow, 0.37f, UmbrellaAccessibility::IsPublishedReducedMotion()), 0);
 		TestEqual(TEXT("loop animates at full motion"), VfxCatalog::FrameAt(*LoopRow, 0.37f, false), VfxCatalog::FrameAt(*LoopRow, 0.37f));
 	}
 
 	Subsystem->EditSession().SetReducedMotion(false);
 	Subsystem->SaveSettings(ESettingsPage::Sound);
 	TestFalse(TEXT("motion back on"), UmbrellaAccessibility::IsReducedMotion(World));
-	TestFalse(TEXT("published motion back on"), UmbrellaAccessibility::PublishedReducedMotion());
+	TestFalse(TEXT("published motion back on"), UmbrellaAccessibility::IsPublishedReducedMotion());
 	TestFalse(TEXT("nothing left in the live tuning"), Subsystem->IsLiveTuningApplied());
 
 	Subsystem->OnSettingsSaved().Remove(Handle);

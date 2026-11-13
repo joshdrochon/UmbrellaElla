@@ -45,7 +45,7 @@ float UmbrellaAccessibility::PublishedTextScale()
 	return TextScaleFromPercent(PublishedTextScalePercent());
 }
 
-bool UmbrellaAccessibility::PublishedReducedMotion()
+bool UmbrellaAccessibility::IsPublishedReducedMotion()
 {
 	return IsFeatureEnabled(EFeatureId::FLOW_45) && bPublishedMotion;
 }

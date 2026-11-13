@@ -29,13 +29,13 @@ namespace UmbrellaAccessibility
 
 	/**
 	 * Last saved values, for Slate widgets and subsystems with no world context. The settings subsystem publishes them
-	 * at load and on every Save; with none published they are the shipped defaults. Honours the FLOW_45 flag.
+	 * at load and on every Save; with none published they are the shipped defaults. Honours the accessibility feature flag.
 	 */
 	UMBRELLAELLA_API void PublishSaved(int32 TextPercent, bool bReducedMotion, bool bReducedFlash);
 	UMBRELLAELLA_API void ResetPublished();
 	UMBRELLAELLA_API int32 PublishedTextScalePercent();
 	UMBRELLAELLA_API float PublishedTextScale();
-	UMBRELLAELLA_API bool PublishedReducedMotion();
+	UMBRELLAELLA_API bool IsPublishedReducedMotion();
 	/** A font size scaled by the published text percent. */
 	UMBRELLAELLA_API int32 PublishedFontSize(int32 BaseSize);
 

@@ -42,8 +42,8 @@ int32 SFlowBackground::OnPaint(const FPaintArgs& Args, const FGeometry& Allotted
 	FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const
 {
 	const FVector2f Size = AllottedGeometry.GetLocalSize();
-	const bool bStill = UmbrellaAccessibility::PublishedReducedMotion();
-	// Reduced motion (FLOW-45): the backdrop holds still, no fall, sway or tick.
+	const bool bStill = UmbrellaAccessibility::IsPublishedReducedMotion();
+	// Reduced motion (accessibility): the backdrop holds still, no fall, sway or tick.
 	const float Time = bStill ? 0.0f : static_cast<float>(Args.GetCurrentTime());
 	const FSlateBrush* White = FCoreStyle::Get().GetBrush(TEXT("WhiteBrush"));
 	const FSlateRoundedBoxBrush Round(FLinearColor::White, Size.Y);
