@@ -56,7 +56,7 @@ Blender headless; scripts and recipes in pipeline/art/blender/)
   clean   --in PNG --out PNG --chroma 00FF00 [--grow 2] [--hue-tol 40]   image-model output painted on flat chroma:
           HSV key, the mask grown 1-2 px, the cut edge despilled; FAILs when the corners are not the key colour and
           WARNs on green inside the subject or key colour enclosed by it. --via rembg: the rembg cut-out fallback
-  frames  --in KEYED_STRIP --count N --out-dir DIR [--frame WxH] [--pad 8] [--stem S]   one painted strip of N poses
+  frames  --in KEYED_STRIP --count N --out-dir DIR [--frame WxH] [--pad 8] [--stem S] [--no-register]   one painted strip of N poses
           cut into N equal frames, each figure at its own scale on one bottom-centre baseline; <stem>.frames.json
           records the figure heights and their spread (scale drift). Then `sheet` assembles them
   crop    --in SHEET --mask KEYED_SHEET --count N --figure K --out PNG [--pad 24]   figure K of N cut out of a painted
@@ -1435,10 +1435,13 @@ def figure_boxes(src, count, min_gap=6, min_px=50, cells=False, inset=0):
     return w, h, rows, boxes
 
 
-def split_strip(src, count, min_gap=6, pad=8, frame=None, min_px=50, cells=False, inset=0):
+def split_strip(src, count, min_gap=6, pad=8, frame=None, min_px=50, cells=False, inset=0,
+                register=True, band=None, span_mode="base"):
     """Cut a keyed strip (transparent background) of `count` figures side by side (or stacked when the strip is
-    taller than wide) into `count` equal frames. Each figure keeps its scale and is placed bottom-centre on one
-    baseline (fixed pivot). Returns (frames as (w, h, rows), stats)."""
+    taller than wide) into `count` equal frames. Each figure is placed bottom-centre on one baseline, then (register)
+    registered by tools/frame_register.py: scaled about its anchor (bottom-centre of the lowest `band` mask rows) to
+    the strip's median span and moved so every anchor sits on one pixel, which removes the frame-to-frame jitter a
+    painted strip has. Returns (frames as (w, h, rows), stats); stats["anchor"] goes to the sidecar."""
     w, h, rows, boxes = figure_boxes(src, count, min_gap, min_px, cells=cells, inset=inset)
     bw = max(b[2] - b[0] + 1 for b in boxes)
     bh = max(b[3] - b[1] + 1 for b in boxes)
@@ -1463,13 +1466,24 @@ def split_strip(src, count, min_gap=6, pad=8, frame=None, min_px=50, cells=False
     stats = {"frames": count, "frame": [fw, fh], "figure_heights": heights, "figure_widths": widths,
              "height_spread_pct": round(100.0 * (max(heights) - min(heights)) / max(heights), 1),
              "pivot": "bottom-centre", "cut": f"equal cells, inset {inset} px" if cells else "gaps"}
+    if register:
+        import frame_register as fr
+        frames, info = fr.register(frames, band=band or fr.BAND, span_mode=span_mode)
+        stats.update({"anchor": info["anchor"], "registration": {k: info[k] for k in ("span", "span_mode", "band", "frames")},
+                      "jitter": fr.jitter(frames, band=band or fr.BAND, span_mode=span_mode)})
+        edge = [i for i, (w_, h_, r_) in enumerate(frames)
+                if any(px[3] for px in r_[0]) or any(px[3] for px in r_[-1])
+                or any(row[0][3] or row[-1][3] for row in r_)]
+        if edge:
+            stats["registration"]["touches_edge"] = edge   # registration moved a figure into the frame edge: raise --pad
     return frames, stats
 
 
 def cmd_frames(a, argv, root):
     frame = tuple(int(v) for v in a.frame.lower().split("x")) if a.frame else None
     try:
-        frames, st = split_strip(a.inp, a.count, pad=a.pad, frame=frame, cells=a.cells, inset=a.inset)
+        frames, st = split_strip(a.inp, a.count, pad=a.pad, frame=frame, cells=a.cells, inset=a.inset,
+                                 register=not a.no_register, band=a.anchor_band, span_mode=a.span)
     except ValueError as e:
         print(f"FAIL: frames: {e}")
         return 1
@@ -1488,6 +1502,11 @@ def cmd_frames(a, argv, root):
         fh_.write("\n")
     print(f"FRAMES {a.count} from {rel(a.inp, root)} frame={st['frame'][0]}x{st['frame'][1]} "
           f"heights={st['figure_heights']} spread={st['height_spread_pct']}% -> {rel(a.out_dir, root)}")
+    if "anchor" in st:
+        print(f"REGISTERED anchor={st['anchor'][0]},{st['anchor'][1]} offset={st['jitter']['offset_px']:g}px "
+              f"scale_drift={st['jitter']['scale_pct']:.1f}%" +
+              (f" TOUCHES_EDGE frames {st['registration']['touches_edge']}: raise --pad"
+               if st["registration"].get("touches_edge") else ""))
     return 0
 
 
@@ -1541,6 +1560,16 @@ def cmd_sheet(a, argv, root):
         used = "python"
     side = {"kind": a.kind, "grid": [fw, fh], "frames": len(frames), "size": [fw, fh], "margin": 0, "spacing": 0,
             "loop": True, "anim": a.anim, "fps": a.fps}
+    for f in frames:   # the anchor `frames` registered the strip on (<stem>.frames.json beside the cut frames)
+        rec = os.path.join(os.path.dirname(f), re.sub(r"_\d+$", "", os.path.splitext(os.path.basename(f))[0]) + ".frames.json")
+        if os.path.isfile(rec):
+            with open(rec, encoding="utf-8") as fh_:
+                j = json.load(fh_)
+            if "anchor" in j:
+                side["anchor"] = j["anchor"]
+                side["anchor_band"] = j["registration"]["band"]
+                side["span_mode"] = j["registration"]["span_mode"]
+        break
     with open(os.path.splitext(a.out)[0] + ".sprite.json", "w", encoding="utf-8") as fh_:
         json.dump(side, fh_, indent=2)
         fh_.write("\n")
@@ -2076,6 +2105,10 @@ def parser():
     p.add_argument("--cells", action="store_true",
                    help="cut into --count equal cells (thirds for 3), not at gaps: touching figures or a boxed strip")
     p.add_argument("--inset", type=int, default=0, help="with --cells: px dropped at every cell edge (box lines)")
+    p.add_argument("--no-register", action="store_true", help="skip frame registration (tools/frame_register.py)")
+    p.add_argument("--anchor-band", type=int, help="rows of the lowest mask part that make the anchor (default 8; "
+                   "a tall umbrella handle or long skirt may want more)")
+    p.add_argument("--span", default="base", help="what stands for scale: base (default), height, width or a row count")
     p = sub.add_parser("image-models")
     p = sub.add_parser("crop")
     p.add_argument("--in", dest="inp", required=True, help="the painted sheet (key-colour background)")
