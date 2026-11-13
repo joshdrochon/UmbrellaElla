@@ -1,0 +1,39 @@
+{
+ "provider": "gemini",
+ "tier": "draft",
+ "tool": "Gemini API image generation (Google)",
+ "model": "gemini-2.5-flash-image",
+ "openrouter_model": null,
+ "fal_model": null,
+ "model_version": "gemini-2.5-flash-image",
+ "prompt": "A hand-painted game title lockup, centred in a wide 21:9 frame, on a perfectly flat pure black #000000 background and the black stays empty and edge-to-edge clean around crisp, unlit letter edges. The whole lockup fills about 85% of the width with even black margins, so no swash, arc or hand is cropped.\n\nTwo lines of lettering. The first line reads \"Umbrella Ella\" in tall, slightly condensed capitals, cut like engraved letterpress display capitals with sharp flared wedge serifs and a slight storybook flair, stamped by hand so each letter differs a little: each letter is a little different, the baseline wanders slightly, stroke edges are ragged and chipped, the high-contrast serifs are cut unevenly, and the first U opens with a long curling ink swash that loops out to the left. The second line, centred and about two fifths the height, reads \"The Stolen Hour\" in widely spaced hand-lettered serif capitals with the same worn edges.\n\nThe letters are aged ivory #EFE3C8 like old gilded paint on parchment: scratches, fine paper grain and dark ink speckles inside every stroke, some strokes rubbed thin, a faint warm gold #C9A15A rim on the upper-left edge of each letter.\n\nBehind the first line, a thin hand-inked clock arc in faded, worn bronze-gold #8A6A3A, broken and rubbed away in places is the upper-right part of a large clock face: it starts above the M, curves over the top of the words and comes down past the final A to meet the clock hand's tip, like the upper half of a clock face drawn with a dip pen; small worn Roman numerals XI, XII and I sit just inside the arc, between the arc and the tops of the letters, in clear black space, with fine tick marks along the arc and a short double rim where it ends.\n\nThe flourish: from the end of the second line, a long slender gold clock hand #B8893A sweeps up and out to the right, past the last letter of \"The Stolen Hour\", with a small round pivot ring at its base, a pierced ring ornament two thirds along, and a fine pointed tip; a short curling ink tail curls from the pivot back toward the last letter, staying level with the second line's baseline. The hand and tail live entirely in the clear black space to the right of both lines, above the second line's baseline.\n\nInk, gilt and parchment wear on soot black: a dark, old storybook title for a game about a stolen hour. Only ivory, gold and sepia-brown. The spelling must be exactly \"Umbrella Ella\" and \"The Stolen Hour\", and these two lines are the only lettering in the image.",
+ "seed": "",
+ "size": "1024x1024",
+ "quality": "medium",
+ "aspect_ratio": "21:9",
+ "image_size": null,
+ "input_images": [],
+ "cost_usd": 0.03918,
+ "reply": {
+  "usage": {
+   "promptTokenCount": 600,
+   "candidatesTokenCount": 1290,
+   "totalTokenCount": 1890,
+   "promptTokensDetails": [
+    {
+     "modality": "TEXT",
+     "tokenCount": 600
+    }
+   ],
+   "candidatesTokensDetails": [
+    {
+     "modality": "IMAGE",
+     "tokenCount": 1290
+    }
+   ],
+   "serviceTier": "standard"
+  },
+  "finish": "STOP"
+ },
+ "date": "2026-11-13T12:45+00:00"
+}
