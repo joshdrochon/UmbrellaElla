@@ -791,6 +791,8 @@ void FPlaytestRun::AdvanceFlow28(float DeltaSeconds)
 			FlowHandoffAt = FlowElapsed;
 			FlowHealthAtHandoff = FMath::CeilToInt(Ella->GetHealth()->GetState().Active);
 			FlowCameraAtHandoff = Director->GetLastCameraX();
+			// Count after the handoff step, so enemies the handoff clears are not counted as left alive.
+			Director->StepFollow(LevelPlan::KeeperHandoffX(), 1);
 			int32 Threats = 0;
 			for (TActorIterator<AUmbrellaEnemy> It(WorldPtr.Get()); It; ++It)
 			{

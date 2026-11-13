@@ -52,3 +52,6 @@ Evidence: build exit 0, `UmbrellaElla.Smoke` tests PASS (4), module_check 0 prob
 | FLOW-25 | FAIL | Drawn wind width 0 vs 200; backdrop covers 0 of 9 route stages in the frame test. |
 | FLOW-28 | FAIL | Health carries (2 to 2), handoff fires, framing settles, but 5 enemies alive at handoff. |
 | HAZ-16 | FAIL | Guard dies in about 1 s (boring). Not run: 1920x1080 (run_game.sh fixes 640x360) and low-health run in this log. |
+
+## Lead request (levelchunks #2)
+- FLOW-28 now calls `StepFollow(KeeperHandoffX(), 1)` once more after the handoff fires, then counts `AUmbrellaEnemy`. `GetThreatsRemaining()` does not exist in this tree or main, so the enemy count stays. Build exit 0. Not re-run in game: the handoff clear is not in this tree; re-run FLOW-28 after levelchunks merges.
