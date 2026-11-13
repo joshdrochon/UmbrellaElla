@@ -970,6 +970,15 @@ def openrouter_model(model):
     return OPENROUTER_MODELS[model]
 
 
+def provider_spend_now(provider):
+    """This provider's spend in the counter (the status line shows it against the same provider's cap, Nov 13: it
+    printed the all-provider total against OpenRouter's cap)."""
+    path, _ = spend_settings()
+    with _SpendLock(path):
+        orr, other, fal = provider_spent(_read_spend(path))
+    return {"openrouter": orr, "fal": fal}.get(provider, other)
+
+
 def gemini_direct_locked():
     """True once the lead locked Gemini-direct spend in the shared counter (gemini_direct_locked)."""
     try:
@@ -1285,7 +1294,7 @@ def cmd_image_model(a, argv, root, provider):
     except Exception as e:   # noqa: BLE001  the call failed: settle the counter, report, never a placeholder
         code = getattr(e, "code", None)
         refused = isinstance(code, int) and 400 <= code < 500   # rejected before generation: not billed
-        spent = spend_settle(idx, "failed", refund=refused, error=api_error(e) if code else str(e)[:200])
+        spend_settle(idx, "failed", refund=refused, error=api_error(e) if code else str(e)[:200]); spent = provider_spend_now(entry["provider"])
         print(f"FAIL: image {provider} {model}: {api_error(e) if code else e}; counter ${spent:.3f} of ${cap:.2f}"
               + (" (refunded: the provider refused the request)" if refused else " (cost kept: it may be billed)"))
         return 1
@@ -1294,7 +1303,7 @@ def cmd_image_model(a, argv, root, provider):
         cost = settled_cost(t, model, image_cost, len(inputs), meta.get("usage"))
     elif provider == "openrouter" and isinstance((meta.get("usage") or {}).get("cost"), (int, float)):
         cost = round(float(meta["usage"]["cost"]), 6)   # what OpenRouter billed for the call
-    spent = spend_settle(idx, "done", cost=cost, usage=meta.get("usage"), model_version=version)
+    spend_settle(idx, "done", cost=cost, usage=meta.get("usage"), model_version=version); spent = provider_spend_now(entry["provider"])
     if provider == "gemini":
         seed = a.seed if a.seed is not None else ""
     else:
@@ -2258,14 +2267,14 @@ def cmd_video_model(a, argv, root):
     except Exception as e:   # noqa: BLE001
         code = getattr(e, "code", None)
         refused = isinstance(code, int) and 400 <= code < 500   # rejected before generation: not billed
-        spent = spend_settle(idx, "failed", refund=refused, error=api_error(e) if code else str(e)[:200])
+        spend_settle(idx, "failed", refund=refused, error=api_error(e) if code else str(e)[:200]); spent = provider_spend_now(entry["provider"])
         print(f"FAIL: video fal {FAL_VIDEO_MODEL}: {api_error(e) if code else e}; counter ${spent:.3f} of ${cap:.2f}"
               + (" (refunded: the provider refused the request)" if refused else " (cost kept: it may be billed)"))
         return 1
     os.makedirs(os.path.dirname(os.path.abspath(a.out)), exist_ok=True)
     with open(a.out, "wb") as fh:
         fh.write(data)
-    spent = spend_settle(idx, "done", cost=cost, model_version=FAL_VIDEO_MODEL)
+    spend_settle(idx, "done", cost=cost, model_version=FAL_VIDEO_MODEL); spent = provider_spend_now("fal")
     req = os.path.splitext(a.out)[0] + ".request.json"
     with open(req, "w", encoding="utf-8") as fh:
         json.dump({"provider": "fal", "model": FAL_VIDEO_MODEL, "prompt": prompt, "negative_prompt": VIDEO_NEGATIVE,
