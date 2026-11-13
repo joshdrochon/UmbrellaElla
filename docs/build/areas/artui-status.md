@@ -129,3 +129,68 @@ missing the agent-play script on main (not my lane).
 - BLOCKED (env/requests): needs a committed per-screen capture switch (e.g. `-SmokeScreen=settings|pause|hud|purchase|levelup` in the smoke hook, Smoke lane) or a way to say how /tmp/uishots was made.
 - `art_pass_verify` currently FAILS on ui-defeated (not my piece; says passed with no panel record). My pieces: 0 passed.
 - Spend: no image calls this session.
+
+## Round 16-17 (13 Nov, artui worker, resumed after kill)
+- r16 records (pause, defeated, settings, credits, story, tutorial, hud) were committed but not logged: all lose the reference
+  pair on "flat sans, no etched lettering or paper texture" (defeated "ours" was a refused panel, not a pass).
+- Painted panel card (`pipeline/art/proof/artui/ui-panel/panel_r1.png`, $0.138, spent $13.25 of $33.82; prompt.md + prompt-review.md)
+  shipped as `T_UI_Panel_PH`, drawn as a nine-slice by `FUmbrellaUIStyle::PanelBrush()` (settings, purchase, story use it);
+  `PanelPadding` 28 -> 76 so text clears the painted border. Build exit 0, 0 warnings.
+- ui-settings r3 at 1280x720: checks pass (art_ref 0.921), quality_bar: ours, reference: reference, calibration 6/9. Gap: soft
+  lettering, "little etched weight" (resolution). NOT passed.
+- Note: host load ~30 made UE captures take 12+ min; `timeout` does not exist on this Mac.
+- Next: capture at 1920x1080 (RUN_RES) to match the reference resolution, re-judge settings, then apply the panel to pause,
+  credits, defeated, tutorial (those still draw no panel).
+
+## Resume 2 (13 Nov, artui worker, after second kill)
+- Tree clean, main merged, artslots has nothing new for this lane. Spend counter: $17.26 of $33.82 (all lanes).
+- Screen-context blocker is fixed on main (`required_pairs` skips context for `ui` elements). Inventory: artui 25, 2 passed (tutorial).
+- BLOCKED (lead): no `-SmokeScreen` capture switch exists, so 10 screens cannot be captured; written as request 4. Host load ~26.
+- Only ui-title can be re-captured; it needs painting spend plus 12+ min captures at this load. Held until the switch lands.
+
+## Resume 3 (13 Nov, artui worker, after third kill)
+- Tree was clean; r18 panel records already committed. Main merged. Inventory: artui 25, 2 passed (tutorial).
+- r18 (1920x1080, 7 screens): credits, defeated, hud-clock, pause, settings lose the reference pair (gap: "smoother digital finish, plain lettering, no etched grain"); story-text r4 was a refused panel (no verdict). None pass.
+- Still BLOCKED (lead): `-SmokeScreen` capture switch (request 4) for purchase, level-up, statistics and re-captures after any fix. No image spend this session.
+- Next once unblocked: paint the lettering/headings per screen (as done for title and settings), re-capture, re-panel.
+
+## Resume 3 (13 Nov, artui worker)
+- Merged origin/main (ue_slot.sh has UE_SLOT_HELD). `RUN_RES=1920x1080 tools/build/run_game.sh -UIShots=/tmp/uishots_r19` finished in ~1 min, no slot deadlock: 9 PNGs (title, defeated, pause, settings, story, credits, tutorial, hud, known-bad).
+- Correction: `-UIShots=<folder>` (UIShotSubsystem) is the per-screen capture switch; request 4 (`-SmokeScreen`) is not needed.
+- r18 critic records committed: 6 screens judged, reference wins on all (lettering/paper texture). Still 0 passed by my pieces.
+- Next: panel/lettering rounds on those 6 screens using r19 captures.
+
+## Resume 4 (13 Nov, artui worker)
+- Main merged (up to date). ui-title r17 on the 1920x1080 capture (`pipeline/art/proof/artui/ui-title/capture_title_r19.png`): checks pass (art_ref 0.916, screen_check, art_check), calibration 6/6, quality_bar: ours, reference: reference. Gap: plain display face, no etched feel next to the reference lockup (the "cropped at left edge" line is wrong for our frame: the capture is not cropped, checked by eye; critic noise). NOT passed.
+- Triage: work, not check (calibration 6/6, bar pair won). Same gap since r8, about 10 rounds flat on the reference pair. By worker-rules this is an Opus restart for the lead, not another Sonnet round.
+- Derived screens (pause, settings, credits, defeated, story, tutorial, hud) share this base and lose on the same gap; judging them before the title passes only repeats it. Not re-run.
+- Spend: none this session. Shared counter $28.27 of $33.82, about $5.5 left across all lanes; not spent on a sixth lettering attempt on Sonnet.
+- Next (Opus worker): hand-painted, distressed title lettering with a clock-hand flourish as the reference has (current lockup is smoother), then re-panel the title, then the derived screens on the diff only.
+
+## Resume 5 (13 Nov, artui worker)
+- Merged origin/main (rules text only). Nothing new for this lane; inventory artui 25, 2 passed (tutorial). No image spend, no panel run.
+- STOPPED on the Opus restart already written as request 5 in `docs/build/requests/artui.md` (ui-title flat about 10 rounds, triage = work). Derived screens wait on the title lettering.
+
+## Resume 6 (13 Nov, artui worker on Opus, request 5)
+- Lockup r2: new prompt (`pipeline/art/proof/artui/ui-title-lockup/r2/prompt.md`) after a fresh Art Director review
+  (`prompt-review.md`, 7 edits applied): stamped, worn letterpress capitals, a partial inked clock arc with XI/XII/I, a gold
+  clock-hand flourish off the end of "The Stolen Hour", all kept clear of the subtitle and menu. 2 flash drafts ($0.078;
+  shared counter $28.413 of $33.82). Draft A keyed by `build_lockup.py` (now crops to the content and keeps arc + hand)
+  and imported as `T_UI_TitleLockup_PH`.
+- Triage: two check defects found (requests 6 and 7). (6) assetgen's `--tier final` draft gate runs full-frame art_check
+  on UI pieces, so no screen can ever get a pro final; (7) `art_loop.fit_packet` centre-crops a 1920-wide capture to
+  1568, cutting the title swash and menu: the "cropped at the left edge" gap in every 1080p round. Workaround: capture at
+  `RUN_RES=1568x882`.
+- ui-title r18 (1920x1080, cropped by the packet): reference wins both pairs. r19 (1568x882, same build):
+  `art_loop: round 19 piece=ui-title verdict=ours pairs=quality_bar:ours,reference:ours panel=3 calibration=6/6 checks=pass -> pass`.
+  Record: `pipeline/art/proof/artui/ui-title/capture_title_r21_1568.artloop.json`. ui-title PASSED.
+- No pro final was painted: the piece passed on the flash draft, so the $0.13 was not spent.
+- The shipped texture is still named `T_UI_TitleLockup_PH`. Renaming it off `_PH` changes `UmbrellaUIStyle.cpp` and the asset; that's left to the lead's ship step.
+
+## Resume 7 (13 Nov, artui worker, after the OpenRouter switch)
+- Merged origin/main (has 75a64360). No image calls this session, so no OpenRouter/fal spend. Inventory artui 25, 3 passed (title, defeated, tutorial).
+- Correction: my first r22 panel runs used `--card ui-<piece>` and failed art_ref_check ("no references"); the card id is `artui`. Re-run with `--card artui`: checks pass.
+- r22 on pause (round 6), settings (round 6), credits (round 5): reference wins all. Gaps: pause "smooth vector linework, no grain" (same as title before its pass), settings "panel pasted on, thin sliders", credits "evenly weighted lines, no hierarchy".
+- Credits: `SFlowTextScreen::SetCredits` (title + subtitle + rule, names cream, roles gold small caps) replaces the one plain text block. Build exit 0, 0 warnings; `ui_check ci` PASS. Capture `ui-credits/capture_credits_r23_1568.png`; panel round 6: reference still wins, GAP text is garbled ("Y is a coarse flat pixel block"), calibration 6/7. NOT passed.
+- Not run: `UmbrellaElla.UI` automation tests, `affected_tests.py --run`.
+- Next: settings panel integration (feathered painted edge, heavier slider art); painted ornament for credits; pause/title-style grain. Re-panel only changed pieces.
