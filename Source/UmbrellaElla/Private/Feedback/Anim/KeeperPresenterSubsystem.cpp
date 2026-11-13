@@ -18,13 +18,8 @@ namespace
 	 * home; a part layer covers its own part. The exposed eye, chain head, talon tip, gust and telegraph are state cues
 	 * with no slot art at their position, so their cubes stay.
 	 */
-	void KeeperCoverStandIns(AActor* Keeper, const FString& VisualId)
+	TArray<EKeeperPart> KeeperPartsCoveredBy(const FString& VisualId)
 	{
-		AKeeperOfTime* Owl = Cast<AKeeperOfTime>(Keeper);
-		if (!Owl)
-		{
-			return;
-		}
 		TArray<EKeeperPart> Covered;
 		if (VisualId == TEXT("keeper:body-hover-flap"))
 		{
@@ -50,9 +45,17 @@ namespace
 		{
 			Covered = {EKeeperPart::Rear};
 		}
-		for (const EKeeperPart Part : Covered)
+		return Covered;
+	}
+
+	void KeeperCoverStandIns(AActor* Keeper, const FString& VisualId)
+	{
+		if (AKeeperOfTime* Owl = Cast<AKeeperOfTime>(Keeper))
 		{
-			Owl->MarkPartArtDrawn(Part);
+			for (const EKeeperPart Part : KeeperPartsCoveredBy(VisualId))
+			{
+				Owl->MarkPartArtDrawn(Part);
+			}
 		}
 	}
 }
@@ -63,6 +66,7 @@ void UKeeperPresenterSubsystem::PostInitialize()
 	if (UWorld* World = GetWorld())
 	{
 		SpawnHandle = World->AddOnActorSpawnedHandler(FOnActorSpawned::FDelegate::CreateUObject(this, &UKeeperPresenterSubsystem::HandleActorSpawned));
+		DestroyHandle = World->AddOnActorDestroyedHandler(FOnActorDestroyed::FDelegate::CreateUObject(this, &UKeeperPresenterSubsystem::HandleActorDestroyed));
 		if (UUmbrellaEventBus* Bus = UUmbrellaEventBus::Get(World))
 		{
 			PartHandle = Bus->On(EUmbrellaEventType::BossPartDestroyed).AddUObject(this, &UKeeperPresenterSubsystem::HandlePartDestroyed);
@@ -76,6 +80,7 @@ void UKeeperPresenterSubsystem::Deinitialize()
 	if (UWorld* World = GetWorld())
 	{
 		World->RemoveOnActorSpawnedHandler(SpawnHandle);
+		World->RemoveOnActorDestroyedHandler(DestroyHandle);
 		if (UUmbrellaEventBus* Bus = UUmbrellaEventBus::Get(World))
 		{
 			Bus->On(EUmbrellaEventType::BossPartDestroyed).Remove(PartHandle);
@@ -93,6 +98,62 @@ void UKeeperPresenterSubsystem::HandleActorSpawned(AActor* Actor)
 		PartsDestroyed = 0;
 		Keepers.Add(Actor);
 		ShowStandIn(Actor);
+	}
+	else if (AUmbrellaArena* Arena = Cast<AUmbrellaArena>(Actor))
+	{
+		Arena->SetKeeperArtShown(bArenaArtShown);
+	}
+}
+
+void UKeeperPresenterSubsystem::HandleActorDestroyed(AActor* Actor)
+{
+	if (Cast<AKeeperOfTime>(Actor))
+	{
+		Keepers.Remove(TWeakObjectPtr<AActor>(Actor));
+		SyncArenaStandIn();
+	}
+}
+
+void UKeeperPresenterSubsystem::SyncPartCover(AKeeperOfTime* Owl)
+{
+	if (!Owl)
+	{
+		return;
+	}
+	// What the art draws now: the body picture and every part layer that still exists.
+	uint8 Covered = 0;
+	auto Add = [&Covered](const FString& VisualId)
+	{
+		for (const EKeeperPart Part : KeeperPartsCoveredBy(VisualId))
+		{
+			Covered |= static_cast<uint8>(1u << static_cast<uint8>(Part));
+		}
+	};
+	static const FName StandInName(TEXT("KeeperStandIn"));
+	const UStaticMeshComponent* Body = FindObjectFast<UStaticMeshComponent>(Owl, StandInName);
+	if (Body && ArtSlot::HasArt(Body))
+	{
+		Add(TEXT("keeper:body-hover-flap"));
+	}
+	for (const UmbrellaKeeperPresenterConst::FKeeperPartLayer& Layer : UmbrellaKeeperPresenterConst::PartLayers)
+	{
+		if (FindPart(Owl, Layer.Visual))
+		{
+			Add(Layer.Visual);
+		}
+	}
+	for (uint8 Index = 0; Index < static_cast<uint8>(EKeeperPart::Count); ++Index)
+	{
+		const EKeeperPart Part = static_cast<EKeeperPart>(Index);
+		const bool bCovered = (Covered & (1u << Index)) != 0;
+		if (bCovered && !Owl->IsPartArtDrawn(Part))
+		{
+			Owl->MarkPartArtDrawn(Part);
+		}
+		else if (!bCovered && Owl->IsPartArtDrawn(Part))
+		{
+			Owl->ClearPartArtDrawn(Part);
+		}
 	}
 }
 
@@ -161,6 +222,7 @@ bool UKeeperPresenterSubsystem::HasAnyKeeperArt() const
 void UKeeperPresenterSubsystem::SyncArenaStandIn()
 {
 	const bool bArt = HasAnyKeeperArt();
+	bArenaArtShown = bArt;
 	if (UWorld* World = GetWorld())
 	{
 		for (TActorIterator<AUmbrellaArena> It(World); It; ++It)
@@ -175,16 +237,18 @@ void UKeeperPresenterSubsystem::SyncArenaStandIn()
 
 void UKeeperPresenterSubsystem::Tick(float DeltaTime)
 {
-	SyncArenaStandIn();
+	bool bKeeperGone = false;
 	for (int32 Index = Keepers.Num() - 1; Index >= 0; --Index)
 	{
 		AActor* Keeper = Keepers[Index].Get();
-		const AKeeperOfTime* Owl = Cast<AKeeperOfTime>(Keeper);
+		AKeeperOfTime* Owl = Cast<AKeeperOfTime>(Keeper);
 		if (!Owl)
 		{
 			Keepers.RemoveAtSwap(Index);
+			bKeeperGone = true;
 			continue;
 		}
+		SyncPartCover(Owl);
 		if (bMasksShown)
 		{
 			ShowStateLayer(Keeper, UmbrellaKeeperPresenterConst::MaskVisual);
@@ -201,6 +265,11 @@ void UKeeperPresenterSubsystem::Tick(float DeltaTime)
 		{
 			HideStateLayer(Keeper, UmbrellaKeeperPresenterConst::DepartureVisual);
 		}
+	}
+	// The arena square changes only when a Keeper goes or its art does; no world search otherwise.
+	if (bKeeperGone || HasAnyKeeperArt() != bArenaArtShown)
+	{
+		SyncArenaStandIn();
 	}
 }
 
@@ -239,7 +308,9 @@ namespace
 
 UStaticMeshComponent* UKeeperPresenterSubsystem::FindPart(const AActor* Keeper, const FString& VisualId)
 {
-	return IsValid(Keeper) ? FindObjectFast<UStaticMeshComponent>(const_cast<AActor*>(Keeper), KeeperPartName(VisualId)) : nullptr;
+	UStaticMeshComponent* Part = IsValid(Keeper) ? FindObjectFast<UStaticMeshComponent>(const_cast<AActor*>(Keeper), KeeperPartName(VisualId)) : nullptr;
+	// A destroyed layer waits for garbage collection under the same name; it no longer draws.
+	return IsValid(Part) ? Part : nullptr;
 }
 
 EArtSlotDraw UKeeperPresenterSubsystem::ShowPartArt(AActor* Keeper, const FString& VisualId, UTexture2D* Texture)
@@ -258,6 +329,11 @@ EArtSlotDraw UKeeperPresenterSubsystem::ShowPartArt(AActor* Keeper, const FStrin
 	if (!Picture)
 	{
 		return EArtSlotDraw::NoTexture;
+	}
+	if (UStaticMeshComponent* Stale = FindObjectFast<UStaticMeshComponent>(Keeper, KeeperPartName(VisualId)))
+	{
+		// A destroyed layer still holds the name until garbage collection; move it aside so the new layer can take it.
+		Stale->Rename(nullptr, GetTransientPackage(), REN_DontCreateRedirectors);
 	}
 	UStaticMeshComponent* Part = NewObject<UStaticMeshComponent>(Keeper, KeeperPartName(VisualId));
 	Part->SetCollisionEnabled(ECollisionEnabled::NoCollision);

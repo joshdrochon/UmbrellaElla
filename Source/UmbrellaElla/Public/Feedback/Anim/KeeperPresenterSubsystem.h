@@ -6,6 +6,7 @@
 
 class AActor;
 struct FUmbrellaEvent;
+class AKeeperOfTime;
 class UStaticMeshComponent;
 class UTexture2D;
 enum class EArtSlotDraw : uint8;
@@ -76,7 +77,7 @@ public:
 
 	/**
 	 * The arena's graybox Keeper square hides while any tracked Keeper draws slot art and shows when none does.
-	 * Runs every Tick and after each draw.
+	 * Runs on a Keeper spawn, draw or destroy, and in Tick only when a part layer's loss changed the answer.
 	 */
 	void SyncArenaStandIn();
 
@@ -86,6 +87,12 @@ public:
 private:
 	void HandleActorSpawned(AActor* Actor);
 	FDelegateHandle SpawnHandle;
+	void HandleActorDestroyed(AActor* Actor);
+	FDelegateHandle DestroyHandle;
+	/** Set each part's art cover to what draws now (body picture, live part layers); a part whose art is gone shows its cube again. */
+	void SyncPartCover(AKeeperOfTime* Owl);
+	/** Last value written to the arenas by SyncArenaStandIn. */
+	bool bArenaArtShown = false;
 	void HandlePartDestroyed(const FUmbrellaEvent& Event);
 	FDelegateHandle PartHandle;
 	void HandleRestart(const FUmbrellaEvent& Event);

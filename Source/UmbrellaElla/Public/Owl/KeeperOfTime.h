@@ -45,7 +45,8 @@ public:
 
 	/**
 	 * Presentation only: slot art now draws this part (the body sprite or the part's own layer), so its stand-in cube
-	 * stays hidden. A stand-in shows only when no art does. Hit regions are unchanged.
+	 * hides while the part is in its default state. The art is static, so a broken wing or mechanism and an open clock
+	 * still show their coloured cube as the state cue. Hit regions are unchanged.
 	 */
 	void MarkPartArtDrawn(EKeeperPart Part);
 	void ClearPartArtDrawn(EKeeperPart Part);
@@ -59,7 +60,8 @@ public:
 private:
 	UKeeperPartComponent* MakePart(FName Name, EKeeperPart Part, const FVector2D& Offset, const FVector2D& HalfExtent);
 	UStaticMeshComponent* MakeVisual(FName Name);
-	void PlaceVisual(UStaticMeshComponent* Visual, const FVector2D& Centre, const FVector2D& HalfExtent, const FLinearColor& Colour);
+	/** bStateCue: the part is in a state its static slot art cannot show, so the cube shows even under art. */
+	void PlaceVisual(UStaticMeshComponent* Visual, const FVector2D& Centre, const FVector2D& HalfExtent, const FLinearColor& Colour, bool bStateCue = false);
 	void HideVisual(UStaticMeshComponent* Visual);
 	FVector ToWorld(const FVector2D& Position) const;
 	bool IsCoveredByArt(const UStaticMeshComponent* Visual) const;

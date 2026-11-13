@@ -29,6 +29,7 @@
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Misc/AutomationTest.h"
 #include "Owl/KeeperOfTime.h"
+#include "Owl/KeeperLook.h"
 #include "Feedback/Ui/UiArtSubsystem.h"
 
 #if WITH_AUTOMATION_TESTS
@@ -956,9 +957,26 @@ bool FArtSlotKeeperStandInHidden::RunTest(const FString& Parameters)
 			TestTrue(TEXT("rear cube still shows with no art over it"), Keeper->GetStandInVisual(EKeeperPart::Rear)->IsVisible());
 		}
 
-		// The Keeper leaves: no Keeper art draws, so the arena square shows again.
+		// A part layer that is destroyed uncovers its cube: the presenter clears the cover on its next Tick.
+		if (UStaticMeshComponent* FrontLayer = UKeeperPresenterSubsystem::FindPart(Keeper, FrontId))
+		{
+			UStaticMeshComponent* BodyMesh = FindObjectFast<UStaticMeshComponent>(Keeper, FName(TEXT("KeeperStandIn")));
+			if (BodyMesh && ArtSlot::HasArt(BodyMesh))
+			{
+				ArtSlotTestClearArt(BodyMesh, Keeper);
+			}
+			Presenter->Tick(0.0f);
+			Keeper->Refresh(Model, 0.0f);
+			TestTrue(TEXT("front layer still covers the front cube"), Keeper->IsPartArtDrawn(EKeeperPart::Front));
+			FrontLayer->DestroyComponent();
+			Presenter->Tick(0.0f);
+			Keeper->Refresh(Model, 0.0f);
+			TestFalse(TEXT("destroyed front layer no longer covers the front cube"), Keeper->IsPartArtDrawn(EKeeperPart::Front));
+			TestTrue(TEXT("front cube shows once its layer is destroyed"), Keeper->GetStandInVisual(EKeeperPart::Front)->IsVisible());
+		}
+
+		// The Keeper leaves: no Keeper art draws, so the arena square shows again (synced on destroy, no Tick needed).
 		Keeper->Destroy();
-		Presenter->SyncArenaStandIn();
 		TestFalse(TEXT("presenter sees no Keeper art once it is gone"), Presenter->HasAnyKeeperArt());
 		TestTrue(TEXT("arena keeper square shows again with no Keeper art"), Arena->GetKeeperStandIn()->IsVisible());
 	}
@@ -966,6 +984,85 @@ bool FArtSlotKeeperStandInHidden::RunTest(const FString& Parameters)
 	return true;
 }
 
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FArtSlotKeeperStateCues, "UmbrellaElla.Feedback.World.KeeperStateCuesShowUnderArt",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+
+bool FArtSlotKeeperStateCues::RunTest(const FString& Parameters)
+{
+	UWorld* World = ArtSlotTestWorld();
+	if (!TestNotNull(TEXT("world"), World))
+	{
+		return false;
+	}
+	UKeeperPresenterSubsystem* Presenter = World->GetSubsystem<UKeeperPresenterSubsystem>();
+	AKeeperOfTime* Keeper = World->SpawnActor<AKeeperOfTime>();
+	if (TestNotNull(TEXT("keeper presenter"), Presenter) && TestNotNull(TEXT("keeper"), Keeper))
+	{
+		if (!Keeper->HasActorBegunPlay())
+		{
+			Keeper->DispatchBeginPlay();
+		}
+		Presenter->ShowStandIn(Keeper);
+		const UStaticMeshComponent* Body = FindObjectFast<UStaticMeshComponent>(Keeper, FName(TEXT("KeeperStandIn")));
+		if (TestNotNull(TEXT("body stand-in"), Body) && !ArtSlot::HasArt(Body))
+		{
+			TestTrue(TEXT("body takes a picture"), Presenter->ShowArt(Keeper, ArtSlotTestTexture()) == EArtSlotDraw::Drawn);
+		}
+		const UUmbrellaTuning* Tuning = GetDefault<UUmbrellaTuning>();
+		FKeeperFightModel Model;
+		TArray<FKeeperCommand> Commands;
+		FKeeperTickInput Input;
+		Input.PlayerPos = FVector2D(-500.0f, 0.0f);
+		Input.PlayerRadius = 10.0f;
+		Model.Init(Tuning->Keeper, Tuning->Encounter, FKeeperRuleSwitches());
+
+		// Default states: wings alive, clock closed, mechanisms alive. The static art shows these, so the cubes hide.
+		Model.BeginPhase(EKeeperPhase::Wings, Commands);
+		Keeper->Refresh(Model, 0.0f);
+		for (const EKeeperPart Part : {EKeeperPart::Wings, EKeeperPart::Clock, EKeeperPart::Front, EKeeperPart::Middle, EKeeperPart::Rear})
+		{
+			TestTrue(*FString::Printf(TEXT("part %d is under art"), static_cast<int32>(Part)), Keeper->IsPartArtDrawn(Part));
+			TestFalse(*FString::Printf(TEXT("part %d cube hidden in its default state"), static_cast<int32>(Part)), Keeper->GetStandInVisual(Part)->IsVisible());
+		}
+
+		// Mechanisms phase: the wings are broken. One hit on the front mechanism opens the clock.
+		Model.BeginPhase(EKeeperPhase::Mechanisms, Commands);
+		for (float T = 0.0f; T < Tuning->Encounter.PhaseTransitionSeconds + 0.1f; T += 1.0f / 60.0f)
+		{
+			Model.Step(1.0f / 60.0f, Input, Commands);
+		}
+		Model.ApplyPlayerHit(EKeeperPart::Front, 1.0f, Commands);
+		TestTrue(TEXT("model: wings broken"), Model.IsPartBroken(EKeeperPart::Wings));
+		TestTrue(TEXT("model: clock open"), Model.IsClockOpen());
+		Keeper->Refresh(Model, 0.0f);
+		TestTrue(TEXT("wings still under the body art"), Keeper->IsPartArtDrawn(EKeeperPart::Wings));
+		TestTrue(TEXT("broken wing shows its cue under the body art"), Keeper->GetStandInVisual(EKeeperPart::Wings)->IsVisible());
+		TestTrue(TEXT("open clock shows its cue under the body art"), Keeper->GetStandInVisual(EKeeperPart::Clock)->IsVisible());
+		TestFalse(TEXT("live rear mechanism stays hidden under the art"), Keeper->GetStandInVisual(EKeeperPart::Rear)->IsVisible());
+		// The cue is the state colour, not the generic lilac stand-in.
+		auto CueColour = [](const UStaticMeshComponent* Cube)
+		{
+			FLinearColor Colour = FLinearColor::Transparent;
+			if (const UMaterialInstanceDynamic* Dynamic = Cube ? Cast<UMaterialInstanceDynamic>(Cube->GetMaterial(0)) : nullptr)
+			{
+				Dynamic->GetVectorParameterValue(FHashedMaterialParameterInfo(TEXT("Tint")), Colour);
+			}
+			return Colour;
+		};
+		TestTrue(TEXT("broken wing cue is the broken colour"), CueColour(Keeper->GetStandInVisual(EKeeperPart::Wings)).Equals(KeeperLook::Broken));
+		TestTrue(TEXT("open clock cue is the open colour"), CueColour(Keeper->GetStandInVisual(EKeeperPart::Clock)).Equals(KeeperLook::ClockOpen));
+
+		// A broken mechanism shows its cue too.
+		Model.ApplyPlayerHit(EKeeperPart::Front, Tuning->Keeper.FrontHp * 10.0f, Commands);
+		TestTrue(TEXT("model: front broken"), Model.IsPartBroken(EKeeperPart::Front));
+		Keeper->Refresh(Model, 0.0f);
+		TestTrue(TEXT("broken front mechanism shows its cue under the art"), Keeper->GetStandInVisual(EKeeperPart::Front)->IsVisible());
+		Keeper->Destroy();
+	}
+	ArtSlotTestEnd(World);
+	return true;
+}
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FArtSlotKeeperPaperAlpha, "UmbrellaElla.Feedback.KeeperPaperStandInsHaveAlpha",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
