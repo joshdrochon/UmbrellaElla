@@ -28,3 +28,7 @@ TOTAL=119 BEFORE=7 NEW=112 PASSED=0 | credits=7 defeat=3 ending=5 in-world=2 jou
 - banned: "XP earned" -> "Experience earned" (StoryRules.cpp, lines.csv).
 - Left on purpose: the two credits placeholders (6 story_check problems: caps ROLE/EXECUTIVE/PRODUCER/NAME, name Josh x2). test_story_check.RepoStoryFilesPass fails on them until Josh supplies the names.
 - Build exit 0. story_inventory check PASS shipped=119 rows=119.
+Checks: UE build exit 0; Flow+Flow.World+Story tests PASS 42/0; module_check 0; story_inventory PASS; story_check 6 problems (credits placeholders only).
+Not run to completion: `affected_tests.py --run` (killed at the 10 min background limit). Ran tests.test_story_check + tests.test_story_inventory directly: all pass except RepoStoryFilesPass, which fails only on the 6 placeholder problems.
+
+TOTAL=119 BEFORE=7 NEW=112 PASSED=0 | remaining story_check problems=6 | credits=7 defeat=3 ending=5 in-world=2 journey-complete=11 level-up=3 opening=2 pause=3 purchase=14 settings=24 settings-controller=14 settings-game-options=21 title=3 tutorial=7
