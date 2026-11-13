@@ -64,6 +64,12 @@ if [ -n "$CT_UE" ]; then SRC=1; TESTS="${TESTS:+$TESTS+}$CT_UE"; fi
 for f in $CT_PY; do chk "clause py ${f##*/}" python3 -m unittest "$(echo "${f%.py}" | tr / .)"; done
 if [ "$SRC" = 1 ]; then
   T1=$(date +%s); b=$("$SLOT" tools/ue/build.sh 2>&1 | tail -1); echo "$b" >> "$EV"
+  # exit 6 = another UnrealBuildTool held UBT's machine-wide mutex (Nov 13, twice): wait for it, retry once.
+  if echo "$b" | grep -q "build exit: 6"; then
+    step "build exit 6 (another UBT running): waiting, then one retry"
+    while pgrep -f "UnrealBuildTool.dll" >/dev/null; do sleep 5; done
+    b=$("$SLOT" tools/ue/build.sh 2>&1 | tail -1); echo "retry: $b" >> "$EV"
+  fi
   if echo "$b" | grep -q "build exit: 0"; then step "build PASS"; else step "build FAIL: $b"; fail=1; fi
   if [ $fail = 0 ]; then
     T1=$(date +%s); t=$(TEST_FILTER="$TESTS" "$SLOT" tools/ue/test.sh 2>&1 | tail -6); echo "$t" >> "$EV"
