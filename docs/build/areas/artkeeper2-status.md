@@ -21,3 +21,10 @@ NEEDS HUMAN: lead: (1) smoke switch to start the Keeper fight, (2) Blender-artic
 - Blocker 3 stands: Keeper body base plateaued at artkeeper R6-R10; all six parts depend on it.
 - Nothing shipped; all six pieces stay tracked placeholders.
 NEEDS HUMAN: lead: (1) -SmokeKeeper calling BeginFight plus ProjectDir-relative -SmokeShot, (2) Blender-articulated vs paint decision for the Keeper.
+
+## Nov 13 session 13: merged screenfix, blocked on Veo path and base still (no paint, spend unchanged)
+- Merged area/screenfix (2db3d92c); one conflict in ArtSlot.cpp (LoadCallCount defined twice), kept one copy. Merged main. Did not touch ArtSlotWind / CurrentDrawsItsUsableWidth.
+- Blocker 1 cleared: SmokeHookSubsystem.cpp now handles -SmokeKeeper, so the context pair can be made.
+- New blocker: the video method needs a passed still, and none of my six pieces has one (Keeper base still at the R6-R10 plateau; no art_loop PASS record).
+- New blocker: tools/assetgen.py has no video-from-image step and no fal Veo model (FAL_MODELS lists only the two Gemini image models). A Veo call would bypass the shared spend counter, so I did not write one.
+NEEDS HUMAN: lead: (1) add a Veo step to assetgen (counter-guarded, 1 USD/piece), (2) a passed Keeper body still to animate from, or the Blender-vs-paint decision.
