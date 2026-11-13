@@ -25,3 +25,21 @@
 - `ParseEnemyFamily` renamed `HasEnemyFamilyName` (same signature; family through the out parameter), caller and test updated.
 - `SmokeHookSubsystem.h` no longer includes `Enemy/EnemyTypes.h`; forward-declares `enum class EEnemyType : uint8;`. The .cpp and SmokeHookTests.cpp include it.
 - Build exit 0 (warnings 0). `UmbrellaElla.Smoke+UmbrellaElla.Feedback` PASS tests=48 failed=0. `module_check: 0 problem(s)`.
+
+## Black ready shot (artella request #4) - done (Opus)
+- Cause: artella's checkout merged main but never rebuilt. Its editor module is from Nov 12 22:45, older than the
+  ready-wait code, so the run used the old 5 s shot (`SMOKE_SHOT at_s=5.0`, no `SMOKE_SHOT_READY` in its log).
+  Nothing is wrong with the world render on current code.
+- run_game.sh: every run writes its own log `Saved/Logs/runs/run-<UTC>-<pid>.log` (`-abslog`, path printed as
+  `run_game: log=`), prints the SMOKE_SHOT/SMOKE_VIEW lines at exit, runs `frame_check` on a `-SmokeShot`, and refuses
+  an editor run when any Source file is newer than the module (`run_game: STALE ...`, exit 3; `RUN_STALE_OK=1` skips).
+  Test: `tests/test_run_game.py` (fake editor; log kept, black shot fails, stale module refused).
+- `SMOKE_VIEW` at the shot: map, view target, camera, Ella and arena-centre pixel and in-frame flags.
+  Test `UmbrellaElla.Smoke.ViewPixelInFrame`. L_Graybox has no ground mesh; the arena centre stands in for it.
+- Proof: `pipeline/art/proof/screenfix/ready-shot-1280.png` (RUN_RES=1280x720, -SmokeShotFrames=30):
+  `SMOKE_VIEW map=L_Graybox view_target=UmbrellaArena_0 ella_px=256,295 ella_in_frame=1 arena_in_frame=1 w=1280 h=720`,
+  `frame_check: PASS black=0.001 flat=0.717`.
+- Build exit 0, `UmbrellaElla.Smoke+UmbrellaElla.ScreenFix` PASS tests=17, module_check 0, pipeline_check 0.
+- Main does not compile as-is: SettingsMenuWidget.cpp include order (UI lane). Built with a local, reverted fix;
+  request in `docs/build/requests/screenfix.md`.
+- artella must rebuild (`tools/build/ue_slot.sh tools/ue/build.sh`) before its next capture; run_game.sh now says so.
