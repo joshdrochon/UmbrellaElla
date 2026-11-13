@@ -20,3 +20,5 @@ no visual bar check.
    reference vs itself must be SAME, a known-bad (the current flat UMG screen) must lose, the critic agrees with itself.
 Lane: UI/Style/**, the paint/layout code of the widgets in Flow/**, UI/**, Settings/**, Story/** (UI only), tools/ui_check.py,
 pipeline/art/references.json (screen elements only), Art/Source/UI/**, Content/UmbrellaElla/UI/**, tests. No gameplay.
+
+Image model: read docs/build/art-image-model.md; it applies once the lead says Spend OK.

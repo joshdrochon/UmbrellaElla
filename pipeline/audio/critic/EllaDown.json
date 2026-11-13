@@ -1,0 +1,15 @@
+{
+ "id": "EllaDown",
+ "records": [
+  {
+   "files": "309e9e5ce17bdcb0d0d88b67767560fc289bbfbbb43f890f3f9f7bfcfa7206e3",
+   "verdict": "pass",
+   "style_pass": true,
+   "gap": "none",
+   "card": "SNDHIT",
+   "round": 4,
+   "critic": "critic-EllaDown-1794538213-6992",
+   "at": "2026-11-13T02:50Z"
+  }
+ ]
+}

@@ -1,0 +1,24 @@
+{
+ "seconds": 0.25,
+ "lufs": -22,
+ "fade_out": 0.08,
+ "takes": 1,
+ "post": "anull",
+ "reverb": {
+  "rt60": 0.22,
+  "wet_db": -14,
+  "damp_hz": 6000,
+  "predelay_ms": 4
+ },
+ "layers": {
+  "flick": {
+   "prompt": "one single crisp flick of a stiff paper page edge, dry, close, isolated",
+   "secs": 0.5,
+   "filter": "atrim=0:0.08,asetpts=PTS-STARTPTS,highpass=f=1500,lowpass=f=5000",
+   "norm_lufs": -20,
+   "gain_db": 0,
+   "start_db": -24,
+   "decay": 35
+  }
+ }
+}

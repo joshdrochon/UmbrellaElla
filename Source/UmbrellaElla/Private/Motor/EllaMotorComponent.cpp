@@ -162,7 +162,9 @@ bool UEllaMotorComponent::IsRiding() const
 
 bool UEllaMotorComponent::IsEventForElla(const FUmbrellaEvent& Event) const
 {
-	return Event.TargetId.IsNone() || Event.TargetId == UmbrellaPlayerIds::Ella;
+	// Senders follow the repo convention TargetId = actor name (AWindCurrent), others use the Ella id or none.
+	const AActor* Owner = GetOwner();
+	return Event.TargetId.IsNone() || Event.TargetId == UmbrellaPlayerIds::Ella || (Owner && Event.TargetId == Owner->GetFName());
 }
 
 FVector2D UEllaMotorComponent::SumCurrents() const

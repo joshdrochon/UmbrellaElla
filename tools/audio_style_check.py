@@ -246,28 +246,43 @@ def measure_file(path, stem=False):
     return measure_chans(chans, info["rate"], stem)
 
 
+def spectrogram_grid(mono, rate, cols=240, rows=120, fmin=40.0, fmax=16000.0):
+    """dB grid[col][row] (row 0 = lowest band). Rows whose lower edge is under 500 Hz use a 4096-sample window
+    (11.7 Hz bins at 48 kHz), the rest 1024; every window is centred on its column; bins start at 1 (no DC)."""
+    fmax = min(fmax, rate / 2 - 1)
+    edges = [fmin * (fmax / fmin) ** (r / rows) for r in range(rows + 1)]
+    n = len(mono)
+    low_rows = sum(1 for r in range(rows) if edges[r] < 500.0)
+    sizes = [1024] + ([4096] if low_rows else [])
+    hanns = {z: [0.5 - 0.5 * math.cos(2 * math.pi * i / (z - 1)) for i in range(z)] for z in sizes}
+    grid = []
+    for c in range(cols):
+        centre = c * (n - 1) / max(cols - 1, 1)
+        mags = {}
+        for z in sizes:
+            s = int(round(centre - z / 2))
+            seg = [mono[s + i] if 0 <= s + i < n else 0.0 for i in range(z)]
+            h = hanns[z]
+            spec = fft([seg[i] * h[i] for i in range(z)])
+            mags[z] = [abs(v) ** 2 for v in spec[:z // 2]]
+        col = []
+        for r in range(rows):
+            z = 4096 if edges[r] < 500.0 else 1024
+            lo = max(1, int(edges[r] * z / rate))
+            hi = max(lo + 1, int(edges[r + 1] * z / rate))
+            p = sum(mags[z][lo:hi]) / max(hi - lo, 1)
+            col.append(10 * math.log10(p + 1e-12))
+        grid.append(col)
+    return grid
+
+
 def spectrogram_png(wav, out, cols=240, rows=120, fmin=40.0, fmax=16000.0):
     """A log-frequency spectrogram (time left to right, pitch bottom to top, dark = loud) for the critic packet."""
     import png
     info, chans = audio_check.read_wav(wav)
     rate, n = info["rate"], len(chans[0])
     mono = [sum(c[i] for c in chans) / len(chans) for i in range(n)]
-    size = 1024
-    mono += [0.0] * max(0, size - len(mono))
-    hann = [0.5 - 0.5 * math.cos(2 * math.pi * i / (size - 1)) for i in range(size)]
-    fmax = min(fmax, rate / 2 - 1)
-    edges = [fmin * (fmax / fmin) ** (r / rows) for r in range(rows + 1)]
-    grid = []
-    for c in range(cols):
-        s = int(c * (len(mono) - size) / max(cols - 1, 1))
-        spec = fft([mono[s + i] * hann[i] for i in range(size)])
-        mag = [abs(v) ** 2 for v in spec[:size // 2]]
-        col = []
-        for r in range(rows):
-            lo, hi = int(edges[r] * size / rate), max(int(edges[r] * size / rate) + 1, int(edges[r + 1] * size / rate))
-            p = sum(mag[lo:hi]) / max(hi - lo, 1)
-            col.append(10 * math.log10(p + 1e-12))
-        grid.append(col)
+    grid = spectrogram_grid(mono, rate, cols, rows, fmin, fmax)
     top = max(max(c) for c in grid)
     pix = []
     for r in reversed(range(rows)):

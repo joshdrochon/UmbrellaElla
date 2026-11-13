@@ -15,11 +15,12 @@ implementation authority (the GDD SH1.0 revision note (every filled requirement 
 |---|---|---|
 | GDD | Stated by the current GDD snapshot (`docs/gdd/CURRENT`). Cite the section. | yes |
 | CONFIRMED <YYYY-MM-DD> (Richard) | Richard confirmed it. The PR that sets it has his `STORY CONFIRM:` line (`tools/check_pr.py` rule story). | yes |
+| CONFIRMED <YYYY-MM-DD> (agent default; team may override) | Confirmed by the agent default in `D-new-story-canon` (Josh, Nov 12: no one waits for sign-off). Counts as CONFIRMED for shipping until the team overrides it; the team or Richard can change it at any time. | yes |
 | DEFERRED | Listed in the GDD's narrative inventory as an idea, with no authority (NAR-01). | no |
 | PROPOSED | A design proposal: from the team's #story chat, a teammate's study, or written by the story agent. | no |
 | OPEN | No answer yet. A row in `docs/decisions.md` holds the question. | no |
 
-A line in `pipeline/story/lines.csv` with `ship=yes` may use only names and facts marked GDD or CONFIRMED
+A line in `pipeline/story/lines.csv` with `ship=yes` may use only names and facts marked GDD or CONFIRMED (Richard or agent default)
 (`story_check.py` fails it otherwise). Narrative surfaces (intro card, end card, clue, store description, narration)
 also wait for NAR-01 to be authorised in `docs/feature-manifest.json`.
 
@@ -57,6 +58,7 @@ The owl's own name is OPEN (D-new-owl-name). The name floated so far has a trade
 | F5 | Holding the umbrella in front catches a bolt and mends it a little. | GDD | S1 DEF-01, SURV-03 | |
 | F6 | The player character fires small gold shots while the umbrella is lowered. | GDD | S1 COM-01 | |
 | F7 | The tone is gothic storybook and clockwork; play needs no story. | GDD | S1 section 1 Tone | |
+| F9 | On the keeper's arrival the player sees the clock's single remaining hand and an empty place beside it, with a matching bronze shaft detail. It is a clue to look at, not an explanation. | GDD | S1 NAR-06 | |
 | F8 | Story ideas in the GDD (the clockkeeper, a night-to-dawn hour, a stolen clock hand in the umbrella, a mysterious departure, chapter framing) are ideas only. | DEFERRED | S1 Appendix inventory | |
 | P1 | Ella was meant to die. Her mother would not accept it and stole, from the owl, the clock hand that marked Ella's last hour. | CONFIRMED 2026-11-12 (agent default; team may override) | S3 | |
 | P2 | Her mother made the stolen hand into the umbrella. Its umbra, a perfect shadow, hides Ella from the light of truth, and so from death. | CONFIRMED 2026-11-12 (agent default; team may override) | S3 | |

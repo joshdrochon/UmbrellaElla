@@ -26,7 +26,8 @@ The per-card hard gate with the evidence line is tools/art_ref_check.py.
   calibrate [--write]                  the bar from the team's own art (Josh, 11 Nov): leave-one-out, each team image of an
         element scored against the element's other images; score_min = the lowest minus 0.02, detail_min (interior
         detail: a flat render or placeholder caps its score below any score_min) = the lowest team detail minus 0.02,
-        scene similarity_min the same over the scene references. Only images under pipeline/art/reference/ count
+        scene similarity_min the same over the scene references. An element with no team image (only the quality
+        bar) is measured on its own references instead. Only images under pipeline/art/reference/ count
         (the fixed set every repo has), so the numbers do not change with a repo's Assets/ studies. --write records
         every number in references.json.
 The scene's layout ranges stay provisional until the first in-engine rebuild of the key art (card 0.10) is scored;
@@ -564,6 +565,9 @@ def calibrate(refs, roots, margin=MARGIN):
     quality bar) is scored against the element's other images; score_min = the lowest of those scores minus margin.
     detail_min = the lowest team image's interior detail minus margin. scene similarity_min the same over the scene
     references. An element with one team image and nothing else to compare keeps its score_min (not measurable).
+    An element with no team image at all (wind-zone: only the quality bar) takes both numbers from its references
+    the same way ("basis": "references"), so a reference always clears its own element: before 12 Nov such an element
+    kept a stale detail_min (0.421) above its only reference's own detail (0.099) and nothing could pass it.
     Only the fixed calibration set counts (calibrated_ref: pipeline/art/reference/), so the stored numbers are the
     same in every repo whether or not its Assets/ studies are checked out (CI, PipelineTesting PR #12)."""
     byid = refs_by_id(refs)
@@ -573,13 +577,16 @@ def calibrate(refs, roots, margin=MARGIN):
         ids = [r for r in el["refs"] if calibrated_ref(byid[r]) and find_ref(byid[r]["path"], roots)]
         sigs = {r: signature(find_ref(byid[r]["path"], roots), byid[r].get("cell")) for r in ids}
         team = [r for r in ids if r not in bar and sigs[r]]
+        basis = "team" if team else "references"
+        if not team:
+            team = [r for r in ids if sigs[r]]
         loo = {}
         for r in team:
             others = [sigs[o] for o in ids if o != r and sigs[o]]
             if others:
                 loo[r] = max(element_score(sigs[r], s) for s in others)
         det = {r: sigs[r]["detail"] for r in team}
-        out[eid] = {"loo": loo, "detail": det,
+        out[eid] = {"loo": loo, "detail": det, "basis": basis,
                     "score_min": round(min(loo.values()) - margin, 3) if loo else None,
                     "detail_min": round(max(0.0, min(det.values()) - margin), 3) if det else None}
     t = refs["scene"]
@@ -614,10 +621,14 @@ def write_calibration(path, cal, margin=MARGIN, when=None):
             el["score_min"] = c["score_min"]
         if c["detail_min"] is not None:
             el["detail_min"] = c["detail_min"]
-        el["calibration"] = {"method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)", "margin": margin,
+        method = ("leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies "
+                  "excluded)" if c.get("basis", "team") == "team" else
+                  "no team image: leave-one-out and detail on the element's own references under "
+                  "pipeline/art/reference/ (quality bar included)")
+        el["calibration"] = {"method": method, "margin": margin,
                              "measured": when, "loo": c["loo"], "detail": c["detail"]}
         if c["score_min"] is None:
-            el["calibration"]["note"] = "one team image and nothing to compare it with: score_min not measurable"
+            el["calibration"]["note"] = "one image and nothing to compare it with: score_min not measurable (kept)"
     with open(path, "w", encoding="utf-8") as fh:
         json.dump(spec, fh, indent=1, ensure_ascii=False)
         fh.write("\n")
@@ -709,7 +720,9 @@ def main(argv=None):
                     print(f"art_judge: calibrate scene similarity_min={cv['similarity_min']} lowest={low}")
                 else:
                     print(f"art_judge: calibrate {eid} score_min={cv['score_min']} detail_min={cv['detail_min']} "
-                          f"lowest={low} team={len(cv['detail'])}")
+                          f"lowest={low} "
+                          + (f"team={len(cv['detail'])}" if cv["basis"] == "team" else
+                             f"team=0 references={len(cv['detail'])}"))
             if a.write:
                 write_calibration(a.refs, cal)
                 print(f"art_judge: wrote {os.path.relpath(a.refs, ROOT)}")

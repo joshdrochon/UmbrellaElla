@@ -1,0 +1,54 @@
+{
+ "seconds": 1.2,
+ "lufs": -22,
+ "fade_out": 0.4,
+ "takes": 1,
+ "post": "anull",
+ "reverb": {
+  "rt60": 0.45,
+  "wet_db": -11,
+  "damp_hz": 5000,
+  "predelay_ms": 8
+ },
+ "layers": {
+  "flick": {
+   "prompt": "one single crisp flick of a stiff paper page edge, dry, close, isolated",
+   "secs": 0.5,
+   "filter": "atrim=0:0.05,asetpts=PTS-STARTPTS,highpass=f=1000,lowpass=f=7000",
+   "norm_lufs": -20,
+   "gain_db": 0,
+   "start_db": -24,
+   "decay": 50
+  },
+  "page": {
+   "prompt": "one old thick paper book page turning, soft paper rustle, dry, close, isolated, no other sounds",
+   "secs": 1.0,
+   "filter": "atrim=0:0.5,asetpts=PTS-STARTPTS,highpass=f=600,lowpass=f=6000",
+   "norm_lufs": -20,
+   "gain_db": -8,
+   "start_db": -40,
+   "decay": 6,
+   "delay_ms": 25
+  },
+  "wind": {
+   "prompt": "a single soft breath of wind, gentle airy gust, smooth, isolated, no other sounds",
+   "secs": 1.5,
+   "filter": "atrim=0:0.9,asetpts=PTS-STARTPTS,highpass=f=400,lowpass=f=2200",
+   "norm_lufs": -20,
+   "gain_db": -13,
+   "start_db": -40,
+   "decay": 4.5,
+   "delay_ms": 60
+  },
+  "bell": {
+   "kind": "synth",
+   "prompt": "synthesised music-box comb note at 587 Hz: partials at 2x, 3.01x and 5.4x, each with its own exponential decay",
+   "secs": 0.8,
+   "trim": 0.8,
+   "expr": "0.6*exp(-10*t)*sin(2*PI*587*t)+0.240*exp(-14.0*t)*sin(2*PI*1174*t)+0.120*exp(-20*t)*sin(2*PI*1766.9*t)+0.060*exp(-35.0*t)*sin(2*PI*3169.8*t)",
+   "gain_db": -12,
+   "delay_ms": 40
+  }
+ },
+ "post_gain_db": -1.5
+}
