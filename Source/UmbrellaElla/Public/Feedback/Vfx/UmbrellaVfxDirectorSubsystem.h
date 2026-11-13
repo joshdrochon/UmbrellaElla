@@ -177,6 +177,7 @@ private:
 	bool bDemoShotTaken = false;
 	TWeakObjectPtr<AActor> DemoBackdrop;
 	void StepDemo();
+	FVector DemoCentre(const AActor* Player) const;
 	void SpawnDemoBackdrop(const FVector& Around);
 #endif
 	float Clock = 0.0f;
