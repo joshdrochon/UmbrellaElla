@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Run an Unreal command (build.sh, test.sh, package.sh, smoke.sh) only when an engine slot is free.
+# Run an Unreal command (build.sh, test.sh, package.sh, smoke.sh, run_game.sh) only when an engine slot is free.
 # Mac helper for parallel area workers on one machine. Slots adapt to memory (Josh, Nov 12):
 #   used < 36 GB -> 4 at once, < 44 GB -> 3, otherwise 2; at or above 56 GB no new Unreal command starts.
 # Memory source: the line in ${UE_MEMWATCH:-~/.umbrella-ella-memwatch} ("used=31.9GB/64.0GB ..."), if it is fresh
@@ -17,7 +17,8 @@ used_gb() {
 }
 allowed() {
   [ -n "${UE_SLOTS:-}" ] && { echo "$UE_SLOTS"; return; }
-  awk -v u="$(used_gb)" 'BEGIN{ if (u+0 >= 56) print 0; else if (u+0 < 36) print 4; else if (u+0 < 44) print 3; else print 2 }'
+  # Josh, Nov 12 late: at most 3 Unreal-heavy jobs machine-wide; workers share 2, the gate's reserved slot is the 3rd.
+  awk -v u="$(used_gb)" 'BEGIN{ if (u+0 >= 56) print 0; else if (u+0 < 44) print 2; else print 1 }'
 }
 held() {
   n=0
@@ -45,10 +46,21 @@ while :; do
         echo "ue_slot: exclusive for $$: $*" >&2
         "$@"; exit $?
       fi
-    elif [ "$have" -lt "$max" ]; then
+    # The merge gate gets one reserved slot above the cap (Nov 12: a gate test run starved for 43 min behind art loops).
+    elif [ "$have" -lt "$max" ] || { [ -n "${UE_SLOT_GATE:-}" ] && [ "$max" -gt 0 ] && [ ! -d "$DIR/gate-held" ] && [ "$have" -lt $((max + 1)) ]; }; then
+      [ -n "${UE_SLOT_GATE:-}" ] && { mkdir -p "$DIR/gate-held"; trap 'rm -rf "$DIR/gate-held"' EXIT; }
       s="$DIR/slot$$"; mkdir "$s"; echo "$$ $(pwd)" > "$s/owner"; rmdir "$DIR/.mutex"
-      trap 'rm -rf "$s"' EXIT INT TERM
+      trap 'rm -rf "$s" "$DIR/gate-held"' EXIT INT TERM
       echo "ue_slot: slot taken by $$ ($((have + 1))/$max, used $(used_gb) GB) for: $*" >&2
+      export UE_SLOT_HELD=1
+      # One UBT build at a time machine-wide (parallel UBT runs fail with exit 6); the gate's build goes first.
+      case "$1" in *build.sh)
+        [ -n "${UE_SLOT_GATE:-}" ] && touch "$DIR/gate-wants-build"
+        until { [ -n "${UE_SLOT_GATE:-}" ] || [ ! -f "$DIR/gate-wants-build" ]; } && mkdir "$DIR/build.lock" 2>/dev/null; do
+          o=$(cat "$DIR/build.lock/owner" 2>/dev/null); [ -n "$o" ] && ! kill -0 "$o" 2>/dev/null && rm -rf "$DIR/build.lock"; sleep 5; done
+        echo $$ > "$DIR/build.lock/owner"; rm -f "$DIR/gate-wants-build" 2>/dev/null
+        trap 'rm -rf "$s" "$DIR/gate-held" "$DIR/build.lock"' EXIT INT TERM;;
+      esac
       "$@"; exit $?
     fi
     rmdir "$DIR/.mutex"

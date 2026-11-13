@@ -42,11 +42,11 @@ def fails(lines, pattern=FAIL_LINE):
 
 
 def blocking_lines():
-    out = {}
-    for name, args in BLOCKING.items():
-        _, lines = run(args)
-        out[name] = fails(lines, FAIL_LINES.get(name, FAIL_LINE))
-    return out
+    # The checks are independent, so they run in parallel (Nov 12: a serial baseline took ~10 min per gate run).
+    from concurrent.futures import ThreadPoolExecutor
+    with ThreadPoolExecutor(max_workers=len(BLOCKING)) as ex:
+        res = dict(zip(BLOCKING, ex.map(lambda a: run(a)[1], BLOCKING.values())))
+    return {name: fails(res[name], FAIL_LINES.get(name, FAIL_LINE)) for name in BLOCKING}
 
 
 def on_base(base, path):
