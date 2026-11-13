@@ -70,3 +70,9 @@ Stuck rule: critic gap unchanged 3 rounds (deterministic score best 0.716): NEED
 - Gap (critic, ours): feathered/organic head, mechanisms hang from a tangled chain instead of three separate body eyes, haloed cutout edges, flat unarticulated wing vanes.
 - Deterministic: art_ref_check PASS 0.705, screen_check PASS, art_check FAIL off_band 0.0129 > 0.01 (halo/despill, ours: keying).
 - Triage: work, not a check defect (gaps match R6/R7 notes; calibration pairs behaved). Next R8: fix keying halo, head/chain wording in the prompt.
+
+## Round 8 (Nov 13): painted, panel run
+- Painted R8 (owl head, straight chains, even green), keyed, graded sat 0.7. Best cell graded_1: art_ref_check PASS 0.717 (min 0.698), art_check PASS, screen_check PASS (flat/grey/outline 0).
+- Blind panel (24 fresh sessions, 8 reference pairs + quality bar, 3 each): verdict reference. Calibration counted 16/27 sessions; reference pairs 1-2 of 3 calibrated each. Critic gaps (ours): wings and plumage still read organic/feathered, one wing visible, head small and glossy. Calibration (SAME and known-different folders) behaved in the sessions that counted, so not a critic defect.
+- Context pair still missing: no Keeper `_PH` slot yet (docs/build/requests/artkeeper.md; artslots merge has none).
+- Next R9: wing wording as rigid blades with visible joint spars, matte etched finish (less gloss), two wings visible.
