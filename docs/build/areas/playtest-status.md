@@ -80,3 +80,11 @@ Check fixed: a real negative `steady_vz` was skipped as "never reached"; only th
 | HAZ-16 | FAIL | Guard dies in 1.4 s (boring, 1 useful hit); only 640x360 and healthy runs here. |
 Decision for the lead (not mine, it moves a bar): recalibrate CAM-04 as `mill_lower_v2` from the post-windfix motor, or change the motor. I did not touch the ranges.
 Nothing else is fixable in the playtest lane: wind drawing (FLOW-25), mill current in the HAZ run (CAM-07), handoff clear (FLOW-28), guard HP (HAZ-16).
+
+## Lead decisions applied (Nov 12 20:3x; build exit 0, `tests.test_playtest_check` 24 OK)
+Logs: `run-2026-11-12h-guard20.log`, `-h-720p.log`, `-h-1080p.log` (commit 8b1c93be + this slice; `-ABSLOG` used to capture the game log).
+1. CAM-04: `mill_lower_v2` recorded once from `run-2026-11-12g.log`; `mill_lower_v1` kept in `playtest_calibration.py` as history, v2 frozen. Gate first: all 6 rides leave the right edge with exit root z 217.56 to 259.00, inside HAZ-06 lower eligibility z 210-330 and HAZ-08 required underpass root envelope z 185-285. CAM-04 now PASS on that log.
+2. HAZ-16 20 HP guard (`-MillGuardComparison`, one changed variable): 125 attempts in 25 s, 1 useful hit, guard not cleared (cleared=0), still boring=1. Healthy 10 HP guard: dies in 1.25 to 1.44 s, 1 useful hit, boring=1. Both recorded; neither passes. Whether 20 HP is the right value, or the scripted shooter is wrong for it, is the designer's call.
+3. Resolutions: `RUN_RES=WxH` added to `run_game.sh` (-RenderOffscreen -ResX -ResY, no window, no sound). 1280x720 offscreen renders at exactly 1280x720 (log: res=1280x720). 1920x1080 does NOT: the Mac display clamps the viewport to 1728x1117 even offscreen. Stopped on that point; 1920x1080 needs a larger display or a packaged/fullscreen path.
+4. FLOW-28 waits on levelchunks (gate queue). FLOW-25 (drawn wind width, backdrop) and CAM-07 (route current live in the HAZ run) belong to other lanes. Not touched.
+Still failing: FLOW-25, CAM-07, FLOW-28, HAZ-16.

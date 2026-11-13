@@ -32,7 +32,7 @@ enum class EPlaytestPhase : uint8
 /**
  * The scripted playtest run behind -SmokePlaytest (lane playtest). It drives Ella through the measured scenarios with the
  * Motor, Health and Attack components of the live game and logs one PLAYTEST_* line per scenario for
- * tools/build/playtest_check.py, which compares them with fixed recorded calibration ranges (profile mill_lower_v1).
+ * tools/build/playtest_check.py, which compares them with fixed recorded calibration ranges (profile mill_lower_v2).
  * Ella is moved only by her own motor and the room's real wind volumes, except where a line says so (start placement,
  * the route driver). Anything the run cannot measure is listed in that line's not_measured= field, never typed in
  * as a value. Plain rule functions below are the unit-testable part; UmbrellaElla.Smoke.World.PlaytestRunEmitsLines runs
@@ -42,7 +42,7 @@ class UMBRELLAELLA_API FPlaytestRun
 {
 public:
 	/** Calibration profile these paths are recorded under (tools/build/playtest_calibration.py). */
-	static constexpr const TCHAR* CalibrationProfile = TEXT("mill_lower_v1");
+	static constexpr const TCHAR* CalibrationProfile = TEXT("mill_lower_v2");
 	/** Hold time of the HAZ run in real seconds (Broken Mill room, natural attempts, no aids). */
 	static constexpr float HazRunSeconds = 25.0f;
 	/** Longest scripted route travel for the playtest before it gives up, seconds. */

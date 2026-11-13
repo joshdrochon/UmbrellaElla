@@ -10,7 +10,7 @@ PLAYTEST_CAM04 profile=v2 health=full trim=-1.00 entered=1 exit_edge=right exit_
 PLAYTEST_CAM04 profile=v2 health=min trim=0.00 entered=1 exit_edge=right exit_root_z=275 qualified=1
 PLAYTEST_CAM04 profile=v2 health=min trim=1.00 entered=1 exit_edge=right exit_root_z=278 qualified=1
 PLAYTEST_CAM04 profile=v2 health=min trim=-1.00 entered=1 exit_edge=right exit_root_z=272 qualified=1
-PLAYTEST_CAM04T profile=v2 rode=1 accel_t90=0.77 brake_t10=1.53 reacq_t90=0.77 decay_open_t10=1.53 decay_fall_t10=0.20
+PLAYTEST_CAM04T profile=v2 rode=1 accel_t90=0.43 brake_t10=1.53 reacq_t90=0.42 decay_open_t10=1.53 decay_fall_t10=0.20
 PLAYTEST_FLOW25 drawn_width=200 usable_width=198 tol=5 lead_left_ok=1 lead_right_ok=1 stages_total=4 stages_covered=4
 PLAYTEST_CAM07 case=ontime reopen_root_z=270 min_root_z=270 min_clear=102 caught=1 required_current_active=1 challenge_clear=0
 PLAYTEST_CAM07 case=late reopen_root_z=210 min_root_z=210 min_clear=42 caught=1 required_current_active=1 challenge_clear=0
@@ -107,19 +107,31 @@ class T(unittest.TestCase):
         self.assertIn("NOT MEASURED", r["FLOW-28"]["errors"][0])
 
     def test_transient_outside_fixed_range_fails(self):
-        r = pc.evaluate(GOOD.replace("accel_t90=0.77", "accel_t90=2.50"))
+        r = pc.evaluate(GOOD.replace("accel_t90=0.43", "accel_t90=2.50"))
         self.assertFalse(r["CAM-04"]["pass"])
         self.assertIn("fixed range", "; ".join(r["CAM-04"]["errors"]))
 
     def test_transient_range_is_not_the_run_own_value(self):
-        # a slow motor cannot pass by being measured slow: ranges are the frozen mill_lower_v1 numbers
+        # a slow motor cannot pass by being measured slow: ranges are the frozen mill_lower_v2 numbers
         r = pc.evaluate(GOOD.replace("brake_t10=1.53", "brake_t10=9.00"))
         self.assertFalse(r["CAM-04"]["pass"])
 
     def test_negative_steady_velocity_is_judged_not_skipped(self):
-        r = pc.evaluate(GOOD.replace("rode=1 accel_t90=0.77", "rode=1 steady_vz=-54.00 accel_t90=0.77"))
+        r = pc.evaluate(GOOD.replace("rode=1 accel_t90=0.43", "rode=1 steady_vz=-5.00 accel_t90=0.43"))
         self.assertFalse(r["CAM-04"]["pass"])
         self.assertIn("steady_vz", "; ".join(r["CAM-04"]["errors"]))
+
+    def test_v2_recorded_and_v1_kept_as_history(self):
+        cal = pc.CAL
+        self.assertEqual(cal.PROFILE, "mill_lower_v2")
+        self.assertIn("mill_lower_v1", cal.PROFILES)
+        self.assertEqual(cal.PROFILES["mill_lower_v1"]["steady_vz"], (115.0, 125.0))
+        lo, hi = cal.TRANSIENT_RANGES["steady_vz"]
+        self.assertTrue(lo <= -54.0 <= hi)  # the windfix motor pulls toward z 230
+
+    def test_recorded_run_cam04_passes_v2(self):
+        log = pathlib.Path(__file__).resolve().parents[1] / "docs/build/playtest-logs/run-2026-11-12g.log"
+        self.assertEqual(pc.evaluate(log.read_text())["CAM-04"]["errors"], [])
 
 
 if __name__ == "__main__":
