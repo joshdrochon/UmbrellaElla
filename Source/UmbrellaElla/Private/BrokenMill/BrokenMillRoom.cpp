@@ -8,7 +8,6 @@
 #include "Engine/World.h"
 #include "Field/WindCurrent.h"
 #include "GameFramework/Pawn.h"
-#include "GameFramework/Pawn.h"
 #include "Harness/UmbrellaFeatureFlags.h"
 #include "Kismet/GameplayStatics.h"
 #include "Projectile/UmbrellaProjectile.h"
@@ -170,6 +169,10 @@ EMillGuardEvent ABrokenMillRoom::StepSeconds(float DeltaSeconds)
 		Inputs.bPassedBehind = Ella.X > Tuning().GuardMuzzle.X;
 		// Assist and exit are the no-warning phases of the room (reset is the upper band, which stays warned).
 		Inputs.bInNoWarningPhase = FBrokenMillRules::IsInMissedCurrentAssist(Tuning(), Ella) || Ella.X >= Tuning().ExitPoint.X;
+		if (IsFeatureEnabled(EFeatureId::HAZ_07))
+		{
+			ApplyWindEligibility(FBrokenMillRules::GetEligibleWind(Tuning(), Ella));
+		}
 	}
 	const EMillGuardEvent Event = Guard.Advance(Tuning(), DeltaSeconds, Inputs);
 	if (Event != EMillGuardEvent::None)
@@ -181,6 +184,21 @@ EMillGuardEvent ABrokenMillRoom::StepSeconds(float DeltaSeconds)
 		ReleaseShot();
 	}
 	return Event;
+}
+
+void ABrokenMillRoom::ApplyWindEligibility(EMillWind Eligible)
+{
+	// Turning a volume's collision off ends its overlap, so the wind actor itself sends WindExited (and WindEntered
+	// when it comes back on with Ella inside). The Motor still only rides while overhead with Ride held.
+	auto Gate = [](AWindCurrent* Wind, bool bEligible)
+	{
+		if (IsValid(Wind) && Wind->GetActorEnableCollision() != bEligible)
+		{
+			Wind->SetActorEnableCollision(bEligible);
+		}
+	};
+	Gate(UpperWind, Eligible == EMillWind::UpperReset);
+	Gate(LowerWind, Eligible == EMillWind::LowerOnward);
 }
 
 void ABrokenMillRoom::ReleaseShot()

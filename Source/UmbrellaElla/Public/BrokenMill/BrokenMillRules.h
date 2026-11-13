@@ -114,6 +114,12 @@ struct UMBRELLAELLA_API FBrokenMillRules
 	/** Local wind choice from Ella's height: the two bands never overlap, so neither steals the other. */
 	static EMillWind SelectWind(const FBrokenMillTuning& Tuning, float EllaZ);
 
+	/**
+	 * Local eligibility: the one mill wind Ella's ROOT may ride, by height (SelectWind) and only inside the firing
+	 * column. The room enables only this band's volume, so a tall collision body in the gap cannot touch both.
+	 */
+	static EMillWind GetEligibleWind(const FBrokenMillTuning& Tuning, const FVector2D& Ella);
+
 	static bool IsInMissedCurrentAssist(const FBrokenMillTuning& Tuning, const FVector2D& Ella);
 
 	/** Underpass clearances for a root height. */

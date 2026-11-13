@@ -70,6 +70,9 @@ public:
 private:
 	void ReleaseShot();
 
+	/** Enable only the wind band Ella's root is eligible for (no target known: both stay on). */
+	void ApplyWindEligibility(EMillWind Eligible);
+
 	UPROPERTY(VisibleAnywhere, Category = "BrokenMill")
 	TObjectPtr<USceneComponent> Root;
 

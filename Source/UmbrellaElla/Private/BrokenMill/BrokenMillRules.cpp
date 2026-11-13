@@ -193,6 +193,15 @@ EMillWind FBrokenMillRules::SelectWind(const FBrokenMillTuning& Tuning, float El
 	return EMillWind::None;
 }
 
+EMillWind FBrokenMillRules::GetEligibleWind(const FBrokenMillTuning& Tuning, const FVector2D& Ella)
+{
+	if (!IsFeatureEnabled(EFeatureId::HAZ_07) || Ella.X < Tuning.FiringColumnX.X || Ella.X > Tuning.FiringColumnX.Y)
+	{
+		return EMillWind::None;
+	}
+	return SelectWind(Tuning, Ella.Y);
+}
+
 bool FBrokenMillRules::IsInMissedCurrentAssist(const FBrokenMillTuning& Tuning, const FVector2D& Ella)
 {
 	return IsFeatureEnabled(EFeatureId::HAZ_07) && FVector2D::Distance(Ella, Tuning.MissedCurrentAssistPoint) <= Tuning.MissedCurrentAssistRadius;
