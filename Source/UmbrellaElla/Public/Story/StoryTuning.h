@@ -16,17 +16,13 @@ struct UMBRELLAELLA_API FStoryTuning
 	UPROPERTY(EditAnywhere, meta = (ClampMin = "0.5"))
 	float OpeningCaptionSeconds = 4.0f;
 
-	/** Hold on Ella under her umbrella after the Keeper has departed ("roughly 2.5 s"). */
+	/** Hold on Ella under her umbrella after the Keeper has departed ("roughly 2.5 s"); flow's ending clock reads it. */
 	UPROPERTY(EditAnywhere, meta = (ClampMin = "0"))
 	float EndingHoldSeconds = 2.5f;
 
-	/** How long each ending story line is shown (script timing OPEN). */
+	/** How long flow shows each Director's Cut ending story line (script timing OPEN). Credits length is Flow.CreditsSeconds. */
 	UPROPERTY(EditAnywhere, meta = (ClampMin = "1"))
 	float EndingLineSeconds = 5.0f;
-
-	/** Credits stage length until the credits owner supplies the real roll (placeholder). */
-	UPROPERTY(EditAnywhere, meta = (ClampMin = "0"))
-	float CreditsSeconds = 8.0f;
 
 	/** Smallest text size in px for every story widget (assignment: at least 18 px). */
 	UPROPERTY(EditAnywhere, meta = (ClampMin = "18"))

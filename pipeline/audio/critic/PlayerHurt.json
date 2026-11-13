@@ -1,0 +1,25 @@
+{
+ "id": "PlayerHurt",
+ "records": [
+  {
+   "files": "29f8d8b9be5c0e11eb8ad0bd8e2ea10f659a548cb6f041342cc4f5f7182f75f3",
+   "verdict": "pass",
+   "style_pass": true,
+   "gap": "none",
+   "card": "AUDIO-R2-PlayerHurt",
+   "round": 3,
+   "critic": "critic-PlayerHurt-1794533344-29927",
+   "at": "2026-11-13T01:29Z"
+  },
+  {
+   "files": "29f8d8b9be5c0e11eb8ad0bd8e2ea10f659a548cb6f041342cc4f5f7182f75f3",
+   "verdict": "pass",
+   "style_pass": true,
+   "gap": "none",
+   "card": "AUDIO-R2C-PlayerHurt",
+   "round": 2,
+   "critic": "critic-PlayerHurt-1794533344-30835",
+   "at": "2026-11-13T01:29Z"
+  }
+ ]
+}

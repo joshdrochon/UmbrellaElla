@@ -4,6 +4,7 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "InputCoreTypes.h"
 #include "Tickable.h"
+#include "Smoke/PlaytestRun.h"
 #include "SmokeHookSubsystem.generated.h"
 
 /**
@@ -46,6 +47,10 @@ public:
 	static EInputStep NextInputStep(EInputStep Step, double InStepSeconds, double SinceStartSeconds, float ShotDelaySeconds, bool bHasMotor, bool bHasController);
 
 	static constexpr float MillisecondsPerSecond = 1000.0f;
+	/** Seconds after the screenshot request before the hook checks the file exists (smoke fallback writes it itself). */
+	static constexpr double ShotWriteWaitSeconds = 1.0;
+	/** Alpha of the read-back window shot (the Slate read leaves it at zero). */
+	static constexpr uint8 OpaqueAlpha = 255;
 
 	/** Input check timeline, seconds after the screenshot moment. Each hold lasts HoldSeconds, then a settle gap. */
 	static constexpr float InputHoldSeconds = 0.5f;
@@ -63,6 +68,7 @@ private:
 
 	FString BuildEffectiveLine(const TCHAR* At, const TCHAR* Outcome) const;
 	void LogEnd(const TCHAR* Outcome);
+	void SaveWindowShotDirect();
 
 	void TickInputCheck(class AUmbrellaPlayerController* Flow);
 	bool CanSendKey(class APlayerController* Controller, const FKey& Key, EInputEvent Event, float Amount) const;
@@ -76,6 +82,10 @@ private:
 	float PadAttackVz = 0.0f;
 	float PadPeakVx = 0.0f;
 
+	/** -SmokePlaytest: the scripted measurement run (null otherwise). */
+	TUniquePtr<FPlaytestRun> Playtest;
+	bool bPlaytestStarted = false;
+
 	EStage Stage = EStage::WaitingForStart;
 	TArray<float> FrameSeconds;
 	FString ShotPath;
@@ -84,5 +94,7 @@ private:
 	float QuitAfterSeconds = 0.0f;
 	float LoadMs = 0.0f;
 	bool bShotTaken = false;
+	bool bShotChecked = false;
+	double ShotRequestedAt = 0.0;
 	bool bSelectedStart = false;
 };

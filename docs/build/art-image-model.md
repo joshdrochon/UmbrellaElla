@@ -32,3 +32,15 @@
 - Always set aspect_ratio and image_size ("1K"/"2K") explicitly.
 - Frames per state: 2-4 (agent default D-new-anim-frames; GDD ANIM-02 leaves counts to each receiving contract).
 - No retry cap per piece (loop to the bar), but log spend per piece and triage "ours vs model" when a piece goes flat.
+
+## Prompt review before any paid call (Josh, Nov 12)
+Before a piece's first paid image call, a FRESH session (not the builder) reviews its prompt and writes the review next to
+the piece (Art/Source/<Asset>/prompt.md and prompt-review.md, committed):
+- It looks at the key art and the piece's references (viewing to describe in words is fine; they are never input images,
+  GDD ART-03) and checks every visible trait is in the prompt in words: silhouette, proportions, costume, hair, umbrella
+  parts (canopy, ribs, shaft, finial, handle), palette, line/ink and paper treatment, lighting.
+- It checks the art bible and the GDD rows for that piece (ANIM-03 for Ella's states, the Keeper rows, ART/BG rows).
+- Gemini best practice: a narrative description, not a keyword list; the pose first; one fixed style block; camera and
+  framing stated (view, distance, aspect); negative constraints written as positive descriptions ("feet off the ground"
+  not "no walking").
+- The builder applies the review, then calls. The prompt and review are committed with the piece.

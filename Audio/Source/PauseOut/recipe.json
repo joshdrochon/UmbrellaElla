@@ -1,0 +1,45 @@
+{
+ "seconds": 0.7,
+ "lufs": -22,
+ "fade_out": 0.12,
+ "takes": 1,
+ "post": "anull",
+ "reverb": {
+  "rt60": 0.25,
+  "wet_db": -13,
+  "damp_hz": 7000,
+  "predelay_ms": 4
+ },
+ "layers": {
+  "start": {
+   "prompt": "one single crisp click of a clock mechanism catching and starting, brass, dry, close, isolated",
+   "secs": 0.5,
+   "filter": "atrim=0:0.12,asetpts=PTS-STARTPTS,highpass=f=500,lowpass=f=3000",
+   "norm_lufs": -20,
+   "gain_db": 0,
+   "start_db": -24,
+   "decay": 24
+  },
+  "tick2": {
+   "prompt": "one single soft antique clock escapement tick, small wood and brass mechanism, dry, close, isolated, no other sounds",
+   "secs": 0.5,
+   "filter": "atrim=0:0.1,asetpts=PTS-STARTPTS,highpass=f=700,lowpass=f=4500",
+   "norm_lufs": -20,
+   "gain_db": -4,
+   "start_db": -24,
+   "decay": 28,
+   "delay_ms": 230
+  },
+  "tick3": {
+   "prompt": "one single soft antique clock escapement tick, small wood and brass mechanism, dry, close, isolated, no other sounds",
+   "secs": 0.5,
+   "filter": "atrim=0:0.1,asetpts=PTS-STARTPTS,highpass=f=900,lowpass=f=7000",
+   "norm_lufs": -20,
+   "gain_db": -3,
+   "start_db": -24,
+   "decay": 30,
+   "delay_ms": 400
+  }
+ },
+ "post_gain_db": 5.9
+}

@@ -74,8 +74,9 @@ When the same check fails twice, or a loop goes flat (2 rounds, same gap, no bet
 - Never push, never merge, never touch `main` or another worktree. Never `git commit --amend` or rebase after a commit.
   Commit on your branch with `git -c core.hooksPath=/dev/null commit` after each working slice (the build lead pushes
   your branch to origin every 2 minutes, so a teammate can take over from any commit).
-- Never read or print `~/.umbrella-ella.env` or any key. Only the arena area may source it, in the one shell that
-  runs audio generation.
+- Never print, log or commit `~/.umbrella-ella.env` or any key value. Any area that generates assets through an API (audio,
+  image: the snd* lanes, audio, imagegen, the art loops once the lead says Spend OK) may source it in the one shell that
+  runs generation, and nowhere else.
 
 ## Unreal commands (Mac; many workers share this machine, so always through the slot lock)
     tools/build/ue_slot.sh tools/ue/build.sh                 # compile (editor target); must end "build exit: 0"
