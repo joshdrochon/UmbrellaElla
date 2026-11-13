@@ -10,6 +10,7 @@ class UEnhancedInputComponent;
 class UPaperFlipbook;
 class UPaperFlipbookComponent;
 class UStaticMeshComponent;
+class UTexture2D;
 
 namespace UmbrellaPresenterConst
 {
@@ -58,6 +59,18 @@ public:
 	/** Stand-in scale for a state (shape stands in for the flipbook of that state). */
 	static FVector StandInScaleFor(EEllaVisualState State);
 
+	/** True while the stand-in quad shows a state picture from the art slots (T_Ella_<State>[_PH]). */
+	bool IsShowingArt() const;
+
+	/** Slot name of a state's flipbook (Open, Attack, Shield, Closed); empty when the state has none. Pure. */
+	static FString FlipbookSlotName(EEllaVisualState State);
+
+	/** Object paths tried for a state's flipbook: FB_Ella_<Name> first (passed art), then FB_Ella_<Name>_PH. Pure. */
+	static TArray<FString> FlipbookSlotPaths(EEllaVisualState State);
+
+	/** Set the picture for a state (what the slot load does; tests pass a transient texture). Idle also draws the stand-in as art. */
+	void SetStateTexture(EEllaVisualState State, UTexture2D* Texture);
+
 	/** Show a state; transient states return to Idle after the hold time. */
 	void SetVisualState(EEllaVisualState State);
 	EEllaVisualState GetVisualState() const { return VisualState; }
@@ -74,6 +87,10 @@ protected:
 private:
 	void HandleEvent(const FUmbrellaEvent& Event);
 	void ApplyState();
+	void LoadSlotArt();
+	void LoadSlotFlipbooks();
+	void DrawArt();
+	UTexture2D* TextureForState(EEllaVisualState State) const;
 
 	EEllaVisualState VisualState = EEllaVisualState::Idle;
 	float StateTimeLeft = 0.0f;
@@ -89,4 +106,8 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<UStaticMeshComponent> StandIn;
+
+	/** Slot art per state; a state without a picture shows the Idle one. */
+	UPROPERTY()
+	TMap<EEllaVisualState, TObjectPtr<UTexture2D>> StateTextures;
 };

@@ -32,7 +32,7 @@ enum class EPlaytestPhase : uint8
 /**
  * The scripted playtest run behind -SmokePlaytest (lane playtest). It drives Ella through the measured scenarios with the
  * Motor, Health and Attack components of the live game and logs one PLAYTEST_* line per scenario for
- * tools/build/playtest_check.py, which compares them with fixed recorded calibration ranges (profile mill_lower_v1).
+ * tools/build/playtest_check.py, which compares them with fixed recorded calibration ranges (profile mill_lower_v2).
  * Ella is moved only by her own motor and the room's real wind volumes, except where a line says so (start placement,
  * the route driver). Anything the run cannot measure is listed in that line's not_measured= field, never typed in
  * as a value. Plain rule functions below are the unit-testable part; UmbrellaElla.Smoke.World.PlaytestRunEmitsLines runs
@@ -42,7 +42,7 @@ class UMBRELLAELLA_API FPlaytestRun
 {
 public:
 	/** Calibration profile these paths are recorded under (tools/build/playtest_calibration.py). */
-	static constexpr const TCHAR* CalibrationProfile = TEXT("mill_lower_v1");
+	static constexpr const TCHAR* CalibrationProfile = TEXT("mill_lower_v2");
 	/** Hold time of the HAZ run in real seconds (Broken Mill room, natural attempts, no aids). */
 	static constexpr float HazRunSeconds = 25.0f;
 	/** Longest scripted route travel for the playtest before it gives up, seconds. */
@@ -55,8 +55,10 @@ public:
 	static constexpr float MinHealthLeft = 0.1f;
 	/** Spacing of the camera-lead and frame samples along the route, world units. */
 	static constexpr float LeadSampleStep = 100.0f;
-	/** Room X where the broken-mill run starts Ella, left of the firing column. */
-	static constexpr float RoomStartX = 640.0f;
+	/** The broken-mill run starts Ella this far inside the commit region's left edge (ActivationX.X), where a natural pass starts. */
+	static constexpr float RoomStartEntryOffset = 10.0f;
+	/** Room height where the broken-mill run starts Ella (enemies2 request item 3). */
+	static constexpr float RoomStartZ = 680.0f;
 	/** Health damage taken before the carry-health measurement. */
 	static constexpr float CarryDamage = 1.0f;
 	/** The low-health run starts with this share of one life. */
