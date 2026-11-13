@@ -151,7 +151,7 @@ bool DeveloperOptionRules::IsAllDefault(const TArray<int32>& Values)
 
 bool DeveloperOptionRules::IsWorkbenchBuild()
 {
-#if defined(UMBRELLAELLA_WORKBENCH) && UMBRELLAELLA_WORKBENCH
+#if UMBRELLAELLA_WORKBENCH
 	return true;
 #else
 	return false;

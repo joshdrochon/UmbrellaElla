@@ -5,5 +5,7 @@
 set -u
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"; UE_ROOT="${UE_ROOT:-/Users/Shared/Epic Games/UE_5.8}"
 SAFE=(-nosound -windowed -ResX=640 -ResY=360 -unattended -nocrashreports -nosplash)
+# RUN_RES=WxH: a larger capture (e.g. 1280x720, 1920x1080) renders offscreen, so no window takes over the screen.
+if [ -n "${RUN_RES:-}" ]; then SAFE=(-nosound -RenderOffscreen -ForceRes -ResX="${RUN_RES%x*}" -ResY="${RUN_RES#*x}" -unattended -nocrashreports -nosplash); fi
 if [ "${1:-}" = "--packaged" ]; then EXE="$2"; shift 2; exec "$EXE" "${SAFE[@]}" "$@"; fi
 exec "$UE_ROOT/Engine/Binaries/Mac/UnrealEditor.app/Contents/MacOS/UnrealEditor" "$ROOT/UmbrellaElla.uproject" -game "${SAFE[@]}" "$@"
