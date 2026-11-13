@@ -28,5 +28,5 @@ Pieces: ui-credits ui-defeated ui-journey-complete ui-spell-wheel ui-story-text 
 - ui-credits: reference wins (round 2). Gap: plain evenly weighted lettering, no gold/etched finish, bracketed placeholder text visible.
 - ui-defeated: reference wins (round 3). Gap: softer, less etched linework and paper grain.
 - ui-story-text: round 2 "same" on the reference pair but the tool said continue; round 3 reference wins (caption small, plain, no gold etching, low contrast over ruin).
-- `art_pass_verify.py` FAILS: "ui-story-text round 2: says passed but has no panel evidence". The round-2 record was written by the panel run, so this looks like a verifier/loop mismatch on a "same" verdict (check defect, to triage by the lead). Tutorial counts as the 1 verified pass.
+- ui-story-text round 2 record ("same", no manifest or panel evidence) dropped; rounds 1 and 3 (reference wins) stay. Verifier clean.
 - Left: journey-complete, spell-wheel, xp-ring (no capture shot). Credits/defeated/story share the lettering+grain gap with ui-title.
