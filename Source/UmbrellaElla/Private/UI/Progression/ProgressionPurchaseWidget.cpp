@@ -178,6 +178,22 @@ void UProgressionPurchaseWidget::Rebuild()
 			]
 		];
 	}
+	const TArray<FProgressionReviewLine> Review = GetReviewLines();
+	if (Review.Num() > 0)
+	{
+		Rows->AddSlot().AutoHeight().Padding(0.0f, UmbrellaUI::HeadingGap, 0.0f, 0.0f)
+		[
+			SNew(STextBlock).Font(Body).ColorAndOpacity(FUmbrellaUIStyle::Gold())
+				.Text(FText::Format(LOCTEXT("ReviewHead", "Review: {0} points in total"), GetDraftNetCost()))
+		];
+		for (const FProgressionReviewLine& Line : Review)
+		{
+			Rows->AddSlot().AutoHeight()
+			[
+				SNew(STextBlock).Font(Body).ColorAndOpacity(FUmbrellaUIStyle::Cream()).AutoWrapText(true).Text(ReviewLineText(Line))
+			];
+		}
+	}
 	Rows->AddSlot().AutoHeight().Padding(0.0f, UmbrellaUI::HeadingGap, 0.0f, 0.0f)
 	[
 		SNew(SHorizontalBox)
@@ -261,6 +277,22 @@ bool UProgressionPurchaseWidget::IsInspectionOnly() const
 {
 	const UProgressionSubsystem* Subsystem = Progression.Get();
 	return Subsystem == nullptr || !Subsystem->CanPurchaseNow();
+}
+
+TArray<FProgressionReviewLine> UProgressionPurchaseWidget::GetReviewLines() const
+{
+	const UProgressionSubsystem* Subsystem = Progression.Get();
+	return Subsystem != nullptr ? Draft.Review(Subsystem->GetTuning(), Subsystem->GetEffectiveProfile()) : TArray<FProgressionReviewLine>();
+}
+
+FText UProgressionPurchaseWidget::ReviewLineText(const FProgressionReviewLine& Line)
+{
+	FNumberFormattingOptions Format;
+	Format.MaximumFractionalDigits = 2;
+	const FText Points = FMath::Abs(Line.Cost) == 1 ? LOCTEXT("Point", "point") : LOCTEXT("Points", "points");
+	const FText Verb = Line.Cost >= 0 ? LOCTEXT("Costs", "costs") : LOCTEXT("Refunds", "refunds");
+	return FText::Format(LOCTEXT("ReviewLine", "{0} {1} to {2}: {3} to {4}, {5} {6} {7}"), TrackLabel(Line.Track), Line.FromRank, Line.ToRank,
+		FText::AsNumber(Line.ValueBefore, &Format), FText::AsNumber(Line.ValueAfter, &Format), Verb, FMath::Abs(Line.Cost), Points);
 }
 
 #undef LOCTEXT_NAMESPACE

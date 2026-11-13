@@ -51,3 +51,29 @@ Event contract is in `docs/build/requests/progression.md`.
 - No emitters on main for the run events were a flow/keeper gap; both now broadcast the listed strings (not re-verified on main).
 - `GetTuning()` stays the single switch point; lead adds the `Progression` member to `UUmbrellaTuning`.
 - Open (minor): checkpoint written at run start precedes the run-2 reallocation, so a boss retry reverts it. Not changed.
+
+## Clause slice (Nov 13, lead resume: `ii` clauses of lane progression in clause-audit.csv)
+Evidence: `build exit: 0`; `TEST_FILTER=UmbrellaElla.Progression+UmbrellaElla.Persistence` PASS tests=41 failed=0;
+`UmbrellaElla.Flow+UmbrellaElla.Health` PASS tests=56 failed=0; module_check 0. Break test: one build with a deliberate break per
+clause made exactly the 9 new tests fail (9/41), then restored and re-passed.
+
+Proven (tag `proven`, row in clause-proof.csv):
+| Clause | Code | Test |
+|---|---|---|
+| FLOW-13 level checkpoint after boss checkpoint keeps the rollback | `ReachCheckpoint` keeps the boss snapshot; `BeginRun` starts a fresh chain | `LevelCheckpointAfterBossCheckpointKeepsRollback` |
+| FLOW-17 effects derived from baseline once | `DeriveEffects` | `EffectsDerivedFromBaselineOnce` |
+| FLOW-17 damage ranks change only damage | `DeriveEffects` | `DamageRanksChangeOnlyDamage` |
+| FLOW-22 tutorial replay on shadow progress | `BeginTutorialReplay`, ModeSelected `Tutorial*` | `World.TutorialReplayUsesShadowProgress` |
+| FLOW-42 review shows complete costs and effects | `FProgressionDraft::Review`, purchase widget review block | `ReviewListsCompleteCostsAndEffects` |
+| SURV-06 +1 life per point reaches Ella | `ApplyToHealth` on every change and on Ella spawn | `World.LifePurchaseRaisesEllaLives` |
+| FLOW-06 intro shown before the Extreme run + exact text | `ShowFinalHourIntro`, `UI/Progression/FinalHourIntroWidget` | `World.FinalHourIntroBeforeExtremeRun` |
+
+Still `ii` (12), blocked on other lanes (exact diffs in `docs/build/requests/progression.md` 3-5):
+- FLOW-05 x7, FLOW-06 "multipliers applied" + "telegraphs ... preserved", FLOW-21 x2: enemies/keeper/level must apply
+  `ScaledHp`, `ScaledFiringCooldown`, `EnemyCount` (rules ready and tested: `RunScalingTouchesOnlyCooldownAndHp`).
+- FLOW-17 health fraction: rule `ActiveHealthAfterCapacityChange` tested (`HealthFractionKeptOnCapacityChange`); health's
+  `SetCapacity` clamps instead (request 4).
+
+Defaults I chose (yours to change): Final Hour intro stays 4 s then removes itself, no skip input, shown every Extreme run start
+(GDD leaves duration/skip/repeat OPEN). Tutorial replay starts on `ModeSelected` Detail containing `Tutorial` (flow does not send it yet).
+Not run: PIE/visual check of the intro and review block.
