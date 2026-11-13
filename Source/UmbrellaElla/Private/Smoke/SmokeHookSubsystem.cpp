@@ -15,6 +15,10 @@
 #include "Misc/App.h"
 #include "Misc/CommandLine.h"
 #include "UnrealClient.h"
+#include "Framework/Application/SlateApplication.h"
+#include "HAL/FileManager.h"
+#include "ImageUtils.h"
+#include "Widgets/SWindow.h"
 #include "SceneView.h"
 #include "SceneView.h"
 #include "UObject/UnrealType.h"
@@ -128,26 +132,83 @@ void USmokeHookSubsystem::Tick(float DeltaTime)
 	if (!bShotTaken && !ShotPath.IsEmpty() && Elapsed >= Tuning.SmokeShotDelaySeconds)
 	{
 		bShotTaken = true;
-		// [VERIFY] 5.8.4 packaged Mac: the request fires but no PNG is written (see docs/build/areas/smoke-status.md).
-		FScreenshotRequest::RequestScreenshot(ShotPath, false, false);
+		// Whole window (bars and UI): bShowUI=true takes the Slate window, not the bare scene render target.
+		FScreenshotRequest::RequestScreenshot(ShotPath, true, false);
+		ShotRequestedAt = FApp::GetCurrentTime();
 		const FVector2D Size = GEngine && GEngine->GameViewport ? FVector2D(GEngine->GameViewport->Viewport->GetSizeXY()) : FVector2D::ZeroVector;
 		UE_LOG(LogUmbrellaElla, Log, TEXT("SMOKE_SHOT at_s=%.1f w=%d h=%d"), Elapsed, static_cast<int32>(Size.X), static_cast<int32>(Size.Y));
 	}
 
+	if (bShotTaken && !bShotChecked && FApp::GetCurrentTime() - ShotRequestedAt >= ShotWriteWaitSeconds)
+	{
+		bShotChecked = true;
+		if (!IFileManager::Get().FileExists(*ShotPath))
+		{
+			// The engine request wrote nothing (packaged Mac): read the Slate window back ourselves.
+			SaveWindowShotDirect();
+		}
+		UE_LOG(LogUmbrellaElla, Log, TEXT("SMOKE_SHOT_FILE written=%d path_bytes=%lld"), IFileManager::Get().FileExists(*ShotPath) ? 1 : 0,
+			IFileManager::Get().FileSize(*ShotPath));
+	}
+
 	TickInputCheck(Flow);
 
-	const bool bInputSettled = InputStep == EInputStep::Done;
-	if (Flow && Flow->GetScreen() == EFlowScreen::Defeat && (bInputSettled || Elapsed >= QuitAfterSeconds + InputGraceSeconds))
+	if (FParse::Param(FCommandLine::Get(), TEXT("SmokePlaytest")))
+	{
+		if (!Playtest)
+		{
+			Playtest = MakeUnique<FPlaytestRun>();
+		}
+		// Start once the shot is out and the input check is over, so neither disturbs the other.
+		if (!bPlaytestStarted && (ShotPath.IsEmpty() || bShotChecked) && InputStep == EInputStep::Done && Flow && Flow->GetScreen() != EFlowScreen::Defeat)
+		{
+			bPlaytestStarted = true;
+			Playtest->Start(GetWorld());
+		}
+		else if (bPlaytestStarted && !Playtest->IsDone())
+		{
+			Playtest->Advance(DeltaTime);
+		}
+	}
+	const bool bPlaytestSettled = !Playtest || (bPlaytestStarted && Playtest->IsDone());
+
+	const bool bInputSettled = InputStep == EInputStep::Done && bPlaytestSettled;
+	const float GraceSeconds = Playtest ? InputGraceSeconds + FPlaytestRun::HazRunSeconds + FPlaytestRun::PlaytestSetupGraceSeconds : InputGraceSeconds;
+	if (Flow && Flow->GetScreen() == EFlowScreen::Defeat && (bInputSettled || Elapsed >= QuitAfterSeconds + GraceSeconds))
 	{
 		LogEnd(TEXT("fail"));
 	}
-	else if (Flow && (Flow->GetScreen() == EFlowScreen::Story || Flow->GetScreen() == EFlowScreen::Credits) && (bInputSettled || Elapsed >= QuitAfterSeconds + InputGraceSeconds))
+	else if (Flow && (Flow->GetScreen() == EFlowScreen::Story || Flow->GetScreen() == EFlowScreen::Credits) && (bInputSettled || Elapsed >= QuitAfterSeconds + GraceSeconds))
 	{
 		LogEnd(TEXT("survived"));
 	}
-	else if (Elapsed >= QuitAfterSeconds && (bInputSettled || Elapsed >= QuitAfterSeconds + InputGraceSeconds))
+	else if (Elapsed >= QuitAfterSeconds && (bInputSettled || Elapsed >= QuitAfterSeconds + GraceSeconds))
 	{
 		LogEnd(TEXT("quit"));
+	}
+}
+
+void USmokeHookSubsystem::SaveWindowShotDirect()
+{
+	if (!GEngine || !GEngine->GameViewport || !FSlateApplication::IsInitialized())
+	{
+		return;
+	}
+	TSharedPtr<SWindow> Window = GEngine->GameViewport->GetWindow();
+	if (!Window.IsValid())
+	{
+		return;
+	}
+	TArray<FColor> Bitmap;
+	FIntVector Size;
+	if (FSlateApplication::Get().TakeScreenshot(Window.ToSharedRef(), Bitmap, Size) && Bitmap.Num() > 0)
+	{
+		for (FColor& Color : Bitmap)
+		{
+			Color.A = OpaqueAlpha;
+		}
+		const FImageView Image(Bitmap.GetData(), Size.X, Size.Y);
+		FImageUtils::SaveImageByExtension(*ShotPath, Image);
 	}
 }
 
