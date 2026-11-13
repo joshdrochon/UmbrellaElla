@@ -295,13 +295,24 @@ class Sky:
                 curve_strand([(x + gx * 9, h - 6), (x + gx * 9, h - 1)], 0.6, det, self.y - 0.2)
             for row in range(1, int(h // 11)):  # stone courses
                 curve_strand([(x + 1, row * 11.0), (x + w - 1, row * 11.0)], 0.5, det, self.y - 0.2)
-        nwin = max(1, int(w // 16))
+        nwin = max(1, int(w // 12))
         for i in range(nwin):
-            for row in range(max(1, int(h // 34))):
-                if rnd.random() < 0.45:
+            for row in range(max(1, int((h - 70) // 26))):
+                if rnd.random() < 0.55:
                     wx = x + (i + 0.5) * w / nwin
-                    pw = min(9.0, w / nwin * 0.55)
-                    poly(pointed_arch(wx, 6 + row * 30, pw, 17), self.glow, self.y - 0.1)
+                    pw = min(10.0, w / nwin * 0.62)
+                    z0 = 76 + row * 26
+                    if z0 + 20 > h - 4:
+                        continue
+                    poly(pointed_arch(wx, z0, pw, 20), self.glow, self.y - 0.1)
+                    if det is not None:     # muntins: dark bars across the lit window
+                        curve_strand([(wx, z0), (wx, z0 + 20)], 0.9, self.ink, self.y - 0.3)
+                        curve_strand([(wx - pw / 2, z0 + 9), (wx + pw / 2, z0 + 9)], 0.8, self.ink, self.y - 0.3)
+        if style < 0.55 and w > 30:     # dormer on the roof face
+            dx = x + w * rnd.uniform(0.3, 0.7)
+            dz = h + rh * 0.28
+            poly([(dx - 7, dz), (dx - 7, dz + 11), (dx, dz + 22), (dx + 7, dz + 11), (dx + 7, dz)], self.ink, self.y - 0.05)
+            poly(pointed_arch(dx, dz + 1, 6, 12), self.glow, self.y - 0.1)
 
     def spire(self, cx, base, w, hh, rnd, clock=False):
         poly([(cx - w / 2, 0), (cx - w / 2, base), (cx + w / 2, base), (cx + w / 2, 0)], self.ink, self.y)
@@ -333,30 +344,30 @@ def gothic_layer(w, rnd, sk, hscale=1.0, dense=1.0):
         r = rnd.random()
         if r < 0.12:
             ww = rnd.uniform(26, 40)
-            sk.spire(x + ww / 2, rnd.uniform(110, 190) * hscale, ww * 0.6, rnd.uniform(120, 210) * hscale, rnd, clock=rnd.random() < 0.4)
+            sk.spire(x + ww / 2, rnd.uniform(170, 240) * hscale, ww * 0.6, rnd.uniform(130, 230) * hscale, rnd, clock=rnd.random() < 0.4)
             x += ww
         elif r < 0.22:
             ww = rnd.uniform(70, 150)
-            sk.arcade(x, ww, rnd.uniform(40, 62), rnd)
+            sk.arcade(x, ww, rnd.uniform(92, 120), rnd)
             x += ww - 4
         elif r < 0.3:   # dome / conservatory
             ww = rnd.uniform(50, 80)
-            h0 = rnd.uniform(60, 95) * hscale
+            h0 = rnd.uniform(120, 150) * hscale
             poly([(x, 0), (x, h0), (x + ww, h0), (x + ww, 0)], sk.ink, sk.y)
             n = 16
             poly([(x + ww / 2 + ww / 2 * math.cos(math.pi * i / n), h0 + ww * 0.45 * math.sin(math.pi * i / n)) for i in range(n + 1)], sk.ink, sk.y)
             poly([(x + ww / 2 - 1, h0 + ww * 0.45), (x + ww / 2, h0 + ww * 0.45 + 20), (x + ww / 2 + 1, h0 + ww * 0.45)], sk.ink, sk.y)
             x += ww
         else:
-            ww = rnd.uniform(24, 52)
-            sk.block(x, ww, rnd.uniform(48, 120) * hscale, rnd)
+            ww = rnd.uniform(34, 64)
+            sk.block(x, ww, rnd.uniform(130, 185) * hscale, rnd)
             x += ww * rnd.uniform(0.7, 1.0)
     # central cathedral
     cx = w * 0.5
-    sk.spire(cx, 250, 70, 300, rnd)
+    sk.spire(cx, 290, 76, 300, rnd)
     for d in (-1, 1):
-        sk.spire(cx + d * 70, 190, 34, 160, rnd)
-        sk.block(cx + d * 130 - 30, 90, 150, rnd, roof=70)
+        sk.spire(cx + d * 76, 230, 36, 160, rnd)
+        sk.block(cx + d * 140 - 30, 90, 190, rnd, roof=70)
 
 
 def ink_lines(sc, hexc, px):
@@ -415,8 +426,8 @@ def build_skyline(o, rnd):
     near = Sky(ink, gold, -1.0)
     near.detail = detail
     gothic_layer(w, random.Random(seed), near)
-    poly([(0, -4), (0, 38), (w, 38), (w, -4)], ink, -1.2)   # solid ground band
-    ink_lines(sc, "#6a5444", 1.3)
+    poly([(0, -4), (0, 86), (w, 86), (w, -4)], ink, -1.2)   # solid ground band
+    ink_lines(sc, "#4a3a2f", 1.0)
     return sc, w, h
 
 
