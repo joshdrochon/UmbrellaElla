@@ -24,9 +24,8 @@ exhausted (4 credits left), so no new generation is possible until credits retur
 Unreal import (request 3: arena_audio_import.py has a fixed cue table, no --ids).
 Not mine: KeeperHoot has 3 provenance rows each (audio_check --scan FAIL).
 
-## Unreal import (Nov 12, blocked, cause: env)
-`Audio/Source/sndlaunch_import.py` imports all takes to `/Game/UmbrellaElla/Audio/<Id>/SW_<Id>_<NN>` (StreamLoop looping).
-Run twice (`-run=pythonscript` and `-run=PythonScript`, through ue_slot.sh, UE_5.8 at /Users/Shared): the editor starts and
-exits with no LogPython line and no "sndlaunch_import done"; no assets were written. Likely the Python plugin or editor
-modules do not load in this worktree (not built here). Next: build lead runs the script after a build, or tells me to build.
-No sound is blocked on audio quality; only the .uasset import is left.
+## Unreal import (Nov 12, done)
+Lead's fix worked: built the editor module with ue_slot.sh tools/ue/build.sh (exit 0), then ran
+`Audio/Source/sndlaunch_import.py` with UnrealEditor-Cmd -run=pythonscript (four headless flags). 46 SW_<Id>_<NN> assets
+written under Content/UmbrellaElla/Audio/<Id>/ (15 ids x 3 takes + StreamLoop x 1, looping), LFS-tracked.
+No new ElevenLabs calls were made. Not mine: KeeperHoot has 3 provenance rows each (audio_check --scan FAIL).
