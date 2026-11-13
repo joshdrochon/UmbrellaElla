@@ -70,11 +70,12 @@ void ABrokenMillRoom::BuildRoom()
 		// The island is its own actor with no shot receiver: a solid stop for both shot channels, never a guard hit.
 		const float IslandWidth = T.IslandXRange.Y - T.IslandXRange.X;
 		const float IslandHeight = T.IslandTop - T.IslandUnderside;
-		const FVector2D IslandCentre(T.IslandXRange.X + IslandWidth * 0.5f, T.IslandUnderside + IslandHeight * 0.5f);
+		// The solid stops a shot at IslandTop + IslandShotMargin (GDD shot margin); the drawn cube keeps the real top.
+		const FVector2D IslandCentre(T.IslandXRange.X + IslandWidth * 0.5f, T.IslandUnderside + (IslandHeight + T.IslandShotMargin) * 0.5f);
 		Island = World->SpawnActor<ABrokenMillIsland>(ABrokenMillIsland::StaticClass(), FTransform(RoomToWorld(IslandCentre)));
 		if (IsValid(Island))
 		{
-			Island->ConfigureBox(FVector(IslandWidth * 0.5f, T.DepthHalfExtent, IslandHeight * 0.5f), T.IslandColor, T.PlaceholderCubeSize, T.PlaceholderDepthScale);
+			Island->ConfigureBox(FVector(IslandWidth * 0.5f, T.DepthHalfExtent, IslandHeight * 0.5f), T.IslandColor, T.PlaceholderCubeSize, T.PlaceholderDepthScale, T.IslandShotMargin);
 		}
 		Rotor = World->SpawnActor<AUmbrellaTrap>(AUmbrellaTrap::StaticClass(), FTransform(RoomToWorld(Tuning().RotorCentre)));
 		if (IsValid(Rotor))
@@ -106,6 +107,11 @@ void ABrokenMillRoom::BuildWinds()
 	};
 	UpperWind = SpawnBand(T.UpperResetZ, FVector(-1.0, 0.0, 0.0));
 	LowerWind = SpawnBand(T.LowerOnwardZ, FVector(1.0, 0.0, 0.0));
+	if (IsValid(LowerWind))
+	{
+		// Local restoring field: pulls the root toward the onward centre z 230 while Ella rides this band.
+		LowerWind->SetLocalVerticalField(T.LocalRestoringGain, RoomToWorld(FVector2D(0.0, T.LowerOnwardCentreZ)).Z, T.LocalVerticalCompensation);
+	}
 }
 
 void ABrokenMillRoom::SetTargetActor(AActor* NewTarget)

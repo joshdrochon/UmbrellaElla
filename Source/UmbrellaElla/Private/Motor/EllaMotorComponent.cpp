@@ -91,6 +91,10 @@ void UEllaMotorComponent::StepMotor(float DeltaSeconds)
 	Input.bInCurrent = ActiveCurrents.Num() > 0;
 	Input.CurrentVelocity = SumCurrents();
 	Input.ForcedVelocity = SumForcedPushes();
+	for (const TPair<FName, FVector>& Field : ActiveLocalFields)
+	{
+		Input.LocalVerticalVelocity += MotorModel::LocalVerticalTerm(Field.Value.X, Field.Value.Y, Field.Value.Z, static_cast<float>(Owner->GetActorLocation().Z));
+	}
 	Input.LiftMultiplier = LiftMultiplier;
 
 	const FMotorTuning& Tuning = GetDefault<UUmbrellaTuning>()->Motor;
@@ -200,6 +204,13 @@ void UEllaMotorComponent::OnWindEntered(const FUmbrellaEvent& Event)
 		else
 		{
 			ActiveCurrents.Add(Event.SourceId, Velocity);
+			float Gain = 0.0f;
+			float CentreZ = 0.0f;
+			float Compensation = 0.0f;
+			if (MotorModel::HasLocalField(Event.Detail, Gain, CentreZ, Compensation))
+			{
+				ActiveLocalFields.Add(Event.SourceId, FVector(Gain, CentreZ, Compensation));
+			}
 		}
 	}
 }
@@ -209,6 +220,7 @@ void UEllaMotorComponent::OnWindExited(const FUmbrellaEvent& Event)
 	if (IsEventForElla(Event))
 	{
 		ActiveCurrents.Remove(Event.SourceId);
+		ActiveLocalFields.Remove(Event.SourceId);
 		ForcedPushes.Remove(Event.SourceId);
 	}
 }
