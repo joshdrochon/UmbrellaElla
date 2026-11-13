@@ -41,6 +41,45 @@ def alpha_glow(name, hexcol, alpha, strength=1.0):
     return m
 
 
+def graded(name, head_hex, tail_hex, x_tail=-2.6, x_head=1.4, grain=0.22, cut=0.38):
+    """An emission colour that shifts from head_hex at the head to tail_hex at the tail, with paper grain (painted, not
+    a flat fill: the critic's 'flat fills, no paper texture' gap)."""
+    m = bpy.data.materials.new(name)
+    m.use_nodes = True
+    nt = m.node_tree
+    nt.nodes.clear()
+    out = nt.nodes.new("ShaderNodeOutputMaterial")
+    emi = nt.nodes.new("ShaderNodeEmission")
+    coord = nt.nodes.new("ShaderNodeTexCoord")
+    sep = nt.nodes.new("ShaderNodeSeparateXYZ")
+    ramp = nt.nodes.new("ShaderNodeMapRange")
+    ramp.inputs["From Min"].default_value = x_tail
+    ramp.inputs["From Max"].default_value = x_head
+    mix = nt.nodes.new("ShaderNodeValToRGB")   # two palette colours in a hard step (no off-palette blends)
+    mix.color_ramp.interpolation = "CONSTANT"
+    mix.color_ramp.elements[0].position, mix.color_ramp.elements[0].color = 0.0, hex_rgb(tail_hex)
+    mix.color_ramp.elements[1].position, mix.color_ramp.elements[1].color = cut, hex_rgb(head_hex)
+    noise = nt.nodes.new("ShaderNodeTexWhiteNoise")   # per-pixel paper grain
+    noise.noise_dimensions = "3D"
+    gm = nt.nodes.new("ShaderNodeMath")
+    gm.operation = "MULTIPLY_ADD"
+    gm.inputs[1].default_value = -grain
+    gm.inputs[2].default_value = 1.0
+    mul = nt.nodes.new("ShaderNodeVectorMath")
+    mul.operation = "SCALE"
+    L = nt.links.new
+    L(coord.outputs["Object"], sep.inputs[0])
+    L(coord.outputs["Object"], noise.inputs["Vector"])
+    L(sep.outputs["X"], ramp.inputs["Value"])
+    L(ramp.outputs[0], mix.inputs[0])
+    L(noise.outputs["Value"], gm.inputs[0])
+    L(mix.outputs[0], mul.inputs[0])
+    L(gm.outputs[0], mul.inputs["Scale"])
+    L(mul.outputs[0], emi.inputs["Color"])
+    L(emi.outputs["Emission"], out.inputs["Surface"])
+    return m
+
+
 def inked():
     """The Freestyle collection: only objects linked here get an ink outline."""
     c = bpy.data.collections.get("inked")
@@ -68,40 +107,40 @@ def poly_part(r, bone, mat, pts, y=0.0, thick=0.04, name="poly", ink=False):
     return ob
 
 
-def shot_outline(sx, sz, dx=0.0, head=1.45, tail=-2.9):
+def shot_outline(sx, sz, dx=0.0, head=1.45, tail=-2.3, grow=0.0):
     sx, sz, dx = sx * 0.82, sz * 1.3, dx * 0.82   # a stubbier build: the tuned aspect of the red-shot crops
-    top = [(x * sx + dx, z * sz) for x, z in SHOT_EDGE_TOP]
-    bot = [(x * sx + dx, z * sz) for x, z in SHOT_EDGE_BOT]
-    return [(head * sx + dx, 0.0)] + top + [(tail * sx + dx, 0.0)] + list(reversed(bot))
+    top = [(x * sx + dx, z * sz + grow) for x, z in SHOT_EDGE_TOP]
+    bot = [(x * sx + dx, z * sz - grow) for x, z in SHOT_EDGE_BOT]
+    return [(head * sx + dx + grow, 0.0)] + top + [(tail * sx + dx - grow, 0.0)] + list(reversed(bot))
 
 
 def shot(m, rnd, shell, mid, body, core, spill, trail_a, trail_b):
     """bar-casters' shared projectile: bright core, shell, trail, light spill; one pointed angular geometry."""
     r = Rig("Shot")
     r.bone("body", (-0.5, 0, 0), (0.5, 0, 0))
-    poly_part(r, "body", m[spill], shot_outline(1.18, 1.9, -0.1), y=0.35, thick=0.01, name="spill")
-    poly_part(r, "body", m[shell], shot_outline(1.0, 1.0), y=0.0, name="shell", ink=True)
+    poly_part(r, "body", m["ink"], shot_outline(1.0, 1.0, 0.0, 1.5, -2.35, grow=0.04), y=0.04, thick=0.02, name="ink")
+    poly_part(r, "body", m[shell], shot_outline(1.0, 1.0), y=0.0, name="shell")
     poly_part(r, "body", m["redshadow"], shot_outline(0.95, 0.3, -0.05), y=-0.03, name="shade")
     poly_part(r, "body", m[mid], shot_outline(0.86, 0.72, 0.1), y=-0.06, name="mid")
     poly_part(r, "body", m[body], shot_outline(0.7, 0.4, 0.25), y=-0.12, name="body")
     poly_part(r, "body", m[core], shot_outline(0.62, 0.17, 0.4), y=-0.18, name="core")
     rr = random.Random(9)
-    x = -2.5
+    x = -2.1
     for i in range(6):   # broken-off shards thinning down the trail
         w, h = 0.2 - 0.02 * i, 0.075 - 0.007 * i
         z = rr.uniform(-0.3, 0.3)
         poly_part(r, "body", m[trail_a if i % 2 else trail_b],
                   [(x, z - h), (x - w, z - h), (x - w, z + h), (x, z + h)], y=-0.04, thick=0.02, name="shard%d" % i)
-        x -= w + 0.05 + 0.04 * i
+        x -= w + 0.03 + 0.02 * i
     return r.build(), {}
 
 
 def build_shot_red(m, rnd):
-    return shot(m, rnd, "red", "coral", "core", "core", "spill_red", "red", "redshadow")
+    return shot(m, rnd, "g_shell", "g_mid", "g_core", "core", "spill_red", "red", "redshadow")
 
 
 def build_shot_gold(m, rnd):
-    return shot(m, rnd, "yshadow", "yellow", "amber", "core", "spill_gold", "yellow", "yshadow")
+    return shot(m, rnd, "g_ys", "g_ym", "g_core", "core", "spill_gold", "yellow", "yshadow")
 
 
 stand_ins.BUILDERS["shot_red"] = build_shot_red
@@ -117,6 +156,11 @@ def materials(colours, look):
     mats["yellow"] = glow("yellow", c("yellow", "#ffd84a"))
     mats["amber"] = glow("amber2", c("amber", "#f5aa28"))
     mats["yshadow"] = glow("yshadow", c("yellow shadow", "#94611e"))
+    mats["g_shell"] = graded("g_shell", c("red", "#ff3658"), c("red shadow", "#8f173c"))
+    mats["g_mid"] = graded("g_mid", c("coral", "#ff7848"), c("red", "#ff3658"))
+    mats["g_core"] = graded("g_core", c("core", "#fff5dc"), c("coral", "#ff7848"), x_tail=-1.8)
+    mats["g_ys"] = graded("g_ys", c("yellow", "#ffd84a"), c("yellow shadow", "#94611e"))
+    mats["g_ym"] = graded("g_ym", c("amber", "#f5aa28"), c("yellow", "#ffd84a"))
     mats["spill_red"] = alpha_glow("spill_red", c("red", "#ff3658"), 0.22)
     mats["spill_gold"] = alpha_glow("spill_gold", c("yellow", "#ffd84a"), 0.22)
     return mats
@@ -137,6 +181,21 @@ def lines(scene, ink_hex, px):
 
 
 stand_ins.lines = lines
+
+_setup = stand_ins.setup
+
+
+def setup(job):
+    out = _setup(job)
+    # crisp edges: a wide reconstruction filter blends every colour edge into off-palette pixels at sprite size
+    if not job["look"].get("freestyle", False):   # the outline is geometry (an ink slab behind each shape)
+        out[0].render.use_freestyle = False
+        out[0].view_layers[0].use_freestyle = False
+    out[0].render.filter_size = float(job["look"].get("filter_px", 0.0))
+    return out
+
+
+stand_ins.setup = setup
 
 if __name__ == "__main__":
     import render_sprite

@@ -27,6 +27,7 @@ def make_job(piece, out_dir, seed=None):
     base, builder, asset, size, pivot, ppu, faces = PIECES[piece]
     j = plan.job(base, "Still", out_dir, root=ROOT, seed=seed)
     j["look"]["line_px"] = 1.0
+    j["look"]["samples"] = 1
     j.update(builder=builder, asset=asset, frame_size=list(size), pivot_px=list(pivot), px_per_unit=ppu, faces=faces,
              character=piece, anim="Still", layout="recipe")
     j["frames"] = [f"{out_dir}/{asset}_Still_00.png"]
