@@ -89,10 +89,13 @@ def build_keeper(m, rnd):
     for bone, y, sc, tone in (("wing_near", -0.4, 1.0, lite), ("wing_far", 0.45, 0.88, plate)):
         add("primitive_uv_sphere_add", bone, ink, loc=(-0.05, y, 0.8), segments=12, ring_count=8, radius=0.3)
         n = 14
-        for k in range(n):
-            a = math.radians(140 + k * 5.6)          # direction from +X: up-and-back, sweeping round to down-and-back
-            ln = (4.2 - 0.05 * k + 0.35 * math.sin(k * 0.5)) * sc + rnd.uniform(-0.1, 0.1)
-            ox, oz = -0.05, 0.8
+        for k in range(n):   # primary feathers hang from the arm: parallel-ish blades staggered along the leading spar
+            t = k / (n - 1.0)
+            ar0 = math.radians(116)
+            ox = -0.05 + math.cos(ar0) * 3.9 * t * sc
+            oz = 0.8 + math.sin(ar0) * 3.9 * t * sc
+            a = math.radians(186 + 32 * t + 4 * math.sin(k * 1.7))
+            ln = (2.9 + 1.1 * math.sin(math.pi * (0.15 + 0.8 * t)) - 0.4 * t) * sc + rnd.uniform(-0.08, 0.08)
             cxw, czw = ox + math.cos(a) * ln / 2, oz + math.sin(a) * ln / 2
             yy = y + (-0.012 if bone == "wing_near" else 0.012) * k
             mat = tone if k % 2 else plate
@@ -106,15 +109,18 @@ def build_keeper(m, rnd):
             for t in (0.3, 0.6):   # rivets
                 add("primitive_uv_sphere_add", bone, m["rust"], loc=(ox + math.cos(a) * ln * t, yy - 0.04, oz + math.sin(a) * ln * t),
                     segments=6, ring_count=4, radius=0.045)
-        for k in range(9):   # covert row: short broad plates overlapping the vane roots
-            a = math.radians(142 + k * 7.0)
-            ln = (2.8 - 0.04 * k) * sc
-            ox, oz = -0.05, 0.8
+        for k in range(11):   # covert row: short broad plates overlapping the feather roots along the arm
+            t = k / 10.0
+            ar0 = math.radians(116)
+            ox = -0.05 + math.cos(ar0) * 3.7 * t * sc
+            oz = 0.8 + math.sin(ar0) * 3.7 * t * sc
+            a = math.radians(182 + 30 * t)
+            ln = (2.0 - 0.5 * t) * sc
             yy = y + (0.02 if bone == "wing_near" else -0.02)
             add("primitive_cube_add", bone, lite if k % 2 else plate, loc=(ox + math.cos(a) * ln / 2, yy, oz + math.sin(a) * ln / 2),
-                rot=(0, -a, 0), size=1, scale=(ln, 0.05, 0.5))
-            for t in (0.35, 0.75):
-                add("primitive_uv_sphere_add", bone, m["rust"], loc=(ox + math.cos(a) * ln * t, yy - 0.04, oz + math.sin(a) * ln * t),
+                rot=(0, -a, 0), size=1, scale=(ln, 0.05, 0.55))
+            for t2 in (0.35, 0.75):
+                add("primitive_uv_sphere_add", bone, m["rust"], loc=(ox + math.cos(a) * ln * t2, yy - 0.04, oz + math.sin(a) * ln * t2),
                     segments=6, ring_count=4, radius=0.05)
         for j, (t0, t1, aa) in enumerate(((0.0, 1.9, 150.0), (1.9, 3.7, 160.0))):   # humerus + forearm spars
             ar = math.radians(aa)
