@@ -11,6 +11,7 @@ struct FBrokenMillTuning;
 
 class AUmbrellaProjectile;
 class AUmbrellaTrap;
+class AWindCurrent;
 class UBoxComponent;
 class USceneComponent;
 
@@ -31,6 +32,12 @@ public:
 	void BuildRoom();
 
 	void SetTargetActor(AActor* NewTarget);
+
+	/** Spawn the upper reset (left) and lower onward (right) currents over the firing column. Once, after BuildRoom. */
+	void BuildWinds();
+
+	/** Freeze the guard like a game pause (tests; the real pause is read from the world). */
+	void SetSimulationPaused(bool bPaused) { bSimulationPaused = bPaused; }
 
 	/** Cancel a pending warning and stop new fire; a launched shot continues. */
 	void DisableGuard();
@@ -54,6 +61,11 @@ public:
 	const FBrokenMillTuning& GetMillTuning() const { return Tuning(); }
 	AUmbrellaTrap* GetRotor() const { return Rotor; }
 	int32 GetShotsFired() const { return ShotsFired; }
+	AWindCurrent* GetUpperWind() const { return UpperWind; }
+	AWindCurrent* GetLowerWind() const { return LowerWind; }
+
+	/** How many times the guard reported this event since the last restart (world ticks discard the return value). */
+	int32 GetEventCount(EMillGuardEvent Event) const { return EventCounts.FindRef(Event); }
 
 private:
 	void ReleaseShot();
@@ -71,6 +83,12 @@ private:
 	TObjectPtr<AUmbrellaTrap> Rotor;
 
 	UPROPERTY()
+	TObjectPtr<AWindCurrent> UpperWind;
+
+	UPROPERTY()
+	TObjectPtr<AWindCurrent> LowerWind;
+
+	UPROPERTY()
 	TWeakObjectPtr<AActor> TargetActor;
 
 	UPROPERTY()
@@ -82,4 +100,6 @@ private:
 	float GuardHp = 0.0f;
 	float Clock = 0.0f;
 	int32 ShotsFired = 0;
+	bool bSimulationPaused = false;
+	TMap<EMillGuardEvent, int32> EventCounts;
 };

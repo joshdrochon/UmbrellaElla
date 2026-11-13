@@ -99,6 +99,10 @@ struct UMBRELLAELLA_API FBrokenMillTuning
 	UPROPERTY(EditAnywhere, Category = "Winds")
 	FVector2D ProtectedCoreX = FVector2D(260.0, 360.0);
 
+	/** Speed of both mill currents, units/s (prototype default; the GDD gives no number). */
+	UPROPERTY(EditAnywhere, Category = "Winds")
+	float WindSpeed = 300.0f;
+
 	/** Local restoring gain and vertical compensation (not global tuning). */
 	UPROPERTY(EditAnywhere, Category = "Winds")
 	float LocalRestoringGain = 2.4f;

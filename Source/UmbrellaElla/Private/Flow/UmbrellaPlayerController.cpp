@@ -2,6 +2,7 @@
 #include "Core/UmbrellaEvent.h"
 #include "Core/UmbrellaEventBus.h"
 #include "Core/UmbrellaGameMode.h"
+#include "Level/UmbrellaLevelDirector.h"
 #include "Core/UmbrellaTuning.h"
 #include "Encounter/EncounterDirectorSubsystem.h"
 #include "Engine/World.h"
@@ -229,7 +230,7 @@ bool AUmbrellaPlayerController::ShouldOfferPurchase() const
 		return false;
 	}
 	FPurchaseContext Context;
-	Context.Kind = EPurchaseContextKind::RunStart;
+	Context.Kind = bPurchaseAtRefuge ? EPurchaseContextKind::SafeRefuge : EPurchaseContextKind::RunStart;
 	const FProgressionProfile Profile = Progression->GetEffectiveProfile();
 	bool bAnythingRefundable = false;
 	for (const int32 Rank : Profile.Ranks)
@@ -258,7 +259,7 @@ void AUmbrellaPlayerController::SyncProgressionMode(EUmbrellaPlayMode Mode)
 void AUmbrellaPlayerController::ShowPurchaseScreen()
 {
 	FPurchaseContext Context;
-	Context.Kind = EPurchaseContextKind::RunStart;
+	Context.Kind = bPurchaseAtRefuge ? EPurchaseContextKind::SafeRefuge : EPurchaseContextKind::RunStart;
 	if (UProgressionSubsystem* Progression = UProgressionSubsystem::Get(this))
 	{
 		Progression->SetPurchaseContext(Context);
@@ -315,6 +316,9 @@ void AUmbrellaPlayerController::BeginRun()
 		return;
 	}
 	bRunBegun = true;
+	// The run-start screen already served the checkpoint Ella is placed at; the next window is the next refuge.
+	LastRefugeOffered = 1;
+	bPurchaseAtRefuge = false;
 	if (UProgressionSubsystem* Progression = UProgressionSubsystem::Get(this))
 	{
 		// Nothing is bought during the fight; the next window is a refuge or the next start.
@@ -322,7 +326,16 @@ void AUmbrellaPlayerController::BeginRun()
 	}
 	if (AUmbrellaGameMode* Fight = GetWorld()->GetAuthGameMode<AUmbrellaGameMode>())
 	{
-		Fight->BeginFight(this);
+		// Director's Cut walks the route first; the level director starts the Keeper at its end. If the route cannot be
+		// built (level flags off), Director's Cut falls back to the Keeper fight as before.
+		if (PlayMode == EUmbrellaPlayMode::DirectorsCut)
+		{
+			Fight->BeginRoute(this, GetDefault<UUmbrellaTuning>()->Flow.DirectorsCutRouteSeed);
+		}
+		if (!Fight->HasRoute())
+		{
+			Fight->BeginFight(this);
+		}
 	}
 	// Broadcast once the world is up, so listeners can rely on the arena and Ella.
 	if (UUmbrellaEventBus* Bus = UUmbrellaEventBus::Get(this))
@@ -382,6 +395,11 @@ void AUmbrellaPlayerController::ApplyCommand(EFlowCommand Command)
 	{
 		return;
 	}
+	if (Screen == EFlowScreen::Purchase && bPurchaseAtRefuge
+		&& (Command == EFlowCommand::Continue || Command == EFlowCommand::Back || Command == EFlowCommand::Pause))
+	{
+		Command = EFlowCommand::LeaveRefuge;
+	}
 	const EFlowScreen From = Screen;
 	const EFlowScreen To = FFlowRules::Next(Screen, Command);
 	if (To != Screen)
@@ -411,7 +429,15 @@ void AUmbrellaPlayerController::EnterScreen(EFlowScreen To, EFlowCommand Cause)
 	if (From == EFlowScreen::Purchase)
 	{
 		ClearPurchaseScreen();
-		bPurchaseDone = true;
+		if (!bPurchaseAtRefuge)
+		{
+			bPurchaseDone = true;
+		}
+		bPurchaseAtRefuge = false;
+		if (UProgressionSubsystem* Progression = UProgressionSubsystem::Get(this))
+		{
+			Progression->SetPurchaseContext(FPurchaseContext());
+		}
 	}
 	if (To == EFlowScreen::Credits && PlayMode == EUmbrellaPlayMode::DirectorsCut)
 	{
@@ -437,6 +463,10 @@ void AUmbrellaPlayerController::EnterScreen(EFlowScreen To, EFlowCommand Cause)
 		if (AUmbrellaGameMode* Mode = GetWorld()->GetAuthGameMode<AUmbrellaGameMode>())
 		{
 			Mode->EnsurePlayerPawn(this);
+			if (PlayMode == EUmbrellaPlayMode::DirectorsCut)
+			{
+				Mode->PlaceAtLastCheckpoint(this);
+			}
 		}
 	}
 
@@ -458,6 +488,9 @@ void AUmbrellaPlayerController::TickFlow(float DeltaSeconds)
 	const UUmbrellaTuning* Tuning = GetDefault<UUmbrellaTuning>();
 	switch (Screen)
 	{
+	case EFlowScreen::Playing:
+		OfferRefugePurchase();
+		break;
 	case EFlowScreen::Settings:
 		// The settings area's menu owns this screen; it closes itself on Back and Save.
 		if (bSettingsOpened && !IsSettingsMenuOpen())
@@ -496,6 +529,35 @@ void AUmbrellaPlayerController::TickFlow(float DeltaSeconds)
 		break;
 	default:
 		break;
+	}
+}
+
+void AUmbrellaPlayerController::OfferRefugePurchase()
+{
+	// FLOW-29 / FLOW-42: spending happens in a real refuge on the route, once per refuge, never in a fight.
+	if (PlayMode != EUmbrellaPlayMode::DirectorsCut || !IsFeatureEnabled(EFeatureId::FLOW_29) || !GetWorld())
+	{
+		return;
+	}
+	const AUmbrellaGameMode* Mode = GetWorld()->GetAuthGameMode<AUmbrellaGameMode>();
+	const AUmbrellaLevelDirector* Level = Mode ? Mode->GetLevelDirector() : nullptr;
+	if (!Level || Level->HasHandedOff() || Level->GetCheckpointReached() <= LastRefugeOffered)
+	{
+		return;
+	}
+	LastRefugeOffered = Level->GetCheckpointReached();
+	bPurchaseAtRefuge = true;
+	if (ShouldOfferPurchase())
+	{
+		ApplyCommand(EFlowCommand::EnterRefuge);
+	}
+	if (Screen != EFlowScreen::Purchase)
+	{
+		bPurchaseAtRefuge = false;
+	}
+	else
+	{
+		SetPause(true);
 	}
 }
 
