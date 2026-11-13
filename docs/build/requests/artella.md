@@ -12,3 +12,12 @@
   - (b) context is judged once for the `scene` piece only, not per element piece.
 - My lean: (a). It keeps the bar as written and only fixes the order of steps.
 - Until answered: I run the `reference` and `quality_bar` panels and the deterministic checks, and keep every piece `_PH`.
+
+## 2. No Ella `_PH` slot exists in the game, so the lane cannot make its own context capture (Nov 13)
+- Checked after merging main (ad9d6d1d "Context capture"): `Content/UmbrellaElla/Art/` has only `VFX/`. Nothing in `Source/`
+  loads an Ella texture or flipbook: `UEllaAnimPresenterComponent::BuildVisual` uses `IdleFlipbook` (never set by any caller,
+  `SetStateFlipbook` has no caller) and otherwise builds a cube stand-in. A run_game.sh capture would show the cube.
+- Need (Gameplay/Feedback lane, not mine): `BuildVisual` loads `/Game/UmbrellaElla/Art/Ella/FB_Ella_<State>_PH` (Open, Attack,
+  Shield, Closed) via LoadObject when present, falls back to the cube when not. Then I import the candidate as `_PH` flipbooks
+  with a committed editor script and make the capture.
+- Until then ella-up-open (reference + quality-bar pairs ours) cannot get a `context` pair.

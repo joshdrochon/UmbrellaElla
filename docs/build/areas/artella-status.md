@@ -80,3 +80,8 @@ R1 paints (4 frames each, `Art/Source/Ella/Paint/R1/frames_<piece>/`), cut and p
 ella-up-open is the first piece to beat the bar. Blocked from shipping only by the `context` pair: it needs an in-engine capture made
 after the piece is imported, and the import is gated on a pass (circular). Lead: say whether to import first as a tracked `_PH`-named
 asset so the smoke can capture, or relax the order. Next: R2 paints for attack, shield, closed with prompts adjusted to the failing numbers.
+
+## Round 9 (Nov 13): context capture attempted, blocked by a missing game-side slot
+Merged main, followed "Context capture". Step 1 fails: no Ella `_PH` asset slot exists in Content and no code loads an Ella flipbook
+(`IdleFlipbook` is never set; cube stand-in is what a capture shows). Needs a loader in the feedback lane: docs/build/requests/artella.md #2.
+R2 paints for attack/shield/closed are cut (3 frames) but not yet judged. ella-up-open stays blocked only on `context`.
