@@ -6,7 +6,7 @@ Parameters match Source/UmbrellaElla/Private/Feedback/Art/ArtSlot.cpp: Art, Cols
 """
 import unreal
 
-DEST = "/Game/UmbrellaElla/Art/Slots"
+DEST = "/Game/UmbrellaElla/Materials"
 NAME = "M_ArtSlot_Unlit"
 mel = unreal.MaterialEditingLibrary
 eal = unreal.EditorAssetLibrary

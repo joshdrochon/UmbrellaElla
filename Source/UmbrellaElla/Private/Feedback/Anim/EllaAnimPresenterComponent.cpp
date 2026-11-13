@@ -41,7 +41,19 @@ UTexture2D* UEllaAnimPresenterComponent::TextureForState(EEllaVisualState State)
 		}
 	}
 	const TObjectPtr<UTexture2D>* Idle = StateTextures.Find(EEllaVisualState::Idle);
-	return Idle ? Idle->Get() : nullptr;
+	if (Idle && IsValid(*Idle))
+	{
+		return Idle->Get();
+	}
+	// Idle has no art: draw any state's own art rather than nothing.
+	for (const TPair<EEllaVisualState, TObjectPtr<UTexture2D>>& Pair : StateTextures)
+	{
+		if (IsValid(Pair.Value))
+		{
+			return Pair.Value;
+		}
+	}
+	return nullptr;
 }
 
 FString UEllaAnimPresenterComponent::FlipbookSlotName(EEllaVisualState State)
@@ -69,8 +81,8 @@ TArray<FString> UEllaAnimPresenterComponent::FlipbookSlotPaths(EEllaVisualState 
 	{
 		const FString Base = FString::Printf(TEXT("%s/Ella/FB_Ella_%s"), UmbrellaArtSlotConst::GameRoot, *Name);
 		const FString Leaf = FString::Printf(TEXT("FB_Ella_%s"), *Name);
-		Paths.Add(FString::Printf(TEXT("%s%s.%s%s"), *Base, UmbrellaArtSlotConst::PlaceholderSuffix, *Leaf, UmbrellaArtSlotConst::PlaceholderSuffix));
 		Paths.Add(FString::Printf(TEXT("%s.%s"), *Base, *Leaf));
+		Paths.Add(FString::Printf(TEXT("%s%s.%s%s"), *Base, UmbrellaArtSlotConst::PlaceholderSuffix, *Leaf, UmbrellaArtSlotConst::PlaceholderSuffix));
 	}
 	return Paths;
 }
@@ -197,6 +209,7 @@ void UEllaAnimPresenterComponent::ApplyState()
 	if (IsValid(StandIn))
 	{
 		ArtSlot::SetBoxScale(StandIn, StandInScaleFor(VisualState));
+		DrawArt();
 		if (ArtSlot::HasArt(StandIn))
 		{
 			ArtSlot::SetTexture(StandIn, TextureForState(VisualState));

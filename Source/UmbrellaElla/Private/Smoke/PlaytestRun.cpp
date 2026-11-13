@@ -190,7 +190,7 @@ void FPlaytestRun::Start(UWorld* World, AEllaCharacter* EllaOverride)
 	MeasureCam07(Ella);
 	MeasureFlow25();
 
-	// HAZ run set-up: natural attempt, full or low health from the command line, Ella left of the firing column.
+	// HAZ run set-up: natural attempt, full or low health from the command line, Ella at the commit region's left edge, shoot held.
 	const bool bLow = FParse::Param(FCommandLine::Get(), TEXT("PlaytestLowHealth"));
 	Ella->GetHealth()->ResetForRetry();
 	if (bLow)
@@ -200,7 +200,7 @@ void FPlaytestRun::Start(UWorld* World, AEllaCharacter* EllaOverride)
 	HealthAtStart = Ella->GetHealth()->GetState().Active;
 	const FBrokenMillTuning& Mill = NewRoom->GetMillTuning();
 	PlaytestSettle(Ella);
-	PlaytestPlace(Ella, FVector2D(FPlaytestRun::RoomStartX, Mill.TargetCentre.Y));
+	PlaytestPlace(Ella, FVector2D(Mill.ActivationX.X + FPlaytestRun::RoomStartEntryOffset, FPlaytestRun::RoomStartZ));
 	NewRoom->SetTargetActor(Ella);
 	NewRoom->ResetForRestart();
 	NewRoom->SetSimulationPaused(false);
@@ -667,12 +667,12 @@ void FPlaytestRun::AdvanceHaz(float DeltaSeconds)
 	}
 	HazElapsed += DeltaSeconds;
 	const FBrokenMillTuning& T = Mill->GetMillTuning();
-	// Natural play, no aids: steer vertical trim toward the guard line, keep the umbrella open and shoot.
+	// Natural pass, no aids (enemies2 request item 3): Shoot stays held from the commit region's left edge; the
+	// shoot-fall crosses the exposed band. No trim steering. IdleSeconds counts the time Ella is off the guard line.
 	const float ErrorZ = T.TargetCentre.Y - Mill->WorldToRoom(Ella->GetActorLocation()).Y;
 	const bool bOnLine = FMath::Abs(ErrorZ) <= T.TargetSize.Y * 0.5f;
-	Ella->GetMotor()->SetTrimAxis(bOnLine ? 0.0f : FMath::Sign(ErrorZ));
-	// Shooting closes the umbrella and drops her, so shoot only on the line and ride back up otherwise.
-	Ella->GetUmbrellaState()->SetShootHeld(bOnLine);
+	Ella->GetMotor()->SetTrimAxis(0.0f);
+	Ella->GetUmbrellaState()->SetShootHeld(true);
 	if (!bOnLine)
 	{
 		IdleSeconds += DeltaSeconds;
