@@ -1,0 +1,82 @@
+{
+ "id": "owl",
+ "records": [
+  {
+   "piece": "owl",
+   "round": 1,
+   "verdict": "reference",
+   "checks": false,
+   "results": {
+    "art_check": "fail",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "reference",
+    "reference": "reference"
+   },
+   "panel": 1,
+   "calibration": {
+    "sessions": 27,
+    "passed": 21
+   },
+   "missing": [
+    "context (no in-engine capture made after the piece: import it and run the smoke, whose screenshot is the capture)",
+    "quality_bar:pipeline/art/reference/discord/20261111-0319_Ricky_roadwarden-sundial-casters.png (2/3 calibrated sessions)",
+    "reference:pipeline/art/reference/discord/20261110-0512_Ricky_1.png",
+    "reference:pipeline/art/reference/discord/20261110-1047_Ricky_2.png (2/3 calibrated sessions)",
+    "reference:pipeline/art/reference/discord/20261110-1048_Ricky_1.png (2/3 calibrated sessions)",
+    "reference:pipeline/art/reference/discord/20261110-1048_Ricky_2.png (2/3 calibrated sessions)",
+    "reference:pipeline/art/reference/discord/20261110-1220_Ricky_1.png (1/3 calibrated sessions)"
+   ],
+   "critic_sessions": [],
+   "files": "a54a52ccb4d0194672e46d1230fa50b1447588d4c902d61a7945a54126caa265",
+   "file": "pipeline/art/proof/ImageProof/Keeper_R7/keyed_3.png",
+   "card": "MVP 15",
+   "refs": "d1afca932485",
+   "commit": "2b8a183b4bf2",
+   "gap": "X has a feathered, organic head. Its mechanisms hang from a tangled chain rather than from three separate body eyes. It has haloed cutout edges, and its wings are flat, unarticulated vanes with no spars or hinges.; X has an organic feathered head and body, a lit clock face and mechanisms that don't hang as three separate chained pieces. It lacks Y's rigid plated vanes, quiet unlit clock and ordered armillary, cage and gear hanging below the body.; X has a feathered crest that reads as a crown, a permanently glowing amber clock, and a cage that doesn't hang from its own underside eye.; Y has a mushy, half-feathered body and head, a glowing lit clock, and a cage hung off the front chain instead of its own, so the construction and value structure are less coherent.",
+   "at": "2026-11-13T04:21:37Z"
+  },
+  {
+   "piece": "owl",
+   "round": 2,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "reference",
+    "reference": "reference"
+   },
+   "panel": 0,
+   "calibration": {
+    "sessions": 27,
+    "passed": 0
+   },
+   "missing": [
+    "context (no in-engine capture made after the piece: import it and run the smoke, whose screenshot is the capture)",
+    "quality_bar:pipeline/art/reference/discord/20261111-0319_Ricky_roadwarden-sundial-casters.png (0/3 calibrated sessions)",
+    "reference:pipeline/art/reference/discord-crops/keeper-side.png (0/3 calibrated sessions)",
+    "reference:pipeline/art/reference/discord/20261110-0512_Ricky_1.png (0/3 calibrated sessions)",
+    "reference:pipeline/art/reference/discord/20261110-1047_Ricky_1.png (0/3 calibrated sessions)",
+    "reference:pipeline/art/reference/discord/20261110-1047_Ricky_2.png (0/3 calibrated sessions)",
+    "reference:pipeline/art/reference/discord/20261110-1048_Ricky_1.png (0/3 calibrated sessions)",
+    "reference:pipeline/art/reference/discord/20261110-1048_Ricky_2.png (0/3 calibrated sessions)",
+    "reference:pipeline/art/reference/discord/20261110-1048_Ricky_3.png (0/3 calibrated sessions)",
+    "reference:pipeline/art/reference/discord/20261110-1220_Ricky_1.png (0/3 calibrated sessions)"
+   ],
+   "critic_sessions": [],
+   "files": "bd91dc13bc934dc593bbdbcb39a43ac50d573dcf32b7c8fd63581ab4574f38c1",
+   "file": "pipeline/art/proof/ImageProof/Keeper_R8/graded_1.png",
+   "card": "MVP 15",
+   "refs": "d1afca932485",
+   "commit": "e0fee87dae73",
+   "gap": "critic sessions refused (calibration missed or no answer): judge again",
+   "at": "2026-11-13T04:29:28Z"
+  }
+ ]
+}
