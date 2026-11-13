@@ -37,8 +37,10 @@ src = any_("Source/")
 print(f"SRC={int(src)}")
 # The Flow world tests drive Start Game, defeat, retry and the win end to end, so every Source merge runs them too:
 # areas talk through bus events, and a listener in one area can break another's path (story widgets broke Flow, Nov 12).
+# Feedback.World (art slots) and Field.World (wind) run too: winddraw x artslots broke both on main (Nov 13) while
+# each gate ran only its own subset.
 if prefixes:
-    prefixes.add("Flow.World")
+    prefixes.update(("Flow.World", "Feedback.World", "Field.World"))
 print(f"TESTS={'UmbrellaElla' if full else '+'.join('UmbrellaElla.' + p for p in sorted(prefixes))}")
 print(f"MODULE={int(src)}")
 print(f"MANIFEST={int(any_('docs/feature-manifest.json', 'docs/gdd/', 'Source/'))}")

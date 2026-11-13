@@ -34,6 +34,10 @@ struct UMBRELLAELLA_API FBrokenMillTuning
 	UPROPERTY(EditAnywhere, Category = "Room")
 	FVector2D GuardMuzzle = FVector2D(1410.0, 480.0);
 
+	/** x of the guard's feet (GDD guard section: feet 1450,390); the mesh is drawn standing on this x, the hit box stays on TargetCentre. */
+	UPROPERTY(EditAnywhere, Category = "Room")
+	float GuardFeetX = 1450.0f;
+
 	UPROPERTY(EditAnywhere, Category = "Room")
 	FVector2D TargetCentre = FVector2D(1440.0, 455.0);
 
@@ -95,6 +99,36 @@ struct UMBRELLAELLA_API FBrokenMillTuning
 	/** Centre z the onward ride lowers to before the island (the local restoring field pulls toward it). */
 	UPROPERTY(EditAnywhere, Category = "Winds")
 	float LowerOnwardCentreZ = 230.0f;
+
+	/** Half-width of the lowered step (GDD mill underpass: toz 230 / half-width 45). */
+	UPROPERTY(EditAnywhere, Category = "Winds")
+	float LoweredStepHalfWidth = 45.0f;
+
+	/** Lowered underpass step root envelope min/max (GDD mill underpass 185-285; its centre line is LowerOnwardCentreZ 230, not the midpoint). */
+	UPROPERTY(EditAnywhere, Category = "Winds")
+	FVector2D LoweredStepEnvelope = FVector2D(185.0, 285.0);
+
+	/** Root z where the root reopens after the useful firing window (GDD mill reset section, "near 400"; window floor is 402). */
+	UPROPERTY(EditAnywhere, Category = "Winds")
+	float RootReopenZ = 400.0f;
+
+	/** Ascent toward the exit starts after this x (GDD mill ascent "rise after x 1640"); it clears the island right edge 1570 + MaxHalfWidth 23.4 + margin 24. */
+	UPROPERTY(EditAnywhere, Category = "Winds")
+	float AscentStartX = 1640.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Winds")
+	float AscentStartMargin = 24.0f;
+
+	/** Protected root core z min/max (x range is ProtectedCoreX). */
+	UPROPERTY(EditAnywhere, Category = "Winds")
+	FVector2D ProtectedCoreZ = FVector2D(300.0, 780.0);
+
+	/** End point of the vertical lift (x, z) and its half-width (GDD mill lift). */
+	UPROPERTY(EditAnywhere, Category = "Winds")
+	FVector2D VerticalLiftEnd = FVector2D(330.0, 680.0);
+
+	UPROPERTY(EditAnywhere, Category = "Winds")
+	float VerticalLiftHalfWidth = 30.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Winds")
 	FVector2D ExitPoint = FVector2D(1780.0, 500.0);
