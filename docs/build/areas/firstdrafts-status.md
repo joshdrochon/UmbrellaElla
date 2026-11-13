@@ -27,3 +27,13 @@ Prompts now carry assetgen's shared style block; the green key was dropped (subj
 - Finals made: 1 of 27 (ui-journey-complete). The other 26 stay without a final: guard refuses a failing draft, and the image cap is nearly gone ($33.53 of $33.82).
 - Check defect candidate: art_check is built for in-engine screenshots; a paper ground on a sprite sheet scores as gold accent. `--sprite` needs transparency, so a keyed copy would be the fair test. Not done: no spend left to redraw on a key.
 - Spend this round: gemini about $1.05 (27 drafts) + $0.139 (1 final). No OpenRouter or fal.
+
+## Round 3: finals after the guard fix (2026-11-13)
+Re-ran the guard (`draft_checks_passed`) on every existing draft; no new drafts drawn.
+- Finals made (gemini-3-pro, 2K, from a passing draft2): bg-atmosphere, bg-base, keeper-mech-front, keeper-wing, stream-beam, ui-level-up, keeper-talon (from `draft2_clean.png`, paper ground cut with `assetgen.key_out` tol 80). 6 + 1 = 7 calls, about $0.97.
+- Finals now: bg-start-end, ui-journey-complete, and those 7 = 9 of 28. Finals are not judged and may fail art_check (ui-journey-complete's does).
+- Still no final (19), draft fails the guard:
+  - art_ref_check score 0.2 or below min on the paper ground (offband gate): ella-condition, ella-motion, keeper-damage, keeper-departure, keeper-mech-middle (.56 keyed), keeper-mech-rear (.57 keyed), vfx-* strips (clock-open .89 of .95; departure, eye-exposed, keeper-recovery, keeper-strike .2), enemy-floodstrider (on_palette .75).
+  - art_check near miss when keyed: yellow-shot off_style .0209 (cap .02), keeper-clock .037, vfx-restoration .028; menu-screen, ui-purchase, ui-spell-wheel .025-.032; ui-xp-ring .15+.
+  - Not retried: the shared counter reads $34.93 of the $33.82 cap (assetgen converts to OpenRouter/fal by itself, but I stopped paying for redraws that need a flash model that can do 4:1 strips and a keyed ground).
+- Check defect candidate: art_ref_check element scores compare the silhouette mask; a paper-ground draft has no mask, so any sprite draft scores 0.2 unless cut out first. The guard does not cut the ground.
