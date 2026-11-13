@@ -23,3 +23,4 @@ $I Pose first: level side view facing right, she falls slowly, seated in the air
 
 ## Call D: ella-closed (compact free fall, 3 poses)
 $I Pose first: level side view facing right, she plunges headfirst-leaning in a compact tuck. The umbrella is fully closed and furled, held vertical under her with its finial pointing down and the diamond terminal pointing up in her hands; she rides it with her boots on the furled canopy, knees bent, one gloved hand clamping her hat brim, the other on the shaft. Hair, scarf tails and ragged skirt stream straight up as she falls. Three figures in a row, same scale, 65% of canvas height, only green between them. The three differ slightly: skirt and hair flutter in different shapes. $S
+Applied: prompts.json is assembled from prompt-review.md corrected text (the review text supersedes prompt.md).

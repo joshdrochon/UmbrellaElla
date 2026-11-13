@@ -57,3 +57,14 @@ Concrete misses I can see in my own images: attack and closed poses are wrong in
 ## State: STUCK for the same reason as before (finish gap), NEEDS HUMAN unchanged. Nothing shipped, no `.artloop.json`, no Content import.
 Choices for Josh: (a) provenance-clean sculpted/painted source, (b) image-generation path if rules allow, (c) keep `_PH` for the jam build.
 Lean: (c).
+
+## Round 7 (Nov 13): Gemini rollout, blocked on the key
+Done: merged main; four prompts written and reviewed by a fresh Sonnet session (Art/Source/Ella/Paint/prompt.md,
+prompt-review.md, assembled prompts.json, `paint.py <piece> <round>` makes one paid call). Review applied word for word
+(apricot-cream outline #FFE6C4, mid-tone cloth against dark_share, hair/hat/scarf traits, SHIELD and closed poses fixed).
+Ours, fixed with no spend: off_band. `tools/build/assets/art_ella_post.py` recolours the outer 4 px band to #FFF3D6;
+R3 idle strip off_band 0.0855 -> 0.0092 (max 0.01). dark_share (0.52) is still above 0.45: this round's prompt targets it.
+BLOCKED: GEMINI_API_KEY is not set in this worker's shell (assetgen: "NO KEY"). Worker rules forbid me to read or source
+~/.umbrella-ella.env. No paid call was made; spend untouched. Needed: lead exports the key (or keychain item) for this
+worker, then run `for n in up-open attack shield closed; do python3 Art/Source/Ella/Paint/paint.py $n R1; done`
+(about $0.57), then clean --chroma 00FF00, art_ella_post.py, frames --cells, blind panel.
