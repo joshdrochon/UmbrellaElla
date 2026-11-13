@@ -40,7 +40,7 @@ SIZES = {"owl-bolt": (640, 320), "wand-shot": (512, 256), "bolt-hit": (512, 512)
 W, H = SIZES[PIECE]
 S = 0.01   # blender units per drawing px
 S_PX = W / 640.0 if W >= H else W / 512.0   # drawing px per layout px x 4
-WOBBLE = 0.9   # hand-drawn edge amplitude, px at 4x
+WOBBLE = 0.35   # hand-drawn edge amplitude, px at 4x (crisp facets; round 8 critics: "ragged scribbled shell")
 
 
 def hx(h):
@@ -288,15 +288,18 @@ def lens(xs, env, Y, d=0.0, xa=None, xb=None):
 
 
 def bolt():
-    """The shot, pointing left (owl-bolt); wand-shot is the same drawing mirrored to face right.
-    Construction (bar-casters 'Shared projectile'): one clean head point, a pale core triangle, layered shell blades
-    swept back (shadow edge under crimson under coral), a narrow tail about one head long, sparse flecks."""
+    """owl-bolt: the GDD SH1.0 shared red projectile, pointing left.
+    Construction (bar-casters 'Shared projectile'): one clean head point; a sharp pale core kite; shell blades swept
+    back, each cut into a lit facet and a shadow facet with a hard edge between them (crimson / magenta-red shadow,
+    coral / crimson on the inner layer); controlled engraved ink hatching only inside the shadow facets; fine paper
+    grain; a tight glow that hugs the spikes; a narrow tail about one head long; tidy dashed trail lines that end in
+    square flecks, and a small clockwork arc."""
     Y = H / 2.0
     sc = W / 640.0
     tipx = 22 * sc
     head_end = 160 * sc
     body_end = 370 * sc
-    tail_end = 490 * sc
+    tail_end = 480 * sc
     emax = 100 * sc
 
     def env(x):   # spike-tip envelope from the axis
@@ -310,7 +313,7 @@ def bolt():
         u = min(1.0, (x - body_end) / (tail_end - body_end))
         return 12 * sc * (1 - u) + 1.2 * sc
 
-    def body(x):  # the solid body under the blades: the head wedge then a slim taper into the tail
+    def body(x):  # the solid body under the blades: the head wedge, then a slim taper into the tail
         if x <= head_end:
             return emax * 0.5 * (x - tipx) / (head_end - tipx)
         u = min(1.0, (x - head_end) / (tail_end - head_end))
@@ -325,142 +328,126 @@ def bolt():
             for i in range(n):
                 xf = x_from + (x_to - x_from) * (i + rng.uniform(0.0, 0.7)) / n + shift
                 L = rng.uniform(85, 150) * sc * scale
-                tip_x = xf + L
-                e_tip = env(min(tip_x, body_end + 40 * sc)) * e_mul * rng.uniform(0.85, 1.12)
+                e_tip = env(min(xf + L, body_end + 40 * sc)) * e_mul * rng.uniform(0.85, 1.12)
                 a0 = body(xf) * 0.45
                 b0 = body(xf + L * 0.62) * 0.5
                 if e_tip <= b0 + 4 * sc:
                     continue
-                out.append(blade(xf, side, L, e_tip, a0, b0, Y, back=rng.uniform(0.55, 0.7)))
+                out.append((side, blade(xf, side, L, e_tip, a0, b0, Y, back=rng.uniform(0.55, 0.7))))
         return out
 
-    shadow_bl = blades(SEED * 13 + 1, 0.85, 8 * sc, 65 * sc, 300 * sc, 7, 1.0)
+    rim_bl = blades(SEED * 13 + 1, 0.85, 8 * sc, 65 * sc, 300 * sc, 7, 1.0)
     shell_bl = blades(SEED * 13 + 2, 0.8, 0.0, 55 * sc, 290 * sc, 8, 0.86)
     hot_bl = blades(SEED * 13 + 3, 0.7, -6 * sc, 50 * sc, 230 * sc, 6, 0.55)
     body_poly = lens(xs, body, Y)
 
-    # ---- 1. bounded glow (light spill): a smooth lens, alpha stays under 0.5, so it is light, not body
-    gx_s = [tipx - 40 * sc + (tail_end + 80 * sc - tipx) * j / 120 for j in range(121)]
-    raw = [max(env(x), body(x)) if tipx <= x <= tail_end else 0.0 for x in gx_s]
-    win = 9
-    smooth = [sum(raw[max(0, i - win):i + win + 1]) / len(raw[max(0, i - win):i + win + 1]) for i in range(len(raw))]
+    def facets(side, tri, lit, dark):
+        """A blade cut along tip -> base midpoint: the lit facet faces up (top blades' leading face, bottom blades'
+        trailing face), the other is in shadow. Returns the shadow facet."""
+        a, t, b = tri
+        m = ((a[0] + b[0]) / 2, (a[1] + b[1]) / 2 - side * 2 * sc)
+        front, back = [a, t, m], [m, t, b]
+        lit_f, dark_f = (front, back) if side < 0 else (back, front)
+        add(lit_f, 1.0, lit, 1.0, "fill")
+        add(dark_f, 1.0, dark, 1.0, "fill")
+        return dark_f
 
-    def glow_env(x):
-        i = min(len(gx_s) - 2, max(0, int((x - gx_s[0]) / (gx_s[1] - gx_s[0]))))
-        t = (x - gx_s[i]) / (gx_s[1] - gx_s[0])
-        return smooth[i] * (1 - t) + smooth[i + 1] * t
-    for k in range(16):
-        f = 0.85 + 0.015 * k
-        add(lens(gx_s, lambda x, f=f, k=k: glow_env(x) * f + (1 + 0.75 * k) * sc * min(1.0, glow_env(x) / (8 * sc)),
-                 Y), 1.0, PAL["glow"], 0.03, "lens")
-    tooth(lens(gx_s, lambda x: glow_env(x) * 1.05 + 10 * sc * min(1.0, glow_env(x) / (8 * sc)), Y),
-          int(5200 * sc * sc), PAL["glow"])
-    for k in range(6):   # brief hot bloom at the head
-        d = (2 + k * 4) * sc
-        hp = lens([tipx + (head_end + 60 * sc - tipx) * j / 20 for j in range(21)],
-                  lambda x: body(x) * 0.8, Y, d, tipx, head_end + 60 * sc)
-        add(hp, 1.0, PAL["hot"], 0.03, "lens")
+    def engrave(tri, n, w, rgb):
+        """Even parallel engraved lines inside a facet, parallel to its tip edge, thinning toward the tip."""
+        m, t, b = tri
+        for k in range(1, n + 1):
+            f = k / (n + 1)
+            p0 = (m[0] + (b[0] - m[0]) * f, m[1] + (b[1] - m[1]) * f)
+            q = 0.55 + 0.3 * (1 - f)
+            p1 = (p0[0] + (t[0] - m[0]) * q * (1 - f * 0.6), p0[1] + (t[1] - m[1]) * q * (1 - f * 0.6))
+            tapered(p0, p1, w, rgb, 1.0, head=0.25)
 
-    # ---- 2. trail: thin dashed speed lines carrying tiny square flecks, a small clockwork arc
-    for side, yo, x0, x1 in ((-1, 24, 330, 560), (1, 22, 345, 575), (-1, 8, 430, 585), (1, 40, 300, 450)):
-        y_a = Y + side * yo * sc
-        x = x0 * sc
-        while x < x1 * sc:
-            L = RNG.uniform(14, 34) * sc
-            yy = y_a + side * (x - x0 * sc) * 0.06
-            tapered((x, yy), (min(x + L, x1 * sc), yy + side * L * 0.06), 1.6 * sc, PAL["shell"], 0.95)
-            x += L + RNG.uniform(7, 16) * sc
-    for (fx, fy, s, c) in ((410, -31, 8, "shadow"), (480, -38, 6, "shell"), (460, 33, 7, "shadow"),
-                           (545, 38, 5, "shell"), (575, -14, 5, "shadow")):
-        x, y, s = fx * sc, Y + fy * sc, s * sc
-        a = RNG.uniform(-0.25, 0.25)
+    # ---- 1. tight glow hugging the spikes (alpha under 0.5: light, not body)
+    for d in (2.5, 5, 8, 12, 17):
+        add(grow(body_poly, d * sc), 1.0, PAL["glow"], 0.035, "fill")
+        for _, tri in rim_bl:
+            add(grow(tri, d * sc), 1.0, PAL["glow"], 0.03, "fill")
+    for d in (4, 9):
+        add([(tipx - d * sc, Y), (tipx + 60 * sc, Y - 18 * sc - d * sc), (tipx + 60 * sc, Y + 18 * sc + d * sc)],
+            1.0, PAL["hot"], 0.05, "fill")
+
+    # ---- 2. tidy trail: evenly dashed lines, each ending in a square fleck; a small clockwork arc
+    for side, yo, x0, x1, fl in ((-1, 22, 350, 520, "shadow"), (1, 20, 365, 545, "shell"),
+                                 (-1, 40, 330, 455, "shell"), (1, 38, 340, 470, "shadow")):
+        n = 4
+        seg = (x1 - x0) / n
+        for k in range(n):
+            xa = (x0 + seg * k) * sc
+            xb = (x0 + seg * k + seg * 0.62) * sc
+            ya = Y + side * (yo + (xa / sc - x0) * 0.07) * sc
+            yb = Y + side * (yo + (xb / sc - x0) * 0.07) * sc
+            tapered((xa, ya), (xb, yb), (1.9 - 0.25 * k) * sc, PAL["shell"], 1.0, head=0.4)
+        x, y, s = (x1 + 8) * sc, Y + side * (yo + (x1 + 8 - x0) * 0.07) * sc, 7 * sc
+        a = side * 0.12
         sq = [(x + math.cos(a + k * math.pi / 2 + math.pi / 4) * s * 0.7,
                y + math.sin(a + k * math.pi / 2 + math.pi / 4) * s * 0.7) for k in range(4)]
-        add(sq, 1.0, PAL[c], 1.0, "fill")
-    gx, gy, gr = 545 * sc, Y - 58 * sc, 13 * sc
+        add(sq, 1.0, PAL[fl], 1.0, "fill")
+    gx, gy, gr = 560 * sc, Y - 52 * sc, 12 * sc
     arc = [(gx + math.cos(a) * gr, gy + math.sin(a) * gr) for a in [math.pi + i * math.pi / 14 for i in range(15)]]
-    add(arc, [2.4 * sc] * len(arc), PAL["shell"], 1.0)
+    add(arc, [2.2 * sc] * len(arc), PAL["shell"], 1.0)
     for i in range(1, 14, 3):
         a = math.pi + i * math.pi / 14
         add([(gx + math.cos(a) * gr, gy + math.sin(a) * gr),
-             (gx + math.cos(a) * (gr + 6 * sc), gy + math.sin(a) * (gr + 6 * sc))], [2.6 * sc, 2.2 * sc],
+             (gx + math.cos(a) * (gr + 5 * sc), gy + math.sin(a) * (gr + 5 * sc))], [2.4 * sc, 2.0 * sc],
             PAL["shell"], 1.0)
+    tapered((gx - gr - 6 * sc, gy + 2 * sc), (gx + gr + 8 * sc, gy + 2 * sc), 1.3 * sc, PAL["shadow"], 1.0)
 
-    # ---- 3. shell: shadow-edge blades, body, crimson blades, etched line work, coral blades
-    for b in shadow_bl:
-        add(b, 1.0, PAL["shadow"], 1.0, "fill")
+    # ---- 3. shadow rim blades, body, faceted crimson blades with engraved shadow facets
+    for _, tri in rim_bl:
+        add(tri, 1.0, PAL["shadow"], 1.0, "fill")
     add(body_poly, 1.0, PAL["shadow"], 1.0, "lens")
-    for b in shell_bl:
-        add(b, 1.0, PAL["shell"], 1.0, "fill")
-    add(lens(xs, lambda x: body(x) * 0.82, Y), 1.0, PAL["shell"], 1.0, "lens")
-    shell_union = lens(xs, lambda x: max(env(x) * 0.8, body(x)), Y)
-    grain(shell_union, int(2600 * sc * sc), PAL["shell"], spread=8)
-    # etched: tapered strokes along each blade's leading edge (the engraver's line following the form)
-    for b in shell_bl:
-        (ax, ay), (tx, ty), (bx, by) = b
-        for k in range(RNG.randint(2, 4)):
-            f = RNG.uniform(0.15, 0.55)
-            p0 = (ax + (bx - ax) * f, ay + (by - ay) * f)
-            p1 = (tx + (bx - tx) * f * 0.5, ty + (by - ty) * f * 0.5)
-            tapered(p0, p1, RNG.uniform(0.8, 1.4) * sc, PAL["shadow"], 1.0, bow=RNG.uniform(-1.5, 1.5) * sc,
-                    head=0.7)
-    for k in range(10):   # long speed lines converging on the head point
-        off = RNG.uniform(-0.8, 0.8)
-        x0 = RNG.uniform(140, 230) * sc
-        x1 = RNG.uniform(320, 430) * sc
-        tapered((x0, Y + off * body(x0) * 0.7), (x1, Y + off * body(x1) * 0.6 + RNG.uniform(-2, 2) * sc),
-                RNG.uniform(0.7, 1.3) * sc, PAL["shadow"], 1.0, head=0.3)
-    # engraved cross-contour hatching: dense on the lower (shadow) side, sparse on top, thinning toward the head
-    x = 95 * sc
-    while x < body_end - 10 * sc:
-        k = (x - 95 * sc) / (body_end - 105 * sc)
-        for side, dens in ((1, 0.9), (-1, 0.35)):
-            if RNG.random() > dens * (0.4 + 0.6 * k):
-                continue
-            b0 = body(x)
-            p0 = (x, Y + side * b0 * RNG.uniform(0.25, 0.4))
-            p1 = (x + RNG.uniform(5, 9) * sc, Y + side * (b0 * RNG.uniform(0.8, 1.0)))
-            tapered(p0, p1, RNG.uniform(0.55, 0.85) * sc, PAL["shadow"], 1.0, head=0.5, bow=0.6 * sc)
-        x += RNG.uniform(4.0, 6.0) * sc
-    for b in hot_bl:
-        add(b, 1.0, PAL["hot"], 1.0, "fill")
-    hot_union = lens([tipx + (320 * sc - tipx) * j / 40 for j in range(41)],
-                     lambda x: body(x) * 0.62 * min(1.0, max(0.0, (320 * sc - x) / (100 * sc))) ** 0.8, Y)
-    add(hot_union, 1.0, PAL["hot"], 1.0, "lens")
-    grain(hot_union, int(900 * sc * sc), PAL["hot"], spread=7)
-    for b in hot_bl:
-        (ax, ay), (tx, ty), (bx, by) = b
-        tapered(((ax + bx) / 2, (ay + by) / 2), (tx, ty), 1.0 * sc, PAL["shell"], 1.0, head=0.75)
+    add(lens(xs, lambda x: body(x) * 0.8, Y), 1.0, PAL["shell"], 1.0, "lens")
+    shadows = [facets(side, tri, PAL["shell"], PAL["shadow"]) for side, tri in shell_bl]
+    for tri in shadows:
+        grain(tri, 18, PAL["shadow"], spread=6, size=(0.5, 1.0))
+        engrave(tri, 3, 0.65 * sc, PAL["ink"])
+    grain(lens(xs, lambda x: body(x) * 0.8, Y), int(700 * sc * sc), PAL["shell"], spread=6, size=(0.5, 1.0))
+    for side, tri in shell_bl:   # grain stays inside the drawn plates, never specks on the paper
+        grain(tri, 22, PAL["shell"], spread=6, size=(0.5, 1.0))
+    # the underside of the body: an engraved run of parallel strokes (form shadow)
+    x = 150 * sc
+    while x < body_end:
+        b0 = body(x) * 0.8
+        tapered((x, Y + b0 * 0.35), (x + 7 * sc, Y + b0 * 0.92), 0.6 * sc, PAL["shadow"], 1.0, head=0.5)
+        x += 5.0 * sc
 
-    # ---- 4. pale core: one long clean triangle from the head point, warm falloff toward the back
-    def core_env(x):
-        if x <= 130 * sc:
-            return 19 * sc * (x - tipx - 16 * sc) / (130 * sc - tipx - 16 * sc)
-        u = min(1.0, (x - 130 * sc) / (290 * sc - 130 * sc))
-        return 19 * sc * (1 - u) ** 1.3
-    core = lens([tipx + 16 * sc + (290 * sc - tipx - 16 * sc) * j / 40 for j in range(41)],
-                lambda x: max(0.0, core_env(x)), Y)
-    add(core, 1.0, PAL["core"], 1.0, "lens")
-    for k in range(30):
-        x0 = RNG.uniform(150, 270) * sc
-        yy = Y + RNG.uniform(-0.8, 0.8) * core_env(x0)
-        tapered((x0, yy), (x0 + RNG.uniform(30, 70) * sc, Y + (yy - Y) * 0.3), RNG.uniform(1.0, 2.2) * sc,
-                PAL["hot"], RNG.uniform(0.3, 0.55), head=0.3)
-    grain(core, int(450 * sc * sc), PAL["core"], spread=8, alpha=(0.6, 0.9))
-    tapered((tipx + 6 * sc, Y), (170 * sc, Y), 2.6 * sc, PAL["core"], 1.0, head=0.25)
-    for d, a, c in ((10, 0.3, "hot"), (5, 0.45, "hot"), (2.4, 1.0, "core")):
+    # ---- 4. inner coral layer, faceted coral / crimson
+    add(lens([tipx + (300 * sc - tipx) * j / 40 for j in range(41)],
+             lambda x: body(x) * 0.6 * min(1.0, max(0.0, (300 * sc - x) / (100 * sc))) ** 0.8, Y),
+        1.0, PAL["hot"], 1.0, "lens")
+    for side, tri in hot_bl:
+        facets(side, tri, PAL["hot"], PAL["shell"])
+    grain(lens([tipx + (300 * sc - tipx) * j / 40 for j in range(41)], lambda x: body(x) * 0.6, Y),
+          int(500 * sc * sc), PAL["hot"], spread=5, size=(0.5, 1.0))
+
+    # ---- 5. pale core: a sharp kite from the head point; a coral edge line; warm falloff at the back
+    core = [(tipx + 14 * sc, Y), (125 * sc, Y - 20 * sc), (290 * sc, Y - 1.2 * sc), (296 * sc, Y),
+            (290 * sc, Y + 1.2 * sc), (125 * sc, Y + 19 * sc)]
+    add(core, 1.0, PAL["core"], 1.0, "fill")
+    for k in range(18):
+        x0 = RNG.uniform(175, 265) * sc
+        yy = Y + RNG.uniform(-0.6, 0.6) * 20 * sc * (290 * sc - x0) / (165 * sc)
+        tapered((x0, yy), (x0 + RNG.uniform(25, 45) * sc, Y + (yy - Y) * 0.4), RNG.uniform(0.9, 1.8) * sc,
+                PAL["hot"], RNG.uniform(0.3, 0.5), head=0.3)
+    grain(core, int(160 * sc * sc), PAL["core"], spread=5, size=(0.5, 0.9), alpha=(0.5, 0.8))
+    tapered((tipx + 15 * sc, Y - 0.5 * sc), (125 * sc, Y - 20.5 * sc), 0.9 * sc, PAL["hot"], 1.0, head=0.8)
+    tapered((tipx + 15 * sc, Y + 0.5 * sc), (125 * sc, Y + 19.5 * sc), 0.9 * sc, PAL["hot"], 1.0, head=0.8)
+    for d, a, c in ((7, 0.35, "hot"), (2.2, 1.0, "core")):
         ring = [(body_end - 10 * sc + math.cos(t * math.pi / 6) * d * sc, Y + math.sin(t * math.pi / 6) * d * sc)
                 for t in range(12)]
         add(ring, 1.0, PAL[c], a, "fill")
 
-    # ---- 5. ink: a fine broken pressure line on the outer leading edge of the lower (shadow-side) blades only
-    for b in shadow_bl:
-        if b[1][1] > Y and RNG.random() < 0.7:
-            (ax, ay), (tx, ty) = b[0], b[1]
-            p0 = (ax + (tx - ax) * RNG.uniform(0.3, 0.5), ay + (ty - ay) * RNG.uniform(0.3, 0.5))
-            tapered(p0, (tx, ty), 1.3 * sc, PAL["ink"], 1.0, head=0.8)
-    tapered((tipx + 4 * sc, Y + 1 * sc), (head_end, Y + body(head_end) + 1 * sc), 1.6 * sc, PAL["shadow"], 1.0,
-            head=0.7)
+    # ---- 6. ink: a fine pressure line on the outer leading edge of the lower rim blades
+    for side, tri in rim_bl:
+        if side > 0:
+            (ax, ay), (tx, ty) = tri[0], tri[1]
+            p0 = (ax + (tx - ax) * 0.45, ay + (ty - ay) * 0.45)
+            tapered(p0, (tx, ty), 1.0 * sc, PAL["ink"], 1.0, head=0.85)
     return body_poly
 
 
@@ -481,7 +468,7 @@ def pulse():
     family, so it never reads as the Keeper's angular yellow shot (OWL-14 geometry)."""
     Y = H / 2.0
     sc = W / 512.0
-    hx_, tail0 = 400 * sc, 150 * sc
+    hx_, tail0 = 390 * sc, 200 * sc
     G = {"core": hx("FFF5DC"), "gold": hx("E9C46A"), "amber": hx("F5AA28"), "shadow": hx("94611E"),
          "ink": hx("171614"), "spark": hx("FFF3D6")}
 
@@ -497,10 +484,14 @@ def pulse():
         f = 1.0 + 0.12 * k
         add(lens(xs, lambda x, f=f, k=k: tail_env(x) * f + (1 + 1.2 * k) * sc * min(1.0, tail_env(x) / (4 * sc)), Y),
             1.0, G["gold"], 0.026, "lens")
-    for k in range(12):
-        r = (14 + k * 5.5) * sc
-        add([(hx_ + math.cos(t * math.pi / 16) * r * 1.15, Y + math.sin(t * math.pi / 16) * r) for t in range(32)],
-            1.0, G["gold"], 0.03, "fill")
+    for k in range(10):
+        r = (12 + k * 3.6) * sc
+        add([(hx_ + math.cos(t * math.pi / 16) * r * 1.1, Y + math.sin(t * math.pi / 16) * r) for t in range(32)],
+            1.0, G["gold"], 0.032, "fill")
+    tooth([(hx_ + math.cos(t * math.pi / 16) * 50 * sc * 1.1, Y + math.sin(t * math.pi / 16) * 50 * sc)
+           for t in range(32)], int(1400 * sc * sc), G["gold"])
+    tooth(lens(xs, lambda x: tail_env(x) * 1.3 + 8 * sc * min(1.0, tail_env(x) / (4 * sc)), Y), int(900 * sc * sc),
+          G["gold"])
     # tail: overlapping tapered slivers (shadow under gold under core), short and finite
     tail = lens(xs, tail_env, Y)
     add(tail, 1.0, G["shadow"], 1.0, "lens")
@@ -508,19 +499,19 @@ def pulse():
     grain(tail, int(500 * sc * sc), G["gold"], spread=8)
     for k in range(12):
         off = RNG.uniform(-0.7, 0.7)
-        x0 = RNG.uniform(tail0 + 20 * sc, 300 * sc)
+        x0 = RNG.uniform(tail0 + 15 * sc, 320 * sc)
         x1 = hx_ - RNG.uniform(10, 40) * sc
         tapered((x0, Y + off * tail_env(x0)), (x1, Y + off * tail_env(x1) * 0.8), RNG.uniform(0.7, 1.3) * sc,
                 G["shadow"] if k % 3 else G["amber"], 1.0, head=0.75)
-    add(lens(xs, lambda x: tail_env(x) * 0.3 if x > 250 * sc else 0.0, Y), 1.0, G["core"], 1.0, "lens")
+    add(lens(xs, lambda x: tail_env(x) * 0.3 if x > 280 * sc else 0.0, Y), 1.0, G["core"], 1.0, "lens")
     # sparse sparks behind (tiny four-point stars), on thin broken trail lines
     for side, yo in ((-1, 26), (1, 22)):
-        x = 170 * sc
-        while x < 360 * sc:
+        x = 215 * sc
+        while x < 350 * sc:
             L = RNG.uniform(12, 26) * sc
             tapered((x, Y + side * yo * sc), (x + L, Y + side * (yo - 3) * sc), 1.2 * sc, G["gold"], 0.95)
             x += L + RNG.uniform(10, 20) * sc
-    for (fx, fy, s) in ((120, -14, 7), (205, 30, 6), (280, -34, 5), (90, 8, 5)):
+    for (fx, fy, s) in ((175, -14, 7), (235, 32, 6), (290, -36, 5), (150, 9, 5)):
         add(star(fx * sc, Y + fy * sc, [(k * math.pi / 2, s * sc * (1.6 if k % 2 == 0 else 1.0)) for k in range(4)],
                  s * sc * 0.28), 1.0, G["gold"], 1.0, "fill")
     # the star head: shadow star, gold star, secondary diagonal points, pale core star, etched rays
@@ -547,8 +538,8 @@ def pulse():
         if math.sin(a) > 0.2:
             tip = (hx_ + math.cos(a) * (L + 6) * sc, Y + math.sin(a) * (L + 6) * sc)
             base = (hx_ + math.cos(a + 0.35) * 16 * sc, Y + math.sin(a + 0.35) * 16 * sc)
-            tapered(base, tip, 1.2 * sc, G["ink"], 1.0, head=0.7)
-    tapered((300 * sc, Y + tail_env(300 * sc) + 0.5 * sc), (hx_ - 30 * sc, Y + tail_env(hx_ - 30 * sc) + 0.5 * sc),
+            tapered(base, tip, 0.8 * sc, G["ink"], 1.0, head=0.8)
+    tapered((310 * sc, Y + tail_env(310 * sc) + 0.5 * sc), (hx_ - 30 * sc, Y + tail_env(hx_ - 30 * sc) + 0.5 * sc),
             1.0 * sc, G["ink"], 0.9, head=0.8)
 
 
