@@ -36,3 +36,12 @@
 - Panel round 1 on sheet4 (`pipeline/art/proof/artfx2/ClockBeat/panel1/`): 12 blind sessions prepared, stopped at "cannot judge yet: context (no in-engine capture)". Critics not run.
 - Context capture not made: `import_art_candidate.py sheet5.png vfx-sheet:VFX_ClockBeat` ran 10+ min with no output (the shared Unreal slot lock was held by other workers) and was killed at the background limit. Nothing was imported; no spend this slice.
 - Left: retry the import when the slot is free, capture with run_game.sh in a section where the clock beat plays, run the panel with sheet5, then the other 7 pieces with the same method (clock-beat cut script and prompt are reusable).
+
+## Slice 7 (Nov 13): merged main, keeper-warning first draft, not passed
+- Merged main (conflict in tools/assetgen.py: kept the video command; main dropped it). artslots already merged.
+- Order: art-priority puts vfx-keeper-warning (18) and keeper-strike (19) above clock-beat (47), so I started keeper-warning.
+- vfx-keeper-warning draft 1 (flash, $0.039, 21:9 strip, 4:1 is not offered on flash): `pipeline/art/proof/artfx2/KeeperWarning/` (prompt.txt, strip, sheet). Cut with cut_strip.py (Blender needs absolute paths).
+  `art_judge element`: 0.462 vs min 0.699, closest "bar-casters". Gap: the refs (tell-ring, firing-tell crops) are soft red rings with a thin ray and an arrow; mine is a hard graphic crosshair with ink outline. Next paint: softer glowing ring plus one ray, no crosshair, no spikes.
+- Clock-beat context import (sheet5 -> VFX_ClockBeat_PH) is running in the background (`../logs/artfx2-import.log`); it got an engine slot this time. Capture and panel still to do after it lands.
+- Spend counter: 28.99 of 33.82. Only about 4.8 left for every lane, so paint per piece stays at one draft per round until the lead says more.
+- Left: keeper-warning v2; keeper-strike; clock-beat panel after capture; clock-open, eye-exposed, recovery, departure, restoration.
