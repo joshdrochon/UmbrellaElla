@@ -64,3 +64,9 @@ Stuck rule: critic gap unchanged 3 rounds (deterministic score best 0.716): NEED
 ## Blocked (Nov 13): context capture
 - Merged main and followed art-image-model.md "Context capture". Step 1 cannot be done: no owl `_PH` asset exists under Content/UmbrellaElla/Art (VFX only) and the game draws the Keeper from cube meshes, loading no owl texture. A capture would not show the candidate, so the context pair cannot be made honestly. Request written: docs/build/requests/artkeeper.md.
 - Ready when the slot exists: R7 keyed_3 (art_ref_check 0.705), reference and quality-bar pairs can be run now; remaining gaps are prompt-side (parrot-like head, chains to a top eye).
+
+## Round 7 full blind panel (Nov 13, cell 3, keyed_3.png)
+- 27 fresh critic sessions (24 reference, 3 quality-bar), calibration 21/27 sessions counted. Verdict: reference wins, quality bar wins. Context pair not run (no Keeper slot yet).
+- Gap (critic, ours): feathered/organic head, mechanisms hang from a tangled chain instead of three separate body eyes, haloed cutout edges, flat unarticulated wing vanes.
+- Deterministic: art_ref_check PASS 0.705, screen_check PASS, art_check FAIL off_band 0.0129 > 0.01 (halo/despill, ours: keying).
+- Triage: work, not a check defect (gaps match R6/R7 notes; calibration pairs behaved). Next R8: fix keying halo, head/chain wording in the prompt.
