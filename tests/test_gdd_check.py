@@ -13,6 +13,10 @@ class Tree:
         shutil.copytree(os.path.join(ROOT, "Source", "UmbrellaElla", "Public"), os.path.join(self.dir, "Source", "UmbrellaElla", "Public"),
                         ignore=lambda d, names: [n for n in names if not (n.endswith("Tuning.h") or os.path.isdir(os.path.join(d, n)))])
         os.makedirs(os.path.join(self.dir, "docs", "build", "playtest-logs"))
+        for ref in {v["const"].split(":")[0] for v in json.loads(gdd_check._read(os.path.join(ROOT, "docs", "build", "gdd-bindings.json"))).values()
+                    if isinstance(v, dict) and "const" in v}:     # files a `const` binding reads
+            os.makedirs(os.path.dirname(os.path.join(self.dir, ref)), exist_ok=True)
+            shutil.copy(os.path.join(ROOT, ref), os.path.join(self.dir, ref))
         for f in ("gdd-spec.json", "gdd-bindings.json"):
             shutil.copy(os.path.join(ROOT, "docs", "build", f), os.path.join(self.dir, "docs", "build", f))
         self.write("docs/decisions.md", "# Decisions\n| ID | Decision |\n|---|---|\n| D-1 | unrelated row about OWL-08 |\n")
@@ -191,6 +195,25 @@ class CheckTests(unittest.TestCase):
             self.assertTrue([l for l in fail_lines(t.check()[0]) if "HAZ-05.recovery GDD=1.5s game=1.2" in l])
             t.write("docs/build/playtest-logs/run-2.log", "PLAYTEST_X case=a rec=1.5\n")
             self.assertFalse([l for l in fail_lines(t.check()[0]) if "HAZ-05.recovery" in l])
+
+    def test_expr_binding_follows_the_tuning_and_rejects_non_arithmetic(self):
+        with Tree() as t:
+            b = json.loads(gdd_check._read(t.path("docs/build/gdd-bindings.json")))
+            self.assertEqual(gdd_check.expr_value({"FAStruct.A": 2.0}, "FAStruct.A * 3 + floor(1.5)"), 7.0)
+            self.assertIsNone(gdd_check.expr_value({}, "FAStruct.Missing + 1"))
+            self.assertIsNone(gdd_check.expr_value({"FAStruct.A": 1.0}, "FAStruct.A + __import__('os')"))
+            self.assertEqual(gdd_check.expr_value({}, "xp_to(10, 100)"), 916.0)
+            self.assertEqual(gdd_check.expr_value({}, "xp_to(62, 100)"), 7000.0)
+            self.assertEqual([l for l in fail_lines(t.check()[0]) if "SURV-06.total_points" in l], [])
+            t.edit("Source/UmbrellaElla/Public/Progression/ProgressionTuning.h", "int32 MaxLivesCap = 11", "int32 MaxLivesCap = 12")
+            self.assertTrue([l for l in fail_lines(t.check()[0]) if "SURV-06.total_points" in l])
+
+    def test_const_index_reads_the_nth_literal_of_a_pair(self):
+        with Tree() as t:
+            t.write("Source/X.cpp", "const FVector2D Envelope(185.0f, 285.0f);\n")
+            self.assertEqual(gdd_check.const_value(t.dir, "Source/X.cpp:Envelope", 1), 285.0)
+            self.assertEqual(gdd_check.const_value(t.dir, "Source/X.cpp:Envelope"), 185.0)
+            self.assertIsNone(gdd_check.const_value(t.dir, "Source/X.cpp:Envelope", 2))
 
 
 if __name__ == "__main__":

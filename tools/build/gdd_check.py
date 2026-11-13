@@ -7,6 +7,8 @@
          "HAZ-10.radius": {"tuning": "FAttackTuning.MuzzleOffset.X"},         .X .Y .Z picks a vector component
          "MOVE-21.vertical_trim": {"tuning": "FMotorTuning.VerticalTrimPct", "scale": 1},   game * scale = GDD unit
          "X.y": {"const": "Source/.../File.h:kSymbol"},                       a `kSymbol = literal` in a file
+         "X.y": {"const": "Source/.../File.cpp:Envelope", "index": 1},        the 2nd literal of `Envelope(185.0f, 285.0f)`
+         "X.y": {"expr": "FBrokenMillTuning.RoomSize.X / 2"},                 arithmetic over tuning defaults (floor, min, max, abs, xp_to(level, base))
          "X.y": {"playtest": {"line": "PLAYTEST_CAM07", "match": {"case": "ontime"}, "field": "reopen_root_z"}},
          optional "tol": absolute tolerance (the GDD's own +/- tolerance, when it prints one, wins)}
 
@@ -23,7 +25,7 @@ Lines (stable across runs, no line numbers):
 Every GDD number is bound in gdd-bindings.json, or listed in its top-level "unbindable" object {key: reason}
 (prose, a worked example, a history note: not a game value). Priority comes from the GDD row (`APPROVED_P0` -> P0).
 """
-import glob, json, os, re, sys
+import glob, json, math, os, re, sys
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -82,14 +84,48 @@ def tuning_value(defaults, ref):
     return None if isinstance(v, list) else v
 
 
-def const_value(root, ref):
+def const_value(root, ref, index=0):
+    """`Symbol = literal`, or the index-th literal of `Symbol(a, b)` / `Symbol{a, b}` (a vector or pair constant)."""
     path, _, sym = ref.partition(":")
     try:
         text = _read(os.path.join(root, path))
     except OSError:
         return None
-    m = re.search(r"\b" + re.escape(sym) + r"\s*(?:=|\{)\s*(" + LIT + r")", text)
-    return lit(m.group(1)) if m else None
+    m = re.search(r"\b" + re.escape(sym) + r"\s*(?:=|\{|\()\s*(" + LIT + r"(?:\s*,\s*" + LIT + r")*)", text)
+    if not m:
+        return None
+    parts = [x.strip() for x in m.group(1).split(",")]
+    return lit(parts[index]) if index < len(parts) else None
+
+
+REF = re.compile(r"\bF[A-Z]\w*\.\w+(?:\.[XYZ])?\b")
+EXPR_OK = re.compile(r"[-+*/%().,\s\d_a-z]*")
+
+
+def _xp_to(level, base):
+    """Cumulative XP from level 1 to `level`: sum of base + floor((L-1)/2) for L = 1 .. level-1 (FLOW-15)."""
+    return sum(base + (n - 1) // 2 for n in range(1, int(level)))
+
+
+def expr_value(defaults, expr):
+    """Evaluate an arithmetic expression over tuning refs (FStruct.Field[.X]); None when a ref is missing or the text is not plain arithmetic.
+    Functions: floor, min, max, abs, xp_to(level, base)."""
+    bad = []
+
+    def sub(m):
+        v = tuning_value(defaults, m.group(0))
+        if v is None:
+            bad.append(m.group(0))
+            return "0"
+        return repr(v)
+    text = REF.sub(sub, expr)
+    if bad or not EXPR_OK.fullmatch(text) or "__" in text:
+        return None
+    env = {"floor": math.floor, "min": min, "max": max, "abs": abs, "xp_to": _xp_to}
+    try:
+        return float(eval(text, {"__builtins__": {}}, env))  # noqa: S307 (charset checked above)
+    except Exception:
+        return None
 
 
 def latest_playtest(root):
@@ -147,14 +183,16 @@ def check(root=ROOT, spec_path=None, check_fresh=True):
         gdd = spec[key]
         if "tuning" in b:
             game, ref = tuning_value(defaults, b["tuning"]), b["tuning"]
+        elif "expr" in b:
+            game, ref = expr_value(defaults, b["expr"]), "expr " + b["expr"]
         elif "const" in b:
-            game, ref = const_value(root, b["const"]), b["const"]
+            game, ref = const_value(root, b["const"], b.get("index", 0)), b["const"] + (f"[{b['index']}]" if b.get("index") else "")
         elif "playtest" in b:
             game, ref = playtest_value(recs, b["playtest"]), f"playtest {b['playtest']['line']}.{b['playtest']['field']}"
             if game is None:
                 lines.append(f"UNMEASURED {key} {ref}"); continue
         else:
-            lines.append(f"FAIL broken {key}: binding has no tuning, const or playtest"); fails += 1; continue
+            lines.append(f"FAIL broken {key}: binding has no tuning, expr, const or playtest"); fails += 1; continue
         if game is None:
             lines.append(f"FAIL broken {key}: {ref} not found in the source"); fails += 1; continue
         game *= b.get("scale", 1)
