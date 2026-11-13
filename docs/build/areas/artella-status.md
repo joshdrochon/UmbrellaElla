@@ -222,3 +222,6 @@ Next: if the shot shows Ella, run the up-open context pair and panel; then shiel
 Round 33 result: the ready-shot capture landed (05:51, 1280x720, `-SmokeShotFrames=30`). No "Preparing" text any more, but the frame is black with only the HUD clock: no Ella, no ground, no sky.
 Ready-wait passed (so shaders, textures and a live player were reported ready), yet the world draws nothing. run_game.sh keeps no game log under Saved/Logs, so I cannot see SMOKE_SHOT_READY, the map or the camera. Verdict: smoke/screenfix lane (world not rendered in the shot, or camera not on Ella), not the art.
 Ask for screenfix: keep the game log from run_game.sh, and check why a ready shot shows only the HUD. Not retrying the same command. Up-open still lacks only `context`. No paint, no spend (15.08 of 33.82).
+
+## Round 34 (Nov 13 late): merged main and artslots, nothing new; blocked on request #4
+Nothing newer on main or artslots. The only capture (05:51) is HUD-only. No paint, no panel, no spend (15.08 of 33.82). Wrote request #4 (ready shot draws no world, keep the game log). Stopped: only the smoke/screenfix lane can fix it.
