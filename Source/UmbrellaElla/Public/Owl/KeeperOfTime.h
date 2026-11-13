@@ -8,6 +8,13 @@
 class UKeeperPartComponent;
 class UStaticMeshComponent;
 
+/** Whether a part shows a state its static slot art cannot (broken, clock open): then its cube shows even under art. */
+enum class EKeeperCubeState : uint8
+{
+	Default,
+	StateCue,
+};
+
 /**
  * The Keeper of Time boss actor: wings, three hanging mechanisms, clock and eye. Spawned by the Encounter Director.
  * It holds the hit regions and a placeholder look made from engine primitives; every rule lives in FKeeperFightModel.
@@ -60,8 +67,7 @@ public:
 private:
 	UKeeperPartComponent* MakePart(FName Name, EKeeperPart Part, const FVector2D& Offset, const FVector2D& HalfExtent);
 	UStaticMeshComponent* MakeVisual(FName Name);
-	/** bStateCue: the part is in a state its static slot art cannot show, so the cube shows even under art. */
-	void PlaceVisual(UStaticMeshComponent* Visual, const FVector2D& Centre, const FVector2D& HalfExtent, const FLinearColor& Colour, bool bStateCue = false);
+	void PlaceVisual(UStaticMeshComponent* Visual, const FVector2D& Centre, const FVector2D& HalfExtent, const FLinearColor& Colour, EKeeperCubeState State = EKeeperCubeState::Default);
 	void HideVisual(UStaticMeshComponent* Visual);
 	FVector ToWorld(const FVector2D& Position) const;
 	bool IsCoveredByArt(const UStaticMeshComponent* Visual) const;

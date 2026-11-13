@@ -100,7 +100,7 @@ void AKeeperOfTime::HideVisual(UStaticMeshComponent* Visual)
 	}
 }
 
-void AKeeperOfTime::PlaceVisual(UStaticMeshComponent* Visual, const FVector2D& Centre, const FVector2D& HalfExtent, const FLinearColor& Colour, bool bStateCue)
+void AKeeperOfTime::PlaceVisual(UStaticMeshComponent* Visual, const FVector2D& Centre, const FVector2D& HalfExtent, const FLinearColor& Colour, EKeeperCubeState State)
 {
 	if (!Visual)
 	{
@@ -108,7 +108,7 @@ void AKeeperOfTime::PlaceVisual(UStaticMeshComponent* Visual, const FVector2D& C
 	}
 	// Slot art is one static picture per part: it shows the default state only. A part in a state the art cannot show
 	// (broken, clock open) keeps its coloured cube over the art as the cue.
-	Visual->SetVisibility(bStateCue || !IsCoveredByArt(Visual));
+	Visual->SetVisibility(State == EKeeperCubeState::StateCue || !IsCoveredByArt(Visual));
 	Visual->SetWorldLocation(ToWorld(Centre));
 	Visual->SetWorldScale3D(FVector(HalfExtent.X * 2.0f / KeeperLook::CubeEdge, KeeperLook::VisualDepth / KeeperLook::CubeEdge, HalfExtent.Y * 2.0f / KeeperLook::CubeEdge));
 	if (UMaterialInstanceDynamic* Dynamic = Visual->CreateDynamicMaterialInstance(0))
@@ -203,11 +203,11 @@ void AKeeperOfTime::Refresh(const FKeeperFightModel& Model, float TimeSeconds)
 	// Wings: hittable until broken; broken wings stay as dark cover with no collision.
 	const bool bWingsAlive = !Model.IsPartBroken(EKeeperPart::Wings);
 	WingsPart->SetHittable(bWingsAlive);
-	PlaceVisual(WingsVisual, AnchorXZ + T.WingsOffset, T.WingsHalfExtent, bWingsAlive ? KeeperLook::Body : KeeperLook::Broken, !bWingsAlive);
+	PlaceVisual(WingsVisual, AnchorXZ + T.WingsOffset, T.WingsHalfExtent, bWingsAlive ? KeeperLook::Body : KeeperLook::Broken, bWingsAlive ? EKeeperCubeState::Default : EKeeperCubeState::StateCue);
 
 	// Clock: always a collider (a closed clock consumes shots); bright while open.
 	ClockPart->SetHittable(!Model.IsEnded());
-	PlaceVisual(ClockVisual, AnchorXZ + T.ClockOffset, T.ClockHalfExtent, Model.IsClockOpen() ? KeeperLook::ClockOpen : KeeperLook::ClockClosed, Model.IsClockOpen());
+	PlaceVisual(ClockVisual, AnchorXZ + T.ClockOffset, T.ClockHalfExtent, Model.IsClockOpen() ? KeeperLook::ClockOpen : KeeperLook::ClockClosed, Model.IsClockOpen() ? EKeeperCubeState::StateCue : EKeeperCubeState::Default);
 
 	EyePart->SetHittable(Model.IsEyeExposed());
 	if (Model.IsEyeExposed())
@@ -242,7 +242,7 @@ void AKeeperOfTime::Refresh(const FKeeperFightModel& Model, float TimeSeconds)
 			&& Model.GetStage() != EKeeperStage::Idle && Model.GetStage() != EKeeperStage::Recovery;
 		Slot.Body->SetHittable(bAlive && !bExtended);
 		Slot.Head->SetHittable(bExtended);
-		PlaceVisual(Slot.Visual, AnchorXZ + Slot.Offset, T.MechanismHalfExtent, bAlive ? KeeperLook::Body : KeeperLook::Broken, !bAlive);
+		PlaceVisual(Slot.Visual, AnchorXZ + Slot.Offset, T.MechanismHalfExtent, bAlive ? KeeperLook::Body : KeeperLook::Broken, bAlive ? EKeeperCubeState::Default : EKeeperCubeState::StateCue);
 		if (bExtended)
 		{
 			Slot.Head->SetWorldLocation(ToWorld(Model.GetHeadPosition()));
