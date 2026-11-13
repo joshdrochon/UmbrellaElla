@@ -24,6 +24,7 @@ DEFAULT_MODEL=claude-sonnet-5-5   # Josh, Nov 12 evening: Sonnet by default; esc
 MODEL="${WORKER_MODEL:-$DEFAULT_MODEL}"
 # Image spend (Josh Spend OK): one counter shared by every worker on this Mac, one hard total cap set by the lead.
 export UE_SLOTS="${UE_SLOTS:-2}"   # workers share 2 engine slots even through a lane's older ue_slot.sh copy (the gate has its own)
+export CRITIC_CONTEXT=full   # Josh, Nov 13: critics run with full context
 export IMAGE_SPEND_FILE="$BASE/logs/image-spend.json"
 [ -f "$BASE/logs/image-cap-usd.txt" ] && export IMAGE_SPEND_CAP_USD="$(cat "$BASE/logs/image-cap-usd.txt")"
 export AUDIO_SPEND_FILE="$BASE/logs/audio-spend.json"
@@ -57,8 +58,9 @@ for attempt in range(3):
     if (rc not in (143, 137) and rc >= 0) or os.path.exists(os.environ["WORKER_STOP"]):
         break
     log.write("WORKER_RESUME after outside kill (run %d)\n" % (attempt + 2)); log.flush(); time.sleep(20)
-    prompt = ("Lead: your previous session was killed from outside mid-work. Resume exactly where your status file and git log "
-              "say you were; commit anything finished first. Original brief follows.\n\n" + os.environ["WORKER_PROMPT"])
+    # the brief stays first, so every liveness check (it matches the opening of the brief) still sees the worker
+    prompt = (os.environ["WORKER_PROMPT"] + "\n\nLead: your previous session was killed from outside mid-work. Resume exactly "
+              "where your status file and git log say you were; commit anything finished first.")
 log.close()
 ' >/dev/null 2>&1 &
 echo "$A worker ($MODEL) pid $! worktree $WT log $BASE/logs/$A.log"

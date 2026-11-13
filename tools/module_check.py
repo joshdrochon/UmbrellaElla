@@ -671,7 +671,7 @@ def enclosing_calls(code, pos):
             if ch == "{":
                 break
             if ch == "(":
-                m = re.search(r"(\w+)\s*(?:<[^<>;]*(?:<[^<>;]*>)?[^<>;]*>)?\s*$", code[:k])
+                m = re.search(r"(\w+)\s*(?:<[^<>;]*(?:<[^<>;]*>)?[^<>;]*>)?\s*$", code[max(0, k - 200):k])   # bounded: the unbounded search backtracked for minutes on long files
                 names.append(m.group(1) if m else None)
         elif ch == ";" and depth == 0:
             break
