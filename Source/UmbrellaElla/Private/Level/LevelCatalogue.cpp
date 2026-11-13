@@ -13,21 +13,21 @@ namespace
 
 	TArray<FChunkVariant> BuildAll()
 	{
-		using M = EChunkMechanic;
+		using ECatMech = EChunkMechanic;
 		// mechanics per authored chunk (A and B share the set; arrangement differs).
-		const TArray<TArray<M>> PerChunk = {
-			{M::Column},				// CH01 drop and catch
-			{M::Warden},				// CH02 rooftop line
-			{M::Courier},				// CH03 yellow crossing
-			{M::Stilt},					// CH04 underbridge
-			{M::Mill},					// CH05 over and under
-			{M::Mill},					// CH06 countercurrent mill
-			{M::Shutter},				// CH07 shutter pocket
-			{M::Bellows},				// CH08 bellows lane
-			{M::BridgeTooth},			// CH09 eave transfer
-			{M::Column},				// CH10 switchback
-			{M::Warden, M::Mill},		// CH11 warden and mill
-			{M::Stilt, M::Courier}		// CH12 stilt and courier
+		const TArray<TArray<ECatMech>> PerChunk = {
+			{ECatMech::Column},				// CH01 drop and catch
+			{ECatMech::Warden},				// CH02 rooftop line
+			{ECatMech::Courier},				// CH03 yellow crossing
+			{ECatMech::Stilt},					// CH04 underbridge
+			{ECatMech::Mill},					// CH05 over and under
+			{ECatMech::Mill},					// CH06 countercurrent mill
+			{ECatMech::Shutter},				// CH07 shutter pocket
+			{ECatMech::Bellows},				// CH08 bellows lane
+			{ECatMech::BridgeTooth},			// CH09 eave transfer
+			{ECatMech::Column},				// CH10 switchback
+			{ECatMech::Warden, ECatMech::Mill},		// CH11 warden and mill
+			{ECatMech::Stilt, ECatMech::Courier}		// CH12 stilt and courier
 		};
 		TArray<FChunkVariant> Out;
 		for (int32 I = 0; I < PerChunk.Num(); ++I)
