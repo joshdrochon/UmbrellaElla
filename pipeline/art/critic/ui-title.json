@@ -371,6 +371,47 @@
    "commit": "04051fef0b71",
    "gap": "X is smoother and more digital, with less etched ink detail and paper grain. Its clock hands also collide with the title and subtitle.; Both are the same painted scene, with a cold blue-grey mist that breaks the two-accent palette and a title lockup that isn't etched into the scene.",
    "at": "2026-11-13T07:07:40Z"
+  },
+  {
+   "piece": "ui-title",
+   "round": 17,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "ours",
+    "reference": "reference"
+   },
+   "panel": 3,
+   "calibration": {
+    "sessions": 6,
+    "passed": 6
+   },
+   "missing": [
+    "reference:pipeline/art/reference/discord/20261112-0443_Ricky_title-screen.png"
+   ],
+   "critic_sessions": [
+    "ui-title-r17-00-reference-c1",
+    "ui-title-r17-00-reference-c2",
+    "ui-title-r17-00-reference-c3",
+    "ui-title-r17-01-quality_bar-c1",
+    "ui-title-r17-01-quality_bar-c2",
+    "ui-title-r17-01-quality_bar-c3"
+   ],
+   "manifest": "",
+   "evidence": "",
+   "prompt": "",
+   "files": "02796f1c7a9f13868183cfe8d0b4cd4f2cc2de97ce3226ad293abbb039537425",
+   "file": "pipeline/art/proof/artui/ui-title/capture_title_r19.png",
+   "card": "artui",
+   "refs": "669f6f2ac14d",
+   "commit": "b83b26a843f2",
+   "gap": "X is cropped at the left edge (\"MBRELLA\", \"ART GAME\", \"RECTOR'S CUT\" are cut off), so the layout and lettering are broken.; X crops the title and menu items off the left edge, and its lettering is a plain display face with no etched feel. Y's lockup, menu and finish are intact.",
+   "at": "2026-11-13T12:20:37Z"
   }
  ]
 }

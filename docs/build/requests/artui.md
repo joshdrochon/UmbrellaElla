@@ -40,3 +40,6 @@ Defeat, Credits, Story, Purchase, LevelUp, Statistics and the HUD cannot be capt
 (a context-free pair still needs a fresh in-engine capture of the screen). Request: a `-SmokeScreen=<EFlowScreen name>` switch in the
 smoke hook that opens that flow screen before the shot (Smoke lane; the screens already exist in `Flow/FlowRules.h`).
 Until then my loop only continues on ui-title (not passed: reference pair lost r8-r17).
+
+## 5. Escalate artui to Opus (worker-rules: repeat failures)
+ui-title has lost the reference pair on the same gap (smooth lettering, no etched/distressed feel) for about 10 rounds; triage says work (calibration 6/6, quality-bar pair won, capture is 1920x1080 and uncropped). Restart with `WORKER_MODEL=claude-opus-5-5 tools/build/start_area.sh artui "..."`. Remaining image budget is about $5.5 shared.

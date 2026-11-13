@@ -159,3 +159,10 @@ missing the agent-play script on main (not my lane).
 - Correction: `-UIShots=<folder>` (UIShotSubsystem) is the per-screen capture switch; request 4 (`-SmokeScreen`) is not needed.
 - r18 critic records committed: 6 screens judged, reference wins on all (lettering/paper texture). Still 0 passed by my pieces.
 - Next: panel/lettering rounds on those 6 screens using r19 captures.
+
+## Resume 4 (13 Nov, artui worker)
+- Main merged (up to date). ui-title r17 on the 1920x1080 capture (`pipeline/art/proof/artui/ui-title/capture_title_r19.png`): checks pass (art_ref 0.916, screen_check, art_check), calibration 6/6, quality_bar: ours, reference: reference. Gap: plain display face, no etched feel next to the reference lockup (the "cropped at left edge" line is wrong for our frame: the capture is not cropped, checked by eye; critic noise). NOT passed.
+- Triage: work, not check (calibration 6/6, bar pair won). Same gap since r8, about 10 rounds flat on the reference pair. By worker-rules this is an Opus restart for the lead, not another Sonnet round.
+- Derived screens (pause, settings, credits, defeated, story, tutorial, hud) share this base and lose on the same gap; judging them before the title passes only repeats it. Not re-run.
+- Spend: none this session. Shared counter $28.27 of $33.82, about $5.5 left across all lanes; not spent on a sixth lettering attempt on Sonnet.
+- Next (Opus worker): hand-painted, distressed title lettering with a clock-hand flourish as the reference has (current lockup is smoother), then re-panel the title, then the derived screens on the diff only.
