@@ -142,8 +142,6 @@ namespace VfxCatalog
 
 	/** Frame shown after Elapsed seconds of game time: wraps for a loop, holds the last frame for a one-shot. */
 	UMBRELLAELLA_API int32 FrameAt(const FVfxArtRow& Row, float Elapsed);
-	/** As above; a looping row holds frame 0 under reduced motion (reduced motion). */
-	UMBRELLAELLA_API int32 FrameAt(const FVfxArtRow& Row, float Elapsed, bool bReducedMotion);
 
 	/** True when a one-shot has shown its last frame. A loop never finishes by itself. */
 	UMBRELLAELLA_API bool IsFinished(const FVfxArtRow& Row, float Elapsed);

@@ -7,7 +7,6 @@
 #include "Engine/Engine.h"
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
-#include "Feedback/Vfx/VfxCatalog.h"
 #include "Misc/Paths.h"
 #include "Settings/DeveloperOptions.h"
 #include "Settings/SettingsConstants.h"
@@ -271,16 +270,10 @@ bool FSettingsAccessLiveTest::RunTest(const FString& Parameters)
 	TestEqual(TEXT("camera shake readers get 0"), UmbrellaAccessibility::GetShakeScale(World), 0.0f);
 	TestTrue(TEXT("readers see reduced flash"), UmbrellaAccessibility::IsReducedFlash(World));
 	TestEqual(TEXT("readers see 150% text"), UmbrellaAccessibility::GetTextScale(World), 1.5f);
-	// World-free readers (Slate menus, story text, HUD numerals, backdrop, VFX loops) see the same saved values.
+	// World-free readers (Slate, subsystems with no world context) see the same saved values.
 	TestEqual(TEXT("published text 150%"), UmbrellaAccessibility::PublishedTextScalePercent(), 150);
 	TestEqual(TEXT("flow menu font 28 -> 42"), UmbrellaAccessibility::PublishedFontSize(28), 42);
 	TestTrue(TEXT("published reduced motion"), UmbrellaAccessibility::IsPublishedReducedMotion());
-	const FVfxArtRow* LoopRow = VfxCatalog::Find(TEXT("SmallBlastTravel"));
-	if (TestNotNull(TEXT("looping vfx row"), LoopRow))
-	{
-		TestEqual(TEXT("loop holds frame 0 under reduced motion"), VfxCatalog::FrameAt(*LoopRow, 0.37f, UmbrellaAccessibility::IsPublishedReducedMotion()), 0);
-		TestEqual(TEXT("loop animates at full motion"), VfxCatalog::FrameAt(*LoopRow, 0.37f, false), VfxCatalog::FrameAt(*LoopRow, 0.37f));
-	}
 
 	Subsystem->EditSession().SetReducedMotion(false);
 	Subsystem->SaveSettings(ESettingsPage::Sound);

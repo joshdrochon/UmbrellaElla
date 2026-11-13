@@ -1,6 +1,6 @@
 #include "Feedback/Vfx/VfxCatalog.h"
 #include "Core/UmbrellaDrawOrder.h"
-#include "Harness/UmbrellaFeatureFlags.h"
+
 TConstArrayView<FVfxArtRow> VfxCatalog::Rows()
 {
 	return MakeArrayView(VfxCatalogData::Rows);
@@ -47,12 +47,6 @@ int32 VfxCatalog::FrameAt(const FVfxArtRow& Row, float Elapsed)
 	}
 	const int32 Raw = FMath::FloorToInt32(FMath::Max(Elapsed, 0.0f) * Row.Fps);
 	return Row.bLoop ? Raw % Row.Frames : FMath::Min(Raw, Row.Frames - 1);
-}
-
-int32 VfxCatalog::FrameAt(const FVfxArtRow& Row, float Elapsed, bool bReducedMotion)
-{
-	// Reduced motion: a looping effect holds one still frame; one-shots still play, they are short feedback.
-	return (bReducedMotion && Row.bLoop && IsFeatureEnabled(EFeatureId::VFX_10)) ? 0 : FrameAt(Row, Elapsed);
 }
 
 bool VfxCatalog::IsFinished(const FVfxArtRow& Row, float Elapsed)

@@ -69,7 +69,7 @@ void USettingsMenuSubsystem::HandleWorldInit(UWorld* World)
 void USettingsMenuSubsystem::ApplyReducedFlash()
 {
 	const FUmbrellaSettingsData& SavedNow = Session.GetSaved();
-	UmbrellaAccessibility::PublishSaved(SavedNow.TextScalePercent, SavedNow.bReducedMotion, SavedNow.bReducedFlash);
+	UmbrellaAccessibility::PublishSaved(SavedNow.TextScalePercent, SavedNow.bReducedMotion);
 	const UGameInstance* GameInstance = GetGameInstance();
 	ApplyReducedFlashToWorld(GameInstance ? GameInstance->GetWorld() : nullptr, Session.GetSaved());
 }
@@ -226,7 +226,7 @@ void USettingsMenuSubsystem::ReloadFromStore()
 	FUmbrellaSettingsData Loaded;
 	SettingsStore::Read(StorePath, Loaded);
 	Session = FSettingsSession(Loaded);
-	UmbrellaAccessibility::PublishSaved(Loaded.TextScalePercent, Loaded.bReducedMotion, Loaded.bReducedFlash);
+	UmbrellaAccessibility::PublishSaved(Loaded.TextScalePercent, Loaded.bReducedMotion);
 	// Developer options are never in the file, so a reload also returns the live tuning to "as tuned".
 	RefreshLiveTuning();
 }

@@ -23,7 +23,7 @@ namespace
 	bool bPublishedMotion = false;
 }
 
-void UmbrellaAccessibility::PublishSaved(int32 TextPercent, bool bReducedMotion, bool bReducedFlash)
+void UmbrellaAccessibility::PublishSaved(int32 TextPercent, bool bReducedMotion)
 {
 	PublishedPercent = FMath::Clamp(TextPercent, SettingsConstants::TextScaleMin, SettingsConstants::TextScaleMax);
 	bPublishedMotion = bReducedMotion;

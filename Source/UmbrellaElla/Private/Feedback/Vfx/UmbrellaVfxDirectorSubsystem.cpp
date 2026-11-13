@@ -24,7 +24,6 @@
 #include "Feedback/Vfx/VfxLightPolicy.h"
 #include "Feedback/Vfx/VfxSheetVisual.h"
 #include "GameFramework/Actor.h"
-#include "Settings/UmbrellaAccessibility.h"
 #include "Harness/UmbrellaFeatureFlags.h"
 #include "Kismet/GameplayStatics.h"
 #include "Camera/PlayerCameraManager.h"
@@ -822,7 +821,7 @@ void UUmbrellaVfxDirectorSubsystem::StepShaft(float DeltaSeconds)
 		Part->SetActorLocation(Location);
 		VfxSheetVisual::Resize(Visual, Sizes[Index]);
 		VfxSheetVisual::SetOpacity(Visual, Opacities[Index]);
-		VfxSheetVisual::SetFrame(Visual, VfxCatalog::FrameAt(*Row, Clock, UmbrellaAccessibility::IsPublishedReducedMotion() && IsFeatureEnabled(EFeatureId::VFX_10)));
+		VfxSheetVisual::SetFrame(Visual, VfxCatalog::FrameAt(*Row, Clock));
 		Part->SetActorHiddenInGame(Opacities[Index] <= 0.0f);
 	}
 }
@@ -854,7 +853,7 @@ void UUmbrellaVfxDirectorSubsystem::StepLive()
 			At = FVector(Target.X, At.Y, Target.Z);
 		}
 		Actor->SetActorLocation(At);
-		int32 ShownFrame = VfxCatalog::FrameAt(*Effect.Row, Elapsed, UmbrellaAccessibility::IsPublishedReducedMotion() && IsFeatureEnabled(EFeatureId::VFX_10));
+		int32 ShownFrame = VfxCatalog::FrameAt(*Effect.Row, Elapsed);
 #if !UE_BUILD_SHIPPING
 		if (!DemoKey.IsNone() && Effect.Key == DemoKey)
 		{

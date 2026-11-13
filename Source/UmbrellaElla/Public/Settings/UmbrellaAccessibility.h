@@ -31,7 +31,7 @@ namespace UmbrellaAccessibility
 	 * Last saved values, for Slate widgets and subsystems with no world context. The settings subsystem publishes them
 	 * at load and on every Save; with none published they are the shipped defaults. Honours the accessibility feature flag.
 	 */
-	UMBRELLAELLA_API void PublishSaved(int32 TextPercent, bool bReducedMotion, bool bReducedFlash);
+	UMBRELLAELLA_API void PublishSaved(int32 TextPercent, bool bReducedMotion);
 	UMBRELLAELLA_API void ResetPublished();
 	UMBRELLAELLA_API int32 PublishedTextScalePercent();
 	UMBRELLAELLA_API float PublishedTextScale();

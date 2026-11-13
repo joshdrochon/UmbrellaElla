@@ -41,7 +41,7 @@ Evidence: not re-run after this fix; the build lead's gate runs build and tests 
 - Left: Keeper hover has no reader; screen shake does not exist.
 
 ## Merge of origin/main 7aabf929 (Nov 13, 53a93252)
-- Main's wording kept where storyinventory fixed a line; lines.csv matches source (only story-ending-page-2 differs from main: the shorter ending line, source already matches).
+- Main's wording kept where storyinventory fixed a line. (Wrong, corrected below: this merge cut story-ending-page-2 and the Director's Cut spell line; main had the full text.)
 - lane_precheck: FAIL on two tests that also fail on a clean origin/main (checked in a detached worktree): `test_story_check.RepoStoryFilesPass.test_strixon_is_denied_and_nar_is_authorized` (P-facts status GDD in the bible) and `test_assetgen_image_method.StripFrames.test_three_figures_cut_to_equal_frames_on_one_baseline`. Neither touches the settings2 lane. Needs the story lane / build lead.
 
 ## Handoff blocker B3 + Pause step 5 (Nov 13)
@@ -60,3 +60,16 @@ Evidence: not re-run after this fix; the build lead's gate runs build and tests 
   fails only because Escape already closed Settings (the script's fallback for the old bug). The 3 `shot` steps FAIL
   in this run: no PNG is written, the hook logs `out=/joanmiguel/Desktop/...` (the `/Users` prefix is lost), an
   agentplay-lane path bug. So B3 has test proof (top overlay widget is Settings) but no picture yet: agentplay to re-shoot p02.
+
+## Review fixes for B3 (Nov 13, review-settings2.txt)
+- Restored from main: `story-ending-page-2` full text ("...or perhaps something about Ella has challenged even his
+  understanding of time.", GDD line 564, bible F15) in `FlowStoryText.cpp` and `lines.csv`; Director's Cut tutorial
+  page "Shoot with J or the left mouse button. Cycle spells with [ and ] or press 1 to 4." and its `lines.csv` row with
+  the "Director's Cut only" note. The earlier status claim that the source "already matches" was wrong.
+- Lane: every edit outside `Settings/**`, `UI/Settings/**`, `Tests/Settings/**` reverted to main (Feedback/Background,
+  Feedback/Vfx, VfxCatalog, UI/Menus, UI/Story, UmbrellaHUD, UmbrellaPlayerController, rule-status VFX-10 note). The
+  reader lines, with the include-order and single-VFX_10 fixes, are request 7 in `docs/build/requests/settings2.md`.
+  So the "FLOW-45 / VFX-10 readers wired" section above no longer holds on this branch: the published API and its test
+  stay; the readers wait on their lanes.
+- `PublishSaved` lost its unused `bReducedFlash` param.
+- The earlier note that two Python tests also fail on clean main is withdrawn; the gate evidence does not show them.

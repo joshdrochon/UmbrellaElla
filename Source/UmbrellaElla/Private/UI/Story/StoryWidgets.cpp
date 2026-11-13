@@ -1,4 +1,3 @@
-#include "Settings/UmbrellaAccessibility.h"
 #include "UI/Story/StoryWidgets.h"
 #include "Story/StoryRules.h"
 #include "Core/UmbrellaTuning.h"
@@ -16,12 +15,12 @@ namespace
 {
 	FSlateFontInfo StoryFont(int32 Extra)
 	{
-		return FUmbrellaUIStyle::BodyFont(UmbrellaAccessibility::PublishedFontSize(GetDefault<UUmbrellaTuning>()->Story.MinFontSize + Extra));
+		return FUmbrellaUIStyle::BodyFont(GetDefault<UUmbrellaTuning>()->Story.MinFontSize + Extra);
 	}
 
 	FSlateFontInfo StoryDisplayFont(int32 Extra)
 	{
-		return FUmbrellaUIStyle::DisplayFont(UmbrellaAccessibility::PublishedFontSize(GetDefault<UUmbrellaTuning>()->Story.MinFontSize + Extra));
+		return FUmbrellaUIStyle::DisplayFont(GetDefault<UUmbrellaTuning>()->Story.MinFontSize + Extra);
 	}
 
 	FVector2D StoryShadow()

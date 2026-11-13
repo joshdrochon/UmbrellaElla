@@ -1,5 +1,4 @@
 #include "Feedback/Background/UmbrellaBackdropSubsystem.h"
-#include "Settings/UmbrellaAccessibility.h"
 #include "Components/StaticMeshComponent.h"
 #include "Core/UmbrellaDrawOrder.h"
 #include "Engine/StaticMesh.h"
@@ -223,14 +222,12 @@ int32 UUmbrellaBackdropSubsystem::CountCoveredStages() const
 
 void UUmbrellaBackdropSubsystem::ScrollTo(float CameraX)
 {
-	// Reduced motion (accessibility): parallax 0, every layer fixed to the camera with no relative slide.
-	const bool bStill = UmbrellaAccessibility::IsPublishedReducedMotion();
 	for (int32 Index = 0; Index < Layers.Num(); ++Index)
 	{
 		if (IsValid(Layers[Index]))
 		{
 			FVector Location = Layers[Index]->GetActorLocation();
-			Location.X = LayerXForCamera(CameraX, bStill ? 0.0f : BuiltSpecs[Index].Parallax);
+			Location.X = LayerXForCamera(CameraX, BuiltSpecs[Index].Parallax);
 			Layers[Index]->SetActorLocation(Location);
 		}
 	}

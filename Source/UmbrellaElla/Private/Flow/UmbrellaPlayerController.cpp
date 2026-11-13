@@ -1,5 +1,4 @@
 #include "Flow/UmbrellaPlayerController.h"
-#include "Settings/UmbrellaAccessibility.h"
 #include "Core/UmbrellaEvent.h"
 #include "Core/UmbrellaEventBus.h"
 #include "Core/UmbrellaGameMode.h"
@@ -812,7 +811,7 @@ void AUmbrellaPlayerController::ShowScreenWidget()
 			ScreenWidget = SNew(SBox).HAlign(HAlign_Center).VAlign(VAlign_Top).Visibility(EVisibility::HitTestInvisible)
 			[
 				SNew(STextBlock).Text(FText::FromString(TEXT("Director's Cut")))
-					.Font(FUmbrellaUIStyle::DisplayFont(UmbrellaAccessibility::PublishedFontSize(Tuning.MenuFontSize))).ColorAndOpacity(FUmbrellaUIStyle::Gold())
+					.Font(FUmbrellaUIStyle::DisplayFont(Tuning.MenuFontSize)).ColorAndOpacity(FUmbrellaUIStyle::Gold())
 					.ShadowOffset(FVector2D(UmbrellaUIStyleConstants::ShadowOffset, UmbrellaUIStyleConstants::ShadowOffset))
 					.ShadowColorAndOpacity(FUmbrellaUIStyle::Shadow())
 			];

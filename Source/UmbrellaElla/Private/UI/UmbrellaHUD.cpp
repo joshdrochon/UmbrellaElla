@@ -1,5 +1,4 @@
 #include "UI/UmbrellaHUD.h"
-#include "Settings/UmbrellaAccessibility.h"
 #include "Core/EllaCharacter.h"
 #include "Attack/AttackEmitterComponent.h"
 #include "Core/UmbrellaEvent.h"
@@ -57,7 +56,7 @@ void AUmbrellaHUD::DrawHUD()
 	if (Font)
 	{
 		const float ViewHeight = static_cast<float>(Layout.View.GetSize().Y);
-		const float Scale = ClockHudRules::TextScale(Font->GetMaxCharHeight(), ViewHeight, Tuning) * UmbrellaAccessibility::PublishedTextScale();
+		const float Scale = ClockHudRules::TextScale(Font->GetMaxCharHeight(), ViewHeight, Tuning);
 		for (int32 Quarter = 0; Quarter < ClockHudConstants::NumeralCount; ++Quarter)
 		{
 			const TCHAR* Text = NumeralText[Quarter];

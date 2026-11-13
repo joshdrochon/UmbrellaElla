@@ -1,4 +1,3 @@
-#include "Settings/UmbrellaAccessibility.h"
 #include "UI/Menus/FlowMenuWidgets.h"
 #include "Flow/FlowMenuText.h"
 #include "Flow/FlowRules.h"
@@ -46,9 +45,7 @@ int32 SFlowBackground::OnPaint(const FPaintArgs& Args, const FGeometry& Allotted
 	FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const
 {
 	const FVector2f Size = AllottedGeometry.GetLocalSize();
-	const bool bStill = UmbrellaAccessibility::IsPublishedReducedMotion();
-	// Reduced motion (accessibility): the backdrop holds still, no fall, sway or tick.
-	const float Time = bStill ? 0.0f : static_cast<float>(Args.GetCurrentTime());
+	const float Time = static_cast<float>(Args.GetCurrentTime());
 	const FSlateBrush* White = FCoreStyle::Get().GetBrush(TEXT("WhiteBrush"));
 	const FSlateRoundedBoxBrush Round(FLinearColor::White, Size.Y);
 	const FLinearColor Gold = FUmbrellaUIStyle::Gold();
@@ -141,14 +138,14 @@ void SFlowMenu::Construct(const FArguments& InArgs)
 		{
 			Column->AddSlot().AutoHeight().HAlign(HAlign_Left).Padding(TextInset, 0.0f, 0.0f, 0.0f)
 			[
-				SNew(STextBlock).Text(FText::FromString(Name)).Font(FUmbrellaUIStyle::DisplayFont(UmbrellaAccessibility::PublishedFontSize(UmbrellaUI::LockupNameSize)))
+				SNew(STextBlock).Text(FText::FromString(Name)).Font(FUmbrellaUIStyle::DisplayFont(UmbrellaUI::LockupNameSize))
 					.ColorAndOpacity(FUmbrellaUIStyle::Cream())
 					.ShadowOffset(FVector2D(UmbrellaUI::ShadowOffset, UmbrellaUI::ShadowOffset)).ShadowColorAndOpacity(FUmbrellaUIStyle::Shadow())
 			];
 			Column->AddSlot().AutoHeight().HAlign(HAlign_Left).Padding(TextInset + UmbrellaUI::LockupSubtitleInset, 0.0f, 0.0f, 0.0f)
 			[
 				SNew(STextBlock).Text(FText::FromString(Subtitle.Replace(TEXT("\n"), TEXT(" "))))
-					.Font(FUmbrellaUIStyle::DisplayFontSpaced(UmbrellaAccessibility::PublishedFontSize(UmbrellaUI::LockupSubtitleSize), UmbrellaUI::LockupSubtitleSpacing))
+					.Font(FUmbrellaUIStyle::DisplayFontSpaced(UmbrellaUI::LockupSubtitleSize, UmbrellaUI::LockupSubtitleSpacing))
 					.ColorAndOpacity(FUmbrellaUIStyle::Gold())
 					.ShadowOffset(FVector2D(UmbrellaUI::ShadowOffset, UmbrellaUI::ShadowOffset)).ShadowColorAndOpacity(FUmbrellaUIStyle::Shadow())
 			];
@@ -165,7 +162,7 @@ void SFlowMenu::Construct(const FArguments& InArgs)
 			const int32 HeadingSize = Heading.Len() > UmbrellaUI::LongHeadingLength ? FMath::Min(Tuning.TitleFontSize, UmbrellaUI::LongHeadingSize) : Tuning.TitleFontSize;
 			Column->AddSlot().AutoHeight().HAlign(HAlign_Fill).Padding(TextInset, 0.0f, 0.0f, 0.0f)
 			[
-				SNew(STextBlock).Text(InArgs._Heading).Font(FUmbrellaUIStyle::DisplayFont(UmbrellaAccessibility::PublishedFontSize(HeadingSize)))
+				SNew(STextBlock).Text(InArgs._Heading).Font(FUmbrellaUIStyle::DisplayFont(HeadingSize))
 					.ColorAndOpacity(InArgs._HeadingColor.Get(FUmbrellaUIStyle::Cream())).AutoWrapText(true)
 					.ShadowOffset(FVector2D(UmbrellaUI::ShadowOffset, UmbrellaUI::ShadowOffset)).ShadowColorAndOpacity(FUmbrellaUIStyle::Shadow())
 			];
@@ -179,7 +176,7 @@ void SFlowMenu::Construct(const FArguments& InArgs)
 	{
 		Column->AddSlot().AutoHeight().HAlign(HAlign_Fill).Padding(TextInset, 0.0f, UmbrellaUI::HeadingWidth - UmbrellaUI::ColumnWidth, UmbrellaUI::SectionGap)
 		[
-			SNew(STextBlock).Text(InArgs._Body).Font(FUmbrellaUIStyle::BodyFont(UmbrellaAccessibility::PublishedFontSize(Tuning.BodyFontSize))).ColorAndOpacity(FUmbrellaUIStyle::Cream())
+			SNew(STextBlock).Text(InArgs._Body).Font(FUmbrellaUIStyle::BodyFont(Tuning.BodyFontSize)).ColorAndOpacity(FUmbrellaUIStyle::Cream())
 				.ShadowOffset(FVector2D(UmbrellaUI::ShadowOffset, UmbrellaUI::ShadowOffset)).ShadowColorAndOpacity(FUmbrellaUIStyle::Shadow())
 				.AutoWrapText(true).Justification(ETextJustify::Left)
 		];
@@ -445,7 +442,7 @@ void SFlowTextScreen::Construct(const FArguments& InArgs)
 		[
 			SNew(SBox).WidthOverride(FMath::Min(Tuning.TextBlockWidth, UmbrellaUI::ColumnWidth))
 			[
-				SAssignNew(TextBlock, STextBlock).Font(FUmbrellaUIStyle::BodyFont(UmbrellaAccessibility::PublishedFontSize(Tuning.BodyFontSize))).ColorAndOpacity(FUmbrellaUIStyle::Cream())
+				SAssignNew(TextBlock, STextBlock).Font(FUmbrellaUIStyle::BodyFont(Tuning.BodyFontSize)).ColorAndOpacity(FUmbrellaUIStyle::Cream())
 					.ShadowOffset(FVector2D(UmbrellaUI::ShadowOffset, UmbrellaUI::ShadowOffset)).ShadowColorAndOpacity(FUmbrellaUIStyle::Shadow())
 					.AutoWrapText(true).Justification(ETextJustify::Left)
 					.RenderTransform(this, &SFlowTextScreen::GetScrollTransform)
