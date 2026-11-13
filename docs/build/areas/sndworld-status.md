@@ -22,6 +22,15 @@ onset or tail by design. Test: `tests/test_audio_loop.py::test_loop_packet_has_n
 is unchanged: no range was widened, the style check is untouched. Round 2 on the same bytes: both pass.
 This edit is outside the lane (tools/); every loop in every sound lane needs it at the gate.
 
-## Left
-P1: ClockTickLoop, AirMillLoop, RefugeLoop, WindBed. P2: MusicIntro, MusicContest, MusicDesperation, MillAmbience,
-BossApproach, RealmClocks. Import into Content/UmbrellaElla/Audio/<Id>/ (arena_audio_import.py has a fixed cue map today).
+## Also done (commits fd01ede..161dd4c, each with blind critic pass + scan + style)
+ClockTickLoop, AirMillLoop, RefugeLoop, WindBed, MillAmbience, BossApproach, RealmClocks, MusicIntro, MusicContest,
+MusicDesperation. All 12 sounds have a passing take and a provenance row. Re-checked now: audio_check --scan and
+audio_style_check show PASS for all 12 files.
+
+## Left / blocked
+Import into Content/UmbrellaElla/Audio/<Id>/: `pipeline/audio/build/sndworld_import.py` is written (own file, does not
+touch arena_audio_import.py), but the headless run
+(`ue_slot.sh UnrealEditor-Cmd <uproject> -run=pythonscript -script=... -unattended -nullrhi -nosplash -nocrashreports`)
+exits 1 after shader autogen with no import log line and no assets written. Cause not found (config/plugin: the
+PythonScriptPlugin may not be enabled in the .uproject, which is outside this lane). The build lead can run it, or
+enable the plugin. Nothing in game code references these ids yet (the cue map is in the arena lane).
