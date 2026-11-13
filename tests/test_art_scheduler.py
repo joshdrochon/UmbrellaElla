@@ -69,6 +69,20 @@ class Capacity(unittest.TestCase):
         self.assertEqual(S.capacity(15, 60, -3, 16)[0], 15)
 
 
+class RemainingUsd(unittest.TestCase):
+    def test_openrouter_calls_do_not_reduce_gemini_budget(self):
+        import tempfile, json
+        from unittest import mock
+        with tempfile.TemporaryDirectory() as t:
+            f = os.path.join(t, "spend.json")
+            json.dump({"spent_usd": 3.0, "cap_usd": 10, "calls": [
+                {"provider": "gemini", "cost_usd": 1.0}, {"provider": "openrouter", "cost_usd": 2.0},
+                {"provider": "openrouter", "cost_usd": 5.0, "refunded": True}]}, open(f, "w"))
+            with mock.patch.dict(os.environ, {"IMAGE_SPEND_FILE": f}, clear=False):
+                os.environ.pop("IMAGE_SPEND_CAP_USD", None)
+                self.assertAlmostEqual(S.remaining_usd(t), 9.0)
+
+
 class StartFailure(unittest.TestCase):
     def test_failed_start_records_no_state_and_merge_target_needs_branch(self):
         import tempfile, subprocess as sp

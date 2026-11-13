@@ -72,7 +72,7 @@ bool FMillWorldNaturalPass::RunTest(const FString& Parameters)
 	// no aids). The tell is up for the whole warning, the shot comes, she falls through the exposed band. 10 HP: one
 	// hit. 20 HP comparison (only HP changed): both exposed emissions must land.
 	const FBrokenMillTuning& T = GetDefault<UUmbrellaTuning>()->BrokenMill;
-	const FVector2D Entry(T.ActivationX.X + 10.0f, 680.0f);
+	const FVector2D Entry(T.ActivationX.X + 10.0f, T.VerticalLiftEnd.Y);
 	for (const EMillGuardProfile Profile : {EMillGuardProfile::Introduction, EMillGuardProfile::Comparison})
 	{
 		const TCHAR* Name = Profile == EMillGuardProfile::Introduction ? TEXT("10 HP") : TEXT("20 HP comparison");
@@ -190,7 +190,7 @@ bool FMillMeasureOnwardRide::RunTest(const FString& Parameters)
 	const FBrokenMillTuning& T = GetDefault<UUmbrellaTuning>()->BrokenMill;
 	const FMotorTuning& Motor = GetDefault<UUmbrellaTuning>()->Motor;
 	const float MinLift = GetDefault<UUmbrellaTuning>()->Health.MinLift;
-	const FVector2D Envelope(185.0f, 285.0f);
+	const FVector2D Envelope = FBrokenMillRules::GetLoweredStepEnvelope(T);
 	const FVector2D Start(T.FiringColumnX.X + 5.0f, (T.LowerOnwardZ.X + T.LowerOnwardZ.Y) * 0.5f);
 	for (const bool bMinLift : {false, true})
 	{

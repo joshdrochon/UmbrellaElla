@@ -34,7 +34,7 @@ Other modes (rules in style.json; detail in pipeline/art/import-rules.md):
               so every imported asset can be edited and re-exported (asset-specialist.md checklist)
   --names DIR          asset names under DIR (Content/UmbrellaElla/Art) match style.json "naming"
   --import-report F    an editor dump of texture/sprite/flipbook settings (JSON) meets "unreal_import"
-  --config DIR         Config/*.ini carry the Paper2D import defaults in "unreal_import.config"
+  --config DIR         Config/*.ini carry the Paper2D import subprocess, defaults in "unreal_import.config"
   --uproject FILE      the .uproject enables Paper2D and does not list PaperZD ("unreal_import.uproject")
   --width-ratio OPEN CLOSED   umbrella open vs closed sheet: opaque box width ratio >= sprite.umbrella_width_ratio_min
 
@@ -56,10 +56,12 @@ import configparser
 import json
 import os
 import re
+import subprocess
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from png import read_png  # noqa: E402
+import frame_register  # noqa: E402
 from art_check import DEFAULT_STYLE, delta_e, rgb_to_lab  # noqa: E402
 
 LFS_POINTER = b"version https://git-lfs"
@@ -194,7 +196,7 @@ def evaluate_frame(m, k):
 
 def check(paths, style, kind="silhouette", grid=None, size=None, frames=None, pow2=None,
           margin=0, spacing=0, loop=False, anim=None, fps=None, tile_axes="x",
-          drift_max=None, drift_reason=None, feet_rows=None):
+          drift_max=None, drift_reason=None, feet_rows=None, anchor_band=None, span_mode=None):
     sp = style["sprite"]
     if kind not in sp["kinds"]:
         raise ValueError(f"unknown kind '{kind}' (style.json has {sorted(sp['kinds'])})")
@@ -252,6 +254,24 @@ def check(paths, style, kind="silhouette", grid=None, size=None, frames=None, po
             if max(dx, dy) > lim:
                 fl.append(f"pivot: feet point (bottom-center of the lowest {n_rows} opaque rows) drifts {dx:g} px in x, "
                           f"{dy:g} px in y across frames (limit {lim}; the feet will jump)")
+    if (loop or (anim is not None and kind == "silhouette")) and len(frame_rows) > 1:
+        # jitter: anchor offset (px) and scale drift (%) between consecutive frames, limits measured on the team's
+        # reference animations (tools/frame_register.py JITTER_LIMITS). One-shots are not wrapped; loops are.
+        keep = [i for i, (_, m) in enumerate(measured) if m["visible"]]   # original frame numbers of the live frames
+        live = [(len(frame_rows[i][1][0]) if frame_rows[i][1] else 0, len(frame_rows[i][1]), frame_rows[i][1]) for i in keep]
+        band = anchor_band or (feet_rows if feet_rows is not None else sp["pivot_feet_rows"])   # what the cutter registered on
+        jit = frame_register.jitter(live, clear=sp["alpha_clear_max"], band=band, span_mode=span_mode or "base", loop=loop)
+        jit["worst"] = [keep[w] for w in jit["worst"]]
+        report["jitter"] = {k_: round(v, 2) for k_, v in jit.items() if k_ != "worst"}
+        lim = dict(frame_register.JITTER_LIMITS)
+        if drift_max is not None and (drift_reason or "").strip():   # the sidecar's reasoned pivot override covers this too
+            lim["offset_px"] = max(lim["offset_px"], drift_max)
+        if jit["offset_px"] > lim["offset_px"]:
+            fl.append(f"jitter: anchor moves {jit['offset_px']:g} px between frames {jit['worst'][0]} and "
+                      f"{jit['worst'][0] + 1} (limit {lim['offset_px']:g}; register the strip: assetgen frames)")
+        if jit["scale_pct"] > lim["scale_pct"]:
+            fl.append(f"jitter: figure scale drifts {jit['scale_pct']:.1f}% between frames {jit['worst'][1]} and "
+                      f"{jit['worst'][1] + 1} (limit {lim['scale_pct']:g}%; register the strip: assetgen frames)")
     if anim is not None:
         table = style.get("anims", {})
         row = table.get(anim) if anim != "note" else None
@@ -274,7 +294,13 @@ def sidecar_exempt(path, folder, sp):
     return any(part.lower() in exempt for part in rel.split(os.sep))
 
 
-def scan(folder, style, fail_lfs_pointer=False):
+def changed_since(base, root="."):
+    """Repo-relative paths changed between BASE and the working tree (committed, staged or not)."""
+    p = subprocess.run(["git", "diff", "--name-only", base], cwd=root, capture_output=True, text=True)
+    return {os.path.normpath(x) for x in p.stdout.split()}
+
+
+def scan(folder, style, fail_lfs_pointer=False, only=None):
     """Check every PNG under folder against its .sprite.json sidecar. Returns (reports, skipped).
     A PNG with no sidecar outside an exempt folder is a failed report, not a skip. A sidecar PNG that is
     still a Git LFS pointer is a skip, or a failed report with fail_lfs_pointer (CI after git lfs pull)."""
@@ -285,6 +311,8 @@ def scan(folder, style, fail_lfs_pointer=False):
                 continue
             p = os.path.join(d, f)
             side = os.path.splitext(p)[0] + ".sprite.json"
+            if only is not None and os.path.normpath(p) not in only and os.path.normpath(side) not in only:
+                continue   # --only-changed: a lane pre-check judges only the art it changed (the gate scans all)
             with open(p, "rb") as fh:
                 head = fh.read(len(LFS_POINTER))
             if not os.path.isfile(side):
@@ -311,7 +339,7 @@ def scan(folder, style, fail_lfs_pointer=False):
                                      meta.get("margin", 0), meta.get("spacing", 0), meta.get("loop", False),
                                      meta.get("anim"), meta.get("fps"), meta.get("tile_axes", "x"),
                                      meta.get("pivot_drift_max_px"), meta.get("pivot_drift_reason"),
-                                     meta.get("feet_rows")))
+                                     meta.get("feet_rows"), meta.get("anchor_band"), meta.get("span_mode")))
     return reports, skipped
 
 
@@ -702,6 +730,7 @@ def main(argv=None):
     ap.add_argument("--frames", type=int, help="expected number of non-empty frames")
     ap.add_argument("--pow2", action="store_true", default=None, help="require power-of-two textures")
     ap.add_argument("--scan", metavar="DIR", help="check every PNG under DIR against its .sprite.json sidecar")
+    ap.add_argument("--only-changed", metavar="BASE", help="with --scan: only PNGs (or sidecars) changed since BASE (lane pre-check)")
     ap.add_argument("--names", metavar="DIR", help="check asset names under DIR (Content/UmbrellaElla/Art)")
     ap.add_argument("--import-report", metavar="JSON", help="check an editor dump of asset import settings")
     ap.add_argument("--gate", action="store_true",
@@ -772,7 +801,8 @@ def main(argv=None):
             if not os.path.isdir(a.scan):
                 print(f"sprite_check: {'FAIL' if a.require_dir else 'SKIP'} no {a.scan}/ folder")
                 return 1 if a.require_dir else 0
-            reports, skipped = scan(a.scan, style, a.fail_lfs_pointer)
+            reports, skipped = scan(a.scan, style, a.fail_lfs_pointer,
+                                    changed_since(a.only_changed) if a.only_changed else None)
         elif a.images:
             reports, skipped = [check(a.images, style, a.kind, a.grid, a.size, a.frames, a.pow2)], []
         else:

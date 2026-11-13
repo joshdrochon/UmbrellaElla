@@ -119,6 +119,7 @@ FILE_RULES = [
     (r"^Art/Source/VFX/Raw/(VFX_\w+?)(?:_PH)?\.png$", "vfx-sheet:{1}"),
     (r"^Content/[^/]+/Art/VFX/T_(VFX_\w+?)(?:_PH)?\.uasset$", "vfx-sheet:{1}"),
     (r"^Content/[^/]+/Art/VFX/(M_VFX_\w+?)(?:_PH)?\.uasset$", "vfx-material:{1}"),
+    (r"^Content/[^/]+/Art/Ella/T_Ella_Idle(?:_PH)?\.uasset$", "ella-state:Idle"),
     (r"^Art/Source/Keeper/", "keeper:body-hover-flap"),
     (r"^Content/[^/]+/Art/Keeper/T_Keeper_Owl(?:_PH)?\.uasset$", "keeper:body-hover-flap"),
     (r"^Art/Source/UI/Font/UmbrellaStorybook\.ttf$", "ui:font"),

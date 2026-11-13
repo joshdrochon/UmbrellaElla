@@ -1,0 +1,14 @@
+{
+ "_about": "Owner approvals by eye (Josh, Nov 13). Lead-only, on main; the gate fails any lane that changes this file. An entry counts only while the file's content sha matches; the technical checks still run on it.",
+ "approvals": [
+  {
+   "piece": "ella-up-open",
+   "approver": "Josh",
+   "date": "2026-11-13",
+   "origin": "approved by Josh (watched video), 2026-11-13",
+   "file": "pipeline/art/proof/artvideo/ella-idle/Ella_idle_N24_grid.png",
+   "sha256": "b128aec4bbb9505626d218302568e065173fa3e0b539104fb9cafd8bfc80e4b5",
+   "note": "Ella idle (EEllaVisualState Idle -> ella-up-open), 24 frames as a 6x4 grid sheet from the fal Veo 3.1 Fast idle video; lands with area/artvideo 3472d166"
+  }
+ ]
+}

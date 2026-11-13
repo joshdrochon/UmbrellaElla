@@ -113,6 +113,13 @@ private:
 	UPROPERTY()
 	TObjectPtr<AWindCurrent> LowerWind;
 
+	/** The two wind volumes, found once in BuildWinds (ApplyWindEligibility runs every tick). */
+	UPROPERTY()
+	TObjectPtr<UBoxComponent> UpperVolume;
+
+	UPROPERTY()
+	TObjectPtr<UBoxComponent> LowerVolume;
+
 	UPROPERTY()
 	TWeakObjectPtr<AActor> TargetActor;
 

@@ -1124,11 +1124,10 @@
   "tuning": "FBrokenMillTuning.UpperResetZ.X"
  },
  "HAZ-06.root_envelopez": {
-  "const": "Source/UmbrellaElla/Private/Tests/BrokenMill/BrokenMillMeasureTests.cpp:Envelope"
+  "tuning": "FBrokenMillTuning.LoweredStepEnvelope.X"
  },
  "HAZ-06.value.18": {
-  "const": "Source/UmbrellaElla/Private/Tests/BrokenMill/BrokenMillMeasureTests.cpp:Envelope",
-  "index": 1
+  "tuning": "FBrokenMillTuning.LoweredStepEnvelope.Y"
  },
  "HAZ-07.takes_only": {
   "expr": "(270 - FBrokenMillTuning.MissedCurrentAssistPoint.Y) / FMotorTuning.FreeFallSpeed",
@@ -1145,18 +1144,16 @@
   "tuning": "FBrokenMillTuning.IslandUnderside"
  },
  "HAZ-08.collision_envelope": {
-  "const": "Source/UmbrellaElla/Private/Tests/BrokenMill/BrokenMillMeasureTests.cpp:Envelope"
+  "tuning": "FBrokenMillTuning.LoweredStepEnvelope.X"
  },
  "HAZ-08.value.5": {
-  "const": "Source/UmbrellaElla/Private/Tests/BrokenMill/BrokenMillMeasureTests.cpp:Envelope",
-  "index": 1
+  "tuning": "FBrokenMillTuning.LoweredStepEnvelope.Y"
  },
  "HAZ-08.root": {
-  "const": "Source/UmbrellaElla/Private/Tests/BrokenMill/BrokenMillMeasureTests.cpp:Envelope",
-  "index": 1
+  "tuning": "FBrokenMillTuning.LoweredStepEnvelope.Y"
  },
  "HAZ-08.root.2": {
-  "const": "Source/UmbrellaElla/Private/Tests/BrokenMill/BrokenMillMeasureTests.cpp:Envelope"
+  "tuning": "FBrokenMillTuning.LoweredStepEnvelope.X"
  },
  "HAZ-08.offsets": {
   "expr": "((FMotorTuning.RiseSpeed * (1 + FMotorTuning.VerticalTrimPct / 100)) + FBrokenMillTuning.LocalVerticalCompensation) / FBrokenMillTuning.LocalRestoringGain"
@@ -2088,116 +2085,72 @@
    "owner": "arena (FFieldTuning)",
    "missing": "a recovery-climb guide 'about 0.15H'",
    "was": "0.15 = recovery climb \"about 0.15H\" in the camera guideline; an authoring guide with no field"
-  },
-  "HAZ-03.guard_feet": {
-   "owner": "enemies2 (Broken Mill, FBrokenMillTuning)",
-   "missing": "guard feet x (1450); only the mesh centre x 1440 exists",
-   "was": "x of the guard feet (1450,390): FBrokenMillTuning has no feet field; the guard mesh is centred on TargetCentre.X=1440, which is not the same point, so a binding would be a guess. Z 390 equals TargetCentre.Y-TargetSize.Y/2 (see HAZ-11.proxy_atz)."
-  },
-  "HAZ-06.lowers_toz": {
-   "owner": "enemies2 (Broken Mill, FBrokenMillTuning)",
-   "missing": "centre 230 of the lowered step (only the 185-285 envelope is a test literal)",
-   "was": "230 = centre of the lowered underpass step (envelope 185-285 is 230 +/- 45); the game holds the resulting envelope as a test literal (HAZ-06.root_envelopez, bound) but not the centre/half-width pair"
-  },
-  "HAZ-06.after": {
-   "owner": "enemies2 (Broken Mill, FBrokenMillTuning)",
-   "missing": "root reopen height z 400",
-   "was": "z 400 where the root reopens after the useful firing window: an approximate design height (\"near\") next to the 402 window floor (HAZ-11.root_band, bound); the game has no field for it"
-  },
-  "HAZ-06.before": {
-   "owner": "enemies2 (Broken Mill, FBrokenMillTuning)",
-   "missing": "lowered-step half-width 45",
-   "was": "45 = half-width of the lowered step 230 +/- 45; see HAZ-06.lowers_toz: no tuning field"
-  },
-  "HAZ-06.toward": {
-   "owner": "enemies2 (Broken Mill, FBrokenMillTuning)",
-   "missing": "ascent start x 1640",
-   "was": "x 1640 where the ascent toward the exit starts (\"Rise after x 1640\"): a design coordinate with no field in FBrokenMillTuning and no test literal; HAZ-08 says to measure it"
-  },
-  "HAZ-06.value.10": {
-   "owner": "enemies2 (Broken Mill, FBrokenMillTuning)",
-   "missing": "protected root core lower z 300",
-   "was": "z 300 lower edge of the protected root core (x 260-360 is FBrokenMillTuning.ProtectedCoreX); no field for the core z range"
-  },
-  "HAZ-06.value.11": {
-   "owner": "enemies2 (Broken Mill, FBrokenMillTuning)",
-   "missing": "protected root core upper z 780",
-   "was": "z 780 upper edge of the protected root core; see HAZ-06.value.10"
-  },
-  "HAZ-06.value.6": {
-   "owner": "enemies2 (Broken Mill, FBrokenMillTuning)",
-   "missing": "vertical-lift end x 330",
-   "was": "x 330 of the vertical-lift end point (330,680); no field holds the lift end"
-  },
-  "HAZ-06.value.7": {
-   "owner": "enemies2 (Broken Mill, FBrokenMillTuning)",
-   "missing": "vertical-lift end z 680 (only a test literal)",
-   "was": "z 680 of the vertical-lift end point (330,680); also the entry height of BrokenMillMeasureTests (Entry z 680), but not a named constant"
-  },
-  "HAZ-06.vertical_lift": {
-   "owner": "enemies2 (Broken Mill, FBrokenMillTuning)",
-   "missing": "vertical-lift half-width 30",
-   "was": "30 = half-width of the vertical lift ending at (330,680); no field holds it"
-  },
-  "HAZ-08.above_centre": {
-   "owner": "enemies2 (Broken Mill, FBrokenMillTuning)",
-   "missing": "lowered-step centre 230",
-   "was": "230 = centre of the lowered underpass step; see HAZ-06.lowers_toz (no field)"
-  },
-  "HAZ-08.choosex": {
-   "owner": "enemies2 (Broken Mill, FBrokenMillTuning)",
-   "missing": "chosen ascent start x 1640",
-   "was": "x 1640 chosen start of the ascent; a design coordinate with no field or test literal (\"Measure actual bends\"); same value as HAZ-06.toward"
-  },
-  "HAZ-08.margin": {
-   "owner": "enemies2 (Broken Mill, FBrokenMillTuning)",
-   "missing": "ascent start margin 24",
-   "was": "24 = margin added to 1570+23.4 to choose x 1640; a design margin with no field"
-  },
-  "HAZ-08.value.2": {
-   "owner": "enemies2 (Broken Mill, FBrokenMillTuning)",
-   "missing": "lowered-step half-width 45",
-   "was": "45 = half-width of the lowered step 230 +/- 45; see HAZ-06.before (no field)"
-  },
-  "HAZ-10.actor_scale": {
-   "owner": "motor (Core UmbrellaTuning request for a HeroSize field)",
-   "missing": "Ella actor scale 0.5 at HeroSize 1",
-   "was": "0.5 = Ella actor scale at HeroSize 1; no tuning field holds it (the muzzle offset it yields, +44/+6, is bound and currently mismatches)"
-  },
-  "HAZ-10.herosize": {
-   "owner": "motor (Core UmbrellaTuning request for a HeroSize field)",
-   "missing": "HeroSize field (reference value 1)",
-   "was": "1 = HeroSize of the reference muzzle offset; a test input, not a tuning field"
-  },
-  "HAZ-13.herosize": {
-   "owner": "motor (Core UmbrellaTuning request for a HeroSize field)",
-   "missing": "HeroSize field (upper range 1.3)",
-   "was": "1.3 = upper HeroSize of the supported range; HeroSize is a test-matrix input (BrokenMillTests GetMuzzleOffset(T, 1.3f)), not a tuning field"
-  },
-  "HAZ-14.herosize": {
-   "owner": "motor (Core UmbrellaTuning request for a HeroSize field)",
-   "missing": "HeroSize field (range 0.75-1.3)",
-   "was": "1 = HeroSize of the lowest-matrix pair in \"HeroSize 0.75/1.3\"; HeroSize is a test input (see HAZ-13.herosize)"
-  },
-  "HAZ-14.herosize.2": {
-   "owner": "motor (Core UmbrellaTuning request for a HeroSize field)",
-   "missing": "HeroSize field (lower range 0.75)",
-   "was": "0.75 = lower HeroSize of the supported range; a test input (see HAZ-13.herosize)"
-  },
-  "HAZ-14.value.2": {
-   "owner": "motor (Core UmbrellaTuning request for a HeroSize field)",
-   "missing": "HeroSize field (upper range 1.3)",
-   "was": "1.3 = upper HeroSize of the supported range; a test input (see HAZ-13.herosize)"
-  },
-  "HAZ-14.across": {
-   "owner": "motor (hitbox scale field)",
-   "missing": "hitbox scale field (upper 1)",
-   "was": "1 = upper hitbox scale of \"hitbox 0.75/1\"; a test-matrix input, no tuning field"
-  },
-  "HAZ-14.hitbox": {
-   "owner": "motor (hitbox scale field)",
-   "missing": "hitbox scale field (lower 0.75)",
-   "was": "0.75 = lower hitbox scale of \"hitbox 0.75/1\"; a test-matrix input, no tuning field"
   }
+ },
+ "HAZ-03.guard_feet": {
+  "expr": "FBrokenMillTuning.GuardFeetX"
+ },
+ "HAZ-06.lowers_toz": {
+  "tuning": "FBrokenMillTuning.LowerOnwardCentreZ"
+ },
+ "HAZ-08.above_centre": {
+  "tuning": "FBrokenMillTuning.LowerOnwardCentreZ"
+ },
+ "HAZ-06.before": {
+  "tuning": "FBrokenMillTuning.LoweredStepHalfWidth"
+ },
+ "HAZ-08.value.2": {
+  "tuning": "FBrokenMillTuning.LoweredStepHalfWidth"
+ },
+ "HAZ-06.after": {
+  "tuning": "FBrokenMillTuning.RootReopenZ"
+ },
+ "HAZ-06.toward": {
+  "tuning": "FBrokenMillTuning.AscentStartX"
+ },
+ "HAZ-08.choosex": {
+  "tuning": "FBrokenMillTuning.AscentStartX"
+ },
+ "HAZ-08.margin": {
+  "tuning": "FBrokenMillTuning.AscentStartMargin"
+ },
+ "HAZ-06.value.10": {
+  "tuning": "FBrokenMillTuning.ProtectedCoreZ.X"
+ },
+ "HAZ-06.value.11": {
+  "tuning": "FBrokenMillTuning.ProtectedCoreZ.Y"
+ },
+ "HAZ-06.value.6": {
+  "tuning": "FBrokenMillTuning.VerticalLiftEnd.X"
+ },
+ "HAZ-06.value.7": {
+  "tuning": "FBrokenMillTuning.VerticalLiftEnd.Y"
+ },
+ "HAZ-06.vertical_lift": {
+  "tuning": "FBrokenMillTuning.VerticalLiftHalfWidth"
+ },
+ "HAZ-14.herosize": {
+  "tuning": "FMotorTuning.HeroSize"
+ },
+ "HAZ-14.across": {
+  "tuning": "FMotorTuning.HitboxScaleMax"
+ },
+ "HAZ-10.actor_scale": {
+  "tuning": "FMotorTuning.ActorScaleAtReference"
+ },
+ "HAZ-13.herosize": {
+  "tuning": "FMotorTuning.HeroSizeMax"
+ },
+ "HAZ-14.value.2": {
+  "tuning": "FMotorTuning.HeroSizeMax"
+ },
+ "HAZ-10.herosize": {
+  "tuning": "FMotorTuning.HeroSize"
+ },
+ "HAZ-14.herosize.2": {
+  "tuning": "FMotorTuning.HeroSizeMin"
+ },
+ "HAZ-14.hitbox": {
+  "tuning": "FMotorTuning.HitboxScaleMin"
  }
 }
