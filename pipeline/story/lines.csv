@@ -59,7 +59,7 @@ ui-settings-game-options-remap-controls,button,Remap controls,,yes,screen=settin
 ui-settings-game-options-menu-background-motion,label,Menu background motion,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
 ui-settings-game-options-off,button,Turn off,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
 ui-settings-game-options-open,button,Open,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
-ui-settings-controller-shoot,label,Small Blasts,,yes,screen=settings-controller; where=SettingsModel.cpp
+ui-settings-controller-shoot,label,Shoot,,yes,screen=settings-controller; where=SettingsModel.cpp
 ui-settings-controller-absorb,label,Absorb,,yes,screen=settings-controller; where=SettingsModel.cpp
 ui-settings-controller-hop,label,Hop,,yes,screen=settings-controller; where=SettingsModel.cpp
 ui-settings-controller-dash-back,label,Dash back,,yes,screen=settings-controller; where=SettingsModel.cpp
@@ -115,6 +115,6 @@ ui-settings-game-options-enemy-shot-speed,label,Enemy shot speed,,yes,screen=set
 ui-settings-game-options-ella-s-hit-area,label,Ella's hit area,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
 credit-rick-rispoli-executive-producer,screen,Rick Rispoli - Executive Producer,,yes,screen=credits; where=SettingsModel.cpp
 ui-tutorial-while-dropping-shoot-with-j,screen,"While dropping, shoot with J or the left mouse button. Basic shots never run out.",,yes,screen=tutorial; where=FlowTutorialText.cpp
-ui-tutorial-shoot-with-j-or-the,screen,Shoot with J or the left mouse button. Cycle spells with [ and ] or press 1 to 4.,,yes,screen=tutorial; where=FlowTutorialText.cpp
+ui-tutorial-shoot-with-j-or-the,screen,Shoot with J or the left mouse button.,,yes,screen=tutorial; where=FlowTutorialText.cpp
 ui-settings-game-options-all-four-spells-unlocked,label,All four spells unlocked,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
 ui-settings-sound-controller-and-credits-have,screen,"Sound, Controller and Credits have their own pages.",,yes,screen=settings; where=FlowMenuText.cpp
