@@ -1,5 +1,5 @@
 # Check defect: the audio critic packet. Branch area/audiopacket. Read docs/build/worker-rules.md first.
-Triage verdict (build lead): check defect, evidence in docs/build/requests/sndtele.md on area/sndtele. The blind packet
+Triage verdict (build lead): check defect, evidence in the sndtele lane request file on area/sndtele (git show area/sndtele:docs/build/requests/sndtele.md). The blind packet
 (tools/audio_loop.py write_packet / cmd_round) gives the family target but never says which event the sound is for or
 whether it is a loop, so question A5 cannot be answered (critics guessed between Bolt, Gust and Arc); and it prints
 one-shot ranges (attack_ms, decay_s) for loops. sndworld already fixed the loop ranges on area/sndworld (8cd7f7b):
