@@ -121,3 +121,6 @@ or calibration miss; the tool says "judge again"), never a counted one.
 - Merged main: nothing new for the capture. No `-SmokeShotDelay` flag in SmokeHookSubsystem; load average 49. Context pair for skyline, paper, menu-screen still impossible from this lane.
 - Uncommitted and left alone: `tools/build/art_inventory.py` (scene-texture rule, outside my lane) and untracked `Content/UmbrellaElla/Art/Scene/T_Skyline_PH.uasset`. The lead decides on the inventory rule.
 - Needs the lead (requests/artscene.md item 3 update): shot waits for first rendered frames or `-SmokeShotDelay=`. Every `_PH` stays.
+
+## Nov 13 02:50: still blocked, zero spend
+Merged main 4c3dea15. Capture with an ini override of the shot delay never got an engine slot in 10 min (killed). Details in requests/artscene.md item 3. Every `_PH` stays.

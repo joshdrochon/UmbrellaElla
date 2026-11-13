@@ -30,3 +30,8 @@ with import_art_candidate.py (works; Content/UmbrellaElla/Art/Scene/*_PH.uasset 
 The game ran at fps 0.1-3.2 (worst frame 34 s) while the gate and other workers use the machine, so no backdrop frame is drawn by 5 s.
 Ask (lead): make the shot wait for the first N rendered frames (or `-SmokeShotDelay=<s>` / tuning `Flow.SmokeShotDelaySeconds` readable from the command line), or
 run my capture when the machine is idle. Not faking a capture. Until then no piece in my lane can pass the context pair; every `_PH` stays.
+
+## 3 update (Nov 13 02:50): command-line ini override tried, no shot
+Merged main (4c3dea15). Tried `run_game.sh "-ini:Game:[/Script/UmbrellaElla.UmbrellaTuning]:Flow=(SmokeShotDelaySeconds=150.0)" -SmokeShot=...`:
+the run waited 10 min on ue_slot.sh (slots held by other lanes' imports and the gate test run) and was killed; no shot written. Whether the override
+works is untested. Ask stands: run the capture when slots are free, or add a `-SmokeShotDelay=` flag. Every `_PH` stays; zero spend.
