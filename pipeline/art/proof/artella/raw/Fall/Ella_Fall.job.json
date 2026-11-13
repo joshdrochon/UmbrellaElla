@@ -1,6 +1,6 @@
 {
  "character": "ella",
- "anim": "Open",
+ "anim": "Fall",
  "builder": "ella",
  "asset": "Ella",
  "frame_size": [
@@ -13,16 +13,16 @@
  ],
  "faces": "right",
  "px_per_unit": 70.0,
- "fps": 24,
- "loop": false,
+ "fps": 12,
+ "loop": true,
  "layout": "CHR_Witch_Cast.png",
  "poses": [
   {
    "index": 0,
    "rot": {
-    "skirt": -6.0,
-    "umbrella_arm": -90.0,
-    "wand_arm": 0.0
+    "skirt": -12.0,
+    "umbrella_arm": -150.0,
+    "wand_arm": -30.0
    },
    "canopy": 0.0,
    "lift": 0.0
@@ -30,32 +30,32 @@
   {
    "index": 1,
    "rot": {
-    "skirt": -4.0,
-    "umbrella_arm": -60.0,
-    "wand_arm": 3.3333
+    "skirt": -16.0,
+    "umbrella_arm": -145.0,
+    "wand_arm": -35.0
    },
-   "canopy": 0.3333,
-   "lift": 0.6667
+   "canopy": 0.0,
+   "lift": -1.0
   },
   {
    "index": 2,
    "rot": {
-    "skirt": -2.0,
-    "umbrella_arm": -30.0,
-    "wand_arm": 6.6667
+    "skirt": -20.0,
+    "umbrella_arm": -140.0,
+    "wand_arm": -40.0
    },
-   "canopy": 0.6667,
-   "lift": 1.3333
+   "canopy": 0.0,
+   "lift": -2.0
   },
   {
    "index": 3,
    "rot": {
-    "skirt": 0.0,
-    "umbrella_arm": 0.0,
-    "wand_arm": 10.0
+    "skirt": -16.0,
+    "umbrella_arm": -145.0,
+    "wand_arm": -35.0
    },
-   "canopy": 1.0,
-   "lift": 2.0
+   "canopy": 0.0,
+   "lift": -1.0
   }
  ],
  "colours": {
@@ -98,12 +98,12 @@
   ],
   "samples": 16
  },
- "out_dir": "Art/Source/Ella/Raw/Ella_Open_PH",
+ "out_dir": "Art/Source/Ella/Raw/Ella_Fall_PH",
  "frames": [
-  "Art/Source/Ella/Raw/Ella_Open_PH/Ella_Open_00.png",
-  "Art/Source/Ella/Raw/Ella_Open_PH/Ella_Open_01.png",
-  "Art/Source/Ella/Raw/Ella_Open_PH/Ella_Open_02.png",
-  "Art/Source/Ella/Raw/Ella_Open_PH/Ella_Open_03.png"
+  "pipeline/art/proof/artella/raw/Fall/Ella_Fall_00.png",
+  "pipeline/art/proof/artella/raw/Fall/Ella_Fall_01.png",
+  "pipeline/art/proof/artella/raw/Fall/Ella_Fall_02.png",
+  "pipeline/art/proof/artella/raw/Fall/Ella_Fall_03.png"
  ],
- "blend": "Art/Source/Ella/Raw/Ella_Open_PH/Ella_Open.blend"
+ "blend": "pipeline/art/proof/artella/raw/Fall/Ella_Fall.blend"
 }
