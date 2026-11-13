@@ -30,6 +30,8 @@ class UMBRELLAELLA_API UUmbrellaCueSubsystem final : public UWorldSubsystem
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;
+	/** D-new-music-at-launch: the title music starts when the game world begins, before the Start screen widget exists. */
+	virtual void OnWorldBeginPlay(UWorld& InWorld) override;
 
 	/** The cue name an event maps to, or NAME_None when it has no sound. */
 	static FName CueForEvent(const FUmbrellaEvent& Event);

@@ -1,5 +1,6 @@
 #include "Feedback/Audio/UmbrellaCueSubsystem.h"
 #include "Core/UmbrellaEvent.h"
+#include "Harness/UmbrellaFeatureFlags.h"
 #include "Feedback/Audio/UmbrellaCueTable.h"
 #include "Sound/SoundClass.h"
 #include "Sound/SoundConcurrency.h"
@@ -50,6 +51,17 @@ namespace
 		EUmbrellaEventType::ModeSelected,
 		EUmbrellaEventType::LevelGained,
 	};
+}
+
+void UUmbrellaCueSubsystem::OnWorldBeginPlay(UWorld& InWorld)
+{
+	Super::OnWorldBeginPlay(InWorld);
+	// D-new-music-at-launch (Josh, 13 Nov): MusicTitle plays from the first frame, with no wait for the Start screen.
+	// EnsureMusic never restarts a track already playing, so the flow controller's own call and the mode pick add nothing.
+	if (InWorld.IsGameWorld() && IsFeatureEnabled(EFeatureId::FLOW_34))
+	{
+		EnsureMusic(TEXT("MusicTitle"));
+	}
 }
 
 void UUmbrellaCueSubsystem::Initialize(FSubsystemCollectionBase& Collection)

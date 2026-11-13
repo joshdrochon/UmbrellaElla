@@ -39,7 +39,7 @@ namespace
 		AUmbrellaPlayerController* Controller = nullptr;
 		FString StorePath;
 
-		FFlowMusicWorld()
+		explicit FFlowMusicWorld(bool bSpawnController = true)
 		{
 			StorePath = FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("UmbrellaEllaTests"), TEXT("FlowMusic"), TEXT("settings.ini"));
 			SettingsStore::Delete(StorePath);
@@ -65,6 +65,14 @@ namespace
 			World->SetGameMode(FURL());
 			World->InitializeActorsForPlay(FURL());
 			World->BeginPlay();
+			if (bSpawnController)
+			{
+				SpawnController();
+			}
+		}
+
+		void SpawnController()
+		{
 			Controller = World->SpawnActor<AUmbrellaPlayerController>();
 			Controller->PlayerState = World->SpawnActor<APlayerState>();
 			Controller->KeepTutorialInMemoryOnly();
@@ -196,6 +204,24 @@ bool FFlowMusicVolumeTest::RunTest(const FString& Parameters)
 	TestEqual(TEXT("0 mutes it"), Music->SoundClassOverride ? Music->SoundClassOverride->Properties.Volume : -1.0f,
 		SettingsRules::VolumeToClassScale(Muted));
 	TestTrue(TEXT("still the same playing component"), Test.Music() == Music && Music->IsPlaying());
+	return true;
+}
+
+
+
+// D-new-music-at-launch (Josh, 13 Nov): MusicTitle is playing on the first frame after launch, before any Start screen
+// widget or flow controller exists, and the controller then adds no second start.
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFlowMusicFirstFrameTest, "UmbrellaElla.Flow.World.MusicPlayingOnFirstFrameAfterLaunch", FlowMusicFlags)
+bool FFlowMusicFirstFrameTest::RunTest(const FString& Parameters)
+{
+	FFlowMusicWorld Test(false);
+	TestTrue(TEXT("no flow controller yet: nothing but the world has begun"), Test.Controller == nullptr);
+	FlowMusicExpectTitle(*this, Test, TEXT("first frame, world begun, no controller"));
+	TestEqual(TEXT("started once"), Test.Cues()->GetMusicStartCount(), 1);
+
+	Test.SpawnController();
+	FlowMusicExpectTitle(*this, Test, TEXT("after the Start screen opens"));
+	TestEqual(TEXT("the Start screen did not restart or double it"), Test.Cues()->GetMusicStartCount(), 1);
 	return true;
 }
 
