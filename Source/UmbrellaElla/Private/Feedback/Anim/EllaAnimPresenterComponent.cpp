@@ -5,6 +5,8 @@
 #include "Core/UmbrellaEventBus.h"
 #include "Core/UmbrellaTuning.h"
 #include "Engine/StaticMesh.h"
+#include "Engine/Texture2D.h"
+#include "Feedback/Art/ArtSlot.h"
 #include "GameFramework/Actor.h"
 #include "Harness/UmbrellaFeatureFlags.h"
 #include "PaperFlipbook.h"
@@ -21,7 +23,57 @@ void UEllaAnimPresenterComponent::BindInput(UEnhancedInputComponent* Input)
 
 bool UEllaAnimPresenterComponent::IsShowingStandIn() const
 {
-	return IsValid(StandIn) && !IsValid(Flipbook);
+	return IsValid(StandIn) && !IsValid(Flipbook) && !ArtSlot::HasArt(StandIn);
+}
+
+bool UEllaAnimPresenterComponent::IsShowingArt() const
+{
+	return ArtSlot::HasArt(StandIn);
+}
+
+UTexture2D* UEllaAnimPresenterComponent::TextureForState(EEllaVisualState State) const
+{
+	if (const TObjectPtr<UTexture2D>* Found = StateTextures.Find(State))
+	{
+		if (IsValid(*Found))
+		{
+			return *Found;
+		}
+	}
+	const TObjectPtr<UTexture2D>* Idle = StateTextures.Find(EEllaVisualState::Idle);
+	return Idle ? Idle->Get() : nullptr;
+}
+
+void UEllaAnimPresenterComponent::LoadSlotArt()
+{
+	const UEnum* States = StaticEnum<EEllaVisualState>();
+	for (int32 Index = 0; Index < States->NumEnums() - 1; ++Index)
+	{
+		const FString Visual = TEXT("ella-state:") + States->GetNameStringByIndex(Index);
+		const FArtSlotRow* Row = ArtSlot::Find(*Visual);
+		if (UTexture2D* Texture = Row ? ArtSlot::LoadTexture(*Row) : nullptr)
+		{
+			StateTextures.Add(static_cast<EEllaVisualState>(States->GetValueByIndex(Index)), Texture);
+		}
+	}
+	DrawArt();
+}
+
+void UEllaAnimPresenterComponent::DrawArt()
+{
+	UTexture2D* Texture = TextureForState(VisualState);
+	const FArtSlotRow* Row = ArtSlot::Find(TEXT("ella-state:Idle"));
+	if (IsValid(StandIn) && !ArtSlot::HasArt(StandIn) && Texture && Row)
+	{
+		ArtSlot::Apply(StandIn, Texture, *Row, StandInScaleFor(VisualState));
+	}
+}
+
+void UEllaAnimPresenterComponent::SetStateTexture(EEllaVisualState State, UTexture2D* Texture)
+{
+	StateTextures.Add(State, Texture);
+	DrawArt();
+	ApplyState();
 }
 
 namespace
@@ -89,7 +141,11 @@ void UEllaAnimPresenterComponent::ApplyState()
 {
 	if (IsValid(StandIn))
 	{
-		StandIn->SetRelativeScale3D(StandInScaleFor(VisualState));
+		ArtSlot::SetBoxScale(StandIn, StandInScaleFor(VisualState));
+		if (ArtSlot::HasArt(StandIn))
+		{
+			ArtSlot::SetTexture(StandIn, TextureForState(VisualState));
+		}
 	}
 	if (IsValid(Flipbook))
 	{
@@ -177,4 +233,5 @@ void UEllaAnimPresenterComponent::BuildVisual()
 	StandIn->SetupAttachment(Owner->GetRootComponent());
 	StandIn->SetRelativeScale3D(UmbrellaPresenterConst::StandInScale);
 	StandIn->RegisterComponent();
+	LoadSlotArt();
 }
