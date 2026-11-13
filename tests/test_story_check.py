@@ -58,7 +58,7 @@ class RepoStoryFilesPass(unittest.TestCase):
         self.assertTrue(any("bad-deny" in p for p in probs), probs)
         self.assertTrue(any("bad-trademark" in p for p in probs), probs)
 
-    def test_strixon_is_denied_and_nar01_is_deferred(self):
+    def test_strixon_is_denied_and_nar_is_authorized(self):
         self.assertIn("Strixon", [d["term"] for d in rules()["deny"]])
         self.assertTrue(sc.nar_authorized(os.path.join(ROOT, sc.MANIFEST)))   # SH1.0 NAR-* records are authorized
         names = {n["name"]: n["status"] for n in bible()["names"]}

@@ -1,5 +1,5 @@
 id,surface,text,facts,ship,note
-story-opening-mother,clue,"Keep it open, Ella. It will keep you safe from the owl.",F2;P3,yes,NAR-04: Ella's mother speaks; P3 (she believes the umbrella keeps her safe)
+story-opening-mother,clue,"Mother: Keep it open, Ella. It'll protect you from the owl.",F2;P3,yes,NAR-04: Ella's mother speaks; P3 (she believes the umbrella keeps her safe)
 story-light-shadow,narration,The abyss is endless. The open umbrella's shadow follows her.,F2;P2;P4;P5,yes,"NAR-05: endless abyss (P4), shadow of the umbrella (P2, P5)"
 story-keeper-arrival,clue,The clock has one hand. The other is gone.,P1,yes,NAR-06 draft
 story-shaft-clue,clue,The umbrella was once a clock's hand.,P2,yes,NAR-06: P2 (her mother made the stolen hand into the umbrella)

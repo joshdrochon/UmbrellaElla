@@ -153,11 +153,9 @@ def nar_authorized(manifest_path):
             m = json.load(fh)
     except (OSError, ValueError):
         return False
-    for f in m.get("features") or []:
-        if f.get("feature_id") == "NAR-01":
-            return bool(f.get("implementation_authorized"))
-    return any(f.get("implementation_authorized") for f in m.get("features") or []
-               if str(f.get("feature_id", "")).startswith("NAR-"))
+    need = {"NAR-04", "NAR-05", "NAR-06", "NAR-07"}   # the rows the shipped lines cite
+    ok = {f.get("feature_id") for f in m.get("features") or [] if f.get("implementation_authorized")}
+    return need <= ok
 
 
 def read_lines(text):
