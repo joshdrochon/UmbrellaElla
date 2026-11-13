@@ -12,6 +12,8 @@
 #include "Engine/World.h"
 #include "Encounter/EncounterDirectorSubsystem.h"
 #include "Flow/UmbrellaPlayerController.h"
+#include "Level/LevelCatalogue.h"
+#include "Level/LevelPlan.h"
 #include "Level/UmbrellaLevelDirector.h"
 #include "GameFramework/PlayerState.h"
 #include "GameFramework/WorldSettings.h"
@@ -163,6 +165,100 @@ bool FFlowWorldRouteTest::RunTest(const FString& Parameters)
 		return false;
 	}
 	TestEqual(TEXT("Ella stands at checkpoint 1"), Pawn->GetActorLocation().X, LevelPlan::CheckpointStandLocation(1).X);
+	return true;
+}
+
+namespace
+{
+	/** Defeat then Retry, then let the neutral wait pass. */
+	void FlowTestRetry(AUmbrellaPlayerController* Controller)
+	{
+		Controller->ApplyCommand(EFlowCommand::PlayerDefeated);
+		Controller->ApplyCommand(EFlowCommand::Retry);
+	}
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFlowWorldRetryOnRouteTest, "UmbrellaElla.Flow.World.RetryOnRoutePlacesAtLastCheckpoint",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FFlowWorldRetryOnRouteTest::RunTest(const FString& Parameters)
+{
+	FFlowTestWorld Test;
+	Test.Controller->StartDirectorsCut();
+	AUmbrellaGameMode* Mode = Test.World->GetAuthGameMode<AUmbrellaGameMode>();
+	AUmbrellaLevelDirector* Level = Mode ? Mode->GetLevelDirector() : nullptr;
+	APawn* Pawn = Test.Controller->GetPawn();
+	if (!TestNotNull(TEXT("level director"), Level) || !TestNotNull(TEXT("Ella"), Pawn))
+	{
+		return false;
+	}
+	Level->StepFollow(LevelCatalogue::RefugeStartX(2) + 1.0f, 1);
+	TestEqual(TEXT("checkpoint 2 reached"), Level->GetCheckpointReached(), 2);
+	Pawn->SetActorLocation(FVector(LevelCatalogue::RefugeStartX(2) + 500.0f, Pawn->GetActorLocation().Y, Pawn->GetActorLocation().Z));
+	FlowTestRetry(Test.Controller);
+	TestEqual(TEXT("retry puts Ella at checkpoint 2"), Test.Controller->GetPawn()->GetActorLocation().X, LevelPlan::CheckpointStandLocation(2).X);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFlowWorldRetryAfterHandoffTest, "UmbrellaElla.Flow.World.RetryAfterHandoffKeepsEllaInArena",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FFlowWorldRetryAfterHandoffTest::RunTest(const FString& Parameters)
+{
+	FFlowTestWorld Test;
+	Test.Controller->StartDirectorsCut();
+	AUmbrellaGameMode* Mode = Test.World->GetAuthGameMode<AUmbrellaGameMode>();
+	AUmbrellaLevelDirector* Level = Mode ? Mode->GetLevelDirector() : nullptr;
+	APawn* Pawn = Test.Controller->GetPawn();
+	if (!TestNotNull(TEXT("level director"), Level) || !TestNotNull(TEXT("Ella"), Pawn))
+	{
+		return false;
+	}
+	const float HandoffX = LevelPlan::KeeperHandoffX() + 1.0f;
+	Level->StepFollow(HandoffX, 1);
+	TestTrue(TEXT("handed off to the Keeper"), Level->HasHandedOff());
+	Pawn->SetActorLocation(FVector(HandoffX, Pawn->GetActorLocation().Y, Pawn->GetActorLocation().Z));
+	FlowTestRetry(Test.Controller);
+	TestEqual(TEXT("the route checkpoint does not move Ella after the handoff"), static_cast<float>(Test.Controller->GetPawn()->GetActorLocation().X), HandoffX);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFlowWorldRefugePurchaseTest, "UmbrellaElla.Flow.World.RefugeOffersPurchaseScreen",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FFlowWorldRefugePurchaseTest::RunTest(const FString& Parameters)
+{
+	FFlowTestWorld Test;
+	Test.Instance->Init();
+	UProgressionSubsystem* Progression = UProgressionSubsystem::Get(Test.World);
+	if (!TestNotNull(TEXT("progression subsystem"), Progression))
+	{
+		return false;
+	}
+	Progression->UseSaveSlot(FString());
+	Test.Controller->SetPlayer(NewObject<ULocalPlayer>(GEngine, GEngine->LocalPlayerClass));
+	Test.Controller->StartDirectorsCut();
+	AUmbrellaGameMode* Mode = Test.World->GetAuthGameMode<AUmbrellaGameMode>();
+	AUmbrellaLevelDirector* Level = Mode ? Mode->GetLevelDirector() : nullptr;
+	if (!TestNotNull(TEXT("level director"), Level) || !TestEqual(TEXT("playing"), Test.Controller->GetScreen(), EFlowScreen::Playing))
+	{
+		return false;
+	}
+	Progression->BeginShadowProgress(10);
+	Test.Controller->TickFlow(0.1f);
+	TestEqual(TEXT("checkpoint 1 was served at run start"), Test.Controller->GetScreen(), EFlowScreen::Playing);
+	Level->StepFollow(LevelCatalogue::RefugeStartX(2) + 1.0f, 1);
+	Test.Controller->TickFlow(0.1f);
+	TestEqual(TEXT("reaching refuge 2 opens the purchase screen"), Test.Controller->GetScreen(), EFlowScreen::Purchase);
+	TestTrue(TEXT("it is the refuge screen"), Test.Controller->IsPurchaseAtRefuge());
+	TestEqual(TEXT("purchase context is a safe refuge"), Progression->GetPurchaseContext().Kind, EPurchaseContextKind::SafeRefuge);
+	Test.Controller->ApplyCommand(EFlowCommand::Back);
+	TestEqual(TEXT("done returns to the run"), Test.Controller->GetScreen(), EFlowScreen::Resuming);
+	TestEqual(TEXT("purchases close outside a refuge"), Progression->GetPurchaseContext().Kind, EPurchaseContextKind::None);
+	for (int32 Step = 0; Step < 20 && Test.Controller->GetScreen() == EFlowScreen::Resuming; ++Step)
+	{
+		Test.Controller->TickFlow(0.5f);
+	}
+	Test.Controller->TickFlow(0.1f);
+	TestEqual(TEXT("it is not offered twice for one refuge"), Test.Controller->GetScreen(), EFlowScreen::Playing);
+	Progression->EndShadowProgress();
 	return true;
 }
 

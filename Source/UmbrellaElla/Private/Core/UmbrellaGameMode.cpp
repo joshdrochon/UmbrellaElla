@@ -86,7 +86,8 @@ void AUmbrellaGameMode::BeginRoute(APlayerController* Player, int64 Seed)
 
 void AUmbrellaGameMode::PlaceAtLastCheckpoint(APlayerController* Player)
 {
-	if (LevelDirector && Player)
+	// After the Keeper handoff the encounter's own retry checkpoint decides where Ella stands.
+	if (LevelDirector && Player && !LevelDirector->HasHandedOff())
 	{
 		LevelDirector->PlaceAtCheckpoint(Player->GetPawn(), FMath::Max(1, LevelDirector->GetCheckpointReached()));
 	}
