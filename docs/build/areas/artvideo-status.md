@@ -21,3 +21,8 @@ Not run:
 - In-game slot load (import_art_candidate.py, ella-state:idle): not run. It writes T_Ella_Idle_PH.uasset under Content (other lane), and the single-row strip is 11544 px wide, past 8192. Decision for Josh: lean a 6x4 grid sheet (2886 x 2616) for import; QA/integrator runs the in-engine load.
 - Blind panel (art_loop.py) on the 24 strip not run.
 - The Ella_idle.report.json in the repo still describes N8/N12; the 24 run's report was not copied over it.
+
+## After merging origin/main (8490c5dd)
+- Conflicts in docs/build/art-image-model.md and tools/assetgen.py resolved keeping both sides (video + batch commands, video-from-animation section + shared layers).
+- Re-run with main's new jitter check in sprite_check.py: `sprite_check.py --kind silhouette --grid 481x654 --frames 24 Ella_idle_N24_strip.png` = PASS (24 frames, fringe 0, halo 0, border 0; no jitter FAIL). It took 9m40s wall on the loaded machine.
+- `python3 -m unittest tests.test_video_to_strip`: OK. Strip sha256 unchanged: be885f4d3427762e32cfb4cdf2d6926ae6c46f100c7260a65919e49dccf8e224.
