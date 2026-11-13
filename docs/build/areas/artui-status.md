@@ -94,3 +94,18 @@ missing `tools/build/agent_play.py` on main (not my lane).
 - Ground r3 (a, b) painted from r1 as input ($0.278, spent $8.935 of $33.82; prompt_r3.md). r3a (darker, border cropped, 2640x1485) shipped as the `_PH` ground; r3b kept in proof/ (paper frame too heavy).
 - Panel on ui-title (1280x720, r3a): calibration 5/6, quality_bar pair ours wins, reference pair: reference wins. Gap (both sessions): "smoother digital finish, no inked line or paper grain; plain lettering next to the etched clock-hand lockup". Triage: work (lettering + grain), not capture size.
 - Next: etched/distressed lettering in build_font.py plus a paper-grain overlay in the ground painter.
+
+## Rounds 10-13 (12 Nov, artui worker)
+- R10: font edge roughened (`INK_JITTER`, fixed hash; font tests pass). Gap unchanged: "plain lettering, no grain".
+- Triage: the reference is a painted, ornate lockup with a clock-hand flourish; typeset text cannot match it. Work, not the check
+  (critic calibration 5/6 to 6/6, quality-bar pair already won by ours).
+- Painted title lockup (2 candidates, $0.278; prompt.md + prompt-review.md in `pipeline/art/proof/artui/ui-title-lockup/`):
+  `lockup_a` keyed to alpha by `Art/Source/UI/Lockup/build_lockup.py` -> `T_UI_TitleLockup_PH`; `SFlowMenu` draws it for the title
+  heading and falls back to the typeset text when the texture is missing. Provenance rows added.
+- Tiled grain overlay `T_UI_Grain_PH` (`Art/Source/UI/Grain/build_grain.py`), drawn over the ground by `PaintGround`.
+- R11 (lockup in): calibration 6/6, reference still wins 3/3: "cleaner, more digital; no grain; bright amber sky".
+- R12/R13 (grain in): calibration 3/6 and 4/6, only 1 calibrated session on the reference pair, it picks the reference ("flatter,
+  digital, pasted together"). Critic noise is high; no valid pass yet. Shipped `_PH` stays until a pass.
+- Spend: $9.774 of $33.82 total (this lane $3.0 across r1-r3 and the lockup).
+- Next: (1) lettering wear on the lockup (grain drawn over it too, or re-paint with heavier chipping), (2) mute the amber sky in
+  the ground, (3) re-panel; then panel the other 11 screens (none judged yet).
