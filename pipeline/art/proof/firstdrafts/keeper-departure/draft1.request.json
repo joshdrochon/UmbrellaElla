@@ -1,0 +1,39 @@
+{
+ "provider": "gemini",
+ "tier": "draft",
+ "tool": "Gemini API image generation (Google)",
+ "model": "gemini-2.5-flash-image",
+ "openrouter_model": null,
+ "fal_model": null,
+ "model_version": "gemini-2.5-flash-image",
+ "prompt": "A wide picture for a 2D game, piece keeper-departure. The Keeper is a crownless fabricated metal owl in side profile: rigid perforated vane wings, exactly two feet, a chest clock with one long hand, three distinct mechanisms hanging on their own chains (front armillary, middle cage, rear gear), dark iron, bronze and brass with warm amber eyes. The Keeper leaves alive, not defeated: it spreads its vane wings and rises away upward, drifting off with a calm, still-intact body, side view, shown as three poses in a row. The background is one perfectly flat, even, pure green #00FF00 from edge to edge, the shapes cut cleanly against it, and the shapes use no green. The canvas holds only the subject floating on the green, nothing else, no text.  Style: a dark painterly etched storybook illustration, ink and wash with fine etched cross-hatching and a faint paper grain inside the shapes only. Large shapes have a clean near-black ink outline #171614 about 2 px wide at this size. One light source sits in front and slightly above: upper edges brighter, lower edges shaded with fine hatching. Palette: charcoal and ash-blue darks, muted sepia, bone ivory #FFF5DC, warm gold #E9C46A, bronze #94611E, with only tiny accents of crimson #FF3658. ",
+ "seed": "",
+ "size": "1024x1024",
+ "quality": "medium",
+ "aspect_ratio": "16:9",
+ "image_size": null,
+ "input_images": [],
+ "cost_usd": 0.039091,
+ "reply": {
+  "usage": {
+   "promptTokenCount": 303,
+   "candidatesTokenCount": 1290,
+   "totalTokenCount": 1593,
+   "promptTokensDetails": [
+    {
+     "modality": "TEXT",
+     "tokenCount": 303
+    }
+   ],
+   "candidatesTokensDetails": [
+    {
+     "modality": "IMAGE",
+     "tokenCount": 1290
+    }
+   ],
+   "serviceTier": "standard"
+  },
+  "finish": "STOP"
+ },
+ "date": "2026-11-13T16:51+00:00"
+}
