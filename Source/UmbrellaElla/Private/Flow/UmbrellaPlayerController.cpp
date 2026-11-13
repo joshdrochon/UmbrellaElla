@@ -653,7 +653,7 @@ void AUmbrellaPlayerController::RefreshTimedText()
 			Lines.Add(Line.ToString());
 		}
 		const float Progress = FMath::Clamp(CreditsElapsed / Tuning.CreditsSeconds, 0.0f, 1.0f);
-		TextScreen->SetText(FText::FromString(FString::Join(Lines, TEXT("\n\n"))), FMath::Lerp(-Tuning.CreditsTravel, Tuning.CreditsTravel, Progress));
+		TextScreen->SetCredits(Lines, FMath::Lerp(-Tuning.CreditsTravel, Tuning.CreditsTravel, Progress));
 	}
 }
 
