@@ -15,8 +15,13 @@ Lines (stable across runs, no line numbers):
   FAIL stale ... / FAIL broken ...       the spec file is not a fresh generation / a binding points at nothing
   EXCUSED <key> ...                      differs, but a decisions row cites the Rule ID (listed, not failing)
   UNMEASURED <key> ...                   bound to a playtest value no log reports yet (warning)
-  WARN UNBOUND rule=<ID> n=<n> keys=...  spec values no binding covers (counted; --list prints one line each)
-  MISMATCH=<n> BOUND=<n> UNBOUND=<n>     last line.  Exit 1 on any FAIL.
+  FAIL UNBOUND P0 rule=<ID> n=<n> keys=...  P0 spec values with no binding and no `unbindable` entry (a silent hole)
+  WARN UNBOUND rule=<ID> n=<n> keys=...  the same for P1/P2 (or priority-less) rows (counted; --list prints one line each)
+  FAIL unbindable ...                    an `unbindable` entry with no reason, a key the spec lacks, or one that is also bound
+  MISMATCH=<n> BOUND=<n> UNBINDABLE=<n> UNBOUND_P0=<n> UNBOUND_P1P2=<n>   last line.  Exit 1 on any FAIL.
+
+Every GDD number is bound in gdd-bindings.json, or listed in its top-level "unbindable" object {key: reason}
+(prose, a worked example, a history note: not a game value). Priority comes from the GDD row (`APPROVED_P0` -> P0).
 """
 import glob, json, os, re, sys
 
@@ -127,8 +132,9 @@ def fmt(v):
 def check(root=ROOT, spec_path=None, check_fresh=True):
     spec_path = spec_path or os.path.join(root, "docs", "build", "gdd-spec.json")
     spec = json.loads(_read(spec_path))["values"]
-    bindings = {k: v for k, v in json.loads(_read(os.path.join(root, "docs", "build", "gdd-bindings.json"))).items()
-                if not k.startswith("_")}
+    raw = json.loads(_read(os.path.join(root, "docs", "build", "gdd-bindings.json")))
+    unbindable = raw.get("unbindable", {})
+    bindings = {k: v for k, v in raw.items() if not k.startswith("_") and k != "unbindable"}
     lines, fails, mism, bound = [], 0, 0, 0
     if check_fresh and root == ROOT and gdd_spec.render() != _read(spec_path):
         lines.append("FAIL stale docs/build/gdd-spec.json differs from a fresh generation (run tools/build/gdd_spec.py)")
@@ -162,13 +168,31 @@ def check(root=ROOT, spec_path=None, check_fresh=True):
                 lines.append(f"EXCUSED {msg} (decisions row {row})")
             else:
                 lines.append(f"FAIL {msg}"); fails += 1; mism += 1
-    unbound = [k for k in spec if k not in bindings]
+    for k in sorted(unbindable):
+        why = unbindable[k]
+        if k not in spec:
+            lines.append(f"FAIL unbindable {k}: names a value the GDD spec no longer has"); fails += 1
+        elif k in bindings:
+            lines.append(f"FAIL unbindable {k}: also bound; remove one"); fails += 1
+        elif not (isinstance(why, str) and why.strip()):
+            lines.append(f"FAIL unbindable {k}: needs a reason"); fails += 1
+    listed = {k for k in unbindable if k in spec and k not in bindings}
+    unbound = [k for k in spec if k not in bindings and k not in listed]
     by_rule = {}
     for k in unbound:
-        by_rule.setdefault(spec[k]["rule"], []).append(k.split(".", 1)[1])
+        by_rule.setdefault(spec[k]["rule"], []).append(k)
+    p0 = p12 = 0
     for rule in sorted(by_rule):
-        lines.append(f"WARN UNBOUND rule={rule} n={len(by_rule[rule])} keys={','.join(by_rule[rule])}")
-    lines.append(f"MISMATCH={mism} BOUND={bound} UNBOUND={len(unbound)}")
+        keys = by_rule[rule]
+        is_p0 = any(spec[k].get("priority") == "P0" for k in keys)
+        n0 = sum(spec[k].get("priority") == "P0" for k in keys)
+        p0, p12 = p0 + n0, p12 + len(keys) - n0
+        names = ",".join(k.split(".", 1)[1] for k in keys)
+        if is_p0:
+            lines.append(f"FAIL UNBOUND P0 rule={rule} n={n0} keys={names}"); fails += 1
+        if len(keys) > n0 or not is_p0:
+            lines.append(f"WARN UNBOUND rule={rule} n={len(keys) - n0 if is_p0 else len(keys)} keys={names}")
+    lines.append(f"MISMATCH={mism} BOUND={bound} UNBINDABLE={len(listed)} UNBOUND_P0={p0} UNBOUND_P1P2={p12}")
     return lines, fails
 
 
@@ -179,10 +203,11 @@ def main(argv):
     lines, fails = check(root)
     if "--list" in argv:
         for l in list(lines):
-            m = re.match(r"WARN UNBOUND rule=(\S+) n=\d+ keys=(.*)", l)
+            m = re.match(r"(?:WARN|FAIL) UNBOUND (?:P0 )?rule=(\S+) n=\d+ keys=(.*)", l)
             if m:
                 lines.remove(l)
-                lines[-1:-1] = [f"UNBOUND {m.group(1)}.{k}" for k in m.group(2).split(",")]
+                new = [f"UNBOUND {m.group(1)}.{k}" for k in m.group(2).split(",")]
+                lines[-1:-1] = [n for n in new if n not in lines]
     print("\n".join(lines))
     return 1 if fails else 0
 

@@ -120,16 +120,66 @@ class CheckTests(unittest.TestCase):
             self.assertTrue([l for l in lines if l.startswith("FAIL stale COM-06.gone")])
             self.assertTrue([l for l in lines if l.startswith("FAIL broken COM-06.speed")])
 
-    def test_unbound_is_reported_and_counted(self):
+    def test_every_spec_value_is_bound_listed_or_counted(self):
         with Tree() as t:
             lines, _ = t.check()
-            last = lines[-1]
-            m = re.fullmatch(r"MISMATCH=(\d+) BOUND=(\d+) UNBOUND=(\d+)", last)
-            self.assertTrue(m, last)
+            m = re.fullmatch(r"MISMATCH=(\d+) BOUND=(\d+) UNBINDABLE=(\d+) UNBOUND_P0=(\d+) UNBOUND_P1P2=(\d+)", lines[-1])
+            self.assertTrue(m, lines[-1])
             spec = json.loads(gdd_check._read(t.path("docs/build/gdd-spec.json")))["values"]
-            unmeasured = len([l for l in lines if l.startswith('UNMEASURED')])
-            self.assertEqual(int(m.group(2)) + int(m.group(3)) + unmeasured, len(spec))
-            self.assertTrue([l for l in lines if l.startswith("WARN UNBOUND rule=")])
+            unmeasured = len([l for l in lines if l.startswith("UNMEASURED")])
+            self.assertEqual(sum(int(x) for x in m.groups()[1:]) + unmeasured, len(spec))
+            self.assertEqual((m.group(4), m.group(5)), ("0", "0"))
+
+    def _bindings(self, t):
+        return json.loads(gdd_check._read(t.path("docs/build/gdd-bindings.json")))
+
+    def test_unbound_p0_value_fails(self):
+        with Tree() as t:
+            b = self._bindings(t)
+            b["unbindable"].pop("SURV-07.hp_values")
+            t.write("docs/build/gdd-bindings.json", json.dumps(b))
+            lines, fails = t.check()
+            self.assertTrue([l for l in lines if l.startswith("FAIL UNBOUND P0 rule=SURV-07") and "hp_values" in l])
+            self.assertTrue(lines[-1].endswith("UNBOUND_P0=1 UNBOUND_P1P2=0"), lines[-1])
+            self.assertGreater(fails, 0)
+
+    def test_unbound_p1_value_only_warns(self):
+        with Tree() as t:
+            b = self._bindings(t)
+            b["unbindable"].pop("SURV-07.hp_values")
+            spec = json.loads(gdd_check._read(t.path("docs/build/gdd-spec.json")))
+            spec["values"]["SURV-07.hp_values"]["priority"] = "P1"
+            t.write("docs/build/gdd-bindings.json", json.dumps(b))
+            t.write("docs/build/gdd-spec.json", json.dumps(spec))
+            lines, _ = gdd_check.check(t.dir, check_fresh=False)
+            self.assertFalse([l for l in fail_lines(lines) if "UNBOUND" in l])
+            self.assertTrue([l for l in lines if l.startswith("WARN UNBOUND rule=SURV-07") and "hp_values" in l])
+            self.assertTrue(lines[-1].endswith("UNBOUND_P0=0 UNBOUND_P1P2=1"), lines[-1])
+
+    def test_unbindable_entry_with_reason_passes_and_is_counted(self):
+        with Tree() as t:
+            b = self._bindings(t)
+            n = len(b["unbindable"])
+            lines, _ = t.check()
+            self.assertIn(f"UNBINDABLE={n}", lines[-1])
+
+    def test_unbindable_needs_a_reason_and_a_real_key_and_no_double_listing(self):
+        with Tree() as t:
+            b = self._bindings(t)
+            b["unbindable"]["SURV-07.hp_values"] = "  "
+            b["unbindable"]["SURV-07.nope"] = "gone"
+            b["unbindable"]["COM-06.damage"] = "also bound"
+            t.write("docs/build/gdd-bindings.json", json.dumps(b))
+            lines = fail_lines(t.check()[0])
+            self.assertTrue([l for l in lines if l.startswith("FAIL unbindable SURV-07.hp_values: needs a reason")])
+            self.assertTrue([l for l in lines if l.startswith("FAIL unbindable SURV-07.nope")])
+            self.assertTrue([l for l in lines if l.startswith("FAIL unbindable COM-06.damage: also bound")])
+
+    def test_priority_comes_from_the_gdd_row_status(self):
+        got = dict(gdd_spec.extract("T-01", "Speed 200.", gdd_spec.priority_of("APPROVED_P0")))
+        self.assertEqual(got["T-01.speed"]["priority"], "P0")
+        self.assertEqual(gdd_spec.priority_of("OPEN"), "")
+        self.assertEqual(gdd_spec.priority_of("APPROVED_P1"), "P1")
 
     def test_playtest_binding_compares_and_reports_unmeasured(self):
         with Tree() as t:
