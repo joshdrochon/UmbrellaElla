@@ -28,3 +28,9 @@ Folder: `pipeline/art/proof/videoframes/<piece>/`. Import: `tools/build/assets/i
 - The loop window picks the end frame closest to frame 0, so one-shot clips (hurt, attack, gold-impact) lose their tail: source frames used = loop_end+1 (see `<piece>.report.json`). `loop` in the sprite.json is true for all; set it false for one-shots when importing.
 - Skipped on purpose: artvideo/ella-idle.mp4 (stand-ins lane) and artella/preview/*_preview.mp4 (previews).
 - Not run: build, capture, PRECHECK (no editor/build in this lane by lead's order). Imported: 0 of 17.
+
+## Update (lead: no build/editor here, standins imports)
+- One clip per slot, so no best-of selection was needed (no duplicates to score).
+- All 17 grids + .sprite.json + provenance rows are committed (900480c7). Removed untracked scratch copies of tool output (per-frame Ella_hurt_N24_*.png, Ella_down strip, duplicate Ella_transition grid); the tracked `<piece>_N24_grid.*` files are the deliverable.
+- Not merged with origin/main (behind 67): no import or build in this lane, so nothing depends on it.
+- Area done for cutting. Imports (0 of 17) belong to the standins lane.
