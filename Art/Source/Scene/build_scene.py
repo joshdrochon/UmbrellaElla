@@ -336,7 +336,7 @@ def gothic_layer(w, rnd, sk, hscale=1.0, dense=1.0):
             poly([(x + ww / 2 - 1, h0 + ww * 0.45), (x + ww / 2, h0 + ww * 0.45 + 20), (x + ww / 2 + 1, h0 + ww * 0.45)], sk.ink, sk.y)
             x += ww
         else:
-            ww = rnd.uniform(34, 75)
+            ww = rnd.uniform(24, 52)
             sk.block(x, ww, rnd.uniform(48, 120) * hscale, rnd)
             x += ww * rnd.uniform(0.7, 1.0)
     # central cathedral
@@ -405,6 +405,80 @@ def build_skyline(o, rnd):
     return sc, w, h
 
 
+def _smooth_field(rng, h, w, cell, amp):
+    """Low-frequency random field (bilinear up-sampled grid), values in [-amp, amp]."""
+    import numpy as np
+    gh, gw = h // cell + 3, w // cell + 3
+    g = rng.uniform(-amp, amp, (gh, gw))
+    ys, xs = np.arange(h) / cell, np.arange(w) / cell
+    y0, x0 = ys.astype(int), xs.astype(int)
+    fy, fx = (ys - y0)[:, None], (xs - x0)[None, :]
+    a, b = g[y0][:, x0], g[y0][:, x0 + 1]
+    c, d = g[y0 + 1][:, x0], g[y0 + 1][:, x0 + 1]
+    return (a * (1 - fx) + b * fx) * (1 - fy) + (c * (1 - fx) + d * fx) * fy
+
+
+def _blur(a, r):
+    import numpy as np
+    k = np.ones(2 * r + 1) / (2 * r + 1)
+    for ax in (0, 1):
+        a = np.apply_along_axis(lambda v: np.convolve(np.pad(v, r, mode="edge"), k, mode="valid"), ax, a)
+    return a
+
+
+def etch_post(path, seed, mode):
+    """Hand-made finish on a render: edge jitter, ink bleed, paper grain, hatching, rim light, window glow."""
+    import numpy as np
+    img = bpy.data.images.load(path)
+    w, h = img.size
+    px = np.array(img.pixels[:], dtype=np.float32).reshape(h, w, 4)[::-1].copy()   # top row first
+    rng = np.random.default_rng(seed)
+    # 1. hand jitter: displace sampling coords by two noise scales (wobbly, slightly torn edges)
+    dx = _smooth_field(rng, h, w, 9, 1.6) + _smooth_field(rng, h, w, 3, 0.7)
+    dy = _smooth_field(rng, h, w, 9, 1.6) + _smooth_field(rng, h, w, 3, 0.7)
+    yy, xx = np.mgrid[0:h, 0:w]
+    sy = np.clip((yy + dy).round().astype(int), 0, h - 1)
+    sx = np.clip((xx + dx).round().astype(int), 0, w - 1)
+    px = px[sy, sx]
+    a = px[..., 3]
+    rgb = px[..., :3]
+    lum = rgb.mean(axis=2)
+    ink = (a > 0.5) & (lum < 0.25)
+    gold = (a > 0.5) & (rgb[..., 0] > 0.45) & (rgb[..., 2] < 0.45)
+    # 2. ink bleed: ragged alpha edge from fine noise on a slightly blurred mask
+    ragged = _blur(a, 1) + rng.normal(0, 0.18, a.shape)
+    a = np.clip((ragged - 0.45) * 4.0, 0, 1) * (a > 0.02)
+    # 3. ink variation + paper grain + fibres in the dark mass
+    grain = rng.normal(0, 1, (h, w)).astype(np.float32)
+    fib = _blur(rng.normal(0, 1, (h, w)), 1) * 0 + np.repeat(rng.normal(0, 1, (h, w // 12 + 1)), 12, axis=1)[:, :w]
+    blot = _smooth_field(rng, h, w, 40, 1.0) + _smooth_field(rng, h, w, 11, 0.6)
+    tone = 1.0 + 0.16 * blot + 0.10 * grain + 0.05 * fib
+    # 4. hatching: diagonal engraved lines, stronger toward the roofline (top of each mass)
+    hatch = ((xx * 0.8 + yy * 1.0) % 4.0 < 1.1).astype(np.float32)
+    cross = ((xx * -0.8 + yy * 1.0) % 7.0 < 0.9).astype(np.float32)
+    inkc = np.array([0.045, 0.034, 0.027])
+    base = inkc[None, None, :] * tone[..., None]
+    lines = (0.55 * hatch + 0.35 * cross)[..., None] * np.array([0.10, 0.075, 0.058])[None, None, :]
+    dark = base + lines * (0.6 + 0.4 * np.clip(blot + 0.5, 0, 1))[..., None]
+    # 5. rim light: warm edge on inner top boundary of ink
+    up = np.zeros_like(a)
+    up[3:] = a[:-3]
+    rim = np.clip(a - up, 0, 1) * (a > 0.5)
+    rim = _blur(rim, 1) * 1.2
+    dark = dark + rim[..., None] * np.array([0.30, 0.20, 0.13])[None, None, :]
+    out = np.where(ink[..., None], dark, rgb)
+    # 6. window glow: gold stays bright with grain; soft halo bleeds into the ink
+    halo = _blur(gold.astype(np.float32), 4)
+    out = out + (halo * (~gold) * (a > 0.5))[..., None] * np.array([0.30, 0.19, 0.06])[None, None, :]
+    gcol = np.array([0.86, 0.60, 0.26])[None, None, :] * (0.82 + 0.18 * np.clip(grain * 0.5 + 0.5, 0, 1))[..., None]
+    out = np.where(gold[..., None], gcol, out)
+    res = np.concatenate([np.clip(out, 0, 1), a[..., None]], axis=2)[::-1]
+    img.pixels = res.astype(np.float32).ravel().tolist()
+    img.filepath_raw = path
+    img.file_format = "PNG"
+    img.save()
+
+
 PIECES = {"paper": build_paper, "skyline": build_skyline}
 
 
@@ -418,6 +492,8 @@ def main():
     except AttributeError:
         pass
     bpy.ops.render.render(write_still=True)
+    if o["piece"] == "skyline" and "raw" not in o:
+        etch_post(sc.render.filepath, int(o["seed"]), o["piece"])
     if "blend" in o:
         bpy.ops.wm.save_as_mainfile(filepath=os.path.abspath(o["blend"]), check_existing=False)
     print("SCENE_RENDER piece=%s size=%dx%d version=%s" % (o["piece"], w, h, bpy.app.version_string.split()[0]))
