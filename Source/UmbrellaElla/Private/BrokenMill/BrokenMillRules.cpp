@@ -171,6 +171,24 @@ bool FBrokenMillRules::IsEngagementValid(const FBrokenMillTuning& Tuning, const 
 	return FVector2D::Distance(Tuning.GuardMuzzle, Ella) <= Tuning.ShotRange && IsRayClearOfRotor(Tuning, Tuning.GuardMuzzle, Ella) && IsRayClearOfIsland(Tuning, Tuning.GuardMuzzle, Ella);
 }
 
+float FBrokenMillRules::GetGuardHp(const FBrokenMillTuning& Tuning, EMillGuardProfile Profile)
+{
+	return Profile == EMillGuardProfile::Comparison && IsFeatureEnabled(EFeatureId::HAZ_16) ? Tuning.GuardHpComparison : Tuning.GuardHp;
+}
+
+EMillTellPose FBrokenMillRules::GetTellPose(EMillGuardState State, bool bLastReleaseAborted, bool bGuardAlive)
+{
+	if (!IsFeatureEnabled(EFeatureId::HAZ_04) || !bGuardAlive)
+	{
+		return EMillTellPose::Hidden;
+	}
+	if (State == EMillGuardState::Warning)
+	{
+		return EMillTellPose::Raised;
+	}
+	return State == EMillGuardState::Recovery && bLastReleaseAborted ? EMillTellPose::Lowered : EMillTellPose::Hidden;
+}
+
 float FBrokenMillRules::GetGuardShotLifetime(const FBrokenMillTuning& Tuning)
 {
 	return Tuning.ShotSpeed > 0.0f ? Tuning.ShotRange / Tuning.ShotSpeed : 0.0f;
@@ -191,6 +209,15 @@ EMillWind FBrokenMillRules::SelectWind(const FBrokenMillTuning& Tuning, float El
 		return EMillWind::LowerOnward;
 	}
 	return EMillWind::None;
+}
+
+EMillWind FBrokenMillRules::GetEligibleWind(const FBrokenMillTuning& Tuning, const FVector2D& Ella)
+{
+	if (!IsFeatureEnabled(EFeatureId::HAZ_07) || Ella.X < Tuning.FiringColumnX.X || Ella.X > Tuning.FiringColumnX.Y)
+	{
+		return EMillWind::None;
+	}
+	return SelectWind(Tuning, Ella.Y);
 }
 
 bool FBrokenMillRules::IsInMissedCurrentAssist(const FBrokenMillTuning& Tuning, const FVector2D& Ella)

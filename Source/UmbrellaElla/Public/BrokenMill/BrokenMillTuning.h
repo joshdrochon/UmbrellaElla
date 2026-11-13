@@ -47,7 +47,7 @@ struct UMBRELLAELLA_API FBrokenMillTuning
 	UPROPERTY(EditAnywhere, Category = "Guard")
 	float GuardHp = 10.0f;
 
-	/** Later comparison only, one changed variable. */
+	/** Later comparison only, ONE changed variable (EMillGuardProfile::Comparison; -MillGuardComparison). */
 	UPROPERTY(EditAnywhere, Category = "Guard")
 	float GuardHpComparison = 20.0f;
 
@@ -160,4 +160,33 @@ struct UMBRELLAELLA_API FBrokenMillTuning
 	/** Depth (Y) half extent and placeholder depth scale for room boxes. */
 	UPROPERTY(EditAnywhere, Category = "Placeholder")
 	float DepthHalfExtent = 50.0f;
+
+	/** Warning tell placeholder: a square beside the muzzle (raised while warning, lowered after an abort). */
+	UPROPERTY(EditAnywhere, Category = "Placeholder")
+	float TellSize = 28.0f;
+
+	/** Tell centre relative to the muzzle (X, Z) while warning. */
+	UPROPERTY(EditAnywhere, Category = "Placeholder")
+	FVector2D TellRaisedOffset = FVector2D(0.0, 40.0);
+
+	/** Tell centre relative to the muzzle (X, Z) during the quiet recovery after an aborted release. */
+	UPROPERTY(EditAnywhere, Category = "Placeholder")
+	FVector2D TellLoweredOffset = FVector2D(0.0, -30.0);
+
+	UPROPERTY(EditAnywhere, Category = "Placeholder")
+	FLinearColor TellColor = FLinearColor(1.0f, 0.1f, 0.05f);
+
+	UPROPERTY(EditAnywhere, Category = "Placeholder")
+	FLinearColor GuardColor = FLinearColor(0.45f, 0.3f, 0.2f);
+
+	UPROPERTY(EditAnywhere, Category = "Placeholder")
+	FLinearColor IslandColor = FLinearColor(0.3f, 0.35f, 0.25f);
+
+	/** Edge length of the engine's basic cube mesh (100 units), to scale placeholders. */
+	UPROPERTY(EditAnywhere, Category = "Placeholder")
+	float PlaceholderCubeSize = 100.0f;
+
+	/** Placeholders are flat cards: this fraction of the cube in depth. */
+	UPROPERTY(EditAnywhere, Category = "Placeholder")
+	float PlaceholderDepthScale = 0.1f;
 };

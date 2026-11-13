@@ -25,7 +25,7 @@ t; UE_SLOT_EXCLUSIVE=1 "$S" tools/ue/package.sh 2>&1 | tail -3 | tee "$L/prepack
 APP=$(find "$ROOT/Packaged" -maxdepth 4 -name "UmbrellaElla*.app" -type d | head -1); EXE="$APP/Contents/MacOS/$(basename "$APP" .app)"; [ -x "$EXE" ] || EXE=""
 [ -n "$EXE" ] || { echo "PREPACKAGE FAIL: no packaged app"; exit 1; }
 # Release smoke on a quiet machine (Josh, Nov 12): workers paused, unchanged 55 fps / 33 ms bar (tools/build/quiet.sh).
-t; tools/build/quiet.sh tools/ue/smoke.sh "$EXE" 2>&1 | tee "$L/prepackage-smoke.txt" | tail -4; grep -q "SMOKE_OK" "$L/prepackage-smoke.txt" || fail=1; s "quiet release smoke (input, gamepad, 16:9, fps)"
+t; SMOKE_SOUND=1 tools/build/quiet.sh tools/ue/smoke.sh "$EXE" 2>&1 | tee "$L/prepackage-smoke.txt" | tail -4; grep -q "SMOKE_OK" "$L/prepackage-smoke.txt" || fail=1; s "quiet release smoke (input, gamepad, 16:9, fps)"
 SLOG=$(ls -t "$L"/smoke*.log 2>/dev/null | head -1)
 if [ -n "$SLOG" ]; then
   t; python3 tools/ui_check.py flow-check --commit "$(git rev-parse HEAD)" "$SLOG" | tail -2 || fail=1; s "ui flow-check"

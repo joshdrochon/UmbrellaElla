@@ -34,7 +34,11 @@ if [ -n "${SMOKE_CRASH_DIRS:-}" ]; then IFS=: read -r -a X <<< "$SMOKE_CRASH_DIR
 SNAP="${GAMELOG%.log}-crashes-before.txt"
 "$PY" "$REPO/tools/ue_run.py" crash-list "${CRASH[@]}" --out "$SNAP"
 SHOT="${GAMELOG%.log}-shot.png"
-ARGS=(-SmokeShot="$SHOT"); EXPECT=(--min-fps "${SMOKE_MIN_FPS:-55}" --max-frame-ms "${SMOKE_MAX_FRAME_MS:-33}" --max-load-ms "${SMOKE_MAX_LOAD_MS:-10000}" --shot "$SHOT")
+ARGS=(-SmokeShot="$SHOT")
+# Automated runs never take over the screen or the speakers (Josh, Nov 12): no sound, small window, unless the quiet
+# release smoke asks for sound (SMOKE_SOUND=1) or a display run sets SMOKE_RES.
+[ "${SMOKE_SOUND:-0}" = "1" ] || ARGS+=(-nosound)
+[ -n "${SMOKE_RES:-}" ] || ARGS+=(-windowed -ResX=640 -ResY=360); EXPECT=(--min-fps "${SMOKE_MIN_FPS:-55}" --max-frame-ms "${SMOKE_MAX_FRAME_MS:-33}" --max-load-ms "${SMOKE_MAX_LOAD_MS:-10000}" --shot "$SHOT")
 [ -n "${SMOKE_NO_PLAYER_MAPS:-}" ] && EXPECT+=(--no-player-maps "$SMOKE_NO_PLAYER_MAPS")
 [ "${SMOKE_REQUIRE_INPUT:-1}" = "0" ] && EXPECT+=(--no-input-check)
 [ "${SMOKE_REQUIRE_GAMEPAD:-1}" = "0" ] && EXPECT+=(--no-gamepad-check)

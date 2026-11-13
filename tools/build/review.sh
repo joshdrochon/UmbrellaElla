@@ -23,7 +23,7 @@ violations a reader can see. Each with file:line, why, and the fix. Put style ni
 End your answer with exactly one line 'VERDICT: approve' or 'VERDICT: changes', then the numbered list of changes
 (empty for approve), then 'Minor:' and its list."
 env -u CLAUDECODE -u CLAUDE_CODE_ENTRYPOINT claude -p "$PROMPT" --permission-mode bypassPermissions \
-  --disallowedTools "Bash(git push:*)" "Bash(git commit:*)" Edit Write --model "${REVIEW_MODEL:-claude-opus-5-5}" > "$OUT" 2>&1
+  --disallowedTools "Bash(git push:*)" "Bash(git commit:*)" Edit Write --model "${REVIEW_MODEL:-claude-sonnet-5-5}" > "$OUT" 2>&1
 grep -q "^VERDICT: approve" "$OUT" && { echo "review: approve role=$ROLE"; exit 0; }
 if grep -q "^VERDICT: changes" "$OUT"; then
   # "changes" with no numbered item after the verdict line (only Minor:) counts as approve with follow-ups.

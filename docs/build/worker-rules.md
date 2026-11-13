@@ -12,9 +12,9 @@ split a big area when its later list has independent parts (new area file + `doc
 exactly one area, lanes disjoint).
 
 ## When a worker moves to Opus (Josh, Nov 12)
-Default model (Josh, Nov 12 evening): Fable 5.2 (`claude-fable-5-2`) for the hardest jobs (art loops, audio) and any worker
-escalated by the repeat-failure rule; Opus 5.5 for every other worker, reviewer and critic (`tools/build/start_area.sh`,
-`review.sh`, `critic.sh`); `WORKER_MODEL` overrides; Sonnet only when usage is tight. Earlier rule, kept for tight usage: a worker runs Sonnet. When it fails the same gate check twice, or a builder/critic loop goes 2 rounds with the same gap
+Default model (Josh, Nov 12, latest): Sonnet (`claude-sonnet-5-5`) for every worker, reviewer and critic. A job moves
+to a stronger model only with evidence Sonnet was not effective, through the repeat-failure rule below (triage first).
+A worker runs Sonnet. When it fails the same gate check twice, or a builder/critic loop goes 2 rounds with the same gap
 and no better score, the build lead restarts that one worker with `WORKER_MODEL=claude-fable-5-2 tools/build/start_area.sh
 <area> "..."` and logs it in the build log (area, failing check, before/after). Others stay on Sonnet.
 
@@ -52,6 +52,8 @@ When the same check fails twice, or a loop goes flat (2 rounds, same gap, no bet
      (flow), `UI/UmbrellaHUD` (health). Fill in your own; call others only through their public functions and events.
 
 ## Hard rules
+- Every automated game launch (editor -game or packaged) goes through `tools/build/run_game.sh` or `tools/ue/smoke.sh`:
+  no sound, a 640x360 window, no crash reporter. Never start `UnrealEditor -game` or the packaged app by hand.
 - Never write an absolute home path (`/Users/...`, `~/...` beyond `~/.umbrella-ella.env`) into a repo file; use paths
   relative to the repo or `../UmbrellaElla-areas/...`. `python3 tools/pipeline_check.py` (in every gate) rejects them.
 - Unity builds merge many `.cpp` files into one: never put generic names (`Step`, `Count`, `Tolerance`) at file scope
@@ -72,8 +74,9 @@ When the same check fails twice, or a loop goes flat (2 rounds, same gap, no bet
 - Never push, never merge, never touch `main` or another worktree. Never `git commit --amend` or rebase after a commit.
   Commit on your branch with `git -c core.hooksPath=/dev/null commit` after each working slice (the build lead pushes
   your branch to origin every 2 minutes, so a teammate can take over from any commit).
-- Never read or print `~/.umbrella-ella.env` or any key. Only the arena area may source it, in the one shell that
-  runs audio generation.
+- Never print, log or commit `~/.umbrella-ella.env` or any key value. Any area that generates assets through an API (audio,
+  image: the snd* lanes, audio, imagegen, the art loops once the lead says Spend OK) may source it in the one shell that
+  runs generation, and nowhere else.
 
 ## Unreal commands (Mac; many workers share this machine, so always through the slot lock)
     tools/build/ue_slot.sh tools/ue/build.sh                 # compile (editor target); must end "build exit: 0"

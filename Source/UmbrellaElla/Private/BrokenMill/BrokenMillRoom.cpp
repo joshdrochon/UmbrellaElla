@@ -1,5 +1,8 @@
 #include "BrokenMill/BrokenMillRoom.h"
+#include "BrokenMill/BrokenMillIsland.h"
+#include "BrokenMill/BrokenMillPlaceholder.h"
 #include "BrokenMill/BrokenMillTuning.h"
+#include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
 #include "Core/UmbrellaCollision.h"
 #include "Core/UmbrellaDrawOrder.h"
@@ -8,9 +11,10 @@
 #include "Engine/World.h"
 #include "Field/WindCurrent.h"
 #include "GameFramework/Pawn.h"
-#include "GameFramework/Pawn.h"
 #include "Harness/UmbrellaFeatureFlags.h"
 #include "Kismet/GameplayStatics.h"
+#include "Misc/CommandLine.h"
+#include "Misc/Parse.h"
 #include "Projectile/UmbrellaProjectile.h"
 #include "Trap/UmbrellaTrap.h"
 
@@ -19,15 +23,17 @@ ABrokenMillRoom::ABrokenMillRoom()
 	PrimaryActorTick.bCanEverTick = true;
 	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 	RootComponent = Root;
-	Island = CreateDefaultSubobject<UBoxComponent>(TEXT("Island"));
-	Island->SetupAttachment(Root);
-	Island->SetCollisionProfileName(TEXT("BlockAllDynamic"));
-	Island->SetCollisionResponseToChannel(UmbrellaCollision::PlayerShot, ECR_Block);
-	Island->SetCollisionResponseToChannel(UmbrellaCollision::EnemyShot, ECR_Block);
 	TargetBox = CreateDefaultSubobject<UBoxComponent>(TEXT("TargetBox"));
 	TargetBox->SetupAttachment(Root);
 	TargetBox->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
 	TargetBox->SetCollisionResponseToChannel(UmbrellaCollision::PlayerShot, ECR_Block);
+	GuardVisual = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("GuardVisual"));
+	GuardVisual->SetupAttachment(Root);
+	GuardVisual->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	TellVisual = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TellVisual"));
+	TellVisual->SetupAttachment(Root);
+	TellVisual->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	TellVisual->SetVisibility(false);
 	GuardHp = Tuning().GuardHp;
 }
 
@@ -48,15 +54,28 @@ void ABrokenMillRoom::BuildRoom()
 	{
 		return;
 	}
-	const float IslandWidth = Tuning().IslandXRange.Y - Tuning().IslandXRange.X;
-	const float IslandHeight = Tuning().IslandTop - Tuning().IslandUnderside;
-	Island->SetBoxExtent(FVector(IslandWidth * 0.5, Tuning().DepthHalfExtent, IslandHeight * 0.5));
-	Island->SetRelativeLocation(FVector(Tuning().IslandXRange.X + IslandWidth * 0.5, 0.0, Tuning().IslandUnderside + IslandHeight * 0.5));
+	const FBrokenMillTuning& T = Tuning();
+	if (FParse::Param(FCommandLine::Get(), TEXT("MillGuardComparison")))
+	{
+		SetGuardProfile(EMillGuardProfile::Comparison);
+	}
 	// The target sits at the shared target centre in the room frame.
-	TargetBox->SetBoxExtent(FVector(Tuning().TargetSize.X * 0.5, Tuning().DepthHalfExtent, Tuning().TargetSize.Y * 0.5));
-	TargetBox->SetRelativeLocation(FVector(Tuning().TargetCentre.X, 0.0, Tuning().TargetCentre.Y));
+	TargetBox->SetBoxExtent(FVector(T.TargetSize.X * 0.5, T.DepthHalfExtent, T.TargetSize.Y * 0.5));
+	TargetBox->SetRelativeLocation(FVector(T.TargetCentre.X, 0.0, T.TargetCentre.Y));
+	BrokenMillPlaceholder::ApplyCube(GuardVisual, this, T.TargetSize, T.GuardColor, T.PlaceholderCubeSize, T.PlaceholderDepthScale);
+	GuardVisual->SetRelativeLocation(FVector(T.TargetCentre.X, UmbrellaDrawOrder::HazardY, T.TargetCentre.Y));
+	BrokenMillPlaceholder::ApplyCube(TellVisual, this, FVector2D(T.TellSize, T.TellSize), T.TellColor, T.PlaceholderCubeSize, T.PlaceholderDepthScale);
 	if (UWorld* World = GetWorld())
 	{
+		// The island is its own actor with no shot receiver: a solid stop for both shot channels, never a guard hit.
+		const float IslandWidth = T.IslandXRange.Y - T.IslandXRange.X;
+		const float IslandHeight = T.IslandTop - T.IslandUnderside;
+		const FVector2D IslandCentre(T.IslandXRange.X + IslandWidth * 0.5f, T.IslandUnderside + IslandHeight * 0.5f);
+		Island = World->SpawnActor<ABrokenMillIsland>(ABrokenMillIsland::StaticClass(), FTransform(RoomToWorld(IslandCentre)));
+		if (IsValid(Island))
+		{
+			Island->ConfigureBox(FVector(IslandWidth * 0.5f, T.DepthHalfExtent, IslandHeight * 0.5f), T.IslandColor, T.PlaceholderCubeSize, T.PlaceholderDepthScale);
+		}
 		Rotor = World->SpawnActor<AUmbrellaTrap>(AUmbrellaTrap::StaticClass(), FTransform(RoomToWorld(Tuning().RotorCentre)));
 		if (IsValid(Rotor))
 		{
@@ -99,17 +118,43 @@ void ABrokenMillRoom::DisableGuard()
 	Guard.SetGuardEnabled(false);
 }
 
+void ABrokenMillRoom::SetGuardProfile(EMillGuardProfile NewProfile)
+{
+	Profile = NewProfile;
+	GuardHp = FBrokenMillRules::GetGuardHp(Tuning(), Profile);
+}
+
+EMillTellPose ABrokenMillRoom::GetTellPose() const
+{
+	return FBrokenMillRules::GetTellPose(Guard.State, bLastReleaseAborted, GuardHp > 0.0f);
+}
+
+void ABrokenMillRoom::UpdateVisuals()
+{
+	const EMillTellPose Pose = GetTellPose();
+	TellVisual->SetVisibility(Pose != EMillTellPose::Hidden);
+	if (Pose != EMillTellPose::Hidden)
+	{
+		const FVector2D Offset = Pose == EMillTellPose::Raised ? Tuning().TellRaisedOffset : Tuning().TellLoweredOffset;
+		const FVector2D Centre = Tuning().GuardMuzzle + Offset;
+		TellVisual->SetRelativeLocation(FVector(Centre.X, UmbrellaDrawOrder::VfxY, Centre.Y));
+	}
+	GuardVisual->SetVisibility(GuardHp > 0.0f);
+}
+
 void ABrokenMillRoom::ResetForRestart()
 {
 	Guard.Reset();
 	Guard.SetGuardEnabled(true);
 	ShotLog.Entries.Reset();
-	GuardHp = Tuning().GuardHp;
+	GuardHp = FBrokenMillRules::GetGuardHp(Tuning(), Profile);
+	bLastReleaseAborted = false;
 	ShotsFired = 0;
 	Clock = 0.0f;
 	EventCounts.Reset();
 	SetActorHiddenInGame(false);
 	TargetBox->SetCollisionResponseToChannel(UmbrellaCollision::PlayerShot, ECR_Block);
+	UpdateVisuals();
 }
 
 EUmbrellaShotResult ABrokenMillRoom::ReceiveShot(const FUmbrellaShotSpec& Shot, const FVector& HitLocation)
@@ -123,6 +168,7 @@ EUmbrellaShotResult ABrokenMillRoom::ReceiveShot(const FUmbrellaShotSpec& Shot, 
 	{
 		DisableGuard();
 		TargetBox->SetCollisionResponseToChannel(UmbrellaCollision::PlayerShot, ECR_Ignore);
+		UpdateVisuals();
 		if (UUmbrellaEventBus* Bus = UUmbrellaEventBus::Get(this))
 		{
 			FUmbrellaEvent Event;
@@ -130,7 +176,7 @@ EUmbrellaShotResult ABrokenMillRoom::ReceiveShot(const FUmbrellaShotSpec& Shot, 
 			Event.SourceId = GetFName();
 			Event.TargetId = GetFName();
 			Event.Detail = TEXT("Enemy");
-			Event.Value = Tuning().GuardHp;
+			Event.Value = FBrokenMillRules::GetGuardHp(Tuning(), Profile);
 			Bus->Broadcast(Event);
 		}
 	}
@@ -170,17 +216,41 @@ EMillGuardEvent ABrokenMillRoom::StepSeconds(float DeltaSeconds)
 		Inputs.bPassedBehind = Ella.X > Tuning().GuardMuzzle.X;
 		// Assist and exit are the no-warning phases of the room (reset is the upper band, which stays warned).
 		Inputs.bInNoWarningPhase = FBrokenMillRules::IsInMissedCurrentAssist(Tuning(), Ella) || Ella.X >= Tuning().ExitPoint.X;
+		if (IsFeatureEnabled(EFeatureId::HAZ_07))
+		{
+			ApplyWindEligibility(FBrokenMillRules::GetEligibleWind(Tuning(), Ella));
+		}
 	}
 	const EMillGuardEvent Event = Guard.Advance(Tuning(), DeltaSeconds, Inputs);
 	if (Event != EMillGuardEvent::None)
 	{
 		++EventCounts.FindOrAdd(Event);
 	}
+	if (Event == EMillGuardEvent::WarningStarted || Event == EMillGuardEvent::ShotReleased || Event == EMillGuardEvent::WarningAborted)
+	{
+		bLastReleaseAborted = Event == EMillGuardEvent::WarningAborted;
+	}
 	if (Event == EMillGuardEvent::ShotReleased)
 	{
 		ReleaseShot();
 	}
+	UpdateVisuals();
 	return Event;
+}
+
+void ABrokenMillRoom::ApplyWindEligibility(EMillWind Eligible)
+{
+	// Turning a volume's collision off ends its overlap, so the wind actor itself sends WindExited (and WindEntered
+	// when it comes back on with Ella inside). The Motor still only rides while overhead with Ride held.
+	auto Gate = [](AWindCurrent* Wind, bool bEligible)
+	{
+		if (IsValid(Wind) && Wind->GetActorEnableCollision() != bEligible)
+		{
+			Wind->SetActorEnableCollision(bEligible);
+		}
+	};
+	Gate(UpperWind, Eligible == EMillWind::UpperReset);
+	Gate(LowerWind, Eligible == EMillWind::LowerOnward);
 }
 
 void ABrokenMillRoom::ReleaseShot()

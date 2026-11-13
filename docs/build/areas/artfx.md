@@ -4,3 +4,5 @@ VFX-11 (acceptance), NAR-05 (the light shaft and umbra visual). Blender only (D-
 assets driven by bus events; each effect is an art-loop piece judged by the blind panel against the references and the
 bar images (same loop and critic-sanity rules as docs/build/areas/artella.md). Effects never change gameplay timing.
 Lane: Feedback/VFX/** (new), Art/Source/VFX/**, Art/VFX/**, Content/UmbrellaElla/Art/VFX/**, provenance rows for them.
+
+Image model: read docs/build/art-image-model.md; it applies once the lead says Spend OK.

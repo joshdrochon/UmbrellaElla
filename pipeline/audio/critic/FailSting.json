@@ -1,0 +1,25 @@
+{
+ "id": "FailSting",
+ "records": [
+  {
+   "files": "136f8ab9c9e86164debe69c857979166132afab37fe9636b358333bdd820870e",
+   "verdict": "pass",
+   "style_pass": true,
+   "gap": "none",
+   "card": "AUDIO-R2-FailSting",
+   "round": 2,
+   "critic": "critic-FailSting-1794532110-11759",
+   "at": "2026-11-13T01:08Z"
+  },
+  {
+   "files": "136f8ab9c9e86164debe69c857979166132afab37fe9636b358333bdd820870e",
+   "verdict": "pass",
+   "style_pass": true,
+   "gap": "none",
+   "card": "AUDIO-R2C-FailSting",
+   "round": 1,
+   "critic": "critic-FailSting-1794532693-32672",
+   "at": "2026-11-13T01:18Z"
+  }
+ ]
+}

@@ -80,6 +80,92 @@ class Loop(unittest.TestCase):
         self.assertIn("a soft escapement tick", brief)
         self.assertTrue(os.path.isfile(os.path.join(os.path.dirname(pk), "key.json")), "the key stays outside")
 
+    def test_loop_packet_has_no_one_shot_ranges(self):
+        """A loop is never judged on attack_ms / decay_s: audio_style_check does not apply them to a loop, so the
+        packet neither lists those ranges nor prints those numbers, and says the sound is a loop. A one-shot keeps them."""
+        self.take("WindZoneLoop", 600, rt=2.0)       # sound-list kind loop, style family wind (ranges attack_ms, decay_s)
+        self.take("UiMove", 2500)
+        rc, o = self.run_loop("start", "--issue", "40", "--ids", "WindZoneLoop,UiMove", "--builder", "builder-1")
+        self.assertEqual(rc, 0, o)
+        briefs = {}
+        for sid in ("WindZoneLoop", "UiMove"):
+            rc, o = self.run_loop("round", "--piece", sid)
+            self.assertEqual(rc, 0, o)
+            briefs[sid] = open(os.path.join(re.search(r"CRITIC PACKET: (\S+)", o).group(1), "brief.md")).read()
+        loop = briefs["WindZoneLoop"]
+        self.assertIn("Kind: a seamless loop", loop)
+        self.assertNotIn("attack_ms", loop.split("Kind: a seamless loop")[0])
+        self.assertNotRegex(loop, r"(attack_ms|decay_s)\s*[=\d-]")       # no range, no measured number
+        self.assertRegex(loop, r"centroid_hz 150\.\.2800")                # the ranges that do apply are still there
+        self.assertNotIn("WindZoneLoop", loop)
+        self.assertRegex(briefs["UiMove"], r"decay_s 0\.2\.\.2\.0")
+        self.assertRegex(briefs["UiMove"], r"decay_s=")
+        self.assertNotIn("seamless loop", briefs["UiMove"].split("Brand rules")[0])
+
+    def brief_for(self, sid):
+        rc, o = self.run_loop("round", "--piece", sid)
+        self.assertEqual(rc, 0, o)
+        return open(os.path.join(re.search(r"CRITIC PACKET: (\S+)", o).group(1), "brief.md")).read(), o
+
+    def test_packet_names_its_event_and_kind(self):
+        """A5 asks whether the sound reads as its event: the packet names the event (sound-list event text) and the
+        kind (one-shot, loop, music stem), and still no id. A loop and a stem get no one-shot ranges."""
+        self.take("UiMove", 2500)
+        self.take("WindZoneLoop", 600, rt=2.0)
+        self.take("MusicIntro", 300, rt=2.0)
+        rc, o = self.run_loop("start", "--issue", "40", "--ids", "UiMove,WindZoneLoop,MusicIntro", "--builder", "b-1")
+        self.assertEqual(rc, 0, o)
+        one, _ = self.brief_for("UiMove")
+        self.assertIn("Event: menu navigation\nKind: a one-shot.", one)
+        self.assertRegex(one, r"decay_s 0\.2\.\.2\.0")
+        loop, _ = self.brief_for("WindZoneLoop")
+        self.assertIn("Event: riding a harmless current; never the hostile gust sound\nKind: a seamless loop.", loop)
+        stem, _ = self.brief_for("MusicIntro")
+        self.assertIn("Event: Keeper fight music, wings\nKind: a music stem", stem)
+        self.assertNotIn("scope to confirm", stem)
+        for b in (loop, stem):
+            self.assertNotRegex(b, r"(attack_ms|decay_s)\s*[=\d.-]")
+        self.assertNotRegex(stem, r"Event:.*\n.*seamless loop\.")      # a stem is named a stem, not a plain loop
+        for sid, b in (("UiMove", one), ("WindZoneLoop", loop), ("MusicIntro", stem)):
+            self.assertNotIn(sid, b)
+            self.assertNotIn("{event}", b)
+            self.assertEqual(b.count("Event: "), 1)
+
+    def test_event_text_is_blind_for_every_sound_list_row(self):
+        """Every real row: an event is named, and it carries no sound id, internal event name, rule id or scope note."""
+        style, rows = audio_loop.style_ctx(ROOT)
+        ids = {r["id"] for r in rows}
+        for r in rows:
+            ev = audio_loop.event_text(r["id"], rows)
+            self.assertGreaterEqual(len(ev.split()), 1, r["id"])
+            self.assertNotEqual(ev, "not named", r["id"])
+            self.assertFalse([i for i in ids if re.search(rf"\b{i}\b", ev, re.I)], (r["id"], ev))
+            self.assertNotRegex(ev, r"[A-Z][a-z0-9]+[A-Z]|[A-Z]{2,}[-_]|\(\s*\)|to confirm|to discuss", r["id"])
+            self.assertIn(audio_loop.kind_of(r["id"], rows, style), audio_loop.KIND_NOTE)
+        self.assertEqual(audio_loop.event_text("GustCatch", rows), "entering a harmless current (Ride held)")
+        self.assertEqual(audio_loop.event_text("ShieldCatch", rows), "a yellow shot is caught (also at full health)")
+        self.assertEqual(audio_loop.kind_of("MusicIntro", rows, style), "stem")
+        self.assertEqual(audio_loop.kind_of("MusicTitle", rows, style), "loop")
+
+    def test_known_bad_takes_still_fail(self):
+        """The new event and kind text loosens nothing: a too-dark tick and a too-bright loop fail the measured check,
+        the packet still shows the broken range and number, and a critic pass does not finish either piece."""
+        self.take("UiMove", 400)                      # under centroid_hz 1500
+        self.take("WindZoneLoop", 6000, rt=2.0)       # over the wind family's centroid_hz 150..2800
+        rc, o = self.run_loop("start", "--issue", "40", "--ids", "UiMove,WindZoneLoop", "--builder", "b-1")
+        self.assertEqual(rc, 0, o)
+        for sid, rng in (("UiMove", r"centroid_hz 1500\.\.8000"), ("WindZoneLoop", r"centroid_hz 150\.\.2800")):
+            b, o = self.brief_for(sid)
+            self.assertIn("style=FAIL", o)
+            self.assertRegex(o, r"FAIL .*centroid")
+            self.assertRegex(b, rng)
+            self.assertRegex(b, r"centroid_hz=\d")
+            rc, o = self.run_loop("verdict", "--piece", sid, "--critic", f"c-{sid}", "--verdict", "pass")
+            self.assertEqual(rc, 1, o)
+            self.assertIn("style=FAIL -> builder revises", o)
+        rc, o = self.run_loop("close")
+        self.assertEqual(rc, 1, o)
+
     def test_full_loop_closes_and_check_pr_accepts_it(self):
         self.take("UiMove", 400)                      # too dark: fails the measured check
         self.start()
