@@ -57,7 +57,7 @@ Evidence: build exit 0, `UmbrellaElla.Smoke` tests PASS (4), module_check 0 prob
 - FLOW-28 now calls `StepFollow(KeeperHandoffX(), 1)` once more after the handoff fires, then counts `AUmbrellaEnemy`. `GetThreatsRemaining()` does not exist in this tree or main, so the enemy count stays. Build exit 0. Not re-run in game: the handoff clear is not in this tree; re-run FLOW-28 after levelchunks merges.
 
 ## QA-36 run after merging main (Nov 12 19:3x; run_game.sh, 640x360, no sound)
-Logs: `docs/build/playtest-logs/run-2026-11-12d.log` (real), `run-2026-11-12e-relay.log` (wind relay, diagnosis only).
+Logs: raw run logs not kept (trimmed after the run); results are in the table below.
 Main has no levelchunks route winds and no motor-id fix yet (requests/playtest.md #1 still open), so nothing changed.
 | Row | Result | Why |
 |---|---|---|
