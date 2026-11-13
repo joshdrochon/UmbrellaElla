@@ -1,8 +1,8 @@
 # id	trigger	delay_seconds	duration_seconds	text   (tab separated; duration 0 = tuning value; ending lines show in file order)
-OpeningMother	ModeSelected.DirectorsCut	0	0	Keep it open. It will protect you from the owl.
-LightShadow	ModeSelected.DirectorsCut	5	5	The open umbrella lifts her. Its shadow follows.
-KeeperArrival	PhaseStarted.wings	0	5	The owl is huge, and made of clockwork.
-ShaftClue	BossPartDestroyed	0	5	A piece of the owl's wing falls away.
+OpeningMother	ModeSelected.DirectorsCut	0	0	Mother: Keep it open, Ella. It'll protect you from the owl.
+LightShadow	ModeSelected.DirectorsCut	5	5	The abyss is endless. The open umbrella's shadow follows her.
+KeeperArrival	PhaseStarted.wings	0	5	The clock has one hand. The other is gone.
+ShaftClue	BossPartDestroyed	0	5	The umbrella was once a clock's hand.
 EndingStory1	Ending.Story	0	0	The owl's pursuit ends. He goes back into the darkness.
-EndingStory2	Ending.Story	0	0	She is alive, but still suspended between worlds.
+EndingStory2	Ending.Story	0	0	Ella is alive, but still suspended between worlds.
 EndingStory3	Ending.Story	0	0	Perhaps the owl has only postponed his judgment.

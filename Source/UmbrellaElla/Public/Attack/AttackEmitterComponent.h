@@ -9,6 +9,8 @@
 
 class UEnhancedInputComponent;
 class UUmbrellaStateComponent;
+class AStreamBeamActor;
+struct FAttackTuning;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnEquippedSpellChanged, EUmbrellaSpell);
 
@@ -59,6 +61,19 @@ public:
 	/** Current Streamed Blast beam length (0 unless streaming). */
 	float GetStreamLength() const;
 
+	/** The live Streamed Blast beam actor, or null when not streaming. */
+	AStreamBeamActor* GetBeam() const { return Beam; }
+
+	/** Burst shots still waiting to leave . */
+	int32 GetPendingBurstShots() const { return PendingBurstDelays.Num(); }
+
+	/** Tests pass their own tuning copy by const reference; the class default is never written. */
+	void SetTuningOverride(const FAttackTuning& InTuning) { TuningOverride = &InTuning; }
+	void ClearTuningOverride() { TuningOverride = nullptr; }
+
+	/** Test only: behave as if the burst-shot feature flag were switched off (the flag table is a constant). */
+	void SetCom06OffForTest(bool bOff) { bCom06OffForTest = bOff; }
+
 	int32 GetShotsFired() const { return ShotsFired; }
 	const FUmbrellaShotSpec& GetLastShot() const { return LastShot; }
 
@@ -67,9 +82,15 @@ public:
 
 protected:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	virtual void EndPlay(const EEndPlayReason::Type Reason) override;
 
 private:
+	const FAttackTuning& ActiveTuning() const;
+	/** Borrowed from the caller (a test); must outlive its use. */
+	const FAttackTuning* TuningOverride = nullptr;
 	void FireVolley();
+	void ShowBeam(const FAttackTuning& Tuning);
+	void HideBeam();
 	void Equip(EUmbrellaSpell Spell);
 	void OpenWheel();
 	void CloseWheel();
@@ -77,6 +98,10 @@ private:
 	UPROPERTY(Transient)
 	TObjectPtr<UUmbrellaStateComponent> UmbrellaState;
 
+	UPROPERTY(Transient)
+	TObjectPtr<AStreamBeamActor> Beam;
+
+	TArray<float> PendingBurstDelays;
 	FOnEquippedSpellChanged EquippedChanged;
 	FUmbrellaShotSpec LastShot;
 	EUmbrellaSpell Equipped = EUmbrellaSpell::SmallBlasts;
@@ -88,6 +113,7 @@ private:
 	float KeyHeldSeconds = 0.0f;
 	int32 DirectorLevel = 0;
 	int32 ShotsFired = 0;
+	bool bCom06OffForTest = false;
 	bool bWheelOpen = false;
 	bool bWheelLockedState = false;
 };

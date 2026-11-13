@@ -58,7 +58,7 @@ if [ "${SMOKE_MODE:-}" = "alive" ]; then
   "$PY" "$REPO/tools/ue_run.py" alive --seconds "${SMOKE_ALIVE_SECONDS:-15}" --max-boot-s "${SMOKE_MAX_BOOT_S:-0}" --log "$OUTLOG" -- "$EXE" -unattended -nocrashreports ${ARGS[@]+"${ARGS[@]}"} || rc=$?
 else
   "$PY" "$REPO/tools/ue_run.py" run --timeout "${SMOKE_TIMEOUT:-120}" --log "$OUTLOG" -- \
-    "$EXE" -SmokeQuitAfter=15 -log -abslog="$GAMELOG" -unattended -nocrashreports ${ARGS[@]+"${ARGS[@]}"} >/dev/null || rc=$?   # -abslog [VERIFY]
+    "$EXE" -SmokeQuitAfter=15 -log -abslog="$GAMELOG" -stdout -FullStdOutLogOutput -unattended -nocrashreports ${ARGS[@]+"${ARGS[@]}"} >/dev/null || rc=$?   # 5.8.4 Mac packaged: Log-verbosity lines (LogUmbrellaElla) reach stdout only with -stdout -FullStdOutLogOutput, and -abslog writes no file, so $OUTLOG is the game log
   LOGS=("$OUTLOG"); [ -f "$GAMELOG" ] && LOGS+=("$GAMELOG")
   echo "smoke logs: ${LOGS[*]}"
   if [ -f "$INFO/BUILD_INFO.txt" ]; then EXPECT+=(--expect-commit "$(sed -n 's/^commit=//p' "$INFO/BUILD_INFO.txt")"); fi
