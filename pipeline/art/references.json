@@ -3342,7 +3342,10 @@
     "study-ella-small-blasts",
     "study-ella-twin-stars",
     "bar-casters"
-   ]
+   ],
+   "base": "vfx-gold-impact",
+   "base_mode": "repaint",
+   "new": "the fading tail of the gold shot: same ink and gold, thinner and dimmer"
   },
   "vfx-stream-start": {
    "what": "the Streamed Blast startup (art sheet VFX_StreamStart, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
@@ -3384,7 +3387,10 @@
      "bar-casters": 0.232
     },
     "note": "one image and nothing to compare it with: score_min not measurable (kept)"
-   }
+   },
+   "base": "vfx-stream-start",
+   "base_mode": "repaint",
+   "new": "the held beam body: same beam ink and colour, repeating along its length"
   },
   "vfx-needle-channel": {
    "what": "the Needle channel (art sheet VFX_NeedleChannel, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
@@ -3426,7 +3432,10 @@
      "bar-casters": 0.232
     },
     "note": "one image and nothing to compare it with: score_min not measurable (kept)"
-   }
+   },
+   "base": "vfx-needle-channel",
+   "base_mode": "repaint",
+   "new": "the thin sliver left behind: same needle line and colour"
   },
   "vfx-needle-pierce": {
    "what": "the Needle penetration (art sheet VFX_NeedlePierce, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
@@ -3447,7 +3456,10 @@
      "bar-casters": 0.232
     },
     "note": "one image and nothing to compare it with: score_min not measurable (kept)"
-   }
+   },
+   "base": "vfx-needle-channel",
+   "base_mode": "repaint",
+   "new": "the needle going through a target: same line style, with an exit flare"
   },
   "vfx-blocked": {
    "what": "the protected-contact block cue (art sheet VFX_Blocked, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
@@ -3546,7 +3558,10 @@
     "red-shot-sh10",
     "bar-casters",
     "d-talon-rake"
-   ]
+   ],
+   "base": "vfx-keeper-warning",
+   "base_mode": "repaint",
+   "new": "the strike frames: same red ink and shape language as the warning, at full intensity"
   },
   "vfx-keeper-recovery": {
    "what": "the Keeper recovery cue (art sheet VFX_KeeperRecovery, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
@@ -3578,7 +3593,10 @@
     "red-shot-sh10",
     "bar-casters",
     "d-talon-rake"
-   ]
+   ],
+   "base": "vfx-keeper-warning",
+   "base_mode": "repaint",
+   "new": "the wind-down after a strike: same red ink, fading"
   },
   "vfx-clock-beat": {
    "what": "the Keeper clock double beat (art sheet VFX_ClockBeat, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
@@ -3667,7 +3685,10 @@
      "d-gear-break": 0.464,
      "d-clock-damage": 0.491
     }
-   }
+   },
+   "base": "vfx-gold-impact",
+   "base_mode": "repaint",
+   "new": "a small hit flash on an enemy part, same burst style at a smaller scale"
   },
   "vfx-part-break": {
    "what": "a Keeper part break (art sheet VFX_PartBreak, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
@@ -3691,7 +3712,10 @@
      "d-gear-break": 0.464,
      "d-clock-damage": 0.491
     }
-   }
+   },
+   "base": "vfx-part-hit",
+   "base_mode": "repaint",
+   "new": "the part breaking apart: shards and a larger flash on the hit style"
   },
   "vfx-eye-exposed": {
    "what": "the exposed Keeper eye (art sheet VFX_EyeExposed, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",
@@ -3822,7 +3846,10 @@
    "context": [
     "d-wing-gust",
     "bar-other-realm"
-   ]
+   ],
+   "base": "vfx-gust",
+   "base_mode": "repaint",
+   "new": "the puff at the gust edge: same swirl line style, smaller"
   },
   "vfx-blackout": {
    "what": "the blackout veil (art sheet VFX_Blackout, GDD VFX-02..VFX-11): judged as a sheet in motion; effects never change gameplay timing",

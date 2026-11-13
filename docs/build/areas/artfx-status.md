@@ -135,3 +135,7 @@ No gameplay timing, collision or state is written by any of it (tests check the 
 
 ## Slice 15 (Nov 13): merged main and artslots (both up to date), still blocked on request 7
 - Nothing new on main since slice 14 (no change to `art_loop.py`, `art-image-model.md` or references for effect bar/context). No paint, spend unchanged. All slots stay `_PH`.
+
+## Slice 16 (Nov 13): effect families set as shared layers; still blocked on request 7
+- Main and artslots up to date. Set `base` / `base_mode: repaint` / `new` in `references.json` (additions only) for 9 derived effects: gold-fade, part-hit (base gold-impact); part-break (part-hit); stream-sustain (stream-start); needle-sliver, needle-pierce (needle-channel); keeper-strike, keeper-recovery (keeper-warning); gust-puff (gust).
+- A repaint pass needs the base's verified pass first, and `vfx-gold-impact` still stops at request 7 (quality-bar and context pairs). No paint, spend unchanged. All slots stay `_PH`.
