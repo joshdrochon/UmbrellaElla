@@ -1,0 +1,39 @@
+{
+ "provider": "gemini",
+ "tier": "draft",
+ "tool": "Gemini API image generation (Google)",
+ "model": "gemini-2.5-flash-image",
+ "openrouter_model": null,
+ "fal_model": null,
+ "model_version": "gemini-2.5-flash-image",
+ "prompt": "Four animation frames of one effect for a 2D side-view game, painted side by side on one wide flat green field: the red attack warning (tell) a clockwork owl Keeper shows before it strikes: a glowing aiming ring that tightens. Only the effect is drawn, no creature. The four frames stand in one row on the same horizontal centre line, centres at exactly one eighth, three eighths, five eighths and seven eighths of the picture width, evenly spaced, never touching each other or the edge. Flat, face-on, seen at game-sprite distance; the largest frame spans about a fifth of the picture width.\n\nThe look: match the attached reference image exactly in finish: a soft glowing red ring with a thin ray, no crosshair, thin etched ink linework edges in dark red, crosshatch shading, aged paper grain showing through the glow, no glossy highlights.\n\nFrame 1 (the tell appears): a soft, faint, thin crimson ring, a quarter of it missing, with a small glowing coral dot at the centre. Frame 2 (the ring tightens): a fuller, brighter glowing crimson ring with a soft coral inner edge, a bright cream dot at the centre, and one thin coral ray pointing up and to the right from the centre like a clock hand. Frame 3 (the lock): a smaller, hotter ring, crimson with a white-hot cream inner rim, one longer coral ray, a soft red radial glow filling the inside. Frame 4 (about to fire): the brightest frame, a cream-white hot ring with a crimson halo, the ray fully extended, and a few ember specks around.\n\nEach shape is fully opaque with painted glow, no see-through colour. Colours only: crimson #FF3658, coral #FF7848, shadow red #8F173C, cream #FFF5DC, ink #171614. Outside the shapes the picture is one perfectly flat, pure green #00FF00 filling the canvas. No text, labels, grid, frames or watermark.\n\nStyle (required): dark, muted ink on aged paper, like an etched storybook engraving. Etched ink linework with near-black ink outlines; crosshatch and fine line hatching for every shadow and form; visible aged paper grain and fibre texture under all colour; hand-printed, slightly uneven ink. No flat fills, no vector shapes, no smooth digital gradients, no glossy 3D rendering.",
+ "seed": "",
+ "size": "1024x1024",
+ "quality": "medium",
+ "aspect_ratio": "21:9",
+ "image_size": null,
+ "input_images": [],
+ "cost_usd": 0.039157,
+ "reply": {
+  "usage": {
+   "promptTokenCount": 522,
+   "candidatesTokenCount": 1290,
+   "totalTokenCount": 1812,
+   "promptTokensDetails": [
+    {
+     "modality": "TEXT",
+     "tokenCount": 522
+    }
+   ],
+   "candidatesTokensDetails": [
+    {
+     "modality": "IMAGE",
+     "tokenCount": 1290
+    }
+   ],
+   "serviceTier": "standard"
+  },
+  "finish": "STOP"
+ },
+ "date": "2026-11-13T17:07+00:00"
+}

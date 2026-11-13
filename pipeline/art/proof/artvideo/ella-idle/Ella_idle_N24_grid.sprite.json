@@ -1,0 +1,11 @@
+{
+ "kind": "silhouette",
+ "frames": 24,
+ "grid": [
+  481,
+  654
+ ],
+ "fps": 6.13,
+ "loop": true,
+ "pivot": "bottom-centre"
+}

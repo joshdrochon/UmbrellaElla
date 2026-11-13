@@ -1,0 +1,32 @@
+{
+ "element": "vfx-gust",
+ "note": "crops of the effect cut from the concept sheets; originals untouched",
+ "crops": [
+  {
+   "file": "damaging-gust.png",
+   "source": "pipeline/art/reference/discord/20261110-0348_Ricky_1.png",
+   "box": [
+    866,
+    490,
+    1145,
+    645
+   ],
+   "key": "gale",
+   "pieces": "all",
+   "opaque_px": 5165
+  },
+  {
+   "file": "flow-ribbon.png",
+   "source": "pipeline/art/reference/discord/20261111-0318_Ricky_other-realm.png",
+   "box": [
+    1000,
+    140,
+    1672,
+    260
+   ],
+   "key": "dark",
+   "pieces": "all",
+   "opaque_px": 10166
+  }
+ ]
+}
