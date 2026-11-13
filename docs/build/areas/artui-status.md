@@ -186,3 +186,11 @@ missing the agent-play script on main (not my lane).
   Record: `pipeline/art/proof/artui/ui-title/capture_title_r21_1568.artloop.json`. ui-title PASSED.
 - No pro final was painted: the piece passed on the flash draft, so the $0.13 was not spent.
 - The shipped texture is still named `T_UI_TitleLockup_PH`. Renaming it off `_PH` changes `UmbrellaUIStyle.cpp` and the asset; that's left to the lead's ship step.
+
+## Resume 7 (13 Nov, artui worker, after the OpenRouter switch)
+- Merged origin/main (has 75a64360). No image calls this session, so no OpenRouter/fal spend. Inventory artui 25, 3 passed (title, defeated, tutorial).
+- Correction: my first r22 panel runs used `--card ui-<piece>` and failed art_ref_check ("no references"); the card id is `artui`. Re-run with `--card artui`: checks pass.
+- r22 on pause (round 6), settings (round 6), credits (round 5): reference wins all. Gaps: pause "smooth vector linework, no grain" (same as title before its pass), settings "panel pasted on, thin sliders", credits "evenly weighted lines, no hierarchy".
+- Credits: `SFlowTextScreen::SetCredits` (title + subtitle + rule, names cream, roles gold small caps) replaces the one plain text block. Build exit 0, 0 warnings; `ui_check ci` PASS. Capture `ui-credits/capture_credits_r23_1568.png`; panel round 6: reference still wins, GAP text is garbled ("Y is a coarse flat pixel block"), calibration 6/7. NOT passed.
+- Not run: `UmbrellaElla.UI` automation tests, `affected_tests.py --run`.
+- Next: settings panel integration (feathered painted edge, heavier slider art); painted ornament for credits; pause/title-style grain. Re-panel only changed pieces.
