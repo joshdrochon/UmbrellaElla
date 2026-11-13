@@ -161,6 +161,38 @@
    "commit": "9ce10fe2656a",
    "gap": "Y sits on a flat, untextured paper ground, and its star is cut-paper banding where it should have etched ink rendering.; X sits on blank flat paper with stepped flat colour bands, and has none of Y's etched hatching or aged-paper grain.; X sits on blank, untextured paper and its fills are flat colour bands with no etched hatching.",
    "at": "2026-11-13T01:24:52Z"
+  },
+  {
+   "piece": "wand-shot",
+   "round": 6,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "reference",
+    "reference": "ours"
+   },
+   "panel": 3,
+   "calibration": {
+    "sessions": 6,
+    "passed": 6
+   },
+   "missing": [
+    "context (no in-engine capture made after the piece: import it and run the smoke, whose screenshot is the capture)",
+    "quality_bar:pipeline/art/reference/discord/20261111-0319_Ricky_roadwarden-sundial-casters.png"
+   ],
+   "critic_sessions": [],
+   "files": "91acd802ce12c10563526614b6d8ec88f8adf9c725903ccb508cfe045ad57227",
+   "file": "Art/Source/WandShot/Paint/g1_fit.png",
+   "card": "0.10c",
+   "refs": "d1afca932485",
+   "commit": "e5b9db8c2ec2",
+   "gap": "X has no near-black etched ink linework; its star is glossy gradient rendering, not ink on paper.",
+   "at": "2026-11-13T04:13:41Z"
   }
  ]
 }

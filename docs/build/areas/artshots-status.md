@@ -93,3 +93,13 @@ Calls from `prompt.final.txt`, outputs `Art/Source/<Asset>/Paint/g1.png`. The de
 Post: `assetgen clean --chroma 00FF00 --grow 1`, then `tools/build/assets/art_shots_fit.py` (Blender: crop, scale to 0.9 of canvas, snap each pixel to the GDD ramp with 0.1 tone jitter as grain) -> `g1_fit.png`.
 Deterministic (art_loop.measure): owl-bolt PASS 0.732, wand-shot PASS 0.664, bolt-hit PASS 0.688 (art_check, screen_check, art_ref_check all pass).
 Triage: unsnapped paint drifts off palette (off_style 0.11 to 0.25): ours (post), fixed by snap. Hard snap flattened bolt-hit detail (0.2 cap): ours, fixed by jitter. Next: blind panel.
+
+## 13 Nov: Gemini panel round 1 (after merging area/artinventory; critics Opus, panels Saved/panel/{owlG2,wandG2,hitG2}, not committed)
+| piece | art_ref_check | panel | gap |
+|---|---|---|---|
+| owl-bolt | FAIL 0.595 (min 0.729; was 0.732 before the merge) | reference wins; quality bar 1/3 ours, reference 2/3; calibration 8/12 | flat posterized fills, no etched line or paper grain |
+| wand-shot | PASS 0.664 | reference wins (round 6) | star is glossy gradient, no near-black etched linework; calibration 6/6 |
+| bolt-hit | FAIL 0.651 (min 0.666; was 0.688) | refused: calibration 7/9, rerun needed | not judged |
+No piece passes. Still blocked on the `context` pair (needs an in-engine capture after import).
+Triage open: the score drop on owl-bolt/bolt-hit followed the inventory merge (references.json now 100 entries, new min/closest ref). Verdict "check changed, not our pixels": g1_fit.png bytes are unchanged. Not yet tested on a known-good input; the lead's art_ref_check owner should confirm the new owl-bolt min 0.729 still holds with the added refs.
+Next: bolt-hit panel rerun; add etched dark linework to the paintings (prompt gap on both shots), one more Gemini call each if the lead keeps Spend OK.
