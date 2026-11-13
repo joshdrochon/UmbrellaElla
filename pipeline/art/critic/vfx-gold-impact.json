@@ -253,6 +253,52 @@
    "commit": "900cb924a95c",
    "gap": "X is a blank flat gradient with no burst, linework or texture.; Y is a flat, untextured beige fill with no burst, no etched lines and no gold or rust accents.; Y is an empty flat gradient with no burst, no etched lines and no paper texture.; X is a few small, simple star bursts with thin outlines. It lacks Y's layered value structure, etched detail and finished rendering.; Y is a thin, small starburst with plain gradient fills and little etched line or texture, so it looks like a sticker next to X's fully rendered, textured paper sheet.; X is a thin, flat-vector star with a uniform outline and no etched shading or tonal depth, and its frames only scale and fade.",
    "at": "2026-11-13T06:59:41Z"
+  },
+  {
+   "piece": "vfx-gold-impact",
+   "round": 7,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "context": "reference",
+    "quality_bar": "reference",
+    "reference": "ours"
+   },
+   "panel": 2,
+   "calibration": {
+    "sessions": 9,
+    "passed": 8
+   },
+   "missing": [
+    "context:pipeline/art/reference/target-keyart.png",
+    "quality_bar:pipeline/art/reference/discord/20261111-0319_Ricky_roadwarden-sundial-casters.png (2/3 calibrated sessions)"
+   ],
+   "critic_sessions": [
+    "vfx-gold-impact-r7-00-reference-c1",
+    "vfx-gold-impact-r7-00-reference-c2",
+    "vfx-gold-impact-r7-00-reference-c3",
+    "vfx-gold-impact-r7-01-quality_bar-c1",
+    "vfx-gold-impact-r7-01-quality_bar-c2",
+    "vfx-gold-impact-r7-01-quality_bar-c3",
+    "vfx-gold-impact-r7-02-context-c1",
+    "vfx-gold-impact-r7-02-context-c2",
+    "vfx-gold-impact-r7-02-context-c3"
+   ],
+   "manifest": "",
+   "evidence": "",
+   "prompt": "",
+   "files": "a6522f06ec9f5ff58f37c36a26fe575de8600a324da6fd3a9d15fcb2f29be5dc",
+   "file": "pipeline/art/proof/artfx/GoldImpact/sheet3.snap.png",
+   "card": "artfx",
+   "refs": "206bbbdbe7b9",
+   "commit": "16dba0a2e2d4",
+   "gap": "X is a flat-filled clock UI with no etched lines, paper texture or burst energy; Y is a flat vector clock UI with plain fills, no etched lines, no paper texture and no burst energy; X is a flat, clean vector clock face with flat fills, no etched lines, no ink-on-paper texture and no burst",
+   "at": "2026-11-13T11:28:55Z"
   }
  ]
 }
