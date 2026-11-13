@@ -97,12 +97,7 @@ def placeholder_piece(root, audio, sid):
 
 
 def files_hash(files):
-    h = hashlib.sha256()
-    for p in sorted(files, key=os.path.basename):
-        h.update(os.path.basename(p).encode() + b"\0")
-        with open(p, "rb") as f:
-            h.update(f.read())
-    return h.hexdigest()
+    return audio_check.takes_hash(files)   # the same hash the committed critic records carry
 
 
 def style_ctx(root):

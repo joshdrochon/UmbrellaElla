@@ -1,0 +1,15 @@
+{
+ "id": "HitOwl",
+ "records": [
+  {
+   "files": "00c2c44a33f6f3b1da3077967761ecb66f202abde1546865843e6c6bb22ab0a9",
+   "verdict": "pass",
+   "style_pass": true,
+   "gap": "none",
+   "card": "AUDIO-1",
+   "round": 2,
+   "critic": "critic-HitOwl-1794530662-3070",
+   "at": "2026-11-13T00:44Z"
+  }
+ ]
+}
