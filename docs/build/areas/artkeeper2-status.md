@@ -14,3 +14,10 @@ NEEDS HUMAN: lead: (1) smoke switch to start the Keeper fight, (2) art slots for
 - Blocker 3 stands: the Keeper body base is at the artkeeper R6-R10 plateau; painting parts on it repeats the gap.
 - Nothing shipped; all six pieces stay tracked placeholders.
 NEEDS HUMAN: lead: (1) smoke switch to start the Keeper fight, (2) Blender-articulated vs paint decision for the Keeper.
+
+## Nov 13 later session: still blocked (no paint, spend unchanged)
+- Merged main (art_inventory.py conflict: kept both rule sets) and area/artslots (already in).
+- Blocker 1 stands: Source has no -SmokeKeeper/-SmokeSection/-SmokeMap. -SmokeStart only reaches the Playing screen, never BeginFight, and -SmokeShot is not ProjectDir-relative (docs/build/requests/artkeeper.md 1-2). No context pair, so no round can pass.
+- Blocker 3 stands: Keeper body base plateaued at artkeeper R6-R10; all six parts depend on it.
+- Nothing shipped; all six pieces stay tracked placeholders.
+NEEDS HUMAN: lead: (1) -SmokeKeeper calling BeginFight plus ProjectDir-relative -SmokeShot, (2) Blender-articulated vs paint decision for the Keeper.
