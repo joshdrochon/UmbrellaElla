@@ -195,7 +195,7 @@ def evaluate_frame(m, k):
 
 def check(paths, style, kind="silhouette", grid=None, size=None, frames=None, pow2=None,
           margin=0, spacing=0, loop=False, anim=None, fps=None, tile_axes="x",
-          drift_max=None, drift_reason=None, feet_rows=None):
+          drift_max=None, drift_reason=None, feet_rows=None, anchor_band=None, span_mode=None):
     sp = style["sprite"]
     if kind not in sp["kinds"]:
         raise ValueError(f"unknown kind '{kind}' (style.json has {sorted(sp['kinds'])})")
@@ -256,10 +256,11 @@ def check(paths, style, kind="silhouette", grid=None, size=None, frames=None, po
     if (loop or (anim is not None and kind == "silhouette")) and len(frame_rows) > 1:
         # jitter: anchor offset (px) and scale drift (%) between consecutive frames, limits measured on the team's
         # reference animations (tools/frame_register.py JITTER_LIMITS). One-shots are not wrapped; loops are.
-        live = [(w_, h_, r) for (n_, r), (_, m) in zip(frame_rows, measured) if m["visible"]
-                for w_, h_ in [(len(r[0]) if r else 0, len(r))]]
-        jit = frame_register.jitter(live, clear=sp["alpha_clear_max"], band=feet_rows if feet_rows is not None else
-                                    sp["pivot_feet_rows"], loop=loop)
+        keep = [i for i, (_, m) in enumerate(measured) if m["visible"]]   # original frame numbers of the live frames
+        live = [(len(frame_rows[i][1][0]) if frame_rows[i][1] else 0, len(frame_rows[i][1]), frame_rows[i][1]) for i in keep]
+        band = anchor_band or (feet_rows if feet_rows is not None else sp["pivot_feet_rows"])   # what the cutter registered on
+        jit = frame_register.jitter(live, clear=sp["alpha_clear_max"], band=band, span_mode=span_mode or "base", loop=loop)
+        jit["worst"] = [keep[w] for w in jit["worst"]]
         report["jitter"] = {k_: round(v, 2) for k_, v in jit.items() if k_ != "worst"}
         lim = dict(frame_register.JITTER_LIMITS)
         if drift_max is not None and (drift_reason or "").strip():   # the sidecar's reasoned pivot override covers this too
@@ -329,7 +330,7 @@ def scan(folder, style, fail_lfs_pointer=False):
                                      meta.get("margin", 0), meta.get("spacing", 0), meta.get("loop", False),
                                      meta.get("anim"), meta.get("fps"), meta.get("tile_axes", "x"),
                                      meta.get("pivot_drift_max_px"), meta.get("pivot_drift_reason"),
-                                     meta.get("feet_rows")))
+                                     meta.get("feet_rows"), meta.get("anchor_band"), meta.get("span_mode")))
     return reports, skipped
 
 

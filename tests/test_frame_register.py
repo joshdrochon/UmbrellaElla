@@ -141,6 +141,19 @@ class Checks(unittest.TestCase):
             good = art_loop.jitter_problems(self.sheet(d, fr.register(shake(pose_strip()))[0]))
             self.assertEqual(good, [])
 
+    def test_checks_read_the_cutters_band_and_span_from_the_sidecar(self):
+        band, mode = 30, "width"
+        strip = fr.register(shake(pose_strip()), band=band, span_mode=mode)[0]
+        with tempfile.TemporaryDirectory() as d:
+            p = self.sheet(d, strip)
+            side = os.path.splitext(p)[0] + ".sprite.json"
+            with open(side) as fh:
+                meta = json.load(fh)
+            meta.update(anchor_band=band, span_mode=mode)
+            with open(side, "w") as fh:
+                json.dump(meta, fh)
+            self.assertEqual(art_loop.jitter_problems(p), [])
+
     def test_sprite_check_reports_jitter(self):
         with open(os.path.join(ROOT, "pipeline", "art", "style.json")) as fh:
             style = json.load(fh)

@@ -741,7 +741,8 @@ def jitter_problems(path):
         return []
     n, fw, fh_ = info
     frames = frame_register.sheet_frames(path, (fw, fh_), n)
-    j = frame_register.jitter(frames, loop=bool(side.get("loop")))
+    j = frame_register.jitter(frames, band=side.get("anchor_band") or frame_register.BAND,
+                           span_mode=side.get("span_mode") or "base", loop=bool(side.get("loop")))
     lim = frame_register.JITTER_LIMITS
     out = []
     if j["offset_px"] > lim["offset_px"]:
@@ -749,7 +750,6 @@ def jitter_problems(path):
     if j["scale_pct"] > lim["scale_pct"]:
         out.append(f"jitter: figure scale drifts {j['scale_pct']:.1f}% between consecutive frames (limit {lim['scale_pct']:g}%)")
     return out
-
 
 
 EFFECT_PIECES = ("vfx-", "owl-bolt", "bolt-hit", "wand-shot", "umbrella-repair")

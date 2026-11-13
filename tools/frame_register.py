@@ -4,8 +4,8 @@ anchor(): the point a frame is pinned on, from its alpha mask: bottom-centre of 
 visible pixel (the feet, or an umbrella handle), the same point sprite_check's pivot check uses.
 span(): the size that stands for the figure's scale (mask height by default; "width" or a fixed band is configurable).
 register(): scale every frame about its anchor to the strip's median span, then translate so every anchor sits on one
-pixel. jitter(): anchor offset (px) and span drift (%) between consecutive frames. Limits live in style.json
-(sprite.jitter_*), measured on a reference sheet (see that file), never by eye.
+pixel. jitter(): anchor offset (px) and span drift (%) between consecutive frames. Limits are the constant JITTER_LIMITS,
+measured on a reference sheet (see that file), never by eye.
 
     python3 tools/frame_register.py measure sheet.png --grid 432x352 [--frames 5] [--row 0]
 """
