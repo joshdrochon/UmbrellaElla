@@ -1,0 +1,32 @@
+{
+ "element": "vfx-keeper-warning",
+ "note": "crops of the effect cut from the concept sheets; originals untouched",
+ "crops": [
+  {
+   "file": "tell-ring.png",
+   "source": "pipeline/art/reference/discord/20261110-0258_Ricky_1.png",
+   "box": [
+    60,
+    740,
+    150,
+    815
+   ],
+   "key": "red",
+   "pieces": "all",
+   "opaque_px": 1386
+  },
+  {
+   "file": "firing-tell.png",
+   "source": "pipeline/art/reference/discord/20261110-0258_Ricky_1.png",
+   "box": [
+    610,
+    315,
+    675,
+    360
+   ],
+   "key": "red",
+   "pieces": "all",
+   "opaque_px": 2855
+  }
+ ]
+}

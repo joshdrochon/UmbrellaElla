@@ -652,9 +652,10 @@ def coverage(refs, root=ROOT):
     """Problems: a reference no judge element or no card uses; an element or card naming an unknown reference."""
     out = schema_problems(refs)
     ids = {r["id"] for r in refs["references"]}
-    used = {rid for el in refs["elements"].values() for rid in el["refs"]} | set(refs["scene"]["refs"])
+    # "context": whole concept sheets an element keeps for the look but never scores (D-new-vfx-calibration, crops)
+    used = {rid for el in refs["elements"].values() for rid in el["refs"] + el.get("context", [])} | set(refs["scene"]["refs"])
     for name, el in list(refs["elements"].items()) + [("scene", refs["scene"])]:
-        for rid in el["refs"]:
+        for rid in el["refs"] + el.get("context", []):
             if rid not in ids:
                 out.append(f"judge element {name} names unknown reference {rid}")
         if not el["refs"]:
