@@ -14,6 +14,10 @@ set -u
 A="${1#area/}"; C="${2:-area/$A}"; ROOT="$(cd "$(dirname "$0")/../.." && pwd)"; BASE="$(dirname "$ROOT")/UmbrellaElla-areas"
 G="$BASE/gate"; L="$BASE/logs"; mkdir -p "$L"; T0=$(date +%s); fail=0
 step() { echo "[gate $A] $1 ($(( $(date +%s) - T1 )) s)"; }
+# Art lanes wait for the pass-record verifier (Josh, Nov 12): no art-loop pass merges until main can re-verify it.
+if git -C "$ROOT" diff --name-only "main...$C" 2>/dev/null | grep -q '^pipeline/art/critic/' || [[ "$A" == art* && "$A" != artinventory ]]; then
+  git -C "$ROOT" cat-file -e main:tools/build/art_pass_verify.py 2>/dev/null || { echo "GATE FAIL: area/$A waits for tools/build/art_pass_verify.py on main (pass records must be re-verified)"; exit 1; }
+fi
 cd "$ROOT"; git fetch -q origin
 [ -d "$G" ] || git worktree add -q "$G" -B gate main
 mkdir -p "$G/Saved/Config/MacEditor"; cp -n "$ROOT/Saved/Config/MacEditor/GameUserSettings.ini" "$G/Saved/Config/MacEditor/" 2>/dev/null
