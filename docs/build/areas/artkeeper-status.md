@@ -99,3 +99,8 @@ NEEDS HUMAN: Josh / lead: smoke switch to start the Keeper fight (request 1), an
 - Paint plateaued R6-R10 at the same panel gap; another round would cost money without moving it, so none was run.
 - Owl stays tracked _PH; nothing shipped.
 NEEDS HUMAN: lead: (1) smoke switch to start the Keeper fight, (2) ProjectDir-relative -SmokeShot path, (3) Blender-articulated vs paint decision.
+
+## Nov 12 session: still blocked (no new paint, spend unchanged)
+- Merged main (artslots already in). Source still has no -SmokeKeeper/-SmokeSection handling and -SmokeShot is still not ProjectDir-relative, so the context pair cannot be made (docs/build/requests/artkeeper.md items 1-2). Paint plateaued R6-R10; no round run.
+- Owl stays tracked _PH; nothing shipped.
+NEEDS HUMAN: lead: smoke switch to start the Keeper fight, ProjectDir-relative -SmokeShot, Blender-vs-paint decision.
