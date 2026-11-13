@@ -40,6 +40,14 @@ namespace UmbrellaArtSlotConst
 	static constexpr float PlaneEdge = 100.0f;
 	/** World units one repeat of a tiled picture covers. */
 	static constexpr float TileWorldSize = 600.0f;
+	/** Engine white texture: the flat unlit stand-in colour is this times the slot material's Tint. */
+	static const TCHAR* const WhiteTexturePath = TEXT("/Engine/EngineResources/WhiteSquareTexture.WhiteSquareTexture");
+	/** Stand-in colour when a site has none of its own (paper grey-brown, art bible palette family). */
+	static const FLinearColor StandInDefaultColor(0.80f, 0.68f, 0.45f, 1.0f);
+	/** Role colours for stand-ins, so Ella, enemies and the Keeper read apart against the dark paper backdrop. */
+	static const FLinearColor StandInEllaColor(0.95f, 0.85f, 0.35f, 1.0f);
+	static const FLinearColor StandInEnemyColor(0.85f, 0.28f, 0.22f, 1.0f);
+	static const FLinearColor StandInKeeperColor(0.55f, 0.40f, 0.75f, 1.0f);
 }
 
 /**
@@ -77,6 +85,16 @@ namespace ArtSlot
 
 	/** Load the row's texture and Apply it (NoTexture when no asset exists). */
 	UMBRELLAELLA_API EArtSlotDraw ApplyRow(UStaticMeshComponent* Mesh, const FArtSlotRow& Row, const FVector& BoxScale);
+
+	/**
+	 * Flat unlit stand-in colour (screenfix): put the unlit slot material tinted Color on Mesh, so a placeholder cube
+	 * never depends on level lights (art bible: unlit sprite materials only). Leaves the component as it was when the
+	 * material is missing (IsUnlit then says false).
+	 */
+	UMBRELLAELLA_API void SetFlatUnlit(UStaticMeshComponent* Mesh, UObject* Outer, const FLinearColor& Color);
+
+	/** True when the component's material 0 is the unlit slot material (or an instance of it). */
+	UMBRELLAELLA_API bool IsUnlit(const UStaticMeshComponent* Mesh);
 
 	/** Swap the picture on a component already drawn with art (a state change). */
 	UMBRELLAELLA_API void SetTexture(UStaticMeshComponent* Mesh, UTexture2D* Texture);

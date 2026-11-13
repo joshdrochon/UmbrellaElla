@@ -19,7 +19,12 @@ Blender headless; scripts and recipes in pipeline/art/blender/)
           No Blender (PATH, $BLENDER, or the usual install folder): labelled placeholder frames, which can never
           pass the art loop (tools/art_loop.py) or ship (check_pr.py, submission_check.py art).
   blender --script PY --out PNG [-- args]   any other Blender script, headless
-  image   --prompt P --out pipeline/art/proof/ImageProof/<name>.png (proof images; shipped art goes under Art/) [--provider gemini|openai] [--input OURS.png ...] [--model M]
+  video   --prompt P --input OURS.png --out X.mp4 --piece ID [--seed S]
+          Image-to-video on fal, the fixed model fal-ai/veo3.1/fast/image-to-video (any other --model is refused; the live model
+          page must say "active"), 4 s, audio off, the prompt gets the flat chroma-green background text. Same guards as `image`
+          (in-jam input, FAL_KEY, shared counter), priced from fal's live per-second price, its own 1 USD per-piece cap.
+          Writes the mp4, <stem>.request.json and the provenance row (model, prompt, input image, seed, cost).
+  image   --prompt P --out pipeline/art/proof/ImageProof/<name>.png (proof images; shipped art goes under Art/) [--provider gemini|openai|openrouter] [--tier draft|final] [--input OURS.png ...] [--model M]
           [--size WxH] [--aspect 4:1] [--image-size 0.5K|1K|2K|4K] [--seed S] [--quality low|medium|high]
           Image model (D-new-art-image-model; default gemini, key GEMINI_API_KEY; openai optional, OPENAI_API_KEY):
           one still from the prompt. Order: every --input is guarded first (GDD ART-03 / BG-02: a file under
@@ -514,7 +519,22 @@ def cmd_image(a, argv, root):
 
 
 # ---------- image model providers (D-new-art-image-model) ----------
-IMAGE_PROVIDERS = {"gemini": ("gemini-image", "GEMINI_API_KEY"), "openai": ("openai-image", "OPENAI_API_KEY")}
+IMAGE_PROVIDERS = {"gemini": ("gemini-image", "GEMINI_API_KEY"), "openai": ("openai-image", "OPENAI_API_KEY"),
+                   "openrouter": ("gemini-image", "OPENROUTER_API_KEY")}   # openrouter: Google's models, Google's price table
+GOOGLE_PROVIDERS = ("gemini", "openrouter")
+# Tiers (Josh, Nov 12): drafts on the cheap flash model, final candidates on Pro. Ids checked against the key's
+# models.list (image-models) on Nov 12: gemini-2.5-flash-image and gemini-3-pro-image-preview both exist and are priced.
+IMAGE_TIERS = {"draft": "gemini-2.5-flash-image", "final": "gemini-3-pro-image-preview"}
+# OpenRouter serves the SAME Google models only: our model id -> OpenRouter's id for that model (checked against
+# openrouter.ai/api/v1/models, free, Nov 12: both tiers' models are offered). Anything else is refused, no fallback.
+OPENROUTER_MODELS = {"gemini-2.5-flash-image": "google/gemini-2.5-flash-image",
+                     "gemini-3-pro-image-preview": "google/gemini-3-pro-image-preview"}
+OPENROUTER_ENDPOINT = "https://openrouter.ai/api/v1/chat/completions"
+OPENROUTER_CAP_USD = 19.89   # hard cap on OpenRouter spend in the shared counter (IMAGE_SPEND_OPENROUTER_CAP_USD overrides)
+OPENROUTER_NEAR_CALLS = 5    # OpenRouter is used only when Gemini's remaining cap < this many final calls
+OPENROUTER_INFO = {"name": "OpenRouter (Google Gemini image models)",
+                   "licence": "OpenRouter Terms; output of the Google model: Gemini API Additional Terms of Service "
+                              "(Google claims no ownership of generated output)"}
 GEMINI_RATIOS = ("1:1", "2:3", "3:2", "3:4", "4:3", "4:5", "5:4", "9:16", "16:9", "21:9")
 GEMINI_IMAGE_SIZES = ("0.5K", "1K", "2K", "4K")
 OPENAI_SIZES = {"1024x1024": 1.0, "1024x1536": 1.5, "1536x1024": 1.5}
@@ -726,21 +746,177 @@ def _write_spend(path, d):
     os.replace(tmp, path)
 
 
+def openrouter_cap():
+    v = (os.environ.get("IMAGE_SPEND_OPENROUTER_CAP_USD") or "").strip()
+    return float(v) if v else OPENROUTER_CAP_USD
+
+
+def provider_spent(d):
+    """(openrouter USD, every other provider's USD) in the counter. spent_usd stays the total of both."""
+    orr = sum(float(c.get("cost_usd") or 0) for c in d["calls"]
+              if c.get("provider") == "openrouter" and not c.get("refunded"))
+    return round(orr, 6), round(max(0.0, d["spent_usd"] - orr), 6)
+
+
+PIECE_CAP_USD = 0.50   # Josh, Nov 13: per-piece image spend cap, both providers, keyed by piece in the counter
+SMOKE_SHOT_MARK = "SmokeShotFrames"
+SMOKE_HOOK = "Source/UmbrellaElla/Private/Smoke/SmokeHookSubsystem.cpp"
+
+
+def piece_cap():
+    v = (os.environ.get("IMAGE_SPEND_PIECE_CAP_USD") or "").strip()
+    return float(v) if v else PIECE_CAP_USD
+
+
+def smoke_shot_on_main(root):
+    """True when origin/main has screenfix's frame-based smoke shot (-SmokeShotFrames in the smoke hook)."""
+    try:
+        r = subprocess.run(["git", "-C", root, "show", f"origin/main:{SMOKE_HOOK}"], capture_output=True,
+                           text=True, timeout=30)
+    except (OSError, subprocess.SubprocessError):
+        return False
+    return r.returncode == 0 and SMOKE_SHOT_MARK in r.stdout
+
+
+def piece_is_screen(root, piece):
+    """A UI screen piece (an element with a ui block in references.json) has no in-game context pair."""
+    try:
+        with open(os.path.join(root, "pipeline", "art", "references.json"), encoding="utf-8") as fh:
+            refs = json.load(fh)
+    except (OSError, ValueError):
+        return False
+    return bool((refs.get("elements", {}).get(piece) or {}).get("ui"))
+
+
+def piece_needs_context(root, piece):
+    """True when the piece needs an in-game context pair: any piece that is not a UI screen."""
+    return not piece_is_screen(root, piece)
+
+
+def draft_checks_passed(root, piece, draft):
+    """(ok, why) for a draft file: art_check against style.json, and for a judge element the art_ref_check
+    element score (best file >= score_min). Runs the checks; no paid call."""
+    if not os.path.isfile(draft):
+        return False, f"draft file {draft} does not exist"
+    try:
+        sys.path.insert(0, os.path.join(root, "tools"))
+        import art_check, art_judge
+        with open(os.path.join(root, "pipeline", "art", "style.json"), encoding="utf-8") as fh:
+            st = json.load(fh)
+        fails = art_check.evaluate(art_check.measure(draft, st), st)
+        if fails:
+            return False, "art_check FAIL: " + "; ".join(fails[:3])
+        with open(os.path.join(root, "pipeline", "art", "references.json"), encoding="utf-8") as fh:
+            refs = json.load(fh)
+        el = refs.get("elements", {}).get(piece)
+        if el:
+            _, rows, missing = art_judge.element(piece, [draft], refs, [root], set(el["refs"]))
+            best = max((r[1] for r in rows), default=0.0)
+            if best < el["score_min"]:
+                return False, f"art_ref_check element {piece} FAIL: score {best} < {el['score_min']}"
+    except Exception as e:   # noqa: BLE001  a check that cannot run is not a pass
+        return False, f"the draft checks could not run: {e}"
+    return True, "art_check and art_ref_check passed"
+
+
+def spend_guards(root, a, tier):
+    """Josh's image-spend guards 1 and 2 (before any key or counter use); ImageRefused when a guard stops the call."""
+    piece = (getattr(a, "piece", None) or "").strip()
+    if not piece:
+        raise ImageRefused("PIECE REQUIRED: every paid image call names its piece (--piece <id>); no call made")
+    if piece_needs_context(root, piece) and not smoke_shot_on_main(root):
+        raise ImageRefused(f"NO CONTEXT SHOT: piece {piece} needs an in-game context pair and origin/main has no "
+                           f"-{SMOKE_SHOT_MARK} support yet ({SMOKE_HOOK}); only UI screens paint until screenfix's "
+                           f"frame-based smoke shot is on main. No call made")
+    if tier == "final":
+        draft = getattr(a, "from_draft", None)
+        if not draft:
+            raise ImageRefused("DRAFT FIRST: --tier final needs --from-draft <file>, a draft of this piece whose "
+                               "art_check / art_ref_check passed; no call made")
+        ok, why = draft_checks_passed(root, piece, draft)
+        if not ok:
+            raise ImageRefused(f"DRAFT NOT PASSED: {why} ({draft}); fix the draft first. No call made")
+    return piece
+
+
+def log_piece_cap(root, line):
+    d = os.path.join(os.path.dirname(os.path.abspath(root)), "logs")
+    try:
+        os.makedirs(d, exist_ok=True)
+        with open(os.path.join(d, "spend-cap.log"), "a", encoding="utf-8") as fh:
+            fh.write(f"{now_iso()} {line}\n")
+    except OSError:
+        pass
+
+
 def spend_reserve(cost, entry):
-    """Add `cost` to the shared counter before the call, under the lock; ImageRefused when it would pass the cap.
+    """Add `cost` to the shared counter before the call, under the lock; ImageRefused when it would pass the cap of
+    its provider (OpenRouter has its own hard cap; every other provider shares IMAGE_SPEND_CAP_USD).
     Returns the call's index in the counter (spend_settle updates it)."""
     path, cap = spend_settings()
+    on_or = entry.get("provider") == "openrouter"
     with _SpendLock(path):
         d = _read_spend(path)
-        if d["spent_usd"] + cost > cap + 1e-9:
-            raise ImageRefused(f"CAP REACHED: spent ${d['spent_usd']:.3f} of the ${cap:.2f} total image cap "
-                               f"(IMAGE_SPEND_CAP_USD); this call (${cost:.3f}) would pass it. No call made. "
-                               f"Every further image call stops here (counter {path})")
+        or_spent, other_spent = provider_spent(d)
+        spent, limit, name = (or_spent, openrouter_cap(), "OpenRouter image cap") if on_or else \
+            (other_spent, cap, "total image cap (IMAGE_SPEND_CAP_USD)")
+        if spent + cost > limit + 1e-9:
+            raise ImageRefused(f"CAP REACHED: spent ${spent:.3f} of the ${limit:.2f} {name}; this call "
+                               f"(${cost:.3f}) would pass it. No call made. "
+                               f"Every further {entry.get('provider')} image call stops here (counter {path})")
+        piece = entry.get("piece")
+        if piece:
+            ps = round(sum(float(c.get("cost_usd") or 0) for c in d["calls"]
+                           if c.get("piece") == piece and not c.get("refunded")), 6)
+            pcap = float(entry.pop("piece_cap", None) or piece_cap())   # video calls carry their own per-piece cap
+            if ps + cost > pcap + 1e-9:
+                msg = (f"PIECE CAP: piece {piece} has spent ${ps:.3f} of the ${pcap:.2f} per-piece cap; this "
+                       f"call (${cost:.3f}) would pass it. triage art vs check before more spend. No call made")
+                log_piece_cap(entry.get("root") or os.getcwd(), f"piece={piece} provider={entry.get('provider')} {msg}")
+                raise ImageRefused(msg)
+        entry.pop("root", None)
+        entry.pop("piece_cap", None)
         d["spent_usd"] = round(d["spent_usd"] + cost, 6)
         d["cap_usd"] = cap
+        d["openrouter_cap_usd"] = openrouter_cap()
         d["calls"].append(dict(entry, cost_usd=cost, status="reserved", ts=now_iso()))
         _write_spend(path, d)
-        return len(d["calls"]) - 1, d["spent_usd"], cap
+        return len(d["calls"]) - 1, (or_spent if on_or else other_spent) + cost, limit
+
+
+def gemini_remaining():
+    """USD left under Gemini's cap (None when no cap or counter is configured)."""
+    try:
+        path, cap = spend_settings()
+    except ImageRefused:
+        return None
+    with _SpendLock(path):
+        return cap - provider_spent(_read_spend(path))[1]
+
+
+def openrouter_model(model):
+    """OpenRouter's id for our model; ImageRefused for any model that is not one of the two Google image models."""
+    if model not in OPENROUTER_MODELS:
+        raise ImageRefused(f"OPENROUTER REFUSED: {model!r} is not one of the Google models OpenRouter may serve "
+                           f"({', '.join(OPENROUTER_MODELS)}); no fallback to another model")
+    return OPENROUTER_MODELS[model]
+
+
+def pick_provider(provider, model, key_present=None):
+    """The provider that serves this call. An explicit openrouter is checked against the mapping. gemini moves to
+    OpenRouter only when its remaining cap is below the cost of OPENROUTER_NEAR_CALLS final calls, the model is
+    mapped and an OpenRouter key exists; otherwise it stays on gemini (no silent model change)."""
+    if provider == "openrouter":
+        openrouter_model(model)
+        return provider
+    if provider != "gemini" or model not in OPENROUTER_MODELS:
+        return provider
+    left = gemini_remaining()
+    final_cost = image_price(tool("gemini-image"), IMAGE_TIERS["final"], "medium", "1024x1024", 0, "2K")
+    if left is None or left >= OPENROUTER_NEAR_CALLS * final_cost:
+        return provider
+    has_key = keys.get("OPENROUTER_API_KEY") if key_present is None else key_present
+    return "openrouter" if has_key else provider
 
 
 def spend_settle(index, status, refund=False, cost=None, **extra):
@@ -848,6 +1024,31 @@ def gemini_request(t, model, prompt, inputs, aspect, image_size, seed, key):
     raise RuntimeError(f"gemini returned no image (finish={why}; text={' '.join(texts)[:160]!r})")
 
 
+def openrouter_request(t, model, prompt, inputs, aspect, image_size, key):
+    """One image through OpenRouter's chat completions for the mapped Google model (never any other)."""
+    import base64
+    parts = [{"type": "text", "text": prompt}]
+    for f in inputs:
+        with open(f, "rb") as fh:
+            parts.append({"type": "image_url", "image_url": {
+                "url": f"data:{_mime(f)};base64," + base64.b64encode(fh.read()).decode()}})
+    image_cfg = {"aspect_ratio": aspect}
+    if image_size:
+        image_cfg["image_size"] = image_size
+    body = json.dumps({"model": openrouter_model(model), "messages": [{"role": "user", "content": parts}],
+                       "modalities": ["image", "text"], "image_config": image_cfg,
+                       "usage": {"include": True}}).encode()
+    raw = http_post(OPENROUTER_ENDPOINT, {"Authorization": f"Bearer {key}", "Content-Type": "application/json"}, body)
+    reply = json.loads(raw)
+    for ch in reply.get("choices") or []:
+        for im in (ch.get("message") or {}).get("images") or []:
+            url = (im.get("image_url") or {}).get("url") or ""
+            if url.startswith("data:") and "," in url:
+                return (base64.b64decode(url.split(",", 1)[1]), reply.get("model") or openrouter_model(model),
+                        {"usage": reply.get("usage"), "finish": ch.get("finish_reason")})
+    raise RuntimeError(f"openrouter returned no image (model={reply.get('model')!r}; error={str(reply.get('error'))[:160]!r})")
+
+
 def _multipart(fields, files):
     import uuid
     b = "----assetgen" + uuid.uuid4().hex
@@ -903,9 +1104,13 @@ def to_png(data, out):
 
 def cmd_image_model(a, argv, root, provider):
     """One paid still from an image model. Order: inputs guarded, key, price, cap reserved, call, provenance, log."""
+    tier = getattr(a, "tier", None) or "draft"
+    model = a.model or (IMAGE_TIERS[tier] if provider in GOOGLE_PROVIDERS else tool(IMAGE_PROVIDERS[provider][0])["model"])
+    piece = spend_guards(root, a, tier)
+    provider = pick_provider(provider, model)
     tid, key_name = IMAGE_PROVIDERS[provider]
     t = tool(tid)
-    model = a.model or t["model"]
+    google = provider in GOOGLE_PROVIDERS
     inputs = list(a.input or [])
     for f in inputs:
         why = refuse_prejam_input(root, f)
@@ -919,18 +1124,21 @@ def cmd_image_model(a, argv, root, provider):
             queue_or_key(argv, key_name)
         raise ImageRefused(f"NO KEY: {key_name} is not set (tools/keys.py status), so no image was made and no "
                            f"placeholder stands in for it. {keys.how_to_set(key_name)}")
-    aspect, image_size = gemini_shape(t, model, a) if provider == "gemini" else (None, None)
+    aspect, image_size = gemini_shape(t, model, a) if google else (None, None)
     base_cost = image_price(t, model, a.quality, a.size, len(inputs), image_size)
     image_cost = image_price(t, model, a.quality, a.size, 0, image_size)
-    think = round(image_cost * thinking_rate(t, model)[1], 6) if provider == "gemini" else 0.0
+    think = round(image_cost * thinking_rate(t, model)[1], 6) if google else 0.0
     cost = round(base_cost + think, 6)
-    entry = {"provider": provider, "model": model, "out": rel(a.out, root), "inputs": len(inputs),
+    entry = {"provider": provider, "model": model, "tier": tier, "out": rel(a.out, root), "inputs": len(inputs),
+             "piece": piece, "root": root, "from_draft": rel(a.from_draft, root) if getattr(a, "from_draft", None) else None,
              "worker": os.path.basename(root), "role": os.environ.get("JAM_ROLE"), "aspect": aspect,
              "image_size": image_size, "thinking_reserve_usd": think}
     idx, spent, cap = spend_reserve(cost, entry)
     try:
         if provider == "gemini":
             data, version, meta = gemini_request(t, model, a.prompt, inputs, aspect, image_size, a.seed, k)
+        elif provider == "openrouter":
+            data, version, meta = openrouter_request(t, model, a.prompt, inputs, aspect, image_size, k)
         else:
             data, version, meta = openai_request(t, model, a.prompt, inputs, a.size, a.quality, k)
     except Exception as e:   # noqa: BLE001  the call failed: settle the counter, report, never a placeholder
@@ -943,23 +1151,30 @@ def cmd_image_model(a, argv, root, provider):
     how = to_png(data, a.out)
     if provider == "gemini":
         cost = settled_cost(t, model, image_cost, len(inputs), meta.get("usage"))
+    elif provider == "openrouter" and isinstance((meta.get("usage") or {}).get("cost"), (int, float)):
+        cost = round(float(meta["usage"]["cost"]), 6)   # what OpenRouter billed for the call
     spent = spend_settle(idx, "done", cost=cost, usage=meta.get("usage"), model_version=version)
-    seed = a.seed if (provider == "gemini" and a.seed is not None) else ("none (no seed parameter)"
-                                                                         if provider == "openai" else "")
+    if provider == "gemini":
+        seed = a.seed if a.seed is not None else ""
+    else:
+        seed = "none (no seed parameter)" if provider == "openai" else "none (seed not sent)"
     with open(os.path.splitext(a.out)[0] + ".request.json", "w", encoding="utf-8") as fh:
-        json.dump({"provider": provider, "tool": t["name"], "model": model, "model_version": version,
+        json.dump({"provider": provider, "tier": tier, "tool": t["name"] if provider != "openrouter" else OPENROUTER_INFO["name"],
+                   "model": model, "openrouter_model": OPENROUTER_MODELS.get(model) if provider == "openrouter" else None, "model_version": version,
                    "prompt": a.prompt, "seed": seed, "size": a.size, "quality": a.quality, "aspect_ratio": aspect,
                    "image_size": image_size,
                    "input_images": [rel(f, root) for f in inputs], "cost_usd": cost, "reply": meta,
                    "date": now_iso()}, fh, indent=1)
         fh.write("\n")
+    cap_name = "OpenRouter image cap" if provider == "openrouter" else "shared image cap"
     write_provenance(root, a.out, tid, a.prompt, version, inputs=inputs, origin="generated in jam",
-                     note=f"image model {provider}; ${cost:.3f} counted against the shared image cap; full prompt in "
+                     info=OPENROUTER_INFO if provider == "openrouter" else None,
+                     note=f"image model provider={provider} tier={tier} model={model}; ${cost:.3f} counted against the {cap_name}; full prompt in "
                           f"{rel(os.path.splitext(a.out)[0] + '.request.json', root)}", seed=seed)
     log_image_prompt(root, a.prompt, provider, version, a.out, cost)
     w, h, _ = png.read_png(a.out)
     thoughts = ((meta.get("usage") or {}).get("thoughtsTokenCount") or 0) if provider == "gemini" else 0
-    print(f"IMAGE {rel(a.out, root)} via={provider} model={version} {w}x{h} inputs={len(inputs)} "
+    print(f"IMAGE {rel(a.out, root)} via={provider} tier={tier} model={version} {w}x{h} inputs={len(inputs)} "
           f"aspect={aspect or a.size} image_size={image_size or '-'} thinking_tokens={thoughts} cost=${cost:.3f} "
           f"spent=${spent:.3f} of ${cap:.2f} ({how})")
     return 0
@@ -1678,6 +1893,140 @@ def cmd_fulfil(a, argv, root):
     return 1 if any(r["exit"] for r in results) else 0
 
 
+# ---------- video mode (artvideo trial): image-to-video on fal, Veo only ----------
+# Checked against fal's live model page (GET https://api.fal.ai/v1/models?endpoint_id=..., free) on Nov 13: fal-ai/veo3,
+# veo3/fast and veo2 image-to-video are "deprecated"; fal-ai/veo3.1/{,fast/,lite/}image-to-video are "active". Live prices
+# (GET /v1/models/pricing, key header, free): 0.40 / 0.15 / 0.05 USD per second. Fast is the fixed model. Anything else is refused.
+FAL_VIDEO_MODEL = "fal-ai/veo3.1/fast/image-to-video"
+FAL_QUEUE = "https://queue.fal.run/"
+FAL_API = "https://api.fal.ai/v1/"
+FAL_PRICE_FALLBACK = 0.15       # USD per second, used only when the live price cannot be read
+FAL_VIDEO_SECONDS = 4           # fal's shortest Veo 3.1 clip (4s, 6s, 8s); the trial uses its first ~2 s
+FAL_VIDEO_PIECE_CAP_USD = 1.00  # per-piece cap of a video piece, inside the shared IMAGE_SPEND_CAP_USD counter
+FAL_POLL_SECONDS = 5
+FAL_POLL_TRIES = 120
+FAL_INFO = {"name": "fal.ai (Google Veo 3.1 Fast, image-to-video)",
+            "licence": "fal.ai Terms of Service; output of Google Veo: Google generative AI terms (commercial use allowed on fal; "
+                       "SynthID watermark)"}
+VIDEO_PROMPT_SUFFIX = (" Flat solid chroma green background (pure #00FF00), the whole frame outside the character stays that "
+                       "one green, no floor, no shadows, no gradient, no text. Static locked camera, no zoom, no pan, no cut. "
+                       "The character stays in place and keeps her size; only a small gentle idle movement. No sound.")
+VIDEO_NEGATIVE = "camera movement, zoom, cut, text, subtitles, logo, background scenery, shadows on the background, people other than the character, sound"
+
+
+def fal_video_model(model):
+    if model != FAL_VIDEO_MODEL:
+        raise ImageRefused(f"VIDEO MODEL REFUSED: {model!r} is not the fixed video model {FAL_VIDEO_MODEL}; no fallback")
+    return model
+
+
+def _fal_get_json(url, key=None):
+    hdr = {"Authorization": f"Key {key}"} if key else {}
+    return json.loads(http_get(url, hdr))
+
+
+def fal_live_check(model, key):
+    """(unit USD per second, status) from fal's live pages. ImageRefused when the endpoint is not active."""
+    try:
+        d = _fal_get_json(f"{FAL_API}models?endpoint_id={model}")
+        status = ((d.get("models") or [{}])[0].get("metadata") or {}).get("status")
+    except Exception as e:   # noqa: BLE001
+        raise ImageRefused(f"the model page could not be read ({e}); no call made")
+    if status != "active":
+        raise ImageRefused(f"VIDEO MODEL NOT ACTIVE: fal lists {model} as {status!r}; no call made")
+    try:
+        d = _fal_get_json(f"{FAL_API}models/pricing?endpoint_id={model}", key)
+        price = float(d["prices"][0]["unit_price"])
+    except Exception:   # noqa: BLE001
+        price = FAL_PRICE_FALLBACK
+    return price, status
+
+
+def fal_video_request(model, prompt, image_path, seed, key):
+    """Submit, poll, return (mp4 bytes, reply dict). Audio off. The key only goes in the Authorization header."""
+    import base64
+    hdr = {"Authorization": f"Key {key}", "Content-Type": "application/json"}
+    uri = "data:image/png;base64," + base64.b64encode(open(image_path, "rb").read()).decode()
+    body = {"prompt": prompt, "image_url": uri, "duration": f"{FAL_VIDEO_SECONDS}s", "generate_audio": False,
+            "resolution": "720p", "aspect_ratio": "16:9", "negative_prompt": VIDEO_NEGATIVE, "seed": seed,
+            "auto_fix": False}
+    sub = json.loads(http_post(FAL_QUEUE + model, hdr, json.dumps(body).encode()))
+    status_url, result_url = sub["status_url"], sub["response_url"]
+    for _ in range(FAL_POLL_TRIES):
+        st = json.loads(http_get(status_url, hdr))
+        if st.get("status") == "COMPLETED":
+            break
+        if st.get("status") not in ("IN_QUEUE", "IN_PROGRESS"):
+            raise RuntimeError(f"fal status {st.get('status')}: {str(st)[:200]}")
+        if not os.environ.get("ASSETGEN_HTTP_STUB"):
+            time.sleep(FAL_POLL_SECONDS)
+    else:
+        raise RuntimeError("fal: the video was not ready in time (cost kept: it may be billed)")
+    res = json.loads(http_get(result_url, hdr))
+    vurl = (res.get("video") or {}).get("url")
+    if not vurl:
+        raise RuntimeError(f"fal: no video in the reply: {str(res)[:200]}")
+    return http_get(vurl, {}), {"request_id": sub.get("request_id"), "video": {k: v for k, v in res["video"].items() if k != "url"}}
+
+
+def cmd_video(a, argv, root):
+    try:
+        return cmd_video_model(a, argv, root)
+    except ImageRefused as e:
+        print(f"REFUSED: video: {e}")
+        return 2
+
+
+def cmd_video_model(a, argv, root):
+    """One paid image-to-video clip. Order: model fixed, input guarded, key, live price, cap reserved, call, provenance."""
+    fal_video_model(a.model or FAL_VIDEO_MODEL)
+    piece = (a.piece or "").strip()
+    if not piece:
+        raise ImageRefused("PIECE REQUIRED: every paid video call names its piece (--piece <id>); no call made")
+    why = refuse_prejam_input(root, a.input)
+    if why:
+        raise ImageRefused(f"PRE-JAM INPUT REFUSED: {why}. GDD ART-03: only in-jam images we made may be inputs")
+    k = keys.get("FAL_KEY")
+    if not k:
+        raise ImageRefused("NO KEY: FAL_KEY is not set, so no video was made")
+    price, _ = fal_live_check(FAL_VIDEO_MODEL, k)
+    cost = round(price * FAL_VIDEO_SECONDS, 6)
+    seed = a.seed if a.seed is not None else 7
+    prompt = a.prompt.strip() + VIDEO_PROMPT_SUFFIX
+    entry = {"provider": "fal", "model": FAL_VIDEO_MODEL, "kind": "video", "out": rel(a.out, root), "inputs": 1,
+             "piece": piece, "root": root, "piece_cap": FAL_VIDEO_PIECE_CAP_USD, "worker": os.path.basename(root),
+             "role": os.environ.get("JAM_ROLE"), "seconds": FAL_VIDEO_SECONDS, "unit_usd_per_s": price}
+    idx, spent, cap = spend_reserve(cost, entry)
+    try:
+        data, meta = fal_video_request(FAL_VIDEO_MODEL, prompt, a.input, seed, k)
+    except Exception as e:   # noqa: BLE001
+        code = getattr(e, "code", None)
+        refused = isinstance(code, int) and 400 <= code < 500   # rejected before generation: not billed
+        spent = spend_settle(idx, "failed", refund=refused, error=api_error(e) if code else str(e)[:200])
+        print(f"FAIL: video fal {FAL_VIDEO_MODEL}: {api_error(e) if code else e}; counter ${spent:.3f} of ${cap:.2f}"
+              + (" (refunded: the provider refused the request)" if refused else " (cost kept: it may be billed)"))
+        return 1
+    os.makedirs(os.path.dirname(os.path.abspath(a.out)), exist_ok=True)
+    with open(a.out, "wb") as fh:
+        fh.write(data)
+    spent = spend_settle(idx, "done", cost=cost, model_version=FAL_VIDEO_MODEL)
+    req = os.path.splitext(a.out)[0] + ".request.json"
+    with open(req, "w", encoding="utf-8") as fh:
+        json.dump({"provider": "fal", "model": FAL_VIDEO_MODEL, "prompt": prompt, "negative_prompt": VIDEO_NEGATIVE,
+                   "seed": seed, "duration_s": FAL_VIDEO_SECONDS, "generate_audio": False, "resolution": "720p",
+                   "aspect_ratio": "16:9", "input_image": rel(a.input, root), "unit_usd_per_s": price,
+                   "cost_usd": cost, "reply": meta, "date": now_iso()}, fh, indent=1)
+        fh.write("\n")
+    write_provenance(root, a.out, "fal-video", prompt, FAL_VIDEO_MODEL, inputs=[a.input], origin="generated in jam",
+                     info=FAL_INFO, seed=seed,
+                     note=f"video model fal {FAL_VIDEO_MODEL}, {FAL_VIDEO_SECONDS} s, audio off; ${cost:.3f} counted against the "
+                          f"shared image cap; full request in {rel(req, root)}")
+    log_image_prompt(root, prompt, "fal", FAL_VIDEO_MODEL, a.out, cost)
+    print(f"VIDEO {rel(a.out, root)} via=fal model={FAL_VIDEO_MODEL} {len(data)} bytes seed={seed} cost=${cost:.3f} "
+          f"spent=${spent:.3f} of ${cap:.2f}")
+    return 0
+
+
 def parser():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -1685,16 +2034,28 @@ def parser():
     p.add_argument("--prompt", required=True)
     p.add_argument("--out", required=True)
     p.add_argument("--size", default="1024x1024")
-    p.add_argument("--provider", choices=("gemini", "openai", "blender", "placeholder", "reference"), default="gemini")
+    p.add_argument("--provider", choices=("gemini", "openai", "openrouter", "blender", "placeholder", "reference"),
+                   default="gemini")
+    p.add_argument("--tier", choices=tuple(IMAGE_TIERS), default="draft",
+                   help="draft: gemini-2.5-flash-image (cheap); final: gemini-3-pro-image-preview (art_loop final candidates)")
     p.add_argument("--input", action="append", help="an in-jam image of ours as an image-model input (repeatable; "
                    "pre-jam images are refused)")
     p.add_argument("--model", help="image model (default: the provider's model in asset-tools.json)")
+    p.add_argument("--piece", help="the art piece id this paid call is for (required for every paid image call)")
+    p.add_argument("--from-draft", dest="from_draft", help="--tier final: the draft file of this piece whose checks passed")
     p.add_argument("--quality", default="medium", choices=("low", "medium", "high"), help="openai quality")
     p.add_argument("--aspect", help="gemini aspect ratio, e.g. 1:1, 16:9, 4:1 (default: nearest to --size)")
     p.add_argument("--image-size", choices=GEMINI_IMAGE_SIZES, help="gemini 3.x output size (required for them)")
     p.add_argument("--element", choices=tuple(ELEMENT_ROLE))
     p.add_argument("--character", help="a recipe in pipeline/art/blender/characters.json (default: by element)")
     p.add_argument("--anim", help="the recipe row (default: Still, else the first)")
+    p.add_argument("--seed", type=int)
+    p = sub.add_parser("video")
+    p.add_argument("--prompt", required=True, help="how the still moves; the chroma-green background text is added")
+    p.add_argument("--input", required=True, help="an in-jam still of ours (pre-jam images are refused)")
+    p.add_argument("--out", required=True)
+    p.add_argument("--piece", help="the video piece id (its own 1 USD cap in the shared counter)")
+    p.add_argument("--model", help=f"only {FAL_VIDEO_MODEL} is accepted")
     p.add_argument("--seed", type=int)
     p = sub.add_parser("clean")
     p.add_argument("--in", dest="inp", required=True)
@@ -1772,7 +2133,7 @@ def parser():
     return ap
 
 
-CMDS = {"image": cmd_image, "clean": cmd_clean, "sheet": cmd_sheet, "blender": cmd_blender,
+CMDS = {"image": cmd_image, "video": cmd_video, "clean": cmd_clean, "sheet": cmd_sheet, "blender": cmd_blender,
         "frames": cmd_frames, "image-models": cmd_image_models, "crop": cmd_crop,
         "sfx": lambda a, v, r: cmd_audio(a, v, r), "music": lambda a, v, r: cmd_audio(a, v, r, music=True),
         "edit": cmd_edit, "capture": cmd_capture, "cut": cmd_cut, "zip": cmd_zip, "fulfil": cmd_fulfil}

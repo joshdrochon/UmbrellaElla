@@ -1,4 +1,5 @@
 #include "Field/WindCurrent.h"
+#include "Feedback/Art/ArtSlot.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Core/EllaCharacter.h"
@@ -129,6 +130,11 @@ void AWindCurrent::RefreshField()
 		{
 			Field->SetStaticMesh(Cube);
 		}
+	}
+	ArtSlot::SetFlatUnlit(Field, this, FieldColourFor(RoleLabel(Direction)));
+	if (ArtSlot::IsUnlit(Field))
+	{
+		return;
 	}
 	if (UMaterialInterface* Base = LoadObject<UMaterialInterface>(nullptr, WindFieldMaterialPath, nullptr, LOAD_NoWarn | LOAD_Quiet))
 	{

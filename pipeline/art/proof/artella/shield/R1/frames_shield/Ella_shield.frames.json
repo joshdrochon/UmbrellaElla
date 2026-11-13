@@ -1,0 +1,26 @@
+{
+ "frames": 3,
+ "frame": [
+  1072,
+  1197
+ ],
+ "figure_heights": [
+  1181,
+  1079,
+  1079
+ ],
+ "figure_widths": [
+  1035,
+  1056,
+  1023
+ ],
+ "height_spread_pct": 8.6,
+ "pivot": "bottom-centre",
+ "cut": "equal cells, inset 0 px",
+ "source": "Art/Source/Ella/Paint/R1/shield_post.png",
+ "outputs": [
+  "Art/Source/Ella/Paint/R1/frames_shield/Ella_shield_00.png",
+  "Art/Source/Ella/Paint/R1/frames_shield/Ella_shield_01.png",
+  "Art/Source/Ella/Paint/R1/frames_shield/Ella_shield_02.png"
+ ]
+}
