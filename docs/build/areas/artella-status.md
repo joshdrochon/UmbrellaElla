@@ -68,3 +68,15 @@ BLOCKED: GEMINI_API_KEY is not set in this worker's shell (assetgen: "NO KEY"). 
 ~/.umbrella-ella.env. No paid call was made; spend untouched. Needed: lead exports the key (or keychain item) for this
 worker, then run `for n in up-open attack shield closed; do python3 Art/Source/Ella/Paint/paint.py $n R1; done`
 (about $0.57), then clean --chroma 00FF00, art_ella_post.py, frames --cells, blind panel.
+
+## Round 8 (Nov 13): R1 Gemini paints judged (merged artinventory; references.json 100 entries kept)
+R1 paints (4 frames each, `Art/Source/Ella/Paint/R1/frames_<piece>/`), cut and post-processed; spend so far 4.00 USD of 33.82.
+| Piece | art_ref_check | art_check (sprite colour rules) | Panel |
+|---|---|---|---|
+| ella-up-open | 0.722 PASS (min 0.398) | PASS (dark 0.44, off_band 0.008) | reference pair ours, quality-bar pair ours, calibration 6/6; only `context` missing |
+| ella-attack | PASS 0.707 (frame 00) | FAIL accent_area 0.094, off_band 0.040, dark 0.466 | not run |
+| ella-shield | FAIL 0.561 (min 0.586) | FAIL off_band 0.013, dark 0.53 | not run |
+| ella-closed | FAIL 0.715 (min 0.749) | FAIL accent_area 0.112 | not run |
+ella-up-open is the first piece to beat the bar. Blocked from shipping only by the `context` pair: it needs an in-engine capture made
+after the piece is imported, and the import is gated on a pass (circular). Lead: say whether to import first as a tracked `_PH`-named
+asset so the smoke can capture, or relax the order. Next: R2 paints for attack, shield, closed with prompts adjusted to the failing numbers.
