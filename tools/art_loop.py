@@ -79,7 +79,8 @@ import tempfile
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
-import art_judge  # noqa: E402
+import art_judge
+import art_share  # noqa: E402
 
 STUCK_ROUNDS = 3
 LOG = os.path.join("Saved", "Logs", "pipeline", "art-loop.jsonl")
@@ -726,6 +727,32 @@ def not_art(root, path):
     return f"{rel_to(path, root)} is a {hit[0]} (provenance origin: {row.get('origin')})" if hit else None
 
 
+
+def jitter_problems(path):
+    """Frame jitter of an animation sheet (its sidecar has 2+ frames and "anim" or "loop"): anchor offset (px) and
+    scale drift (%) between consecutive frames over the limits in frame_register.JITTER_LIMITS. [] for anything else."""
+    import frame_register
+    info = sheet_info(path)
+    try:
+        with open(os.path.splitext(path)[0] + ".sprite.json", encoding="utf-8") as fh:
+            side = json.load(fh)
+    except (OSError, ValueError):
+        return []
+    if not info or not (side.get("anim") or side.get("loop")):
+        return []
+    n, fw, fh_ = info
+    frames = frame_register.sheet_frames(path, (fw, fh_), n)
+    j = frame_register.jitter(frames, band=side.get("anchor_band") or frame_register.BAND,
+                           span_mode=side.get("span_mode") or "base", loop=bool(side.get("loop")))
+    lim = frame_register.JITTER_LIMITS
+    out = []
+    if j["offset_px"] > lim["offset_px"]:
+        out.append(f"jitter: anchor moves {j['offset_px']:g} px between consecutive frames (limit {lim['offset_px']:g})")
+    if j["scale_pct"] > lim["scale_pct"]:
+        out.append(f"jitter: figure scale drifts {j['scale_pct']:.1f}% between consecutive frames (limit {lim['scale_pct']:g}%)")
+    return out
+
+
 EFFECT_PIECES = ("vfx-", "owl-bolt", "bolt-hit", "wand-shot", "umbrella-repair")
 
 
@@ -758,6 +785,8 @@ def sprite_checks(path, root=ROOT, effect=False):
         fails = art_check.sprite_failures(path, st, effect)
     except ValueError as e:
         fails = [str(e)]
+    jit = jitter_problems(path)
+    fails += jit
     lines = ["  " + screen_check.summary(dict(res, image=os.path.basename(path))),
              f"  art_check ({'effect' if effect else 'sprite'} colour rules): {'PASS' if not fails else 'FAIL'}" +
              ("" if not fails else " (" + "; ".join(fails[:3]) + ")")]
@@ -1302,9 +1331,28 @@ def panel_run(root, card, piece, ours, base, rnd, ask=claude_ask, checks_ok=True
     """The panel run itself: build every critic folder of the round, run one fresh session per folder, judge, measure.
     Returns (round record, items). Nothing is written to the repo here."""
     refs = refs or refs_and_hash(root)[0]
+    shared = shared_layer(root, refs, piece, ours)
+    if shared and shared["mode"] == "reuse" and not shared["ok"]:
+        checks_ok = False   # the base region was altered: not a reuse, the piece does not count
+    if shared and shared.get("brief"):   # the added layer only: the critic brief names what is new
+        refs = json.loads(json.dumps(refs))
+        el = refs["elements"][piece]
+        el["what"] = art_share.brief_what(el["what"], shared["brief"])
     folders, missing = panel_folders(refs, card, piece, ours, base, rnd, root)
     items = ask_calibrated(folders, ask, redrawer(refs, card, piece, ours, base, rnd, root))
-    return finish_round(root, card, piece, ours, items, missing, rnd, checks_ok, record), items
+    rec = finish_round(root, card, piece, ours, items, missing, rnd, checks_ok, record)
+    if shared:
+        rec["shared"] = {k: v for k, v in shared.items() if k != "brief"}
+    return rec, items
+
+
+def shared_layer(root, refs, piece, ours):
+    """art_share.assess for a piece with a base: the base's shipped image is the file of its newest record."""
+    if piece == "scene" or not (refs["elements"].get(piece) or {}).get("base"):
+        return None
+    b = newest_record(root, refs["elements"][piece]["base"])
+    base_path = os.path.join(root, b["file"]) if b and b.get("file") else None
+    return art_share.assess(refs, piece, ours, base_path, [root, ROOT])
 
 
 def newest_record(root, piece):

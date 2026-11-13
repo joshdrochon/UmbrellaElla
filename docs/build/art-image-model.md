@@ -62,7 +62,32 @@ checked as game art). `Art/Source/` holds only what the game ships: the tracked 
 passed, each with its sidecar. The gate's sprite_check, art_inventory and prejam checks read `Art/Source/` as shipped,
 so a candidate left there fails the merge.
 
+## Frame registration and jitter
+A painted strip jitters when each pose lands a few pixels off its neighbour or a size off. `tools/assetgen.py frames` now
+registers every cut through `tools/frame_register.py`: the anchor is the bottom-centre of the lowest 8 mask rows (feet or
+umbrella handle; `--anchor-band N` per element), the scale is the width of the lowest 14% of the mask (`--span height|width|N`
+to change it; it ignores a raised arm or a wing beat), each frame is scaled about its anchor to the strip's median (a pose
+change beyond 0.8-1.25x is left alone) and moved so every anchor sits on one pixel. The anchor goes into `<stem>.frames.json`
+and the sheet's `.sprite.json` (`anchor`, `anchor_band`, `span_mode`); `--no-register` skips it. The check is in
+`sprite_check` and `art_loop.sprite_checks`: anchor offset and scale drift between consecutive frames (a loop also last to first)
+FAIL above `frame_register.JITTER_LIMITS` (3 px, 2%), measured once on the team's reference animations
+(`pipeline/art/reference/Test_Assets`: Witch Cast and Owl Flap loops 0 px / 0%, the Witch Guard Transition 2.5 px as the largest
+real motion; the numbers and source are in that file). Lanes cut with `frames` and need no script of their own.
+
 ## Shared references
 An art lane may add its own lane name to the `cards` list of a reference in `pipeline/art/references.json` that its
 pieces are judged against (additions only; never edit or remove another lane's entries). That is in-lane, not a
 cross-lane edit.
+
+## Shared layers (Josh, Nov 13)
+A piece built on another passed piece is judged only on what it adds. In `pipeline/art/references.json` an element may
+carry `"base": "<piece>"`, `"base_mode": "reuse" | "repaint"` and `"new": "<what it adds>"` (the critic brief; `base_region`
+`[x, y]` places the base inside a reuse piece). `reuse` (UI background, backdrop stages, gear on a shared body): the base's
+shipped pixels must match inside the derived image (`tools/art_share.py reuse_check`, 98 percent of the base's opaque pixels
+within 8/255); a failure means the base region was altered and the piece does not count, a pass lets the panel judge only the
+added layer. `repaint` (Ella states, effect families): the piece is scored against the base's shipped image with
+`art_judge.element_score` (silhouette, line style, value, aspect, off-palette and flat-fill gates) and needs the floor
+measured from the base's own known-good references (leave-one-out minimum less 0.02); a pass judges only what differs, a
+fail runs the full panel as before. `art_loop.panel_run` records the result in the round (`shared`), and
+`art_pass_verify.py check` re-measures a reuse on the shipped files and still fails any derived pass whose base has no
+verified pass.
