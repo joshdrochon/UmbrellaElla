@@ -4,6 +4,8 @@ Updated: 2026-11-12 (build lead). Josh's call, Nov 12 13:40: no GitHub cards/PRs
 workers (Claude Code, Sonnet) build in parallel on `area/<name>` branches; the build lead runs the gates below and
 merges to `main`. **Teammates continue with Claude Code** (not Codex).
 
+Lessons learned (pipeline failures and what changed): `MegaPipeline/Reference/Lessons Learned.md`. Add a row whenever a gate, critic, worker or package step fails for a pipeline reason.
+
 ## What is on main
 - Unreal 5.8.4 project skeleton: `UmbrellaElla.uproject`, `Source/`, `Config/`, `Content/UmbrellaElla/Maps/L_Graybox.umap`.
 - Core contracts every area builds against (Ella shell + components, `UUmbrellaTuning`, event bus, collision channels,
@@ -43,7 +45,7 @@ Josh: no PR/CI ceremony, every quality check kept, per-merge checks only for wha
 | automation tests for the touched prefixes (`tools/build/gate_plan.py`) | Source changed | yes |
 | `module_check`, `manifest_check`, `feel_check`, `encounter_check` | when their files changed | yes |
 | `tools/build/quality_gate.py`: art (art loop pass record), audio (audio_check + audio_style_check) | art/audio changed | ship only on pass: below-bar pieces stay tracked placeholders |
-| `quality_gate.py`: `ui_check ci`, `story_check`, `bake_preset defaults` (tuning bakes) | always | no new FAIL vs main |
+| `quality_gate.py`: `ui_check ci`, `story_check`, `bake_preset defaults`, `pipeline_check` | always | no new FAIL vs main |
 | `submission_check prejam` / `assets` | always / content changed | yes |
 | audio critic (`tools/build/critic.sh audio`, blind session per sound id, `tools/audio_loop.py` packet) | sounds changed | no: a failed piece becomes a tracked placeholder (gate commit sets provenance origin `placeholder: audio critic fail`) |
 | story critic (`tools/build/critic.sh story`) | story changed | yes |

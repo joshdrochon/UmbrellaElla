@@ -50,6 +50,8 @@ struct UMBRELLAELLA_API FMotorInput
 	bool bInCurrent = false;
 	/** Summed velocity of the overlapped voluntary currents. */
 	FVector2D CurrentVelocity = FVector2D::ZeroVector;
+	/** Summed velocity of hostile forced pushes (GUST_Band). Applies at once, whatever the action or Ride. */
+	FVector2D ForcedVelocity = FVector2D::ZeroVector;
 	float LiftMultiplier = 1.0f;
 };
 
@@ -67,6 +69,9 @@ namespace MotorModel
 
 	/** Base vertical velocity of an action with trim and lift applied (no wind, no burst). */
 	UMBRELLAELLA_API float BaseVerticalSpeed(const FMotorInput& Input, const FMotorTuning& Tuning);
+
+	/** True for hostile push sources that bypass the ride path (GUST_Band). */
+	UMBRELLAELLA_API bool IsForcedSource(FName SourceId);
 
 	/** True while a hop's protection window is open. Dash never protects. */
 	UMBRELLAELLA_API bool IsProtected(const FMotorModelState& State);

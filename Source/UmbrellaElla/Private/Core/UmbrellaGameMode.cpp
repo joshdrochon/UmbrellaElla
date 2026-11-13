@@ -4,6 +4,7 @@
 #include "Encounter/EncounterDirectorSubsystem.h"
 #include "EngineUtils.h"
 #include "Flow/UmbrellaPlayerController.h"
+#include "Level/UmbrellaLevelDirector.h"
 #include "UI/UmbrellaHUD.h"
 
 AUmbrellaGameMode::AUmbrellaGameMode()
@@ -55,5 +56,39 @@ void AUmbrellaGameMode::BeginFight(APlayerController* Player)
 	if (UEncounterDirectorSubsystem* Director = GetWorld()->GetSubsystem<UEncounterDirectorSubsystem>())
 	{
 		Director->BeginKeeperFight();
+	}
+}
+
+bool AUmbrellaGameMode::HasRoute() const
+{
+	return LevelDirector && LevelDirector->GetSlotsSpawned() > 0;
+}
+
+void AUmbrellaGameMode::BeginRoute(APlayerController* Player, int64 Seed)
+{
+	if (!Player || !GetWorld())
+	{
+		return;
+	}
+	if (!LevelDirector)
+	{
+		LevelDirector = GetWorld()->SpawnActor<AUmbrellaLevelDirector>();
+	}
+	if (!LevelDirector || LevelDirector->BuildRoute(Seed) <= 0)
+	{
+		return;
+	}
+	bFightStarted = true;
+	EnsurePlayerPawn(Player);
+	LevelDirector->SetArena(FindOrSpawnArena());
+	LevelDirector->PlaceAtCheckpoint(Player->GetPawn(), 1);
+}
+
+void AUmbrellaGameMode::PlaceAtLastCheckpoint(APlayerController* Player)
+{
+	// After the Keeper handoff the encounter's own retry checkpoint decides where Ella stands.
+	if (LevelDirector && Player && !LevelDirector->HasHandedOff())
+	{
+		LevelDirector->PlaceAtCheckpoint(Player->GetPawn(), FMath::Max(1, LevelDirector->GetCheckpointReached()));
 	}
 }
