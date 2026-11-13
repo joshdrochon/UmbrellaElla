@@ -57,6 +57,8 @@ void UAttackEmitterComponent::StepEmitter(float DeltaSeconds)
 		return;
 	}
 	const FAttackTuning& Tuning = ActiveTuning();
+	// Time moves the canopy on before this step's shots, so a shot fired now shows as snapped open now.
+	SpellPresentationRules::Step(Canopy, DeltaSeconds, Tuning);
 
 	// A spell key held past the wheel time opens the wheel (it pauses gameplay).
 	if (HeldKey != EUmbrellaSpell::Count && !bWheelOpen)
@@ -152,6 +154,8 @@ void UAttackEmitterComponent::FireVolley()
 	const FAttackTuning& Tuning = ActiveTuning();
 	FVector Muzzle = GetOwner()->GetActorLocation() + SizedMuzzle(Tuning);
 	Muzzle.Y = UmbrellaDrawOrder::ProjectileY;
+	// One emission, one canopy pulse (a Twin Stars pair is one emission; Small Blasts are the only spell that folds).
+	SpellPresentationRules::OnEmission(Canopy, Equipped, Tuning);
 	for (const FUmbrellaShotSpec& Spec : SpellRules::BuildVolley(Equipped, Muzzle, Tuning))
 	{
 		LastShot = Spec;
@@ -214,6 +218,7 @@ void UAttackEmitterComponent::Equip(EUmbrellaSpell Spell)
 		return;
 	}
 	Equipped = Spell;
+	Canopy = SpellPresentationRules::RestingCycle(Spell);
 	Countdown = 0.0f;
 	StreamHeldSeconds = 0.0f;
 	PendingBurstDelays.Reset();
@@ -294,4 +299,9 @@ void UAttackEmitterComponent::EndPlay(const EEndPlayReason::Type Reason)
 float UAttackEmitterComponent::GetStreamLength() const
 {
 	return StreamHeldSeconds > 0.0f && UmbrellaState && UmbrellaActionRules::CanFire(UmbrellaState->GetAction()) ? SpellRules::StreamLength(StreamHeldSeconds, ActiveTuning()) : 0.0f;
+}
+
+TArray<FSpellWheelEntry> UAttackEmitterComponent::GetWheelEntries() const
+{
+	return SpellPresentationRules::WheelEntries(PlayMode, DirectorLevel, ActiveTuning());
 }

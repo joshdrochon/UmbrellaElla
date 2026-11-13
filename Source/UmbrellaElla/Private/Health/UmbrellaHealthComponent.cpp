@@ -4,6 +4,7 @@
 #include "Core/UmbrellaTuning.h"
 #include "Engine/World.h"
 #include "Harness/UmbrellaFeatureFlags.h"
+#include "Health/UmbrellaHitProtectionSource.h"
 #include "Projectile/UmbrellaShotSpec.h"
 #include "Umbrella/UmbrellaPlayerIds.h"
 
@@ -52,7 +53,7 @@ void UUmbrellaHealthComponent::EndPlay(const EEndPlayReason::Type Reason)
 
 void UUmbrellaHealthComponent::OnCheckpointRetried(const FUmbrellaEvent& Event)
 {
-	if (Event.TargetId == UmbrellaPlayerIds::Ella && Event.Amount == State.MaxLives)
+	if (Event.TargetId == UmbrellaPlayerIds::Ella && Event.Amount == GetDefault<UUmbrellaTuning>()->Health.RetryLives)
 	{
 		ResetForRetry();
 	}
@@ -89,6 +90,11 @@ EHitResult UUmbrellaHealthComponent::TakeHitAt(float RawDamage, FName SourceId, 
 {
 	const bool bBypass = ShouldBypassProtection(SourceId);
 	if (!IsFeatureEnabled(EFeatureId::SURV_05) || State.IsDefeated() || (!bBypass && NowSeconds < ProtectedUntil))
+	{
+		return EHitResult::Blocked;
+	}
+	// Hop protection (MOVE-15) is its own window: it blocks the hit and starts no post-hit window.
+	if (!bBypass && IsOwnerHitProtected())
 	{
 		return EHitResult::Blocked;
 	}
@@ -132,7 +138,12 @@ FHealthHealOutcome UUmbrellaHealthComponent::HealFromYellow(FName SourceId)
 
 void UUmbrellaHealthComponent::ResetForRetry()
 {
+	// Retry: exactly RetryLives current lives, the purchased maximum and capacity stay.
 	State = HealthRules::MakeFull(State.Capacity, State.MaxLives);
+	if (IsFeatureEnabled(EFeatureId::FLOW_09))
+	{
+		State.Lives = FMath::Min(GetDefault<UUmbrellaTuning>()->Health.RetryLives, State.MaxLives);
+	}
 	ProtectedUntil = -1.0;
 	BroadcastHealth(NAME_None, ResetDetail);
 }
@@ -164,6 +175,25 @@ float UUmbrellaHealthComponent::GetLiftMultiplier() const
 		return 1.0f;
 	}
 	return HealthRules::LiftMultiplier(State, GetDefault<UUmbrellaTuning>()->Health.MinLift);
+}
+
+bool UUmbrellaHealthComponent::IsOwnerHitProtected() const
+{
+	const AActor* Owner = GetOwner();
+	if (!Owner || !IsFeatureEnabled(EFeatureId::MOVE_15))
+	{
+		return false;
+	}
+	TInlineComponentArray<UActorComponent*> Components(Owner);
+	for (const UActorComponent* Component : Components)
+	{
+		const IUmbrellaHitProtectionSource* Source = Cast<IUmbrellaHitProtectionSource>(Component);
+		if (Source && Source->IsProtectingFromHits())
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 float UUmbrellaHealthComponent::GetProtectionRemaining(double NowSeconds) const
