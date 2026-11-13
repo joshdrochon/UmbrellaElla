@@ -1,0 +1,52 @@
+{
+ "seconds": 0.9,
+ "lufs": -22,
+ "fade_out": 0.3,
+ "takes": 1,
+ "post": "anull",
+ "reverb": {
+  "rt60": 0.3,
+  "wet_db": -13,
+  "damp_hz": 7000,
+  "predelay_ms": 5
+ },
+ "layers": {
+  "latch": {
+   "prompt": "one single small brass clock latch clicking open, crisp metal click, dry, close, isolated, no other sounds",
+   "secs": 0.5,
+   "filter": "atrim=0:0.08,asetpts=PTS-STARTPTS,highpass=f=800,lowpass=f=5000",
+   "norm_lufs": -20,
+   "gain_db": 0,
+   "start_db": -24,
+   "decay": 40
+  },
+  "c1": {
+   "kind": "synth",
+   "prompt": "synthesised music-box comb note at 1175 Hz: partials at 2x, 3.01x and 5.4x, each with its own exponential decay",
+   "secs": 0.7,
+   "trim": 0.7,
+   "expr": "0.6*exp(-13*t)*sin(2*PI*1175*t)+0.240*exp(-18.2*t)*sin(2*PI*2350*t)+0.120*exp(-26*t)*sin(2*PI*3536.7*t)+0.060*exp(-45.5*t)*sin(2*PI*6345.0*t)",
+   "gain_db": -11,
+   "delay_ms": 90
+  },
+  "c2": {
+   "kind": "synth",
+   "prompt": "synthesised music-box comb note at 1760 Hz: partials at 2x, 3.01x and 5.4x, each with its own exponential decay",
+   "secs": 0.7,
+   "trim": 0.7,
+   "expr": "0.6*exp(-13*t)*sin(2*PI*1760*t)+0.240*exp(-18.2*t)*sin(2*PI*3520*t)+0.120*exp(-26*t)*sin(2*PI*5297.6*t)+0.060*exp(-45.5*t)*sin(2*PI*9504.0*t)",
+   "gain_db": -13,
+   "delay_ms": 90
+  },
+  "c3": {
+   "kind": "synth",
+   "prompt": "synthesised music-box comb note at 2349 Hz: partials at 2x, 3.01x and 5.4x, each with its own exponential decay",
+   "secs": 0.7,
+   "trim": 0.7,
+   "expr": "0.6*exp(-14*t)*sin(2*PI*2349*t)+0.240*exp(-19.6*t)*sin(2*PI*4698*t)+0.120*exp(-28*t)*sin(2*PI*7070.5*t)+0.060*exp(-49.0*t)*sin(2*PI*12684.6*t)",
+   "gain_db": -15,
+   "delay_ms": 90
+  }
+ },
+ "post_gain_db": -1.5
+}

@@ -1,0 +1,43 @@
+{
+ "seconds": 0.65,
+ "lufs": -22,
+ "fade_out": 0.2,
+ "takes": 1,
+ "post": "anull",
+ "reverb": {
+  "rt60": 0.22,
+  "wet_db": -14,
+  "damp_hz": 6000,
+  "predelay_ms": 4
+ },
+ "layers": {
+  "clunk": {
+   "prompt": "one single heavy brass gear tooth clunk engaging, short and solid, dry, close, isolated, no other sounds",
+   "secs": 0.5,
+   "filter": "atrim=0:0.1,asetpts=PTS-STARTPTS,highpass=f=400,lowpass=f=3500",
+   "norm_lufs": -20,
+   "gain_db": 0,
+   "start_db": -24,
+   "decay": 30
+  },
+  "lo": {
+   "kind": "synth",
+   "prompt": "synthesised music-box comb note at 1175 Hz: partials at 2x, 3.01x and 5.4x, each with its own exponential decay",
+   "secs": 0.55,
+   "trim": 0.55,
+   "expr": "0.6*exp(-15*t)*sin(2*PI*1175*t)+0.240*exp(-21.0*t)*sin(2*PI*2350*t)+0.120*exp(-30*t)*sin(2*PI*3536.7*t)+0.060*exp(-52.5*t)*sin(2*PI*6345.0*t)",
+   "gain_db": -6,
+   "delay_ms": 20
+  },
+  "hi": {
+   "kind": "synth",
+   "prompt": "synthesised music-box comb note at 2349 Hz: partials at 2x, 3.01x and 5.4x, each with its own exponential decay",
+   "secs": 0.5,
+   "trim": 0.5,
+   "expr": "0.6*exp(-17*t)*sin(2*PI*2349*t)+0.240*exp(-23.8*t)*sin(2*PI*4698*t)+0.120*exp(-34*t)*sin(2*PI*7070.5*t)+0.060*exp(-59.5*t)*sin(2*PI*12684.6*t)",
+   "gain_db": -9,
+   "delay_ms": 20
+  }
+ },
+ "post_gain_db": -5.0
+}
