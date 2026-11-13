@@ -29,6 +29,14 @@ rc=0
   "$UE_ROOT/Engine/Build/BatchFiles/RunUAT.sh" BuildCookRun -project="$PROJECT" -target="$TARGET" -noP4 -platform=Mac \
   -clientconfig=$CFG -build -cook -stage -pak -iostore -archive -archivedirectory="$OUT" \
   -unattended -utf8output -nocrashreports -AdditionalCookerOptions=-nocrashreports -UbtArgs=-WaitMutex ${EXTRA[@]+"${EXTRA[@]}"} || rc=$?
+# UAT's Mac archive step copies Binaries/Mac/<Target>.app (the build output: no Contents/UE, so no paks and no engine
+# config) into the archive. The staged app Saved/StagedBuilds/Mac/<Target>.app is the complete one (Xcode "Stage" mode
+# syncs the staged data into Contents/UE and signs it). Replace the archived app with it; ditto keeps signature and modes.
+STAGED_APP="$REPO/Saved/StagedBuilds/Mac/$TARGET.app"
+if [ "$rc" = "0" ] && [ -d "$STAGED_APP/Contents/UE" ]; then
+  rm -rf "$OUT/Mac/$TARGET.app" && mkdir -p "$OUT/Mac" && ditto "$STAGED_APP" "$OUT/Mac/$TARGET.app" || rc=1
+elif [ "$rc" = "0" ]; then echo "FAIL: staged app $STAGED_APP has no Contents/UE"; rc=1; fi
+[ "$rc" = "0" ] && [ -d "$OUT/Mac/$TARGET.app/Contents/UE" ] && echo "archive app has Contents/UE: ok"
 if grep -E "^(Error:|.*LogCook: Error)" "$LOG" >/dev/null; then echo "FAIL: errors in cook log $LOG"; exit 1; fi
 echo "cook warnings: $(grep -cE "^Warning:|LogCook: Warning" "$LOG" || true)"   # daily fails if it rises [VERIFY pattern on 5.8.4]
 NOW="$(git -C "$REPO" rev-parse HEAD 2>/dev/null || echo unknown)"
