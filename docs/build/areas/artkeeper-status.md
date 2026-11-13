@@ -24,3 +24,11 @@ Stuck rule: critic gap unchanged 3 rounds (deterministic score best 0.716): NEED
 - Look: painted etched/bronze, far closer to the references than the Blender render. Not yet judged by the panel (not cut, not keyed).
 - Gaps (ours, prompt): wings read as feathered, not rigid vane plates; cage is see-through (chroma green inside would key out); rear gear hidden behind torso; chains do not all reach a top eye; cell 3 wings cover the mechanisms; black grid lines between cells; owl position drifts between cells.
 - Next: round 2 prompt fixes these, then cut, key, art_check/art_ref_check, blind panel.
+
+## Round 2 (Nov 13), cost $0.140, spent 2.091 of 33.82
+- Result worse than R1. ours (prompt over-specified wings and mechanism spacing): head became a plated parrot, wings pale two-tone, mechanisms bunched at the feet, chains still not to a top eye, divider lines remain, cell 3 wings level not low.
+- R3: back to the R1 prompt with only small changes (solid cage walls, no divider lines, owl-shaped head, mechanisms hang below body).
+
+## Round 3 (Nov 13), cost $0.141, spent 2.541 of 33.82
+- Best owl so far (round owl head, clock, legs, bronze palette, etched look). Gaps (model ignores placement): all three mechanisms bunch at the beak/neck instead of front / middle / rear; no top-of-head eye or chain route; wings still read feathered; divider lines remain (cropped out at cut time, ours).
+- R4: explicit positions for each mechanism and chain route.
