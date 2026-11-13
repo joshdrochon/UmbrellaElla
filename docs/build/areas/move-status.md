@@ -70,3 +70,23 @@ Not run: on-screen check of the wheel, motes and dial (no canvas in tests).
 Code existed; added proving tests (`Private/Tests/Move/MoveProofTests.cpp`), Move tests 47/47 pass. Not break-tested this batch.
 MOVE-07 arrow trim + right-stick spells, MOVE-19 right stick, MOVE-12/COM-05 all four spells never run out, MOVE-07 fire right while traveling left.
 Left: 46 `i` clauses for lane move in clause-audit.csv.
+
+## Clause audit: `i` batch 2 (Nov 13, Opus)
+12 clauses proven with 9 new tests (`MoveRideCatchProofTests.cpp`, `MoveHealthProofTests.cpp`). Break-tested: each code path
+broken on purpose -> its test FAILED (3/3 and 6/6), restored -> PASS. `TEST_FILTER=UmbrellaElla.Move`: 56/56.
+
+| Clause | Test | Break used |
+|---|---|---|
+| MOVE-20 Absorb/Free fall end Ride | `Move.World.AbsorbAndFreeFallDisengageRide` | CanRide allowed any non-Shoot state |
+| MOVE-20 remap keeps four combos | `Move.World.RemapKeepsFourCombinations` | saved remap not applied to IMC |
+| UMB-05 no ammo/energy; repair not disabled; COM-05 no charge | `Move.World.CatchGivesNoChargeButRepairs` | catch-driven extra burst shot |
+| SURV-05 Shoot-only fall no auto-catch | `Move.World.ShootFallDoesNotAutoCatch` | absorb pose open in ShootFall |
+| SURV-05 no absorb cooldown | `Move.World.RepeatedCatchesHaveNoCooldown` | every 2nd yellow ignored |
+| FLOW-31 / FLOW-33 handover adds no protection | `Move.World.LifeHandoverAddsNoProtection` | +1 s protection on life loss |
+| FLOW-33 checkpoint passage no heal | `Move.World.CheckpointPassageDoesNotHeal` | CheckpointReached reset health |
+| FLOW-33 ordinary projectile damage 1 | `Move.World.OrdinaryProjectileDamageIsOne` | fallback damage x1.25 |
+| FLOW-32 life hand steady on partial change | `Move.LifeHandSteadyOnPartialChanges` | life hand read Active |
+
+Note: `HealthTuning.PostHitProtectionSeconds` is 0.65; the GDD SURV-05 text says 0.6. Not changed (health's number, not a clause here).
+Env: one test run hung at editor start in UBT `-Mode=ValidatePlatforms` (dotnet idle 10 min); killed, rerun passed.
+Overlap: a `testmove` worker was started on the same lane=move `i` rows. These 12 are done here; it should skip them.

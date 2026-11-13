@@ -35,3 +35,15 @@ COM-05,Stream/Twin/Needle never run out (only Small tested),test:UmbrellaElla.Mo
 MOVE-07,arrow-key trim aliases,test:UmbrellaElla.Move.ArrowTrimAndRightStickSpells
 MOVE-07,fire goes right while traveling left,test:UmbrellaElla.Move.World.FireGoesRightWhileTravelingLeft
 MOVE-07,right stick selects spells,test:UmbrellaElla.Move.ArrowTrimAndRightStickSpells
+MOVE-20,Absorb/Free fall disengage Ride (only Shoot tested),test:UmbrellaElla.Move.World.AbsorbAndFreeFallDisengageRide
+MOVE-20,remapped controls keep the four combinations,test:UmbrellaElla.Move.World.RemapKeepsFourCombinations
+UMB-05,catch gives no ammo/stored-energy reward,test:UmbrellaElla.Move.World.CatchGivesNoChargeButRepairs
+UMB-05,repair not disabled by reward eligibility,test:UmbrellaElla.Move.World.CatchGivesNoChargeButRepairs
+COM-05,catch gives no weapon charge,test:UmbrellaElla.Move.World.CatchGivesNoChargeButRepairs
+SURV-05,Shoot-only fall does not auto-catch,test:UmbrellaElla.Move.World.ShootFallDoesNotAutoCatch
+SURV-05,no absorption cooldown (repeated world catches),test:UmbrellaElla.Move.World.RepeatedCatchesHaveNoCooldown
+FLOW-31,life-loss transition adds no protection window,test:UmbrellaElla.Move.World.LifeHandoverAddsNoProtection
+FLOW-33,handover grants no new protection,test:UmbrellaElla.Move.World.LifeHandoverAddsNoProtection
+FLOW-33,normal checkpoint passage does not heal,test:UmbrellaElla.Move.World.CheckpointPassageDoesNotHeal
+FLOW-33,ordinary red/yellow projectile damage is 1 (no bound key),test:UmbrellaElla.Move.World.OrdinaryProjectileDamageIsOne
+FLOW-32,life hand unchanged on partial damage/heal,test:UmbrellaElla.Move.LifeHandSteadyOnPartialChanges
