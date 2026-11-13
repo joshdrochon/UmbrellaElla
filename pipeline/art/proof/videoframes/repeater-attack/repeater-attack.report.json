@@ -1,0 +1,81 @@
+{
+ "video": "pipeline/art/proof/videoframes/repeater-attack/repeater-attack.mp4",
+ "fps": 12,
+ "source_frames": 48,
+ "loop_end": 40,
+ "end_candidates": {
+  "28": 92.92,
+  "29": 91.96,
+  "30": 90.98,
+  "31": 91.4,
+  "32": 89.91,
+  "33": 89.33,
+  "34": 88.66,
+  "35": 88.0,
+  "36": 87.24,
+  "37": 87.8,
+  "38": 87.79,
+  "39": 87.79,
+  "40": 87.1,
+  "41": 87.12,
+  "42": 87.11,
+  "43": 87.13,
+  "44": 87.13,
+  "45": 87.15,
+  "46": 87.12,
+  "47": 87.12
+ },
+ "jitter_before": {
+  "max_anchor_step_px": 13.66,
+  "max_height_step_pct": 0.75,
+  "max_anchor_from_first_px": 34.43,
+  "height_range_pct": 4.26
+ },
+ "jitter_after": {
+  "max_anchor_step_px": 0.89,
+  "max_height_step_pct": 0.75,
+  "max_anchor_from_first_px": 0.59,
+  "height_range_pct": 4.26
+ },
+ "green_inside_px_max": 0,
+ "sets": {
+  "24": {
+   "strip": "pipeline/art/proof/videoframes/repeater-attack/repeater-attack_N24_strip.png",
+   "gif": "pipeline/art/proof/videoframes/repeater-attack/repeater-attack_N24_preview.gif",
+   "loop": {
+    "indices": [
+     0,
+     2,
+     3,
+     5,
+     7,
+     9,
+     10,
+     12,
+     14,
+     15,
+     17,
+     19,
+     20,
+     22,
+     24,
+     26,
+     27,
+     29,
+     31,
+     32,
+     34,
+     36,
+     38,
+     39
+    ],
+    "mean_step": 30.24,
+    "max_step": 76.11,
+    "last_to_first": 87.79,
+    "loop_ratio": 2.9,
+    "loops": true
+   },
+   "fps": 7.02
+  }
+ }
+}

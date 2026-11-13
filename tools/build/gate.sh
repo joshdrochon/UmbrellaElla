@@ -71,6 +71,7 @@ fi
 [ "$ENCOUNTER" = 1 ] && chk encounter_check python3 tools/encounter_check.py
 chk quality_gate python3 tools/build/quality_gate.py check "$MAIN" "$L/quality-base.txt"
 chk art_pass_verify python3 tools/build/art_pass_verify.py check --base "$MAIN"
+chk clause_check python3 tools/build/clause_check.py "$MAIN"   # a row may become built only with every GDD clause proven (Nov 13)
 if [ $fail = 0 ]; then
   # The proof the panel really ran (Josh, Nov 12): every piece whose pass record is new in this merge is judged again by
   # fresh blind critic sessions on the same packets; the gate's panel must pass it too, or the merge fails.

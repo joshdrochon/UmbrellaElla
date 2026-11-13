@@ -36,15 +36,15 @@ namespace UmbrellaEllaOverlayConst
 		const TCHAR* Visual;
 		float DepthOffset;
 	};
-	static constexpr float Step = 1.0f;
+	static constexpr float OverlayDepthStep = 1.0f;
 	static const FOverlay Overlays[] = {
-		{ TEXT("umbrella:prop"), -1.0f * Step },
-		{ TEXT("ella:condition-100-to-0"), 1.0f * Step },
-		{ TEXT("ella:free-fall"), 2.0f * Step },
-		{ TEXT("ella:hop-cartwheel-dash"), 3.0f * Step },
-		{ TEXT("ella:mode-transition"), 4.0f * Step },
-		{ TEXT("ella:living-critical"), 5.0f * Step },
-		{ TEXT("umbrella:repair"), 6.0f * Step },
+		{ TEXT("umbrella:prop"), -1.0f * OverlayDepthStep },
+		{ TEXT("ella:condition-100-to-0"), 1.0f * OverlayDepthStep },
+		{ TEXT("ella:free-fall"), 2.0f * OverlayDepthStep },
+		{ TEXT("ella:hop-cartwheel-dash"), 3.0f * OverlayDepthStep },
+		{ TEXT("ella:mode-transition"), 4.0f * OverlayDepthStep },
+		{ TEXT("ella:living-critical"), 5.0f * OverlayDepthStep },
+		{ TEXT("umbrella:repair"), 6.0f * OverlayDepthStep },
 	};
 }
 

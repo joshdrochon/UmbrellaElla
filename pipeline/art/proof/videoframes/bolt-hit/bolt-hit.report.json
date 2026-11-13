@@ -1,0 +1,73 @@
+{
+ "video": "pipeline/art/proof/videoframes/bolt-hit/bolt-hit.mp4",
+ "fps": 12,
+ "source_frames": 29,
+ "loop_end": 21,
+ "end_candidates": {
+  "17": 100.28,
+  "18": 92.96,
+  "19": 83.28,
+  "20": 74.59,
+  "21": 64.78,
+  "22": 90.59,
+  "23": 96.99,
+  "24": 105.95,
+  "25": 116.95,
+  "26": 143.27,
+  "27": 149.94,
+  "28": 150.62
+ },
+ "jitter_before": {
+  "max_anchor_step_px": 175.03,
+  "max_height_step_pct": 29.65,
+  "max_anchor_from_first_px": 252.58,
+  "height_range_pct": 63.78
+ },
+ "jitter_after": {
+  "max_anchor_step_px": 0.64,
+  "max_height_step_pct": 29.65,
+  "max_anchor_from_first_px": 0.48,
+  "height_range_pct": 63.78
+ },
+ "green_inside_px_max": 2,
+ "sets": {
+  "24": {
+   "strip": "pipeline/art/proof/videoframes/bolt-hit/bolt-hit_N24_strip.png",
+   "gif": "pipeline/art/proof/videoframes/bolt-hit/bolt-hit_N24_preview.gif",
+   "loop": {
+    "indices": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21
+    ],
+    "mean_step": 49.22,
+    "max_step": 80.81,
+    "last_to_first": 64.78,
+    "loop_ratio": 1.32,
+    "loops": true
+   },
+   "fps": 13.09
+  }
+ }
+}
