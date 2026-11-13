@@ -26,7 +26,7 @@ Not mine: KeeperHoot has 3 provenance rows each (audio_check --scan FAIL).
 
 ## Unreal import (Nov 12, done)
 Lead's fix worked: built the editor module with ue_slot.sh tools/ue/build.sh (exit 0), then ran
-`Audio/Source/sndlaunch_import.py` with UnrealEditor-Cmd -run=pythonscript (four headless flags). 46 SW_<Id>_<NN> assets
+`Audio/Source/StreamStart/sndlaunch_import.py` (in lane; imports all 16 ids) with UnrealEditor-Cmd -run=pythonscript (four headless flags). 46 SW_<Id>_<NN> assets
 written under Content/UmbrellaElla/Audio/<Id>/ (15 ids x 3 takes + StreamLoop x 1, looping), LFS-tracked.
 No new ElevenLabs calls were made. Not mine: KeeperHoot has 3 provenance rows each (audio_check --scan FAIL).
 
@@ -38,3 +38,15 @@ Merged main (neighbours exclude placeholder takes; enemy family target = regular
   style ranges, the style check itself unchanged). Cached layers only, no ElevenLabs calls.
 - All 16 now `done`, scan has no FAIL for them, style PASS. SW_ assets for those three re-imported (files were
   read-only; chmod u+w first).
+
+## Review fixes (Nov 13)
+Review said BellowsGust and StreamLoop were placeholders; the gate marked them after the critic failed them (BellowsGust:
+reply unreadable, so never judged; StreamLoop: edge burst, caused by the spectrogram-window defect, request 1a). With the
+window fix on main, reran the blind critic (Sonnet, SNDLAUNCH card) with no change to the sound: both PASS, style PASS.
+On this branch their provenance origin is generated/synthesized, no placeholder row. All 16 `done`.
+Evidence (commit f30994c + this change): `audio_style_check check Audio/Source --ids <16>` PASS files=46;
+`pipeline_check` 0 problems; `audio_check --scan Audio/Source`: no FAIL for any of the 16 (the 98 errors are other
+lanes' ids, e.g. PhaseChime has no file).
+Import script moved into lane: Audio/Source/StreamStart/sndlaunch_import.py.
+Not done: sorting provenance.csv. The Audio/ block is unsorted across all lanes (31 inversions); a sort touches other
+lanes' lines, so it needs one gate commit.

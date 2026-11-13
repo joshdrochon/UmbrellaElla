@@ -1,5 +1,5 @@
 """Import every sndlaunch take as /Game/UmbrellaElla/Audio/<Id>/SW_<Id>_<NN> (rebuildable).
-Run: UnrealEditor-Cmd UmbrellaElla.uproject -run=pythonscript -script=Audio/Source/sndlaunch_import.py -unattended -nullrhi -nosplash -nocrashreports"""
+Run: UnrealEditor-Cmd UmbrellaElla.uproject -run=pythonscript -script=Audio/Source/StreamStart/sndlaunch_import.py -unattended -nullrhi -nosplash -nocrashreports"""
 import glob
 import os
 import unreal
