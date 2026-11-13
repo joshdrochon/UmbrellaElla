@@ -28,6 +28,8 @@ Usage:
     reference pixels nearest to it (within delta_e_tolerance). Prints the measured hex per name and the
     reference's own numbers, so card 0.7 can write them into style.json and set palette_status: measured.
   A provisional palette is a FAIL once the reference file exists (card 0.7 not done).
+  python3 tools/art_check.py --sprite|--effect piece.png  # colour rules on the non-transparent pixels only
+    (--effect: against the effect palette). Exit 0 pass, 1 a failed check, 2 an unreadable style file or image.
   python3 tools/art_check.py --swatch swatch_capture.png  # engine colour round-trip (CAM_Eval_Swatch)
     The capture shows the swatch sprite from make_art_calibration.py --swatch. Each cell's centre
     (inset by style.json swatch.inset) is averaged and compared with its palette hex. Any cell over

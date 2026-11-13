@@ -436,10 +436,21 @@ def piece_signature(ours):
     return out
 
 
+_LOCATED = {}
+
+
 def locate_piece(capture, ours, pad=0.35, min_side=64):
-    """(x, y, w, h) of the piece in an in-engine capture, from the piece's own colours: capture pixels near one of its
+    """Cached per (capture, piece file, their mtimes, pad, min_side): the pixel scan runs once per critic round, not per session.
+    (x, y, w, h) of the piece in an in-engine capture, from the piece's own colours: capture pixels near one of its
     colours that are not the capture's background, trimmed to the 3rd..97th percentile on each axis, padded.
     Raises PieceNotFound when too few pixels match."""
+    key = (os.path.abspath(capture), os.path.abspath(ours), os.path.getmtime(capture), os.path.getmtime(ours), pad, min_side)
+    if key not in _LOCATED:
+        _LOCATED[key] = _locate_piece(capture, ours, pad, min_side)
+    return _LOCATED[key]
+
+
+def _locate_piece(capture, ours, pad, min_side):
     from png import read_png
     sig = piece_signature(ours)
     w, h, rows = read_png(capture)
@@ -527,7 +538,9 @@ def blind(refs, card, piece, ours, out_dir, seed=None, root=ROOT, quality=False,
     quality-bar image; quality=True is the same), motion (the whole sheet against a reference sheet) or context (ours
     is an in-engine capture with the piece in it, against the key art). A sheet in a reference or quality_bar pair is
     judged by one frame the seed picks. calibrate=True (the loop): the pair sits among calibration pairs in lettered
-    folders, and the session counts only when it gets every calibration pair right (judge())."""
+    folders, and the session counts only when it gets every calibration pair right (judge()).
+    A context pair for a non-scene piece (piece_file given) is cut to the piece: the capture crop against the piece's
+    key-art crop (context-crops.json), or against its own first reference image when it has no crop entry."""
     kind = kind or ("quality_bar" if quality else "reference")
     if kind not in KINDS:
         raise ValueError(f"unknown pair kind {kind!r} ({', '.join(KINDS)})")
