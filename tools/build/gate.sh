@@ -12,10 +12,12 @@
 # Exit 0 = merged, 1 = failed, 3 = held for review changes (send them to the area worker once, then rerun).
 set -u
 A="${1#area/}"; C="${2:-area/$A}"; ROOT="$(cd "$(dirname "$0")/../.." && pwd)"; BASE="$(dirname "$ROOT")/UmbrellaElla-areas"
-G="$BASE/gate"; L="$BASE/logs"; mkdir -p "$L"; T0=$(date +%s); fail=0
+G="${GATE_DIR:-$BASE/gate}"; GB="${GATE_BRANCH:-gate}"; L="$BASE/logs"; mkdir -p "$L"; T0=$(date +%s); fail=0
 # A head the gate failed or held is never gated again; the lane needs new commits (Josh, Nov 12). Lane verdicts are
 # recorded on exit (1 FAIL, 3 HOLD); exits that are not the lane's fault set NORECORD=1 first.
 TIP="$(git -C "$ROOT" rev-parse "$C" 2>/dev/null)"; NORECORD=0
+# A batch must hold lane merges; an empty batch (branch reset to main) never passes (Nov 12: one "passed" and dropped 7 lanes).
+if [ "$A" = batch ] && ! git -C "$ROOT" log --format=%s "origin/main..$C" | grep -q " into batch$"; then echo "GATE FAIL: area/batch holds no lane merges"; exit 1; fi
 python3 "$ROOT/tools/build/gate_seen.py" check "$L" "$A" "$TIP" || exit 4
 trap 'rc=$?; if [ "$NORECORD" = 0 ]; then case $rc in 1) python3 "$ROOT/tools/build/gate_seen.py" record "$L" "$A" "$TIP" FAIL;; 3) python3 "$ROOT/tools/build/gate_seen.py" record "$L" "$A" "$TIP" HOLD;; esac; fi' EXIT
 step() { echo "[gate $A] $1 ($(( $(date +%s) - T1 )) s)"; }
@@ -24,7 +26,7 @@ if [ "$A" != artinventory ] && { git -C "$ROOT" diff --name-only "main...$C" 2>/
   git -C "$ROOT" cat-file -e main:tools/build/art_pass_verify.py 2>/dev/null || { NORECORD=1; echo "GATE FAIL: area/$A waits for tools/build/art_pass_verify.py on main (pass records must be re-verified)"; exit 1; }
 fi
 cd "$ROOT"; git fetch -q origin
-[ -d "$G" ] || git worktree add -q "$G" -B gate main
+[ -d "$G" ] || git worktree add -q "$G" -B "$GB" main
 mkdir -p "$G/Saved/Config/MacEditor"; cp -n "$ROOT/Saved/Config/MacEditor/GameUserSettings.ini" "$G/Saved/Config/MacEditor/" 2>/dev/null
 cd "$G"; git reset -q --hard main; MAIN=$(git rev-parse HEAD)
 T1=$(date +%s); python3 tools/build/quality_gate.py baseline "$L/quality-base.txt" 2>/dev/null; step "baseline"
@@ -42,6 +44,7 @@ if python3 tools/build/provenance_dedupe.py | grep -q "rows -> 1"; then
   step "provenance rows deduplicated"
 fi
 eval "$(python3 tools/build/gate_plan.py "$MAIN" HEAD)"
+export UE_SLOT_GATE=1   # the gate always gets its reserved engine slot
 SLOT="$ROOT/tools/build/ue_slot.sh"; EV="$L/gate-$A-evidence.txt"; : > "$EV"
 chk() { local name="$1"; shift; T1=$(date +%s); out=$("$@" 2>&1); rc=$?; echo "$out" | tail -3 >> "$EV"
   if [ $rc -eq 0 ]; then step "$name PASS"; else step "$name FAIL"; echo "$out" | tail -15; fail=1; fi; }
@@ -50,7 +53,7 @@ if [ "$SRC" = 1 ]; then
   if echo "$b" | grep -q "build exit: 0"; then step "build PASS"; else step "build FAIL: $b"; fail=1; fi
   if [ $fail = 0 ]; then
     T1=$(date +%s); t=$(TEST_FILTER="$TESTS" "$SLOT" tools/ue/test.sh 2>&1 | tail -6); echo "$t" >> "$EV"
-    if echo "$t" | grep -q "^PASS"; then step "tests PASS ($TESTS): $(echo "$t" | grep '^PASS' | cut -c1-40)"; else step "tests FAIL ($TESTS)"; echo "$t"; fail=1; fi
+    if echo "$t" | grep -q "^PASS"; then step "tests PASS ($TESTS): $(echo "$t" | grep '^PASS' | cut -c1-40)"; else step "tests FAIL ($TESTS)"; echo "$t"; fail=1; echo "$t" | grep -q "report missing or unreadable" && NORECORD=1; fi   # no report = the run never finished (load), not the lane
   fi
 fi
 [ "$MODULE" = 1 ] && chk module_check python3 tools/module_check.py
@@ -95,20 +98,39 @@ fi
 if [ $fail = 0 ] && [ "$STORY" = 1 ]; then chk story_critic "$ROOT/tools/build/critic.sh" story "$L/critic-$A.txt"; fi
 if [ $fail = 0 ] && [ "$ENCOUNTER" = 1 ]; then chk encounter_critic "$ROOT/tools/build/critic.sh" encounter "$L/critic-$A.txt"; fi
 if [ $fail = 1 ]; then echo "GATE FAIL: area/$A $(git rev-parse --short HEAD) (main unchanged, $(( $(date +%s) - T0 )) s)"; exit 1; fi
+if [ "$A" = batch ]; then
+  # Batch (Josh, Nov 12): one independent review per lane on that lane's own diff, in parallel; any lane asking for
+  # changes in its first round holds the batch, and that lane's tip is recorded so it needs new commits.
+  T1=$(date +%s); LANES=$(git log --format=%s "$MAIN..HEAD" | sed -n 's/^Merge area\/\([a-z0-9]*\) .* into batch$/\1/p')
+  for b in $LANES; do REVIEW_RANGE="$MAIN...area/$b" "$ROOT/tools/build/review.sh" "$b" "$EV" "$L/review-$b.txt" & done; wait
+  held=""; for b in $LANES; do
+    grep -q "VERDICT: approve" "$L/review-$b.txt" && { echo 0 > "$L/review-$b.round"; continue; }
+    nb=$(cat "$L/review-$b.round" 2>/dev/null || echo 0)
+    if [ "$nb" = 0 ]; then echo 1 > "$L/review-$b.round"; held="$held $b"
+      python3 "$ROOT/tools/build/gate_seen.py" record "$L" "$b" "$(git -C "$ROOT" rev-parse "area/$b")" HOLD
+    else echo "review changes for $b after the one round: follow-ups in $L/review-$b.txt"; fi
+  done
+  step "review per lane:$(for b in $LANES; do grep -q 'VERDICT: approve' "$L/review-$b.txt" && echo -n " $b=approve" || echo -n " $b=changes"; done)"
+  [ -n "$held" ] && { NORECORD=1; echo "GATE HOLD: review asks for changes in:$held (send $L/review-<lane>.txt to each)"; exit 3; }
+  rv=0; ROUND="$L/review-batch.round"; n=1
+else
 T1=$(date +%s); "$ROOT/tools/build/review.sh" "$A" "$EV" "$L/review-$A.txt"; rv=$?; step "review $( [ $rv = 0 ] && echo approve || echo changes/none )"
 ROUND="$L/review-$A.round"; n=$(cat "$ROUND" 2>/dev/null || echo 0)
+fi
 if [ $rv != 0 ] && [ "$n" = 0 ]; then
   echo 1 > "$ROUND"; echo "GATE HOLD: review asks for changes; send $L/review-$A.txt to the $A worker once, then rerun"; exit 3
 fi
 [ $rv != 0 ] && echo "review changes after the one round: merge goes ahead; add $L/review-$A.txt items to HANDOFF follow-ups"
 echo 0 > "$ROUND"
+# Dry run (GATE_NOPUSH=1, with GATE_DIR/GATE_BRANCH for a separate checkout): every check ran; main is not touched.
+if [ -n "${GATE_NOPUSH:-}" ]; then echo "GATE DRY PASS: area/$A $(git rev-parse --short HEAD) (main untouched, $(( $(date +%s) - T0 )) s)"; exit 0; fi
 cd "$ROOT"
-if ! git merge -q --ff-only gate 2>/dev/null; then
-  base=$(git merge-base main gate)
+if ! git merge -q --ff-only "$GB" 2>/dev/null; then
+  base=$(git merge-base main "$GB")
   if git diff --name-only "$base" main | grep -q -E '^(Source|Config|Content|Plugins)/|\.uproject$'; then
     NORECORD=1; echo "GATE FAIL: main moved with game-file changes during the gate; rerun"; exit 1
   fi
-  git -c core.hooksPath=/dev/null merge -q --no-edit -m "Merge gate result for area/$A" gate || { git merge --abort; echo "GATE FAIL: merge"; exit 1; }
+  git -c core.hooksPath=/dev/null merge -q --no-edit -m "Merge gate result for area/$A" "$GB" || { git merge --abort; echo "GATE FAIL: merge"; exit 1; }
 fi
 git push -q origin main 2>/dev/null || { git fetch -q origin && git -c core.hooksPath=/dev/null merge -q --no-edit origin/main && git push -q origin main; } || { echo "GATE FAIL: push"; exit 1; }
 echo "GATE PASS: main $(git rev-parse --short HEAD) pushed ($(( $(date +%s) - T0 )) s)"
