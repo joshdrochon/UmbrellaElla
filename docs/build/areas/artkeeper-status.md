@@ -175,3 +175,7 @@ NEEDS HUMAN: lead: hide the Keeper cube meshes when the owl slot texture loads (
 ## Nov 13 session 14: blocked on request 3, no spend
 - Merged origin/main (523292da): only art_loop tooling changed; KeeperOfTime/KeeperPresenter still draw the cube over the sprite. Wrote the exact 3-step diff in docs/build/requests/artkeeper.md (Update 4). Paint is not the gap, so no paid round run (spend unchanged).
 NEEDS HUMAN: lead: apply request 3 (hide stand-in cubes when the owl slot draws); then artkeeper re-captures and runs the owl panel at once (R8 graded_1 is ready).
+
+## Nov 13 session 15: still blocked on request 3, no spend
+- Merged main (already in) and area/artslots. KeeperOfTime.cpp:107 still SetVisibility(true) on the cube parts; no bArtReplacesStandIn. Exact diff is in docs/build/requests/artkeeper.md Update 4. No paid round run.
+NEEDS HUMAN: lead: apply request 3; then artkeeper re-captures and runs the owl panel (R8 graded_1 ready).
