@@ -2863,7 +2863,10 @@
     "margin": 0.02,
     "measured": "2026-11-12",
     "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
-   }
+   },
+   "base": "owl",
+   "base_mode": "reuse",
+   "new": "the clock face and hands the Keeper carries: the timepiece itself, painted to match the owl body's ink, brass and palette"
   },
   "keeper-talon": {
    "what": "the Keeper's talon (ANIM-06): the empty rake and the closed front grasp, release",
@@ -2920,7 +2923,10 @@
     "margin": 0.02,
     "measured": "2026-11-12",
     "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
-   }
+   },
+   "base": "owl",
+   "base_mode": "reuse",
+   "new": "the front mechanism: the grasp-and-throw armillary sphere on chains, in the owl's brass and ink"
   },
   "keeper-mech-middle": {
    "what": "the Keeper's middle mechanism (ANIM-06): the curved cast",
@@ -2938,7 +2944,10 @@
     "margin": 0.02,
     "measured": "2026-11-12",
     "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
-   }
+   },
+   "base": "owl",
+   "base_mode": "reuse",
+   "new": "the middle mechanism: the curved-cast cage cylinder, in the owl's brass and ink"
   },
   "keeper-mech-rear": {
    "what": "the Keeper's rear mechanism (ANIM-06): first stroke, safe pause, second stroke",
@@ -2956,7 +2965,10 @@
     "margin": 0.02,
     "measured": "2026-11-12",
     "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
-   }
+   },
+   "base": "owl",
+   "base_mode": "reuse",
+   "new": "the rear mechanism: the gear ring for the first stroke, safe pause and second stroke, in the owl's brass and ink"
   },
   "keeper-damage": {
    "what": "the Keeper's part damage (ANIM-06): surviving-mechanism masks 7, 6, 4, 0, break, stun",
@@ -2975,7 +2987,10 @@
     "margin": 0.02,
     "measured": "2026-11-12",
     "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
-   }
+   },
+   "base": "owl",
+   "base_mode": "reuse",
+   "new": "the damage masks: the owl body and mechanisms with parts gone, cracked or stunned, same ink and brass"
   },
   "keeper-departure": {
    "what": "the Keeper's living departure and phase/retry reset (ANIM-06): it leaves alive, not defeated",
@@ -2992,7 +3007,10 @@
     "margin": 0.02,
     "measured": "2026-11-12",
     "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
-   }
+   },
+   "base": "owl",
+   "base_mode": "reuse",
+   "new": "the living departure: the owl leaving alive, same body and palette, with a reset glow, not a defeat"
   },
   "enemy-sundial": {
    "what": "Roadwarden, Sundial Caster (GDD SH1.0 ANIM-08, ART-10): one enemy figure, male or female, as a transparent sprite set (idle, aim, fire red or yellow, recover, hit, defeat)",
