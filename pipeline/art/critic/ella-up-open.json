@@ -1,0 +1,268 @@
+{
+ "id": "ella-up-open",
+ "records": [
+  {
+   "piece": "ella-up-open",
+   "round": 1,
+   "verdict": "reference",
+   "checks": false,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "fail"
+   },
+   "pairs": {
+    "quality_bar": "reference",
+    "reference": "reference"
+   },
+   "panel": 1,
+   "calibration": {
+    "sessions": 6,
+    "passed": 3
+   },
+   "missing": [
+    "context (no in-engine capture made after the piece: import it and run the smoke, whose screenshot is the capture)",
+    "quality_bar:pipeline/art/reference/discord/20261111-0319_Ricky_roadwarden-sundial-casters.png (1/3 calibrated sessions)",
+    "reference:pipeline/art/reference/Rehearsal/Ella/Ella-Rising-02.png (2/3 calibrated sessions)"
+   ],
+   "critic_sessions": [],
+   "files": "8406916aef853d2ec7c0825cabe59cfd66e4eba87c5a06b728179e1cefd49470",
+   "file": "Art/Source/Ella/Raw/Open/Ella_Open_03.png",
+   "card": "MVP 15",
+   "refs": "b120cc1f1902",
+   "commit": "a3106bf0b34c",
+   "gap": "X is flat-filled and cartoonish with stiff blocky limbs and a rigid hat and umbrella, with no etched linework or aged-paper texture.; Y is a flat, hard-edged vector figure with no etching, paper texture or layered dress, and the face, hair and scarf are not resolved.; Y is a crude flat-fill cartoon with a stovepipe hat, a stiff block body and a wedge of hair. It has no etched detail, no paper texture and no hat, scarf or mask identity.",
+   "at": "2026-11-13T00:16:04Z"
+  },
+  {
+   "piece": "ella-up-open",
+   "round": 2,
+   "verdict": "reference",
+   "checks": false,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "fail"
+   },
+   "pairs": {
+    "quality_bar": "reference",
+    "reference": "reference"
+   },
+   "panel": 1,
+   "calibration": {
+    "sessions": 6,
+    "passed": 3
+   },
+   "missing": [
+    "context (no in-engine capture made after the piece: import it and run the smoke, whose screenshot is the capture)",
+    "quality_bar:pipeline/art/reference/discord/20261111-0319_Ricky_roadwarden-sundial-casters.png (2/3 calibrated sessions)",
+    "reference:pipeline/art/reference/Rehearsal/Ella/Ella-Rising-02.png (1/3 calibrated sessions)"
+   ],
+   "critic_sessions": [],
+   "files": "51124661630f86f6ff7c516c88dbfe132f4ccb03d5afe264eea62226896059af",
+   "file": "Art/Source/Ella/Raw/Open/Ella_Open_03.png",
+   "card": "MVP 15",
+   "refs": "b120cc1f1902",
+   "commit": "84a840723dad",
+   "gap": "X is a flat-filled cartoon with thick uniform outlines, no etching or paper grain, and a grounded pose.; X is crude flat polygons with no etched line, paper grain, or gold and rust accents, and it is grounded rather than airborne.; Y is a flat cartoon-outlined figure with a broken canopy, a blocky wand-like cluster, brown fills and no ink-and-paper texture.",
+   "at": "2026-11-13T00:16:51Z"
+  },
+  {
+   "piece": "ella-up-open",
+   "round": 3,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "reference",
+    "reference": "reference"
+   },
+   "panel": 2,
+   "calibration": {
+    "sessions": 6,
+    "passed": 4
+   },
+   "missing": [
+    "context (no in-engine capture made after the piece: import it and run the smoke, whose screenshot is the capture)",
+    "quality_bar:pipeline/art/reference/discord/20261111-0319_Ricky_roadwarden-sundial-casters.png (2/3 calibrated sessions)",
+    "reference:pipeline/art/reference/Rehearsal/Ella/Ella-Rising-02.png (2/3 calibrated sessions)"
+   ],
+   "critic_sessions": [],
+   "files": "d00759613414b1f5c4ea774a9f1040af0fc2742e47e0d6a283a54f17ea7e3133",
+   "file": "Art/Source/Ella/Raw/GP_PH/Ella_up-open_GP_PH.png",
+   "card": "MVP 15",
+   "refs": "5abdd1644674",
+   "commit": "25dd62a1f1fb",
+   "gap": "X is a crude cartoon with blocky shapes, thin hatching and no real paper texture or tonal depth.; Y is a single cartoonish frame with thick uniform outlines, blocky dress tiers and mitten hands, so it has no layered cloth, boots or etched finish, and no animation.",
+   "at": "2026-11-13T00:34:39Z"
+  },
+  {
+   "piece": "ella-up-open",
+   "round": 4,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "ours",
+    "reference": "reference"
+   },
+   "panel": 0,
+   "calibration": {
+    "sessions": 6,
+    "passed": 3
+   },
+   "missing": [
+    "context (no in-engine capture made after the piece: import it and run the smoke, whose screenshot is the capture)",
+    "reference:pipeline/art/reference/Rehearsal/Ella/Ella-Rising-02.png (0/3 calibrated sessions)"
+   ],
+   "critic_sessions": [],
+   "files": "fefe774b93f4bf3c3b349f49064b771d3985f5390f779000878ae2cd12423b57",
+   "file": "pipeline/art/reference/Rehearsal/Ella/Ella-Rising-02.png",
+   "card": "MVP 15",
+   "refs": "5abdd1644674",
+   "commit": "25dd62a1f1fb",
+   "gap": "critic sessions refused (calibration missed or no answer): judge again",
+   "at": "2026-11-13T00:36:28Z"
+  },
+  {
+   "piece": "ella-up-open",
+   "round": 5,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "reference",
+    "reference": "reference"
+   },
+   "panel": 2,
+   "calibration": {
+    "sessions": 6,
+    "passed": 5
+   },
+   "missing": [
+    "context (no in-engine capture made after the piece: import it and run the smoke, whose screenshot is the capture)",
+    "quality_bar:pipeline/art/reference/discord/20261111-0319_Ricky_roadwarden-sundial-casters.png (2/3 calibrated sessions)",
+    "reference:pipeline/art/reference/Rehearsal/Ella/Ella-Rising-02.png"
+   ],
+   "critic_sessions": [],
+   "files": "df8d54512e7a9efbd0f483398f78eadccdf1f0e51d17beb30f862b6690c74453",
+   "file": "Art/Source/Ella/Raw/3D_PH/Ella_up-open_3D_PH.png",
+   "card": "MVP 15",
+   "refs": "5abdd1644674",
+   "commit": "9bac7244a6ea",
+   "gap": "X is a smooth 3D render with no etched ink linework, and its pale, washed-out body breaks the near-black silhouette.; Y is a plastic 3D render with tan values and tube-like hair, where the style calls for etched ink and a near-black silhouette; X is a pale grey, plastic-looking 3D render with no near-black ink values and no etched line.",
+   "at": "2026-11-13T01:10:19Z"
+  },
+  {
+   "piece": "ella-up-open",
+   "round": 1,
+   "verdict": "reference",
+   "checks": false,
+   "results": {
+    "art_check": "fail",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "reference",
+    "reference": "reference"
+   },
+   "panel": 2,
+   "calibration": {
+    "sessions": 6,
+    "passed": 4
+   },
+   "missing": [
+    "context (no in-engine capture made after the piece: import it and run the smoke, whose screenshot is the capture)",
+    "quality_bar:pipeline/art/reference/discord/20261111-0319_Ricky_roadwarden-sundial-casters.png (2/3 calibrated sessions)",
+    "reference:pipeline/art/reference/Rehearsal/Ella/Ella-Rising-02.png (2/3 calibrated sessions)"
+   ],
+   "critic_sessions": [],
+   "files": "2bafcafd2f54d6a94f4c736acef975ca726b75070fee7fb3fc08ddb508f74046",
+   "file": "Art/Source/ImageProof/Raw/Idle/ella_idle_01.png",
+   "card": "0.10b",
+   "refs": "5abdd1644674",
+   "commit": "028308f7edfa",
+   "gap": "critic sessions refused (calibration missed or no answer): judge again",
+   "at": "2026-11-13T02:36:48Z"
+  },
+  {
+   "piece": "ella-up-open",
+   "round": 2,
+   "verdict": "reference",
+   "checks": false,
+   "results": {
+    "art_check": "fail",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "reference",
+    "reference": "reference"
+   },
+   "panel": 2,
+   "calibration": {
+    "sessions": 6,
+    "passed": 5
+   },
+   "missing": [
+    "context (no in-engine capture made after the piece: import it and run the smoke, whose screenshot is the capture)",
+    "quality_bar:pipeline/art/reference/discord/20261111-0319_Ricky_roadwarden-sundial-casters.png (2/3 calibrated sessions)",
+    "reference:pipeline/art/reference/Rehearsal/Ella/Ella-Rising-02.png"
+   ],
+   "critic_sessions": [],
+   "files": "a34fb6da8d45145857f8ce5c3d16bb8a076e178c3b5d82566aace919613cd416",
+   "file": "Art/Source/ImageProof/R2/Raw/idle/ella_idle_01.png",
+   "card": "0.10b",
+   "refs": "5abdd1644674",
+   "commit": "24e92a0206b6",
+   "gap": "Y is a grounded walking pose with a striped canopy and flat fills, not an airborne, etched figure.",
+   "at": "2026-11-13T02:56:41Z"
+  },
+  {
+   "piece": "ella-up-open",
+   "round": 3,
+   "verdict": "reference",
+   "checks": false,
+   "results": {
+    "art_check": "fail",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "quality_bar": "reference",
+    "reference": "reference"
+   },
+   "panel": 2,
+   "calibration": {
+    "sessions": 6,
+    "passed": 4
+   },
+   "missing": [
+    "context (no in-engine capture made after the piece: import it and run the smoke, whose screenshot is the capture)",
+    "quality_bar:pipeline/art/reference/discord/20261111-0319_Ricky_roadwarden-sundial-casters.png (2/3 calibrated sessions)",
+    "reference:pipeline/art/reference/Rehearsal/Ella/Ella-Rising-02.png (2/3 calibrated sessions)"
+   ],
+   "critic_sessions": [],
+   "files": "58aefbaf6d582dc60b4e34d5169bf4ba57a1ddd7fc6faac00e8c5ebd24cc915c",
+   "file": "Art/Source/ImageProof/R3/Raw/idle/ella_idle_01.png",
+   "card": "0.10b",
+   "refs": "5abdd1644674",
+   "commit": "9bca16085d95",
+   "gap": "X is a layout sheet of a different character (a Roadwarden caster with pink-red and yellow shots), not Ella with the umbrella.",
+   "at": "2026-11-13T03:10:22Z"
+  }
+ ]
+}
