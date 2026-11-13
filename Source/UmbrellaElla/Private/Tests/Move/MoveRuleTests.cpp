@@ -353,6 +353,28 @@ bool FMoveCadenceTest::RunTest(const FString& Parameters)
 	return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMoveCadenceGapsTest, "UmbrellaElla.Move.SmallBlastCadenceGaps", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FMoveCadenceGapsTest::RunTest(const FString& Parameters)
+{
+	// D-new-smallblast-fixture: every gap is one interval (0.200 s at 5 shots/s), the first included.
+	const float Delta = 1.0f / 60.0f;
+	float Countdown = 0.0f;
+	TArray<int32> ShotFrames;
+	for (int32 Frame = 0; Frame < 60; ++Frame)
+	{
+		if (AttackCadence::Step(Countdown, Delta, 5.0f, true) > 0)
+		{
+			ShotFrames.Add(Frame);
+		}
+	}
+	TestTrue(TEXT("at least 4 shots in a second"), ShotFrames.Num() >= 4);
+	for (int32 Index = 1; Index < ShotFrames.Num(); ++Index)
+	{
+		TestEqual(*FString::Printf(TEXT("gap %d in frames"), Index), ShotFrames[Index] - ShotFrames[Index - 1], 12);
+	}
+	return true;
+}
+
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMoveBindingsTest, "UmbrellaElla.Move.DefaultBindings", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
 bool FMoveBindingsTest::RunTest(const FString& Parameters)
 {
