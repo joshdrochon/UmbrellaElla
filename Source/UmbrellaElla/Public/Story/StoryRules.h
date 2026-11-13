@@ -55,6 +55,7 @@ struct UMBRELLAELLA_API FStoryProgress
 	static FStoryProgress FromText(const FString& Text);
 };
 
+/** Ending stages in timeline order (flow drives them; story only follows, forward only). */
 enum class EStoryEndingStage : uint8
 {
 	None,
@@ -76,8 +77,8 @@ namespace StoryCueTable
 }
 
 /**
- * The story state machine. No UObject, no clock of its own: feed it events and Advance(). It never decides combat
- * success; it only reacts to what the encounter and flow already announced.
+ * The story state machine. No UObject, no clock of its own: feed it events and Advance() (in-play captions). The ending
+ * timeline is flow's: flow calls EnterEndingStage() as its screens change. It never decides combat success.
  */
 class UMBRELLAELLA_API FStoryModel
 {
@@ -102,6 +103,16 @@ public:
 	bool CanSkipEnding() const;
 	void SkipEnding();
 
+	/**
+	 * Flow's ending clock moved on (StoryText, Credits, Statistics). Forward only, Director's Cut only, and only after
+	 * EncounterCompleted started the ending (Hold). Statistics saves the first-win flag.
+	 */
+	void EnterEndingStage(EStoryEndingStage Next);
+	/** The ending story lines (cue trigger Ending.Story) in table order; flow shows them as its story pages. */
+	TArray<FString> GetEndingLines() const;
+	/** Light and shadow trigger: the light shaft and umbra are on (Director's Cut play and the ending hold). */
+	bool IsLightShaftOn() const;
+
 	/** Try Again / a fresh run started by the caller without a ModeSelected event. */
 	void BeginNewRun(EUmbrellaPlayMode Mode);
 
@@ -116,8 +127,6 @@ public:
 	/** The saved flags changed since MarkProgressSaved(). */
 	bool HasProgressToSave() const { return bProgressDirty; }
 	void MarkProgressSaved() { bProgressDirty = false; }
-	/** Ending line index shown in the StoryText stage. */
-	int32 GetEndingLineIndex() const { return EndingLine; }
 
 private:
 	void Queue(const FStoryCue& Cue);
@@ -145,8 +154,6 @@ private:
 	float ActiveRemaining = 0.0f;
 
 	EStoryEndingStage Stage = EStoryEndingStage::None;
-	float StageRemaining = 0.0f;
-	int32 EndingLine = 0;
 	bool bProgressDirty = false;
 
 	bool bHaveLocation = false;
