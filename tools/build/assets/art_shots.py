@@ -23,12 +23,15 @@ PIECES = {
 }
 
 
-def make_job(piece, out_dir, seed=None):
+def make_job(piece, out_dir, seed=None, scale=1):
     base, builder, asset, size, pivot, ppu, faces = PIECES[piece]
     j = plan.job(base, "Still", out_dir, root=ROOT, seed=seed)
-    j["look"]["line_px"] = 1.0
-    j["look"]["samples"] = 1
-    j.update(builder=builder, asset=asset, frame_size=list(size), pivot_px=list(pivot), px_per_unit=ppu, faces=faces,
+    j["look"]["line_px"] = 1.0 * scale
+    j["look"]["samples"] = 1 if scale == 1 else 24
+    j["look"]["filter_px"] = 0.0 if scale == 1 else 0.6
+    j["look"]["snap"] = round(1.0 / (ppu * scale), 6)
+    j.update(builder=builder, asset=asset, frame_size=[v * scale for v in size], pivot_px=[v * scale for v in pivot],
+             px_per_unit=ppu * scale, faces=faces,
              character=piece, anim="Still", layout="recipe")
     j["frames"] = [f"{out_dir}/{asset}_Still_00.png"]
     j["blend"] = f"{out_dir}/{asset}_Still.blend"
@@ -40,9 +43,10 @@ def main(argv=None):
     ap.add_argument("piece", choices=sorted(PIECES))
     ap.add_argument("--out-dir")
     ap.add_argument("--seed", type=int)
+    ap.add_argument("--scale", type=int, default=1, help="render at N x the layout frame size")
     a = ap.parse_args(argv)
     out = (a.out_dir or f"Art/Source/{PIECES[a.piece][2]}/Raw/Still").rstrip("/")
-    j = make_job(a.piece, out, a.seed)
+    j = make_job(a.piece, out, a.seed, a.scale)
     os.makedirs(out, exist_ok=True)
     jp = f"{out}/{j['asset']}_Still.job.json"
     with open(jp, "w", encoding="utf-8") as fh:

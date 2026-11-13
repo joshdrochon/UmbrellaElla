@@ -41,7 +41,7 @@ def alpha_glow(name, hexcol, alpha, strength=1.0):
     return m
 
 
-def graded(name, head_hex, tail_hex, x_tail=-2.6, x_head=1.4, grain=0.22, cut=0.38):
+def graded(name, head_hex, tail_hex, x_tail=-2.6, x_head=1.4, grain=0.15, cut=0.38, snap=0.0):
     """An emission colour that shifts from head_hex at the head to tail_hex at the tail, with paper grain (painted, not
     a flat fill: the critic's 'flat fills, no paper texture' gap)."""
     m = bpy.data.materials.new(name)
@@ -61,20 +61,28 @@ def graded(name, head_hex, tail_hex, x_tail=-2.6, x_head=1.4, grain=0.22, cut=0.
     mix.color_ramp.elements[1].position, mix.color_ramp.elements[1].color = cut, hex_rgb(head_hex)
     noise = nt.nodes.new("ShaderNodeTexWhiteNoise")   # per-pixel paper grain
     noise.noise_dimensions = "3D"
-    gm = nt.nodes.new("ShaderNodeMath")
-    gm.operation = "MULTIPLY_ADD"
-    gm.inputs[1].default_value = -grain
-    gm.inputs[2].default_value = 1.0
+    gm = nt.nodes.new("ShaderNodeValToRGB")   # two grain levels only: tooth without leaving the palette's tolerance
+    gm.color_ramp.interpolation = "CONSTANT"
+    gm.color_ramp.elements[0].position, gm.color_ramp.elements[0].color = 0.0, (1, 1, 1, 1)
+    g2 = 1.0 - grain
+    gm.color_ramp.elements[1].position, gm.color_ramp.elements[1].color = 0.55, (g2, g2, g2, 1)
     mul = nt.nodes.new("ShaderNodeVectorMath")
-    mul.operation = "SCALE"
+    mul.operation = "MULTIPLY"
     L = nt.links.new
     L(coord.outputs["Object"], sep.inputs[0])
-    L(coord.outputs["Object"], noise.inputs["Vector"])
+    if snap:   # one grain value per output pixel: the sub-pixel samples do not average it away
+        sn = nt.nodes.new("ShaderNodeVectorMath")
+        sn.operation = "SNAP"
+        sn.inputs[1].default_value = (snap, snap, snap)
+        L(coord.outputs["Object"], sn.inputs[0])
+        L(sn.outputs[0], noise.inputs["Vector"])
+    else:
+        L(coord.outputs["Object"], noise.inputs["Vector"])
     L(sep.outputs["X"], ramp.inputs["Value"])
     L(ramp.outputs[0], mix.inputs[0])
     L(noise.outputs["Value"], gm.inputs[0])
     L(mix.outputs[0], mul.inputs[0])
-    L(gm.outputs[0], mul.inputs["Scale"])
+    L(gm.outputs[0], mul.inputs[1])
     L(mul.outputs[0], emi.inputs["Color"])
     L(emi.outputs["Emission"], out.inputs["Surface"])
     return m
@@ -152,15 +160,16 @@ _materials = stand_ins.materials
 def materials(colours, look):
     mats = _materials(colours, look)
     c = colours.get
+    sn_ = float(look.get("snap", 0.0))
     mats["coral"] = glow("coral", c("coral", "#ff7848"))
     mats["yellow"] = glow("yellow", c("yellow", "#ffd84a"))
     mats["amber"] = glow("amber2", c("amber", "#f5aa28"))
     mats["yshadow"] = glow("yshadow", c("yellow shadow", "#94611e"))
-    mats["g_shell"] = graded("g_shell", c("red", "#ff3658"), c("red shadow", "#8f173c"))
-    mats["g_mid"] = graded("g_mid", c("coral", "#ff7848"), c("red", "#ff3658"))
-    mats["g_core"] = graded("g_core", c("core", "#fff5dc"), c("coral", "#ff7848"), x_tail=-1.8)
-    mats["g_ys"] = graded("g_ys", c("yellow", "#ffd84a"), c("yellow shadow", "#94611e"))
-    mats["g_ym"] = graded("g_ym", c("amber", "#f5aa28"), c("yellow", "#ffd84a"))
+    mats["g_shell"] = graded("g_shell", c("red", "#ff3658"), c("red shadow", "#8f173c"), snap=sn_)
+    mats["g_mid"] = graded("g_mid", c("coral", "#ff7848"), c("red", "#ff3658"), snap=sn_)
+    mats["g_core"] = graded("g_core", c("core", "#fff5dc"), c("coral", "#ff7848"), x_tail=-1.8, snap=sn_)
+    mats["g_ys"] = graded("g_ys", c("yellow", "#ffd84a"), c("yellow shadow", "#94611e"), snap=sn_)
+    mats["g_ym"] = graded("g_ym", c("amber", "#f5aa28"), c("yellow", "#ffd84a"), snap=sn_)
     mats["spill_red"] = alpha_glow("spill_red", c("red", "#ff3658"), 0.22)
     mats["spill_gold"] = alpha_glow("spill_gold", c("yellow", "#ffd84a"), 0.22)
     return mats
