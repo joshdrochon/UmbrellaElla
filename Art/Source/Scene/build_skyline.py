@@ -20,10 +20,11 @@ import numpy as np
 
 W, H, G = 3200, 720, 80          # frame and ground-band top
 U = 0.01                         # Blender units per pixel
-CLASSES = ("wall", "roof", "glow", "line", "rust", "hole", "pane", "lwall", "rock", "etch")
+CLASSES = ("wall", "roof", "glow", "line", "rust", "hole", "pane", "lwall", "rock", "etch", "facet")
 PASSES = ({"roof": (1, 0, 0), "glow": (0, 1, 0), "line": (0, 0, 1)},
           {"rust": (1, 0, 0), "hole": (0, 1, 0), "pane": (0, 0, 1)},
-          {"lwall": (1, 0, 0), "rock": (0, 1, 0), "etch": (0, 0, 1)})
+          {"lwall": (1, 0, 0), "rock": (0, 1, 0), "etch": (0, 0, 1)},
+          {"facet": (1, 0, 0)})
 
 
 # ---------------------------------------------------------------- geometry kit
@@ -520,7 +521,7 @@ def taper(x):
 def house_row(k, x0, x1, lo, hi, front, blocked=(), low=(), gappy=0.0):
     """A row of houses. `blocked` spans stay empty (landmarks, viaduct openings), `low` spans keep to cottages."""
     r = k.rnd
-    x = x0
+    x, base_lit = x0, k.lit
     while x < x1:
         t = taper(x)
         if t <= 0.02:
@@ -536,6 +537,7 @@ def house_row(k, x0, x1, lo, hi, front, blocked=(), low=(), gappy=0.0):
         if hit:
             x = max(hit) + 8
             continue
+        k.lit = base_lit * r.choice((0.15, 0.15, 0.4, 1.0, 2.3))      # households, not confetti: some dark, some all lit
         if kind < 0.4:
             gable_house(k, x + (sl if side < 0 else 0), w, he, w * r.uniform(0.62, 0.92), side, sl)
         elif kind < 0.8:
@@ -547,50 +549,45 @@ def house_row(k, x0, x1, lo, hi, front, blocked=(), low=(), gappy=0.0):
             window(k, x + w / 2, he - 8, 8.0, 24.0, lit=False)
             spire(k, x + w / 2, he + 30, w, r.uniform(90, 150) * (0.5 + 0.5 * t), facet=r.choice((-1, 1)))
         x += w + sl + r.uniform(-8, 8) + (r.uniform(18, 70) if r.random() < gappy else 0)
+    k.lit = base_lit
 
 
 def ground(k):
-    """The town stands on a jagged rock shelf (the key art's black rock band): crags and ledges, etched strata.
-    The shelf has the same height at both tile edges, so the tile wraps."""
+    """The town stands on the key art's black rock band: flat-topped buttes with steep, notched sides. Each butte
+    has a lit facet on its left flank and a few cleft lines; the band has the same height at both tile edges."""
     r = k.rnd
-    edge = G + 30.0
-    prof, x, z = [(0.0, edge)], 0.0, edge
-    while x < W - 40:
-        e = 1 - taper(x)                             # crags stand tall where the houses thin out
-        kind = r.random()
-        if kind < 0.3:                               # ledge: flat run, then a sharp step
-            x += r.uniform(24, 70)
-            prof.append((x, z + r.uniform(-2, 2)))
-            z = G - 4 + 30 * e + r.uniform(-4, 16) * (0.6 + e)
-            x += r.uniform(2, 6)
-        elif kind < 0.6:                             # crag: steep up, broken top, steep down
-            top = G + 30 * e + r.uniform(10, 38) * (0.7 + 0.8 * e)
-            x += r.uniform(5, 14)
-            prof.append((x, top - r.uniform(0, 6)))
-            x += r.uniform(6, 22)
-            prof.append((x, top))
-            x += r.uniform(3, 10)
-            z = G - 2 + 30 * e + r.uniform(-4, 8)
-        else:                                        # scree slope
-            x += r.uniform(16, 46)
-            z = G - 4 + 30 * e + r.uniform(-5, 10)
-        prof.append((x, z))
-    prof.append((W, edge))
+    edge = G + 34.0
+    prof, x, z = [(0.0, edge), (r.uniform(30, 60), edge + 2)], 60.0, edge
+    buttes = []
+    while x < W - 150:
+        e = max(0.0, 1 - min(x, W - x) / 170.0)                        # the band lifts only at the tile edges
+        top = G - 2 + 34 * e + r.uniform(3, 20) * (1 + 0.8 * e)        # butte top
+        low = G - 9 + 30 * e + r.uniform(-4, 5)                        # gully between buttes
+        wd = r.uniform(70, 210)
+        gap = r.uniform(14, 46)
+        x0 = x + gap
+        prof += [(x + gap * 0.45, low), (x0 - r.uniform(2, 6), low + (top - low) * 0.35), (x0, top - r.uniform(2, 5))]
+        n = r.randint(1, 3)                                             # notches along the flat top
+        for i in range(1, n + 1):
+            nx = x0 + wd * i / (n + 1) + r.uniform(-8, 8)
+            prof += [(nx - 3, top + r.uniform(-1.5, 1.5)), (nx, top - r.uniform(3, 9)), (nx + r.uniform(3, 7), top + r.uniform(-2, 3))]
+        x1 = x0 + wd
+        prof += [(x1, top + r.uniform(-1, 3)), (x1 + r.uniform(-5, 3), top - (top - low) * 0.5)]
+        buttes.append((x0, x1, top, low))
+        x = x1
+    prof += [(W - 60, edge + 2), (W, edge)]
+    prof.sort(key=lambda q: q[0])
     for a, b in zip(prof, prof[1:]):
         k.add("rock", [(a[0], -4), a, b, (b[0], -4)])
-    for d, wd in ((4.5, 0.9), (11, 0.7), (20, 0.8), (31, 0.6), (44, 0.8), (58, 0.6), (72, 0.7)):   # etched strata
-        i = 0
-        while i < len(prof) - 2:
-            run = r.randint(2, 7)
-            seg = [(px + r.uniform(-2, 2), min(pz - d * r.uniform(0.85, 1.15), G + 20 - d * 0.9) if d > 12 else pz - d)
-                   for px, pz in prof[i:i + run + 1]]
-            if len(seg) > 1:
-                k.stroke("etch" if d > 5 else "line", seg, wd, jit=0.5)
-            i += run + r.randint(1, 3)
-    for _ in range(90):                              # fissures
-        j = r.randrange(len(prof) - 1)
-        fx, fz = prof[j][0] + r.uniform(0, 12), prof[j][1] - r.uniform(2, 30)
-        k.stroke("etch", [(fx, fz), (fx + r.uniform(-4, 4), fz - r.uniform(6, 16)), (fx + r.uniform(-7, 7), fz - r.uniform(16, 30))], 0.6)
+    for x0, x1, top, low in buttes:
+        fw = r.uniform(14, 34)                                          # lit left flank
+        k.add("facet", [(x0 + 1.5, top - 5), (x0 + fw, top - 7), (x0 + fw * r.uniform(0.5, 0.9), low - r.uniform(14, 40)),
+                        (x0 - 2, low - r.uniform(4, 16))])
+        for _ in range(r.randint(2, 4)):                                # clefts running down from the rim
+            cx = r.uniform(x0 + fw, x1 - 6)
+            cz = top - r.uniform(3, 8)
+            k.stroke("etch", [(cx, cz), (cx + r.uniform(-3, 3), cz - r.uniform(10, 22)), (cx + r.uniform(-6, 6), cz - r.uniform(24, 46))], 0.8)
+        k.stroke("etch", [(x0 + fw + 3, top - 9), (x1 - 8, top - 9 + r.uniform(-2, 2))], 0.7, jit=0.6)   # ledge under the rim
 
 
 VIADUCTS = ((742, 1018, 192, 46), (2190, 2452, 176, 44), (1340, 1430, 152, 45))
@@ -733,20 +730,20 @@ def col(*rgb):
     return np.array(rgb, dtype=np.float32)[None, None, :] / 255.0
 
 
-def finish(p1, p2, p3, seed, far=False):
+def finish(p1, p2, p3, p4, seed, far=False):
     rng = np.random.default_rng(seed)
     # hand wobble: one displacement field for both passes
     dx, dy = field(rng, 13, 0.75) + field(rng, 4, 0.25), field(rng, 13, 0.75) + field(rng, 4, 0.25)
     yy, xx = np.mgrid[0:H, 0:W].astype(np.float32)
     sy = np.clip((yy + dy).round().astype(int), 0, H - 1)
     sx = np.clip((xx + dx).round().astype(int), 0, W - 1)
-    p1, p2, p3 = p1[sy, sx], p2[sy, sx], p3[sy, sx]
+    p1, p2, p3, p4 = p1[sy, sx], p2[sy, sx], p3[sy, sx], p4[sy, sx]
     roof, glow, line = (lin(p1[..., i]) for i in range(3))
     rust, hole, pane = (lin(p2[..., i]) for i in range(3))
     a = p1[..., 3] * (1 - hole)
     zz = H - yy
     lwall, rock, etch = (lin(p3[..., i]) for i in range(3))
-    wall = np.clip(1 - roof - glow - line - rust - pane - lwall - rock - etch, 0, 1)
+    wall = np.clip(1 - roof - glow - line - rust - pane - lwall - rock - etch - lin(p4[..., 0]), 0, 1)
     # paper and ink textures
     white = rng.normal(0, 1, (H, W)).astype(np.float32)
     weave = (box(rng.normal(0, 1, (H, W)).astype(np.float32), 2, 1) + box(rng.normal(0, 1, (H, W)).astype(np.float32), 2, 0)) * 1.6
@@ -758,15 +755,17 @@ def finish(p1, p2, p3, seed, far=False):
     stone = np.maximum(courses, joints * 0.8) * patch
     vhatch = (((xx * 1.0 + zz * 0.5) % 5.0) < 1.0).astype(np.float32) * np.clip(field(rng, 30, 1.0) - 0.25, 0, 1)
     eave = np.clip(box(shift_down(roof + line * 0.5, 6), 3) * 1.5, 0, 1)
-    bounce = np.clip(box(glow, 12) * 3.2, 0, 1)
+    bounce = np.clip(box(glow, 12) * 3.2, 0, 1) * (1 - np.clip(rock + lin(p4[..., 0]), 0, 1))
     c_wall = col(25, 20, 17) * (1 + 0.08 * (zz / H))[..., None] + stone[..., None] * col(18, 15, 12) + vhatch[..., None] * col(17, 14, 11)
     c_wall = c_wall * (1 - 0.32 * eave)[..., None] + bounce[..., None] * col(40, 25, 12)
     c_lwall = (col(37, 31, 26) * (1 + 0.08 * (zz / H))[..., None] + stone[..., None] * col(24, 20, 17) + vhatch[..., None] * col(12, 10, 8))
     c_lwall = c_lwall * (1 - 0.4 * eave)[..., None] + bounce[..., None] * col(46, 29, 14)
-    h1 = (((xx + zz * 0.6) % 4.0) < 1.0).astype(np.float32) * np.clip(field(rng, 34, 1.0) + field(rng, 9, 0.5) - 0.2, 0, 1)
-    h2 = (((xx * 0.5 - zz) % 4.5) < 1.0).astype(np.float32) * np.clip(field(rng, 28, 1.0) + field(rng, 8, 0.5) - 0.3, 0, 1)
-    c_rock = col(24, 19, 16) * (1 + 0.16 * mott)[..., None] + (h1 + h2)[..., None] * col(26, 22, 18)
+    h1 = (((xx + zz * 0.6) % 4.0) < 1.0).astype(np.float32) * np.clip(field(rng, 40, 1.0) + field(rng, 11, 0.5) - 0.35, 0, 1)
+    h2 = (((xx * 0.5 - zz) % 4.5) < 1.0).astype(np.float32) * np.clip(field(rng, 34, 1.0) + field(rng, 9, 0.5) - 0.45, 0, 1)
+    c_rock = col(23, 18, 15) * (1 + 0.10 * mott)[..., None] + (h1 + h2)[..., None] * col(22, 18, 15)
     c_etch = col(78, 67, 57) * (0.75 + 0.4 * patch)[..., None]
+    facet = lin(p4[..., 0])
+    c_facet = col(27, 22, 18) + ((((xx * 0.7 + zz) % 3.6) < 1.0).astype(np.float32) * (0.6 + 0.5 * patch))[..., None] * col(40, 34, 28)
     # roofs: lighter umber, diamond slates, each slate lit along its upper edges
     p = 6.0
     wx, wz = xx + field(rng, 14, 2.2), zz + field(rng, 14, 2.2)      # slates laid by hand: the courses waver
@@ -774,14 +773,14 @@ def finish(p1, p2, p3, seed, far=False):
     slate = np.maximum((d1 < 1.1), (d2 < 1.1)).astype(np.float32) * np.clip(0.55 + 0.5 * box(white, 1), 0, 1)
     lit_s = np.clip(1 - (d1 + d2) / (2 * p), 0, 1)
     c_roof = col(40, 33, 28) * (0.84 + 0.3 * lit_s)[..., None] + slate[..., None] * col(50, 43, 36) * (0.45 + 0.8 * patch)[..., None]
-    c_rust = col(96, 44, 29) * (0.8 + 0.4 * lit_s)[..., None] + slate[..., None] * col(34, 14, 9)
+    c_rust = col(88, 41, 27) * (0.8 + 0.4 * lit_s)[..., None] + slate[..., None] * col(34, 14, 9)
     c_line = col(112, 96, 82) * (0.8 + 0.3 * patch)[..., None]
     c_pane = col(50, 44, 39) * (0.85 + 0.2 * (box(white, 1, 0)))[..., None]
     # windows: muted amber, brighter in the middle, streaked like old glass
     core = np.clip(box(glow, 3) * 1.25 - 0.1, 0, 1)
     streak = box(rng.normal(0, 1, (H, W)).astype(np.float32), 5, 0) * 2.6
     c_glow = (col(184, 124, 66) * (1 - core[..., None]) + col(238, 180, 104) * core[..., None]) * (1 + 0.09 * streak)[..., None]
-    rgb = (wall[..., None] * c_wall + lwall[..., None] * c_lwall + rock[..., None] * c_rock + etch[..., None] * c_etch + roof[..., None] * c_roof + rust[..., None] * c_rust + line[..., None] * c_line
+    rgb = (wall[..., None] * c_wall + lwall[..., None] * c_lwall + rock[..., None] * c_rock + facet[..., None] * c_facet + etch[..., None] * c_etch + roof[..., None] * c_roof + rust[..., None] * c_rust + line[..., None] * c_line
            + pane[..., None] * c_pane + glow[..., None] * c_glow)
     halo = np.clip(box(glow, 4) * 1.6, 0, 1) * (1 - glow)
     rgb = rgb + halo[..., None] * col(58, 36, 14)
@@ -830,7 +829,7 @@ def main():
     sc, mats = setup_scene()
     far = Kit(random.Random(seed + 100), lit=0.12, sx=0.86, sz=0.9, dx=-190.0, dz=34.0)
     far_town(far)
-    near = Kit(random.Random(seed), lit=0.3)
+    near = Kit(random.Random(seed), lit=0.38)
     near_town(near)
     fr, fa = finish(*render_layer(sc, mats, far, tmp, "far"), seed=seed + 1, far=True)
     nr, na = finish(*render_layer(sc, mats, near, tmp, "near"), seed=seed)
