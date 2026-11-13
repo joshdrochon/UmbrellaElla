@@ -7,6 +7,8 @@
 #include "Engine/World.h"
 #include "Feedback/Art/ArtSlot.h"
 #include "Feedback/Background/UmbrellaBackdropSubsystem.h"
+#include "Feedback/Background/SceneArtSubsystem.h"
+#include "Feedback/Vfx/VfxCatalog.h"
 #include "Feedback/Ui/UiArtSubsystem.h"
 #include "Flow/FlowRules.h"
 #include "Algo/Find.h"
@@ -151,6 +153,78 @@ bool FScreenFixNoScreenArtOverGameplay::RunTest(const FString& Parameters)
 		Ui->ClearScreenArt();
 		Texture->RemoveFromRoot();
 	}
+	ScreenFixTestEnd(World);
+	return true;
+}
+
+// B2 follow-up: the light shaft (story light and umbra) drew at BackgroundNearY, behind the scene pictures, so only its dark umbra
+// showed (a black bar around Ella). The backdrop effect layer sits in front of every backdrop and scene picture and
+// behind the arena layer.
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FScreenFixShaftInFront, "UmbrellaElla.ScreenFix.LightShaftInFrontOfScenePictures",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+
+bool FScreenFixShaftInFront::RunTest(const FString& Parameters)
+{
+	const FVfxArtRow* Shaft = VfxCatalog::Find(TEXT("LightShaft"));
+	if (!TestNotNull(TEXT("LightShaft row"), Shaft))
+	{
+		return false;
+	}
+	const float ShaftY = VfxCatalog::RowY(*Shaft);
+	// Only the shaft moves forward: the Backdrop layer itself stays at BackgroundNearY for any later backdrop effect.
+	TestEqual(TEXT("Backdrop layer stays at BackgroundNearY"), VfxCatalog::LayerY(EVfxLayer::Backdrop), UmbrellaDrawOrder::BackgroundNearY);
+	for (const FSceneArtSpec& Spec : USceneArtSubsystem::Specs())
+	{
+		if (Spec.Depth < UmbrellaDrawOrder::ArenaY)
+		{
+			TestTrue(FString::Printf(TEXT("shaft in front of %s"), *Spec.Visual.ToString()), ShaftY > Spec.Depth);
+		}
+	}
+	for (const FBackdropLayerSpec& Layer : UUmbrellaBackdropSubsystem::LayerSpecs())
+	{
+		TestTrue(FString::Printf(TEXT("shaft in front of backdrop %s"), *Layer.Name.ToString()), ShaftY > Layer.Depth);
+	}
+	TestTrue(TEXT("shaft behind the arena layer"), ShaftY < UmbrellaDrawOrder::ArenaY);
+	return true;
+}
+
+// B2 follow-up: the Ella idle stand-in is a 24-frame sheet cut 6x4. Drawn as one picture, Ella showed as 24 specks in
+// her 25x50 box. The slot must draw one cell: Cols 6 across, TileV 1/4 down.
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FScreenFixSheetOneCell, "UmbrellaElla.ScreenFix.World.PackedSheetDrawsOneCell",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+
+bool FScreenFixSheetOneCell::RunTest(const FString& Parameters)
+{
+	const FArtSlotRow* Idle = ArtSlot::Find(TEXT("ella-state:Idle"));
+	if (!TestNotNull(TEXT("ella-state:Idle row"), Idle))
+	{
+		return false;
+	}
+	TestEqual(TEXT("idle sheet columns"), Idle->Cols, 6);
+	TestEqual(TEXT("idle sheet rows"), Idle->Rows, 4);
+	const FArtSlotRow* Paper = ArtSlot::Find(TEXT("bg-layer:Sky"));
+	TestTrue(TEXT("a single picture stays one cell"), Paper && Paper->Cols == 1 && Paper->Rows == 1);
+	UWorld* World = ScreenFixTestWorld();
+	if (!TestNotNull(TEXT("world"), World))
+	{
+		return false;
+	}
+	AActor* Owner = World->SpawnActor<AActor>();
+	UStaticMeshComponent* Mesh = NewObject<UStaticMeshComponent>(Owner);
+	Mesh->RegisterComponent();
+	UTexture2D* Sheet = UTexture2D::CreateTransient(6, 4);
+	TestEqual(TEXT("drawn"), static_cast<int32>(ArtSlot::Apply(Mesh, Sheet, *Idle, FVector(0.5, 0.1, 1.0))), static_cast<int32>(EArtSlotDraw::Drawn));
+	float Cols = 0.0f;
+	float TileU = 0.0f;
+	float TileV = 0.0f;
+	if (const UMaterialInstanceDynamic* Dynamic = Cast<UMaterialInstanceDynamic>(Mesh->GetMaterial(0)))
+	{
+		Dynamic->GetScalarParameterValue(FName(TEXT("Cols")), Cols);
+		Dynamic->GetScalarParameterValue(FName(TEXT("TileU")), TileU);
+		Dynamic->GetScalarParameterValue(FName(TEXT("TileV")), TileV);
+	}
+	TestEqual(TEXT("U spans one column of six"), TileU / Cols, 1.0f / 6.0f);
+	TestEqual(TEXT("V spans one row of four"), TileV, 0.25f);
 	ScreenFixTestEnd(World);
 	return true;
 }
