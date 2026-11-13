@@ -1,3 +1,4 @@
+#include "Attack/StreamBeamActor.h"
 #include "Components/StaticMeshComponent.h"
 #include "Feedback/Art/ArtSlot.h"
 #include "Core/UmbrellaDrawOrder.h"
@@ -10,7 +11,6 @@
 #include "Feedback/Anim/EnemyPresenterSubsystem.h"
 #include "Feedback/Anim/KeeperPresenterSubsystem.h"
 #include "Feedback/Anim/ShotPresenterSubsystem.h"
-#include "Attack/StreamBeamActor.h"
 #include "Feedback/Anim/WindPresenterSubsystem.h"
 #include "Field/WindCurrent.h"
 #include "Feedback/Vfx/UmbrellaVfxDirectorSubsystem.h"
@@ -19,6 +19,7 @@
 #include "Tests/Shared/UmbrellaTestWorld.h"
 #include "Feedback/Vfx/UmbrellaVfxSubsystem.h"
 #include "Core/UmbrellaEvent.h"
+#include "Core/UmbrellaEventBus.h"
 #include "Projectile/UmbrellaProjectile.h"
 #include "Feedback/Background/UmbrellaBackdropSubsystem.h"
 #include "Feedback/Background/SceneArtSubsystem.h"
@@ -651,6 +652,11 @@ bool FArtSlotScene::RunTest(const FString& Parameters)
 			}
 		}
 
+		for (const FName Visual : Visuals)
+		{
+			TestEqual(*FString::Printf(TEXT("%s follows its own flag (all on by default)"), *Visual.ToString()), USceneArtSubsystem::IsVisualEnabled(Visual.ToString()), true);
+		}
+
 		// Depth: backdrop pictures sit between the sky and the play layer; the frame is in front of play.
 		for (const FSceneArtSpec& Spec : USceneArtSubsystem::Specs())
 		{
@@ -767,77 +773,21 @@ bool FArtSlotKeeperParts::RunTest(const FString& Parameters)
 				TestEqual(*FString::Printf(TEXT("%s is the body width"), *Id), static_cast<float>(Part->GetComponentScale().X), static_cast<float>(UmbrellaKeeperPresenterConst::StandInScale.X));
 			}
 		}
-	}
-	ArtSlotTestEnd(World);
-	return true;
-}
-
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FArtSlotKeeperStandInHidden, "UmbrellaElla.Feedback.World.KeeperStandInHiddenUnderArt",
-	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
-
-bool FArtSlotKeeperStandInHidden::RunTest(const FString& Parameters)
-{
-	UWorld* World = ArtSlotTestWorld();
-	if (!TestNotNull(TEXT("world"), World))
-	{
-		return false;
-	}
-	UKeeperPresenterSubsystem* Presenter = World->GetSubsystem<UKeeperPresenterSubsystem>();
-	AKeeperOfTime* Keeper = World->SpawnActor<AKeeperOfTime>();
-	if (TestNotNull(TEXT("keeper presenter"), Presenter) && TestNotNull(TEXT("keeper"), Keeper))
-	{
-		const UUmbrellaTuning* Tuning = GetDefault<UUmbrellaTuning>();
-		FKeeperFightModel Model;
-		TArray<FKeeperCommand> Commands;
-		Model.Init(Tuning->Keeper, Tuning->Encounter, FKeeperRuleSwitches());
-		Model.BeginPhase(EKeeperPhase::Wings, Commands);
-		const EKeeperPart BodyParts[] = {EKeeperPart::Wings, EKeeperPart::Clock, EKeeperPart::Front, EKeeperPart::Middle, EKeeperPart::Rear};
-		if (!Keeper->HasActorBegunPlay())
+		// State layers: hidden until a part is destroyed (masks) or the Keeper departs (departure).
+		const UStaticMeshComponent* Masks = UKeeperPresenterSubsystem::FindPart(Keeper, UmbrellaKeeperPresenterConst::MaskVisual);
+		const UStaticMeshComponent* Departure = UKeeperPresenterSubsystem::FindPart(Keeper, UmbrellaKeeperPresenterConst::DepartureVisual);
+		if (TestNotNull(TEXT("mask layer"), Masks) && TestNotNull(TEXT("departure layer"), Departure))
 		{
-			Keeper->DispatchBeginPlay();
-		}
-
-		// The body sprite draws (at spawn when its asset exists, else a transient picture): wings, clock and the three
-		// mechanism cubes hide and stay hidden across Refresh.
-		Presenter->ShowStandIn(Keeper);
-		const UStaticMeshComponent* Body = FindObjectFast<UStaticMeshComponent>(Keeper, FName(TEXT("KeeperStandIn")));
-		if (TestNotNull(TEXT("body stand-in"), Body) && !ArtSlot::HasArt(Body))
-		{
-			TestTrue(TEXT("body takes a picture"), Presenter->ShowArt(Keeper, ArtSlotTestTexture()) == EArtSlotDraw::Drawn);
-		}
-		Keeper->Refresh(Model, 0.0f);
-		for (const EKeeperPart Part : BodyParts)
-		{
-			TestTrue(*FString::Printf(TEXT("part %d marked as drawn by art"), static_cast<int32>(Part)), Keeper->IsPartArtDrawn(Part));
-			const UStaticMeshComponent* Cube = Keeper->GetStandInVisual(Part);
-			if (TestNotNull(TEXT("stand-in cube"), Cube))
-			{
-				TestFalse(*FString::Printf(TEXT("cube %d hidden under the body art"), static_cast<int32>(Part)), Cube->IsVisible());
-			}
-		}
-		TestFalse(TEXT("the exposed-eye cue is not covered by the body art"), Keeper->IsPartArtDrawn(EKeeperPart::Eye));
-		TestTrue(TEXT("hit regions stay"), Keeper->GetPartComponent(EKeeperPart::Wings) != nullptr);
-
-		// No art over a part: its cube shows again on the next Refresh (a stand-in shows when no art does).
-		for (const EKeeperPart Part : BodyParts)
-		{
-			Keeper->ClearPartArtDrawn(Part);
-		}
-		Keeper->Refresh(Model, 0.0f);
-		for (const EKeeperPart Part : BodyParts)
-		{
-			TestTrue(*FString::Printf(TEXT("cube %d shows with no art"), static_cast<int32>(Part)), Keeper->GetStandInVisual(Part)->IsVisible());
-		}
-
-		// A part layer covers its own cube only (drawn now, or already at spawn when its asset exists).
-		const FString FrontId = TEXT("keeper:mechanism-front");
-		if (!UKeeperPresenterSubsystem::FindPart(Keeper, FrontId))
-		{
-			TestTrue(TEXT("front layer takes a picture"), Presenter->ShowPartArt(Keeper, FrontId, ArtSlotTestTexture()) == EArtSlotDraw::Drawn);
-			Keeper->Refresh(Model, 0.0f);
-			TestTrue(TEXT("front mechanism layer covers the front cube"), Keeper->IsPartArtDrawn(EKeeperPart::Front));
-			TestFalse(TEXT("front cube hidden under its layer"), Keeper->GetStandInVisual(EKeeperPart::Front)->IsVisible());
-			TestTrue(TEXT("rear cube still shows with no art over it"), Keeper->GetStandInVisual(EKeeperPart::Rear)->IsVisible());
+			Presenter->Tick(0.0f);
+			TestFalse(TEXT("masks hidden at full health"), Masks->IsVisible());
+			TestFalse(TEXT("departure hidden while the Keeper stays"), Departure->IsVisible());
+			FUmbrellaEvent Event;
+			Event.Type = EUmbrellaEventType::BossPartDestroyed;
+			UUmbrellaEventBus::Get(World)->Broadcast(Event);
+			Keeper->BeginDeparture(1.0f);
+			Presenter->Tick(0.0f);
+			TestTrue(TEXT("masks shown after a part is destroyed"), Masks->IsVisible());
+			TestTrue(TEXT("departure shown while the Keeper leaves"), Departure->IsVisible());
 		}
 	}
 	ArtSlotTestEnd(World);
