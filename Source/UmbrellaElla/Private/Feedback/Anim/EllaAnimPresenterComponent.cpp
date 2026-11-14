@@ -1,4 +1,6 @@
 #include "Feedback/Anim/EllaAnimPresenterComponent.h"
+#include "Core/UmbrellaLog.h"
+#include "Misc/CommandLine.h"
 #include "Components/StaticMeshComponent.h"
 #include "Core/EllaCharacter.h"
 #include "Health/UmbrellaHealthComponent.h"
@@ -243,6 +245,7 @@ void UEllaAnimPresenterComponent::ApplyState()
 		if (ArtSlot::HasArt(StandIn) && Picture && PictureRow)
 		{
 			ArtSlot::SetTexture(StandIn, Picture, *PictureRow);
+			DrawnFrame = -1;   // SetTexture puts Frame back to 0: the next PlayGrid shows the right cell again.
 			ArtSlot::SetBoxScale(StandIn, ArtBoxScaleFor(Picture, *PictureRow));
 		}
 	}
@@ -264,6 +267,7 @@ void UEllaAnimPresenterComponent::TickComponent(float DeltaTime, ELevelTick Tick
 	TransitionLeft = FMath::Max(0.0f, TransitionLeft - DeltaTime);
 	RepairLeft = FMath::Max(0.0f, RepairLeft - DeltaTime);
 	UpdateOverlays(ReadOverlayInput());
+	PlayGrid();
 	KeepFigureInFrame();
 	if (StateTimeLeft > 0.0f)
 	{
@@ -459,6 +463,52 @@ void UEllaAnimPresenterComponent::SetDrawTopLimit(float WorldZ)
 	KeepFigureInFrame();
 }
 
+int32 UEllaAnimPresenterComponent::GridFrameAt(double Seconds, float Fps, int32 Cols, int32 Rows)
+{
+	const int64 Cells = static_cast<int64>(FMath::Max(1, Cols)) * FMath::Max(1, Rows);
+	const int64 Step = FMath::Max<int64>(0, FMath::FloorToInt64(FMath::Max(0.0, Seconds) * FMath::Max(0.0f, Fps)));
+	return static_cast<int32>(Step % Cells);
+}
+
+int32 UEllaAnimPresenterComponent::PlayGrid()
+{
+	// Josh, 14 Nov: Ella drew the approved 24-frame idle as a still (nothing ever set the art-slot Frame). The material
+	// walks the grid by Frame (tools/build/assets/art_slot_material.py), so this is the whole flipbook.
+	const UWorld* World = GetWorld();
+	if (!World || !IsValid(StandIn) || !ArtSlot::HasArt(StandIn))
+	{
+		return DrawnFrame;
+	}
+	const FArtSlotRow* Row = RowForTexture(TextureForState(VisualState));
+	const int32 Frame = Row ? GridFrameAt(World->GetTimeSeconds(), UmbrellaPresenterConst::GridFps, Row->Cols, Row->Rows) : 0;
+	if (Frame != DrawnFrame)
+	{
+		ArtSlot::SetFrame(StandIn, Frame);
+		DrawnFrame = Frame;
+		// -LogEllaFrame: one line per cell change, for an offscreen check that the idle plays (Josh, 14 Nov).
+		static const bool bLogFrames = FParse::Param(FCommandLine::Get(), TEXT("LogEllaFrame"));
+		if (bLogFrames)
+		{
+			const UTexture2D* Picture = TextureForState(VisualState);
+			UE_LOG(LogUmbrellaElla, Log, TEXT("ELLA_FRAME t=%.2f frame=%d tex=%s state=%d z=%.0f"), World->GetTimeSeconds(), Frame,
+				Picture ? *Picture->GetName() : TEXT("none"), static_cast<int32>(VisualState), GetOwner() ? GetOwner()->GetActorLocation().Z : 0.0);
+		}
+	}
+	return DrawnFrame;
+}
+
+void UEllaAnimPresenterComponent::SetDrawBottomLimit(float WorldZ)
+{
+	DrawBottomLimitZ = WorldZ;
+	bHasDrawBottomLimit = true;
+	KeepFigureInFrame();
+}
+
+float UEllaAnimPresenterComponent::FigureLift(float BottomZ, float LimitZ)
+{
+	return FMath::Max(0.0f, LimitZ - BottomZ);
+}
+
 float UEllaAnimPresenterComponent::FigureDrop(float ActorZ, float DrawnHalf, float LimitZ)
 {
 	return FMath::Max(0.0f, ActorZ + DrawnHalf - LimitZ);
@@ -474,9 +524,14 @@ float UEllaAnimPresenterComponent::KeepFigureInFrame()
 	// The drawn cell bounds the opaque figure, so keeping the cell under the limit keeps her whole figure in frame. Only
 	// the pictures move; the capsule, hurtbox and camera stay where they are. The cell's top is read from its bounds
 	// (whatever mesh and turn the art slot uses), taken back to where it would be without the current drop.
-	const float UndroppedTop = static_cast<float>(StandIn->CalcBounds(StandIn->GetComponentTransform()).GetBox().Max.Z) + CurrentDrop;
+	const FBox Cell = StandIn->CalcBounds(StandIn->GetComponentTransform()).GetBox();
+	const float UndroppedTop = static_cast<float>(Cell.Max.Z) + CurrentDrop;
+	const float UndroppedBottom = static_cast<float>(Cell.Min.Z + UmbrellaPresenterConst::FigureBottomPad * (Cell.Max.Z - Cell.Min.Z)) + CurrentDrop;
 	const float ActorZ = static_cast<float>(Owner->GetActorLocation().Z);
-	const float Drop = bHasDrawTopLimit ? FigureDrop(ActorZ, UndroppedTop - ActorZ, DrawTopLimitZ) : 0.0f;
+	const float Lowered = bHasDrawTopLimit ? FigureDrop(ActorZ, UndroppedTop - ActorZ, DrawTopLimitZ) : 0.0f;
+	// The bottom wins only if the figure were taller than the clear frame (never at 2x): then its feet stay in view.
+	const float Lifted = bHasDrawBottomLimit ? FigureLift(UndroppedBottom - Lowered, DrawBottomLimitZ) : 0.0f;
+	const float Drop = Lowered - Lifted;
 	if (FMath::IsNearlyEqual(Drop, CurrentDrop, UmbrellaPresenterConst::FigureDropTolerance))
 	{
 		return CurrentDrop;

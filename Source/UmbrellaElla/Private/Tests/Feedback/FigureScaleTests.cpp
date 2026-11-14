@@ -22,16 +22,16 @@
 #include "Tests/Shared/UmbrellaTestWorld.h"
 
 /**
- * D-new-character-scale (Josh, 13 Nov): Ella and the Keeper draw about 1.5x, the camera does not move. Screen shares are
+ * D-new-character-scale (Josh, 13 Nov; Ella 2x on 14 Nov): Ella draws 2x and the Keeper 1.5x, the camera does not move. Screen shares are
  * the opaque figure (alpha >= 128 in the picture's first cell) over the view height, with the real camera margin.
  */
 namespace
 {
 	constexpr EAutomationTestFlags FigureTestFlags = EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter;
 
-	/** Ella's opaque figure: toward ~15% of the screen height; the 1.5x scale lands her here (old: about 8-9%). */
-	constexpr float EllaShareMin = 0.11f;
-	constexpr float EllaShareMax = 0.17f;
+	/** Ella's opaque figure: 2x her original size (Josh, 14 Nov; old 1x: about 8-9%, 1.5x: about 13%). */
+	constexpr float EllaShareMin = 0.15f;
+	constexpr float EllaShareMax = 0.23f;
 	/** The Keeper's opaque figure: toward 45-50%; the 1.5x scale lands it here (old: about 25%). */
 	constexpr float KeeperShareMin = 0.36f;
 	constexpr float KeeperShareMax = 0.52f;
@@ -149,7 +149,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFigureScaleRules, "UmbrellaElla.Feedback.Figur
 
 bool FFigureScaleRules::RunTest(const FString& Parameters)
 {
-	TestEqual(TEXT("Ella draws 1.5x"), UmbrellaFigureScale::Ella, 1.5);
+	TestEqual(TEXT("Ella draws 2x"), UmbrellaFigureScale::Ella, 2.0);
 	TestEqual(TEXT("the Keeper draws 1.5x"), UmbrellaFigureScale::Keeper, 1.5);
 	TestEqual(TEXT("Ella's drawn cell is the framed cell times her scale"), UmbrellaPresenterConst::ArtCellHeight, UmbrellaPresenterConst::FramedCellHeight * UmbrellaFigureScale::Ella);
 	// No camera zoom: the margin frames the old cell height (2.7), not the drawn one.
