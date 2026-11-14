@@ -5,6 +5,8 @@
 #include "Engine/World.h"
 #include "Feedback/Anim/KeeperPresenterSubsystem.h"
 #include "Feedback/Art/ArtSlot.h"
+#include "Feedback/Vfx/UmbrellaVfxDirectorSubsystem.h"
+#include "Feedback/Vfx/VfxCatalog.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Misc/AutomationTest.h"
 #include "Owl/KeeperOfTime.h"
@@ -395,13 +397,17 @@ bool FKeeperWingGustClipPuff::RunTest(const FString& Parameters)
 	const FKeeperTuning& T = GetDefault<UUmbrellaTuning>()->Keeper;
 	const FVector2D Start(1400.0f, 600.0f);
 	const FVector2D Front(Start.X - 500.0f, Start.Y);
-	const FVector2D Half(96.0f, 96.0f);
+	// The puff sprite's box (catalog large size, centred on the front) plus a clear margin of 25% of its width (Josh, Nov 14:
+	// grey touching or starting at the white edge reads as part of the plume).
+	const float PuffHalf = VfxCatalogData::LargeSize * 0.5f;
+	const FVector2D Half = AKeeperOfTime::PuffClearHalf();
+	TestTrue(TEXT("the clear box is at least the puff plus 25% of its width"), Half.X >= PuffHalf + 0.25f * VfxCatalogData::LargeSize - KINDA_SMALL_NUMBER);
 	TArray<FKeeperGustStroke> Strokes;
 	AKeeperOfTime::GustStrokes(Start, T.GustSpeed * T.GustLifetimeSeconds, T.GustBandWidth, true, 1.0f, Front.X, T.GustFrontThickness, 2.0f, Strokes);
 	const int32 Before = Strokes.Num();
 	AKeeperOfTime::ClipStrokesOutside(Front, Half, Strokes);
 	TestTrue(TEXT("strokes behind the plume are dropped"), Strokes.Num() < Before);
-	TestTrue(TEXT("the trailing ribbons outside the plume stay"), Strokes.Num() > 0);
+	TestTrue(TEXT("the ribbons clearly further back toward the owl stay"), Strokes.Num() > 0);
 	for (const FKeeperGustStroke& Stroke : Strokes)
 	{
 		const float Pad = Stroke.Thick * 0.5f;
@@ -409,9 +415,78 @@ bool FKeeperWingGustClipPuff::RunTest(const FString& Parameters)
 			&& FMath::Max(Stroke.A.Y, Stroke.B.Y) + Pad > Front.Y - Half.Y && FMath::Min(Stroke.A.Y, Stroke.B.Y) - Pad < Front.Y + Half.Y;
 		if (bInside)
 		{
-			AddError(FString::Printf(TEXT("a ribbon stroke (%.0f,%.0f)-(%.0f,%.0f) sits behind the plume"), Stroke.A.X, Stroke.A.Y, Stroke.B.X, Stroke.B.Y));
+			AddError(FString::Printf(TEXT("a ribbon stroke (%.0f,%.0f)-(%.0f,%.0f) is within the clear margin of the plume"), Stroke.A.X, Stroke.A.Y, Stroke.B.X, Stroke.B.Y));
 			break;
 		}
 	}
+
+	// In a world: a live travelling-gust puff sprite. No drawn ribbon piece's bounds come within 25% of the puff's width of
+	// the puff's drawn bounds; pieces further back toward the owl are still drawn.
+	UWorld* World = WingGustWorld();
+	if (!TestNotNull(TEXT("world"), World))
+	{
+		return false;
+	}
+	AKeeperOfTime* Keeper = World->SpawnActor<AKeeperOfTime>();
+	UUmbrellaVfxDirectorSubsystem* Director = World->GetSubsystem<UUmbrellaVfxDirectorSubsystem>();
+	if (TestNotNull(TEXT("keeper"), Keeper) && TestNotNull(TEXT("effect director"), Director))
+	{
+		if (!Keeper->HasActorBegunPlay())
+		{
+			Keeper->DispatchBeginPlay();
+		}
+		FKeeperFightModel Model;
+		TArray<FKeeperCommand> Commands;
+		FKeeperCommand Warning;
+		WingGustModel(Model, Commands);
+		if (TestTrue(TEXT("gust warning"), StepToGustWarning(Model, Commands, Warning)))
+		{
+			Keeper->ShowTelegraph(Warning);
+			const FKeeperTickInput Input = WingGustInput();
+			while (Model.GetStage() == EKeeperStage::Warning)
+			{
+				Model.Step(WingGustDt, Input, Commands);
+			}
+			for (int32 Step = 0; Step < 30; ++Step)
+			{
+				Model.Step(WingGustDt, Input, Commands);
+			}
+			TestTrue(TEXT("the gust travels"), Model.IsGustTravelling());
+			// The drawn puff sits ahead of the front in the game (frame 01:03: sheet 828..949 px, ribbon heads ~973 px):
+			// place it so its box covers the ribbon heads.
+			const FVector2D At = Model.GetGustFront() + FVector2D(VfxCatalogData::LargeSize * 0.5f, 0.0f);
+			Director->Play(TEXT("GustTravel"), FVector(At.X, 0.0f, At.Y), nullptr);
+			const AActor* Puff = Director->GetLiveActor(TEXT("GustTravel"));
+			const UPrimitiveComponent* PuffVisual = Puff ? Cast<UPrimitiveComponent>(Puff->GetRootComponent()) : nullptr;
+			if (TestNotNull(TEXT("the travelling puff is drawn"), PuffVisual))
+			{
+				Keeper->Refresh(Model, 1.2f);
+				const FBox PuffBox = PuffVisual->Bounds.GetBox();
+				FBox2D Clear;
+				TestTrue(TEXT("clear box"), AKeeperOfTime::PuffClearBox(PuffBox, Clear));
+				TestTrue(TEXT("the margin is 25% of the puff width"), FMath::IsNearlyEqual(static_cast<float>(Clear.GetExtent().X - PuffBox.GetExtent().X),
+					KeeperWingGustConst::PuffClearShare * static_cast<float>(PuffBox.GetSize().X), 0.5f));
+				int32 Drawn = 0;
+				for (const TObjectPtr<UStaticMeshComponent>& Ribbon : Keeper->GetGustRibbons())
+				{
+					if (!Ribbon || !Ribbon->IsVisible())
+					{
+						continue;
+					}
+					++Drawn;
+					const FBox R = Ribbon->Bounds.GetBox();
+					const FBox2D R2(FVector2D(R.Min.X, R.Min.Z), FVector2D(R.Max.X, R.Max.Z));
+					if (R2.Intersect(Clear))
+					{
+						AddError(FString::Printf(TEXT("ribbon %s (%.0f..%.0f, %.0f..%.0f) is within the puff's clear margin (%.0f..%.0f, %.0f..%.0f)"), *Ribbon->GetName(),
+							R2.Min.X, R2.Max.X, R2.Min.Y, R2.Max.Y, Clear.Min.X, Clear.Max.X, Clear.Min.Y, Clear.Max.Y));
+					}
+				}
+				TestTrue(TEXT("ribbon pieces further back toward the owl are still drawn"), Drawn > 0);
+			}
+			Director->StopAll();
+		}
+	}
+	WingGustEnd(World);
 	return true;
 }
