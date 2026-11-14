@@ -1,9 +1,11 @@
+import io
 import json
 import os
 import shutil
 import sys
 import tempfile
 import unittest
+from contextlib import redirect_stdout
 from unittest import mock
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -135,6 +137,121 @@ class GateBaseline(unittest.TestCase):
         with mock.patch.object(visual_qa, "judge_shots", return_value=ok):
             self.assertEqual(visual_qa.main(["baseline", "--shots", self.tmp, "--sha", "a" * 40]), visual_qa.EXIT_PASS)
         self.assertTrue(os.path.exists(os.path.join(self.tmp, "base", "a" * 40 + ".json")))
+
+
+class GateMode(unittest.TestCase):
+    """Lead 17:32: --gate fails only on a regression against main's baseline; baseline --from-main bootstraps it."""
+
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp()
+        self.env = mock.patch.dict(os.environ, {"VISUAL_BASELINE_DIR": os.path.join(self.tmp, "base")})
+        self.env.start()
+        self.shots = os.path.join(self.tmp, "shots")
+        os.makedirs(self.shots)
+        study = os.path.join(ROOT, visual_qa.STUDY)
+        for name in visual_qa.SCREENS.values():
+            shutil.copyfile(study, os.path.join(self.shots, name))
+        self.rec = os.path.join(self.tmp, "rec")
+
+    def tearDown(self):
+        self.env.stop()
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def base(self, total=42, broken=("Lilac placeholder cube on the route.",)):
+        return {"sha": "m" * 40, "screens": {s: {"total": total, "broken": list(broken)} for s in visual_qa.SCREENS}}
+
+    def test_decide_gate_regression_only(self):
+        r = visual_qa.parse_answer(answer(6, ["lilac placeholder cube on the route"], verdict="FAIL"))   # total 42
+        base = self.base()["screens"]["play"]
+        self.assertEqual(visual_qa.decide_gate(r, base), (True, []))   # main's own broken item + judge FAIL: no regression
+        self.assertFalse(visual_qa.decide(r, 42)[0])                   # the plain judge still fails it
+        worse = visual_qa.parse_answer(answer(5, ["Lilac placeholder cube on the route"]))
+        ok, why = visual_qa.decide_gate(worse, base)
+        self.assertFalse(ok)
+        self.assertIn("below main's 42", why[0])
+        new = visual_qa.parse_answer(answer(9, ["cream bar at the bottom"]))
+        ok, why = visual_qa.decide_gate(new, base)
+        self.assertFalse(ok)
+        self.assertEqual(why, ["new broken: cream bar at the bottom"])
+
+    def test_norm_item_matches_case_and_punctuation(self):
+        self.assertEqual(visual_qa.norm_item("  Lilac  placeholder-cube, on the ROUTE. "),
+                         visual_qa.norm_item("lilac placeholder cube on the route"))
+
+    def test_gate_judge_passes_main_level_frame_and_fails_regression(self):
+        sha = "m" * 40
+        visual_qa.store_baseline(sha, "x", self.base()["screens"])
+        caller = lambda p, i: answer(6, ["lilac placeholder cube on the route"], verdict="FAIL")
+        with mock.patch.object(visual_qa, "judge_call", side_effect=lambda p, i, c, r: (caller(p, i), False)):
+            out = io.StringIO()
+            with redirect_stdout(out):
+                code = visual_qa.cmd_judge(self.shots, gate=True, sha=sha)
+            self.assertEqual(code, visual_qa.EXIT_PASS, out.getvalue())
+            self.assertTrue(out.getvalue().strip().splitlines()[-1].startswith("VISUAL_QA GATE PASS"))
+        with mock.patch.object(visual_qa, "judge_call", side_effect=lambda p, i, c, r: (answer(5), False)):
+            with redirect_stdout(io.StringIO()):
+                self.assertEqual(visual_qa.cmd_judge(self.shots, gate=True, sha=sha), visual_qa.EXIT_FAIL)
+
+    def test_gate_without_baseline_exits_2_before_capturing(self):
+        with mock.patch.object(visual_qa, "capture", side_effect=AssertionError("captured")), \
+                mock.patch.object(visual_qa, "_git", return_value=""), redirect_stdout(io.StringIO()) as out:
+            code = visual_qa.main(["run", "--gate", "--out", self.shots, "--main-sha", "f" * 40])
+        self.assertEqual(code, visual_qa.EXIT_ERROR)
+        self.assertIn("baseline --from-main", out.getvalue())
+
+    def test_ancestor_baseline_counts_only_without_frame_changes(self):
+        anc, head = "a" * 40, "b" * 40
+        visual_qa.store_baseline(anc, "x", {})
+        def git(*args, docs_only=True):
+            if args[0] == "rev-list":
+                return head + "\n" + anc + "\n"
+            return "" if docs_only else "Source/UmbrellaElla/Private/Feedback/X.cpp\n"
+        with mock.patch.object(visual_qa, "_git", side_effect=git):
+            self.assertIsNone(visual_qa.load_baseline(head))            # exact only without walk
+            self.assertEqual(visual_qa.load_baseline(head, 5)["sha"], anc)
+        with mock.patch.object(visual_qa, "_git", side_effect=lambda *a: git(*a, docs_only=False)):
+            self.assertIsNone(visual_qa.load_baseline(head, 5))
+
+    def test_from_main_stores_a_failing_main_run_once(self):
+        sha = "c" * 40
+        fail = lambda p, i: answer(3, ["lilac placeholder cube"], verdict="FAIL")
+        with mock.patch.object(visual_qa, "_git", return_value=sha + "\n"), \
+                mock.patch.object(visual_qa, "capture", return_value=0) as cap, redirect_stdout(io.StringIO()):
+            self.assertEqual(visual_qa.cmd_baseline_from_main(self.shots, sha, fail, self.rec), visual_qa.EXIT_PASS)
+            stored = visual_qa.load_baseline(sha)
+            self.assertEqual(stored["screens"]["play"]["broken"], ["lilac placeholder cube"])
+            self.assertEqual(visual_qa.cmd_baseline_from_main(self.shots, sha, never_called, self.rec), visual_qa.EXIT_PASS)
+            self.assertEqual(cap.call_count, 1)                        # once per sha
+
+    def test_from_main_with_shots_stores_the_gate_run_without_capturing(self):
+        sha = "9" * 40
+        with mock.patch.object(visual_qa, "capture", side_effect=AssertionError("captured")), \
+                mock.patch.object(visual_qa, "_git", side_effect=AssertionError("checked HEAD")), redirect_stdout(io.StringIO()):
+            code = visual_qa.cmd_baseline_from_main("", sha, lambda p, i: answer(4, ["x"], "FAIL"), self.rec, shots=self.shots)
+        self.assertEqual(code, visual_qa.EXIT_PASS)
+        self.assertEqual(visual_qa.load_baseline(sha)["screens"]["keeper"]["total"], 4 * len(visual_qa.RUBRIC))
+
+    def test_from_main_refuses_a_checkout_not_at_main(self):
+        with mock.patch.object(visual_qa, "_git", return_value="d" * 40 + "\n"), \
+                mock.patch.object(visual_qa, "capture", side_effect=AssertionError("captured")), \
+                redirect_stdout(io.StringIO()):
+            self.assertEqual(visual_qa.cmd_baseline_from_main(self.shots, "e" * 40), visual_qa.EXIT_ERROR)
+        self.assertFalse(os.path.exists(visual_qa.baseline_path("e" * 40)))
+
+
+class GateScript(unittest.TestCase):
+    """gate.sh calls the gate mode against main's sha, never records exit 2 against the lane, and stores its own run
+    as the new main's baseline only after the push."""
+
+    def test_gate_sh_wires_visual_qa(self):
+        with open(os.path.join(ROOT, "tools", "build", "gate.sh"), encoding="utf-8") as fh:
+            gate = fh.read()
+        self.assertIn('visual_qa.py run --gate --main-sha "$MAIN"', gate)
+        self.assertIn('export VISUAL_BASELINE_DIR="$L/visual-baseline"', gate)
+        step = gate[gate.index("visual_qa.py run --gate"):]
+        self.assertRegex(step.split("esac")[0], r"\*\).*fail=1; NORECORD=1")
+        store = gate.index("baseline --from-main --shots")
+        self.assertGreater(store, gate.index("git push -q origin main"))
 
 
 class Calibration(unittest.TestCase):
