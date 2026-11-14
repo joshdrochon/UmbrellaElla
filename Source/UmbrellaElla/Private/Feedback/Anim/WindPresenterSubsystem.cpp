@@ -75,6 +75,40 @@ TArray<UStaticMeshComponent*> UWindPresenterSubsystem::RibbonsOf(const AWindCurr
 	return Out;
 }
 
+UStaticMesh* UWindPresenterSubsystem::GetPlane()
+{
+	if (!Plane)
+	{
+		++PlaneLoads;
+		Plane = LoadObject<UStaticMesh>(nullptr, UmbrellaArtSlotConst::PlanePath, nullptr, LOAD_NoWarn | LOAD_Quiet);
+	}
+	return Plane;
+}
+
+TArray<UStaticMeshComponent*> UWindPresenterSubsystem::CachedRibbons(AWindCurrent* Wind)
+{
+	TArray<UStaticMeshComponent*> Out;
+	if (const TArray<TWeakObjectPtr<UStaticMeshComponent>>* Cached = RibbonCache.Find(Wind))
+	{
+		bool bStale = false;
+		for (const TWeakObjectPtr<UStaticMeshComponent>& Ribbon : *Cached)
+		{
+			UStaticMeshComponent* Mesh = Ribbon.Get();
+			bStale |= !IsValid(Mesh);
+			Out.Add(Mesh);
+		}
+		if (!bStale)
+		{
+			return Out;
+		}
+		Out.Reset();
+	}
+	++RibbonSearches;
+	Out = RibbonsOf(Wind);
+	RibbonCache.Add(Wind, TArray<TWeakObjectPtr<UStaticMeshComponent>>(Out));
+	return Out;
+}
+
 void UWindPresenterSubsystem::PostInitialize()
 {
 	Super::PostInitialize();
@@ -109,7 +143,7 @@ void UWindPresenterSubsystem::DrawRibbons(AWindCurrent* Wind, float Seconds)
 		return;
 	}
 	const bool bShow = Field->IsVisible() && Field->GetStaticMesh() && IsFeatureEnabled(EFeatureId::FLOW_25);
-	TArray<UStaticMeshComponent*> Ribbons = RibbonsOf(Wind);
+	TArray<UStaticMeshComponent*> Ribbons = CachedRibbons(Wind);
 	if (!bShow)
 	{
 		for (UStaticMeshComponent* Ribbon : Ribbons)
@@ -145,16 +179,17 @@ void UWindPresenterSubsystem::DrawRibbons(AWindCurrent* Wind, float Seconds)
 	const int32 Segments = SegmentCount(Length);
 	const FVector Origin = Field->GetRelativeLocation() + FVector(0.0, UmbrellaWindPresenterConst::RibbonLift, 0.0);
 
-	UStaticMesh* Plane = LoadObject<UStaticMesh>(nullptr, UmbrellaArtSlotConst::PlanePath, nullptr, LOAD_NoWarn | LOAD_Quiet);
 	if (Ribbons.Num() != Strands * Segments)
 	{
+		UStaticMesh* PlaneMesh = GetPlane();
 		for (UStaticMeshComponent* Old : Ribbons)
 		{
 			Old->DestroyComponent();
 		}
 		Ribbons.Reset();
-		if (!Plane)
+		if (!PlaneMesh)
 		{
+			RibbonCache.Add(Wind);
 			return;
 		}
 		for (int32 Strand = 0; Strand < Strands; ++Strand)
@@ -163,7 +198,7 @@ void UWindPresenterSubsystem::DrawRibbons(AWindCurrent* Wind, float Seconds)
 			{
 				UStaticMeshComponent* Ribbon = NewObject<UStaticMeshComponent>(Wind, WindRibbonName(Strand, Segment));
 				Ribbon->ComponentTags.Add(WindRibbonTag);
-				Ribbon->SetStaticMesh(Plane);
+				Ribbon->SetStaticMesh(PlaneMesh);
 				Ribbon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 				Ribbon->SetGenerateOverlapEvents(false);
 				Ribbon->SetCastShadow(false);
@@ -173,6 +208,7 @@ void UWindPresenterSubsystem::DrawRibbons(AWindCurrent* Wind, float Seconds)
 				Ribbons.Add(Ribbon);
 			}
 		}
+		RibbonCache.Add(Wind, TArray<TWeakObjectPtr<UStaticMeshComponent>>(Ribbons));
 	}
 	for (int32 Strand = 0; Strand < Strands; ++Strand)
 	{
@@ -202,6 +238,13 @@ void UWindPresenterSubsystem::DrawRibbons(AWindCurrent* Wind, float Seconds)
 void UWindPresenterSubsystem::Tick(float DeltaTime)
 {
 	Winds.RemoveAll([](const TWeakObjectPtr<AWindCurrent>& Wind) { return !Wind.IsValid(); });
+	for (auto It = RibbonCache.CreateIterator(); It; ++It)
+	{
+		if (!It.Key().IsValid())
+		{
+			It.RemoveCurrent();
+		}
+	}
 	const float Seconds = GetWorld() ? GetWorld()->GetTimeSeconds() : 0.0f;
 	for (const TWeakObjectPtr<AWindCurrent>& Wind : Winds)
 	{

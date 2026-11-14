@@ -18,6 +18,7 @@
 #include "Level/LevelCatalogue.h"
 #include "Level/LevelPlan.h"
 #include "Misc/AutomationTest.h"
+#include "Owl/KeeperOfTime.h"
 #include "Tests/Shared/UmbrellaTestWorld.h"
 
 #if WITH_AUTOMATION_TESTS
@@ -45,26 +46,51 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFrameCompositionRules, "UmbrellaElla.Feedback.
 
 bool FFrameCompositionRules::RunTest(const FString& Parameters)
 {
-	// Josh's 15:50 frame: a lilac route cube, cream bars, a bright paper backdrop. Pure rule table.
+	// Josh's 15:50 frame: a lilac route cube, cream bars, a bright paper backdrop. Lead 17:08: the Keeper is always seen
+	// and Ella is never a bright block. Pure rule table.
 	const FLinearColor White = FLinearColor::White;
-	TestTrue(TEXT("lilac Keeper stand-in cube is hidden"),
-		UFrameCompositionSubsystem::TreatmentFor(FName(UmbrellaFrameConst::KeeperStandInName), -50.0f, false, true, UmbrellaArtSlotConst::StandInKeeperColor) == EFrameTreatment::Hide);
+	auto Facts = [](const TCHAR* Name, float Y, bool bArt, bool bSlot, const FLinearColor& Tint, bool bArena = false, bool /*bKeeperActor*/ = false)
+	{
+		FFrameMeshFacts F;
+		F.ComponentName = FName(Name);
+		F.WorldY = Y;
+		F.bDrawsArt = bArt;
+		F.bSlotMaterial = bSlot;
+		F.Tint = Tint;
+		F.bArenaOwned = bArena;
+		return UFrameCompositionSubsystem::TreatmentFor(F);
+	};
+	const FLinearColor Lilac = UmbrellaArtSlotConst::StandInKeeperColor;
+	TestTrue(TEXT("the arena's lilac Keeper square is hidden while a Keeper actor draws the Keeper"),
+		Facts(UmbrellaFrameConst::KeeperStandInName, -50.0f, false, true, Lilac, true, true) == EFrameTreatment::Hide);
+	TestTrue(TEXT("the Keeper actor's artless body is never hidden: gunmetal"),
+		Facts(UmbrellaFrameConst::KeeperStandInName, -50.0f, false, true, Lilac, false, true) == EFrameTreatment::TintKeeper);
+	TestTrue(TEXT("with no Keeper actor (Director's Cut route) the arena square is still hidden: no grey box"),
+		Facts(UmbrellaFrameConst::KeeperStandInName, -50.0f, false, true, Lilac, true, false) == EFrameTreatment::Hide);
+	TestTrue(TEXT("a lilac Keeper part cube turns gunmetal"),
+		Facts(TEXT("WingsVisual"), -50.0f, false, true, Lilac, false, true) == EFrameTreatment::TintKeeper);
+	TestTrue(TEXT("Keeper art is never touched"),
+		Facts(UmbrellaFrameConst::KeeperStandInName, -50.0f, true, true, White, false, true) == EFrameTreatment::Keep);
+	TestTrue(TEXT("Ella's artless stand-in reads as a dark figure"),
+		Facts(UmbrellaFrameConst::EllaStandInName, 0.0f, false, true, UmbrellaArtSlotConst::StandInEllaColor) == EFrameTreatment::TintElla);
+	TestTrue(TEXT("Ella art is never touched"),
+		Facts(UmbrellaFrameConst::EllaStandInName, 0.0f, true, true, White) == EFrameTreatment::Keep);
+	TestTrue(TEXT("Ella ink is dark (study's small dark figure)"),
+		UmbrellaFrameConst::EllaInk.R + UmbrellaFrameConst::EllaInk.G + UmbrellaFrameConst::EllaInk.B < 0.2f);
+	TestTrue(TEXT("Keeper metal is brighter than the backdrop, so the Keeper reads"),
+		UmbrellaFrameConst::KeeperMetal.R > UmbrellaFrameConst::BackdropFlat.R * 4.0f);
 	TestTrue(TEXT("cream stand-in block turns island umber"),
-		UFrameCompositionSubsystem::TreatmentFor(FName(TEXT("Block")), 0.0f, false, true, UmbrellaArtSlotConst::StandInDefaultColor) == EFrameTreatment::TintIsland);
-	TestTrue(TEXT("backdrop art is dimmed"),
-		UFrameCompositionSubsystem::TreatmentFor(FName(TEXT("Panel")), -400.0f, true, true, White) == EFrameTreatment::DimBackdropArt);
+		Facts(TEXT("Block"), 0.0f, false, true, UmbrellaArtSlotConst::StandInDefaultColor) == EFrameTreatment::TintIsland);
+	TestTrue(TEXT("backdrop art is dimmed"), Facts(TEXT("Panel"), -400.0f, true, true, White) == EFrameTreatment::DimBackdropArt);
 	TestTrue(TEXT("dimmed backdrop art is left alone"),
-		UFrameCompositionSubsystem::TreatmentFor(FName(TEXT("Panel")), -400.0f, true, true, UmbrellaFrameConst::BackdropDim) == EFrameTreatment::Keep);
+		Facts(TEXT("Panel"), -400.0f, true, true, UmbrellaFrameConst::BackdropDim) == EFrameTreatment::Keep);
 	TestTrue(TEXT("bright backdrop stand-in panel is darkened"),
-		UFrameCompositionSubsystem::TreatmentFor(FName(TEXT("Panel")), -300.0f, false, true, UmbrellaArtSlotConst::StandInDefaultColor) == EFrameTreatment::DarkenBackdropPanel);
-	TestTrue(TEXT("play-layer art (Ella, shots) is never touched"),
-		UFrameCompositionSubsystem::TreatmentFor(FName(TEXT("Sprite")), 0.0f, true, true, White) == EFrameTreatment::Keep);
+		Facts(TEXT("Panel"), -300.0f, false, true, UmbrellaArtSlotConst::StandInDefaultColor) == EFrameTreatment::DarkenBackdropPanel);
+	TestTrue(TEXT("play-layer art (Ella, shots) is never touched"), Facts(TEXT("Sprite"), 0.0f, true, true, White) == EFrameTreatment::Keep);
 	TestTrue(TEXT("salmon enemy stand-in turns red shadow"),
-		UFrameCompositionSubsystem::TreatmentFor(FName(TEXT("Placeholder")), 0.0f, false, true, UmbrellaArtSlotConst::StandInEnemyColor) == EFrameTreatment::TintEnemy);
-	TestTrue(TEXT("yellow Ella stand-in is kept"),
-		UFrameCompositionSubsystem::TreatmentFor(FName(TEXT("EllaStandIn")), 0.0f, false, true, UmbrellaArtSlotConst::StandInEllaColor) == EFrameTreatment::Keep);
+		Facts(TEXT("Placeholder"), 0.0f, false, true, UmbrellaArtSlotConst::StandInEnemyColor) == EFrameTreatment::TintEnemy);
 	TestTrue(TEXT("a mesh without the slot material is kept"),
-		UFrameCompositionSubsystem::TreatmentFor(FName(UmbrellaFrameConst::KeeperStandInName), 0.0f, false, false, White) == EFrameTreatment::Keep);
+		Facts(UmbrellaFrameConst::KeeperStandInName, 0.0f, false, false, White) == EFrameTreatment::Keep);
 	return true;
 }
 
@@ -96,7 +122,8 @@ bool FFrameCompositionWorld::RunTest(const FString& Parameters)
 		{
 			TestTrue(TEXT("the pass changed meshes"), Frame->ComposeNow() >= 2);
 			TestTrue(TEXT("cream block is island umber now"), ArtSlot::GetTint(Block).Equals(UmbrellaFrameConst::IslandUmber, 0.0005f));
-			TestTrue(TEXT("lilac Keeper cube is hidden in game"), Keeper->bHiddenInGame);
+			TestFalse(TEXT("a Keeper stand-in outside the arena is never hidden"), Keeper->bHiddenInGame);
+			TestTrue(TEXT("the lilac Keeper stand-in is gunmetal"), ArtSlot::GetTint(Keeper).Equals(UmbrellaFrameConst::KeeperMetal, 0.0005f));
 			if (bPanelArt)
 			{
 				TestTrue(TEXT("backdrop picture is dimmed toward the study's dark"), ArtSlot::GetTint(Panel).Equals(UmbrellaFrameConst::BackdropDim, 0.0005f));
@@ -106,6 +133,11 @@ bool FFrameCompositionWorld::RunTest(const FString& Parameters)
 			ArtSlot::SetFlatUnlit(Block, Route, UmbrellaArtSlotConst::StandInDefaultColor);
 			Frame->ComposeNow();
 			TestTrue(TEXT("re-tinted after a stand-in refresh"), ArtSlot::GetTint(Block).Equals(UmbrellaFrameConst::IslandUmber, 0.0005f));
+			// 16:28 review: every change is restorable.
+			TestTrue(TEXT("restore puts every changed mesh back"), Frame->RestoreAll() >= 2);
+			TestTrue(TEXT("cream block has its own colour again"), ArtSlot::GetTint(Block).Equals(UmbrellaArtSlotConst::StandInDefaultColor, 0.0005f));
+			TestTrue(TEXT("Keeper stand-in has its own colour again"), ArtSlot::GetTint(Keeper).Equals(UmbrellaArtSlotConst::StandInKeeperColor, 0.0005f));
+			TestEqual(TEXT("nothing left changed"), Frame->TouchedCount(), 0);
 		}
 		else
 		{
@@ -194,6 +226,21 @@ bool FFrameCompositionCameraMargin::RunTest(const FString& Parameters)
 		Frame->ApplyCameraMargin(Arena, Ella);
 		TestTrue(FString::Printf(TEXT("Director's Cut, %s: picture top %.1f inside frame top %.1f"), Case.Name, SpriteTopAtCeiling(), FrameTop()), SpriteTopAtCeiling() <= FrameTop());
 	}
+	// B11: in Director's Cut the "Director's Cut" title band (top TitleBandShare of the view) stays clear of Ella's picture.
+	for (const FMarginCase& Case : Cases)
+	{
+		Ella->SetActorScale3D(StartScale * Case.ScaleMul);
+		Ella->GetCapsuleComponent()->SetCapsuleHalfHeight(CapsuleBase * Case.CapsuleMul);
+		Arena->MovePlayArea(LevelPlan::KeeperArenaOrigin());
+		Frame->ApplyCameraMargin(Arena, Ella, true);
+		const float Band = UmbrellaFrameConst::TitleBandShare * Camera->OrthoWidth / Aspect;
+		TestTrue(FString::Printf(TEXT("Director's Cut title, %s: picture top %.1f below the title band %.1f"), Case.Name, SpriteTopAtCeiling(), FrameTop() - Band),
+			SpriteTopAtCeiling() <= FrameTop() - Band + KINDA_SMALL_NUMBER);
+		// Break check: the plain margin leaves the picture top inside the title band.
+		Frame->ApplyCameraMargin(Arena, Ella, false);
+		TestTrue(FString::Printf(TEXT("without the band, %s: the title covers the picture (break check)"), Case.Name),
+			SpriteTopAtCeiling() > FrameTop() - UmbrellaFrameConst::TitleBandShare * Camera->OrthoWidth / Aspect);
+	}
 	// Break check: the arena's own camera (ortho width = arena width) cuts the picture off; the margin is what fixes it.
 	Ella->SetActorScale3D(StartScale);
 	Ella->GetCapsuleComponent()->SetCapsuleHalfHeight(CapsuleBase);
@@ -242,17 +289,39 @@ bool FFrameCompositionKeeperBackdrop::RunTest(const FString& Parameters)
 	Ella->SetActorScale3D(Ella->GetActorScale3D() * 1.3f);
 	Ella->GetCapsuleComponent()->SetCapsuleHalfHeight(Ella->GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight() * 0.75f);
 	Arena->MovePlayArea(LevelPlan::KeeperArenaOrigin());
-	Frame->ApplyCameraMargin(Arena, Ella);
+	Frame->ApplyCameraMargin(Arena, Ella, true);   // Director's Cut: the title band widens the view most
 	const FVector View = Camera->GetComponentLocation();
 	const float HalfViewW = Camera->OrthoWidth * 0.5f;
 	const float HalfViewH = Camera->OrthoWidth / T.CameraAspectRatio * 0.5f;
-	const FVector2D Size = USceneArtSubsystem::PanelSize(RouteEnd);
+	const FVector2D Size = USceneArtSubsystem::PanelSize(RouteEnd) * USceneArtSubsystem::ViewScale(Camera->OrthoWidth);
 	const float PanelX = USceneArtSubsystem::PanelX(RouteEnd, static_cast<float>(View.X));
 	const float PanelZ = T.ArenaHeight * 0.5f;
 	TestTrue(TEXT("route end picture reaches the fight frame's left edge"), PanelX - Size.X * 0.5f <= View.X - HalfViewW);
 	TestTrue(TEXT("route end picture reaches the fight frame's right edge"), PanelX + Size.X * 0.5f >= View.X + HalfViewW);
 	TestTrue(TEXT("route end picture reaches the fight frame's top"), PanelZ + Size.Y * 0.5f >= View.Z + HalfViewH);
 	TestTrue(TEXT("route end picture reaches the fight frame's bottom"), PanelZ - Size.Y * 0.5f <= View.Z - HalfViewH);
+	// The drawn route-end panel (bounds of its picture plane) covers the widened fight frame too.
+	if (USceneArtSubsystem* Scene = Test.GetWorld()->GetSubsystem<USceneArtSubsystem>())
+	{
+		if (Scene->PanelCount(TEXT("bg:start-end")) == 0)
+		{
+			Scene->ShowArt(TEXT("bg:start-end"), UTexture2D::CreateTransient(8, 8, PF_B8G8R8A8));
+		}
+		Scene->ScrollTo(static_cast<float>(View.X), Camera->OrthoWidth);
+		const UStaticMeshComponent* EndPanel = Scene->FindPanel(TEXT("bg:start-end"), 1);
+		if (TestNotNull(TEXT("route end panel"), EndPanel))
+		{
+			TestTrue(TEXT("drawn route-end picture is wide enough"), EndPanel->Bounds.BoxExtent.X >= HalfViewW - 0.5f);
+			TestTrue(TEXT("drawn route-end picture is tall enough"), EndPanel->Bounds.BoxExtent.Z >= HalfViewH - 0.5f);
+		}
+		// r04 capture: at the route start the start picture (arena-sized) left a dark edge inside the widened view.
+		const UStaticMeshComponent* StartPanel = Scene->FindPanel(TEXT("bg:start-end"), 0);
+		if (TestNotNull(TEXT("route start panel"), StartPanel))
+		{
+			TestTrue(TEXT("drawn route-start picture is wide enough"), StartPanel->Bounds.BoxExtent.X >= HalfViewW - 0.5f);
+			TestTrue(TEXT("drawn route-start picture is tall enough"), StartPanel->Bounds.BoxExtent.Z >= HalfViewH - 0.5f);
+		}
+	}
 	// Break check: the old placement (last arena width of the route) leaves the right of the fight frame uncovered.
 	const float OldRight = LevelCatalogue::RouteLength();
 	TestTrue(TEXT("old placement stopped inside the fight frame (break check)"), OldRight < View.X + HalfViewW);
@@ -299,17 +368,75 @@ bool FFrameCompositionGameplayFrameFillsView::RunTest(const FString& Parameters)
 	auto FrameCovers = [&](float OrthoWidth)
 	{
 		Scene->ScrollTo(CameraX, OrthoWidth);
-		const FVector Scale = Panel->GetOwner()->GetActorScale3D();
-		const float HalfW = static_cast<float>(Scale.X) * UmbrellaBackdropConst::EngineCubeSize * 0.5f;
-		const float HalfH = static_cast<float>(Scale.Z) * UmbrellaBackdropConst::EngineCubeSize * 0.5f;
-		return HalfW >= HalfViewW - 0.5f && HalfH >= HalfViewH - 0.5f;
+		// What is drawn: the picture plane's world bounds (r04: an actor-scale resize flattened the plane to 0 height).
+		const FVector Half = Panel->Bounds.BoxExtent;
+		return Half.X >= HalfViewW - 0.5f && Half.Z >= HalfViewH - 0.5f;
 	};
 	TestTrue(TEXT("gameplay frame reaches every screen edge with the margin"), FrameCovers(Camera->OrthoWidth));
-	TestEqual(TEXT("frame keeps its depth thickness"), static_cast<float>(Panel->GetOwner()->GetActorScale3D().Y), UmbrellaBackdropConst::PanelThickness);
+	TestTrue(TEXT("the picture plane keeps its height"), Panel->Bounds.BoxExtent.Z > 1.0);
 	TestEqual(TEXT("frame follows the camera"), static_cast<float>(Panel->GetOwner()->GetActorLocation().X), CameraX);
 	// Break check: arena-sized (the old behaviour) sits inside the widened view.
 	TestFalse(TEXT("arena-sized frame sits inside the widened view (break check)"), FrameCovers(0.0f));
 	TestEqual(TEXT("not orthographic: scale 1"), USceneArtSubsystem::ViewScale(0.0f), 1.0f);
+	return true;
+}
+
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFrameCompositionKeeperAlwaysSeen, "UmbrellaElla.Feedback.FrameComposition.KeeperAlwaysSeen",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+
+bool FFrameCompositionKeeperAlwaysSeen::RunTest(const FString& Parameters)
+{
+	// Lead 17:08: in Start Game the Keeper was invisible (the pass hid every mesh named KeeperStandIn with no art, the
+	// Keeper actor's own body too); hitbox and shots still worked. The Keeper must always be seen; Ella is a dark figure.
+	FUmbrellaTestWorld Test;
+	UWorld* World = Test.GetWorld();
+	UFrameCompositionSubsystem* Frame = World->GetSubsystem<UFrameCompositionSubsystem>();
+	AUmbrellaArena* Arena = World->SpawnActor<AUmbrellaArena>(FVector::ZeroVector, FRotator::ZeroRotator);
+	if (Arena && !Arena->GetKeeperStandIn())
+	{
+		Arena->BuildPlaceholders();
+	}
+	AKeeperOfTime* Keeper = World->SpawnActor<AKeeperOfTime>(FVector(800.0, 0.0, 600.0), FRotator::ZeroRotator);
+	AActor* EllaOwner = World->SpawnActor<AActor>();
+	if (!TestNotNull(TEXT("frame"), Frame) || !TestNotNull(TEXT("arena"), Arena) || !TestNotNull(TEXT("keeper"), Keeper)
+		|| !TestNotNull(TEXT("arena square"), Arena->GetKeeperStandIn()) || !EllaOwner)
+	{
+		return false;
+	}
+	UStaticMeshComponent* Square = Arena->GetKeeperStandIn();
+	// The Keeper's own body (with its art when the asset exists), and an artless Keeper stand-in body outside the arena.
+	UStaticMeshComponent* ArtBody = FindObjectFast<UStaticMeshComponent>(Keeper, FName(UmbrellaFrameConst::KeeperStandInName));
+	AActor* BodyOwner = World->SpawnActor<AActor>();
+	UStaticMeshComponent* Body = BodyOwner ? FrameTestMesh(BodyOwner, UmbrellaFrameConst::KeeperStandInName, FVector(800.0, -50.0, 600.0), UmbrellaArtSlotConst::StandInKeeperColor) : nullptr;
+	UStaticMeshComponent* EllaFigure = FrameTestMesh(EllaOwner, UmbrellaFrameConst::EllaStandInName, FVector(0.0, 0.0, 300.0), UmbrellaArtSlotConst::StandInEllaColor);
+	if (!TestNotNull(TEXT("body"), Body) || !ArtSlot::IsUnlit(Body))
+	{
+		AddWarning(TEXT("slot material missing: artless body not measured"));
+		return true;
+	}
+	Frame->ComposeNow();
+	TestFalse(TEXT("the artless Keeper body is drawn (never hidden)"), Body->bHiddenInGame);
+	TestTrue(TEXT("the artless Keeper body reads as gunmetal"), ArtSlot::GetTint(Body).Equals(UmbrellaFrameConst::KeeperMetal, 0.0005f));
+	TestTrue(TEXT("the arena's lilac square is hidden while the Keeper actor is there"), Square->bHiddenInGame);
+	if (ArtBody && ArtSlot::HasArt(ArtBody))
+	{
+		TestFalse(TEXT("the Keeper's art body is never hidden"), ArtBody->bHiddenInGame);
+	}
+	TestTrue(TEXT("Ella's artless stand-in is the dark figure, not a bright block"), ArtSlot::GetTint(EllaFigure).Equals(UmbrellaFrameConst::EllaInk, 0.0005f));
+	// Quick passes look only at new actors (16:28 review: no scan of every actor every 0.2 s).
+	Frame->ComposePass(false);
+	TestEqual(TEXT("a quick pass with no new actor looks at none"), Frame->LastPassActorCount(), 0);
+	World->SpawnActor<AActor>();
+	Frame->ComposePass(false);
+	TestEqual(TEXT("a quick pass looks at the new actor"), Frame->LastPassActorCount(), 1);
+	// The Keeper leaves (Director's Cut route before the fight): the arena square stays hidden, never a grey box.
+	Keeper->Destroy();
+	Frame->ComposePass(false);
+	TestTrue(TEXT("with no Keeper actor the arena square stays hidden"), Square->bHiddenInGame);
+	Frame->RestoreAll();
+	TestFalse(TEXT("restore shows the square as its owner left it"), Square->bHiddenInGame);
+	TestTrue(TEXT("restore gives the stand-in body its own lilac back"), ArtSlot::GetTint(Body).Equals(UmbrellaArtSlotConst::StandInKeeperColor, 0.0005f));
 	return true;
 }
 

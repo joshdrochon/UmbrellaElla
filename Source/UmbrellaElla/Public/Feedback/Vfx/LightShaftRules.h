@@ -10,7 +10,11 @@
  */
 namespace LightShaftRules
 {
-	static constexpr float ShaftWidth = 28.0f;
+	/**
+	 * A hairline of light (about 2 px at 1280 wide), never a bar: at 28 the sheet's cream paper read as a solid cream bar
+	 * on the dark frame (lead 17:08; measured 150/255 at opacity 0.3, the sheet material ignores Opacity and Tint).
+	 */
+	static constexpr float ShaftWidth = 6.0f;
 	/** Length of each shaft part (above and below Ella): longer than the view is tall. */
 	static constexpr float ShaftLength = 2400.0f;
 	static constexpr float UmbraWidth = 150.0f;
