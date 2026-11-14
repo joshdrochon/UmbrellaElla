@@ -4,6 +4,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Core/UmbrellaEvent.h"
 #include "Core/UmbrellaEventBus.h"
+#include "Core/UmbrellaLog.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/Texture2D.h"
 #include "Engine/World.h"
@@ -338,13 +339,12 @@ const FArtSlotRow& UKeeperPresenterSubsystem::WingGustRow()
 
 void UKeeperPresenterSubsystem::WingGustPlacement(const FVector& BodyBoxScale, FVector& OutBoxScale, FVector& OutOffset)
 {
-	using namespace UmbrellaKeeperPresenterConst;
 	// Units per clip pixel, from the body's drawn size over the idle cell's box (the same in X and Z: no squash).
-	const double UnitsPerPxX = BodyBoxScale.X * UmbrellaArtSlotConst::PlaneEdge / WingGustIdleBoxW;
-	const double UnitsPerPxZ = BodyBoxScale.Z * UmbrellaArtSlotConst::PlaneEdge / WingGustIdleBoxH;
-	OutBoxScale = FVector(BodyBoxScale.X * WingGustCropW / WingGustIdleBoxW, BodyBoxScale.Y, BodyBoxScale.Z * WingGustCropH / WingGustIdleBoxH);
-	const double DeltaX = (WingGustCropX + WingGustCropW * 0.5) - (WingGustIdleBoxX + WingGustIdleBoxW * 0.5);
-	const double DeltaY = (WingGustCropY + WingGustCropH * 0.5) - (WingGustIdleBoxY + WingGustIdleBoxH * 0.5);
+	const double UnitsPerPxX = BodyBoxScale.X * UmbrellaArtSlotConst::PlaneEdge / UmbrellaKeeperPresenterConst::WingGustIdleBoxW;
+	const double UnitsPerPxZ = BodyBoxScale.Z * UmbrellaArtSlotConst::PlaneEdge / UmbrellaKeeperPresenterConst::WingGustIdleBoxH;
+	OutBoxScale = FVector(BodyBoxScale.X * UmbrellaKeeperPresenterConst::WingGustCropW / UmbrellaKeeperPresenterConst::WingGustIdleBoxW, BodyBoxScale.Y, BodyBoxScale.Z * UmbrellaKeeperPresenterConst::WingGustCropH / UmbrellaKeeperPresenterConst::WingGustIdleBoxH);
+	const double DeltaX = (UmbrellaKeeperPresenterConst::WingGustCropX + UmbrellaKeeperPresenterConst::WingGustCropW * 0.5) - (UmbrellaKeeperPresenterConst::WingGustIdleBoxX + UmbrellaKeeperPresenterConst::WingGustIdleBoxW * 0.5);
+	const double DeltaY = (UmbrellaKeeperPresenterConst::WingGustCropY + UmbrellaKeeperPresenterConst::WingGustCropH * 0.5) - (UmbrellaKeeperPresenterConst::WingGustIdleBoxY + UmbrellaKeeperPresenterConst::WingGustIdleBoxH * 0.5);
 	// Clip pixels run down; world Z runs up.
 	OutOffset = FVector(DeltaX * UnitsPerPxX, 0.0, -DeltaY * UnitsPerPxZ);
 }
@@ -423,7 +423,7 @@ void UKeeperPresenterSubsystem::RequestCueShot(const AKeeperOfTime* Owl)
 		bCueShotTaken = true;
 		return;
 	}
-	int32 Cell = 5;
+	int32 Cell = UmbrellaKeeperPresenterConst::DefaultCueShotCell;
 	FParse::Value(FCommandLine::Get(), TEXT("-SmokeKeeperCueCell="), Cell);
 	if (Owl->GetWingGustCell() == Cell)
 	{
@@ -434,7 +434,7 @@ void UKeeperPresenterSubsystem::RequestCueShot(const AKeeperOfTime* Owl)
 		}
 		// UE 5.8.4 Engine/Public/UnrealClient.h line 219: FScreenshotRequest::RequestScreenshot(Filename, bShowUI, bAddFilenameSuffix, ...).
 		FScreenshotRequest::RequestScreenshot(Path, true, false);
-		UE_LOG(LogTemp, Display, TEXT("KEEPER_CUE_SHOT cell=%d path=%s"), Cell, *Path);
+		UE_LOG(LogUmbrellaElla, Display, TEXT("KEEPER_CUE_SHOT cell=%d path=%s"), Cell, *Path);
 	}
 #else
 	(void)Owl;

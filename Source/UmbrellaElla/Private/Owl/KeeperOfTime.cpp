@@ -6,6 +6,7 @@
 #include "Core/UmbrellaTuning.h"
 #include "Engine/StaticMesh.h"
 #include "Materials/MaterialInstanceDynamic.h"
+#include "Harness/UmbrellaFeatureFlags.h"
 #include "Owl/KeeperLook.h"
 #include "Owl/KeeperPartComponent.h"
 
@@ -275,7 +276,9 @@ void AKeeperOfTime::Refresh(const FKeeperFightModel& Model, float TimeSeconds)
 	const bool bWarning = Model.GetStage() == EKeeperStage::Warning;
 	const bool bGustWarning = bWarning && Model.GetPhysical() == EKeeperPhysical::Gust;
 	const bool bWingsAliveNow = !Model.IsPartBroken(EKeeperPart::Wings);
-	WingGustCell = WingGustCellFor(Model.GetPhysical(), Model.GetStage(), Model.GetStageRemaining(), bWingsAliveNow, T);
+	// OWL-15 production cue (wing gather / load, then flap): only while its feature is on.
+	const bool bCueOn = IsFeatureEnabled(EFeatureId::OWL_15);
+	WingGustCell = bCueOn ? WingGustCellFor(Model.GetPhysical(), Model.GetStage(), Model.GetStageRemaining(), bWingsAliveNow, T) : INDEX_NONE;
 	TArray<FKeeperGustStroke> Strokes;
 	if (bWingsAliveNow && (bGust || bGustWarning))
 	{
@@ -329,39 +332,38 @@ void AKeeperOfTime::ClearGusts()
 
 int32 AKeeperOfTime::WingGustCellFor(EKeeperPhysical Physical, EKeeperStage Stage, float StageRemaining, bool bWingsAlive, const FKeeperTuning& T)
 {
-	using namespace KeeperWingGustConst;
 	if (!bWingsAlive || Physical != EKeeperPhysical::Gust)
 	{
 		return INDEX_NONE;
 	}
 	const float Warning = FMath::Max(T.GustWarningSeconds, UE_SMALL_NUMBER);
-	const float FlapInWarning = Warning * (1.0f - GatherShare);
-	const float FlapTotal = FlapInWarning + FlapAfterLaunchSeconds;
+	const float FlapInWarning = Warning * (1.0f - KeeperWingGustConst::GatherShare);
+	const float FlapTotal = FlapInWarning + KeeperWingGustConst::FlapAfterLaunchSeconds;
 	auto FlapCell = [&](float Seconds)
 	{
-		return GatherCells + FMath::Clamp(FMath::FloorToInt32(Seconds / FMath::Max(FlapTotal, UE_SMALL_NUMBER) * FlapCells), 0, FlapCells - 1);
+		return KeeperWingGustConst::GatherCells + FMath::Clamp(FMath::FloorToInt32(Seconds / FMath::Max(FlapTotal, UE_SMALL_NUMBER) * KeeperWingGustConst::FlapCells), 0, KeeperWingGustConst::FlapCells - 1);
 	};
 	if (Stage == EKeeperStage::Warning)
 	{
 		const float Elapsed = FMath::Clamp(Warning - StageRemaining, 0.0f, Warning);
-		const float GatherSeconds = Warning * GatherShare;
+		const float GatherSeconds = Warning * KeeperWingGustConst::GatherShare;
 		if (Elapsed < GatherSeconds)
 		{
-			return FMath::Clamp(FMath::FloorToInt32(Elapsed / FMath::Max(GatherSeconds, UE_SMALL_NUMBER) * GatherCells), 0, GatherCells - 1);
+			return FMath::Clamp(FMath::FloorToInt32(Elapsed / FMath::Max(GatherSeconds, UE_SMALL_NUMBER) * KeeperWingGustConst::GatherCells), 0, KeeperWingGustConst::GatherCells - 1);
 		}
 		return FlapCell(Elapsed - GatherSeconds);
 	}
 	if (Stage == EKeeperStage::Stroke)
 	{
 		const float Travelled = FMath::Max(0.0f, T.GustLifetimeSeconds - StageRemaining);
-		if (Travelled < FlapAfterLaunchSeconds)
+		if (Travelled < KeeperWingGustConst::FlapAfterLaunchSeconds)
 		{
 			return FlapCell(FlapInWarning + Travelled);
 		}
-		const float Recover = Travelled - FlapAfterLaunchSeconds;
-		if (Recover < RecoverSeconds)
+		const float Recover = Travelled - KeeperWingGustConst::FlapAfterLaunchSeconds;
+		if (Recover < KeeperWingGustConst::RecoverSeconds)
 		{
-			return GatherCells + FlapCells + FMath::Clamp(FMath::FloorToInt32(Recover / RecoverSeconds * RecoverCells), 0, RecoverCells - 1);
+			return KeeperWingGustConst::GatherCells + KeeperWingGustConst::FlapCells + FMath::Clamp(FMath::FloorToInt32(Recover / KeeperWingGustConst::RecoverSeconds * KeeperWingGustConst::RecoverCells), 0, KeeperWingGustConst::RecoverCells - 1);
 		}
 	}
 	return INDEX_NONE;
@@ -370,90 +372,61 @@ int32 AKeeperOfTime::WingGustCellFor(EKeeperPhysical Physical, EKeeperStage Stag
 void AKeeperOfTime::GustStrokes(const FVector2D& LaneStart, float LaneLength, float BandWidth, bool bTravelling, float WarningProgress,
 	float FrontX, float FrontThickness, float Seconds, TArray<FKeeperGustStroke>& Out)
 {
-	using namespace KeeperWingGustConst;
 	Out.Reset();
 	const float Z = LaneStart.Y;
-	const float LaneEnd = LaneStart.X - LaneLength;
-	// A wavy strand from XFrom (ahead, -X side) back to XTo, thickness from ThickA (at XFrom) to ThickB (at XTo).
-	auto Strand = [&](float XFrom, float XTo, float ZOffset, float ThickA, float ThickB, float Phase)
+	const float Amplitude = FMath::Min(BandWidth * KeeperWingGustConst::WaveShare, KeeperWingGustConst::MaxWave);
+	// One ribbon: head at HeadX (the -X end), Length toward +X; thick head tapering to a hair, wavy, its bends moving -X.
+	auto Ribbon = [&](float HeadX, float Length, int32 Index, int32 Count, float HeadThick)
 	{
-		const float Length = XTo - XFrom;
 		if (Length <= 1.0f)
 		{
 			return;
 		}
-		const int32 Segments = FMath::Clamp(FMath::CeilToInt32(Length / SegmentLength), 2, MaxSegments);
-		auto Point = [&](int32 Index)
+		const float Base = ((static_cast<float>(Index) + 0.5f) / static_cast<float>(Count) - 0.5f) * BandWidth * KeeperWingGustConst::SpreadShare;
+		const float Phase = KeeperWingGustConst::StrandPhaseStep * static_cast<float>(Index) + KeeperWingGustConst::StrandPhaseBase;
+		const int32 Segments = FMath::Clamp(FMath::CeilToInt32(Length / KeeperWingGustConst::SegmentLength), KeeperWingGustConst::MinSegments, KeeperWingGustConst::MaxSegments);
+		auto Point = [&](int32 K)
 		{
-			const float X = XFrom + Length * static_cast<float>(Index) / static_cast<float>(Segments);
-			// Bends travel toward -X, the gust's direction.
-			const float Wave = 2.0f * PI * X / Wavelength + Phase + WaveSpeed * Seconds;
-			return FVector2D(X, Z + ZOffset + WaveAmplitude * FMath::Sin(Wave));
+			const float X = HeadX + Length * static_cast<float>(K) / static_cast<float>(Segments);
+			const float Wave = 2.0f * PI * X / KeeperWingGustConst::Wavelength + Phase + KeeperWingGustConst::WaveSpeed * Seconds;
+			const float Drift = KeeperWingGustConst::DriftShare * FMath::Sin(KeeperWingGustConst::DriftRate * Wave + KeeperWingGustConst::DriftStrandStep * static_cast<float>(Index));
+			return FVector2D(X, Z + Base + Amplitude * (FMath::Sin(Wave) + Drift) / (1.0f + KeeperWingGustConst::DriftShare));
 		};
-		for (int32 Index = 0; Index < Segments; ++Index)
+		for (int32 K = 0; K < Segments; ++K)
 		{
-			const float Mid = (static_cast<float>(Index) + 0.5f) / static_cast<float>(Segments);
-			Out.Add({Point(Index), Point(Index + 1), FMath::Lerp(ThickA, ThickB, Mid)});
+			const float T = (static_cast<float>(K) + 0.5f) / static_cast<float>(Segments);
+			// Thickest just behind the head, a blunt tip, then a long taper to the tail.
+			const float Profile = FMath::Sin(PI * (0.5f + 0.5f * T)) * FMath::Min(1.0f, KeeperWingGustConst::BluntTip + KeeperWingGustConst::TipRise * T);
+			Out.Add({Point(K), Point(K + 1), FMath::Max(KeeperWingGustConst::TailThick, HeadThick * Profile)});
 		}
 	};
 	if (!bTravelling)
 	{
-		// The locked lane draws out toward the gust's direction (-X) while the wings gather: direction and band both read.
 		const float P = FMath::Clamp(WarningProgress, 0.0f, 1.0f);
 		const float Reach = LaneLength * (1.0f - FMath::Square(1.0f - P));
-		const float TipX = LaneStart.X - Reach;
-		if (Reach <= 1.0f)
+		for (int32 Index = 0; Index < KeeperWingGustConst::WarningRibbons && Reach > 1.0f; ++Index)
 		{
-			return;
+			const float Stagger = Reach * KeeperWingGustConst::HeadStaggerShare * static_cast<float>(Index % KeeperWingGustConst::StaggerCycle);
+			Ribbon(LaneStart.X - Reach + Stagger, Reach - Stagger, Index, KeeperWingGustConst::WarningRibbons, KeeperWingGustConst::WarningThick);
 		}
-		const float Edge = BandWidth * EdgeShare;
-		const float Inner = BandWidth * InnerShare;
-		Strand(TipX, LaneStart.X, -Edge, EdgeThick, EdgeThick, 0.0f);
-		Strand(TipX, LaneStart.X, Edge, EdgeThick, EdgeThick, 2.1f);
-		Strand(TipX, LaneStart.X, -Inner, InnerThick, InnerThick * 0.4f, 1.3f);
-		Strand(TipX, LaneStart.X, Inner, InnerThick, InnerThick * 0.4f, 3.4f);
-		// Arrow head at the reach, pointing -X.
-		const float Back = BandWidth * ArrowBackShare;
-		Out.Add({FVector2D(TipX, Z), FVector2D(TipX + Back, Z + Edge), ArrowThick});
-		Out.Add({FVector2D(TipX, Z), FVector2D(TipX + Back, Z - Edge), ArrowThick});
 		return;
 	}
-	// Travelling: a bowed front whose apex leads at the front's leading edge (the hit region is FrontX +- thickness/2).
-	const float Half = BandWidth * 0.5f;
-	const float Lead = FrontThickness * 0.5f;
-	const float Bulge = FrontThickness * FrontBulgeShare;
-	auto FrontPoint = [&](int32 Index)
+	const float Lead = FrontX - FrontThickness * 0.5f;
+	for (int32 Index = 0; Index < KeeperWingGustConst::TravelRibbons; ++Index)
 	{
-		const float S = 2.0f * static_cast<float>(Index) / static_cast<float>(FrontSegments) - 1.0f;
-		return FVector2D(FrontX - Lead + Bulge * FMath::Square(S), Z + S * Half);
-	};
-	for (int32 Index = 0; Index < FrontSegments; ++Index)
-	{
-		Out.Add({FrontPoint(Index), FrontPoint(Index + 1), FrontThick});
-	}
-	const float TrailEnd = FMath::Min(FrontX + TrailLength, FMath::Max(FrontX, LaneStart.X));
-	for (int32 Index = 0; Index < TrailStrands; ++Index)
-	{
-		const float Share = (static_cast<float>(Index) + 0.5f) / static_cast<float>(TrailStrands) - 0.5f;
-		Strand(FrontX - Lead + Bulge * FMath::Square(2.0f * Share), TrailEnd, Share * BandWidth * 0.9f, TrailThickFront, TrailThickTail, 1.7f * static_cast<float>(Index));
-	}
-	// The lane still ahead: thin edge lines from the front to the lane's end.
-	const float AheadFrom = FMath::Max(LaneEnd, FrontX - LaneLength);
-	if (FrontX - Lead - AheadFrom > 1.0f)
-	{
-		Strand(AheadFrom, FrontX - Lead, -BandWidth * EdgeShare, EdgeThick, EdgeThick, 0.0f);
-		Strand(AheadFrom, FrontX - Lead, BandWidth * EdgeShare, EdgeThick, EdgeThick, 2.1f);
+		const float Length = KeeperWingGustConst::TravelLength * (1.0f - KeeperWingGustConst::LengthStepShare * static_cast<float>((Index * 2) % KeeperWingGustConst::StaggerCycle));
+		const float Stagger = KeeperWingGustConst::TravelLength * KeeperWingGustConst::HeadStaggerShare * static_cast<float>(Index % KeeperWingGustConst::StaggerCycle);
+		Ribbon(Lead + Stagger, Length - Stagger, Index, KeeperWingGustConst::TravelRibbons, KeeperWingGustConst::TravelThick);
 	}
 }
 
 void AKeeperOfTime::DrawGustRibbons(const TArray<FKeeperGustStroke>& Strokes)
 {
-	using namespace KeeperWingGustConst;
 	if (GustRibbons.Num() == 0 && Strokes.Num() > 0 && GetRootComponent())
 	{
 		UStaticMesh* Plane = LoadObject<UStaticMesh>(nullptr, UmbrellaArtSlotConst::PlanePath, nullptr, LOAD_NoWarn | LOAD_Quiet);
-		const FLinearColor Colour = FLinearColor::FromSRGBColor(FColor(RibbonR, RibbonG, RibbonB));
-		for (int32 Index = 0; Plane && Index < PoolSize; ++Index)
+		const FLinearColor Colour = FLinearColor::FromSRGBColor(FColor(KeeperWingGustConst::RibbonR, KeeperWingGustConst::RibbonG, KeeperWingGustConst::RibbonB));
+		for (int32 Index = 0; Plane && Index < KeeperWingGustConst::PoolSize; ++Index)
 		{
 			UStaticMeshComponent* Ribbon = NewObject<UStaticMeshComponent>(this, FName(*FString::Printf(TEXT("GustRibbon_%d"), Index)));
 			Ribbon->SetStaticMesh(Plane);
@@ -481,8 +454,8 @@ void AKeeperOfTime::DrawGustRibbons(const TArray<FKeeperGustStroke>& Strokes)
 			continue;
 		}
 		const FKeeperGustStroke& Stroke = Strokes[Index];
-		const FVector P0(Stroke.A.X, UmbrellaDrawOrder::KeeperY + RibbonLift, Stroke.A.Y);
-		const FVector P1(Stroke.B.X, UmbrellaDrawOrder::KeeperY + RibbonLift, Stroke.B.Y);
+		const FVector P0(Stroke.A.X, UmbrellaDrawOrder::KeeperY + KeeperWingGustConst::RibbonLift, Stroke.A.Y);
+		const FVector P1(Stroke.B.X, UmbrellaDrawOrder::KeeperY + KeeperWingGustConst::RibbonLift, Stroke.B.Y);
 		FVector Dir = P1 - P0;
 		const double SegLen = Dir.Size();
 		if (!Dir.Normalize())

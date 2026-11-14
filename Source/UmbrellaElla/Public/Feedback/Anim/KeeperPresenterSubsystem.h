@@ -49,7 +49,7 @@ namespace UmbrellaKeeperPresenterConst
 	/** M_ArtSlot draws only the top row of a grid today (docs/build/requests/artkeeper.md Update 5); AllCells once it offsets rows. */
 	static constexpr EKeeperGridPlayback IdlePlayback = EKeeperGridPlayback::TopRowPingPong;
 	/**
-	 * Wing-gust clip (OWL-15 cue: gather, flap, recover; KeeperWingGustConst cells), one row of cells cut from a Veo clip
+	 * Wing-gust clip (the wing gather / flap cue: gather, flap, recover; KeeperWingGustConst cells), one row of cells cut from a Veo clip
 	 * whose first frame is the approved idle cell 0 (pipeline/art/proof/artkeeper/wing-gust/). Numbers in clip pixels from
 	 * Keeper_wing_gust_N14_strip.sprite.json: the idle cell's box in the clip (where the input placed it) and the crop.
 	 */
@@ -62,6 +62,8 @@ namespace UmbrellaKeeperPresenterConst
 	static constexpr float WingGustCropY = 18.0f;
 	static constexpr float WingGustCropW = 986.0f;
 	static constexpr float WingGustCropH = 700.0f;
+	/** Workbench proof hook: the cue cell -SmokeKeeperCueShot captures by default (late gather). */
+	static constexpr int32 DefaultCueShotCell = 5;
 	/** State layers: hidden until their state starts (a part is destroyed; the Keeper departs). */
 	static const TCHAR* const MaskVisual = TEXT("keeper:part-masks-7-6-4-0");
 	static const TCHAR* const DepartureVisual = TEXT("keeper:living-departure");

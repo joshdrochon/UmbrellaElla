@@ -24,7 +24,7 @@ struct FKeeperGustStroke
 };
 
 /**
- * Wing-gust cue (OWL-15 production cue: wing gather / load, then flap, readable direction and front; GDD line 375: the
+ * Wing-gust cue (the GDD's production cue: wing gather / load, then flap, readable direction and front; GDD line 375: the
  * gust's own animation and VFX). Presentation only: the cue reads the model's stage and timers and never changes them.
  */
 namespace KeeperWingGustConst
@@ -43,29 +43,43 @@ namespace KeeperWingGustConst
 	static constexpr uint8 RibbonR = 0x55;
 	static constexpr uint8 RibbonG = 0x5E;
 	static constexpr uint8 RibbonB = 0x60;
-	/** Warning lane: thin edge strands at +-EdgeShare of the band, inner strands at +-InnerShare, an arrow head at the reach. */
-	static constexpr float EdgeShare = 0.45f;
-	static constexpr float InnerShare = 0.15f;
-	static constexpr float EdgeThick = 3.0f;
-	static constexpr float InnerThick = 5.0f;
-	static constexpr float ArrowThick = 7.0f;
-	/** Arrow head arms reach back this share of the band width. */
-	static constexpr float ArrowBackShare = 0.35f;
-	/** Travelling gust: a bowed front (apex ahead by FrontBulgeShare of the front thickness), trailing strands behind it. */
-	static constexpr float FrontThick = 11.0f;
-	static constexpr int32 FrontSegments = 8;
-	static constexpr float FrontBulgeShare = 0.5f;
-	static constexpr float TrailLength = 360.0f;
-	static constexpr int32 TrailStrands = 4;
-	static constexpr float TrailThickFront = 8.0f;
-	static constexpr float TrailThickTail = 1.5f;
-	/** Strand bends: amplitude (units), wavelength (units) and travel (rad/s, toward the gust's direction). */
-	static constexpr float WaveAmplitude = 6.0f;
-	static constexpr float Wavelength = 260.0f;
-	static constexpr float WaveSpeed = 7.0f;
-	static constexpr float SegmentLength = 45.0f;
+	/**
+	 * Ribbons in the study's look (visual_qa 22:15: straight ruled lines, an arrow glyph and an arc read as debug marks):
+	 * wavy, tapered strands, thickest at the head that leads toward -X and thinning to a hair at the tail.
+	 */
+	static constexpr int32 WarningRibbons = 4;
+	static constexpr int32 TravelRibbons = 5;
+	/** Strand centres spread over this share of the band; bends swing up to WaveShare of the band (capped). */
+	static constexpr float SpreadShare = 0.55f;
+	static constexpr float WaveShare = 0.14f;
+	static constexpr float MaxWave = 17.0f;
+	static constexpr float Wavelength = 300.0f;
+	/** Bends travel toward -X, the gust's direction (rad/s); a slower second bend lets strands cross and part. */
+	static constexpr float WaveSpeed = 6.0f;
+	static constexpr float DriftShare = 0.45f;
+	static constexpr float DriftRate = 0.5f;
+	/** Head thickness while the lane warns (the wings still gather) and while the gust travels. */
+	static constexpr float WarningThick = 4.5f;
+	static constexpr float TravelThick = 10.0f;
+	static constexpr float TailThick = 0.8f;
+	/** Heads stagger back from the front by this share of a ribbon's length (cycle of 3), so they never line up. */
+	static constexpr float HeadStaggerShare = 0.07f;
+	/** Travelling ribbon length (units) and the shortening per strand in the cycle of 3. */
+	static constexpr float TravelLength = 420.0f;
+	static constexpr float LengthStepShare = 0.2f;
+	static constexpr float SegmentLength = 40.0f;
 	static constexpr int32 MaxSegments = 24;
-	/** Ribbon pool on the Keeper (largest frame: 8 front + 4 x 24 trail + 2 x 24 lane ahead fits). */
+	static constexpr int32 MinSegments = 4;
+	/** Per-strand phase Base + Step * strand and drift offset, so strands differ without randomness (captures repeat). */
+	static constexpr float StrandPhaseStep = 1.7f;
+	static constexpr float StrandPhaseBase = 0.4f;
+	static constexpr float DriftStrandStep = 0.9f;
+	/** Head profile: thickness rises from BluntTip of the head over the first 1/TipRise of the length, then tapers. */
+	static constexpr float BluntTip = 0.45f;
+	static constexpr float TipRise = 6.0f;
+	/** Heads stagger and lengths step in a cycle of this many strands. */
+	static constexpr int32 StaggerCycle = 3;
+	/** Ribbon pool on the Keeper (largest frame: TravelRibbons x MaxSegments). */
 	static constexpr int32 PoolSize = 160;
 	/** Ribbons sit this far in front of the Keeper layer, toward the camera (+Y). */
 	static constexpr float RibbonLift = 5.0f;
@@ -105,9 +119,9 @@ public:
 	static int32 WingGustCellFor(EKeeperPhysical Physical, EKeeperStage Stage, float StageRemaining, bool bWingsAlive, const FKeeperTuning& T);
 
 	/**
-	 * Gust ribbons for one frame (world X/Z). Warning (bTravelling false): the locked lane draws out from LaneStart
-	 * toward -X over WarningProgress 0..1, thin edge and inner strands with an arrow head at the reach. Travel: a bowed
-	 * front at FrontX, thick strands trailing behind it, thin edge lines over the lane still ahead. Pure.
+	 * Gust ribbons for one frame (world X/Z), all inside the band (centre LaneStart.Y, BandWidth). Warning (bTravelling
+	 * false): thin wavy strands draw out from LaneStart toward -X over WarningProgress 0..1, heads leading. Travel: thick
+	 * strands whose heads sit at the front's leading edge (FrontX - FrontThickness/2), tails trailing toward +X. Pure.
 	 */
 	static void GustStrokes(const FVector2D& LaneStart, float LaneLength, float BandWidth, bool bTravelling, float WarningProgress,
 		float FrontX, float FrontThickness, float Seconds, TArray<FKeeperGustStroke>& Out);
