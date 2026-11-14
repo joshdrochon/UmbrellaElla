@@ -119,7 +119,6 @@ FILE_RULES = [
     (r"^Art/Source/VFX/Raw/(VFX_\w+?)(?:_PH)?\.png$", "vfx-sheet:{1}"),
     (r"^Content/[^/]+/Art/VFX/T_(VFX_\w+?)(?:_PH)?\.uasset$", "vfx-sheet:{1}"),
     (r"^Content/[^/]+/Art/VFX/(M_VFX_\w+?)(?:_PH)?\.uasset$", "vfx-material:{1}"),
-    (r"^Content/[^/]+/Art/Scene/T_(Skyline|Paper)(?:_PH)?\.uasset$", "scene-texture:{1}"),
     (r"^Content/[^/]+/Art/Ella/T_Ella_Idle(?:_PH)?\.uasset$", "ella-state:Idle"),
     (r"^Art/Source/Keeper/", "keeper:body-hover-flap"),
     (r"^Content/[^/]+/Art/Keeper/T_Keeper_Owl(?:_PH)?\.uasset$", "keeper:body-hover-flap"),
@@ -224,8 +223,6 @@ def discover():
                 if visual.startswith("vfx-material:"):
                     piece = MATERIAL.get(m.group(1))
                     put(visual, rel, piece)
-                elif visual.startswith("scene-texture:"):
-                    put(visual, rel, m.group(1).lower())
                 elif visual.startswith("vfx-sheet:"):
                     put(visual, rel, VFX_SHEET.get(m.group(1)))
                 else:

@@ -1,9 +1,9 @@
 visual,source,piece,owner,passed,slot,drawn_by
 bg-layer:Base,Source Feedback/Background LayerSpecs; Content/UmbrellaElla/Art/Scene/T_BgBase_PH.uasset,bg-base,artscene,no,/Game/UmbrellaElla/Art/Scene/T_BgBase,UUmbrellaBackdropSubsystem
 bg-layer:ClockWaterWind,Source Feedback/Background LayerSpecs; Content/UmbrellaElla/Art/Scene/T_BgClockWaterWind_PH.uasset,bg-clock-water-wind,artscene,no,/Game/UmbrellaElla/Art/Scene/T_BgClockWaterWind,UUmbrellaBackdropSubsystem
-bg-layer:FarLand,Source Feedback/Background LayerSpecs,skyline,artscene,no,/Game/UmbrellaElla/Art/Scene/T_Skyline,UUmbrellaBackdropSubsystem
+bg-layer:FarLand,Source Feedback/Background LayerSpecs; Content/UmbrellaElla/Art/Scene/T_Skyline_PH.uasset,skyline,artscene,no,/Game/UmbrellaElla/Art/Scene/T_Skyline,UUmbrellaBackdropSubsystem
 bg-layer:NearArchitecture,Source Feedback/Background LayerSpecs; Content/UmbrellaElla/Art/Scene/T_BgArchitecture_PH.uasset,bg-architecture,artscene,no,/Game/UmbrellaElla/Art/Scene/T_BgArchitecture,UUmbrellaBackdropSubsystem
-bg-layer:Sky,Source Feedback/Background LayerSpecs,paper,artscene,no,/Game/UmbrellaElla/Art/Scene/T_Paper,UUmbrellaBackdropSubsystem
+bg-layer:Sky,Source Feedback/Background LayerSpecs; Content/UmbrellaElla/Art/Scene/T_Paper_PH.uasset,paper,artscene,no,/Game/UmbrellaElla/Art/Scene/T_Paper,UUmbrellaBackdropSubsystem
 bg:atmosphere,GDD BG-03; Content/UmbrellaElla/Art/Scene/T_BgAtmosphere_PH.uasset,bg-atmosphere,artscene,no,/Game/UmbrellaElla/Art/Scene/T_BgAtmosphere,USceneArtSubsystem
 bg:clocks,GDD BG-03; Content/UmbrellaElla/Art/Scene/T_BgClock_PH.uasset,bg-clock,artscene,no,/Game/UmbrellaElla/Art/Scene/T_BgClock,USceneArtSubsystem
 bg:land,GDD BG-04; Content/UmbrellaElla/Art/Scene/T_BgLand_PH.uasset,bg-land,artscene,no,/Game/UmbrellaElla/Art/Scene/T_BgLand,USceneArtSubsystem
@@ -40,8 +40,6 @@ keeper:talon-empty-and-closed,GDD ANIM-06; Content/UmbrellaElla/Art/Keeper/T_Kee
 keeper:wings-gust-wear,GDD ANIM-06; Content/UmbrellaElla/Art/Keeper/T_Keeper_Wing_PH.uasset,keeper-wing,artkeeper,no,/Game/UmbrellaElla/Art/Keeper/T_Keeper_Wing,UKeeperPresenterSubsystem
 menu-backdrop:Clocks,Source UI/Menus EFlowBackdrop,ui-pause,artui,no,/Game/UmbrellaElla/Art/UI/T_MenuBackdrop_Clocks,UUiArtSubsystem
 menu-backdrop:Drift,Source UI/Menus EFlowBackdrop,menu-screen,artscene,no,/Game/UmbrellaElla/Art/UI/T_MenuBackdrop_Drift,UUiArtSubsystem
-scene-texture:Paper,Content/UmbrellaElla/Art/Scene/T_Paper_PH.uasset,paper,artscene,no,,-
-scene-texture:Skyline,Content/UmbrellaElla/Art/Scene/T_Skyline_PH.uasset,skyline,artscene,no,,-
 scene:gameplay-frame,GDD ART-07,scene,artscene,no,/Game/UmbrellaElla/Art/Scene/T_Frame,USceneArtSubsystem
 screen:Credits,Source Flow/FlowRules.h EFlowScreen; Content/UmbrellaElla/Art/UI/T_Screen_Credits_PH.uasset,ui-credits,artui,no,/Game/UmbrellaElla/Art/UI/T_Screen_Credits,UUiArtSubsystem
 screen:Defeat,Source Flow/FlowRules.h EFlowScreen; Content/UmbrellaElla/Art/UI/T_Screen_Defeat_PH.uasset,ui-defeated,artui,yes,/Game/UmbrellaElla/Art/UI/T_Screen_Defeat,UUiArtSubsystem
