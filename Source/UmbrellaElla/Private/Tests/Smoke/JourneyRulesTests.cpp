@@ -60,6 +60,25 @@ bool FJourneyParsesRouteSteps::RunTest(const FString& Parameters)
 	return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FJourneyParsesFigureShots, "UmbrellaElla.Smoke.Journey.ParsesFigureShots",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+bool FJourneyParsesFigureShots::RunTest(const FString& Parameters)
+{
+	// visual_qa's hurt-frame check (lead order Nov 13 23:26): the journey takes Ella's normal and hurt frames.
+	TArray<FString> Errors;
+	const TArray<FJourneyStep> Steps = JourneyRules::ParseScript(TEXT("figureshot vq_figure\nhurtshot vq_hurt   # hit\n"), Errors);
+	TestEqual(TEXT("no errors"), Errors.Num(), 0);
+	TestEqual(TEXT("steps"), Steps.Num(), 2);
+	if (Steps.Num() == 2)
+	{
+		TestEqual(TEXT("figureshot"), Steps[0].Command + TEXT(" ") + Steps[0].Arg, FString(TEXT("figureshot vq_figure")));
+		TestEqual(TEXT("hurtshot"), Steps[1].Command + TEXT(" ") + Steps[1].Arg, FString(TEXT("hurtshot vq_hurt")));
+	}
+	// Ella shows Hurt only when a life goes; the hurtshot's one assisted hit is sized to her active points for that.
+	TestTrue(TEXT("hurt waits a few frames, under the 0.25 s state hold"), UJourneyHookSubsystem::JourneyHurtSettleFrames < UJourneyHookSubsystem::JourneyShotSettleFrames);
+	return true;
+}
+
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FJourneyClickRetries, "UmbrellaElla.Smoke.Journey.ClickRetriesUntilItTakes",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
 bool FJourneyClickRetries::RunTest(const FString& Parameters)

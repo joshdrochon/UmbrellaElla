@@ -6,7 +6,7 @@ namespace JourneyRules
 {
 	TArray<FJourneyStep> ParseScript(const FString& Text, TArray<FString>& OutErrors)
 	{
-		static const TArray<FString> Known = { TEXT("wait"), TEXT("trywait"), TEXT("shot"), TEXT("key"), TEXT("hold"), TEXT("click"),
+		static const TArray<FString> Known = { TEXT("wait"), TEXT("trywait"), TEXT("shot"), TEXT("figureshot"), TEXT("hurtshot"), TEXT("key"), TEXT("hold"), TEXT("click"),
 			TEXT("music"), TEXT("idle"), TEXT("hits"), TEXT("assistwin"), TEXT("retrycheck"), TEXT("log"), TEXT("end"), TEXT("firstrun"), TEXT("keyuntil"), TEXT("console"), TEXT("texts"), TEXT("route"), TEXT("routeassist"), TEXT("skipunless") };
 		TArray<FJourneyStep> Out;
 		TArray<FString> Lines;
@@ -105,6 +105,7 @@ namespace JourneyRules
 #include "Level/LevelPlan.h"
 #include "Level/UmbrellaLevelDirector.h"
 #include "Core/EllaCharacter.h"
+#include "Feedback/Anim/EllaAnimPresenterComponent.h"
 #include "Encounter/EncounterDirectorSubsystem.h"
 #include "EngineUtils.h"
 #include "Engine/Engine.h"
@@ -392,6 +393,10 @@ void UJourneyHookSubsystem::Tick(float DeltaTime)
 			FinishStep(bOk ? EJourneyResult::Pass : EJourneyResult::Fail, Detail);
 		}
 	}
+	else if (Step.Command == TEXT("figureshot") || Step.Command == TEXT("hurtshot"))
+	{
+		StepFigureShot(Step, Step.Command == TEXT("hurtshot"), Elapsed);
+	}
 	else if (Step.Command == TEXT("hold"))
 	{
 		if (Elapsed >= N0)
@@ -587,7 +592,27 @@ void UJourneyHookSubsystem::StartStep()
 	ClickPresses = 0;
 	LastClickPress = 0.0;
 	ClickDetail.Reset();
+	FigurePhase = 0;
+	FigurePhaseFrame = 0;
+	FigureDetail.Reset();
+	FigureJson.Reset();
 	const float N0 = Step.Numbers.IsValidIndex(0) ? Step.Numbers[0] : 0.0f;
+
+	if (Step.Command == TEXT("hurtshot"))
+	{
+		AEllaCharacter* Ella = GetElla();
+		// Ella shows Hurt on LifeLost (EllaAnimPresenterComponent::StateForEvent), not on a partial hit: the assisted hit
+		// takes exactly her active points, so one life goes and no more.
+		UUmbrellaHealthComponent* Health = Ella ? Ella->GetHealth() : nullptr;
+		const float Damage = Health ? Health->GetState().Active : 0.0f;
+		const EHitResult Result = Health && Damage > 0.0f ? Health->TakeHit(Damage, FName(TEXT("JourneyHurtShot"))) : EHitResult::Blocked;
+		Log(FString::Printf(TEXT("JOURNEY_ASSIST hurtshot damage=%.2f landed=%d %s"), Damage, Result == EHitResult::Landed ? 1 : 0, *DescribeState()));
+		if (Result != EHitResult::Landed)
+		{
+			FinishStep(EJourneyResult::Fail, TEXT("the assisted hit did not land"));
+		}
+		return;
+	}
 
 	if (Step.Command == TEXT("wait") || Step.Command == TEXT("trywait") || Step.Command == TEXT("hits"))
 	{
@@ -765,7 +790,7 @@ void UJourneyHookSubsystem::FinishStep(EJourneyResult Result, const FString& Det
 	bPass ? ++Passed : ++Failed;
 	Log(FString::Printf(TEXT("JOURNEY_STEP n=%d line=%d cmd=\"%s %s\" result=%s %s detail=\"%s\""), StepIndex + 1, Step.Line, *Step.Command, *Step.Arg,
 		bPass ? TEXT("PASS") : TEXT("FAIL"), *DescribeState(), *Detail));
-	if (!bPass && Step.Command != TEXT("music") && Step.Command != TEXT("retrycheck") && Step.Command != TEXT("shot") && Step.Command != TEXT("trywait") && Step.Command != TEXT("route"))
+	if (!bPass && Step.Command != TEXT("music") && Step.Command != TEXT("retrycheck") && Step.Command != TEXT("shot") && Step.Command != TEXT("figureshot") && Step.Command != TEXT("hurtshot") && Step.Command != TEXT("trywait") && Step.Command != TEXT("route"))
 	{
 		EndJourney(FString::Printf(TEXT("line %d %s %s: %s"), Step.Line, *Step.Command, *Step.Arg, *Detail));
 		return;
@@ -1023,16 +1048,12 @@ FString UJourneyHookSubsystem::MeasureView(const TArray<FColor>& Bitmap, const F
 	return FString::Printf(TEXT("view frame_mean=%.0f %s %s %s"), FrameMean, *Measure(TEXT("ella"), Flow->GetPawn()), *Measure(TEXT("keeper"), Keeper), *Measure(TEXT("arena"), Arena));
 }
 
-void UJourneyHookSubsystem::SaveShot(const FString& Name, FString& OutDetail, bool& bOutSaved)
+bool UJourneyHookSubsystem::CaptureFrame(TArray<FColor>& Bitmap, FIntVector& Size) const
 {
 	TSharedPtr<SWindow> Window = GEngine && GEngine->GameViewport ? GEngine->GameViewport->GetWindow() : nullptr;
-	TArray<FColor> Bitmap;
-	FIntVector Size;
 	if (!Window.IsValid() || !FSlateApplication::Get().TakeScreenshot(Window.ToSharedRef(), Bitmap, Size) || Bitmap.Num() == 0)
 	{
-		OutDetail = TEXT("no window read-back");
-		bOutSaved = false;
-		return;
+		return false;
 	}
 	// The window read-back carries the UI; the 3D scene shows where the UI drew nothing (as the agent play hook does).
 	FViewport* SceneViewport = GEngine->GameViewport->Viewport;
@@ -1051,6 +1072,95 @@ void UJourneyHookSubsystem::SaveShot(const FString& Name, FString& OutDetail, bo
 	for (FColor& Color : Bitmap)
 	{
 		Color.A = JourneyOpaqueAlpha;
+	}
+	return true;
+}
+
+void UJourneyHookSubsystem::StepFigureShot(const FJourneyStep& Step, bool bHurt, double Elapsed)
+{
+	AEllaCharacter* Ella = GetElla();
+	if (!Ella)
+	{
+		FinishStep(EJourneyResult::Fail, TEXT("no Ella"));
+		return;
+	}
+	const UEllaAnimPresenterComponent* Presenter = Ella->GetAnimPresenter();
+	const EEllaVisualState State = Presenter ? Presenter->GetVisualState() : EEllaVisualState::Idle;
+	const FString StateName = StaticEnum<EEllaVisualState>()->GetNameStringByValue(static_cast<int64>(State));
+	if (FigurePhase == 0)
+	{
+		if (bHurt ? StepFrames < JourneyHurtSettleFrames : StepFrames < JourneyShotSettleFrames)
+		{
+			return;
+		}
+		if (bHurt && State != EEllaVisualState::Hurt)
+		{
+			if (Elapsed >= JourneyHurtWaitSeconds)
+			{
+				FinishStep(EJourneyResult::Fail, FString::Printf(TEXT("state=%s, never Hurt after the hit"), *StateName));
+			}
+			return;
+		}
+		bool bOk = false;
+		SaveShot(Step.Arg, FigureDetail, bOk);
+		if (!bOk)
+		{
+			FinishStep(EJourneyResult::Fail, FigureDetail);
+			return;
+		}
+		// The box Ella's drawn components (body and overlays, not only the capsule) project to, in capture pixels.
+		int32 ViewW = 0, ViewH = 0;
+		GetFlow()->GetViewportSize(ViewW, ViewH);
+		TArray<FColor> Probe;
+		FIntVector Size;
+		CaptureFrame(Probe, Size);
+		const double ScaleX = ViewW > 0 ? static_cast<double>(Size.X) / ViewW : 1.0;
+		const double ScaleY = ViewH > 0 ? static_cast<double>(Size.Y) / ViewH : 1.0;
+		FVector Origin, Extent;
+		Ella->GetActorBounds(false, Origin, Extent);
+		FBox2D Box(ForceInit);
+		for (int32 Corner = 0; Corner < 8; ++Corner)
+		{
+			const FVector P = Origin + Extent * FVector((Corner & 1) ? 1.0 : -1.0, (Corner & 2) ? 1.0 : -1.0, (Corner & 4) ? 1.0 : -1.0);
+			FVector2D Px;
+			if (GetFlow()->ProjectWorldLocationToScreen(P, Px))
+			{
+				Box += FVector2D(Px.X * ScaleX, Px.Y * ScaleY);
+			}
+		}
+		FVector2D Feet;
+		const bool bFeet = GetFlow()->ProjectWorldLocationToScreen(Ella->GetActorLocation(), Feet);
+		FigureJson = FString::Printf(TEXT("{\"state\": \"%s\", \"frame\": [%d, %d], \"box\": [%.0f, %.0f, %.0f, %.0f], \"centre\": [%.0f, %.0f]}"),
+			*StateName, Size.X, Size.Y, Box.Min.X, Box.Min.Y, Box.Max.X, Box.Max.Y,
+			bFeet ? Feet.X * ScaleX : -1.0, bFeet ? Feet.Y * ScaleY : -1.0);
+		Ella->SetActorHiddenInGame(true);
+		FigurePhase = 1;
+		FigurePhaseFrame = StepFrames;
+		return;
+	}
+	if (StepFrames - FigurePhaseFrame < JourneyPlateFrames)
+	{
+		return;
+	}
+	TArray<FColor> Plate;
+	FIntVector PlateSize;
+	const bool bPlate = CaptureFrame(Plate, PlateSize)
+		&& FImageUtils::SaveImageByExtension(*FPaths::Combine(OutDir, Step.Arg + TEXT("_plate.png")), FImageView(Plate.GetData(), PlateSize.X, PlateSize.Y));
+	Ella->SetActorHiddenInGame(false);
+	const bool bJson = FFileHelper::SaveStringToFile(FigureJson, *FPaths::Combine(OutDir, Step.Arg + TEXT(".json")));
+	FinishStep(bPlate && bJson ? EJourneyResult::Pass : EJourneyResult::Fail,
+		FString::Printf(TEXT("%s figure=%s plate=%d json=%d"), *FigureDetail, *FigureJson, bPlate ? 1 : 0, bJson ? 1 : 0));
+}
+
+void UJourneyHookSubsystem::SaveShot(const FString& Name, FString& OutDetail, bool& bOutSaved)
+{
+	TArray<FColor> Bitmap;
+	FIntVector Size;
+	if (!CaptureFrame(Bitmap, Size))
+	{
+		OutDetail = TEXT("no window read-back");
+		bOutSaved = false;
+		return;
 	}
 	// The viewport widget alone (how the UI art loop captures; UMG screens live in the viewport's overlay).
 	if (TSharedPtr<SViewport> ViewportWidget = GEngine->GameViewport->GetGameViewportWidget())

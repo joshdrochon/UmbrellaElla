@@ -19,7 +19,7 @@ enum class EJourneyResult : uint8
 /** One line of a journey script (JourneyRules::ParseScript). */
 struct UMBRELLAELLA_API FJourneyStep
 {
-	/** wait, trywait, shot, key, hold, click, music, idle, hits, assistwin, retrycheck, log, end, route, routeassist, skipunless. */
+	/** wait, trywait, shot, figureshot, hurtshot, key, hold, click, music, idle, hits, assistwin, retrycheck, log, end, route, routeassist, skipunless. */
 	FString Command;
 	/** Everything after the command word (a label, a key, a screen name). */
 	FString Arg;
@@ -72,6 +72,11 @@ namespace JourneyRules
  * journey when it fails, so a script can follow it with `routeassist <N>`, which places Ella at checkpoint N's stand
  * position through the director's own PlaceAtCheckpoint (4: just past the handoff line) and is named in the log.
  * Each `shot` also measures where Ella, the Keeper and the arena centre land on screen and the picture's contrast there.
+ * `figureshot <name>` saves the shot, then a plate (<name>_plate.png, the same frame composite with Ella's actor hidden for
+ * a few frames) and <name>.json (her shown state and the box her drawn components project to), so tools/build/visual_qa.py
+ * can measure exactly what was drawn for her. `hurtshot <name>` first lands one assisted hit of exactly her active points
+ * through her Health hit path (a life lost: the presenter's Hurt trigger) and captures as soon as her presenter shows Hurt (the state holds 0.25 s; a shot's 20 settle frames
+ * would miss it): the hurt frame Josh saw as a solid black box (lead order Nov 13 23:26).
  * Nothing else is skipped: every screen and transition is the game's own.
  */
 UCLASS()
@@ -117,6 +122,12 @@ public:
 	static constexpr float JourneyRouteTrimAbove = 300.0f;
 	/** `shot` view measure: half-size of the sampled box around a projected point, as a fraction of the frame height. */
 	static constexpr float JourneyViewBoxFraction = 0.04f;
+	/** `hurtshot`: frames after the hit before the capture (the Hurt flipbook is on screen), and how long it may wait for
+	 * the presenter to show Hurt before the step fails (real seconds). */
+	static constexpr int32 JourneyHurtSettleFrames = 2;
+	static constexpr double JourneyHurtWaitSeconds = 1.0;
+	/** `figureshot`/`hurtshot`: frames Ella stays hidden before the plate capture (the hide must reach a rendered frame). */
+	static constexpr int32 JourneyPlateFrames = 3;
 	/** A sampled box counts as "drawn" when its luminance spread or its offset from the frame mean reaches this (0-255). */
 	static constexpr float JourneyViewContrastMin = 12.0f;
 	/** Rec. 709 luma weights for the view measure. */
@@ -145,6 +156,10 @@ private:
 	void CollectTexts(const TSharedRef<SWidget>& Root, TArray<FString>& Out) const;
 	void MakeOverlayClickThrough(const TSharedRef<SWidget>& Root);
 	void SaveShot(const FString& Name, FString& OutDetail, bool& bOutSaved);
+	/** The window read-back with the 3D scene where the UI drew nothing (what `shot` saves). False without a window. */
+	bool CaptureFrame(TArray<FColor>& OutBitmap, FIntVector& OutSize) const;
+	/** `figureshot`/`hurtshot` driver: shot, hide Ella, plate, sidecar. bHurt: wait for the Hurt state first. */
+	void StepFigureShot(const FJourneyStep& Step, bool bHurt, double Elapsed);
 	FString DescribeState() const;
 	/** Where Ella, the Keeper and the arena centre project in the frame, and the picture's contrast there. */
 	FString MeasureView(const TArray<FColor>& Bitmap, const FIntVector& Size) const;
@@ -179,6 +194,11 @@ private:
 	double LastClickPress = 0.0;
 	uint8 ClickFrom = 0;
 	FString ClickDetail;
+	/** `figureshot`/`hurtshot`: 0 = before the shot, 1 = Ella hidden, waiting for the plate; the shot's detail and sidecar. */
+	int32 FigurePhase = 0;
+	int32 FigurePhaseFrame = 0;
+	FString FigureDetail;
+	FString FigureJson;
 	/** Steps a `skipunless` drops after itself (set just before its FinishStep). */
 	int32 SkipAfterStep = 0;
 };

@@ -21,6 +21,17 @@ def never_called(prompt, image):
     raise AssertionError("a live judge call was made")
 
 
+HURT_FIXTURES = os.path.join(ROOT, "pipeline", "qa", "visual", "calibration", "hurt")
+
+
+def add_hurt(shots, case="good"):
+    """Ella's normal and hurt captures (figureshot/hurtshot: shot, plate, sidecar) from a real run; case black/sliver
+    swaps in a broken hurt frame. Every full journey run has them; figure_check lists their absence."""
+    for folder in ("good", case):
+        for name in os.listdir(os.path.join(HURT_FIXTURES, folder)):
+            shutil.copyfile(os.path.join(HURT_FIXTURES, folder, name), os.path.join(shots, name))
+
+
 class Parse(unittest.TestCase):
     def test_parses_a_full_answer_with_chatter_around_it(self):
         r = visual_qa.parse_answer("Here you go:\n" + answer(7) + "\nDone.")
@@ -95,6 +106,7 @@ class RecordReplay(unittest.TestCase):
         study = os.path.join(ROOT, visual_qa.STUDY)
         for name in visual_qa.SCREENS.values():
             shutil.copyfile(study, os.path.join(shots, name))
+        add_hurt(shots)
         code, line, results = visual_qa.judge_shots(shots, lambda p, i: answer(8), os.path.join(self.tmp, "rec"))
         self.assertEqual(code, visual_qa.EXIT_PASS, line)
         self.assertTrue(line.startswith("VISUAL_QA PASS play=56/70"), line)
@@ -152,6 +164,7 @@ class GateMode(unittest.TestCase):
         study = os.path.join(ROOT, visual_qa.STUDY)
         for name in visual_qa.SCREENS.values():
             shutil.copyfile(study, os.path.join(self.shots, name))
+        add_hurt(self.shots)
         self.rec = os.path.join(self.tmp, "rec")
 
     def tearDown(self):
@@ -448,6 +461,7 @@ class GateRecapture(unittest.TestCase):
         os.makedirs(shots)
         for name in visual_qa.SCREENS.values():
             shutil.copyfile(os.path.join(ROOT, visual_qa.STUDY), os.path.join(shots, name))
+        add_hurt(shots)
         captures = []
 
         def fake_capture(out):
@@ -458,6 +472,7 @@ class GateRecapture(unittest.TestCase):
             clean = os.path.join(ROOT, visual_qa.CALIBRATION, "flatbox-dcroute-clean.png")
             for name in visual_qa.SCREENS.values():
                 shutil.copyfile(clean, os.path.join(out, name))
+            add_hurt(out)
             return 0
 
         def caller(prompt, image):
