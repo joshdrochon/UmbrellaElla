@@ -113,6 +113,10 @@ public:
 	virtual void Deinitialize() override;
 
 private:
+	/** Scroll after this frame's camera update (tickable objects run before it; see UUmbrellaBackdropSubsystem). */
+	void HandlePostActorTick(UWorld* InWorld, ELevelTick TickType, float DeltaSeconds);
+	FDelegateHandle PostActorTickHandle;
+
 	struct FPanel
 	{
 		FSceneArtSpec Spec;

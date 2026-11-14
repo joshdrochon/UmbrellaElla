@@ -210,13 +210,36 @@ AUmbrellaArena* AUmbrellaLevelDirector::FindArena()
 	return Arena;
 }
 
-void AUmbrellaLevelDirector::StepFollow(float EllaX, int32 TravelDirection)
+float AUmbrellaLevelDirector::StepCameraFollow(FCameraFollowState& State, float EllaX, int32 TravelDirection, float DeltaSeconds, float LeadDistance)
+{
+	if (TravelDirection != 0)
+	{
+		State.LeadTarget = FMath::Sign(static_cast<float>(TravelDirection)) * LeadDistance;
+	}
+	const bool bSnap = !State.bStarted || DeltaSeconds <= 0.0f || FMath::Abs(EllaX + State.LeadTarget - State.X) > UmbrellaCameraFollowConst::SnapDistance;
+	const float MaxTurn = UmbrellaCameraFollowConst::LeadSpeed * FMath::Max(0.0f, DeltaSeconds);
+	State.Lead = bSnap ? State.LeadTarget : State.Lead + FMath::Clamp(State.LeadTarget - State.Lead, -MaxTurn, MaxTurn);
+	const float Target = EllaX + State.Lead;
+	if (bSnap)
+	{
+		State.X = Target;
+		State.Rate = 0.0f;
+		State.bStarted = true;
+		return State.X;
+	}
+	FMath::CriticallyDampedSmoothing(State.X, State.Rate, Target, 0.0f, DeltaSeconds, UmbrellaCameraFollowConst::SmoothSeconds);
+	return State.X;
+}
+
+void AUmbrellaLevelDirector::StepFollow(float EllaX, int32 TravelDirection, float DeltaSeconds)
 {
 	FindArena();
 	// After the handoff the arena camera holds the fixed Keeper frame (B5); the route scroll stops.
 	if (Arena && !bHandedOff)
 	{
-		Arena->FollowEllaX(EllaX, TravelDirection);
+		const float Lead = GetDefault<UUmbrellaTuning>()->Field.CameraLeadFraction * GetDefault<UUmbrellaTuning>()->ArenaCamera.ArenaWidth;
+		// The smoothed centre already holds the lead: direction 0 makes FollowEllaX use it as the centre (route clamp kept).
+		Arena->FollowEllaX(StepCameraFollow(Follow, EllaX, TravelDirection, DeltaSeconds, Lead), 0);
 		if (Arena->GetPlayCamera())
 		{
 			LastCameraX = Arena->GetPlayCamera()->GetComponentLocation().X;
@@ -272,6 +295,6 @@ void AUmbrellaLevelDirector::Tick(float DeltaSeconds)
 	}
 	if (const APawn* Pawn = UGameplayStatics::GetPlayerPawn(this, 0))
 	{
-		StepFollow(Pawn->GetActorLocation().X, FMath::Sign(Pawn->GetVelocity().X));
+		StepFollow(Pawn->GetActorLocation().X, FMath::Sign(Pawn->GetVelocity().X), DeltaSeconds);
 	}
 }
