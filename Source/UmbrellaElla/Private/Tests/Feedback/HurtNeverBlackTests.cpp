@@ -53,6 +53,9 @@ bool FArtSlotCanGpuDraw::RunTest(const FString& Parameters)
 		{
 			const FIntPoint Size = ArtSlot::PictureSize(Texture);
 			TestTrue(FString::Printf(TEXT("%s (%s) %d x %d fits"), Row.Visual, *Texture->GetName(), Size.X, Size.Y), UnderGpuLimit(Size));
+			// UE 5.8.4 Engine/Classes/Engine/Texture.h: UTexture::VirtualTextureStreaming (line 1611). The unlit art-slot
+			// material samples a plain texture; a virtual one drew T_Ella_Hurt_PH as a solid black box.
+			TestFalse(FString::Printf(TEXT("%s (%s) is not a virtual texture"), Row.Visual, *Texture->GetName()), Texture->VirtualTextureStreaming != 0);
 		}
 	}
 	return true;
@@ -81,6 +84,7 @@ bool FEllaHurtNeverBlack::RunTest(const FString& Parameters)
 		}
 		const FIntPoint Size = ArtSlot::PictureSize(Picture);
 		AddInfo(FString::Printf(TEXT("%s draws %s, %d x %d"), *Name, *Picture->GetName(), Size.X, Size.Y));
+		TestFalse(FString::Printf(TEXT("%s: %s is not a virtual texture (else a black box)"), *Name, *Picture->GetName()), Picture->VirtualTextureStreaming != 0);
 		TestTrue(FString::Printf(TEXT("%s: %s %d x %d is within the %d px limit (else a black box)"), *Name, *Picture->GetName(), Size.X, Size.Y,
 			GpuEdgeLimit), UnderGpuLimit(Size));
 	}
