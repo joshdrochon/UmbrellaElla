@@ -2,6 +2,7 @@
 #include "Core/UmbrellaTuning.h"
 #include "Smoke/SmokeHookSubsystem.h"
 #include "Enemy/EnemyTypes.h"
+#include "Encounter/KeeperFightModel.h"
 
 #if WITH_AUTOMATION_TESTS
 
@@ -103,6 +104,21 @@ bool FSmokeShotPathAndSwitches::RunTest(const FString& Parameters)
 	TestTrue(TEXT("sky courier parses"), USmokeHookSubsystem::HasEnemyFamilyName(TEXT("SkyCourier"), Type));
 	TestEqual(TEXT("sky courier type"), static_cast<int32>(Type), static_cast<int32>(EEnemyType::SkyCourier));
 	TestFalse(TEXT("unknown family"), USmokeHookSubsystem::HasEnemyFamilyName(TEXT("owl"), Type));
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FSmokeKeeperShotMoment, "UmbrellaElla.Smoke.ShotWhenMatchesTheKeeperMoment",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+bool FSmokeKeeperShotMoment::RunTest(const FString& Parameters)
+{
+	using S = USmokeHookSubsystem;
+	TestTrue(TEXT("no When: any moment"), S::IsKeeperShotMoment(FString(), EKeeperPhysical::None, EKeeperStage::Idle, false));
+	TestTrue(TEXT("talon warning"), S::IsKeeperShotMoment(TEXT("Talon"), EKeeperPhysical::Talon, EKeeperStage::Warning, false));
+	TestFalse(TEXT("talon strike is not the warning"), S::IsKeeperShotMoment(TEXT("Talon"), EKeeperPhysical::Talon, EKeeperStage::Stroke, false));
+	TestTrue(TEXT("any mechanism cast warning"), S::IsKeeperShotMoment(TEXT("Cast"), EKeeperPhysical::MiddleCurve, EKeeperStage::Warning, false));
+	TestFalse(TEXT("a gust warning is not a cast"), S::IsKeeperShotMoment(TEXT("Cast"), EKeeperPhysical::Gust, EKeeperStage::Warning, false));
+	TestTrue(TEXT("gust travelling"), S::IsKeeperShotMoment(TEXT("GustTravel"), EKeeperPhysical::Gust, EKeeperStage::Stroke, true));
+	TestFalse(TEXT("unknown moment never shoots"), S::IsKeeperShotMoment(TEXT("Whenever"), EKeeperPhysical::Talon, EKeeperStage::Warning, false));
 	return true;
 }
 
