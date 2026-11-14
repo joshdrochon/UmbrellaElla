@@ -23,7 +23,7 @@ def _gamma(c):
 
 
 def lab_to_rgb(lab):
-    """Inverse of art_check.rgb_to_lab (D65, sRGB), clipped to 0..255."""
+    """Inverse of art_check.rgb_to_lab (CIE daylight white point, sRGB), clipped to 0..255."""
     L, a, b = lab
     fy = (L + 16) / 116
     fx, fz = fy + a / 500, fy - b / 200
