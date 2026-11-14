@@ -5,6 +5,7 @@
 #include "Core/UmbrellaEvent.h"
 #include "Core/UmbrellaEventBus.h"
 #include "Engine/StaticMesh.h"
+#include "Engine/Texture2D.h"
 #include "Engine/World.h"
 #include "Feedback/Art/ArtSlot.h"
 #include "GameFramework/Actor.h"
@@ -249,6 +250,7 @@ void UKeeperPresenterSubsystem::Tick(float DeltaTime)
 			continue;
 		}
 		SyncPartCover(Owl);
+		PlayIdle(Owl);
 		if (bMasksShown)
 		{
 			ShowStateLayer(Keeper, UmbrellaKeeperPresenterConst::MaskVisual);
@@ -273,6 +275,54 @@ void UKeeperPresenterSubsystem::Tick(float DeltaTime)
 	}
 }
 
+FVector UKeeperPresenterSubsystem::BodyArtScaleFor(const UTexture2D* Texture, const FArtSlotRow& Row)
+{
+	// Keep the body width; the height follows one sheet cell's aspect, so the picture is never squashed into the square box.
+	const double Width = UmbrellaKeeperPresenterConst::StandInScale.X;
+	float Aspect = ArtSlot::CellAspect(Texture, Row);
+#if WITH_EDITORONLY_DATA
+	// An uncooked run reads the texture while it still compiles: GetSizeX/Y give the placeholder's size (square), which
+	// drew the body 600 x 900 (VQDUMP). The source keeps the picture's real size.
+	// UE 5.8.4 Engine/Classes/Engine/Texture.h: UTexture::Source (FTextureSource, line 1272, editor-only data);
+	// FTextureSource::IsValid() (line 372), GetSizeX()/GetSizeY() (lines 417-418, int64).
+	if (IsValid(Texture) && Texture->Source.IsValid() && Texture->Source.GetSizeY() > 0)
+	{
+		Aspect = (static_cast<float>(Texture->Source.GetSizeX()) / FMath::Max(1, Row.Cols)) / (static_cast<float>(Texture->Source.GetSizeY()) / FMath::Max(1, Row.Rows));
+	}
+#endif
+	return FVector(Width, UmbrellaKeeperPresenterConst::StandInScale.Y, Width / FMath::Max(UmbrellaKeeperPresenterConst::MinBodyAspect, Aspect));
+}
+
+int32 UKeeperPresenterSubsystem::IdleFrameAt(double Seconds, float Fps, int32 Cols, int32 Rows, EKeeperGridPlayback Playback)
+{
+	const int32 SafeCols = FMath::Max(1, Cols);
+	const int64 Step = FMath::Max<int64>(0, FMath::FloorToInt64(FMath::Max(0.0, Seconds) * FMath::Max(0.0f, Fps)));
+	if (Playback == EKeeperGridPlayback::AllCells)
+	{
+		return static_cast<int32>(Step % (SafeCols * FMath::Max(1, Rows)));
+	}
+	if (SafeCols == 1)
+	{
+		return 0;
+	}
+	const int64 Period = 2 * SafeCols - 2;
+	const int32 Index = static_cast<int32>(Step % Period);
+	return Index < SafeCols ? Index : static_cast<int32>(Period) - Index;
+}
+
+void UKeeperPresenterSubsystem::PlayIdle(AActor* Keeper) const
+{
+	static const FName StandInName(TEXT("KeeperStandIn"));
+	UStaticMeshComponent* Mesh = IsValid(Keeper) ? FindObjectFast<UStaticMeshComponent>(Keeper, StandInName) : nullptr;
+	const FArtSlotRow* Row = ArtSlot::Find(TEXT("keeper:body-hover-flap"));
+	if (!Mesh || !Row || !ArtSlot::HasArt(Mesh) || Row->Cols * Row->Rows <= 1 || !GetWorld())
+	{
+		return;
+	}
+	ArtSlot::SetFrame(Mesh, IdleFrameAt(GetWorld()->GetTimeSeconds(), UmbrellaKeeperPresenterConst::IdleFps, Row->Cols, Row->Rows,
+		UmbrellaKeeperPresenterConst::IdlePlayback));
+}
+
 TStatId UKeeperPresenterSubsystem::GetStatId() const
 {
 	RETURN_QUICK_DECLARE_CYCLE_STAT(UKeeperPresenterSubsystem, STATGROUP_Tickables);
@@ -287,7 +337,7 @@ EArtSlotDraw UKeeperPresenterSubsystem::ShowArt(AActor* Keeper, UTexture2D* Text
 	{
 		return EArtSlotDraw::NoTexture;
 	}
-	const EArtSlotDraw Result = ArtSlot::Apply(Mesh, Texture, *Row, UmbrellaKeeperPresenterConst::StandInScale);
+	const EArtSlotDraw Result = ArtSlot::Apply(Mesh, Texture, *Row, BodyArtScaleFor(Texture, *Row));
 	if (Result == EArtSlotDraw::Drawn)
 	{
 		KeeperCoverStandIns(Keeper, Row->Visual);
@@ -304,6 +354,14 @@ namespace
 		Name.ReplaceInline(TEXT(":"), TEXT("_"));
 		return FName(*(FString(TEXT("KeeperPart_")) + Name));
 	}
+}
+
+bool UKeeperPresenterSubsystem::ShouldPartPictureYieldToBody(const UTexture2D* Picture, const AActor* Keeper)
+{
+	static const FName StandInName(TEXT("KeeperStandIn"));
+	const UStaticMeshComponent* Body = IsValid(Keeper) ? FindObjectFast<UStaticMeshComponent>(const_cast<AActor*>(Keeper), StandInName) : nullptr;
+	// Part stand-ins were cut for an older body; layered over the body art they hide it. A passed part still draws.
+	return IsValid(Picture) && ArtSlot::HasArt(Body) && Picture->GetName().EndsWith(UmbrellaArtSlotConst::PlaceholderSuffix);
 }
 
 UStaticMeshComponent* UKeeperPresenterSubsystem::FindPart(const AActor* Keeper, const FString& VisualId)
@@ -326,7 +384,7 @@ EArtSlotDraw UKeeperPresenterSubsystem::ShowPartArt(AActor* Keeper, const FStrin
 		return EArtSlotDraw::NoTexture;
 	}
 	UTexture2D* Picture = Texture ? Texture : ArtSlot::LoadTexture(*Row);
-	if (!Picture)
+	if (!Picture || ShouldPartPictureYieldToBody(Picture, Keeper))
 	{
 		return EArtSlotDraw::NoTexture;
 	}
@@ -386,7 +444,8 @@ void UKeeperPresenterSubsystem::ShowStandIn(AActor* Keeper)
 	// Art slot keeper:body-hover-flap; the cube stays when no asset exists.
 	if (const FArtSlotRow* Row = ArtSlot::Find(TEXT("keeper:body-hover-flap")))
 	{
-		if (ArtSlot::ApplyRow(Mesh, *Row, UmbrellaKeeperPresenterConst::StandInScale) == EArtSlotDraw::Drawn)
+		UTexture2D* Body = ArtSlot::LoadTexture(*Row);
+		if (ArtSlot::Apply(Mesh, Body, *Row, BodyArtScaleFor(Body, *Row)) == EArtSlotDraw::Drawn)
 		{
 			KeeperCoverStandIns(Keeper, Row->Visual);
 		}

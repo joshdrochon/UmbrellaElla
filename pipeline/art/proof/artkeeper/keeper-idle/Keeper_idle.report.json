@@ -1,0 +1,81 @@
+{
+ "video": "pipeline/art/proof/artkeeper/keeper-idle/keeper-idle.mp4",
+ "fps": 12,
+ "source_frames": 48,
+ "loop_end": 44,
+ "end_candidates": {
+  "28": 79.54,
+  "29": 84.74,
+  "30": 87.19,
+  "31": 88.22,
+  "32": 89.51,
+  "33": 91.5,
+  "34": 93.23,
+  "35": 99.93,
+  "36": 96.3,
+  "37": 93.02,
+  "38": 91.92,
+  "39": 90.27,
+  "40": 86.73,
+  "41": 81.09,
+  "42": 72.74,
+  "43": 59.47,
+  "44": 40.42,
+  "45": 41.56,
+  "46": 52.1,
+  "47": 50.15
+ },
+ "jitter_before": {
+  "max_anchor_step_px": 55.12,
+  "max_height_step_pct": 6.76,
+  "max_anchor_from_first_px": 45.79,
+  "height_range_pct": 31.81
+ },
+ "jitter_after": {
+  "max_anchor_step_px": 0.94,
+  "max_height_step_pct": 6.76,
+  "max_anchor_from_first_px": 0.83,
+  "height_range_pct": 31.81
+ },
+ "green_inside_px_max": 3,
+ "sets": {
+  "24": {
+   "strip": "pipeline/art/proof/artkeeper/keeper-idle/Keeper_idle_N24_strip.png",
+   "gif": "pipeline/art/proof/artkeeper/keeper-idle/Keeper_idle_N24_preview.gif",
+   "loop": {
+    "indices": [
+     0,
+     2,
+     4,
+     6,
+     8,
+     9,
+     11,
+     13,
+     15,
+     17,
+     19,
+     21,
+     22,
+     24,
+     26,
+     28,
+     30,
+     32,
+     34,
+     36,
+     38,
+     39,
+     41,
+     43
+    ],
+    "mean_step": 61.89,
+    "max_step": 78.62,
+    "last_to_first": 59.47,
+    "loop_ratio": 0.96,
+    "loops": true
+   },
+   "fps": 6.4
+  }
+ }
+}
