@@ -22,6 +22,11 @@ BLACK = os.path.join(CAL, "flatbox-keeper-blackbox.png")
 CUBE = os.path.join(CAL, "flatbox-keeper-gustcube.png")
 QUIET = os.path.join(CAL, "flatbox-keeper-quiet.png")
 ROUTE = os.path.join(CAL, "flatbox-dcroute-clean.png")
+# Lead order Nov 13 23:26: three real boxes the detector missed (1280x720 Keeper captures).
+TOPBAND = os.path.join(CAL, "flatbox-keeper-topband.png")      # shot-250: salmon band on the top edge
+WINGHEAD = os.path.join(CAL, "flatbox-keeper-wingbox-head.png")  # fix-cast: grey wing box (red glow) + lilac head square
+CAST_GOOD = os.path.join(CAL, "flatbox-keeper-cast-good.png")  # k2-cast: the same cast with art, no box
+CORNER_SKY = os.path.join(CAL, "flatbox-dcroute-cornersky.png")  # DC route: flat dark sky fills the top-right corner
 STUDY = os.path.join(ROOT, visual_qa.STUDY)
 
 
@@ -61,6 +66,32 @@ class FindBoxes(unittest.TestCase):
     def test_known_bad_frame_has_its_bars_and_cube(self):
         boxes = flat_box.find_boxes(os.path.join(ROOT, visual_qa.KNOWN_BAD))
         self.assertGreaterEqual(len(boxes), 2, boxes)
+
+    def test_band_on_the_top_edge_is_a_box(self):
+        # The old detector skipped every region touching the frame edge as backdrop.
+        boxes = flat_box.find_boxes(TOPBAND)
+        self.assertEqual(len(boxes), 1, boxes)
+        b = boxes[0]
+        r, g, bl = rgb(b)
+        self.assertTrue(r > 200 and g < 160 and bl < 160, b)
+        self.assertEqual(b["y"], 0)
+        self.assertGreater(b["w"], 600)
+
+    def test_grey_wing_box_with_glow_and_lilac_head_square_are_boxes(self):
+        # Old detector: the wing box's flat core filled 74% of it (red glow shades a corner); the 19x19 head square was
+        # under the 0.15% area minimum.
+        boxes = flat_box.find_boxes(WINGHEAD)
+        self.assertEqual(len(boxes), 2, boxes)
+        wing, head = boxes
+        self.assertTrue(wing["w"] > 200 and wing["h"] > 120 and max(rgb(wing)) - min(rgb(wing)) < 8, wing)
+        r, g, b = rgb(head)
+        self.assertTrue(abs(head["w"] - 19) <= 1 and abs(head["h"] - 19) <= 1, head)
+        self.assertTrue(b > r > g and min(r, g, b) > 180, head)  # lilac
+        self.assertTrue(850 <= head["x"] <= 852 and 351 <= head["y"] <= 353, head)
+
+    def test_good_cast_and_corner_sky_have_no_box(self):
+        self.assertEqual(flat_box.find_boxes(CAST_GOOD), [])
+        self.assertEqual(flat_box.find_boxes(CORNER_SKY), [])
 
     def test_describe_is_a_box_defect(self):
         item = flat_box.describe(flat_box.find_boxes(CUBE)[0])
