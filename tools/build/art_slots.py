@@ -4,16 +4,26 @@
   art_slots.py cpp        print the catalogue rows for Source/.../Feedback/Art/ArtSlotCatalog.inc
   art_slots.py check      FAIL if ArtSlotCatalog.inc differs from what this file derives from docs/build/art-inventory.csv
   art_slots.py list       print visual -> slot -> drawn_by
+  art_slots.py standins   print each stand-in picture's verdict (ok / unkeyed / framed)
 
 A slot is /Game/UmbrellaElla/Art/<Folder>/<Asset> (Asset carries its prefix, T_ for a texture). The game loads the passed
 asset <Asset> first and the tracked placeholder <Asset>_PH second, and draws the stand-in only when neither exists.
 An art lane imports a candidate into <Asset>_PH with tools/build/assets/import_art_candidate.py.
+
+Stand-in admission (visualqa, Josh's 15:50 frame): a sprite-like stand-in (anything but a full-screen backdrop or
+screen) must be keyed on transparency and carry no drawn frame border. One that fails is generated with
+bStandInOk = false, and the game never loads its _PH (the plain stand-in, or nothing, is drawn instead).
 """
 import csv
 import json
 import os
 import re
+import shutil
+import struct
+import subprocess
 import sys
+import tempfile
+import zlib
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 INC = os.path.join("Source", "UmbrellaElla", "Private", "Feedback", "Art", "ArtSlotCatalog.inc")
@@ -24,6 +34,20 @@ GRID_COLS = 6
 SHEET_NAME = re.compile(r"_N(\d+)_(grid|strip)\.png$")
 GAME_ROOT = "/Game/UmbrellaElla/Art"
 VFX_COLS = 8
+VFX_RAW = os.path.join("Art", "Source", "VFX", "Raw")
+# Pictures that legitimately fill the frame edge to edge: no keying or frame test.
+FULL_FRAME_KINDS = ("bg-layer", "bg", "screen", "menu-backdrop", "ui")
+# Full-screen effects: a darkening over the whole view, drawn edge to edge on purpose.
+FULL_FRAME_VISUALS = {"vfx-sheet:VFX_Blackout"}
+# Measured on a copy scaled to this many pixels on its long side.
+STANDIN_PROBE_PX = 192
+# Keyed: at least this share of the picture's pixels are clear (alpha < STANDIN_CLEAR_ALPHA).
+STANDIN_MIN_CLEAR = 0.05
+STANDIN_CLEAR_ALPHA = 16
+# Framed: an opaque line runs along at least this share of an edge, inside the outer band, on 2 or more sides.
+STANDIN_FRAME_COVER = 0.70
+STANDIN_FRAME_BAND = 0.04
+STANDIN_FRAME_SIDES = 2
 
 BG_LAYER = {"Sky": "Paper", "FarLand": "Skyline", "Base": "BgBase", "NearArchitecture": "BgArchitecture",
             "ClockWaterWind": "BgClockWaterWind"}
@@ -120,6 +144,119 @@ def sheet_layout(copy_path, size):
     return cols, rows
 
 
+def read_png_rgba(path):
+    """(width, height, rows of RGBA bytes) for an 8-bit non-interlaced PNG. Stdlib only."""
+    with open(path, "rb") as fh:
+        data = fh.read()
+    if data[:8] != b"\x89PNG\r\n\x1a\n":
+        raise ValueError("not a PNG: %s" % path)
+    i, idat, w, h, depth, ctype, interlace = 8, [], 0, 0, 8, 6, 0
+    while i < len(data):
+        ln = struct.unpack(">I", data[i:i + 4])[0]
+        tag, chunk = data[i + 4:i + 8], data[i + 8:i + 8 + ln]
+        if tag == b"IHDR":
+            w, h, depth, ctype, _, _, interlace = struct.unpack(">IIBBBBB", chunk)
+        elif tag == b"IDAT":
+            idat.append(chunk)
+        i += 12 + ln
+    if depth != 8 or interlace or ctype not in (0, 2, 4, 6):
+        raise ValueError("unsupported PNG layout in %s" % path)
+    bpp = {0: 1, 2: 3, 4: 2, 6: 4}[ctype]
+    raw, stride, rows, prev, p = zlib.decompress(b"".join(idat)), w * bpp, [], bytearray(w * bpp), 0
+    for _ in range(h):
+        kind, line = raw[p], bytearray(raw[p + 1:p + 1 + stride])
+        p += 1 + stride
+        for x in range(stride):
+            a = line[x - bpp] if x >= bpp else 0
+            if kind == 1:
+                line[x] = (line[x] + a) & 255
+            elif kind == 2:
+                line[x] = (line[x] + prev[x]) & 255
+            elif kind == 3:
+                line[x] = (line[x] + ((a + prev[x]) >> 1)) & 255
+            elif kind == 4:
+                b, c = prev[x], (prev[x - bpp] if x >= bpp else 0)
+                pa, pb, pc = abs(b - c), abs(a - c), abs(a + b - 2 * c)
+                line[x] = (line[x] + (a if pa <= pb and pa <= pc else b if pb <= pc else c)) & 255
+        rows.append(line)
+        prev = line
+    alpha = (lambda r, x: r[x * bpp + bpp - 1]) if ctype in (4, 6) else (lambda r, x: 255)
+    return w, h, [[alpha(r, x) for x in range(w)] for r in rows]
+
+
+def probe_alpha(path):
+    """Alpha grid of a small copy of the picture (macOS sips, else ffmpeg), so big sheets measure fast."""
+    tmp = tempfile.mkdtemp(prefix="standin_")
+    out = os.path.join(tmp, "probe.png")
+    try:
+        if shutil.which("sips"):
+            subprocess.run(["sips", "-Z", str(STANDIN_PROBE_PX), path, "--out", out], capture_output=True, check=True)
+        elif shutil.which("ffmpeg"):
+            scale = "scale='if(gt(iw,ih),%d,-2)':'if(gt(iw,ih),-2,%d)'" % (STANDIN_PROBE_PX, STANDIN_PROBE_PX)
+            subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", path, "-vf", scale, "-pix_fmt", "rgba", out],
+                           capture_output=True, check=True)
+        else:
+            out = path
+        return read_png_rgba(out)
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
+def standin_verdict_alpha(w, h, alpha, full_frame=False, cols=1, rows=1):
+    """"ok", "unkeyed" or "framed" for a stand-in alpha grid; a sheet is judged on its first cell. Pure."""
+    if full_frame or not w or not h:
+        return "ok"
+    w, h = max(1, w // max(1, cols)), max(1, h // max(1, rows))
+    alpha = [row[:w] for row in alpha[:h]]
+    clear = sum(1 for row in alpha for a in row if a < STANDIN_CLEAR_ALPHA)
+    if clear < STANDIN_MIN_CLEAR * w * h:
+        return "unkeyed"
+    bx, by = max(2, int(round(w * STANDIN_FRAME_BAND))), max(2, int(round(h * STANDIN_FRAME_BAND)))
+    opaque = lambda x, y: alpha[y][x] >= 128  # noqa: E731
+    sides = [
+        sum(1 for x in range(w) if any(opaque(x, y) for y in range(by))) / w,
+        sum(1 for x in range(w) if any(opaque(x, y) for y in range(h - by, h))) / w,
+        sum(1 for y in range(h) if any(opaque(x, y) for x in range(bx))) / h,
+        sum(1 for y in range(h) if any(opaque(x, y) for x in range(w - bx, w))) / h,
+    ]
+    return "framed" if sum(1 for c in sides if c >= STANDIN_FRAME_COVER) >= STANDIN_FRAME_SIDES else "ok"
+
+
+def standin_picture(visual):
+    """Repo path of the picture imported as the visual's _PH, or None."""
+    try:
+        with open(os.path.join(ROOT, STANDINS), encoding="utf-8") as fh:
+            rec = json.load(fh).get("slots", {}).get(visual)
+    except (OSError, ValueError):
+        rec = None
+    if isinstance(rec, dict) and rec.get("copy"):
+        return rec["copy"]
+    kind, _, rest = visual.partition(":")
+    if kind == "vfx-sheet":
+        raw = os.path.join(VFX_RAW, rest + "_PH.png")
+        if os.path.exists(os.path.join(ROOT, raw)):
+            return raw
+    return None
+
+
+_VERDICTS = {}
+
+
+def standin_verdict(visual):
+    """Verdict for the visual's stand-in picture ("ok" when there is none to judge)."""
+    if visual not in _VERDICTS:
+        pic = standin_picture(visual)
+        full = visual.partition(":")[0] in FULL_FRAME_KINDS or visual in FULL_FRAME_VISUALS
+        if not pic or full or not os.path.exists(os.path.join(ROOT, pic)):
+            _VERDICTS[visual] = "ok"
+        else:
+            d = derive(visual)
+            layout = sheet_layout(pic, png_size(os.path.join(ROOT, pic))) or ((d[2], 1) if d else (1, 1))
+            w, h, alpha = probe_alpha(os.path.join(ROOT, pic))
+            _VERDICTS[visual] = standin_verdict_alpha(w, h, alpha, cols=layout[0], rows=layout[1])
+    return _VERDICTS[visual]
+
+
 def standin_layouts():
     """visual -> (cols, rows) for every stand-in imported from a packed frame sheet (pipeline/art/standins.json)."""
     try:
@@ -168,8 +305,9 @@ def cpp_rows(vis=None):
         else:
             # The slot names its own column count (a VFX or flipbook strip): one row.
             cols, rows = d[2], 1
-        out.append('\t{ TEXT("%s"), TEXT("%s"), TEXT("%s"), %d, %s, TEXT("%s"), %d },'
-                   % (v, d[0], d[1], cols, "true" if d[3] else "false", consumer(v), rows))
+        ok = standin_verdict(v) == "ok"
+        out.append('\t{ TEXT("%s"), TEXT("%s"), TEXT("%s"), %d, %s, TEXT("%s"), %d, %s },'
+                   % (v, d[0], d[1], cols, "true" if d[3] else "false", consumer(v), rows, "true" if ok else "false"))
     return "// Generated by tools/build/art_slots.py cpp from docs/build/art-inventory.csv: do not edit by hand.\n" + \
         "\n".join(out) + "\n"
 
@@ -179,6 +317,11 @@ def main(argv=None):
     cmd = argv[0] if argv else "check"
     if cmd == "cpp":
         sys.stdout.write(cpp_rows())
+        return 0
+    if cmd == "standins":
+        for v in visuals():
+            if v not in NO_SLOT and standin_picture(v):
+                print("%-36s %-8s %s" % (v, standin_verdict(v), standin_picture(v)))
         return 0
     if cmd == "list":
         for v in visuals():

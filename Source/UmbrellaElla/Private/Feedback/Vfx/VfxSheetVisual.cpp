@@ -87,6 +87,12 @@ UStaticMeshComponent* VfxSheetVisual::Build(AActor* Owner, const FVfxArtRow& Row
 	else if (UStaticMesh* Sphere = LoadObject<UStaticMesh>(nullptr, VfxSpherePath))
 	{
 		Mesh->SetStaticMesh(Sphere);
+		if (!VfxCatalog::IsStandInAdmitted(Row))
+		{
+			// visualqa: the sheet's stand-in was refused (framed or unkeyed); a grey sphere is no better. Draw nothing.
+			Mesh->SetRenderInMainPass(false);
+			Mesh->SetRenderInDepthPass(false);
+		}
 	}
 	Owner->SetRootComponent(Mesh);
 	Mesh->RegisterComponent();

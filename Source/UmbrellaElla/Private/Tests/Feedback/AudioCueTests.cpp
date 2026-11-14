@@ -7,6 +7,9 @@
 #include "Misc/Paths.h"
 #include "Sound/SoundWave.h"
 #include "Misc/AutomationTest.h"
+#include "Core/UmbrellaEventBus.h"
+#include "Projectile/UmbrellaShotSpec.h"
+#include "UObject/UObjectIterator.h"
 
 #if WITH_AUTOMATION_TESTS
 
@@ -142,6 +145,110 @@ bool FAudioCueRouting::RunTest(const FString& Parameters)
 	TestTrue(TEXT("absorb stops when the canopy leaves AbsorbFall"), CueTestPlays(CueTestEvent(EUmbrellaEventType::UmbrellaConfigChanged, TEXT("Rise")), TEXT("AbsorbStop"), TEXT("AbsorbFall")));
 	TestFalse(TEXT("no absorb stop when it was not absorbing"), CueTestPlays(CueTestEvent(EUmbrellaEventType::UmbrellaConfigChanged, TEXT("Rise")), TEXT("AbsorbStop"), TEXT("ShootFall")));
 	TestTrue(TEXT("the wind loop stops when the current is left"), UmbrellaCueTable::GroupStops().ContainsByPredicate([](const FUmbrellaLoopGroupStop& Stop) { return Stop.Event == EUmbrellaEventType::WindExited; }));
+	return true;
+}
+
+namespace
+{
+	/** The Detail the projectile service really stamps on ProjectileSpawned (UmbrellaProjectile.cpp). */
+	FName CueTestShotDetail(EUmbrellaShotKind Kind)
+	{
+		return StaticEnum<EUmbrellaShotKind>()->GetNameByValue(static_cast<int64>(Kind));
+	}
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FAudioCueRealShotDetail, "UmbrellaElla.Audio.RealShotEventsRouteToTheirRows",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+
+bool FAudioCueRealShotDetail::RunTest(const FString& Parameters)
+{
+	// The game sends "EUmbrellaShotKind::EnemyRed", not "EnemyRed": the row must still match, or the shot falls back
+	// to the flat placeholder that has no concurrency limit.
+	FUmbrellaEvent Event;
+	Event.Type = EUmbrellaEventType::ProjectileSpawned;
+	Event.Detail = CueTestShotDetail(EUmbrellaShotKind::EnemyRed);
+	TestTrue(TEXT("real red shot plays OwlBoltLaunch"), CueTestPlays(Event, TEXT("OwlBoltLaunch")));
+	Event.Detail = CueTestShotDetail(EUmbrellaShotKind::EnemyYellow);
+	TestTrue(TEXT("real yellow shot plays KeeperYellowLaunch"), CueTestPlays(Event, TEXT("KeeperYellowLaunch")));
+	Event.Detail = CueTestShotDetail(EUmbrellaShotKind::PlayerBlast);
+	TestTrue(TEXT("real player blast plays WandBolt"), CueTestPlays(Event, TEXT("WandBolt")));
+	TestEqual(TEXT("a plain detail is kept"), UmbrellaCueTable::CueDetail(TEXT("Rise")), FName(TEXT("Rise")));
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FAudioCueNoFlatShots, "UmbrellaElla.Audio.World.KeeperVolleyPlaysNoFlatPlaceholder",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+
+bool FAudioCueNoFlatShots::RunTest(const FString& Parameters)
+{
+	UWorld* World = UWorld::CreateWorld(EWorldType::Game, false);
+	if (!TestNotNull(TEXT("world"), World))
+	{
+		return false;
+	}
+	FWorldContext& Context = GEngine->CreateNewWorldContext(EWorldType::Game);
+	Context.SetCurrentWorld(World);
+	UUmbrellaCueSubsystem* Cues = World->GetSubsystem<UUmbrellaCueSubsystem>();
+	UUmbrellaEventBus* Bus = UUmbrellaEventBus::Get(World);
+	if (TestNotNull(TEXT("cue subsystem"), Cues) && TestNotNull(TEXT("bus"), Bus))
+	{
+		// A Keeper volley as the game sends it: 12 shots, each with the projectile service's Detail.
+		constexpr int32 Shots = 12;
+		for (int32 Index = 0; Index < Shots; ++Index)
+		{
+			FUmbrellaEvent Event;
+			Event.Type = EUmbrellaEventType::ProjectileSpawned;
+			Event.Detail = CueTestShotDetail(Index % 2 ? EUmbrellaShotKind::EnemyYellow : EUmbrellaShotKind::EnemyRed);
+			Bus->Broadcast(Event);
+		}
+		TestEqual(TEXT("no shot plays the flat placeholder (no class, no concurrency)"), Cues->GetFlatCueCount(), 0);
+		TestEqual(TEXT("every shot plays its sound-list row"), Cues->GetSoundCueCount(), Shots);
+		TestEqual(TEXT("the last shot is the yellow launch"), Cues->GetLastSoundId(), FName(TEXT("KeeperYellowLaunch")));
+	}
+	GEngine->DestroyWorldContext(World);
+	World->DestroyWorld(false);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FAudioCueLoopReplay, "UmbrellaElla.Audio.World.LoopStartedTwicePlaysOnce",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+
+bool FAudioCueLoopReplay::RunTest(const FString& Parameters)
+{
+	UWorld* World = UWorld::CreateWorld(EWorldType::Game, false);
+	if (!TestNotNull(TEXT("world"), World))
+	{
+		return false;
+	}
+	FWorldContext& Context = GEngine->CreateNewWorldContext(EWorldType::Game);
+	Context.SetCurrentWorld(World);
+	UUmbrellaCueSubsystem* Cues = World->GetSubsystem<UUmbrellaCueSubsystem>();
+	if (TestNotNull(TEXT("cue subsystem"), Cues))
+	{
+		TestEqual(TEXT("no loop runs before any event"), Cues->GetPlayingLoopCount(), 0);
+		int32 Before = 0;
+		for (TObjectIterator<UAudioComponent> It; It; ++It)
+		{
+			Before += It->GetWorld() == World && It->IsPlaying() ? 1 : 0;
+		}
+		Cues->PlaySoundById(TEXT("OwlWingLoop"));
+		Cues->PlaySoundById(TEXT("OwlWingLoop"));
+		int32 Playing = 0;
+		for (TObjectIterator<UAudioComponent> It; It; ++It)
+		{
+			Playing += It->GetWorld() == World && It->IsPlaying() ? 1 : 0;
+		}
+		TestTrue(TEXT("a loop started twice plays one copy"), Playing - Before <= 1);
+		TestTrue(TEXT("at most one loop is tracked"), Cues->GetPlayingLoopCount() <= 1);
+		Cues->StopLoop(TEXT("OwlWingLoop"));
+		TestEqual(TEXT("stopping the loop leaves none"), Cues->GetPlayingLoopCount(), 0);
+		if (Playing == Before)
+		{
+			AddInfo(TEXT("no audio device in this run: components are not created, the counts are trivially met"));
+		}
+	}
+	GEngine->DestroyWorldContext(World);
+	World->DestroyWorld(false);
 	return true;
 }
 

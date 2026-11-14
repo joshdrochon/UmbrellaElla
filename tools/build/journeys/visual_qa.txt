@@ -1,0 +1,44 @@
+# VISUAL QA path (tools/build/visual_qa.py): one run that captures every screen a player sees, for the Opus judge.
+# Title -> Start Game play -> Defeated (assisted hits) -> Quit to Title -> Director's Cut route -> Keeper fight
+# (route assisted to the handoff) -> assisted win -> credits. Shot names are the screen ids visual_qa.py reads (vq_<id>).
+firstrun
+wait Title 60
+idle 2
+shot vq_title
+click Start Game
+trywait Tutorial 5
+keyuntil Playing Enter 0.8 30
+idle 3
+hold J 1.0                        # real shooting, so gold shots are on screen
+shot vq_play
+hits Defeat 1 1.2 90              # assisted: 1 damage per 1.2 s through Ella's Health hit path until Defeated
+idle 1
+shot vq_defeated
+click Quit to Title
+wait Title 60
+idle 1
+click Director's Cut
+skipunless Purchase 3             # a run before this one earned points: Purchase opens first; leave it
+key Escape
+wait Title 5
+click Director's Cut
+trywait Tutorial 5
+keyuntil Playing Enter 0.8 30
+idle 2
+route 1 30 1                      # real keys toward CP1 (may fail; recorded)
+routeassist 1
+idle 1
+skipunless Purchase 2             # a refuge with unspent points opens Purchase; leave it without spending
+key Escape
+idle 1
+route 2 6 1                       # a few seconds of real flying past the refuge, on the route
+shot vq_dc_route
+routeassist 4
+idle 3
+hold J 1.0
+shot vq_keeper
+assistwin 900
+wait Credits 180
+idle 3
+shot vq_credits
+end
