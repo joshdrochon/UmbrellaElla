@@ -1,0 +1,23 @@
+{
+ "provider": "fal",
+ "model": "fal-ai/veo3.1/fast/image-to-video",
+ "prompt": "The mechanical owl hovers in strict side view, facing left, and winds up one great wing beat. For the first two seconds it gathers slowly: both rigid metal wings rise a little higher, to about thirty degrees above level, the riveted vanes pulling in slightly, the body sinking a touch back and to the right, the three hanging mechanisms (armillary sphere, lantern, gear ring) swinging gently back on their chains. The head stays level and keeps facing left. At about two seconds it strikes: in one fast, heavy downstroke both wings sweep down and forward until the wing tips pass in front of the beak, pointing down and to the left, the vanes spreading wide, the body surging a small step to the left, the hanging mechanisms swinging forward. In the last second the wings rise slowly back to the raised starting pose and the body settles. The beak, the head and the force of the beat always point left. The chest clock keeps its single long hand; the dim glass eye stays dull. Keep the exact etched ink-engraving style, the pale cream outline and the colours of the input; the owl keeps its shape, parts and size. Every edge stays crisp and the air around the owl stays perfectly still and empty. Static locked camera, no zoom, no pan, no cut; the owl stays near the same place in the frame and both wing tips stay inside the frame at every moment. Flat solid chroma green background (pure #00FF00), the whole frame outside the character stays that one green, no floor, no shadows, no gradient, no text. Static locked camera, no zoom, no pan, no cut. The character stays in place and keeps her size; only a small gentle idle movement. No sound.",
+ "negative_prompt": "camera movement, zoom, cut, text, subtitles, logo, background scenery, shadows on the background, people other than the character, sound",
+ "seed": 7,
+ "duration_s": 4,
+ "generate_audio": false,
+ "resolution": "720p",
+ "aspect_ratio": "16:9",
+ "input_image": "pipeline/art/proof/artkeeper/wing-gust/wing-gust-input.png",
+ "unit_usd_per_s": 0.15,
+ "cost_usd": 0.6,
+ "reply": {
+  "request_id": "01a1d899-d956-7792-9ab9-c9d951acffdf",
+  "video": {
+   "content_type": "video/mp4",
+   "file_name": "96cba574c97741f4bd066f9f1e5d91d7.mp4",
+   "file_size": 2499108
+  }
+ },
+ "date": "2026-11-14T05:49+00:00"
+}

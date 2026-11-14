@@ -1,0 +1,6 @@
+{
+ "model": "claude-opus-5-5",
+ "key": "f84331469e008a32b9c70e22cc82b7f8",
+ "at": "2026-11-13T22:16:04",
+ "answer": "{\"scores\": {\"dark_backdrop\": 5, \"wind_ribbons\": 4, \"small_figures\": 6, \"floating_islands\": 2, \"shot_colours\": 5, \"no_placeholders\": 9, \"no_framed_art\": 8}, \"broken\": [\"thin white vertical line runs from the top of the frame down to the girl's umbrella (reads as a debug tether)\"], \"verdict\": \"FAIL\"}"
+}

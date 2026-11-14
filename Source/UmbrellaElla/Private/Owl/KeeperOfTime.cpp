@@ -6,6 +6,7 @@
 #include "Core/UmbrellaTuning.h"
 #include "Engine/StaticMesh.h"
 #include "Materials/MaterialInstanceDynamic.h"
+#include "Harness/UmbrellaFeatureFlags.h"
 #include "Owl/KeeperLook.h"
 #include "Owl/KeeperPartComponent.h"
 
@@ -268,18 +269,27 @@ void AKeeperOfTime::Refresh(const FKeeperFightModel& Model, float TimeSeconds)
 	{
 		HideVisual(TalonVisual);
 	}
+	// Gust: drawn as ash-blue ribbons (the lane while it warns, then the travelling front); the old flat front cube and
+	// the flat telegraph box are never shown for a gust (Josh 21:42: no flat filled box across the lane).
 	const bool bGust = Model.IsGustTravelling();
-	if (bGust)
-	{
-		PlaceVisual(GustVisual, Model.GetGustFront(), FVector2D(T.GustFrontThickness * 0.5f, T.GustBandWidth * 0.5f), KeeperLook::Gust);
-	}
-	else
-	{
-		HideVisual(GustVisual);
-	}
+	HideVisual(GustVisual);
 	const bool bWarning = Model.GetStage() == EKeeperStage::Warning;
+	const bool bGustWarning = bWarning && Model.GetPhysical() == EKeeperPhysical::Gust;
+	const bool bWingsAliveNow = !Model.IsPartBroken(EKeeperPart::Wings);
+	// OWL-15 production cue (wing gather / load, then flap): only while its feature is on.
+	const bool bCueOn = IsFeatureEnabled(EFeatureId::OWL_15);
+	WingGustCell = bCueOn ? WingGustCellFor(Model.GetPhysical(), Model.GetStage(), Model.GetStageRemaining(), bWingsAliveNow, T) : INDEX_NONE;
+	TArray<FKeeperGustStroke> Strokes;
+	if (bWingsAliveNow && (bGust || bGustWarning))
+	{
+		const float LaneLength = T.GustSpeed * T.GustLifetimeSeconds;
+		const FVector2D LaneStart(GustLaneStart.X, Model.GetGustBandZ());
+		const float Progress = bGustWarning ? FMath::Clamp(1.0f - Model.GetStageRemaining() / FMath::Max(T.GustWarningSeconds, UE_SMALL_NUMBER), 0.0f, 1.0f) : 1.0f;
+		GustStrokes(LaneStart, LaneLength, T.GustBandWidth, bGust, Progress, Model.GetGustFront().X, T.GustFrontThickness, TimeSeconds, Strokes);
+	}
+	DrawGustRibbons(Strokes);
 	bTelegraphShown = bWarning;
-	if (bWarning)
+	if (bWarning && !bGustWarning)
 	{
 		const FVector2D Mid = (TelegraphFrom + TelegraphTo) * 0.5f;
 		const FVector2D Half(FMath::Max(FMath::Abs(TelegraphTo.X - TelegraphFrom.X) * 0.5f, T.ChainHeadWidth * 0.5f),
@@ -298,9 +308,10 @@ void AKeeperOfTime::ShowTelegraph(const FKeeperCommand& Command)
 	const FKeeperTuning& T = GetDefault<UUmbrellaTuning>()->Keeper;
 	if (Command.Physical == EKeeperPhysical::Gust)
 	{
-		// The locked altitude band: a long thin marker across the arena at the locked height.
-		TelegraphFrom = FVector2D(Command.A.X - T.GustSpeed * T.GustLifetimeSeconds, Command.A.Y);
-		TelegraphTo = FVector2D(Command.A.X, Command.A.Y + T.GustBandWidth);
+		// The locked altitude band, centred on the locked height (the model's hit band is BandZ +- width/2).
+		GustLaneStart = Command.A;
+		TelegraphFrom = FVector2D(Command.A.X - T.GustSpeed * T.GustLifetimeSeconds, Command.A.Y - T.GustBandWidth * 0.5f);
+		TelegraphTo = FVector2D(Command.A.X, Command.A.Y + T.GustBandWidth * 0.5f);
 	}
 	else
 	{
@@ -314,7 +325,159 @@ void AKeeperOfTime::ClearGusts()
 {
 	HideVisual(GustVisual);
 	HideVisual(TelegraphVisual);
+	DrawGustRibbons(TArray<FKeeperGustStroke>());
+	WingGustCell = INDEX_NONE;
 	bTelegraphShown = false;
+}
+
+int32 AKeeperOfTime::WingGustCellFor(EKeeperPhysical Physical, EKeeperStage Stage, float StageRemaining, bool bWingsAlive, const FKeeperTuning& T)
+{
+	if (!bWingsAlive || Physical != EKeeperPhysical::Gust)
+	{
+		return INDEX_NONE;
+	}
+	const float Warning = FMath::Max(T.GustWarningSeconds, UE_SMALL_NUMBER);
+	const float FlapInWarning = Warning * (1.0f - KeeperWingGustConst::GatherShare);
+	const float FlapTotal = FlapInWarning + KeeperWingGustConst::FlapAfterLaunchSeconds;
+	auto FlapCell = [&](float Seconds)
+	{
+		return KeeperWingGustConst::GatherCells + FMath::Clamp(FMath::FloorToInt32(Seconds / FMath::Max(FlapTotal, UE_SMALL_NUMBER) * KeeperWingGustConst::FlapCells), 0, KeeperWingGustConst::FlapCells - 1);
+	};
+	if (Stage == EKeeperStage::Warning)
+	{
+		const float Elapsed = FMath::Clamp(Warning - StageRemaining, 0.0f, Warning);
+		const float GatherSeconds = Warning * KeeperWingGustConst::GatherShare;
+		if (Elapsed < GatherSeconds)
+		{
+			return FMath::Clamp(FMath::FloorToInt32(Elapsed / FMath::Max(GatherSeconds, UE_SMALL_NUMBER) * KeeperWingGustConst::GatherCells), 0, KeeperWingGustConst::GatherCells - 1);
+		}
+		return FlapCell(Elapsed - GatherSeconds);
+	}
+	if (Stage == EKeeperStage::Stroke)
+	{
+		const float Travelled = FMath::Max(0.0f, T.GustLifetimeSeconds - StageRemaining);
+		if (Travelled < KeeperWingGustConst::FlapAfterLaunchSeconds)
+		{
+			return FlapCell(FlapInWarning + Travelled);
+		}
+		const float Recover = Travelled - KeeperWingGustConst::FlapAfterLaunchSeconds;
+		if (Recover < KeeperWingGustConst::RecoverSeconds)
+		{
+			return KeeperWingGustConst::GatherCells + KeeperWingGustConst::FlapCells + FMath::Clamp(FMath::FloorToInt32(Recover / KeeperWingGustConst::RecoverSeconds * KeeperWingGustConst::RecoverCells), 0, KeeperWingGustConst::RecoverCells - 1);
+		}
+	}
+	return INDEX_NONE;
+}
+
+void AKeeperOfTime::GustStrokes(const FVector2D& LaneStart, float LaneLength, float BandWidth, bool bTravelling, float WarningProgress,
+	float FrontX, float FrontThickness, float Seconds, TArray<FKeeperGustStroke>& Out)
+{
+	Out.Reset();
+	const float Z = LaneStart.Y;
+	const float Amplitude = FMath::Min(BandWidth * KeeperWingGustConst::WaveShare, KeeperWingGustConst::MaxWave);
+	// One ribbon: head at HeadX (the -X end), Length toward +X; thick head tapering to a hair, wavy, its bends moving -X.
+	auto Ribbon = [&](float HeadX, float Length, int32 Index, int32 Count, float HeadThick)
+	{
+		if (Length <= 1.0f)
+		{
+			return;
+		}
+		const float Base = ((static_cast<float>(Index) + 0.5f) / static_cast<float>(Count) - 0.5f) * BandWidth * KeeperWingGustConst::SpreadShare;
+		const float Phase = KeeperWingGustConst::StrandPhaseStep * static_cast<float>(Index) + KeeperWingGustConst::StrandPhaseBase;
+		const int32 Segments = FMath::Clamp(FMath::CeilToInt32(Length / KeeperWingGustConst::SegmentLength), KeeperWingGustConst::MinSegments, KeeperWingGustConst::MaxSegments);
+		auto Point = [&](int32 K)
+		{
+			const float X = HeadX + Length * static_cast<float>(K) / static_cast<float>(Segments);
+			const float Wave = 2.0f * PI * X / KeeperWingGustConst::Wavelength + Phase + KeeperWingGustConst::WaveSpeed * Seconds;
+			const float Drift = KeeperWingGustConst::DriftShare * FMath::Sin(KeeperWingGustConst::DriftRate * Wave + KeeperWingGustConst::DriftStrandStep * static_cast<float>(Index));
+			return FVector2D(X, Z + Base + Amplitude * (FMath::Sin(Wave) + Drift) / (1.0f + KeeperWingGustConst::DriftShare));
+		};
+		for (int32 K = 0; K < Segments; ++K)
+		{
+			const float T = (static_cast<float>(K) + 0.5f) / static_cast<float>(Segments);
+			// Thickest just behind the head, a blunt tip, then a long taper to the tail.
+			const float Profile = FMath::Sin(PI * (0.5f + 0.5f * T)) * FMath::Min(1.0f, KeeperWingGustConst::BluntTip + KeeperWingGustConst::TipRise * T);
+			Out.Add({Point(K), Point(K + 1), FMath::Max(KeeperWingGustConst::TailThick, HeadThick * Profile)});
+		}
+	};
+	if (!bTravelling)
+	{
+		const float P = FMath::Clamp(WarningProgress, 0.0f, 1.0f);
+		const float Reach = LaneLength * (1.0f - FMath::Square(1.0f - P));
+		for (int32 Index = 0; Index < KeeperWingGustConst::WarningRibbons && Reach > 1.0f; ++Index)
+		{
+			const float Stagger = Reach * KeeperWingGustConst::HeadStaggerShare * static_cast<float>(Index % KeeperWingGustConst::StaggerCycle);
+			Ribbon(LaneStart.X - Reach + Stagger, Reach - Stagger, Index, KeeperWingGustConst::WarningRibbons, KeeperWingGustConst::WarningThick);
+		}
+		return;
+	}
+	const float Lead = FrontX - FrontThickness * 0.5f;
+	for (int32 Index = 0; Index < KeeperWingGustConst::TravelRibbons; ++Index)
+	{
+		const float Length = KeeperWingGustConst::TravelLength * (1.0f - KeeperWingGustConst::LengthStepShare * static_cast<float>((Index * 2) % KeeperWingGustConst::StaggerCycle));
+		const float Stagger = KeeperWingGustConst::TravelLength * KeeperWingGustConst::HeadStaggerShare * static_cast<float>(Index % KeeperWingGustConst::StaggerCycle);
+		Ribbon(Lead + Stagger, Length - Stagger, Index, KeeperWingGustConst::TravelRibbons, KeeperWingGustConst::TravelThick);
+	}
+}
+
+void AKeeperOfTime::DrawGustRibbons(const TArray<FKeeperGustStroke>& Strokes)
+{
+	if (GustRibbons.Num() == 0 && Strokes.Num() > 0 && GetRootComponent())
+	{
+		UStaticMesh* Plane = LoadObject<UStaticMesh>(nullptr, UmbrellaArtSlotConst::PlanePath, nullptr, LOAD_NoWarn | LOAD_Quiet);
+		const FLinearColor Colour = FLinearColor::FromSRGBColor(FColor(KeeperWingGustConst::RibbonR, KeeperWingGustConst::RibbonG, KeeperWingGustConst::RibbonB));
+		for (int32 Index = 0; Plane && Index < KeeperWingGustConst::PoolSize; ++Index)
+		{
+			UStaticMeshComponent* Ribbon = NewObject<UStaticMeshComponent>(this, FName(*FString::Printf(TEXT("GustRibbon_%d"), Index)));
+			Ribbon->SetStaticMesh(Plane);
+			Ribbon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			Ribbon->SetGenerateOverlapEvents(false);
+			Ribbon->SetCastShadow(false);
+			Ribbon->SetupAttachment(GetRootComponent());
+			ArtSlot::SetFlatUnlit(Ribbon, this, Colour);
+			Ribbon->RegisterComponent();
+			Ribbon->SetVisibility(false);
+			GustRibbons.Add(Ribbon);
+		}
+	}
+	const int32 Drawn = FMath::Min(Strokes.Num(), GustRibbons.Num());
+	for (int32 Index = 0; Index < GustRibbons.Num(); ++Index)
+	{
+		UStaticMeshComponent* Ribbon = GustRibbons[Index];
+		if (!Ribbon)
+		{
+			continue;
+		}
+		if (Index >= Drawn)
+		{
+			Ribbon->SetVisibility(false);
+			continue;
+		}
+		const FKeeperGustStroke& Stroke = Strokes[Index];
+		const FVector P0(Stroke.A.X, UmbrellaDrawOrder::KeeperY + KeeperWingGustConst::RibbonLift, Stroke.A.Y);
+		const FVector P1(Stroke.B.X, UmbrellaDrawOrder::KeeperY + KeeperWingGustConst::RibbonLift, Stroke.B.Y);
+		FVector Dir = P1 - P0;
+		const double SegLen = Dir.Size();
+		if (!Dir.Normalize())
+		{
+			Dir = FVector::XAxisVector;
+		}
+		// Plane local X along the piece, its normal toward the camera (+Y); the overlap closes the joints.
+		Ribbon->SetWorldRotation(FRotationMatrix::MakeFromXZ(Dir, FVector::YAxisVector).Rotator());
+		Ribbon->SetWorldLocation((P0 + P1) * 0.5);
+		Ribbon->SetWorldScale3D(FVector((SegLen + Stroke.Thick) / UmbrellaArtSlotConst::PlaneEdge, Stroke.Thick / UmbrellaArtSlotConst::PlaneEdge, 1.0));
+		Ribbon->SetVisibility(true);
+	}
+}
+
+int32 AKeeperOfTime::GetVisibleGustRibbonCount() const
+{
+	int32 Count = 0;
+	for (const TObjectPtr<UStaticMeshComponent>& Ribbon : GustRibbons)
+	{
+		Count += (Ribbon && Ribbon->IsVisible()) ? 1 : 0;
+	}
+	return Count;
 }
 
 void AKeeperOfTime::BeginDeparture(float Seconds)

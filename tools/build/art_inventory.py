@@ -56,6 +56,7 @@ STATIC = [
     ("keeper:clock-cover-glass-hands", "ANIM-06", "keeper-clock"),
     ("keeper:talon-empty-and-closed", "ANIM-06", "keeper-talon"),
     ("keeper:wings-gust-wear", "ANIM-06", "keeper-wing"),
+    ("keeper:wing-gust-cue", "OWL-15", "keeper-wing-gust"),
     ("keeper:mechanism-front", "ANIM-06", "keeper-mech-front"),
     ("keeper:mechanism-middle", "ANIM-06", "keeper-mech-middle"),
     ("keeper:mechanism-rear", "ANIM-06", "keeper-mech-rear"),
@@ -123,6 +124,7 @@ FILE_RULES = [
     (r"^Content/[^/]+/Art/Ella/T_Ella_Idle(?:_PH)?\.uasset$", "ella-state:Idle"),
     (r"^Art/Source/Keeper/", "keeper:body-hover-flap"),
     (r"^Content/[^/]+/Art/Keeper/T_Keeper_Owl(?:_PH)?\.uasset$", "keeper:body-hover-flap"),
+    (r"^Content/[^/]+/Art/Keeper/T_Keeper_WingGust(?:_PH)?\.uasset$", "keeper:wing-gust-cue"),
     (r"^Content/[^/]+/Art/Shots/T_WindZone(?:_PH)?\.uasset$", "wind:current-field"),   # stand-in imports (Nov 13)
     (r"^Content/[^/]+/Art/Shots/T_WindLines(?:_PH)?\.uasset$", "wind:decor-lines"),
     (r"^Content/[^/]+/Art/UI/T_Screen_(\w+?)(?:_PH)?\.uasset$", "screen:{1}"),

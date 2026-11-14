@@ -1,0 +1,6 @@
+{
+ "model": "claude-opus-5-5",
+ "key": "e23c55296a7f972d17a76ce5a1c955a2",
+ "at": "2026-11-13T22:31:36",
+ "answer": "{\"scores\": {\"dark_backdrop\": 8, \"wind_ribbons\": 5, \"small_figures\": 4, \"floating_islands\": 8, \"shot_colours\": 6, \"no_placeholders\": 6, \"no_framed_art\": 8}, \"broken\": [\"thin full-height vertical line/bar running through the player from top to bottom of the frame\"], \"verdict\": \"FAIL\"}"
+}
