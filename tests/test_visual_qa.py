@@ -4,6 +4,7 @@ import shutil
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, os.path.join(ROOT, "tools", "build"))
@@ -46,10 +47,11 @@ class Decide(unittest.TestCase):
         self.assertFalse(ok)
         self.assertIn("lilac", why[0])
 
-    def test_worse_than_main_fails_inside_slack_passes(self):
+    def test_worse_than_main_fails(self):
         r = visual_qa.parse_answer(answer(6))   # total 42
-        self.assertTrue(visual_qa.decide(r, 42 + visual_qa.BASELINE_SLACK)[0])
-        self.assertFalse(visual_qa.decide(r, 43 + visual_qa.BASELINE_SLACK)[0])
+        self.assertEqual(visual_qa.BASELINE_SLACK, 0)   # the brief: any screen worse than main fails
+        self.assertTrue(visual_qa.decide(r, 42)[0])
+        self.assertFalse(visual_qa.decide(r, 43)[0])
         self.assertTrue(visual_qa.decide(r, None)[0])
 
     def test_judge_fail_verdict_fails(self):
@@ -101,6 +103,38 @@ class RecordReplay(unittest.TestCase):
         os.remove(os.path.join(shots, "vq_keeper.png"))
         code, line, _ = visual_qa.judge_shots(shots, never_called, os.path.join(self.tmp, "rec"))
         self.assertEqual(code, visual_qa.EXIT_ERROR)
+
+
+class GateBaseline(unittest.TestCase):
+    """16:28 / 16:45 reviews: the gate exits 2 when main's baseline is missing; a failing run never becomes a baseline."""
+
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp()
+        self.env = mock.patch.dict(os.environ, {"VISUAL_BASELINE_DIR": os.path.join(self.tmp, "base")})
+        self.env.start()
+
+    def tearDown(self):
+        self.env.stop()
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def test_required_baseline_missing_exits_2_without_judging(self):
+        with mock.patch.object(visual_qa, "judge_shots", side_effect=AssertionError("judged")):
+            code = visual_qa.cmd_judge(self.tmp, never_called, require_baseline=True, sha="f" * 40)
+        self.assertEqual(code, visual_qa.EXIT_ERROR)
+        with mock.patch.object(visual_qa, "capture", side_effect=AssertionError("captured")):
+            code = visual_qa.main(["run", "--out", self.tmp, "--require-baseline", "--main-sha", "f" * 40])
+        self.assertEqual(code, visual_qa.EXIT_ERROR)
+
+    def test_failing_run_is_not_stored_as_baseline(self):
+        fail = (visual_qa.EXIT_FAIL, "VISUAL_QA FAIL play=10/70", {})
+        with mock.patch.object(visual_qa, "judge_shots", return_value=fail):
+            code = visual_qa.main(["baseline", "--shots", self.tmp, "--sha", "a" * 40])
+        self.assertEqual(code, visual_qa.EXIT_FAIL)
+        self.assertFalse(os.path.exists(os.path.join(self.tmp, "base", "a" * 40 + ".json")))
+        ok = (visual_qa.EXIT_PASS, "VISUAL_QA PASS play=60/70", {})
+        with mock.patch.object(visual_qa, "judge_shots", return_value=ok):
+            self.assertEqual(visual_qa.main(["baseline", "--shots", self.tmp, "--sha", "a" * 40]), visual_qa.EXIT_PASS)
+        self.assertTrue(os.path.exists(os.path.join(self.tmp, "base", "a" * 40 + ".json")))
 
 
 class Calibration(unittest.TestCase):
