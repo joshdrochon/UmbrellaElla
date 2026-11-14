@@ -141,9 +141,12 @@ bool FFlowMusicModePickTest::RunTest(const FString& Parameters)
 	const int32 StartsBefore = Test.Cues()->GetMusicStartCount();
 	Test.Controller->StartGame();
 	TestEqual(TEXT("the run is up"), Test.Controller->GetScreen(), EFlowScreen::Playing);
-	FlowMusicExpectTitle(*this, Test, TEXT("after Start Game"));
-	TestTrue(TEXT("the same component carries on"), Test.Music() == Before);
-	TestEqual(TEXT("ModeSelected did not restart the music"), Test.Cues()->GetMusicStartCount(), StartsBefore);
+	// Lead order (Josh, Nov 13 22:20): Start Game begins the Keeper fight, so the title cross-fades into MusicContest
+	// (UmbrellaElla.Audio.World.FightStartCrossFadesTitleToContest). The title is never restarted or doubled.
+	TestEqual(TEXT("the fight music follows Start Game"), Test.Cues()->GetMusicId(), FName(TEXT("MusicContest")));
+	TestTrue(TEXT("the title fades out on its own component, not restarted"),
+		Test.Cues()->GetOutgoingMusicComponent() == Before && Before->GetPlayState() == EAudioComponentPlayState::FadingOut);
+	TestEqual(TEXT("ModeSelected added no start; the fight track added one"), Test.Cues()->GetMusicStartCount(), StartsBefore + 1);
 
 	int32 TitleMusicComponents = 0;
 	for (TObjectIterator<UAudioComponent> It; It; ++It)
