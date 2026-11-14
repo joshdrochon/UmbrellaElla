@@ -1002,7 +1002,7 @@ bool FArtSlotKeeperStandInHidden::RunTest(const FString& Parameters)
 }
 
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FArtSlotKeeperStateCues, "UmbrellaElla.Feedback.World.KeeperStateCuesShowUnderArt",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FArtSlotKeeperStateCues, "UmbrellaElla.Feedback.World.KeeperStateCuesUnderArt",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
 
 bool FArtSlotKeeperStateCues::RunTest(const FString& Parameters)
@@ -1054,7 +1054,7 @@ bool FArtSlotKeeperStateCues::RunTest(const FString& Parameters)
 		TestTrue(TEXT("model: clock open"), Model.IsClockOpen());
 		Keeper->Refresh(Model, 0.0f);
 		TestTrue(TEXT("wings still under the body art"), Keeper->IsPartArtDrawn(EKeeperPart::Wings));
-		TestTrue(TEXT("broken wing shows its cue under the body art"), Keeper->GetStandInVisual(EKeeperPart::Wings)->IsVisible());
+		TestFalse(TEXT("broken wing draws no flat cube over the body art (no broken-state art exists)"), Keeper->GetStandInVisual(EKeeperPart::Wings)->IsVisible());
 		TestTrue(TEXT("open clock shows its cue under the body art"), Keeper->GetStandInVisual(EKeeperPart::Clock)->IsVisible());
 		TestFalse(TEXT("live rear mechanism stays hidden under the art"), Keeper->GetStandInVisual(EKeeperPart::Rear)->IsVisible());
 		// The cue is the state colour, not the generic lilac stand-in.
@@ -1067,14 +1067,13 @@ bool FArtSlotKeeperStateCues::RunTest(const FString& Parameters)
 			}
 			return Colour;
 		};
-		TestTrue(TEXT("broken wing cue is the broken colour"), CueColour(Keeper->GetStandInVisual(EKeeperPart::Wings)).Equals(KeeperLook::Broken));
 		TestTrue(TEXT("open clock cue is the open colour"), CueColour(Keeper->GetStandInVisual(EKeeperPart::Clock)).Equals(KeeperLook::ClockOpen));
 
 		// A broken mechanism shows its cue too.
 		Model.ApplyPlayerHit(EKeeperPart::Front, Tuning->Keeper.FrontHp * 10.0f, Commands);
 		TestTrue(TEXT("model: front broken"), Model.IsPartBroken(EKeeperPart::Front));
 		Keeper->Refresh(Model, 0.0f);
-		TestTrue(TEXT("broken front mechanism shows its cue under the art"), Keeper->GetStandInVisual(EKeeperPart::Front)->IsVisible());
+		TestFalse(TEXT("broken front mechanism draws no flat cube over the art"), Keeper->GetStandInVisual(EKeeperPart::Front)->IsVisible());
 		Keeper->Destroy();
 	}
 	ArtSlotTestEnd(World);
