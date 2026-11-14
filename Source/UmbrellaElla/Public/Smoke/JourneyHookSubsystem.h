@@ -156,10 +156,11 @@ private:
 	void CollectTexts(const TSharedRef<SWidget>& Root, TArray<FString>& Out) const;
 	void MakeOverlayClickThrough(const TSharedRef<SWidget>& Root);
 	void SaveShot(const FString& Name, FString& OutDetail, bool& bOutSaved);
-	/** The window read-back with the 3D scene where the UI drew nothing (what `shot` saves). False without a window. */
-	bool CaptureFrame(TArray<FColor>& OutBitmap, FIntVector& OutSize) const;
-	/** `figureshot`/`hurtshot` driver: shot, hide Ella, plate, sidecar. bHurt: wait for the Hurt state first. */
-	void StepFigureShot(const FJourneyStep& Step, bool bHurt, double Elapsed);
+	/** The window read-back with the 3D scene where the UI drew nothing (what `shot` saves). bOutCaptured false without a window. */
+	void CaptureFrame(TArray<FColor>& OutBitmap, FIntVector& OutSize, bool& bOutCaptured) const;
+	/** `figureshot`/`hurtshot` driver: shot, hide Ella, plate, sidecar. Hurt: wait for the Hurt state first. */
+	enum class EJourneyFigureShot : uint8 { Normal, Hurt };
+	void StepFigureShot(const FJourneyStep& Step, EJourneyFigureShot Kind, double Elapsed);
 	FString DescribeState() const;
 	/** Where Ella, the Keeper and the arena centre project in the frame, and the picture's contrast there. */
 	FString MeasureView(const TArray<FColor>& Bitmap, const FIntVector& Size) const;

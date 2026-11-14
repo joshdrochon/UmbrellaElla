@@ -395,7 +395,7 @@ void UJourneyHookSubsystem::Tick(float DeltaTime)
 	}
 	else if (Step.Command == TEXT("figureshot") || Step.Command == TEXT("hurtshot"))
 	{
-		StepFigureShot(Step, Step.Command == TEXT("hurtshot"), Elapsed);
+		StepFigureShot(Step, Step.Command == TEXT("hurtshot") ? EJourneyFigureShot::Hurt : EJourneyFigureShot::Normal, Elapsed);
 	}
 	else if (Step.Command == TEXT("hold"))
 	{
@@ -1048,12 +1048,13 @@ FString UJourneyHookSubsystem::MeasureView(const TArray<FColor>& Bitmap, const F
 	return FString::Printf(TEXT("view frame_mean=%.0f %s %s %s"), FrameMean, *Measure(TEXT("ella"), Flow->GetPawn()), *Measure(TEXT("keeper"), Keeper), *Measure(TEXT("arena"), Arena));
 }
 
-bool UJourneyHookSubsystem::CaptureFrame(TArray<FColor>& Bitmap, FIntVector& Size) const
+void UJourneyHookSubsystem::CaptureFrame(TArray<FColor>& Bitmap, FIntVector& Size, bool& bOutCaptured) const
 {
 	TSharedPtr<SWindow> Window = GEngine && GEngine->GameViewport ? GEngine->GameViewport->GetWindow() : nullptr;
-	if (!Window.IsValid() || !FSlateApplication::Get().TakeScreenshot(Window.ToSharedRef(), Bitmap, Size) || Bitmap.Num() == 0)
+	bOutCaptured = Window.IsValid() && FSlateApplication::Get().TakeScreenshot(Window.ToSharedRef(), Bitmap, Size) && Bitmap.Num() > 0;
+	if (!bOutCaptured)
 	{
-		return false;
+		return;
 	}
 	// The window read-back carries the UI; the 3D scene shows where the UI drew nothing (as the agent play hook does).
 	FViewport* SceneViewport = GEngine->GameViewport->Viewport;
@@ -1073,11 +1074,11 @@ bool UJourneyHookSubsystem::CaptureFrame(TArray<FColor>& Bitmap, FIntVector& Siz
 	{
 		Color.A = JourneyOpaqueAlpha;
 	}
-	return true;
 }
 
-void UJourneyHookSubsystem::StepFigureShot(const FJourneyStep& Step, bool bHurt, double Elapsed)
+void UJourneyHookSubsystem::StepFigureShot(const FJourneyStep& Step, EJourneyFigureShot Kind, double Elapsed)
 {
+	const bool bHurt = Kind == EJourneyFigureShot::Hurt;
 	AEllaCharacter* Ella = GetElla();
 	if (!Ella)
 	{
@@ -1113,19 +1114,25 @@ void UJourneyHookSubsystem::StepFigureShot(const FJourneyStep& Step, bool bHurt,
 		GetFlow()->GetViewportSize(ViewW, ViewH);
 		TArray<FColor> Probe;
 		FIntVector Size;
-		CaptureFrame(Probe, Size);
+		bool bProbe = false;
+		CaptureFrame(Probe, Size, bProbe);
 		const double ScaleX = ViewW > 0 ? static_cast<double>(Size.X) / ViewW : 1.0;
 		const double ScaleY = ViewH > 0 ? static_cast<double>(Size.Y) / ViewH : 1.0;
 		FVector Origin, Extent;
 		Ella->GetActorBounds(false, Origin, Extent);
 		FBox2D Box(ForceInit);
-		for (int32 Corner = 0; Corner < 8; ++Corner)
+		for (const double Sx : { -1.0, 1.0 })
 		{
-			const FVector P = Origin + Extent * FVector((Corner & 1) ? 1.0 : -1.0, (Corner & 2) ? 1.0 : -1.0, (Corner & 4) ? 1.0 : -1.0);
-			FVector2D Px;
-			if (GetFlow()->ProjectWorldLocationToScreen(P, Px))
+			for (const double Sy : { -1.0, 1.0 })
 			{
-				Box += FVector2D(Px.X * ScaleX, Px.Y * ScaleY);
+				for (const double Sz : { -1.0, 1.0 })
+				{
+					FVector2D Px;
+					if (GetFlow()->ProjectWorldLocationToScreen(Origin + Extent * FVector(Sx, Sy, Sz), Px))
+					{
+						Box += FVector2D(Px.X * ScaleX, Px.Y * ScaleY);
+					}
+				}
 			}
 		}
 		FVector2D Feet;
@@ -1144,8 +1151,9 @@ void UJourneyHookSubsystem::StepFigureShot(const FJourneyStep& Step, bool bHurt,
 	}
 	TArray<FColor> Plate;
 	FIntVector PlateSize;
-	const bool bPlate = CaptureFrame(Plate, PlateSize)
-		&& FImageUtils::SaveImageByExtension(*FPaths::Combine(OutDir, Step.Arg + TEXT("_plate.png")), FImageView(Plate.GetData(), PlateSize.X, PlateSize.Y));
+	bool bPlate = false;
+	CaptureFrame(Plate, PlateSize, bPlate);
+	bPlate = bPlate && FImageUtils::SaveImageByExtension(*FPaths::Combine(OutDir, Step.Arg + TEXT("_plate.png")), FImageView(Plate.GetData(), PlateSize.X, PlateSize.Y));
 	Ella->SetActorHiddenInGame(false);
 	const bool bJson = FFileHelper::SaveStringToFile(FigureJson, *FPaths::Combine(OutDir, Step.Arg + TEXT(".json")));
 	FinishStep(bPlate && bJson ? EJourneyResult::Pass : EJourneyResult::Fail,
@@ -1156,7 +1164,9 @@ void UJourneyHookSubsystem::SaveShot(const FString& Name, FString& OutDetail, bo
 {
 	TArray<FColor> Bitmap;
 	FIntVector Size;
-	if (!CaptureFrame(Bitmap, Size))
+	bool bCaptured = false;
+	CaptureFrame(Bitmap, Size, bCaptured);
+	if (!bCaptured)
 	{
 		OutDetail = TEXT("no window read-back");
 		bOutSaved = false;
