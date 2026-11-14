@@ -72,6 +72,15 @@
   the alternative is to let the merge through with a warning. Built the blocking default.
 - Test: `tests/test_visual_qa.py` GateScript.
 
+## Done (Nov 13 evening): artscene requests 6 and 4
+- Request 6: slot `world:solids-block` (T_WorldSolidsBlock; inventory row judged by piece `world-solids` until artscene
+  adds a `world-solids-block` piece). `UWorldArtSubsystem::VisualFor(Kind, Size)`: a Solid with width/height under 4
+  (`UmbrellaWorldArtConst::BlockMaxAspect`) draws the block slot; ledges, the floor and the rest keep theirs. Until
+  T_WorldSolidsBlock(_PH) is imported a block falls back to the ledge picture (`FallbackVisual`), never a bare box.
+  Test: `UmbrellaElla.Feedback.World.ArtSlotWorldPieces` (192x259 -> block, 576x43 -> solids, 4.27:1 -> solids,
+  fallback, zero height). Break check: VisualFor without the block branch -> FAIL. Feedback PASS tests=53.
+- Request 4 (floor as island): already on main (1b99a5b7, Floor -> world:solids, its test in ArtSlotWorldPieces); not duplicated.
+
 ## Gate command (for the lead)
 Gate step (in the gate worktree, merged tree built): `python3 tools/build/visual_qa.py run --gate --main-sha <main sha> --out Saved/VisualQA/gate-<sha>`
 -> last line `VISUAL_QA GATE PASS|FAIL ...`; exit 0 PASS, 1 FAIL (regression), 2 could not run (no baseline, capture failed).

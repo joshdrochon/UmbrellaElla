@@ -66,7 +66,7 @@ UI = {"ui:xp-ring": "XpRing", "ui:spell-wheel": "SpellWheel", "ui:device-and-rem
 SHOTS = {"shot:red": "OwlBolt", "shot:red-impact": "BoltHit", "shot:gold": "WandShot", "shot:stream-beam": "StreamBeam",
          "shot:yellow": "YellowShot", "wind:current-field": "WindZone", "wind:decor-lines": "WindLines"}
 SCENE = {"scene:gameplay-frame": "Frame", "world:mill-and-traps": "WorldMill", "world:refuge-and-yellow-bay": "WorldRefuge",
-         "world:solids": "WorldSolids"}
+         "world:solids": "WorldSolids", "world:solids-block": "WorldSolidsBlock"}
 TILED = {"bg-layer:Sky"}   # paper: UV-tiled across the panel
 
 # visual prefix -> the C++ class that loads the slot today ("-" = no consumer yet; see docs/build/requests/artslots.md)
