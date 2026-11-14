@@ -4,6 +4,15 @@ source "$(dirname "$0")/common.sh"
 LOG="$LOGDIR/build-$STAMP.log"
 EXTRA=()
 [ "${NONUNITY:-0}" = "1" ] && EXTRA=(-DisableUnity -NoPCH -NoSharedPCH)
+# -NoHotReload: write the base module names (libUnrealEditor-UmbrellaElla.dylib). Without it UBT switches to hot-reload
+# names (-NNNN.dylib) whenever ANY full editor of this engine is open, on any checkout: the editor touches
+# Engine/Intermediate/EditorRuns/<pid> (Developer/HotReload/Private/HotReload.cpp, CreateFileThatIndicatesEditorRunIfNeeded)
+# and UBT matches only the editor executable path, not the project (Programs/UnrealBuildTool/System/HotReload.cs,
+# ShouldDoHotReloadFromIDE; -NoHotReload = HotReloadMode.Disabled in Configuration/Descriptors/TargetDescriptor.cs).
+# Disabled mode also deletes the earlier suffixed files listed in HotReloadState.json. Our runs start a fresh editor
+# process, so they never need a hot reload. UE_HOT_RELOAD=1 keeps UBT's default (building for an editor open on this
+# checkout).
+[ "${UE_HOT_RELOAD:-0}" = "1" ] || EXTRA+=(-NoHotReload)
 rc=0
 "${UE_RUN[@]}" run --timeout "$UE_TIMEOUT" --log "$LOG" -- \
   "$UE_ROOT/Engine/Build/BatchFiles/Mac/Build.sh" UmbrellaEllaEditor Mac Development \
