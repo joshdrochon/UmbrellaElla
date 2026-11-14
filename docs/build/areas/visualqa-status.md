@@ -95,6 +95,20 @@
   no-dim rule on a list of graded texture names so un-graded art is dimmed again (code coupled to artscene's imports).
   Not built either way; this lane did not change the dim rule.
 
+## Gate failure on 0f24bafd (Nov 13 19:40): LevelUpShowsAndResumes, cause and fix
+- Not the block-slot code. The test fails on the tip alone (TEST_FILTER, build exit 0) only while this tree has
+  `Saved/SaveGames/UmbrellaEllaProgress.sav` written by a game run (my 19:34 visual_qa capture): Director's Cut then
+  opens the purchase screen first (unspent points), so `StartDirectorsCut` leaves the screen on Purchase:
+  log `LogAutomationController: Error: playing: The two values are not equal.` Same tip, save moved aside:
+  `PASS tests=1 failed=0 commit=642f7ad0`. The test code is identical on main, so main fails the same way with that save.
+- In the gate the save most likely came from the visual_qa step of the previous gate run (b4c1fe79) in the same tree.
+- Fix (this lane): `visual_qa.py capture` snapshots Saved/SaveGames and Saved/Config/*/GameUserSettings.ini before the
+  game run and restores them after (new files removed). Test `tests/test_visual_qa.py` UserState; break check (no
+  restore) FAILs it. 21 OK.
+- Lead, once: remove the leftover `Saved/SaveGames/UmbrellaEllaProgress*.sav` in the gate tree before re-gating.
+- Test defect for the flow lane (not changed here): LevelUpShowsAndResumes reads the real save slot; it should use a
+  shadow/in-memory progression like the purchase test does.
+
 ## Gate command (for the lead)
 Gate step (in the gate worktree, merged tree built): `python3 tools/build/visual_qa.py run --gate --main-sha <main sha> --out Saved/VisualQA/gate-<sha>`
 -> last line `VISUAL_QA GATE PASS|FAIL ...`; exit 0 PASS, 1 FAIL (regression), 2 could not run (no baseline, capture failed).

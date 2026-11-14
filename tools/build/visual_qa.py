@@ -302,14 +302,56 @@ def judge_shots(shots_dir, caller=None, records=None, baseline=None, composites_
     return (EXIT_PASS if not failed else EXIT_FAIL), line, results
 
 
+def user_state_files(root=None):
+    root = root or ROOT
+    """The files a game run writes as player state: save slots and GameUserSettings.ini (tutorial seen)."""
+    found = []
+    saves = os.path.join(root, "Saved", "SaveGames")
+    for base, _dirs, names in os.walk(saves):
+        found += [os.path.join(base, n) for n in names]
+    config = os.path.join(root, "Saved", "Config")
+    if os.path.isdir(config):
+        for plat in os.listdir(config):
+            ini = os.path.join(config, plat, "GameUserSettings.ini")
+            if os.path.isfile(ini):
+                found.append(ini)
+    return sorted(found)
+
+
+def snapshot_user_state(root=None):
+    snap = {}
+    for path in user_state_files(root):
+        with open(path, "rb") as fh:
+            snap[path] = fh.read()
+    return snap
+
+
+def restore_user_state(snap, root=None):
+    """Put player state back as it was before the run: a capture plays Director's Cut and earns points and the
+    tutorial flag, and a later automation run in the same tree then starts on the purchase or tutorial screen
+    (UmbrellaElla.Flow.World.LevelUpShowsAndResumes failed the gate that way, Nov 13)."""
+    for path in user_state_files(root):
+        if path not in snap:
+            os.remove(path)
+    for path, data in snap.items():
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "wb") as fh:
+            fh.write(data)
+
+
 def capture(out_dir):
-    """Run the visual QA journey in a real window through the engine slot. Returns the run's exit code."""
+    """Run the visual QA journey in a real window through the engine slot. Returns the run's exit code.
+    Player state (saves, GameUserSettings.ini) is restored after the run, so captures never change later tests."""
     os.makedirs(out_dir, exist_ok=True)
     env = dict(os.environ)
     env.setdefault("RUN_RES", "1280x720")
     cmd = [os.path.join(ROOT, "tools", "build", "ue_slot.sh"), os.path.join(ROOT, "tools", "build", "run_game.sh"),
            "-SmokeJourney=" + os.path.join(ROOT, JOURNEY), "-SmokeJourneyOut=" + os.path.abspath(out_dir)]
-    return subprocess.run(cmd, cwd=ROOT, env=env).returncode
+    snap = snapshot_user_state()
+    try:
+        return subprocess.run(cmd, cwd=ROOT, env=env).returncode
+    finally:
+        restore_user_state(snap)
 
 
 def write_report(out_dir, line, results):

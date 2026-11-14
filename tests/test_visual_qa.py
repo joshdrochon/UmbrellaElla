@@ -239,6 +239,43 @@ class GateMode(unittest.TestCase):
         self.assertFalse(os.path.exists(visual_qa.baseline_path("e" * 40)))
 
 
+class UserState(unittest.TestCase):
+    """A capture leaves saves and GameUserSettings.ini exactly as before (a progress save left by a game run made
+    the gate's LevelUpShowsAndResumes start on the purchase screen)."""
+
+    def test_capture_restores_saves_and_settings(self):
+        root = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, root)
+        saves = os.path.join(root, "Saved", "SaveGames")
+        cfg = os.path.join(root, "Saved", "Config", "Mac")
+        os.makedirs(saves)
+        os.makedirs(cfg)
+        kept = os.path.join(saves, "Slot.sav")
+        ini = os.path.join(cfg, "GameUserSettings.ini")
+        with open(kept, "wb") as fh:
+            fh.write(b"before")
+        with open(ini, "w") as fh:
+            fh.write("[Flow]\n")
+
+        def game_run(*_a, **_k):
+            with open(kept, "wb") as fh:
+                fh.write(b"points earned")
+            with open(os.path.join(saves, "UmbrellaEllaProgress.sav"), "wb") as fh:
+                fh.write(b"new")
+            with open(ini, "w") as fh:
+                fh.write("[Flow]\nTutorialSeen=True\n")
+            return mock.Mock(returncode=0)
+
+        with mock.patch.object(visual_qa, "ROOT", root), \
+                mock.patch.object(visual_qa.subprocess, "run", side_effect=game_run):
+            self.assertEqual(visual_qa.capture(os.path.join(root, "out")), 0)
+        self.assertEqual(sorted(os.listdir(saves)), ["Slot.sav"])
+        with open(kept, "rb") as fh:
+            self.assertEqual(fh.read(), b"before")
+        with open(ini) as fh:
+            self.assertEqual(fh.read(), "[Flow]\n")
+
+
 class GateScript(unittest.TestCase):
     """gate.sh calls the gate mode against main's sha, never records exit 2 against the lane, and stores its own run
     as the new main's baseline only after the push."""
