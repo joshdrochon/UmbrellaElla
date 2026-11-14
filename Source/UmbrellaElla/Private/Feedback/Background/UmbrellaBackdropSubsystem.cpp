@@ -11,6 +11,9 @@
 #include "Harness/UmbrellaFeatureFlags.h"
 #include "Core/UmbrellaTuning.h"
 #include "Level/LevelCatalogue.h"
+#include "Level/LevelPlan.h"
+#include "Arena/UmbrellaArena.h"
+#include "EngineUtils.h"
 
 namespace
 {
@@ -74,16 +77,68 @@ TArray<float> UUmbrellaBackdropSubsystem::LayerDepths()
 	return Depths;
 }
 
-float UUmbrellaBackdropSubsystem::LoopOffset(float CameraX, float Parallax)
+float UUmbrellaBackdropSubsystem::RouteCameraMinX()
 {
-	const float Period = UmbrellaBackdropConst::LoopPeriod;
-	const float Raw = FMath::Fmod(CameraX * Parallax, Period);
-	return Raw < 0.0f ? Raw + Period : Raw;
+	return LevelCatalogue::SlotStartX(0);
+}
+
+float UUmbrellaBackdropSubsystem::RouteCameraMaxX()
+{
+	return static_cast<float>(LevelPlan::KeeperArenaOrigin().X) + GetDefault<UUmbrellaTuning>()->ArenaCamera.ArenaWidth;
+}
+
+float UUmbrellaBackdropSubsystem::EffectiveParallax(float Parallax)
+{
+	float Fastest = 0.0f;
+	for (const FBackdropLayerSpec& Spec : LayerSpecs())
+	{
+		Fastest = FMath::Max(Fastest, Spec.Parallax);
+	}
+	const float HalfTravel = FMath::Max(1.0f, (RouteCameraMaxX() - RouteCameraMinX()) * 0.5f);
+	const float Scale = Fastest > 0.0f ? FMath::Min(1.0f, UmbrellaBackdropConst::SlideHeadroom / (Fastest * HalfTravel)) : 1.0f;
+	return Parallax * Scale;
+}
+
+float UUmbrellaBackdropSubsystem::LayerOffset(float CameraX, float Parallax)
+{
+	const float Centre = (RouteCameraMinX() + RouteCameraMaxX()) * 0.5f;
+	const float Headroom = UmbrellaBackdropConst::SlideHeadroom;
+	return FMath::Clamp(-EffectiveParallax(Parallax) * (CameraX - Centre), -Headroom, Headroom);
 }
 
 float UUmbrellaBackdropSubsystem::LayerXForCamera(float CameraX, float Parallax)
 {
-	return CameraX - LoopOffset(CameraX, Parallax);
+	return CameraX + LayerOffset(CameraX, Parallax);
+}
+
+int32 UUmbrellaBackdropSubsystem::HideArenaStandIns()
+{
+	UWorld* World = GetWorld();
+	bool bAnyArt = false;
+	for (int32 Index = 0; Index < Layers.Num(); ++Index)
+	{
+		bAnyArt = bAnyArt || IsLayerDrawnWithArt(Index);
+	}
+	if (!bAnyArt || !IsValid(World))
+	{
+		return 0;
+	}
+	int32 Hidden = 0;
+	for (TActorIterator<AUmbrellaArena> It(World); It; ++It)
+	{
+		for (UStaticMeshComponent* Plane : { It->GetBackgroundFar(), It->GetBackgroundNear() })
+		{
+			if (IsValid(Plane))
+			{
+				if (!Plane->bHiddenInGame)
+				{
+					Plane->SetHiddenInGame(true);
+				}
+				++Hidden;
+			}
+		}
+	}
+	return Hidden;
 }
 
 bool UUmbrellaBackdropSubsystem::ShouldCreateSubsystem(UObject* Outer) const
@@ -241,6 +296,9 @@ void UUmbrellaBackdropSubsystem::Tick(float DeltaTime)
 	{
 		ScrollTo(static_cast<float>(Controller->PlayerCameraManager->GetCameraLocation().X));
 	}
+	// Every tick, not once: the Keeper handoff rebuilds the arena's planes (BuildPlaceholders makes new components), and
+	// a one-shot hide left them showing as a dark rectangle behind the faded end picture (visual_qa keeper, dcs-r1).
+	HideArenaStandIns();
 }
 
 TStatId UUmbrellaBackdropSubsystem::GetStatId() const

@@ -13,6 +13,7 @@
 #include "Harness/UmbrellaFeatureFlags.h"
 #include "Level/LevelCatalogue.h"
 #include "Level/LevelPlan.h"
+#include "Materials/MaterialInstanceDynamic.h"
 
 namespace
 {
@@ -150,11 +151,50 @@ EArtSlotDraw USceneArtSubsystem::ShowArt(const FString& Visual, UTexture2D* Text
 			Actor->Destroy();
 			return Result;
 		}
+		const FVector2D Fades = EdgeFades(Spec.Anchor);
+		if (Fades.X > 0.0f || Fades.Y > 0.0f)
+		{
+			ApplyEdgeFade(Panel, Picture, Fades);
+		}
 		FPanel& Entry = Panels.AddDefaulted_GetRef();
 		Entry.Spec = Spec;
 		Entry.Actor = Actor;
 	}
 	return Result;
+}
+
+FVector2D USceneArtSubsystem::EdgeFades(ESceneArtAnchor Anchor)
+{
+	switch (Anchor)
+	{
+	case ESceneArtAnchor::RouteStart:
+		return FVector2D(0.0f, UmbrellaSceneArtConst::RouteEndEdgeFade);
+	case ESceneArtAnchor::RouteEnd:
+		return FVector2D(UmbrellaSceneArtConst::RouteEndEdgeFade, 0.0f);
+	default:
+		return FVector2D::ZeroVector;
+	}
+}
+
+void USceneArtSubsystem::ApplyEdgeFade(UStaticMeshComponent* Panel, UTexture2D* Picture, const FVector2D& Fades)
+{
+	UMaterialInterface* Fade = IsValid(Panel) && IsValid(Picture) ? LoadObject<UMaterialInterface>(nullptr, UmbrellaSceneArtConst::EdgeFadeMaterialPath) : nullptr;
+	if (!Fade)
+	{
+		return;
+	}
+	const FLinearColor Tint = ArtSlot::GetTint(Panel);
+	UMaterialInstanceDynamic* Dynamic = UMaterialInstanceDynamic::Create(Fade, Panel);
+	Dynamic->SetTextureParameterValue(TEXT("Art"), Picture);
+	Dynamic->SetScalarParameterValue(TEXT("Cols"), 1.0f);
+	Dynamic->SetScalarParameterValue(TEXT("Frame"), 0.0f);
+	Dynamic->SetScalarParameterValue(TEXT("TileU"), 1.0f);
+	Dynamic->SetScalarParameterValue(TEXT("TileV"), 1.0f);
+	Dynamic->SetVectorParameterValue(TEXT("Tint"), Tint);
+	Dynamic->SetScalarParameterValue(TEXT("FadeLeft"), static_cast<float>(Fades.X));
+	Dynamic->SetScalarParameterValue(TEXT("FadeRight"), static_cast<float>(Fades.Y));
+	Panel->SetMaterial(0, Dynamic);
+	Panel->SetTranslucentSortPriority(UmbrellaSceneArtConst::EdgeFadeSortPriority);
 }
 
 int32 USceneArtSubsystem::PanelCount(const FString& Visual) const
