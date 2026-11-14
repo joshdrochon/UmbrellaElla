@@ -102,8 +102,27 @@ public:
 	/** The visual state an event maps to for this owner; Idle means "no change". Only shots fired by the owner show Shoot. Pure, tests call it. */
 	static EEllaVisualState StateForEvent(const FUmbrellaEvent& Event, FName OwnerId);
 
-	/** Stand-in scale for a state (shape stands in for the flipbook of that state). */
+	/**
+	 * Stand-in scale for a state (shape stands in for the flipbook of that state). Deliberately NOT times
+	 * UmbrellaFigureScale::Ella: the plain box is the hitbox-sized stand-in shown only when no picture loads (a _PH-free
+	 * build would still read her true hurtbox size), and ArtSlot's admission draws no picture through it. Drawn pictures
+	 * (ArtBoxScaleFor, overlays) carry the 1.5x figure scale (D-new-character-scale).
+	 */
 	static FVector StandInScaleFor(EEllaVisualState State);
+
+	/**
+	 * B7/B11 + D-new-character-scale: the world Z the drawn figure's top may not pass (the frame's clear top: frame top
+	 * minus the Director's Cut title band). Set by UFrameCompositionSubsystem::ApplyCameraMargin; the camera never moves for it.
+	 */
+	void SetDrawTopLimit(float WorldZ);
+
+	/** Drop for a drawn picture whose half-height is DrawnHalf at ActorZ under LimitZ: how far it must sit lower (>= 0). Pure. */
+	static float FigureDrop(float ActorZ, float DrawnHalf, float LimitZ);
+
+	/** Lower the drawn pictures (never the capsule or hurtbox) just enough that the figure top stays in frame. Tick calls it. Returns the drop. */
+	float KeepFigureInFrame();
+
+	float GetFigureDrop() const { return CurrentDrop; }
 
 	/** Box scale for a drawn picture: ArtCellHeight tall, as wide as one cell of the row's sheet. Pure. */
 	static FVector ArtBoxScaleFor(const UTexture2D* Texture, const struct FArtSlotRow& Row);
@@ -163,6 +182,9 @@ private:
 	float StateTimeLeft = 0.0f;
 	float TransitionLeft = 0.0f;
 	float RepairLeft = 0.0f;
+	float DrawTopLimitZ = 0.0f;
+	bool bHasDrawTopLimit = false;
+	float CurrentDrop = 0.0f;
 	TMap<EEllaVisualState, TObjectPtr<UPaperFlipbook>> StateFlipbooks;
 	TArray<TPair<EUmbrellaEventType, FDelegateHandle>> Handles;
 

@@ -232,3 +232,26 @@ IDENTIFIED C: the Keeper gust's gameplay cue cube `AKeeperOfTime::GustVisual` (S
   mid-frame and 'Preparing Textures'; the gate's two-capture rule passes the capped pair against the uncapped run, and
   every recapture total is within the measured judge noise (4). Tests: tests/test_capture_fps.py (6; stub editor prints
   run_game's args; the old run_game.sh fails 2).
+
+## Lead HOLD 22:10 (gate review on 3b954ea6, ../logs/review-visualqa.txt): fixes
+- (1) Devlog: dated line under '## Frames toward the Other Realm study' for the gust-facing + figure-scale round, citing
+  gust-facing-before-after.png and scale-{play,keeper}-before-after.png.
+- (2) Ceiling in frame (B7/B11): `UEllaAnimPresenterComponent::KeepFigureInFrame` (Tick) lowers Ella's drawn pictures
+  (body + overlays; never the capsule, hurtbox or camera) just enough that the drawn cell stays under the frame's clear
+  top, set by `UFrameCompositionSubsystem::ApplyCameraMargin` via `ClearTopZ` (frame top less the Director's Cut title
+  band). Measured (World.FigureScaleOnScreen): lowered 26 units at the ceiling in Start Game and Director's Cut (figure top
+  1108 under clear top 1112; before 1134), 0 at the floor; hurtbox still inside the figure (0.55). The warning is now a
+  failing check (fully in frame and under the clear top, both modes, ceiling and floor); without the drop it FAILs (first
+  run: 'figure top 1134, clear top 1112' in both modes). Pure checks for FigureDrop and ClearTopZ in FigureScale.VisualOnly.
+  D-new-character-scale row updated. Build exit 0; UmbrellaElla.Feedback+UmbrellaElla.Art 60/60 PASS.
+- (3) Stand-in fallback size: kept at the old size on purpose, documented on `StandInScaleFor`: the plain box shows only
+  when no picture loads and stands for her hurtbox size; drawn pictures (ArtBoxScaleFor, overlays) carry the 1.5x.
+- (4) FOR THE ART LANE: the Keeper mechanism pictures (front, middle, rear) now sit 55-70 units off their 36-unit hitboxes
+  (the 1.5x picture grows about the body centre: front (-65,-55), middle (-5,-70), rear (55,-55)); wings, clock and eye stay
+  over theirs. Hitboxes unchanged. Paint/place the mechanism parts over the hitbox offsets (KeeperTuning) or report.
+- (5) Gust turn per sheet: `VfxSheetVisual::DrawnTravelX(sheet)` (+1 for VFX_Gust/VFX_GustPuff, 0 = no drawn direction)
+  and `FacingCameraForDrawn(drawn, travel)`: PlayAnchored turns a GustFront effect 180 only when its sheet's drawn
+  direction opposes the travel. VfxGustFacesTravel checks every GustFront key's sheet, a -X-drawn and an undirected sheet
+  (not turned); World.VfxGustFacesTravel still PASSes.
+- Next: resume the lead order at item 4 (thin vertical line), then 5 (flat box; tools/build/flat_box.py + calibration
+  PNGs are uncommitted work in progress from the last session), then 6.

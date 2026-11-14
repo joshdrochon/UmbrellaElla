@@ -45,4 +45,16 @@ namespace VfxSheetVisual
 	 * negative TravelX turns the quad 180 degrees in the screen plane, so the front leads (lead order, Nov 13 21:49).
 	 */
 	UMBRELLAELLA_API FRotator FacingCameraToward(float TravelX);
+
+	/**
+	 * World X direction a sheet's art is drawn travelling: +1 (front on the right) for the wind gust sheets VFX_Gust and
+	 * VFX_GustPuff, 0 for a sheet with no drawn direction (never turned). A new directional sheet adds its row here.
+	 */
+	UMBRELLAELLA_API float DrawnTravelX(const FString& Sheet);
+
+	/**
+	 * FacingCamera for a sheet drawn travelling DrawnX placed on an effect travelling TravelX: a 180 degree screen-plane
+	 * turn only when both are set and opposed; otherwise the plain upright facing.
+	 */
+	UMBRELLAELLA_API FRotator FacingCameraForDrawn(float DrawnX, float TravelX);
 }

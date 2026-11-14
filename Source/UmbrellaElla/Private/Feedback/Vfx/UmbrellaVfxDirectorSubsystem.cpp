@@ -222,10 +222,13 @@ int32 UUmbrellaVfxDirectorSubsystem::PlayAnchored(FName Key, EKeeperVfxAnchor An
 		Effect->Anchor = Anchor;
 		if (Anchor == EKeeperVfxAnchor::GustFront)
 		{
-			// The gust sheets are drawn travelling +X; the gust travels -X: turn the art so its front leads.
-			if (UStaticMeshComponent* Visual = Cast<UStaticMeshComponent>(Effect->Actor->GetRootComponent()))
+			// Turn by each sheet's own drawn direction: the gust sheets are drawn travelling +X and the gust travels -X, so
+			// they turn 180 so the front leads; a sheet with no drawn direction (or one drawn -X) is left as drawn.
+			const FVfxArtRow* Row = VfxCatalog::Find(Key);
+			UStaticMeshComponent* Visual = Cast<UStaticMeshComponent>(Effect->Actor->GetRootComponent());
+			if (Row && Visual)
 			{
-				Visual->SetRelativeRotation(VfxSheetVisual::FacingCameraToward(KeeperVfxRules::GustTravelX));
+				Visual->SetRelativeRotation(VfxSheetVisual::FacingCameraForDrawn(VfxSheetVisual::DrawnTravelX(Row->Sheet), KeeperVfxRules::GustTravelX));
 			}
 		}
 		if (Anchor == EKeeperVfxAnchor::Screen)

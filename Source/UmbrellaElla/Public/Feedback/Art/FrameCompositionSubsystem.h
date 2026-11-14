@@ -182,6 +182,9 @@ public:
 	/** World Z of the top edge of an orthographic view. Pure. */
 	static float FrameTopZ(float CameraZ, float OrthoWidth, float AspectRatio);
 
+	/** Highest world Z a figure may reach: the frame top less the title band share of the view (B11). Pure. */
+	static float ClearTopZ(float CameraZ, float OrthoWidth, float AspectRatio, float TopShare);
+
 	/**
 	 * Widen the arena camera so Ella's whole picture stays in frame at the play ceiling, in Start Game and Director's
 	 * Cut. Leaves a camera another system zoomed (VFX demo capture) alone.

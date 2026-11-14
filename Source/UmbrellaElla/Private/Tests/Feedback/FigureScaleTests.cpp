@@ -155,6 +155,11 @@ bool FFigureScaleRules::RunTest(const FString& Parameters)
 	// No camera zoom: the margin frames the old cell height (2.7), not the drawn one.
 	TestEqual(TEXT("camera frames the old cell"), UFrameCompositionSubsystem::SpriteHalfHeight(0.5f), static_cast<float>(2.7 * 100.0 * 0.5 * 0.5), 1.0e-3f);
 	TestEqual(TEXT("Keeper body box is 1.5x the old 6.0"), UmbrellaKeeperPresenterConst::StandInScale.X, 6.0 * 1.5, 1.0e-6);
+	// Ceiling clamp: the picture drops only by what would pass the limit, never rises.
+	TestEqual(TEXT("figure under the limit is not moved"), UEllaAnimPresenterComponent::FigureDrop(900.0f, 100.0f, 1100.0f), 0.0f);
+	TestEqual(TEXT("figure 22 over the limit drops 22"), UEllaAnimPresenterComponent::FigureDrop(1000.0f, 122.0f, 1100.0f), 22.0f);
+	TestEqual(TEXT("clear top without a band is the frame top"), UFrameCompositionSubsystem::ClearTopZ(0.0f, 1600.0f, 16.0f / 9.0f, 0.0f), 450.0f, 1.0e-3f);
+	TestEqual(TEXT("clear top with the title band"), UFrameCompositionSubsystem::ClearTopZ(0.0f, 1600.0f, 16.0f / 9.0f, 0.05f), 405.0f, 1.0e-3f);
 	// Gameplay numbers do not follow the art.
 	const FKeeperTuning& K = GetDefault<UUmbrellaTuning>()->Keeper;
 	TestEqual(TEXT("clock hitbox unchanged"), K.ClockHalfExtent, FVector2D(70.0f, 70.0f));
@@ -180,6 +185,11 @@ bool FFigureScaleWorld::RunTest(const FString& Parameters)
 	}
 	UCameraComponent* Camera = Arena->GetPlayCamera();
 	UStaticMeshComponent* EllaMesh = FindObjectFast<UStaticMeshComponent>(Ella, FName(TEXT("EllaStandIn")));
+	UEllaAnimPresenterComponent* EllaPresenter = Ella->FindComponentByClass<UEllaAnimPresenterComponent>();
+	if (!TestNotNull(TEXT("Ella's presenter"), EllaPresenter))
+	{
+		return false;
+	}
 	const FArtSlotRow* EllaRow = ArtSlot::Find(TEXT("ella-state:Idle"));
 	if (!TestNotNull(TEXT("Ella's picture"), EllaMesh) || !TestNotNull(TEXT("Ella row"), EllaRow) || !TestTrue(TEXT("Ella draws art"), ArtSlot::HasArt(EllaMesh)))
 	{
@@ -207,6 +217,7 @@ bool FFigureScaleWorld::RunTest(const FString& Parameters)
 		for (const float Z : { Ceiling, Floor })
 		{
 			Ella->SetActorLocation(FVector(MidX, Ella->GetActorLocation().Y, Z));
+			EllaPresenter->KeepFigureInFrame();
 			EllaMesh->UpdateBounds();
 			const FFigureBox Box = FigureBoxOf(EllaMesh, EllaSpan);
 			const float Share = Box.Height() / View.Height();
@@ -214,21 +225,13 @@ bool FFigureScaleWorld::RunTest(const FString& Parameters)
 			AddInfo(FString::Printf(TEXT("%s, Ella at the %s: figure %.0f of view %.0f = %.1f%% of the screen height, figure z %.0f..%.0f, frame z %.0f..%.0f"),
 				Case.Name, Where, Box.Height(), View.Height(), 100.0f * Share, Box.MinZ, Box.MaxZ, View.MinZ, View.MaxZ));
 			TestTrue(FString::Printf(TEXT("%s: Ella's share %.3f in [%.2f, %.2f]"), Case.Name, Share, EllaShareMin, EllaShareMax), Share >= EllaShareMin && Share <= EllaShareMax);
-			if (!Case.bKeeperArena && Z == Ceiling)
-			{
-				// D-new-character-scale (open, default: no camera zoom): with the camera unchanged, the 1.5x figure's
-				// umbrella tip overhangs the Start Game frame top at the ceiling. Reported, not hidden; the rest must fit.
-				const float Overhang = Box.MaxZ - View.MaxZ;
-				if (Overhang > 0.0f)
-				{
-					AddWarning(FString::Printf(TEXT("D-new-character-scale: Start Game, Ella at the ceiling: figure top overhangs the frame by %.0f units (%.1f%% of the view)"), Overhang, 100.0f * Overhang / View.Height()));
-				}
-				TestTrue(TEXT("Start Game, Ella at the ceiling: inside the frame sideways and at the bottom"), Box.MinX >= View.MinX && Box.MaxX <= View.MaxX && Box.MinZ >= View.MinZ);
-			}
-			else
-			{
-				TestTrue(FString::Printf(TEXT("%s, Ella at the %s: fully in frame"), Case.Name, Where), FigureInside(Box, View));
-			}
+			// B7/B11 (standing rule): her full figure stays in frame in Start Game and Director's Cut, at the ceiling too, and
+			// in Director's Cut below the title band. The camera is unchanged (it frames the old cell); the picture is lowered.
+			const float ClearTop = UFrameCompositionSubsystem::ClearTopZ(static_cast<float>(Camera->GetComponentLocation().Z), Camera->OrthoWidth, Camera->AspectRatio,
+				Case.Band == EFrameTitleBand::Shown ? UmbrellaFrameConst::TitleBandShare : 0.0f);
+			AddInfo(FString::Printf(TEXT("%s, Ella at the %s: picture lowered %.0f units to stay in frame"), Case.Name, Where, EllaPresenter->GetFigureDrop()));
+			TestTrue(FString::Printf(TEXT("%s, Ella at the %s: fully in frame (figure top %.0f, clear top %.0f)"), Case.Name, Where, Box.MaxZ, ClearTop),
+				FigureInside(Box, View) && Box.MaxZ <= ClearTop + 0.5f);
 			// Art vs hitbox: her hurtbox stays inside the drawn figure (a graze on the art edge never hurts).
 			const FVector At = Ella->GetActorLocation();
 			TestTrue(FString::Printf(TEXT("%s: Ella's hurtbox inside her figure"), Case.Name),

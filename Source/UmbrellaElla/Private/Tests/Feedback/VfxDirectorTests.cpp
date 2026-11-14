@@ -675,6 +675,21 @@ bool FVfxGustFacingRules::RunTest(const FString& Parameters)
 	const FVector Up = VfxSheetVisual::FacingCamera().RotateVector(FVector::YAxisVector);
 	const FVector TurnedUp = VfxSheetVisual::FacingCameraToward(-1.0f).RotateVector(FVector::YAxisVector);
 	TestTrue(TEXT("-X travel is a 180 degree turn in the screen plane"), FVector::DotProduct(Up, TurnedUp) < -0.99f);
+	// The turn depends on each sheet's drawn direction, not on the anchor: every GustFront effect's sheet is a gust sheet
+	// drawn +X (turned), and a sheet with no drawn direction or one drawn -X is left as drawn.
+	for (const TCHAR* Key : { TEXT("GustWarning"), TEXT("GustRelease"), TEXT("GustTravel"), TEXT("GustExpiry") })
+	{
+		const FVfxArtRow* Row = VfxCatalog::Find(Key);
+		if (TestNotNull(FString::Printf(TEXT("%s row"), Key), Row))
+		{
+			TestEqual(FString::Printf(TEXT("%s's sheet is drawn travelling +X"), Key), VfxSheetVisual::DrawnTravelX(Row->Sheet), 1.0f);
+		}
+	}
+	TestEqual(TEXT("a sheet with no drawn direction"), VfxSheetVisual::DrawnTravelX(TEXT("VFX_ClockTick")), 0.0f);
+	const float GustX = KeeperVfxRules::GustTravelX;
+	TestTrue(TEXT("drawn +X on a -X travel turns 180"), VfxSheetVisual::FacingCameraForDrawn(1.0f, GustX).Equals(VfxSheetVisual::FacingCameraToward(-1.0f), 0.01f));
+	TestTrue(TEXT("drawn -X on a -X travel is left as drawn"), VfxSheetVisual::FacingCameraForDrawn(-1.0f, GustX).Equals(VfxSheetVisual::FacingCamera(), 0.01f));
+	TestTrue(TEXT("no drawn direction is never turned"), VfxSheetVisual::FacingCameraForDrawn(0.0f, GustX).Equals(VfxSheetVisual::FacingCamera(), 0.01f));
 	return true;
 }
 
