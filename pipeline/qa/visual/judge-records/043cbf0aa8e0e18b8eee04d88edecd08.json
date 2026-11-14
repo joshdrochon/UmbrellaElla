@@ -1,0 +1,6 @@
+{
+ "model": "claude-opus-5-5",
+ "key": "043cbf0aa8e0e18b8eee04d88edecd08",
+ "at": "2026-11-13T20:25:08",
+ "answer": "{\"scores\": {\"dark_backdrop\": 8, \"wind_ribbons\": 1, \"small_figures\": 5, \"floating_islands\": 8, \"shot_colours\": 6, \"no_placeholders\": 7, \"no_framed_art\": 7}, \"broken\": [\"no wind ribbons visible anywhere; the only flow mark is a single straight vertical line hanging from the top edge to the girl, which reads as a rope or wire\", \"faint hard-edged darker rectangular band across the lower half of the backdrop behind the islands\", \"crosshatch texture strip with a visible edge along the top of the frame\", \"no red enemy shots; one projectile is a white arrow, not a gold or red streak\", \"the Keeper owl is far larger in the frame than the figures in the study\"], \"verdict\": \"FAIL\"}"
+}

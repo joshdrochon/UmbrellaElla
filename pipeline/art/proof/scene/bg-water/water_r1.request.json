@@ -1,0 +1,44 @@
+{
+ "provider": "openrouter",
+ "tier": "draft",
+ "tool": "OpenRouter (Google Gemini image models)",
+ "model": "gemini-2.5-flash-image",
+ "openrouter_model": "google/gemini-2.5-flash-image",
+ "fal_model": null,
+ "model_version": "google/gemini-2.5-flash-image",
+ "prompt": "A tall 9:16 side-on view of one thin waterfall in a dark dream world, seen from a level camera, as a dark storybook illustration. Text-free, with no frame or watermark.\n\nFrom top to bottom, four parts in one continuous column: the spill source, where a thin sheet of silver-grey water (#7d8590 to #a3aab2) pours over the broken bronze-dark lip of a small floating rock ledge at the very top; the falling middle, a long narrow ribbon of water about one eighth of the canvas width, streaked with fine vertical lines and breaking into a few loose drops at its edges; a small land pool, a shallow dish of dark rock in the lower third where the water gathers in a flat silver-grey oval with faint ripple rings and spills over its front edge; and the sea landing at the very bottom, a low wide band of misty silver-grey spray and ripples spreading sideways. The water is muted, low in contrast and never bright white; the rock is near-black umber with a thin dim amber rim on its top edge.\n\nThe background is one flat digital pure magenta (#FF00FF) that fills every area the water and rock do not cover, edge to edge, like a magenta-screen backdrop: one unchanging magenta with no light, no paper grain, no hatching and no texture; the grain and hatching apply to the water and rock only. The water uses only silver-greys and slate, the rock only umbers and near-black, never pink-tinted; every edge is crisp against the magenta with a thin dark ink outline. Colours are given only as guidance; never print them.\n\nStyle (required): dark, muted ink on aged paper, like an etched storybook engraving. Etched ink linework with near-black ink outlines; crosshatch and fine line hatching for every shadow and form; visible aged paper grain and fibre texture under all colour; hand-printed, slightly uneven ink. No flat fills, no vector shapes, no smooth digital gradients, no glossy 3D rendering.",
+ "seed": "none (seed not sent)",
+ "size": "1024x1024",
+ "quality": "medium",
+ "aspect_ratio": "9:16",
+ "image_size": null,
+ "input_images": [],
+ "cost_usd": 0.03883,
+ "reply": {
+  "usage": {
+   "prompt_tokens": 435,
+   "completion_tokens": 1290,
+   "total_tokens": 1725,
+   "cost": 0.0388305,
+   "is_byok": false,
+   "prompt_tokens_details": {
+    "cached_tokens": 0,
+    "cache_write_tokens": 0,
+    "audio_tokens": 0,
+    "video_tokens": 0
+   },
+   "cost_details": {
+    "upstream_inference_cost": 0.0388305,
+    "upstream_inference_prompt_cost": 0.0001305,
+    "upstream_inference_completions_cost": 0.0387
+   },
+   "completion_tokens_details": {
+    "reasoning_tokens": 0,
+    "image_tokens": 1290,
+    "audio_tokens": 0
+   }
+  },
+  "finish": "stop"
+ },
+ "date": "2026-11-14T02:30+00:00"
+}

@@ -1,0 +1,44 @@
+{
+ "provider": "openrouter",
+ "tier": "draft",
+ "tool": "OpenRouter (Google Gemini image models)",
+ "model": "gemini-2.5-flash-image",
+ "openrouter_model": "google/gemini-2.5-flash-image",
+ "fal_model": null,
+ "model_version": "google/gemini-2.5-flash-image",
+ "prompt": "A wide 16:9 side-on view of one broad ribbon of wind drawn as a soft painted band across a dark dream sky, as a dark storybook illustration. Text-free, with no frame or watermark.\n\nThe ribbon is muted ash-blue (#56657a to #6f7f94), about one sixth of the canvas height thick, made of many long fine parallel streaks like combed smoke. It enters at the far left as a thin faded wisp (entry fade), runs straight across the left third, makes one smooth wide bend upward through the middle, runs straight again across the right third a little higher, and thins out into loose fading wisps before the right edge (exit fade). It is calm, low in contrast and slightly translucent-looking, with a few curled eddies along its lower edge. Nothing else is in the picture: no ground, no clouds, no birds.\n\nThe background is one flat digital pure magenta (#FF00FF) that fills every area the ribbon does not cover, edge to edge, like a magenta-screen backdrop: one unchanging magenta with no light, no paper grain, no hatching and no texture; the grain and hatching apply to the ribbon only. The ribbon uses only ash-blues and slate greys, never pink-tinted. Colours are given only as guidance; never print them.\n\nStyle (required): dark, muted ink on aged paper, like an etched storybook engraving. Etched ink linework with near-black ink outlines; crosshatch and fine line hatching for every shadow and form; visible aged paper grain and fibre texture under all colour; hand-printed, slightly uneven ink. No flat fills, no vector shapes, no smooth digital gradients, no glossy 3D rendering.",
+ "seed": "none (seed not sent)",
+ "size": "1024x1024",
+ "quality": "medium",
+ "aspect_ratio": "16:9",
+ "image_size": null,
+ "input_images": [],
+ "cost_usd": 0.03881,
+ "reply": {
+  "usage": {
+   "prompt_tokens": 366,
+   "completion_tokens": 1290,
+   "total_tokens": 1656,
+   "cost": 0.0388098,
+   "is_byok": false,
+   "prompt_tokens_details": {
+    "cached_tokens": 0,
+    "cache_write_tokens": 0,
+    "audio_tokens": 0,
+    "video_tokens": 0
+   },
+   "cost_details": {
+    "upstream_inference_cost": 0.0388098,
+    "upstream_inference_prompt_cost": 0.0001098,
+    "upstream_inference_completions_cost": 0.0387
+   },
+   "completion_tokens_details": {
+    "reasoning_tokens": 0,
+    "image_tokens": 1290,
+    "audio_tokens": 0
+   }
+  },
+  "finish": "stop"
+ },
+ "date": "2026-11-14T02:30+00:00"
+}
