@@ -1,0 +1,83 @@
+{
+ "summary": "VISUAL_QA FAIL play=35/70 dc_route=24/70 keeper=26/70 broken=8 baseline=none failed=play,dc_route,keeper",
+ "model": "claude-opus-5-5",
+ "screens": {
+  "play": {
+   "scores": {
+    "dark_backdrop": 4,
+    "wind_ribbons": 0,
+    "small_figures": 5,
+    "floating_islands": 2,
+    "shot_colours": 6,
+    "no_placeholders": 9,
+    "no_framed_art": 9
+   },
+   "broken": [
+    "stray thin vertical white line running from the top edge down to the girl",
+    "no wind ribbons visible anywhere"
+   ],
+   "verdict": "FAIL",
+   "total": 35,
+   "replayed": false,
+   "shot": "pipeline/qa/visual/artkeeper-34f3bdde/vq_play.png",
+   "passed": false,
+   "reasons": [
+    "broken: stray thin vertical white line running from the top edge down to the girl; no wind ribbons visible anywhere",
+    "judge verdict FAIL"
+   ],
+   "baseline_total": null
+  },
+  "dc_route": {
+   "scores": {
+    "dark_backdrop": 1,
+    "wind_ribbons": 3,
+    "small_figures": 7,
+    "floating_islands": 0,
+    "shot_colours": 6,
+    "no_placeholders": 1,
+    "no_framed_art": 6
+   },
+   "broken": [
+    "flat dark brown bar used as a platform, centre right",
+    "long flat dark brown bar across the full width near the bottom, used as ground",
+    "bright cream paper clock-face backdrop where the study is near-black",
+    "no floating islands; all ground is flat bars"
+   ],
+   "verdict": "FAIL",
+   "total": 24,
+   "replayed": false,
+   "shot": "pipeline/qa/visual/artkeeper-34f3bdde/vq_dc_route.png",
+   "passed": false,
+   "reasons": [
+    "broken: flat dark brown bar used as a platform, centre right; long flat dark brown bar across the full width near the bottom, used as ground; bright cream paper clock-face backdrop where the study is near-black; no floating islands; all ground is flat bars",
+    "judge verdict FAIL"
+   ],
+   "baseline_total": null
+  },
+  "keeper": {
+   "scores": {
+    "dark_backdrop": 3,
+    "wind_ribbons": 0,
+    "small_figures": 6,
+    "floating_islands": 2,
+    "shot_colours": 4,
+    "no_placeholders": 3,
+    "no_framed_art": 8
+   },
+   "broken": [
+    "flat brown colour bar used as ground at bottom-left (with a block step)",
+    "thin full-height white vertical line through the centre of the frame"
+   ],
+   "verdict": "FAIL",
+   "total": 26,
+   "replayed": false,
+   "shot": "pipeline/qa/visual/artkeeper-34f3bdde/vq_keeper.png",
+   "passed": false,
+   "reasons": [
+    "broken: flat brown colour bar used as ground at bottom-left (with a block step); thin full-height white vertical line through the centre of the frame",
+    "judge verdict FAIL"
+   ],
+   "baseline_total": null
+  }
+ }
+}

@@ -1,0 +1,46 @@
+{
+ "provider": "openrouter",
+ "tier": "final",
+ "tool": "OpenRouter (Google Gemini image models)",
+ "model": "gemini-3-pro-image-preview",
+ "openrouter_model": "google/gemini-3-pro-image-preview",
+ "fal_model": null,
+ "model_version": "google/gemini-3-pro-image-preview",
+ "prompt": "Repaint the attached picture of the mechanical owl exactly as it is, the same owl, pose, parts, colours, linework and flat chroma green background, with only two changes.\nFirst, the chest clock has exactly one hand: keep the one long dark hand from the centre pivot to the numeral XI and remove the short hour hand completely, so the clock face shows a single hand.\nSecond, make the whole owl about 15% smaller and centre it in the frame, so the right wing tip, the top of the wings and the hanging gear ring all sit with a wide empty green margin from every frame edge.\nEverything outside the owl stays one flat, solid pure chroma green (#00FF00), perfectly even, with no paper, texture, shadow or border; the paper grain, hatching and ink texture live only inside the owl's cream outline.\n\nStyle (required): dark, muted ink on aged paper, like an etched storybook engraving. Etched ink linework with near-black ink outlines; crosshatch and fine line hatching for every shadow and form; visible aged paper grain and fibre texture under all colour; hand-printed, slightly uneven ink. No flat fills, no vector shapes, no smooth digital gradients, no glossy 3D rendering.",
+ "seed": "none (seed not sent)",
+ "size": "1024x1024",
+ "quality": "medium",
+ "aspect_ratio": "16:9",
+ "image_size": "2K",
+ "input_images": [
+  "pipeline/art/proof/artkeeper/keeper-idle/final1.png"
+ ],
+ "cost_usd": 0.137868,
+ "reply": {
+  "usage": {
+   "prompt_tokens": 522,
+   "completion_tokens": 1484,
+   "total_tokens": 2006,
+   "cost": 0.137868,
+   "is_byok": false,
+   "prompt_tokens_details": {
+    "cached_tokens": 0,
+    "cache_write_tokens": 0,
+    "audio_tokens": 0,
+    "video_tokens": 0
+   },
+   "cost_details": {
+    "upstream_inference_cost": 0.137868,
+    "upstream_inference_prompt_cost": 0.001044,
+    "upstream_inference_completions_cost": 0.136824
+   },
+   "completion_tokens_details": {
+    "reasoning_tokens": 202,
+    "image_tokens": 1120,
+    "audio_tokens": 0
+   }
+  },
+  "finish": "stop"
+ },
+ "date": "2026-11-14T01:54+00:00"
+}

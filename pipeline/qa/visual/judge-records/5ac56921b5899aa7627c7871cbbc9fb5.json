@@ -1,0 +1,6 @@
+{
+ "model": "claude-opus-5-5",
+ "key": "5ac56921b5899aa7627c7871cbbc9fb5",
+ "at": "2026-11-13T18:49:25",
+ "answer": "{\"scores\": {\"dark_backdrop\": 7, \"wind_ribbons\": 0, \"small_figures\": 4, \"floating_islands\": 0, \"shot_colours\": 0, \"no_placeholders\": 6, \"no_framed_art\": 9}, \"broken\": [\"no wind ribbons visible\", \"no floating islands or ground anywhere\", \"player at the top edge and partly cut off\", \"flat grey bar above the player at the top edge\", \"thin vertical grey bar at bottom centre\", \"no shots visible\"], \"verdict\": \"FAIL\"}"
+}

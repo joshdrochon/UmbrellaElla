@@ -18,3 +18,8 @@ Diff (keeper lane; presenter owns the decision, the actor obeys it):
 2. KeeperOfTime.cpp PlaceVisual: `Visual->SetVisibility(!bArtReplacesStandIn);` (replaces the unconditional `true`; cubes stay for gameplay when no art asset exists).
 3. KeeperPresenterSubsystem.cpp ShowStandIn, after `ArtSlot::ApplyRow(Mesh, *Row, ...)`: if it reports the sprite drew (EArtSlotDraw other than the cube fallback), `Cast<AKeeperOfTime>(Keeper)->bArtReplacesStandIn = true;`.
 Capture and context pair for owl and every keeper-* piece wait on this; no paint round can pass the context pair before it (paint is not the gap).
+
+## Update Nov 13 (5): art-slot material draws only the top row of a grid sheet (blocks any grid flipbook, Ella's idle too)
+`tools/build/assets/art_slot_material.py` builds UV = ((U*TileU + Frame)/Cols, V*TileV). With a 6x4 grid (TileV = 1/4) every Frame >= 6 samples past U = 1 (clamped): only frames 0-5 of a 24-frame sheet can show, and nothing calls `ArtSlot::SetFrame` for Ella or the Keeper, so both grids draw frame 0 only.
+Needed (TD / art-slot owner; regenerates M_ArtSlot.uasset): U = (U*TileU + fmod(Frame, Cols)) / Cols, V = (V + floor(Frame / Cols)) * TileV. Tiled slots (Frame 0) unchanged.
+Until then artkeeper's KeeperPresenterSubsystem plays the Keeper idle grid on row 0 only (frames 0-5 of 24, see artkeeper-status.md); one constant switches it to all 24 once this lands.
