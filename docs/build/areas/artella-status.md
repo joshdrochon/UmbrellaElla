@@ -319,3 +319,5 @@ $ python3 -m unittest tests.test_approved_art_guard
 Ran 15 tests in 9.574s
 OK
 ```
+
+- Nov 13 21:34 (lead): gate run on dad3b703 failed at the final merge only: the main checkout held uncommitted copies of this lane's gate tooling (git refused to overwrite them). Copies removed by rename between runs (saved in the lead scratchpad); re-gating on this commit.
