@@ -64,6 +64,12 @@ public:
 	bool CanPlaySound(FName Id) const;
 	/** Stops every running loop of a group ("move", "wind"). */
 	void StopLoopGroup(const FString& Group);
+	/** Stops one running loop row, if it is running. */
+	void StopLoop(FName Id);
+	/** Loop rows whose component is playing now. */
+	int32 GetPlayingLoopCount() const;
+	/** One-shots played from the flat placeholder asset (an event no sound-list row matched). */
+	int32 GetFlatCueCount() const { return FlatCueCount; }
 	int32 GetSoundCueCount() const { return SoundCueCount; }
 	FName GetLastSoundId() const { return LastSoundId; }
 
@@ -97,6 +103,7 @@ private:
 
 	FName LastCue;
 	int32 CueCount = 0;
+	int32 FlatCueCount = 0;
 
 	UPROPERTY(Transient)
 	TObjectPtr<UAudioComponent> MusicComponent;

@@ -64,6 +64,11 @@ TArray<FString> ArtSlot::TexturePaths(const FArtSlotRow& Row)
 {
 	const FString Passed = SlotPath(Row);
 	const FString Placeholder = Passed + UmbrellaArtSlotConst::PlaceholderSuffix;
+	if (!Row.bStandInOk)
+	{
+		// visualqa: an unkeyed or framed stand-in draws as a box on the play screen; the plain stand-in (or nothing) wins.
+		return { Passed + TEXT(".") + Row.Asset };
+	}
 	return { Passed + TEXT(".") + Row.Asset, Placeholder + TEXT(".") + Row.Asset + UmbrellaArtSlotConst::PlaceholderSuffix };
 }
 
@@ -226,5 +231,26 @@ void ArtSlot::SetBoxScale(UStaticMeshComponent* Mesh, const FVector& BoxScale)
 	if (IsValid(Mesh))
 	{
 		Mesh->SetRelativeScale3D(HasArt(Mesh) ? PlaneScaleFor(BoxScale) : BoxScale);
+	}
+}
+
+FLinearColor ArtSlot::GetTint(const UStaticMeshComponent* Mesh)
+{
+	FLinearColor Tint = FLinearColor::White;
+	if (const UMaterialInstanceDynamic* Dynamic = IsValid(Mesh) ? Cast<UMaterialInstanceDynamic>(Mesh->GetMaterial(0)) : nullptr)
+	{
+		Dynamic->GetVectorParameterValue(FMaterialParameterInfo(ArtSlotTintParam), Tint);
+	}
+	return Tint;
+}
+
+void ArtSlot::SetTint(UStaticMeshComponent* Mesh, const FLinearColor& Tint)
+{
+	if (UMaterialInstanceDynamic* Dynamic = IsValid(Mesh) ? Cast<UMaterialInstanceDynamic>(Mesh->GetMaterial(0)) : nullptr)
+	{
+		if (Dynamic->Parent && Dynamic->Parent->GetPathName() == UmbrellaArtSlotConst::MaterialPath)
+		{
+			Dynamic->SetVectorParameterValue(ArtSlotTintParam, Tint);
+		}
 	}
 }
