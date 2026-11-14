@@ -173,3 +173,7 @@ No `-SmokeShotDelay=` flag yet, load average 45. Context pair for skyline, paper
 - In game: BackdropDim also darkens the ledges, so a fresh capture is near-black (Saved/Journey-r2). Judged on the pre-dim r1 frame and
   the keyed pieces on the study's void: pipeline/art/proof/artscene/islands-r2.png. Recapture once request 5 lands.
 - OpenRouter spend this round: 5 flash drafts, $0.195 (world-solids $0.117 + 0.173 earlier, world-solids-block $0.078).
+- Distant islands (FarLand) r6: few big islands at different depths with the study's swept sheets and speck spray (r4 was a regular row of
+  same-size icons). Model drew a black frame (cropped off before keying); windmill is still a classic X-sail, not the ring wheel. art_ref_check
+  PASS 0.563 (r4 0.553, min 0.527). Imported to T_Skyline_PH. Composite pipeline/art/proof/artscene/skyline-r6.png (study | pre-dim arena | piece on the void).
+  Invisible in game until request 5 lands. $0.039.
