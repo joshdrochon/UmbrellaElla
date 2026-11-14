@@ -31,8 +31,10 @@
   the Keeper fight frame (`LevelPlan::KeeperArenaOrigin`) and drawn 8% larger than the view, so it fills the whole fight
   screen (before: it stopped at the route end, 40% across). Test:
   `UmbrellaElla.Feedback.FrameComposition.KeeperBackdropContinuous` (widest camera margin; break check on old placement).
-- Not done: the `scene:gameplay-frame` overlay stays arena-sized, so with the camera margin it sits about 1-2% inside
-  the screen edge. Captured (r03, 1280x720, journey pipeline/qa/visual/r03_journey.txt): ceiling shot shows the umbrella tip inside the top edge; Keeper handoff shows one continuous backdrop. Composite: pipeline/qa/visual/r03/composite-r03-keeper_fight.png.
+- Gameplay frame overlay (16:50): `scene:gameplay-frame` now sizes to the camera's ortho width each tick
+  (`USceneArtSubsystem::ViewScale`), so with the camera margin it reaches every screen edge (before: arena-sized, 1-2%
+  inside). Test: `UmbrellaElla.Feedback.FrameComposition.GameplayFrameFillsView` (widest margin; break check arena-sized).
+- Captured (r03, 1280x720, journey pipeline/qa/visual/r03_journey.txt): ceiling shot shows the umbrella tip inside the top edge; Keeper handoff shows one continuous backdrop. Composite: pipeline/qa/visual/r03/composite-r03-keeper_fight.png.
 
 ## Gate command (for the lead)
 `python3 tools/build/visual_qa.py run --out Saved/VisualQA/gate-<sha>` -> last line `VISUAL_QA PASS|FAIL ...`;

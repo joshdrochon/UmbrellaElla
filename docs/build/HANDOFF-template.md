@@ -28,7 +28,8 @@ asks for them in `docs/build/requests/<name>.md`. Lanes must not overlap: two ar
 
 ## Gates each merge into main must pass
 Default (`tools/direct_build.py`): `tools/ue/build.sh` (`build exit: 0`), `tools/ue/test.sh` (`PASS`),
-`module_check`, `manifest_check`, `feel_check`, `encounter_check` (`0 problem`). Other gates: one command per line in
+`module_check`, `manifest_check`, `feel_check`, `encounter_check` (`0 problem`), and `tools/build/visual_qa.py` on
+merges touching Source/, Content/, Art/ or pipeline/art. No handoff tag without a passing `visual_qa.py` run on that commit. Other gates: one command per line in
 `docs/build/gates.txt` (`mac:` / `win:` prefix, `{py}`, `command => text the output must contain`).
 
 ## Continue

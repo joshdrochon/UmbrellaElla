@@ -10,6 +10,7 @@
 #include "Feedback/Art/ArtSlot.h"
 #include "Feedback/Art/FrameCompositionSubsystem.h"
 #include "Feedback/Background/SceneArtSubsystem.h"
+#include "Feedback/Background/UmbrellaBackdropSubsystem.h"
 #include "Feedback/Vfx/VfxCatalog.h"
 #include "Feedback/Vfx/VfxSheetVisual.h"
 #include "GameFramework/Actor.h"
@@ -255,6 +256,60 @@ bool FFrameCompositionKeeperBackdrop::RunTest(const FString& Parameters)
 	// Break check: the old placement (last arena width of the route) leaves the right of the fight frame uncovered.
 	const float OldRight = LevelCatalogue::RouteLength();
 	TestTrue(TEXT("old placement stopped inside the fight frame (break check)"), OldRight < View.X + HalfViewW);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFrameCompositionGameplayFrameFillsView, "UmbrellaElla.Feedback.FrameComposition.GameplayFrameFillsView",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+
+bool FFrameCompositionGameplayFrameFillsView::RunTest(const FString& Parameters)
+{
+	// visualqa r03: with the camera margin the view-sized scene:gameplay-frame stayed arena-sized and sat 1-2% inside
+	// the screen edge. It must size to the camera's ortho width and reach every edge.
+	FUmbrellaTestWorld Test;
+	UWorld* World = Test.GetWorld();
+	UFrameCompositionSubsystem* Frame = World->GetSubsystem<UFrameCompositionSubsystem>();
+	USceneArtSubsystem* Scene = World->GetSubsystem<USceneArtSubsystem>();
+	AUmbrellaArena* Arena = World->SpawnActor<AUmbrellaArena>(FVector::ZeroVector, FRotator::ZeroRotator);
+	AEllaCharacter* Ella = Arena ? Test.SpawnElla(Arena->GetPlayerStartLocation()) : nullptr;
+	if (!TestNotNull(TEXT("frame"), Frame) || !TestNotNull(TEXT("scene"), Scene) || !TestNotNull(TEXT("arena"), Arena)
+		|| !TestNotNull(TEXT("ella"), Ella) || !Arena->GetPlayCamera())
+	{
+		return false;
+	}
+	if (!Scene->FindPanel(TEXT("scene:gameplay-frame")))
+	{
+		UTexture2D* Stand = UTexture2D::CreateTransient(8, 8, PF_B8G8R8A8);
+		Scene->ShowArt(TEXT("scene:gameplay-frame"), Stand);
+	}
+	const UStaticMeshComponent* Panel = Scene->FindPanel(TEXT("scene:gameplay-frame"));
+	if (!TestNotNull(TEXT("gameplay frame panel"), Panel))
+	{
+		return false;
+	}
+	UCameraComponent* Camera = Arena->GetPlayCamera();
+	const FArenaCameraTuning& T = GetDefault<UUmbrellaTuning>()->ArenaCamera;
+	Ella->SetActorScale3D(Ella->GetActorScale3D() * 1.3f);
+	Ella->GetCapsuleComponent()->SetCapsuleHalfHeight(Ella->GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight() * 0.75f);
+	Frame->ApplyCameraMargin(Arena, Ella);
+	TestTrue(TEXT("camera margin widened the view"), Camera->OrthoWidth > T.ArenaWidth);
+	const float CameraX = static_cast<float>(Camera->GetComponentLocation().X);
+	const float HalfViewW = Camera->OrthoWidth * 0.5f;
+	const float HalfViewH = Camera->OrthoWidth / T.CameraAspectRatio * 0.5f;
+	auto FrameCovers = [&](float OrthoWidth)
+	{
+		Scene->ScrollTo(CameraX, OrthoWidth);
+		const FVector Scale = Panel->GetOwner()->GetActorScale3D();
+		const float HalfW = static_cast<float>(Scale.X) * UmbrellaBackdropConst::EngineCubeSize * 0.5f;
+		const float HalfH = static_cast<float>(Scale.Z) * UmbrellaBackdropConst::EngineCubeSize * 0.5f;
+		return HalfW >= HalfViewW - 0.5f && HalfH >= HalfViewH - 0.5f;
+	};
+	TestTrue(TEXT("gameplay frame reaches every screen edge with the margin"), FrameCovers(Camera->OrthoWidth));
+	TestEqual(TEXT("frame keeps its depth thickness"), static_cast<float>(Panel->GetOwner()->GetActorScale3D().Y), UmbrellaBackdropConst::PanelThickness);
+	TestEqual(TEXT("frame follows the camera"), static_cast<float>(Panel->GetOwner()->GetActorLocation().X), CameraX);
+	// Break check: arena-sized (the old behaviour) sits inside the widened view.
+	TestFalse(TEXT("arena-sized frame sits inside the widened view (break check)"), FrameCovers(0.0f));
+	TestEqual(TEXT("not orthographic: scale 1"), USceneArtSubsystem::ViewScale(0.0f), 1.0f);
 	return true;
 }
 

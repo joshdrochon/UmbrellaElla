@@ -76,11 +76,12 @@ States: `todo → doing → review → done`, plus `blocked`, `needs-human`, as 
 ## 5. Evidence: measure, never claim
 - "Done" needs pasted output from a command someone else can re-run: build log tail,
   `tools/check_automation_report.py` output, package log, `SMOKE_OK` line, `tools/art_check.py` JSON.
-- Screenshots show looks, not function. PIE is not a build.
-- Say what you did not run and why; never report an unfinished command.
-- Every new engine API exists in the 5.8.4 headers; cite the header.
+- Screenshots show looks, not function; PIE is not a build.
+- Visual work: `tools/build/visual_qa.py` evidence.
+- Say what you did not run, and why. Never report unfinished commands.
+- Cite the 5.8.4 header for every new engine API.
 - Evidence starts with `commit=<sha> engine=5.8.4 config=Development host=<win|mac> run=<PIE|Standalone|packaged>`. Older than the PR head = stale (missing).
-- Correct a wrong posted claim in a new comment linking it; never edit silently.
+- Correct a wrong posted claim in a new linked comment; never edit silently.
 
 ## 6. Stop rules
 - Same failure twice: stop, set the card `blocked`, write the exact error, what you tried, who should look next.

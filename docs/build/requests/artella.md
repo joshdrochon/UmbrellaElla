@@ -30,3 +30,7 @@
 ## 4. Ready-shot capture shows only the HUD (Nov 13 late, round 33)
 - Need (smoke/screenfix lane): with `-SmokeShotFrames=30` the ready-wait passes but the shot is black with only the HUD clock: no Ella, ground or sky. Also keep the game log from `run_game.sh` (no `SMOKE_SHOT_READY`, map or camera line is visible today).
 - Until then no Ella piece gets a `context` pair; ella-up-open (reference + quality-bar pairs ours) and shield R3 / closed R3 wait on it.
+
+## 5. Ella is about 0.6x the study's size in frame (Nov 13, round 38)
+- Measured at 1280x720: study Ella (umbrella top to feet) about 92 px; in game (Director's Cut route) about 55 px.
+- Need (visualqa / camera or HeroSize owner): the lead order asks for Ella "at the Other Realm study's scale". The sprite lane cannot change her drawn size; the camera ortho width or her actor scale does.

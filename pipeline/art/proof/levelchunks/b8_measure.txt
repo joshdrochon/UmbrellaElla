@@ -1,0 +1,4 @@
+b8_measure image=b8_at_stall.png 640x360 ella=(320,195) solid_left_edge_x=326 gap_px=6 solid_rows=(213, 236) band_rows_hit=17/17
+B8_CAPTURE_OK: Ella drawn at the left face of the 07A low solid
+journey: JOURNEY_STEP n=16 line=17 cmd="route " result=FAIL screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(11464,449) route_cp=1 encounter=0 phase=wings detail="cp=1 want=2 timeout after 30.0s real_input x_start=6000 x_best=11465 heals=0"
+journey: JOURNEY_STEP n=17 line=18 cmd="shot b8_at_stall" result=PASS screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(11464,495) route_cp=1 encounter=0 phase=wings detail="b8_at_stall.png 640x360 view frame_mean=85 ella=drawn(320,195) spread=78 mean=71 keeper=absent arena=offscreen(-3181,180)"

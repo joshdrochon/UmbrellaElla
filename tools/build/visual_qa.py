@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """Whole-frame visual QA against Ricky's Other Realm study (visualqa lane, Josh Nov 13: THE visual priority). Stdlib only.
 
-  visual_qa.py run [--out DIR]                 capture (journeys/visual_qa.txt in a real window) then judge: the gate step
+  visual_qa.py run [--out DIR] [--require-baseline] [--main-sha SHA]
+                                               capture (journeys/visual_qa.txt in a real window) then judge: the gate
+                                               step; with --require-baseline a missing baseline for main exits 2
   visual_qa.py capture [--out DIR]             only capture: DIR/vq_play.png, vq_dc_route.png, vq_keeper.png (+ others)
   visual_qa.py judge --shots DIR               judge captured screens; exit 0 PASS, 1 FAIL, 2 could not run
   visual_qa.py frame IMAGE [--screen ID]       judge one picture (a calibration frame, a hand capture)
@@ -48,8 +50,8 @@ RUBRIC = [
     ("no_framed_art", "no framed, bordered, unkeyed (rectangle-backed), stretched or rotated pictures"),
 ]
 SCORE_MAX = 10
-# A total this far under main's baseline for the screen is judge noise, not a regression (two rubric points of 70).
-BASELINE_SLACK = 2
+# A total this far under main's baseline fails. Zero: the brief says FAIL on any screen worse than main (16:45 review).
+BASELINE_SLACK = 0
 COMPOSITE_W, COMPOSITE_H = 960, 540
 EXIT_PASS, EXIT_FAIL, EXIT_ERROR = 0, 1, 2
 
@@ -256,9 +258,15 @@ def write_report(out_dir, line, results):
         json.dump({"summary": line, "model": MODEL, "screens": results}, fh, indent=1)
 
 
-def cmd_judge(shots, caller=None):
-    sha = main_sha()
-    code, line, results = judge_shots(shots, caller, baseline=load_baseline(sha), composites_dir=shots)
+def cmd_judge(shots, caller=None, require_baseline=False, sha=None):
+    sha = sha or main_sha()
+    baseline = load_baseline(sha)
+    if require_baseline and baseline is None:
+        # The gate compares against main; without main's baseline the comparison cannot run (16:28 review).
+        print("VISUAL_QA ERROR no baseline for main %s in %s: python3 tools/build/visual_qa.py baseline --shots <main run> --sha %s"
+              % (sha[:12] or "?", baseline_dir(), sha or "<main sha>"))
+        return EXIT_ERROR
+    code, line, results = judge_shots(shots, caller, baseline=baseline, composites_dir=shots)
     write_report(shots, line, results)
     for screen, r in results.items():
         for reason in r["reasons"]:
@@ -285,8 +293,13 @@ def main(argv=None):
     for name in ("run", "capture"):
         p = sub.add_parser(name)
         p.add_argument("--out", default=os.path.join(ROOT, "Saved", "VisualQA", time.strftime("%Y%m%d-%H%M%S")))
+        if name == "run":
+            p.add_argument("--require-baseline", action="store_true")
+            p.add_argument("--main-sha", default="")
     p = sub.add_parser("judge")
     p.add_argument("--shots", required=True)
+    p.add_argument("--require-baseline", action="store_true")
+    p.add_argument("--main-sha", default="")
     p = sub.add_parser("frame")
     p.add_argument("image")
     p.add_argument("--screen", default="play")
@@ -303,13 +316,15 @@ def main(argv=None):
         if args.cmd == "capture":
             return EXIT_PASS if capture(args.out) == 0 else EXIT_ERROR
         if args.cmd == "run":
+            if args.require_baseline and load_baseline(args.main_sha or main_sha()) is None:
+                return cmd_judge(args.out, require_baseline=True, sha=args.main_sha)
             code = capture(args.out)
             if code != 0 and not all(os.path.exists(os.path.join(args.out, n)) for n in SCREENS.values()):
                 print("VISUAL_QA ERROR capture failed (exit %d), see %s" % (code, args.out))
                 return EXIT_ERROR
-            return cmd_judge(args.out)
+            return cmd_judge(args.out, require_baseline=args.require_baseline, sha=args.main_sha)
         if args.cmd == "judge":
-            return cmd_judge(args.shots)
+            return cmd_judge(args.shots, require_baseline=args.require_baseline, sha=args.main_sha)
         if args.cmd == "frame":
             r = judge_image(os.path.abspath(args.image), args.screen)
             ok, reasons = decide(r)
@@ -324,6 +339,10 @@ def main(argv=None):
         if args.cmd == "baseline":
             sha = args.sha or main_sha()
             code, line, results = judge_shots(args.shots)
+            if code != EXIT_PASS:
+                # A failing or incomplete run never becomes main's baseline (16:45 review).
+                print("visual_qa baseline NOT stored for %s: %s" % (sha[:12], line))
+                return code
             os.makedirs(baseline_dir(), exist_ok=True)
             with open(os.path.join(baseline_dir(), sha + ".json"), "w", encoding="utf-8") as fh:
                 json.dump({"sha": sha, "summary": line, "screens": results}, fh, indent=1)

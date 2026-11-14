@@ -294,6 +294,53 @@
    "commit": "c30ea8996da1",
    "gap": "",
    "at": "2026-11-13T04:08:06Z"
+  },
+  {
+   "piece": "ella-up-open",
+   "round": 7,
+   "verdict": "reference",
+   "checks": true,
+   "results": {
+    "art_check": "pass",
+    "screen_check": "pass",
+    "art_ref_check": "pass"
+   },
+   "pairs": {
+    "context": "reference",
+    "quality_bar": "reference",
+    "reference": "reference"
+   },
+   "panel": 3,
+   "calibration": {
+    "sessions": 9,
+    "passed": 9
+   },
+   "missing": [
+    "context:pipeline/art/reference/target-keyart.png",
+    "quality_bar:pipeline/art/reference/discord/20261111-0319_Ricky_roadwarden-sundial-casters.png",
+    "reference:pipeline/art/reference/Rehearsal/Ella/Ella-Rising-02.png"
+   ],
+   "critic_sessions": [
+    "ella-up-open-r5-00-reference-c1",
+    "ella-up-open-r5-00-reference-c2",
+    "ella-up-open-r5-00-reference-c3",
+    "ella-up-open-r5-01-quality_bar-c1",
+    "ella-up-open-r5-01-quality_bar-c2",
+    "ella-up-open-r5-01-quality_bar-c3",
+    "ella-up-open-r5-02-context-c1",
+    "ella-up-open-r5-02-context-c2",
+    "ella-up-open-r5-02-context-c3"
+   ],
+   "manifest": "",
+   "evidence": "",
+   "prompt": "",
+   "files": "b887e50c6a145ea5b3e3ac6ab5944e583742ac84ff9e8efc252f9376376f1910",
+   "file": "pipeline/art/proof/artella/registered/open/Ella_up-open_00.png",
+   "card": "MVP 15",
+   "refs": "2334131deb8b",
+   "commit": "39c69db925d5",
+   "gap": "X is not Ella at all: flat lilac placeholder blocks, scattered flat dots and a cropped machine part, with no figure, umbrella or ink-on-paper finish.; X is a broken composite of lavender placeholder rectangles, scattered red and yellow dots and a fragment of unrelated machinery, with no Ella figure at all.; X is a different subject, a character reference sheet with glossy pink and red glow and a bright-yellow palette, and Y shows Ella in ink-on-paper style.; X is a six-frame sheet of a soft, blurry, low-contrast figure with weak line, a washed-out scarf, no mask or gold, and a drifting pose and anchor between frames. Y is a crisp etched single frame.",
+   "at": "2026-11-13T17:09:01Z"
   }
  ]
 }
