@@ -39,6 +39,7 @@ KEY_HI = 0.50      # share above which it is fully transparent
 BORDER = 6         # px of border sampled for the ground colour
 SOLID_ALPHA = 0.5  # alpha counted as content when cropping and grading
 CROP_PAD = 2       # px kept around the content when cropping
+TILE_FADE = 0.12   # repeatN: share of the piece width cross-faded so the copies join without a seam (BG-02)
 
 
 def load(path):
@@ -110,6 +111,15 @@ def resize(px, w, h):
     return np.array(im.pixels[:], dtype=np.float32).reshape(h, w, 4)
 
 
+def tileable(px, fade):
+    """Tileable copy, `fade` columns narrower: the first `fade` columns blend the source's last `fade` columns into
+    its first ones (weights from art_scene_seam.crossfade_weights; art_scene_seam.make_tileable is the reference)."""
+    w = px.shape[1]
+    t = (np.arange(fade, dtype=np.float32) / max(1, fade - 1))[None, :, None]
+    head = px[:, w - fade:] * (1.0 - t) + px[:, :fade] * t
+    return np.concatenate([head, px[:, fade:w - fade]], axis=1)
+
+
 def place(px, W, H, box, mode="fit"):
     """mode fit: keep aspect inside the box; fill: stretch to the box; repeatN: N copies side by side filling it."""
     x0, y0, x1, y1 = box
@@ -124,7 +134,13 @@ def place(px, W, H, box, mode="fit"):
         return canvas
     n = int(mode[len("repeat"):]) if mode.startswith("repeat") else 1
     w, h = int(bw / n), int(bh)
-    piece = resize(px, w, h)
+    if n > 1:
+        # BG-02 tileability: cross-fade the ends so copy i's last column meets copy i+1's first as two neighbouring
+        # source columns (checked by art_scene_seam.py on the output).
+        fade = max(2, int(px.shape[1] * TILE_FADE))
+        piece = resize(tileable(px, fade), w, h)
+    else:
+        piece = resize(px, w, h)
     for i in range(n):
         left = int(x0 * W) + i * w
         canvas[bottom:bottom + h, left:left + w] = piece
@@ -163,4 +179,5 @@ def main():
     print("art_scene_world", preset, dst, W, H, "transparent frac", round(float((px[..., 3] < 0.05).mean()), 3))
 
 
-main()
+if __name__ == "__main__":
+    main()

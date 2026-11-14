@@ -1,0 +1,44 @@
+{
+ "provider": "openrouter",
+ "tier": "draft",
+ "tool": "OpenRouter (Google Gemini image models)",
+ "model": "gemini-2.5-flash-image",
+ "openrouter_model": "google/gemini-2.5-flash-image",
+ "fal_model": null,
+ "model_version": "google/gemini-2.5-flash-image",
+ "prompt": "A wide 16:9 side-on view of two huge ghostly clock faces hanging far away in a dark sky, seen straight on from a level camera, as a dark storybook illustration. Text-free, with no frame or watermark.\n\nEach clock is a full round dial with no hands: a thin worn front rim of cold ash-blue grey metal (#4a5560 to #5d6872), an inner ring of twelve faint hour ticks and small ghostly roman-numeral-like marks that are only scratches, never readable letters, and a dial face of dim smoky grey-blue glass (#2c3238 to #363d44) with a faint darker centre boss. The larger dial sits in the left half, its width about 40 percent of the canvas; the smaller one sits in the right half, about 28 percent wide and a little higher. They do not touch. The lower edge of each rim melts slightly into a few short wax-like drips. Both are dull and low in contrast, lit only by a faint cool edge along the top of each rim.\n\nThe background is one flat digital pure magenta (#FF00FF) that fills every area the dials do not cover, edge to edge, like a magenta-screen backdrop: one unchanging magenta with no light falling on it, no paper grain, no hatching and no texture; the grain and hatching apply to the clocks only. The clocks use only ash-blue greys, slate and near-black, never pink-tinted; every edge is crisp against the magenta with a thin dark ink outline. Colours are given only as guidance; never print them.\n\nStyle (required): dark, muted ink on aged paper, like an etched storybook engraving. Etched ink linework with near-black ink outlines; crosshatch and fine line hatching for every shadow and form; visible aged paper grain and fibre texture under all colour; hand-printed, slightly uneven ink. No flat fills, no vector shapes, no smooth digital gradients, no glossy 3D rendering.",
+ "seed": "none (seed not sent)",
+ "size": "1024x1024",
+ "quality": "medium",
+ "aspect_ratio": "16:9",
+ "image_size": null,
+ "input_images": [],
+ "cost_usd": 0.03883,
+ "reply": {
+  "usage": {
+   "prompt_tokens": 432,
+   "completion_tokens": 1290,
+   "total_tokens": 1722,
+   "cost": 0.0388296,
+   "is_byok": false,
+   "prompt_tokens_details": {
+    "cached_tokens": 0,
+    "cache_write_tokens": 0,
+    "audio_tokens": 0,
+    "video_tokens": 0
+   },
+   "cost_details": {
+    "upstream_inference_cost": 0.0388296,
+    "upstream_inference_prompt_cost": 0.0001296,
+    "upstream_inference_completions_cost": 0.0387
+   },
+   "completion_tokens_details": {
+    "reasoning_tokens": 0,
+    "image_tokens": 1290,
+    "audio_tokens": 0
+   }
+  },
+  "finish": "stop"
+ },
+ "date": "2026-11-14T02:30+00:00"
+}

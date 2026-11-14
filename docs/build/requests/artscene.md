@@ -66,3 +66,10 @@ Why: ChunkCatalogueData.h solids are two shapes: ledges 346-576 x 32-65 (7:1 to 
 One 8:1 ledge picture on a 0.7:1 column is squashed about 10x. The block picture is ready: pipeline/art/proof/scene/world-solids-block/world_r2_post.png
 (4:3, art_ref_check PASS 0.571 vs 0.527); I import it as T_WorldSolidsBlock_PH as soon as the row exists. Visual only, collision untouched.
 Test: ArtSlotFamilyTests' VisualFor case gains a 192x259 Solid -> world:solids-block and a 576x43 Solid -> world:solids.
+
+## 7 (Nov 13 18:45, visuals lane / lead): move bg:clocks and ClockWaterWind behind the land (GDD BG-05 layer order)
+BG-05: sky -> clocks/ridges -> haze/water -> land/buildings. On main `bg:clocks` sits at BackgroundNearY + ClocksStep (Y -290) and
+`ClockWaterWind` at BackgroundNearY + SameDepthStep (Y -295), both in front of `bg:land` (Y -390) and NearArchitecture (Y -300)
+(Source/UmbrellaElla/Private/Feedback/Background/SceneArtSubsystem.cpp:43, UmbrellaBackdropSubsystem.cpp:60). Ask: put bg:clocks between
+bg:atmosphere and bg:land (e.g. BackgroundFarY + 5) with a far parallax. Until then the clock dials are placed above the land rows
+(5%..23% of the panel) and kept faint, so they rarely cross an island. Decision row: D-new-study-vs-bg-layers.

@@ -1,6 +1,7 @@
 # artscene status
 
-Nothing ships. No piece has passed the blind panel, so every `_PH` stays and no `Art/Scene` image, provenance row or import script was added.
+Current state (Nov 13 evening): no piece has passed the blind panel. By lead order the `_PH` slots carry tracked, graded world art (not panel-passed);
+see the latest entries at the bottom. Older entries below are history.
 
 ## Built (Art/Source/Scene/build_scene.py, Blender 5.2.1, `-- --piece paper|skyline --out <png>`)
 - paper: 3200x1080 stained/fibrous sepia field, etched wind bands, sparkle rings. Not panel-judged yet.
@@ -29,7 +30,7 @@ Procedural Blender geometry does not reach the painted/etched look of the key ar
   white. Fix: judge ours composited over a plain ground. My first fix attempt composited on brown by mistake (bad sed), so panel r3c is invalid
   as evidence (ours on brown, critics: "flat brown backdrop"). Next: composite on white, rerun once.
 - Still not tried: Grease Pencil Line Art pass, much denser architecture (reference has ~5x the window/roof/ironwork count), painted-light pass,
-  paper, scene, menu-screen. Nothing ships; `_PH` stays.
+  paper, scene, menu-screen.
 
 ## Round log, skyline (after artfix merged: packet images flattened onto one paper ground; earlier panel rounds r3b/r3c are invalid)
 - r4 panel (render = r3b look, flattened): calibration 7/9, quality_bar pair ours, reference pair reference. Gap: flat, no etched line.
@@ -73,7 +74,7 @@ or calibration miss; the tool says "judge again"), never a counted one.
 
 ## Nov 13: context capture blocked (merged main ad9d6d1d)
 - Followed the lead's recipe; step 1 has no target. The backdrop draws untextured cubes and no skyline/paper `_PH` texture exists, so no shot can show
-  the piece. Not faking a capture. Request 3 in requests/artscene.md has the ask. Skyline r2 (Gemini) stays unshipped; `_PH` stays.
+  the piece. Not faking a capture. Request 3 in requests/artscene.md has the ask. Skyline r2 (Gemini) not imported.
 - Panel r2: pairs run but the context pair stays missing for the same reason. Cannot pass skyline, paper or menu-screen until a slot exists.
 - Also committed the provenance rows for skyline r1/r2 raw images.
 
@@ -99,14 +100,14 @@ or calibration miss; the tool says "judge again"), never a counted one.
 - Wind lines now inside the frame, soft ivory dots, no deckled edge (r2 fault was ours: prompt said "sheet"). art_ref 0.871, screen_check and art_check PASS.
 - Panel (tool-written round 2): calibration 3/6, quality-bar pair ours, reference pair reference-leaning but 0/3 calibrated sessions; "judge again". Context pair missing.
 - Merged main and area/artslots again: still no backdrop texture slot (grep Source for T_*_PH finds nothing). Request 3 stands; it is the only thing
-  stopping a pass for skyline, paper and menu-screen. No more paid calls until the slot exists (spend is wasted without the context pair). Nothing ships; `_PH` stays.
+  stopping a pass for skyline, paper and menu-screen. No more paid calls until the slot exists (spend is wasted without the context pair).
 
 ## Nov 13: re-check after merging main (e817898a) and area/artslots (ab25ac21)
 - Backdrop still draws untextured cubes (UmbrellaBackdropSubsystem.cpp:87); no T_*_PH slot exists. Skyline r2 and paper r3 cannot get a context pair.
 - menu-screen: on main it has no `ui` block, so it needs a context capture too. area/artui adds ui-title/ui-pause/... elements and paints those screens
   (ground r1, ui-title round 4: reference still wins). menu-screen overlaps that lane; I am not painting it in parallel (shared spend, double work).
 - Zero spend this round. Blocker for the lead, in requests/artscene.md item 3: give the backdrop a texture slot (or merge artui's `ui` elements and
-  retire menu-screen). Nothing ships; every `_PH` stays. Stopping here until the slot lands.
+  retire menu-screen). Stopping here until the slot lands.
 
 ## Nov 13: candidates moved (lead rule "Where candidates live")
 - All Gemini raws, keyed cuts and round candidates moved to `pipeline/art/proof/scene/{skyline,paper}/`; `Art/Source/Scene/Paint/out/` is gone. Provenance, critic records and requests/artscene.md paths updated.
@@ -115,18 +116,18 @@ or calibration miss; the tool says "judge again"), never a counted one.
 ## Nov 12 23:05: capture retry, still blocked (ours: none; machine)
 - Merged main (2ccbebdb) and artslots. T_Skyline_PH imported locally; run_game.sh -SmokeShot ran 10 min without finishing; load average 33 -> 151
   (other lanes' captures and builds). `Flow.SmokeShotDelaySeconds` (5 s wall clock, tuning only, no command-line flag) fires before the first backdrop frame.
-- Needs the lead: a `-SmokeShotDelay=` flag in SmokeHookSubsystem.cpp (not my lane) or an idle machine window. No piece can pass the context pair. Every `_PH` stays; zero spend.
+- Needs the lead: a `-SmokeShotDelay=` flag in SmokeHookSubsystem.cpp (not my lane) or an idle machine window. No piece can pass the context pair. (zero spend)
 
 ## Nov 13 (re-check, main 4829fa66): still blocked, zero spend
 - Merged main: nothing new for the capture. No `-SmokeShotDelay` flag in SmokeHookSubsystem; load average 49. Context pair for skyline, paper, menu-screen still impossible from this lane.
 - Uncommitted and left alone: `tools/build/art_inventory.py` (scene-texture rule, outside my lane) and untracked `Content/UmbrellaElla/Art/Scene/T_Skyline_PH.uasset`. The lead decides on the inventory rule.
-- Needs the lead (requests/artscene.md item 3 update): shot waits for first rendered frames or `-SmokeShotDelay=`. Every `_PH` stays.
+- Needs the lead (requests/artscene.md item 3 update): shot waits for first rendered frames or `-SmokeShotDelay=`.
 
 ## Nov 13 02:50: still blocked, zero spend
-Merged main 4c3dea15. Capture with an ini override of the shot delay never got an engine slot in 10 min (killed). Details in requests/artscene.md item 3. Every `_PH` stays.
+Merged main 4c3dea15. Capture with an ini override of the shot delay never got an engine slot in 10 min (killed). Details in requests/artscene.md item 3.
 
 ## Nov 13 (main 4e1e6aff merged): still blocked, zero spend
-No `-SmokeShotDelay=` flag yet, load average 45. Context pair for skyline, paper, menu-screen still needs a capture with the shot delay raised or an idle machine. Every `_PH` stays. Request 3 stands.
+No `-SmokeShotDelay=` flag yet, load average 45. Context pair for skyline, paper, menu-screen still needs a capture with the shot delay raised or an idle machine. Request 3 stands.
 
 ## Nov 13: skyline r3 repainted with the shared style block (main 3e2c0b2a merged)
 - Prompt skyline_r3.txt (= r2 text; assetgen appends the style block). Gemini 3.1 flash draft, $0.101, shared spend now $29.88 of $33.82. Keyed with art_scene_key.py, 3200x720.
@@ -177,3 +178,13 @@ No `-SmokeShotDelay=` flag yet, load average 45. Context pair for skyline, paper
   same-size icons). Model drew a black frame (cropped off before keying); windmill is still a classic X-sail, not the ring wheel. art_ref_check
   PASS 0.563 (r4 0.553, min 0.527). Imported to T_Skyline_PH. Composite pipeline/art/proof/artscene/skyline-r6.png (study | pre-dim arena | piece on the void).
   Invisible in game until request 5 lands. $0.039.
+
+## Nov 13 evening (Opus, lead restart after the Mac reboot): gate items from review-artscene
+- (1) BG-03/05/06 kept by Josh's decision (docs/decisions.md D-new-study-vs-bg-layers, DECIDED Nov 13 Josh): T_BgClock_PH = two ash-blue dial
+  ghosts with separate hands; T_BgWater_PH = two dim silver-grey falls cut into spill source / falling middle / pool / sea landing (masked parts);
+  T_BgClockWaterWind_PH = faint wind ribbon (entry/straight/bend/exit) + small clock + thin fall. Built by tools/build/assets/art_scene_clockwater.py
+  from 4 flash drafts (dial, hands, water, wind: $0.156). Every part is its own PNG next to the layer. Depth order: request 7 (visuals lane).
+- (2) provenance rows added for bg-start-end/world_r2_post, world-solids/world_r3_post, skyline/skyline_r3_keyed, the artscene/*.png proofs and every new part.
+- (3) BG-02: art_scene_world.py repeatN cross-fades the ends (TILE_FADE 0.12). Seam check tools/build/assets/art_scene_seam.py, test tests/test_art_scene_seam.py (8 PASS).
+  Measured (join score vs the picture's own interior p90): skyline r6 0.840 vs 0.412 FAIL -> r7 0.091 vs 0.363 PASS (T_Skyline_PH);
+  bg-clock rims r3 0.712 vs 0.420 FAIL -> r4 0.187 vs 0.419 PASS (in T_BgAtmosphere_PH).
