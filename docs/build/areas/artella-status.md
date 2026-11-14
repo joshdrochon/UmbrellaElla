@@ -341,3 +341,20 @@ Audio log (test run, LogUmbrellaElla):
 Open for Josh: (a) sound-list.csv names MusicIntro for the wings phase; per the lead order the fight opens on MusicContest and
 MusicIntro stays unused. (b) The three fight tracks have no record in pipeline/audio/critic (commit 161dd4c claims a pass), so
 audioimport skipped them; they play from the older sndworld import. Not run: packaged/in-game listen.
+
+## Lead order (Nov 13 23:43, coordinator for Josh): Level 07A walker test fix, carried in this free lane. Not art.
+`UmbrellaElla.Level.World.RealInputWalkerAtZ450StopsAt07ALowSolid` failed on main. The game was wrong, the test right.
+- Measured (test alone, main dab58cfa): solid x 11482..11674 z 367..518 is there at frame 1, but the walker (z 440..454)
+  passed it, best_x 12514, CP2 at t=22.9 s. Asserted: stop at x 11464.5, cp 1.
+- Bisect over main, first parent: 28656fe6 PASS, b377a494 PASS, 13534964 PASS (clean retest), 991b3eb7 FAIL (first bad),
+  dd37d809 FAIL, 44a50099 FAIL. 991b3eb7 (artscene) imported `T_WorldSolids_PH`; with a picture present
+  `UWorldArtSubsystem::Refresh` ran `ArtSlot::Apply` on the block's own collision mesh, which makes it a NoCollision plane.
+  Not the 1.5x figure scale or camera framing.
+- Fix (`Feedback/Background/WorldArtSubsystem.cpp`, d88698c3): the block keeps its box and collision (hidden), the picture
+  draws on a child plane `BlockArt`. No art changed, no threshold changed.
+- After: walker stops at x 11464 for t=20..60 s, block_ahead=Block, cp 1.
+- `Feedback.World.ArtSlotWorldPieces` tightened (it skipped blocks already without collision): all 17 colliding blocks must
+  still collide with the picture on a separate plane. Break-proven: 0/17 without the fix.
+- Runs on d88698c3: Level suite PASS 30/30; full UmbrellaElla suite PASS 457/457 (the gate batch ed61ceef counted 458;
+  it held commits not on main); module_check 0, manifest_check 0.
+- Lane note: WorldArtSubsystem is the visuals lane (artscene); carried here by lead order.
