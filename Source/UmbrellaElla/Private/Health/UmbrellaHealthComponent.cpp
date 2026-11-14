@@ -122,6 +122,19 @@ EHitResult UUmbrellaHealthComponent::TakeHitAt(float RawDamage, FName SourceId, 
 	return EHitResult::Landed;
 }
 
+void UUmbrellaHealthComponent::DefeatAtBoundary(FName SourceId)
+{
+	if (State.IsDefeated())
+	{
+		return;
+	}
+	State.Active = 0.0f;
+	State.Lives = 0;
+	State.ReserveProgress = 0.0f;
+	BroadcastHealth(SourceId, DamageDetail);
+	Broadcast(EUmbrellaEventType::PlayerDefeated, SourceId, DamageDetail, 0.0f, 0);
+}
+
 FHealthHealOutcome UUmbrellaHealthComponent::HealFromYellow(FName SourceId)
 {
 	if (!IsFeatureEnabled(EFeatureId::SURV_07))
