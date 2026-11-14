@@ -1,0 +1,44 @@
+{
+ "provider": "openrouter",
+ "tier": "final",
+ "tool": "OpenRouter (Google Gemini image models)",
+ "model": "gemini-3-pro-image-preview",
+ "openrouter_model": "google/gemini-3-pro-image-preview",
+ "fal_model": null,
+ "model_version": "google/gemini-3-pro-image-preview",
+ "prompt": "A wide 16:9, edge-to-edge, text-free, character-free landscape of a dark other-worldly sky realm, seen side-on from a level camera, as a dark storybook illustration. No border, frame, lettering or watermark.\n\nThe paper itself is near-black charcoal; its grain shows only as faint lighter fibre, so the sky stays almost black. The sky is a warm charcoal void (#1a1714 to #24201b), a little hazier through the middle height. Scattered thinly across it, a hundred or so tiny ember flecks of dim amber float like distant sparks.\n\nThere is no ground and no horizon: everything floats. Across the sky, far away and very low in contrast, run long undulating ridges of smoke shaped like the rims of giant melted clocks: each is a broad soft arch or hump of dark umber haze (#3a332b), lit faintly along its crest, with a few faint hour tick marks along the crest and long thin wax-like drips hanging from its underside. They repeat in three loose rows at different heights, the upper row thin and faint, the lower rows broader, like slow waves.\n\nThe lower right two fifths of the frame hold one large eroded floating island, its top a little below the middle of the frame: a flat crust of dark bronze-brown earth with a glowing warm amber rim light along its whole top edge (#c08a50), and an underside that streams downward in long, swept, wax-like drips and tendrils, with a spray of dark specks beneath, as if the land were melting into the void. On it stand a ruined wooden barn, its broken roof sagging and trailing in thin webbed shreds, and to its left a skeletal windmill: a thin ring wheel with curved web-like spokes on a twisted root-like stand. Warm amber light catches the edges of the barn and the windmill. At the far left edge, just below middle height, floats a smaller island cut off by the frame, its top edge also rim-lit amber, with the same melting underside.\n\nLighting is subdued and comes softly from the upper back, so every form is mostly in deep shadow with only its edges glowing warm. The centre and the whole upper half stay quiet, dark and empty of solid shapes. Colours are given only as guidance; never print them.\n\nStyle (required): dark, muted ink on aged paper, like an etched storybook engraving. Etched ink linework with near-black ink outlines; crosshatch and fine line hatching for every shadow and form; visible aged paper grain and fibre texture under all colour; hand-printed, slightly uneven ink. No flat fills, no vector shapes, no smooth digital gradients, no glossy 3D rendering.",
+ "seed": "none (seed not sent)",
+ "size": "1024x1024",
+ "quality": "medium",
+ "aspect_ratio": "16:9",
+ "image_size": "2K",
+ "input_images": [],
+ "cost_usd": 0.140778,
+ "reply": {
+  "usage": {
+   "prompt_tokens": 579,
+   "completion_tokens": 2082,
+   "total_tokens": 2661,
+   "cost": 0.140778,
+   "is_byok": false,
+   "prompt_tokens_details": {
+    "cached_tokens": 0,
+    "cache_write_tokens": 0,
+    "audio_tokens": 0,
+    "video_tokens": 0
+   },
+   "cost_details": {
+    "upstream_inference_cost": 0.140778,
+    "upstream_inference_prompt_cost": 0.001158,
+    "upstream_inference_completions_cost": 0.13962
+   },
+   "completion_tokens_details": {
+    "reasoning_tokens": 435,
+    "image_tokens": 1120,
+    "audio_tokens": 0
+   }
+  },
+  "finish": "stop"
+ },
+ "date": "2026-11-14T00:26+00:00"
+}
