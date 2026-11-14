@@ -266,3 +266,20 @@ IDENTIFIED C: the Keeper gust's gameplay cue cube `AKeeperOfTime::GustVisual` (S
   Break-check: gate removed -> that test FAILs; restored -> build exit 0, Feedback+Story+ScreenFix 78/78 PASS.
 - Left for the art lane: in Director's Cut the shaft is still the straight hairline (the sheet material ignores Opacity
   and Tint, so a softer study-style light needs VFX_LightShaft art, not code). Not restyled here.
+
+## Item 5: the judge missed the flat salmon box and the grey block
+- Why: (a) the gate judges ONE Keeper shot, taken between attacks, so the wing-gust warning band (salmon) and the gust
+  cube (grey, C) were seldom in it; (b) when they were, the judge read a small flat block as a cloud or a card.
+- Fix: `tools/build/flat_box.py` (stdlib, no judge, no spend): a box = one flat colour that fills its rectangle, hard
+  edges against what is around it, big enough to see; painted art has grain and soft edges. visual_qa runs it on every
+  judged shot and on 8 detector-only Keeper shots (`vq_keeper_a1..a8`, 0.8 s apart, new in journeys/visual_qa.txt), one
+  item per distinct box, added to the screen's 'broken' list (kind `box`, tagged `[detector]`). Gate: a detector item
+  counts as new only against a main baseline that was itself run with the detector (key `detector`); an older baseline
+  never listed main's own boxes and would fail every lane on the band main already shows. The lane `run` fails on any.
+  The band and the cube are not edited here (artkeeper / art lane).
+- Real capture (958f56dd, this journey, 1280x720): judged vq_keeper 0 boxes (what the judge saw); vq_keeper_a1 salmon
+  band 595x68 #e78783; a2 and a4 grey cube 33x68 #cfd6dc; play, dc_route and the other Keeper shots 0.
+- Tests: tests/test_flat_box.py (15, real captures in pipeline/qa/visual/calibration/flatbox-*.png: band, cube, black
+  stand-in found; quiet Keeper, clean route, the study and known-good give none). Against the old visual_qa.py 5 of
+  them fail (blind judge -> keeper PASS, no detector items, detector shots unread). test_visual_qa's recapture test now
+  recaptures a clean real frame (known-bad has boxes, which the recheck now lists).
