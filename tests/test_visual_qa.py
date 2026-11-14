@@ -249,6 +249,48 @@ def fixture(name, folder=FIXTURES):
         return json.load(fh)
 
 
+class GateAbsence(unittest.TestCase):
+    """Lead (artella f8d779e8, Ella idle restore): the gate failed on 'no wind' / 'no islands' items, absences of rubric
+    criteria main ebda6e47 already scores near 0 (play wind_ribbons 0, floating_islands 2) or names as bars (dc_route).
+    Real wordings: ../logs/gate-artella-evidence.txt and the ebda6e47 baseline."""
+
+    def setUp(self):
+        self.base = fixture("baseline-ebda6e47.json")
+        self.art = fixture("gate-artella-f8d779e8.json")
+
+    def test_artella_is_not_a_regression(self):
+        for screen, r in self.art["screens"].items():
+            ok, why = visual_qa.decide_gate(r, self.base["screens"][screen])
+            self.assertTrue(ok, "%s: %s" % (screen, why))
+
+    def test_absence_items_have_absence_kinds(self):
+        self.assertEqual(visual_qa.defect_kind("no wind ribbons visible anywhere"), "no_wind")
+        self.assertEqual(visual_qa.defect_kind("no floating islands: the ground is rounded dark blobs and gear "
+                                               "silhouettes, with no platform the player can read as ground"), "no_islands")
+        self.assertEqual(visual_qa.defect_kind("no floating island ground anywhere; platforms are solid colour bars"),
+                         "no_islands")
+
+    def test_absence_fails_when_main_scores_the_criterion_well(self):
+        base = dict(self.base["screens"]["play"], scores=dict(self.base["screens"]["play"]["scores"], wind_ribbons=6))
+        r = dict(self.art["screens"]["play"], broken=["no wind ribbons visible anywhere"])
+        ok, why = visual_qa.decide_gate(r, base)
+        self.assertFalse(ok)
+        self.assertIn("[no_wind]", why[0])
+
+    def test_no_islands_needs_main_low_score_or_bars(self):
+        base = dict(self.base["screens"]["dc_route"],
+                    scores=dict(self.base["screens"]["dc_route"]["scores"], floating_islands=7), broken=[], samples=[])
+        r = dict(self.art["screens"]["dc_route"], broken=["no floating island ground anywhere; platforms are solid colour bars"])
+        self.assertFalse(visual_qa.decide_gate(r, base)[0])
+
+    def test_a_genuinely_new_defect_still_fails(self):
+        r = dict(self.art["screens"]["keeper"])
+        r["broken"] = r["broken"] + ["Keeper sprite on an unkeyed grey rectangle"]
+        ok, why = visual_qa.decide_gate(r, self.base["screens"]["keeper"])
+        self.assertFalse(ok)
+        self.assertIn("unkeyed grey rectangle [unkeyed]", why[0])
+
+
 class GateWording(unittest.TestCase):
     """Lead 19:50: the owl merge (artkeeper 0d74b84a) failed the gate on 'new broken' items main b4c1fe79's baseline
     already lists in other words, and on a total inside the judge's own noise. Real wordings from both runs."""
