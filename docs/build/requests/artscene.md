@@ -56,3 +56,13 @@ numbers in the texture (tools/build/assets/art_scene_world.py), so the multiply 
 Ask: skip DimBackdropArt for the Scene slots artscene now ships graded (bg-layer:*, bg:*), or set BackdropDim to (1,1,1) for them. Keep
 DarkenBackdropPanel for flat stand-ins. Evidence: pipeline/art/proof/artscene/world-r1-*.png (before the dim) and
 pipeline/art/proof/artscene/world-r1-after-dim.png.
+
+## 6 (Nov 13 17:45, lead or visuals lane): a second solids slot for blocks and columns
+Files: `Source/UmbrellaElla/Private/Feedback/Art/ArtSlotCatalog.inc` (new row) and `WorldArtSubsystem.cpp` `VisualFor` (or wherever the Solid
+placement's size is known).
+Change: add `{ TEXT("world:solids-block"), TEXT("Scene"), TEXT("T_WorldSolidsBlock"), 1, false, TEXT("UWorldArtSubsystem"), 1, true }`; a Solid
+placement whose width / height is under 4 draws `world:solids-block`, every other Solid (and Floor, request 4) keeps `world:solids`.
+Why: ChunkCatalogueData.h solids are two shapes: ledges 346-576 x 32-65 (7:1 to 15:1) and blocks/columns 192-461 x 108-259 (0.7:1 to 2.7:1).
+One 8:1 ledge picture on a 0.7:1 column is squashed about 10x. The block picture is ready: pipeline/art/proof/scene/world-solids-block/world_r2_post.png
+(4:3, art_ref_check PASS 0.571 vs 0.527); I import it as T_WorldSolidsBlock_PH as soon as the row exists. Visual only, collision untouched.
+Test: ArtSlotFamilyTests' VisualFor case gains a 192x259 Solid -> world:solids-block and a 576x43 Solid -> world:solids.

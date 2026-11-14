@@ -13,7 +13,7 @@ Presets (numbers measured on pipeline/art/reference/discord/20261111-0318_Ricky_
   mid     : key, grade a step darker and flatter (bg-land, architecture).
   far     : key, grade dark and low contrast (skyline: distant islands).
   ghost   : key, grade to barely above the void (clock rims).
-Keying: the green ground is sampled from the border (the model paints a muted green, not #00FF00), so alpha comes from
+Keying: the green (or magenta) ground is sampled from the border (the model paints a muted green, not #00FF00), so alpha comes from
 how much greener than red/blue a pixel is, relative to that sampled green. Straight alpha; green spill clamped.
 """
 import sys
@@ -53,10 +53,18 @@ def key(px):
     edge = np.concatenate([rgb[:BORDER].reshape(-1, 3), rgb[-BORDER:].reshape(-1, 3),
                            rgb[:, :BORDER].reshape(-1, 3), rgb[:, -BORDER:].reshape(-1, 3)])
     ground = np.median(edge, axis=0)
-    ground_excess = max(1e-3, ground[1] - max(ground[0], ground[2]))
-    excess = (rgb[..., 1] - np.maximum(rgb[..., 0], rgb[..., 2])) / ground_excess
-    alpha = np.clip(1.0 - (excess - KEY_LO) / (KEY_HI - KEY_LO), 0.0, 1.0)
-    rgb[..., 1] = np.minimum(rgb[..., 1], np.maximum(rgb[..., 0], rgb[..., 2]))   # despill
+    if min(ground[0], ground[2]) > ground[1]:
+        # magenta ground (Nov 13: on green the model grew grass on the islands' tops, which keyed out): excess is how
+        # much both red and blue stand above green; warm earth (R > G > B) has none.
+        ground_excess = max(1e-3, min(ground[0], ground[2]) - ground[1])
+        excess = (np.minimum(rgb[..., 0], rgb[..., 2]) - rgb[..., 1]) / ground_excess
+        alpha = np.clip(1.0 - (excess - KEY_LO) / (KEY_HI - KEY_LO), 0.0, 1.0)
+        rgb[..., 2] = np.minimum(rgb[..., 2], rgb[..., 1])   # despill: pink fringe -> warm brown
+    else:
+        ground_excess = max(1e-3, ground[1] - max(ground[0], ground[2]))
+        excess = (rgb[..., 1] - np.maximum(rgb[..., 0], rgb[..., 2])) / ground_excess
+        alpha = np.clip(1.0 - (excess - KEY_LO) / (KEY_HI - KEY_LO), 0.0, 1.0)
+        rgb[..., 1] = np.minimum(rgb[..., 1], np.maximum(rgb[..., 0], rgb[..., 2]))   # despill
     px[..., 3] = alpha
     return ground
 

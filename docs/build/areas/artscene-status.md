@@ -162,3 +162,14 @@ No `-SmokeShotDelay=` flag yet, load average 45. Context pair for skyline, paper
   study 35). Request 5 in docs/build/requests/artscene.md; proof world-r1-after-dim.png. Also removed an old out-of-lane art_inventory.py
   edit from this branch (back to main's). Pre-check PASS at 001d90e7. Next once request 5 lands: recapture, then Pro passes where the
   frame shows the gap (route islands, refuge).
+
+## Nov 13 17:45 (Opus, lead order): floating-island platforms r2 (tracked `_PH`, not panel-passed)
+- Study read: flat dusty crust with a lit front lip and gold rim, top-lit; underside streams down in swept wax-like sheets breaking into specks.
+  New prompts world-solids_r2/r3 (ledge) and world-solids-block_r1/r2 (block), fresh-session review applied (prompt-review-islands.md).
+- Green ground made the model paint grass on the tops (keys out). Ours: green invites grass. Fix: magenta ground + magenta key in
+  art_scene_world.py (ground hue sampled from the border; despill pink to brown).
+- Ledge r3b imported to T_WorldSolids_PH: art_ref_check PASS 0.575 (min 0.527; r1 was FAIL 0.485). Block r2: PASS 0.571, waits for a slot
+  (request 6: blocks/columns are 0.7-2.7:1, the 8:1 ledge picture squashes about 10x on them).
+- In game: BackdropDim also darkens the ledges, so a fresh capture is near-black (Saved/Journey-r2). Judged on the pre-dim r1 frame and
+  the keyed pieces on the study's void: pipeline/art/proof/artscene/islands-r2.png. Recapture once request 5 lands.
+- OpenRouter spend this round: 5 flash drafts, $0.195 (world-solids $0.117 + 0.173 earlier, world-solids-block $0.078).
