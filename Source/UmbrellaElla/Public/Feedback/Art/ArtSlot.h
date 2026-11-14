@@ -21,6 +21,8 @@ struct FArtSlotRow
 	const TCHAR* DrawnBy;
 	/** Rows of frames in the sheet (a stand-in cut as a 6x4 grid has 4); the slot draws the top row, frame 0 first. */
 	int32 Rows = 1;
+	/** False when the stand-in picture failed admission (not keyed, or framed; tools/build/art_slots.py): its _PH is never loaded. */
+	bool bStandInOk = true;
 };
 
 /** What a draw request did. NoTexture and NoMaterial leave the stand-in untouched. */
@@ -64,7 +66,7 @@ namespace ArtSlot
 	/** Row for a visual id such as "ella-state:Idle"; null when unknown. Pure. */
 	UMBRELLAELLA_API const FArtSlotRow* Find(const TCHAR* Visual);
 
-	/** Object paths tried in order: the passed asset, then its _PH placeholder. Pure. */
+	/** Object paths tried in order: the passed asset, then its _PH placeholder (only when the row's stand-in passed admission). Pure. */
 	UMBRELLAELLA_API TArray<FString> TexturePaths(const FArtSlotRow& Row);
 
 	/** The slot path without suffix, e.g. /Game/UmbrellaElla/Art/Scene/T_Paper. Pure. */
@@ -118,6 +120,12 @@ namespace ArtSlot
 
 	/** Same as SetBoxScale, in world scale (a component whose parent is not unit scale). */
 	UMBRELLAELLA_API void SetWorldBoxScale(UStaticMeshComponent* Mesh, const FVector& BoxScale);
+
+	/** The Tint the slot material multiplies the picture (or the white stand-in) by; white when none is set. Pure read. */
+	UMBRELLAELLA_API FLinearColor GetTint(const UStaticMeshComponent* Mesh);
+
+	/** Set the Tint on a component drawn with the slot material (art or flat stand-in); no-op otherwise. */
+	UMBRELLAELLA_API void SetTint(UStaticMeshComponent* Mesh, const FLinearColor& Tint);
 
 	/** Re-size: a box scale for a stand-in, or the matching plane scale when art is drawn. */
 	UMBRELLAELLA_API void SetBoxScale(UStaticMeshComponent* Mesh, const FVector& BoxScale);

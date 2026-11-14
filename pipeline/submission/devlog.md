@@ -29,3 +29,6 @@ Published: TBD
 ### Day 2
 ### Day 3
 ### Day 4
+
+## Frames toward the Other Realm study
+- 2026-11-13 16:24 visualqa round 01 (Director's Cut route): framed/unkeyed stand-ins refused (art_slots admission), wind as thin ash-blue #555e60 ribbons in code, backdrop dimmed to the study's dark, cream blocks to island umber, lilac Keeper cube hidden. Composite: pipeline/qa/visual/composite-01-dc_route.png
