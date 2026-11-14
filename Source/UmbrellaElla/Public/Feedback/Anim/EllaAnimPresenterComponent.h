@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Feedback/Art/FigureScale.h"
 #include "Components/ActorComponent.h"
 #include "EllaAnimPresenterComponent.generated.h"
 
@@ -27,7 +28,9 @@ namespace UmbrellaPresenterConst
 	 * camera margin is wider): the top of the art bible Asset spec "Ella + open umbrella 80-100 px" and about 0.93x the
 	 * Other Realm study's figure (10% of the frame height). At 2.28 she read at about 0.6x the study (artella #5).
 	 */
-	static constexpr double ArtCellHeight = 2.7;
+	static constexpr double FramedCellHeight = 2.7;
+	/** The drawn cell height: FramedCellHeight times the figure scale (D-new-character-scale). The camera frames FramedCellHeight. */
+	static constexpr double ArtCellHeight = FramedCellHeight * UmbrellaFigureScale::Ella;
 }
 
 namespace UmbrellaEllaOverlayConst

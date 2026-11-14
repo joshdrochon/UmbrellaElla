@@ -363,7 +363,7 @@ int32 UFrameCompositionSubsystem::DumpVisibleMeshes() const
 
 float UFrameCompositionSubsystem::SpriteHalfHeight(float ActorScaleZ)
 {
-	return static_cast<float>(UmbrellaPresenterConst::ArtCellHeight) * UmbrellaFrameConst::UnitBoxSize * 0.5f * ActorScaleZ;
+	return static_cast<float>(UmbrellaPresenterConst::FramedCellHeight) * UmbrellaFrameConst::UnitBoxSize * 0.5f * ActorScaleZ;
 }
 
 float UFrameCompositionSubsystem::MarginOrthoWidth(float ArenaHeight, float AspectRatio, float SpriteHalf, float CapsuleHalf, float TopShare)

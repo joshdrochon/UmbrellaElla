@@ -51,6 +51,12 @@ namespace KeeperVfxRules
 
 	UMBRELLAELLA_API EKeeperVfxAnchor AnchorFor(EKeeperPhysical Physical);
 
+	/**
+	 * World X direction the Keeper's gust front travels: always toward -X (FKeeperFightModel::Step, Gust stroke:
+	 * GustFront.X = LockStart.X - GustTravelled). The gust effects at the gust front face this way.
+	 */
+	static constexpr float GustTravelX = -1.0f;
+
 	/** The cues for one step. A stage that deals no damage (pause, return, recovery) never starts a strike effect. */
 	UMBRELLAELLA_API void Diff(const FKeeperVfxSnapshot& Before, const FKeeperVfxSnapshot& After, TArray<FKeeperVfxCue>& Out);
 

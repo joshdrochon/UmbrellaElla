@@ -202,3 +202,33 @@ IDENTIFIED C: the Keeper gust's gameplay cue cube `AKeeperOfTime::GustVisual` (S
   treatment (ash #555e60, 15% height) loses: EncounterDirectorSubsystem calls Refresh every tick and PlaceVisual re-sets scale and
   tint, while composition re-applies only every 0.2 s, so most frames show the raw 60x120 pale block. For the art lane: give the gust
   front an art slot (or hide GustVisual while VFX_Gust draws, as MarkPartArtDrawn does for body parts). Not restyled here.
+- Item 1 gust facing: the gust sheets (VFX_Gust, VFX_GustPuff) are drawn travelling +X; the Keeper's gust travels -X.
+  `UUmbrellaVfxDirectorSubsystem::PlayAnchored` turns every GustFront-anchored effect 180 degrees in the screen plane
+  (`VfxSheetVisual::FacingCameraToward(KeeperVfxRules::GustTravelX)`; normal stays toward the camera). Tests:
+  UmbrellaElla.Feedback.VfxGustFacesTravel (both ways: +X keeps the old facing, -X is a 180 turn, front leads, faces camera),
+  UmbrellaElla.Feedback.World.VfxGustFacesTravel (real fight to a travelling gust: model front moves -X, the live GustTravel
+  art's front leads it). Break-checked: without the turn the world test FAILs. 4/4 PASS with VfxKeeperWiring, VfxKeeperRules.
+  Capture 1600x900 (tools/build/journeys/vq_keeper_attacks.txt): pipeline/qa/visual/gust-facing-before-after.png
+  (left before: round front trails the travel; right after: front leads). Grey block C still rides it (art lane).
+- Item 2 figure scale (D-new-character-scale row added): `Feedback/Art/FigureScale.h` Ella 1.5, Keeper 1.5. Ella's drawn
+  cell = FramedCellHeight 2.7 x 1.5 (overlays too); the Keeper body/part box 6.0 x 1.5; the camera margin still frames 2.7
+  (`SpriteHalfHeight` uses FramedCellHeight): no zoom, background identical (composites below). Hitboxes, collision, speeds
+  untouched. Measured (UmbrellaElla.Feedback.World.FigureScaleOnScreen, opaque figure from the texture source): Ella 14.1%
+  Start Game / 12.7% Director's Cut (was ~9.4/8.5), Keeper 41.1% (was ~27%); all in frame EXCEPT Start Game with Ella at the
+  ceiling: her umbrella tip overhangs the frame top by 22 units (~17 px at 900p). That is the 'no zoom' vs 'fully in frame'
+  conflict: OPEN in D-new-character-scale (options a accept / b ~4% Start Game margin / c draw art 22 lower); default a,
+  reported by the test as a warning. Hitboxes: Ella's hurtbox inside her figure (hurtbox/figure 0.55); every Keeper hitbox on
+  the drawn Keeper; REPORT: the front/middle/rear mechanism pictures move 55-70 units off their 36-unit hitboxes because the
+  picture grows about the body centre (wings, clock, eye stay over theirs). Not changed.
+  Tests: FigureScale.VisualOnly + World.FigureScaleOnScreen; break-checked (scale 1.0 FAILs); 30/30 with FrameComposition,
+  ArtSlot, Keeper world tests. Captures: pipeline/qa/visual/scale-{play,keeper}-before-after.png (study | main 991b3eb7 | tip).
+  `visual_qa.py run --gate --main-sha dd37d80943a12016565114f4abd1fb887f47df6c` on cc2a51b4:
+  `VISUAL_QA GATE PASS play=39/70 dc_route=45/70 keeper=39/70 broken=7 baseline=991b3eb7806a`.
+- Item 3 capture load: tools/build/run_game.sh caps every offscreen (RUN_RES) run with
+  `-ini:Engine:[ConsoleVariables]:t.MaxFPS=30` (RUN_MAXFPS, default 30; 0 lifts it); the run log shows
+  `LogConfig: Set CVar [[t.MaxFPS:30]]`. That covers gate and lane visual_qa captures (visual_qa launches through it).
+  Scores: same tip cc2a51b4 uncapped play/dc_route/keeper = 39/45/39; capped first 24/43/39, recapture 41/44/39
+  (pipeline/qa/visual/noise/fps30-cc2a51b4.json). The 24 is content: that capture had the Keeper's salmon gust band
+  mid-frame and 'Preparing Textures'; the gate's two-capture rule passes the capped pair against the uncapped run, and
+  every recapture total is within the measured judge noise (4). Tests: tests/test_capture_fps.py (6; stub editor prints
+  run_game's args; the old run_game.sh fails 2).

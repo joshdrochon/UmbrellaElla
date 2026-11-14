@@ -170,7 +170,7 @@ public:
 	/** Log every rendered mesh: owner, component, world box, art or stand-in tint (finds the boxes on a capture). */
 	int32 DumpVisibleMeshes() const;
 
-	/** Half-height of Ella's drawn picture cell for an actor scale (UmbrellaPresenterConst::ArtCellHeight). Pure. */
+	/** Half-height of the picture cell the camera frames for an actor scale (UmbrellaPresenterConst::FramedCellHeight, not the drawn ArtCellHeight: the figure scale never zooms the camera). Pure. */
 	static float SpriteHalfHeight(float ActorScaleZ);
 
 	/**
