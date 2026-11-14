@@ -70,6 +70,25 @@ class ArtSlots(unittest.TestCase):
         self.assertIn('TEXT("T_WindZone"), 1, false, TEXT("UWindPresenterSubsystem"), 1, false }', rows)
         self.assertTrue(rows.rstrip().endswith("4, true },"))
 
+    def test_standin_reader_needs_no_image_tool_and_matches_its_cache(self):
+        # 16:28 gate review: the verdict must not depend on which image tool is installed. The reader is pure Python:
+        # it works with no sips/ffmpeg on PATH, and the committed cache holds exactly what the reader measures.
+        from unittest import mock
+        pic = os.path.join(ROOT, art_slots.standin_picture("shot:stream-beam"))
+        with mock.patch.dict(os.environ, {"PATH": ""}):
+            w, h, alpha = art_slots.probe_alpha(pic)
+        self.assertEqual(max(w, h), art_slots.STANDIN_PROBE_PX)
+        self.assertEqual(art_slots.standin_verdict_alpha(w, h, alpha), "unkeyed")
+        cache = art_slots.load_verdict_cache()
+        self.assertEqual(cache.get(art_slots.file_sha(pic) + ":1x1"), "unkeyed")
+        self.assertFalse(hasattr(art_slots, "subprocess"), "no external image tool in the reader")
+
+    def test_shrink_alpha_is_an_area_average(self):
+        # Break check: a 4x2 grid halves to 2x1 by averaging blocks; a picture already small enough is untouched.
+        self.assertEqual(art_slots.shrink_alpha(4, 2, [[0, 255, 255, 255], [0, 255, 0, 0]], longest=2),
+                         (2, 1, [[127, 127]]))
+        self.assertEqual(art_slots.shrink_alpha(2, 1, [[1, 2]], longest=2), (2, 1, [[1, 2]]))
+
     def test_import_script_resolves_visual_id_and_slot_path(self):
         import import_art_candidate as imp
         self.assertEqual(imp.resolve("bg-layer:FarLand"), ("/Game/UmbrellaElla/Art/Scene", "T_Skyline_PH", False))
