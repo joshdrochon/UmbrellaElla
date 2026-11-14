@@ -18,6 +18,15 @@
    "file": "pipeline/art/proof/artkeeper/keeper-idle/fixed/Keeper_idle_N24_grid.png",
    "sha256": "8bb4d531fa58cf2cb99aab2927feb353ba1744efc5d34d42b23df4ba940ac29b",
    "note": "Keeper owl idle, 24 frames as a 6x4 grid sheet from an OpenRouter gemini-3-pro-image-preview still and a fal Veo 3.1 Fast idle clip; the version in area/artkeeper 082c95a0. A re-graded sheet (pink wing-rim cleanup) needs a new approval."
+  },
+  {
+   "piece": "keeper-wing-gust",
+   "approver": "Josh",
+   "date": "2026-11-13",
+   "origin": "approved by Josh (\"literally wing-gust.mp4 is what should be in the game\"), 2026-11-13, in chat",
+   "file": "pipeline/art/proof/artkeeper/wing-gust/Keeper_wing_gust_N14_strip_graded.png",
+   "sha256": "3866d70db7d65ba49d5ff7021087b0db78829b0213a0cffdf412afd0ef3d79ce",
+   "note": "Keeper wing-gust cue (OWL-15), 14-frame strip cut from wing-gust.mp4 (sha256 5e45fda9...) and graded like the approved idle; imported as T_Keeper_WingGust_PH; lands with area/artkeeper 97590213"
   }
  ]
 }

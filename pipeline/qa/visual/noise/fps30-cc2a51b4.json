@@ -1,0 +1,171 @@
+{
+ "_about": "visualqa item 3 (Josh's mouse lag): the same tip cc2a51b4 captured uncapped (gate-scale-cc2a51b4) and with t.MaxFPS 30 (fps30-cc2a51b4, two captures: first + recheck), judged by visual_qa. The capped play first capture had the Keeper's salmon gust band mid-frame (content, not frame rate); its recapture did not.",
+ "uncapped": {
+  "play": {
+   "total": 39,
+   "scores": {
+    "dark_backdrop": 6,
+    "wind_ribbons": 0,
+    "small_figures": 4,
+    "floating_islands": 7,
+    "shot_colours": 5,
+    "no_placeholders": 8,
+    "no_framed_art": 9
+   },
+   "broken": [
+    "thin vertical line from the top of the frame down to Ella's umbrella, like a stray rope or debug line",
+    "no wind ribbons drawn anywhere"
+   ],
+   "verdict": "FAIL",
+   "samples": []
+  },
+  "dc_route": {
+   "total": 45,
+   "scores": {
+    "dark_backdrop": 8,
+    "wind_ribbons": 6,
+    "small_figures": 7,
+    "floating_islands": 7,
+    "shot_colours": 5,
+    "no_placeholders": 4,
+    "no_framed_art": 8
+   },
+   "broken": [
+    "long flat brown bar spanning the bottom of the frame",
+    "flat thin bar platform in the middle (under the centre islands)",
+    "straight vertical line from the top of the screen down to the player"
+   ],
+   "verdict": "FAIL",
+   "samples": []
+  },
+  "keeper": {
+   "total": 39,
+   "scores": {
+    "dark_backdrop": 8,
+    "wind_ribbons": 1,
+    "small_figures": 4,
+    "floating_islands": 8,
+    "shot_colours": 4,
+    "no_placeholders": 5,
+    "no_framed_art": 9
+   },
+   "broken": [
+    "flat thin bar with green glow at bottom left-centre (reads as a placeholder platform, not an island)",
+    "straight 1-pixel vertical line from the top of the frame down to the girl (looks like a debug line or rope, not a wind ribbon)"
+   ],
+   "verdict": "FAIL",
+   "samples": []
+  }
+ },
+ "capped_first": {
+  "play": {
+   "total": 24,
+   "scores": {
+    "dark_backdrop": 8,
+    "wind_ribbons": 0,
+    "small_figures": 3,
+    "floating_islands": 6,
+    "shot_colours": 1,
+    "no_placeholders": 0,
+    "no_framed_art": 6
+   },
+   "broken": [
+    "large flat salmon-pink solid box across the middle of the screen (wind drawn as a placeholder bar, not ribbons)",
+    "player figure hangs from a thin vertical line/string from the top of the frame",
+    "Keeper (mechanical owl) is huge, about a third of the frame, not small as in the study",
+    "no gold or red shot streaks visible",
+    "'Preparing Textures (1)' loading text over the HUD (textures not streamed in)"
+   ],
+   "verdict": "FAIL"
+  },
+  "dc_route": {
+   "total": 43,
+   "scores": {
+    "dark_backdrop": 9,
+    "wind_ribbons": 5,
+    "small_figures": 8,
+    "floating_islands": 6,
+    "shot_colours": 6,
+    "no_placeholders": 3,
+    "no_framed_art": 6
+   },
+   "broken": [
+    "long flat dark-brown bar across the bottom of the frame (y~485), with a second thin bar at far left",
+    "flat thin bar platform at right (x~1580-1800, y~365) drawn as a plain strip, not an island",
+    "wind ribbons bend into straight vertical lines below the left island and near the house, so they read as rectangular outlines instead of flowing ribbons",
+    "a straight vertical line runs from the top of the screen down to Ella's umbrella"
+   ],
+   "verdict": "FAIL"
+  },
+  "keeper": {
+   "total": 39,
+   "scores": {
+    "dark_backdrop": 9,
+    "wind_ribbons": 0,
+    "small_figures": 3,
+    "floating_islands": 7,
+    "shot_colours": 5,
+    "no_placeholders": 6,
+    "no_framed_art": 9
+   },
+   "broken": [
+    "flat dark bar with green fill at bottom left (reads as a placeholder bar or panel)",
+    "thin vertical line from the top of the frame down to the girl (looks like a stray debug line or rope)",
+    "no wind ribbons drawn anywhere"
+   ],
+   "verdict": "FAIL"
+  }
+ },
+ "capped_recheck": {
+  "play": {
+   "total": 41,
+   "scores": {
+    "dark_backdrop": 8,
+    "wind_ribbons": 0,
+    "small_figures": 4,
+    "floating_islands": 8,
+    "shot_colours": 5,
+    "no_placeholders": 7,
+    "no_framed_art": 9
+   },
+   "broken": [
+    "thin vertical line from top edge down to the girl's umbrella (reads as a stray debug/tether line)",
+    "no wind ribbons drawn anywhere",
+    "plain white dot bottom-left with no clear purpose"
+   ]
+  },
+  "dc_route": {
+   "total": 44,
+   "scores": {
+    "dark_backdrop": 8,
+    "wind_ribbons": 6,
+    "small_figures": 7,
+    "floating_islands": 6,
+    "shot_colours": 5,
+    "no_placeholders": 4,
+    "no_framed_art": 8
+   },
+   "broken": [
+    "long flat dark bar platform spanning the bottom of the frame",
+    "flat thin bar platform under the right-centre island",
+    "stray straight white vertical line from top of screen down to Ella"
+   ]
+  },
+  "keeper": {
+   "total": 39,
+   "scores": {
+    "dark_backdrop": 8,
+    "wind_ribbons": 1,
+    "small_figures": 4,
+    "floating_islands": 7,
+    "shot_colours": 4,
+    "no_placeholders": 6,
+    "no_framed_art": 9
+   },
+   "broken": [
+    "thin flat bar platform with a green strip, bottom left, instead of an island",
+    "straight vertical line from the top edge down to Ella, looks like a debug or tether line"
+   ]
+  }
+ }
+}

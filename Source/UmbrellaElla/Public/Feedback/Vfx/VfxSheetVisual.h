@@ -39,4 +39,10 @@ namespace VfxSheetVisual
 
 	/** Rotation that turns the engine plane to face the play camera with the sheet upright. */
 	UMBRELLAELLA_API FRotator FacingCamera();
+
+	/**
+	 * FacingCamera for an effect that travels along world X. Sheets are drawn travelling +X (front on the right): a
+	 * negative TravelX turns the quad 180 degrees in the screen plane, so the front leads (lead order, Nov 13 21:49).
+	 */
+	UMBRELLAELLA_API FRotator FacingCameraToward(float TravelX);
 }

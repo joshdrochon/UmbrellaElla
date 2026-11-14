@@ -15,6 +15,9 @@ ROOT="$(cd "$(dirname "$0")/../.." && pwd)"; UE_ROOT="${UE_ROOT:-/Users/Shared/E
 SAFE=(-nosound -windowed -ResX=640 -ResY=360 -unattended -nocrashreports -nosplash)
 # RUN_RES=WxH: a larger capture (e.g. 1280x720, 1920x1080) renders offscreen, so no window takes over the screen.
 if [ -n "${RUN_RES:-}" ]; then SAFE=(-nosound -RenderOffscreen -ForceRes -ResX="${RUN_RES%x*}" -ResY="${RUN_RES#*x}" -unattended -nocrashreports -nosplash); fi
+# Offscreen captures render as fast as the GPU allows and lagged Josh's mouse (Nov 13): cap them at RUN_MAXFPS (default
+# 30; 0 = uncapped). visual_qa scores at 30 fps match the uncapped ones within judge noise (visualqa status, item 3).
+if [ -n "${RUN_RES:-}" ] && [ "${RUN_MAXFPS:-30}" != "0" ]; then SAFE+=("-ini:Engine:[ConsoleVariables]:t.MaxFPS=${RUN_MAXFPS:-30}"); fi
 LOG_DIR="$ROOT/Saved/Logs/runs"; mkdir -p "$LOG_DIR"
 LOG="$LOG_DIR/run-$(date -u +%Y%m%d-%H%M%S)-$$.log"
 SHOT=""

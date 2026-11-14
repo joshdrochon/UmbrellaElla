@@ -1,0 +1,44 @@
+{
+ "provider": "openrouter",
+ "tier": "final",
+ "tool": "OpenRouter (Google Gemini image models)",
+ "model": "gemini-3-pro-image-preview",
+ "openrouter_model": "google/gemini-3-pro-image-preview",
+ "fal_model": null,
+ "model_version": "google/gemini-3-pro-image-preview",
+ "prompt": "A wide 16:9 side-on view of three floating eroded islands at middle distance, seen from a level camera, as a dark storybook illustration. Text-free, with no frame or watermark.\n\nOn the left is one substantial island about a third of the canvas wide: a dark bronze-brown earth body (#4a3524 to #2a1f17) with a flat, slightly uneven crust on top lit by a thin warm gold rim light (#a8784a), and an underside hanging in long, swept, wax-like drips and tendrils with a spray of hard-edged dark specks beneath, as if the land were melting into a void. In the middle floats a smaller perch island with the same melting underside. On the right floats a small island carrying an open arch of dark bronze-grey stone, a hollow gap through it, its crown crumbling and warped like a bent clock hand. The three float at different heights with wide gaps between them, and no island overlaps another. Their colours are muted and a step darker than the play area, with crisp edges.\n\nThe background is one flat digital pure green (#00FF00) that fills every area the earth does not cover, edge to edge and between every drip, like a green-screen backdrop: one unchanging green with no light falling on it, no paper grain, no hatching and no texture; the grain and hatching apply to the earth only. The earth uses only warm browns, umbers and near-black, and its lit edges are warm gold-brown, never green-tinted; every edge is crisp against the green with a thin dark ink outline.\n\nLighting is subdued and comes softly from the upper back, so every form is mostly in deep shadow with only its thin top edge lit. Colours are given only as guidance; never print them.\n\nStyle (required): dark, muted ink on aged paper, like an etched storybook engraving. Etched ink linework with near-black ink outlines; crosshatch and fine line hatching for every shadow and form; visible aged paper grain and fibre texture under all colour; hand-printed, slightly uneven ink. No flat fills, no vector shapes, no smooth digital gradients, no glossy 3D rendering.",
+ "seed": "none (seed not sent)",
+ "size": "1024x1024",
+ "quality": "medium",
+ "aspect_ratio": "16:9",
+ "image_size": "2K",
+ "input_images": [],
+ "cost_usd": 0.139224,
+ "reply": {
+  "usage": {
+   "prompt_tokens": 468,
+   "completion_tokens": 2100,
+   "total_tokens": 2568,
+   "cost": 0.139224,
+   "is_byok": false,
+   "prompt_tokens_details": {
+    "cached_tokens": 0,
+    "cache_write_tokens": 0,
+    "audio_tokens": 0,
+    "video_tokens": 0
+   },
+   "cost_details": {
+    "upstream_inference_cost": 0.139224,
+    "upstream_inference_prompt_cost": 0.000936,
+    "upstream_inference_completions_cost": 0.138288
+   },
+   "completion_tokens_details": {
+    "reasoning_tokens": 324,
+    "image_tokens": 1120,
+    "audio_tokens": 0
+   }
+  },
+  "finish": "stop"
+ },
+ "date": "2026-11-14T00:45+00:00"
+}

@@ -406,14 +406,14 @@ EArtSlotDraw UEllaAnimPresenterComponent::ShowOverlayArt(const FString& Visual, 
 	Part->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Part->SetGenerateOverlapEvents(false);
 	Part->SetupAttachment(Owner->GetRootComponent());
-	const EArtSlotDraw Result = ArtSlot::Apply(Part, Picture, *Row, UmbrellaPresenterConst::StandInScale);
+	const EArtSlotDraw Result = ArtSlot::Apply(Part, Picture, *Row, UmbrellaPresenterConst::StandInScale * UmbrellaFigureScale::Ella);
 	if (Result != EArtSlotDraw::Drawn)
 	{
 		Part->DestroyComponent();
 		return Result;
 	}
 	Part->RegisterComponent();
-	ArtSlot::SetWorldBoxScale(Part, UmbrellaPresenterConst::StandInScale);
+	ArtSlot::SetWorldBoxScale(Part, UmbrellaPresenterConst::StandInScale * UmbrellaFigureScale::Ella);
 	Part->SetWorldLocation(Owner->GetActorLocation() + FVector(0.0, Layer->DepthOffset, 0.0));
 	Part->SetVisibility(false);
 	OverlayParts.Add(FName(*Visual), Part);

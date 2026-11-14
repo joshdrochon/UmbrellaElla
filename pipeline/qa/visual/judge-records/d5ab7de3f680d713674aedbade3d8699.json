@@ -1,0 +1,6 @@
+{
+ "model": "claude-opus-5-5",
+ "key": "d5ab7de3f680d713674aedbade3d8699",
+ "at": "2026-11-13T22:14:35",
+ "answer": "{\"scores\": {\"dark_backdrop\": 8, \"wind_ribbons\": 6, \"small_figures\": 7, \"floating_islands\": 6, \"shot_colours\": 5, \"no_placeholders\": 4, \"no_framed_art\": 8}, \"broken\": [\"long flat dark bar platform spanning the bottom of the frame\", \"flat thin bar platform under the right-centre island\", \"stray straight white vertical line from top of screen down to Ella\"], \"verdict\": \"FAIL\"}"
+}

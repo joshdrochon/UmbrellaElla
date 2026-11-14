@@ -1,0 +1,6 @@
+{
+ "model": "claude-opus-5-5",
+ "key": "bf76c08e7f71f93f58383860ea038407",
+ "at": "2026-11-13T20:46:26",
+ "answer": "{\"scores\": {\"dark_backdrop\": 7, \"wind_ribbons\": 0, \"small_figures\": 5, \"floating_islands\": 7, \"shot_colours\": 4, \"no_placeholders\": 5, \"no_framed_art\": 8}, \"broken\": [\"flat thin bar platform at bottom left (green/gold line with small icon) reads as a placeholder bar\", \"long straight vertical line from top of frame to the hanging girl, like a debug line or bare rope\"], \"verdict\": \"FAIL\"}"
+}

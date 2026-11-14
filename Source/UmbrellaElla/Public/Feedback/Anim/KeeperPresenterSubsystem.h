@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Feedback/Art/FigureScale.h"
 #include "Subsystems/WorldSubsystem.h"
 #include "KeeperPresenterSubsystem.generated.h"
 
@@ -24,7 +25,7 @@ enum class EKeeperGridPlayback : uint8
 namespace UmbrellaKeeperPresenterConst
 {
 	/** Stand-in box scale for the Keeper: wide body, flat card. */
-	static const FVector StandInScale(6.0, 0.1, 6.0);
+	static const FVector StandInScale(6.0 * UmbrellaFigureScale::Keeper, 0.1, 6.0 * UmbrellaFigureScale::Keeper);   // D-new-character-scale
 	/** Part slots that draw as layers over the body, back to front, with their depth offset (Y units from the body; negative = behind). */
 	struct FKeeperPartLayer
 	{
