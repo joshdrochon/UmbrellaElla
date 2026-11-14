@@ -380,22 +380,32 @@ void UFrameCompositionSubsystem::ApplyCameraMargin(AUmbrellaArena* Arena, const 
 		return;
 	}
 	const FArenaCameraTuning& T = GetDefault<UUmbrellaTuning>()->ArenaCamera;
+	const float TopShare = TitleBand == EFrameTitleBand::Shown ? UmbrellaFrameConst::TitleBandShare : 0.0f;
 	const float Current = Camera->OrthoWidth;
 	const bool bOurs = FMath::IsNearlyEqual(Current, T.ArenaWidth, UmbrellaFrameConst::OrthoMatchTolerance)
 		|| (LastMarginOrthoWidth > 0.0f && FMath::IsNearlyEqual(Current, LastMarginOrthoWidth, UmbrellaFrameConst::OrthoMatchTolerance));
-	if (!bOurs)
+	if (bOurs)
 	{
-		return;
+		const float Wanted = MarginOrthoWidth(T.ArenaHeight, T.CameraAspectRatio,
+			SpriteHalfHeight(static_cast<float>(Ella->GetActorScale3D().Z)), Capsule->GetScaledCapsuleHalfHeight(), TopShare);
+		LastMarginOrthoWidth = Wanted;
+		if (!FMath::IsNearlyEqual(Current, Wanted, UmbrellaFrameConst::OrthoMatchTolerance))
+		{
+			Camera->SetOrthoWidth(Wanted);
+		}
 	}
-	const float Wanted = MarginOrthoWidth(T.ArenaHeight, T.CameraAspectRatio,
-		SpriteHalfHeight(static_cast<float>(Ella->GetActorScale3D().Z)), Capsule->GetScaledCapsuleHalfHeight(),
-		TitleBand == EFrameTitleBand::Shown ? UmbrellaFrameConst::TitleBandShare : 0.0f);
-	LastMarginOrthoWidth = Wanted;
-	if (FMath::IsNearlyEqual(Current, Wanted, UmbrellaFrameConst::OrthoMatchTolerance))
+	// B7/B11 + D-new-character-scale: the camera frames the old cell, so the 1.5x picture is kept under the frame's clear
+	// top by lowering the picture (never the camera, the background or her hurtbox).
+	if (UEllaAnimPresenterComponent* Presenter = Ella->FindComponentByClass<UEllaAnimPresenterComponent>())
 	{
-		return;
+		Presenter->SetDrawTopLimit(ClearTopZ(static_cast<float>(Camera->GetComponentLocation().Z), Camera->OrthoWidth, Camera->AspectRatio, TopShare));
 	}
-	Camera->SetOrthoWidth(Wanted);
+}
+
+float UFrameCompositionSubsystem::ClearTopZ(float CameraZ, float OrthoWidth, float AspectRatio, float TopShare)
+{
+	const float ViewHeight = OrthoWidth / FMath::Max(KINDA_SMALL_NUMBER, AspectRatio);
+	return FrameTopZ(CameraZ, OrthoWidth, AspectRatio) - FMath::Clamp(TopShare, 0.0f, UmbrellaFrameConst::MaxTopShare) * ViewHeight;
 }
 
 void UFrameCompositionSubsystem::Tick(float DeltaTime)

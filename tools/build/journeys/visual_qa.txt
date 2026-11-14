@@ -37,6 +37,22 @@ routeassist 4
 idle 3
 hold J 1.0
 shot vq_keeper
+idle 0.8
+shot vq_keeper_a1                   # detector-only Keeper shots: attacks on screen in some
+idle 0.8
+shot vq_keeper_a2
+idle 0.8
+shot vq_keeper_a3
+idle 0.8
+shot vq_keeper_a4
+idle 0.8
+shot vq_keeper_a5
+idle 0.8
+shot vq_keeper_a6
+idle 0.8
+shot vq_keeper_a7
+idle 0.8
+shot vq_keeper_a8
 assistwin 900
 wait Credits 180
 idle 3

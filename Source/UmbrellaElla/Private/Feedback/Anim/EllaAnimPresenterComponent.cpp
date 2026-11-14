@@ -264,6 +264,7 @@ void UEllaAnimPresenterComponent::TickComponent(float DeltaTime, ELevelTick Tick
 	TransitionLeft = FMath::Max(0.0f, TransitionLeft - DeltaTime);
 	RepairLeft = FMath::Max(0.0f, RepairLeft - DeltaTime);
 	UpdateOverlays(ReadOverlayInput());
+	KeepFigureInFrame();
 	if (StateTimeLeft > 0.0f)
 	{
 		StateTimeLeft -= DeltaTime;
@@ -449,6 +450,54 @@ FEllaOverlayInput UEllaAnimPresenterComponent::ReadOverlayInput() const
 		Input.HealthFraction = HealthNow.Capacity > 0.0f ? FMath::Clamp(HealthNow.Active / HealthNow.Capacity, 0.0f, 1.0f) : 1.0f;
 	}
 	return Input;
+}
+
+void UEllaAnimPresenterComponent::SetDrawTopLimit(float WorldZ)
+{
+	DrawTopLimitZ = WorldZ;
+	bHasDrawTopLimit = true;
+	KeepFigureInFrame();
+}
+
+float UEllaAnimPresenterComponent::FigureDrop(float ActorZ, float DrawnHalf, float LimitZ)
+{
+	return FMath::Max(0.0f, ActorZ + DrawnHalf - LimitZ);
+}
+
+float UEllaAnimPresenterComponent::KeepFigureInFrame()
+{
+	const AActor* Owner = GetOwner();
+	if (!IsValid(Owner) || !IsValid(StandIn))
+	{
+		return 0.0f;
+	}
+	// The drawn cell bounds the opaque figure, so keeping the cell under the limit keeps her whole figure in frame. Only
+	// the pictures move; the capsule, hurtbox and camera stay where they are. The cell's top is read from its bounds
+	// (whatever mesh and turn the art slot uses), taken back to where it would be without the current drop.
+	const float UndroppedTop = static_cast<float>(StandIn->CalcBounds(StandIn->GetComponentTransform()).GetBox().Max.Z) + CurrentDrop;
+	const float ActorZ = static_cast<float>(Owner->GetActorLocation().Z);
+	const float Drop = bHasDrawTopLimit ? FigureDrop(ActorZ, UndroppedTop - ActorZ, DrawTopLimitZ) : 0.0f;
+	if (FMath::IsNearlyEqual(Drop, CurrentDrop, UmbrellaPresenterConst::FigureDropTolerance))
+	{
+		return CurrentDrop;
+	}
+	const float RelativeZ = -Drop / FMath::Max(KINDA_SMALL_NUMBER, static_cast<float>(Owner->GetActorScale3D().Z));
+	auto Lower = [RelativeZ](UStaticMeshComponent* Part)
+	{
+		if (IsValid(Part))
+		{
+			FVector At = Part->GetRelativeLocation();
+			At.Z = RelativeZ;
+			Part->SetRelativeLocation(At);
+		}
+	};
+	Lower(StandIn);
+	for (const TPair<FName, TObjectPtr<UStaticMeshComponent>>& Pair : OverlayParts)
+	{
+		Lower(Pair.Value.Get());
+	}
+	CurrentDrop = Drop;
+	return CurrentDrop;
 }
 
 void UEllaAnimPresenterComponent::UpdateOverlays(const FEllaOverlayInput& Input)

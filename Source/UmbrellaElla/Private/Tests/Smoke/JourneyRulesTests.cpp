@@ -60,4 +60,25 @@ bool FJourneyParsesRouteSteps::RunTest(const FString& Parameters)
 	return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FJourneyClickRetries, "UmbrellaElla.Smoke.Journey.ClickRetriesUntilItTakes",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+bool FJourneyClickRetries::RunTest(const FString& Parameters)
+{
+	// Gate recheck stall (gate-a1a5356e/recheck, Nov 13): 'click Quit to Title' was sent while the window was not the
+	// active app, did nothing, and 'wait Title' timed out 60 s later. A click is done only when it took.
+	using JourneyRules::EJourneyClickNext;
+	using JourneyRules::ClickNext;
+	const double Settled = JourneyRules::ClickSettleSeconds;
+	TestTrue(TEXT("screen changed: done"), ClickNext(true, true, 0.0, 1) == EJourneyClickNext::Done);
+	TestTrue(TEXT("button gone: done"), ClickNext(false, false, 0.0, 1) == EJourneyClickNext::Done);
+	TestTrue(TEXT("no effect yet: wait"), ClickNext(false, true, Settled * 0.5, 1) == EJourneyClickNext::Wait);
+	TestTrue(TEXT("no effect after settling: click again"), ClickNext(false, true, Settled, 1) == EJourneyClickNext::ClickAgain);
+	TestTrue(TEXT("mouse tries used: Enter on the button"),
+		ClickNext(false, true, Settled, JourneyRules::ClickMouseTries) == EJourneyClickNext::PressAccept);
+	TestTrue(TEXT("Enter did nothing either: fail at the click"),
+		ClickNext(false, true, Settled, JourneyRules::ClickMouseTries + 1) == EJourneyClickNext::Fail);
+	TestTrue(TEXT("a late effect still counts"), ClickNext(true, true, Settled * 10.0, JourneyRules::ClickMouseTries + 1) == EJourneyClickNext::Done);
+	return true;
+}
+
 #endif

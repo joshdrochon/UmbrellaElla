@@ -42,6 +42,19 @@ namespace JourneyRules
 
 	/** True when the label shown on a widget matches the wanted label (case-insensitive, outer spaces ignored). */
 	UMBRELLAELLA_API bool IsLabelMatch(const FString& Shown, const FString& Wanted);
+
+	/**
+	 * A `click` is done only when it took: the screen changed or its button went away. The gate recheck stalled 60 s on
+	 * Defeat (gate-a1a5356e/recheck, Nov 13): the one click sent while the game window was not the active app (active=0;
+	 * Josh was using the machine) did nothing, and 28 clicks with active=1 all took. So after ClickSettleSeconds with no
+	 * effect the mouse click is sent again, up to ClickMouseTries; then the button gets keyboard focus and Enter (Slate's
+	 * Accept, which an SButton takes without the mouse); after that the step fails at the click line, not 60 s later.
+	 */
+	enum class EJourneyClickNext : uint8 { Done, Wait, ClickAgain, PressAccept, Fail };
+	static constexpr double ClickSettleSeconds = 1.0;
+	static constexpr int32 ClickMouseTries = 3;
+	/** Clicks = presses sent so far (mouse and Enter), at least 1. */
+	UMBRELLAELLA_API EJourneyClickNext ClickNext(bool bScreenChanged, bool bButtonShown, double SecondsSinceLastPress, int32 Clicks);
 }
 
 /**
@@ -125,6 +138,9 @@ private:
 	void ReleaseSlateKey(const FKey& Key);
 	void SendSlateKey(const FKey& Key, EInputEvent Event);
 	void ClickLabel(const FString& Label, FString& OutDetail, bool& bOutClicked);
+	/** The click fallback: keyboard focus on the labelled button, then Enter. bOutSent false when the button is not shown. */
+	void PressAcceptOn(const FString& Label, bool& bOutSent);
+	bool IsButtonShown(const FString& Label) const;
 	TSharedPtr<SWidget> FindButtonWithLabel(const TSharedRef<SWidget>& Root, const FString& Label) const;
 	void CollectTexts(const TSharedRef<SWidget>& Root, TArray<FString>& Out) const;
 	void MakeOverlayClickThrough(const TSharedRef<SWidget>& Root);
@@ -158,6 +174,11 @@ private:
 	float RouteBestX = 0.0f;
 	int32 RouteHeals = 0;
 	bool bRouteSinking = false;
+	/** `click`: presses sent (0 = not yet clicked), when the last went, the screen before the first, the first's detail. */
+	int32 ClickPresses = 0;
+	double LastClickPress = 0.0;
+	uint8 ClickFrom = 0;
+	FString ClickDetail;
 	/** Steps a `skipunless` drops after itself (set just before its FinishStep). */
 	int32 SkipAfterStep = 0;
 };
