@@ -283,6 +283,8 @@ FVector UKeeperPresenterSubsystem::BodyArtScaleFor(const UTexture2D* Texture, co
 #if WITH_EDITORONLY_DATA
 	// An uncooked run reads the texture while it still compiles: GetSizeX/Y give the placeholder's size (square), which
 	// drew the body 600 x 900 (VQDUMP). The source keeps the picture's real size.
+	// UE 5.8.4 Engine/Classes/Engine/Texture.h: UTexture::Source (FTextureSource, line 1272, editor-only data);
+	// FTextureSource::IsValid() (line 372), GetSizeX()/GetSizeY() (lines 417-418, int64).
 	if (IsValid(Texture) && Texture->Source.IsValid() && Texture->Source.GetSizeY() > 0)
 	{
 		Aspect = (static_cast<float>(Texture->Source.GetSizeX()) / FMath::Max(1, Row.Cols)) / (static_cast<float>(Texture->Source.GetSizeY()) / FMath::Max(1, Row.Rows));

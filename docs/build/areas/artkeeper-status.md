@@ -215,3 +215,13 @@ NEEDS HUMAN: lead: apply request 3; then artkeeper re-captures and runs the owl 
 - Capture 1280x720 windowed -SmokeKeeper: frame_check PASS, owl drawn, no cube. pipeline/art/proof/artkeeper/frame/keeper-after-approved.png; composite keeper-composite-approved.png (study | before dc | after). Devlog line added.
 - module_check: 2 -> 0 (0.01f -> UmbrellaKeeperPresenterConst::MinBodyAspect; PartPictureYieldsToBody -> ShouldPartPictureYieldToBody).
 - Follow-up (needs a new owner approval): pink wing-rim cleanup, re-graded sheet 5f61cf17 (art_keeper_grade.py --chroma-floor 4), in 069f8ad3 history.
+
+## Nov 13 session 20 (Opus, lead fix order after review HOLD of 34f3bdde)
+- Merged origin/main 8c5ded33: already up to date. Build exit 0, warnings 0 (commit 34f3bdde).
+- (1) `python3 tools/build/visual_qa.py run --out pipeline/qa/visual/artkeeper-34f3bdde --main-sha 8c5ded33` (launches through ue_slot.sh itself), on 34f3bdde:
+  `VISUAL_QA FAIL play=35/70 dc_route=24/70 keeper=26/70 broken=8 baseline=none failed=play,dc_route,keeper`
+  No baseline for main 8c5ded33 exists (../logs/visual-baseline/ is empty), so "worse than main" cannot be measured; I did not create one (lead's gate step). Broken items, none in the Keeper lane: thin full-height white vertical line (play, keeper), no wind ribbons (play), flat brown ground bars + block step (dc_route, keeper), cream clock-face backdrop and no floating islands (dc_route). Keeper screen 26/70 matches session 18/19's own frame score (26). No Keeper item listed as broken.
+- (2) Part readability: pipeline/qa/visual/artkeeper-34f3bdde/vq_keeper.png (gameplay, -SmokeJourney visual_qa) and keeper-parts-readability-3x.png (owl crop, 3x). Readable in the body art: two wings, central clock, three distinct hanging mechanisms (gear ball, cage, ring), talons. Default-state cube cues stay hidden under the art; broken/open cues show (KeeperStateCuesShowUnderArt). Part pictures stay hidden under body art (not re-enabled: the parts read in the body art itself). Gap for the lead: owl faces left, so the front (head-side) mechanism is the gear ball and the ring hangs at the rear; OWL-08 says front is the armillary/ring. Owner-approved art, not changed here.
+- (3) The shipped Keeper idle is a 6-frame ping-pong of row 0 of the 6x4 grid (M_ArtSlot samples only the top row) until docs/build/requests/artkeeper.md Update 5 lands (lead assigns it); then UmbrellaKeeperPresenterConst::IdlePlayback flips to AllCells.
+- (4) KeeperPresenterSubsystem.cpp: comment cites UE 5.8.4 Engine/Classes/Engine/Texture.h for UTexture::Source, FTextureSource::IsValid and GetSizeX/GetSizeY (comment only, no code change).
+- Not swapped: pink-rim sheet 5f61cf17 (needs Josh's approval). approvals.json untouched.
