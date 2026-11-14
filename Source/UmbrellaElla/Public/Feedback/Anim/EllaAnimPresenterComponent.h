@@ -152,7 +152,7 @@ public:
 	static int32 GridFrameAt(double Seconds, float Fps, int32 Cols, int32 Rows, bool bLoop = true);
 
 	/** True when a state's picture loops (Idle and the states that show the idle art); Hurt and Down play once and hold. Pure. */
-	static bool LoopsInState(EEllaVisualState State);
+	static bool IsLoopingState(EEllaVisualState State);
 
 	/** Empty share under the feet of the picture a state draws (IdleBottomPad, HurtBottomPad, DownBottomPad). Pure. */
 	static float BottomPadFor(EEllaVisualState State);

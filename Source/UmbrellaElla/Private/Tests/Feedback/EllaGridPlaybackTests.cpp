@@ -40,9 +40,9 @@ bool FEllaGridFrameRule::RunTest(const FString& Parameters)
 	TestEqual(TEXT("a single picture stays on 0"), UEllaAnimPresenterComponent::GridFrameAt(3.3, 6.0f, 1, 1), 0);
 	TestEqual(TEXT("a play-once clip holds its last cell"), UEllaAnimPresenterComponent::GridFrameAt(9.0, 6.0f, 6, 4, false), 23);
 	TestEqual(TEXT("a play-once clip starts on 0"), UEllaAnimPresenterComponent::GridFrameAt(0.0, 6.0f, 6, 4, false), 0);
-	TestTrue(TEXT("Idle loops"), UEllaAnimPresenterComponent::LoopsInState(EEllaVisualState::Idle));
-	TestFalse(TEXT("Hurt plays once"), UEllaAnimPresenterComponent::LoopsInState(EEllaVisualState::Hurt));
-	TestFalse(TEXT("Down plays once"), UEllaAnimPresenterComponent::LoopsInState(EEllaVisualState::Down));
+	TestTrue(TEXT("Idle loops"), UEllaAnimPresenterComponent::IsLoopingState(EEllaVisualState::Idle));
+	TestFalse(TEXT("Hurt plays once"), UEllaAnimPresenterComponent::IsLoopingState(EEllaVisualState::Hurt));
+	TestFalse(TEXT("Down plays once"), UEllaAnimPresenterComponent::IsLoopingState(EEllaVisualState::Down));
 	return true;
 }
 

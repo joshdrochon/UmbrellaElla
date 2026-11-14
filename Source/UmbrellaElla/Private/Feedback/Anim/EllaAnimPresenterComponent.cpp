@@ -474,7 +474,7 @@ int32 UEllaAnimPresenterComponent::GridFrameAt(double Seconds, float Fps, int32 
 	return static_cast<int32>(bLoop ? Step % Cells : FMath::Min(Step, Cells - 1));
 }
 
-bool UEllaAnimPresenterComponent::LoopsInState(EEllaVisualState State)
+bool UEllaAnimPresenterComponent::IsLoopingState(EEllaVisualState State)
 {
 	return State != EEllaVisualState::Hurt && State != EEllaVisualState::Down;
 }
@@ -500,7 +500,7 @@ int32 UEllaAnimPresenterComponent::PlayGrid()
 	}
 	const FArtSlotRow* Row = RowForTexture(TextureForState(VisualState));
 	// Idle loops on the world clock; Hurt and Down play once from their own start (review, ellaanim) and hold the last cell.
-	const bool bLoop = LoopsInState(VisualState);
+	const bool bLoop = IsLoopingState(VisualState);
 	const double Seconds = bLoop ? World->GetTimeSeconds() : World->GetTimeSeconds() - StateStartSeconds;
 	const int32 Frame = Row ? GridFrameAt(Seconds, UmbrellaPresenterConst::GridFps, Row->Cols, Row->Rows, bLoop) : 0;
 	if (Frame != DrawnFrame)
