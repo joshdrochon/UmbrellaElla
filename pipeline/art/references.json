@@ -3173,6 +3173,24 @@
     "note": "added by the art inventory (tools/build/art_inventory.py): a shipped visual that had no art-loop piece"
    }
   },
+  "keeper-wing-gust": {
+   "what": "the Keeper's wing-gust cue (OWL-15, ANIM-06): the owl gathers its wings over the 1.1 s warning, then flaps and recovers; a 14-frame clip on the approved idle owl (T_Keeper_WingGust_PH)",
+   "refs": [
+    "discord-crop-keeper",
+    "study-keeper-character",
+    "keeper-sh10",
+    "d-wing-gust"
+   ],
+   "owner": "artkeeper",
+   "score_min": 0.698,
+   "detail_min": 0.301,
+   "calibration": {
+    "method": "inherits the thresholds of owl until art_judge.py calibrate measures this piece",
+    "margin": 0.02,
+    "measured": "2026-11-13",
+    "note": "added for T_Keeper_WingGust_PH (art inventory: a shipped visual with no art-loop piece); Josh's approval in pipeline/art/approvals.json uses this piece id"
+   }
+  },
   "keeper-mech-front": {
    "what": "the Keeper's front mechanism (ANIM-06): the grasp-and-throw arm",
    "refs": [

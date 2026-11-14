@@ -1,0 +1,36 @@
+{
+ "kind": "silhouette",
+ "frames": 14,
+ "grid": [
+  986,
+  700
+ ],
+ "fps": 12.7,
+ "loop": false,
+ "pivot": "bottom-centre",
+ "registration": "none: one fixed crop for all frames (locked camera)",
+ "crop": [
+  6,
+  18,
+  986,
+  700
+ ],
+ "source_indices": [
+  0,
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  23,
+  29,
+  31,
+  32,
+  39,
+  42,
+  46
+ ],
+ "rows": 1,
+ "source_fps": 12.0
+}
