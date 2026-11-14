@@ -56,6 +56,8 @@ eval "$(python3 tools/build/gate_plan.py "$MAIN" HEAD)"
 export CRITIC_CONTEXT=full   # Josh, Nov 13: critics run with full context
 export UE_SLOT_GATE=1   # the gate always gets its reserved engine slot
 SLOT="$ROOT/tools/build/ue_slot.sh"; EV="$L/gate-$A-evidence.txt"; : > "$EV"
+# Clean player state before and after every step that launches the game (Josh, Nov 13 19:4x; gate_clean_state.sh).
+. "$ROOT/tools/build/gate_clean_state.sh"; clean_state "$G"
 chk() { local name="$1"; shift; T1=$(date +%s); out=$("$@" 2>&1); rc=$?; echo "$out" | tail -3 >> "$EV"
   if [ $rc -eq 0 ]; then step "$name PASS"; else step "$name FAIL"; echo "$out" | tail -15; fail=1; fi; }
 # Rows turning built must have their proving tests run here (clause_check, Nov 13): add them to this merge's tests.
@@ -75,7 +77,7 @@ if [ "$SRC" = 1 ]; then
   fi
   if echo "$b" | grep -q "build exit: 0"; then step "build PASS"; else step "build FAIL: $b"; fail=1; fi
   if [ $fail = 0 ]; then
-    T1=$(date +%s); t=$(TEST_FILTER="$TESTS" "$SLOT" tools/ue/test.sh 2>&1 | tail -6); echo "$t" >> "$EV"
+    clean_state "$G"; T1=$(date +%s); t=$(TEST_FILTER="$TESTS" "$SLOT" tools/ue/test.sh 2>&1 | tail -6); echo "$t" >> "$EV"; clean_state "$G"
     if echo "$t" | grep -q "^PASS"; then step "tests PASS ($TESTS): $(echo "$t" | grep '^PASS' | cut -c1-40)"; else step "tests FAIL ($TESTS)"; echo "$t"; fail=1; echo "$t" | grep -q "report missing or unreadable" && NORECORD=1; fi   # no report = the run never finished (load), not the lane
   fi
 fi
@@ -103,7 +105,7 @@ if [ $fail = 0 ] && git diff --name-only "$MAIN" HEAD | grep -qE '^(Source|Conte
 fi
 if [ $fail = 0 ] && git diff --name-only "$MAIN" HEAD | grep -qE '^(Source|Content|Art|pipeline/art)/'; then
   T1=$(date +%s); VQ_OUT="$G/Saved/VisualQA/gate-$(git rev-parse --short HEAD)"
-  out=$(python3 tools/build/visual_qa.py run --gate --main-sha "$MAIN" --out "$VQ_OUT" 2>&1); rc=$?; echo "$out" | tail -3 >> "$EV"
+  clean_state "$G"; out=$(python3 tools/build/visual_qa.py run --gate --main-sha "$MAIN" --out "$VQ_OUT" 2>&1); rc=$?; echo "$out" | tail -3 >> "$EV"; clean_state "$G"
   case $rc in
     0) step "visual_qa PASS: $(echo "$out" | tail -1)";;
     1) step "visual_qa FAIL (regression vs main)"; echo "$out" | tail -8; fail=1;;
@@ -135,6 +137,7 @@ P
     step "audio critic: $(grep -c PASS "$L/audio-critic-$A.txt") pass, $(grep -c FAIL "$L/audio-critic-$A.txt") placeholder"
   fi
 fi
+clean_state "$G"
 if [ $fail = 0 ] && [ "$STORY" = 1 ]; then chk story_critic "$ROOT/tools/build/critic.sh" story "$L/critic-$A.txt"; fi
 if [ $fail = 0 ] && [ "$ENCOUNTER" = 1 ]; then chk encounter_critic "$ROOT/tools/build/critic.sh" encounter "$L/critic-$A.txt"; fi
 if [ $fail = 1 ]; then echo "GATE FAIL: area/$A $(git rev-parse --short HEAD) (main unchanged, $(( $(date +%s) - T0 )) s)"; exit 1; fi
