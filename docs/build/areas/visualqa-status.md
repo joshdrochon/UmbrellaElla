@@ -32,7 +32,7 @@
   screen (before: it stopped at the route end, 40% across). Test:
   `UmbrellaElla.Feedback.FrameComposition.KeeperBackdropContinuous` (widest camera margin; break check on old placement).
 - Not done: the `scene:gameplay-frame` overlay stays arena-sized, so with the camera margin it sits about 1-2% inside
-  the screen edge. No capture of the fix yet (needs a run_game slot).
+  the screen edge. Captured (r03, 1280x720, journey pipeline/qa/visual/r03_journey.txt): ceiling shot shows the umbrella tip inside the top edge; Keeper handoff shows one continuous backdrop. Composite: pipeline/qa/visual/r03/composite-r03-keeper_fight.png.
 
 ## Gate command (for the lead)
 `python3 tools/build/visual_qa.py run --out Saved/VisualQA/gate-<sha>` -> last line `VISUAL_QA PASS|FAIL ...`;
