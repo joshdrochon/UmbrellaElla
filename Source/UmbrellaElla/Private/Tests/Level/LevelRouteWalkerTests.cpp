@@ -101,7 +101,6 @@ struct FRouteWalkResult
 
 static FRouteWalkResult RouteWalkerCp1ToCp2(FAutomationTestBase& T, float Delta, float TrimZOverride, bool bGameMovement)
 {
-	using namespace RouteWalker;
 	FRouteWalkResult Result;
 	FRouteWalkerWorld Test;
 	Test.Controller->StartDirectorsCut();
@@ -129,7 +128,7 @@ static FRouteWalkResult RouteWalkerCp1ToCp2(FAutomationTestBase& T, float Delta,
 		FHitResult Hit;
 		FCollisionQueryParams Query;
 		Query.AddIgnoredActor(Ella);
-		const FVector From(StallX - 25.0f, Ella->GetActorLocation().Y, 450.0f);
+		const FVector From(RouteWalker::StallX - 25.0f, Ella->GetActorLocation().Y, 450.0f);
 		Result.bSolidAhead = Test.World->SweepSingleByChannel(Hit, From, From + FVector(50.0f, 0.0f, 0.0f), FQuat::Identity,
 			Ella->GetCapsuleComponent()->GetCollisionObjectType(), Ella->GetCapsuleComponent()->GetCollisionShape(), Query)
 			&& Level->GetSpawned().Contains(Hit.GetActor());
@@ -143,10 +142,10 @@ static FRouteWalkResult RouteWalkerCp1ToCp2(FAutomationTestBase& T, float Delta,
 	T.AddInfo(FString::Printf(TEXT("ROUTE %s"), *Level->GetRoute().Signature()));
 
 	UEllaInputAdapterComponent* Input = Ella->GetInputAdapter();
-	const float TrimZ = TrimZOverride > 0.0f ? TrimZOverride : static_cast<float>(LevelPlan::CheckpointStandLocation(1).Z) + TrimAbove;
+	const float TrimZ = TrimZOverride > 0.0f ? TrimZOverride : static_cast<float>(LevelPlan::CheckpointStandLocation(1).Z) + RouteWalker::TrimAbove;
 	Input->ApplyAxis(EUmbrellaInputAction::MoveX, 1.0f);
-	float SinceHop = HopSeconds;
-	float SinceDash = DashSeconds;
+	float SinceHop = RouteWalker::HopSeconds;
+	float SinceDash = RouteWalker::DashSeconds;
 	float SinceLog = 0.0f;
 	bool bSinking = false;
 	float BestX = static_cast<float>(Ella->GetActorLocation().X);
@@ -155,7 +154,7 @@ static FRouteWalkResult RouteWalkerCp1ToCp2(FAutomationTestBase& T, float Delta,
 	int32 Cards = 0;
 	float MinZPast = TNumericLimits<float>::Max();
 	float MaxZPast = TNumericLimits<float>::Lowest();
-	while (Elapsed < Timeout && Level->GetCheckpointReached() < 2)
+	while (Elapsed < RouteWalker::Timeout && Level->GetCheckpointReached() < 2)
 	{
 		const EFlowScreen Screen = Test.Controller->GetScreen();
 		if (Screen != EFlowScreen::Playing)
@@ -167,13 +166,13 @@ static FRouteWalkResult RouteWalkerCp1ToCp2(FAutomationTestBase& T, float Delta,
 		SinceHop += Delta;
 		SinceDash += Delta;
 		SinceLog += Delta;
-		if (SinceHop >= HopSeconds)
+		if (SinceHop >= RouteWalker::HopSeconds)
 		{
 			SinceHop = 0.0f;
 			Input->ApplyPress(EUmbrellaInputAction::Hop);
 			Input->ApplyRelease(EUmbrellaInputAction::Hop);
 		}
-		if (SinceDash >= DashSeconds)
+		if (SinceDash >= RouteWalker::DashSeconds)
 		{
 			SinceDash = 0.0f;
 			Input->ApplyPress(EUmbrellaInputAction::DashForward);
@@ -197,12 +196,12 @@ static FRouteWalkResult RouteWalkerCp1ToCp2(FAutomationTestBase& T, float Delta,
 		Test.Frame(Delta);
 		Elapsed += Delta;
 		const FVector At = Ella->GetActorLocation();
-		if (Elapsed > Timeout - 5.0f && Result.StopX == 0.0f)
+		if (Elapsed > RouteWalker::Timeout - 5.0f && Result.StopX == 0.0f)
 		{
 			Result.StopX = static_cast<float>(At.X);
 		}
 		BestX = FMath::Max(BestX, static_cast<float>(At.X));
-		if (At.X >= StallX - 200.0f && At.X <= StallX + 200.0f)
+		if (At.X >= RouteWalker::StallX - 200.0f && At.X <= RouteWalker::StallX + 200.0f)
 		{
 			MinZPast = FMath::Min(MinZPast, static_cast<float>(At.Z));
 			MaxZPast = FMath::Max(MaxZPast, static_cast<float>(At.Z));
@@ -217,7 +216,7 @@ static FRouteWalkResult RouteWalkerCp1ToCp2(FAutomationTestBase& T, float Delta,
 	Input->ApplyAxis(EUmbrellaInputAction::MoveX, 0.0f);
 	Input->ApplyRelease(EUmbrellaInputAction::Shoot);
 	T.AddInfo(FString::Printf(TEXT("WALK_END t=%.1f best_x=%.0f cp=%d heals=%d cards=%d near_%.0f z=[%.0f,%.0f] trim_z=%.0f mode=%d"),
-		Elapsed, BestX, Level->GetCheckpointReached(), Heals, Cards, StallX, MinZPast, MaxZPast, TrimZ, Result.MovementMode));
+		Elapsed, BestX, Level->GetCheckpointReached(), Heals, Cards, RouteWalker::StallX, MinZPast, MaxZPast, TrimZ, Result.MovementMode));
 	Result.BestX = BestX;
 	Result.Checkpoint = Level->GetCheckpointReached();
 	return Result;
@@ -244,7 +243,7 @@ bool FLevelRouteWalkerStopsAt07ASolid::RunTest(const FString& Parameters)
 
 // B8: not a soft-lock. The same real keys, but sinking (J held) to the 07A bypass lane under the low solid, reach CP2
 // within the walker's 60 s budget in the game's movement mode.
-#define ROUTE_BYPASS_TEST(Fps) \
+#define UMBRELLAELLA_ROUTE_BYPASS_TEST(Fps) \
 	IMPLEMENT_SIMPLE_AUTOMATION_TEST(FLevelRouteBypass##Fps, "UmbrellaElla.Level.World.RealInputBypassUnder07ASolidReachesCP2At" #Fps "fps", \
 		EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter) \
 	bool FLevelRouteBypass##Fps::RunTest(const FString& Parameters) \
@@ -256,7 +255,7 @@ bool FLevelRouteWalkerStopsAt07ASolid::RunTest(const FString& Parameters)
 		TestEqual(TEXT("CP2 reached with real inputs within 60 s"), R.Checkpoint, 2); \
 		return true; \
 	}
-ROUTE_BYPASS_TEST(60)
-ROUTE_BYPASS_TEST(120)
+UMBRELLAELLA_ROUTE_BYPASS_TEST(60)
+UMBRELLAELLA_ROUTE_BYPASS_TEST(120)
 
 #endif
