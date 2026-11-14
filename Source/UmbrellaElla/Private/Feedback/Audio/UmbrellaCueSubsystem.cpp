@@ -13,6 +13,7 @@
 #include "Misc/ScopeExit.h"
 #include "Engine/GameInstance.h"
 #include "Settings/SettingsMenuSubsystem.h"
+#include "Core/UmbrellaLog.h"
 #if UMBRELLAELLA_WORKBENCH
 #include "Feedback/Audio/SoundLabelBoard.h"
 #include "Feedback/Audio/SoundLabelHud.h"
@@ -31,6 +32,16 @@ namespace
 		{
 			const FString Name = FString::Printf(TEXT("SW_%s_%02d"), Cue.Id, Take);
 			const FString Path = FString::Printf(TEXT("/Game/UmbrellaElla/Audio/%s/%s.%s"), Cue.Id, *Name, *Name);
+			if (USoundBase* Sound = LoadObject<USoundBase>(nullptr, *Path, nullptr, LOAD_Quiet | LOAD_NoWarn))
+			{
+				Takes.Add(Sound);
+			}
+		}
+		if (Takes.IsEmpty() && Cue.SoundClass == EUmbrellaCueClass::Music && Cue.bLoop)
+		{
+			// The fight tracks were imported as /Game/UmbrellaElla/Audio/<Id>/<Id> (pipeline/audio/build/sndworld_import.py),
+			// not SW_<Id>_00; without this MusicContest and MusicDesperation could never play.
+			const FString Path = FString::Printf(TEXT("/Game/UmbrellaElla/Audio/%s/%s.%s"), Cue.Id, Cue.Id, Cue.Id);
 			if (USoundBase* Sound = LoadObject<USoundBase>(nullptr, *Path, nullptr, LOAD_Quiet | LOAD_NoWarn))
 			{
 				Takes.Add(Sound);
@@ -128,6 +139,7 @@ void UUmbrellaCueSubsystem::Deinitialize()
 	ActiveLoops.Reset();
 	StopMusic();
 	MusicComponent = nullptr;
+	OutgoingMusicComponent = nullptr;
 	Super::Deinitialize();
 }
 
@@ -240,6 +252,10 @@ void UUmbrellaCueSubsystem::StopMusic()
 	{
 		MusicComponent->Stop();
 	}
+	if (IsValid(OutgoingMusicComponent))
+	{
+		OutgoingMusicComponent->Stop();
+	}
 }
 
 FName UUmbrellaCueSubsystem::GetMusicId() const
@@ -271,6 +287,18 @@ USoundClass* UUmbrellaCueSubsystem::ResolveMusicClass() const
 	return LoadObject<USoundClass>(nullptr, CueEngineMusicClassPath, nullptr, LOAD_Quiet | LOAD_NoWarn);
 }
 
+UAudioComponent* UUmbrellaCueSubsystem::NewMusicComponent(USoundBase* Sound)
+{
+	// Persistent and not auto-destroyed: a mode change reuses it instead of orphaning a fire-and-forget sound.
+	UAudioComponent* Component = UGameplayStatics::CreateSound2D(this, Sound, 1.0f, 1.0f, 0.0f, nullptr, true, false);
+	if (IsValid(Component))
+	{
+		// The Music volume slider scales this class; without it the music ignored the setting.
+		Component->SoundClassOverride = ResolveMusicClass();
+	}
+	return Component;
+}
+
 void UUmbrellaCueSubsystem::RestartMusic(USoundBase* Sound)
 {
 	StopMusic();
@@ -280,13 +308,7 @@ void UUmbrellaCueSubsystem::RestartMusic(USoundBase* Sound)
 	}
 	if (!IsValid(MusicComponent))
 	{
-		// One persistent, non-auto-destroy component: a mode change reuses it instead of orphaning a fire-and-forget sound.
-		MusicComponent = UGameplayStatics::CreateSound2D(this, Sound, 1.0f, 1.0f, 0.0f, nullptr, true, false);
-		if (IsValid(MusicComponent))
-		{
-			// The Music volume slider scales this class; without it the music ignored the setting.
-			MusicComponent->SoundClassOverride = ResolveMusicClass();
-		}
+		MusicComponent = NewMusicComponent(Sound);
 	}
 	else
 	{
@@ -295,6 +317,36 @@ void UUmbrellaCueSubsystem::RestartMusic(USoundBase* Sound)
 	if (IsValid(MusicComponent))
 	{
 		MusicComponent->Play();
+		++MusicStartCount;
+	}
+}
+
+void UUmbrellaCueSubsystem::CrossFadeMusic(USoundBase* Sound)
+{
+	if (!IsValid(Sound) || !IsValid(MusicComponent) || !MusicComponent->IsPlaying())
+	{
+		RestartMusic(Sound);
+		return;
+	}
+	// UAudioComponent::FadeOut/FadeIn (Engine/Classes/Components/AudioComponent.h, 5.8.4 lines 500 and 511): a fade
+	// to 0 stops the component when it ends, so the outgoing track never lingers silent.
+	UAudioComponent* Outgoing = MusicComponent;
+	Outgoing->FadeOut(UmbrellaCueConst::MusicCrossFadeSeconds, UmbrellaCueConst::MusicSilentVolume);
+	UAudioComponent* Incoming = OutgoingMusicComponent;
+	if (!IsValid(Incoming))
+	{
+		Incoming = NewMusicComponent(Sound);
+	}
+	else
+	{
+		Incoming->Stop();
+		Incoming->SetSound(Sound);
+	}
+	OutgoingMusicComponent = Outgoing;
+	MusicComponent = Incoming;
+	if (IsValid(MusicComponent))
+	{
+		MusicComponent->FadeIn(UmbrellaCueConst::MusicCrossFadeSeconds, UmbrellaCueConst::MusicFullVolume);
 		++MusicStartCount;
 	}
 }
@@ -386,8 +438,12 @@ void UUmbrellaCueSubsystem::PlayRow(const FUmbrellaSoundCue& Cue, bool& bOutPlay
 	++SoundCueCount;
 	if (bLoopedMusic)
 	{
-		RestartMusic(Sound);
+		// Title -> fight -> clock -> title: each change of track is a cross-fade, never a hard cut or a second copy.
+		const FName From = GetMusicId();
+		CrossFadeMusic(Sound);
 		MusicId = FName(Cue.Id);
+		UE_LOG(LogUmbrellaElla, Display, TEXT("AUDIO: music name=%s from=%s take=%s fade_s=%.2f"), Cue.Id,
+			*From.ToString(), *Sound->GetName(), From.IsNone() ? 0.0f : UmbrellaCueConst::MusicCrossFadeSeconds);
 		return;
 	}
 	const float Pitch = 1.0f + CueRandom.FRandRange(-Cue.PitchJitter, Cue.PitchJitter);
