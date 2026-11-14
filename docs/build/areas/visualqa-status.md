@@ -210,3 +210,17 @@ IDENTIFIED C: the Keeper gust's gameplay cue cube `AKeeperOfTime::GustVisual` (S
   art's front leads it). Break-checked: without the turn the world test FAILs. 4/4 PASS with VfxKeeperWiring, VfxKeeperRules.
   Capture 1600x900 (tools/build/journeys/vq_keeper_attacks.txt): pipeline/qa/visual/gust-facing-before-after.png
   (left before: round front trails the travel; right after: front leads). Grey block C still rides it (art lane).
+- Item 2 figure scale (D-new-character-scale row added): `Feedback/Art/FigureScale.h` Ella 1.5, Keeper 1.5. Ella's drawn
+  cell = FramedCellHeight 2.7 x 1.5 (overlays too); the Keeper body/part box 6.0 x 1.5; the camera margin still frames 2.7
+  (`SpriteHalfHeight` uses FramedCellHeight): no zoom, background identical (composites below). Hitboxes, collision, speeds
+  untouched. Measured (UmbrellaElla.Feedback.World.FigureScaleOnScreen, opaque figure from the texture source): Ella 14.1%
+  Start Game / 12.7% Director's Cut (was ~9.4/8.5), Keeper 41.1% (was ~27%); all in frame EXCEPT Start Game with Ella at the
+  ceiling: her umbrella tip overhangs the frame top by 22 units (~17 px at 900p). That is the 'no zoom' vs 'fully in frame'
+  conflict: OPEN in D-new-character-scale (options a accept / b ~4% Start Game margin / c draw art 22 lower); default a,
+  reported by the test as a warning. Hitboxes: Ella's hurtbox inside her figure (hurtbox/figure 0.55); every Keeper hitbox on
+  the drawn Keeper; REPORT: the front/middle/rear mechanism pictures move 55-70 units off their 36-unit hitboxes because the
+  picture grows about the body centre (wings, clock, eye stay over theirs). Not changed.
+  Tests: FigureScale.VisualOnly + World.FigureScaleOnScreen; break-checked (scale 1.0 FAILs); 30/30 with FrameComposition,
+  ArtSlot, Keeper world tests. Captures: pipeline/qa/visual/scale-{play,keeper}-before-after.png (study | main 991b3eb7 | tip).
+  `visual_qa.py run --gate --main-sha dd37d80943a12016565114f4abd1fb887f47df6c` on cc2a51b4:
+  `VISUAL_QA GATE PASS play=39/70 dc_route=45/70 keeper=39/70 broken=7 baseline=991b3eb7806a`.
