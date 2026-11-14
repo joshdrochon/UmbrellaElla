@@ -5,14 +5,24 @@
 #include "Widgets/SLeafWidget.h"
 #include "Flow/FlowTuning.h"
 
+enum class EFlowScreen : uint8;
+
 /** Which shapes the moving background draws. */
 enum class EFlowBackdrop : uint8
 {
 	/** Start screen, ending and credits: slow drifting shapes, nobody on screen. */
 	Drift,
 	/** Pause: the same plus ticking clocks. Presentation only, it never reads or advances the simulation. */
-	Clocks
+	Clocks,
+	/** Defeated: no title picture; the paused game (the in-game backdrop layers) shows through a dim ink veil. */
+	Scene
 };
+
+/** The backdrop each flow screen's menu draws (Josh, Nov 13: the death screen shows the in-game backdrop, never the title picture). */
+UMBRELLAELLA_API EFlowBackdrop FlowBackdropFor(EFlowScreen Screen);
+
+/** True when this backdrop paints the opaque title picture (T_UI_Ground_PH) over the whole screen. */
+UMBRELLAELLA_API bool FlowBackdropPaintsTitlePicture(EFlowBackdrop Backdrop);
 
 /** The slowly moving character-free background (Start screen, pause, ending, credits). Time comes from Slate, not the game. */
 class UMBRELLAELLA_API SFlowBackground : public SLeafWidget

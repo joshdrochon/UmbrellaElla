@@ -30,6 +30,26 @@ namespace
 	TWeakPtr<SFlowMenu> LastOpenedMenu;
 }
 
+EFlowBackdrop FlowBackdropFor(EFlowScreen Screen)
+{
+	switch (Screen)
+	{
+	case EFlowScreen::Defeat:
+		return EFlowBackdrop::Scene;
+	case EFlowScreen::Paused:
+	case EFlowScreen::Settings:
+	case EFlowScreen::TutorialPaused:
+		return EFlowBackdrop::Clocks;
+	default:
+		return EFlowBackdrop::Drift;
+	}
+}
+
+bool FlowBackdropPaintsTitlePicture(EFlowBackdrop Backdrop)
+{
+	return Backdrop != EFlowBackdrop::Scene;
+}
+
 void SFlowBackground::Construct(const FArguments& InArgs)
 {
 	Backdrop = InArgs._Backdrop;
@@ -50,8 +70,19 @@ int32 SFlowBackground::OnPaint(const FPaintArgs& Args, const FGeometry& Allotted
 	const FSlateRoundedBoxBrush Round(FLinearColor::White, Size.Y);
 	const FLinearColor Gold = FUmbrellaUIStyle::Gold();
 
-	// The painted ground of the shared style.
-	int32 Layer = FUmbrellaUIStyle::PaintGround(AllottedGeometry, OutDrawElements, LayerId);
+	int32 Layer = LayerId;
+	if (FlowBackdropPaintsTitlePicture(Backdrop))
+	{
+		// The painted ground of the shared style (the title picture).
+		Layer = FUmbrellaUIStyle::PaintGround(AllottedGeometry, OutDrawElements, LayerId);
+	}
+	else
+	{
+		// The paused game scene stays visible; an ink veil keeps the text readable. No embers over the scene.
+		FSlateDrawElement::MakeBox(OutDrawElements, Layer, AllottedGeometry.ToPaintGeometry(), White, ESlateDrawEffect::None,
+			FUmbrellaUIStyle::Ink().CopyWithNewOpacity(UmbrellaUI::SceneVeilAlpha));
+		return Layer + 1;
+	}
 
 	++Layer;
 	// Embers falling through the scene: index decides column, size and speed, so nothing needs a random stream.

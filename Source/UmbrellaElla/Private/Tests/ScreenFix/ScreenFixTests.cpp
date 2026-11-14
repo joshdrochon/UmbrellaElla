@@ -134,7 +134,8 @@ bool FScreenFixNoScreenArtOverGameplay::RunTest(const FString& Parameters)
 	{
 		UTexture2D* Texture = UTexture2D::CreateTransient(4, 4);
 		Texture->AddToRoot();
-		const EFlowScreen Gameplay[] = { EFlowScreen::Playing, EFlowScreen::Resuming, EFlowScreen::Tutorial };
+		// Defeated shows the paused game (the in-game backdrop), never a full-frame picture (Josh, Nov 13 22:40).
+		const EFlowScreen Gameplay[] = { EFlowScreen::Playing, EFlowScreen::Resuming, EFlowScreen::Tutorial, EFlowScreen::Defeat };
 		for (int32 Value = 0; Value <= static_cast<int32>(EFlowScreen::Statistics); ++Value)
 		{
 			const EFlowScreen Screen = static_cast<EFlowScreen>(Value);
