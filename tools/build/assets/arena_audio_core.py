@@ -62,6 +62,9 @@ for name, g in groups.items():
     a = make(name, unreal.SoundConcurrency, unreal.SoundConcurrencyFactory())
     s = a.get_editor_property("concurrency")
     s.set_editor_property("limit_to_owner", False)
+    # The 5.8 factory turns platform scaling on, and then MaxCount is ignored for PlatformMaxCount (16): every group
+    # allowed 16 voices and a Keeper volley stacked (fix-audio). Off, so max_count is the limit.
+    s.set_editor_property("enable_max_count_platform_scaling", False)
     s.set_editor_property("max_count", int(g["max_count"]))
     s.set_editor_property("resolution_rule", RULES[g["resolution_rule"]])
     s.set_editor_property("retrigger_time", float(g["retrigger_time"]))
