@@ -15,6 +15,9 @@
   visual_qa.py baseline --from-main [--out DIR] [--sha SHA]
                                                bootstrap: capture this checkout (must be at main) and store its judged
                                                run as main's baseline even when main itself has broken items; once per sha
+  visual_qa.py baseline --from-main --shots DIR --sha SHA
+                                               no capture: store DIR (the gate's run of the tree that became main SHA,
+                                               judge calls replayed, no spend) as main's baseline
   visual_qa.py composite --before A --after B --out P   study | before | after, one row (the per-round composite)
 
 Each screen is put side by side with the study (study left, game right) and one Opus session (claude -p, image input,
@@ -206,7 +209,9 @@ def judge_image(shot, screen, caller=None, records=None, keep=None):
 
 
 # Paths whose change can change a captured frame. A main commit that touches none of them keeps its parent's baseline.
-VISUAL_PATHS = ("Source", "Content", "Config", "Art", "pipeline/art", "UmbrellaElla.uproject")
+# pipeline/art reaches the frame only through generated Source (art_slots.py -> ArtSlotCatalog.inc), so it is not listed:
+# the lead's approvals.json commits on main keep the baseline.
+VISUAL_PATHS = ("Source", "Content", "Config", "Art", "UmbrellaElla.uproject")
 
 
 def norm_item(text):
@@ -336,11 +341,22 @@ def cmd_judge(shots, caller=None, require_baseline=False, sha=None, gate=False):
     return code
 
 
-def cmd_baseline_from_main(out, sha="", caller=None, records=None):
+def cmd_baseline_from_main(out, sha="", caller=None, records=None, shots=""):
     """Bootstrap main's baseline: capture this checkout and store the judged run whatever its verdict (main is the
     reference the gate compares to, broken items included). Refuses a checkout that is not at main; skips a sha that
     already has one. Exit 0 stored or present, 2 could not run."""
     sha = sha or main_sha()
+    if shots:
+        if not sha:
+            print("VISUAL_QA ERROR baseline --from-main --shots needs --sha")
+            return EXIT_ERROR
+        code, line, results = judge_shots(shots, caller, records)
+        if code == EXIT_ERROR:
+            print("visual_qa baseline NOT stored for %s: %s" % (sha[:12], line))
+            return EXIT_ERROR
+        store_baseline(sha, line, results)
+        print("visual_qa baseline %s (from the gate run %s): %s" % (sha[:12], shots, line))
+        return EXIT_PASS
     head = (_git("rev-parse", "HEAD") or "").strip()
     if not sha or head != sha:
         print("VISUAL_QA ERROR baseline --from-main: this checkout is at %s, main is %s (check out main first)"
@@ -438,7 +454,7 @@ def main(argv=None):
             print(composite_round(rel(STUDY), args.before, args.after, args.out))
             return EXIT_PASS
         if args.cmd == "baseline" and args.from_main:
-            return cmd_baseline_from_main(args.out, args.sha)
+            return cmd_baseline_from_main(args.out, args.sha, shots=args.shots)
         if args.cmd == "baseline":
             if not args.shots:
                 print("VISUAL_QA ERROR baseline needs --shots DIR or --from-main")

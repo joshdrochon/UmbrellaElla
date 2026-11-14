@@ -94,6 +94,22 @@ if [ $fail = 0 ]; then
     if [ $rc -eq 0 ]; then step "art panel re-run $pc PASS"; else step "art panel re-run $pc FAIL"; echo "$out" | tail -6; fail=1; fi
   done
 fi
+# Whole-frame visual QA (visualqa lane, lead 17:32): merges touching Source/, Content/, Art/ or pipeline/art are captured
+# in a real window and judged against Ricky's Other Realm study; FAIL only on a regression against main's baseline
+# (lower total or a new "broken to a player" item). Exit 2 (no baseline for main, capture failed) is not the lane's fault.
+VQ_OUT=""; export VISUAL_BASELINE_DIR="$L/visual-baseline"   # one baseline store for the gate worktree and this checkout
+if [ $fail = 0 ] && git diff --name-only "$MAIN" HEAD | grep -qE '^(Source|Content|Art|pipeline/art)/'; then
+  if [ "$SRC" != 1 ]; then T1=$(date +%s); b=$("$SLOT" tools/ue/build.sh 2>&1 | tail -1); echo "$b" >> "$EV"; if echo "$b" | grep -q "build exit: 0"; then step "build for visual_qa PASS"; else step "build for visual_qa FAIL: $b"; fail=1; fi; fi
+fi
+if [ $fail = 0 ] && git diff --name-only "$MAIN" HEAD | grep -qE '^(Source|Content|Art|pipeline/art)/'; then
+  T1=$(date +%s); VQ_OUT="$G/Saved/VisualQA/gate-$(git rev-parse --short HEAD)"
+  out=$(python3 tools/build/visual_qa.py run --gate --main-sha "$MAIN" --out "$VQ_OUT" 2>&1); rc=$?; echo "$out" | tail -3 >> "$EV"
+  case $rc in
+    0) step "visual_qa PASS: $(echo "$out" | tail -1)";;
+    1) step "visual_qa FAIL (regression vs main)"; echo "$out" | tail -8; fail=1;;
+    *) step "visual_qa could not run"; echo "$out" | tail -4; VQ_OUT=""; fail=1; NORECORD=1;;
+  esac
+fi
 chk prejam python3 tools/submission_check.py prejam
 [ "$ASSETS" = 1 ] && chk assets python3 tools/submission_check.py assets
 if [ $fail = 0 ] && [ "$AUDIO" = 1 ]; then
@@ -157,4 +173,8 @@ if ! git merge -q --ff-only "$GB" 2>/dev/null; then
   git -c core.hooksPath=/dev/null merge -q --no-edit -m "Merge gate result for area/$A" "$GB" || { git merge --abort; echo "GATE FAIL: merge"; exit 1; }
 fi
 git push -q origin main 2>/dev/null || { git fetch -q origin && git -c core.hooksPath=/dev/null merge -q --no-edit origin/main && git push -q origin main; } || { echo "GATE FAIL: push"; exit 1; }
+# The gate's visual run judged the tree that is now main: store it as main's baseline (judge calls replay, no spend).
+# Only when main's frame-changing files equal the gate tree (a merge with a main that moved meanwhile is not that tree).
+[ -n "$VQ_OUT" ] && git diff --quiet "$GB" HEAD -- Source Content Config Art UmbrellaElla.uproject && \
+  python3 "$G/tools/build/visual_qa.py" baseline --from-main --shots "$VQ_OUT" --sha "$(git rev-parse HEAD)" | tail -1
 echo "GATE PASS: main $(git rev-parse --short HEAD) pushed ($(( $(date +%s) - T0 )) s)"
