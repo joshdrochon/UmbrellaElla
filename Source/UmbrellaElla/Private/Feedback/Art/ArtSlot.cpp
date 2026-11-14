@@ -230,7 +230,8 @@ bool ArtSlot::IsDrawingArt(const UStaticMeshComponent* Mesh)
 {
 	const UMaterialInstanceDynamic* Dynamic = IsValid(Mesh) ? Cast<UMaterialInstanceDynamic>(Mesh->GetMaterial(0)) : nullptr;
 	// The flat unlit stand-in uses the same material; only Apply tags a component as drawing a picture.
-	return Dynamic && Mesh->ComponentHasTag(ArtSlotTag) && Dynamic->Parent && Dynamic->Parent->GetPathName() == UmbrellaArtSlotConst::MaterialPath;
+	const FString Parent = Dynamic && Dynamic->Parent ? Dynamic->Parent->GetPathName() : FString();
+	return Dynamic && Mesh->ComponentHasTag(ArtSlotTag) && (Parent == UmbrellaArtSlotConst::MaterialPath || Parent == UmbrellaArtSlotConst::EdgeFadeMaterialPath);
 }
 
 void ArtSlot::SetFrame(UStaticMeshComponent* Mesh, int32 Frame)

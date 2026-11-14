@@ -39,6 +39,8 @@ namespace UmbrellaArtSlotConst
 	static const TCHAR* const PlaceholderSuffix = TEXT("_PH");
 	/** The one unlit masked material every slot is drawn with (tools/build/assets/art_slot_material.py makes it). */
 	static const TCHAR* const MaterialPath = TEXT("/Game/UmbrellaElla/Materials/M_ArtSlot_Unlit.M_ArtSlot_Unlit");
+	/** Translucent copy with soft left/right edges (tools/build/assets/art_slot_fade_material.py); a picture on it is still slot art. */
+	static const TCHAR* const EdgeFadeMaterialPath = TEXT("/Game/UmbrellaElla/Materials/M_ArtSlot_EdgeFade.M_ArtSlot_EdgeFade");
 	static const TCHAR* const PlanePath = TEXT("/Engine/BasicShapes/Plane.Plane");
 	/** Engine plane edge in units. */
 	static constexpr float PlaneEdge = 100.0f;

@@ -20,8 +20,17 @@ namespace UmbrellaBackdropConst
 	static const FLinearColor NearStandInColor(0.12f, 0.11f, 0.10f, 1.0f);
 	/** Cube base size in engine units. */
 	static constexpr float EngineCubeSize = 100.0f;
-	/** Seconds-free loop: a layer wraps its parallax offset at this period (world units), so it never runs out. */
-	static constexpr float LoopPeriod = 1200.0f;
+	/**
+	 * Widest half-view (world units) the backdrop must cover around the camera. Measured on the DC route (dcseamless, Nov 13):
+	 * the camera margin and title band widen the ortho view to 2255 (half 1128); 1300 keeps a margin over that.
+	 */
+	static constexpr float MaxViewHalfWidth = 1300.0f;
+	/**
+	 * How far (world units) a layer panel may slide from the camera before its edge would show: half the panel minus the
+	 * widest half-view. Layers no longer wrap (the old 1200-unit wrap made each layer jump a quarter picture in one frame,
+	 * so the route showed the same island and arch again and again); each picture is crossed once, start to Keeper.
+	 */
+	static constexpr float SlideHeadroom = PanelWidth * 0.5f - MaxViewHalfWidth;
 	/** Small Y gap between layers that share one DrawOrder depth, so panels never z-fight. */
 	static constexpr float SameDepthStep = 5.0f;
 	/** Parallax: 0 = fixed to the camera (sky), 1 = fixed to the world. */
@@ -68,8 +77,18 @@ public:
 	/** Every layer in the set, back to front: sky, far land, near architecture, clock/water/wind, base. Pure. */
 	static TArray<FBackdropLayerSpec> LayerSpecs();
 
-	/** X offset (from the camera) of a looping layer: wraps in [0, LoopPeriod) so it loops forever. Pure. */
-	static float LoopOffset(float CameraX, float Parallax);
+	/** Camera X range the backdrop is built for: the route start to the right edge of the Keeper fight frame. Pure. */
+	static float RouteCameraMinX();
+	static float RouteCameraMaxX();
+
+	/**
+	 * Parallax a layer really scrolls at: its spec parallax scaled down (same factor for every layer, so their depth order
+	 * and ratios stay) until the fastest layer crosses its picture once over the whole camera range without an edge showing. Pure.
+	 */
+	static float EffectiveParallax(float Parallax);
+
+	/** Signed X offset of a layer panel from the camera: continuous in CameraX, never beyond +-SlideHeadroom. Pure. */
+	static float LayerOffset(float CameraX, float Parallax);
 
 	/** World X a layer panel sits at for a camera X. Pure. */
 	static float LayerXForCamera(float CameraX, float Parallax);
@@ -102,6 +121,13 @@ public:
 	/** Number of route stages (of RouteSlotCount) the backdrop covers. Route-stage backdrop coverage. */
 	int32 CountCoveredStages() const;
 
+	/**
+	 * Hide the arena's flat stand-in background planes (BackgroundFar/Near) once a backdrop layer draws art: they sat at the
+	 * backdrop's own depths as darkened 3840 x 1080 boxes and showed as hard-edged "screens" across the route. Returns how many
+	 * planes are hidden now.
+	 */
+	int32 HideArenaStandIns();
+
 	/** Specs parallel to GetLayers(). */
 	const TArray<FBackdropLayerSpec>& GetBuiltSpecs() const { return BuiltSpecs; }
 
@@ -109,4 +135,5 @@ private:
 	UPROPERTY()
 	TArray<TObjectPtr<AActor>> Layers;
 	TArray<FBackdropLayerSpec> BuiltSpecs;
+	bool bArenaStandInsHidden = false;
 };

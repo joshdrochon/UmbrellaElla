@@ -452,16 +452,16 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFeedbackBackdropLoop, "UmbrellaElla.Feedback.B
 
 bool FFeedbackBackdropLoop::RunTest(const FString& Parameters)
 {
-	const float Period = UmbrellaBackdropConst::LoopPeriod;
+	// dcseamless: layers no longer wrap; they slide at most SlideHeadroom from the camera, for any camera X (never run out).
+	const float Headroom = UmbrellaBackdropConst::SlideHeadroom;
 	for (const FBackdropLayerSpec& Spec : UUmbrellaBackdropSubsystem::LayerSpecs())
 	{
 		for (const float Camera : { -5000.0f, -1.0f, 0.0f, 777.0f, 1.0e6f })
 		{
-			const float Offset = UUmbrellaBackdropSubsystem::LoopOffset(Camera, Spec.Parallax);
-			TestTrue(TEXT("offset stays inside one period (never runs out)"), Offset >= 0.0f && Offset < Period);
+			const float Offset = UUmbrellaBackdropSubsystem::LayerOffset(Camera, Spec.Parallax);
+			TestTrue(TEXT("offset stays inside the headroom (never runs out)"), FMath::Abs(Offset) <= Headroom);
+			TestEqual(TEXT("layer X is camera plus offset"), UUmbrellaBackdropSubsystem::LayerXForCamera(Camera, Spec.Parallax), Camera + Offset);
 		}
-		TestEqual(TEXT("camera at origin leaves layer at origin"), UUmbrellaBackdropSubsystem::LayerXForCamera(0.0f, Spec.Parallax), 0.0f);
-		TestTrue(TEXT("layer stays within a period of the camera"), FMath::Abs(UUmbrellaBackdropSubsystem::LayerXForCamera(9000.0f, Spec.Parallax) - 9000.0f) < Period);
 	}
 	TestTrue(TEXT("all layers sit behind the arena"), [] {
 		for (const FBackdropLayerSpec& Spec : UUmbrellaBackdropSubsystem::LayerSpecs())
