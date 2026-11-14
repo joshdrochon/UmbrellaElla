@@ -61,6 +61,24 @@ FRotator VfxSheetVisual::FacingCamera()
 	return FRotationMatrix::MakeFromXZ(FVector::XAxisVector, FVector::YAxisVector).Rotator();
 }
 
+FRotator VfxSheetVisual::FacingCameraToward(float TravelX)
+{
+	// Plane X along the travel; the normal stays +Y (toward the camera), so the quad turns in the screen plane only.
+	const FVector Along = TravelX < 0.0f ? -FVector::XAxisVector : FVector::XAxisVector;
+	return FRotationMatrix::MakeFromXZ(Along, FVector::YAxisVector).Rotator();
+}
+
+float VfxSheetVisual::DrawnTravelX(const FString& Sheet)
+{
+	return (Sheet == TEXT("VFX_Gust") || Sheet == TEXT("VFX_GustPuff")) ? 1.0f : 0.0f;
+}
+
+FRotator VfxSheetVisual::FacingCameraForDrawn(float DrawnX, float TravelX)
+{
+	const bool bOpposed = DrawnX * TravelX < 0.0f;
+	return bOpposed ? FacingCameraToward(-1.0f) : FacingCamera();
+}
+
 UStaticMeshComponent* VfxSheetVisual::Build(AActor* Owner, const FVfxArtRow& Row, const FVector2D& Size)
 {
 	if (!IsValid(Owner))

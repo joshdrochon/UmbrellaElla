@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Feedback/Art/FigureScale.h"
 #include "Subsystems/WorldSubsystem.h"
 #include "KeeperPresenterSubsystem.generated.h"
 
@@ -24,7 +25,7 @@ enum class EKeeperGridPlayback : uint8
 namespace UmbrellaKeeperPresenterConst
 {
 	/** Stand-in box scale for the Keeper: wide body, flat card. */
-	static const FVector StandInScale(6.0, 0.1, 6.0);
+	static const FVector StandInScale(6.0 * UmbrellaFigureScale::Keeper, 0.1, 6.0 * UmbrellaFigureScale::Keeper);   // D-new-character-scale
 	/** Part slots that draw as layers over the body, back to front, with their depth offset (Y units from the body; negative = behind). */
 	struct FKeeperPartLayer
 	{
@@ -48,6 +49,22 @@ namespace UmbrellaKeeperPresenterConst
 	static constexpr float MinBodyAspect = 0.01f;
 	/** M_ArtSlot draws only the top row of a grid today (docs/build/requests/artkeeper.md Update 5); AllCells once it offsets rows. */
 	static constexpr EKeeperGridPlayback IdlePlayback = EKeeperGridPlayback::TopRowPingPong;
+	/**
+	 * Wing-gust clip (the wing gather / flap cue: gather, flap, recover; KeeperWingGustConst cells), one row of cells cut from a Veo clip
+	 * whose first frame is the approved idle cell 0 (pipeline/art/proof/artkeeper/wing-gust/). Numbers in clip pixels from
+	 * Keeper_wing_gust_N14_strip.sprite.json: the idle cell's box in the clip (where the input placed it) and the crop.
+	 */
+	static const TCHAR* const WingGustLayerName = TEXT("KeeperWingGust");
+	static constexpr float WingGustIdleBoxX = 262.0f;
+	static constexpr float WingGustIdleBoxY = 141.0f;
+	static constexpr float WingGustIdleBoxW = 755.0f;
+	static constexpr float WingGustIdleBoxH = 498.0f;
+	static constexpr float WingGustCropX = 6.0f;
+	static constexpr float WingGustCropY = 18.0f;
+	static constexpr float WingGustCropW = 986.0f;
+	static constexpr float WingGustCropH = 700.0f;
+	/** Workbench proof hook: the cue cell -SmokeKeeperCueShot captures by default (late gather). */
+	static constexpr int32 DefaultCueShotCell = 5;
 	/** State layers: hidden until their state starts (a part is destroyed; the Keeper departs). */
 	static const TCHAR* const MaskVisual = TEXT("keeper:part-masks-7-6-4-0");
 	static const TCHAR* const DepartureVisual = TEXT("keeper:living-departure");
@@ -106,6 +123,21 @@ public:
 	/** Sheet cell shown at Seconds for a Cols x Rows body grid played at Fps. Pure. */
 	static int32 IdleFrameAt(double Seconds, float Fps, int32 Cols, int32 Rows, EKeeperGridPlayback Playback);
 
+	/** The wing-gust clip's art slot row (T_Keeper_WingGust, one row of KeeperWingGustConst::Cells). */
+	static const FArtSlotRow& WingGustRow();
+
+	/**
+	 * Box scale and offset (X right, Z up, in units from the body's centre) of the wing-gust layer for a body drawn at
+	 * BodyBoxScale, so the clip's owl lands on the idle owl. Pure.
+	 */
+	static void WingGustPlacement(const FVector& BodyBoxScale, FVector& OutBoxScale, FVector& OutOffset);
+
+	/** Add the hidden wing-gust layer to a Keeper whose body draws art (null Texture = load the slot). */
+	EArtSlotDraw ShowWingGustLayer(AActor* Keeper, UTexture2D* Texture);
+
+	/** Show the Keeper's wing-gust cell (the body hides) or the idle body (the layer hides), from GetWingGustCell. */
+	void PlayWingGust(AKeeperOfTime* Owl) const;
+
 	/** True when any tracked Keeper draws slot art. Pure read. */
 	bool HasAnyKeeperArt() const;
 
@@ -118,6 +150,9 @@ private:
 	void SyncPartCover(AKeeperOfTime* Owl);
 	/** Step the body grid's frame from world time (no gameplay read). */
 	void PlayIdle(AActor* Keeper) const;
+	/** Workbench proof hook: one capture when the wing-gust cue shows a chosen cell (-SmokeKeeperCueShot). */
+	void RequestCueShot(const AKeeperOfTime* Owl);
+	bool bCueShotTaken = false;
 	/** Last value written to the arenas by SyncArenaStandIn. */
 	bool bArenaArtShown = false;
 	void HandlePartDestroyed(const FUmbrellaEvent& Event);

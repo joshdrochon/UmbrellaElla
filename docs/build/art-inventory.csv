@@ -37,6 +37,7 @@ keeper:mechanism-middle,GDD ANIM-06; Content/UmbrellaElla/Art/Keeper/T_Keeper_Me
 keeper:mechanism-rear,GDD ANIM-06; Content/UmbrellaElla/Art/Keeper/T_Keeper_MechRear_PH.uasset,keeper-mech-rear,artkeeper,no,/Game/UmbrellaElla/Art/Keeper/T_Keeper_MechRear,UKeeperPresenterSubsystem
 keeper:part-masks-7-6-4-0,GDD ANIM-06,keeper-damage,artkeeper,no,/Game/UmbrellaElla/Art/Keeper/T_Keeper_DamageMasks,UKeeperPresenterSubsystem
 keeper:talon-empty-and-closed,GDD ANIM-06; Content/UmbrellaElla/Art/Keeper/T_Keeper_Talon_PH.uasset,keeper-talon,artkeeper,no,/Game/UmbrellaElla/Art/Keeper/T_Keeper_Talon,UKeeperPresenterSubsystem
+keeper:wing-gust-cue,GDD OWL-15; Content/UmbrellaElla/Art/Keeper/T_Keeper_WingGust_PH.uasset,keeper-wing-gust,artkeeper,yes,,-
 keeper:wings-gust-wear,GDD ANIM-06; Content/UmbrellaElla/Art/Keeper/T_Keeper_Wing_PH.uasset,keeper-wing,artkeeper,no,/Game/UmbrellaElla/Art/Keeper/T_Keeper_Wing,UKeeperPresenterSubsystem
 menu-backdrop:Clocks,Source UI/Menus EFlowBackdrop,ui-pause,artui,no,/Game/UmbrellaElla/Art/UI/T_MenuBackdrop_Clocks,UUiArtSubsystem
 menu-backdrop:Drift,Source UI/Menus EFlowBackdrop,menu-screen,artscene,no,/Game/UmbrellaElla/Art/UI/T_MenuBackdrop_Drift,UUiArtSubsystem

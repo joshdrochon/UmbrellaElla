@@ -1,0 +1,6 @@
+{
+ "model": "claude-opus-5-5",
+ "key": "4b7d435c8f019129f34fdced9497e9e2",
+ "at": "2026-11-13T22:14:44",
+ "answer": "{\"scores\": {\"dark_backdrop\": 8, \"wind_ribbons\": 1, \"small_figures\": 4, \"floating_islands\": 7, \"shot_colours\": 4, \"no_placeholders\": 6, \"no_framed_art\": 9}, \"broken\": [\"thin flat bar platform with a green strip, bottom left, instead of an island\", \"straight vertical line from the top edge down to Ella, looks like a debug or tether line\"], \"verdict\": \"FAIL\"}"
+}

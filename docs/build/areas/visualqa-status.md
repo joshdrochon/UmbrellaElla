@@ -202,3 +202,98 @@ IDENTIFIED C: the Keeper gust's gameplay cue cube `AKeeperOfTime::GustVisual` (S
   treatment (ash #555e60, 15% height) loses: EncounterDirectorSubsystem calls Refresh every tick and PlaceVisual re-sets scale and
   tint, while composition re-applies only every 0.2 s, so most frames show the raw 60x120 pale block. For the art lane: give the gust
   front an art slot (or hide GustVisual while VFX_Gust draws, as MarkPartArtDrawn does for body parts). Not restyled here.
+- Item 1 gust facing: the gust sheets (VFX_Gust, VFX_GustPuff) are drawn travelling +X; the Keeper's gust travels -X.
+  `UUmbrellaVfxDirectorSubsystem::PlayAnchored` turns every GustFront-anchored effect 180 degrees in the screen plane
+  (`VfxSheetVisual::FacingCameraToward(KeeperVfxRules::GustTravelX)`; normal stays toward the camera). Tests:
+  UmbrellaElla.Feedback.VfxGustFacesTravel (both ways: +X keeps the old facing, -X is a 180 turn, front leads, faces camera),
+  UmbrellaElla.Feedback.World.VfxGustFacesTravel (real fight to a travelling gust: model front moves -X, the live GustTravel
+  art's front leads it). Break-checked: without the turn the world test FAILs. 4/4 PASS with VfxKeeperWiring, VfxKeeperRules.
+  Capture 1600x900 (tools/build/journeys/vq_keeper_attacks.txt): pipeline/qa/visual/gust-facing-before-after.png
+  (left before: round front trails the travel; right after: front leads). Grey block C still rides it (art lane).
+- Item 2 figure scale (D-new-character-scale row added): `Feedback/Art/FigureScale.h` Ella 1.5, Keeper 1.5. Ella's drawn
+  cell = FramedCellHeight 2.7 x 1.5 (overlays too); the Keeper body/part box 6.0 x 1.5; the camera margin still frames 2.7
+  (`SpriteHalfHeight` uses FramedCellHeight): no zoom, background identical (composites below). Hitboxes, collision, speeds
+  untouched. Measured (UmbrellaElla.Feedback.World.FigureScaleOnScreen, opaque figure from the texture source): Ella 14.1%
+  Start Game / 12.7% Director's Cut (was ~9.4/8.5), Keeper 41.1% (was ~27%); all in frame EXCEPT Start Game with Ella at the
+  ceiling: her umbrella tip overhangs the frame top by 22 units (~17 px at 900p). That is the 'no zoom' vs 'fully in frame'
+  conflict: OPEN in D-new-character-scale (options a accept / b ~4% Start Game margin / c draw art 22 lower); default a,
+  reported by the test as a warning. Hitboxes: Ella's hurtbox inside her figure (hurtbox/figure 0.55); every Keeper hitbox on
+  the drawn Keeper; REPORT: the front/middle/rear mechanism pictures move 55-70 units off their 36-unit hitboxes because the
+  picture grows about the body centre (wings, clock, eye stay over theirs). Not changed.
+  Tests: FigureScale.VisualOnly + World.FigureScaleOnScreen; break-checked (scale 1.0 FAILs); 30/30 with FrameComposition,
+  ArtSlot, Keeper world tests. Captures: pipeline/qa/visual/scale-{play,keeper}-before-after.png (study | main 991b3eb7 | tip).
+  `visual_qa.py run --gate --main-sha dd37d80943a12016565114f4abd1fb887f47df6c` on cc2a51b4:
+  `VISUAL_QA GATE PASS play=39/70 dc_route=45/70 keeper=39/70 broken=7 baseline=991b3eb7806a`.
+- Item 3 capture load: tools/build/run_game.sh caps every offscreen (RUN_RES) run with
+  `-ini:Engine:[ConsoleVariables]:t.MaxFPS=30` (RUN_MAXFPS, default 30; 0 lifts it); the run log shows
+  `LogConfig: Set CVar [[t.MaxFPS:30]]`. That covers gate and lane visual_qa captures (visual_qa launches through it).
+  Scores: same tip cc2a51b4 uncapped play/dc_route/keeper = 39/45/39; capped first 24/43/39, recapture 41/44/39
+  (pipeline/qa/visual/noise/fps30-cc2a51b4.json). The 24 is content: that capture had the Keeper's salmon gust band
+  mid-frame and 'Preparing Textures'; the gate's two-capture rule passes the capped pair against the uncapped run, and
+  every recapture total is within the measured judge noise (4). Tests: tests/test_capture_fps.py (6; stub editor prints
+  run_game's args; the old run_game.sh fails 2).
+
+## Lead HOLD 22:10 (gate review on 3b954ea6, ../logs/review-visualqa.txt): fixes
+- (1) Devlog: dated line under '## Frames toward the Other Realm study' for the gust-facing + figure-scale round, citing
+  gust-facing-before-after.png and scale-{play,keeper}-before-after.png.
+- (2) Ceiling in frame (B7/B11): `UEllaAnimPresenterComponent::KeepFigureInFrame` (Tick) lowers Ella's drawn pictures
+  (body + overlays; never the capsule, hurtbox or camera) just enough that the drawn cell stays under the frame's clear
+  top, set by `UFrameCompositionSubsystem::ApplyCameraMargin` via `ClearTopZ` (frame top less the Director's Cut title
+  band). Measured (World.FigureScaleOnScreen): lowered 26 units at the ceiling in Start Game and Director's Cut (figure top
+  1108 under clear top 1112; before 1134), 0 at the floor; hurtbox still inside the figure (0.55). The warning is now a
+  failing check (fully in frame and under the clear top, both modes, ceiling and floor); without the drop it FAILs (first
+  run: 'figure top 1134, clear top 1112' in both modes). Pure checks for FigureDrop and ClearTopZ in FigureScale.VisualOnly.
+  D-new-character-scale row updated. Build exit 0; UmbrellaElla.Feedback+UmbrellaElla.Art 60/60 PASS.
+- (3) Stand-in fallback size: kept at the old size on purpose, documented on `StandInScaleFor`: the plain box shows only
+  when no picture loads and stands for her hurtbox size; drawn pictures (ArtBoxScaleFor, overlays) carry the 1.5x.
+- (4) FOR THE ART LANE: the Keeper mechanism pictures (front, middle, rear) now sit 55-70 units off their 36-unit hitboxes
+  (the 1.5x picture grows about the body centre: front (-65,-55), middle (-5,-70), rear (55,-55)); wings, clock and eye stay
+  over theirs. Hitboxes unchanged. Paint/place the mechanism parts over the hitbox offsets (KeeperTuning) or report.
+- (5) Gust turn per sheet: `VfxSheetVisual::DrawnTravelX(sheet)` (+1 for VFX_Gust/VFX_GustPuff, 0 = no drawn direction)
+  and `FacingCameraForDrawn(drawn, travel)`: PlayAnchored turns a GustFront effect 180 only when its sheet's drawn
+  direction opposes the travel. VfxGustFacesTravel checks every GustFront key's sheet, a -X-drawn and an undirected sheet
+  (not turned); World.VfxGustFacesTravel still PASSes.
+- Next: resume the lead order at item 4 (thin vertical line), then 5 (flat box; the flat-box detector + calibration
+  PNGs are uncommitted work in progress from the last session), then 6.
+
+## Item 4: thin vertical line from the top edge down to Ella
+- Identified: the NAR-05 light shaft (`UUmbrellaVfxDirectorSubsystem::StepShaft`, vfx-sheet VFX_LightShaft, a 6-unit
+  hairline 2400 long above Ella; LightShaftRules.h). Not debug: NAR-05 is APPROVED_P0, but it is Director's Cut story
+  delivery and the story already says when light falls (`FStoryModel::IsLightShaftOn`: DC run and ending hold). The
+  director never asked, so the line drew in every mode, Start Game play and its Keeper fight included.
+- Fix: StepShaft draws the shaft and umbra only while `UStorySubsystem::IsLightShaftOn()`. Start Game: no line.
+  World.VfxLightShaftAndUmbra now checks none before a run and in Start Game, then all its old checks in DC.
+  Break-check: gate removed -> that test FAILs; restored -> build exit 0, Feedback+Story+ScreenFix 78/78 PASS.
+- Left for the art lane: in Director's Cut the shaft is still the straight hairline (the sheet material ignores Opacity
+  and Tint, so a softer study-style light needs VFX_LightShaft art, not code). Not restyled here.
+
+## Item 5: the judge missed the flat salmon box and the grey block
+- Why: (a) the gate judges ONE Keeper shot, taken between attacks, so the wing-gust warning band (salmon) and the gust
+  cube (grey, C) were seldom in it; (b) when they were, the judge read a small flat block as a cloud or a card.
+- Fix: `tools/build/flat_box.py` (stdlib, no judge, no spend): a box = one flat colour that fills its rectangle, hard
+  edges against what is around it, big enough to see; painted art has grain and soft edges. visual_qa runs it on every
+  judged shot and on 8 detector-only Keeper shots (`vq_keeper_a1..a8`, 0.8 s apart, new in journeys/visual_qa.txt), one
+  item per distinct box, added to the screen's 'broken' list (kind `box`, tagged `[detector]`). Gate: a detector item
+  counts as new only against a main baseline that was itself run with the detector (key `detector`); an older baseline
+  never listed main's own boxes and would fail every lane on the band main already shows. The lane `run` fails on any.
+  The band and the cube are not edited here (artkeeper / art lane).
+- Real capture (958f56dd, this journey, 1280x720): judged vq_keeper 0 boxes (what the judge saw); vq_keeper_a1 salmon
+  band 595x68 #e78783; a2 and a4 grey cube 33x68 #cfd6dc; play, dc_route and the other Keeper shots 0.
+- Tests: tests/test_flat_box.py (15, real captures in pipeline/qa/visual/calibration/flatbox-*.png: band, cube, black
+  stand-in found; quiet Keeper, clean route, the study and known-good give none). Against the old visual_qa.py 5 of
+  them fail (blind judge -> keeper PASS, no detector items, detector shots unread). test_visual_qa's recapture test now
+  recaptures a clean real frame (known-bad has boxes, which the recheck now lists).
+
+## Item 6: gate recheck stalled at 'click Quit to Title' on Defeat
+- Cause: a flaky click, not a game bug. In every logged run (Saved/VisualQA/*/journey.log in the gate checkout) the
+  click took 28 times with `active=1` and failed the one time it was sent with `active=0` (gate-a1a5356e/recheck: the
+  game window was not the active app, Josh was using the machine); the click step then passed and 'wait Title' timed
+  out 60 s later.
+- Fix (journey hook, `UJourneyHookSubsystem` click step + `JourneyRules::ClickNext`): a click is done only when the
+  screen changed or its button went away. After 1 s with no effect the mouse click is sent again (3 mouse presses in all),
+  then keyboard focus on the button and Enter (Slate Accept; SButton::OnKeyDown 5.8.4), each logged as
+  JOURNEY_CLICK_RETRY; if that does nothing either the step fails at the click line.
+- Real run (lose.txt, this build): Start Game and Retry took on the first press (`presses=1`); Quit to Title was sent with
+  `active=0`, two more mouse clicks did nothing, Enter took (`presses=4`), 'wait Title' PASS after 0.1 s; JOURNEY_END
+  passed=31 failed=0. Test UmbrellaElla.Smoke.Journey.ClickRetriesUntilItTakes (break-check: "a sent click is done" -> FAIL); build exit 0; Smoke + shaft 19/19 PASS.
+- Lead order of Nov 13 21:49 items 0-6 done (4: 958f56dd, 5: b96990b4, 6: this commit). Stopped here as ordered.

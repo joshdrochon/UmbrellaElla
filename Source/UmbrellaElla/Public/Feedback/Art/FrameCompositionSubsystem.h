@@ -170,7 +170,7 @@ public:
 	/** Log every rendered mesh: owner, component, world box, art or stand-in tint (finds the boxes on a capture). */
 	int32 DumpVisibleMeshes() const;
 
-	/** Half-height of Ella's drawn picture cell for an actor scale (UmbrellaPresenterConst::ArtCellHeight). Pure. */
+	/** Half-height of the picture cell the camera frames for an actor scale (UmbrellaPresenterConst::FramedCellHeight, not the drawn ArtCellHeight: the figure scale never zooms the camera). Pure. */
 	static float SpriteHalfHeight(float ActorScaleZ);
 
 	/**
@@ -181,6 +181,9 @@ public:
 
 	/** World Z of the top edge of an orthographic view. Pure. */
 	static float FrameTopZ(float CameraZ, float OrthoWidth, float AspectRatio);
+
+	/** Highest world Z a figure may reach: the frame top less the title band share of the view (B11). Pure. */
+	static float ClearTopZ(float CameraZ, float OrthoWidth, float AspectRatio, float TopShare);
 
 	/**
 	 * Widen the arena camera so Ella's whole picture stays in frame at the play ceiling, in Start Game and Director's

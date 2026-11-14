@@ -453,8 +453,11 @@ class GateRecapture(unittest.TestCase):
         def fake_capture(out):
             captures.append(out)
             os.makedirs(out, exist_ok=True)
-            for name in visual_qa.SCREENS.values():     # a different frame: the enemy moved
-                shutil.copyfile(os.path.join(ROOT, visual_qa.KNOWN_BAD), os.path.join(out, name))
+            # A different frame: the enemy moved. A real capture with no flat box (known-bad has boxes, which the
+            # box detector now lists on the recapture too).
+            clean = os.path.join(ROOT, visual_qa.CALIBRATION, "flatbox-dcroute-clean.png")
+            for name in visual_qa.SCREENS.values():
+                shutil.copyfile(clean, os.path.join(out, name))
             return 0
 
         def caller(prompt, image):
