@@ -191,3 +191,14 @@ Bootstrap main's baseline (checkout at main, built): `python3 tools/build/visual
 - Cost: a gate FAIL now costs one more capture (~2 min) and 3 judge calls. gate.sh not touched.
 - Note: while I captured, refs/heads/area/visualqa was moved to 9177511f by something outside this session (empty
   reflog entry); I reset it to my own commit db2e826c.
+
+## Lead order Nov 13 21:49 (Josh)
+IDENTIFIED C: the Keeper gust's gameplay cue cube `AKeeperOfTime::GustVisual` (Source/UmbrellaElla/Private/Owl/KeeperOfTime.cpp,
+  `AKeeperOfTime::Refresh` -> `PlaceVisual(GustVisual, Model.GetGustFront(), (GustFrontThickness/2, GustBandWidth/2) = 60x120 uu,
+  KeeperLook::Gust (0.7,0.85,1.0) pale blue-white)`). Mesh /Engine/BasicShapes/Cube, material = ArtSlot::SetFlatUnlit stand-in
+  (M_ArtSlot_Unlit, no texture; BasicShapeMaterial only if that is missing). It has NO art slot: it is not in ArtSlotCatalog.inc and
+  `IsCoveredByArt` only covers the six body parts, so nothing ever hides it. It rides the gust front, beside the cream swirl
+  (vfx-sheet:VFX_Gust drawn separately by UmbrellaVfxDirectorSubsystem/VfxSheetVisual). FrameCompositionSubsystem's GustLine
+  treatment (ash #555e60, 15% height) loses: EncounterDirectorSubsystem calls Refresh every tick and PlaceVisual re-sets scale and
+  tint, while composition re-applies only every 0.2 s, so most frames show the raw 60x120 pale block. For the art lane: give the gust
+  front an art slot (or hide GustVisual while VFX_Gust draws, as MarkPartArtDrawn does for body parts). Not restyled here.
