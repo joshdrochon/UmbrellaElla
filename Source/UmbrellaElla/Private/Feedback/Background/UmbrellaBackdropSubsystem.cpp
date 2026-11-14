@@ -16,6 +16,7 @@
 #include "EngineUtils.h"
 #include "GameFramework/Pawn.h"
 #include "Misc/CommandLine.h"
+#include "Core/UmbrellaLog.h"
 
 namespace
 {
@@ -193,7 +194,7 @@ void UUmbrellaBackdropSubsystem::HandlePostActorTick(UWorld* InWorld, ELevelTick
 			Line += FString::Printf(TEXT(" %s=%.2f"), *BuiltSpecs[Index].Name.ToString(), Layers[Index]->GetActorLocation().X - CamX);
 		}
 	}
-	UE_LOG(LogTemp, Display, TEXT("%s"), *Line);
+	UE_LOG(LogUmbrellaElla, Display, TEXT("%s"), *Line);
 }
 
 int32 UUmbrellaBackdropSubsystem::BuildLayers()
