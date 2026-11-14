@@ -134,7 +134,8 @@ class GateBaseline(unittest.TestCase):
         self.assertEqual(code, visual_qa.EXIT_FAIL)
         self.assertFalse(os.path.exists(os.path.join(self.tmp, "base", "a" * 40 + ".json")))
         ok = (visual_qa.EXIT_PASS, "VISUAL_QA PASS play=60/70", {})
-        with mock.patch.object(visual_qa, "judge_shots", return_value=ok):
+        with mock.patch.object(visual_qa, "judge_shots", return_value=ok), \
+                mock.patch.object(visual_qa, "measure_noise", return_value={}):
             self.assertEqual(visual_qa.main(["baseline", "--shots", self.tmp, "--sha", "a" * 40]), visual_qa.EXIT_PASS)
         self.assertTrue(os.path.exists(os.path.join(self.tmp, "base", "a" * 40 + ".json")))
 
@@ -172,7 +173,7 @@ class GateMode(unittest.TestCase):
         new = visual_qa.parse_answer(answer(9, ["cream bar at the bottom"]))
         ok, why = visual_qa.decide_gate(new, base)
         self.assertFalse(ok)
-        self.assertEqual(why, ["new broken: cream bar at the bottom"])
+        self.assertEqual(why, ["new broken: cream bar at the bottom [bar]"])
 
     def test_norm_item_matches_case_and_punctuation(self):
         self.assertEqual(visual_qa.norm_item("  Lilac  placeholder-cube, on the ROUTE. "),
@@ -182,13 +183,13 @@ class GateMode(unittest.TestCase):
         sha = "m" * 40
         visual_qa.store_baseline(sha, "x", self.base()["screens"])
         caller = lambda p, i: answer(6, ["lilac placeholder cube on the route"], verdict="FAIL")
-        with mock.patch.object(visual_qa, "judge_call", side_effect=lambda p, i, c, r: (caller(p, i), False)):
+        with mock.patch.object(visual_qa, "judge_call", side_effect=lambda p, i, c, r, n=0: (caller(p, i), False)):
             out = io.StringIO()
             with redirect_stdout(out):
                 code = visual_qa.cmd_judge(self.shots, gate=True, sha=sha)
             self.assertEqual(code, visual_qa.EXIT_PASS, out.getvalue())
             self.assertTrue(out.getvalue().strip().splitlines()[-1].startswith("VISUAL_QA GATE PASS"))
-        with mock.patch.object(visual_qa, "judge_call", side_effect=lambda p, i, c, r: (answer(5), False)):
+        with mock.patch.object(visual_qa, "judge_call", side_effect=lambda p, i, c, r, n=0: (answer(5), False)):
             with redirect_stdout(io.StringIO()):
                 self.assertEqual(visual_qa.cmd_judge(self.shots, gate=True, sha=sha), visual_qa.EXIT_FAIL)
 
@@ -237,6 +238,130 @@ class GateMode(unittest.TestCase):
                 redirect_stdout(io.StringIO()):
             self.assertEqual(visual_qa.cmd_baseline_from_main(self.shots, "e" * 40), visual_qa.EXIT_ERROR)
         self.assertFalse(os.path.exists(visual_qa.baseline_path("e" * 40)))
+
+
+FIXTURES = os.path.join(ROOT, "tests", "fixtures", "visual_qa")
+NOISE = os.path.join(ROOT, "pipeline", "qa", "visual", "noise")
+
+
+def fixture(name, folder=FIXTURES):
+    with open(os.path.join(folder, name), encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+class GateWording(unittest.TestCase):
+    """Lead 19:50: the owl merge (artkeeper 0d74b84a) failed the gate on 'new broken' items main b4c1fe79's baseline
+    already lists in other words, and on a total inside the judge's own noise. Real wordings from both runs."""
+
+    def setUp(self):
+        self.base = fixture("baseline-b4c1fe79.json")              # main's stored run + 5 recorded noise samples
+        self.owl = fixture("gate-owl-0d74b84a.json")               # the failing gate run, as judged
+
+    def test_owl_merge_is_not_a_regression(self):
+        for screen, r in self.owl["screens"].items():
+            ok, why = visual_qa.decide_gate(r, self.base["screens"][screen])
+            self.assertTrue(ok, "%s: %s" % (screen, why))
+
+    def test_reworded_items_share_a_kind(self):
+        pairs = [
+            ("thin flat white vertical line running from the top of the frame down to the player",          # main play
+             "thin full-height vertical white line/bar through the left-centre of the frame"),               # owl play
+            ("thin straight vertical line across the full frame height",                                     # main keeper
+             "stray thin vertical white line from the top of the frame to the player"),                      # owl dc_route
+            ("flat dark brown bar used as a floating platform (mid-right)",                                   # main dc_route
+             "flat dark-brown bar used as the floating platform (right middle)"),
+            ("flat dark brown bar spanning the full width as ground",
+             "flat dark-brown bar across the full width as ground (bottom)"),
+            ("flat brown bar with solid block step at bottom left (placeholder ground)",                      # main keeper
+             "flat dark-brown bar with a block step used as ground at lower left"),
+            ("player girl nearly invisible against the backdrop (tiny, low contrast near centre-left)",       # main sample
+             "player character barely visible (faint silhouette lost in the background at left-centre)"),
+            ("Keeper owl drawn on a visible dark rectangle background (unkeyed)",
+             "Keeper owl sprite on a visible rectangle background with hard cut edges (unkeyed)"),
+        ]
+        for a, b in pairs:
+            self.assertEqual(visual_qa.defect_kind(a), visual_qa.defect_kind(b), (a, b))
+        self.assertEqual(visual_qa.defect_kind("thin vertical white line from the top of the screen to the player"), "line")
+        self.assertEqual(visual_qa.defect_kind("flat dark brown bar as the floor across the full width"), "bar")
+
+    def test_a_genuinely_new_defect_still_fails(self):
+        dc = dict(self.owl["screens"]["dc_route"])
+        dc["broken"] = dc["broken"] + ["flat dark brown bar as a second floating ledge, top left"]   # a third bar
+        ok, why = visual_qa.decide_gate(dc, self.base["screens"]["dc_route"])
+        self.assertFalse(ok)
+        self.assertIn("second floating ledge", why[0])
+        self.assertIn("[bar]", why[0])
+        play = dict(self.owl["screens"]["play"])
+        play["broken"] = play["broken"] + ["large lilac placeholder cube on the route"]
+        self.assertFalse(visual_qa.decide_gate(play, self.base["screens"]["play"])[0])
+        odd = dict(self.owl["screens"]["play"])
+        odd["broken"] = ["Ella floats upside-down"]       # a kind main never listed
+        self.assertFalse(visual_qa.decide_gate(odd, self.base["screens"]["play"])[0])
+        # An item no kind rule knows matches only its exact normalised text, as before.
+        self.assertEqual(visual_qa.defect_kind("Something  Odd!"), "something odd")
+
+    def test_omitted_known_defect_needs_main_samples(self):
+        # Main's stored dc_route run left out the vertical line its own frame shows; the samples list it 5 of 5 times.
+        bare = fixture("baseline-b4c1fe79-before-samples.json")["screens"]["dc_route"]
+        ok, why = visual_qa.decide_gate(self.owl["screens"]["dc_route"], bare)
+        self.assertFalse(ok)
+        self.assertIn("[line]", " ".join(why))
+        self.assertEqual(visual_qa.known_kinds(self.base["screens"]["dc_route"]).get("line"), 1)
+
+    def test_total_margin_is_the_measured_noise(self):
+        """GATE_TOTAL_SLACK: the most one judged run fell under its frame's median; _SINGLE: the widest spread."""
+        sets = []
+        for noise, stored in (("main-b4c1fe79.json", fixture("baseline-b4c1fe79-before-samples.json")),
+                              ("owl-0d74b84a.json", self.owl)):
+            n = fixture(noise, NOISE)
+            for screen, o in n["screens"].items():
+                sets.append(sorted([stored["screens"][screen]["total"]] + o["totals"]))
+        self.assertEqual(len(sets), 6)
+        def median(t):
+            m = len(t) // 2
+            return t[m] if len(t) % 2 else (t[m - 1] + t[m]) / 2.0
+        import math
+        self.assertEqual(visual_qa.GATE_TOTAL_SLACK, math.ceil(max(median(t) - t[0] for t in sets)))
+        self.assertEqual(visual_qa.GATE_TOTAL_SLACK_SINGLE, max(t[-1] - t[0] for t in sets))
+        # Inside the noise passes, past it fails (main dc_route median 25.5).
+        self.assertEqual(visual_qa.base_total(self.base["screens"]["dc_route"]), (25.5, visual_qa.GATE_TOTAL_SLACK))
+        r = {"total": 22, "broken": []}
+        self.assertTrue(visual_qa.decide_gate(r, self.base["screens"]["dc_route"])[0])
+        r["total"] = 21
+        self.assertFalse(visual_qa.decide_gate(r, self.base["screens"]["dc_route"])[0])
+
+    def test_noise_samples_are_separate_recorded_calls(self):
+        tmp = tempfile.mkdtemp()
+        try:
+            calls = []
+            def caller(p, i):
+                calls.append(p)
+                return answer(5)
+            visual_qa.judge_call("prompt", b"img", caller, tmp)
+            visual_qa.judge_call("prompt", b"img", caller, tmp, sample=1)
+            visual_qa.judge_call("prompt", b"img", caller, tmp, sample=1)      # replayed
+            self.assertEqual(len(calls), 2)
+            self.assertEqual(len(os.listdir(tmp)), 2)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_new_baseline_stores_samples(self):
+        tmp = tempfile.mkdtemp()
+        shots = os.path.join(tmp, "shots")
+        os.makedirs(shots)
+        for name in visual_qa.SCREENS.values():
+            shutil.copyfile(os.path.join(ROOT, visual_qa.STUDY), os.path.join(shots, name))
+        try:
+            with mock.patch.dict(os.environ, {"VISUAL_BASELINE_DIR": os.path.join(tmp, "base")}), \
+                    mock.patch.object(visual_qa, "BASELINE_SAMPLES", 2), redirect_stdout(io.StringIO()):
+                code = visual_qa.cmd_baseline_from_main("", "7" * 40, lambda p, i: answer(4, ["thin white line"], "FAIL"),
+                                                        os.path.join(tmp, "rec"), shots=shots)
+                self.assertEqual(code, visual_qa.EXIT_PASS)
+                play = visual_qa.load_baseline("7" * 40)["screens"]["play"]
+            self.assertEqual(len(play["samples"]), 2)
+            self.assertEqual(play["samples"][0]["broken"], ["thin white line"])
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
 
 
 class UserState(unittest.TestCase):

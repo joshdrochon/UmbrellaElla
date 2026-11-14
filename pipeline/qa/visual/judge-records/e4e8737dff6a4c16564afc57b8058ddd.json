@@ -1,0 +1,6 @@
+{
+ "model": "claude-opus-5-5",
+ "key": "e4e8737dff6a4c16564afc57b8058ddd",
+ "at": "2026-11-13T19:52:30",
+ "answer": "{\"scores\": {\"dark_backdrop\": 4, \"wind_ribbons\": 1, \"small_figures\": 6, \"floating_islands\": 2, \"shot_colours\": 5, \"no_placeholders\": 2, \"no_framed_art\": 8}, \"broken\": [\"flat brown bar with a rectangular step block as ground, bottom left\", \"thin straight vertical line running the full height of the frame near centre-left\"], \"verdict\": \"FAIL\"}"
+}

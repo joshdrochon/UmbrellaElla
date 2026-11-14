@@ -1,0 +1,6 @@
+{
+ "model": "claude-opus-5-5",
+ "key": "034245388dabc658ae780746ade056fe",
+ "at": "2026-11-13T19:52:14",
+ "answer": "```json\n{\"scores\": {\"dark_backdrop\": 4, \"wind_ribbons\": 0, \"small_figures\": 3, \"floating_islands\": 2, \"shot_colours\": 4, \"no_placeholders\": 5, \"no_framed_art\": 2}, \"broken\": [\"Keeper owl picture has a visible dark rectangle background behind it (unkeyed, right edge)\", \"Keeper owl drawn huge, filling the right third of the frame\", \"thin flat white vertical bar from top of frame down to the girl's umbrella\", \"small flat gold dash bars instead of streaks (centre and top right)\", \"no wind ribbons anywhere\", \"no floating islands: ground is gear and spire silhouettes\"], \"verdict\": \"FAIL\"}\n```"
+}

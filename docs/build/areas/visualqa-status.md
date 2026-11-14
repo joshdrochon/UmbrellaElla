@@ -120,3 +120,26 @@ Bootstrap main's baseline (checkout at main, built): `python3 tools/build/visual
   square-cropped (figure scale next).
 - Route ground is flat umber bars until artscene's island art lands; light shaft still a straight line.
 - Composites per round; baseline for main once merged.
+
+## Check defect fix (lead 19:50): gate failed the owl merge on wording and judge noise
+- Triage: check defect. Owl gate (0d74b84a vs main b4c1fe79): every "new broken" item is a defect main's frames show
+  (the dc_route frames are near-identical; main's stored dc_route run simply left out the vertical line), and dc_route
+  26 vs 29 is inside the judge's own spread.
+- Noise, measured: the same bytes re-judged 5 more times (`visual_qa.py noise --n 5`, records committed, replayable):
+  main b4c1fe79 play 23 + [25,23,25,24,20], dc_route 29 + [26,25,24,23,26], keeper 19 + [18,18,21,18,17];
+  owl 0d74b84a play 32 + [30,27,30,31,29], dc_route 26 + [21,24,24,24,24], keeper 23 + [25,28,25,24,27].
+  Widest spread on one frame 6 (main dc_route); one run fell at most 3.5 under its frame's median (main play).
+  Files: pipeline/qa/visual/noise/main-b4c1fe79.json, owl-0d74b84a.json.
+- Margin: gate compares with the median of main's runs, slack 4 (3.5 rounded up); a baseline without samples uses
+  its one run, slack 6. A test recomputes both from the noise files.
+- Matching: each broken item maps to a defect kind (line, bar, unkeyed, bright_backdrop, no_wind, player_missing, ...;
+  DEFECT_KINDS); matched by count per kind per screen against the most any of main's runs listed. A third bar where
+  main had two still fails; an item no rule knows matches only its exact text, as before. Location is not in the key:
+  the judge names one place three ways ("mid-right", "right middle", "right of centre").
+- Baselines now store 5 noise samples (`BASELINE_SAMPLES`, env VISUAL_QA_BASELINE_SAMPLES): +15 judge calls,
+  about 5 min, per stored baseline. b4c1fe79's baseline in ../logs/visual-baseline has its 5 samples (replayed).
+- Owl run against it: play, dc_route, keeper all PASS (test GateWording.test_owl_merge_is_not_a_regression).
+- Tests: tests/test_visual_qa.py GateWording (7, real wordings); 28 OK. Old code: 9 of them fail.
+- gate.sh not touched. Lessons inbox: not found in this tree; lesson is "a single judged run is not a baseline: store
+  samples, match by defect kind".
+- Residual: an item main's frame shows but no main run named (none seen in 6 runs per screen) can still false-fail.
