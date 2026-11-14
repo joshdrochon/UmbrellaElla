@@ -244,9 +244,31 @@ void AUmbrellaArena::FollowEllaX(float EllaX, int32 TravelDirection)
 	PlayCamera->SetWorldLocation(Location);
 }
 
+void AUmbrellaArena::SetRightWallInnerX(float WorldX)
+{
+	const float Wall = GetDefault<UUmbrellaTuning>()->ArenaCamera.WallThickness;
+	FVector Location = RightWall->GetRelativeLocation();
+	Location.X = WorldX - GetActorLocation().X + Wall * 0.5f;
+	RightWall->SetRelativeLocation(Location);
+}
+
+void AUmbrellaArena::ResetRightWall()
+{
+	const FArenaCameraTuning& T = GetDefault<UUmbrellaTuning>()->ArenaCamera;
+	FVector Location = RightWall->GetRelativeLocation();
+	Location.X = T.ArenaWidth + T.WallThickness * 0.5f;
+	RightWall->SetRelativeLocation(Location);
+}
+
+float AUmbrellaArena::GetRightWallInnerX() const
+{
+	return static_cast<float>(RightWall->GetComponentLocation().X) - GetDefault<UUmbrellaTuning>()->ArenaCamera.WallThickness * 0.5f;
+}
+
 void AUmbrellaArena::MovePlayArea(const FVector& Origin)
 {
 	SetActorLocation(Origin);
+	ResetRightWall();
 	const FArenaCameraTuning& T = GetDefault<UUmbrellaTuning>()->ArenaCamera;
 	PlayCamera->SetRelativeLocation(FVector(T.ArenaWidth * 0.5f, T.CameraDistance, T.ArenaHeight * 0.5f));
 }

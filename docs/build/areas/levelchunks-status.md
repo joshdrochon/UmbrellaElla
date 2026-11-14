@@ -72,3 +72,26 @@ rests on its face at x 11 464.5. Under it runs the 07A bypass lane (floor to z 3
   route step FAIL at x_best 11 465 (reproduced), shot ella=drawn(320,195). `b8_measure.py` -> B8_CAPTURE_OK: solid's left edge x 326,
   gap 6 px, 17/17 rows (`b8_measure.txt`); negative control (Ella at x 250) FAILS.
 - For agentplay: the walker needs to sink under 07A's low solid (e.g. trim height ~200 in slot 5), not an assist. No geometry change made.
+
+## B12 (CP0 -> CP1 walker stall at x 1 903, lead order 17:08), Nov 13
+Verdict: a real block for every player since move's B7 ceiling, not the walker. Fixed in this lane.
+- Measured (world test, the walker's own numbers and trim, started where agentplay's step began: x 974 at the route ceiling
+  z 1 036, game movement mode): Ella stood at x 1 902.9, z ~451 for all 60 s, like agentplay's 40 s at x 1 903. Slot 0 is 01B;
+  no route solid there. A capsule sweep 5 units ahead hits `UmbrellaArena_0.RightWall`: the Start Game arena's right wall
+  (inner face x 1 920, z -100..1 180) stays at the arena's home width on the route. Before B7 Ella flew over it (z > 1 180;
+  the 0ded1480 run crossed high). B7 holds her at z <= 1 036, so nobody can pass over it now; agentplay's late pass at t 44
+  was not a route. Not the walker's trim height: no height gets past it.
+- Fix: `AUmbrellaLevelDirector::ApplyRouteRightWall` (from `BuildRouteFrom` and `SetArena`, since the game mode sets the arena
+  after the build) puts the right wall's inner face at `LevelCatalogue::RouteLength()` via `AUmbrellaArena::SetRightWallInnerX`.
+  `MovePlayArea` (the handoff) and `ClearRoute` put it back at the arena edge (`ResetRightWall`). Start Game is unchanged.
+- Tests: `UmbrellaElla.Level.World.RealInputWalkerFromCeilingReachesCP1At60fps` / `At120fps` (CP1 in 16.3 s / 14.2 s, past x 1 920,
+  wall at the route end, slot 0 = 01B with no solid at x 1 903); `UmbrellaElla.Level.World.RouteRightWallAtRouteEndThenArenaEdge`
+  (route end on the route, the moved arena's edge after the handoff, home edge after ClearRoute).
+  Break-proven: with the wall not moved (first build: the wall moved only in BuildRouteFrom, before the game mode set the arena)
+  both walker tests FAIL at x 1 902.9, block_ahead=RightWall, CP0; with the fix PASS.
+  Level+Arena+Flow+Move+Encounter+Field: 145/145 PASS. Build exit 0, warnings 0. module_check, manifest_check 0 problems.
+- For agentplay: no walker change needed; `routeassist 1` should now report "not needed".
+- Capture (real game, editor -game 640x360 via run_game.sh, journey `pipeline/art/proof/levelchunks/b12_cp0_from_ceiling.txt`, agentplay's
+  steps: 8 s untrimmed, 20 s idle at the ceiling, then the trimmed walker): CP1 PASS in 15.4 s from x 951, x_best 5 765, no assist;
+  `b12_cp1.png` ella=drawn(320,196). `b12_measure.py` -> B12_CAPTURE_OK (`b12_measure.txt`); negative control on agentplay's 67011eb2
+  log -> B12_CAPTURE_FAIL (timeout at 60 s, assist placed).
