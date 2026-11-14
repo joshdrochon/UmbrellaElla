@@ -1,0 +1,19 @@
+# B8 proof (levelchunks): Director's Cut, CP1 by assist, then agentplay's real-key walker CP1 -> CP2; shot where it stops.
+firstrun
+wait Title 60
+idle 1
+click Director's Cut
+skipunless Purchase 3
+key Escape
+wait Title 5
+click Director's Cut
+trywait Tutorial 5
+keyuntil Playing Enter 0.8 30
+idle 2
+routeassist 1
+idle 1
+skipunless Purchase 1
+key Escape
+route 2 30 1                      # agentplay walker: trims to z ~450, stops at the 07A low solid
+shot b8_at_stall
+end
