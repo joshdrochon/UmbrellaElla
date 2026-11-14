@@ -1,0 +1,6 @@
+{
+ "model": "claude-opus-5-5",
+ "key": "521ef9484fb40262966884e1ebe3fb10",
+ "at": "2026-11-13T19:52:37",
+ "answer": "{\"scores\": {\"dark_backdrop\": 3, \"wind_ribbons\": 1, \"small_figures\": 5, \"floating_islands\": 2, \"shot_colours\": 5, \"no_placeholders\": 3, \"no_framed_art\": 2}, \"broken\": [\"flat brown bar ledge with a solid block step at bottom-left\", \"Keeper owl picture sits on a visible rectangle background (unkeyed, hard right edge)\", \"thin straight vertical white line across the full screen height on the left\"], \"verdict\": \"FAIL\"}"
+}

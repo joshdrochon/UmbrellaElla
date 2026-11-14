@@ -1,0 +1,6 @@
+{
+ "model": "claude-opus-5-5",
+ "key": "4d10bf4f91a5ae54c7cfb860600e1fdd",
+ "at": "2026-11-13T18:49:16",
+ "answer": "{\"scores\": {\"dark_backdrop\": 7, \"wind_ribbons\": 0, \"small_figures\": 4, \"floating_islands\": 1, \"shot_colours\": 4, \"no_placeholders\": 2, \"no_framed_art\": 8}, \"broken\": [\"flat brown solid bar as ground along bottom-left, with a square block step on it\", \"tall flat tan vertical bar running from the top of the frame down to the player\", \"no wind ribbons visible\"], \"verdict\": \"FAIL\"}"
+}

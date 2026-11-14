@@ -107,3 +107,4 @@ wind:decor-lines,GDD ART-06; Content/UmbrellaElla/Art/Shots/T_WindLines_PH.uasse
 world:mill-and-traps,GDD ANIM-08,world-mill,artscene,no,/Game/UmbrellaElla/Art/Scene/T_WorldMill,UWorldArtSubsystem
 world:refuge-and-yellow-bay,GDD ANIM-08; Content/UmbrellaElla/Art/Scene/T_WorldRefuge_PH.uasset,world-refuge,artscene,no,/Game/UmbrellaElla/Art/Scene/T_WorldRefuge,UWorldArtSubsystem
 world:solids,GDD ANIM-08; Content/UmbrellaElla/Art/Scene/T_WorldSolids_PH.uasset,world-solids,artscene,no,/Game/UmbrellaElla/Art/Scene/T_WorldSolids,UWorldArtSubsystem
+world:solids-block,GDD ANIM-08,world-solids,artscene,no,/Game/UmbrellaElla/Art/Scene/T_WorldSolidsBlock,UWorldArtSubsystem

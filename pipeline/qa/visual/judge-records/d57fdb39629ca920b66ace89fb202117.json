@@ -1,0 +1,6 @@
+{
+ "model": "claude-opus-5-5",
+ "key": "d57fdb39629ca920b66ace89fb202117",
+ "at": "2026-11-13T19:52:21",
+ "answer": "{\"scores\": {\"dark_backdrop\": 1, \"wind_ribbons\": 3, \"small_figures\": 7, \"floating_islands\": 0, \"shot_colours\": 6, \"no_placeholders\": 1, \"no_framed_art\": 6}, \"broken\": [\"flat dark-brown bar as floor across the full width (no island art)\", \"flat dark-brown bar as a mid-right ledge (solid colour block)\", \"bright cream clock-face picture fills the whole play area instead of a dark backdrop\"], \"verdict\": \"FAIL\"}"
+}

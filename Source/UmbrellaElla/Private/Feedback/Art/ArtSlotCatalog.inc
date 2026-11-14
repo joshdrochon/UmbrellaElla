@@ -29,7 +29,7 @@
 	{ TEXT("enemy:SkyCourier:Male"), TEXT("Enemy"), TEXT("T_Enemy_SkyCourier_Male"), 1, false, TEXT("UEnemyPresenterSubsystem"), 1, false },
 	{ TEXT("enemy:SundialCaster:Female"), TEXT("Enemy"), TEXT("T_Enemy_SundialCaster_Female"), 1, false, TEXT("UEnemyPresenterSubsystem"), 1, true },
 	{ TEXT("enemy:SundialCaster:Male"), TEXT("Enemy"), TEXT("T_Enemy_SundialCaster_Male"), 1, false, TEXT("UEnemyPresenterSubsystem"), 1, true },
-	{ TEXT("keeper:body-hover-flap"), TEXT("Keeper"), TEXT("T_Keeper_Owl"), 1, false, TEXT("UKeeperPresenterSubsystem"), 1, true },
+	{ TEXT("keeper:body-hover-flap"), TEXT("Keeper"), TEXT("T_Keeper_Owl"), 6, false, TEXT("UKeeperPresenterSubsystem"), 4, true },
 	{ TEXT("keeper:clock-cover-glass-hands"), TEXT("Keeper"), TEXT("T_Keeper_Clock"), 1, false, TEXT("UKeeperPresenterSubsystem"), 1, true },
 	{ TEXT("keeper:living-departure"), TEXT("Keeper"), TEXT("T_Keeper_Departure"), 1, false, TEXT("UKeeperPresenterSubsystem"), 1, true },
 	{ TEXT("keeper:mechanism-front"), TEXT("Keeper"), TEXT("T_Keeper_MechFront"), 1, false, TEXT("UKeeperPresenterSubsystem"), 1, true },
@@ -106,3 +106,4 @@
 	{ TEXT("world:mill-and-traps"), TEXT("Scene"), TEXT("T_WorldMill"), 1, false, TEXT("UWorldArtSubsystem"), 1, true },
 	{ TEXT("world:refuge-and-yellow-bay"), TEXT("Scene"), TEXT("T_WorldRefuge"), 1, false, TEXT("UWorldArtSubsystem"), 1, true },
 	{ TEXT("world:solids"), TEXT("Scene"), TEXT("T_WorldSolids"), 1, false, TEXT("UWorldArtSubsystem"), 1, true },
+	{ TEXT("world:solids-block"), TEXT("Scene"), TEXT("T_WorldSolidsBlock"), 1, false, TEXT("UWorldArtSubsystem"), 1, true },

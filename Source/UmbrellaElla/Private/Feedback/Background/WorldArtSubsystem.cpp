@@ -43,6 +43,18 @@ FString UWorldArtSubsystem::VisualFor(ELevelPlacementKind Kind)
 	}
 }
 
+FString UWorldArtSubsystem::VisualFor(ELevelPlacementKind Kind, const FVector& Size)
+{
+	const bool bBlock = Kind == ELevelPlacementKind::Solid && Size.Z > 0.0f
+		&& Size.X / Size.Z < UmbrellaWorldArtConst::BlockMaxAspect;
+	return bBlock ? FString(TEXT("world:solids-block")) : VisualFor(Kind);
+}
+
+FString UWorldArtSubsystem::FallbackVisual(const FString& Visual)
+{
+	return Visual == TEXT("world:solids-block") ? FString(TEXT("world:solids")) : FString();
+}
+
 int32 UWorldArtSubsystem::DrawnCount(const FString& Visual) const
 {
 	const int32* Count = Counts.Find(Visual);
@@ -77,7 +89,7 @@ int32 UWorldArtSubsystem::Refresh(UTexture2D* Texture)
 			}
 			else if (bAligned)
 			{
-				Visual = VisualFor(Plan[Index].Kind);
+				Visual = VisualFor(Plan[Index].Kind, Plan[Index].Size);
 			}
 			const FArtSlotRow* Row = Visual.IsEmpty() ? nullptr : ArtSlot::Find(*Visual);
 			UStaticMeshComponent* Mesh = Row ? WorldPieceMesh(Piece) : nullptr;
@@ -86,6 +98,15 @@ int32 UWorldArtSubsystem::Refresh(UTexture2D* Texture)
 				continue;
 			}
 			UTexture2D* Picture = Texture ? Texture : ArtSlot::LoadTexture(*Row);
+			const FString Fallback = FallbackVisual(Visual);
+			const FArtSlotRow* FallbackRow = !IsValid(Picture) && !Fallback.IsEmpty() ? ArtSlot::Find(*Fallback) : nullptr;
+			if (FallbackRow)
+			{
+				// No block picture yet: the ledge picture beats a bare stand-in box until artscene imports one.
+				Visual = Fallback;
+				Row = FallbackRow;
+				Picture = ArtSlot::LoadTexture(*Row);
+			}
 			if (!IsValid(Picture))
 			{
 				continue;

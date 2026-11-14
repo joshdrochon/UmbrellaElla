@@ -1,0 +1,228 @@
+{
+ "sha": "b4c1fe794bd8328f93ae29b0e049a889dcb0f0b6",
+ "summary": "VISUAL_QA FAIL play=23/70 dc_route=29/70 keeper=19/70 broken=10 baseline=none failed=play,dc_route,keeper",
+ "screens": {
+  "play": {
+   "scores": {
+    "dark_backdrop": 5,
+    "wind_ribbons": 0,
+    "small_figures": 4,
+    "floating_islands": 2,
+    "shot_colours": 5,
+    "no_placeholders": 5,
+    "no_framed_art": 2
+   },
+   "broken": [
+    "Keeper owl drawn on a visible dark rectangle background (unkeyed)",
+    "thin flat white vertical line running from the top of the frame down to the player",
+    "no wind ribbons visible anywhere"
+   ],
+   "verdict": "FAIL",
+   "total": 23,
+   "replayed": false,
+   "shot": "Saved/VisualQA/baseline-b4c1fe79/vq_play.png",
+   "passed": false,
+   "reasons": [
+    "broken: Keeper owl drawn on a visible dark rectangle background (unkeyed); thin flat white vertical line running from the top of the frame down to the player; no wind ribbons visible anywhere",
+    "judge verdict FAIL"
+   ],
+   "baseline_total": null,
+   "samples": [
+    {
+     "total": 25,
+     "broken": [
+      "owl Keeper picture sits on a visible dark rectangle background (unkeyed)",
+      "owl Keeper drawn huge, not small in the frame",
+      "thin straight vertical white line runs top to mid-screen through the scene (not a flowing ribbon)",
+      "no floating islands: ground is a gear/spire silhouette backdrop, player has no visible platform",
+      "large bright cream cloud mass behind the owl breaks the dark backdrop"
+     ]
+    },
+    {
+     "total": 23,
+     "broken": [
+      "owl Keeper picture sits on a visible dark rectangle background (unkeyed), and is drawn large instead of small",
+      "thin vertical white line runs from the top edge down through the scene",
+      "small white box/glyph under the owl at its lower left",
+      "player shots read as short flat gold bars, not streaks",
+      "player girl nearly invisible against the backdrop (tiny, low contrast near centre-left)",
+      "no ground islands or platforms visible, only background silhouettes"
+     ]
+    },
+    {
+     "total": 25,
+     "broken": [
+      "owl Keeper sits on a visible dark rectangle background (unkeyed picture)",
+      "Keeper drawn very large, dominating the right third of the frame",
+      "thin vertical white line running from top of frame to the girl (looks like a debug or tether line)",
+      "bright cream cloud backdrop washes over the dark city instead of a near-black sky",
+      "no floating islands or platforms visible; the girl has no ground under her",
+      "no wind ribbons visible",
+      "stray white dot in bottom-left corner"
+     ]
+    },
+    {
+     "total": 24,
+     "broken": [
+      "Keeper owl picture sits on a visible dark rectangle background (unkeyed, box edges showing)",
+      "small rectangle-backed picture at the owl's lower left",
+      "thin vertical white line running from the top edge down toward the girl"
+     ]
+    },
+    {
+     "total": 20,
+     "broken": [
+      "Keeper owl picture has a visible dark rectangle background behind it (unkeyed, right edge)",
+      "Keeper owl drawn huge, filling the right third of the frame",
+      "thin flat white vertical bar from top of frame down to the girl's umbrella",
+      "small flat gold dash bars instead of streaks (centre and top right)",
+      "no wind ribbons anywhere",
+      "no floating islands: ground is gear and spire silhouettes"
+     ]
+    }
+   ]
+  },
+  "dc_route": {
+   "scores": {
+    "dark_backdrop": 1,
+    "wind_ribbons": 5,
+    "small_figures": 8,
+    "floating_islands": 1,
+    "shot_colours": 6,
+    "no_placeholders": 1,
+    "no_framed_art": 7
+   },
+   "broken": [
+    "flat dark brown bar used as a floating platform (mid-right)",
+    "flat dark brown bar spanning the full width as ground",
+    "bright cream paper clock-face backdrop instead of a dark backdrop"
+   ],
+   "verdict": "FAIL",
+   "total": 29,
+   "replayed": false,
+   "shot": "Saved/VisualQA/baseline-b4c1fe79/vq_dc_route.png",
+   "passed": false,
+   "reasons": [
+    "broken: flat dark brown bar used as a floating platform (mid-right); flat dark brown bar spanning the full width as ground; bright cream paper clock-face backdrop instead of a dark backdrop",
+    "judge verdict FAIL"
+   ],
+   "baseline_total": null,
+   "samples": [
+    {
+     "total": 26,
+     "broken": [
+      "flat dark brown bar as the floor across the full width",
+      "flat dark brown bar as the mid-right ledge",
+      "thin white vertical line from the top of the screen down to the player"
+     ]
+    },
+    {
+     "total": 25,
+     "broken": [
+      "flat dark-brown bar as the floor across the full width",
+      "flat dark-brown bar as a mid-screen ledge",
+      "thin vertical white line from the top of the screen to the player (looks like a debug or tether line)"
+     ]
+    },
+    {
+     "total": 24,
+     "broken": [
+      "flat dark brown bar as the mid-screen ledge",
+      "flat dark brown bar as the floor across the full width",
+      "thin white vertical line from the top of the screen down to the player",
+      "bright cream clock-face backdrop fills the frame instead of a dark scene"
+     ]
+    },
+    {
+     "total": 23,
+     "broken": [
+      "flat dark brown bar as floor across full width",
+      "flat dark brown bar as ledge (solid rectangle, no island art)",
+      "bright cream clock-face picture fills the backdrop instead of a dark sky",
+      "thin white vertical line from top of screen down to the player (looks like a debug trace)"
+     ]
+    },
+    {
+     "total": 26,
+     "broken": [
+      "flat dark brown bar used as the mid-right ledge platform",
+      "flat dark brown bar spanning the full width as the floor",
+      "thin vertical white line running from the top of the screen down to the player (looks like a debug or tether line)"
+     ]
+    }
+   ]
+  },
+  "keeper": {
+   "scores": {
+    "dark_backdrop": 3,
+    "wind_ribbons": 1,
+    "small_figures": 5,
+    "floating_islands": 1,
+    "shot_colours": 5,
+    "no_placeholders": 2,
+    "no_framed_art": 2
+   },
+   "broken": [
+    "flat brown bar with solid block step at bottom left (placeholder ground)",
+    "Keeper owl sprite on a visible rectangle background with hard cut edges (unkeyed)",
+    "thin straight vertical line across the full frame height",
+    "no wind ribbons visible"
+   ],
+   "verdict": "FAIL",
+   "total": 19,
+   "replayed": false,
+   "shot": "Saved/VisualQA/baseline-b4c1fe79/vq_keeper.png",
+   "passed": false,
+   "reasons": [
+    "broken: flat brown bar with solid block step at bottom left (placeholder ground); Keeper owl sprite on a visible rectangle background with hard cut edges (unkeyed); thin straight vertical line across the full frame height; no wind ribbons visible",
+    "judge verdict FAIL"
+   ],
+   "baseline_total": null,
+   "samples": [
+    {
+     "total": 18,
+     "broken": [
+      "flat brown bar and step block as ground, bottom left",
+      "owl/Keeper picture on an unkeyed rectangle backing with a hard cut right edge",
+      "thin vertical white line running the full height of the frame left of centre"
+     ]
+    },
+    {
+     "total": 18,
+     "broken": [
+      "flat brown bar/ledge across the bottom-left (placeholder platform)",
+      "Keeper owl picture sits on a visible rectangle background with hard cropped edges (unkeyed)",
+      "thin vertical line running the full height of the screen at left-centre",
+      "no wind ribbons drawn at all"
+     ]
+    },
+    {
+     "total": 21,
+     "broken": [
+      "flat brown bar ledge with a solid block step at bottom-left",
+      "Keeper owl picture sits on a visible rectangle background (unkeyed, hard right edge)",
+      "thin straight vertical white line across the full screen height on the left"
+     ]
+    },
+    {
+     "total": 18,
+     "broken": [
+      "flat brown colour bar as ground at bottom left",
+      "Keeper owl picture unkeyed, sits on a rectangle background",
+      "thin full-height vertical line through the left of the frame"
+     ]
+    },
+    {
+     "total": 17,
+     "broken": [
+      "flat brown bar as ground along the bottom-left",
+      "solid black block/step on the ground bar",
+      "Keeper owl picture on a dark rectangle background, cut off with a hard straight right edge",
+      "thin vertical line running the full height of the frame through the player",
+      "bright cream cloud backdrop instead of dark atmosphere"
+     ]
+    }
+   ]
+  }
+ }
+}

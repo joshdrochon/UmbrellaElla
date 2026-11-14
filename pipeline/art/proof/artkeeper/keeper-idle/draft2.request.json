@@ -1,0 +1,44 @@
+{
+ "provider": "openrouter",
+ "tier": "draft",
+ "tool": "OpenRouter (Google Gemini image models)",
+ "model": "gemini-2.5-flash-image",
+ "openrouter_model": "google/gemini-2.5-flash-image",
+ "fal_model": null,
+ "model_version": "google/gemini-2.5-flash-image",
+ "prompt": "An etched ink engraving of the Keeper of Time, a large crownless mechanical owl of old metal, hovering in pure side view facing left with its wings half raised in a calm mid-beat, mysterious and quietly menacing, the boss of a dark 2D storybook game; never cute or cartoonish, not monstrous horror.\n\nPose: a strict profile seen from the owl's left side, like a heraldic side view: the beak points at the left edge of the frame, only one eye shows, the body is long from beak to tail, and the wings rise up and back from the shoulder over the back toward the upper right, never spread out to both sides. Hovering in place, both wings half raised and spread wide above and behind the back, held in a calm mid-beat so they can rise and fall in a loop; head level, slightly lowered, watching left.\n\nCamera and framing: level camera, one owl only, centred in a wide 16:9 frame. The whole owl, both wing tips, its tail and the three hanging mechanisms fit inside the frame with a wide empty margin on every side: the owl spans about 60% of the frame width and about 70% of the frame height, and every part stays well inside the frame edge.\n\nEvery surface is metal: plates, vanes, rivets, hinges and glass. A compact round torso of overlapping riveted dark iron and dull bronze plates, built around a large chest clock that fills most of the chest, about half the torso's height: an aged cream clock face behind cracked glass, Roman numerals, and exactly one long dark hand on one central pivot. A small angular owl head, about a third of the torso's height, set forward and above the clock, made of bolted plates: a heavy, low, angled brow plate shades two dim, muted round glass eyes (dull, unlit), two short angular ear plates, a short hooked beak of dark metal, and the top of the head is a low smooth dome of plates between the two ear plates. Exactly two very broad wings, the largest mass, together about twice the body's length: each wing's leading edge rises from the shoulder up and back, and its long pointed rigid metal vanes sweep to tips at the upper right, layered in overlapping rows, perforated with rows of small holes, bevelled and riveted, joined to the shoulder by visible metal spars and hinge joints; the far wing sits just behind and darker than the near one. A tail of stacked flat metal plates angles down and back toward the lower right. Exactly two short mechanical legs hang straight down below the clock, plated shins, each ending in one clawed metal foot with three forward talons curled; the owl floats in the air with nothing under it.\n\nBelow the body hang exactly three separate mechanisms, each on its own straight thin chain from its own small ring under the belly, spread along the body: at the front, under the head, a small armillary sphere (a solid rim, intersecting hoops, a ball in the centre); in the middle, under the clock, a ribbed cage cylinder; at the rear, under the tail, a toothed gear ring. Clear green gaps separate each chain from the legs, the tail and the other chains, and the far wing from the near wing, so each part can move on its own. Every edge is crisp and sharp, with no motion blur, smoke, glow or soft halo.\n\nPalette and finish, a dark night palette: quiet aged iron, soot black, deep umber, dull bronze and pale taupe highlights (colours close to ink #171614, soot #292622, umber #463C32, bronze #695640, taupe #918173). All metal is dull and tarnished, matte brown and grey, worn, low contrast and moody, lit only by a faint warm rim light along its top edges; the clock face is the palest area. The metal is warm brown and grey, with no verdigris or green patina. A thin, even pale cream outline runs around the whole outer silhouette, like an ink sticker edge, so it reads on a dark night sky.\n\nBackground: the entire area outside the owl is one flat, solid pure chroma green (#00FF00), perfectly even from corner to corner, with no ground, no text and no border. The paper grain, hatching and ink texture live only inside the owl's cream outline; the green background is the one flat fill in the image, untouched by paper or ink.\n\nStyle (required): dark, muted ink on aged paper, like an etched storybook engraving. Etched ink linework with near-black ink outlines; crosshatch and fine line hatching for every shadow and form; visible aged paper grain and fibre texture under all colour; hand-printed, slightly uneven ink. No flat fills, no vector shapes, no smooth digital gradients, no glossy 3D rendering.",
+ "seed": "none (seed not sent)",
+ "size": "1024x1024",
+ "quality": "medium",
+ "aspect_ratio": "16:9",
+ "image_size": null,
+ "input_images": [],
+ "cost_usd": 0.039012,
+ "reply": {
+  "usage": {
+   "prompt_tokens": 1040,
+   "completion_tokens": 1290,
+   "total_tokens": 2330,
+   "cost": 0.039012,
+   "is_byok": false,
+   "prompt_tokens_details": {
+    "cached_tokens": 0,
+    "cache_write_tokens": 0,
+    "audio_tokens": 0,
+    "video_tokens": 0
+   },
+   "cost_details": {
+    "upstream_inference_cost": 0.039012,
+    "upstream_inference_prompt_cost": 0.000312,
+    "upstream_inference_completions_cost": 0.0387
+   },
+   "completion_tokens_details": {
+    "reasoning_tokens": 0,
+    "image_tokens": 1290,
+    "audio_tokens": 0
+   }
+  },
+  "finish": "stop"
+ },
+ "date": "2026-11-14T01:49+00:00"
+}

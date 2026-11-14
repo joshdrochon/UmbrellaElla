@@ -1,0 +1,85 @@
+{
+ "sha": "b4c1fe794bd8328f93ae29b0e049a889dcb0f0b6",
+ "summary": "VISUAL_QA FAIL play=23/70 dc_route=29/70 keeper=19/70 broken=10 baseline=none failed=play,dc_route,keeper",
+ "screens": {
+  "play": {
+   "scores": {
+    "dark_backdrop": 5,
+    "wind_ribbons": 0,
+    "small_figures": 4,
+    "floating_islands": 2,
+    "shot_colours": 5,
+    "no_placeholders": 5,
+    "no_framed_art": 2
+   },
+   "broken": [
+    "Keeper owl drawn on a visible dark rectangle background (unkeyed)",
+    "thin flat white vertical line running from the top of the frame down to the player",
+    "no wind ribbons visible anywhere"
+   ],
+   "verdict": "FAIL",
+   "total": 23,
+   "replayed": false,
+   "shot": "Saved/VisualQA/baseline-b4c1fe79/vq_play.png",
+   "passed": false,
+   "reasons": [
+    "broken: Keeper owl drawn on a visible dark rectangle background (unkeyed); thin flat white vertical line running from the top of the frame down to the player; no wind ribbons visible anywhere",
+    "judge verdict FAIL"
+   ],
+   "baseline_total": null
+  },
+  "dc_route": {
+   "scores": {
+    "dark_backdrop": 1,
+    "wind_ribbons": 5,
+    "small_figures": 8,
+    "floating_islands": 1,
+    "shot_colours": 6,
+    "no_placeholders": 1,
+    "no_framed_art": 7
+   },
+   "broken": [
+    "flat dark brown bar used as a floating platform (mid-right)",
+    "flat dark brown bar spanning the full width as ground",
+    "bright cream paper clock-face backdrop instead of a dark backdrop"
+   ],
+   "verdict": "FAIL",
+   "total": 29,
+   "replayed": false,
+   "shot": "Saved/VisualQA/baseline-b4c1fe79/vq_dc_route.png",
+   "passed": false,
+   "reasons": [
+    "broken: flat dark brown bar used as a floating platform (mid-right); flat dark brown bar spanning the full width as ground; bright cream paper clock-face backdrop instead of a dark backdrop",
+    "judge verdict FAIL"
+   ],
+   "baseline_total": null
+  },
+  "keeper": {
+   "scores": {
+    "dark_backdrop": 3,
+    "wind_ribbons": 1,
+    "small_figures": 5,
+    "floating_islands": 1,
+    "shot_colours": 5,
+    "no_placeholders": 2,
+    "no_framed_art": 2
+   },
+   "broken": [
+    "flat brown bar with solid block step at bottom left (placeholder ground)",
+    "Keeper owl sprite on a visible rectangle background with hard cut edges (unkeyed)",
+    "thin straight vertical line across the full frame height",
+    "no wind ribbons visible"
+   ],
+   "verdict": "FAIL",
+   "total": 19,
+   "replayed": false,
+   "shot": "Saved/VisualQA/baseline-b4c1fe79/vq_keeper.png",
+   "passed": false,
+   "reasons": [
+    "broken: flat brown bar with solid block step at bottom left (placeholder ground); Keeper owl sprite on a visible rectangle background with hard cut edges (unkeyed); thin straight vertical line across the full frame height; no wind ribbons visible",
+    "judge verdict FAIL"
+   ],
+   "baseline_total": null
+  }
+ }
+}
