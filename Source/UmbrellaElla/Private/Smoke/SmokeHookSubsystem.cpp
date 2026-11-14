@@ -4,6 +4,8 @@
 #include "Core/UmbrellaTuning.h"
 #include "Core/EllaCharacter.h"
 #include "Feedback/Anim/EllaAnimPresenterComponent.h"
+#include "Feedback/Art/ArtSlot.h"
+#include "Engine/Texture2D.h"
 #include "Engine/Engine.h"
 #include "GameFramework/PlayerController.h"
 #include "InputKeyEventArgs.h"
@@ -355,6 +357,16 @@ void USmokeHookSubsystem::Tick(float DeltaTime)
 		{
 			Look->SetVisualState(EEllaVisualState::Hurt);
 			UE_LOG(LogUmbrellaElla, Log, TEXT("SMOKE_SCENE hurt=1"));
+			for (const TCHAR* Visual : { TEXT("ella-state:Hurt"), TEXT("ella-state:Idle") })
+			{
+				const FArtSlotRow* Row = ArtSlot::Find(Visual);
+				const UTexture2D* T = Row ? ArtSlot::LoadTexture(*Row) : nullptr;
+				if (T)
+				{
+					UE_LOG(LogUmbrellaElla, Log, TEXT("SMOKE_TEX %s %s size=%dx%d comp=%d noalpha=%d srgb=%d pf=%s group=%d"), Visual, *T->GetName(), T->GetSizeX(), T->GetSizeY(),
+						static_cast<int32>(T->CompressionSettings), T->CompressionNoAlpha ? 1 : 0, T->SRGB ? 1 : 0, GetPixelFormatString(T->GetPixelFormat()), static_cast<int32>(T->LODGroup));
+				}
+			}
 		}
 	}
 #endif
