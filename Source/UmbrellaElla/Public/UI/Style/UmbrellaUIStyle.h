@@ -91,6 +91,8 @@ namespace UmbrellaUIStyleConstants
 	/** Drifting embers and the pause clocks painted over the ground. */
 	static constexpr float EmberSizeShare = 0.2f;
 	static constexpr float EmberAlpha = 0.75f;
+	/** Defeated: ink veil over the paused game scene so the heading and buttons stay readable. */
+	static constexpr float SceneVeilAlpha = 0.55f;
 	static constexpr float ClockLineAlpha = 0.2f;
 	static constexpr float ClockLineShare = 0.5f;
 	static constexpr int32 ClockTickCount = 12;
