@@ -294,3 +294,28 @@ it is treated as passed only after the silhouette is judged in the composed game
   5e5ce716, only the uasset swapped, RUN_RES=1280x720 journey). After shows the approved Ella untinted.
 - Capture note: without `-SmokeJourneyOut=<abs path>` the journey writes to `/joanmiguel/...` (out= path loses `/Users`), so shots
   fail to save. Not my lane (Smoke); worked around on the command line.
+
+## Review round (Nov 13, ../logs/review-artella.txt): gate tooling in this lane, guard evidence
+- Lane record: the gate tooling files `tools/build/gate.sh`, `tools/build/lane_precheck.sh`, `tools/build/gate_clean_state.sh`,
+  `tools/build/gate_state_selftest.sh`, `tools/build/approved_art_guard.py` and `tests/test_approved_art_guard.py` are in this lane
+  by lead order (Nov 13 ~20:05: Josh's orders for clean player state, full precheck output, and the approved-art guard). They are
+  carried here because the lead cannot commit to main directly.
+- Guard narrowed: `CODE_WORDS` now flags only calls / assignments that tint, recolour, hide or swap a texture or its material
+  (Set{Vector,Scalar,Texture}ParameterValue*, SetMaterial*, SetTexture*, SetBrush*, SetSprite*, SetFlipbook*, SetColorAndOpacity,
+  SetRenderOpacity, SetVisibility, SetHiddenInGame, SetActorHiddenInGame, *Tint*(...), *Tint*/Opacity = ...), still within 3 lines
+  of the slot's texture name, visual id or piece id. New tests: plain gameplay near `T_Ella_Idle` (velocity, `bEllaVisibleToOwl`,
+  `DebugColor =`) passes; `SetVectorParameterValue(TEXT("Tint"), ...)` next to `T_Ella_Idle_PH` fails.
+- `art_ella_import.py`: a missing approval now stops with `no approval found for <piece> in pipeline/art/approvals.json`, not `None`.
+- `T_Ella_Idle_PH` stays the approved bytes (unchanged this round).
+- Not addressed this round (not in the lead's list): `lane_precheck.sh` dropped `head -N` caps (full precheck output was Josh's
+  order); `gate_state_selftest.sh` default worktree path.
+
+### Gate evidence
+commit=02c32af0 base=origin/main d812ba29 host=mac (no Unreal run needed: Python only)
+```
+$ python3 tools/build/approved_art_guard.py check --base origin/main --head HEAD
+APPROVED_ART PASS: 4 approved texture(s) guarded, none replaced, recoloured or hidden
+$ python3 -m unittest tests.test_approved_art_guard
+Ran 15 tests in 9.574s
+OK
+```
