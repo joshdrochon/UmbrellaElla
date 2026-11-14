@@ -1,0 +1,36 @@
+# B7 proof (move): Director's Cut route, nothing held for 60 s, then at the Keeper handoff with nothing held.
+# Run (no -SmokeQuitAfter: that flag makes the smoke hook press Start Game at the title): tools/build/run_game.sh -SmokeJourney=pipeline/art/proof/move/b7/route_ceiling.txt -SmokeJourneyOut=pipeline/art/proof/move/b7
+# Check: python3 pipeline/art/proof/move/b7/check_ceiling.py pipeline/art/proof/move/b7/run_journey.log
+firstrun
+wait Title 60
+idle 1
+click Director's Cut
+skipunless Purchase 3               # skips: key Escape, wait Title, click
+key Escape
+wait Title 5
+click Director's Cut
+trywait Tutorial 5
+keyuntil Playing Enter 0.8 30
+idle 2
+shot b7_00_route_start
+idle 60                           # nothing held: before the fix she rose to z 14 962
+shot b7_01_route_idle60
+routeassist 1
+idle 1
+skipunless Purchase 2
+key Escape
+idle 1
+routeassist 2
+idle 1
+skipunless Purchase 2
+key Escape
+idle 1
+routeassist 3
+idle 1
+skipunless Purchase 2
+key Escape
+idle 1
+routeassist 4                     # the Keeper handoff
+idle 20                           # nothing held at the handoff
+shot b7_02_keeper_handoff
+end
