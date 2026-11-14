@@ -9,6 +9,7 @@
 
 class UEnhancedInputComponent;
 class UUmbrellaStateComponent;
+class AUmbrellaArena;
 class UUmbrellaEventBus;
 struct FUmbrellaEvent;
 struct FMotorTuning;
@@ -47,9 +48,14 @@ public:
 	 *  reads IsAtPlayFloor() to apply its rule. */
 	float GetPlayFloorZ() const;
 	bool IsAtPlayFloor() const { return bAtPlayFloor; }
+	/** Highest root Z Ella may reach: the arena top minus her capsule half-height (MOVE-19 ceiling constraint), so she
+	 *  stays in the picture on the Director's Cut route as in Start Game. Max() when no arena exists. */
+	float GetPlayCeilingZ() const;
+	bool IsAtPlayCeiling() const { return bAtPlayCeiling; }
 
 	/** Pure rule: Z held at or above FloorZ. */
 	static float ClampToPlayFloor(float Z, float FloorZ) { return Z < FloorZ ? FloorZ : Z; }
+	static float ClampToPlayCeiling(float Z, float CeilingZ) { return Z > CeilingZ ? CeilingZ : Z; }
 
 	/** X = horizontal, Y = 0, Z = vertical, units/s. */
 	FVector GetVelocity() const;
@@ -78,6 +84,8 @@ private:
 	bool IsEventForElla(const FUmbrellaEvent& Event) const;
 	FVector2D SumCurrents() const;
 	FVector2D SumForcedPushes() const;
+	const AUmbrellaArena* FindPlayArena() const;
+	float GetCapsuleHalfHeight() const;
 
 	UPROPERTY(Transient)
 	TObjectPtr<UUmbrellaStateComponent> UmbrellaState;
@@ -94,6 +102,7 @@ private:
 	TMap<FName, FVector2D> ForcedPushes;
 	FBox2D PlayBounds = FBox2D(ForceInit);
 	bool bAtPlayFloor = false;
+	bool bAtPlayCeiling = false;
 	float TrimAxis = 0.0f;
 	float MoveAxis = 0.0f;
 	float LiftMultiplier = 1.0f;

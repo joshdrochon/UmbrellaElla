@@ -149,6 +149,15 @@ void UEllaMotorComponent::StepMotor(float DeltaSeconds)
 	{
 		Model.Velocity.Y = 0.0f;
 	}
+	// MOVE-19 ceiling constraint: the arena top holds on the Director's Cut route too, where the arena's ceiling box
+	// does not reach (agentplay B7: z 14 962 after 60 s with nothing held). Ella stays in the picture.
+	const float CeilingZ = GetPlayCeilingZ();
+	bAtPlayCeiling = Location.Z >= CeilingZ;
+	Location.Z = ClampToPlayCeiling(static_cast<float>(Location.Z), CeilingZ);
+	if (bAtPlayCeiling && Model.Velocity.Y > 0.0f)
+	{
+		Model.Velocity.Y = 0.0f;
+	}
 	Owner->SetActorLocation(Location);
 	if (const ACharacter* Character = Cast<ACharacter>(Owner))
 	{
@@ -192,25 +201,37 @@ void UEllaMotorComponent::ClearPlayBounds()
 
 float UEllaMotorComponent::GetPlayFloorZ() const
 {
+	const AUmbrellaArena* Arena = FindPlayArena();
+	return Arena ? static_cast<float>(Arena->LocalPoint(0.0f, 0.0f).Z) + GetCapsuleHalfHeight() : TNumericLimits<float>::Lowest();
+}
+
+float UEllaMotorComponent::GetPlayCeilingZ() const
+{
+	const AUmbrellaArena* Arena = FindPlayArena();
+	return Arena ? static_cast<float>(Arena->LocalPoint(0.0f, 1.0f).Z) - GetCapsuleHalfHeight() : TNumericLimits<float>::Max();
+}
+
+const AUmbrellaArena* UEllaMotorComponent::FindPlayArena() const
+{
 	const UWorld* World = GetWorld();
 	if (!World)
 	{
-		return TNumericLimits<float>::Lowest();
+		return nullptr;
 	}
 	TActorIterator<AUmbrellaArena> It(const_cast<UWorld*>(World));
-	if (!It)
-	{
-		return TNumericLimits<float>::Lowest();
-	}
-	float HalfHeight = 0.0f;
+	return It ? *It : nullptr;
+}
+
+float UEllaMotorComponent::GetCapsuleHalfHeight() const
+{
 	if (const ACharacter* Character = Cast<ACharacter>(GetOwner()))
 	{
 		if (const UCapsuleComponent* Capsule = Character->GetCapsuleComponent())
 		{
-			HalfHeight = Capsule->GetScaledCapsuleHalfHeight();
+			return Capsule->GetScaledCapsuleHalfHeight();
 		}
 	}
-	return static_cast<float>(It->LocalPoint(0.0f, 0.0f).Z) + HalfHeight;
+	return 0.0f;
 }
 
 FVector UEllaMotorComponent::GetVelocity() const
