@@ -1,0 +1,6 @@
+{
+ "model": "claude-opus-5-5",
+ "key": "0c823759d8515307853ec8e6df9f7ece",
+ "at": "2026-11-13T20:56:27",
+ "answer": "{\"scores\": {\"dark_backdrop\": 4, \"wind_ribbons\": 0, \"small_figures\": 5, \"floating_islands\": 1, \"shot_colours\": 5, \"no_placeholders\": 9, \"no_framed_art\": 9}, \"broken\": [\"thin vertical line from the top edge down to the girl (reads as a stray debug line or rope)\"], \"verdict\": \"FAIL\"}"
+}
