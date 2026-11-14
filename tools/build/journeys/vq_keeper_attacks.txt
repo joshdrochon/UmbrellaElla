@@ -1,0 +1,57 @@
+# VISUAL QA Keeper-attacks path (visualqa lane): Director's Cut straight to the Keeper handoff, then a shot every
+# 0.6 s for ~12 s so the gust warning, the travelling gust and the talon are on screen in some of them (vk_00..vk_19).
+# Used for before|after captures of Keeper-fight visuals (gust facing, figure scale, stand-in boxes).
+firstrun
+wait Title 60
+idle 1
+click Director's Cut
+skipunless Purchase 3
+key Escape
+wait Title 5
+click Director's Cut
+trywait Tutorial 5
+keyuntil Playing Enter 0.8 30
+idle 2
+routeassist 4
+idle 1
+shot vk_00
+idle 0.6
+shot vk_01
+idle 0.6
+shot vk_02
+idle 0.6
+shot vk_03
+idle 0.6
+shot vk_04
+idle 0.6
+shot vk_05
+idle 0.6
+shot vk_06
+idle 0.6
+shot vk_07
+idle 0.6
+shot vk_08
+idle 0.6
+shot vk_09
+idle 0.6
+shot vk_10
+idle 0.6
+shot vk_11
+idle 0.6
+shot vk_12
+idle 0.6
+shot vk_13
+idle 0.6
+shot vk_14
+idle 0.6
+shot vk_15
+idle 0.6
+shot vk_16
+idle 0.6
+shot vk_17
+idle 0.6
+shot vk_18
+idle 0.6
+shot vk_19
+idle 0.6
+end

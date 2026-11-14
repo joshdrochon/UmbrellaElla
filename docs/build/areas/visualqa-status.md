@@ -202,3 +202,11 @@ IDENTIFIED C: the Keeper gust's gameplay cue cube `AKeeperOfTime::GustVisual` (S
   treatment (ash #555e60, 15% height) loses: EncounterDirectorSubsystem calls Refresh every tick and PlaceVisual re-sets scale and
   tint, while composition re-applies only every 0.2 s, so most frames show the raw 60x120 pale block. For the art lane: give the gust
   front an art slot (or hide GustVisual while VFX_Gust draws, as MarkPartArtDrawn does for body parts). Not restyled here.
+- Item 1 gust facing: the gust sheets (VFX_Gust, VFX_GustPuff) are drawn travelling +X; the Keeper's gust travels -X.
+  `UUmbrellaVfxDirectorSubsystem::PlayAnchored` turns every GustFront-anchored effect 180 degrees in the screen plane
+  (`VfxSheetVisual::FacingCameraToward(KeeperVfxRules::GustTravelX)`; normal stays toward the camera). Tests:
+  UmbrellaElla.Feedback.VfxGustFacesTravel (both ways: +X keeps the old facing, -X is a 180 turn, front leads, faces camera),
+  UmbrellaElla.Feedback.World.VfxGustFacesTravel (real fight to a travelling gust: model front moves -X, the live GustTravel
+  art's front leads it). Break-checked: without the turn the world test FAILs. 4/4 PASS with VfxKeeperWiring, VfxKeeperRules.
+  Capture 1600x900 (tools/build/journeys/vq_keeper_attacks.txt): pipeline/qa/visual/gust-facing-before-after.png
+  (left before: round front trails the travel; right after: front leads). Grey block C still rides it (art lane).

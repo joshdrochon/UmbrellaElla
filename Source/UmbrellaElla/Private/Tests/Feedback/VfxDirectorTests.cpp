@@ -656,4 +656,71 @@ bool FVfxArtDemoRules::RunTest(const FString& Parameters)
 	TestFalse(TEXT("an empty demo key does nothing"), UmbrellaVfxDirectorConst::ShouldPlayDemo(NAME_None, 0));
 	return true;
 }
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FVfxGustFacingRules, "UmbrellaElla.Feedback.VfxGustFacesTravel", VfxArtTestFlags)
+
+bool FVfxGustFacingRules::RunTest(const FString& Parameters)
+{
+	// Both ways: the sheet's front (plane +X; sheets are drawn travelling +X) leads along the travel, and the quad still
+	// faces the camera (+Y normal), so a one-sided plane never vanishes and the art only turns in the screen plane.
+	for (const float TravelX : {1.0f, -1.0f})
+	{
+		const FRotator Facing = VfxSheetVisual::FacingCameraToward(TravelX);
+		const FVector Front = Facing.RotateVector(FVector::XAxisVector);
+		const FVector Normal = Facing.RotateVector(FVector::ZAxisVector);
+		const FString Way = TravelX > 0.0f ? TEXT("+X") : TEXT("-X");
+		TestTrue(FString::Printf(TEXT("front leads the travel (%s)"), *Way), Front.X * TravelX > 0.99f);
+		TestTrue(FString::Printf(TEXT("still faces the camera (%s)"), *Way), Normal.Y > 0.99f);
+	}
+	TestTrue(TEXT("+X travel keeps the old facing"), VfxSheetVisual::FacingCameraToward(1.0f).Equals(VfxSheetVisual::FacingCamera(), 0.01f));
+	const FVector Up = VfxSheetVisual::FacingCamera().RotateVector(FVector::YAxisVector);
+	const FVector TurnedUp = VfxSheetVisual::FacingCameraToward(-1.0f).RotateVector(FVector::YAxisVector);
+	TestTrue(TEXT("-X travel is a 180 degree turn in the screen plane"), FVector::DotProduct(Up, TurnedUp) < -0.99f);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FVfxGustFacingWorld, "UmbrellaElla.Feedback.World.VfxGustFacesTravel", VfxArtTestFlags)
+
+bool FVfxGustFacingWorld::RunTest(const FString& Parameters)
+{
+	FUmbrellaTestWorld Harness;
+	UWorld* World = Harness.GetWorld();
+	UUmbrellaVfxDirectorSubsystem* Director = World ? World->GetSubsystem<UUmbrellaVfxDirectorSubsystem>() : nullptr;
+	UEncounterDirectorSubsystem* Encounter = World ? World->GetSubsystem<UEncounterDirectorSubsystem>() : nullptr;
+	if (!TestNotNull(TEXT("effect director"), Director) || !TestNotNull(TEXT("encounter"), Encounter))
+	{
+		return false;
+	}
+	Encounter->SetManualStepping(true);
+	Encounter->BeginKeeperFight();
+	// Run the real fight until a gust travels (bounded: the gust's first cast is a few seconds in).
+	const AActor* Gust = nullptr;
+	float FrontBefore = 0.0f;
+	for (int32 Step = 0; Step < 60 * 40 && !Gust; ++Step)
+	{
+		Encounter->AdvanceFight(VfxArtTestStep);
+		Director->StepEffects(VfxArtTestStep);
+		if (Encounter->GetModel().IsGustTravelling())
+		{
+			Gust = Director->GetLiveActor(TEXT("GustTravel"));
+			FrontBefore = Encounter->GetModel().GetGustFront().X;
+		}
+	}
+	if (!TestNotNull(TEXT("a gust travels and its effect is live"), Gust))
+	{
+		return false;
+	}
+	Encounter->AdvanceFight(VfxArtTestStep * 6.0f);
+	const float TravelX = Encounter->GetModel().GetGustFront().X - FrontBefore;
+	TestTrue(TEXT("the model's gust travels -X (KeeperVfxRules::GustTravelX)"), TravelX * KeeperVfxRules::GustTravelX > 0.0f);
+	const USceneComponent* Visual = Gust->GetRootComponent();
+	if (!TestNotNull(TEXT("gust visual"), Visual))
+	{
+		return false;
+	}
+	const FVector Front = Visual->GetComponentQuat().RotateVector(FVector::XAxisVector);
+	TestTrue(TEXT("the gust art's front leads its travel"), Front.X * TravelX > 0.0f);
+	TestTrue(TEXT("the gust art still faces the camera"), Visual->GetComponentQuat().RotateVector(FVector::ZAxisVector).Y > 0.99f);
+	return true;
+}
+
 #endif
