@@ -301,6 +301,43 @@ def base_total(base_screen):
     return median, GATE_TOTAL_SLACK
 
 
+# Absence kinds (lead, artella gate f8d779e8): an item that says a rubric criterion is missing ("no wind ribbons visible
+# anywhere", "no floating island ground anywhere") is the same defect main's score for that criterion already records.
+# Such an item is known on main when main's score for the criterion is at or under ABSENT_SCORE_MAX[kind], or when any of
+# main's runs named the same defect under another kind (ABSENT_ALIASES: "flat dark brown bar platform" is the missing
+# island ground). ABSENT_SCORE_MAX is measured from every recorded judge answer (48, Nov 13: ../gate and this tree's
+# judge-records + ../logs/artella-judge-records): the highest criterion score at which the judge still listed the
+# absence item. no_wind listed at wind_ribbons 0-1 (18 runs), no_islands at floating_islands 0-3 (15 runs).
+ABSENT_CRITERION = {"no_wind": "wind_ribbons", "no_islands": "floating_islands"}
+ABSENT_SCORE_MAX = {"no_wind": 1, "no_islands": 3}
+ABSENT_ALIASES = {"no_islands": ("bar",), "no_wind": ()}
+# The reverse: a bar item is main's "no islands" item named another way. Not "box": a placeholder cube is its own defect.
+KIND_ALIASES = {"bar": ("no_islands",)}
+
+
+def main_scores(base_screen):
+    """Main's lowest score per rubric criterion over its judged runs that kept scores (the stored run; samples stored
+    since Nov 13 keep theirs)."""
+    base_screen = base_screen or {}
+    runs = [base_screen] + list(base_screen.get("samples", []))
+    out = {}
+    for r in runs:
+        for k, val in (r.get("scores") or {}).items():
+            out[k] = min(out.get(k, val), val)
+    return out
+
+
+def absence_known(kind, base_screen, known):
+    """True when an absence-kind item names a defect main already has (score at or near 0, or named as another kind)."""
+    crit = ABSENT_CRITERION.get(kind)
+    if crit is None:
+        return False
+    score = main_scores(base_screen).get(crit)
+    if score is not None and score <= ABSENT_SCORE_MAX[kind]:
+        return True
+    return any(known.get(a, 0) > 0 for a in ABSENT_ALIASES.get(kind, ()))
+
+
 def decide_gate(result, base_screen):
     """(passed, reasons) for the merge gate: only a regression against main's baseline screen fails. Pure.
     Regression = total below main's total by more than the measured judge noise (base_total), or more broken items of
@@ -310,12 +347,18 @@ def decide_gate(result, base_screen):
     base, slack = base_total(base_screen)
     if base is not None and result["total"] < base - slack:
         reasons.append("total %d below main's %g (slack %d)" % (result["total"], base, slack))
-    left = known_kinds(base_screen)
+    known = known_kinds(base_screen)
+    left = dict(known)
     new = []
     for b in result["broken"]:
         k = defect_kind(b)
+        alias = next((a for a in KIND_ALIASES.get(k, ()) if left.get(a, 0) > 0), None)
         if left.get(k, 0) > 0:
             left[k] -= 1
+        elif absence_known(k, base_screen, known):
+            continue
+        elif alias:
+            left[alias] -= 1
         else:
             new.append("%s [%s]" % (b, k))
     if new:
@@ -534,6 +577,7 @@ def measure_noise(shots_dir, n, caller=None, records=None, workers=3):
         o = out.setdefault(screen, {"totals": [], "broken": []})
         o["totals"].append(r["total"])
         o["broken"].append(r["broken"])
+        o.setdefault("scores", []).append(r["scores"])
     for o in out.values():
         o["range"] = max(o["totals"]) - min(o["totals"])
         kinds = sorted({kd for b in o["broken"] for kd in kind_counts(b)})
@@ -546,7 +590,9 @@ def attach_samples(results, noise):
     any of main's runs listed)."""
     for screen, o in noise.items():
         if screen in results:
-            results[screen]["samples"] = [{"total": t, "broken": b} for t, b in zip(o["totals"], o["broken"])]
+            results[screen]["samples"] = [dict({"total": t, "broken": b}, **({"scores": sc} if sc else {}))
+                                          for t, b, sc in zip(o["totals"], o["broken"],
+                                                              o.get("scores") or [None] * len(o["totals"]))]
     return results
 
 
