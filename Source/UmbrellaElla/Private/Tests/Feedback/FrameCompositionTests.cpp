@@ -88,12 +88,10 @@ bool FFrameCompositionRules::RunTest(const FString& Parameters)
 	TestTrue(TEXT("a flat backdrop stand-in panel is still darkened"),
 		Facts(TEXT("BackdropPanel"), -400.0f, false, true, UmbrellaArtSlotConst::StandInDefaultColor) == EFrameTreatment::DarkenBackdropPanel);
 	TestTrue(TEXT("enemy stand-ins are drawn small"), UFrameCompositionSubsystem::ScaleFor(EFrameTreatment::TintEnemy).X < 1.0);
-	TestTrue(TEXT("the Keeper's telegraph cube is a thin red line, not a pink block"),
-		Facts(UmbrellaFrameConst::KeeperTelegraphName, -50.0f, false, true, FLinearColor(1.0f, 0.2f, 0.2f)) == EFrameTreatment::TelegraphLine);
-	TestTrue(TEXT("the telegraph keeps its length and loses its height"),
-		UFrameCompositionSubsystem::ScaleFor(EFrameTreatment::TelegraphLine).X == 1.0 && UFrameCompositionSubsystem::ScaleFor(EFrameTreatment::TelegraphLine).Z < 0.2);
-	TestTrue(TEXT("the Keeper's gust cube is a thin ash line"),
-		Facts(UmbrellaFrameConst::KeeperGustName, -50.0f, false, true, FLinearColor(0.7f, 0.85f, 1.0f)) == EFrameTreatment::GustLine);
+	TestTrue(TEXT("the Keeper's telegraph cube is left as the Keeper draws it (thin red line, placed every tick)"),
+		Facts(UmbrellaFrameConst::KeeperTelegraphName, -50.0f, false, true, UmbrellaFrameConst::TelegraphRed) == EFrameTreatment::Keep);
+	TestTrue(TEXT("the Keeper's gust cube is left as the Keeper draws it (hidden)"),
+		Facts(UmbrellaFrameConst::KeeperGustName, -50.0f, false, true, FLinearColor(0.7f, 0.85f, 1.0f)) == EFrameTreatment::Keep);
 	TestTrue(TEXT("enemy shadow is dark, not a pink or red block"),
 		UmbrellaFrameConst::EnemyShadow.R + UmbrellaFrameConst::EnemyShadow.G + UmbrellaFrameConst::EnemyShadow.B < 0.1f);
 	TestTrue(TEXT("dimmed backdrop art is left alone"),
@@ -447,7 +445,7 @@ bool FFrameCompositionKeeperAlwaysSeen::RunTest(const FString& Parameters)
 	TestTrue(TEXT("enemy stand-in is drawn small"), EnemyBox->GetRelativeScale3D().Equals(EnemyOwnScale * UmbrellaFrameConst::EnemyStandInScale, 0.001));
 	TestEqual(TEXT("a second pass does not shrink it again"), Frame->ComposeNow(), 0);
 	TestTrue(TEXT("still small once"), EnemyBox->GetRelativeScale3D().Equals(EnemyOwnScale * UmbrellaFrameConst::EnemyStandInScale, 0.001));
-	// The Keeper's telegraph cube on the real Keeper actor: a thin red line once composed.
+	// The Keeper's telegraph cube on the real Keeper actor: the frame pass never resizes or recolours it.
 	if (UStaticMeshComponent* Telegraph = FindObjectFast<UStaticMeshComponent>(Keeper, FName(UmbrellaFrameConst::KeeperTelegraphName)))
 	{
 		if (!Keeper->HasActorBegunPlay())
@@ -456,13 +454,11 @@ bool FFrameCompositionKeeperAlwaysSeen::RunTest(const FString& Parameters)
 		}
 		Frame->RestoreAll();
 		const FVector Own = Telegraph->GetRelativeScale3D();
+		const FLinearColor OwnTint = ArtSlot::GetTint(Telegraph);
 		Telegraph->SetHiddenInGame(false);
 		Frame->ComposeNow();
-		if (ArtSlot::IsUnlit(Telegraph))
-		{
-			TestTrue(TEXT("telegraph is shot red"), ArtSlot::GetTint(Telegraph).Equals(UmbrellaFrameConst::TelegraphRed, 0.0005f));
-			TestTrue(TEXT("telegraph is a thin line"), FMath::IsNearlyEqual(Telegraph->GetRelativeScale3D().Z, Own.Z * UmbrellaFrameConst::CueLineShare, 0.001));
-		}
+		TestTrue(TEXT("telegraph keeps the Keeper's size"), Telegraph->GetRelativeScale3D().Equals(Own, 0.001));
+		TestTrue(TEXT("telegraph keeps the Keeper's colour"), ArtSlot::GetTint(Telegraph).Equals(OwnTint, 0.0005f));
 	}
 	// Quick passes look only at new actors (16:28 review: no scan of every actor every 0.2 s).
 	Frame->ComposePass(EFramePass::Quick);

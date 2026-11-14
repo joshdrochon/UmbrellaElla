@@ -386,3 +386,32 @@ bool FKeeperWingGustLayer::RunTest(const FString& Parameters)
 	WingGustEnd(World);
 	return true;
 }
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FKeeperWingGustClipPuff, "UmbrellaElla.Keeper.WingGust.NoRibbonBehindThePuff", WingGustFlags)
+
+bool FKeeperWingGustClipPuff::RunTest(const FString& Parameters)
+{
+	// Josh 22:47: the grey ribbons behind the white gust plume look tacky. The plume sits on the gust front.
+	const FKeeperTuning& T = GetDefault<UUmbrellaTuning>()->Keeper;
+	const FVector2D Start(1400.0f, 600.0f);
+	const FVector2D Front(Start.X - 500.0f, Start.Y);
+	const FVector2D Half(96.0f, 96.0f);
+	TArray<FKeeperGustStroke> Strokes;
+	AKeeperOfTime::GustStrokes(Start, T.GustSpeed * T.GustLifetimeSeconds, T.GustBandWidth, true, 1.0f, Front.X, T.GustFrontThickness, 2.0f, Strokes);
+	const int32 Before = Strokes.Num();
+	AKeeperOfTime::ClipStrokesOutside(Front, Half, Strokes);
+	TestTrue(TEXT("strokes behind the plume are dropped"), Strokes.Num() < Before);
+	TestTrue(TEXT("the trailing ribbons outside the plume stay"), Strokes.Num() > 0);
+	for (const FKeeperGustStroke& Stroke : Strokes)
+	{
+		const float Pad = Stroke.Thick * 0.5f;
+		const bool bInside = FMath::Max(Stroke.A.X, Stroke.B.X) + Pad > Front.X - Half.X && FMath::Min(Stroke.A.X, Stroke.B.X) - Pad < Front.X + Half.X
+			&& FMath::Max(Stroke.A.Y, Stroke.B.Y) + Pad > Front.Y - Half.Y && FMath::Min(Stroke.A.Y, Stroke.B.Y) - Pad < Front.Y + Half.Y;
+		if (bInside)
+		{
+			AddError(FString::Printf(TEXT("a ribbon stroke (%.0f,%.0f)-(%.0f,%.0f) sits behind the plume"), Stroke.A.X, Stroke.A.Y, Stroke.B.X, Stroke.B.Y));
+			break;
+		}
+	}
+	return true;
+}
