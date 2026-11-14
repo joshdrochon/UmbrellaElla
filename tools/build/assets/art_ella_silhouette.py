@@ -22,25 +22,30 @@ import sys
 import numpy as np
 from PIL import Image, ImageFilter
 
-STUDY_DARK = np.array([19.0, 18.0, 16.0])
-STUDY_MID = np.array([44.0, 36.0, 31.0])
-STUDY_LIGHT = np.array([123.0, 95.0, 72.0])
+# Round 38: the figure's body ramp, measured on the study's Ella at full size (body p10 / p50 / p90 and the lit
+# shoulder): a warm brown mass, not near-black. The game's sky behind her is near-black (~6,5,5), so a body at the
+# study's own darks vanished into it (visual_qa round 38 capture).
+STUDY_DARK = np.array([30.0, 25.0, 21.0])
+STUDY_MID = np.array([62.0, 48.0, 38.0])
+STUDY_LIGHT = np.array([118.0, 88.0, 64.0])
 RIM_GOLD = np.array([233.0, 196.0, 106.0])      # #E9C46A
 RIM_CANOPY = np.array([245.0, 201.0, 141.0])
-EDGE_WARM = np.array([66.0, 52.0, 40.0])         # faint all-round edge
+EDGE_WARM = np.array([104.0, 80.0, 58.0])        # all-round warm edge: separates the figure from a near-black sky
 LIGHT_DIR = (-0.55, -0.83)                        # towards the light: left and up (x, y in image space)
 RIM_STEPS = 2                                     # rim width in output pixels
-RIM_STRENGTH = 0.75
-EDGE_STRENGTH = 0.35
+RIM_STRENGTH = 0.75                               # canopy rim
+BODY_RIM_STRENGTH = 0.35                          # body rim: full strength broke into gold flecks down her side in frame
+EDGE_STRENGTH = 0.6
 CANOPY_SHARE = 0.27                               # top share of the figure's height that is the umbrella canopy
 THICKEN_SRC_PX = 5                                # max-filter size on the source alpha before the downscale
 ALPHA_CUT = 0.04
 CORE_PX = 7                                       # parts thinner than this (output px) get no rim
 CANOPY_TOP_GAIN = 1.0
 RIM_SOFTEN = 0.6                                  # px blur on the rim mask
-TONE_GAMMA = 1.4                                  # most of the figure sits in the darks, as in the study
-LIGHT_CAP = 0.8                                   # the brightest body tone stops short of the study's lights; the rim carries the light
-INTERIOR_BLUR = 0.8                               # px at output size: drops interior line noise, keeps the outline
+TONE_GAMMA = 1.0                                  # even ramp: the study figure is one soft warm mass
+LIGHT_CAP = 0.85                                  # the brightest body tone stops short of the study's lights; the rim carries the light
+INTERIOR_BLUR = 1.6                               # px at output size: drops interior line noise (read as mottling in frame), keeps the outline
+BODY_FLOOR = 0.3                                  # body luminance compressed into BODY_FLOOR..1: soft modelling, no black holes
 KEY_FRINGE_SAT = 0.45                             # saturated yellow pixels in the source are key spill, painted dark
 
 
@@ -88,6 +93,7 @@ def cell(src, out_w, out_h):
     if inside.any():
         lo, hi = np.percentile(lum[inside], 5), np.percentile(lum[inside], 97)
         lum = np.clip((lum - lo) / max(hi - lo, 1e-3), 0, 1)
+    lum = BODY_FLOOR + (1.0 - BODY_FLOOR) * lum
     rgb = tone(LIGHT_CAP * lum ** TONE_GAMMA)
 
     solid = (a > 0.5).astype(np.float64)
@@ -103,11 +109,13 @@ def cell(src, out_w, out_h):
     edge = solid * (1.0 - np.minimum.reduce([shift(solid, 1, 0), shift(solid, -1, 0), shift(solid, 0, 1), shift(solid, 0, -1)]))
 
     ys = np.nonzero(solid.any(axis=1))[0]
+    rim_gain = np.full((out_h, 1), BODY_RIM_STRENGTH)
     rim_col = np.broadcast_to(RIM_GOLD, rgb.shape).copy()
     if ys.size:
         top, bottom = ys.min(), ys.max()
         canopy_rows = np.arange(out_h) <= top + CANOPY_SHARE * (bottom - top)
         rim_col[canopy_rows] = RIM_CANOPY
+        rim_gain = np.where(canopy_rows, RIM_STRENGTH, BODY_RIM_STRENGTH)[:, None]
         # the canopy is lit from straight above along its whole top edge, as in the study
         top_edge = solid * (1.0 - shift(solid, 0, -1)) * canopy_rows[:, None]
         rim = np.maximum(rim, top_edge * CANOPY_TOP_GAIN)
@@ -115,7 +123,8 @@ def cell(src, out_w, out_h):
     rim = np.asarray(Image.fromarray((np.clip(rim, 0, 1) * 255).astype(np.uint8)).filter(
         ImageFilter.GaussianBlur(RIM_SOFTEN))).astype(np.float64) / 255.0 * solid
     rgb = rgb * (1 - EDGE_STRENGTH * edge[..., None]) + EDGE_WARM * EDGE_STRENGTH * edge[..., None]
-    rgb = rgb * (1 - RIM_STRENGTH * rim[..., None]) + rim_col * RIM_STRENGTH * rim[..., None]
+    rim = rim * rim_gain
+    rgb = rgb * (1 - rim[..., None]) + rim_col * rim[..., None]
 
     a = np.where(a < ALPHA_CUT, 0.0, a)
     out = np.dstack([np.clip(rgb, 0, 255), a * 255.0]).astype(np.uint8)
@@ -129,7 +138,7 @@ def main(argv=None):
     ap.add_argument("out")
     ap.add_argument("--cols", type=int, required=True)
     ap.add_argument("--rows", type=int, required=True)
-    ap.add_argument("--cell-h", type=int, default=160, help="output cell height in px (about the drawn size)")
+    ap.add_argument("--cell-h", type=int, default=106, help="output cell height in px (the drawn size at 1080p; the slot has no mips)")
     args = ap.parse_args(argv)
     src = Image.open(args.src)
     cw, ch = src.width // args.cols, src.height // args.rows

@@ -265,3 +265,20 @@ it is treated as passed only after the silhouette is judged in the composed game
 - Provenance row added for `Content/UmbrellaElla/Art/Ella/T_Ella_Idle_PH.uasset` (source `ella-idle_N24_grid.png`, script).
 - Committed import script: `tools/build/assets/art_ella_import.py` (wraps `import_art_candidate.py`, UnrealEditor-Cmd pythonscript).
 - Devlog line corrected: up close she matches the study, in the real frame she did not read yet (was overstated).
+
+## Round 38 (Nov 13 17:20): idle judged in the composed frame; sprite cleaned up; still a _PH stand-in
+- Merged main fb2f0fdb (devlog conflict: kept both lines, ours rewritten so it does not overstate). `build exit: 0` at 8b14ccb9.
+- Capture: `RUN_RES=1280x720 run_game.sh -SmokeJourney=Art/Source/Ella/frame/ella_frame_journey.txt` (Start Game play + Director's Cut route, the visual_qa screens).
+- Round-37 sprite in frame: body too dark for the game's near-black sky (bg behind her ~6,5,5; study's ~50), interior mottled, body rim broke into gold flecks. Umbrella read, body did not.
+- Script changes (`art_ella_silhouette.py`, numbers only, no spend): body ramp re-measured on the study's Ella at full size (p10 30,25,21 / p50 62,48,38 / lit 118,88,64),
+  body floor 0.3 (no black holes), interior blur 1.6 px, all-round warm edge 0.6, body rim 0.35 (canopy rim stays 0.75),
+  cell 78x106 (drawn size at 1080p; was 160 px, 10x oversampled per review; aspect 0.7355 -> 0.7358). Idle re-imported via `art_ella_import.py`; hurt and down sheets regenerated, not imported.
+- visual_qa.py frame (Opus judge, rubric fixed), after: dc_route FAIL 27/70, play FAIL 22/70. Ella is not in either broken list now
+  (round 37's play frame listed "Ella clipped at the top edge, barely visible"). Broken items are other lanes': flat brown platform and floor bars,
+  the beige light-shaft bar onto Ella, a solid red enemy rectangle, the unkeyed oversized Keeper owl, no islands.
+- Verdict under the lead order: NOT passed. The composed frame fails, and Ella is about 0.6x the study's size (55 vs 92 px at 720p; request #5).
+  T_Ella_Idle_PH stays imported only as the tracked _PH stand-in.
+- Proof: pipeline/art/proof/artella/frame/r38-composite-dc_route.png (study | before | after; before and after are different route moments, same journey),
+  r38-zoom-before-after-study.png (Ella zoomed). Judge records kept in ../logs/artella-judge-records/ (not committed: visualqa's folder).
+- Spend: none this round (15.08 of 33.82). OpenRouter/fal not used: the gap was tone and noise, fixed by numbers.
+- Next: re-judge when the frame's other broken items and Ella's scale are fixed; then the four state pieces (up-open, attack, shield, closed).
