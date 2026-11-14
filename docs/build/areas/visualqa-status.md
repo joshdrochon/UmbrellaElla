@@ -42,8 +42,6 @@
   0.36x. Test: `UmbrellaElla.Feedback.FrameComposition.EnemyArtFullSize` (fails on 4dae3d8e, passes now).
 
 ## Follow-ups (coordinator balance rule: paperwork and later work do not block)
-- Review item 3: a composite per screen under `pipeline/qa/visual/` for this round, and a dated line in
-  `pipeline/submission/devlog.md` under "## Frames toward the Other Realm study"; `composed-01.png`.
 - Minor: `FindArena` caches the arena for good (stale after an arena swap; re-runs the actor iterator each tick).
 - Minor: `WorldArtSubsystem.cpp` `Floor` case falls into `Solid` with only a comment: `[[fallthrough]]` or merge labels.
 - Minor: `EllaAnimPresenterComponent.h` "about 0.93x the study's figure": cite the measurement or drop it.
@@ -80,6 +78,14 @@
   Test: `UmbrellaElla.Feedback.World.ArtSlotWorldPieces` (192x259 -> block, 576x43 -> solids, 4.27:1 -> solids,
   fallback, zero height). Break check: VisualFor without the block branch -> FAIL. Feedback PASS tests=53.
 - Request 4 (floor as island): already on main (1b99a5b7, Floor -> world:solids, its test in ArtSlotWorldPieces); not duplicated.
+
+## Round 05 (Nov 13 19:35): composite and devlog
+- Capture `visual_qa.py capture --out Saved/VisualQA/r05` on 0f24bafd; composite pipeline/qa/visual/r05/composite-r05-dc_route.png
+  (study | r03 16:45 | now), devlog line added.
+- Seen, not fixed yet: the DC route frame is worse than r03: a bright cream clock-face picture fills the route behind
+  the play layer (likely bg:clocks / ClockWaterWind drawn in front of the dark land, artscene request 7), and the floor
+  and ledge still draw as flat dark bars (world:solids art not loading on them). Start Game play: the Keeper art is
+  large and square-cropped. Next for this lane.
 
 ## Gate command (for the lead)
 Gate step (in the gate worktree, merged tree built): `python3 tools/build/visual_qa.py run --gate --main-sha <main sha> --out Saved/VisualQA/gate-<sha>`
