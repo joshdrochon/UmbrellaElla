@@ -11,6 +11,10 @@
 #include "GameFramework/Actor.h"
 #include "Harness/UmbrellaFeatureFlags.h"
 #include "Owl/KeeperOfTime.h"
+#include "Misc/CommandLine.h"
+#include "Misc/Parse.h"
+#include "Misc/Paths.h"
+#include "UnrealClient.h"
 
 namespace
 {
@@ -251,6 +255,8 @@ void UKeeperPresenterSubsystem::Tick(float DeltaTime)
 		}
 		SyncPartCover(Owl);
 		PlayIdle(Owl);
+		PlayWingGust(Owl);
+		RequestCueShot(Owl);
 		if (bMasksShown)
 		{
 			ShowStateLayer(Keeper, UmbrellaKeeperPresenterConst::MaskVisual);
@@ -321,6 +327,118 @@ void UKeeperPresenterSubsystem::PlayIdle(AActor* Keeper) const
 	}
 	ArtSlot::SetFrame(Mesh, IdleFrameAt(GetWorld()->GetTimeSeconds(), UmbrellaKeeperPresenterConst::IdleFps, Row->Cols, Row->Rows,
 		UmbrellaKeeperPresenterConst::IdlePlayback));
+}
+
+const FArtSlotRow& UKeeperPresenterSubsystem::WingGustRow()
+{
+	// Not a catalog row: the clip is new art on the approved owl and draws only as this layer (stays _PH until approved).
+	static const FArtSlotRow Row{ TEXT("keeper:wing-gust"), TEXT("Keeper"), TEXT("T_Keeper_WingGust"), KeeperWingGustConst::Cells, false, TEXT("UKeeperPresenterSubsystem"), 1, true };
+	return Row;
+}
+
+void UKeeperPresenterSubsystem::WingGustPlacement(const FVector& BodyBoxScale, FVector& OutBoxScale, FVector& OutOffset)
+{
+	using namespace UmbrellaKeeperPresenterConst;
+	// Units per clip pixel, from the body's drawn size over the idle cell's box (the same in X and Z: no squash).
+	const double UnitsPerPxX = BodyBoxScale.X * UmbrellaArtSlotConst::PlaneEdge / WingGustIdleBoxW;
+	const double UnitsPerPxZ = BodyBoxScale.Z * UmbrellaArtSlotConst::PlaneEdge / WingGustIdleBoxH;
+	OutBoxScale = FVector(BodyBoxScale.X * WingGustCropW / WingGustIdleBoxW, BodyBoxScale.Y, BodyBoxScale.Z * WingGustCropH / WingGustIdleBoxH);
+	const double DeltaX = (WingGustCropX + WingGustCropW * 0.5) - (WingGustIdleBoxX + WingGustIdleBoxW * 0.5);
+	const double DeltaY = (WingGustCropY + WingGustCropH * 0.5) - (WingGustIdleBoxY + WingGustIdleBoxH * 0.5);
+	// Clip pixels run down; world Z runs up.
+	OutOffset = FVector(DeltaX * UnitsPerPxX, 0.0, -DeltaY * UnitsPerPxZ);
+}
+
+EArtSlotDraw UKeeperPresenterSubsystem::ShowWingGustLayer(AActor* Keeper, UTexture2D* Texture)
+{
+	static const FName StandInName(TEXT("KeeperStandIn"));
+	const FName LayerName(UmbrellaKeeperPresenterConst::WingGustLayerName);
+	UStaticMeshComponent* Body = IsValid(Keeper) ? FindObjectFast<UStaticMeshComponent>(Keeper, StandInName) : nullptr;
+	const FArtSlotRow* BodyRow = ArtSlot::Find(TEXT("keeper:body-hover-flap"));
+	if (!Body || !BodyRow || !ArtSlot::HasArt(Body) || !IsFeatureEnabled(EFeatureId::OWL_15) || FindObjectFast<UStaticMeshComponent>(Keeper, LayerName))
+	{
+		return EArtSlotDraw::NoTexture;
+	}
+	UTexture2D* Picture = Texture ? Texture : ArtSlot::LoadTexture(WingGustRow());
+	if (!Picture)
+	{
+		return EArtSlotDraw::NoTexture;
+	}
+	FVector BoxScale;
+	FVector Offset;
+	// The body's box scale is what ShowStandIn drew it at; read it back from the plane (X = width, Y = height in box units).
+	const FVector BodyPlane = Body->GetRelativeScale3D();
+	WingGustPlacement(FVector(BodyPlane.X, UmbrellaKeeperPresenterConst::StandInScale.Y, BodyPlane.Y), BoxScale, Offset);
+	UStaticMeshComponent* Layer = NewObject<UStaticMeshComponent>(Keeper, LayerName);
+	Layer->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Layer->SetGenerateOverlapEvents(false);
+	Layer->SetupAttachment(Body->GetAttachParent() ? Body->GetAttachParent() : Keeper->GetRootComponent());
+	const EArtSlotDraw Result = ArtSlot::Apply(Layer, Picture, WingGustRow(), BoxScale);
+	if (Result != EArtSlotDraw::Drawn)
+	{
+		Layer->DestroyComponent();
+		return Result;
+	}
+	Layer->SetRelativeLocation(Body->GetRelativeLocation() + Offset);
+	Layer->RegisterComponent();
+	Layer->SetVisibility(false);
+	return Result;
+}
+
+void UKeeperPresenterSubsystem::PlayWingGust(AKeeperOfTime* Owl) const
+{
+	static const FName StandInName(TEXT("KeeperStandIn"));
+	UStaticMeshComponent* Layer = IsValid(Owl) ? FindObjectFast<UStaticMeshComponent>(Owl, FName(UmbrellaKeeperPresenterConst::WingGustLayerName)) : nullptr;
+	UStaticMeshComponent* Body = IsValid(Owl) ? FindObjectFast<UStaticMeshComponent>(Owl, StandInName) : nullptr;
+	if (!IsValid(Layer) || !Body)
+	{
+		return;
+	}
+	const int32 Cell = Owl->GetWingGustCell();
+	const bool bCue = Cell != INDEX_NONE;
+	if (bCue)
+	{
+		ArtSlot::SetFrame(Layer, Cell);
+	}
+	// Flip only on a change, so nothing else that sets the body's visibility is overridden every frame.
+	if (Layer->IsVisible() != bCue)
+	{
+		Layer->SetVisibility(bCue);
+		Body->SetVisibility(!bCue);
+	}
+}
+
+void UKeeperPresenterSubsystem::RequestCueShot(const AKeeperOfTime* Owl)
+{
+#if UMBRELLAELLA_WORKBENCH
+	// Workbench capture hook (artkeeper proof): -SmokeKeeperCueShot=<png> [-SmokeKeeperCueCell=<n>] saves one window
+	// capture when the wing-gust cue first shows cell n (default 5, late gather), so the warning is on screen.
+	if (bCueShotTaken || !IsValid(Owl))
+	{
+		return;
+	}
+	FString Path;
+	if (!FParse::Value(FCommandLine::Get(), TEXT("-SmokeKeeperCueShot="), Path) || Path.IsEmpty())
+	{
+		bCueShotTaken = true;
+		return;
+	}
+	int32 Cell = 5;
+	FParse::Value(FCommandLine::Get(), TEXT("-SmokeKeeperCueCell="), Cell);
+	if (Owl->GetWingGustCell() == Cell)
+	{
+		bCueShotTaken = true;
+		if (FPaths::IsRelative(Path))
+		{
+			Path = FPaths::ConvertRelativePathToFull(FPaths::ProjectDir(), Path);
+		}
+		// UE 5.8.4 Engine/Public/UnrealClient.h line 219: FScreenshotRequest::RequestScreenshot(Filename, bShowUI, bAddFilenameSuffix, ...).
+		FScreenshotRequest::RequestScreenshot(Path, true, false);
+		UE_LOG(LogTemp, Display, TEXT("KEEPER_CUE_SHOT cell=%d path=%s"), Cell, *Path);
+	}
+#else
+	(void)Owl;
+#endif
 }
 
 TStatId UKeeperPresenterSubsystem::GetStatId() const
@@ -451,6 +569,7 @@ void UKeeperPresenterSubsystem::ShowStandIn(AActor* Keeper)
 		}
 	}
 	Mesh->RegisterComponent();
+	ShowWingGustLayer(Keeper, nullptr);
 	// Part slots (wings, mechanism, clock cover, talon) are layers over the body that exist only when their asset does.
 	for (const UmbrellaKeeperPresenterConst::FKeeperPartLayer& Layer : UmbrellaKeeperPresenterConst::PartLayers)
 	{
