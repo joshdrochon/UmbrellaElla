@@ -9,6 +9,15 @@
    "file": "pipeline/art/proof/artvideo/ella-idle/Ella_idle_N24_grid.png",
    "sha256": "b128aec4bbb9505626d218302568e065173fa3e0b539104fb9cafd8bfc80e4b5",
    "note": "Ella idle (EEllaVisualState Idle -> ella-up-open), 24 frames as a 6x4 grid sheet from the fal Veo 3.1 Fast idle video; lands with area/artvideo 3472d166"
+  },
+  {
+   "piece": "keeper-idle",
+   "approver": "Josh",
+   "date": "2026-11-13",
+   "origin": "approved by Josh (\"The owl looks amazing, add it in\"), 2026-11-13, via the coordinator",
+   "file": "pipeline/art/proof/artkeeper/keeper-idle/fixed/Keeper_idle_N24_grid.png",
+   "sha256": "8bb4d531fa58cf2cb99aab2927feb353ba1744efc5d34d42b23df4ba940ac29b",
+   "note": "Keeper owl idle, 24 frames as a 6x4 grid sheet from an OpenRouter gemini-3-pro-image-preview still and a fal Veo 3.1 Fast idle clip; the version in area/artkeeper 082c95a0. A re-graded sheet (pink wing-rim cleanup) needs a new approval."
   }
  ]
 }
