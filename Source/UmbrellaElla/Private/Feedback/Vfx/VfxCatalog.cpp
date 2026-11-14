@@ -1,5 +1,6 @@
 #include "Feedback/Vfx/VfxCatalog.h"
 #include "Core/UmbrellaDrawOrder.h"
+#include "Feedback/Art/ArtSlot.h"
 
 TConstArrayView<FVfxArtRow> VfxCatalog::Rows()
 {
@@ -121,11 +122,23 @@ FLinearColor VfxCatalog::LightColour(const FVfxArtRow& Row)
 	return FLinearColor(FColor::FromHex(FString::Printf(TEXT("%06X"), Row.LightHex)));
 }
 
+bool VfxCatalog::IsStandInAdmitted(const FVfxArtRow& Row)
+{
+	const FString Visual = FString::Printf(TEXT("vfx-sheet:%s"), Row.Sheet);
+	const FArtSlotRow* Slot = ArtSlot::Find(*Visual);
+	return !Slot || Slot->bStandInOk;
+}
+
 TArray<FString> VfxCatalog::TexturePaths(const FVfxArtRow& Row)
 {
 	const FString Folder = TEXT("/Game/UmbrellaElla/Art/VFX/");
 	const FString Passed = FString::Printf(TEXT("T_%s"), Row.Sheet);
 	const FString Placeholder = Passed + TEXT("_PH");
+	if (!IsStandInAdmitted(Row))
+	{
+		// visualqa: a framed or unkeyed stand-in sheet (tools/build/art_slots.py) is never loaded.
+		return { Folder + Passed + TEXT(".") + Passed };
+	}
 	return { Folder + Passed + TEXT(".") + Passed, Folder + Placeholder + TEXT(".") + Placeholder };
 }
 

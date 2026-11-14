@@ -93,7 +93,7 @@ bool FVfxArtCatalogRules::RunTest(const FString& Parameters)
 			&& LayerY != UmbrellaDrawOrder::ArenaY);
 		TestTrue(TEXT("an effect without light has no light colour"), Row.bLit || Row.LightHex == VfxCatalogData::None);
 		TestTrue(TEXT("a flashing effect is a one-shot"), !Row.bFlashing || !Row.bLoop);
-		TestEqual(TEXT("placeholder sheet is the fallback path"), VfxCatalog::TexturePaths(Row).Num(), 2);
+		TestEqual(TEXT("placeholder sheet is the fallback path (a refused stand-in has none)"), VfxCatalog::TexturePaths(Row).Num(), VfxCatalog::IsStandInAdmitted(Row) ? 2 : 1);
 	}
 	// Four weapons, each with its own stages.
 	const EVfxWeaponStage Common[] = { EVfxWeaponStage::Release, EVfxWeaponStage::Impact, EVfxWeaponStage::Fade };

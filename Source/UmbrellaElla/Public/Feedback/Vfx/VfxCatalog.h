@@ -170,6 +170,9 @@ namespace VfxCatalog
 	/** Content paths of the sheet texture: the passed art first, then the tracked placeholder. */
 	UMBRELLAELLA_API TArray<FString> TexturePaths(const FVfxArtRow& Row);
 
+	/** False when the row's stand-in sheet failed admission (framed or unkeyed; art slot bStandInOk). Pure. */
+	UMBRELLAELLA_API bool IsStandInAdmitted(const FVfxArtRow& Row);
+
 	/** Distinct sheet names (the art pieces). */
 	UMBRELLAELLA_API TArray<FName> Sheets();
 }

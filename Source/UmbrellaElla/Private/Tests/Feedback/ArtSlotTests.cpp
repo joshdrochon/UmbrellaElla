@@ -617,67 +617,74 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FArtSlotWind, "UmbrellaElla.Feedback.World.ArtS
 
 bool FArtSlotWind::RunTest(const FString& Parameters)
 {
+	// visualqa (Josh's 15:50 frame): wind drew as framed, stretched picture cards. Wind is thin ash-blue ribbons in code.
 	UWorld* World = ArtSlotTestWorld();
 	if (!TestNotNull(TEXT("world"), World))
 	{
 		return false;
 	}
-	TestEqual(TEXT("gust starts on frame 0"), UWindPresenterSubsystem::GustFrameAt(0.0f, 8), 0);
-	TestTrue(TEXT("gust advances"), UWindPresenterSubsystem::GustFrameAt(0.5f, 8) > 0);
-	TestTrue(TEXT("gust wraps inside the sheet"), UWindPresenterSubsystem::GustFrameAt(99.0f, 8) < 8);
+	TestEqual(TEXT("narrow current still has strands"), UWindPresenterSubsystem::StrandCount(10.0f), UmbrellaWindPresenterConst::MinStrands);
+	TestEqual(TEXT("wide current is capped"), UWindPresenterSubsystem::StrandCount(5000.0f), UmbrellaWindPresenterConst::MaxStrands);
+	TestTrue(TEXT("long strands get more segments"), UWindPresenterSubsystem::SegmentCount(900.0f) > UWindPresenterSubsystem::SegmentCount(300.0f));
+	TestTrue(TEXT("strands are thin in the middle"), UWindPresenterSubsystem::StrandThickness(0, 0.5f) <= UmbrellaWindPresenterConst::ThickMiddle);
+	TestTrue(TEXT("strands taper at the ends"), UWindPresenterSubsystem::StrandThickness(0, 0.0f) < UWindPresenterSubsystem::StrandThickness(0, 0.5f));
+	const FVector2D Early = UWindPresenterSubsystem::StrandPoint(600.0f, 400.0f, 0, 3, 4, 12, 0.0f);
+	const FVector2D Late = UWindPresenterSubsystem::StrandPoint(600.0f, 400.0f, 0, 3, 4, 12, 1.0f);
+	TestTrue(TEXT("bends drift with game time"), !FMath::IsNearlyEqual(Early.Y, Late.Y, 0.5));
+	TestTrue(TEXT("strand stays inside the current"), FMath::Abs(Early.Y) <= 200.0f && FMath::Abs(Early.X) <= 300.0f);
+
 	UWindPresenterSubsystem* Presenter = World->GetSubsystem<UWindPresenterSubsystem>();
 	AWindCurrent* Wind = World->SpawnActor<AWindCurrent>();
 	if (TestNotNull(TEXT("wind presenter"), Presenter) && TestNotNull(TEXT("wind"), Wind))
 	{
 		Wind->SetHalfExtent(300.0f, 200.0f);
+		Presenter->DrawRibbons(Wind, 0.0f);
 		UStaticMeshComponent* Field = Wind->GetField();
-		UTexture2D* Texture = ArtSlotTestTexture();
-		const FString FieldId = UmbrellaWindPresenterConst::FieldVisual;
-		TestTrue(TEXT("field takes the picture"), Presenter->ShowArt(Wind, FieldId, Texture) == EArtSlotDraw::Drawn);
-		TestTrue(TEXT("second field picture refused"), Presenter->ShowArt(Wind, FieldId, Texture) != EArtSlotDraw::Drawn);
-		TestTrue(TEXT("field shows the picture"), ArtSlot::IsDrawingArt(Field) && ArtSlotParamTexture(Field) == Texture);
-		TestEqual(TEXT("picture is the field width"), Field->GetRelativeScale3D().X, 6.0);
-		TestEqual(TEXT("picture is the field height"), Field->GetRelativeScale3D().Y, 4.0);
-		TestEqual(TEXT("picture has no collision"), static_cast<int32>(Field->GetCollisionEnabled()), static_cast<int32>(ECollisionEnabled::NoCollision));
-
-		// The current refreshes its colour card when resized; the presenter puts the picture back at the new size.
-		Wind->SetHalfExtent(400.0f, 200.0f);
-		TestFalse(TEXT("refresh put the card back"), ArtSlot::IsDrawingArt(Field));
-		Presenter->Tick(0.0f);
-		TestTrue(TEXT("picture is back after refresh"), ArtSlot::IsDrawingArt(Field) && ArtSlotParamTexture(Field) == Texture);
-		TestEqual(TEXT("picture follows the new width"), Field->GetRelativeScale3D().X, 8.0);
-
-		for (const FString& Overlay : { FString(UmbrellaWindPresenterConst::LinesVisual), FString(UmbrellaWindPresenterConst::GustVisual) })
+		TestTrue(TEXT("the colour card is not rendered"), !Field->bRenderInMainPass && !Field->bRenderInDepthPass);
+		TestTrue(TEXT("the card keeps its size for the field rules"), Wind->GetDrawnSize().X > 0.0);
+		TestFalse(TEXT("no picture card on the field"), ArtSlot::IsDrawingArt(Field));
+		const TArray<UStaticMeshComponent*> Ribbons = UWindPresenterSubsystem::RibbonsOf(Wind);
+		TestEqual(TEXT("one segment per strand step"), Ribbons.Num(), UWindPresenterSubsystem::StrandCount(400.0f) * UWindPresenterSubsystem::SegmentCount(600.0f));
+		const FLinearColor Ash = FLinearColor::FromSRGBColor(FColor(UmbrellaWindPresenterConst::RibbonR, UmbrellaWindPresenterConst::RibbonG, UmbrellaWindPresenterConst::RibbonB));
+		bool bAllAsh = Ribbons.Num() > 0;
+		bool bAllThin = Ribbons.Num() > 0;
+		bool bNoCollision = true;
+		for (const UStaticMeshComponent* Ribbon : Ribbons)
 		{
-			// The shipped _PH gust sheet may already be drawn by the tick above; then the transient picture is refused.
-			const bool bAlready = UWindPresenterSubsystem::FindOverlay(Wind, Overlay) != nullptr;
-			const EArtSlotDraw OverlayResult = bAlready ? EArtSlotDraw::Drawn : Presenter->ShowArt(Wind, Overlay, Texture);
-			TestTrue(*FString::Printf(TEXT("overlay %s is drawn (result %d)"), *Overlay, static_cast<int32>(OverlayResult)), OverlayResult == EArtSlotDraw::Drawn);
-			const UStaticMeshComponent* Mesh = UWindPresenterSubsystem::FindOverlay(Wind, Overlay);
-			if (TestNotNull(TEXT("overlay component"), Mesh))
+			FLinearColor Tint = FLinearColor::Transparent;
+			if (const UMaterialInstanceDynamic* Dynamic = Cast<UMaterialInstanceDynamic>(Ribbon->GetMaterial(0)))
 			{
-				TestTrue(TEXT("overlay shows a picture"), ArtSlot::IsDrawingArt(Mesh) && (bAlready || ArtSlotParamTexture(Mesh) == Texture));
-				TestEqual(TEXT("overlay matches the field width"), Mesh->GetRelativeScale3D().X, 8.0);
-				TestEqual(TEXT("overlay has no collision"), static_cast<int32>(Mesh->GetCollisionEnabled()), static_cast<int32>(ECollisionEnabled::NoCollision));
+				Dynamic->GetVectorParameterValue(FMaterialParameterInfo(FName(TEXT("Tint"))), Tint);
 			}
+			bAllAsh &= Tint.Equals(Ash, 0.002f);
+			bAllThin &= Ribbon->GetRelativeScale3D().Y * UmbrellaWindPresenterConst::PlaneEdge <= UmbrellaWindPresenterConst::ThickMiddle + KINDA_SMALL_NUMBER;
+			bNoCollision &= Ribbon->GetCollisionEnabled() == ECollisionEnabled::NoCollision;
 		}
-
-		// A wind slot asset that exists must be drawn by a fresh current.
-		AWindCurrent* Fresh = World->SpawnActor<AWindCurrent>();
-		if (TestNotNull(TEXT("fresh wind"), Fresh))
+		TestTrue(TEXT("every ribbon is ash blue #555e60"), bAllAsh);
+		TestTrue(TEXT("every ribbon is thin (never a box)"), bAllThin);
+		TestTrue(TEXT("ribbons have no collision"), bNoCollision);
+		if (Ribbons.Num() > 0)
 		{
-			Fresh->SetHalfExtent(300.0f, 200.0f);
-			Presenter->Tick(0.0f);
-			for (const TCHAR* Visual : { UmbrellaWindPresenterConst::FieldVisual, UmbrellaWindPresenterConst::LinesVisual, UmbrellaWindPresenterConst::GustVisual })
-			{
-				const FArtSlotRow* Row = ArtSlot::Find(Visual);
-				if (TestNotNull(TEXT("wind slot row"), Row) && ArtSlot::LoadTexture(*Row))
-				{
-					const bool bDrawn = FString(Visual) == UmbrellaWindPresenterConst::FieldVisual ? ArtSlot::IsDrawingArt(Fresh->GetField()) : UWindPresenterSubsystem::FindOverlay(Fresh, Visual) != nullptr;
-					TestTrue(*FString::Printf(TEXT("%s asset exists, so the wind draws it"), Visual), bDrawn);
-				}
-			}
+			const FVector Before = Ribbons[0]->GetRelativeLocation();
+			Presenter->DrawRibbons(Wind, 1.0f);
+			TestTrue(TEXT("ribbons move with game time"), !Ribbons[0]->GetRelativeLocation().Equals(Before, 0.1));
+			TestEqual(TEXT("moving does not add segments"), UWindPresenterSubsystem::RibbonsOf(Wind).Num(), Ribbons.Num());
 		}
+		// A resize redraws the ribbons to the new box.
+		Wind->SetHalfExtent(500.0f, 200.0f);
+		Presenter->DrawRibbons(Wind, 0.0f);
+		TestEqual(TEXT("ribbons follow a resize"), UWindPresenterSubsystem::RibbonsOf(Wind).Num(), UWindPresenterSubsystem::StrandCount(400.0f) * UWindPresenterSubsystem::SegmentCount(1000.0f));
+		TestTrue(TEXT("still not rendered after the refresh"), !Wind->GetField()->bRenderInMainPass);
+	}
+	// The framed wind-field picture failed stand-in admission: the game never loads its _PH.
+	if (const FArtSlotRow* Row = ArtSlot::Find(UmbrellaWindPresenterConst::FieldVisual))
+	{
+		TestFalse(TEXT("wind field stand-in rejected"), Row->bStandInOk);
+		TestEqual(TEXT("only the passed asset is tried"), ArtSlot::TexturePaths(*Row).Num(), 1);
+	}
+	if (const FArtSlotRow* Ella = ArtSlot::Find(TEXT("ella-state:Idle")))
+	{
+		TestEqual(TEXT("a keyed stand-in still loads its _PH"), ArtSlot::TexturePaths(*Ella).Num(), 2);
 	}
 	ArtSlotTestEnd(World);
 	return true;
