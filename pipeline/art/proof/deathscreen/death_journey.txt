@@ -1,0 +1,13 @@
+firstrun
+wait Title 60
+idle 2
+shot title
+click Start Game
+wait Tutorial 5
+keyuntil Playing Enter 0.8 30
+idle 3
+shot playing
+hits Defeat 1 1.2 90
+idle 1
+shot defeated
+end

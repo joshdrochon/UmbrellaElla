@@ -31,8 +31,11 @@ namespace UmbrellaUiPieceConst
 	static constexpr uint32 DriftScreens = UiScreenBit(EFlowScreen::Title) | UiScreenBit(EFlowScreen::Credits) | UiScreenBit(EFlowScreen::Statistics);
 	static constexpr uint32 PauseScreens = UiScreenBit(EFlowScreen::Paused) | UiScreenBit(EFlowScreen::TutorialPaused);
 	static constexpr uint32 HudScreens = UiScreenBit(EFlowScreen::Playing) | UiScreenBit(EFlowScreen::Tutorial);
-	/** Screens where the played world shows: no full-frame picture may cover them (B2, Nov 13). */
-	static constexpr uint32 GameplayScreens = HudScreens | UiScreenBit(EFlowScreen::Resuming);
+	/** Screens where the played world shows: no full-frame picture may cover them (B2, Nov 13). Defeated too: the paused
+	 *  game (the in-game backdrop) shows behind the death menu, never the title picture (Josh, Nov 13 22:40). */
+	static constexpr uint32 GameplayScreens = HudScreens | UiScreenBit(EFlowScreen::Resuming) | UiScreenBit(EFlowScreen::Defeat);
+	/** Menu screens that sit on the title ground picture (every menu screen except Defeated). */
+	static constexpr uint32 GroundScreens = MenuScreens & ~UiScreenBit(EFlowScreen::Defeat);
 
 	/** One piece: which screens show it, whether it fills the frame, where it sits otherwise, and whether it sits below the menus (grounds) or above. */
 	struct FUiPiece
@@ -50,8 +53,8 @@ namespace UmbrellaUiPieceConst
 	static const FUiPiece Pieces[] = {
 		{ TEXT("menu-backdrop:Drift"), DriftScreens, true, HAlign_Fill, VAlign_Fill, true },
 		{ TEXT("menu-backdrop:Clocks"), PauseScreens, true, HAlign_Fill, VAlign_Fill, true },
-		{ TEXT("ui:ground-Ground"), MenuScreens, true, HAlign_Fill, VAlign_Fill, true },
-		{ TEXT("ui:ground-Grain"), MenuScreens, true, HAlign_Fill, VAlign_Fill, true },
+		{ TEXT("ui:ground-Ground"), GroundScreens, true, HAlign_Fill, VAlign_Fill, true },
+		{ TEXT("ui:ground-Grain"), GroundScreens, true, HAlign_Fill, VAlign_Fill, true },
 		{ TEXT("ui:panel"), UiScreenBit(EFlowScreen::Paused) | UiScreenBit(EFlowScreen::Settings) | UiScreenBit(EFlowScreen::Defeat), false, HAlign_Center, VAlign_Center, false },
 		{ TEXT("ui:title-lockup"), UiScreenBit(EFlowScreen::Title), false, HAlign_Center, VAlign_Top, false },
 		{ TEXT("ui:head-Paused"), PauseScreens, false, HAlign_Center, VAlign_Top, false },
@@ -81,7 +84,7 @@ public:
 	/** Art slot id for a screen, e.g. "screen:Title". Pure. */
 	static FString VisualIdFor(EFlowScreen Screen);
 
-	/** False on gameplay screens (Playing, Resuming, Tutorial): the world shows there, so no full-frame picture. Pure. */
+	/** False on gameplay screens (Playing, Resuming, Tutorial) and Defeated: the world shows there, so no full-frame picture. Pure. */
 	static bool IsScreenArtAllowedOn(EFlowScreen Screen);
 
 	/** Show a picture for a screen (null removes it). Draws nothing on a gameplay screen, whatever the texture. Tests pass a transient texture. */

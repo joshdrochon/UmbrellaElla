@@ -1,0 +1,24 @@
+JOURNEY_BEGIN script=death.txt steps=13 out=/private/tmp/claude-501/-Users-joanmiguel/862949e9-3b89-43da-8430-6f26f7fe0854/scratchpad/death/after
+JOURNEY_STEP n=1 line=1 cmd="firstrun " result=PASS screen=Title mode=start retries=0 held=[] encounter=0 phase=wings detail="tutorial not seen (memory only)"
+JOURNEY_STEP n=2 line=2 cmd="wait Title" result=PASS screen=Title mode=start retries=0 held=[] encounter=0 phase=wings detail="after 0.0s"
+JOURNEY_STEP n=3 line=3 cmd="idle " result=PASS screen=Title mode=start retries=0 held=[] encounter=0 phase=wings detail=""
+JOURNEY_STEP n=4 line=4 cmd="shot title" result=PASS screen=Title mode=start retries=0 held=[] encounter=0 phase=wings detail="title.png 1280x720 view frame_mean=63 ella=absent keeper=absent arena=absent"
+JOURNEY_STEP n=5 line=5 cmd="click Start Game" result=PASS screen=Tutorial mode=start retries=0 held=[] encounter=0 phase=wings detail="mouse at (133,434) on SUmbrellaButton, under=none focus=SUmbrellaButton active=1 window_pos=X=0.000 Y=0.000 from=Title"
+JOURNEY_STEP n=6 line=6 cmd="wait Tutorial" result=PASS screen=Tutorial mode=start retries=0 held=[] encounter=0 phase=wings detail="after 0.0s"
+JOURNEY_TAP key=Enter n=1 focus=SUmbrellaButton from=Tutorial to=Tutorial
+JOURNEY_TAP key=Enter n=2 focus=SUmbrellaButton from=Tutorial to=Tutorial
+JOURNEY_TAP key=Enter n=3 focus=SUmbrellaButton from=Tutorial to=Resuming
+JOURNEY_STEP n=7 line=7 cmd="keyuntil Playing Enter" result=PASS screen=Playing mode=start retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(384,540) encounter=1 phase=wings detail="taps=3 after 1.9s"
+JOURNEY_STEP n=8 line=8 cmd="idle " result=PASS screen=Playing mode=start retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(384,1036) encounter=1 phase=wings detail=""
+JOURNEY_STEP n=9 line=9 cmd="shot playing" result=PASS screen=Playing mode=start retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(384,1036) encounter=1 phase=wings detail="playing.png 1280x720 view frame_mean=27 ella=drawn(277,48) spread=28 mean=25 keeper=drawn(942,294) spread=46 mean=69 arena=flat(640,360) spread=3 mean=36"
+JOURNEY_ASSIST hit=1 damage=1.00 landed=1 screen=Playing mode=start retries=0 held=[] lives=3/3 active=2.00/3.00 ella=(384,1036) encounter=1 phase=wings
+JOURNEY_ASSIST hit=2 damage=1.00 landed=1 screen=Playing mode=start retries=0 held=[] lives=3/3 active=1.00/3.00 ella=(384,1036) encounter=1 phase=wings
+JOURNEY_ASSIST hit=3 damage=1.00 landed=1 screen=Playing mode=start retries=0 held=[] lives=2/3 active=3.00/3.00 ella=(384,1036) encounter=1 phase=wings
+JOURNEY_ASSIST hit=4 damage=1.00 landed=1 screen=Playing mode=start retries=0 held=[] lives=2/3 active=2.00/3.00 ella=(384,1036) encounter=1 phase=wings
+JOURNEY_ASSIST hit=5 damage=1.00 landed=1 screen=Playing mode=start retries=0 held=[] lives=2/3 active=1.00/3.00 ella=(384,1036) encounter=1 phase=wings
+JOURNEY_ASSIST hit=6 damage=1.00 landed=1 screen=Playing mode=start retries=0 held=[] lives=1/3 active=2.00/3.00 ella=(384,1036) encounter=1 phase=wings
+JOURNEY_ASSIST hit=7 damage=1.00 landed=0 screen=Playing mode=start retries=0 held=[] lives=1/3 active=1.00/3.00 ella=(384,1036) encounter=1 phase=wings
+JOURNEY_STEP n=10 line=10 cmd="hits Defeat" result=PASS screen=Defeat mode=start retries=0 held=[] lives=0/3 active=0.00/3.00 ella=(384,1036) encounter=3 phase=wings detail="assisted_hits=7 after 8.8s"
+JOURNEY_STEP n=11 line=11 cmd="idle " result=PASS screen=Defeat mode=start retries=0 held=[] lives=0/3 active=0.00/3.00 ella=(384,1036) encounter=3 phase=wings detail=""
+JOURNEY_STEP n=12 line=12 cmd="shot defeated" result=PASS screen=Defeat mode=start retries=0 held=[] lives=0/3 active=0.00/3.00 ella=(384,1036) encounter=3 phase=wings detail="defeated.png 1280x720 view frame_mean=25 ella=flat(277,48) spread=5 mean=24 keeper=flat(942,294) spread=8 mean=28 arena=flat(640,360) spread=1 mean=26"
+JOURNEY_END passed=12 failed=0 blocker="none" screen=Defeat mode=start retries=0 held=[] lives=0/3 active=0.00/3.00 ella=(384,1036) encounter=3 phase=wings
