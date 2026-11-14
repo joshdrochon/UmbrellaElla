@@ -86,6 +86,14 @@
   the play layer (likely bg:clocks / ClockWaterWind drawn in front of the dark land, artscene request 7), and the floor
   and ledge still draw as flat dark bars (world:solids art not loading on them). Start Game play: the Keeper art is
   large and square-cropped. Next for this lane.
+- Cause, measured (-VisualQADump on 1a4d33d8, DC route at x 7632): the lead's 18:20 revert of artscene's merge (45045010)
+  put back the old, bright backdrop pictures and removed T_WorldSolids_PH, while main kept this lane's dim fix
+  (dbbf529b: graded BackdropPanel/ScenePanel art is not dimmed). So the old cream art draws undimmed (ScenePanel
+  bg:clocks at Y -290, BackdropPanels -295/-300 in front of the land), and the floor/ledge Blocks draw art=0 umber cubes.
+  Both clear when artscene's study-graded merge comes back; its stated blocker (the dim fix) is on main now.
+- Decision for the lead: re-merge artscene now (my lean: it fixes both, no code change), or have this lane key the
+  no-dim rule on a list of graded texture names so un-graded art is dimmed again (code coupled to artscene's imports).
+  Not built either way; this lane did not change the dim rule.
 
 ## Gate command (for the lead)
 Gate step (in the gate worktree, merged tree built): `python3 tools/build/visual_qa.py run --gate --main-sha <main sha> --out Saved/VisualQA/gate-<sha>`
