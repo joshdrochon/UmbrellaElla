@@ -240,7 +240,7 @@ int32 UFrameCompositionSubsystem::ComposeMesh(UStaticMeshComponent* Mesh)
 	return Changed;
 }
 
-int32 UFrameCompositionSubsystem::ComposePass(bool bFull)
+int32 UFrameCompositionSubsystem::ComposePass(EFramePass Pass)
 {
 	UWorld* World = GetWorld();
 	if (!World)
@@ -260,7 +260,7 @@ int32 UFrameCompositionSubsystem::ComposePass(bool bFull)
 			Changed += ComposeMesh(Mesh);
 		}
 	};
-	if (bFull)
+	if (Pass == EFramePass::Full)
 	{
 		NewActors.Reset();
 		for (TActorIterator<AActor> It(World); It; ++It)
@@ -302,7 +302,7 @@ int32 UFrameCompositionSubsystem::ComposePass(bool bFull)
 
 int32 UFrameCompositionSubsystem::ComposeNow()
 {
-	return ComposePass(true);
+	return ComposePass(EFramePass::Full);
 }
 
 int32 UFrameCompositionSubsystem::RestoreAll()
@@ -369,7 +369,7 @@ float UFrameCompositionSubsystem::FrameTopZ(float CameraZ, float OrthoWidth, flo
 	return CameraZ + OrthoWidth / AspectRatio * 0.5f;
 }
 
-void UFrameCompositionSubsystem::ApplyCameraMargin(AUmbrellaArena* Arena, const ACharacter* Ella, bool bTitleBand)
+void UFrameCompositionSubsystem::ApplyCameraMargin(AUmbrellaArena* Arena, const ACharacter* Ella, EFrameTitleBand TitleBand)
 {
 	UCameraComponent* Camera = Arena ? Arena->GetPlayCamera() : nullptr;
 	const UCapsuleComponent* Capsule = Ella ? Ella->GetCapsuleComponent() : nullptr;
@@ -387,7 +387,7 @@ void UFrameCompositionSubsystem::ApplyCameraMargin(AUmbrellaArena* Arena, const 
 	}
 	const float Wanted = MarginOrthoWidth(T.ArenaHeight, T.CameraAspectRatio,
 		SpriteHalfHeight(static_cast<float>(Ella->GetActorScale3D().Z)), Capsule->GetScaledCapsuleHalfHeight(),
-		bTitleBand ? UmbrellaFrameConst::TitleBandShare : 0.0f);
+		TitleBand == EFrameTitleBand::Shown ? UmbrellaFrameConst::TitleBandShare : 0.0f);
 	LastMarginOrthoWidth = Wanted;
 	if (FMath::IsNearlyEqual(Current, Wanted, UmbrellaFrameConst::OrthoMatchTolerance))
 	{
@@ -422,13 +422,13 @@ void UFrameCompositionSubsystem::Tick(float DeltaTime)
 			SinceFullPass = 0.0f;
 		}
 		bPassedOnce = true;
-		ComposePass(bFull);
+		ComposePass(bFull ? EFramePass::Full : EFramePass::Quick);
 		const APlayerController* PC = GetWorld() ? GetWorld()->GetFirstPlayerController() : nullptr;
 		if (const ACharacter* Ella = PC ? Cast<ACharacter>(PC->GetPawn()) : nullptr)
 		{
 			// Director's Cut shows its title at the top of the play screen (B11): keep Ella below that band.
 			const AUmbrellaPlayerController* Flow = Cast<AUmbrellaPlayerController>(PC);
-			ApplyCameraMargin(PlayArena, Ella, Flow && Flow->GetPlayMode() == EUmbrellaPlayMode::DirectorsCut);
+			ApplyCameraMargin(PlayArena, Ella, Flow && Flow->GetPlayMode() == EUmbrellaPlayMode::DirectorsCut ? EFrameTitleBand::Shown : EFrameTitleBand::None);
 		}
 	}
 }

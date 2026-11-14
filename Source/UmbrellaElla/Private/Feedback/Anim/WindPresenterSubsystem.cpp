@@ -75,7 +75,7 @@ TArray<UStaticMeshComponent*> UWindPresenterSubsystem::RibbonsOf(const AWindCurr
 	return Out;
 }
 
-UStaticMesh* UWindPresenterSubsystem::GetPlane()
+UStaticMesh* UWindPresenterSubsystem::LoadPlane()
 {
 	if (!Plane)
 	{
@@ -181,7 +181,7 @@ void UWindPresenterSubsystem::DrawRibbons(AWindCurrent* Wind, float Seconds)
 
 	if (Ribbons.Num() != Strands * Segments)
 	{
-		UStaticMesh* PlaneMesh = GetPlane();
+		UStaticMesh* PlaneMesh = LoadPlane();
 		for (UStaticMeshComponent* Old : Ribbons)
 		{
 			Old->DestroyComponent();

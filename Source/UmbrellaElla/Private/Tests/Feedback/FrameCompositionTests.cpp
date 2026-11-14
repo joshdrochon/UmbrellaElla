@@ -246,12 +246,12 @@ bool FFrameCompositionCameraMargin::RunTest(const FString& Parameters)
 		Ella->SetActorScale3D(StartScale * Case.ScaleMul);
 		Ella->GetCapsuleComponent()->SetCapsuleHalfHeight(CapsuleBase * Case.CapsuleMul);
 		Arena->MovePlayArea(LevelPlan::KeeperArenaOrigin());
-		Frame->ApplyCameraMargin(Arena, Ella, true);
+		Frame->ApplyCameraMargin(Arena, Ella, EFrameTitleBand::Shown);
 		const float Band = UmbrellaFrameConst::TitleBandShare * Camera->OrthoWidth / Aspect;
 		TestTrue(FString::Printf(TEXT("Director's Cut title, %s: picture top %.1f below the title band %.1f"), Case.Name, SpriteTopAtCeiling(), FrameTop() - Band),
 			SpriteTopAtCeiling() <= FrameTop() - Band + KINDA_SMALL_NUMBER);
 		// Break check: the plain margin leaves the picture top inside the title band.
-		Frame->ApplyCameraMargin(Arena, Ella, false);
+		Frame->ApplyCameraMargin(Arena, Ella, EFrameTitleBand::None);
 		TestTrue(FString::Printf(TEXT("without the band, %s: the title covers the picture (break check)"), Case.Name),
 			SpriteTopAtCeiling() > FrameTop() - UmbrellaFrameConst::TitleBandShare * Camera->OrthoWidth / Aspect);
 	}
@@ -303,7 +303,7 @@ bool FFrameCompositionKeeperBackdrop::RunTest(const FString& Parameters)
 	Ella->SetActorScale3D(Ella->GetActorScale3D() * 1.3f);
 	Ella->GetCapsuleComponent()->SetCapsuleHalfHeight(Ella->GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight() * 0.75f);
 	Arena->MovePlayArea(LevelPlan::KeeperArenaOrigin());
-	Frame->ApplyCameraMargin(Arena, Ella, true);   // Director's Cut: the title band widens the view most
+	Frame->ApplyCameraMargin(Arena, Ella, EFrameTitleBand::Shown);   // Director's Cut: the title band widens the view most
 	const FVector View = Camera->GetComponentLocation();
 	const float HalfViewW = Camera->OrthoWidth * 0.5f;
 	const float HalfViewH = Camera->OrthoWidth / T.CameraAspectRatio * 0.5f;
@@ -465,14 +465,14 @@ bool FFrameCompositionKeeperAlwaysSeen::RunTest(const FString& Parameters)
 		}
 	}
 	// Quick passes look only at new actors (16:28 review: no scan of every actor every 0.2 s).
-	Frame->ComposePass(false);
+	Frame->ComposePass(EFramePass::Quick);
 	TestEqual(TEXT("a quick pass with no new actor looks at none"), Frame->LastPassActorCount(), 0);
 	World->SpawnActor<AActor>();
-	Frame->ComposePass(false);
+	Frame->ComposePass(EFramePass::Quick);
 	TestEqual(TEXT("a quick pass looks at the new actor"), Frame->LastPassActorCount(), 1);
 	// The Keeper leaves (Director's Cut route before the fight): the arena square stays hidden, never a grey box.
 	Keeper->Destroy();
-	Frame->ComposePass(false);
+	Frame->ComposePass(EFramePass::Quick);
 	TestTrue(TEXT("with no Keeper actor the arena square stays hidden"), Square->bHiddenInGame);
 	Frame->RestoreAll();
 	TestTrue(TEXT("restore gives the enemy stand-in its own size"), EnemyBox->GetRelativeScale3D().Equals(EnemyOwnScale, 0.001));

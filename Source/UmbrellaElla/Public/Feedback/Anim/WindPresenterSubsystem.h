@@ -97,7 +97,8 @@ public:
 
 private:
 	void HandleActorSpawned(AActor* Actor);
-	UStaticMesh* GetPlane();
+	/** The engine plane, loaded on first use (counts PlaneLoads). */
+	UStaticMesh* LoadPlane();
 	/** The current's ribbons, from the cache; searched on the current's components only when the cache is stale. */
 	TArray<UStaticMeshComponent*> CachedRibbons(AWindCurrent* Wind);
 

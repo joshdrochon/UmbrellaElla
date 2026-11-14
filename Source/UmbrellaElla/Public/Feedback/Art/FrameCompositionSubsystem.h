@@ -6,6 +6,20 @@
 
 class UStaticMeshComponent;
 
+/** Which actors a frame pass looks at: new ones only, or every actor. */
+enum class EFramePass : uint8
+{
+	Quick,
+	Full
+};
+
+/** Whether the Director's Cut title band sits at the top of the view (B11). */
+enum class EFrameTitleBand : uint8
+{
+	None,
+	Shown
+};
+
 namespace UmbrellaFrameConst
 {
 	/**
@@ -150,8 +164,8 @@ public:
 	/** How many actors the last pass looked at (a full pass looks at all; a quick pass at new ones only). */
 	int32 LastPassActorCount() const { return LastActorCount; }
 
-	/** One frame pass: new actors and changed meshes, or every actor when bFull. Returns how many meshes changed. */
-	int32 ComposePass(bool bFull);
+	/** One frame pass: new actors and changed meshes, or every actor for EFramePass::Full. Returns how many meshes changed. */
+	int32 ComposePass(EFramePass Pass);
 
 	/** Log every rendered mesh: owner, component, world box, art or stand-in tint (finds the boxes on a capture). */
 	int32 DumpVisibleMeshes() const;
@@ -172,7 +186,7 @@ public:
 	 * Widen the arena camera so Ella's whole picture stays in frame at the play ceiling, in Start Game and Director's
 	 * Cut. Leaves a camera another system zoomed (VFX demo capture) alone.
 	 */
-	void ApplyCameraMargin(AUmbrellaArena* Arena, const ACharacter* Ella, bool bTitleBand = false);
+	void ApplyCameraMargin(AUmbrellaArena* Arena, const ACharacter* Ella, EFrameTitleBand TitleBand = EFrameTitleBand::None);
 
 protected:
 	virtual bool DoesSupportWorldType(const EWorldType::Type WorldType) const override;
