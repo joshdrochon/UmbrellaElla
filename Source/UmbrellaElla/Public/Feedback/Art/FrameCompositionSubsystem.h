@@ -30,7 +30,19 @@ namespace UmbrellaFrameConst
 	static constexpr float DumpInterval = 5.0f;
 	/** Seconds between passes over the world's meshes. */
 	static constexpr float PassInterval = 0.2f;
+	/**
+	 * Camera margin (coordinator 16:20): world units shown above the top of Ella's picture cell when she is at the play
+	 * ceiling (arena top minus capsule half-height, z 1036 at HeroSize 1). The ceiling itself is unchanged.
+	 */
+	static constexpr float CeilingSpritePad = 8.0f;
+	/** Side of the engine cube/plane the art boxes scale (ArtSlot), world units. */
+	static constexpr float UnitBoxSize = 100.0f;
+	/** An orthographic width within this of the expected one counts as unchanged (another system's zoom is left alone). */
+	static constexpr float OrthoMatchTolerance = 0.5f;
 }
+
+class ACharacter;
+class AUmbrellaArena;
 
 /** What the frame pass does to one mesh. */
 enum class EFrameTreatment : uint8
@@ -66,7 +78,23 @@ public:
 	/** Log every rendered mesh: owner, component, world box, art or stand-in tint (finds the boxes on a capture). */
 	int32 DumpVisibleMeshes() const;
 
+	/** Half-height of Ella's drawn picture cell for an actor scale (UmbrellaPresenterConst::ArtCellHeight). Pure. */
+	static float SpriteHalfHeight(float ActorScaleZ);
+
+	/** Orthographic width that keeps the arena's full height plus Overhang above and below on screen. Pure. */
+	static float MarginOrthoWidth(float ArenaHeight, float AspectRatio, float SpriteHalf, float CapsuleHalf);
+
+	/** World Z of the top edge of an orthographic view. Pure. */
+	static float FrameTopZ(float CameraZ, float OrthoWidth, float AspectRatio);
+
+	/**
+	 * Widen the arena camera so Ella's whole picture stays in frame at the play ceiling, in Start Game and Director's
+	 * Cut. Leaves a camera another system zoomed (VFX demo capture) alone.
+	 */
+	void ApplyCameraMargin(AUmbrellaArena* Arena, const ACharacter* Ella);
+
 private:
+	float LastMarginOrthoWidth = 0.0f;
 	float SinceLastPass = 0.0f;
 	float SinceLastDump = 0.0f;
 };

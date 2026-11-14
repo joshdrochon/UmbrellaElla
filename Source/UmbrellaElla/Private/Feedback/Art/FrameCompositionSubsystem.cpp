@@ -3,7 +3,14 @@
 #include "EngineUtils.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/World.h"
+#include "Arena/UmbrellaArena.h"
+#include "Camera/CameraComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "Core/UmbrellaTuning.h"
+#include "Feedback/Anim/EllaAnimPresenterComponent.h"
 #include "Feedback/Art/ArtSlot.h"
+#include "GameFramework/Character.h"
+#include "GameFramework/PlayerController.h"
 #include "GameFramework/Actor.h"
 #include "Misc/CommandLine.h"
 #include "Misc/Parse.h"
@@ -111,6 +118,48 @@ int32 UFrameCompositionSubsystem::DumpVisibleMeshes() const
 	return Count;
 }
 
+float UFrameCompositionSubsystem::SpriteHalfHeight(float ActorScaleZ)
+{
+	return static_cast<float>(UmbrellaPresenterConst::ArtCellHeight) * UmbrellaFrameConst::UnitBoxSize * 0.5f * ActorScaleZ;
+}
+
+float UFrameCompositionSubsystem::MarginOrthoWidth(float ArenaHeight, float AspectRatio, float SpriteHalf, float CapsuleHalf)
+{
+	const float Overhang = FMath::Max(0.0f, SpriteHalf - CapsuleHalf) + UmbrellaFrameConst::CeilingSpritePad;
+	return (ArenaHeight + 2.0f * Overhang) * AspectRatio;
+}
+
+float UFrameCompositionSubsystem::FrameTopZ(float CameraZ, float OrthoWidth, float AspectRatio)
+{
+	return CameraZ + OrthoWidth / AspectRatio * 0.5f;
+}
+
+void UFrameCompositionSubsystem::ApplyCameraMargin(AUmbrellaArena* Arena, const ACharacter* Ella)
+{
+	UCameraComponent* Camera = Arena ? Arena->GetPlayCamera() : nullptr;
+	const UCapsuleComponent* Capsule = Ella ? Ella->GetCapsuleComponent() : nullptr;
+	if (!Camera || !Capsule)
+	{
+		return;
+	}
+	const FArenaCameraTuning& T = GetDefault<UUmbrellaTuning>()->ArenaCamera;
+	const float Current = Camera->OrthoWidth;
+	const bool bOurs = FMath::IsNearlyEqual(Current, T.ArenaWidth, UmbrellaFrameConst::OrthoMatchTolerance)
+		|| (LastMarginOrthoWidth > 0.0f && FMath::IsNearlyEqual(Current, LastMarginOrthoWidth, UmbrellaFrameConst::OrthoMatchTolerance));
+	if (!bOurs)
+	{
+		return;
+	}
+	const float Wanted = MarginOrthoWidth(T.ArenaHeight, T.CameraAspectRatio,
+		SpriteHalfHeight(static_cast<float>(Ella->GetActorScale3D().Z)), Capsule->GetScaledCapsuleHalfHeight());
+	LastMarginOrthoWidth = Wanted;
+	if (FMath::IsNearlyEqual(Current, Wanted, UmbrellaFrameConst::OrthoMatchTolerance))
+	{
+		return;
+	}
+	Camera->SetOrthoWidth(Wanted);
+}
+
 void UFrameCompositionSubsystem::Tick(float DeltaTime)
 {
 	static const bool bDump = FParse::Param(FCommandLine::Get(), TEXT("VisualQADump"));
@@ -125,6 +174,15 @@ void UFrameCompositionSubsystem::Tick(float DeltaTime)
 	{
 		SinceLastPass = 0.0f;
 		ComposeNow();
+		const APlayerController* PC = GetWorld() ? GetWorld()->GetFirstPlayerController() : nullptr;
+		const ACharacter* Ella = PC ? Cast<ACharacter>(PC->GetPawn()) : nullptr;
+		if (Ella)
+		{
+			for (TActorIterator<AUmbrellaArena> It(GetWorld()); It; ++It)
+			{
+				ApplyCameraMargin(*It, Ella);
+			}
+		}
 	}
 }
 

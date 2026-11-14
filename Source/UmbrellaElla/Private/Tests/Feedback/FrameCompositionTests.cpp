@@ -1,4 +1,8 @@
+#include "Arena/UmbrellaArena.h"
+#include "Camera/CameraComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Core/UmbrellaTuning.h"
 #include "Engine/Engine.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/Texture2D.h"
@@ -8,7 +12,10 @@
 #include "Feedback/Vfx/VfxCatalog.h"
 #include "Feedback/Vfx/VfxSheetVisual.h"
 #include "GameFramework/Actor.h"
+#include "Core/EllaCharacter.h"
+#include "Level/LevelPlan.h"
 #include "Misc/AutomationTest.h"
+#include "Tests/Shared/UmbrellaTestWorld.h"
 
 #if WITH_AUTOMATION_TESTS
 
@@ -139,6 +146,63 @@ bool FFrameCompositionRefusedVfx::RunTest(const FString& Parameters)
 	}
 	GEngine->DestroyWorldContext(World);
 	World->DestroyWorld(false);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFrameCompositionCameraMargin, "UmbrellaElla.Feedback.FrameComposition.CameraMargin",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+
+bool FFrameCompositionCameraMargin::RunTest(const FString& Parameters)
+{
+	// move's B7 captures: Ella at the ceiling (z 1036) had the top of her picture cut off by the frame edge (z 1080).
+	FUmbrellaTestWorld Test;
+	UFrameCompositionSubsystem* Frame = Test.GetWorld()->GetSubsystem<UFrameCompositionSubsystem>();
+	AUmbrellaArena* Arena = Test.GetWorld()->SpawnActor<AUmbrellaArena>(FVector::ZeroVector, FRotator::ZeroRotator);
+	AEllaCharacter* Ella = Arena ? Test.SpawnElla(Arena->GetPlayerStartLocation()) : nullptr;
+	if (!TestNotNull(TEXT("frame"), Frame) || !TestNotNull(TEXT("arena"), Arena) || !TestNotNull(TEXT("ella"), Ella) || !Arena->GetPlayCamera())
+	{
+		return false;
+	}
+	UCameraComponent* Camera = Arena->GetPlayCamera();
+	const float Aspect = Camera->AspectRatio;
+	const FVector StartScale = Ella->GetActorScale3D();
+	const float CapsuleBase = Ella->GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight();
+	auto SpriteTopAtCeiling = [&]()
+	{
+		const float Ceiling = static_cast<float>(Arena->LocalPoint(0.0f, 1.0f).Z) - Ella->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+		return Ceiling + UFrameCompositionSubsystem::SpriteHalfHeight(static_cast<float>(Ella->GetActorScale3D().Z));
+	};
+	auto FrameTop = [&]()
+	{
+		return UFrameCompositionSubsystem::FrameTopZ(static_cast<float>(Camera->GetComponentLocation().Z), Camera->OrthoWidth, Aspect);
+	};
+	// The spawned hero size, then the largest hero with the smallest hitbox (HeroSize 1.3, hitbox 0.75).
+	struct FMarginCase { const TCHAR* Name; float ScaleMul; float CapsuleMul; };
+	const FMarginCase Cases[] = { { TEXT("spawned hero size"), 1.0f, 1.0f }, { TEXT("hero size 1.3, hitbox 0.75"), 1.3f, 0.75f } };
+	for (const FMarginCase& Case : Cases)
+	{
+		Ella->SetActorScale3D(StartScale * Case.ScaleMul);
+		Ella->GetCapsuleComponent()->SetCapsuleHalfHeight(CapsuleBase * Case.CapsuleMul);
+		Arena->MovePlayArea(FVector::ZeroVector);
+		Frame->ApplyCameraMargin(Arena, Ella);
+		TestTrue(FString::Printf(TEXT("Start Game, %s: picture top %.1f inside frame top %.1f"), Case.Name, SpriteTopAtCeiling(), FrameTop()), SpriteTopAtCeiling() <= FrameTop());
+		// Director's Cut: the arena moves to the route end for the Keeper fight (B5).
+		Arena->MovePlayArea(LevelPlan::KeeperArenaOrigin());
+		Frame->ApplyCameraMargin(Arena, Ella);
+		TestTrue(FString::Printf(TEXT("Director's Cut, %s: picture top %.1f inside frame top %.1f"), Case.Name, SpriteTopAtCeiling(), FrameTop()), SpriteTopAtCeiling() <= FrameTop());
+	}
+	// Break check: the arena's own camera (ortho width = arena width) cuts the picture off; the margin is what fixes it.
+	Ella->SetActorScale3D(StartScale);
+	Ella->GetCapsuleComponent()->SetCapsuleHalfHeight(CapsuleBase);
+	Camera->SetOrthoWidth(GetDefault<UUmbrellaTuning>()->ArenaCamera.ArenaWidth);
+	TestTrue(TEXT("without the margin the picture is cut (break check)"), SpriteTopAtCeiling() > FrameTop());
+	Frame->ApplyCameraMargin(Arena, Ella);
+	TestTrue(TEXT("the margin widens the arena camera"), Camera->OrthoWidth > GetDefault<UUmbrellaTuning>()->ArenaCamera.ArenaWidth);
+	// Another system's zoom (VFX demo capture) is left alone.
+	const float FrameTestForeignZoom = 600.0f;
+	Camera->SetOrthoWidth(FrameTestForeignZoom);
+	Frame->ApplyCameraMargin(Arena, Ella);
+	TestEqual(TEXT("foreign zoom kept"), Camera->OrthoWidth, FrameTestForeignZoom);
 	return true;
 }
 
