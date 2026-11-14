@@ -22,11 +22,12 @@ namespace UmbrellaPresenterConst
 	static const FVector AbsorbMul(1.8, 1.0, 0.8);
 	static const FVector HurtMul(1.0, 1.0, 0.8);
 	/**
-	 * Box height (relative units) of one Ella picture cell (screenfix B2): 2.28 x 100 x actor scale 0.5 = 114 world
-	 * units, so the idle figure (79% of its 481x654 cell) stands about 90 px at 1080p, inside the art bible Asset spec
-	 * "Ella + open umbrella 80-100 px", and near her 88-unit capsule. The stand-in box (StandInScale) drew it at 40 px.
+	 * Box height (relative units) of one Ella picture cell: 2.7 x 100 x actor scale 0.5 = 135 world units, so the idle
+	 * figure (79% of its 481x654 cell) stands about 100 px at 1080p in Start Game (about 91 px in Director's Cut, whose
+	 * camera margin is wider): the top of the art bible Asset spec "Ella + open umbrella 80-100 px" and about 0.93x the
+	 * Other Realm study's figure (10% of the frame height). At 2.28 she read at about 0.6x the study (artella #5).
 	 */
-	static constexpr double ArtCellHeight = 2.28;
+	static constexpr double ArtCellHeight = 2.7;
 }
 
 namespace UmbrellaEllaOverlayConst

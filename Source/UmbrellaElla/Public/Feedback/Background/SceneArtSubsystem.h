@@ -97,6 +97,8 @@ private:
 	{
 		FSceneArtSpec Spec;
 		TWeakObjectPtr<AActor> Actor;
+		/** View scale the panel was last sized for (1 = built size). */
+		float Scale = 1.0f;
 	};
 	TArray<FPanel> Panels;
 };

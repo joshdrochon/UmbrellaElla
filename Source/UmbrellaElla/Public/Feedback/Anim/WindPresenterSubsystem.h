@@ -5,6 +5,7 @@
 #include "WindPresenterSubsystem.generated.h"
 
 class AWindCurrent;
+class UStaticMesh;
 class UStaticMeshComponent;
 
 namespace UmbrellaWindPresenterConst
@@ -90,9 +91,22 @@ public:
 	/** Build or move the ribbons of one current to game time Seconds (tests call it directly). */
 	void DrawRibbons(AWindCurrent* Wind, float Seconds);
 
+	/** How often the presenter loaded the plane mesh or searched a current's components (cached after the first). */
+	int32 PlaneLoadCount() const { return PlaneLoads; }
+	int32 RibbonSearchCount() const { return RibbonSearches; }
+
 private:
 	void HandleActorSpawned(AActor* Actor);
+	/** The engine plane, loaded on first use (counts PlaneLoads). */
+	UStaticMesh* LoadPlane();
+	/** The current's ribbons, from the cache; searched on the current's components only when the cache is stale. */
+	TArray<UStaticMeshComponent*> CachedRibbons(AWindCurrent* Wind);
 
+	UPROPERTY(Transient)
+	TObjectPtr<UStaticMesh> Plane;
+	TMap<TWeakObjectPtr<AWindCurrent>, TArray<TWeakObjectPtr<UStaticMeshComponent>>> RibbonCache;
+	int32 PlaneLoads = 0;
+	int32 RibbonSearches = 0;
 	FDelegateHandle SpawnHandle;
 	TArray<TWeakObjectPtr<AWindCurrent>> Winds;
 };

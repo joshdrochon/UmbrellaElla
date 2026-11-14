@@ -1,0 +1,23 @@
+# visualqa r04 (Director's Cut part): route at the ceiling (title band), Keeper handoff.
+firstrun
+wait Title 60
+idle 1
+click Director's Cut
+skipunless Purchase 3
+key Escape
+wait Title 5
+click Director's Cut
+trywait Tutorial 5
+keyuntil Playing Enter 0.8 30
+idle 2
+hold W 5.0
+shot vq_r04_01_route_ceiling
+routeassist 1
+idle 1
+skipunless Purchase 2
+key Escape
+idle 1
+routeassist 4
+idle 3
+shot vq_r04_02_keeper_handoff
+end
