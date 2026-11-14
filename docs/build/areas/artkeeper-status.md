@@ -225,3 +225,17 @@ NEEDS HUMAN: lead: apply request 3; then artkeeper re-captures and runs the owl 
 - (3) The shipped Keeper idle is a 6-frame ping-pong of row 0 of the 6x4 grid (M_ArtSlot samples only the top row) until docs/build/requests/artkeeper.md Update 5 lands (lead assigns it); then UmbrellaKeeperPresenterConst::IdlePlayback flips to AllCells.
 - (4) KeeperPresenterSubsystem.cpp: comment cites UE 5.8.4 Engine/Classes/Engine/Texture.h for UTexture::Source, FTextureSource::IsValid and GetSizeX/GetSizeY (comment only, no code change).
 - Not swapped: pink-rim sheet 5f61cf17 (needs Josh's approval). approvals.json untouched.
+
+## Nov 13 session 21 (Opus, lead order ~20:30: owl sharper in the raw video than in the grid and in game)
+- Merged origin/main (ebda6e47). Approved grid 8bb4d531 and approvals.json untouched; T_Keeper_Owl_PH left as it was (mip tests reverted with git checkout).
+- Tool: `tools/build/assets/art_keeper_sharpness.py` (ffmpeg + numpy; run with Blender's python -I). Sharpness = mean luma gradient on the inner figure. `art_keeper_texdump.py` prints the texture and render settings (read-only commandlet).
+- (a) key: 0 partial-alpha px on 6683 edge px (hard cut, no feather); the cut eats 2 px (chroma_key grow=2: the cream outline); edge band 0.98 of raw.
+- (b) grade: 3.9 % of solid px changed, mean 0.19/255; inner sharpness cell/raw 0.9997.
+- (c) resample: 1.000 source px per cell px (registration RMS 0.15 at 944 px vs 39-40 at +-12 px); ffmpeg lanczos at 720 vs plain decode: max diff 0. Note: the sidecar crop [50,18] is relative to video_to_strip's own --crop; the cell sits at (230,28) in the frame.
+- (d) in-game texture: BGRA8 uncompressed (TC_EDITOR_ICON), sRGB, no mips, UI group (filter aniso, MaxLODSize 16384), never stream, LOD bias 0, 5664x2488 full size. Render: TSR (r.AntiAliasingMethod 4), screen percentage auto.
+  Screen scale: owl cell drawn 378-384 px wide at 1280x720 (SMOKE_DRAW px=753..1131) = 2.48 texels per screen px; 568 px at 1920x1080 = 1.66. The raw video shows the same cell at 944 px.
+  In-game sharpness vs ideal lanczos at the same size (1280x720): base 0.73 / 0.76 / 0.75 (3 runs); AA off 1.09 (blur 1.005, aliased); FXAA 0.84; TAA 0.65; tone mapper off 0.67; r.Tonemapper.Sharpen 0.5 / 1 / 2: 0.92 / 0.97 / 1.11. 1920x1080: base 0.57, r.ScreenPercentage 100 0.66, + Sharpen 1 0.79.
+  Mips (in my lane): simple average 0.68, sharpen5 0.74, sharpen10 0.77 / 0.83 / 0.77: no gain past run-to-run noise, +33 % memory. Not shipped.
+- Verdict: the art pipeline costs nothing; the softness is the screen size (2.48x smaller than the video) and TSR (0.75). No fix in this lane; options for the TD/lead in docs/build/requests/artkeeper.md Update 6. No grid change needed, so no new grid prepared.
+- Side-by-side: pipeline/qa/visual/owl-sharpness/owl-sharpness-side-by-side.png (raw | keyed | in-game before | in-game after PREVIEW with r.Tonemapper.Sharpen 1, runtime only) + README + json.
+- No test added: no code fix shipped; the tool needs numpy, which the repo's python lacks.
