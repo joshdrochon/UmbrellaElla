@@ -5,7 +5,8 @@
 # Every run keeps its own game log: Saved/Logs/runs/run-<UTC stamp>-<pid>.log (printed as `run_game: log=`), because
 # the Mac editor's default log is one shared, rotating file for every worktree. With -SmokeShot=<png> the run ends
 # with `run_game: frame_check ...` on that shot, so a black or flat capture is caught where it is made.
-# Editor runs refuse a stale module (any Source file newer than the editor dylib): the game would run old code
+# Editor runs refuse a stale module (any Source file newer than the editor dylib that UnrealEditor.modules names, else
+# the base dylib): the game would run old code
 # (screenfix, Nov 13: a merged checkout without a rebuild ran the old 5 s shot and captured a black frame).
 # RUN_STALE_OK=1 skips that check.
 set -u
@@ -27,12 +28,21 @@ if [ -n "$SHOT" ] && [ "${SHOT#/}" = "$SHOT" ]; then SHOT="$ROOT/$SHOT"; fi   # 
 if [ "${1:-}" = "--packaged" ]; then
   EXE="$2"; shift 2; CMD=("$EXE" "${SAFE[@]}" -abslog="$LOG" "$@")
 else
+  # The module the editor will load: Binaries/Mac/UnrealEditor.modules names it. A build that UBT ran in hot-reload mode
+  # (it does whenever any full editor of this engine is open, whatever its project: UBT HotReload.cs 5.8.4,
+  # ShouldDoHotReloadFromIDE) links libUnrealEditor-UmbrellaElla-NNNN.dylib, maps the .modules file to it and leaves
+  # the base dylib old; checking the base file then calls a fresh build stale (gate, Nov 13 23:03). No .modules entry:
+  # the base dylib.
   DYLIB="$ROOT/Binaries/Mac/libUnrealEditor-UmbrellaElla.dylib"
+  MODFILE="$(python3 -c 'import json,sys
+try: print(json.load(open(sys.argv[1]))["Modules"]["UmbrellaElla"])
+except Exception: pass' "$ROOT/Binaries/Mac/UnrealEditor.modules" 2>/dev/null)"
+  case "$MODFILE" in ""|*/*) ;; *) DYLIB="$ROOT/Binaries/Mac/$MODFILE";; esac
   if [ -z "${RUN_STALE_OK:-}" ]; then
-    if [ ! -f "$DYLIB" ]; then echo "run_game: STALE no module at Binaries/Mac; run tools/build/ue_slot.sh tools/ue/build.sh first"; exit 3; fi
+    if [ ! -f "$DYLIB" ]; then echo "run_game: STALE no module ${DYLIB##*/} at Binaries/Mac; run tools/build/ue_slot.sh tools/ue/build.sh first"; exit 3; fi
     NEWER="$(find "$ROOT/Source" -type f \( -name '*.cpp' -o -name '*.h' -o -name '*.cs' \) -newer "$DYLIB" 2>/dev/null | head -1)"
     if [ -n "$NEWER" ]; then
-      echo "run_game: STALE ${NEWER#$ROOT/} is newer than the editor module; run tools/build/ue_slot.sh tools/ue/build.sh first (RUN_STALE_OK=1 skips)"
+      echo "run_game: STALE ${NEWER#$ROOT/} is newer than the editor module ${DYLIB##*/}; run tools/build/ue_slot.sh tools/ue/build.sh first (RUN_STALE_OK=1 skips)"
       exit 3
     fi
   fi

@@ -232,3 +232,84 @@ IDENTIFIED C: the Keeper gust's gameplay cue cube `AKeeperOfTime::GustVisual` (S
   mid-frame and 'Preparing Textures'; the gate's two-capture rule passes the capped pair against the uncapped run, and
   every recapture total is within the measured judge noise (4). Tests: tests/test_capture_fps.py (6; stub editor prints
   run_game's args; the old run_game.sh fails 2).
+
+## Lead HOLD 22:10 (gate review on 3b954ea6, ../logs/review-visualqa.txt): fixes
+- (1) Devlog: dated line under '## Frames toward the Other Realm study' for the gust-facing + figure-scale round, citing
+  gust-facing-before-after.png and scale-{play,keeper}-before-after.png.
+- (2) Ceiling in frame (B7/B11): `UEllaAnimPresenterComponent::KeepFigureInFrame` (Tick) lowers Ella's drawn pictures
+  (body + overlays; never the capsule, hurtbox or camera) just enough that the drawn cell stays under the frame's clear
+  top, set by `UFrameCompositionSubsystem::ApplyCameraMargin` via `ClearTopZ` (frame top less the Director's Cut title
+  band). Measured (World.FigureScaleOnScreen): lowered 26 units at the ceiling in Start Game and Director's Cut (figure top
+  1108 under clear top 1112; before 1134), 0 at the floor; hurtbox still inside the figure (0.55). The warning is now a
+  failing check (fully in frame and under the clear top, both modes, ceiling and floor); without the drop it FAILs (first
+  run: 'figure top 1134, clear top 1112' in both modes). Pure checks for FigureDrop and ClearTopZ in FigureScale.VisualOnly.
+  D-new-character-scale row updated. Build exit 0; UmbrellaElla.Feedback+UmbrellaElla.Art 60/60 PASS.
+- (3) Stand-in fallback size: kept at the old size on purpose, documented on `StandInScaleFor`: the plain box shows only
+  when no picture loads and stands for her hurtbox size; drawn pictures (ArtBoxScaleFor, overlays) carry the 1.5x.
+- (4) FOR THE ART LANE: the Keeper mechanism pictures (front, middle, rear) now sit 55-70 units off their 36-unit hitboxes
+  (the 1.5x picture grows about the body centre: front (-65,-55), middle (-5,-70), rear (55,-55)); wings, clock and eye stay
+  over theirs. Hitboxes unchanged. Paint/place the mechanism parts over the hitbox offsets (KeeperTuning) or report.
+- (5) Gust turn per sheet: `VfxSheetVisual::DrawnTravelX(sheet)` (+1 for VFX_Gust/VFX_GustPuff, 0 = no drawn direction)
+  and `FacingCameraForDrawn(drawn, travel)`: PlayAnchored turns a GustFront effect 180 only when its sheet's drawn
+  direction opposes the travel. VfxGustFacesTravel checks every GustFront key's sheet, a -X-drawn and an undirected sheet
+  (not turned); World.VfxGustFacesTravel still PASSes.
+- Next: resume the lead order at item 4 (thin vertical line), then 5 (flat box; the flat-box detector + calibration
+  PNGs are uncommitted work in progress from the last session), then 6.
+
+## Item 4: thin vertical line from the top edge down to Ella
+- Identified: the NAR-05 light shaft (`UUmbrellaVfxDirectorSubsystem::StepShaft`, vfx-sheet VFX_LightShaft, a 6-unit
+  hairline 2400 long above Ella; LightShaftRules.h). Not debug: NAR-05 is APPROVED_P0, but it is Director's Cut story
+  delivery and the story already says when light falls (`FStoryModel::IsLightShaftOn`: DC run and ending hold). The
+  director never asked, so the line drew in every mode, Start Game play and its Keeper fight included.
+- Fix: StepShaft draws the shaft and umbra only while `UStorySubsystem::IsLightShaftOn()`. Start Game: no line.
+  World.VfxLightShaftAndUmbra now checks none before a run and in Start Game, then all its old checks in DC.
+  Break-check: gate removed -> that test FAILs; restored -> build exit 0, Feedback+Story+ScreenFix 78/78 PASS.
+- Left for the art lane: in Director's Cut the shaft is still the straight hairline (the sheet material ignores Opacity
+  and Tint, so a softer study-style light needs VFX_LightShaft art, not code). Not restyled here.
+
+## Item 5: the judge missed the flat salmon box and the grey block
+- Why: (a) the gate judges ONE Keeper shot, taken between attacks, so the wing-gust warning band (salmon) and the gust
+  cube (grey, C) were seldom in it; (b) when they were, the judge read a small flat block as a cloud or a card.
+- Fix: `tools/build/flat_box.py` (stdlib, no judge, no spend): a box = one flat colour that fills its rectangle, hard
+  edges against what is around it, big enough to see; painted art has grain and soft edges. visual_qa runs it on every
+  judged shot and on 8 detector-only Keeper shots (`vq_keeper_a1..a8`, 0.8 s apart, new in journeys/visual_qa.txt), one
+  item per distinct box, added to the screen's 'broken' list (kind `box`, tagged `[detector]`). Gate: a detector item
+  counts as new only against a main baseline that was itself run with the detector (key `detector`); an older baseline
+  never listed main's own boxes and would fail every lane on the band main already shows. The lane `run` fails on any.
+  The band and the cube are not edited here (artkeeper / art lane).
+- Real capture (958f56dd, this journey, 1280x720): judged vq_keeper 0 boxes (what the judge saw); vq_keeper_a1 salmon
+  band 595x68 #e78783; a2 and a4 grey cube 33x68 #cfd6dc; play, dc_route and the other Keeper shots 0.
+- Tests: tests/test_flat_box.py (15, real captures in pipeline/qa/visual/calibration/flatbox-*.png: band, cube, black
+  stand-in found; quiet Keeper, clean route, the study and known-good give none). Against the old visual_qa.py 5 of
+  them fail (blind judge -> keeper PASS, no detector items, detector shots unread). test_visual_qa's recapture test now
+  recaptures a clean real frame (known-bad has boxes, which the recheck now lists).
+
+## Item 6: gate recheck stalled at 'click Quit to Title' on Defeat
+- Cause: a flaky click, not a game bug. In every logged run (Saved/VisualQA/*/journey.log in the gate checkout) the
+  click took 28 times with `active=1` and failed the one time it was sent with `active=0` (gate-a1a5356e/recheck: the
+  game window was not the active app, Josh was using the machine); the click step then passed and 'wait Title' timed
+  out 60 s later.
+- Fix (journey hook, `UJourneyHookSubsystem` click step + `JourneyRules::ClickNext`): a click is done only when the
+  screen changed or its button went away. After 1 s with no effect the mouse click is sent again (3 mouse presses in all),
+  then keyboard focus on the button and Enter (Slate Accept; SButton::OnKeyDown 5.8.4), each logged as
+  JOURNEY_CLICK_RETRY; if that does nothing either the step fails at the click line.
+- Real run (lose.txt, this build): Start Game and Retry took on the first press (`presses=1`); Quit to Title was sent with
+  `active=0`, two more mouse clicks did nothing, Enter took (`presses=4`), 'wait Title' PASS after 0.1 s; JOURNEY_END
+  passed=31 failed=0. Test UmbrellaElla.Smoke.Journey.ClickRetriesUntilItTakes (break-check: "a sent click is done" -> FAIL); build exit 0; Smoke + shaft 19/19 PASS.
+- Lead order of Nov 13 21:49 items 0-6 done (4: 958f56dd, 5: b96990b4, 6: this commit). Stopped here as ordered.
+
+## Lead order Nov 13 23:06: gate builds link hot-reload names, run_game calls them stale
+- Cause (UE 5.8.4 source): a full editor (GIsEditor, not -game) touches `Engine/Intermediate/EditorRuns/<pid>`
+  (Developer/HotReload/Private/HotReload.cpp, CreateFileThatIndicatesEditorRunIfNeeded). UBT's
+  ShouldDoHotReloadFromIDE (Programs/UnrealBuildTool/System/HotReload.cs) matches that pid's executable path to the
+  engine's UnrealEditor only; the project is never compared. So one editor open on any checkout of this engine puts
+  every worktree's build in hot-reload mode: `-NNNN.dylib`, .modules mapped to it, base dylib left old. Gate state at
+  23:05: HotReloadState.json NextSuffix 7, suffixes 0001/0003/0004/0006; .modules -> -0004. EditorRuns was empty at
+  23:08 (no process touched).
+- Fix 1: run_game.sh checks the dylib that `Binaries/Mac/UnrealEditor.modules` names (fallback: base dylib). On the
+  gate checkout now: resolves -0004, nothing newer; the old base check reports UmbrellaCueData.h.
+- Fix 2: tools/ue/build.sh passes `-NoHotReload` (TargetDescriptor.cs: HotReloadMode.Disabled; Disabled also deletes the
+  old suffixed files in HotReloadState.json). `UE_HOT_RELOAD=1` keeps UBT's default. Real build here: UBT line ends
+  `-WaitMutex -NoHotReload`, build exit 0, .modules maps base names. Not reproduced with an editor open (would need
+  launching one; not done).
+- Tests: tests/test_run_game.py 9 OK; against the old run_game.sh/build.sh 4 fail (suffixed layout STALE, missing -NoHotReload).

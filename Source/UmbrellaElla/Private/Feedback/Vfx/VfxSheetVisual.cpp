@@ -68,6 +68,17 @@ FRotator VfxSheetVisual::FacingCameraToward(float TravelX)
 	return FRotationMatrix::MakeFromXZ(Along, FVector::YAxisVector).Rotator();
 }
 
+float VfxSheetVisual::DrawnTravelX(const FString& Sheet)
+{
+	return (Sheet == TEXT("VFX_Gust") || Sheet == TEXT("VFX_GustPuff")) ? 1.0f : 0.0f;
+}
+
+FRotator VfxSheetVisual::FacingCameraForDrawn(float DrawnX, float TravelX)
+{
+	const bool bOpposed = DrawnX * TravelX < 0.0f;
+	return bOpposed ? FacingCameraToward(-1.0f) : FacingCamera();
+}
+
 UStaticMeshComponent* VfxSheetVisual::Build(AActor* Owner, const FVfxArtRow& Row, const FVector2D& Size)
 {
 	if (!IsValid(Owner))

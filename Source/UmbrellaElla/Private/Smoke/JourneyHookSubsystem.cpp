@@ -78,6 +78,23 @@ namespace JourneyRules
 	{
 		return !Wanted.TrimStartAndEnd().IsEmpty() && Shown.TrimStartAndEnd().Equals(Wanted.TrimStartAndEnd(), ESearchCase::IgnoreCase);
 	}
+
+	EJourneyClickNext ClickNext(bool bScreenChanged, bool bButtonShown, double SecondsSinceLastPress, int32 Clicks)
+	{
+		if (bScreenChanged || !bButtonShown)
+		{
+			return EJourneyClickNext::Done;
+		}
+		if (SecondsSinceLastPress < ClickSettleSeconds)
+		{
+			return EJourneyClickNext::Wait;
+		}
+		if (Clicks < ClickMouseTries)
+		{
+			return EJourneyClickNext::ClickAgain;
+		}
+		return Clicks == ClickMouseTries ? EJourneyClickNext::PressAccept : EJourneyClickNext::Fail;
+	}
 }
 
 #if UMBRELLAELLA_WORKBENCH
@@ -309,12 +326,53 @@ void UJourneyHookSubsystem::Tick(float DeltaTime)
 	}
 	else if (Step.Command == TEXT("click"))
 	{
-		FString Detail;
-		bool bOk = false;
-		ClickLabel(Step.Arg, Detail, bOk);
-		if (bOk || Elapsed >= JourneyClickWaitSeconds)
+		if (ClickPresses == 0)
 		{
-			FinishStep(bOk ? EJourneyResult::Pass : EJourneyResult::Fail, Detail);
+			FString Detail;
+			bool bOk = false;
+			const uint8 Before = CurrentScreen();
+			ClickLabel(Step.Arg, Detail, bOk);
+			if (bOk)
+			{
+				ClickPresses = 1;
+				LastClickPress = Now;
+				ClickFrom = Before;
+				ClickDetail = Detail;
+			}
+			else if (Elapsed >= JourneyClickWaitSeconds)
+			{
+				FinishStep(EJourneyResult::Fail, Detail);
+			}
+		}
+		else
+		{
+			const JourneyRules::EJourneyClickNext Next = JourneyRules::ClickNext(CurrentScreen() != ClickFrom, IsButtonShown(Step.Arg), Now - LastClickPress, ClickPresses);
+			if (Next == JourneyRules::EJourneyClickNext::Done)
+			{
+				FinishStep(EJourneyResult::Pass, ClickDetail + FString::Printf(TEXT(" presses=%d"), ClickPresses));
+			}
+			else if (Next == JourneyRules::EJourneyClickNext::ClickAgain || Next == JourneyRules::EJourneyClickNext::PressAccept)
+			{
+				const bool bMouse = Next == JourneyRules::EJourneyClickNext::ClickAgain;
+				FString Detail;
+				bool bOk = false;
+				if (bMouse)
+				{
+					ClickLabel(Step.Arg, Detail, bOk);
+				}
+				else
+				{
+					PressAcceptOn(Step.Arg, bOk);
+				}
+				++ClickPresses;
+				LastClickPress = Now;
+				Log(FString::Printf(TEXT("JOURNEY_CLICK_RETRY label=\"%s\" n=%d by=%s sent=%d still=%s %s"), *Step.Arg, ClickPresses, bMouse ? TEXT("mouse") : TEXT("enter"), bOk ? 1 : 0,
+					*JourneyRules::ScreenName(CurrentScreen()), *Detail));
+			}
+			else if (Next == JourneyRules::EJourneyClickNext::Fail)
+			{
+				FinishStep(EJourneyResult::Fail, FString::Printf(TEXT("clicked %d times (mouse, then Enter), still %s: %s"), ClickPresses, *JourneyRules::ScreenName(CurrentScreen()), *ClickDetail));
+			}
 		}
 	}
 	else if (Step.Command == TEXT("idle"))
@@ -526,6 +584,9 @@ void UJourneyHookSubsystem::StartStep()
 	StepFrames = 0;
 	LastAssist = 0.0;
 	AssistHits = 0;
+	ClickPresses = 0;
+	LastClickPress = 0.0;
+	ClickDetail.Reset();
 	const float N0 = Step.Numbers.IsValidIndex(0) ? Step.Numbers[0] : 0.0f;
 
 	if (Step.Command == TEXT("wait") || Step.Command == TEXT("trywait") || Step.Command == TEXT("hits"))
@@ -817,6 +878,29 @@ void UJourneyHookSubsystem::MakeOverlayClickThrough(const TSharedRef<SWidget>& R
 	{
 		MakeOverlayClickThrough(Children->GetChildAt(Index));
 	}
+}
+
+bool UJourneyHookSubsystem::IsButtonShown(const FString& Label) const
+{
+	TSharedPtr<SWindow> Window = GEngine && GEngine->GameViewport ? GEngine->GameViewport->GetWindow() : nullptr;
+	return Window.IsValid() && FindButtonWithLabel(Window.ToSharedRef(), Label).IsValid();
+}
+
+void UJourneyHookSubsystem::PressAcceptOn(const FString& Label, bool& bOutSent)
+{
+	bOutSent = false;
+	TSharedPtr<SWindow> Window = GEngine && GEngine->GameViewport ? GEngine->GameViewport->GetWindow() : nullptr;
+	const TSharedPtr<SWidget> Button = Window.IsValid() && FSlateApplication::IsInitialized() ? FindButtonWithLabel(Window.ToSharedRef(), Label) : nullptr;
+	if (!Button.IsValid())
+	{
+		return;
+	}
+	// SlateApplication.h (5.8.4): SetKeyboardFocus(const TSharedPtr<SWidget>&, EFocusCause). SButton::OnKeyDown presses on
+	// the Accept navigation action, which Enter maps to.
+	FSlateApplication::Get().SetKeyboardFocus(Button, EFocusCause::SetDirectly);
+	PressSlateKey(EKeys::Enter);
+	ReleaseSlateKey(EKeys::Enter);
+	bOutSent = true;
 }
 
 void UJourneyHookSubsystem::ClickLabel(const FString& Label, FString& OutDetail, bool& bOutClicked)

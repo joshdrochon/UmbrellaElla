@@ -20,6 +20,11 @@ class FUmbrellaSoundLabelHud;
 namespace UmbrellaCueConst
 {
 	inline constexpr int32 RandomSeed = 7;
+	/** One music track hands over to the next over this long (bake: audio-rules.json music.fade_s_max). */
+	inline constexpr float MusicCrossFadeSeconds = 0.5f;
+	/** Full volume for a faded-in track, silence for a faded-out one (UAudioComponent::FadeIn/FadeOut levels). */
+	inline constexpr float MusicFullVolume = 1.0f;
+	inline constexpr float MusicSilentVolume = 0.0f;
 }
 
 UCLASS()
@@ -44,6 +49,11 @@ public:
 
 	/** Stops the current music component, then starts Sound on the one persistent component (null Sound = stop only). */
 	void RestartMusic(USoundBase* Sound);
+	/**
+	 * Hands the music over to Sound: the playing track fades out on its own component while Sound fades in on the
+	 * other one (MusicCrossFadeSeconds). With nothing playing it is RestartMusic. Null Sound only stops.
+	 */
+	void CrossFadeMusic(USoundBase* Sound);
 	void StopMusic();
 
 	/**
@@ -81,6 +91,8 @@ public:
 #endif
 
 	UAudioComponent* GetMusicComponent() const { return MusicComponent; }
+	/** The component the previous track fades out on after a cross-fade (null before the first one). */
+	UAudioComponent* GetOutgoingMusicComponent() const { return OutgoingMusicComponent; }
 	/** How many times music was started; a mode change adds one, the component is reused. */
 	int32 GetMusicStartCount() const { return MusicStartCount; }
 
@@ -90,6 +102,8 @@ private:
 	/** bOutPlayed: a take was found and started. */
 	void PlayRow(const FUmbrellaSoundCue& Cue, bool& bOutPlayed);
 	bool HasTakes(const FUmbrellaSoundCue& Cue) const;
+	/** A looping, non-auto-destroy 2D component on the Music slider's class. */
+	UAudioComponent* NewMusicComponent(USoundBase* Sound);
 
 	TArray<TPair<EUmbrellaEventType, FDelegateHandle>> Handles;
 	TMap<EUmbrellaEventType, FName> PrevDetails;
@@ -107,6 +121,9 @@ private:
 
 	UPROPERTY(Transient)
 	TObjectPtr<UAudioComponent> MusicComponent;
+	/** The second music component: the outgoing track of the last cross-fade; the next cross-fade reuses it. */
+	UPROPERTY(Transient)
+	TObjectPtr<UAudioComponent> OutgoingMusicComponent;
 	int32 MusicStartCount = 0;
 	/** The sound-list row the music component plays; set by PlayRow, cleared by StopMusic. */
 	FName MusicId;

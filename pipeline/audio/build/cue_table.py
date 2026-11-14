@@ -56,7 +56,15 @@ ROUTES = {
     "LevelUpClock": [("LevelGained", "Any", "")],
     "RunComplete": [("RunCompleted", "Any", "")],
     "UiSelect": [("ModeSelected", "Any", "")],
-    "MusicTitle": [("ModeSelected", "Any", "")],
+    # MusicTitle has no bus route: it starts at launch (D-new-music-at-launch, UUmbrellaCueSubsystem::OnWorldBeginPlay)
+    # and on the Title and Credits screens (FFlowRules::MusicFor). A ModeSelected route re-played it after Start Game had
+    # begun the Keeper fight (BeginRun broadcasts ModeSelected after BeginFight), so the fight kept the title music.
+    # Keeper fight music (lead order, Josh Nov 13 22:20): PhaseStarted carries the phase name (EncounterDirector
+    # PhaseName). The fight opens on MusicContest; the clock phase is MusicDesperation (sound-list.csv MusicDesperation
+    # row: "Keeper fight music, clock"; GDD SH1.0 OWL-06: Phase 3 clock). Title and Credits bring MusicTitle back
+    # through the flow controller (FFlowRules::MusicFor). The cue subsystem cross-fades one music track into the next.
+    "MusicContest": [("PhaseStarted", "Detail", "wings"), ("PhaseStarted", "Detail", "mechanisms")],
+    "MusicDesperation": [("PhaseStarted", "Detail", "clock")],
 }
 # Loops that replace each other: starting one stops the others of its group; the stop event ends the group.
 LOOP_GROUP = {"UmbrellaFlap": "move", "EllaFallLoop": "move", "FreeFallRush": "move", "AbsorbLoop": "move",

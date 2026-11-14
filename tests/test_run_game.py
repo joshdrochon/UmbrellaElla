@@ -99,6 +99,88 @@ class RunGameTest(unittest.TestCase):
         self.assertFalse(os.path.isdir(os.path.join(self.root, "Saved", "Logs", "runs")) and
                          os.listdir(os.path.join(self.root, "Saved", "Logs", "runs")))
 
+    def write_modules(self, name):
+        Path(os.path.join(self.root, "Binaries", "Mac", "UnrealEditor.modules")).write_text(
+            '{\n\t"BuildId": "1",\n\t"Modules": \n\t{\n\t\t"UmbrellaElla": "%s",\n'
+            '\t\t"UmbrellaEllaEditor": "libUnrealEditor-UmbrellaEllaEditor-0004.dylib"\n\t}\n}' % name)
+
+    def hot_reload_layout(self, suffixed_fresh):
+        """The gate at 23:03, Nov 13: UBT linked -0004 (a full editor was open), mapped .modules to it, and left the base
+        dylib older than the sources."""
+        old = time.time() - 200
+        os.utime(self.dylib, (old, old))
+        suffixed = os.path.join(self.root, "Binaries", "Mac", "libUnrealEditor-UmbrellaElla-0004.dylib")
+        Path(suffixed).write_text("y")
+        t = time.time() if suffixed_fresh else old
+        os.utime(suffixed, (t, t))
+        self.write_modules("libUnrealEditor-UmbrellaElla-0004.dylib")
+
+    def test_hot_reload_build_is_not_stale(self):
+        # Old run_game.sh checked the base dylib only and failed this with STALE.
+        self.hot_reload_layout(suffixed_fresh=True)
+        r = self.run_game(frame_rows(160, 90, (0, 0, 0)), "-SmokeQuitAfter=5")
+        self.assertNotIn("STALE", r.stdout)
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+
+    def test_hot_reload_module_older_than_source_is_stale(self):
+        self.hot_reload_layout(suffixed_fresh=False)
+        r = self.run_game(frame_rows(160, 90, (0, 0, 0)), "-SmokeQuitAfter=5")
+        self.assertEqual(r.returncode, 3, r.stdout)
+        self.assertIn("libUnrealEditor-UmbrellaElla-0004.dylib", r.stdout)
+
+    def test_base_layout_modules_file_uses_base_dylib(self):
+        self.write_modules("libUnrealEditor-UmbrellaElla.dylib")
+        r = self.run_game(frame_rows(160, 90, (0, 0, 0)), "-SmokeQuitAfter=5")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        future = time.time() + 100
+        os.utime(self.src, (future, future))
+        r = self.run_game(frame_rows(160, 90, (0, 0, 0)), "-SmokeQuitAfter=5")
+        self.assertEqual(r.returncode, 3, r.stdout)
+
+    def test_modules_naming_a_missing_file_is_stale(self):
+        self.write_modules("libUnrealEditor-UmbrellaElla-0009.dylib")
+        r = self.run_game(frame_rows(160, 90, (0, 0, 0)), "-SmokeQuitAfter=5")
+        self.assertEqual(r.returncode, 3, r.stdout)
+        self.assertIn("no module libUnrealEditor-UmbrellaElla-0009.dylib", r.stdout)
+
+
+class BuildShTest(unittest.TestCase):
+    """tools/ue/build.sh passes -NoHotReload, so an open editor on another checkout cannot make UBT write -NNNN names."""
+
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp()
+        root = os.path.join(self.tmp, "proj")
+        os.makedirs(os.path.join(root, "tools", "ue"))
+        for name in ("build.sh", "common.sh"):
+            shutil.copy(os.path.join(REPO, "tools", "ue", name), os.path.join(root, "tools", "ue"))
+        Path(os.path.join(root, "UmbrellaElla.uproject")).write_text("{}")
+        # Stand-in for tools/ue_run.py: record the UBT command line in the log.
+        Path(os.path.join(root, "tools", "ue_run.py")).write_text(
+            "import sys\na = sys.argv\nlog = a[a.index('--log') + 1]\nopen(log, 'w').write(' '.join(a[a.index('--') + 1:]))\n")
+        os.makedirs(os.path.join(self.tmp, "ue", "Engine"))
+        self.root = root
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp)
+
+    def ubt_args(self, **env):
+        e = dict(os.environ, UE_ROOT=os.path.join(self.tmp, "ue"), PYTHON=sys.executable, **env)
+        e.pop("PROJECT", None)
+        r = subprocess.run(["bash", os.path.join(self.root, "tools", "ue", "build.sh")], env=e,
+                           capture_output=True, text=True, timeout=60)
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        log = r.stdout.split("log: ", 1)[1].strip()
+        return Path(log).read_text().split()
+
+    def test_passes_no_hot_reload(self):
+        args = self.ubt_args()
+        self.assertIn("UmbrellaEllaEditor", args)
+        self.assertIn("-NoHotReload", args)
+        self.assertIn("-NoHotReload", self.ubt_args(NONUNITY="1"))
+
+    def test_opt_out_keeps_ubt_default(self):
+        self.assertNotIn("-NoHotReload", self.ubt_args(UE_HOT_RELOAD="1"))
+
 
 if __name__ == "__main__":
     unittest.main()
