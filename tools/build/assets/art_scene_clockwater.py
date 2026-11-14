@@ -30,14 +30,16 @@ W, H = 2400, 1200
 ASH_BLUE = (0.86, 0.98, 1.16)     # BG-05 "ash-blue": the study's cool rim light, a step bluer than its grey void
 SILVER = (0.95, 0.99, 1.06)       # BG-05 "silver-grey water"
 LOOK = {
-    "clock": (0.165, 0.040, 1.0, 0.60, ASH_BLUE),
-    "hand": (0.250, 0.040, 1.0, 0.70, ASH_BLUE),
-    "water": (0.215, 0.055, 1.0, 0.60, SILVER),
+    "clock": (0.165, 0.040, 1.0, 0.35, ASH_BLUE),
+    "hand": (0.250, 0.040, 1.0, 0.40, ASH_BLUE),
+    "water": (0.215, 0.055, 1.0, 0.30, SILVER),
     "wind": (0.190, 0.035, 1.0, 0.24, ASH_BLUE),   # r1 at 0.42 alpha / full width read as a loud blue band in the route frame
-    "wind-clock": (0.150, 0.035, 1.0, 0.40, ASH_BLUE),
-    "wind-hand": (0.220, 0.035, 1.0, 0.50, ASH_BLUE),
-    "wind-water": (0.200, 0.045, 1.0, 0.42, SILVER),
+    "wind-clock": (0.150, 0.035, 1.0, 0.28, ASH_BLUE),
+    "wind-hand": (0.220, 0.035, 1.0, 0.34, ASH_BLUE),
+    "wind-water": (0.200, 0.045, 1.0, 0.25, SILVER),
 }
+# alphas lowered Nov 13 (gate a2bc7f3d: dial ghosts read as "empty blue circle outlines", the thin fall as a
+# "pale-blue vertical rectangle"; clock 0.60, hand 0.70, water 0.60, wind-clock 0.40, wind-hand 0.50, wind-water 0.42)
 TINT_MIX = 0.8
 FACE_GHOST = 0.35            # dial glass alpha relative to the rim: "dial ghosts", the rim carries the clock
 RIM_SHARE = 0.84             # radius share where the front rim starts
