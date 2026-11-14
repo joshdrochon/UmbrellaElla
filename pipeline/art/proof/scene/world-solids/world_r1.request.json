@@ -1,0 +1,44 @@
+{
+ "provider": "openrouter",
+ "tier": "draft",
+ "tool": "OpenRouter (Google Gemini image models)",
+ "model": "gemini-2.5-flash-image",
+ "openrouter_model": "google/gemini-2.5-flash-image",
+ "fal_model": null,
+ "model_version": "google/gemini-2.5-flash-image",
+ "prompt": "A very wide, short strip, about 8:1, because it will be stretched along thin ledges and columns: a single slab of floating eroded earth seen exactly side-on from a level camera, filling the whole width of the canvas from the left edge to the right edge, as a dark storybook illustration. Text-free, with no frame or watermark.\n\nThe slab's top is one long, flat, level ledge running straight across the full width at the very top of the canvas: a crust of packed dark bronze-brown soil (#4a3524 to #2a1f17) with small pebbles, and a thin warm gold rim light (#a8784a) along its top edge. Below the crust the body of earth hangs in dark umber layers. The body has the same thickness from end to end, so the strip can be stretched or repeated; the crust, layers and rim light continue to both edges at the same height. Its underside hangs in long, swept, wax-like drips and tendrils that end in hard-edged dark specks, none fading or blurred, as if the land were slowly melting.\n\nThe background is one flat digital pure green (#00FF00) that fills every area the earth does not cover, edge to edge and between every drip, like a green-screen backdrop: one unchanging green with no light falling on it, no paper grain, no hatching and no texture; the grain and hatching apply to the earth only. The earth uses only warm browns, umbers and near-black, and its lit edges are warm gold-brown, never green-tinted; every edge is crisp against the green with a thin dark ink outline.\n\nLighting is subdued and comes softly from the upper back, so the earth is mostly in deep shadow with only the thin warm top edge lit. Colours are given only as guidance; never print them.\n\nStyle (required): dark, muted ink on aged paper, like an etched storybook engraving. Etched ink linework with near-black ink outlines; crosshatch and fine line hatching for every shadow and form; visible aged paper grain and fibre texture under all colour; hand-printed, slightly uneven ink. No flat fills, no vector shapes, no smooth digital gradients, no glossy 3D rendering.",
+ "seed": "none (seed not sent)",
+ "size": "1024x1024",
+ "quality": "medium",
+ "aspect_ratio": "21:9",
+ "image_size": null,
+ "input_images": [],
+ "cost_usd": 0.038844,
+ "reply": {
+  "usage": {
+   "prompt_tokens": 479,
+   "completion_tokens": 1290,
+   "total_tokens": 1769,
+   "cost": 0.0388437,
+   "is_byok": false,
+   "prompt_tokens_details": {
+    "cached_tokens": 0,
+    "cache_write_tokens": 0,
+    "audio_tokens": 0,
+    "video_tokens": 0
+   },
+   "cost_details": {
+    "upstream_inference_cost": 0.0388437,
+    "upstream_inference_prompt_cost": 0.0001437,
+    "upstream_inference_completions_cost": 0.0387
+   },
+   "completion_tokens_details": {
+    "reasoning_tokens": 0,
+    "image_tokens": 1290,
+    "audio_tokens": 0
+   }
+  },
+  "finish": "stop"
+ },
+ "date": "2026-11-14T00:03+00:00"
+}

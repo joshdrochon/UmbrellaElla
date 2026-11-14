@@ -67,6 +67,13 @@ When the same check fails twice, or a loop goes flat (2 rounds, same gap, no bet
      `ResetForRestart`), `Owl/KeeperOfTime` (keeper), `Arena/UmbrellaArena` (arena), `Flow/UmbrellaPlayerController`
      (flow), `UI/UmbrellaHUD` (health). Fill in your own; call others only through their public functions and events.
 
+## The whole frame is the visual bar (Josh, Nov 13, D-new-north-star-frame)
+- Visual work (art, stand-ins, VFX, camera, scale, draw order) is judged in the composed game frame next to Ricky's Other
+  Realm study (`bar-other-realm`), never as a piece alone. Commit a composite (study | before | after) with the work.
+- `tools/build/visual_qa.py` runs in the gate on every merge touching Source/, Content/, Art/ or pipeline/art: a screen
+  worse than main's baseline, or any item a player would call broken, fails the merge.
+- No handoff tag without a passing `visual_qa.py` run on the tagged commit.
+
 ## Hard rules
 - Every automated game launch (editor -game or packaged) goes through `tools/build/run_game.sh` or `tools/ue/smoke.sh`:
   no sound, a 640x360 window, no crash reporter. Never start `UnrealEditor -game` or the packaged app by hand.

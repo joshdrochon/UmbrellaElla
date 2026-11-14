@@ -1,0 +1,14 @@
+# Shots fired proof (progression, lead order item 2): a Director's Cut run, Shoot (J) held, then the Journey Complete
+# statistics as story counts them, next to the shots Ella's attack component emitted.
+# Run: tools/build/run_game.sh -SmokeJourney=pipeline/art/proof/progression/shots_fired.txt -SmokeJourneyOut=<dir>
+firstrun
+wait Title 60
+idle 1
+click Director's Cut
+trywait Tutorial 5
+keyuntil Playing Enter 0.8 30
+idle 2
+console Umbrella.Progression.LogRunStats
+hold J 8
+console Umbrella.Progression.LogRunStats
+shot shots_after_hold

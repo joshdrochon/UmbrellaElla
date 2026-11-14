@@ -58,6 +58,16 @@ public:
 	 *  put the camera back on the fixed arena frame (undoes FollowEllaX). Director's Cut uses it at the Keeper handoff (B5). */
 	void MovePlayArea(const FVector& Origin);
 
+	/** Director's Cut route (B12): put the right wall's inner face at world X (the route end), so the arena's own right
+	 *  wall at ArenaWidth does not block the route. MovePlayArea and ResetRightWall put it back at the arena edge. */
+	void SetRightWallInnerX(float WorldX);
+
+	/** The right wall back at the arena's own right edge (ArenaWidth from the origin). */
+	void ResetRightWall();
+
+	/** World X of the right wall's inner face. */
+	float GetRightWallInnerX() const;
+
 	/** True when the play camera sits on the fixed arena frame (centre of the play area). */
 	bool IsCameraOnArenaFrame() const;
 

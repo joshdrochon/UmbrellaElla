@@ -122,7 +122,7 @@ ui-tutorial-while-dropping-shoot-with-j,screen,"While dropping, shoot with J or 
 ui-tutorial-shoot-with-j-or-the,screen,Shoot with J or the left mouse button. Cycle spells with [ and ] or press 1 to 4.,,yes,screen=tutorial; mode=Director's Cut only (Start Game shows its own Small Blasts page); where=FlowTutorialText.cpp
 ui-settings-game-options-all-four-spells-unlocked,label,All four spells unlocked,,yes,screen=settings-game-options; where=DeveloperOptions.cpp
 ui-settings-sound-controller-and-credits-have,screen,"Sound, Controller and Credits have their own pages.",,yes,screen=settings; where=FlowMenuText.cpp
-ui-FinalHourIntroWidget-her-time-has-run,screen,"Her time has run its course. The owl is coming.",,yes,screen=FinalHourIntroWidget; where=FinalHourIntroWidget.cpp
+ui-final-hour-intro,screen,"Your borrowed time has run its course. Now, face the Final Hour.",,yes,FLOW-06 approved exact text; screen=final-hour; where=FinalHourIntroWidget.cpp
 ui-purchase-review-0-points-in-total,screen,Review: {0} points in total,,yes,screen=purchase; where=ProgressionPurchaseWidget.cpp
 ui-purchase-point,label,point,,yes,screen=purchase; where=ProgressionPurchaseWidget.cpp
 ui-purchase-points,label,points,,yes,screen=purchase; where=ProgressionPurchaseWidget.cpp

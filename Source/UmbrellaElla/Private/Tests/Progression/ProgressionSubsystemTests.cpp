@@ -531,7 +531,7 @@ bool FProgWorldFinalHourIntro::RunTest(const FString& Parameters)
 		return false;
 	}
 	TestEqual(TEXT("approved exact text"), UFinalHourIntroWidget::IntroText().ToString(),
-		FString(TEXT("Her time has run its course. The owl is coming.")));
+		FString(TEXT("Your borrowed time has run its course. Now, face the Final Hour.")));
 	const TSharedRef<bool> RunWasExtremeWhenShown = MakeShared<bool>(false);
 	UProgressionSubsystem* Progression = Rig.Progression.Get();
 	const FDelegateHandle Handle = Rig.Progression->OnFinalHourIntro().AddLambda([Progression, RunWasExtremeWhenShown]()

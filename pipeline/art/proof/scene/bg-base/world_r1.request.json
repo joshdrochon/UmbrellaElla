@@ -1,0 +1,44 @@
+{
+ "provider": "openrouter",
+ "tier": "draft",
+ "tool": "OpenRouter (Google Gemini image models)",
+ "model": "gemini-2.5-flash-image",
+ "openrouter_model": "google/gemini-2.5-flash-image",
+ "fal_model": null,
+ "model_version": "google/gemini-2.5-flash-image",
+ "prompt": "A wide 2:1 panel, edge-to-edge and text-free: an empty sky of a dark other-worldly realm, seen side-on from a level camera, as a dark storybook illustration. No border, frame, lettering or watermark.\n\nThe paper itself is near-black charcoal; its grain shows only as faint lighter fibre, so the sky stays almost black. The sky is a warm charcoal void (#1a1714 to #24201b), slightly lighter and hazier through the middle height and darkest at the top and bottom. Long, soft, rolling haze ridges in dark umber drift in a few horizontal layers through the lower half, like distant smoky dunes, each a little lighter at its top edge, with a very faint ash-blue cast here and there. Scattered thinly across the whole sky, a hundred or so tiny ember flecks of dim amber float like distant sparks.\n\nThe picture is an empty sky of void, haze and flecks only. Nothing touches the left or right edge as a distinct shape: the void and haze run on unchanged across both edges, so the picture can sit beside a copy of itself. Overall it is very dark and calm. Colours are given only as guidance; never print them.\n\nStyle (required): dark, muted ink on aged paper, like an etched storybook engraving. Etched ink linework with near-black ink outlines; crosshatch and fine line hatching for every shadow and form; visible aged paper grain and fibre texture under all colour; hand-printed, slightly uneven ink. No flat fills, no vector shapes, no smooth digital gradients, no glossy 3D rendering.",
+ "seed": "none (seed not sent)",
+ "size": "1024x1024",
+ "quality": "medium",
+ "aspect_ratio": "16:9",
+ "image_size": null,
+ "input_images": [],
+ "cost_usd": 0.038803,
+ "reply": {
+  "usage": {
+   "prompt_tokens": 344,
+   "completion_tokens": 1290,
+   "total_tokens": 1634,
+   "cost": 0.0388032,
+   "is_byok": false,
+   "prompt_tokens_details": {
+    "cached_tokens": 0,
+    "cache_write_tokens": 0,
+    "audio_tokens": 0,
+    "video_tokens": 0
+   },
+   "cost_details": {
+    "upstream_inference_cost": 0.0388032,
+    "upstream_inference_prompt_cost": 0.0001032,
+    "upstream_inference_completions_cost": 0.0387
+   },
+   "completion_tokens_details": {
+    "reasoning_tokens": 0,
+    "image_tokens": 1290,
+    "audio_tokens": 0
+   }
+  },
+  "finish": "stop"
+ },
+ "date": "2026-11-14T00:03+00:00"
+}

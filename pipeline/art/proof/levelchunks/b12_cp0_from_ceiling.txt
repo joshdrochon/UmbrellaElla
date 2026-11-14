@@ -1,0 +1,18 @@
+# B12 proof (levelchunks): Director's Cut, the same steps as agentplay's directors_cut.txt up to CP1, no assist:
+# 8 s untrimmed, 20 s idle at the route ceiling, then the real-key walker with trim from x ~974 to CP1.
+firstrun
+wait Title 60
+idle 1
+click Director's Cut
+skipunless Purchase 3
+key Escape
+wait Title 5
+click Director's Cut
+trywait Tutorial 5
+keyuntil Playing Enter 0.8 30
+idle 2
+route 1 8                         # real input, no trim (agentplay: by design a timeout)
+idle 20                           # at the route ceiling (z 1 036)
+route 1 60 1                      # agentplay walker with trim: stalled at x 1 903 before the fix (B12)
+shot b12_cp1
+end

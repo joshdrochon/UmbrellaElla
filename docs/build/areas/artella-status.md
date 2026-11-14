@@ -242,3 +242,43 @@ Gap: Ella is a tiny soft smudge in the game, no etched line, mask or terminal re
 Verdict: ours/scale. At this size (12x35 px of 1280x720) no paint passes a context pair against key-art Ella. Not shipped, no import.
 Shield R3 and closed R3 not painted: they would hit the same context result, so no spend (15.08 of 33.82).
 Ask (lead): Ella's in-game scale (a game-side or art-slot size) or accept a context pair against a sprite-sized key-art crop; also fix `verdict` abs/relative `ours`.
+
+## Round 37 (Nov 13): lead order, Ella as the study's small dark figure; idle imported
+- Script `tools/build/assets/art_ella_silhouette.py` (numbers only, no paid call): takes the stand-in sheet the slot draws, keeps its layout
+  (idle 6x4, hurt 24x1, down 6x4, same cell aspect within 0.3%), downsizes cells to 160 px tall (the slot has no mips; 654 px cells aliased),
+  tones the figure into the study's dark warm range (measured on the study: darks 19,18,16, mids 44,36,31, lights 123,95,72), and adds a gold
+  rim on the up-left edges and the canopy top (#E9C46A / 245,201,141). Thin hair and scarf get no rim. Transparent outside the figure.
+- Idle imported into `T_Ella_Idle_PH` (LFS lock taken by this lane). Hurt and down sheets made (pipeline/art/proof/artella/silhouette/), not imported:
+  the smoke shot never shows those states, so they cannot be judged in frame yet.
+- Proof: pipeline/art/proof/artella/frame/idle-silhouette-proof.png (study | before | after, windowed 640x360, same build, only the sprite changed)
+  and idle-silhouette-proof-zoom.png (ArenaWidth=480 at 1920x1080; its "before" is an older build, so other parts of that frame differ).
+- Read: up close the figure now matches the study's Ella (dark mass, warm rim, umbrella clear). In the real 640x360 frame she still does not read:
+  SMOKE_VIEW ella_px=128,15, she sits at the top edge, about 12 px tall (study scale is about 36 px at 640x360), partly behind a light-blue block
+  and over a dark column. Those are camera/frame issues for visualqa, not the sprite. No spend (15.08 of 33.82).
+- Next: hurt/down import once a shot can show them; re-judge idle in the frame after visualqa moves the camera.
+
+## Lead order (recorded Nov 13 17:08, from the gate review ../logs/review-artella.txt)
+Coordinator's order (Josh, 16:05): "a small Ella silhouette that reads at the Other Realm study's scale, judged in the composed frame".
+This is the lead order behind the round-37 import of `T_Ella_Idle_PH`. That import is a tracked `_PH` stand-in, not a pass:
+it is treated as passed only after the silhouette is judged in the composed game frame against the study with visualqa's
+`tools/build/visual_qa.py` (on main). Until then it stays imported only as the `_PH` stand-in.
+- Provenance row added for `Content/UmbrellaElla/Art/Ella/T_Ella_Idle_PH.uasset` (source `ella-idle_N24_grid.png`, script).
+- Committed import script: `tools/build/assets/art_ella_import.py` (wraps `import_art_candidate.py`, UnrealEditor-Cmd pythonscript).
+- Devlog line corrected: up close she matches the study, in the real frame she did not read yet (was overstated).
+
+## Round 38 (Nov 13 17:20): idle judged in the composed frame; sprite cleaned up; still a _PH stand-in
+- Merged main fb2f0fdb (devlog conflict: kept both lines, ours rewritten so it does not overstate). `build exit: 0` at 8b14ccb9.
+- Capture: `RUN_RES=1280x720 run_game.sh -SmokeJourney=Art/Source/Ella/frame/ella_frame_journey.txt` (Start Game play + Director's Cut route, the visual_qa screens).
+- Round-37 sprite in frame: body too dark for the game's near-black sky (bg behind her ~6,5,5; study's ~50), interior mottled, body rim broke into gold flecks. Umbrella read, body did not.
+- Script changes (`art_ella_silhouette.py`, numbers only, no spend): body ramp re-measured on the study's Ella at full size (p10 30,25,21 / p50 62,48,38 / lit 118,88,64),
+  body floor 0.3 (no black holes), interior blur 1.6 px, all-round warm edge 0.6, body rim 0.35 (canopy rim stays 0.75),
+  cell 78x106 (drawn size at 1080p; was 160 px, 10x oversampled per review; aspect 0.7355 -> 0.7358). Idle re-imported via `art_ella_import.py`; hurt and down sheets regenerated, not imported.
+- visual_qa.py frame (Opus judge, rubric fixed), after: dc_route FAIL 27/70, play FAIL 22/70. Ella is not in either broken list now
+  (round 37's play frame listed "Ella clipped at the top edge, barely visible"). Broken items are other lanes': flat brown platform and floor bars,
+  the beige light-shaft bar onto Ella, a solid red enemy rectangle, the unkeyed oversized Keeper owl, no islands.
+- Verdict under the lead order: NOT passed. The composed frame fails, and Ella is about 0.6x the study's size (55 vs 92 px at 720p; request #5).
+  T_Ella_Idle_PH stays imported only as the tracked _PH stand-in.
+- Proof: pipeline/art/proof/artella/frame/r38-composite-dc_route.png (study | before | after; before and after are different route moments, same journey),
+  r38-zoom-before-after-study.png (Ella zoomed). Judge records kept in ../logs/artella-judge-records/ (not committed: visualqa's folder).
+- Spend: none this round (15.08 of 33.82). OpenRouter/fal not used: the gap was tone and noise, fixed by numbers.
+- Next: re-judge when the frame's other broken items and Ella's scale are fixed; then the four state pieces (up-open, attack, shield, closed).

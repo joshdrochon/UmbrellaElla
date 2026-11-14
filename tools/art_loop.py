@@ -793,6 +793,27 @@ def sprite_checks(path, root=ROOT, effect=False):
     return res["pass"], not fails, lines
 
 
+# Scene work (the whole frame and its backdrop/world pieces) is judged against the north star as a whole frame by
+# tools/build/visual_qa.py, not by art_check.py, whose palette and paper-texture limits come from the old key art and
+# fail the Other Realm study itself (D-new-north-star-frame, Josh Nov 13). art_check still gates single pieces.
+SCENE_PREFIXES = ("scene", "bg", "bg-layer", "world")
+
+
+def is_scene_piece(piece):
+    p = (piece or "").lower()
+    return p == "scene" or any(p == x or p.startswith(x + "-") or p.startswith(x + ":") for x in SCENE_PREFIXES)
+
+
+def frame_judge(path, caller=None, screen="dc_route"):
+    """(ok, line) for a whole-frame capture from tools/build/visual_qa.py (Opus judge vs the study, fixed rubric)."""
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "build"))
+    import visual_qa
+    res = visual_qa.judge_image(path, screen, caller=caller)
+    ok, reasons = visual_qa.decide(res)
+    return ok, f"  visual_qa (whole frame vs bar-other-realm): {'PASS' if ok else 'FAIL'} total={res.get('total')}" + \
+        ("" if ok else " (" + "; ".join(reasons)[:300] + ")")
+
+
 def measure(root, card, piece, path):
     """(ok, score, lines, results) of the deterministic checks on our file. results: {check: pass|fail}."""
     import art_ref_check
@@ -806,8 +827,14 @@ def measure(root, card, piece, path):
     rp = rp if os.path.isfile(rp) else art_judge.REFS   # this checkout's references, not the tool's own copy
     if piece == "scene":
         rc, lines = art_ref_check.run(card, scene_shot=path, refs_path=rp, root=root, commit=commit)
-        ac = any(ln.strip().startswith("art_check: PASS") for ln in lines)
         sc = any(ln.strip().startswith("screen_check: PASS") for ln in lines)
+        ac, vline = frame_judge(path)   # the frame gate is visual_qa, not art_check (D-new-north-star-frame)
+        lines = lines + [vline]
+    elif is_scene_piece(piece):
+        rc, lines = art_ref_check.run(card, element_id=piece, files=[path], refs_path=rp, root=root, commit=commit)
+        sc, _ac, more = sprite_checks(path, root, False)
+        ac = True   # a backdrop/world piece is judged in the composed frame by visual_qa.py, not by art_check
+        lines = lines + more + ["  art_check: not gating a scene piece (D-new-north-star-frame); judge the composed frame with tools/build/visual_qa.py"]
     else:
         rc, lines = art_ref_check.run(card, element_id=piece, files=[path], refs_path=rp, root=root, commit=commit)
         sc, ac, more = sprite_checks(path, root, is_effect(path, piece))
