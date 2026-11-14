@@ -106,3 +106,4 @@
 	{ TEXT("world:mill-and-traps"), TEXT("Scene"), TEXT("T_WorldMill"), 1, false, TEXT("UWorldArtSubsystem"), 1, true },
 	{ TEXT("world:refuge-and-yellow-bay"), TEXT("Scene"), TEXT("T_WorldRefuge"), 1, false, TEXT("UWorldArtSubsystem"), 1, true },
 	{ TEXT("world:solids"), TEXT("Scene"), TEXT("T_WorldSolids"), 1, false, TEXT("UWorldArtSubsystem"), 1, true },
+	{ TEXT("world:solids-block"), TEXT("Scene"), TEXT("T_WorldSolidsBlock"), 1, false, TEXT("UWorldArtSubsystem"), 1, true },

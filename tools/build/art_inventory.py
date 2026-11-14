@@ -75,6 +75,7 @@ STATIC = [
     ("bg:start-end", "ART-04", "bg-start-end"),
     ("world:refuge-and-yellow-bay", "ANIM-08", "world-refuge"),
     ("world:solids", "ANIM-08", "world-solids"),
+    ("world:solids-block", "ANIM-08", "world-solids"),   # blocks and columns (width/height < 4): artscene request 6
     ("world:mill-and-traps", "ANIM-08", "world-mill"),
     ("scene:gameplay-frame", "ART-07", "scene"),
     ("ui:xp-ring", "ART-08", "ui-xp-ring"),

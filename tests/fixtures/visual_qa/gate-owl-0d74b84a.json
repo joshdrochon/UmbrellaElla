@@ -1,0 +1,81 @@
+{
+ "summary": "VISUAL_QA GATE FAIL play=32/70 dc_route=26/70 keeper=23/70 broken=8 baseline=b4c1fe794bd8 failed=play,dc_route,keeper",
+ "model": "claude-opus-5-5",
+ "screens": {
+  "play": {
+   "scores": {
+    "dark_backdrop": 4,
+    "wind_ribbons": 0,
+    "small_figures": 5,
+    "floating_islands": 3,
+    "shot_colours": 5,
+    "no_placeholders": 7,
+    "no_framed_art": 8
+   },
+   "broken": [
+    "thin full-height vertical white line/bar through the left-centre of the frame",
+    "player character barely visible (faint silhouette lost in the background at left-centre)"
+   ],
+   "verdict": "FAIL",
+   "total": 32,
+   "replayed": false,
+   "shot": "Saved/VisualQA/gate-0d74b84a/vq_play.png",
+   "passed": false,
+   "reasons": [
+    "new broken: thin full-height vertical white line/bar through the left-centre of the frame; player character barely visible (faint silhouette lost in the background at left-centre)"
+   ],
+   "baseline_total": 23
+  },
+  "dc_route": {
+   "scores": {
+    "dark_backdrop": 1,
+    "wind_ribbons": 3,
+    "small_figures": 8,
+    "floating_islands": 0,
+    "shot_colours": 6,
+    "no_placeholders": 1,
+    "no_framed_art": 7
+   },
+   "broken": [
+    "flat dark-brown bar used as the floating platform (right middle)",
+    "flat dark-brown bar across the full width as ground (bottom)",
+    "bright cream paper clock-face backdrop instead of a dark backdrop",
+    "stray thin vertical white line from the top of the frame to the player"
+   ],
+   "verdict": "FAIL",
+   "total": 26,
+   "replayed": false,
+   "shot": "Saved/VisualQA/gate-0d74b84a/vq_dc_route.png",
+   "passed": false,
+   "reasons": [
+    "total 26 below main's 29",
+    "new broken: flat dark-brown bar used as the floating platform (right middle); flat dark-brown bar across the full width as ground (bottom); stray thin vertical white line from the top of the frame to the player"
+   ],
+   "baseline_total": 29
+  },
+  "keeper": {
+   "scores": {
+    "dark_backdrop": 3,
+    "wind_ribbons": 0,
+    "small_figures": 5,
+    "floating_islands": 1,
+    "shot_colours": 5,
+    "no_placeholders": 2,
+    "no_framed_art": 7
+   },
+   "broken": [
+    "flat dark-brown bar with a block step used as ground at lower left",
+    "thin straight vertical line running the full height of the frame through the player"
+   ],
+   "verdict": "FAIL",
+   "total": 23,
+   "replayed": false,
+   "shot": "Saved/VisualQA/gate-0d74b84a/vq_keeper.png",
+   "passed": false,
+   "reasons": [
+    "new broken: flat dark-brown bar with a block step used as ground at lower left; thin straight vertical line running the full height of the frame through the player"
+   ],
+   "baseline_total": 19
+  }
+ }
+}

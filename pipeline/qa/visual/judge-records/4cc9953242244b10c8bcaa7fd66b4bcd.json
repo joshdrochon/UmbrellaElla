@@ -1,0 +1,6 @@
+{
+ "model": "claude-opus-5-5",
+ "key": "4cc9953242244b10c8bcaa7fd66b4bcd",
+ "at": "2026-11-13T19:52:35",
+ "answer": "{\"scores\": {\"dark_backdrop\": 4, \"wind_ribbons\": 0, \"small_figures\": 5, \"floating_islands\": 1, \"shot_colours\": 5, \"no_placeholders\": 2, \"no_framed_art\": 7}, \"broken\": [\"flat solid brown bar/block as ground at lower left\", \"thin full-height vertical white line through the centre of the frame\", \"no wind ribbons drawn\"], \"verdict\": \"FAIL\"}"
+}

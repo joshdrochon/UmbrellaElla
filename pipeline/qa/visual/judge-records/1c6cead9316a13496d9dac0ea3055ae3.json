@@ -1,0 +1,6 @@
+{
+ "model": "claude-opus-5-5",
+ "key": "1c6cead9316a13496d9dac0ea3055ae3",
+ "at": "2026-11-13T19:52:29",
+ "answer": "{\"scores\": {\"dark_backdrop\": 3, \"wind_ribbons\": 0, \"small_figures\": 4, \"floating_islands\": 1, \"shot_colours\": 6, \"no_placeholders\": 2, \"no_framed_art\": 2}, \"broken\": [\"flat brown bar and step block as ground, bottom left\", \"owl/Keeper picture on an unkeyed rectangle backing with a hard cut right edge\", \"thin vertical white line running the full height of the frame left of centre\"], \"verdict\": \"FAIL\"}"
+}

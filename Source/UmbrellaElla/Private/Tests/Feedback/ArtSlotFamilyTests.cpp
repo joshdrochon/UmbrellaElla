@@ -135,7 +135,7 @@ bool FArtSlotWorldPieces::RunTest(const FString& Parameters)
 	if (TestNotNull(TEXT("world art subsystem"), WorldArt) && TestNotNull(TEXT("director"), Director))
 	{
 		TestTrue(TEXT("route built"), Director->BuildRoute(1) > 0);
-		for (const FString Id : { FString(TEXT("world:solids")), FString(TEXT("world:refuge-and-yellow-bay")), FString(TEXT("world:mill-and-traps")) })
+		for (const FString Id : { FString(TEXT("world:solids")), FString(TEXT("world:solids-block")), FString(TEXT("world:refuge-and-yellow-bay")), FString(TEXT("world:mill-and-traps")) })
 		{
 			const FArtSlotRow* Row = ArtSlot::Find(*Id);
 			if (TestNotNull(*FString::Printf(TEXT("%s has a slot row"), *Id), Row))
@@ -145,20 +145,31 @@ bool FArtSlotWorldPieces::RunTest(const FString& Parameters)
 		}
 		// Count what the plan holds, then draw with a transient picture and compare.
 		int32 Solids = 0;
+		int32 Blocks = 0;
 		int32 Refuges = 0;
 		for (const FLevelPlacement& Placement : Director->GetPlan())
 		{
-			const FString Visual = UWorldArtSubsystem::VisualFor(Placement.Kind);
+			const FString Visual = UWorldArtSubsystem::VisualFor(Placement.Kind, Placement.Size);
 			Solids += Visual == TEXT("world:solids") ? 1 : 0;
+			Blocks += Visual == TEXT("world:solids-block") ? 1 : 0;
 			Refuges += Visual == TEXT("world:refuge-and-yellow-bay") ? 1 : 0;
 		}
 		TestTrue(TEXT("the route has land and refuges"), Solids > 0 && Refuges > 0);
 		TestEqual(TEXT("the floor draws the island slab, never a flat bar (artscene request 4)"), UWorldArtSubsystem::VisualFor(ELevelPlacementKind::Floor), FString(TEXT("world:solids")));
+		// artscene request 6: blocks and columns get their own picture; ledges, the floor and other kinds keep theirs.
+		TestEqual(TEXT("a 192x259 column draws the block picture"), UWorldArtSubsystem::VisualFor(ELevelPlacementKind::Solid, FVector(192.0f, 100.0f, 259.0f)), FString(TEXT("world:solids-block")));
+		TestEqual(TEXT("a 576x43 ledge draws the ledge picture"), UWorldArtSubsystem::VisualFor(ELevelPlacementKind::Solid, FVector(576.0f, 100.0f, 43.0f)), FString(TEXT("world:solids")));
+		TestEqual(TEXT("a 4.27:1 piece is a ledge by the 4:1 line"), UWorldArtSubsystem::VisualFor(ELevelPlacementKind::Solid, FVector(461.0f, 100.0f, 108.0f)), FString(TEXT("world:solids")));
+		TestEqual(TEXT("a tall floor stays the island slab"), UWorldArtSubsystem::VisualFor(ELevelPlacementKind::Floor, FVector(192.0f, 100.0f, 259.0f)), FString(TEXT("world:solids")));
+		TestEqual(TEXT("a block with no imported picture falls back to the ledge picture, never a bare box"), UWorldArtSubsystem::FallbackVisual(TEXT("world:solids-block")), FString(TEXT("world:solids")));
+		TestTrue(TEXT("other slots have no fallback"), UWorldArtSubsystem::FallbackVisual(TEXT("world:solids")).IsEmpty());
+		TestEqual(TEXT("a zero-height solid is a ledge, not a divide by zero"), UWorldArtSubsystem::VisualFor(ELevelPlacementKind::Solid, FVector(100.0f, 100.0f, 0.0f)), FString(TEXT("world:solids")));
 		UTexture2D* Texture = FamilyTestTexture();
 		const int32 Drawn = WorldArt->Refresh(Texture);
-		TestEqual(TEXT("every land block is drawn"), WorldArt->DrawnCount(TEXT("world:solids")), Solids);
+		TestEqual(TEXT("every ledge is drawn"), WorldArt->DrawnCount(TEXT("world:solids")), Solids);
+		TestEqual(TEXT("every block and column is drawn with the block picture"), WorldArt->DrawnCount(TEXT("world:solids-block")), Blocks);
 		TestEqual(TEXT("every refuge piece is drawn"), WorldArt->DrawnCount(TEXT("world:refuge-and-yellow-bay")), Refuges);
-		TestEqual(TEXT("drawn total is the three slots"), Drawn, Solids + Refuges + WorldArt->DrawnCount(TEXT("world:mill-and-traps")));
+		TestEqual(TEXT("drawn total is the four slots"), Drawn, Solids + Blocks + Refuges + WorldArt->DrawnCount(TEXT("world:mill-and-traps")));
 		TestEqual(TEXT("a second pass draws nothing new"), WorldArt->Refresh(Texture), 0);
 		for (const TObjectPtr<AActor>& Piece : Director->GetSpawned())
 		{

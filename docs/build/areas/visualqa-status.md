@@ -42,22 +42,104 @@
   0.36x. Test: `UmbrellaElla.Feedback.FrameComposition.EnemyArtFullSize` (fails on 4dae3d8e, passes now).
 
 ## Follow-ups (coordinator balance rule: paperwork and later work do not block)
-- Review item 1: `tools/build/visual_qa.py --gate` mode and `baseline --from-main`, with tests and the exact gate command.
-- Review item 3: a composite per screen under `pipeline/qa/visual/` for this round, and a dated line in
-  `pipeline/submission/devlog.md` under "## Frames toward the Other Realm study"; `composed-01.png`.
 - Minor: `FindArena` caches the arena for good (stale after an arena swap; re-runs the actor iterator each tick).
 - Minor: `WorldArtSubsystem.cpp` `Floor` case falls into `Solid` with only a comment: `[[fallthrough]]` or merge labels.
 - Minor: `EllaAnimPresenterComponent.h` "about 0.93x the study's figure": cite the measurement or drop it.
 - Parked (not in this commit): per-frame re-compose after the actor tick, so the Keeper's cue cubes reset by the
   encounter director each frame are never drawn reset. Patch kept at `../logs/visualqa-wip-posttick-1808.patch`.
 
+## Done (Nov 13 evening): gate mode (review item 1, lead 17:32)
+- `visual_qa.py run --gate`: needs main's baseline (exit 2 and the bootstrap command if missing, before any capture);
+  a screen FAILs only on a regression: total below main's, or a "broken to a player" item main's run did not list
+  (normalised text match). Main's own broken items and the judge's FAIL verdict do not fail the gate. One line:
+  `VISUAL_QA GATE PASS|FAIL play=../70 dc_route=../70 keeper=../70 broken=N baseline=<sha12> [failed=...]`.
+- Baseline lookup for the gate: main's sha, else the newest first-parent ancestor (50 back) with a baseline when no
+  commit since touched Source, Content, Config, Art, pipeline/art or the .uproject (docs-only merges reuse it).
+- `visual_qa.py baseline --from-main [--sha SHA] [--out DIR]`: in a checkout at main (refused otherwise), captures and
+  stores the judged run as main's baseline even when main has broken items; skips a sha that already has one.
+- Tests: `tests/test_visual_qa.py` GateMode (7 tests; break-checked: matching every broken item as new fails 2).
+
+## Done (Nov 13 evening): gate.sh step (lead follow-up 2; this lane's copy only, the lead installs it)
+- `tools/build/gate.sh`: after the checks, when the merge touches Source/, Content/, Art/ or pipeline/art (and nothing
+  failed yet; builds first if the merge had no Source change), runs `visual_qa.py run --gate --main-sha "$MAIN"`.
+  Exit 1 fails the merge; exit 2 (no baseline, capture failed) fails it with NORECORD=1 (not the lane's fault).
+  `VISUAL_BASELINE_DIR=$L/visual-baseline` so the gate worktree and the main checkout share one store.
+  After a PASS and push, the gate stores its own run as the new main's baseline (judge calls replay: no spend), only
+  when main's Source/Content/Config/Art equal the gate tree. So the lead bootstraps once; later merges self-refresh.
+- Open for the lead: a missing baseline blocks every visual merge until `baseline --from-main` runs (lead's 17:32 spec);
+  the alternative is to let the merge through with a warning. Built the blocking default.
+- Test: `tests/test_visual_qa.py` GateScript.
+
+## Done (Nov 13 evening): artscene requests 6 and 4
+- Request 6: slot `world:solids-block` (T_WorldSolidsBlock; inventory row judged by piece `world-solids` until artscene
+  adds a `world-solids-block` piece). `UWorldArtSubsystem::VisualFor(Kind, Size)`: a Solid with width/height under 4
+  (`UmbrellaWorldArtConst::BlockMaxAspect`) draws the block slot; ledges, the floor and the rest keep theirs. Until
+  T_WorldSolidsBlock(_PH) is imported a block falls back to the ledge picture (`FallbackVisual`), never a bare box.
+  Test: `UmbrellaElla.Feedback.World.ArtSlotWorldPieces` (192x259 -> block, 576x43 -> solids, 4.27:1 -> solids,
+  fallback, zero height). Break check: VisualFor without the block branch -> FAIL. Feedback PASS tests=53.
+- Request 4 (floor as island): already on main (1b99a5b7, Floor -> world:solids, its test in ArtSlotWorldPieces); not duplicated.
+
+## Round 05 (Nov 13 19:35): composite and devlog
+- Capture `visual_qa.py capture --out Saved/VisualQA/r05` on 0f24bafd; composite pipeline/qa/visual/r05/composite-r05-dc_route.png
+  (study | r03 16:45 | now), devlog line added.
+- Seen, not fixed yet: the DC route frame is worse than r03: a bright cream clock-face picture fills the route behind
+  the play layer (likely bg:clocks / ClockWaterWind drawn in front of the dark land, artscene request 7), and the floor
+  and ledge still draw as flat dark bars (world:solids art not loading on them). Start Game play: the Keeper art is
+  large and square-cropped. Next for this lane.
+- Cause, measured (-VisualQADump on 1a4d33d8, DC route at x 7632): the lead's 18:20 revert of artscene's merge (45045010)
+  put back the old, bright backdrop pictures and removed T_WorldSolids_PH, while main kept this lane's dim fix
+  (dbbf529b: graded BackdropPanel/ScenePanel art is not dimmed). So the old cream art draws undimmed (ScenePanel
+  bg:clocks at Y -290, BackdropPanels -295/-300 in front of the land), and the floor/ledge Blocks draw art=0 umber cubes.
+  Both clear when artscene's study-graded merge comes back; its stated blocker (the dim fix) is on main now.
+- Decision for the lead: re-merge artscene now (my lean: it fixes both, no code change), or have this lane key the
+  no-dim rule on a list of graded texture names so un-graded art is dimmed again (code coupled to artscene's imports).
+  Not built either way; this lane did not change the dim rule.
+
+## Gate failure on 0f24bafd (Nov 13 19:40): LevelUpShowsAndResumes, cause and fix
+- Not the block-slot code. The test fails on the tip alone (TEST_FILTER, build exit 0) only while this tree has
+  `Saved/SaveGames/UmbrellaEllaProgress.sav` written by a game run (my 19:34 visual_qa capture): Director's Cut then
+  opens the purchase screen first (unspent points), so `StartDirectorsCut` leaves the screen on Purchase:
+  log `LogAutomationController: Error: playing: The two values are not equal.` Same tip, save moved aside:
+  `PASS tests=1 failed=0 commit=642f7ad0`. The test code is identical on main, so main fails the same way with that save.
+- In the gate the save most likely came from the visual_qa step of the previous gate run (b4c1fe79) in the same tree.
+- Fix (this lane): `visual_qa.py capture` snapshots Saved/SaveGames and Saved/Config/*/GameUserSettings.ini before the
+  game run and restores them after (new files removed). Test `tests/test_visual_qa.py` UserState; break check (no
+  restore) FAILs it. 21 OK.
+- Lead, once: remove the leftover `Saved/SaveGames/UmbrellaEllaProgress*.sav` in the gate tree before re-gating.
+- Test defect for the flow lane (not changed here): LevelUpShowsAndResumes reads the real save slot; it should use a
+  shadow/in-memory progression like the purchase test does.
+
 ## Gate command (for the lead)
-`python3 tools/build/visual_qa.py run --out Saved/VisualQA/gate-<sha>` -> last line `VISUAL_QA PASS|FAIL ...`;
-exit 0 PASS, 1 FAIL, 2 could not run. Baseline for main: `python3 tools/build/visual_qa.py baseline --shots <dir> --sha <main sha>`
-(writes ../logs/visual-baseline/<sha>.json; VISUAL_BASELINE_DIR overrides).
+Gate step (in the gate worktree, merged tree built): `python3 tools/build/visual_qa.py run --gate --main-sha <main sha> --out Saved/VisualQA/gate-<sha>`
+-> last line `VISUAL_QA GATE PASS|FAIL ...`; exit 0 PASS, 1 FAIL (regression), 2 could not run (no baseline, capture failed).
+Bootstrap main's baseline (checkout at main, built): `python3 tools/build/visual_qa.py baseline --from-main --sha <main sha>`
+(writes ../logs/visual-baseline/<sha>.json; VISUAL_BASELINE_DIR overrides). Plain `run` / `judge` keep the absolute verdict.
 
 ## Left
 - Keeper fight screen: the Keeper is off-screen in Director's Cut (B5, levelchunks); Start Game Keeper art is large and
   square-cropped (figure scale next).
 - Route ground is flat umber bars until artscene's island art lands; light shaft still a straight line.
 - Composites per round; baseline for main once merged.
+
+## Check defect fix (lead 19:50): gate failed the owl merge on wording and judge noise
+- Triage: check defect. Owl gate (0d74b84a vs main b4c1fe79): every "new broken" item is a defect main's frames show
+  (the dc_route frames are near-identical; main's stored dc_route run simply left out the vertical line), and dc_route
+  26 vs 29 is inside the judge's own spread.
+- Noise, measured: the same bytes re-judged 5 more times (`visual_qa.py noise --n 5`, records committed, replayable):
+  main b4c1fe79 play 23 + [25,23,25,24,20], dc_route 29 + [26,25,24,23,26], keeper 19 + [18,18,21,18,17];
+  owl 0d74b84a play 32 + [30,27,30,31,29], dc_route 26 + [21,24,24,24,24], keeper 23 + [25,28,25,24,27].
+  Widest spread on one frame 6 (main dc_route); one run fell at most 3.5 under its frame's median (main play).
+  Files: pipeline/qa/visual/noise/main-b4c1fe79.json, owl-0d74b84a.json.
+- Margin: gate compares with the median of main's runs, slack 4 (3.5 rounded up); a baseline without samples uses
+  its one run, slack 6. A test recomputes both from the noise files.
+- Matching: each broken item maps to a defect kind (line, bar, unkeyed, bright_backdrop, no_wind, player_missing, ...;
+  DEFECT_KINDS); matched by count per kind per screen against the most any of main's runs listed. A third bar where
+  main had two still fails; an item no rule knows matches only its exact text, as before. Location is not in the key:
+  the judge names one place three ways ("mid-right", "right middle", "right of centre").
+- Baselines now store 5 noise samples (`BASELINE_SAMPLES`, env VISUAL_QA_BASELINE_SAMPLES): +15 judge calls,
+  about 5 min, per stored baseline. b4c1fe79's baseline in ../logs/visual-baseline has its 5 samples (replayed).
+- Owl run against it: play, dc_route, keeper all PASS (test GateWording.test_owl_merge_is_not_a_regression).
+- Tests: tests/test_visual_qa.py GateWording (7, real wordings); 28 OK. Old code: 9 of them fail.
+- gate.sh not touched. Lessons inbox: not found in this tree; lesson is "a single judged run is not a baseline: store
+  samples, match by defect kind".
+- Residual: an item main's frame shows but no main run named (none seen in 6 runs per screen) can still false-fail.

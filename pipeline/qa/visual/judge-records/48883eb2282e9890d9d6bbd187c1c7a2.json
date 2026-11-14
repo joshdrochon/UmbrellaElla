@@ -1,0 +1,6 @@
+{
+ "model": "claude-opus-5-5",
+ "key": "48883eb2282e9890d9d6bbd187c1c7a2",
+ "at": "2026-11-13T19:52:38",
+ "answer": "{\"scores\": {\"dark_backdrop\": 3, \"wind_ribbons\": 1, \"small_figures\": 4, \"floating_islands\": 1, \"shot_colours\": 5, \"no_placeholders\": 2, \"no_framed_art\": 2}, \"broken\": [\"flat brown colour bar as ground at bottom left\", \"Keeper owl picture unkeyed, sits on a rectangle background\", \"thin full-height vertical line through the left of the frame\"], \"verdict\": \"FAIL\"}"
+}
