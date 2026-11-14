@@ -2956,6 +2956,33 @@
    },
    "owner": "artui"
   },
+  "ui-final-hour-intro": {
+   "what": "a game story card (the Final Hour intro shown before the Extreme run; the title screen sets its style): a full-screen dark card with a short lettered passage; judge lettering, layout, mood and finish, not which words it shows",
+   "refs": [
+    "title-screen"
+   ],
+   "score_min": 0.5,
+   "detail_min": 0.249,
+   "ui": {
+    "widgets": [
+     "UFinalHourIntroWidget",
+     "SUmbrellaRule",
+     "SUmbrellaGround"
+    ],
+    "screens": []
+   },
+   "calibration": {
+    "method": "leave-one-out on the team images under pipeline/art/reference/ (quality bar and Assets/ studies excluded)",
+    "margin": 0.02,
+    "measured": "2026-11-12",
+    "loo": {},
+    "detail": {
+     "title-screen": 0.269
+    },
+    "note": "one team image and nothing to compare it with: score_min not measurable"
+   },
+   "owner": "artui"
+  },
   "ui-xp-ring": {
    "what": "a game's HUD clock with a thin glowing gold ring around it (the experience ring) as it sits in the frame; the title screen's clock faces and gold line work set its style",
    "refs": [

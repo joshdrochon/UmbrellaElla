@@ -62,6 +62,10 @@ private:
 	UPROPERTY()
 	TObjectPtr<AUmbrellaArena> Arena;
 
+	/** Where the arena stood before the handoff moved it to the route end; ClearRoute puts it back. */
+	FVector ArenaHome = FVector::ZeroVector;
+	bool bArenaMoved = false;
+
 	FRoute Route;
 	TArray<FLevelPlacement> Plan;
 	int32 SlotsSpawned = 0;

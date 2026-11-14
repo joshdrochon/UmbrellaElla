@@ -120,7 +120,9 @@ namespace LevelPlan
 	{
 		const float H = LevelPlanArena().ArenaHeight;
 		const float RefugeLength = LevelPlanField().RefugeLengthFraction * LevelPlanField().ChunkLength;
-		const float X = LevelCatalogue::RefugeStartX(Checkpoint) + LevelPlanConst::StandInsetFraction * RefugeLength;
+		// CP0 has no refuge in front of slot 0 (RefugeStartX(0) is left of the route and its camera clamp): stand in slot 0.
+		const float RefugeStart = Checkpoint <= 0 ? LevelCatalogue::SlotStartX(0) : LevelCatalogue::RefugeStartX(Checkpoint);
+		const float X = RefugeStart + LevelPlanConst::StandInsetFraction * RefugeLength;
 		return FVector(X, UmbrellaDrawOrder::EllaY, LevelPlanConst::FloorThicknessFraction * H + LevelPlanConst::CheckpointStandFraction * H);
 	}
 
@@ -141,5 +143,10 @@ namespace LevelPlan
 	float KeeperHandoffX()
 	{
 		return LevelCatalogue::RouteLength() - LevelRules::VestibuleLength(LevelPlanArena().ArenaWidth);
+	}
+
+	FVector KeeperArenaOrigin()
+	{
+		return FVector(KeeperHandoffX() - LevelPlanArena().PlayerStartXFraction * LevelPlanArena().ArenaWidth, 0.0, 0.0);
 	}
 }
