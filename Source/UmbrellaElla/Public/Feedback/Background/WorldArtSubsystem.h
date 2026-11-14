@@ -20,7 +20,8 @@ namespace UmbrellaWorldArtConst
 /**
  * Draws the world slots (world:solids, world:solids-block, world:refuge-and-yellow-bay, world:mill-and-traps) onto the pieces the level
  * director already placed: land blocks, refuge and checkpoint blocks, and traps keep their stand-in box and shape, and
- * their picture replaces the flat colour when the slot asset exists. Collision is never touched. Visuals lane.
+ * their picture replaces the flat colour when the slot asset exists. Collision is never touched: a colliding block keeps
+ * its box and collision (hidden) and its picture draws on a child plane, BlockArt. Visuals lane.
  */
 UCLASS()
 class UMBRELLAELLA_API UWorldArtSubsystem final : public UTickableWorldSubsystem

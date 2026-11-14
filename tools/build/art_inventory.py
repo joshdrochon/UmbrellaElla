@@ -129,6 +129,7 @@ FILE_RULES = [
     (r"^Content/[^/]+/Art/Shots/T_WindLines(?:_PH)?\.uasset$", "wind:decor-lines"),
     (r"^Content/[^/]+/Art/UI/T_Screen_(\w+?)(?:_PH)?\.uasset$", "screen:{1}"),
     (r"^Content/[^/]+/Art/Ella/T_Ella_Idle(?:_PH)?\.uasset$", "ella-state:Idle"),
+    (r"^Art/Source/StandIns/ella-hurt/", "ella-state:Hurt"),   # lossless grid repack of the hurt strip (scalecheck)
     (r"^Art/Source/UI/Font/UmbrellaStorybook\.ttf$", "ui:font"),
     (r"^Art/Source/UI/Ground/Raw/T_UI_(Ground|Grain)_PH\.png$", "ui:ground-{1}"),
     (r"^Art/Source/UI/Ground/Raw/T_UI_ClockFace_PH\.png$", "ui:clock-face"),

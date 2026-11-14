@@ -164,6 +164,17 @@ bool FArtSlotWorldPieces::RunTest(const FString& Parameters)
 		TestEqual(TEXT("a block with no imported picture falls back to the ledge picture, never a bare box"), UWorldArtSubsystem::FallbackVisual(TEXT("world:solids-block")), FString(TEXT("world:solids")));
 		TestTrue(TEXT("other slots have no fallback"), UWorldArtSubsystem::FallbackVisual(TEXT("world:solids")).IsEmpty());
 		TestEqual(TEXT("a zero-height solid is a ledge, not a divide by zero"), UWorldArtSubsystem::VisualFor(ELevelPlacementKind::Solid, FVector(100.0f, 100.0f, 0.0f)), FString(TEXT("world:solids")));
+		// Every land block that collides before drawing (the solids Ella meets), measured before the pictures go on.
+		TArray<UStaticMeshComponent*> Colliding;
+		for (const TObjectPtr<AActor>& Piece : Director->GetSpawned())
+		{
+			UStaticMeshComponent* Block = IsValid(Piece) ? FindObjectFast<UStaticMeshComponent>(Piece, TEXT("Block")) : nullptr;
+			if (Block && Block->GetCollisionEnabled() == ECollisionEnabled::QueryAndPhysics)
+			{
+				Colliding.Add(Block);
+			}
+		}
+		TestTrue(TEXT("the route has colliding land blocks"), Colliding.Num() > 0);
 		UTexture2D* Texture = FamilyTestTexture();
 		const int32 Drawn = WorldArt->Refresh(Texture);
 		TestEqual(TEXT("every ledge is drawn"), WorldArt->DrawnCount(TEXT("world:solids")), Solids);
@@ -171,15 +182,19 @@ bool FArtSlotWorldPieces::RunTest(const FString& Parameters)
 		TestEqual(TEXT("every refuge piece is drawn"), WorldArt->DrawnCount(TEXT("world:refuge-and-yellow-bay")), Refuges);
 		TestEqual(TEXT("drawn total is the four slots"), Drawn, Solids + Blocks + Refuges + WorldArt->DrawnCount(TEXT("world:mill-and-traps")));
 		TestEqual(TEXT("a second pass draws nothing new"), WorldArt->Refresh(Texture), 0);
-		for (const TObjectPtr<AActor>& Piece : Director->GetSpawned())
+		// main 991b3eb7: drawing turned each block's own mesh into a NoCollision plane, so Ella flew through every solid.
+		// Every block that collided before still collides, keeps its box size, and its picture is on a non-colliding plane.
+		int32 StillColliding = 0;
+		int32 PicturedApart = 0;
+		for (UStaticMeshComponent* Block : Colliding)
 		{
-			const UStaticMeshComponent* Block = IsValid(Piece) ? FindObjectFast<UStaticMeshComponent>(Piece, TEXT("Block")) : nullptr;
-			if (Block && Block->GetCollisionEnabled() != ECollisionEnabled::NoCollision)
-			{
-				TestTrue(TEXT("a drawn land block still collides"), Block->GetCollisionEnabled() == ECollisionEnabled::QueryAndPhysics);
-				break;
-			}
+			StillColliding += Block->GetCollisionEnabled() == ECollisionEnabled::QueryAndPhysics ? 1 : 0;
+			const UStaticMeshComponent* Picture = FindObjectFast<UStaticMeshComponent>(Block->GetOwner(), TEXT("BlockArt"));
+			PicturedApart += Picture && ArtSlot::HasArt(Picture) && Picture->GetCollisionEnabled() == ECollisionEnabled::NoCollision
+				&& Picture->IsVisible() && !Block->IsVisible() && !ArtSlot::HasArt(Block) ? 1 : 0;
 		}
+		TestEqual(TEXT("every drawn land block still collides"), StillColliding, Colliding.Num());
+		TestEqual(TEXT("every drawn land block shows its picture on a separate non-colliding plane"), PicturedApart, Colliding.Num());
 	}
 	FamilyTestEnd(World);
 	return true;

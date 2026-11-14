@@ -17,6 +17,32 @@ namespace
 		const FName Name = Cast<AUmbrellaTrap>(Piece) ? FName(TEXT("Placeholder")) : FName(TEXT("Block"));
 		return FindObjectFast<UStaticMeshComponent>(Piece, Name);
 	}
+
+	/** The component a piece's picture goes on. A trap's placeholder never collides, so it takes the picture itself. A land
+	 *  block's mesh is its collision (UmbrellaLevelDirector::SpawnBlock): ArtSlot::Apply turns a mesh into a NoCollision
+	 *  plane, which let Ella fly through every drawn solid once T_WorldSolids_PH was imported (main 991b3eb7; Level.World.
+	 *  RealInputWalkerAtZ450StopsAt07ALowSolid). So a colliding mesh keeps its box and collision, is only hidden, and the
+	 *  picture goes on a child plane at the same place and size. */
+	UStaticMeshComponent* WorldArtPictureMesh(AActor* Piece, UStaticMeshComponent* Mesh)
+	{
+		if (!IsValid(Mesh) || Mesh->GetCollisionEnabled() == ECollisionEnabled::NoCollision)
+		{
+			return Mesh;
+		}
+		const FName PictureName(TEXT("BlockArt"));
+		UStaticMeshComponent* Picture = FindObjectFast<UStaticMeshComponent>(Piece, PictureName);
+		if (!Picture)
+		{
+			Picture = NewObject<UStaticMeshComponent>(Piece, PictureName);
+			Picture->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			Picture->SetGenerateOverlapEvents(false);
+			Picture->SetupAttachment(Mesh);
+			// The block's scale is its box size; the plane takes that size in world units, not on top of it.
+			Picture->SetUsingAbsoluteScale(true);
+			Picture->RegisterComponent();
+		}
+		return Picture;
+	}
 }
 
 bool UWorldArtSubsystem::ShouldCreateSubsystem(UObject* Outer) const
@@ -111,8 +137,14 @@ int32 UWorldArtSubsystem::Refresh(UTexture2D* Texture)
 			{
 				continue;
 			}
-			if (ArtSlot::Apply(Mesh, Picture, *Row, Mesh->GetRelativeScale3D()) == EArtSlotDraw::Drawn)
+			UStaticMeshComponent* Target = WorldArtPictureMesh(Piece, Mesh);
+			if (ArtSlot::Apply(Target, Picture, *Row, Mesh->GetComponentScale()) == EArtSlotDraw::Drawn)
 			{
+				if (Target != Mesh)
+				{
+					// The box stays as the solid Ella meets; only its flat stand-in colour is no longer drawn.
+					Mesh->SetVisibility(false);
+				}
 				Done.Add(Piece);
 				++Counts.FindOrAdd(Visual);
 				++Drawn;

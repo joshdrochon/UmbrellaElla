@@ -313,3 +313,38 @@ IDENTIFIED C: the Keeper gust's gameplay cue cube `AKeeperOfTime::GustVisual` (S
   `-WaitMutex -NoHotReload`, build exit 0, .modules maps base names. Not reproduced with an editor open (would need
   launching one; not done).
 - Tests: tests/test_run_game.py 9 OK; against the old run_game.sh/build.sh 4 fail (suffixed layout STALE, missing -NoHotReload).
+
+## Lead order Nov 13 23:26, item 1: flat-box detector missed three real boxes
+- Causes (measured on ../logs/flatbox-samples): (a) grey wing box on fix-cast.png: its flat core filled 74% of its
+  rectangle, because the red ring's glow shades its lower-left (a smooth gradient, not the warning line); (b) the lilac
+  head square is 19x19 = 361 px, under the 0.15%-of-frame minimum; (c) the salmon band on shot-250.png touches the top
+  edge and every edge-touching region was skipped as backdrop.
+- Fix (tools/build/flat_box.py): (a) cells of the rectangle reached from a flat core by smooth steps count as the same box
+  when the core is one flat tint (exact share >= 0.25: 0.48 on the wing box, <= 0.05 on painted sky); (b) a box down to
+  0.03% of the frame counts when crisp (core fill >= 0.95, edge contrast >= 36; the head square: 1.0 and ~95);
+  (c) an edge-touching region is skipped only if it spans >= 80% of that edge, touches two edges (a corner) or is not one
+  flat tint (dark corner sky on a DC route shot, kept as a no-box fixture).
+- Tests: tests/test_flat_box.py 18 OK (fixtures flatbox-keeper-topband / -wingbox-head / -cast-good / dcroute-cornersky,
+  real 1280x720 captures). Old flat_box.py: 2 of them FAIL (band on the top edge; wing box + head square).
+- Sweep: 100 older Saved/VisualQA captures, new vs old detector: 7 differ, every new hit a real flat box or bar
+  (r06 route grey box crossed by ribbons, r09 salmon band, flat floor bars, black unpainted panels). No false hit.
+
+## Lead order Nov 13 23:26, item 2: the gate captures Ella's hurt frame
+- Journey hook: `figureshot <name>` saves the shot, then a plate (`<name>_plate.png`, Ella's actor hidden 3 frames) and
+  `<name>.json` (her presenter state, the box her drawn components project to). `hurtshot <name>` lands one assisted hit of
+  exactly her active points (Hurt shows on LifeLost only: a 1-point hit left her Idle on the first real run) and captures
+  2 frames after her presenter shows Hurt (state hold 0.25 s). journeys/visual_qa.txt: `figureshot vq_figure`,
+  `hurtshot vq_hurt` after vq_play, before `hits Defeat`.
+- visual_qa.figure_check (play screen, no judge call): diffs shot vs plate inside the box, largest linked figure; fails on
+  a missing/non-Hurt capture, a flat box (>= 60% one colour) or hurt height outside 0.6-1.6x the normal frame. vq_hurt is
+  also a flat-box detector shot. Items tagged [detector], kind hurt_frame.
+- Real captures (1280x720, cropped 480x270 as fixtures in pipeline/qa/visual/calibration/hurt/): this branch (VT texture)
+  hurt = 178x135 black box, 99% one colour -> FAIL; scalecheck's plain 6x4 texture with the old 24-col row = 9 px sliver
+  -> FAIL (ratio 0.10); with scalecheck's 6x4 row (bb2fb8f9 asset + catalogue, checked out only for the capture, then
+  restored and rebuilt) = 112 px vs idle 93 -> PASS. Full visual_qa journey on this build: hurt state Hurt, black box
+  flagged by figure_check and flat_box; `hits Defeat` now 5.9 s (was about 10 s), so the run is shorter overall.
+- Tests: tests/test_hurt_frame.py 7 OK (old visual_qa: 6 errors + 1 fail); test_visual_qa + test_flat_box 58 OK (their
+  shot dirs now carry the good hurt set). UmbrellaElla.Smoke.Journey 5/5 PASS incl. new ParsesFigureShots (break-check:
+  commands removed from the parser -> FAIL). Build exit 0.
+- Note: JourneyHookSubsystem is the agentplay lane's file; changed here per the lead order (as item 6).
+- On main today the hurt frame is the black box until area/scalecheck merges: the gate will list it on the play screen.
