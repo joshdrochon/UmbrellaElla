@@ -1,0 +1,6 @@
+{
+ "model": "claude-opus-5-5",
+ "key": "4dc7dbc46b735bf48ec4db79bb6a491b",
+ "at": "2026-11-13T22:11:40",
+ "answer": "{\"scores\": {\"dark_backdrop\": 8, \"wind_ribbons\": 0, \"small_figures\": 3, \"floating_islands\": 6, \"shot_colours\": 1, \"no_placeholders\": 0, \"no_framed_art\": 6}, \"broken\": [\"large flat salmon-pink solid box across the middle of the screen (wind drawn as a placeholder bar, not ribbons)\", \"player figure hangs from a thin vertical line/string from the top of the frame\", \"Keeper (mechanical owl) is huge, about a third of the frame, not small as in the study\", \"no gold or red shot streaks visible\", \"'Preparing Textures (1)' loading text over the HUD (textures not streamed in)\"], \"verdict\": \"FAIL\"}"
+}

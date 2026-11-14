@@ -1,0 +1,6 @@
+{
+ "model": "claude-opus-5-5",
+ "key": "3a2884a39454753bb4ac64c979fa390f",
+ "at": "2026-11-13T22:07:48",
+ "answer": "{\"scores\": {\"dark_backdrop\": 8, \"wind_ribbons\": 6, \"small_figures\": 7, \"floating_islands\": 7, \"shot_colours\": 5, \"no_placeholders\": 4, \"no_framed_art\": 8}, \"broken\": [\"long flat brown bar spanning the bottom of the frame\", \"flat thin bar platform in the middle (under the centre islands)\", \"straight vertical line from the top of the screen down to the player\"], \"verdict\": \"FAIL\"}"
+}
