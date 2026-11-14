@@ -224,3 +224,11 @@ IDENTIFIED C: the Keeper gust's gameplay cue cube `AKeeperOfTime::GustVisual` (S
   ArtSlot, Keeper world tests. Captures: pipeline/qa/visual/scale-{play,keeper}-before-after.png (study | main 991b3eb7 | tip).
   `visual_qa.py run --gate --main-sha dd37d80943a12016565114f4abd1fb887f47df6c` on cc2a51b4:
   `VISUAL_QA GATE PASS play=39/70 dc_route=45/70 keeper=39/70 broken=7 baseline=991b3eb7806a`.
+- Item 3 capture load: tools/build/run_game.sh caps every offscreen (RUN_RES) run with
+  `-ini:Engine:[ConsoleVariables]:t.MaxFPS=30` (RUN_MAXFPS, default 30; 0 lifts it); the run log shows
+  `LogConfig: Set CVar [[t.MaxFPS:30]]`. That covers gate and lane visual_qa captures (visual_qa launches through it).
+  Scores: same tip cc2a51b4 uncapped play/dc_route/keeper = 39/45/39; capped first 24/43/39, recapture 41/44/39
+  (pipeline/qa/visual/noise/fps30-cc2a51b4.json). The 24 is content: that capture had the Keeper's salmon gust band
+  mid-frame and 'Preparing Textures'; the gate's two-capture rule passes the capped pair against the uncapped run, and
+  every recapture total is within the measured judge noise (4). Tests: tests/test_capture_fps.py (6; stub editor prints
+  run_game's args; the old run_game.sh fails 2).
