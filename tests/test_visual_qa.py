@@ -223,12 +223,35 @@ class GateMode(unittest.TestCase):
             self.assertEqual(visual_qa.cmd_baseline_from_main(self.shots, sha, never_called, self.rec), visual_qa.EXIT_PASS)
             self.assertEqual(cap.call_count, 1)                        # once per sha
 
+    def test_from_main_with_shots_stores_the_gate_run_without_capturing(self):
+        sha = "9" * 40
+        with mock.patch.object(visual_qa, "capture", side_effect=AssertionError("captured")), \
+                mock.patch.object(visual_qa, "_git", side_effect=AssertionError("checked HEAD")), redirect_stdout(io.StringIO()):
+            code = visual_qa.cmd_baseline_from_main("", sha, lambda p, i: answer(4, ["x"], "FAIL"), self.rec, shots=self.shots)
+        self.assertEqual(code, visual_qa.EXIT_PASS)
+        self.assertEqual(visual_qa.load_baseline(sha)["screens"]["keeper"]["total"], 4 * len(visual_qa.RUBRIC))
+
     def test_from_main_refuses_a_checkout_not_at_main(self):
         with mock.patch.object(visual_qa, "_git", return_value="d" * 40 + "\n"), \
                 mock.patch.object(visual_qa, "capture", side_effect=AssertionError("captured")), \
                 redirect_stdout(io.StringIO()):
             self.assertEqual(visual_qa.cmd_baseline_from_main(self.shots, "e" * 40), visual_qa.EXIT_ERROR)
         self.assertFalse(os.path.exists(visual_qa.baseline_path("e" * 40)))
+
+
+class GateScript(unittest.TestCase):
+    """gate.sh calls the gate mode against main's sha, never records exit 2 against the lane, and stores its own run
+    as the new main's baseline only after the push."""
+
+    def test_gate_sh_wires_visual_qa(self):
+        with open(os.path.join(ROOT, "tools", "build", "gate.sh"), encoding="utf-8") as fh:
+            gate = fh.read()
+        self.assertIn('visual_qa.py run --gate --main-sha "$MAIN"', gate)
+        self.assertIn('export VISUAL_BASELINE_DIR="$L/visual-baseline"', gate)
+        step = gate[gate.index("visual_qa.py run --gate"):]
+        self.assertRegex(step.split("esac")[0], r"\*\).*fail=1; NORECORD=1")
+        store = gate.index("baseline --from-main --shots")
+        self.assertGreater(store, gate.index("git push -q origin main"))
 
 
 class Calibration(unittest.TestCase):

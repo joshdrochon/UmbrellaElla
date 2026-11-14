@@ -61,6 +61,17 @@
   stores the judged run as main's baseline even when main has broken items; skips a sha that already has one.
 - Tests: `tests/test_visual_qa.py` GateMode (7 tests; break-checked: matching every broken item as new fails 2).
 
+## Done (Nov 13 evening): gate.sh step (lead follow-up 2; this lane's copy only, the lead installs it)
+- `tools/build/gate.sh`: after the checks, when the merge touches Source/, Content/, Art/ or pipeline/art (and nothing
+  failed yet; builds first if the merge had no Source change), runs `visual_qa.py run --gate --main-sha "$MAIN"`.
+  Exit 1 fails the merge; exit 2 (no baseline, capture failed) fails it with NORECORD=1 (not the lane's fault).
+  `VISUAL_BASELINE_DIR=$L/visual-baseline` so the gate worktree and the main checkout share one store.
+  After a PASS and push, the gate stores its own run as the new main's baseline (judge calls replay: no spend), only
+  when main's Source/Content/Config/Art equal the gate tree. So the lead bootstraps once; later merges self-refresh.
+- Open for the lead: a missing baseline blocks every visual merge until `baseline --from-main` runs (lead's 17:32 spec);
+  the alternative is to let the merge through with a warning. Built the blocking default.
+- Test: `tests/test_visual_qa.py` GateScript.
+
 ## Gate command (for the lead)
 Gate step (in the gate worktree, merged tree built): `python3 tools/build/visual_qa.py run --gate --main-sha <main sha> --out Saved/VisualQA/gate-<sha>`
 -> last line `VISUAL_QA GATE PASS|FAIL ...`; exit 0 PASS, 1 FAIL (regression), 2 could not run (no baseline, capture failed).
