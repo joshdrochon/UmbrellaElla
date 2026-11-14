@@ -1,4 +1,5 @@
 #include "Feedback/Art/ArtSlot.h"
+#include "Core/UmbrellaLog.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/Texture2D.h"
@@ -85,10 +86,42 @@ UTexture2D* ArtSlot::LoadTexture(const FArtSlotRow& Row)
 		}
 		if (Cached.IsValid())
 		{
-			return Cached.Get();
+			const FIntPoint Size = PictureSize(Cached.Get());
+			if (FitsGpu(Size.X, Size.Y))
+			{
+				return Cached.Get();
+			}
+			static TSet<FString> Reported;
+			if (!Reported.Contains(Path))
+			{
+				Reported.Add(Path);
+				UE_LOG(LogUmbrellaElla, Warning, TEXT("ArtSlot: %s is %d x %d, over the %d px texture limit: not drawn (it would draw a black box)"),
+					*Path, Size.X, Size.Y, UmbrellaArtSlotConst::MaxTextureEdge);
+			}
 		}
 	}
 	return nullptr;
+}
+
+bool ArtSlot::FitsGpu(int64 Width, int64 Height)
+{
+	return Width >= 1 && Height >= 1 && Width <= UmbrellaArtSlotConst::MaxTextureEdge && Height <= UmbrellaArtSlotConst::MaxTextureEdge;
+}
+
+FIntPoint ArtSlot::PictureSize(const UTexture2D* Texture)
+{
+	if (!IsValid(Texture))
+	{
+		return FIntPoint::ZeroValue;
+	}
+#if WITH_EDITORONLY_DATA
+	// UE 5.8.4 Engine/Classes/Engine/Texture.h: FTextureSource::IsValid() (line 372), GetSizeX()/GetSizeY() (lines 417-418).
+	if (Texture->Source.IsValid())
+	{
+		return FIntPoint(static_cast<int32>(Texture->Source.GetSizeX()), static_cast<int32>(Texture->Source.GetSizeY()));
+	}
+#endif
+	return FIntPoint(Texture->GetSizeX(), Texture->GetSizeY());
 }
 
 FVector ArtSlot::PlaneScaleFor(const FVector& BoxScale)
