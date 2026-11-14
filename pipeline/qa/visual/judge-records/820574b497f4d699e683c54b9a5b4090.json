@@ -1,0 +1,6 @@
+{
+ "model": "claude-opus-5-5",
+ "key": "820574b497f4d699e683c54b9a5b4090",
+ "at": "2026-11-13T22:11:46",
+ "answer": "{\"scores\": {\"dark_backdrop\": 4, \"wind_ribbons\": 1, \"small_figures\": 6, \"floating_islands\": 3, \"shot_colours\": 6, \"no_placeholders\": 2, \"no_framed_art\": 8}, \"broken\": [\"solid salmon-pink rectangle bar across the top of the frame\", \"thin full-height white vertical line through the left of the frame\", \"no wind ribbons visible\"], \"verdict\": \"FAIL\"}"
+}
