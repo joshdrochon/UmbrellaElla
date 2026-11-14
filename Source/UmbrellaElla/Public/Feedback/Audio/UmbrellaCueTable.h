@@ -50,6 +50,12 @@ namespace UmbrellaCueTable
 	UMBRELLAELLA_API const TArray<FUmbrellaSoundCue>& All();
 	UMBRELLAELLA_API const TArray<FUmbrellaLoopGroupStop>& GroupStops();
 
+	/**
+	 * The Detail a row matches on: an enum-class name drops its "EType::" prefix. The projectile service stamps
+	 * "EUmbrellaShotKind::EnemyRed" while the sound list says "EnemyRed"; without this every shot missed its row
+	 * and fell back to the flat Shot placeholder with no concurrency limit (stacked shots, the in-game crackle).
+	 */
+	UMBRELLAELLA_API FName CueDetail(FName Detail);
 	/** Whether one row fires for this event. PrevDetail is the last Detail seen for the event's type. */
 	UMBRELLAELLA_API bool IsMatch(const FUmbrellaSoundCue& Cue, const FUmbrellaEvent& Event, FName PrevDetail);
 	/** The rows an event plays. */

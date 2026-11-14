@@ -32,3 +32,24 @@ handoff -> over it -> Keeper fight active, route threats cleared, CP events once
 break-proven (handoff line moved +100000: FAIL 'handed off', 'route threats cleared'), restored. The Keeper fight also
 raises CheckpointReached for its phases (detail `wings`, source KeeperOfTime); the test counts the director's events only.
 Lead: to see the route in the real game, the journey needs Director's Cut (title menu item 2), not Start Game.
+
+## B5 + B6 (Director's Cut camera, lead order post-handoff leftover 1), Nov 13
+- B6: `LevelPlan::CheckpointStandLocation(0)` now stands in slot 0 (x 240), not at `RefugeStartX(0)` (x -720: no floor there and
+  left of the camera clamp). There is no refuge before slot 0.
+- B5: at the handoff `AUmbrellaLevelDirector::StepFollow` moves the arena with `AUmbrellaArena::MovePlayArea(LevelPlan::KeeperArenaOrigin())`
+  before `BeginKeeperFight()`: the arena origin is the handoff X less `PlayerStartXFraction` of its width, so Ella stands at the same
+  fraction as in Start Game, and bounds, fixed camera, backgrounds and the Keeper anchor move with it. The route scroll stops after the
+  handoff; `ClearRoute` puts the arena home. Start Game never builds a route, so its arena stays at the origin. No Encounter change needed
+  (`SpawnKeeper` already reads the arena's current anchor).
+- Tests: `UmbrellaElla.Level.World.DirectorsCutFramesEllaAndKeeper` (Ella in the camera frame at route start, mid route, and Ella + Keeper
+  in frame after the handoff; camera holds; arena home after ClearRoute). Break-proven: with both fixes removed it FAILS
+  ('route start: Ella in the camera frame', 'arena at the route end', 'fight: Keeper in the camera frame'), restored PASS.
+  `UmbrellaElla.Level.World.StartGameKeepsArenaAndKeeperFrame` pins Start Game's arena at the origin. Level+Arena+Flow+Encounter: 70/70 PASS.
+- Capture: `pipeline/art/proof/levelchunks/` (journey `b5b6_directors_cut.txt`, windowed 640x360 via run_game.sh): route start ella=drawn(80,111);
+  Keeper fight ella=drawn(128,263) keeper=drawn(480,145). `b5b6_measure.txt` has the lines. The journey runs without -SmokeQuitAfter:
+  with it the smoke hook starts Start Game itself and the title click fails (first try, logged).
+- Seen, not in this grant: in the fight frame the route background ends at the route end (screen x 256), so the left 40 % shows the route
+  backdrop and the rest the arena backdrop. B7 (no ceiling on the route) and B8 (stall at x 11 465) are still open.
+- After merging origin/main (5628870f, test launches pass -nosound): gate prefixes 84 tests, 78 PASS, 6 FAIL, all title/credits music
+  tests in `Flow.World` ("a music component exists (an audio device is required)"). They need an audio device that `-nosound` removes;
+  not caused by this lane (no Flow/audio file changed). Lead: the gate's Flow.World run will hit the same 6 on any merge.

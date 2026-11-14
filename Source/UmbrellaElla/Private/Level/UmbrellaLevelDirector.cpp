@@ -33,6 +33,11 @@ void AUmbrellaLevelDirector::ClearRoute()
 	}
 	Spawned.Reset();
 	Plan.Reset();
+	if (bArenaMoved && IsValid(Arena))
+	{
+		Arena->MovePlayArea(ArenaHome);
+	}
+	bArenaMoved = false;
 	SlotsSpawned = 0;
 	CheckpointReached = 0;
 	bHandedOff = false;
@@ -179,7 +184,8 @@ void AUmbrellaLevelDirector::StepFollow(float EllaX, int32 TravelDirection)
 			Arena = *It;
 		}
 	}
-	if (Arena)
+	// After the handoff the arena camera holds the fixed Keeper frame (B5); the route scroll stops.
+	if (Arena && !bHandedOff)
 	{
 		Arena->FollowEllaX(EllaX, TravelDirection);
 		if (Arena->GetPlayCamera())
@@ -204,6 +210,21 @@ void AUmbrellaLevelDirector::StepFollow(float EllaX, int32 TravelDirection)
 			{
 				A->Destroy();
 				Spawned.RemoveAtSwap(Index);
+			}
+		}
+		// B5: bring the Keeper arena (bounds, fixed camera, Keeper anchor) to Ella at the route end before the Keeper
+		// spawns, so the fight is on screen. Start Game never builds a route and keeps the arena where it is.
+		if (Arena)
+		{
+			if (!bArenaMoved)
+			{
+				ArenaHome = Arena->GetActorLocation();
+				bArenaMoved = true;
+			}
+			Arena->MovePlayArea(LevelPlan::KeeperArenaOrigin());
+			if (Arena->GetPlayCamera())
+			{
+				LastCameraX = Arena->GetPlayCamera()->GetComponentLocation().X;
 			}
 		}
 		if (UEncounterDirectorSubsystem* Encounter = GetWorld() ? GetWorld()->GetSubsystem<UEncounterDirectorSubsystem>() : nullptr)
