@@ -256,3 +256,12 @@ Ask (lead): Ella's in-game scale (a game-side or art-slot size) or accept a cont
   SMOKE_VIEW ella_px=128,15, she sits at the top edge, about 12 px tall (study scale is about 36 px at 640x360), partly behind a light-blue block
   and over a dark column. Those are camera/frame issues for visualqa, not the sprite. No spend (15.08 of 33.82).
 - Next: hurt/down import once a shot can show them; re-judge idle in the frame after visualqa moves the camera.
+
+## Lead order (recorded Nov 13 17:08, from the gate review ../logs/review-artella.txt)
+Coordinator's order (Josh, 16:05): "a small Ella silhouette that reads at the Other Realm study's scale, judged in the composed frame".
+This is the lead order behind the round-37 import of `T_Ella_Idle_PH`. That import is a tracked `_PH` stand-in, not a pass:
+it is treated as passed only after the silhouette is judged in the composed game frame against the study with visualqa's
+`tools/build/visual_qa.py` (on main). Until then it stays imported only as the `_PH` stand-in.
+- Provenance row added for `Content/UmbrellaElla/Art/Ella/T_Ella_Idle_PH.uasset` (source `ella-idle_N24_grid.png`, script).
+- Committed import script: `tools/build/assets/art_ella_import.py` (wraps `import_art_candidate.py`, UnrealEditor-Cmd pythonscript).
+- Devlog line corrected: up close she matches the study, in the real frame she did not read yet (was overstated).
