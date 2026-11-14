@@ -110,7 +110,7 @@ VFX_SHEET = {
 MATERIAL = {"M_VFX_Sheet": "vfx-light-spill", "M_VFX_Spill": "vfx-light-spill"}
 # A widget class (UUserWidget, SCompoundWidget, SLeafWidget, AHUD) is a visual; the piece judges its screen.
 WIDGET = {"USettingsMenuWidget": "ui-settings", "UXpRingWidget": "ui-xp-ring",
-          "UStoryCaptionWidget": "ui-story-text", "UJourneyCompleteWidget": "ui-journey-complete",
+          "UStoryCaptionWidget": "ui-story-text", "UJourneyCompleteWidget": "ui-journey-complete", "UFinalHourIntroWidget": "ui-final-hour-intro",
           "AUmbrellaHUD": "ui-hud-clock", "SFlowBackground": "menu-screen", "SFlowMenu": "ui-title",
           "SFlowTextScreen": "ui-credits", "UProgressionPurchaseWidget": "ui-purchase",
           "SUmbrellaGround": "ui-title", "SUmbrellaRule": "ui-title"}

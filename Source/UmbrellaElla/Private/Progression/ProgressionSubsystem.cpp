@@ -1,6 +1,10 @@
 #include "Progression/ProgressionSubsystem.h"
 #include "Progression/ProgressionTuning.h"
 #include "BrokenMill/BrokenMillRoom.h"
+#include "Core/EllaCharacter.h"
+#include "GameFramework/PlayerController.h"
+#include "Health/UmbrellaHealthComponent.h"
+#include "UI/Progression/FinalHourIntroWidget.h"
 #include "Core/UmbrellaEventBus.h"
 #include "Core/UmbrellaTuning.h"
 #include "Core/UmbrellaLog.h"
@@ -115,6 +119,10 @@ void UProgressionSubsystem::BindToBus(UUmbrellaEventBus* Bus)
 		return;
 	}
 	BoundBus = Bus;
+	if (UWorld* World = Bus->GetWorld())
+	{
+		SpawnHandle = World->AddOnActorSpawnedHandler(FOnActorSpawned::FDelegate::CreateUObject(this, &UProgressionSubsystem::OnActorSpawned));
+	}
 	BoundTypes = { EUmbrellaEventType::ModeSelected, EUmbrellaEventType::BossPartDestroyed, EUmbrellaEventType::CheckpointReached,
 		EUmbrellaEventType::CheckpointRetried, EUmbrellaEventType::RunCompleted, EUmbrellaEventType::EncounterCompleted };
 	for (const EUmbrellaEventType Type : BoundTypes)
@@ -127,6 +135,11 @@ void UProgressionSubsystem::UnbindFromBus()
 {
 	if (UUmbrellaEventBus* Bus = BoundBus.Get())
 	{
+		if (UWorld* World = Bus->GetWorld())
+		{
+			World->RemoveOnActorSpawnedHandler(SpawnHandle);
+		}
+		SpawnHandle.Reset();
 		for (int32 Index = 0; Index < BoundTypes.Num(); ++Index)
 		{
 			Bus->On(BoundTypes[Index]).Remove(BoundHandles[Index]);
@@ -172,6 +185,16 @@ void UProgressionSubsystem::HandleEvent(const FUmbrellaEvent& Event)
 		if (bRunActive && !bShadowActive && IsFeatureEnabled(EFeatureId::FLOW_08))
 		{
 			FProgressionRules::QuitReload(Profile);
+		}
+		// FLOW-22: a tutorial replay plays on shadow progress; any other mode choice leaves it and restores the earned profile.
+		if (NameHas(Event.Detail, TEXT("Tutorial")))
+		{
+			BeginTutorialReplay();
+			break;
+		}
+		if (bTutorialReplay)
+		{
+			EndShadowProgress();
 		}
 		if (NameHas(Event.Detail, TEXT("Director")))
 		{
@@ -256,7 +279,7 @@ void UProgressionSubsystem::SetPlayMode(EUmbrellaPlayMode Mode)
 {
 	PlayMode = Mode;
 	bRunActive = false;
-	ChangedDelegate.Broadcast();
+	NotifyChanged();
 }
 
 EUmbrellaPlayMode UProgressionSubsystem::GetPlayMode() const
@@ -278,9 +301,37 @@ void UProgressionSubsystem::BeginRun()
 	bFinalHour = FProgressionRules::IsAllStatsMaxed(GetTuning(), Profile);
 	RunScaling = FProgressionRules::NextRunScaling(GetTuning(), Profile);
 	bRunActive = true;
+	// A new run starts its own checkpoint chain: a boss snapshot left by an unfinished run is not this run's rollback point.
+	Profile.bCheckpointValid = false;
 	FProgressionRules::ReachCheckpoint(Profile, EProgressionCheckpointKind::Level);
 	Persist();
-	ChangedDelegate.Broadcast();
+	NotifyChanged();
+	if (bFinalHour && IsFeatureEnabled(EFeatureId::FLOW_06))
+	{
+		ShowFinalHourIntro();
+	}
+}
+
+void UProgressionSubsystem::ShowFinalHourIntro()
+{
+	++FinalHourIntroCount;
+	FinalHourIntroDelegate.Broadcast();
+	UWorld* World = BoundBus.IsValid() ? BoundBus->GetWorld() : nullptr;
+	APlayerController* Player = World != nullptr ? World->GetFirstPlayerController() : nullptr;
+	if (Player != nullptr && Player->IsLocalController() && Player->GetLocalPlayer() != nullptr)
+	{
+		UFinalHourIntroWidget::Show(Player, GetTuning().FinalHourIntroSeconds);
+	}
+}
+
+int32 UProgressionSubsystem::GetFinalHourIntroCount() const
+{
+	return FinalHourIntroCount;
+}
+
+FOnProgressionChanged& UProgressionSubsystem::OnFinalHourIntro()
+{
+	return FinalHourIntroDelegate;
 }
 
 void UProgressionSubsystem::ReachCheckpoint(EProgressionCheckpointKind Kind)
@@ -301,7 +352,7 @@ void UProgressionSubsystem::RetryFromCheckpoint()
 	}
 	FProgressionRules::DeathRetry(Profile);
 	Persist();
-	ChangedDelegate.Broadcast();
+	NotifyChanged();
 }
 
 void UProgressionSubsystem::QuitAndReload()
@@ -312,7 +363,7 @@ void UProgressionSubsystem::QuitAndReload()
 	}
 	FProgressionRules::QuitReload(Profile);
 	bRunActive = false;
-	ChangedDelegate.Broadcast();
+	NotifyChanged();
 }
 
 void UProgressionSubsystem::CompleteRun()
@@ -325,7 +376,7 @@ void UProgressionSubsystem::CompleteRun()
 	FProgressionRules::CompleteRun(Profile);
 	Persist();
 	Broadcast(EUmbrellaEventType::RunCompleted, FName(TEXT("Progression")), Profile.CompletedRuns);
-	ChangedDelegate.Broadcast();
+	NotifyChanged();
 }
 
 bool UProgressionSubsystem::IsRunActive() const
@@ -364,7 +415,7 @@ int32 UProgressionSubsystem::AwardKill(FName Label)
 		Broadcast(EUmbrellaEventType::LevelGained, Label, Level);
 		LevelGainedDelegate.Broadcast(Level);
 	}
-	ChangedDelegate.Broadcast();
+	NotifyChanged();
 	return Xp;
 }
 
@@ -426,7 +477,7 @@ int32 UProgressionSubsystem::GetMaxLives() const
 
 float UProgressionSubsystem::GetHealPerYellow() const
 {
-	return FProgressionRules::HealPerYellow(GetTuning(), GetEffectiveProfile().Ranks);
+	return FProgressionRules::YellowHealFor(GetTuning(), GetEffectiveProfile().Ranks);
 }
 
 float UProgressionSubsystem::GetDamageReduction() const
@@ -463,7 +514,7 @@ bool UProgressionSubsystem::IsBlocked() const
 void UProgressionSubsystem::SetPurchaseContext(const FPurchaseContext& Context)
 {
 	PurchaseContext = Context;
-	ChangedDelegate.Broadcast();
+	NotifyChanged();
 }
 
 FPurchaseContext UProgressionSubsystem::GetPurchaseContext() const
@@ -497,7 +548,7 @@ EProgressionCommit UProgressionSubsystem::CommitRanks(const TArray<int32>& NewRa
 			FProgressionRules::ReachCheckpoint(Profile, EProgressionCheckpointKind::Level);
 		}
 		Persist();
-		ChangedDelegate.Broadcast();
+		NotifyChanged();
 	}
 	return Result;
 }
@@ -512,7 +563,7 @@ void UProgressionSubsystem::BeginShadowProgress(int32 Level)
 	RealProfileWhileShadow = Profile;
 	Profile = FProgressionRules::MakeFixture(GetTuning(), Level);
 	bShadowActive = true;
-	ChangedDelegate.Broadcast();
+	NotifyChanged();
 }
 
 void UProgressionSubsystem::EndShadowProgress()
@@ -523,8 +574,28 @@ void UProgressionSubsystem::EndShadowProgress()
 	}
 	Profile = RealProfileWhileShadow;
 	bShadowActive = false;
+	bTutorialReplay = false;
 	bRunActive = false;
-	ChangedDelegate.Broadcast();
+	NotifyChanged();
+}
+
+void UProgressionSubsystem::BeginTutorialReplay()
+{
+	if (!IsFeatureEnabled(EFeatureId::FLOW_22) || bShadowActive)
+	{
+		return;
+	}
+	// The replay plays with the earned stats, on a copy: nothing it earns reaches the real profile or the save.
+	RealProfileWhileShadow = Profile;
+	bShadowActive = true;
+	bTutorialReplay = true;
+	bRunActive = false;
+	NotifyChanged();
+}
+
+bool UProgressionSubsystem::IsTutorialReplay() const
+{
+	return bTutorialReplay;
 }
 
 bool UProgressionSubsystem::IsShadowActive() const
@@ -533,6 +604,45 @@ bool UProgressionSubsystem::IsShadowActive() const
 }
 
 // ---------------------------------------------------------------- plumbing
+void UProgressionSubsystem::NotifyChanged()
+{
+	ApplyToPlayers();
+	ChangedDelegate.Broadcast();
+}
+
+void UProgressionSubsystem::ApplyToHealth(UUmbrellaHealthComponent* Health) const
+{
+	if (Health == nullptr || !IsFeatureEnabled(EFeatureId::SURV_06))
+	{
+		return;
+	}
+	// Getters answer the baseline in Start Game, so this also puts a Start Game Ella back to 3 x 3.
+	Health->SetCapacity(static_cast<float>(GetHitCapacity()), GetMaxLives());
+	Health->SetRecoveryRank(GetRank(EProgressionTrack::Recovery));
+	Health->SetDefenseRank(GetRank(EProgressionTrack::DamageReduction));
+}
+
+void UProgressionSubsystem::ApplyToPlayers() const
+{
+	UWorld* World = BoundBus.IsValid() ? BoundBus->GetWorld() : nullptr;
+	if (World == nullptr)
+	{
+		return;
+	}
+	for (TActorIterator<AEllaCharacter> It(World); It; ++It)
+	{
+		ApplyToHealth(It->GetHealth());
+	}
+}
+
+void UProgressionSubsystem::OnActorSpawned(AActor* Actor)
+{
+	if (const AEllaCharacter* Ella = Cast<AEllaCharacter>(Actor))
+	{
+		ApplyToHealth(Ella->GetHealth());
+	}
+}
+
 void UProgressionSubsystem::Persist()
 {
 	if (!bShadowActive && !SaveSlot.IsEmpty() && !IsBlocked())

@@ -316,7 +316,7 @@ bool FProgRankValues::RunTest(const FString& Parameters)
 		Profile.Ranks[static_cast<int32>(EProgressionTrack::SuctionRange)] = Rank;
 		Profile.Ranks[static_cast<int32>(EProgressionTrack::SuctionCone)] = Rank;
 		Profile.Ranks[static_cast<int32>(EProgressionTrack::DamageTwin)] = Rank;
-		TestEqual(TEXT("heal per yellow"), FProgressionRules::HealPerYellow(Tuning, Profile.Ranks), Heals[Rank], 1e-4f);
+		TestEqual(TEXT("heal per yellow"), FProgressionRules::YellowHealFor(Tuning, Profile.Ranks), Heals[Rank], 1e-4f);
 		TestEqual(TEXT("damage reduction"), FProgressionRules::DamageReduction(Tuning, Profile.Ranks), Reductions[Rank], 1e-4f);
 		TestEqual(TEXT("suction range"), FProgressionRules::SuctionRange(Tuning, Profile.Ranks), Ranges[Rank], 1e-3f);
 		TestEqual(TEXT("suction cone"), FProgressionRules::SuctionConeDegrees(Tuning, Profile.Ranks), Cones[Rank], 1e-3f);
@@ -377,6 +377,143 @@ bool FProgDraft::RunTest(const FString& Parameters)
 	TestEqual(TEXT("cannot stage outside a purchase context"), static_cast<int32>(Draft.Stage(Tuning, Real, FPurchaseContext(), EProgressionTrack::Recovery, 1)), static_cast<int32>(EProgressionCommit::PurchaseNotAllowed));
 	Draft.Discard(Real);
 	TestFalse(TEXT("discard returns to live"), Draft.IsDirty(Real));
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FProgLevelAfterBoss, "UmbrellaElla.Progression.LevelCheckpointAfterBossCheckpointKeepsRollback", EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+bool FProgLevelAfterBoss::RunTest(const FString& Parameters)
+{
+	// FLOW-13: a level checkpoint reached after a boss checkpoint does not exempt the post-boss gains from rollback.
+	const FProgressionTuning Tuning;
+	FProgressionProfile Profile = FProgressionRules::MakeEmptyProfile();
+	FProgressionRules::AddXp(Tuning, Profile, 250);
+	FProgressionRules::ReachCheckpoint(Profile, EProgressionCheckpointKind::Boss);
+	FProgressionRules::AddXp(Tuning, Profile, 400);
+	FProgressionRules::TryCommitRanks(Tuning, Profile, WithRank(Profile, EProgressionTrack::Lives, 2), Refuge());
+	FProgressionRules::ReachCheckpoint(Profile, EProgressionCheckpointKind::Level);
+	FProgressionRules::AddXp(Tuning, Profile, 100);
+	FProgressionRules::DeathRetry(Profile);
+	TestEqual(TEXT("xp back to the boss checkpoint, not the later level checkpoint"), Profile.Xp, 250);
+	TestEqual(TEXT("post-boss lives ranks gone"), FProgressionRules::RankOf(Profile.Ranks, EProgressionTrack::Lives), 0);
+	TestEqual(TEXT("level coherent"), FProgressionRules::LevelForXp(Tuning, Profile.Xp).Level, 3);
+	TestEqual(TEXT("points coherent"), FProgressionRules::UnspentPoints(Tuning, Profile), 2);
+	FProgressionRules::ReachCheckpoint(Profile, EProgressionCheckpointKind::Boss);
+	TestEqual(TEXT("a new boss checkpoint still replaces the old one"), Profile.CheckpointXp, 250);
+	FProgressionRules::CompleteRun(Profile);
+	FProgressionRules::ReachCheckpoint(Profile, EProgressionCheckpointKind::Level);
+	TestEqual(TEXT("after a won run a level checkpoint is a level checkpoint again"), static_cast<int32>(Profile.CheckpointKind),
+		static_cast<int32>(EProgressionCheckpointKind::Level));
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FProgEffectsOnce, "UmbrellaElla.Progression.EffectsDerivedFromBaselineOnce", EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+bool FProgEffectsOnce::RunTest(const FString& Parameters)
+{
+	// FLOW-17: every value comes from the baseline plus the rank, once; re-deriving or re-committing never compounds.
+	const FProgressionTuning Tuning;
+	FProgressionProfile Profile = FProgressionRules::MakeEmptyProfile();
+	FProgressionRules::AddXp(Tuning, Profile, FProgressionRules::CumulativeXp(Tuning, 30));
+	TArray<int32> Ranks = Profile.Ranks;
+	Ranks[static_cast<int32>(EProgressionTrack::HitCapacity)] = 2;
+	Ranks[static_cast<int32>(EProgressionTrack::Recovery)] = 2;
+	Ranks[static_cast<int32>(EProgressionTrack::DamageReduction)] = 2;
+	Ranks[static_cast<int32>(EProgressionTrack::SuctionRange)] = 2;
+	Ranks[static_cast<int32>(EProgressionTrack::DamageSmall)] = 2;
+	TestEqual(TEXT("commit"), static_cast<int32>(FProgressionRules::TryCommitRanks(Tuning, Profile, Ranks, Refuge())), static_cast<int32>(EProgressionCommit::Ok));
+	const FProgressionEffects First = FProgressionRules::DeriveEffects(Tuning, Profile.Ranks);
+	TestEqual(TEXT("re-commit of the same ranks"), static_cast<int32>(FProgressionRules::TryCommitRanks(Tuning, Profile, Ranks, Refuge())), static_cast<int32>(EProgressionCommit::Ok));
+	const FProgressionEffects Second = FProgressionRules::DeriveEffects(Tuning, Profile.Ranks);
+	TestTrue(TEXT("deriving again gives the same values"), First == Second);
+	TestEqual(TEXT("hits = 3 + 2"), First.HitCapacity, 5);
+	TestEqual(TEXT("heal = 0.5 + 2 x 0.3, not compounded"), First.YellowHeal, 1.1f, 1e-4f);
+	TestEqual(TEXT("reduction rank II = 0.20 from baseline, not 0.10 + 0.20"), First.DamageReduction, 0.20f, 1e-4f);
+	TestEqual(TEXT("suction range = 240 + 2 x 30"), First.SuctionRange, 300.0f, 1e-3f);
+	TestEqual(TEXT("small damage rank II = 1.65, not 1.25 x 1.65"), First.SpellDamage[static_cast<int32>(EProgressionSpell::SmallBlasts)], 1.65f, 1e-4f);
+	TestEqual(TEXT("lives untouched"), First.MaxLives, 3);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FProgDamageOnly, "UmbrellaElla.Progression.DamageRanksChangeOnlyDamage", EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+bool FProgDamageOnly::RunTest(const FString& Parameters)
+{
+	// FLOW-17: a damage rank changes that spell's damage and nothing else progression hands out (rate, geometry,
+	// protection, penetration and aim are not progression outputs; no other value may move).
+	const FProgressionTuning Tuning;
+	const TArray<int32> Base = FProgressionRules::MakeEmptyProfile().Ranks;
+	const FProgressionEffects Before = FProgressionRules::DeriveEffects(Tuning, Base);
+	const EProgressionTrack DamageTracks[] = { EProgressionTrack::DamageSmall, EProgressionTrack::DamageStreamed, EProgressionTrack::DamageTwin, EProgressionTrack::DamageNeedle };
+	for (int32 Index = 0; Index < static_cast<int32>(UE_ARRAY_COUNT(DamageTracks)); ++Index)
+	{
+		TArray<int32> Ranks = Base;
+		Ranks[static_cast<int32>(DamageTracks[Index])] = FProgressionRules::ThreeRankMax;
+		FProgressionEffects After = FProgressionRules::DeriveEffects(Tuning, Ranks);
+		TestEqual(FString::Printf(TEXT("track %d raises its own spell"), Index), After.SpellDamage[Index], Tuning.SpellDamageRankIII, 1e-4f);
+		After.SpellDamage[Index] = Before.SpellDamage[Index];
+		TestTrue(FString::Printf(TEXT("track %d moves nothing else"), Index), After == Before);
+	}
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FProgHealthFraction, "UmbrellaElla.Progression.HealthFractionKeptOnCapacityChange", EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+bool FProgHealthFraction::RunTest(const FString& Parameters)
+{
+	// FLOW-17 rule: a capacity purchase or refund keeps the active fraction, unrounded, and never revives an empty life.
+	TestEqual(TEXT("full stays full on a buy"), FProgressionRules::ActiveHealthAfterCapacityChange(3.0f, 3.0f, 4.0f), 4.0f, 1e-4f);
+	TestEqual(TEXT("two thirds of 3 -> two thirds of 4, no rounding"), FProgressionRules::ActiveHealthAfterCapacityChange(2.0f, 3.0f, 4.0f), 8.0f / 3.0f, 1e-4f);
+	TestEqual(TEXT("half of 4 -> half of 3 on a refund"), FProgressionRules::ActiveHealthAfterCapacityChange(2.0f, 4.0f, 3.0f), 1.5f, 1e-4f);
+	TestEqual(TEXT("empty stays empty (no resurrection)"), FProgressionRules::ActiveHealthAfterCapacityChange(0.0f, 3.0f, 11.0f), 0.0f, 1e-6f);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FProgScaledTimings, "UmbrellaElla.Progression.RunScalingTouchesOnlyCooldownAndHp", EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+bool FProgScaledTimings::RunTest(const FString& Parameters)
+{
+	// FLOW-05/06 rule layer: an ordinary firing cooldown is divided by the cadence multiplier and HP multiplied; nothing else.
+	const FProgressionTuning Tuning;
+	const FRunScaling Runs10 = FProgressionRules::RunScaling(Tuning, 10, false);
+	TestEqual(TEXT("cooldown 2.6 / 1.3"), FProgressionRules::ScaledFiringCooldown(2.6f, Runs10), 2.0f, 1e-4f);
+	TestEqual(TEXT("hp 5 x 2"), FProgressionRules::ScaledHp(5.0f, Runs10), 10.0f, 1e-4f);
+	const FRunScaling Final = FProgressionRules::RunScaling(Tuning, 1, true);
+	TestEqual(TEXT("final hour cooldown 2.7 / 1.35"), FProgressionRules::ScaledFiringCooldown(2.7f, Final), 2.0f, 1e-4f);
+	TestEqual(TEXT("final hour hp x2 (replaces, not compounds)"), FProgressionRules::ScaledHp(5.0f, Final), 10.0f, 1e-4f);
+	const FRunScaling None = FProgressionRules::RunScaling(Tuning, 0, false);
+	TestEqual(TEXT("first run unchanged"), FProgressionRules::ScaledFiringCooldown(2.6f, None), 2.6f, 1e-6f);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FProgReview, "UmbrellaElla.Progression.ReviewListsCompleteCostsAndEffects", EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+bool FProgReview::RunTest(const FString& Parameters)
+{
+	// FLOW-42: the review step lists every staged change with its cost and its effect, and the costs add up to the total.
+	const FProgressionTuning Tuning;
+	FProgressionProfile Real = FProgressionRules::MakeEmptyProfile();
+	FProgressionRules::AddXp(Tuning, Real, FProgressionRules::CumulativeXp(Tuning, 10));
+	FProgressionDraft Draft = FProgressionDraft::Begin(Real);
+	Draft.Stage(Tuning, Real, Refuge(), EProgressionTrack::HitCapacity, 1);
+	Draft.Stage(Tuning, Real, Refuge(), EProgressionTrack::Recovery, 1);
+	Draft.Stage(Tuning, Real, Refuge(), EProgressionTrack::SuctionRange, 1);
+	Draft.Stage(Tuning, Real, Refuge(), EProgressionTrack::SuctionRange, 1);
+	const TArray<FProgressionReviewLine> Lines = Draft.Review(Tuning, Real);
+	if (!TestEqual(TEXT("three staged tracks, three lines"), Lines.Num(), 3))
+	{
+		return false;
+	}
+	int32 Total = 0;
+	for (const FProgressionReviewLine& Line : Lines)
+	{
+		Total += Line.Cost;
+	}
+	TestEqual(TEXT("costs add up to the draft total"), Total, Draft.NetCost(Tuning, Real));
+	TestEqual(TEXT("hits line"), static_cast<int32>(Lines[0].Track), static_cast<int32>(EProgressionTrack::HitCapacity));
+	TestEqual(TEXT("hits cost"), Lines[0].Cost, 1);
+	TestEqual(TEXT("hits effect before"), Lines[0].ValueBefore, 3.0f, 1e-4f);
+	TestEqual(TEXT("hits effect after"), Lines[0].ValueAfter, 4.0f, 1e-4f);
+	TestEqual(TEXT("recovery 0.5 -> 0.8"), Lines[1].ValueAfter, 0.8f, 1e-4f);
+	TestEqual(TEXT("suction two ranks cost 1 + 2"), Lines[2].Cost, 3);
+	TestEqual(TEXT("suction rank 0 -> 2"), Lines[2].ToRank, 2);
+	TestEqual(TEXT("suction range 240 -> 300"), Lines[2].ValueAfter, 300.0f, 1e-3f);
+	Draft.Stage(Tuning, Real, Refuge(), EProgressionTrack::Recovery, -1);
+	TestEqual(TEXT("unstaging removes its line"), Draft.Review(Tuning, Real).Num(), 2);
 	return true;
 }
 

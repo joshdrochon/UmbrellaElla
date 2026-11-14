@@ -1,4 +1,7 @@
 #include "BrokenMill/BrokenMillRoom.h"
+#include "Core/EllaCharacter.h"
+#include "Health/UmbrellaHealthComponent.h"
+#include "UI/Progression/FinalHourIntroWidget.h"
 #include "Core/UmbrellaEventBus.h"
 #include "Enemy/UmbrellaEnemy.h"
 #include "Engine/Engine.h"
@@ -401,6 +404,163 @@ bool FProgWorldKeeperEvents::RunTest(const FString& Parameters)
 	TestEqual(TEXT("clock"), Rig.Progression->GetXp(), 150);
 	Keeper(EUmbrellaEventType::EncounterCompleted, TEXT("success"), TEXT("KeeperOfTime"));
 	TestEqual(TEXT("win keeps xp"), Rig.Progression->GetXp(), 150);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FProgWorldTutorialReplay, "UmbrellaElla.Progression.World.TutorialReplayUsesShadowProgress", EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+bool FProgWorldTutorialReplay::RunTest(const FString& Parameters)
+{
+	// FLOW-22: a tutorial replay plays on shadow progress; the earned profile and the save come back untouched.
+	const FString Slot = TEXT("UmbrellaEllaTest_TutorialReplay");
+	FProgressionStore::Delete(Slot);
+	FProgressionRig Rig;
+	if (!TestNotNull(TEXT("bus"), Rig.Bus))
+	{
+		return false;
+	}
+	Rig.Progression->UseSaveSlot(Slot);
+	Rig.StartDirectorsCut();
+	Rig.Kill(TEXT("Rear"));
+	Rig.Send(EUmbrellaEventType::CheckpointReached, TEXT("CP1"));
+	Rig.Send(EUmbrellaEventType::ModeSelected, TEXT("TutorialReplay"));
+	TestTrue(TEXT("replay is on shadow progress"), Rig.Progression->IsShadowActive() && Rig.Progression->IsTutorialReplay());
+	TestEqual(TEXT("replay plays with the earned stats"), Rig.Progression->GetXp(), 100);
+	Rig.Kill(TEXT("Clock"));
+	Rig.Kill(TEXT("Clock"));
+	TestEqual(TEXT("the save never sees replay kills"), FProgressionStore::Load(Slot).Profile.Xp, 100);
+	Rig.StartDirectorsCut();
+	TestFalse(TEXT("leaving the replay ends the shadow"), Rig.Progression->IsShadowActive());
+	TestEqual(TEXT("earned xp restored, no farming"), Rig.Progression->GetXp(), 100);
+	TestEqual(TEXT("saved xp unchanged"), FProgressionStore::Load(Slot).Profile.Xp, 100);
+	FProgressionStore::Delete(Slot);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FProgWorldLivesToHealth, "UmbrellaElla.Progression.World.LifePurchaseRaisesEllaLives", EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+bool FProgWorldLivesToHealth::RunTest(const FString& Parameters)
+{
+	// SURV-06: one point buys +1 life (and +1 hit per life); Ella's health reads the new values after the purchase.
+	FProgressionRig Rig;
+	if (!TestNotNull(TEXT("bus"), Rig.Bus))
+	{
+		return false;
+	}
+	FActorSpawnParameters Params;
+	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	AEllaCharacter* Ella = Rig.World->SpawnActor<AEllaCharacter>(AEllaCharacter::StaticClass(), FTransform(FVector::ZeroVector), Params);
+	if (!TestNotNull(TEXT("ella"), Ella) || !TestNotNull(TEXT("health"), Ella->GetHealth()))
+	{
+		return false;
+	}
+	Rig.StartDirectorsCut();
+	TestEqual(TEXT("three lives to start"), Ella->GetHealth()->GetState().MaxLives, 3);
+	Rig.Kill(TEXT("Clock"));
+	Rig.Kill(TEXT("Clock"));
+	FPurchaseContext Refuge;
+	Refuge.Kind = EPurchaseContextKind::SafeRefuge;
+	Rig.Progression->SetPurchaseContext(Refuge);
+	TArray<int32> Want = Rig.Progression->GetEffectiveProfile().Ranks;
+	Want[static_cast<int32>(EProgressionTrack::Lives)] = 1;
+	TestEqual(TEXT("buy a life"), static_cast<int32>(Rig.Progression->CommitRanks(Want)), static_cast<int32>(EProgressionCommit::Ok));
+	TestEqual(TEXT("progression says four lives"), Rig.Progression->GetMaxLives(), 4);
+	TestEqual(TEXT("ella has four lives"), Ella->GetHealth()->GetState().MaxLives, 4);
+	TestEqual(TEXT("hits per life still three"), Ella->GetHealth()->GetState().Capacity, 3.0f, 1e-4f);
+	Want[static_cast<int32>(EProgressionTrack::HitCapacity)] = 1;
+	TestEqual(TEXT("buy a hit"), static_cast<int32>(Rig.Progression->CommitRanks(Want)), static_cast<int32>(EProgressionCommit::Ok));
+	TestEqual(TEXT("ella has four hits per life"), Ella->GetHealth()->GetState().Capacity, 4.0f, 1e-4f);
+	Rig.Send(EUmbrellaEventType::ModeSelected, TEXT("StartGame"));
+	TestEqual(TEXT("start game puts ella back to three lives"), Ella->GetHealth()->GetState().MaxLives, 3);
+	Ella->Destroy();
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FProgWorldRetryCapacity, "UmbrellaElla.Progression.World.KeeperRetryRestoresEllaCapacity", EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+bool FProgWorldRetryCapacity::RunTest(const FString& Parameters)
+{
+	// OWL-06 / OWL-10: a Keeper retry uses the checkpoint-restored capacity and max lives (boss checkpoint rolls a later
+	// purchase back); a level checkpoint retains it. Progression pushes the result to Ella before she is healed.
+	FProgressionRig Rig;
+	if (!TestNotNull(TEXT("bus"), Rig.Bus))
+	{
+		return false;
+	}
+	FActorSpawnParameters Params;
+	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	AEllaCharacter* Ella = Rig.World->SpawnActor<AEllaCharacter>(AEllaCharacter::StaticClass(), FTransform(FVector::ZeroVector), Params);
+	if (!TestNotNull(TEXT("ella"), Ella) || !TestNotNull(TEXT("health"), Ella->GetHealth()))
+	{
+		return false;
+	}
+	Rig.StartDirectorsCut();
+	Rig.Kill(TEXT("Clock"));
+	Rig.Kill(TEXT("Clock"));
+	FPurchaseContext Refuge;
+	Refuge.Kind = EPurchaseContextKind::SafeRefuge;
+	Rig.Progression->SetPurchaseContext(Refuge);
+	const int32 LivesTrack = static_cast<int32>(EProgressionTrack::Lives);
+	const int32 HitsTrack = static_cast<int32>(EProgressionTrack::HitCapacity);
+	TArray<int32> Want = Rig.Progression->GetEffectiveProfile().Ranks;
+	Rig.Send(EUmbrellaEventType::CheckpointReached, TEXT("Phase2"));
+	Want[LivesTrack] = 1;
+	Want[HitsTrack] = 1;
+	TestEqual(TEXT("buy after the boss checkpoint"), static_cast<int32>(Rig.Progression->CommitRanks(Want)), static_cast<int32>(EProgressionCommit::Ok));
+	TestEqual(TEXT("four lives before the loss"), Ella->GetHealth()->GetState().MaxLives, 4);
+	TestEqual(TEXT("four hits before the loss"), Ella->GetHealth()->GetState().Capacity, 4.0f, 1e-4f);
+	Rig.Send(EUmbrellaEventType::CheckpointRetried, TEXT("Phase2"));
+	TestEqual(TEXT("keeper retry restores the checkpoint's max lives"), Ella->GetHealth()->GetState().MaxLives, 3);
+	TestEqual(TEXT("keeper retry restores the checkpoint's capacity"), Ella->GetHealth()->GetState().Capacity, 3.0f, 1e-4f);
+
+	// Retained: a purchase made before a level checkpoint is kept by a level retry.
+	Rig.StartDirectorsCut();
+	TestEqual(TEXT("buy before a level checkpoint"), static_cast<int32>(Rig.Progression->CommitRanks(Want)), static_cast<int32>(EProgressionCommit::Ok));
+	Rig.Send(EUmbrellaEventType::CheckpointReached, TEXT("CP1"));
+	Rig.Send(EUmbrellaEventType::CheckpointRetried, TEXT("CP1"));
+	TestEqual(TEXT("level retry keeps the max lives"), Ella->GetHealth()->GetState().MaxLives, 4);
+	TestEqual(TEXT("level retry keeps the capacity"), Ella->GetHealth()->GetState().Capacity, 4.0f, 1e-4f);
+	Ella->Destroy();
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FProgWorldFinalHourIntro, "UmbrellaElla.Progression.World.FinalHourIntroBeforeExtremeRun", EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+bool FProgWorldFinalHourIntro::RunTest(const FString& Parameters)
+{
+	// FLOW-06: when every stat is maxed, the next Director's Cut run shows the Final Hour intro (exact text) as it starts.
+	FProgressionRig Rig;
+	if (!TestNotNull(TEXT("bus"), Rig.Bus))
+	{
+		return false;
+	}
+	TestEqual(TEXT("approved exact text"), UFinalHourIntroWidget::IntroText().ToString(),
+		FString(TEXT("Her time has run its course. The owl is coming.")));
+	const TSharedRef<bool> RunWasExtremeWhenShown = MakeShared<bool>(false);
+	UProgressionSubsystem* Progression = Rig.Progression.Get();
+	const FDelegateHandle Handle = Rig.Progression->OnFinalHourIntro().AddLambda([Progression, RunWasExtremeWhenShown]()
+	{
+		*RunWasExtremeWhenShown = Progression->IsFinalHourRun() && Progression->GetRunScaling().Hp > 1.0;
+	});
+	Rig.StartDirectorsCut();
+	TestEqual(TEXT("no intro on an ordinary run"), Rig.Progression->GetFinalHourIntroCount(), 0);
+	const FProgressionTuning& Tuning = Rig.Progression->GetTuning();
+	while (Rig.Progression->GetLevel() < Tuning.LevelCap)
+	{
+		Rig.Kill(TEXT("Clock"));
+	}
+	FPurchaseContext Refuge;
+	Refuge.Kind = EPurchaseContextKind::SafeRefuge;
+	Rig.Progression->SetPurchaseContext(Refuge);
+	TArray<int32> Max = Rig.Progression->GetEffectiveProfile().Ranks;
+	for (int32 Index = 0; Index < Max.Num(); ++Index)
+	{
+		Max[Index] = FProgressionRules::TrackMaxRank(Tuning, static_cast<EProgressionTrack>(Index));
+	}
+	TestEqual(TEXT("max every stat"), static_cast<int32>(Rig.Progression->CommitRanks(Max)), static_cast<int32>(EProgressionCommit::Ok));
+	TestEqual(TEXT("still no intro mid-run"), Rig.Progression->GetFinalHourIntroCount(), 0);
+	Rig.Send(EUmbrellaEventType::RunCompleted, TEXT("success"));
+	Rig.StartDirectorsCut();
+	TestEqual(TEXT("intro shown once at the Extreme run start"), Rig.Progression->GetFinalHourIntroCount(), 1);
+	TestTrue(TEXT("the run it announces is the Extreme run"), *RunWasExtremeWhenShown);
+	TestEqual(TEXT("final hour hp x2"), Rig.Progression->GetRunScaling().Hp, 2.0, 1e-6);
+	Rig.Progression->OnFinalHourIntro().Remove(Handle);
 	return true;
 }
 
