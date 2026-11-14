@@ -2,6 +2,8 @@
 
 #if WITH_AUTOMATION_TESTS
 
+#include "Arena/UmbrellaArena.h"
+#include "Camera/CameraComponent.h"
 #include "Core/EllaCharacter.h"
 #include "Core/UmbrellaEventBus.h"
 #include "Core/UmbrellaGameMode.h"
@@ -16,6 +18,7 @@
 #include "GameFramework/WorldSettings.h"
 #include "Level/LevelPlan.h"
 #include "Level/UmbrellaLevelDirector.h"
+#include "Owl/KeeperOfTime.h"
 #include "Trap/UmbrellaTrap.h"
 
 namespace
@@ -53,6 +56,15 @@ namespace
 			Instance->RemoveFromRoot();
 		}
 	};
+
+	/** True when World lies inside the orthographic play camera's frame (X across, Z up), i.e. it projects into the viewport. */
+	bool LevelFlowInCameraFrame(const UCameraComponent* Camera, const FVector& World)
+	{
+		const FVector Centre = Camera->GetComponentLocation();
+		const double HalfW = 0.5 * Camera->OrthoWidth;
+		const double HalfH = HalfW / Camera->AspectRatio;
+		return FMath::Abs(World.X - Centre.X) <= HalfW && FMath::Abs(World.Z - Centre.Z) <= HalfH;
+	}
 
 	int32 LevelFlowCountRouteThreats(const AUmbrellaLevelDirector* Level)
 	{
@@ -135,6 +147,95 @@ bool FLevelFlowWalkRouteToKeeper::RunTest(const FString& Parameters)
 	}
 	TestEqual(TEXT("still Director's Cut"), Test.Controller->GetPlayMode(), EUmbrellaPlayMode::DirectorsCut);
 	TestEqual(TEXT("still playing"), Test.Controller->GetScreen(), EFlowScreen::Playing);
+	return true;
+}
+
+// B6 / B5: Director's Cut keeps the action in the camera frame. At the route start Ella stands inside the first view
+// (CP0 used to be x -720, left of the camera clamp). At the Keeper handoff the arena moves to the route end, so the
+// fixed arena camera frames both Ella and the freshly spawned Keeper; the scroll stops. Start Game keeps its arena put.
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FLevelFlowDirectorsCutFramesFight, "UmbrellaElla.Level.World.DirectorsCutFramesEllaAndKeeper",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FLevelFlowDirectorsCutFramesFight::RunTest(const FString& Parameters)
+{
+	FLevelFlowWorld Test;
+	Test.Controller->StartDirectorsCut();
+	AUmbrellaGameMode* Mode = Test.World->GetAuthGameMode<AUmbrellaGameMode>();
+	AUmbrellaLevelDirector* Level = Mode ? Mode->GetLevelDirector() : nullptr;
+	AUmbrellaArena* Arena = Mode ? Mode->GetArena() : nullptr;
+	APawn* Ella = Test.Controller->GetPawn();
+	const UEncounterDirectorSubsystem* Encounter = Test.World->GetSubsystem<UEncounterDirectorSubsystem>();
+	if (!TestNotNull(TEXT("route built"), Level) || !TestNotNull(TEXT("arena"), Arena) || !TestNotNull(TEXT("Ella"), Ella)
+		|| !TestNotNull(TEXT("encounter"), Encounter) || !TestNotNull(TEXT("play camera"), Arena->GetPlayCamera()))
+	{
+		return false;
+	}
+	const UCameraComponent* Camera = Arena->GetPlayCamera();
+	const FVector Home = Arena->GetActorLocation();
+
+	// B6: route start, after the first follow step.
+	Level->Tick(1.0f / 60.0f);
+	TestTrue(TEXT("route start: Ella in the camera frame"), LevelFlowInCameraFrame(Camera, Ella->GetActorLocation()));
+	TestTrue(TEXT("route start: Ella on the route (x >= 0)"), Ella->GetActorLocation().X >= LevelCatalogue::SlotStartX(0));
+
+	// Mid route the camera scrolls with her.
+	FVector At = LevelPlan::CheckpointStandLocation(2);
+	Ella->SetActorLocation(At);
+	Level->Tick(1.0f / 60.0f);
+	TestTrue(TEXT("mid route: Ella in the camera frame"), LevelFlowInCameraFrame(Camera, Ella->GetActorLocation()));
+
+	// B5: over the handoff line.
+	At.X = LevelPlan::KeeperHandoffX() + 1.0f;
+	Ella->SetActorLocation(At);
+	Level->Tick(1.0f / 60.0f);
+	TestTrue(TEXT("handed off"), Level->HasHandedOff());
+	TestEqual(TEXT("Keeper fight active"), Encounter->GetState(), EEncounterState::Active);
+	const AKeeperOfTime* Keeper = Encounter->GetKeeper();
+	if (!TestNotNull(TEXT("Keeper spawned"), Keeper))
+	{
+		return false;
+	}
+	TestTrue(TEXT("arena at the route end"), Arena->GetActorLocation().Equals(LevelPlan::KeeperArenaOrigin()));
+	TestTrue(TEXT("camera on the fixed arena frame"), Arena->IsCameraOnArenaFrame());
+	TestTrue(TEXT("fight: Ella in the camera frame"), LevelFlowInCameraFrame(Camera, Ella->GetActorLocation()));
+	TestTrue(TEXT("fight: Keeper in the camera frame"), LevelFlowInCameraFrame(Camera, Keeper->GetActorLocation()));
+	TestTrue(TEXT("fight: Keeper at the moved anchor"), FMath::IsNearlyEqual(Keeper->GetActorLocation().X, Arena->GetKeeperAnchorLocation().X, 1.0));
+
+	// Ella moving on does not scroll the fight away.
+	const FVector FightCamera = Camera->GetComponentLocation();
+	At.X += 0.25 * Camera->OrthoWidth;
+	Ella->SetActorLocation(At);
+	Level->Tick(1.0f / 60.0f);
+	TestTrue(TEXT("fight camera holds"), Camera->GetComponentLocation().Equals(FightCamera));
+
+	// A rebuilt route puts the arena home.
+	Level->ClearRoute();
+	TestTrue(TEXT("cleared route: arena home"), Arena->GetActorLocation().Equals(Home));
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FLevelFlowStartGameArenaStays, "UmbrellaElla.Level.World.StartGameKeepsArenaAndKeeperFrame",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FLevelFlowStartGameArenaStays::RunTest(const FString& Parameters)
+{
+	FLevelFlowWorld Test;
+	Test.Controller->StartGame();
+	AUmbrellaGameMode* Mode = Test.World->GetAuthGameMode<AUmbrellaGameMode>();
+	AUmbrellaArena* Arena = Mode ? Mode->GetArena() : nullptr;
+	const UEncounterDirectorSubsystem* Encounter = Test.World->GetSubsystem<UEncounterDirectorSubsystem>();
+	if (!TestNotNull(TEXT("arena"), Arena) || !TestNotNull(TEXT("encounter"), Encounter))
+	{
+		return false;
+	}
+	TestTrue(TEXT("Start Game: arena at the origin"), Arena->GetActorLocation().Equals(FVector::ZeroVector));
+	TestTrue(TEXT("Start Game: camera on the fixed arena frame"), Arena->IsCameraOnArenaFrame());
+	if (const AKeeperOfTime* Keeper = Encounter->GetKeeper())
+	{
+		TestTrue(TEXT("Start Game: Keeper in the camera frame"), LevelFlowInCameraFrame(Arena->GetPlayCamera(), Keeper->GetActorLocation()));
+	}
+	if (const APawn* Ella = Test.Controller->GetPawn())
+	{
+		TestTrue(TEXT("Start Game: Ella in the camera frame"), LevelFlowInCameraFrame(Arena->GetPlayCamera(), Ella->GetActorLocation()));
+	}
 	return true;
 }
 

@@ -54,6 +54,13 @@ public:
 	/** Director's Cut scroll: lead the camera toward the travel direction (-1, 0, +1) along the route. No-op when the camera flag is off. */
 	void FollowEllaX(float EllaX, int32 TravelDirection);
 
+	/** Move the whole play area (bounds, camera, backgrounds, Keeper anchor) so its bottom-left corner is at Origin, and
+	 *  put the camera back on the fixed arena frame (undoes FollowEllaX). Director's Cut uses it at the Keeper handoff (B5). */
+	void MovePlayArea(const FVector& Origin);
+
+	/** True when the play camera sits on the fixed arena frame (centre of the play area). */
+	bool IsCameraOnArenaFrame() const;
+
 protected:
 	virtual void BeginPlay() override;
 
