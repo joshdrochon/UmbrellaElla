@@ -222,3 +222,12 @@ No `-SmokeShotDelay=` flag yet, load average 45. Context pair for skyline, paper
   D-new-study-vs-bg-layers (DECIDED, Josh) says the clock layer is never transparent.
 - Whole frame: pipeline/art/proof/artscene/dials-r1d-dc_route.png (study | gate 0f6dc79e | after; visual_qa.py capture, 1280x720).
   After: one dim painted dial with numerals and hand at top centre, no outline ring. Not judged (no spend); the gate judges it.
+
+## Nov 13 21:40 (Opus, lead order 21:26): gate 400e00bc dc_route "flat solid slate-blue disc (clock) that reads as a plain circle"
+- Cause: r1d's full face was one even ash-blue fill. Fix (art_scene_clockwater.py r1e): clock/hand grade near the void (0.15/0.06, alpha 0.30),
+  warm ash grey like the study's far clock arcs (not blue), edge feather from 0.78, and fog: 3-octave value noise times a fade toward the
+  lower right (haze(), applied after the hands so they sit in the same fog). Re-imported T_BgClock_PH from clock_r1e_post.png.
+  T_BgClockWaterWind_PH not rebuilt (its small clock was not flagged).
+- Whole frame: pipeline/art/proof/artscene/dials-r1e-dc_route.png (study | r1d | r1e). After: no disc; the dial is lost in the haze.
+- Merged main 294963a8 first. Gate on the working tree (through ue_slot, logs/artscene-gate-r1e.log):
+  `VISUAL_QA GATE PASS play=42,45/70 dc_route=43,42/70 keeper=42,37/70 broken=10,9 baseline=294963a82c9b recheck=1`; no clock/disc item.

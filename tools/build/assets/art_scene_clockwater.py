@@ -29,9 +29,12 @@ W, H = 2400, 1200
 # part look: (target mean luma, luma std, chroma kept, alpha scale, tint) ; tint = RGB ratio pulled in at TINT_MIX
 ASH_BLUE = (0.86, 0.98, 1.16)     # BG-05 "ash-blue": the study's cool rim light, a step bluer than its grey void
 SILVER = (0.95, 0.99, 1.06)       # BG-05 "silver-grey water"
+ASH_GREY = (1.04, 1.00, 0.94)     # the study's own far clock arcs (top left): warm ash grey, not blue
 LOOK = {
-    "clock": (0.210, 0.090, 1.0, 0.35, ASH_BLUE),   # 0.165/0.04 -> 0.21/0.09: numerals, ticks and glass streak read
-    "hand": (0.250, 0.040, 1.0, 0.40, ASH_BLUE),
+    # r1e (gate 400e00bc dc_route: "flat solid slate-blue disc (clock) that reads as a plain circle"): the r1d face was
+    # one even blue fill. Now near the void's tone (low contrast), the study's warm ash grey, and broken up by fog below.
+    "clock": (0.150, 0.060, 1.0, 0.30, ASH_GREY),
+    "hand": (0.190, 0.035, 1.0, 0.34, ASH_GREY),
     "water": (0.215, 0.055, 1.0, 0.30, SILVER),
     "wind": (0.190, 0.035, 1.0, 0.24, ASH_BLUE),   # r1 at 0.42 alpha / full width read as a loud blue band in the route frame
     "wind-clock": (0.150, 0.035, 1.0, 0.28, ASH_BLUE),
@@ -46,7 +49,10 @@ TINT_MIX = 0.8
 # dial reads as a painted disc with numerals, not an outline.
 FACE_GHOST = 1.0             # dial glass alpha relative to the rim (was 0.35)
 RIM_SHARE = 0.84             # radius share where the front rim starts
-EDGE_SOFT = 0.90             # radius share where the dial's outer edge starts to feather out (to 0 at 1.0)
+EDGE_SOFT = 0.78             # radius share where the dial's outer edge starts to feather out (to 0 at 1.0; r1d 0.90)
+FOG_SEED = 7                 # r1e: the dial sits in the far haze, so fog eats part of it (no clean disc outline)
+FOG_FLOOR = 0.25             # least alpha share the fog leaves on the dial
+FOG_SIDE = 0.65              # share of the dial (from its lower right) that fades into the haze
 WATER_FRAME = 0.05           # the fall draft came inside a cream frame: share cut off each side before keying
 WATER_BANDS = (("source", 0.0, 0.19), ("middle", 0.19, 0.74), ("pool", 0.74, 0.86), ("sea", 0.86, 1.0))
 WIND_BANDS = (("entry", 0.0, 0.14), ("straight", 0.14, 0.42), ("bend", 0.42, 0.72), ("exit", 0.72, 1.0))
@@ -198,8 +204,30 @@ def stem(out):
     return os.path.splitext(out)[0]
 
 
+def fog(h, w, seed=FOG_SEED):
+    """Soft value noise in 0..1 (three octaves, bilinear), the far haze drifting over a dial."""
+    rng = np.random.default_rng(seed)
+    acc = np.zeros((h, w), np.float32)
+    total = 0.0
+    for cells, amp in ((3, 1.0), (6, 0.5), (12, 0.25)):
+        g = rng.random((cells + 1, cells + 1)).astype(np.float32)
+        y = np.linspace(0, cells, h, dtype=np.float32)[:, None]
+        x = np.linspace(0, cells, w, dtype=np.float32)[None, :]
+        y0, x0 = np.minimum(y.astype(int), cells - 1), np.minimum(x.astype(int), cells - 1)
+        fy, fx = y - y0, x - x0
+        fy, fx = fy * fy * (3 - 2 * fy), fx * fx * (3 - 2 * fx)
+        top = g[y0, x0] * (1 - fx) + g[y0, x0 + 1] * fx
+        bot = g[y0 + 1, x0] * (1 - fx) + g[y0 + 1, x0 + 1] * fx
+        acc += (top * (1 - fy) + bot * fy) * amp
+        total += amp
+    acc /= total
+    return np.clip((acc - acc.min()) / max(float(acc.max() - acc.min()), 1e-6), 0, 1)
+
+
 def ghost_face(dial):
-    """Fade the dial glass inside the rim (round dial above its drips: centre (w/2, w/2), radius w/2)."""
+    """Fade the dial glass inside the rim (round dial above its drips: centre (w/2, w/2), radius w/2), then let the
+    far haze eat it: fog noise and a fade toward the lower right, so only a broken upper-left arc and part of the
+    face read (the study's far clocks are partial arcs in the fog, never whole discs)."""
     h, w = dial.shape[:2]
     yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
     r = np.hypot(xx - w / 2.0, yy - w / 2.0) / (w / 2.0)
@@ -209,6 +237,14 @@ def ghost_face(dial):
     soft = soft + (1.0 - soft) * low
     dial[..., 3] *= keep * soft
     return dial
+
+
+def haze(px):
+    """Alpha factor for a dial with its hands: fog noise times a fade toward the lower right."""
+    h, w = px.shape[:2]
+    yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
+    side = np.clip(1.0 - ((xx + yy) / (h + w) - (1.0 - FOG_SIDE)) / FOG_SIDE, 0, 1)
+    return FOG_FLOOR + (1 - FOG_FLOOR) * fog(h, w) * side
 
 
 def clocks(dials_path, hands_path, out, name="clock", hand_name="hand"):
@@ -223,12 +259,17 @@ def clocks(dials_path, hands_path, out, name="clock", hand_name="hand"):
         look(v, hand_name if k.startswith("hand") else name)
         if k.startswith("dial"):
             ghost_face(v)
-        save_td(v, "%s_%s.png" % (stem(out), k))
+            hazed = v.copy()
+            hazed[..., 3] *= haze(v)
+            save_td(hazed, "%s_%s.png" % (stem(out), k))
+        else:
+            save_td(v, "%s_%s.png" % (stem(out), k))
     made = {}
     for key, dial in (("large", big), ("small", small)):
         face = dial.copy()
         hand_on(face, short_h, HAND_SHORT, HAND_ANGLES[key][1])
         hand_on(face, long_h, HAND_LONG, HAND_ANGLES[key][0])
+        face[..., 3] *= haze(face)      # hands sit in the same fog as their face
         made[key] = face
     return made
 
