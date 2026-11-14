@@ -40,3 +40,4 @@ Every code fix: break-checked automation test. ue_slot for every Unreal run. Com
 PASS for the exact tip. No image generation spend in this lane (art comes from artscene and artella).
 - Keeper fight backdrop seam (levelchunks, 16:14): at the Director's Cut Keeper handoff the route backdrop stops at the route end, so the left ~40% of the screen shows a different backdrop. Make the backdrop continuous across the handoff.
 - Camera margin (coordinator, 16:20): keep the gameplay ceiling (z 1036); add a camera margin so Ella's full sprite stays in frame at the ceiling in Start Game and Director's Cut (move's B7 captures show her sprite top cut off). Test: projected sprite top inside the viewport at the ceiling, both modes.
+- B11 (agentplay 67011eb2): in Director's Cut the umbrella tip touches the top edge, and the 'Director's Cut' HUD title draws over Ella. Covered by the camera margin; also keep HUD titles off the figure.
