@@ -190,3 +190,20 @@ No `-SmokeShotDelay=` flag yet, load average 45. Context pair for skyline, paper
   bg-clock rims r3 0.712 vs 0.420 FAIL -> r4 0.187 vs 0.419 PASS (in T_BgAtmosphere_PH).
 - Whole-frame proof (visual_qa.py capture, 1280x720, real window): pipeline/art/proof/artscene/bg-layers-r1-{dc_route,play,keeper}.png = study | before (tip cc398b0f textures) | after.
   Route frame now shows two faint dial ghosts with hands above the land and a dim fall by the barn; play/keeper frames unchanged in look (layers sit outside their view).
+
+## Nov 13 night (Opus, lead order): gate 3dfc4e2d visual_qa defects
+- (3) keeper "wind as thick brown dripping bands": not the wind presenter (its ribbons are flat-colour planes, ArtSlot::SetFlatUnlit). The two
+  wavy dripping clock-rim bands were painted into bg:start-end (world_r2_post). New tools/build/assets/art_scene_unband.py paints them out
+  (per-column tone blend, grain, windmill ink kept, barn glow toned down) -> world_r2d_post.png -> T_BgStartEnd_PH.
+- (1) dc_route dark rectangle: art_scene_world.py haze fade was inverted (full alpha on the TOP row: hard edge). Fixed (haze_envelope), alpha 0.45 -> 0.30,
+  fades at both ends -> bg-base/world_r1b_post.png -> T_BgBase_PH.
+- (2) dc_route grey blocks: the water falls' sea landing (side fade ran before the crop: square sides, cut bottom). art_scene_clockwater.py edge_fade
+  after the crop + bottom fade; water/clock/cww alphas lowered -> T_BgWater_PH, T_BgClock_PH, T_BgClockWaterWind_PH (r1c).
+- Gate runs (visual_qa.py run --gate --main-sha ebda6e47, through ue_slot), precheck PASS on each:
+  - a2bc7f3d: FAIL play=42 dc_route=43 keeper=37 (bands/rectangle/grey blocks gone; new: unband step + crosshatch edge, dial ghosts, thin fall) -> fixed in 70610a55.
+  - 70610a55: FAIL play=43 dc_route=45 keeper=36 broken=8, keeper PASS (only: faint streaks above the windmill, mine -> fixed in c5492f1a; vertical wind lines).
+  - c5492f1a: `VISUAL_QA GATE FAIL play=42/70 dc_route=42/70 keeper=37/70 broken=10 baseline=ebda6e4752b4 failed=play,dc_route`
+    Items left, none from artscene art: play "no wind ribbons visible anywhere"; dc_route "straight vertical light lines ... not flowing wind"
+    (UWindPresenterSubsystem updraft ribbons; main draws them too, they only show now that the backdrop is dark) and "no red enemy shot streaks,
+    gold shots in square-ish glow halos" (shot VFX). The judge's art items differ run to run on the same frames (shots/wind lists change), so part is noise.
+- Blocked for a PASS on other lanes: wind presenter (ribbon shape/visibility) and shot VFX. Not mine to edit. Stopping here.
