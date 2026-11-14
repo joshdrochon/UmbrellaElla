@@ -1,5 +1,16 @@
 # Art Bible — Umbrella Ella
 
+## North star: the whole frame (Josh, 13 Nov, D-new-north-star-frame)
+The game screen as a whole must look like Ricky's Other Realm study (`bar-other-realm`,
+`pipeline/art/reference/discord/20261111-0318_Ricky_other-realm.png`), not only each piece: dark backdrop; thin ash-blue
+`#555e60` wind ribbons, never boxes; small figures; floating islands; gold `#E9C46A` and red shots; no placeholder cubes or
+bars; no framed or unkeyed art. Every piece is judged in the composed game frame next to the study, never alone.
+`tools/build/visual_qa.py` checks it on every merge that touches Source/, Content/, Art/ or pipeline/art. Where this
+section and the key-art text below disagree on the frame, this section wins; the key art still sets the drawing finish.
+`tools/art_check.py` does not gate whole-frame or scene work (scene, bg, bg-layer, world pieces): its palette and paper
+limits come from the key art and fail the study itself. `visual_qa.py` judges those; art_check still gates single pieces
+(`tests/test_art_loop_scene.py`: the study passes the scene path, Josh's 15:50 frame fails it).
+
 Source of truth for how the game looks (decision D0, 2026-11-06): the target key art.
 Reference file: `pipeline/art/reference/target-keyart.png` (to be added via Git LFS; see docs/references.md R7).
 The GDD line "colorful, storybook-inspired" is overridden.
