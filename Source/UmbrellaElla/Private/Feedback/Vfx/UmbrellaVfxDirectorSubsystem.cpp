@@ -32,6 +32,7 @@
 #include "Owl/KeeperOfTime.h"
 #include "Owl/KeeperPartComponent.h"
 #include "Projectile/UmbrellaProjectile.h"
+#include "Story/StorySubsystem.h"
 #include "Umbrella/UmbrellaPlayerIds.h"
 
 namespace
@@ -793,7 +794,11 @@ void UUmbrellaVfxDirectorSubsystem::StepShaft(float DeltaSeconds)
 	AActor* EllaActor = FindElla();
 	const FVfxArtRow* ShaftRow = VfxCatalog::Find(VfxDirectorShaftKey);
 	const FVfxArtRow* UmbraRow = VfxCatalog::Find(VfxDirectorUmbraKey);
-	if (!IsValid(World) || !IsValid(EllaActor) || !ShaftRow || !UmbraRow || !IsVfxFamilyEnabled(EVfxFamily::Story))
+	// NAR-05 is Director's Cut story delivery: the story decides when light falls (DC run and the ending hold). Before
+	// this the shaft drew in every mode, a hairline from the frame top down to Ella in Start Game (lead item 4, Nov 13).
+	const UStorySubsystem* Story = IsValid(World) ? World->GetSubsystem<UStorySubsystem>() : nullptr;
+	const bool bLightFalls = Story && Story->IsLightShaftOn();
+	if (!IsValid(World) || !IsValid(EllaActor) || !ShaftRow || !UmbraRow || !IsVfxFamilyEnabled(EVfxFamily::Story) || !bLightFalls)
 	{
 		for (TWeakObjectPtr<AActor>& Part : ShaftActors)
 		{

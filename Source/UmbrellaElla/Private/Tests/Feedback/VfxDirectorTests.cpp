@@ -599,6 +599,14 @@ bool FVfxArtShaftWorld::RunTest(const FString& Parameters)
 		return false;
 	}
 	const FVector EllaAt = Ella->GetActorLocation();
+	// NAR-05 is Director's Cut only: no shaft before a run or in Start Game (the hairline to Ella, lead item 4).
+	Director->StepEffects(VfxArtTestStep);
+	TestNull(TEXT("no shaft before a run"), Director->GetShaftPart(0));
+	VfxArtTestSend(World, EUmbrellaEventType::ModeSelected, NAME_None, FName(TEXT("StartGame")));
+	Director->StepEffects(VfxArtTestStep);
+	TestNull(TEXT("no shaft in Start Game"), Director->GetShaftPart(0));
+	TestNull(TEXT("no umbra in Start Game"), Director->GetShaftPart(2));
+	VfxArtTestSend(World, EUmbrellaEventType::ModeSelected, NAME_None, FName(TEXT("DirectorsCut")));
 	Director->StepEffects(VfxArtTestStep);
 	const AActor* Above = Director->GetShaftPart(0);
 	const AActor* Below = Director->GetShaftPart(1);

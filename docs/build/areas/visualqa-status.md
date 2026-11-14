@@ -253,5 +253,16 @@ IDENTIFIED C: the Keeper gust's gameplay cue cube `AKeeperOfTime::GustVisual` (S
   and `FacingCameraForDrawn(drawn, travel)`: PlayAnchored turns a GustFront effect 180 only when its sheet's drawn
   direction opposes the travel. VfxGustFacesTravel checks every GustFront key's sheet, a -X-drawn and an undirected sheet
   (not turned); World.VfxGustFacesTravel still PASSes.
-- Next: resume the lead order at item 4 (thin vertical line), then 5 (flat box; tools/build/flat_box.py + calibration
+- Next: resume the lead order at item 4 (thin vertical line), then 5 (flat box; the flat-box detector + calibration
   PNGs are uncommitted work in progress from the last session), then 6.
+
+## Item 4: thin vertical line from the top edge down to Ella
+- Identified: the NAR-05 light shaft (`UUmbrellaVfxDirectorSubsystem::StepShaft`, vfx-sheet VFX_LightShaft, a 6-unit
+  hairline 2400 long above Ella; LightShaftRules.h). Not debug: NAR-05 is APPROVED_P0, but it is Director's Cut story
+  delivery and the story already says when light falls (`FStoryModel::IsLightShaftOn`: DC run and ending hold). The
+  director never asked, so the line drew in every mode, Start Game play and its Keeper fight included.
+- Fix: StepShaft draws the shaft and umbra only while `UStorySubsystem::IsLightShaftOn()`. Start Game: no line.
+  World.VfxLightShaftAndUmbra now checks none before a run and in Start Game, then all its old checks in DC.
+  Break-check: gate removed -> that test FAILs; restored -> build exit 0, Feedback+Story+ScreenFix 78/78 PASS.
+- Left for the art lane: in Director's Cut the shaft is still the straight hairline (the sheet material ignores Opacity
+  and Tint, so a softer study-style light needs VFX_LightShaft art, not code). Not restyled here.
