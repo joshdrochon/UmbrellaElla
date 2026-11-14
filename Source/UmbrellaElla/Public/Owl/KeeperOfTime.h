@@ -138,8 +138,8 @@ public:
 	/** Half-size of the box around the gust front where no ribbon is drawn: the puff sprite's half-size plus PuffClearShare of its width. Pure. */
 	static FVector2D PuffClearHalf();
 
-	/** World X/Z box no ribbon may reach into around a drawn puff: its bounds grown by PuffClearShare of its width on every side. Pure. */
-	static bool PuffClearBox(const FBox& PuffBounds, FBox2D& OutClear);
+	/** World X/Z box no ribbon may reach into around a drawn puff: its bounds grown by PuffClearShare of its width on every side (invalid for invalid bounds). Pure. */
+	static FBox2D PuffClearBox(const FBox& PuffBounds);
 
 	/** Gust ribbon pieces drawn now (visible pool entries). Tests read it. */
 	int32 GetVisibleGustRibbonCount() const;

@@ -486,26 +486,25 @@ void AKeeperOfTime::ClipStrokesAroundLivePuffs(TArray<FKeeperGustStroke>& Stroke
 		{
 			continue;
 		}
-		FBox2D Clear;
-		if (PuffClearBox(Visual->Bounds.GetBox(), Clear))
+		const FBox2D Clear = PuffClearBox(Visual->Bounds.GetBox());
+		if (Clear.bIsValid)
 		{
 			ClipStrokesOutside(Clear.GetCenter(), Clear.GetExtent(), Strokes);
 		}
 	}
 }
 
-bool AKeeperOfTime::PuffClearBox(const FBox& PuffBounds, FBox2D& OutClear)
+FBox2D AKeeperOfTime::PuffClearBox(const FBox& PuffBounds)
 {
 	if (!PuffBounds.IsValid)
 	{
-		return false;
+		return FBox2D(ForceInit);
 	}
 	const FVector Centre = PuffBounds.GetCenter();
 	const FVector Extent = PuffBounds.GetExtent();
 	const float Margin = 2.0f * static_cast<float>(Extent.X) * KeeperWingGustConst::PuffClearShare;
 	const FVector2D Half(Extent.X + Margin, Extent.Z + Margin);
-	OutClear = FBox2D(FVector2D(Centre.X, Centre.Z) - Half, FVector2D(Centre.X, Centre.Z) + Half);
-	return true;
+	return FBox2D(FVector2D(Centre.X, Centre.Z) - Half, FVector2D(Centre.X, Centre.Z) + Half);
 }
 
 void AKeeperOfTime::DrawGustRibbons(const TArray<FKeeperGustStroke>& Strokes)

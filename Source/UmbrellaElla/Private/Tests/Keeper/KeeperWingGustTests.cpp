@@ -462,8 +462,8 @@ bool FKeeperWingGustClipPuff::RunTest(const FString& Parameters)
 			{
 				Keeper->Refresh(Model, 1.2f);
 				const FBox PuffBox = PuffVisual->Bounds.GetBox();
-				FBox2D Clear;
-				TestTrue(TEXT("clear box"), AKeeperOfTime::PuffClearBox(PuffBox, Clear));
+				const FBox2D Clear = AKeeperOfTime::PuffClearBox(PuffBox);
+				TestTrue(TEXT("clear box"), Clear.bIsValid);
 				TestTrue(TEXT("the margin is 25% of the puff width"), FMath::IsNearlyEqual(static_cast<float>(Clear.GetExtent().X - PuffBox.GetExtent().X),
 					KeeperWingGustConst::PuffClearShare * static_cast<float>(PuffBox.GetSize().X), 0.5f));
 				int32 Drawn = 0;
