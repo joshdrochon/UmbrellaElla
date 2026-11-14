@@ -21,6 +21,7 @@ BAND_BOTTOM = 700              # last row of the band zone where nothing else is
 # (x0, x1, last band row) where land or buildings sit under the band zone: the zone stops above them
 ZONE_FLOOR = ((0, 260, 655), (880, 1380, 652), (1380, 1800, 440), (1800, 1920, 515))
 BOTTOM_REF_ROWS = 6            # rows sampled just under the zone, per column
+TONE_BLUR = 40                 # px across which the blended tone is averaged sideways
 BOTTOM_SMOOTH = 15             # columns averaged for that colour (odd)
 # windmill (x0, x1, y0, y1): only its ink detail (picture minus its own blur) is kept over the clean void, so the band
 # haze behind it goes but the strokes stay
@@ -90,10 +91,16 @@ def clean_void(px):
     # bottom colour per column from the picture just under the zone, so the cleaned zone meets it without a step
     # (Nov 13 gate a2bc7f3d: one global bottom colour left darker boxes above the islands and a step at row 700)
     bot = np.stack([np.median(rgb[f + 1:f + 1 + BOTTOM_REF_ROWS, x], axis=0) for x, f in enumerate(floor)])
+    for x0, x1, _, _ in LINE_ART:
+        # under the windmill the samples hit its base: bridge the columns from its two sides instead
+        # (Nov 13 gate 70610a55: "faint dark vertical bands in the sky")
+        t = np.linspace(0, 1, x1 - x0, dtype=np.float32)[:, None]
+        bot[x0:x1] = bot[x0 - 1] * (1 - t) + bot[x1] * t
     top, bot = box_blur(top, SMOOTH // 2, 0), box_blur(bot, BOTTOM_SMOOTH // 2, 0)
     ys = np.arange(h, dtype=np.float32)[:, None]
     t = np.clip((ys - BAND_TOP) / np.maximum(1, floor - BAND_TOP)[None, :], 0, 1)[..., None]
     tone = top[None] * (1 - t) + bot[None] * t
+    tone = box_blur(tone, TONE_BLUR, 1)   # no seam where the zone floor jumps (x 1380)
     x0, x1, y0, y1 = GRAIN_PATCH
     patch = rgb[y0:y1, x0:x1]
     grain = patch - box_blur(box_blur(patch, GRAIN_BLUR, 0), GRAIN_BLUR, 1)
