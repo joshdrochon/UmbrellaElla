@@ -42,3 +42,30 @@ void FProgressionDraft::Discard(const FProgressionProfile& Real)
 {
 	Ranks = Real.Ranks;
 }
+
+TArray<FProgressionReviewLine> FProgressionDraft::Review(const FProgressionTuning& Tuning, const FProgressionProfile& Real) const
+{
+	TArray<FProgressionReviewLine> Lines;
+	for (int32 Index = 0; Index < static_cast<int32>(EProgressionTrack::Count); ++Index)
+	{
+		const EProgressionTrack Track = static_cast<EProgressionTrack>(Index);
+		const int32 From = FProgressionRules::RankOf(Real.Ranks, Track);
+		const int32 To = FProgressionRules::RankOf(Ranks, Track);
+		if (From == To)
+		{
+			continue;
+		}
+		// The cost of one track's move is the spend difference with only that track changed.
+		TArray<int32> OnlyThis = Real.Ranks;
+		OnlyThis[Index] = To;
+		FProgressionReviewLine Line;
+		Line.Track = Track;
+		Line.FromRank = From;
+		Line.ToRank = To;
+		Line.Cost = FProgressionRules::SpentOnRanks(Tuning, OnlyThis) - FProgressionRules::SpentOnRanks(Tuning, Real.Ranks);
+		Line.ValueBefore = FProgressionRules::TrackValue(Tuning, Real.Ranks, Track);
+		Line.ValueAfter = FProgressionRules::TrackValue(Tuning, OnlyThis, Track);
+		Lines.Add(Line);
+	}
+	return Lines;
+}

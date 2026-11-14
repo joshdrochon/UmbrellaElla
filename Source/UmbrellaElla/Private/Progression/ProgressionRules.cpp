@@ -212,7 +212,7 @@ int32 FProgressionRules::MaxLives(const FProgressionTuning& Tuning, const TArray
 	return Tuning.StartLives + RankOf(Ranks, EProgressionTrack::Lives);
 }
 
-float FProgressionRules::HealPerYellow(const FProgressionTuning& Tuning, const TArray<int32>& Ranks)
+float FProgressionRules::YellowHealFor(const FProgressionTuning& Tuning, const TArray<int32>& Ranks)
 {
 	return Tuning.HealPerYellow + Tuning.HealPerRecoveryRank * static_cast<float>(RankOf(Ranks, EProgressionTrack::Recovery));
 }
@@ -255,7 +255,83 @@ float FProgressionRules::SpellDamageMultiplier(const FProgressionTuning& Tuning,
 	return Values[FMath::Clamp(Rank, 0, static_cast<int32>(UE_ARRAY_COUNT(Values)) - 1)];
 }
 
+bool FProgressionEffects::operator==(const FProgressionEffects& Other) const
+{
+	for (int32 Spell = 0; Spell < static_cast<int32>(EProgressionSpell::Count); ++Spell)
+	{
+		if (SpellDamage[Spell] != Other.SpellDamage[Spell])
+		{
+			return false;
+		}
+	}
+	return HitCapacity == Other.HitCapacity && MaxLives == Other.MaxLives && YellowHeal == Other.YellowHeal
+		&& DamageReduction == Other.DamageReduction && SuctionRange == Other.SuctionRange && SuctionConeDegrees == Other.SuctionConeDegrees;
+}
+
+FProgressionEffects FProgressionRules::DeriveEffects(const FProgressionTuning& Tuning, const TArray<int32>& Ranks)
+{
+	FProgressionEffects Effects;
+	Effects.HitCapacity = HitCapacity(Tuning, Ranks);
+	Effects.MaxLives = MaxLives(Tuning, Ranks);
+	Effects.YellowHeal = YellowHealFor(Tuning, Ranks);
+	Effects.DamageReduction = DamageReduction(Tuning, Ranks);
+	Effects.SuctionRange = SuctionRange(Tuning, Ranks);
+	Effects.SuctionConeDegrees = SuctionConeDegrees(Tuning, Ranks);
+	for (int32 Spell = 0; Spell < static_cast<int32>(EProgressionSpell::Count); ++Spell)
+	{
+		Effects.SpellDamage[Spell] = SpellDamageMultiplier(Tuning, Ranks, static_cast<EProgressionSpell>(Spell));
+	}
+	return Effects;
+}
+
+float FProgressionRules::TrackValue(const FProgressionTuning& Tuning, const TArray<int32>& Ranks, EProgressionTrack Track)
+{
+	switch (Track)
+	{
+	case EProgressionTrack::HitCapacity:
+		return static_cast<float>(HitCapacity(Tuning, Ranks));
+	case EProgressionTrack::Lives:
+		return static_cast<float>(MaxLives(Tuning, Ranks));
+	case EProgressionTrack::Recovery:
+		return YellowHealFor(Tuning, Ranks);
+	case EProgressionTrack::DamageReduction:
+		return DamageReduction(Tuning, Ranks);
+	case EProgressionTrack::SuctionRange:
+		return SuctionRange(Tuning, Ranks);
+	case EProgressionTrack::SuctionCone:
+		return SuctionConeDegrees(Tuning, Ranks);
+	case EProgressionTrack::DamageSmall:
+		return SpellDamageMultiplier(Tuning, Ranks, EProgressionSpell::SmallBlasts);
+	case EProgressionTrack::DamageStreamed:
+		return SpellDamageMultiplier(Tuning, Ranks, EProgressionSpell::StreamedBlast);
+	case EProgressionTrack::DamageTwin:
+		return SpellDamageMultiplier(Tuning, Ranks, EProgressionSpell::TwinStars);
+	default:
+		return SpellDamageMultiplier(Tuning, Ranks, EProgressionSpell::NeedleSpell);
+	}
+}
+
+float FProgressionRules::ActiveHealthAfterCapacityChange(float Active, float OldCapacity, float NewCapacity)
+{
+	if (!IsFeatureEnabled(EFeatureId::FLOW_17) || OldCapacity <= 0.0f || NewCapacity <= 0.0f)
+	{
+		return FMath::Clamp(Active, 0.0f, FMath::Max(NewCapacity, 0.0f));
+	}
+	const float Fraction = FMath::Clamp(Active / OldCapacity, 0.0f, 1.0f);
+	return FMath::Min(Fraction * NewCapacity, NewCapacity);
+}
+
 // ---------------------------------------------------------------- run scaling (FLOW-05, FLOW-06)
+float FProgressionRules::ScaledFiringCooldown(float Cooldown, const FRunScaling& Scaling)
+{
+	return Scaling.Cadence > 0.0 ? static_cast<float>(static_cast<double>(Cooldown) / Scaling.Cadence) : Cooldown;
+}
+
+float FProgressionRules::ScaledHp(float Hp, const FRunScaling& Scaling)
+{
+	return static_cast<float>(static_cast<double>(Hp) * Scaling.Hp);
+}
+
 FRunScaling FProgressionRules::RunScaling(const FProgressionTuning& Tuning, int32 CompletedRuns, bool bFinalHour)
 {
 	FRunScaling Result;
@@ -342,6 +418,13 @@ int32 FProgressionRules::AddXp(const FProgressionTuning& Tuning, FProgressionPro
 
 void FProgressionRules::ReachCheckpoint(FProgressionProfile& Profile, EProgressionCheckpointKind Kind)
 {
+	// FLOW-13: a level checkpoint after a boss checkpoint does not exempt post-boss gains from the boss rollback, so it
+	// leaves the boss snapshot in place. Only a new boss checkpoint or a won run (CompleteRun) replaces it.
+	if (IsFeatureEnabled(EFeatureId::FLOW_13) && Kind == EProgressionCheckpointKind::Level && Profile.bCheckpointValid
+		&& Profile.CheckpointKind == EProgressionCheckpointKind::Boss)
+	{
+		return;
+	}
 	Profile.bCheckpointValid = true;
 	Profile.CheckpointKind = Kind;
 	Profile.CheckpointXp = Profile.Xp;

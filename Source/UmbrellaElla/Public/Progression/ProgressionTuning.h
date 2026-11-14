@@ -106,6 +106,14 @@ struct UMBRELLAELLA_API FProgressionTuning
 	UPROPERTY(EditAnywhere, Category = "Final Hour")
 	float FinalHourCountMultiplier = 2.0f; // bake: FLOW-06.final_hour_count_multiplier
 
+	/** Seconds the Final Hour intro stays up before the Extreme run plays. GDD: duration, skip and repeat policy are OPEN; provisional. */
+	UPROPERTY(EditAnywhere, Category = "Final Hour", meta = (ClampMin = "0"))
+	float FinalHourIntroSeconds = 4.0f;
+
+	/** Final Hour intro text size (pixels). */
+	UPROPERTY(EditAnywhere, Category = "Final Hour", meta = (ClampMin = "8"))
+	int32 FinalHourIntroTextSize = 40;
+
 	/** Kill XP. */
 	UPROPERTY(EditAnywhere, Category = "Kill XP")
 	int32 XpRoadwarden = 10; // bake: FLOW-19.xp_roadwarden

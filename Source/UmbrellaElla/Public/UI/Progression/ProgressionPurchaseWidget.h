@@ -32,6 +32,10 @@ public:
 	int32 GetDraftNetCost() const;
 	int32 GetDraftRank(EProgressionTrack Track) const;
 	bool IsInspectionOnly() const;
+	/** The review step: every staged change with its cost and effect. Shown above Confirm. */
+	TArray<FProgressionReviewLine> GetReviewLines() const;
+	/** One review line as the screen shows it, e.g. "Hits per life 0 to 1: 3 to 4, costs 1 point". */
+	static FText ReviewLineText(const FProgressionReviewLine& Line);
 
 protected:
 	virtual TSharedRef<SWidget> RebuildWidget() override;
