@@ -29,6 +29,8 @@ FString UWorldArtSubsystem::VisualFor(ELevelPlacementKind Kind)
 {
 	switch (Kind)
 	{
+	case ELevelPlacementKind::Floor:
+		// The study has no ground, only floating eroded land: the route floor draws the island slab too (artscene request 4).
 	case ELevelPlacementKind::Solid:
 		return TEXT("world:solids");
 	case ELevelPlacementKind::Refuge:

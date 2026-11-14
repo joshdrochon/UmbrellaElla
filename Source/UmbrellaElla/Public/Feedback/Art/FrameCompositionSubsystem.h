@@ -19,8 +19,28 @@ namespace UmbrellaFrameConst
 	static const FLinearColor BackdropFlat(0.012f, 0.011f, 0.010f, 1.0f);
 	/** Cream route blocks become the study's floating-island umber (sRGB about #3a2a1c). */
 	static const FLinearColor IslandUmber(0.042f, 0.023f, 0.012f, 1.0f);
-	/** Salmon enemy stand-in boxes become the art bible's red shadow #8f173c (shot-red family), a dark silhouette. */
-	static const FLinearColor EnemyShadow(0.275f, 0.009f, 0.045f, 1.0f);
+	/**
+	 * Salmon enemy stand-in boxes become a dark ink red (sRGB about #3a1418, the shot-red family at its darkest): a small
+	 * dark figure as in the study, never a pink or red block (artella r38, lead 17:18).
+	 */
+	static const FLinearColor EnemyShadow(0.042f, 0.007f, 0.009f, 1.0f);
+	/** Enemy stand-ins are drawn at this share of their box (visual only; the hitbox is unchanged). */
+	static constexpr float EnemyStandInScale = 0.6f;
+	/**
+	 * The Keeper's attack telegraph and gust cue cubes (AKeeperOfTime): drawn as thin lines, never boxes (the 1050x120
+	 * telegraph was the pink block over Ella, lead 17:08). The telegraph is shot red #ff3658, the gust ash blue #555e60.
+	 */
+	static const TCHAR* const KeeperTelegraphName = TEXT("TelegraphVisual");
+	static const TCHAR* const KeeperGustName = TEXT("GustVisual");
+	static const FLinearColor TelegraphRed(1.0f, 0.037f, 0.095f, 1.0f);
+	static const FLinearColor GustAsh(0.091f, 0.111f, 0.117f, 1.0f);
+	/** Share of its height a telegraph or gust cue keeps (120 units -> about 18: a line, still readable). */
+	static constexpr float CueLineShare = 0.15f;
+	/**
+	 * Backdrop pictures artscene ships graded to the study (bg-layer:* panels, bg:* scene panels): never dimmed again
+	 * (artscene request 5: the dim turned the graded route black, luma p50 0 against the study's 35).
+	 */
+	static const TCHAR* const GradedBackdropNames[] = { TEXT("BackdropPanel"), TEXT("ScenePanel") };
 	/**
 	 * Name of the Keeper's stand-in body (on the Keeper actor) and of the arena's Keeper square. Only the arena's square
 	 * is ever hidden; the Keeper actor itself is always drawn (lead 17:08).
@@ -72,6 +92,8 @@ enum class EFrameTreatment : uint8
 	TintEnemy,
 	TintKeeper,
 	TintElla,
+	TelegraphLine,
+	GustLine,
 	Hide
 };
 
@@ -110,6 +132,9 @@ public:
 
 	/** The colour a tint treatment sets (White for Keep/Hide). Pure. */
 	static FLinearColor TintFor(EFrameTreatment Treatment);
+
+	/** The share of its own size (per axis) a treated mesh is drawn at (1 = unchanged). Pure. */
+	static FVector ScaleFor(EFrameTreatment Treatment);
 
 	/** Apply the treatment to every mesh in the world now; returns how many meshes changed. */
 	int32 ComposeNow();
@@ -156,6 +181,9 @@ private:
 		FLinearColor Tint = FLinearColor::White;
 		/** The tint this subsystem last set (so an owner's own recolour is told apart from ours). */
 		FLinearColor Applied = FLinearColor::White;
+		/** The mesh's own relative scale, and the one this subsystem last set. */
+		FVector Scale = FVector::OneVector;
+		FVector AppliedScale = FVector::OneVector;
 		bool bHiddenInGame = false;
 		bool bDrawsArt = false;
 	};

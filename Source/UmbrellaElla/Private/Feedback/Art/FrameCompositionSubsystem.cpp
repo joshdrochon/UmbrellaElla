@@ -32,6 +32,15 @@ EFrameTreatment UFrameCompositionSubsystem::TreatmentFor(const FFrameMeshFacts& 
 	{
 		return EFrameTreatment::Keep;
 	}
+	// The Keeper's cue cubes start lilac like its other stand-ins: name them first.
+	if (!F.bDrawsArt && F.ComponentName == FName(UmbrellaFrameConst::KeeperTelegraphName))
+	{
+		return EFrameTreatment::TelegraphLine;
+	}
+	if (!F.bDrawsArt && F.ComponentName == FName(UmbrellaFrameConst::KeeperGustName))
+	{
+		return EFrameTreatment::GustLine;
+	}
 	const bool bKeeperStandIn = !F.bDrawsArt && (F.ComponentName == FName(UmbrellaFrameConst::KeeperStandInName)
 		|| F.Tint.Equals(UmbrellaArtSlotConst::StandInKeeperColor, UmbrellaFrameConst::RoleTolerance));
 	if (bKeeperStandIn)
@@ -47,6 +56,13 @@ EFrameTreatment UFrameCompositionSubsystem::TreatmentFor(const FFrameMeshFacts& 
 	}
 	if (F.WorldY < UmbrellaFrameConst::BehindPlayY)
 	{
+		for (const TCHAR* Graded : UmbrellaFrameConst::GradedBackdropNames)
+		{
+			if (F.bDrawsArt && F.ComponentName == FName(Graded))
+			{
+				return EFrameTreatment::Keep;
+			}
+		}
 		if (F.bDrawsArt)
 		{
 			return F.Tint.Equals(UmbrellaFrameConst::BackdropDim, UmbrellaFrameConst::AppliedTolerance) ? EFrameTreatment::Keep : EFrameTreatment::DimBackdropArt;
@@ -74,7 +90,20 @@ FLinearColor UFrameCompositionSubsystem::TintFor(EFrameTreatment Treatment)
 	case EFrameTreatment::TintEnemy: return UmbrellaFrameConst::EnemyShadow;
 	case EFrameTreatment::TintKeeper: return UmbrellaFrameConst::KeeperMetal;
 	case EFrameTreatment::TintElla: return UmbrellaFrameConst::EllaInk;
+	case EFrameTreatment::TelegraphLine: return UmbrellaFrameConst::TelegraphRed;
+	case EFrameTreatment::GustLine: return UmbrellaFrameConst::GustAsh;
 	default: return FLinearColor::White;
+	}
+}
+
+FVector UFrameCompositionSubsystem::ScaleFor(EFrameTreatment Treatment)
+{
+	switch (Treatment)
+	{
+	case EFrameTreatment::TintEnemy: return FVector(UmbrellaFrameConst::EnemyStandInScale);
+	case EFrameTreatment::TelegraphLine:
+	case EFrameTreatment::GustLine: return FVector(1.0, 1.0, UmbrellaFrameConst::CueLineShare);
+	default: return FVector::OneVector;
 	}
 }
 
@@ -161,6 +190,13 @@ int32 UFrameCompositionSubsystem::ComposeMesh(UStaticMeshComponent* Mesh)
 		Original->Tint = Current;
 		Facts.Tint = Current;
 	}
+	const FVector CurrentScale = Mesh->GetRelativeScale3D();
+	if (Original && !CurrentScale.Equals(Original->AppliedScale, KINDA_SMALL_NUMBER))
+	{
+		// Its owner resized it since our pass (a presenter's per-state size): that is its own size now.
+		Original->Scale = CurrentScale;
+		Original->AppliedScale = CurrentScale;
+	}
 	const EFrameTreatment Treatment = TreatmentFor(Facts);
 	if (Treatment == EFrameTreatment::Keep)
 	{
@@ -171,12 +207,13 @@ int32 UFrameCompositionSubsystem::ComposeMesh(UStaticMeshComponent* Mesh)
 		// No longer a stand-in to change (a Keeper arrived, art draws): put the mesh back as its owner made it.
 		ArtSlot::SetTint(Mesh, Original->Tint);
 		Mesh->SetHiddenInGame(Original->bHiddenInGame);
+		Mesh->SetRelativeScale3D(Original->Scale);
 		Touched.Remove(Mesh);
 		return 1;
 	}
 	if (!Original)
 	{
-		Original = &Touched.Add(Mesh, FFrameOriginal{Facts.Tint, Current, Mesh->bHiddenInGame, bArt});
+		Original = &Touched.Add(Mesh, FFrameOriginal{Facts.Tint, Current, CurrentScale, CurrentScale, Mesh->bHiddenInGame, bArt});
 	}
 	const bool bHide = Treatment == EFrameTreatment::Hide;
 	const FLinearColor Want = bHide ? Original->Tint : TintFor(Treatment);
@@ -192,6 +229,14 @@ int32 UFrameCompositionSubsystem::ComposeMesh(UStaticMeshComponent* Mesh)
 		Changed = 1;
 	}
 	Original->Applied = Want;
+	// Only a child mesh is resized: a root mesh's scale would carry its actor's other components with it.
+	const FVector WantScale = Original->Scale * (Mesh->GetAttachParent() ? ScaleFor(Treatment) : FVector::OneVector);
+	if (!CurrentScale.Equals(WantScale, KINDA_SMALL_NUMBER))
+	{
+		Mesh->SetRelativeScale3D(WantScale);
+		Changed = 1;
+	}
+	Original->AppliedScale = WantScale;
 	return Changed;
 }
 
@@ -269,6 +314,7 @@ int32 UFrameCompositionSubsystem::RestoreAll()
 		{
 			ArtSlot::SetTint(Mesh, Pair.Value.Tint);
 			Mesh->SetHiddenInGame(Pair.Value.bHiddenInGame);
+			Mesh->SetRelativeScale3D(Pair.Value.Scale);
 			++Restored;
 		}
 	}

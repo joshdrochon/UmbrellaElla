@@ -82,6 +82,20 @@ bool FFrameCompositionRules::RunTest(const FString& Parameters)
 	TestTrue(TEXT("cream stand-in block turns island umber"),
 		Facts(TEXT("Block"), 0.0f, false, true, UmbrellaArtSlotConst::StandInDefaultColor) == EFrameTreatment::TintIsland);
 	TestTrue(TEXT("backdrop art is dimmed"), Facts(TEXT("Panel"), -400.0f, true, true, White) == EFrameTreatment::DimBackdropArt);
+	TestTrue(TEXT("artscene's graded backdrop layer is never dimmed (artscene request 5)"),
+		Facts(TEXT("BackdropPanel"), -400.0f, true, true, White) == EFrameTreatment::Keep);
+	TestTrue(TEXT("graded scene panel is never dimmed"), Facts(TEXT("ScenePanel"), -285.0f, true, true, White) == EFrameTreatment::Keep);
+	TestTrue(TEXT("a flat backdrop stand-in panel is still darkened"),
+		Facts(TEXT("BackdropPanel"), -400.0f, false, true, UmbrellaArtSlotConst::StandInDefaultColor) == EFrameTreatment::DarkenBackdropPanel);
+	TestTrue(TEXT("enemy stand-ins are drawn small"), UFrameCompositionSubsystem::ScaleFor(EFrameTreatment::TintEnemy).X < 1.0);
+	TestTrue(TEXT("the Keeper's telegraph cube is a thin red line, not a pink block"),
+		Facts(UmbrellaFrameConst::KeeperTelegraphName, -50.0f, false, true, FLinearColor(1.0f, 0.2f, 0.2f)) == EFrameTreatment::TelegraphLine);
+	TestTrue(TEXT("the telegraph keeps its length and loses its height"),
+		UFrameCompositionSubsystem::ScaleFor(EFrameTreatment::TelegraphLine).X == 1.0 && UFrameCompositionSubsystem::ScaleFor(EFrameTreatment::TelegraphLine).Z < 0.2);
+	TestTrue(TEXT("the Keeper's gust cube is a thin ash line"),
+		Facts(UmbrellaFrameConst::KeeperGustName, -50.0f, false, true, FLinearColor(0.7f, 0.85f, 1.0f)) == EFrameTreatment::GustLine);
+	TestTrue(TEXT("enemy shadow is dark, not a pink or red block"),
+		UmbrellaFrameConst::EnemyShadow.R + UmbrellaFrameConst::EnemyShadow.G + UmbrellaFrameConst::EnemyShadow.B < 0.1f);
 	TestTrue(TEXT("dimmed backdrop art is left alone"),
 		Facts(TEXT("Panel"), -400.0f, true, true, UmbrellaFrameConst::BackdropDim) == EFrameTreatment::Keep);
 	TestTrue(TEXT("bright backdrop stand-in panel is darkened"),
@@ -424,6 +438,32 @@ bool FFrameCompositionKeeperAlwaysSeen::RunTest(const FString& Parameters)
 		TestFalse(TEXT("the Keeper's art body is never hidden"), ArtBody->bHiddenInGame);
 	}
 	TestTrue(TEXT("Ella's artless stand-in is the dark figure, not a bright block"), ArtSlot::GetTint(EllaFigure).Equals(UmbrellaFrameConst::EllaInk, 0.0005f));
+	// artella r38: the pink block next to Ella was an enemy stand-in: dark and small, restorable.
+	UStaticMeshComponent* EnemyBox = FrameTestMesh(EllaOwner, TEXT("Placeholder"), FVector(200.0, 0.0, 300.0), UmbrellaArtSlotConst::StandInEnemyColor);
+	const FVector EnemyOwnScale(1.2, 0.2, 0.8);
+	EnemyBox->SetRelativeScale3D(EnemyOwnScale);
+	Frame->ComposeNow();
+	TestTrue(TEXT("enemy stand-in is dark ink red"), ArtSlot::GetTint(EnemyBox).Equals(UmbrellaFrameConst::EnemyShadow, 0.0005f));
+	TestTrue(TEXT("enemy stand-in is drawn small"), EnemyBox->GetRelativeScale3D().Equals(EnemyOwnScale * UmbrellaFrameConst::EnemyStandInScale, 0.001));
+	TestEqual(TEXT("a second pass does not shrink it again"), Frame->ComposeNow(), 0);
+	TestTrue(TEXT("still small once"), EnemyBox->GetRelativeScale3D().Equals(EnemyOwnScale * UmbrellaFrameConst::EnemyStandInScale, 0.001));
+	// The Keeper's telegraph cube on the real Keeper actor: a thin red line once composed.
+	if (UStaticMeshComponent* Telegraph = FindObjectFast<UStaticMeshComponent>(Keeper, FName(UmbrellaFrameConst::KeeperTelegraphName)))
+	{
+		if (!Keeper->HasActorBegunPlay())
+		{
+			Keeper->DispatchBeginPlay();
+		}
+		Frame->RestoreAll();
+		const FVector Own = Telegraph->GetRelativeScale3D();
+		Telegraph->SetHiddenInGame(false);
+		Frame->ComposeNow();
+		if (ArtSlot::IsUnlit(Telegraph))
+		{
+			TestTrue(TEXT("telegraph is shot red"), ArtSlot::GetTint(Telegraph).Equals(UmbrellaFrameConst::TelegraphRed, 0.0005f));
+			TestTrue(TEXT("telegraph is a thin line"), FMath::IsNearlyEqual(Telegraph->GetRelativeScale3D().Z, Own.Z * UmbrellaFrameConst::CueLineShare, 0.001));
+		}
+	}
 	// Quick passes look only at new actors (16:28 review: no scan of every actor every 0.2 s).
 	Frame->ComposePass(false);
 	TestEqual(TEXT("a quick pass with no new actor looks at none"), Frame->LastPassActorCount(), 0);
@@ -435,6 +475,7 @@ bool FFrameCompositionKeeperAlwaysSeen::RunTest(const FString& Parameters)
 	Frame->ComposePass(false);
 	TestTrue(TEXT("with no Keeper actor the arena square stays hidden"), Square->bHiddenInGame);
 	Frame->RestoreAll();
+	TestTrue(TEXT("restore gives the enemy stand-in its own size"), EnemyBox->GetRelativeScale3D().Equals(EnemyOwnScale, 0.001));
 	TestFalse(TEXT("restore shows the square as its owner left it"), Square->bHiddenInGame);
 	TestTrue(TEXT("restore gives the stand-in body its own lilac back"), ArtSlot::GetTint(Body).Equals(UmbrellaArtSlotConst::StandInKeeperColor, 0.0005f));
 	return true;
