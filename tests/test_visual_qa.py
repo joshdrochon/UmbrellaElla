@@ -454,7 +454,7 @@ class GateRecapture(unittest.TestCase):
             captures.append(out)
             os.makedirs(out, exist_ok=True)
             for name in visual_qa.SCREENS.values():     # a different frame: the enemy moved
-                shutil.copyfile(os.path.join(ROOT, visual_qa.KNOWN_GOOD), os.path.join(out, name))
+                shutil.copyfile(os.path.join(ROOT, visual_qa.KNOWN_BAD), os.path.join(out, name))
             return 0
 
         def caller(prompt, image):
@@ -478,6 +478,41 @@ class GateRecapture(unittest.TestCase):
             self.assertEqual(rep["screens"]["play"]["recheck"]["broken"], [])
             self.assertIn("[unkeyed]", rep["screens"]["play"]["first_reasons"][0])
             self.assertTrue(os.path.exists(os.path.join(shots, "recheck", "visual_qa.json")))
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+
+class BaselineCaptures(unittest.TestCase):
+    """Main captured 3 times (pipeline/qa/visual/noise/capvar-main-d812ba29.json): the enemy's red backing is named in
+    2 of 3 captures (once 'unkeyed', once 'box'), dc_route totals 19/22/23. Stored as samples, they count as main's."""
+
+    def test_capture_variance_numbers(self):
+        cv = fixture("capvar-main-d812ba29.json", NOISE)["captures"]
+        dc = [c["dc_route"] for c in cv.values()]
+        self.assertEqual(sorted(c["total"] for c in dc), [19, 22, 23])
+        self.assertEqual(sum(1 for c in dc if "unkeyed" in c["kinds"] or "box" in c["kinds"]), 2)
+
+    def test_add_captures_joins_main_samples(self):
+        tmp = tempfile.mkdtemp()
+        shots = os.path.join(tmp, "cap1")
+        os.makedirs(shots)
+        for name in visual_qa.SCREENS.values():
+            shutil.copyfile(os.path.join(ROOT, visual_qa.STUDY), os.path.join(shots, name))
+        base = {"sha": "c" * 40, "screens": {s: {"total": 30, "broken": [], "scores": {}} for s in visual_qa.SCREENS}}
+        try:
+            os.makedirs(os.path.join(tmp, "base"))
+            with open(os.path.join(tmp, "base", "c" * 40 + ".json"), "w") as fh:
+                json.dump(base, fh)
+            with mock.patch.dict(os.environ, {"VISUAL_BASELINE_DIR": os.path.join(tmp, "base")}), \
+                    redirect_stdout(io.StringIO()):
+                code = visual_qa.add_captures("c" * 40, [shots], lambda p, i: answer(3, ["enemy on a dark red "
+                                              "rectangle (unkeyed)"], "FAIL"), os.path.join(tmp, "rec"))
+                self.assertEqual(code, visual_qa.EXIT_PASS)
+                dc = visual_qa.load_baseline("c" * 40)["screens"]["dc_route"]
+            self.assertEqual(dc["samples"][0]["capture"], shots)
+            self.assertEqual(visual_qa.known_kinds(dc), {"unkeyed": 1})
+            self.assertTrue(visual_qa.decide_gate({"total": 30, "broken": ["red rectangle behind the enemy (unkeyed)"]},
+                                                  dc)[0])
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
 

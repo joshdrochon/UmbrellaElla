@@ -1,0 +1,6 @@
+{
+ "model": "claude-opus-5-5",
+ "key": "47d03184391a617df853cfa030ab2260",
+ "at": "2026-11-13T20:56:41",
+ "answer": "{\"scores\": {\"dark_backdrop\": 4, \"wind_ribbons\": 0, \"small_figures\": 5, \"floating_islands\": 2, \"shot_colours\": 3, \"no_placeholders\": 3, \"no_framed_art\": 8}, \"broken\": [\"flat brown bar as ground across bottom-left\", \"solid brown block standing on that bar\", \"thin vertical line from top of frame down to the girl\"], \"verdict\": \"FAIL\"}"
+}

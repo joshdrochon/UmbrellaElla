@@ -20,6 +20,8 @@
   visual_qa.py baseline --from-main --shots DIR --sha SHA
                                                no capture: store DIR (the gate's run of the tree that became main SHA,
                                                judge calls replayed, no spend) as main's baseline
+  visual_qa.py baseline --add-captures DIR [DIR ...] [--sha SHA]
+                                               add more captures of main (capture DIR at main first) to its baseline
   visual_qa.py composite --before A --after B --out P   study | before | after, one row (the per-round composite)
 
 Each screen is put side by side with the study (study left, game right) and one Opus session (claude -p, image input,
@@ -662,6 +664,32 @@ def attach_samples(results, noise):
     return results
 
 
+def add_captures(sha, dirs, caller=None, records=None):
+    """Store more captures of main in main's baseline (lead, ellaidle 9177511f): each dir is judged (replayed when
+    recorded) and its runs join the samples with "capture": dir, so known kinds, lowest scores and the median total
+    cover capture-to-capture variance, not only re-judges of one capture. Starts from the nearest ancestor's baseline
+    (GATE_WALK) when sha has none. Exit 0 stored, 2 could not run."""
+    base = load_baseline(sha, GATE_WALK)
+    if base is None:
+        print(missing_baseline_line(sha))
+        return EXIT_ERROR
+    for d in dirs:
+        code, line, res = judge_shots(d, caller, records)
+        if code == EXIT_ERROR:
+            print("visual_qa baseline NOT changed: %s" % line)
+            return EXIT_ERROR
+        for screen, r in res.items():
+            if screen in base["screens"]:
+                base["screens"][screen].setdefault("samples", []).append(
+                    {"total": r["total"], "broken": r["broken"], "scores": r["scores"], "capture": d})
+        print("visual_qa baseline %s: + capture %s %s" % (sha[:12], d, line))
+    summary = base.get("summary", "")
+    if base.get("sha") != sha:
+        summary = "%s (from %s)" % (summary, base.get("sha", "")[:12])
+    store_baseline(sha, summary, base["screens"])
+    return EXIT_PASS
+
+
 def cmd_noise(shots, n, out="", baseline_sha=""):
     """Measure judge noise on shots; with baseline_sha, also store the samples in that stored baseline (its shots must
     be these shots: the stored run's shot names are checked)."""
@@ -731,6 +759,7 @@ def main(argv=None):
     p.add_argument("--from-main", action="store_true")
     p.add_argument("--out", default=os.path.join(ROOT, "Saved", "VisualQA", "baseline-" + time.strftime("%Y%m%d-%H%M%S")))
     p.add_argument("--sha", default="")
+    p.add_argument("--add-captures", nargs="+", default=[])
     args = ap.parse_args(argv)
     try:
         if args.cmd == "capture":
@@ -762,6 +791,8 @@ def main(argv=None):
         if args.cmd == "composite":
             print(composite_round(rel(STUDY), args.before, args.after, args.out))
             return EXIT_PASS
+        if args.cmd == "baseline" and args.add_captures:
+            return add_captures(args.sha or main_sha(), args.add_captures)
         if args.cmd == "baseline" and args.from_main:
             return cmd_baseline_from_main(args.out, args.sha, shots=args.shots)
         if args.cmd == "baseline":
