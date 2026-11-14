@@ -205,7 +205,16 @@ void AKeeperOfTime::Refresh(const FKeeperFightModel& Model, float TimeSeconds)
 	// Wings: hittable until broken; broken wings stay as dark cover with no collision.
 	const bool bWingsAlive = !Model.IsPartBroken(EKeeperPart::Wings);
 	WingsPart->SetHittable(bWingsAlive);
-	PlaceVisual(WingsVisual, AnchorXZ + T.WingsOffset, T.WingsHalfExtent, bWingsAlive ? KeeperLook::Body : KeeperLook::Broken, bWingsAlive ? EKeeperCubeState::Default : EKeeperCubeState::StateCue);
+	// No broken-state art exists (keeper:part-masks has no texture): under the Keeper's art a broken part draws no cube
+	// (Nov 13: the broken wings drew a flat 225x140 px grey box over the wing art). Without art the cube still shows.
+	if (!bWingsAlive && IsPartArtDrawn(EKeeperPart::Wings))
+	{
+		HideVisual(WingsVisual);
+	}
+	else
+	{
+		PlaceVisual(WingsVisual, AnchorXZ + T.WingsOffset, T.WingsHalfExtent, bWingsAlive ? KeeperLook::Body : KeeperLook::Broken, bWingsAlive ? EKeeperCubeState::Default : EKeeperCubeState::StateCue);
+	}
 
 	// Clock: always a collider (a closed clock consumes shots); bright while open.
 	ClockPart->SetHittable(!Model.IsEnded());
@@ -244,12 +253,22 @@ void AKeeperOfTime::Refresh(const FKeeperFightModel& Model, float TimeSeconds)
 			&& Model.GetStage() != EKeeperStage::Idle && Model.GetStage() != EKeeperStage::Recovery;
 		Slot.Body->SetHittable(bAlive && !bExtended);
 		Slot.Head->SetHittable(bExtended);
-		PlaceVisual(Slot.Visual, AnchorXZ + Slot.Offset, T.MechanismHalfExtent, bAlive ? KeeperLook::Body : KeeperLook::Broken, bAlive ? EKeeperCubeState::Default : EKeeperCubeState::StateCue);
+		const bool bUnderArt = IsPartArtDrawn(Slot.Part);
+		if (!bAlive && bUnderArt)
+		{
+			HideVisual(Slot.Visual);
+		}
+		else
+		{
+			PlaceVisual(Slot.Visual, AnchorXZ + Slot.Offset, T.MechanismHalfExtent, bAlive ? KeeperLook::Body : KeeperLook::Broken, bAlive ? EKeeperCubeState::Default : EKeeperCubeState::StateCue);
+		}
 		if (bExtended)
 		{
 			Slot.Head->SetWorldLocation(ToWorld(Model.GetHeadPosition()));
 		}
-		if (bAlive && Model.GetPhysical() == Slot.Cast && Model.GetStage() != EKeeperStage::Idle)
+		// The chain head has no art of its own: under the Keeper's art no lilac head cube is drawn (the strike effect,
+		// VFX_KeeperStrike, is anchored on the head while it travels). The head's hit collider is unchanged.
+		if (bAlive && !bUnderArt && Model.GetPhysical() == Slot.Cast && Model.GetStage() != EKeeperStage::Idle)
 		{
 			bHeadShown = true;
 			PlaceVisual(HeadVisual, Model.GetHeadPosition(), HeadHalf, Model.IsHeadHurting() ? KeeperLook::Head : KeeperLook::SafeHead);
