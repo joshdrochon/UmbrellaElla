@@ -1,0 +1,6 @@
+{
+ "model": "claude-opus-5-5",
+ "key": "8f346049e84bb92119af97a0e2216cc2",
+ "at": "2026-11-13T19:52:15",
+ "answer": "{\"scores\": {\"dark_backdrop\": 4, \"wind_ribbons\": 0, \"small_figures\": 5, \"floating_islands\": 2, \"shot_colours\": 5, \"no_placeholders\": 6, \"no_framed_art\": 2}, \"broken\": [\"Keeper owl picture sits on a visible dark rectangle background (unkeyed, box edges showing)\", \"small rectangle-backed picture at the owl's lower left\", \"thin vertical white line running from the top edge down toward the girl\"], \"verdict\": \"FAIL\"}"
+}

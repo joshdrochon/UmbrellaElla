@@ -1,0 +1,6 @@
+{
+ "model": "claude-opus-5-5",
+ "key": "c7e82511111985b517d3a503706578cd",
+ "at": "2026-11-13T19:52:23",
+ "answer": "{\"scores\": {\"dark_backdrop\": 1, \"wind_ribbons\": 3, \"small_figures\": 8, \"floating_islands\": 0, \"shot_colours\": 5, \"no_placeholders\": 0, \"no_framed_art\": 6}, \"broken\": [\"flat dark brown bar as floor across full width\", \"flat dark brown bar as ledge (solid rectangle, no island art)\", \"bright cream clock-face picture fills the backdrop instead of a dark sky\", \"thin white vertical line from top of screen down to the player (looks like a debug trace)\"], \"verdict\": \"FAIL\"}"
+}

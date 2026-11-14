@@ -61,6 +61,15 @@ RUBRIC = [
 SCORE_MAX = 10
 # A total this far under main's baseline fails. Zero: the brief says FAIL on any screen worse than main (16:45 review).
 BASELINE_SLACK = 0
+# Judge noise, measured Nov 13 (status file; pipeline/qa/visual/noise/): the same frame judged 6 times (the stored run +
+# 5 samples) on main b4c1fe79's and the owl merge 0d74b84a's three screens scored totals spread up to 6 points
+# (main dc_route 23..29), and one run fell at most 3.5 under its frame's median (main play 20 vs 23.5).
+# The gate compares one judged run with main's median when main's baseline has samples (GATE_TOTAL_SLACK = 4, the
+# 3.5 rounded up), else with main's one stored run (GATE_TOTAL_SLACK_SINGLE = 6, the full spread).
+GATE_TOTAL_SLACK = 4
+GATE_TOTAL_SLACK_SINGLE = 6
+# Extra judged runs of main's shots stored with every new baseline (the number the noise above was measured with).
+BASELINE_SAMPLES = int(os.environ.get("VISUAL_QA_BASELINE_SAMPLES", "5"))
 COMPOSITE_W, COMPOSITE_H = 960, 540
 EXIT_PASS, EXIT_FAIL, EXIT_ERROR = 0, 1, 2
 
@@ -137,10 +146,11 @@ def claude_image_call(prompt, image_bytes, model=MODEL):
     return text
 
 
-def judge_call(prompt, image_bytes, caller=None, records=None):
-    """The judge's answer text, from the record when this exact call was made before."""
+def judge_call(prompt, image_bytes, caller=None, records=None, sample=0):
+    """The judge's answer text, from the record when this exact call was made before.
+    sample > 0: an independent repeat of the same call (its own record), used to measure judge noise."""
     records = rel(records or RECORDS)
-    key = record_key(prompt, image_bytes)
+    key = record_key(prompt if not sample else "%s\0sample=%d" % (prompt, sample), image_bytes)
     path = os.path.join(records, key + ".json")
     if os.path.exists(path):
         with open(path, encoding="utf-8") as fh:
@@ -191,7 +201,7 @@ def decide(result, baseline_total=None):
     return not reasons, reasons
 
 
-def judge_image(shot, screen, caller=None, records=None, keep=None):
+def judge_image(shot, screen, caller=None, records=None, keep=None, sample=0):
     """Judge one picture against the study. Returns the parsed result plus the composite path and replay flag."""
     tmp = tempfile.mkdtemp(prefix="visualqa_")
     try:
@@ -200,7 +210,7 @@ def judge_image(shot, screen, caller=None, records=None, keep=None):
             image = fh.read()
         if keep:
             shutil.copyfile(comp, keep)
-        answer, replayed = judge_call(prompt_text(screen), image, caller, records)
+        answer, replayed = judge_call(prompt_text(screen), image, caller, records, sample)
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
     result = parse_answer(answer)
@@ -219,16 +229,95 @@ def norm_item(text):
     return " ".join(re.sub(r"[^a-z0-9#]+", " ", (text or "").lower()).split())
 
 
+# Defect kinds for the gate's "already known on main" match (lead 19:50): the judge words one defect differently run to
+# run ("thin flat white vertical line running from the top of the frame down to the player" vs "stray thin vertical
+# white line from the top of the frame to the player"), so an item is matched by its kind, not its text. First rule
+# that matches wins; an item no rule matches keeps its exact normalised text as its kind (no looser than before).
+# Location words are not part of the key: the judge names one place three ways ("mid-right", "right middle",
+# "right-centre"). Counts are: a second bar where main had one is still a new item.
+DEFECT_KINDS = [
+    ("line", r"\b(line|lines|thread|wire|hairline|seam)\b|\bvertical\b.*\bbar\b"),
+    ("unkeyed", r"\bunkeyed\b|\b(rectangle|rectangular|square|box)\w* (background|backing|behind|halo)"
+                r"|\bhard[ -]?(cut|edged?|cropped)\b|\b(rectangle|square)[ -]backed\b"),
+    ("too_large", r"\b(huge|very large|too large|oversized|too big|drawn large|is large|large in the frame)\b"
+                  r"|\bdominat"),
+    ("stray_mark", r"\b(dot|disc|glyph|speck|blob)\b|\bsmall (white )?(box|rectangle)\b"),
+    ("shots", r"\bshots?\b.*\b(bars?|dash|dashes)\b|\b(dash|dashes)\b|\b(instead of|not) streaks\b"),
+    ("no_islands", r"\bno (clear |visible )?(floating |ground )?(islands?|platforms?)\b(?! art)"),
+    ("bright_backdrop", r"\b(cream|paper|bright|white|beige)\b.*\b(backdrop|background|sky)\b"
+                        r"|\b(backdrop|background)\b.*\b(cream|paper|bright|beige)\b"),
+    ("framed", r"\b(framed|bordered|border|borders|bezel)\b|\b(drawn|picture|visible|heavy) frame\b"),
+    ("stretched", r"\b(stretched|squashed|distorted)\b"),
+    ("rotated", r"\b(rotated|tilted|sideways|upside down)\b"),
+    ("bar", r"\b(bar|bars|band|strip|slab|plank)\b"),
+    ("box", r"\b(cube|cubes|box|boxes|block|blocks|rectangle|rectangles)\b"),
+    ("no_wind", r"\b(no|missing|absent|without|lacks?|lacking)\b.*\bwind\b|\bwind\b.*\b(missing|absent|not visible)\b"),
+    ("player_missing", r"\b(player|girl|ella|character|heroine)\b.*\b(missing|absent|invisible|not visible|barely|"
+                       r"hard to see|lost|hidden|faint)\b|\b(missing|no|invisible)\b.*\b(player|girl|ella|heroine)\b"),
+    ("blank_frame", r"\b(blank|black|empty)\b.*\b(frame|screen)\b"),
+]
+
+
+def defect_kind(text):
+    """The defect kind of one 'broken' item (DEFECT_KINDS), or its normalised text when no rule matches."""
+    t = norm_item(text)
+    for kind, pattern in DEFECT_KINDS:
+        if re.search(pattern, t):
+            return kind
+    return t
+
+
+def kind_counts(items):
+    """{kind: count} for a list of broken items."""
+    out = {}
+    for b in items or []:
+        k = defect_kind(b)
+        out[k] = out.get(k, 0) + 1
+    return out
+
+
+def known_kinds(base_screen):
+    """Main's known defects for one screen: per kind, the most items any one of main's judged runs listed (the stored
+    run plus its recorded noise samples: the judge leaves a real defect out of some runs)."""
+    runs = [(base_screen or {}).get("broken", [])] + [s.get("broken", []) for s in (base_screen or {}).get("samples", [])]
+    known = {}
+    for run in runs:
+        for k, c in kind_counts(run).items():
+            known[k] = max(known.get(k, 0), c)
+    return known
+
+
+def base_total(base_screen):
+    """(main's total for the gate, slack): the median of main's judged runs when the baseline has samples, else its
+    one stored run with the wider single-run slack. (None, 0) without a baseline."""
+    base_screen = base_screen or {}
+    if base_screen.get("total") is None:
+        return None, 0
+    totals = sorted([base_screen["total"]] + [x["total"] for x in base_screen.get("samples", [])])
+    if len(totals) == 1:
+        return totals[0], GATE_TOTAL_SLACK_SINGLE
+    mid = len(totals) // 2
+    median = totals[mid] if len(totals) % 2 else (totals[mid - 1] + totals[mid]) / 2.0
+    return median, GATE_TOTAL_SLACK
+
+
 def decide_gate(result, base_screen):
     """(passed, reasons) for the merge gate: only a regression against main's baseline screen fails. Pure.
-    Regression = total below main's total (minus BASELINE_SLACK), or a broken item main's run did not list
-    (matched by normalised text). Main's own broken items and the judge's FAIL verdict do not fail the gate."""
+    Regression = total below main's total by more than the measured judge noise (base_total), or more broken items of
+    one defect kind than any of main's judged runs listed (known_kinds). Main's own broken items and the judge's FAIL
+    verdict do not fail the gate. The reason line names the kind of each new item."""
     reasons = []
-    base_total = (base_screen or {}).get("total")
-    if base_total is not None and result["total"] < base_total - BASELINE_SLACK:
-        reasons.append("total %d below main's %d" % (result["total"], base_total))
-    known = {norm_item(b) for b in (base_screen or {}).get("broken", [])}
-    new = [b for b in result["broken"] if norm_item(b) not in known]
+    base, slack = base_total(base_screen)
+    if base is not None and result["total"] < base - slack:
+        reasons.append("total %d below main's %g (slack %d)" % (result["total"], base, slack))
+    left = known_kinds(base_screen)
+    new = []
+    for b in result["broken"]:
+        k = defect_kind(b)
+        if left.get(k, 0) > 0:
+            left[k] -= 1
+        else:
+            new.append("%s [%s]" % (b, k))
     if new:
         reasons.append("new broken: " + "; ".join(new))
     return not reasons, reasons
@@ -302,14 +391,56 @@ def judge_shots(shots_dir, caller=None, records=None, baseline=None, composites_
     return (EXIT_PASS if not failed else EXIT_FAIL), line, results
 
 
+def user_state_files(root=None):
+    root = root or ROOT
+    """The files a game run writes as player state: save slots and GameUserSettings.ini (tutorial seen)."""
+    found = []
+    saves = os.path.join(root, "Saved", "SaveGames")
+    for base, _dirs, names in os.walk(saves):
+        found += [os.path.join(base, n) for n in names]
+    config = os.path.join(root, "Saved", "Config")
+    if os.path.isdir(config):
+        for plat in os.listdir(config):
+            ini = os.path.join(config, plat, "GameUserSettings.ini")
+            if os.path.isfile(ini):
+                found.append(ini)
+    return sorted(found)
+
+
+def snapshot_user_state(root=None):
+    snap = {}
+    for path in user_state_files(root):
+        with open(path, "rb") as fh:
+            snap[path] = fh.read()
+    return snap
+
+
+def restore_user_state(snap, root=None):
+    """Put player state back as it was before the run: a capture plays Director's Cut and earns points and the
+    tutorial flag, and a later automation run in the same tree then starts on the purchase or tutorial screen
+    (UmbrellaElla.Flow.World.LevelUpShowsAndResumes failed the gate that way, Nov 13)."""
+    for path in user_state_files(root):
+        if path not in snap:
+            os.remove(path)
+    for path, data in snap.items():
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "wb") as fh:
+            fh.write(data)
+
+
 def capture(out_dir):
-    """Run the visual QA journey in a real window through the engine slot. Returns the run's exit code."""
+    """Run the visual QA journey in a real window through the engine slot. Returns the run's exit code.
+    Player state (saves, GameUserSettings.ini) is restored after the run, so captures never change later tests."""
     os.makedirs(out_dir, exist_ok=True)
     env = dict(os.environ)
     env.setdefault("RUN_RES", "1280x720")
     cmd = [os.path.join(ROOT, "tools", "build", "ue_slot.sh"), os.path.join(ROOT, "tools", "build", "run_game.sh"),
            "-SmokeJourney=" + os.path.join(ROOT, JOURNEY), "-SmokeJourneyOut=" + os.path.abspath(out_dir)]
-    return subprocess.run(cmd, cwd=ROOT, env=env).returncode
+    snap = snapshot_user_state()
+    try:
+        return subprocess.run(cmd, cwd=ROOT, env=env).returncode
+    finally:
+        restore_user_state(snap)
 
 
 def write_report(out_dir, line, results):
@@ -354,6 +485,7 @@ def cmd_baseline_from_main(out, sha="", caller=None, records=None, shots=""):
         if code == EXIT_ERROR:
             print("visual_qa baseline NOT stored for %s: %s" % (sha[:12], line))
             return EXIT_ERROR
+        attach_samples(results, measure_noise(shots, BASELINE_SAMPLES, caller, records))
         store_baseline(sha, line, results)
         print("visual_qa baseline %s (from the gate run %s): %s" % (sha[:12], shots, line))
         return EXIT_PASS
@@ -373,6 +505,7 @@ def cmd_baseline_from_main(out, sha="", caller=None, records=None, shots=""):
     if code == EXIT_ERROR:
         print("visual_qa baseline NOT stored for %s: %s" % (sha[:12], line))
         return EXIT_ERROR
+    attach_samples(results, measure_noise(out, BASELINE_SAMPLES, caller, records))
     store_baseline(sha, line, results)
     print("visual_qa baseline %s (from main): %s" % (sha[:12], line))
     return EXIT_PASS
@@ -384,6 +517,62 @@ def store_baseline(sha, line, results):
     with open(tmp, "w", encoding="utf-8") as fh:
         json.dump({"sha": sha, "summary": line, "screens": results}, fh, indent=1)
     os.replace(tmp, baseline_path(sha))
+
+
+def measure_noise(shots_dir, n, caller=None, records=None, workers=3):
+    """Judge every screen in shots_dir n more times (samples 1..n, each its own recorded call) on the SAME bytes.
+    Returns {screen: {"totals": [...], "range": max-min, "kinds": {kind: [count per sample]}, "broken": [[...], ...]}}."""
+    from concurrent.futures import ThreadPoolExecutor
+    jobs = [(screen, k) for screen in SCREENS for k in range(1, n + 1)]
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        done = list(pool.map(lambda j: (j, judge_image(os.path.join(shots_dir, SCREENS[j[0]]), j[0], caller, records,
+                                                         sample=j[1])), jobs))
+    out = {}
+    if n <= 0:
+        return {}
+    for (screen, _k), r in done:
+        o = out.setdefault(screen, {"totals": [], "broken": []})
+        o["totals"].append(r["total"])
+        o["broken"].append(r["broken"])
+    for o in out.values():
+        o["range"] = max(o["totals"]) - min(o["totals"])
+        kinds = sorted({kd for b in o["broken"] for kd in kind_counts(b)})
+        o["kinds"] = {kd: [kind_counts(b).get(kd, 0) for b in o["broken"]] for kd in kinds}
+    return out
+
+
+def attach_samples(results, noise):
+    """Put measured noise samples into a judged run's per-screen results (the baseline then knows every defect kind
+    any of main's runs listed)."""
+    for screen, o in noise.items():
+        if screen in results:
+            results[screen]["samples"] = [{"total": t, "broken": b} for t, b in zip(o["totals"], o["broken"])]
+    return results
+
+
+def cmd_noise(shots, n, out="", baseline_sha=""):
+    """Measure judge noise on shots; with baseline_sha, also store the samples in that stored baseline (its shots must
+    be these shots: the stored run's shot names are checked)."""
+    if baseline_sha:
+        if not os.path.exists(baseline_path(baseline_sha)):
+            print("VISUAL_QA ERROR no stored baseline %s" % baseline_sha[:12])
+            return EXIT_ERROR
+    res = measure_noise(shots, n)
+    for screen, o in res.items():
+        print("%s totals=%s range=%d kinds=%s" % (screen, o["totals"], o["range"],
+                                                  {k: v for k, v in o["kinds"].items()}))
+    worst = max(o["range"] for o in res.values())
+    print("VISUAL_QA NOISE n=%d max_range=%d (shots %s)" % (n, worst, shots))
+    if out:
+        with open(out, "w", encoding="utf-8") as fh:
+            json.dump({"shots": shots, "n": n, "model": MODEL, "max_range": worst, "screens": res}, fh, indent=1)
+    if baseline_sha:
+        with open(baseline_path(baseline_sha), encoding="utf-8") as fh:
+            base = json.load(fh)
+        attach_samples(base["screens"], res)
+        store_baseline(baseline_sha, base.get("summary", ""), base["screens"])
+        print("visual_qa baseline %s: %d noise samples per screen stored" % (baseline_sha[:12], n))
+    return EXIT_PASS
 
 
 def cmd_calibrate(caller=None):
@@ -416,6 +605,11 @@ def main(argv=None):
     p.add_argument("image")
     p.add_argument("--screen", default="play")
     sub.add_parser("calibrate")
+    p = sub.add_parser("noise")
+    p.add_argument("--shots", required=True)
+    p.add_argument("--n", type=int, default=5)
+    p.add_argument("--out", default="")
+    p.add_argument("--baseline-sha", default="")
     p = sub.add_parser("composite")
     p.add_argument("--before", required=True)
     p.add_argument("--after", required=True)
@@ -450,6 +644,8 @@ def main(argv=None):
             return EXIT_PASS if ok else EXIT_FAIL
         if args.cmd == "calibrate":
             return cmd_calibrate()
+        if args.cmd == "noise":
+            return cmd_noise(args.shots, args.n, args.out, args.baseline_sha)
         if args.cmd == "composite":
             print(composite_round(rel(STUDY), args.before, args.after, args.out))
             return EXIT_PASS
@@ -465,6 +661,7 @@ def main(argv=None):
                 # A failing or incomplete run never becomes main's baseline (16:45 review).
                 print("visual_qa baseline NOT stored for %s: %s" % (sha[:12], line))
                 return code
+            attach_samples(results, measure_noise(args.shots, BASELINE_SAMPLES))
             store_baseline(sha, line, results)
             print("visual_qa baseline %s: %s" % (sha[:12], line))
             return EXIT_PASS
