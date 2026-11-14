@@ -207,3 +207,9 @@ No `-SmokeShotDelay=` flag yet, load average 45. Context pair for skyline, paper
     (UWindPresenterSubsystem updraft ribbons; main draws them too, they only show now that the backdrop is dark) and "no red enemy shot streaks,
     gold shots in square-ish glow halos" (shot VFX). The judge's art items differ run to run on the same frames (shots/wind lists change), so part is noise.
 - Blocked for a PASS on other lanes: wind presenter (ribbon shape/visibility) and shot VFX. Not mine to edit. Stopping here.
+- Merged main d812ba29 (visualqa 68c07ec4) -> 2726d06c: build exit 0, PRECHECK PASS sha=2726d06c. Gate:
+  `VISUAL_QA GATE FAIL play=42/70 dc_route=39/70 keeper=36/70 broken=9 baseline=ebda6e4752b4 failed=dc_route,keeper` (play now PASS).
+  Items: keeper "long straight vertical line to the hanging girl" (her rope: main's keeper frame has the same line); dc_route shots (VFX lane)
+  and "short flat dark bars at the far left edges" (route floor slabs, ~40:1, drawn as thin bars; same in every earlier run, flagged only now).
+  Triage for the lead: four runs, no artscene item repeats; the remaining items differ run to run on the same art (judge noise against a
+  single-run baseline) or are other lanes' (rope, wind ribbons, shot VFX, floor shape). Stopping.
