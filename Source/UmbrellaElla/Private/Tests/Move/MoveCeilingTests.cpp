@@ -10,7 +10,7 @@
 #if WITH_AUTOMATION_TESTS
 
 // Agentplay B7: on the Director's Cut route Ella rose without limit with nothing held (z 14 962 after 60 s), while in
-// Start Game the arena ceiling stopped her at z 1 036. The GDD names a ceiling constraint (MOVE-19) but no number, so the
+// Start Game the arena ceiling stopped her at z 1 036. The GDD names a ceiling constraint on movement but no number, so the
 // arena's top is the ceiling. The route places Ella far right of the arena's own ceiling box, so the test does the same.
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMoveWorldRouteCeilingTest, "UmbrellaElla.Move.World.RouteCeilingHoldsEllaInPicture", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
 bool FMoveWorldRouteCeilingTest::RunTest(const FString& Parameters)

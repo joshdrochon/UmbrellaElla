@@ -48,7 +48,7 @@ public:
 	 *  reads IsAtPlayFloor() to apply its rule. */
 	float GetPlayFloorZ() const;
 	bool IsAtPlayFloor() const { return bAtPlayFloor; }
-	/** Highest root Z Ella may reach: the arena top minus her capsule half-height (MOVE-19 ceiling constraint), so she
+	/** Highest root Z Ella may reach: the arena top minus her capsule half-height (the GDD ceiling constraint on movement), so she
 	 *  stays in the picture on the Director's Cut route as in Start Game. Max() when no arena exists. */
 	float GetPlayCeilingZ() const;
 	bool IsAtPlayCeiling() const { return bAtPlayCeiling; }

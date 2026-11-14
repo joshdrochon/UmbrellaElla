@@ -149,7 +149,7 @@ void UEllaMotorComponent::StepMotor(float DeltaSeconds)
 	{
 		Model.Velocity.Y = 0.0f;
 	}
-	// MOVE-19 ceiling constraint: the arena top holds on the Director's Cut route too, where the arena's ceiling box
+	// GDD movement ceiling constraint: the arena top holds on the Director's Cut route too, where the arena's ceiling box
 	// does not reach (agentplay B7: z 14 962 after 60 s with nothing held). Ella stays in the picture.
 	const float CeilingZ = GetPlayCeilingZ();
 	bAtPlayCeiling = Location.Z >= CeilingZ;
