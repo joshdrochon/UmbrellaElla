@@ -208,3 +208,10 @@ NEEDS HUMAN: lead: apply request 3; then artkeeper re-captures and runs the owl 
 - Tests: KeeperIdleFrameLoops, KeeperPartStandInsYieldToBody (break-checked: 2 assertions fail without the rule), KeeperBodyKeepsCellAspect (break-checked: 1.0 vs 2.0 without it), ArtSlotKeeperParts updated to the new rule; KeeperStateCuesShowUnderArt PASS. Feedback+Keeper 98/98 PASS.
 - Frame (visual_qa.py frame --screen keeper): Director's Cut before 20, after 26; Start Game (-SmokeKeeper) after 26. No Keeper item left in "broken" (before: "Keeper sprite on a visible rectangle"). Remaining broken items are other lanes: ground bar and block, tether pole, no wind ribbons, Ella at the top edge. small_figures 3 -> 4. Composite: pipeline/art/proof/artkeeper/frame/keeper-composite-dc.png; devlog line added.
 - Left: the in-engine wing highlights read pinker than the file (engine side; the art carries no pink after the grade). Choice for the lead: hiding unpassed part stand-ins under body art (default taken) vs keeping them.
+
+## Nov 13 session 19 (Opus, lead fast-track 18:35: owner-approved owl in)
+- Restored the owner-approved grid (082c95a0 bytes, LFS oid 8bb4d531, approvals.json keeper-idle on main 8c5ded33) in fixed/ and standins/owl/, and T_Keeper_Owl_PH from 082c95a0 (imported from those bytes, oid 0ccd23fb). standins.json sha and provenance row back to 8bb4d531. Code edits from 069f8ad3 kept (body cell aspect: needed so the owl is not squashed; state cues untouched).
+- Merged origin/main. Build exit 0, warnings 0. Feedback+Keeper 100/100 PASS, incl. KeeperStateCuesShowUnderArt and KeeperStandInHiddenUnderArt.
+- Capture 1280x720 windowed -SmokeKeeper: frame_check PASS, owl drawn, no cube. pipeline/art/proof/artkeeper/frame/keeper-after-approved.png; composite keeper-composite-approved.png (study | before dc | after). Devlog line added.
+- module_check: 2 -> 0 (0.01f -> UmbrellaKeeperPresenterConst::MinBodyAspect; PartPictureYieldsToBody -> ShouldPartPictureYieldToBody).
+- Follow-up (needs a new owner approval): pink wing-rim cleanup, re-graded sheet 5f61cf17 (art_keeper_grade.py --chroma-floor 4), in 069f8ad3 history.

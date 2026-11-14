@@ -44,6 +44,8 @@ namespace UmbrellaKeeperPresenterConst
 	};
 	/** Body idle grid playback rate: the cut's sidecar fps (pipeline/art/proof/artkeeper/keeper-idle/fixed/Keeper_idle_N24_grid.sprite.json). */
 	static constexpr float IdleFps = 6.4f;
+	// Smallest cell aspect the body scale divides by (guards a zero-size texture).
+	static constexpr float MinBodyAspect = 0.01f;
 	/** M_ArtSlot draws only the top row of a grid today (docs/build/requests/artkeeper.md Update 5); AllCells once it offsets rows. */
 	static constexpr EKeeperGridPlayback IdlePlayback = EKeeperGridPlayback::TopRowPingPong;
 	/** State layers: hidden until their state starts (a part is destroyed; the Keeper departs). */
@@ -84,7 +86,7 @@ public:
 	EArtSlotDraw ShowPartArt(AActor* Keeper, const FString& VisualId, UTexture2D* Texture);
 
 	/** True when a part picture is an unpassed _PH stand-in and the Keeper body already draws art: the part layer is skipped. Pure read. */
-	static bool PartPictureYieldsToBody(const UTexture2D* Picture, const AActor* Keeper);
+	static bool ShouldPartPictureYieldToBody(const UTexture2D* Picture, const AActor* Keeper);
 
 	/** The part layer component for a slot id on a Keeper, or null. */
 	static UStaticMeshComponent* FindPart(const AActor* Keeper, const FString& VisualId);

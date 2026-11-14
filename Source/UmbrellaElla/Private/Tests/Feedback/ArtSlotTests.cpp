@@ -850,9 +850,9 @@ bool FArtSlotKeeperParts::RunTest(const FString& Parameters)
 			TestTrue(*FString::Printf(TEXT("%s layers are ordered back to front"), *Id), Layer.DepthOffset > LastDepth);
 			LastDepth = Layer.DepthOffset;
 			// A part asset that exists is drawn when the Keeper appears, unless it is an unpassed _PH stand-in and the body
-			// already draws art (PartPictureYieldsToBody); otherwise the transient picture is.
+			// already draws art (ShouldPartPictureYieldToBody); otherwise the transient picture is.
 			const UTexture2D* Asset = ArtSlot::LoadTexture(*Row);
-			const bool bAssetDraws = Asset != nullptr && !UKeeperPresenterSubsystem::PartPictureYieldsToBody(Asset, Keeper);
+			const bool bAssetDraws = Asset != nullptr && !UKeeperPresenterSubsystem::ShouldPartPictureYieldToBody(Asset, Keeper);
 			TestEqual(*FString::Printf(TEXT("%s drawn at spawn iff its asset exists and does not yield to the body"), *Id), UKeeperPresenterSubsystem::FindPart(Keeper, Id) != nullptr, bAssetDraws);
 			if (!bAssetDraws)
 			{
@@ -1180,10 +1180,10 @@ bool FArtSlotKeeperPartStandInsYield::RunTest(const FString& Parameters)
 			UTexture2D* WingPassed = NewObject<UTexture2D>(GetTransientPackage(), TEXT("T_Test_Wing"));
 			WingPh->AddToRoot();
 			WingPassed->AddToRoot();
-			TestFalse(TEXT("no body art: a _PH part does not yield"), UKeeperPresenterSubsystem::PartPictureYieldsToBody(WingPh, Keeper));
+			TestFalse(TEXT("no body art: a _PH part does not yield"), UKeeperPresenterSubsystem::ShouldPartPictureYieldToBody(WingPh, Keeper));
 			TestTrue(TEXT("body draws art"), Presenter->ShowArt(Keeper, ArtSlotTestTexture()) == EArtSlotDraw::Drawn);
-			TestTrue(TEXT("body art: a _PH part yields"), UKeeperPresenterSubsystem::PartPictureYieldsToBody(WingPh, Keeper));
-			TestFalse(TEXT("body art: a passed part still draws"), UKeeperPresenterSubsystem::PartPictureYieldsToBody(WingPassed, Keeper));
+			TestTrue(TEXT("body art: a _PH part yields"), UKeeperPresenterSubsystem::ShouldPartPictureYieldToBody(WingPh, Keeper));
+			TestFalse(TEXT("body art: a passed part still draws"), UKeeperPresenterSubsystem::ShouldPartPictureYieldToBody(WingPassed, Keeper));
 			TestTrue(TEXT("a _PH wing layer is refused over the body art"),
 				Presenter->ShowPartArt(Keeper, TEXT("keeper:wings-gust-wear"), WingPh) == EArtSlotDraw::NoTexture);
 			TestNull(TEXT("no wing layer drawn"), UKeeperPresenterSubsystem::FindPart(Keeper, TEXT("keeper:wings-gust-wear")));

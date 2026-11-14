@@ -288,7 +288,7 @@ FVector UKeeperPresenterSubsystem::BodyArtScaleFor(const UTexture2D* Texture, co
 		Aspect = (static_cast<float>(Texture->Source.GetSizeX()) / FMath::Max(1, Row.Cols)) / (static_cast<float>(Texture->Source.GetSizeY()) / FMath::Max(1, Row.Rows));
 	}
 #endif
-	return FVector(Width, UmbrellaKeeperPresenterConst::StandInScale.Y, Width / FMath::Max(0.01f, Aspect));
+	return FVector(Width, UmbrellaKeeperPresenterConst::StandInScale.Y, Width / FMath::Max(UmbrellaKeeperPresenterConst::MinBodyAspect, Aspect));
 }
 
 int32 UKeeperPresenterSubsystem::IdleFrameAt(double Seconds, float Fps, int32 Cols, int32 Rows, EKeeperGridPlayback Playback)
@@ -354,7 +354,7 @@ namespace
 	}
 }
 
-bool UKeeperPresenterSubsystem::PartPictureYieldsToBody(const UTexture2D* Picture, const AActor* Keeper)
+bool UKeeperPresenterSubsystem::ShouldPartPictureYieldToBody(const UTexture2D* Picture, const AActor* Keeper)
 {
 	static const FName StandInName(TEXT("KeeperStandIn"));
 	const UStaticMeshComponent* Body = IsValid(Keeper) ? FindObjectFast<UStaticMeshComponent>(const_cast<AActor*>(Keeper), StandInName) : nullptr;
@@ -382,7 +382,7 @@ EArtSlotDraw UKeeperPresenterSubsystem::ShowPartArt(AActor* Keeper, const FStrin
 		return EArtSlotDraw::NoTexture;
 	}
 	UTexture2D* Picture = Texture ? Texture : ArtSlot::LoadTexture(*Row);
-	if (!Picture || PartPictureYieldsToBody(Picture, Keeper))
+	if (!Picture || ShouldPartPictureYieldToBody(Picture, Keeper))
 	{
 		return EArtSlotDraw::NoTexture;
 	}
