@@ -71,7 +71,7 @@ def grade(px, mean, std):
     rgb[...] = np.clip((rgb - m) / s * np.array(std) + np.array(mean), 0.0, 1.0)
 
 
-LUMA_PRESETS = {"opaque": (0.140, 0.065, 0.9), "near": (0.200, 0.110, 1.0)}   # target mean luma, luma std, chroma kept (study frame L 37/255; std raised so island bodies stay dark under lit rims)
+LUMA_PRESETS = {"opaque": (0.140, 0.065, 0.9), "near": (0.200, 0.110, 0.85)}   # target mean luma, luma std, chroma kept (study frame L 37/255; std raised so island bodies stay dark under lit rims)
 
 
 def grade_luma(px, mean, std, chroma):

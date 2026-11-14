@@ -152,3 +152,9 @@ No `-SmokeShotDelay=` flag yet, load average 45. Context pair for skyline, paper
 - Gaps vs study: the floor is still a flat cream bar (Floor has no art slot: code, not my lane); wind zones and the refuge stand-in square
   are other lanes' visuals; islands from flash drafts have a slightly cartoon edge; ledges stretch one picture (8-15:1). Next: Pro passes for
   skyline/land/solids, a floor slot request, then visualqa's frame check once its visual_qa tool is on main.
+- Pro passes (Nov 13): skyline r5 and bg-land r6 painted ($0.277) but not imported: land r6 cuts its big island at the canvas edge, skyline r5
+  crowds both ends (seam when repeated). The flash versions stay. world-solids Pro refused by the draft guard (art_ref_check 0.485 < 0.527).
+- Check triage (for the lead): `tools/art_check.py` FAILS the study itself (paper_texture 0.227 < 0.38, dark_share 0.80 > 0.45); it is tuned to
+  the key art, so it cannot judge "match the Other Realm study". Verdict: check/target conflict, not loosened; visualqa's frame check should own it.
+- near grade keeps 85% chroma (100% put the solids' rim at off_style 0.037 > 0.02; 85% measures 0.004).
+- OpenRouter spend this session: $0.691 (10 calls). Pre-check PASS at c6ad170c.
