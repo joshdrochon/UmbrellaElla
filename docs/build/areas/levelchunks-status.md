@@ -50,3 +50,6 @@ Lead: to see the route in the real game, the journey needs Director's Cut (title
   with it the smoke hook starts Start Game itself and the title click fails (first try, logged).
 - Seen, not in this grant: in the fight frame the route background ends at the route end (screen x 256), so the left 40 % shows the route
   backdrop and the rest the arena backdrop. B7 (no ceiling on the route) and B8 (stall at x 11 465) are still open.
+- After merging origin/main (5628870f, test launches pass -nosound): gate prefixes 84 tests, 78 PASS, 6 FAIL, all title/credits music
+  tests in `Flow.World` ("a music component exists (an audio device is required)"). They need an audio device that `-nosound` removes;
+  not caused by this lane (no Flow/audio file changed). Lead: the gate's Flow.World run will hit the same 6 on any merge.
