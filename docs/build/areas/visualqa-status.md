@@ -328,3 +328,23 @@ IDENTIFIED C: the Keeper gust's gameplay cue cube `AKeeperOfTime::GustVisual` (S
   real 1280x720 captures). Old flat_box.py: 2 of them FAIL (band on the top edge; wing box + head square).
 - Sweep: 100 older Saved/VisualQA captures, new vs old detector: 7 differ, every new hit a real flat box or bar
   (r06 route grey box crossed by ribbons, r09 salmon band, flat floor bars, black unpainted panels). No false hit.
+
+## Lead order Nov 13 23:26, item 2: the gate captures Ella's hurt frame
+- Journey hook: `figureshot <name>` saves the shot, then a plate (`<name>_plate.png`, Ella's actor hidden 3 frames) and
+  `<name>.json` (her presenter state, the box her drawn components project to). `hurtshot <name>` lands one assisted hit of
+  exactly her active points (Hurt shows on LifeLost only: a 1-point hit left her Idle on the first real run) and captures
+  2 frames after her presenter shows Hurt (state hold 0.25 s). journeys/visual_qa.txt: `figureshot vq_figure`,
+  `hurtshot vq_hurt` after vq_play, before `hits Defeat`.
+- visual_qa.figure_check (play screen, no judge call): diffs shot vs plate inside the box, largest linked figure; fails on
+  a missing/non-Hurt capture, a flat box (>= 60% one colour) or hurt height outside 0.6-1.6x the normal frame. vq_hurt is
+  also a flat-box detector shot. Items tagged [detector], kind hurt_frame.
+- Real captures (1280x720, cropped 480x270 as fixtures in pipeline/qa/visual/calibration/hurt/): this branch (VT texture)
+  hurt = 178x135 black box, 99% one colour -> FAIL; scalecheck's plain 6x4 texture with the old 24-col row = 9 px sliver
+  -> FAIL (ratio 0.10); with scalecheck's 6x4 row (bb2fb8f9 asset + catalogue, checked out only for the capture, then
+  restored and rebuilt) = 112 px vs idle 93 -> PASS. Full visual_qa journey on this build: hurt state Hurt, black box
+  flagged by figure_check and flat_box; `hits Defeat` now 5.9 s (was about 10 s), so the run is shorter overall.
+- Tests: tests/test_hurt_frame.py 7 OK (old visual_qa: 6 errors + 1 fail); test_visual_qa + test_flat_box 58 OK (their
+  shot dirs now carry the good hurt set). UmbrellaElla.Smoke.Journey 5/5 PASS incl. new ParsesFigureShots (break-check:
+  commands removed from the parser -> FAIL). Build exit 0.
+- Note: JourneyHookSubsystem is the agentplay lane's file; changed here per the lead order (as item 6).
+- On main today the hurt frame is the black box until area/scalecheck merges: the gate will list it on the play screen.

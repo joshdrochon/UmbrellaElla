@@ -111,6 +111,9 @@ class VisualQaUsesDetector(unittest.TestCase):
         shutil.copyfile(STUDY, os.path.join(self.shots, "vq_play.png"))
         shutil.copyfile(ROUTE, os.path.join(self.shots, "vq_dc_route.png"))
         shutil.copyfile(QUIET, os.path.join(self.shots, "vq_keeper.png"))
+        hurt = os.path.join(CAL, "hurt", "good")  # Ella's normal and hurt frames, as every full run has them
+        for name in os.listdir(hurt):
+            shutil.copyfile(os.path.join(hurt, name), os.path.join(self.shots, name))
         self.rec = os.path.join(self.tmp, "rec")
 
     def tearDown(self):
