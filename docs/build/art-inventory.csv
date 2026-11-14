@@ -42,7 +42,7 @@ menu-backdrop:Clocks,Source UI/Menus EFlowBackdrop,ui-pause,artui,no,/Game/Umbre
 menu-backdrop:Drift,Source UI/Menus EFlowBackdrop,menu-screen,artscene,no,/Game/UmbrellaElla/Art/UI/T_MenuBackdrop_Drift,UUiArtSubsystem
 scene:gameplay-frame,GDD ART-07,scene,artscene,no,/Game/UmbrellaElla/Art/Scene/T_Frame,USceneArtSubsystem
 screen:Credits,Source Flow/FlowRules.h EFlowScreen; Content/UmbrellaElla/Art/UI/T_Screen_Credits_PH.uasset,ui-credits,artui,no,/Game/UmbrellaElla/Art/UI/T_Screen_Credits,UUiArtSubsystem
-screen:Defeat,Source Flow/FlowRules.h EFlowScreen; Content/UmbrellaElla/Art/UI/T_Screen_Defeat_PH.uasset,ui-defeated,artui,no,/Game/UmbrellaElla/Art/UI/T_Screen_Defeat,UUiArtSubsystem
+screen:Defeat,Source Flow/FlowRules.h EFlowScreen; Content/UmbrellaElla/Art/UI/T_Screen_Defeat_PH.uasset,ui-defeated,artui,yes,/Game/UmbrellaElla/Art/UI/T_Screen_Defeat,UUiArtSubsystem
 screen:LevelUp,Source Flow/FlowRules.h EFlowScreen; Content/UmbrellaElla/Art/UI/T_Screen_LevelUp_PH.uasset,ui-level-up,artui,no,/Game/UmbrellaElla/Art/UI/T_Screen_LevelUp,UUiArtSubsystem
 screen:Paused,Source Flow/FlowRules.h EFlowScreen; Content/UmbrellaElla/Art/UI/T_Screen_Paused_PH.uasset,ui-pause,artui,no,/Game/UmbrellaElla/Art/UI/T_Screen_Paused,UUiArtSubsystem
 screen:Playing,Source Flow/FlowRules.h EFlowScreen,ui-hud-clock,artui,no,/Game/UmbrellaElla/Art/UI/T_Screen_Playing,UUiArtSubsystem
@@ -51,7 +51,7 @@ screen:Resuming,Source Flow/FlowRules.h EFlowScreen,ui-pause,artui,no,/Game/Umbr
 screen:Settings,Source Flow/FlowRules.h EFlowScreen; Content/UmbrellaElla/Art/UI/T_Screen_Settings_PH.uasset,ui-settings,artui,no,/Game/UmbrellaElla/Art/UI/T_Screen_Settings,UUiArtSubsystem
 screen:Statistics,Source Flow/FlowRules.h EFlowScreen; Content/UmbrellaElla/Art/UI/T_Screen_Statistics_PH.uasset,ui-journey-complete,artui,no,/Game/UmbrellaElla/Art/UI/T_Screen_Statistics,UUiArtSubsystem
 screen:Story,Source Flow/FlowRules.h EFlowScreen; Content/UmbrellaElla/Art/UI/T_Screen_Story_PH.uasset,ui-story-text,artui,no,/Game/UmbrellaElla/Art/UI/T_Screen_Story,UUiArtSubsystem
-screen:Title,Source Flow/FlowRules.h EFlowScreen; Content/UmbrellaElla/Art/UI/T_Screen_Title_PH.uasset,ui-title,artui,no,/Game/UmbrellaElla/Art/UI/T_Screen_Title,UUiArtSubsystem
+screen:Title,Source Flow/FlowRules.h EFlowScreen; Content/UmbrellaElla/Art/UI/T_Screen_Title_PH.uasset,ui-title,artui,yes,/Game/UmbrellaElla/Art/UI/T_Screen_Title,UUiArtSubsystem
 screen:Tutorial,Source Flow/FlowRules.h EFlowScreen,ui-tutorial,artui,yes,/Game/UmbrellaElla/Art/UI/T_Screen_Tutorial,UUiArtSubsystem
 screen:TutorialPaused,Source Flow/FlowRules.h EFlowScreen,ui-tutorial,artui,yes,/Game/UmbrellaElla/Art/UI/T_Screen_TutorialPaused,UUiArtSubsystem
 shot:gold,GDD ANIM-05; Content/UmbrellaElla/Art/Shots/T_WandShot_PH.uasset,wand-shot,artshots,no,/Game/UmbrellaElla/Art/Shots/T_WandShot,UShotPresenterSubsystem
@@ -61,14 +61,14 @@ shot:stream-beam,GDD ANIM-05; Content/UmbrellaElla/Art/Shots/T_StreamBeam_PH.uas
 shot:yellow,GDD VFX-04; Content/UmbrellaElla/Art/Shots/T_YellowShot_PH.uasset,yellow-shot,artshots,no,/Game/UmbrellaElla/Art/Shots/T_YellowShot,UShotPresenterSubsystem
 ui:clock-face,Art/Source/UI/Ground/Raw/T_UI_ClockFace_PH.png,ui-hud-clock,artui,no,/Game/UmbrellaElla/Art/UI/T_UI_ClockFace,UUiArtSubsystem
 ui:device-and-remap-prompts,GDD ART-08,ui-settings,artui,no,/Game/UmbrellaElla/Art/UI/T_Prompts,UUiArtSubsystem
-ui:font,Art/Source/UI/Font/UmbrellaStorybook.ttf,ui-title,artui,no,,UUiArtSubsystem
-ui:ground-Grain,Art/Source/UI/Ground/Raw/T_UI_Grain_PH.png,ui-title,artui,no,/Game/UmbrellaElla/Art/UI/T_UI_Grain,UUiArtSubsystem
-ui:ground-Ground,Art/Source/UI/Ground/Raw/T_UI_Ground_PH.png,ui-title,artui,no,/Game/UmbrellaElla/Art/UI/T_UI_Ground,UUiArtSubsystem
+ui:font,Art/Source/UI/Font/UmbrellaStorybook.ttf,ui-title,artui,yes,,UUiArtSubsystem
+ui:ground-Grain,Art/Source/UI/Ground/Raw/T_UI_Grain_PH.png,ui-title,artui,yes,/Game/UmbrellaElla/Art/UI/T_UI_Grain,UUiArtSubsystem
+ui:ground-Ground,Art/Source/UI/Ground/Raw/T_UI_Ground_PH.png,ui-title,artui,yes,/Game/UmbrellaElla/Art/UI/T_UI_Ground,UUiArtSubsystem
 ui:head-Paused,Art/Source/UI/Ground/Raw/T_UI_HeadPaused_PH.png,ui-pause,artui,no,/Game/UmbrellaElla/Art/UI/T_UI_HeadPaused,UUiArtSubsystem
 ui:head-Settings,Art/Source/UI/Ground/Raw/T_UI_HeadSettings_PH.png,ui-settings,artui,no,/Game/UmbrellaElla/Art/UI/T_UI_HeadSettings,UUiArtSubsystem
 ui:panel,Art/Source/UI/Ground/Raw/T_UI_Panel_PH.png,ui-settings,artui,no,/Game/UmbrellaElla/Art/UI/T_UI_Panel,UUiArtSubsystem
 ui:spell-wheel,GDD ART-08,ui-spell-wheel,artui,no,/Game/UmbrellaElla/Art/UI/T_SpellWheel,UUiArtSubsystem
-ui:title-lockup,Art/Source/UI/Ground/Raw/T_UI_TitleLockup_PH.png,ui-title,artui,no,/Game/UmbrellaElla/Art/UI/T_UI_TitleLockup,UUiArtSubsystem
+ui:title-lockup,Art/Source/UI/Ground/Raw/T_UI_TitleLockup_PH.png,ui-title,artui,yes,/Game/UmbrellaElla/Art/UI/T_UI_TitleLockup,UUiArtSubsystem
 ui:xp-ring,GDD ART-08,ui-xp-ring,artui,no,/Game/UmbrellaElla/Art/UI/T_XpRing,UUiArtSubsystem
 umbrella:prop,GDD ART-06,umbrella,artella,no,/Game/UmbrellaElla/Art/Ella/T_Umbrella,UEllaAnimPresenterComponent
 umbrella:repair,GDD ANIM-03,umbrella-repair,artella,no,/Game/UmbrellaElla/Art/Ella/T_UmbrellaRepair,UEllaAnimPresenterComponent
@@ -105,6 +105,6 @@ vfx-sheet:VFX_Umbra,Source Feedback/Vfx/VfxCatalog.h; Art/Source/VFX/Raw/VFX_Umb
 wind:current-field,GDD ANIM-08; Content/UmbrellaElla/Art/Shots/T_WindZone_PH.uasset,wind-zone,artshots,no,/Game/UmbrellaElla/Art/Shots/T_WindZone,UWindPresenterSubsystem
 wind:decor-lines,GDD ART-06; Content/UmbrellaElla/Art/Shots/T_WindLines_PH.uasset,wind-lines,artshots,no,/Game/UmbrellaElla/Art/Shots/T_WindLines,UWindPresenterSubsystem
 world:mill-and-traps,GDD ANIM-08,world-mill,artscene,no,/Game/UmbrellaElla/Art/Scene/T_WorldMill,UWorldArtSubsystem
-world:refuge-and-yellow-bay,GDD ANIM-08,world-refuge,artscene,no,/Game/UmbrellaElla/Art/Scene/T_WorldRefuge,UWorldArtSubsystem
-world:solids,GDD ANIM-08,world-solids,artscene,no,/Game/UmbrellaElla/Art/Scene/T_WorldSolids,UWorldArtSubsystem
+world:refuge-and-yellow-bay,GDD ANIM-08; Content/UmbrellaElla/Art/Scene/T_WorldRefuge_PH.uasset,world-refuge,artscene,no,/Game/UmbrellaElla/Art/Scene/T_WorldRefuge,UWorldArtSubsystem
+world:solids,GDD ANIM-08; Content/UmbrellaElla/Art/Scene/T_WorldSolids_PH.uasset,world-solids,artscene,no,/Game/UmbrellaElla/Art/Scene/T_WorldSolids,UWorldArtSubsystem
 world:solids-block,GDD ANIM-08,world-solids,artscene,no,/Game/UmbrellaElla/Art/Scene/T_WorldSolidsBlock,UWorldArtSubsystem

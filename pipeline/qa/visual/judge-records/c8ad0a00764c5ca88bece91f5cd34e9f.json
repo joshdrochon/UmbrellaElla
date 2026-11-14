@@ -1,0 +1,6 @@
+{
+ "model": "claude-opus-5-5",
+ "key": "c8ad0a00764c5ca88bece91f5cd34e9f",
+ "at": "2026-11-13T20:30:31",
+ "answer": "{\"scores\": {\"dark_backdrop\": 8, \"wind_ribbons\": 5, \"small_figures\": 8, \"floating_islands\": 6, \"shot_colours\": 6, \"no_placeholders\": 4, \"no_framed_art\": 8}, \"broken\": [\"long flat dark bar across the bottom of the frame (floor strip)\", \"flat thin dark bar platform at right (under the Keeper area)\", \"straight vertical line running from the top edge through a dark blue ring down to the girl\", \"straight vertical white lines over the right-hand islands\"], \"verdict\": \"FAIL\"}"
+}
