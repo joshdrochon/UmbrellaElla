@@ -22,6 +22,8 @@ A line id listed in `length_exceptions` uses that `max_words` instead of its sur
 `why`. The title line `ui-title-umbrella-ella-the-stolen-hour` is the game's name, decided by Josh (docs/decisions.md
 D-new-title-text: "Umbrella Ella" / "The Stolen Hour", two lines, no colon). It is exempt from the word cap; never
 mark S4 false for its length and never suggest shortening or renaming it.
+A line id listed in `gdd_exact_text` is approved exact text from the GDD rule it names (the GDD outranks the story
+bible). If the line's text equals that text, answer every row `true` for it and suggest no rewrite.
 
 {story_json_surfaces_deny_banned}
 

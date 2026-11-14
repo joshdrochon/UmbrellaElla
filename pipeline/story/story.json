@@ -46,6 +46,10 @@
     "Executive": "credits role title", "Producer": "credits role title", "Technical": "credits role title",
     "Lead": "credits role title", "D-pad": "controller button name"
   },
+  "_gdd_exact_text_about": "Per line id: player-facing text the GDD gives as approved exact text. The GDD outranks the story bible (AGENTS.md section 2), so the critic never marks these lines false and never rewrites them.",
+  "gdd_exact_text": {
+    "ui-final-hour-intro": {"gdd": "FLOW-06", "text": "Your borrowed time has run its course. Now, face the Final Hour."}
+  },
   "_length_exceptions_about": "Per line id: a cap above the surface cap, with the decision that allows it. The surface cap still applies to every other line.",
   "length_exceptions": {
     "ui-title-umbrella-ella-the-stolen-hour": {"max_words": 5, "why": "docs/decisions.md D-new-title-text: Josh decided the title 'Umbrella Ella The Stolen Hour'"}

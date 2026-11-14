@@ -11,20 +11,29 @@ const TArray<FUmbrellaLoopGroupStop>& UmbrellaCueTable::GroupStops()
 	return UmbrellaCueData::Stops();
 }
 
+FName UmbrellaCueTable::CueDetail(FName Detail)
+{
+	const FString Name = Detail.ToString();
+	int32 Colons = INDEX_NONE;
+	return Name.FindLastChar(TEXT(':'), Colons) && Colons > 0 && Name[Colons - 1] == TEXT(':') ? FName(*Name.Mid(Colons + 1)) : Detail;
+}
+
 bool UmbrellaCueTable::IsMatch(const FUmbrellaSoundCue& Cue, const FUmbrellaEvent& Event, FName PrevDetail)
 {
 	if (Cue.Event != Event.Type)
 	{
 		return false;
 	}
+	const FName Detail = CueDetail(Event.Detail);
+	PrevDetail = CueDetail(PrevDetail);
 	switch (Cue.Match)
 	{
 	case EUmbrellaCueMatch::Detail:
-		return Event.Detail == FName(Cue.Value);
+		return Detail == FName(Cue.Value);
 	case EUmbrellaCueMatch::Target:
 		return Event.TargetId == FName(Cue.Value);
 	case EUmbrellaCueMatch::LeftDetail:
-		return PrevDetail == FName(Cue.Value) && Event.Detail != PrevDetail;
+		return PrevDetail == FName(Cue.Value) && Detail != PrevDetail;
 	case EUmbrellaCueMatch::Any:
 	default:
 		return true;

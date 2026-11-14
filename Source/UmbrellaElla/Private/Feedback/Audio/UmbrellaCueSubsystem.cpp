@@ -186,7 +186,7 @@ void UUmbrellaCueSubsystem::HandleEvent(const FUmbrellaEvent& Event)
 	for (const FUmbrellaSoundCue& Row : UmbrellaCueTable::All())
 	{
 		if (Row.Event == Event.Type && (Row.Match == EUmbrellaCueMatch::Detail || Row.Match == EUmbrellaCueMatch::LeftDetail)
-			&& Event.Detail == FName(Row.Value))
+			&& UmbrellaCueTable::CueDetail(Event.Detail) == FName(Row.Value))
 		{
 			PrevDetails.Add(Event.Type, Event.Detail);
 			break;
@@ -223,6 +223,7 @@ void UUmbrellaCueSubsystem::HandleEvent(const FUmbrellaEvent& Event)
 				StopMusic();
 			}
 			UGameplayStatics::PlaySound2D(this, Sound);
+			++FlatCueCount;
 		}
 	}
 }
@@ -313,20 +314,35 @@ bool UUmbrellaCueSubsystem::CanPlaySound(FName Id) const
 	return Row && HasTakes(*Row);
 }
 
+void UUmbrellaCueSubsystem::StopLoop(FName Id)
+{
+	if (TObjectPtr<UAudioComponent>* Loop = ActiveLoops.Find(Id))
+	{
+		if (IsValid(*Loop))
+		{
+			(*Loop)->Stop();
+		}
+		ActiveLoops.Remove(Id);
+	}
+}
+
+int32 UUmbrellaCueSubsystem::GetPlayingLoopCount() const
+{
+	int32 Playing = 0;
+	for (const TPair<FName, TObjectPtr<UAudioComponent>>& Loop : ActiveLoops)
+	{
+		Playing += IsValid(Loop.Value) && Loop.Value->IsPlaying() ? 1 : 0;
+	}
+	return Playing;
+}
+
 void UUmbrellaCueSubsystem::StopLoopGroup(const FString& Group)
 {
 	for (const FUmbrellaSoundCue& Row : UmbrellaCueTable::All())
 	{
 		if (Group == Row.LoopGroup)
 		{
-			if (TObjectPtr<UAudioComponent>* Loop = ActiveLoops.Find(FName(Row.Id)))
-			{
-				if (IsValid(*Loop))
-				{
-					(*Loop)->Stop();
-				}
-				ActiveLoops.Remove(FName(Row.Id));
-			}
+			StopLoop(FName(Row.Id));
 		}
 	}
 }
@@ -355,6 +371,11 @@ void UUmbrellaCueSubsystem::PlayRow(const FUmbrellaSoundCue& Cue, bool& bOutPlay
 	if (FCString::Strlen(Cue.LoopGroup) > 0)
 	{
 		StopLoopGroup(Cue.LoopGroup);
+	}
+	if (Cue.bLoop)
+	{
+		// A loop started again replaces its running copy; the old component was overwritten in ActiveLoops still playing.
+		StopLoop(FName(Cue.Id));
 	}
 	USoundBase* Sound = Takes[CueRandom.RandHelper(Takes.Num())];
 	bOutPlayed = true;
