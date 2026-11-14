@@ -45,8 +45,9 @@ public:
 	int32 GetSlotsSpawned() const { return SlotsSpawned; }
 	int32 GetCheckpointReached() const { return CheckpointReached; }
 	bool HasHandedOff() const { return bHandedOff; }
-	/** Set (or found on first use) the arena whose camera scrolls. */
-	void SetArena(AUmbrellaArena* InArena) { Arena = InArena; }
+	/** Set (or found on first use) the arena whose camera scrolls. With a route built and not handed off, its right
+	 *  wall moves to the route end (B12). */
+	void SetArena(AUmbrellaArena* InArena);
 
 	/** Last camera X written by StepFollow (tests read it). */
 	float GetLastCameraX() const { return LastCameraX; }
@@ -55,6 +56,10 @@ private:
 	AActor* SpawnBlock(const FLevelPlacement& Placement);
 	void SpawnMechanic(const FLevelPlacement& Placement);
 	void BroadcastRouteEvent(EUmbrellaEventType EventType, FName Detail, float Value) const;
+	/** The arena (set, or the world's first one); null when the world has none. */
+	AUmbrellaArena* FindArena();
+	/** B12: on a built route before the handoff, the arena's right wall stands at the route end. */
+	void ApplyRouteRightWall();
 
 	UPROPERTY()
 	TArray<TObjectPtr<AActor>> Spawned;
@@ -65,6 +70,8 @@ private:
 	/** Where the arena stood before the handoff moved it to the route end; ClearRoute puts it back. */
 	FVector ArenaHome = FVector::ZeroVector;
 	bool bArenaMoved = false;
+	/** The route moved the arena's right wall to the route end (B12); ClearRoute puts it back. */
+	bool bRightWallMoved = false;
 
 	FRoute Route;
 	TArray<FLevelPlacement> Plan;

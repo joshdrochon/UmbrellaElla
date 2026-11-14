@@ -153,7 +153,7 @@ bool FArtSlotWorldPieces::RunTest(const FString& Parameters)
 			Refuges += Visual == TEXT("world:refuge-and-yellow-bay") ? 1 : 0;
 		}
 		TestTrue(TEXT("the route has land and refuges"), Solids > 0 && Refuges > 0);
-		TestEqual(TEXT("floor has no world slot"), UWorldArtSubsystem::VisualFor(ELevelPlacementKind::Floor), FString());
+		TestEqual(TEXT("the floor draws the island slab, never a flat bar (artscene request 4)"), UWorldArtSubsystem::VisualFor(ELevelPlacementKind::Floor), FString(TEXT("world:solids")));
 		UTexture2D* Texture = FamilyTestTexture();
 		const int32 Drawn = WorldArt->Refresh(Texture);
 		TestEqual(TEXT("every land block is drawn"), WorldArt->DrawnCount(TEXT("world:solids")), Solids);

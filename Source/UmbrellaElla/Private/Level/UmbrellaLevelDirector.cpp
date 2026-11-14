@@ -37,7 +37,12 @@ void AUmbrellaLevelDirector::ClearRoute()
 	{
 		Arena->MovePlayArea(ArenaHome);
 	}
+	else if (bRightWallMoved && IsValid(Arena))
+	{
+		Arena->ResetRightWall();
+	}
 	bArenaMoved = false;
+	bRightWallMoved = false;
 	SlotsSpawned = 0;
 	CheckpointReached = 0;
 	bHandedOff = false;
@@ -148,6 +153,7 @@ int32 AUmbrellaLevelDirector::BuildRouteFrom(const FRoute& InRoute)
 		SpawnMechanic(P);
 	}
 	SlotsSpawned = Route.Slots.Num();
+	ApplyRouteRightWall();
 	return SlotsSpawned;
 }
 
@@ -174,7 +180,24 @@ void AUmbrellaLevelDirector::BroadcastRouteEvent(EUmbrellaEventType EventType, F
 	}
 }
 
-void AUmbrellaLevelDirector::StepFollow(float EllaX, int32 TravelDirection)
+void AUmbrellaLevelDirector::SetArena(AUmbrellaArena* InArena)
+{
+	Arena = InArena;
+	ApplyRouteRightWall();
+}
+
+void AUmbrellaLevelDirector::ApplyRouteRightWall()
+{
+	// B12: the arena's right wall stands at its own width (x 1 920), inside slot 0; under the play ceiling Ella cannot
+	// pass over it, so on the route it stands at the route end until the handoff moves the arena (MovePlayArea resets it).
+	if (SlotsSpawned > 0 && !bHandedOff && FindArena())
+	{
+		Arena->SetRightWallInnerX(LevelCatalogue::RouteLength());
+		bRightWallMoved = true;
+	}
+}
+
+AUmbrellaArena* AUmbrellaLevelDirector::FindArena()
 {
 	if (!Arena && GetWorld())
 	{
@@ -184,6 +207,12 @@ void AUmbrellaLevelDirector::StepFollow(float EllaX, int32 TravelDirection)
 			Arena = *It;
 		}
 	}
+	return Arena;
+}
+
+void AUmbrellaLevelDirector::StepFollow(float EllaX, int32 TravelDirection)
+{
+	FindArena();
 	// After the handoff the arena camera holds the fixed Keeper frame (B5); the route scroll stops.
 	if (Arena && !bHandedOff)
 	{

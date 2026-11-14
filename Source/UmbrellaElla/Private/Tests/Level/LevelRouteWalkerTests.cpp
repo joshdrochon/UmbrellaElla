@@ -2,9 +2,11 @@
 
 #if WITH_AUTOMATION_TESTS
 
+#include "Arena/UmbrellaArena.h"
 #include "Components/CapsuleComponent.h"
 #include "Core/EllaCharacter.h"
 #include "Core/UmbrellaGameMode.h"
+#include "Core/UmbrellaTuning.h"
 #include "Engine/Engine.h"
 #include "Engine/GameInstance.h"
 #include "Engine/LocalPlayer.h"
@@ -82,11 +84,17 @@ namespace
 		constexpr float StallX = 11465.0f;
 		/** A player who sinks under the slot-5 (07A) low solid into its bypass lane: J held above this height. */
 		constexpr float BypassTrimZ = 200.0f;
+		/** B12: where agentplay's CP0 -> CP1 step began on 7851afd0 (after 8 s untrimmed and 20 s idle: at the route
+		 *  ceiling), and where its walker then stood for 40 s. */
+		constexpr float B12StartX = 974.0f;
+		constexpr float B12StartZ = 1036.0f;
+		constexpr float B12StallX = 1903.0f;
 	}
 }
 
-/** Walks CP1 -> CP2 with agentplay's real-key walker inputs, J held while Ella is above TrimZ. Returns Ella's best X and
- *  the checkpoint reached. bGameMovement: put the character movement in the mode the game's possession leaves it in. */
+/** Walks FromCp -> FromCp + 1 with agentplay's real-key walker inputs, J held while Ella is above TrimZ. Returns Ella's best
+ *  X and the checkpoint reached. bGameMovement: put the character movement in the mode the game's possession leaves it in.
+ *  Start: Ella's start (zero: the checkpoint's stand); StallX: where the sweep looks for a solid at z 450. */
 struct FRouteWalkResult
 {
 	float BestX = 0.0f;
@@ -97,9 +105,14 @@ struct FRouteWalkResult
 	bool bSolidAhead = false;
 	float SolidFaceX = 0.0f;
 	FString Slot5;
+	FString StallSlot;
+	FString BlockAhead;
+	float RightWallInnerX = 0.0f;
+	FBox SolidBox = FBox(ForceInit);
 };
 
-static FRouteWalkResult RouteWalkerCp1ToCp2(FAutomationTestBase& T, float Delta, float TrimZOverride, bool bGameMovement)
+static FRouteWalkResult RouteWalkerStep(FAutomationTestBase& T, float Delta, float TrimZOverride, bool bGameMovement, int32 FromCp,
+	FVector Start, float StallX)
 {
 	FRouteWalkResult Result;
 	FRouteWalkerWorld Test;
@@ -128,17 +141,36 @@ static FRouteWalkResult RouteWalkerCp1ToCp2(FAutomationTestBase& T, float Delta,
 		FHitResult Hit;
 		FCollisionQueryParams Query;
 		Query.AddIgnoredActor(Ella);
-		const FVector From(RouteWalker::StallX - 25.0f, Ella->GetActorLocation().Y, 450.0f);
+		const FVector From(StallX - 25.0f, Ella->GetActorLocation().Y, 450.0f);
 		Result.bSolidAhead = Test.World->SweepSingleByChannel(Hit, From, From + FVector(50.0f, 0.0f, 0.0f), FQuat::Identity,
 			Ella->GetCapsuleComponent()->GetCollisionObjectType(), Ella->GetCapsuleComponent()->GetCollisionShape(), Query)
 			&& Level->GetSpawned().Contains(Hit.GetActor());
 		Result.SolidFaceX = Result.bSolidAhead ? static_cast<float>(Hit.Location.X) : 0.0f;
-		Result.Slot5 = Level->GetRoute().Slots.IsValidIndex(5) ? Level->GetRoute().Slots[5].Label() : FString();
+		if (Result.bSolidAhead)
+		{
+			Result.SolidBox = Hit.GetActor()->GetComponentsBoundingBox(true);
+			T.AddInfo(FString::Printf(TEXT("SOLID %s x %.0f..%.0f z %.0f..%.0f"), *Hit.GetActor()->GetName(), Result.SolidBox.Min.X,
+				Result.SolidBox.Max.X, Result.SolidBox.Min.Z, Result.SolidBox.Max.Z));
+		}
+		const TArray<FChunkVariant>& Slots = Level->GetRoute().Slots;
+		Result.Slot5 = Slots.IsValidIndex(5) ? Slots[5].Label() : FString();
+		for (int32 Slot = 0; Slot < Slots.Num(); ++Slot)
+		{
+			if (StallX >= LevelCatalogue::SlotStartX(Slot))
+			{
+				Result.StallSlot = FString::Printf(TEXT("%d:%s"), Slot, *Slots[Slot].Label());
+			}
+		}
 	}
-	// Where the walker's CP1 -> CP2 step began: Ella standing at CP1.
-	Ella->SetActorLocation(LevelPlan::CheckpointStandLocation(1));
+	for (TActorIterator<AUmbrellaArena> It(Test.World); It; ++It)
+	{
+		Result.RightWallInnerX = It->GetRightWallInnerX();
+	}
+	// Where the walker's step began: Ella standing at the checkpoint, or the measured start.
+	Ella->SetActorLocation(Start.IsZero() ? LevelPlan::CheckpointStandLocation(FromCp) : FVector(Start.X, Ella->GetActorLocation().Y, Start.Z));
+	Ella->GetCharacterMovement()->Velocity = FVector::ZeroVector;
 	Test.Frame(Delta);
-	T.TestEqual(TEXT("CP1 reached"), Level->GetCheckpointReached(), 1);
+	T.TestEqual(TEXT("start checkpoint reached"), Level->GetCheckpointReached(), FromCp);
 	T.AddInfo(FString::Printf(TEXT("ROUTE %s"), *Level->GetRoute().Signature()));
 
 	UEllaInputAdapterComponent* Input = Ella->GetInputAdapter();
@@ -154,7 +186,7 @@ static FRouteWalkResult RouteWalkerCp1ToCp2(FAutomationTestBase& T, float Delta,
 	int32 Cards = 0;
 	float MinZPast = TNumericLimits<float>::Max();
 	float MaxZPast = TNumericLimits<float>::Lowest();
-	while (Elapsed < RouteWalker::Timeout && Level->GetCheckpointReached() < 2)
+	while (Elapsed < RouteWalker::Timeout && Level->GetCheckpointReached() < FromCp + 1)
 	{
 		const EFlowScreen Screen = Test.Controller->GetScreen();
 		if (Screen != EFlowScreen::Playing)
@@ -201,7 +233,7 @@ static FRouteWalkResult RouteWalkerCp1ToCp2(FAutomationTestBase& T, float Delta,
 			Result.StopX = static_cast<float>(At.X);
 		}
 		BestX = FMath::Max(BestX, static_cast<float>(At.X));
-		if (At.X >= RouteWalker::StallX - 200.0f && At.X <= RouteWalker::StallX + 200.0f)
+		if (At.X >= StallX - 200.0f && At.X <= StallX + 200.0f)
 		{
 			MinZPast = FMath::Min(MinZPast, static_cast<float>(At.Z));
 			MaxZPast = FMath::Max(MaxZPast, static_cast<float>(At.Z));
@@ -213,10 +245,23 @@ static FRouteWalkResult RouteWalkerCp1ToCp2(FAutomationTestBase& T, float Delta,
 				Ella->GetVelocity().X, Ella->GetVelocity().Z, Level->GetCheckpointReached()));
 		}
 	}
+	{
+		// What Ella's capsule meets just ahead of where the walk ended (B12 measured the arena's RightWall here).
+		FCollisionQueryParams Query;
+		Query.AddIgnoredActor(Ella);
+		FHitResult Hit;
+		const FVector From = Ella->GetActorLocation();
+		if (Test.World->SweepSingleByChannel(Hit, From, From + FVector(5.0f, 0.0f, 0.0f), FQuat::Identity,
+			Ella->GetCapsuleComponent()->GetCollisionObjectType(), Ella->GetCapsuleComponent()->GetCollisionShape(), Query) && Hit.GetComponent())
+		{
+			Result.BlockAhead = Hit.GetComponent()->GetName();
+		}
+		T.AddInfo(FString::Printf(TEXT("END ella=(%.1f,%.1f) block_ahead=%s"), From.X, From.Z, *Result.BlockAhead));
+	}
 	Input->ApplyAxis(EUmbrellaInputAction::MoveX, 0.0f);
 	Input->ApplyRelease(EUmbrellaInputAction::Shoot);
 	T.AddInfo(FString::Printf(TEXT("WALK_END t=%.1f best_x=%.0f cp=%d heals=%d cards=%d near_%.0f z=[%.0f,%.0f] trim_z=%.0f mode=%d"),
-		Elapsed, BestX, Level->GetCheckpointReached(), Heals, Cards, RouteWalker::StallX, MinZPast, MaxZPast, TrimZ, Result.MovementMode));
+		Elapsed, BestX, Level->GetCheckpointReached(), Heals, Cards, StallX, MinZPast, MaxZPast, TrimZ, Result.MovementMode));
 	Result.BestX = BestX;
 	Result.Checkpoint = Level->GetCheckpointReached();
 	return Result;
@@ -230,7 +275,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FLevelRouteWalkerStopsAt07ASolid, "UmbrellaElla
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
 bool FLevelRouteWalkerStopsAt07ASolid::RunTest(const FString& Parameters)
 {
-	const FRouteWalkResult R = RouteWalkerCp1ToCp2(*this, 1.0f / 60.0f, 0.0f, true);
+	const FRouteWalkResult R = RouteWalkerStep(*this, 1.0f / 60.0f, 0.0f, true, 1, FVector::ZeroVector, RouteWalker::StallX);
 	TestEqual(TEXT("game movement mode (Falling)"), R.MovementMode, static_cast<int32>(MOVE_Falling));
 	TestTrue(TEXT("Ella locally controlled, as in the game"), R.bLocal);
 	TestEqual(TEXT("slot 5 is 07A"), R.Slot5, FString(TEXT("07A")));
@@ -248,7 +293,7 @@ bool FLevelRouteWalkerStopsAt07ASolid::RunTest(const FString& Parameters)
 		EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter) \
 	bool FLevelRouteBypass##Fps::RunTest(const FString& Parameters) \
 	{ \
-		const FRouteWalkResult R = RouteWalkerCp1ToCp2(*this, 1.0f / Fps, RouteWalker::BypassTrimZ, true); \
+		const FRouteWalkResult R = RouteWalkerStep(*this, 1.0f / Fps, RouteWalker::BypassTrimZ, true, 1, FVector::ZeroVector, RouteWalker::StallX); \
 		TestEqual(TEXT("game movement mode (Falling)"), R.MovementMode, static_cast<int32>(MOVE_Falling)); \
 		TestTrue(TEXT("Ella locally controlled, as in the game"), R.bLocal); \
 		TestTrue(TEXT("past the 07A low solid"), R.BestX > 11674.0f); \
@@ -257,5 +302,63 @@ bool FLevelRouteWalkerStopsAt07ASolid::RunTest(const FString& Parameters)
 	}
 UMBRELLAELLA_ROUTE_BYPASS_TEST(60)
 UMBRELLAELLA_ROUTE_BYPASS_TEST(120)
+
+// B12 (agentplay 67011eb2): the real-key walker stood at x 1 903 (z ~450) for 40 s between CP0 and CP1. Cause, measured:
+// slot 0 is 01B and has no solid there; the arena's own RightWall (inner face x 1 920, z -100..1 180) stood at the arena's
+// home width on the route. Before move's B7 ceiling (z <= 1 036) Ella flew over it; now every player meets it. Fix: the
+// route moves that wall to the route end (AUmbrellaLevelDirector::BuildRouteFrom). Same start as agentplay's step (x 974,
+// at the ceiling), the walker's own numbers and trim, the game's movement mode.
+#define UMBRELLAELLA_ROUTE_CP0_TEST(Fps) \
+	IMPLEMENT_SIMPLE_AUTOMATION_TEST(FLevelRouteCp0Ceiling##Fps, "UmbrellaElla.Level.World.RealInputWalkerFromCeilingReachesCP1At" #Fps "fps", \
+		EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter) \
+	bool FLevelRouteCp0Ceiling##Fps::RunTest(const FString& Parameters) \
+	{ \
+		const FRouteWalkResult R = RouteWalkerStep(*this, 1.0f / Fps, 0.0f, true, 0, \
+			FVector(RouteWalker::B12StartX, 0.0f, RouteWalker::B12StartZ), RouteWalker::B12StallX); \
+		TestEqual(TEXT("game movement mode (Falling)"), R.MovementMode, static_cast<int32>(MOVE_Falling)); \
+		TestTrue(TEXT("Ella locally controlled, as in the game"), R.bLocal); \
+		TestEqual(TEXT("x 1 903 is in slot 0 (01B)"), R.StallSlot, FString(TEXT("0:01B"))); \
+		TestFalse(TEXT("no route solid at the walker's height at x 1 903"), R.bSolidAhead); \
+		TestEqual(TEXT("arena right wall at the route end on the route"), R.RightWallInnerX, LevelCatalogue::RouteLength(), 0.5f); \
+		TestTrue(TEXT("past x 1 920 (the arena's home right edge)"), R.BestX > 1920.0f); \
+		TestEqual(TEXT("CP1 reached with real inputs within 60 s"), R.Checkpoint, 1); \
+		return true; \
+	}
+UMBRELLAELLA_ROUTE_CP0_TEST(60)
+UMBRELLAELLA_ROUTE_CP0_TEST(120)
+
+// B12: the route's right wall is the route end only while the route runs: back at the arena edge after the Keeper handoff
+// moves the arena and after ClearRoute.
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FLevelRouteRightWallSpan, "UmbrellaElla.Level.World.RouteRightWallAtRouteEndThenArenaEdge",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FLevelRouteRightWallSpan::RunTest(const FString& Parameters)
+{
+	FRouteWalkerWorld Test;
+	AUmbrellaGameMode* Mode = Test.World->GetAuthGameMode<AUmbrellaGameMode>();
+	if (!TestNotNull(TEXT("game mode"), Mode))
+	{
+		return false;
+	}
+	Test.Controller->StartDirectorsCut();
+	AUmbrellaArena* Arena = Mode->GetArena();
+	AUmbrellaLevelDirector* Level = Mode->GetLevelDirector();
+	AEllaCharacter* Ella = Cast<AEllaCharacter>(Test.Controller->GetPawn());
+	if (!TestNotNull(TEXT("arena"), Arena) || !TestNotNull(TEXT("route"), Level) || !TestNotNull(TEXT("Ella"), Ella))
+	{
+		return false;
+	}
+	const float Width = GetDefault<UUmbrellaTuning>()->ArenaCamera.ArenaWidth;
+	const float Home = static_cast<float>(Arena->GetActorLocation().X);
+	TestEqual(TEXT("route: right wall at the route end"), Arena->GetRightWallInnerX(), LevelCatalogue::RouteLength(), 0.5f);
+	TestTrue(TEXT("route end past the handoff line"), LevelCatalogue::RouteLength() > LevelPlan::KeeperHandoffX());
+	Ella->SetActorLocation(LevelPlan::CheckpointStandLocation(3) + FVector(LevelPlan::KeeperHandoffX() - LevelPlan::CheckpointStandLocation(3).X + 10.0f, 0.0, 0.0));
+	Test.Frame(1.0f / 60.0f);
+	TestTrue(TEXT("handed off"), Level->HasHandedOff());
+	TestEqual(TEXT("fight: right wall at the moved arena's edge"), Arena->GetRightWallInnerX(),
+		static_cast<float>(LevelPlan::KeeperArenaOrigin().X) + Width, 0.5f);
+	Level->ClearRoute();
+	TestEqual(TEXT("after ClearRoute: right wall at the arena width"), Arena->GetRightWallInnerX(), Home + Width, 0.5f);
+	return true;
+}
 
 #endif

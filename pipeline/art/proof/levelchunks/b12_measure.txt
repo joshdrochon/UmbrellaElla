@@ -1,0 +1,8 @@
+b12_measure route_step=PASS cp=1 after_s=15.4 x_best=5765.0 assist_placed=0 shot_ella=drawn('320', '196')
+B12_CAPTURE_OK: real-key walker CP0 -> CP1 from the route ceiling, no assist, Ella drawn at CP1
+negative control (agentplay 67011eb2 journey.log):
+b12_measure route_step=FAIL cp=0 after_s=60.0 x_best=5181.0 assist_placed=1 shot_ella=not drawn
+B12_CAPTURE_FAIL: real-key walker CP0 -> CP1 from the route ceiling, no assist, Ella drawn at CP1
+journey: JOURNEY_STEP n=12 line=14 cmd="route " result=FAIL screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(925,1036) route_cp=0 encounter=0 phase=wings detail="cp=0 want=1 timeout after 8.1s real_input x_start=240 x_best=925 heals=0"
+journey: JOURNEY_STEP n=14 line=16 cmd="route " result=PASS screen=Playing mode=dc retries=0 held=[J] lives=3/3 active=3.00/3.00 ella=(5765,445) route_cp=1 encounter=0 phase=wings detail="cp=1 after 15.4s real_input x_start=951 x_best=5765 heals=0"
+journey: JOURNEY_STEP n=15 line=17 cmd="shot b12_cp1" result=PASS screen=Playing mode=dc retries=0 held=[] lives=3/3 active=3.00/3.00 ella=(5765,490) route_cp=1 encounter=0 phase=wings detail="b12_cp1.png 640x360 view frame_mean=14 ella=drawn(320,196) spread=19 mean=22 keeper=absent arena=offscreen(1704,180)"

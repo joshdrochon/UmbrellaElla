@@ -189,21 +189,25 @@ float USceneArtSubsystem::ViewScale(float OrthoWidth)
 void USceneArtSubsystem::ScrollTo(float CameraX, float OrthoWidth)
 {
 	const float Scale = ViewScale(OrthoWidth);
-	for (const FPanel& Entry : Panels)
+	for (FPanel& Entry : Panels)
 	{
 		if (AActor* Actor = Entry.Actor.Get())
 		{
 			FVector Location = Actor->GetActorLocation();
 			Location.X = PanelX(Entry.Spec, CameraX);
 			Actor->SetActorLocation(Location);
-			if (Entry.Spec.Anchor == ESceneArtAnchor::View)
+			if (Entry.Spec.Anchor != ESceneArtAnchor::Layer)
 			{
-				// Keep the panel's depth thickness; widen it with the view in X and Z (the art keeps its aspect).
-				const FVector Base(PanelSize(Entry.Spec).X / UmbrellaBackdropConst::EngineCubeSize, 0.0f, PanelSize(Entry.Spec).Y / UmbrellaBackdropConst::EngineCubeSize);
-				const FVector Wanted(Base.X * Scale, UmbrellaBackdropConst::PanelThickness, Base.Z * Scale);
-				if (!Actor->GetActorScale3D().Equals(Wanted, KINDA_SMALL_NUMBER))
+				// Widen the panel with the view in X and Z (the art keeps its aspect), through the art slot's box scale so
+				// the picture plane keeps its height. The route's start and end pictures fill the screen there (the end one
+				// is the Keeper fight's backdrop): they grow with the camera margin too, so no edge or seam shows.
+				UStaticMeshComponent* Panel = Cast<UStaticMeshComponent>(Actor->GetRootComponent());
+				const FVector2D Size = PanelSize(Entry.Spec) * Scale;
+				const FVector Box(Size.X / UmbrellaBackdropConst::EngineCubeSize, UmbrellaBackdropConst::PanelThickness, Size.Y / UmbrellaBackdropConst::EngineCubeSize);
+				if (Panel && !FMath::IsNearlyEqual(Entry.Scale, Scale, KINDA_SMALL_NUMBER))
 				{
-					Actor->SetActorScale3D(Wanted);
+					ArtSlot::SetBoxScale(Panel, Box);
+					Entry.Scale = Scale;
 				}
 			}
 		}

@@ -1,0 +1,11 @@
+# visualqa r04: Keeper always seen, light shaft dim gold, Ella dark stand-in, DC title band (Start Game, DC route, handoff).
+firstrun
+wait Title 60
+idle 1
+click Start Game
+trywait Tutorial 5
+keyuntil Playing Enter 0.8 30
+idle 3
+hold J 1.0
+shot vq_r04_00_play
+end

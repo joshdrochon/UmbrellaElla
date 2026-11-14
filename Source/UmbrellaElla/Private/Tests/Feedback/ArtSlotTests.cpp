@@ -669,6 +669,14 @@ bool FArtSlotWind::RunTest(const FString& Parameters)
 			Presenter->DrawRibbons(Wind, 1.0f);
 			TestTrue(TEXT("ribbons move with game time"), !Ribbons[0]->GetRelativeLocation().Equals(Before, 0.1));
 			TestEqual(TEXT("moving does not add segments"), UWindPresenterSubsystem::RibbonsOf(Wind).Num(), Ribbons.Num());
+			// 16:28 review: no LoadObject or component search per tick; both are cached after the first draw.
+			const int32 Loads = Presenter->PlaneLoadCount();
+			const int32 Searches = Presenter->RibbonSearchCount();
+			Presenter->DrawRibbons(Wind, 2.0f);
+			Presenter->DrawRibbons(Wind, 3.0f);
+			TestEqual(TEXT("the plane mesh is not loaded again"), Presenter->PlaneLoadCount(), Loads);
+			TestEqual(TEXT("the ribbons are not searched again"), Presenter->RibbonSearchCount(), Searches);
+			TestTrue(TEXT("the plane was loaded at most once"), Loads <= 1);
 		}
 		// A resize redraws the ribbons to the new box.
 		Wind->SetHalfExtent(500.0f, 200.0f);
