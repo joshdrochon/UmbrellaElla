@@ -29,3 +29,6 @@ Published: TBD
 ### Day 2
 ### Day 3
 ### Day 4
+
+## Frames toward the Other Realm study
+- 2026-11-13: Ella idle is now a small dark figure with a warm gold rim and a clear umbrella, toned from the study (artella, proof pipeline/art/proof/artella/frame/idle-silhouette-proof.png).

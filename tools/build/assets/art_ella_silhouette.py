@@ -37,6 +37,7 @@ THICKEN_SRC_PX = 5                                # max-filter size on the sourc
 ALPHA_CUT = 0.04
 CORE_PX = 7                                       # parts thinner than this (output px) get no rim
 CANOPY_TOP_GAIN = 1.0
+RIM_SOFTEN = 0.6                                  # px blur on the rim mask
 TONE_GAMMA = 1.4                                  # most of the figure sits in the darks, as in the study
 LIGHT_CAP = 0.8                                   # the brightest body tone stops short of the study's lights; the rim carries the light
 INTERIOR_BLUR = 0.8                               # px at output size: drops interior line noise, keeps the outline
@@ -110,6 +111,9 @@ def cell(src, out_w, out_h):
         # the canopy is lit from straight above along its whole top edge, as in the study
         top_edge = solid * (1.0 - shift(solid, 0, -1)) * canopy_rows[:, None]
         rim = np.maximum(rim, top_edge * CANOPY_TOP_GAIN)
+    # soften the binary rim so it antialiases instead of stepping, and keep it inside the figure
+    rim = np.asarray(Image.fromarray((np.clip(rim, 0, 1) * 255).astype(np.uint8)).filter(
+        ImageFilter.GaussianBlur(RIM_SOFTEN))).astype(np.float64) / 255.0 * solid
     rgb = rgb * (1 - EDGE_STRENGTH * edge[..., None]) + EDGE_WARM * EDGE_STRENGTH * edge[..., None]
     rgb = rgb * (1 - RIM_STRENGTH * rim[..., None]) + rim_col * RIM_STRENGTH * rim[..., None]
 

@@ -242,3 +242,17 @@ Gap: Ella is a tiny soft smudge in the game, no etched line, mask or terminal re
 Verdict: ours/scale. At this size (12x35 px of 1280x720) no paint passes a context pair against key-art Ella. Not shipped, no import.
 Shield R3 and closed R3 not painted: they would hit the same context result, so no spend (15.08 of 33.82).
 Ask (lead): Ella's in-game scale (a game-side or art-slot size) or accept a context pair against a sprite-sized key-art crop; also fix `verdict` abs/relative `ours`.
+
+## Round 37 (Nov 13): lead order, Ella as the study's small dark figure; idle imported
+- Script `tools/build/assets/art_ella_silhouette.py` (numbers only, no paid call): takes the stand-in sheet the slot draws, keeps its layout
+  (idle 6x4, hurt 24x1, down 6x4, same cell aspect within 0.3%), downsizes cells to 160 px tall (the slot has no mips; 654 px cells aliased),
+  tones the figure into the study's dark warm range (measured on the study: darks 19,18,16, mids 44,36,31, lights 123,95,72), and adds a gold
+  rim on the up-left edges and the canopy top (#E9C46A / 245,201,141). Thin hair and scarf get no rim. Transparent outside the figure.
+- Idle imported into `T_Ella_Idle_PH` (LFS lock taken by this lane). Hurt and down sheets made (pipeline/art/proof/artella/silhouette/), not imported:
+  the smoke shot never shows those states, so they cannot be judged in frame yet.
+- Proof: pipeline/art/proof/artella/frame/idle-silhouette-proof.png (study | before | after, windowed 640x360, same build, only the sprite changed)
+  and idle-silhouette-proof-zoom.png (ArenaWidth=480 at 1920x1080; its "before" is an older build, so other parts of that frame differ).
+- Read: up close the figure now matches the study's Ella (dark mass, warm rim, umbrella clear). In the real 640x360 frame she still does not read:
+  SMOKE_VIEW ella_px=128,15, she sits at the top edge, about 12 px tall (study scale is about 36 px at 640x360), partly behind a light-blue block
+  and over a dark column. Those are camera/frame issues for visualqa, not the sprite. No spend (15.08 of 33.82).
+- Next: hurt/down import once a shot can show them; re-judge idle in the frame after visualqa moves the camera.
