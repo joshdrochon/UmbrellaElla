@@ -9,10 +9,12 @@
 #include "Engine/World.h"
 #include "Feedback/Art/ArtSlot.h"
 #include "Feedback/Art/FrameCompositionSubsystem.h"
+#include "Feedback/Background/SceneArtSubsystem.h"
 #include "Feedback/Vfx/VfxCatalog.h"
 #include "Feedback/Vfx/VfxSheetVisual.h"
 #include "GameFramework/Actor.h"
 #include "Core/EllaCharacter.h"
+#include "Level/LevelCatalogue.h"
 #include "Level/LevelPlan.h"
 #include "Misc/AutomationTest.h"
 #include "Tests/Shared/UmbrellaTestWorld.h"
@@ -203,6 +205,56 @@ bool FFrameCompositionCameraMargin::RunTest(const FString& Parameters)
 	Camera->SetOrthoWidth(FrameTestForeignZoom);
 	Frame->ApplyCameraMargin(Arena, Ella);
 	TestEqual(TEXT("foreign zoom kept"), Camera->OrthoWidth, FrameTestForeignZoom);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFrameCompositionKeeperBackdrop, "UmbrellaElla.Feedback.FrameComposition.KeeperBackdropContinuous",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+
+bool FFrameCompositionKeeperBackdrop::RunTest(const FString& Parameters)
+{
+	// levelchunks 16:14: at the Director's Cut Keeper handoff the route-end picture stopped at the route end, so the left
+	// ~40% of the fight screen showed it and the rest a different backdrop. The picture must cover the whole fight frame.
+	FSceneArtSpec RouteEnd;
+	for (const FSceneArtSpec& Spec : USceneArtSubsystem::Specs())
+	{
+		if (Spec.Anchor == ESceneArtAnchor::RouteEnd)
+		{
+			RouteEnd = Spec;
+		}
+	}
+	if (!TestTrue(TEXT("route end spec"), RouteEnd.Anchor == ESceneArtAnchor::RouteEnd))
+	{
+		return false;
+	}
+	FUmbrellaTestWorld Test;
+	UFrameCompositionSubsystem* Frame = Test.GetWorld()->GetSubsystem<UFrameCompositionSubsystem>();
+	AUmbrellaArena* Arena = Test.GetWorld()->SpawnActor<AUmbrellaArena>(FVector::ZeroVector, FRotator::ZeroRotator);
+	AEllaCharacter* Ella = Arena ? Test.SpawnElla(Arena->GetPlayerStartLocation()) : nullptr;
+	if (!TestNotNull(TEXT("frame"), Frame) || !TestNotNull(TEXT("arena"), Arena) || !TestNotNull(TEXT("ella"), Ella) || !Arena->GetPlayCamera())
+	{
+		return false;
+	}
+	UCameraComponent* Camera = Arena->GetPlayCamera();
+	const FArenaCameraTuning& T = GetDefault<UUmbrellaTuning>()->ArenaCamera;
+	// Widest view: the largest hero with the smallest hitbox gets the biggest camera margin.
+	Ella->SetActorScale3D(Ella->GetActorScale3D() * 1.3f);
+	Ella->GetCapsuleComponent()->SetCapsuleHalfHeight(Ella->GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight() * 0.75f);
+	Arena->MovePlayArea(LevelPlan::KeeperArenaOrigin());
+	Frame->ApplyCameraMargin(Arena, Ella);
+	const FVector View = Camera->GetComponentLocation();
+	const float HalfViewW = Camera->OrthoWidth * 0.5f;
+	const float HalfViewH = Camera->OrthoWidth / T.CameraAspectRatio * 0.5f;
+	const FVector2D Size = USceneArtSubsystem::PanelSize(RouteEnd);
+	const float PanelX = USceneArtSubsystem::PanelX(RouteEnd, static_cast<float>(View.X));
+	const float PanelZ = T.ArenaHeight * 0.5f;
+	TestTrue(TEXT("route end picture reaches the fight frame's left edge"), PanelX - Size.X * 0.5f <= View.X - HalfViewW);
+	TestTrue(TEXT("route end picture reaches the fight frame's right edge"), PanelX + Size.X * 0.5f >= View.X + HalfViewW);
+	TestTrue(TEXT("route end picture reaches the fight frame's top"), PanelZ + Size.Y * 0.5f >= View.Z + HalfViewH);
+	TestTrue(TEXT("route end picture reaches the fight frame's bottom"), PanelZ - Size.Y * 0.5f <= View.Z - HalfViewH);
+	// Break check: the old placement (last arena width of the route) leaves the right of the fight frame uncovered.
+	const float OldRight = LevelCatalogue::RouteLength();
+	TestTrue(TEXT("old placement stopped inside the fight frame (break check)"), OldRight < View.X + HalfViewW);
 	return true;
 }
 

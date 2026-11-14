@@ -16,6 +16,11 @@ namespace UmbrellaSceneArtConst
 	static constexpr float WaterStep = 15.0f;
 	static constexpr float ClocksStep = 10.0f;
 	static constexpr float StartEndStep = 15.0f;
+	/**
+	 * Route start/end pictures are this much larger than the arena view, so the widest camera margin (visualqa: HeroSize
+	 * 1.3, hitbox 0.75 shows about 7% more) never opens a strip of another backdrop at their edges.
+	 */
+	static constexpr float RouteEndFill = 1.08f;
 	/** Frame sits in front of everything the camera sees; parallax 0 keeps it on the camera. */
 	static constexpr float FrameLift = 0.0f;
 }
@@ -69,6 +74,9 @@ public:
 
 	/** True when the flag a visual is built behind is on (sky, water and clocks; land; frame and route ends each have their own). */
 	static bool IsVisualEnabled(const FString& Visual);
+
+	/** Width and height of a panel: backdrop-sized for layers, view-sized for the frame, view plus fill for route ends. Pure. */
+	static FVector2D PanelSize(const FSceneArtSpec& Spec);
 
 	/** World X a panel sits at for a camera X. Pure. */
 	static float PanelX(const FSceneArtSpec& Spec, float CameraX);

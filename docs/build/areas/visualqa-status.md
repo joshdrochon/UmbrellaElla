@@ -27,6 +27,13 @@
 - Seen, not mine: `UmbrellaElla.Flow.World.LevelUpShowsAndResumes` fails alone on this tip (StartDirectorsCut does not
   reach Playing; no tick runs, so not the camera margin).
 
+- Keeper fight backdrop seam (levelchunks 16:14): the route-end picture (`bg:start-end`, RouteEnd anchor) is centred on
+  the Keeper fight frame (`LevelPlan::KeeperArenaOrigin`) and drawn 8% larger than the view, so it fills the whole fight
+  screen (before: it stopped at the route end, 40% across). Test:
+  `UmbrellaElla.Feedback.FrameComposition.KeeperBackdropContinuous` (widest camera margin; break check on old placement).
+- Not done: the `scene:gameplay-frame` overlay stays arena-sized, so with the camera margin it sits about 1-2% inside
+  the screen edge. No capture of the fix yet (needs a run_game slot).
+
 ## Gate command (for the lead)
 `python3 tools/build/visual_qa.py run --out Saved/VisualQA/gate-<sha>` -> last line `VISUAL_QA PASS|FAIL ...`;
 exit 0 PASS, 1 FAIL, 2 could not run. Baseline for main: `python3 tools/build/visual_qa.py baseline --shots <dir> --sha <main sha>`
