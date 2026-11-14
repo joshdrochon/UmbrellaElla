@@ -6,6 +6,7 @@
 #include "Core/UmbrellaTuning.h"
 #include "Engine/StaticMesh.h"
 #include "Feedback/Vfx/VfxCatalog.h"
+#include "Feedback/Vfx/UmbrellaVfxDirectorSubsystem.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Harness/UmbrellaFeatureFlags.h"
 #include "Owl/KeeperLook.h"
@@ -306,9 +307,12 @@ void AKeeperOfTime::Refresh(const FKeeperFightModel& Model, float TimeSeconds)
 		const FVector2D LaneStart(GustLaneStart.X, Model.GetGustBandZ());
 		const float Progress = bGustWarning ? FMath::Clamp(1.0f - Model.GetStageRemaining() / FMath::Max(T.GustWarningSeconds, UE_SMALL_NUMBER), 0.0f, 1.0f) : 1.0f;
 		GustStrokes(LaneStart, LaneLength, T.GustBandWidth, bGust, Progress, Model.GetGustFront().X, T.GustFrontThickness, TimeSeconds, Strokes);
-		// The gust puff sprites are anchored on the gust front at the catalog's large size: keep the ribbons out from behind them.
-		const float PuffHalf = VfxCatalogData::LargeSize * 0.5f;
-		ClipStrokesOutside(Model.GetGustFront(), FVector2D(PuffHalf, PuffHalf), Strokes);
+		// The gust puff sprites are anchored on the gust front at the catalog's large size. Josh (Nov 14): no grey stroke may
+		// overlap, touch or start at the edge of the white plume, so every piece within a clear margin of its box is dropped;
+		// strands clearly further back toward the owl stay.
+		ClipStrokesOutside(Model.GetGustFront(), PuffClearHalf(), Strokes);
+		// The live puff sprites themselves (the drawn sheet is not centred on the front): clear their drawn bounds too.
+		ClipStrokesAroundLivePuffs(Strokes);
 	}
 	DrawGustRibbons(Strokes);
 	bTelegraphShown = bWarning;
@@ -458,6 +462,49 @@ void AKeeperOfTime::ClipStrokesOutside(const FVector2D& Centre, const FVector2D&
 		const FVector2D Max(FMath::Max(Stroke.A.X, Stroke.B.X) + Pad, FMath::Max(Stroke.A.Y, Stroke.B.Y) + Pad);
 		return Max.X > Centre.X - Half.X && Min.X < Centre.X + Half.X && Max.Y > Centre.Y - Half.Y && Min.Y < Centre.Y + Half.Y;
 	});
+}
+
+FVector2D AKeeperOfTime::PuffClearHalf()
+{
+	const float Half = VfxCatalogData::LargeSize * 0.5f + VfxCatalogData::LargeSize * KeeperWingGustConst::PuffClearShare;
+	return FVector2D(Half, Half);
+}
+
+void AKeeperOfTime::ClipStrokesAroundLivePuffs(TArray<FKeeperGustStroke>& Strokes) const
+{
+	const UWorld* World = GetWorld();
+	const UUmbrellaVfxDirectorSubsystem* Director = World ? World->GetSubsystem<UUmbrellaVfxDirectorSubsystem>() : nullptr;
+	if (!Director || Strokes.Num() == 0)
+	{
+		return;
+	}
+	for (const TCHAR* Key : { TEXT("GustWarning"), TEXT("GustRelease"), TEXT("GustTravel"), TEXT("GustExpiry") })
+	{
+		const AActor* Puff = Director->GetLiveActor(FName(Key));
+		const UPrimitiveComponent* Visual = Puff ? Cast<UPrimitiveComponent>(Puff->GetRootComponent()) : nullptr;
+		if (!Visual || !Visual->IsVisible())
+		{
+			continue;
+		}
+		const FBox2D Clear = PuffClearBox(Visual->Bounds.GetBox());
+		if (Clear.bIsValid)
+		{
+			ClipStrokesOutside(Clear.GetCenter(), Clear.GetExtent(), Strokes);
+		}
+	}
+}
+
+FBox2D AKeeperOfTime::PuffClearBox(const FBox& PuffBounds)
+{
+	if (!PuffBounds.IsValid)
+	{
+		return FBox2D(ForceInit);
+	}
+	const FVector Centre = PuffBounds.GetCenter();
+	const FVector Extent = PuffBounds.GetExtent();
+	const float Margin = 2.0f * static_cast<float>(Extent.X) * KeeperWingGustConst::PuffClearShare;
+	const FVector2D Half(Extent.X + Margin, Extent.Z + Margin);
+	return FBox2D(FVector2D(Centre.X, Centre.Z) - Half, FVector2D(Centre.X, Centre.Z) + Half);
 }
 
 void AKeeperOfTime::DrawGustRibbons(const TArray<FKeeperGustStroke>& Strokes)

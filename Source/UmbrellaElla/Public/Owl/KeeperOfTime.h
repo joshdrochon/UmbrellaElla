@@ -39,6 +39,8 @@ namespace KeeperWingGustConst
 	/** The flap's downstroke runs on this long into the gust's travel (s), then the wings recover over RecoverSeconds. */
 	static constexpr float FlapAfterLaunchSeconds = 0.25f;
 	static constexpr float RecoverSeconds = 0.45f;
+	/** Clear margin around the gust puff sprite, as a share of its width: no ribbon piece is drawn within it (Josh, Nov 14). */
+	static constexpr float PuffClearShare = 0.25f;
 	/** Ribbon colour: ash blue #555e60 (art bible wind role, the Other Realm study ribbons; same as the wind currents). */
 	static constexpr uint8 RibbonR = 0x55;
 	static constexpr uint8 RibbonG = 0x5E;
@@ -133,6 +135,12 @@ public:
 	 */
 	static void ClipStrokesOutside(const FVector2D& Centre, const FVector2D& Half, TArray<FKeeperGustStroke>& Strokes);
 
+	/** Half-size of the box around the gust front where no ribbon is drawn: the puff sprite's half-size plus PuffClearShare of its width. Pure. */
+	static FVector2D PuffClearHalf();
+
+	/** World X/Z box no ribbon may reach into around a drawn puff: its bounds grown by PuffClearShare of its width on every side (invalid for invalid bounds). Pure. */
+	static FBox2D PuffClearBox(const FBox& PuffBounds);
+
 	/** Gust ribbon pieces drawn now (visible pool entries). Tests read it. */
 	int32 GetVisibleGustRibbonCount() const;
 	/** The gust ribbon pool (created on first use). Tests read it. */
@@ -171,6 +179,8 @@ private:
 	FVector ToWorld(const FVector2D& Position) const;
 	/** Draw Strokes with the ribbon pool (creating it on first use) and hide the rest. */
 	void DrawGustRibbons(const TArray<FKeeperGustStroke>& Strokes);
+	/** Drops every stroke within PuffClearBox of a live gust puff sprite (the effect director's GustWarning/Release/Travel/Expiry). */
+	void ClipStrokesAroundLivePuffs(TArray<FKeeperGustStroke>& Strokes) const;
 	bool IsCoveredByArt(const UStaticMeshComponent* Visual) const;
 
 	UPROPERTY()
