@@ -136,3 +136,19 @@ No `-SmokeShotDelay=` flag yet, load average 45. Context pair for skyline, paper
   and without the context capture a repaint cannot pass. Next paint (if the lead wants it): darker flat silhouette, textured ground band, rust accent in the prompt.
 - Tool defect (ours, tools/art_loop.py, not my lane): `panel` stores `ours` as an absolute path when --ours is absolute-resolved, then `verdict` refuses
   ("every folder of one panel judges the same file"). Worked around by hand-editing the temp panel.json to the relative path. Fix: store the relative path.
+
+## Nov 13 (Opus, lead order): the study's world, round 1 (all tracked `_PH`, not panel-passed)
+- Target: bar-other-realm as the whole frame. Prompts in Art/Source/Scene/Paint/world/ (fresh-session review applied: prompt-review.md).
+  OpenRouter only: 7 flash drafts + 1 Pro (start-end r2) = $0.414. Post: tools/build/assets/art_scene_world.py (key off the sampled green,
+  grade to study numbers, place in the panel rows the camera sees: 5%..50% of a 4800x2400 panel), art_scene_void.py (void tile, flecks),
+  art_scene_import.py (one editor launch for many slots).
+- Slots now: Sky=void tile; bg:atmosphere=flecks + clock-rim ridges (BG-05 order: clocks behind land); FarLand=distant island chain;
+  bg:land=three islands + arch; Base=faint low haze (Base sits in front of FarLand/land, so it must stay see-through);
+  NearArchitecture=barn + ring-wheel windmill island; bg:start-end (arena + route ends)=study-like void with the big island (Pro r2);
+  world:solids=drippy island slab on every ledge; world:refuge=island with an umbrella-rib gazebo and a gold lantern.
+- Emptied (transparent): bg:clocks (rims moved to atmosphere), ClockWaterWind, bg:water. The study has no clock face or water pipes; GDD BG-03
+  still lists water and clock pieces, so these come back as faint layers if the lead wants them. Decision for the lead/Josh.
+- Proof: pipeline/art/proof/artscene/world-r1-{arena,route-cp1,route-start}.png (study | before | after). LFS locks held on all T_Bg*/Paper/Skyline _PH.
+- Gaps vs study: the floor is still a flat cream bar (Floor has no art slot: code, not my lane); wind zones and the refuge stand-in square
+  are other lanes' visuals; islands from flash drafts have a slightly cartoon edge; ledges stretch one picture (8-15:1). Next: Pro passes for
+  skyline/land/solids, a floor slot request, then visualqa's frame check once tools/build/visual_qa.py is on main.

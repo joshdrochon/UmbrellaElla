@@ -29,3 +29,6 @@ Published: TBD
 ### Day 2
 ### Day 3
 ### Day 4
+
+## Frames toward the Other Realm study
+- 2026-11-13 artscene: the world behind the actors now follows the study: near-black warm void, melting clock-rim ridges and ember flecks behind distant eroded islands, the barn-and-windmill island, and the route ledges and refuge drawn as drippy floating islands (arena and route CP1: pipeline/art/proof/artscene/world-r1-*.png). Placeholders, not panel-passed.

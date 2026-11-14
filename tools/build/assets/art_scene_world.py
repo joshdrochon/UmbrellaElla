@@ -33,8 +33,9 @@ PRESETS = {
     "haze": (False, (0.190, 0.180, 0.172), (0.050, 0.042, 0.038), 0.45, False),
 }
 HAZE_FADE = 0.55   # haze: share of the picture height (from the top) over which alpha ramps in
-KEY_LO = 0.25      # share of the ground's green excess below which a pixel is fully opaque
-KEY_HI = 0.70      # share above which it is fully transparent
+# (KEY_LO/HI were 0.25/0.70 until the refuge lantern's yellow glow over green keyed as an opaque grey halo, Nov 13)
+KEY_LO = 0.12      # share of the ground's green excess below which a pixel is fully opaque
+KEY_HI = 0.50      # share above which it is fully transparent
 BORDER = 6         # px of border sampled for the ground colour
 SOLID_ALPHA = 0.5  # alpha counted as content when cropping and grading
 CROP_PAD = 2       # px kept around the content when cropping
@@ -68,6 +69,20 @@ def grade(px, mean, std):
     m = rgb[mask].mean(axis=0)
     s = rgb[mask].std(axis=0) + 1e-4
     rgb[...] = np.clip((rgb - m) / s * np.array(std) + np.array(mean), 0.0, 1.0)
+
+
+LUMA_PRESETS = {"opaque": (0.140, 0.065, 0.9), "near": (0.200, 0.110, 1.0)}   # target mean luma, luma std, chroma kept (study frame L 37/255; std raised so island bodies stay dark under lit rims)
+
+
+def grade_luma(px, mean, std, chroma):
+    """Match brightness only and keep the painting's own warm colour: the per-channel match flattened the amber rim
+    light (r2 start-end, Nov 13)."""
+    rgb = px[..., :3]
+    lum = rgb.mean(axis=2, keepdims=True)
+    m, s = float(lum.mean()), float(lum.std()) + 1e-4
+    new = np.clip((lum - m) / s * std + mean, 0.0, 1.0)
+    tint = (rgb - lum) * chroma
+    rgb[...] = np.clip(new + tint * (new / np.maximum(lum, 1e-3)), 0.0, 1.0)
 
 
 def crop(px):
@@ -121,7 +136,10 @@ def main():
         h = px.shape[0]
         top = 1.0 - np.arange(h, dtype=np.float32) / max(1, h - 1)   # 1 at the top row (Blender rows run bottom-up)
         px[..., 3] *= np.clip((1.0 - top) / HAZE_FADE, 0.0, 1.0)[:, None]
-    grade(px, mean, std)
+    if preset in LUMA_PRESETS:
+        grade_luma(px, *LUMA_PRESETS[preset])
+    else:
+        grade(px, mean, std)
     px[..., 3] *= alpha_scale
     if do_crop or len(a) > 5:
         px = crop(px)
