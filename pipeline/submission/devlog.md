@@ -31,4 +31,6 @@ Published: TBD
 ### Day 4
 
 ## Frames toward the Other Realm study
-- 2026-11-13: Ella idle is now a small dark figure with a warm gold rim and a clear umbrella, toned from the study (artella, proof pipeline/art/proof/artella/frame/idle-silhouette-proof.png).
+- 2026-11-13 16:24 visualqa round 01 (Director's Cut route): framed/unkeyed stand-ins refused (art_slots admission), wind as thin ash-blue #555e60 ribbons in code, backdrop dimmed to the study's dark, cream blocks to island umber, lilac Keeper cube hidden. Composite: pipeline/qa/visual/composite-01-dc_route.png
+- 2026-11-13 16:45 visualqa round 03 (Director's Cut Keeper fight): the route-end picture fills the whole fight frame (no 40% backdrop seam at the handoff); a small camera margin keeps Ella's full figure inside the top edge at the ceiling. Composite: pipeline/qa/visual/r03/composite-r03-keeper_fight.png
+- 2026-11-13: Ella idle sprite toned toward the study's dark figure with a warm gold rim (_PH stand-in; up close it matches, in the real frame she does not read yet). Proof: pipeline/art/proof/artella/frame/idle-silhouette-proof.png

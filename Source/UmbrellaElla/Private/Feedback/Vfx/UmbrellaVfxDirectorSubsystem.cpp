@@ -801,7 +801,8 @@ void UUmbrellaVfxDirectorSubsystem::StepShaft(float DeltaSeconds)
 	const FVector2D Sizes[UmbrellaVfxDirectorConst::ShaftParts] = { FVector2D(LightShaftRules::ShaftWidth, LightShaftRules::ShaftLength),
 		FVector2D(LightShaftRules::ShaftWidth, LightShaftRules::ShaftLength),
 		FVector2D(LightShaftRules::UmbraWidthAt(UmbraOpenness), LightShaftRules::UmbraLength) };
-	const float Opacities[UmbrellaVfxDirectorConst::ShaftParts] = { 1.0f, LightShaftRules::LightBelowAt(UmbraOpenness), UmbraOpenness };
+	const float Opacities[UmbrellaVfxDirectorConst::ShaftParts] = { UmbrellaVfxDirectorConst::ShaftAboveOpacity,
+		UmbrellaVfxDirectorConst::ShaftAboveOpacity * LightShaftRules::LightBelowAt(UmbraOpenness), UmbraOpenness };
 	for (int32 Index = 0; Index < UmbrellaVfxDirectorConst::ShaftParts; ++Index)
 	{
 		const FVfxArtRow* Row = (Index == UmbrellaVfxDirectorConst::ShaftParts - 1) ? UmbraRow : ShaftRow;

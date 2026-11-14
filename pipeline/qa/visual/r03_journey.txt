@@ -1,0 +1,34 @@
+# visualqa r03: ceiling margin and Keeper backdrop seam captures (DC route, ceiling, handoff after 3 s).
+firstrun
+wait Title 60
+idle 1
+click Director's Cut
+skipunless Purchase 3               # skips: key Escape, wait Title, click
+key Escape
+wait Title 5
+click Director's Cut
+trywait Tutorial 5
+keyuntil Playing Enter 0.8 30
+idle 2
+shot vq_r03_00_route_start
+idle 30
+shot vq_r03_01_route_idle60
+routeassist 1
+idle 1
+skipunless Purchase 2
+key Escape
+idle 1
+routeassist 2
+idle 1
+skipunless Purchase 2
+key Escape
+idle 1
+routeassist 3
+idle 1
+skipunless Purchase 2
+key Escape
+idle 1
+routeassist 4                     # the Keeper handoff
+idle 3
+shot vq_r03_02_keeper_handoff
+end

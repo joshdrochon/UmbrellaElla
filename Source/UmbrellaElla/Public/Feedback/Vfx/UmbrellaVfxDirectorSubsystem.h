@@ -48,6 +48,8 @@ namespace UmbrellaVfxDirectorConst
 	/** "Long ago": before any beat or flash. */
 	static constexpr float NeverSeconds = -1000.0f;
 	static constexpr int32 ShaftParts = 3;
+	/** Light above Ella: a faint shaft, not a solid bar (visualqa: at 1.0 it read as a cream placeholder bar on the dark frame). */
+	static constexpr float ShaftAboveOpacity = 0.3f;
 }
 
 /** One live effect. Plain bookkeeping; the actor is the only world object. */

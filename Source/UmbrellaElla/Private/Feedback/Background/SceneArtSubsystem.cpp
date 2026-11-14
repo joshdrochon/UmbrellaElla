@@ -12,25 +12,26 @@
 #include "GameFramework/PlayerController.h"
 #include "Harness/UmbrellaFeatureFlags.h"
 #include "Level/LevelCatalogue.h"
+#include "Level/LevelPlan.h"
 
 namespace
 {
-	/** Width and height of a panel for a spec: view-sized for the frame and route ends, backdrop-sized for scrolling layers. */
-	FVector2D ScenePanelSize(const FSceneArtSpec& Spec)
-	{
-		if (Spec.Anchor == ESceneArtAnchor::Layer)
-		{
-			return FVector2D(UmbrellaBackdropConst::PanelWidth, UmbrellaBackdropConst::PanelHeight);
-		}
-		const FArenaCameraTuning& Camera = GetDefault<UUmbrellaTuning>()->ArenaCamera;
-		return FVector2D(Camera.ArenaWidth, Camera.ArenaHeight);
-	}
-
 	/** World Z of a panel centre: backdrop layers centre on 0, view-sized panels on the middle of the camera view. */
 	float ScenePanelZ(const FSceneArtSpec& Spec)
 	{
-		return Spec.Anchor == ESceneArtAnchor::Layer ? 0.0f : ScenePanelSize(Spec).Y * 0.5f;
+		return Spec.Anchor == ESceneArtAnchor::Layer ? 0.0f : GetDefault<UUmbrellaTuning>()->ArenaCamera.ArenaHeight * 0.5f;
 	}
+}
+
+FVector2D USceneArtSubsystem::PanelSize(const FSceneArtSpec& Spec)
+{
+	if (Spec.Anchor == ESceneArtAnchor::Layer)
+	{
+		return FVector2D(UmbrellaBackdropConst::PanelWidth, UmbrellaBackdropConst::PanelHeight);
+	}
+	const FArenaCameraTuning& Camera = GetDefault<UUmbrellaTuning>()->ArenaCamera;
+	const float Fill = Spec.Anchor == ESceneArtAnchor::View ? 1.0f : UmbrellaSceneArtConst::RouteEndFill;
+	return FVector2D(Camera.ArenaWidth, Camera.ArenaHeight) * Fill;
 }
 
 TArray<FSceneArtSpec> USceneArtSubsystem::Specs()
@@ -68,7 +69,9 @@ float USceneArtSubsystem::PanelX(const FSceneArtSpec& Spec, float CameraX)
 	case ESceneArtAnchor::RouteStart:
 		return LevelCatalogue::SlotStartX(0) + GetDefault<UUmbrellaTuning>()->ArenaCamera.ArenaWidth * 0.5f;
 	case ESceneArtAnchor::RouteEnd:
-		return LevelCatalogue::RouteLength() - GetDefault<UUmbrellaTuning>()->ArenaCamera.ArenaWidth * 0.5f;
+		// Centred on the Keeper fight frame (B5 moves the arena there at the handoff), so the route's end picture fills
+		// the whole fight screen instead of stopping at the route end 40% across it (levelchunks 16:14 seam).
+		return static_cast<float>(LevelPlan::KeeperArenaOrigin().X) + GetDefault<UUmbrellaTuning>()->ArenaCamera.ArenaWidth * 0.5f;
 	default:
 		return UUmbrellaBackdropSubsystem::LayerXForCamera(CameraX, Spec.Parallax);
 	}
@@ -134,7 +137,7 @@ EArtSlotDraw USceneArtSubsystem::ShowArt(const FString& Visual, UTexture2D* Text
 		}
 		Panel->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		Panel->SetGenerateOverlapEvents(false);
-		const FVector2D Size = ScenePanelSize(Spec);
+		const FVector2D Size = USceneArtSubsystem::PanelSize(Spec);
 		const float Unit = UmbrellaBackdropConst::EngineCubeSize;
 		const FVector Box(Size.X / Unit, UmbrellaBackdropConst::PanelThickness, Size.Y / Unit);
 		Panel->SetRelativeScale3D(Box);
