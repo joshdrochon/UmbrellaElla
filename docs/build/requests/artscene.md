@@ -30,3 +30,39 @@ with import_art_candidate.py (works; Content/UmbrellaElla/Art/Scene/*_PH.uasset 
 The game ran at fps 0.1-3.2 (worst frame 34 s) while the gate and other workers use the machine, so no backdrop frame is drawn by 5 s.
 Ask (lead): make the shot wait for the first N rendered frames (or `-SmokeShotDelay=<s>` / tuning `Flow.SmokeShotDelaySeconds` readable from the command line), or
 run my capture when the machine is idle. Not faking a capture. Until then no piece in my lane can pass the context pair; every `_PH` stays.
+
+## 3 update (Nov 13 02:50): command-line ini override tried, no shot
+Merged main (4c3dea15). Tried `run_game.sh "-ini:Game:[/Script/UmbrellaElla.UmbrellaTuning]:Flow=(SmokeShotDelaySeconds=150.0)" -SmokeShot=...`:
+the run waited 10 min on ue_slot.sh (slots held by other lanes' imports and the gate test run) and was killed; no shot written. Whether the override
+works is untested. Ask stands: run the capture when slots are free, or add a `-SmokeShotDelay=` flag. Every `_PH` stays; zero spend.
+
+## 3 closed (Nov 13): frame-based smoke shots and journeys on main give the context captures; nothing more needed.
+
+## 4 (Nov 13, Opus lead order: the study's world): draw the route floor as island, not a cream bar
+File: `Source/UmbrellaElla/Private/Feedback/Background/WorldArtSubsystem.cpp`, `UWorldArtSubsystem::VisualFor`.
+Change: `case ELevelPlacementKind::Floor:` returns `TEXT("world:solids")` (add it above `case ELevelPlacementKind::Solid:`).
+Why: the floor is the one flat cream stand-in left across the bottom of every route frame (pipeline/art/proof/artscene/world-r1-route-*.png);
+the study has no ground, only floating eroded land. The slot art (T_WorldSolids_PH: a crust-topped slab with a drippy underside) already
+draws on every ledge. Visual only, collision untouched (ArtSlot::Apply never touches collision). Test: ArtSlotFamilyTests' VisualFor case
+gains Floor -> world:solids.
+
+## 5 (Nov 13 17:25, for visualqa / the lead): backdrop dim now double-darkens the study-graded scene art
+File: `Source/UmbrellaElla/Public/Feedback/Art/FrameCompositionSubsystem.h`, `UmbrellaFrameConst::BackdropDim` (0.055, 0.048, 0.042), applied
+by `EFrameTreatment::DimBackdropArt` to every art mesh behind BehindPlayY.
+Measured (luma p10/p50/p90, 1280x720 captures, same journeys): study 26 / 35 / 48. artscene world r1 before the dim (commit 0f4a4554):
+arena 9 / 21 / 48, route CP1 18 / 21 / 54. Same art after merging main 570ca482 (dim on): arena 0 / 0 / 26, route CP1 0 / 0 / 4 (black frame).
+Cause: the dim was sized for the old bright stand-ins (clouds, cream clock faces); artscene's backdrop pictures are now graded to the study's
+numbers in the texture (tools/build/assets/art_scene_world.py), so the multiply puts them about 18x under the study.
+Ask: skip DimBackdropArt for the Scene slots artscene now ships graded (bg-layer:*, bg:*), or set BackdropDim to (1,1,1) for them. Keep
+DarkenBackdropPanel for flat stand-ins. Evidence: pipeline/art/proof/artscene/world-r1-*.png (before the dim) and
+pipeline/art/proof/artscene/world-r1-after-dim.png.
+
+## 6 (Nov 13 17:45, lead or visuals lane): a second solids slot for blocks and columns
+Files: `Source/UmbrellaElla/Private/Feedback/Art/ArtSlotCatalog.inc` (new row) and `WorldArtSubsystem.cpp` `VisualFor` (or wherever the Solid
+placement's size is known).
+Change: add `{ TEXT("world:solids-block"), TEXT("Scene"), TEXT("T_WorldSolidsBlock"), 1, false, TEXT("UWorldArtSubsystem"), 1, true }`; a Solid
+placement whose width / height is under 4 draws `world:solids-block`, every other Solid (and Floor, request 4) keeps `world:solids`.
+Why: ChunkCatalogueData.h solids are two shapes: ledges 346-576 x 32-65 (7:1 to 15:1) and blocks/columns 192-461 x 108-259 (0.7:1 to 2.7:1).
+One 8:1 ledge picture on a 0.7:1 column is squashed about 10x. The block picture is ready: pipeline/art/proof/scene/world-solids-block/world_r2_post.png
+(4:3, art_ref_check PASS 0.571 vs 0.527); I import it as T_WorldSolidsBlock_PH as soon as the row exists. Visual only, collision untouched.
+Test: ArtSlotFamilyTests' VisualFor case gains a 192x259 Solid -> world:solids-block and a 576x43 Solid -> world:solids.

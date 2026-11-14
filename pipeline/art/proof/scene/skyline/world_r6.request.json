@@ -1,0 +1,44 @@
+{
+ "provider": "openrouter",
+ "tier": "draft",
+ "tool": "OpenRouter (Google Gemini image models)",
+ "model": "gemini-2.5-flash-image",
+ "openrouter_model": "google/gemini-2.5-flash-image",
+ "fal_model": null,
+ "model_version": "google/gemini-2.5-flash-image",
+ "prompt": "A wide 21:9 strip: a flat, side-on view of a few distant eroded floating islands, seen from a level camera far away across an empty void, as a dark storybook illustration. Text-free, edge-to-edge artwork with no frame or watermark.\n\nFour islands float at different depths and heights across the middle band of the canvas, spaced unevenly with wide empty gaps: one large island a little left of centre, one medium island on the right, and two small ones, one high on the left and one low near the right. Each has a flat, slightly uneven dusty top with a faint thin warm rim along its top edge (#6e5640), and an underside that streams downward and slightly to the left in long, swept, wax-like sheets and folds, like melting wax or worn cloth, whose lowest edges break apart into a fine spray of hard-edged dark specks drifting to the left. The large island carries a tiny ruined barn with a sagging roof whose shreds trail like thin webs; the medium one carries a skeletal windmill drawn as a thin ring wheel with a few curved, web-like spokes. Distance is shown only by their dark, low-contrast smoky umber-grey colour (#2e2924 to #3a332b), the smaller islands a little paler and softer in value than the large one.\n\nBoth the far left and far right ends hold only magenta, at least a tenth of the width each, so the strip repeats without a break.\n\nThe background is one flat digital pure magenta (#FF00FF) that fills every area the earth does not cover, edge to edge and between every stream and speck, like a chroma-key backdrop: one unchanging magenta with no light falling on it, no paper grain, no hatching and no texture; the grain and hatching apply to the earth only. The earth uses only warm browns, umbers and near-black with no grass or plants, and its lit edges are warm gold-brown, never pink-tinted; every edge is crisp against the magenta with a thin near-black ink outline. Colours are given only as guidance; never print them.\n\nStyle (required): dark, muted ink on aged paper, like an etched storybook engraving. Etched ink linework with near-black ink outlines; crosshatch and fine line hatching for every shadow and form; visible aged paper grain and fibre texture under all colour; hand-printed, slightly uneven ink. No flat fills, no vector shapes, no smooth digital gradients, no glossy 3D rendering.",
+ "seed": "none (seed not sent)",
+ "size": "1024x1024",
+ "quality": "medium",
+ "aspect_ratio": "21:9",
+ "image_size": null,
+ "input_images": [],
+ "cost_usd": 0.03886,
+ "reply": {
+  "usage": {
+   "prompt_tokens": 533,
+   "completion_tokens": 1290,
+   "total_tokens": 1823,
+   "cost": 0.0388599,
+   "is_byok": false,
+   "prompt_tokens_details": {
+    "cached_tokens": 0,
+    "cache_write_tokens": 0,
+    "audio_tokens": 0,
+    "video_tokens": 0
+   },
+   "cost_details": {
+    "upstream_inference_cost": 0.0388599,
+    "upstream_inference_prompt_cost": 0.0001599,
+    "upstream_inference_completions_cost": 0.0387
+   },
+   "completion_tokens_details": {
+    "reasoning_tokens": 0,
+    "image_tokens": 1290,
+    "audio_tokens": 0
+   }
+  },
+  "finish": "stop"
+ },
+ "date": "2026-11-14T01:35+00:00"
+}
