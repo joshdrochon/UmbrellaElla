@@ -23,3 +23,12 @@ Capture and context pair for owl and every keeper-* piece wait on this; no paint
 `tools/build/assets/art_slot_material.py` builds UV = ((U*TileU + Frame)/Cols, V*TileV). With a 6x4 grid (TileV = 1/4) every Frame >= 6 samples past U = 1 (clamped): only frames 0-5 of a 24-frame sheet can show, and nothing calls `ArtSlot::SetFrame` for Ella or the Keeper, so both grids draw frame 0 only.
 Needed (TD / art-slot owner; regenerates M_ArtSlot.uasset): U = (U*TileU + fmod(Frame, Cols)) / Cols, V = (V + floor(Frame / Cols)) * TileV. Tiled slots (Frame 0) unchanged.
 Until then artkeeper's KeeperPresenterSubsystem plays the Keeper idle grid on row 0 only (frames 0-5 of 24, see artkeeper-status.md); one constant switches it to all 24 once this lands.
+
+## Update Nov 13 (6): owl softness in game is the TSR anti-aliasing and the owl's screen size, not the art (TD / lead)
+Measured with tools/build/assets/art_keeper_sharpness.py (numbers in pipeline/qa/visual/owl-sharpness/owl-sharpness.json and artkeeper-status.md session 21).
+The key, grade and grid cut lose nothing (ratios 1.00). In game the owl is drawn 378-384 px wide at 1280x720 (2.48 texels per screen px), and TSR leaves 0.75 of the sharpness a clean downscale to that size has.
+Options (engine settings or post-process volume, not this lane):
+1. `r.Tonemapper.Sharpen=1` in Config/DefaultEngine.ini [SystemSettings] (or the arena post-process): 0.75 -> 0.97 at 720p, 0.66 -> 0.79 at 1080p with 100 %. Engine-wide: sharpens everything, not just the owl. 2 overshoots (1.11).
+2. `r.ScreenPercentage=100` (today: auto, renders under 100 % at 1080p): 0.57 -> 0.66 at 1920x1080.
+3. Bigger owl on screen (KeeperPresenter StandInScale.X 6 = 600 of the 1920-unit arena): gameplay size, design call.
+Tested and rejected in this lane: texture mipmaps (simple average 0.68, sharpen5 0.74, sharpen10 0.77-0.83 vs base 0.73-0.76, inside run-to-run noise, +33 % memory); FXAA 0.84 but jagged; TAA 0.65.
