@@ -406,6 +406,82 @@ class GateWording(unittest.TestCase):
             shutil.rmtree(tmp, ignore_errors=True)
 
 
+class GateRecapture(unittest.TestCase):
+    """Lead (ellaidle 9177511f, only T_Ella_Idle_PH changed): dc_route failed on 'figure at right (Keeper or enemy) has
+    a solid dark red rectangle behind it [unkeyed]', the enemy, whose place and pose differ capture to capture. Main's
+    samples re-judge one capture, so on a gate FAIL the tip is captured again and only a regression in both counts."""
+
+    def setUp(self):
+        self.base = fixture("baseline-ebda6e47.json")
+        self.tip = fixture("gate-ellaidle-9177511f.json")
+        self.dc = self.tip["screens"]["dc_route"]
+        self.again = fixture("gate-ellaidle-9177511f-recheck.json")["screens"]["dc_route"]
+
+    def test_9177511f_one_capture_alone_fails(self):
+        ok, why = visual_qa.decide_gate(self.dc, self.base["screens"]["dc_route"])
+        self.assertFalse(ok)
+        self.assertIn("dark red rectangle behind it [unkeyed]", why[0])
+
+    def test_9177511f_item_absent_from_the_recapture_passes(self):
+        self.assertNotIn("unkeyed", [visual_qa.defect_kind(b) for b in self.again["broken"]])
+        for screen, r in self.tip["screens"].items():
+            r2 = fixture("gate-ellaidle-9177511f-recheck.json")["screens"][screen]
+            ok, why = visual_qa.confirm_gate(r, r2, self.base["screens"][screen])
+            self.assertTrue(ok, "%s: %s" % (screen, why))
+
+    def test_defect_in_both_captures_and_not_on_main_fails(self):
+        second = dict(self.again, broken=self.again["broken"] + ["enemy sprite drawn on a dark red rectangle (unkeyed)"])
+        ok, why = visual_qa.confirm_gate(self.dc, second, self.base["screens"]["dc_route"])
+        self.assertFalse(ok)
+        self.assertIn("both captures", why[0])
+        self.assertIn("[unkeyed]", why[0])
+
+    def test_total_regression_must_hold_in_both(self):
+        b = self.base["screens"]["dc_route"]
+        low = dict(self.dc, total=0, broken=[])
+        self.assertTrue(visual_qa.confirm_gate(low, dict(self.dc, broken=[]), b)[0])
+        self.assertFalse(visual_qa.confirm_gate(low, dict(low), b)[0])
+
+    def test_gate_fail_recaptures_once_and_records_both(self):
+        tmp = tempfile.mkdtemp()
+        shots = os.path.join(tmp, "shots")
+        os.makedirs(shots)
+        for name in visual_qa.SCREENS.values():
+            shutil.copyfile(os.path.join(ROOT, visual_qa.STUDY), os.path.join(shots, name))
+        captures = []
+
+        def fake_capture(out):
+            captures.append(out)
+            os.makedirs(out, exist_ok=True)
+            for name in visual_qa.SCREENS.values():     # a different frame: the enemy moved
+                shutil.copyfile(os.path.join(ROOT, visual_qa.KNOWN_GOOD), os.path.join(out, name))
+            return 0
+
+        def caller(prompt, image):
+            first = len(captures) == 0
+            return answer(5, ["enemy has a dark red rectangle behind it"] if first else [], "FAIL")
+        base = {"sha": "b" * 40, "screens": {s: {"total": 35, "broken": [], "scores": {}} for s in visual_qa.SCREENS}}
+        try:
+            os.makedirs(os.path.join(tmp, "base"))
+            with open(os.path.join(tmp, "base", "b" * 40 + ".json"), "w") as fh:
+                json.dump(base, fh)
+            with mock.patch.dict(os.environ, {"VISUAL_BASELINE_DIR": os.path.join(tmp, "base")}), \
+                    mock.patch.object(visual_qa, "capture", side_effect=fake_capture), \
+                    mock.patch.object(visual_qa, "RECORDS", os.path.join(tmp, "rec"), create=True), \
+                    redirect_stdout(io.StringIO()) as out:
+                code = visual_qa.cmd_judge(shots, caller, sha="b" * 40, gate=True, recapture=True)
+            self.assertEqual(code, visual_qa.EXIT_PASS, out.getvalue())
+            self.assertEqual(captures, [os.path.join(shots, "recheck")])
+            with open(os.path.join(shots, "visual_qa.json")) as fh:
+                rep = json.load(fh)
+            self.assertIn("recheck=1", rep["summary"])
+            self.assertEqual(rep["screens"]["play"]["recheck"]["broken"], [])
+            self.assertIn("[unkeyed]", rep["screens"]["play"]["first_reasons"][0])
+            self.assertTrue(os.path.exists(os.path.join(shots, "recheck", "visual_qa.json")))
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+
 class UserState(unittest.TestCase):
     """A capture leaves saves and GameUserSettings.ini exactly as before (a progress save left by a game run made
     the gate's LevelUpShowsAndResumes start on the purchase screen)."""

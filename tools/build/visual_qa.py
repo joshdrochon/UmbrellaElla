@@ -10,7 +10,9 @@
   visual_qa.py calibrate                       known-good study must PASS, Josh's 15:50 frame must FAIL
   visual_qa.py run --gate [--out DIR] [--main-sha SHA]
                                                the merge gate (lead 17:32): needs main's baseline (exit 2 if missing),
-                                               FAILs only on a regression against it, one summary line
+                                               FAILs only on a regression against it, one summary line; on a
+                                               FAIL captures the tip once more (DIR/recheck) and fails only on a
+                                               regression both captures show
   visual_qa.py baseline --shots DIR --sha SHA  store a judged run as main's baseline (logs/visual-baseline/<sha>.json)
   visual_qa.py baseline --from-main [--out DIR] [--sha SHA]
                                                bootstrap: capture this checkout (must be at main) and store its judged
@@ -338,15 +340,12 @@ def absence_known(kind, base_screen, known):
     return any(known.get(a, 0) > 0 for a in ABSENT_ALIASES.get(kind, ()))
 
 
-def decide_gate(result, base_screen):
-    """(passed, reasons) for the merge gate: only a regression against main's baseline screen fails. Pure.
-    Regression = total below main's total by more than the measured judge noise (base_total), or more broken items of
-    one defect kind than any of main's judged runs listed (known_kinds). Main's own broken items and the judge's FAIL
-    verdict do not fail the gate. The reason line names the kind of each new item."""
-    reasons = []
+def gate_findings(result, base_screen):
+    """(total reason or None, [(item, kind)] new against main) for one judged run. Pure."""
     base, slack = base_total(base_screen)
+    total = None
     if base is not None and result["total"] < base - slack:
-        reasons.append("total %d below main's %g (slack %d)" % (result["total"], base, slack))
+        total = "total %d below main's %g (slack %d)" % (result["total"], base, slack)
     known = known_kinds(base_screen)
     left = dict(known)
     new = []
@@ -360,9 +359,44 @@ def decide_gate(result, base_screen):
         elif alias:
             left[alias] -= 1
         else:
-            new.append("%s [%s]" % (b, k))
+            new.append((b, k))
+    return total, new
+
+
+def decide_gate(result, base_screen):
+    """(passed, reasons) for the merge gate: only a regression against main's baseline screen fails. Pure.
+    Regression = total below main's total by more than the measured judge noise (base_total), or more broken items of
+    one defect kind than any of main's judged runs listed (known_kinds). Main's own broken items and the judge's FAIL
+    verdict do not fail the gate. The reason line names the kind of each new item."""
+    total, new = gate_findings(result, base_screen)
+    reasons = [total] if total else []
     if new:
-        reasons.append("new broken: " + "; ".join(new))
+        reasons.append("new broken: " + "; ".join("%s [%s]" % n for n in new))
+    return not reasons, reasons
+
+
+# Capture variance (lead, ellaidle 9177511f): one capture of a moving scene is one sample. The enemy on dc_route stands
+# at a different place and pose capture to capture, and the judge names its red backing in some captures only (measured
+# on main d812ba29, 3 captures: see docs/build/areas/visualqa-status.md). Main's baseline samples re-judge ONE capture,
+# so they cannot cover that. On a gate FAIL the tip is captured once more; a regression counts only when both captures
+# show it: a new defect kind in both (count = the lower of the two), a total under main's in both.
+def confirm_gate(first, second, base_screen):
+    """(passed, reasons) from two judged captures of the same tip. Pure."""
+    t1, n1 = gate_findings(first, base_screen)
+    t2, n2 = gate_findings(second, base_screen)
+    reasons = []
+    if t1 and t2:
+        reasons.append("%s; recapture %s" % (t1, t2))
+    c2 = {}
+    for _b, k in n2:
+        c2[k] = c2.get(k, 0) + 1
+    both = []
+    for b, k in n1:
+        if c2.get(k, 0) > 0:
+            c2[k] -= 1
+            both.append((b, k))
+    if both:
+        reasons.append("new broken (both captures): " + "; ".join("%s [%s]" % n for n in both))
     return not reasons, reasons
 
 
@@ -499,7 +533,37 @@ def missing_baseline_line(sha):
             "baseline --from-main --sha %s" % (sha[:12] or "?", baseline_dir(), sha or "<main sha>"))
 
 
-def cmd_judge(shots, caller=None, require_baseline=False, sha=None, gate=False):
+def recheck_gate(shots, results, baseline, caller, line):
+    """A gate FAIL: capture the tip once more into shots/recheck, judge it, and keep only regressions both captures
+    show (confirm_gate). Both runs are recorded (results[screen]["recheck"], shots/recheck/visual_qa.json). A failed
+    recapture keeps the first verdict. Returns (exit code, summary line)."""
+    again = os.path.join(shots, "recheck")
+    code = capture(again)
+    if code != 0 and not all(os.path.exists(os.path.join(again, n)) for n in SCREENS.values()):
+        return EXIT_FAIL, line + " recheck=capture-failed"
+    code2, line2, second = judge_shots(again, caller, baseline=baseline, composites_dir=again, gate=True)
+    write_report(again, line2, second)
+    if code2 == EXIT_ERROR:
+        return EXIT_FAIL, line + " recheck=error"
+    failed = []
+    for screen, r in results.items():
+        r2 = second.get(screen)
+        r["first_reasons"] = r["reasons"]
+        r["recheck"] = {k: r2.get(k) for k in ("total", "broken", "scores", "reasons", "shot")}
+        ok, reasons = confirm_gate(r, r2, (baseline or {}).get("screens", {}).get(screen, {}))
+        r.update(passed=ok, reasons=reasons)
+        if not ok:
+            failed.append(screen)
+    parts = " ".join("%s=%d,%d/%d" % (s, r["total"], r["recheck"]["total"], SCORE_MAX * len(RUBRIC))
+                     for s, r in results.items())
+    line = "VISUAL_QA GATE %s %s broken=%d,%d baseline=%s recheck=1%s" % (
+        "FAIL" if failed else "PASS", parts, sum(len(r["broken"]) for r in results.values()),
+        sum(len(r["recheck"]["broken"]) for r in results.values()), (baseline or {}).get("sha", "none")[:12] or "none",
+        (" failed=" + ",".join(failed)) if failed else "")
+    return (EXIT_FAIL if failed else EXIT_PASS), line
+
+
+def cmd_judge(shots, caller=None, require_baseline=False, sha=None, gate=False, recapture=False):
     sha = sha or main_sha()
     baseline = load_baseline(sha, GATE_WALK if gate else 0)
     if (require_baseline or gate) and baseline is None:
@@ -507,6 +571,8 @@ def cmd_judge(shots, caller=None, require_baseline=False, sha=None, gate=False):
         print(missing_baseline_line(sha))
         return EXIT_ERROR
     code, line, results = judge_shots(shots, caller, baseline=baseline, composites_dir=shots, gate=gate)
+    if gate and recapture and code == EXIT_FAIL:
+        code, line = recheck_gate(shots, results, baseline, caller, line)
     write_report(shots, line, results)
     for screen, r in results.items():
         for reason in r["reasons"]:
@@ -679,7 +745,8 @@ def main(argv=None):
             if code != 0 and not all(os.path.exists(os.path.join(args.out, n)) for n in SCREENS.values()):
                 print("VISUAL_QA ERROR capture failed (exit %d), see %s" % (code, args.out))
                 return EXIT_ERROR
-            return cmd_judge(args.out, require_baseline=args.require_baseline, sha=args.main_sha, gate=args.gate)
+            return cmd_judge(args.out, require_baseline=args.require_baseline, sha=args.main_sha, gate=args.gate,
+                             recapture=args.gate)
         if args.cmd == "judge":
             return cmd_judge(args.shots, require_baseline=args.require_baseline, sha=args.main_sha)
         if args.cmd == "frame":
