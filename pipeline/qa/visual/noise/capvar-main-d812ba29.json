@@ -1,0 +1,188 @@
+{
+ "sha": "d812ba295fc8377111550b248cc6edea44ec9333",
+ "what": "main captured 3 times (capture variance), each judged once",
+ "captures": {
+  "Saved/VisualQA/capvar-d812ba29-1": {
+   "play": {
+    "total": 34,
+    "broken": [
+     "thin white vertical line running from the top edge down to the umbrella girl"
+    ],
+    "kinds": {
+     "line": 1
+    },
+    "scores": {
+     "dark_backdrop": 5,
+     "wind_ribbons": 0,
+     "small_figures": 6,
+     "floating_islands": 2,
+     "shot_colours": 4,
+     "no_placeholders": 8,
+     "no_framed_art": 9
+    }
+   },
+   "dc_route": {
+    "total": 19,
+    "broken": [
+     "flat dark brown bar spanning full width as ground (bottom)",
+     "flat dark brown bar as platform (right middle)",
+     "enemy at right appears to sit on a red rectangle background (unkeyed)"
+    ],
+    "kinds": {
+     "bar": 2,
+     "unkeyed": 1
+    },
+    "scores": {
+     "dark_backdrop": 0,
+     "wind_ribbons": 2,
+     "small_figures": 7,
+     "floating_islands": 0,
+     "shot_colours": 4,
+     "no_placeholders": 1,
+     "no_framed_art": 5
+    }
+   },
+   "keeper": {
+    "total": 27,
+    "broken": [
+     "flat brown bar with a step block along the bottom left (placeholder ground)"
+    ],
+    "kinds": {
+     "bar": 1
+    },
+    "scores": {
+     "dark_backdrop": 5,
+     "wind_ribbons": 0,
+     "small_figures": 6,
+     "floating_islands": 1,
+     "shot_colours": 4,
+     "no_placeholders": 3,
+     "no_framed_art": 8
+    }
+   }
+  },
+  "Saved/VisualQA/capvar-d812ba29-2": {
+   "play": {
+    "total": 33,
+    "broken": [
+     "thin vertical line from the top edge down to the girl (reads as a stray debug line or rope)"
+    ],
+    "kinds": {
+     "line": 1
+    },
+    "scores": {
+     "dark_backdrop": 4,
+     "wind_ribbons": 0,
+     "small_figures": 5,
+     "floating_islands": 1,
+     "shot_colours": 5,
+     "no_placeholders": 9,
+     "no_framed_art": 9
+    }
+   },
+   "dc_route": {
+    "total": 22,
+    "broken": [
+     "flat dark brown bar used as a platform (mid-right)",
+     "flat dark brown bar spanning the full width (bottom)",
+     "solid dark red rectangle beside the Keeper",
+     "thin white vertical line running from the top of the frame down to the girl"
+    ],
+    "kinds": {
+     "bar": 2,
+     "box": 1,
+     "line": 1
+    },
+    "scores": {
+     "dark_backdrop": 1,
+     "wind_ribbons": 3,
+     "small_figures": 7,
+     "floating_islands": 0,
+     "shot_colours": 5,
+     "no_placeholders": 1,
+     "no_framed_art": 5
+    }
+   },
+   "keeper": {
+    "total": 25,
+    "broken": [
+     "flat solid brown bar/step block as ground at bottom left",
+     "thin straight vertical line from top of frame down to the player (debug-like tether)",
+     "no floating islands or platforms; player has no visible ground"
+    ],
+    "kinds": {
+     "bar": 1,
+     "line": 1,
+     "no_islands": 1
+    },
+    "scores": {
+     "dark_backdrop": 4,
+     "wind_ribbons": 0,
+     "small_figures": 6,
+     "floating_islands": 1,
+     "shot_colours": 3,
+     "no_placeholders": 3,
+     "no_framed_art": 8
+    }
+   }
+  },
+  "Saved/VisualQA/capvar-d812ba29-3": {
+   "play": {
+    "total": 33,
+    "broken": [],
+    "kinds": {},
+    "scores": {
+     "dark_backdrop": 4,
+     "wind_ribbons": 0,
+     "small_figures": 6,
+     "floating_islands": 2,
+     "shot_colours": 3,
+     "no_placeholders": 9,
+     "no_framed_art": 9
+    }
+   },
+   "dc_route": {
+    "total": 23,
+    "broken": [
+     "flat dark-brown bar used as the floating platform (centre)",
+     "flat dark-brown bar spanning the full width as the ground",
+     "thin vertical line hanging from the top of the frame to the girl"
+    ],
+    "kinds": {
+     "bar": 2,
+     "line": 1
+    },
+    "scores": {
+     "dark_backdrop": 1,
+     "wind_ribbons": 3,
+     "small_figures": 7,
+     "floating_islands": 0,
+     "shot_colours": 4,
+     "no_placeholders": 1,
+     "no_framed_art": 7
+    }
+   },
+   "keeper": {
+    "total": 25,
+    "broken": [
+     "flat brown bar as ground across bottom-left",
+     "solid brown block standing on that bar",
+     "thin vertical line from top of frame down to the girl"
+    ],
+    "kinds": {
+     "bar": 2,
+     "line": 1
+    },
+    "scores": {
+     "dark_backdrop": 4,
+     "wind_ribbons": 0,
+     "small_figures": 5,
+     "floating_islands": 2,
+     "shot_colours": 3,
+     "no_placeholders": 3,
+     "no_framed_art": 8
+    }
+   }
+  }
+ }
+}

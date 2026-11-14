@@ -1,0 +1,71 @@
+{
+ "summary": "VISUAL_QA GATE PASS play=33/70 dc_route=23/70 keeper=26/70 broken=5 baseline=ebda6e4752b4",
+ "model": "claude-opus-5-5",
+ "screens": {
+  "play": {
+   "scores": {
+    "dark_backdrop": 4,
+    "wind_ribbons": 0,
+    "small_figures": 5,
+    "floating_islands": 2,
+    "shot_colours": 4,
+    "no_placeholders": 9,
+    "no_framed_art": 9
+   },
+   "broken": [
+    "thin straight white vertical line from the top edge down to the girl (looks like a debug or trace line)"
+   ],
+   "verdict": "FAIL",
+   "total": 33,
+   "replayed": false,
+   "shot": "Saved/VisualQA/recheck-9177511f/vq_play.png",
+   "passed": true,
+   "reasons": [],
+   "baseline_total": 32
+  },
+  "dc_route": {
+   "scores": {
+    "dark_backdrop": 1,
+    "wind_ribbons": 4,
+    "small_figures": 7,
+    "floating_islands": 0,
+    "shot_colours": 3,
+    "no_placeholders": 1,
+    "no_framed_art": 7
+   },
+   "broken": [
+    "flat dark-brown placeholder bar as the right-hand platform",
+    "flat dark-brown bar across the full width as the floor",
+    "thin vertical line from the top of the screen down to the player (looks like a debug or tether line)"
+   ],
+   "verdict": "FAIL",
+   "total": 23,
+   "replayed": false,
+   "shot": "Saved/VisualQA/recheck-9177511f/vq_dc_route.png",
+   "passed": true,
+   "reasons": [],
+   "baseline_total": 28
+  },
+  "keeper": {
+   "scores": {
+    "dark_backdrop": 6,
+    "wind_ribbons": 0,
+    "small_figures": 4,
+    "floating_islands": 1,
+    "shot_colours": 4,
+    "no_placeholders": 3,
+    "no_framed_art": 8
+   },
+   "broken": [
+    "flat brown placeholder bar with a step block as ground, bottom left"
+   ],
+   "verdict": "FAIL",
+   "total": 26,
+   "replayed": false,
+   "shot": "Saved/VisualQA/recheck-9177511f/vq_keeper.png",
+   "passed": true,
+   "reasons": [],
+   "baseline_total": 25
+  }
+ }
+}

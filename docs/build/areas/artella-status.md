@@ -282,3 +282,15 @@ it is treated as passed only after the silhouette is judged in the composed game
   r38-zoom-before-after-study.png (Ella zoomed). Judge records kept in ../logs/artella-judge-records/ (not committed: visualqa's folder).
 - Spend: none this round (15.08 of 33.82). OpenRouter/fal not used: the gap was tone and noise, fixed by numbers.
 - Next: re-judge when the frame's other broken items and Ella's scale are fixed; then the four state pieces (up-open, attack, shield, closed).
+
+## Round 39 (Nov 13 20:05, lead order URGENT): approved Ella idle grid restored
+- `T_Ella_Idle_PH` re-imported from `pipeline/art/proof/standins/ella-up-open/Ella_idle_N24_grid.png`; sha256 checked =
+  approvals.json `ella-up-open` b128aec4 before import (`art_ella_import.py` now refuses other bytes). Same importer and settings
+  as a06bcc9a (import_art_candidate.py: TC_EditorIcon, UI group, no mips, sRGB, clamp; strings identical to a06bcc9a's uasset).
+  Embedded FileMD5 3cbb50e5 = md5 of the approved PNG. 6x4 layout, 2886x2616 (cell 481x654); the presenter derives the cell
+  aspect from the texture (ArtSlot::CellAspect), so no code change; scale code untouched.
+- The dark silhouette stays a proof file only (pipeline/art/proof/artella/silhouette/).
+- Proof: pipeline/art/proof/artella/frame/r39-approved-dc_route.png and r39-approved-play.png (study | before | after, same build
+  5e5ce716, only the uasset swapped, RUN_RES=1280x720 journey). After shows the approved Ella untinted.
+- Capture note: without `-SmokeJourneyOut=<abs path>` the journey writes to `/joanmiguel/...` (out= path loses `/Users`), so shots
+  fail to save. Not my lane (Smoke); worked around on the command line.

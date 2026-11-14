@@ -249,6 +249,48 @@ def fixture(name, folder=FIXTURES):
         return json.load(fh)
 
 
+class GateAbsence(unittest.TestCase):
+    """Lead (artella f8d779e8, Ella idle restore): the gate failed on 'no wind' / 'no islands' items, absences of rubric
+    criteria main ebda6e47 already scores near 0 (play wind_ribbons 0, floating_islands 2) or names as bars (dc_route).
+    Real wordings: ../logs/gate-artella-evidence.txt and the ebda6e47 baseline."""
+
+    def setUp(self):
+        self.base = fixture("baseline-ebda6e47.json")
+        self.art = fixture("gate-artella-f8d779e8.json")
+
+    def test_artella_is_not_a_regression(self):
+        for screen, r in self.art["screens"].items():
+            ok, why = visual_qa.decide_gate(r, self.base["screens"][screen])
+            self.assertTrue(ok, "%s: %s" % (screen, why))
+
+    def test_absence_items_have_absence_kinds(self):
+        self.assertEqual(visual_qa.defect_kind("no wind ribbons visible anywhere"), "no_wind")
+        self.assertEqual(visual_qa.defect_kind("no floating islands: the ground is rounded dark blobs and gear "
+                                               "silhouettes, with no platform the player can read as ground"), "no_islands")
+        self.assertEqual(visual_qa.defect_kind("no floating island ground anywhere; platforms are solid colour bars"),
+                         "no_islands")
+
+    def test_absence_fails_when_main_scores_the_criterion_well(self):
+        base = dict(self.base["screens"]["play"], scores=dict(self.base["screens"]["play"]["scores"], wind_ribbons=6))
+        r = dict(self.art["screens"]["play"], broken=["no wind ribbons visible anywhere"])
+        ok, why = visual_qa.decide_gate(r, base)
+        self.assertFalse(ok)
+        self.assertIn("[no_wind]", why[0])
+
+    def test_no_islands_needs_main_low_score_or_bars(self):
+        base = dict(self.base["screens"]["dc_route"],
+                    scores=dict(self.base["screens"]["dc_route"]["scores"], floating_islands=7), broken=[], samples=[])
+        r = dict(self.art["screens"]["dc_route"], broken=["no floating island ground anywhere; platforms are solid colour bars"])
+        self.assertFalse(visual_qa.decide_gate(r, base)[0])
+
+    def test_a_genuinely_new_defect_still_fails(self):
+        r = dict(self.art["screens"]["keeper"])
+        r["broken"] = r["broken"] + ["Keeper sprite on an unkeyed grey rectangle"]
+        ok, why = visual_qa.decide_gate(r, self.base["screens"]["keeper"])
+        self.assertFalse(ok)
+        self.assertIn("unkeyed grey rectangle [unkeyed]", why[0])
+
+
 class GateWording(unittest.TestCase):
     """Lead 19:50: the owl merge (artkeeper 0d74b84a) failed the gate on 'new broken' items main b4c1fe79's baseline
     already lists in other words, and on a total inside the judge's own noise. Real wordings from both runs."""
@@ -360,6 +402,117 @@ class GateWording(unittest.TestCase):
                 play = visual_qa.load_baseline("7" * 40)["screens"]["play"]
             self.assertEqual(len(play["samples"]), 2)
             self.assertEqual(play["samples"][0]["broken"], ["thin white line"])
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+
+class GateRecapture(unittest.TestCase):
+    """Lead (ellaidle 9177511f, only T_Ella_Idle_PH changed): dc_route failed on 'figure at right (Keeper or enemy) has
+    a solid dark red rectangle behind it [unkeyed]', the enemy, whose place and pose differ capture to capture. Main's
+    samples re-judge one capture, so on a gate FAIL the tip is captured again and only a regression in both counts."""
+
+    def setUp(self):
+        self.base = fixture("baseline-ebda6e47.json")
+        self.tip = fixture("gate-ellaidle-9177511f.json")
+        self.dc = self.tip["screens"]["dc_route"]
+        self.again = fixture("gate-ellaidle-9177511f-recheck.json")["screens"]["dc_route"]
+
+    def test_9177511f_one_capture_alone_fails(self):
+        ok, why = visual_qa.decide_gate(self.dc, self.base["screens"]["dc_route"])
+        self.assertFalse(ok)
+        self.assertIn("dark red rectangle behind it [unkeyed]", why[0])
+
+    def test_9177511f_item_absent_from_the_recapture_passes(self):
+        self.assertNotIn("unkeyed", [visual_qa.defect_kind(b) for b in self.again["broken"]])
+        for screen, r in self.tip["screens"].items():
+            r2 = fixture("gate-ellaidle-9177511f-recheck.json")["screens"][screen]
+            ok, why = visual_qa.confirm_gate(r, r2, self.base["screens"][screen])
+            self.assertTrue(ok, "%s: %s" % (screen, why))
+
+    def test_defect_in_both_captures_and_not_on_main_fails(self):
+        second = dict(self.again, broken=self.again["broken"] + ["enemy sprite drawn on a dark red rectangle (unkeyed)"])
+        ok, why = visual_qa.confirm_gate(self.dc, second, self.base["screens"]["dc_route"])
+        self.assertFalse(ok)
+        self.assertIn("both captures", why[0])
+        self.assertIn("[unkeyed]", why[0])
+
+    def test_total_regression_must_hold_in_both(self):
+        b = self.base["screens"]["dc_route"]
+        low = dict(self.dc, total=0, broken=[])
+        self.assertTrue(visual_qa.confirm_gate(low, dict(self.dc, broken=[]), b)[0])
+        self.assertFalse(visual_qa.confirm_gate(low, dict(low), b)[0])
+
+    def test_gate_fail_recaptures_once_and_records_both(self):
+        tmp = tempfile.mkdtemp()
+        shots = os.path.join(tmp, "shots")
+        os.makedirs(shots)
+        for name in visual_qa.SCREENS.values():
+            shutil.copyfile(os.path.join(ROOT, visual_qa.STUDY), os.path.join(shots, name))
+        captures = []
+
+        def fake_capture(out):
+            captures.append(out)
+            os.makedirs(out, exist_ok=True)
+            for name in visual_qa.SCREENS.values():     # a different frame: the enemy moved
+                shutil.copyfile(os.path.join(ROOT, visual_qa.KNOWN_BAD), os.path.join(out, name))
+            return 0
+
+        def caller(prompt, image):
+            first = len(captures) == 0
+            return answer(5, ["enemy has a dark red rectangle behind it"] if first else [], "FAIL")
+        base = {"sha": "b" * 40, "screens": {s: {"total": 35, "broken": [], "scores": {}} for s in visual_qa.SCREENS}}
+        try:
+            os.makedirs(os.path.join(tmp, "base"))
+            with open(os.path.join(tmp, "base", "b" * 40 + ".json"), "w") as fh:
+                json.dump(base, fh)
+            with mock.patch.dict(os.environ, {"VISUAL_BASELINE_DIR": os.path.join(tmp, "base")}), \
+                    mock.patch.object(visual_qa, "capture", side_effect=fake_capture), \
+                    mock.patch.object(visual_qa, "RECORDS", os.path.join(tmp, "rec"), create=True), \
+                    redirect_stdout(io.StringIO()) as out:
+                code = visual_qa.cmd_judge(shots, caller, sha="b" * 40, gate=True, recapture=True)
+            self.assertEqual(code, visual_qa.EXIT_PASS, out.getvalue())
+            self.assertEqual(captures, [os.path.join(shots, "recheck")])
+            with open(os.path.join(shots, "visual_qa.json")) as fh:
+                rep = json.load(fh)
+            self.assertIn("recheck=1", rep["summary"])
+            self.assertEqual(rep["screens"]["play"]["recheck"]["broken"], [])
+            self.assertIn("[unkeyed]", rep["screens"]["play"]["first_reasons"][0])
+            self.assertTrue(os.path.exists(os.path.join(shots, "recheck", "visual_qa.json")))
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+
+class BaselineCaptures(unittest.TestCase):
+    """Main captured 3 times (pipeline/qa/visual/noise/capvar-main-d812ba29.json): the enemy's red backing is named in
+    2 of 3 captures (once 'unkeyed', once 'box'), dc_route totals 19/22/23. Stored as samples, they count as main's."""
+
+    def test_capture_variance_numbers(self):
+        cv = fixture("capvar-main-d812ba29.json", NOISE)["captures"]
+        dc = [c["dc_route"] for c in cv.values()]
+        self.assertEqual(sorted(c["total"] for c in dc), [19, 22, 23])
+        self.assertEqual(sum(1 for c in dc if "unkeyed" in c["kinds"] or "box" in c["kinds"]), 2)
+
+    def test_add_captures_joins_main_samples(self):
+        tmp = tempfile.mkdtemp()
+        shots = os.path.join(tmp, "cap1")
+        os.makedirs(shots)
+        for name in visual_qa.SCREENS.values():
+            shutil.copyfile(os.path.join(ROOT, visual_qa.STUDY), os.path.join(shots, name))
+        base = {"sha": "c" * 40, "screens": {s: {"total": 30, "broken": [], "scores": {}} for s in visual_qa.SCREENS}}
+        try:
+            os.makedirs(os.path.join(tmp, "base"))
+            with open(os.path.join(tmp, "base", "c" * 40 + ".json"), "w") as fh:
+                json.dump(base, fh)
+            with mock.patch.dict(os.environ, {"VISUAL_BASELINE_DIR": os.path.join(tmp, "base")}), \
+                    redirect_stdout(io.StringIO()):
+                code = visual_qa.add_captures("c" * 40, [shots], lambda p, i: answer(3, ["enemy on a dark red "
+                                              "rectangle (unkeyed)"], "FAIL"), os.path.join(tmp, "rec"))
+                self.assertEqual(code, visual_qa.EXIT_PASS)
+                dc = visual_qa.load_baseline("c" * 40)["screens"]["dc_route"]
+            self.assertEqual(dc["samples"][0]["capture"], shots)
+            self.assertEqual(visual_qa.known_kinds(dc), {"unkeyed": 1})
+            self.assertTrue(visual_qa.decide_gate({"total": 30, "broken": ["red rectangle behind the enemy (unkeyed)"]},
+                                                  dc)[0])
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
 

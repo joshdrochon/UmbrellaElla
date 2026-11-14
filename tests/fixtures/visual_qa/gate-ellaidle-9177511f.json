@@ -1,0 +1,74 @@
+{
+ "summary": "VISUAL_QA GATE FAIL play=32/70 dc_route=25/70 keeper=25/70 broken=6 baseline=ebda6e4752b4 failed=dc_route",
+ "model": "claude-opus-5-5",
+ "screens": {
+  "play": {
+   "scores": {
+    "dark_backdrop": 4,
+    "wind_ribbons": 0,
+    "small_figures": 5,
+    "floating_islands": 1,
+    "shot_colours": 5,
+    "no_placeholders": 9,
+    "no_framed_art": 8
+   },
+   "broken": [
+    "thin white vertical line from the top edge down to the player, looks like a stray debug line or tether"
+   ],
+   "verdict": "FAIL",
+   "total": 32,
+   "replayed": false,
+   "shot": "Saved/VisualQA/gate-9177511f/vq_play.png",
+   "passed": true,
+   "reasons": [],
+   "baseline_total": 32
+  },
+  "dc_route": {
+   "scores": {
+    "dark_backdrop": 1,
+    "wind_ribbons": 4,
+    "small_figures": 8,
+    "floating_islands": 0,
+    "shot_colours": 6,
+    "no_placeholders": 1,
+    "no_framed_art": 5
+   },
+   "broken": [
+    "flat dark brown bar used as a platform (mid-right)",
+    "flat dark brown bar across the full width (bottom floor)",
+    "figure at right (Keeper or enemy) has a solid dark red rectangle behind it"
+   ],
+   "verdict": "FAIL",
+   "total": 25,
+   "replayed": false,
+   "shot": "Saved/VisualQA/gate-9177511f/vq_dc_route.png",
+   "passed": false,
+   "reasons": [
+    "new broken: figure at right (Keeper or enemy) has a solid dark red rectangle behind it [unkeyed]"
+   ],
+   "baseline_total": 28
+  },
+  "keeper": {
+   "scores": {
+    "dark_backdrop": 3,
+    "wind_ribbons": 0,
+    "small_figures": 6,
+    "floating_islands": 1,
+    "shot_colours": 4,
+    "no_placeholders": 3,
+    "no_framed_art": 8
+   },
+   "broken": [
+    "flat brown colour bar / stepped block as ground at bottom left",
+    "no floating island platforms; the girl has no ground near her"
+   ],
+   "verdict": "FAIL",
+   "total": 25,
+   "replayed": false,
+   "shot": "Saved/VisualQA/gate-9177511f/vq_keeper.png",
+   "passed": true,
+   "reasons": [],
+   "baseline_total": 25
+  }
+ }
+}
