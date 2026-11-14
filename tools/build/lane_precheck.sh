@@ -41,6 +41,7 @@ fi
 p=$(python3 tools/module_check.py 2>&1 | grep -E "^\["); [ -n "$p" ] && add "$p"
 p=$(python3 tools/manifest_check.py 2>&1 | grep -iE "^(FAIL|\[)"); [ -n "$p" ] && add "$p"
 p=$(python3 tools/build/art_pass_verify.py check --base origin/main 2>&1 | grep -E "FAIL"); [ -n "$p" ] && add "$p"
+p=$(python3 tools/build/approved_art_guard.py check --base origin/main 2>&1 | grep -E "FAIL"); [ -n "$p" ] && add "$p"
 [ -f tools/build/clause_check.py ] && { p=$(python3 tools/build/clause_check.py origin/main 2>&1 | grep -E "FAIL "); [ -n "$p" ] && add "$p"; }
 # Python tests only on request (PRECHECK_TESTS=1): under load they ran 20-50 min per lane (Nov 13); the gate runs them.
 p=""; [ -n "${PRECHECK_TESTS:-}" ] && p=$(python3 tools/affected_tests.py --base origin/main --run 2>&1 | grep -E "^(FAIL|ERROR)" 2>/dev/null); [ -n "$p" ] && add "$p"

@@ -87,6 +87,7 @@ fi
 [ "$ENCOUNTER" = 1 ] && chk encounter_check python3 tools/encounter_check.py
 chk quality_gate python3 tools/build/quality_gate.py check "$MAIN" "$L/quality-base.txt"
 chk art_pass_verify python3 tools/build/art_pass_verify.py check --base "$MAIN"
+chk approved_art_guard python3 tools/build/approved_art_guard.py check --base "$MAIN"   # Josh-approved art (approvals.json) cannot be replaced, recoloured or hidden (lead, Nov 13 20:05)
 chk clause_check python3 tools/build/clause_check.py "$MAIN"   # a row may become built only with every GDD clause proven (Nov 13)
 if [ $fail = 0 ]; then
   # The proof the panel really ran (Josh, Nov 12): every piece whose pass record is new in this merge is judged again by
