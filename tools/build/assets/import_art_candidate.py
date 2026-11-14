@@ -69,6 +69,10 @@ def in_editor():
     tex.set_editor_property("mip_gen_settings", unreal.TextureMipGenSettings.TMGS_NO_MIPMAPS)
     tex.set_editor_property("srgb", True)
     tex.set_editor_property("never_stream", True)
+    # A large picture imports as a virtual texture (and padded to a power of two): the unlit art-slot material samples it
+    # as a plain texture, so it drew a solid black box (T_Ella_Hurt_PH, Josh 13 Nov). Always a plain, unpadded texture.
+    tex.set_editor_property("virtual_texture_streaming", False)
+    tex.set_editor_property("power_of_two_mode", unreal.TexturePowerOfTwoSetting.NONE)
     tex.set_editor_property("address_x", addr)
     tex.set_editor_property("address_y", addr)
     unreal.EditorAssetLibrary.save_asset(path)
