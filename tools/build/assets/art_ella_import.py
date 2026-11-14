@@ -39,6 +39,8 @@ def main(argv):
         png, slot, piece = SHEETS[s]
         if piece:
             want = approved_sha(piece)
+            if want is None:
+                raise SystemExit("art_ella_import: no approval found for %s in %s" % (piece, APPROVALS))
             with open(os.path.join(ROOT, png), "rb") as fh:
                 got = hashlib.sha256(fh.read()).hexdigest()
             if got != want:

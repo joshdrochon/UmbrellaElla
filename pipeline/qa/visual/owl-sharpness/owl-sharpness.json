@@ -1,0 +1,81 @@
+{
+ "cell": 2,
+ "source_index": 4,
+ "c_scale_fit_rms": {
+  "932": 39.39,
+  "944": 0.15,
+  "956": 40.0
+ },
+ "c_source_px_per_cell_px": 1.0,
+ "c_cell_offset_in_frame": [
+  230,
+  28
+ ],
+ "c_video_size": [
+  1280,
+  720
+ ],
+ "c_lanczos_vs_plain_max_abs": 0.0,
+ "c_cell_equals_raw_px_frac": 0.9607,
+ "a_partial_alpha_px": 0,
+ "a_edge_px": 6683,
+ "a_feather_px_frac_of_edge": 0.0,
+ "a_edge_sharpness_cell_over_raw": 0.9826,
+ "b_grade_changed_px_frac": 0.0393,
+ "b_grade_mean_abs_rgb": 0.188,
+ "b_inner_sharpness_raw": 19.823,
+ "b_inner_sharpness_cell": 19.818,
+ "b_inner_sharpness_cell_over_raw": 0.9997,
+ "d_ingame": [
+  {
+   "shot": "ingame-before-1280.png",
+   "matched_cell": 2,
+   "screen_px": [
+    753,
+    167,
+    380,
+    250
+   ],
+   "rms_luma": 25.57,
+   "texels_per_screen_px": 2.484,
+   "sharpness_ingame": 15.988,
+   "sharpness_ideal_lanczos_same_size": 21.852,
+   "ingame_over_ideal": 0.7316,
+   "luma_mean_ingame_vs_ideal": [
+    75.9,
+    79.6
+   ],
+   "contrast_ingame_over_ideal": 0.9915,
+   "blur_ingame_over_ideal": 0.7379,
+   "ideal_over_cell_full_size": 1.1026
+  },
+  {
+   "shot": "ingame-after-preview-sharpen1-1280.png",
+   "matched_cell": 2,
+   "screen_px": [
+    753,
+    167,
+    380,
+    250
+   ],
+   "rms_luma": 26.3,
+   "texels_per_screen_px": 2.484,
+   "sharpness_ingame": 21.243,
+   "sharpness_ideal_lanczos_same_size": 21.852,
+   "ingame_over_ideal": 0.9721,
+   "luma_mean_ingame_vs_ideal": [
+    73.9,
+    79.6
+   ],
+   "contrast_ingame_over_ideal": 1.0462,
+   "blur_ingame_over_ideal": 0.9292,
+   "ideal_over_cell_full_size": 1.1026
+  }
+ ],
+ "panels": [
+  "raw video frame",
+  "keyed grid cell",
+  "in-game ingame-before-1280.png",
+  "in-game ingame-after-preview-sharpen1-1280.png"
+ ]
+}
