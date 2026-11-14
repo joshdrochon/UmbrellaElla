@@ -35,3 +35,13 @@ run my capture when the machine is idle. Not faking a capture. Until then no pie
 Merged main (4c3dea15). Tried `run_game.sh "-ini:Game:[/Script/UmbrellaElla.UmbrellaTuning]:Flow=(SmokeShotDelaySeconds=150.0)" -SmokeShot=...`:
 the run waited 10 min on ue_slot.sh (slots held by other lanes' imports and the gate test run) and was killed; no shot written. Whether the override
 works is untested. Ask stands: run the capture when slots are free, or add a `-SmokeShotDelay=` flag. Every `_PH` stays; zero spend.
+
+## 3 closed (Nov 13): frame-based smoke shots and journeys on main give the context captures; nothing more needed.
+
+## 4 (Nov 13, Opus lead order: the study's world): draw the route floor as island, not a cream bar
+File: `Source/UmbrellaElla/Private/Feedback/Background/WorldArtSubsystem.cpp`, `UWorldArtSubsystem::VisualFor`.
+Change: `case ELevelPlacementKind::Floor:` returns `TEXT("world:solids")` (add it above `case ELevelPlacementKind::Solid:`).
+Why: the floor is the one flat cream stand-in left across the bottom of every route frame (pipeline/art/proof/artscene/world-r1-route-*.png);
+the study has no ground, only floating eroded land. The slot art (T_WorldSolids_PH: a crust-topped slab with a drippy underside) already
+draws on every ledge. Visual only, collision untouched (ArtSlot::Apply never touches collision). Test: ArtSlotFamilyTests' VisualFor case
+gains Floor -> world:solids.
