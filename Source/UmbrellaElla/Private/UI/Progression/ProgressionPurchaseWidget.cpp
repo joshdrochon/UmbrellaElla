@@ -1,14 +1,137 @@
 #include "UI/Progression/ProgressionPurchaseWidget.h"
 #include "Core/UmbrellaPlayMode.h"
+#include "Flow/FlowMenuText.h"
+#include "Flow/FlowRules.h"
+#include "Flow/UmbrellaPlayerController.h"
 #include "GameFramework/PlayerController.h"
 #include "Harness/UmbrellaFeatureFlags.h"
 #include "Progression/ProgressionSubsystem.h"
 #include "UI/Style/UmbrellaUIStyle.h"
 #include "Widgets/Layout/SBorder.h"
 #include "Widgets/Layout/SBox.h"
+#include "Widgets/Layout/SScaleBox.h"
 #include "Widgets/SOverlay.h"
 #include "Widgets/SBoxPanel.h"
 #include "Widgets/Text/STextBlock.h"
+
+#if UMBRELLAELLA_WORKBENCH && !UE_BUILD_SHIPPING
+#include "Attack/AttackEmitterComponent.h"
+#include "Core/EllaCharacter.h"
+#include "Core/UmbrellaLog.h"
+#include "Engine/Engine.h"
+#include "Engine/GameViewportClient.h"
+#include "Engine/World.h"
+#include "Framework/Application/SlateApplication.h"
+#include "HAL/IConsoleManager.h"
+#include "Kismet/GameplayStatics.h"
+#include "Story/StoryRules.h"
+#include "Story/StorySubsystem.h"
+#include "Widgets/SWindow.h"
+
+// Workbench-only proof hooks for B9 (journey `console` lines; never in the packaged game):
+//  Umbrella.Progression.ShadowLevel levelN  the developer level fixture on shadow progress (nothing saved), so a
+//                                        Director's Cut start opens the purchase screen with points to spend.
+//  Umbrella.Progression.ClickDone        a real mouse click (move, press, release through FSlateApplication) at the
+//                                        centre of the purchase screen's Done button; logs PROGRESSION_DONE_CLICK with
+//                                        Done's window rect, the widget Slate finds under that point and the screen
+//                                        before and after.
+//  Umbrella.Progression.LogRunStats      the Journey Complete run statistics as story counts them now, next to the
+//                                        shots Ella's attack component emitted (lead order: "Shots fired 0" after J held).
+namespace ProgressionPurchaseProof
+{
+	AUmbrellaPlayerController* FlowOf(UWorld* World)
+	{
+		return World ? Cast<AUmbrellaPlayerController>(UGameplayStatics::GetPlayerController(World, 0)) : nullptr;
+	}
+
+	FString ScreenName(const AUmbrellaPlayerController* Flow)
+	{
+		return Flow ? StaticEnum<EFlowScreen>()->GetNameStringByValue(static_cast<int64>(Flow->GetScreen())) : FString(TEXT("none"));
+	}
+
+	void ShadowLevel(const TArray<FString>& Args, UWorld* World)
+	{
+		UProgressionSubsystem* Subsystem = World ? UProgressionSubsystem::Get(World) : nullptr;
+		// "level10" or "10": the journey parser keeps trailing numbers for itself, so a word with digits passes the level.
+		FString Digits;
+		for (const TCHAR Char : (Args.Num() > 0 ? Args[0] : FString()))
+		{
+			if (FChar::IsDigit(Char))
+			{
+				Digits.AppendChar(Char);
+			}
+		}
+		const int32 Level = FCString::Atoi(*Digits);
+		if (Subsystem != nullptr && Level > 0)
+		{
+			Subsystem->BeginShadowProgress(Level);
+		}
+		UE_LOG(LogUmbrellaElla, Display, TEXT("PROGRESSION_SHADOW_LEVEL want=%d level=%d unspent=%d"), Level,
+			Subsystem ? Subsystem->GetLevel() : -1, Subsystem ? Subsystem->GetUnspentPoints() : -1);
+	}
+
+	void ClickDone(const TArray<FString>& Args, UWorld* World)
+	{
+		AUmbrellaPlayerController* Flow = FlowOf(World);
+		const UProgressionPurchaseWidget* Screen = Flow ? Flow->GetPurchaseWidget() : nullptr;
+		const TSharedPtr<SWidget> Done = Screen ? Screen->GetDoneButton() : nullptr;
+		const TSharedPtr<SWindow> Window = GEngine && GEngine->GameViewport ? GEngine->GameViewport->GetWindow() : nullptr;
+		if (!Done.IsValid() || !Window.IsValid() || !FSlateApplication::IsInitialized())
+		{
+			UE_LOG(LogUmbrellaElla, Display, TEXT("PROGRESSION_DONE_CLICK ok=0 reason=no_done_button screen=%s"), *ScreenName(Flow));
+			return;
+		}
+		const FGeometry Geometry = Done->GetTickSpaceGeometry();
+		const FVector2D Centre = Geometry.GetAbsolutePositionAtCoordinates(FVector2D(0.5, 0.5));
+		const FVector2D TopLeft = Geometry.GetAbsolutePosition() - Window->GetPositionInScreen();
+		const FVector2D Extent = Geometry.GetAbsoluteSize();
+		const FVector2D Client = Window->GetClientSizeInScreen();
+		FSlateApplication& Slate = FSlateApplication::Get();
+		const FWidgetPath Under = Slate.LocateWindowUnderMouse(Centre, Slate.GetInteractiveTopLevelWindows());
+		bool bOnDone = false;
+		for (int32 Index = 0; Under.IsValid() && Index < Under.Widgets.Num(); ++Index)
+		{
+			bOnDone = bOnDone || Under.Widgets[Index].Widget == Done;
+		}
+		const FString UnderName = Under.IsValid() ? Under.GetLastWidget()->GetTypeAsString() : FString(TEXT("none"));
+		const FString Before = ScreenName(Flow);
+		const TSet<FKey> NoKeys;
+		TSet<FKey> Left;
+		Left.Add(EKeys::LeftMouseButton);
+		Slate.ProcessMouseMoveEvent(FPointerEvent(0, Centre, Centre, NoKeys, FKey(), 0.0f, FModifierKeysState()));
+		Slate.ProcessMouseButtonDownEvent(Window->GetNativeWindow(), FPointerEvent(0, Centre, Centre, Left, EKeys::LeftMouseButton, 0.0f, FModifierKeysState()));
+		Slate.ProcessMouseButtonUpEvent(FPointerEvent(0, Centre, Centre, NoKeys, EKeys::LeftMouseButton, 0.0f, FModifierKeysState()));
+		const FString After = ScreenName(Flow);
+		const bool bInside = TopLeft.X >= 0.0 && TopLeft.Y >= 0.0 && TopLeft.X + Extent.X <= Client.X && TopLeft.Y + Extent.Y <= Client.Y;
+		const bool bLeft = After != Before;
+		UE_LOG(LogUmbrellaElla, Display, TEXT("PROGRESSION_DONE_CLICK ok=%d window=%.0fx%.0f done_rect=%.0f,%.0f,%.0fx%.0f inside=%d under=%s on_done=%d before=%s after=%s"),
+			(bInside && bOnDone && bLeft) ? 1 : 0, Client.X, Client.Y, TopLeft.X, TopLeft.Y, Extent.X, Extent.Y, bInside ? 1 : 0, *UnderName, bOnDone ? 1 : 0, *Before, *After);
+	}
+
+	void LogRunStats(const TArray<FString>& Args, UWorld* World)
+	{
+		const UStorySubsystem* Story = World ? World->GetSubsystem<UStorySubsystem>() : nullptr;
+		const AUmbrellaPlayerController* Flow = FlowOf(World);
+		const AEllaCharacter* Ella = Flow ? Cast<AEllaCharacter>(Flow->GetPawn()) : nullptr;
+		const int32 Emitted = Ella && Ella->GetAttack() ? Ella->GetAttack()->GetShotsFired() : -1;
+		if (Story == nullptr)
+		{
+			UE_LOG(LogUmbrellaElla, Display, TEXT("PROGRESSION_RUN_STATS ok=0 reason=no_story emitted=%d"), Emitted);
+			return;
+		}
+		const FStoryRunStats& Stats = Story->GetModel().GetStats();
+		UE_LOG(LogUmbrellaElla, Display, TEXT("PROGRESSION_RUN_STATS ok=%d shots_fired=%d shots_fired_at_you=%d attack_emitted=%d screen=%s"),
+			(Stats.ShotsFired > 0 && Stats.ShotsFired <= Emitted) ? 1 : 0, Stats.ShotsFired, Stats.ShotsFiredAtYou, Emitted, *ScreenName(Flow));
+	}
+
+	FAutoConsoleCommandWithWorldAndArgs RunStatsCommand(TEXT("Umbrella.Progression.LogRunStats"),
+		TEXT("Workbench: log the Journey Complete run statistics next to Ella's emitted shots."), FConsoleCommandWithWorldAndArgsDelegate::CreateStatic(&LogRunStats));
+	FAutoConsoleCommandWithWorldAndArgs ShadowLevelCommand(TEXT("Umbrella.Progression.ShadowLevel"),
+		TEXT("Workbench: developer level fixture on shadow progress (B9 proof)."), FConsoleCommandWithWorldAndArgsDelegate::CreateStatic(&ShadowLevel));
+	FAutoConsoleCommandWithWorldAndArgs ClickDoneCommand(TEXT("Umbrella.Progression.ClickDone"),
+		TEXT("Workbench: a real mouse click on the purchase screen's Done button, measured (B9 proof)."), FConsoleCommandWithWorldAndArgsDelegate::CreateStatic(&ClickDone));
+}
+#endif
 
 #define LOCTEXT_NAMESPACE "ProgressionPurchase"
 
@@ -109,15 +232,26 @@ TSharedRef<SWidget> UProgressionPurchaseWidget::RebuildWidget()
 		[
 			SNew(SUmbrellaGround)
 		]
-		+ SOverlay::Slot().HAlign(HAlign_Left).VAlign(VAlign_Center).Padding(UmbrellaUI::ColumnLeft - UmbrellaUI::PanelPadding, 0.0f, 0.0f, 0.0f)
+		// B9 (agentplay, 640x360): the panel grew past the screen's bottom edge and covered the Done button. It now fills
+		// the screen's height at most (scaled down, never up), and Done lives in its own button row, so it is always on
+		// screen and on top at every size.
+		+ SOverlay::Slot().HAlign(HAlign_Fill).VAlign(VAlign_Fill)
+			.Padding(UmbrellaUI::ColumnLeft - UmbrellaUI::PanelPadding, UmbrellaUI::SectionGap, 0.0f, UmbrellaUI::SectionGap)
 		[
-			SNew(SBorder)
-			.BorderImage(FUmbrellaUIStyle::PanelBrush())
-			.Padding(UmbrellaUI::PanelPadding)
+			SNew(SScaleBox)
+			.HAlign(HAlign_Left)
+			.VAlign(VAlign_Center)
+			.Stretch(EStretch::ScaleToFit)
+			.StretchDirection(EStretchDirection::DownOnly)
 			[
-				SNew(SBox).WidthOverride(UmbrellaUI::ColumnWidth)
+				SNew(SBorder)
+				.BorderImage(FUmbrellaUIStyle::PanelBrush())
+				.Padding(UmbrellaUI::PanelPadding)
 				[
-					Rows.ToSharedRef()
+					SNew(SBox).WidthOverride(UmbrellaUI::ColumnWidth)
+					[
+						Rows.ToSharedRef()
+					]
 				]
 			]
 		];
@@ -203,12 +337,26 @@ void UProgressionPurchaseWidget::Rebuild()
 				.Text(FText::Format(LOCTEXT("Confirm", "Confirm ({0} points)"), GetDraftNetCost()))
 				.OnClicked_Lambda([this]() { Confirm(); return FReply::Handled(); })
 		]
-		+ SHorizontalBox::Slot().AutoWidth()
+		+ SHorizontalBox::Slot().AutoWidth().Padding(0.0f, 0.0f, UmbrellaUI::SectionGap, 0.0f)
 		[
 			SNew(SUmbrellaButton).FontSize(UmbrellaUI::PurchaseRowTextSize).Text(LOCTEXT("Cancel", "Cancel"))
 				.OnClicked_Lambda([this]() { Cancel(); return FReply::Handled(); })
 		]
+		+ SHorizontalBox::Slot().AutoWidth()
+		[
+			SAssignNew(DoneButton, SUmbrellaButton).FontSize(UmbrellaUI::PurchaseRowTextSize).Text(FFlowMenuText::DoneLabel())
+				.OnClicked_Lambda([this]() { Done(); return FReply::Handled(); })
+		]
 	];
+}
+
+void UProgressionPurchaseWidget::Done()
+{
+	// Leaves the screen the way the flow's own Done does (an unconfirmed draft is discarded when the screen closes).
+	if (AUmbrellaPlayerController* Flow = Cast<AUmbrellaPlayerController>(GetOwningPlayer()))
+	{
+		Flow->ApplyCommand(EFlowCommand::Continue);
+	}
 }
 
 void UProgressionPurchaseWidget::StageBuy(EProgressionTrack Track)

@@ -1,0 +1,16 @@
+# B9 proof (progression): the purchase screen's Done is on screen and a real mouse click on it leaves the screen.
+# Run: tools/build/run_game.sh -SmokeJourney=pipeline/art/proof/progression/b9_done_click.txt -SmokeJourneyOut=<dir>
+# (RUN_RES=1280x720 / 1920x1080 for the larger windows). Level 10 comes from the FLOW-23 developer fixture on shadow
+# progress (workbench console, nothing saved), the same state as agentplay's d00_purchase.png.
+firstrun
+wait Title 60
+idle 1
+console Umbrella.Progression.ShadowLevel level10
+click Director's Cut
+wait Purchase 10
+idle 1
+shot b9_purchase
+texts
+console Umbrella.Progression.ClickDone
+idle 1
+shot b9_after_done

@@ -100,7 +100,6 @@ struct UMBRELLAELLA_API FProgressionRules
 	static FRunScaling RunScaling(const FProgressionTuning& Tuning, int32 CompletedRuns, bool bFinalHour);
 	/** Final Hour replaces the ordinary scaling when every stat is at maximum, evaluated when the run starts. */
 	static FRunScaling NextRunScaling(const FProgressionTuning& Tuning, const FProgressionProfile& Profile);
-	/** round(base x count multiplier), never above the legal slots; OutShortfall is the recorded shortfall. */
 	/**
 	 * An ordinary firing cooldown under this run's scaling: Cooldown / Cadence. Telegraphs, recoveries, committed-
 	 * path pauses, protection windows and projectile speeds are not cooldowns and must not go through this.
@@ -108,6 +107,7 @@ struct UMBRELLAELLA_API FProgressionRules
 	static float ScaledFiringCooldown(float Cooldown, const FRunScaling& Scaling);
 	/** Enemy or boss-part hit points under this run's scaling: Hp x Hp multiplier. */
 	static float ScaledHp(float Hp, const FRunScaling& Scaling);
+	/** round(base x count multiplier), never above the legal slots; OutShortfall is the recorded shortfall. */
 	static int32 EnemyCount(const FProgressionTuning& Tuning, int32 BaseCount, const FRunScaling& Scaling, int32 LegalSlots, int32& OutShortfall);
 
 	// ---- Kill XP. A label that is not a rewardable kill gives 0 (Courier withdrawal, absorption, checkpoints).

@@ -33,7 +33,7 @@
                  "I", "Unreal", "Engine",
                  "Editing", "Volume", "Effects", "Size", "Absorb", "Director's", "Cut", "Controller", "Blasts", "Blast",
                  "Stars", "Spell", "Points", "Complete", "Again", "Credits", "Stolen", "Rispoli", "Rochon",
-                 "Executive", "Producer", "Technical", "Lead", "D-pad"],
+                 "Executive", "Producer", "Technical", "Lead", "D-pad", "Final"],
   "_allow_caps_reasons": {
     "Editing": "settings button 'Keep Editing'", "Volume": "settings slider label", "Effects": "settings label 'Sound Effects'",
     "Size": "settings label 'Text Size'", "Absorb": "game verb/control name (GDD FLOW absorb)",
@@ -44,7 +44,8 @@
     "Again": "button Try Again (GDD FLOW-49)", "Credits": "settings/menu term", "Stolen": "title word (D-new-title-text)",
     "Rispoli": "credits: team member name", "Rochon": "credits: team member name",
     "Executive": "credits role title", "Producer": "credits role title", "Technical": "credits role title",
-    "Lead": "credits role title", "D-pad": "controller button name"
+    "Lead": "credits role title", "D-pad": "controller button name",
+    "Final": "the Final Hour, GDD FLOW-06 approved exact text (Extreme run intro)"
   },
   "_length_exceptions_about": "Per line id: a cap above the surface cap, with the decision that allows it. The surface cap still applies to every other line.",
   "length_exceptions": {
