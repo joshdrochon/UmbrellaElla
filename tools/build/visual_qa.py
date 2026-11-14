@@ -8,7 +8,13 @@
   visual_qa.py judge --shots DIR               judge captured screens; exit 0 PASS, 1 FAIL, 2 could not run
   visual_qa.py frame IMAGE [--screen ID]       judge one picture (a calibration frame, a hand capture)
   visual_qa.py calibrate                       known-good study must PASS, Josh's 15:50 frame must FAIL
+  visual_qa.py run --gate [--out DIR] [--main-sha SHA]
+                                               the merge gate (lead 17:32): needs main's baseline (exit 2 if missing),
+                                               FAILs only on a regression against it, one summary line
   visual_qa.py baseline --shots DIR --sha SHA  store a judged run as main's baseline (logs/visual-baseline/<sha>.json)
+  visual_qa.py baseline --from-main [--out DIR] [--sha SHA]
+                                               bootstrap: capture this checkout (must be at main) and store its judged
+                                               run as main's baseline even when main itself has broken items; once per sha
   visual_qa.py composite --before A --after B --out P   study | before | after, one row (the per-round composite)
 
 Each screen is put side by side with the study (study left, game right) and one Opus session (claude -p, image input,
@@ -199,6 +205,30 @@ def judge_image(shot, screen, caller=None, records=None, keep=None):
     return result
 
 
+# Paths whose change can change a captured frame. A main commit that touches none of them keeps its parent's baseline.
+VISUAL_PATHS = ("Source", "Content", "Config", "Art", "pipeline/art", "UmbrellaElla.uproject")
+
+
+def norm_item(text):
+    """A 'broken to a player' item in a comparable form: lower case, letters and digits only, single spaces."""
+    return " ".join(re.sub(r"[^a-z0-9#]+", " ", (text or "").lower()).split())
+
+
+def decide_gate(result, base_screen):
+    """(passed, reasons) for the merge gate: only a regression against main's baseline screen fails. Pure.
+    Regression = total below main's total (minus BASELINE_SLACK), or a broken item main's run did not list
+    (matched by normalised text). Main's own broken items and the judge's FAIL verdict do not fail the gate."""
+    reasons = []
+    base_total = (base_screen or {}).get("total")
+    if base_total is not None and result["total"] < base_total - BASELINE_SLACK:
+        reasons.append("total %d below main's %d" % (result["total"], base_total))
+    known = {norm_item(b) for b in (base_screen or {}).get("broken", [])}
+    new = [b for b in result["broken"] if norm_item(b) not in known]
+    if new:
+        reasons.append("new broken: " + "; ".join(new))
+    return not reasons, reasons
+
+
 def baseline_dir():
     return os.environ.get("VISUAL_BASELINE_DIR", os.path.join(ROOT, "..", "logs", "visual-baseline"))
 
@@ -208,16 +238,39 @@ def main_sha():
     return p.stdout.strip() if p.returncode == 0 else ""
 
 
-def load_baseline(sha):
-    path = os.path.join(baseline_dir(), sha + ".json") if sha else ""
-    if path and os.path.exists(path):
-        with open(path, encoding="utf-8") as fh:
+def baseline_path(sha):
+    return os.path.join(baseline_dir(), sha + ".json")
+
+
+def _git(*args):
+    p = subprocess.run(["git", "-C", ROOT] + list(args), capture_output=True, text=True)
+    return p.stdout if p.returncode == 0 else None
+
+
+def load_baseline(sha, walk=0):
+    """Main's baseline for sha. With walk > 0, an ancestor's baseline also counts (up to walk first-parent commits back)
+    when nothing between it and sha touches VISUAL_PATHS: a docs-only merge to main does not need a new capture."""
+    if not sha:
+        return None
+    if os.path.exists(baseline_path(sha)):
+        with open(baseline_path(sha), encoding="utf-8") as fh:
+            return json.load(fh)
+    if walk <= 0:
+        return None
+    for anc in (_git("rev-list", "--first-parent", "-n", str(walk + 1), sha) or "").split()[1:]:
+        if not os.path.exists(baseline_path(anc)):
+            continue
+        changed = _git("diff", "--name-only", anc, sha, "--", *VISUAL_PATHS)
+        if changed is None or changed.strip():
+            return None   # a frame-changing commit since that baseline: it no longer stands for main
+        with open(baseline_path(anc), encoding="utf-8") as fh:
             return json.load(fh)
     return None
 
 
-def judge_shots(shots_dir, caller=None, records=None, baseline=None, composites_dir=None):
-    """Judge every gameplay screen in shots_dir. Returns (exit code, summary line, per-screen results)."""
+def judge_shots(shots_dir, caller=None, records=None, baseline=None, composites_dir=None, gate=False):
+    """Judge every gameplay screen in shots_dir. Returns (exit code, summary line, per-screen results).
+    gate=True: a screen fails only on a regression against baseline (decide_gate)."""
     results, failed, missing = {}, [], []
     for screen, name in SCREENS.items():
         shot = os.path.join(shots_dir, name)
@@ -226,8 +279,9 @@ def judge_shots(shots_dir, caller=None, records=None, baseline=None, composites_
             continue
         keep = os.path.join(composites_dir, "judge_%s.png" % screen) if composites_dir else None
         res = judge_image(shot, screen, caller, records, keep)
-        base = (baseline or {}).get("screens", {}).get(screen, {}).get("total")
-        ok, reasons = decide(res, base)
+        base_screen = (baseline or {}).get("screens", {}).get(screen, {})
+        base = base_screen.get("total")
+        ok, reasons = decide_gate(res, base_screen) if gate else decide(res, base)
         res.update(passed=ok, reasons=reasons, baseline_total=base)
         results[screen] = res
         if not ok:
@@ -237,8 +291,8 @@ def judge_shots(shots_dir, caller=None, records=None, baseline=None, composites_
     parts = " ".join("%s=%d/%d" % (s, r["total"], SCORE_MAX * len(RUBRIC)) for s, r in results.items())
     broken = sum(len(r["broken"]) for r in results.values())
     tag = "PASS" if not failed else "FAIL"
-    line = "VISUAL_QA %s %s broken=%d baseline=%s%s" % (
-        tag, parts, broken, (baseline or {}).get("sha", "none")[:12] or "none",
+    line = "VISUAL_QA %s%s %s broken=%d baseline=%s%s" % (
+        "GATE " if gate else "", tag, parts, broken, (baseline or {}).get("sha", "none")[:12] or "none",
         (" failed=" + ",".join(failed)) if failed else "")
     return (EXIT_PASS if not failed else EXIT_FAIL), line, results
 
@@ -258,21 +312,62 @@ def write_report(out_dir, line, results):
         json.dump({"summary": line, "model": MODEL, "screens": results}, fh, indent=1)
 
 
-def cmd_judge(shots, caller=None, require_baseline=False, sha=None):
+GATE_WALK = 50   # first-parent commits the gate looks back for a baseline with no frame-changing commit since
+
+
+def missing_baseline_line(sha):
+    return ("VISUAL_QA ERROR no baseline for main %s in %s: in a checkout at main, python3 tools/build/visual_qa.py "
+            "baseline --from-main --sha %s" % (sha[:12] or "?", baseline_dir(), sha or "<main sha>"))
+
+
+def cmd_judge(shots, caller=None, require_baseline=False, sha=None, gate=False):
     sha = sha or main_sha()
-    baseline = load_baseline(sha)
-    if require_baseline and baseline is None:
+    baseline = load_baseline(sha, GATE_WALK if gate else 0)
+    if (require_baseline or gate) and baseline is None:
         # The gate compares against main; without main's baseline the comparison cannot run (16:28 review).
-        print("VISUAL_QA ERROR no baseline for main %s in %s: python3 tools/build/visual_qa.py baseline --shots <main run> --sha %s"
-              % (sha[:12] or "?", baseline_dir(), sha or "<main sha>"))
+        print(missing_baseline_line(sha))
         return EXIT_ERROR
-    code, line, results = judge_shots(shots, caller, baseline=baseline, composites_dir=shots)
+    code, line, results = judge_shots(shots, caller, baseline=baseline, composites_dir=shots, gate=gate)
     write_report(shots, line, results)
     for screen, r in results.items():
         for reason in r["reasons"]:
             print("  %s: %s" % (screen, reason))
     print(line)
     return code
+
+
+def cmd_baseline_from_main(out, sha="", caller=None, records=None):
+    """Bootstrap main's baseline: capture this checkout and store the judged run whatever its verdict (main is the
+    reference the gate compares to, broken items included). Refuses a checkout that is not at main; skips a sha that
+    already has one. Exit 0 stored or present, 2 could not run."""
+    sha = sha or main_sha()
+    head = (_git("rev-parse", "HEAD") or "").strip()
+    if not sha or head != sha:
+        print("VISUAL_QA ERROR baseline --from-main: this checkout is at %s, main is %s (check out main first)"
+              % (head[:12] or "?", sha[:12] or "?"))
+        return EXIT_ERROR
+    if os.path.exists(baseline_path(sha)):
+        print("visual_qa baseline %s: already stored (%s)" % (sha[:12], baseline_path(sha)))
+        return EXIT_PASS
+    code = capture(out)
+    if code != 0 and not all(os.path.exists(os.path.join(out, n)) for n in SCREENS.values()):
+        print("VISUAL_QA ERROR capture failed (exit %d), see %s" % (code, out))
+        return EXIT_ERROR
+    code, line, results = judge_shots(out, caller, records, composites_dir=out)
+    if code == EXIT_ERROR:
+        print("visual_qa baseline NOT stored for %s: %s" % (sha[:12], line))
+        return EXIT_ERROR
+    store_baseline(sha, line, results)
+    print("visual_qa baseline %s (from main): %s" % (sha[:12], line))
+    return EXIT_PASS
+
+
+def store_baseline(sha, line, results):
+    os.makedirs(baseline_dir(), exist_ok=True)
+    tmp = baseline_path(sha) + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as fh:
+        json.dump({"sha": sha, "summary": line, "screens": results}, fh, indent=1)
+    os.replace(tmp, baseline_path(sha))
 
 
 def cmd_calibrate(caller=None):
@@ -295,6 +390,7 @@ def main(argv=None):
         p.add_argument("--out", default=os.path.join(ROOT, "Saved", "VisualQA", time.strftime("%Y%m%d-%H%M%S")))
         if name == "run":
             p.add_argument("--require-baseline", action="store_true")
+            p.add_argument("--gate", action="store_true")
             p.add_argument("--main-sha", default="")
     p = sub.add_parser("judge")
     p.add_argument("--shots", required=True)
@@ -309,20 +405,25 @@ def main(argv=None):
     p.add_argument("--after", required=True)
     p.add_argument("--out", required=True)
     p = sub.add_parser("baseline")
-    p.add_argument("--shots", required=True)
+    p.add_argument("--shots", default="")
+    p.add_argument("--from-main", action="store_true")
+    p.add_argument("--out", default=os.path.join(ROOT, "Saved", "VisualQA", "baseline-" + time.strftime("%Y%m%d-%H%M%S")))
     p.add_argument("--sha", default="")
     args = ap.parse_args(argv)
     try:
         if args.cmd == "capture":
             return EXIT_PASS if capture(args.out) == 0 else EXIT_ERROR
         if args.cmd == "run":
+            if args.gate and load_baseline(args.main_sha or main_sha(), GATE_WALK) is None:
+                print(missing_baseline_line(args.main_sha or main_sha()))
+                return EXIT_ERROR
             if args.require_baseline and load_baseline(args.main_sha or main_sha()) is None:
                 return cmd_judge(args.out, require_baseline=True, sha=args.main_sha)
             code = capture(args.out)
             if code != 0 and not all(os.path.exists(os.path.join(args.out, n)) for n in SCREENS.values()):
                 print("VISUAL_QA ERROR capture failed (exit %d), see %s" % (code, args.out))
                 return EXIT_ERROR
-            return cmd_judge(args.out, require_baseline=args.require_baseline, sha=args.main_sha)
+            return cmd_judge(args.out, require_baseline=args.require_baseline, sha=args.main_sha, gate=args.gate)
         if args.cmd == "judge":
             return cmd_judge(args.shots, require_baseline=args.require_baseline, sha=args.main_sha)
         if args.cmd == "frame":
@@ -336,16 +437,19 @@ def main(argv=None):
         if args.cmd == "composite":
             print(composite_round(rel(STUDY), args.before, args.after, args.out))
             return EXIT_PASS
+        if args.cmd == "baseline" and args.from_main:
+            return cmd_baseline_from_main(args.out, args.sha)
         if args.cmd == "baseline":
+            if not args.shots:
+                print("VISUAL_QA ERROR baseline needs --shots DIR or --from-main")
+                return EXIT_ERROR
             sha = args.sha or main_sha()
             code, line, results = judge_shots(args.shots)
             if code != EXIT_PASS:
                 # A failing or incomplete run never becomes main's baseline (16:45 review).
                 print("visual_qa baseline NOT stored for %s: %s" % (sha[:12], line))
                 return code
-            os.makedirs(baseline_dir(), exist_ok=True)
-            with open(os.path.join(baseline_dir(), sha + ".json"), "w", encoding="utf-8") as fh:
-                json.dump({"sha": sha, "summary": line, "screens": results}, fh, indent=1)
+            store_baseline(sha, line, results)
             print("visual_qa baseline %s: %s" % (sha[:12], line))
             return EXIT_PASS
     except (RuntimeError, ValueError, OSError, subprocess.SubprocessError) as exc:

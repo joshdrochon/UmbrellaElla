@@ -42,7 +42,6 @@
   0.36x. Test: `UmbrellaElla.Feedback.FrameComposition.EnemyArtFullSize` (fails on 4dae3d8e, passes now).
 
 ## Follow-ups (coordinator balance rule: paperwork and later work do not block)
-- Review item 1: `tools/build/visual_qa.py --gate` mode and `baseline --from-main`, with tests and the exact gate command.
 - Review item 3: a composite per screen under `pipeline/qa/visual/` for this round, and a dated line in
   `pipeline/submission/devlog.md` under "## Frames toward the Other Realm study"; `composed-01.png`.
 - Minor: `FindArena` caches the arena for good (stale after an arena swap; re-runs the actor iterator each tick).
@@ -51,10 +50,22 @@
 - Parked (not in this commit): per-frame re-compose after the actor tick, so the Keeper's cue cubes reset by the
   encounter director each frame are never drawn reset. Patch kept at `../logs/visualqa-wip-posttick-1808.patch`.
 
+## Done (Nov 13 evening): gate mode (review item 1, lead 17:32)
+- `visual_qa.py run --gate`: needs main's baseline (exit 2 and the bootstrap command if missing, before any capture);
+  a screen FAILs only on a regression: total below main's, or a "broken to a player" item main's run did not list
+  (normalised text match). Main's own broken items and the judge's FAIL verdict do not fail the gate. One line:
+  `VISUAL_QA GATE PASS|FAIL play=../70 dc_route=../70 keeper=../70 broken=N baseline=<sha12> [failed=...]`.
+- Baseline lookup for the gate: main's sha, else the newest first-parent ancestor (50 back) with a baseline when no
+  commit since touched Source, Content, Config, Art, pipeline/art or the .uproject (docs-only merges reuse it).
+- `visual_qa.py baseline --from-main [--sha SHA] [--out DIR]`: in a checkout at main (refused otherwise), captures and
+  stores the judged run as main's baseline even when main has broken items; skips a sha that already has one.
+- Tests: `tests/test_visual_qa.py` GateMode (7 tests; break-checked: matching every broken item as new fails 2).
+
 ## Gate command (for the lead)
-`python3 tools/build/visual_qa.py run --out Saved/VisualQA/gate-<sha>` -> last line `VISUAL_QA PASS|FAIL ...`;
-exit 0 PASS, 1 FAIL, 2 could not run. Baseline for main: `python3 tools/build/visual_qa.py baseline --shots <dir> --sha <main sha>`
-(writes ../logs/visual-baseline/<sha>.json; VISUAL_BASELINE_DIR overrides).
+Gate step (in the gate worktree, merged tree built): `python3 tools/build/visual_qa.py run --gate --main-sha <main sha> --out Saved/VisualQA/gate-<sha>`
+-> last line `VISUAL_QA GATE PASS|FAIL ...`; exit 0 PASS, 1 FAIL (regression), 2 could not run (no baseline, capture failed).
+Bootstrap main's baseline (checkout at main, built): `python3 tools/build/visual_qa.py baseline --from-main --sha <main sha>`
+(writes ../logs/visual-baseline/<sha>.json; VISUAL_BASELINE_DIR overrides). Plain `run` / `judge` keep the absolute verdict.
 
 ## Left
 - Keeper fight screen: the Keeper is off-screen in Director's Cut (B5, levelchunks); Start Game Keeper art is large and
