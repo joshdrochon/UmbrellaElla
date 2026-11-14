@@ -188,3 +188,5 @@ No `-SmokeShotDelay=` flag yet, load average 45. Context pair for skyline, paper
 - (3) BG-02: art_scene_world.py repeatN cross-fades the ends (TILE_FADE 0.12). Seam check tools/build/assets/art_scene_seam.py, test tests/test_art_scene_seam.py (8 PASS).
   Measured (join score vs the picture's own interior p90): skyline r6 0.840 vs 0.412 FAIL -> r7 0.091 vs 0.363 PASS (T_Skyline_PH);
   bg-clock rims r3 0.712 vs 0.420 FAIL -> r4 0.187 vs 0.419 PASS (in T_BgAtmosphere_PH).
+- Whole-frame proof (visual_qa.py capture, 1280x720, real window): pipeline/art/proof/artscene/bg-layers-r1-{dc_route,play,keeper}.png = study | before (tip cc398b0f textures) | after.
+  Route frame now shows two faint dial ghosts with hands above the land and a dim fall by the barn; play/keeper frames unchanged in look (layers sit outside their view).
