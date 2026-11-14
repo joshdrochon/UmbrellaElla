@@ -283,3 +283,17 @@ IDENTIFIED C: the Keeper gust's gameplay cue cube `AKeeperOfTime::GustVisual` (S
   stand-in found; quiet Keeper, clean route, the study and known-good give none). Against the old visual_qa.py 5 of
   them fail (blind judge -> keeper PASS, no detector items, detector shots unread). test_visual_qa's recapture test now
   recaptures a clean real frame (known-bad has boxes, which the recheck now lists).
+
+## Item 6: gate recheck stalled at 'click Quit to Title' on Defeat
+- Cause: a flaky click, not a game bug. In every logged run (Saved/VisualQA/*/journey.log in the gate checkout) the
+  click took 28 times with `active=1` and failed the one time it was sent with `active=0` (gate-a1a5356e/recheck: the
+  game window was not the active app, Josh was using the machine); the click step then passed and 'wait Title' timed
+  out 60 s later.
+- Fix (journey hook, `UJourneyHookSubsystem` click step + `JourneyRules::ClickNext`): a click is done only when the
+  screen changed or its button went away. After 1 s with no effect the mouse click is sent again (3 mouse presses in all),
+  then keyboard focus on the button and Enter (Slate Accept; SButton::OnKeyDown 5.8.4), each logged as
+  JOURNEY_CLICK_RETRY; if that does nothing either the step fails at the click line.
+- Real run (lose.txt, this build): Start Game and Retry took on the first press (`presses=1`); Quit to Title was sent with
+  `active=0`, two more mouse clicks did nothing, Enter took (`presses=4`), 'wait Title' PASS after 0.1 s; JOURNEY_END
+  passed=31 failed=0. Test UmbrellaElla.Smoke.Journey.ClickRetriesUntilItTakes (break-check: "a sent click is done" -> FAIL); build exit 0; Smoke + shaft 19/19 PASS.
+- Lead order of Nov 13 21:49 items 0-6 done (4: 958f56dd, 5: b96990b4, 6: this commit). Stopped here as ordered.
