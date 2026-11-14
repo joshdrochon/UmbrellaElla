@@ -11,6 +11,8 @@ keyuntil Playing Enter 0.8 30
 idle 3
 hold J 1.0                        # real shooting, so gold shots are on screen
 shot vq_play
+figureshot vq_figure              # Ella's normal frame + a plate with her hidden (visual_qa figure_check)
+hurtshot vq_hurt                  # one assisted life lost; captured while she shows Hurt (black box / sliver check)
 hits Defeat 1 1.2 90              # assisted: 1 damage per 1.2 s through Ella's Health hit path until Defeated
 idle 1
 shot vq_defeated

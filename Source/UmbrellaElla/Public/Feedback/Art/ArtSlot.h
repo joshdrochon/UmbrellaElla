@@ -39,11 +39,18 @@ namespace UmbrellaArtSlotConst
 	static const TCHAR* const PlaceholderSuffix = TEXT("_PH");
 	/** The one unlit masked material every slot is drawn with (tools/build/assets/art_slot_material.py makes it). */
 	static const TCHAR* const MaterialPath = TEXT("/Game/UmbrellaElla/Materials/M_ArtSlot_Unlit.M_ArtSlot_Unlit");
+	/** Translucent copy with soft left/right edges (tools/build/assets/art_slot_fade_material.py); a picture on it is still slot art. */
+	static const TCHAR* const EdgeFadeMaterialPath = TEXT("/Game/UmbrellaElla/Materials/M_ArtSlot_EdgeFade.M_ArtSlot_EdgeFade");
 	static const TCHAR* const PlanePath = TEXT("/Engine/BasicShapes/Plane.Plane");
 	/** Engine plane edge in units. */
 	static constexpr float PlaneEdge = 100.0f;
 	/** World units one repeat of a tiled picture covers. */
 	static constexpr float TileWorldSize = 600.0f;
+	/**
+	 * Largest texture edge the game draws (pixels). A wider picture renders as a solid black box on Mac (Metal 2D
+	 * textures stop at 16384): T_Ella_Hurt_PH is a 23688 x 565 strip and drew Ella as a black box on every hit (Josh, 13 Nov).
+	 */
+	static constexpr int32 MaxTextureEdge = 16384;
 	/** Engine white texture: the flat unlit stand-in colour is this times the slot material's Tint. */
 	static const TCHAR* const WhiteTexturePath = TEXT("/Engine/EngineResources/WhiteSquareTexture.WhiteSquareTexture");
 	/** Stand-in colour when a site has none of its own (paper grey-brown, art bible palette family). */
@@ -72,7 +79,13 @@ namespace ArtSlot
 	/** The slot path without suffix, e.g. /Game/UmbrellaElla/Art/Scene/T_Paper. Pure. */
 	UMBRELLAELLA_API FString SlotPath(const FArtSlotRow& Row);
 
-	/** First texture that loads for the row, or null. */
+	/** True when a picture of this size can draw (both edges 1..MaxTextureEdge). Pure. */
+	UMBRELLAELLA_API bool CanGpuDraw(int64 Width, int64 Height);
+
+	/** The picture's full size: the source size in an editor build (the platform data can still be a placeholder), else the platform size. */
+	UMBRELLAELLA_API FIntPoint PictureSize(const UTexture2D* Texture);
+
+	/** First texture that loads for the row and fits the GPU (CanGpuDraw), or null: an oversized picture is never drawn black. */
 	UMBRELLAELLA_API UTexture2D* LoadTexture(const FArtSlotRow& Row);
 
 	/** Plane scale that fills the same width and height as a stand-in box scale (X, Y, Z). Pure. */

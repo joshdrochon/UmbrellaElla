@@ -3,6 +3,9 @@
 #include "Core/UmbrellaLog.h"
 #include "Core/UmbrellaTuning.h"
 #include "Core/EllaCharacter.h"
+#include "Feedback/Anim/EllaAnimPresenterComponent.h"
+#include "Feedback/Art/ArtSlot.h"
+#include "Engine/Texture2D.h"
 #include "Engine/Engine.h"
 #include "GameFramework/PlayerController.h"
 #include "InputKeyEventArgs.h"
@@ -344,6 +347,29 @@ void USmokeHookSubsystem::Tick(float DeltaTime)
 	{
 		ApplySceneSwitches();
 	}
+#if UMBRELLAELLA_WORKBENCH
+	// -SmokeHurt: hold Ella in her Hurt look (what a hit shows) so the shot captures it.
+	if (FParse::Param(FCommandLine::Get(), TEXT("SmokeHurt")))
+	{
+		const AEllaCharacter* Hurt = Flow ? Cast<AEllaCharacter>(Flow->GetPawn()) : nullptr;
+		UEllaAnimPresenterComponent* Look = Hurt ? Hurt->GetAnimPresenter() : nullptr;
+		if (Look && Look->GetVisualState() != EEllaVisualState::Hurt)
+		{
+			Look->SetVisualState(EEllaVisualState::Hurt);
+			UE_LOG(LogUmbrellaElla, Log, TEXT("SMOKE_SCENE hurt=1"));
+			for (const TCHAR* Visual : { TEXT("ella-state:Hurt"), TEXT("ella-state:Idle") })
+			{
+				const FArtSlotRow* Row = ArtSlot::Find(Visual);
+				const UTexture2D* T = Row ? ArtSlot::LoadTexture(*Row) : nullptr;
+				if (T)
+				{
+					UE_LOG(LogUmbrellaElla, Log, TEXT("SMOKE_TEX %s %s size=%dx%d comp=%d noalpha=%d srgb=%d pf=%s group=%d"), Visual, *T->GetName(), T->GetSizeX(), T->GetSizeY(),
+						static_cast<int32>(T->CompressionSettings), T->CompressionNoAlpha ? 1 : 0, T->SRGB ? 1 : 0, GetPixelFormatString(T->GetPixelFormat()), static_cast<int32>(T->LODGroup));
+				}
+			}
+		}
+	}
+#endif
 	{
 		const int32 ShaderJobs = GShaderCompilingManager ? GShaderCompilingManager->GetNumRemainingJobs() : 0;
 		const int32 Streaming = IStreamingManager::Get().GetTextureStreamingManager().GetNumWantingResources();

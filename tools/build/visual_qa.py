@@ -55,7 +55,29 @@ SCREENS = {"play": "vq_play.png", "dc_route": "vq_dc_route.png", "keeper": "vq_k
 # Detector-only shots (no judge call, no spend): the Keeper a few seconds on, so its attacks are on screen in some of
 # them (the judged vq_keeper was taken between attacks and the salmon warning band and the grey gust cube never showed).
 # Missing ones are skipped (an older journey or a capture that ended early).
-DETECTOR_SHOTS = {"keeper": ["vq_keeper_a%d.png" % i for i in range(1, 9)]}
+DETECTOR_SHOTS = {"keeper": ["vq_keeper_a%d.png" % i for i in range(1, 9)], "play": ["vq_hurt.png"]}
+# Ella's hurt frame (lead order Nov 13 23:26): Josh saw her turn into a solid black box when hit (T_Ella_Hurt_PH drawn
+# as a virtual texture). The journey's `figureshot vq_figure` (her normal frame) and `hurtshot vq_hurt` (one assisted
+# life lost, captured while her presenter shows Hurt) each save the shot, a plate with her actor hidden and a sidecar
+# (.json: state, the box her drawn components project to). figure_check diffs shot against plate inside that box, so it
+# measures only what was drawn for her, on any backdrop. Judged on the play screen, no judge call.
+FIGURE_SHOT = "vq_figure"
+HURT_SHOT = "vq_hurt"
+# A pixel is Ella's when any channel differs from the plate by more than FIGURE_DIFF (her dark dress on the dark sky
+# differs by about 12-20; 24 lost her lower half on the real captures). Her pixels within FIGURE_LINK px are one figure
+# (the umbrella, arm and dress are drawn apart); the box is searched FIGURE_GROW larger on each side.
+FIGURE_DIFF = 10
+FIGURE_LINK = 3
+FIGURE_GROW = 0.3
+# Hurt height over normal height. Measured on real 1280x720 captures: idle 93-100 px, good hurt (6x4 grid) 111-112 px
+# (1.12-1.2); hurt drawn from the 24-column catalogue row on the 6x4 texture 0-9 px (a sliver); black-box hurt 127-135.
+HURT_HEIGHT_RANGE = (0.6, 1.6)
+# A figure is a flat box when FIGURE_FLAT_SHARE of its pixels sit within FIGURE_FLAT_TOL of one colour (black box: 0.9+;
+# her drawn hurt art: under 0.3).
+FIGURE_FLAT_SHARE = 0.6
+FIGURE_FLAT_TOL = 8
+# Smallest side (px) for the flat-box reading; a thinner figure is judged by its height alone.
+FIGURE_FLAT_MIN = 8
 # The fixed rubric: each item scored 0-10 by the judge (10 = matches the study on that point).
 RUBRIC = [
     ("dark_backdrop", "a dark, near-black atmospheric backdrop like the study (not bright paper, not cream)"),
@@ -244,6 +266,7 @@ def norm_item(text):
 # Location words are not part of the key: the judge names one place three ways ("mid-right", "right middle",
 # "right-centre"). Counts are: a second bar where main had one is still a new item.
 DEFECT_KINDS = [
+    ("hurt_frame", r"\bhurt frame\b"),
     ("line", r"\b(line|lines|thread|wire|hairline|seam)\b|\bvertical\b.*\bbar\b"),
     ("unkeyed", r"\bunkeyed\b|\b(rectangle|rectangular|square|box)\w* (background|backing|behind|halo)"
                 r"|\bhard[ -]?(cut|edged?|cropped)\b|\b(rectangle|square)[ -]backed\b"),
@@ -463,6 +486,93 @@ def detect_boxes(shots_dir, screen):
     return [flat_box.describe(b) for b in seen]
 
 
+def figure_measure(shots_dir, name):
+    """{state, height, width, flat, rgb} of Ella's drawn figure in a figureshot/hurtshot capture (shot, plate, sidecar), or
+    None when one of the three is missing. Height 0 = nothing drawn for her. Deterministic, stdlib."""
+    here = os.path.dirname(os.path.abspath(__file__))
+    tools = os.path.join(here, "..")
+    if tools not in sys.path:
+        sys.path.insert(0, tools)
+    import png  # tools/png.py
+    paths = [os.path.join(shots_dir, name + ext) for ext in (".png", "_plate.png", ".json")]
+    if not all(os.path.exists(p) for p in paths):
+        return None
+    with open(paths[2], encoding="utf-8") as fh:
+        meta = json.load(fh)
+    w, h, shot = png.read_png(paths[0])
+    pw, ph, plate = png.read_png(paths[1])
+    out = {"state": meta.get("state", ""), "height": 0, "width": 0, "flat": 0.0, "rgb": ""}
+    if (pw, ph) != (w, h):
+        return out
+    x0, y0, x1, y1 = meta["box"]
+    gx, gy = (x1 - x0) * FIGURE_GROW, (y1 - y0) * FIGURE_GROW
+    x0, x1 = max(0, int(x0 - gx)), min(w - 1, int(x1 + gx))
+    y0, y1 = max(0, int(y0 - gy)), min(h - 1, int(y1 + gy))
+    mask = set()
+    for y in range(y0, y1 + 1):
+        ra, rb = shot[y], plate[y]
+        for x in range(x0, x1 + 1):
+            a, b = ra[x], rb[x]
+            if max(abs(a[0] - b[0]), abs(a[1] - b[1]), abs(a[2] - b[2])) > FIGURE_DIFF:
+                mask.add((x, y))
+    best, seen = [], set()
+    reach = range(-FIGURE_LINK, FIGURE_LINK + 1)
+    for start in mask:
+        if start in seen:
+            continue
+        seen.add(start)
+        stack, cells = [start], []
+        while stack:
+            x, y = stack.pop()
+            cells.append((x, y))
+            for dx in reach:
+                for dy in reach:
+                    n = (x + dx, y + dy)
+                    if n in mask and n not in seen:
+                        seen.add(n)
+                        stack.append(n)
+        if len(cells) > len(best):
+            best = cells
+    if not best:
+        return out
+    xs = [c[0] for c in best]
+    ys = [c[1] for c in best]
+    colours = {}
+    for x, y in best:
+        c = shot[y][x]
+        key = (c[0] // FIGURE_FLAT_TOL, c[1] // FIGURE_FLAT_TOL, c[2] // FIGURE_FLAT_TOL)
+        colours[key] = colours.get(key, 0) + 1
+    top, n = max(colours.items(), key=lambda kv: kv[1])
+    out.update(height=max(ys) - min(ys) + 1, width=max(xs) - min(xs) + 1, flat=round(n / float(len(best)), 3),
+               rgb="#%02x%02x%02x" % tuple(min(255, k * FIGURE_FLAT_TOL) for k in top))
+    return out
+
+
+def figure_check(shots_dir):
+    """'Broken to a player' items for Ella's hurt frame (tagged [detector], kind hurt_frame): not captured in Hurt, drawn
+    as a flat box, or a drawn height outside HURT_HEIGHT_RANGE of her normal frame. [] when it reads right. A shots dir
+    without the hurt capture (an older journey) gives one item: the gate needs it."""
+    hurt = figure_measure(shots_dir, HURT_SHOT)
+    if hurt is None:
+        return ["no hurt frame capture (%s.png, _plate.png, .json) in this run [detector]" % HURT_SHOT]
+    if hurt["state"] != "Hurt":
+        return ["hurt frame not captured: Ella showed %s after the hit [detector]" % (hurt["state"] or "nothing")]
+    items = []
+    if min(hurt["height"], hurt["width"]) >= FIGURE_FLAT_MIN and hurt["flat"] >= FIGURE_FLAT_SHARE:
+        items.append("Ella drawn as a flat box %dx%d px colour %s in her hurt frame (%.0f%% one colour) [detector]" % (
+            hurt["width"], hurt["height"], hurt["rgb"], 100 * hurt["flat"]))
+    normal = figure_measure(shots_dir, FIGURE_SHOT)
+    if normal is None or not normal["height"]:
+        items.append("hurt frame unmeasured: no normal frame of Ella (%s) to compare [detector]" % FIGURE_SHOT)
+        return items
+    ratio = hurt["height"] / float(normal["height"])
+    lo, hi = HURT_HEIGHT_RANGE
+    if not lo <= ratio <= hi:
+        items.append("Ella's hurt frame drawn %d px tall, normal frame %d px (ratio %.2f, allowed %.1f-%.1f) [detector]" % (
+            hurt["height"], normal["height"], ratio, lo, hi))
+    return items
+
+
 def detector_new_ok(item, base_screen):
     """True when a detector item may count as new against main: only when main's baseline was itself run with the
     detector ("detector" key). A baseline judged before the detector existed never listed its boxes, so every lane would
@@ -481,7 +591,7 @@ def judge_shots(shots_dir, caller=None, records=None, baseline=None, composites_
             continue
         keep = os.path.join(composites_dir, "judge_%s.png" % screen) if composites_dir else None
         res = judge_image(shot, screen, caller, records, keep)
-        res["detector"] = detect_boxes(shots_dir, screen)
+        res["detector"] = detect_boxes(shots_dir, screen) + (figure_check(shots_dir) if screen == "play" else [])
         res["broken"] = res["broken"] + res["detector"]
         base_screen = (baseline or {}).get("screens", {}).get(screen, {})
         base = base_screen.get("total")

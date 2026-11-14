@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Subsystems/WorldSubsystem.h"
+#include "Feedback/Art/ArtSlot.h"
 #include "SceneArtSubsystem.generated.h"
 
 class UStaticMeshComponent;
@@ -21,6 +22,16 @@ namespace UmbrellaSceneArtConst
 	 * 1.3, hitbox 0.75 shows about 7% more) never opens a strip of another backdrop at their edges.
 	 */
 	static constexpr float RouteEndFill = 1.08f;
+	/**
+	 * Share of the route start/end picture's width that fades out at its inner edge (start: right, end: left), so it
+	 * melts into the layered backdrop instead of showing a hard vertical cut as the camera scrolls past it (dcseamless,
+	 * Nov 13: col-to-col jump 5-7 luma levels along the whole cut before). 0.35 of 2074 units = about 400 px on a 1280 frame.
+	 */
+	static constexpr float RouteEndEdgeFade = 0.35f;
+	/** Translucent copy of the slot material with FadeLeft/FadeRight (tools/build/assets/art_slot_fade_material.py). */
+	static const TCHAR* const EdgeFadeMaterialPath = UmbrellaArtSlotConst::EdgeFadeMaterialPath;
+	/** Drawn before other translucent things (wind, VFX), so it never sorts in front of them. */
+	static constexpr int32 EdgeFadeSortPriority = -100;
 	/** Frame sits in front of everything the camera sees; parallax 0 keeps it on the camera. */
 	static constexpr float FrameLift = 0.0f;
 }
@@ -86,6 +97,15 @@ public:
 	 * camera margin (visualqa) widens the view, so the view-sized frame scales by this to keep reaching the screen edge. Pure.
 	 */
 	static float ViewScale(float OrthoWidth);
+
+	/** (left, right) edge fade shares for a panel: the route start fades its right edge, the route end its left. Pure. */
+	static FVector2D EdgeFades(ESceneArtAnchor Anchor);
+
+	/**
+	 * Redraw a panel's picture with the edge-fade material (soft sides, same picture and tint). When the material is
+	 * missing the panel keeps the plain slot material.
+	 */
+	static void ApplyEdgeFade(UStaticMeshComponent* Panel, UTexture2D* Picture, const FVector2D& Fades);
 
 	/** Move every panel for a camera X and size view panels to the camera's ortho width (0 = arena width; also what Tick does). */
 	void ScrollTo(float CameraX, float OrthoWidth = 0.0f);
