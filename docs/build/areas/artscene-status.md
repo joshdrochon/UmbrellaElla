@@ -213,3 +213,12 @@ No `-SmokeShotDelay=` flag yet, load average 45. Context pair for skyline, paper
   and "short flat dark bars at the far left edges" (route floor slabs, ~40:1, drawn as thin bars; same in every earlier run, flagged only now).
   Triage for the lead: four runs, no artscene item repeats; the remaining items differ run to run on the same art (judge noise against a
   single-run baseline) or are other lanes' (rope, wind ribbons, shot VFX, floor shape). Stopping.
+
+## Nov 13 21:05 (Opus, lead order 20:57): gate 0f6dc79e dc_route "two blue circle outlines ... look like debug gizmos"
+- Top centre ring = my small dial ghost (T_BgClock_PH): the glass was faded to 0.35 so only the bright rim showed, a thin ring at any alpha.
+  Top left ring = the HUD's own arc around the HUD clock (still there with T_BgClock_PH changed; my large dial sits off-frame there). Not artscene.
+- Fix (art_scene_clockwater.py clock, r1d): full painted face (FACE_GHOST 1.0), outer edge feathered (EDGE_SOFT 0.90, bottom rim and drips kept),
+  grade 0.165/0.04 -> 0.21/0.09 so numerals, ticks and glass streak read. Re-imported T_BgClock_PH. Dropping was not an option:
+  D-new-study-vs-bg-layers (DECIDED, Josh) says the clock layer is never transparent.
+- Whole frame: pipeline/art/proof/artscene/dials-r1d-dc_route.png (study | gate 0f6dc79e | after; visual_qa.py capture, 1280x720).
+  After: one dim painted dial with numerals and hand at top centre, no outline ring. Not judged (no spend); the gate judges it.

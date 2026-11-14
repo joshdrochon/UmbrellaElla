@@ -30,7 +30,7 @@ W, H = 2400, 1200
 ASH_BLUE = (0.86, 0.98, 1.16)     # BG-05 "ash-blue": the study's cool rim light, a step bluer than its grey void
 SILVER = (0.95, 0.99, 1.06)       # BG-05 "silver-grey water"
 LOOK = {
-    "clock": (0.165, 0.040, 1.0, 0.35, ASH_BLUE),
+    "clock": (0.210, 0.090, 1.0, 0.35, ASH_BLUE),   # 0.165/0.04 -> 0.21/0.09: numerals, ticks and glass streak read
     "hand": (0.250, 0.040, 1.0, 0.40, ASH_BLUE),
     "water": (0.215, 0.055, 1.0, 0.30, SILVER),
     "wind": (0.190, 0.035, 1.0, 0.24, ASH_BLUE),   # r1 at 0.42 alpha / full width read as a loud blue band in the route frame
@@ -41,8 +41,12 @@ LOOK = {
 # alphas lowered Nov 13 (gate a2bc7f3d: dial ghosts read as "empty blue circle outlines", the thin fall as a
 # "pale-blue vertical rectangle"; clock 0.60, hand 0.70, water 0.60, wind-clock 0.40, wind-hand 0.50, wind-water 0.42)
 TINT_MIX = 0.8
-FACE_GHOST = 0.35            # dial glass alpha relative to the rim: "dial ghosts", the rim carries the clock
+# Nov 13 20:57 (gate 0f6dc79e dc_route: "two blue circle outlines ... look like debug gizmos"): a faded face left the
+# bright rim alone, a thin ring at any alpha. Now the whole painted face stays and the outer edge is feathered, so the
+# dial reads as a painted disc with numerals, not an outline.
+FACE_GHOST = 1.0             # dial glass alpha relative to the rim (was 0.35)
 RIM_SHARE = 0.84             # radius share where the front rim starts
+EDGE_SOFT = 0.90             # radius share where the dial's outer edge starts to feather out (to 0 at 1.0)
 WATER_FRAME = 0.05           # the fall draft came inside a cream frame: share cut off each side before keying
 WATER_BANDS = (("source", 0.0, 0.19), ("middle", 0.19, 0.74), ("pool", 0.74, 0.86), ("sea", 0.86, 1.0))
 WIND_BANDS = (("entry", 0.0, 0.14), ("straight", 0.14, 0.42), ("bend", 0.42, 0.72), ("exit", 0.72, 1.0))
@@ -200,7 +204,10 @@ def ghost_face(dial):
     yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
     r = np.hypot(xx - w / 2.0, yy - w / 2.0) / (w / 2.0)
     keep = FACE_GHOST + (1 - FACE_GHOST) * np.clip((r - RIM_SHARE) / 0.04, 0, 1)
-    dial[..., 3] *= keep
+    soft = np.clip((1.0 - r) / (1.0 - EDGE_SOFT), 0, 1)
+    low = np.clip((yy - 0.70 * w) / (0.20 * w), 0, 1)     # bottom rim and drips stay (blended in, no cut line)
+    soft = soft + (1.0 - soft) * low
+    dial[..., 3] *= keep * soft
     return dial
 
 
