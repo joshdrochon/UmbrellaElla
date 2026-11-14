@@ -270,7 +270,7 @@ int32 UFrameCompositionSubsystem::ComposePass(bool bFull)
 	}
 	else
 	{
-		for (auto It = NewActors.CreateIterator(); It; ++It)
+		for (TMap<TWeakObjectPtr<AActor>, int32>::TIterator It = NewActors.CreateIterator(); It; ++It)
 		{
 			if (AActor* Actor = It.Key().Get())
 			{
@@ -360,7 +360,7 @@ float UFrameCompositionSubsystem::MarginOrthoWidth(float ArenaHeight, float Aspe
 {
 	const float Overhang = FMath::Max(0.0f, SpriteHalf - CapsuleHalf) + UmbrellaFrameConst::CeilingSpritePad;
 	// View height V with the picture top at V/2 - TopShare*V above the centre: V = (ArenaHeight + 2*Overhang) / (1 - 2*TopShare).
-	const float Clear = 1.0f - 2.0f * FMath::Clamp(TopShare, 0.0f, 0.25f);
+	const float Clear = 1.0f - 2.0f * FMath::Clamp(TopShare, 0.0f, UmbrellaFrameConst::MaxTopShare);
 	return (ArenaHeight + 2.0f * Overhang) * AspectRatio / Clear;
 }
 

@@ -68,6 +68,8 @@ namespace UmbrellaFrameConst
 	 * ceiling (arena top minus capsule half-height, z 1036 at HeroSize 1). The ceiling itself is unchanged.
 	 */
 	static constexpr float CeilingSpritePad = 8.0f;
+	/** Largest top share MarginOrthoWidth accepts (keeps the clear part of the view at least half of it). */
+	static constexpr float MaxTopShare = 0.25f;
 	/**
 	 * B11 (agentplay 67011eb2): in Director's Cut the "Director's Cut" title sits in this top share of the view. The
 	 * camera margin keeps Ella's whole picture below it at the play ceiling, so the title never draws over her.

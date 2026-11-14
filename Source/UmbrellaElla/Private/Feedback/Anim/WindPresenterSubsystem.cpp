@@ -238,7 +238,7 @@ void UWindPresenterSubsystem::DrawRibbons(AWindCurrent* Wind, float Seconds)
 void UWindPresenterSubsystem::Tick(float DeltaTime)
 {
 	Winds.RemoveAll([](const TWeakObjectPtr<AWindCurrent>& Wind) { return !Wind.IsValid(); });
-	for (auto It = RibbonCache.CreateIterator(); It; ++It)
+	for (TMap<TWeakObjectPtr<AWindCurrent>, TArray<TWeakObjectPtr<UStaticMeshComponent>>>::TIterator It = RibbonCache.CreateIterator(); It; ++It)
 	{
 		if (!It.Key().IsValid())
 		{
