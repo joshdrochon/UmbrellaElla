@@ -130,3 +130,18 @@ applied every step even with bounds cleared; `IsAtPlayFloor()` reports it. No ar
 Test: `Move.World.ArenaBottomHoldsEllaWithBoundsCleared` (30 s Shoot held, 1/30, 1/60, 1/120; still fires; rises off on release),
 `Move.Rules.ClampToPlayFloor`. Break-tested: clamp removed -> FAILED; restored -> PASS. Move suite 63/63 PASS.
 Not done (not move's lane): the bottom is not yet lethal. Nobody listens to `AUmbrellaArena::LethalBottom`; request in `requests/move.md`.
+
+## B7 route ceiling (Nov 13, lead order, post-handoff leftover 2)
+Cause: the only top limit was the arena's `Ceiling` box, which spans the arena (x 0..1920); the Director's Cut route runs to
+x 19 777, so with nothing held Ella rose without limit (agentplay: z 14 962 after 60 s). Fix: `UEllaMotorComponent::GetPlayCeilingZ()`
+= arena top - capsule half-height, applied every step like the floor; `IsAtPlayCeiling()` reports it; upward speed is zeroed there.
+Value: the GDD names a ceiling constraint on movement (MOVE-19, OWL-16, QA-33) but gives no number, so the arena's is used:
+top 1080 - 44 = root z 1036, the same stop Start Game had.
+Tests: `Move.World.RouteCeilingHoldsEllaInPicture` (x 19 777, 60 s nothing held at 1/30, 1/60, 1/120; rests at 1036; Shoot drops her off),
+`Move.Rules.ClampToPlayCeiling`. Break-tested: clamp line removed -> FAILED; restored -> PASS. Move 65/65; Arena+Level+Flow+ScreenFix+Feedback 119/119.
+Capture: `pipeline/art/proof/move/b7/` (journey `route_ceiling.txt`, real menu into Director's Cut, 640x360 window).
+`check_ceiling.py run_journey.log`: idle 60 s z 1036, handoff (x 19 777) z 1036, both <= 1036 -> B7 RESULT PASS.
+Run without `-SmokeQuitAfter`: that flag makes the smoke hook press Start Game at the title, so it cannot reach the route.
+Open: at z 1036 Ella's root projects at y 15 px and her sprite's upper part is cut by the top edge (`b7_02_keeper_handoff.png`).
+Start Game stops her at the same z, so it looks the same there. A lower ceiling (sprite height, not capsule) is a lead/design call.
+Not move's: B6 (Ella off-screen at route start, x -720 projects at -240 px) still shows in `b7_00`/`b7_01`.
