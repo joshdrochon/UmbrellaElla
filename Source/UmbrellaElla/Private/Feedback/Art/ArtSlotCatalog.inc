@@ -11,7 +11,7 @@
 	{ TEXT("bg:water"), TEXT("Scene"), TEXT("T_BgWater"), 1, false, TEXT("USceneArtSubsystem"), 1, true },
 	{ TEXT("ella-state:Absorb"), TEXT("Ella"), TEXT("T_Ella_Absorb"), 1, false, TEXT("UEllaAnimPresenterComponent"), 1, true },
 	{ TEXT("ella-state:Down"), TEXT("Ella"), TEXT("T_Ella_Down"), 6, false, TEXT("UEllaAnimPresenterComponent"), 4, true },
-	{ TEXT("ella-state:Hurt"), TEXT("Ella"), TEXT("T_Ella_Hurt"), 24, false, TEXT("UEllaAnimPresenterComponent"), 1, true },
+	{ TEXT("ella-state:Hurt"), TEXT("Ella"), TEXT("T_Ella_Hurt"), 6, false, TEXT("UEllaAnimPresenterComponent"), 4, true },
 	{ TEXT("ella-state:Idle"), TEXT("Ella"), TEXT("T_Ella_Idle"), 6, false, TEXT("UEllaAnimPresenterComponent"), 4, true },
 	{ TEXT("ella-state:Shoot"), TEXT("Ella"), TEXT("T_Ella_Shoot"), 1, false, TEXT("UEllaAnimPresenterComponent"), 1, true },
 	{ TEXT("ella:condition-100-to-0"), TEXT("Ella"), TEXT("T_Ella_Condition"), 1, false, TEXT("UEllaAnimPresenterComponent"), 1, true },

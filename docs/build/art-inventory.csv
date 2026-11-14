@@ -11,7 +11,7 @@ bg:start-end,GDD ART-04; Content/UmbrellaElla/Art/Scene/T_BgStartEnd_PH.uasset,b
 bg:water,GDD BG-03; Content/UmbrellaElla/Art/Scene/T_BgWater_PH.uasset,bg-water,artscene,no,/Game/UmbrellaElla/Art/Scene/T_BgWater,USceneArtSubsystem
 ella-state:Absorb,Source Feedback/Anim EEllaVisualState,ella-shield,artella,no,/Game/UmbrellaElla/Art/Ella/T_Ella_Absorb,UEllaAnimPresenterComponent
 ella-state:Down,Source Feedback/Anim EEllaVisualState; Content/UmbrellaElla/Art/Ella/T_Ella_Down_PH.uasset,ella-down,artella,no,/Game/UmbrellaElla/Art/Ella/T_Ella_Down,UEllaAnimPresenterComponent
-ella-state:Hurt,Source Feedback/Anim EEllaVisualState; Content/UmbrellaElla/Art/Ella/T_Ella_Hurt_PH.uasset,ella-hurt,artella,no,/Game/UmbrellaElla/Art/Ella/T_Ella_Hurt,UEllaAnimPresenterComponent
+ella-state:Hurt,Source Feedback/Anim EEllaVisualState; Art/Source/StandIns/ella-hurt/Raw/ella-hurt_N24_grid.png; Content/UmbrellaElla/Art/Ella/T_Ella_Hurt_PH.uasset,ella-hurt,artella,no,/Game/UmbrellaElla/Art/Ella/T_Ella_Hurt,UEllaAnimPresenterComponent
 ella-state:Idle,Source Feedback/Anim EEllaVisualState; Content/UmbrellaElla/Art/Ella/T_Ella_Idle_PH.uasset,ella-up-open,artella,yes,/Game/UmbrellaElla/Art/Ella/T_Ella_Idle,UEllaAnimPresenterComponent
 ella-state:Shoot,Source Feedback/Anim EEllaVisualState,ella-attack,artella,no,/Game/UmbrellaElla/Art/Ella/T_Ella_Shoot,UEllaAnimPresenterComponent
 ella:condition-100-to-0,GDD ANIM-04,ella-condition,artenemy,no,/Game/UmbrellaElla/Art/Ella/T_Ella_Condition,UEllaAnimPresenterComponent

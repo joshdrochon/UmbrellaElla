@@ -191,22 +191,16 @@
    "status": "best-so-far (not passed)"
   },
   "ella-state:Hurt": {
-   "art_ref_check": "fail",
-   "calibration": {
-    "passed": 6,
-    "sessions": 6
-   },
-   "copy": "pipeline/art/proof/standins/ella-hurt/ella-hurt_N24_strip.png",
-   "lane": "artella2",
-   "note": "",
-   "panel_pairs": {
-    "quality_bar": "ours",
-    "reference": "reference"
-   },
+   "art_ref_check": null,
+   "calibration": null,
+   "copy": "Art/Source/StandIns/ella-hurt/Raw/ella-hurt_N24_grid.png",
+   "lane": "scalecheck",
+   "note": "lossless repack of ella-hurt_N24_strip.png (sha 00137685, 23688x565, over the 16384 px texture limit: drew black) into a 6x4 grid 5922x2260, same pixels",
+   "panel_pairs": null,
    "piece": "ella-hurt",
-   "round": 2,
-   "sha256": "00137685189128bd3e4293342e2fbcc0ef25aeba2601baf2a437f0ae0a4ebf3c",
-   "source": "artella2/pipeline/art/proof/artella2/video/ella-hurt/ella-hurt_N24_strip.png",
+   "round": null,
+   "sha256": "166d61b4384780de8ae746e67fc8f8842e198442598d8b959499310617c2bb42",
+   "source": "scalecheck/Art/Source/StandIns/ella-hurt/Raw/ella-hurt_N24_grid.png",
    "status": "best-so-far (not passed)"
   },
   "ella-state:Idle": {
