@@ -1,0 +1,79 @@
+{
+ "summary": "VISUAL_QA GATE FAIL play=34/70 dc_route=26/70 keeper=26/70 broken=9 baseline=ebda6e4752b4 failed=play,dc_route",
+ "model": "claude-opus-5-5",
+ "screens": {
+  "play": {
+   "scores": {
+    "dark_backdrop": 5,
+    "wind_ribbons": 0,
+    "small_figures": 6,
+    "floating_islands": 2,
+    "shot_colours": 5,
+    "no_placeholders": 7,
+    "no_framed_art": 9
+   },
+   "broken": [
+    "thin white vertical line from the top of the frame down to the girl (reads as a debug line or stray bar)",
+    "no wind ribbons visible anywhere",
+    "no floating islands: the ground is rounded dark blobs and gear silhouettes, with no platform the player can read as ground"
+   ],
+   "verdict": "FAIL",
+   "total": 34,
+   "replayed": false,
+   "shot": "Saved/VisualQA/gate-f8d779e8/vq_play.png",
+   "passed": false,
+   "reasons": [
+    "new broken: no wind ribbons visible anywhere [no_wind]; no floating islands: the ground is rounded dark blobs and gear silhouettes, with no platform the player can read as ground [no_islands]"
+   ],
+   "baseline_total": 32
+  },
+  "dc_route": {
+   "scores": {
+    "dark_backdrop": 1,
+    "wind_ribbons": 4,
+    "small_figures": 8,
+    "floating_islands": 0,
+    "shot_colours": 5,
+    "no_placeholders": 1,
+    "no_framed_art": 7
+   },
+   "broken": [
+    "flat dark-brown bar used as platform (right, mid-height)",
+    "long flat dark-brown bar spanning the floor (bottom)",
+    "no floating island ground anywhere; platforms are solid colour bars"
+   ],
+   "verdict": "FAIL",
+   "total": 26,
+   "replayed": false,
+   "shot": "Saved/VisualQA/gate-f8d779e8/vq_dc_route.png",
+   "passed": false,
+   "reasons": [
+    "new broken: no floating island ground anywhere; platforms are solid colour bars [no_islands]"
+   ],
+   "baseline_total": 28
+  },
+  "keeper": {
+   "scores": {
+    "dark_backdrop": 4,
+    "wind_ribbons": 1,
+    "small_figures": 5,
+    "floating_islands": 1,
+    "shot_colours": 4,
+    "no_placeholders": 3,
+    "no_framed_art": 8
+   },
+   "broken": [
+    "flat brown bar with a solid block as ground, bottom left",
+    "thin vertical line running the full height of the frame through the player",
+    "no visible wind ribbons"
+   ],
+   "verdict": "FAIL",
+   "total": 26,
+   "replayed": false,
+   "shot": "Saved/VisualQA/gate-f8d779e8/vq_keeper.png",
+   "passed": true,
+   "reasons": [],
+   "baseline_total": 25
+  }
+ }
+}

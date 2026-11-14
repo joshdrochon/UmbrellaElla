@@ -1,0 +1,192 @@
+{
+ "sha": "ebda6e4752b4d45e8a63687c1ff8236a263769a9",
+ "summary": "VISUAL_QA FAIL play=32/70 dc_route=28/70 keeper=25/70 broken=7 baseline=none failed=play,dc_route,keeper",
+ "screens": {
+  "play": {
+   "scores": {
+    "dark_backdrop": 5,
+    "wind_ribbons": 0,
+    "small_figures": 6,
+    "floating_islands": 2,
+    "shot_colours": 1,
+    "no_placeholders": 9,
+    "no_framed_art": 9
+   },
+   "broken": [
+    "stray thin white vertical line running from the top edge down to the player"
+   ],
+   "verdict": "FAIL",
+   "total": 32,
+   "replayed": true,
+   "shot": "Saved/VisualQA/gate-ebda6e47/vq_play.png",
+   "passed": false,
+   "reasons": [
+    "broken: stray thin white vertical line running from the top edge down to the player",
+    "judge verdict FAIL"
+   ],
+   "baseline_total": null,
+   "samples": [
+    {
+     "total": 32,
+     "broken": [
+      "thin white vertical line running from the top edge down to the player, reads as a stray line or debug draw"
+     ]
+    },
+    {
+     "total": 32,
+     "broken": [
+      "thin white vertical line runs from the top of the frame down to the girl (looks like a debug/tether line)"
+     ]
+    },
+    {
+     "total": 30,
+     "broken": [
+      "stray thin vertical white line from top edge down to the player"
+     ]
+    },
+    {
+     "total": 30,
+     "broken": [
+      "thin vertical white line running from the top edge down to the player, reads as a stray debug line or bar"
+     ]
+    },
+    {
+     "total": 30,
+     "broken": [
+      "thin white vertical line from the top edge down to the girl (looks like a debug or trace line)"
+     ]
+    }
+   ]
+  },
+  "dc_route": {
+   "scores": {
+    "dark_backdrop": 1,
+    "wind_ribbons": 4,
+    "small_figures": 8,
+    "floating_islands": 0,
+    "shot_colours": 6,
+    "no_placeholders": 1,
+    "no_framed_art": 8
+   },
+   "broken": [
+    "flat dark brown bar platform, mid-right",
+    "flat dark brown bar spanning full width near bottom",
+    "stray thin vertical line from top of screen down to player"
+   ],
+   "verdict": "FAIL",
+   "total": 28,
+   "replayed": true,
+   "shot": "Saved/VisualQA/gate-ebda6e47/vq_dc_route.png",
+   "passed": false,
+   "reasons": [
+    "broken: flat dark brown bar platform, mid-right; flat dark brown bar spanning full width near bottom; stray thin vertical line from top of screen down to player",
+    "judge verdict FAIL"
+   ],
+   "baseline_total": null,
+   "samples": [
+    {
+     "total": 24,
+     "broken": [
+      "flat dark brown bar used as floor across full width",
+      "flat dark brown bar used as mid platform (solid colour box)"
+     ]
+    },
+    {
+     "total": 28,
+     "broken": [
+      "flat dark brown bar platform (mid-right)",
+      "flat dark brown bar spanning full width (floor)"
+     ]
+    },
+    {
+     "total": 26,
+     "broken": [
+      "flat dark-brown bar used as the floor across the full width of the screen",
+      "flat dark-brown solid bar used as the mid-right platform"
+     ]
+    },
+    {
+     "total": 25,
+     "broken": [
+      "flat dark-brown bar used as a platform (middle right)",
+      "flat dark-brown bar across the full width used as the floor",
+      "thin white vertical line from the top of the screen down to the player"
+     ]
+    },
+    {
+     "total": 28,
+     "broken": [
+      "flat dark brown bar platform, mid-right",
+      "flat dark brown bar spanning full width at bottom (ground)"
+     ]
+    }
+   ]
+  },
+  "keeper": {
+   "scores": {
+    "dark_backdrop": 3,
+    "wind_ribbons": 0,
+    "small_figures": 6,
+    "floating_islands": 2,
+    "shot_colours": 4,
+    "no_placeholders": 2,
+    "no_framed_art": 8
+   },
+   "broken": [
+    "flat solid brown bar as ground at bottom left",
+    "solid brown box on top of the ground bar",
+    "long thin vertical white line running from the top of the frame down to the girl"
+   ],
+   "verdict": "FAIL",
+   "total": 25,
+   "replayed": true,
+   "shot": "Saved/VisualQA/gate-ebda6e47/vq_keeper.png",
+   "passed": false,
+   "reasons": [
+    "broken: flat solid brown bar as ground at bottom left; solid brown box on top of the ground bar; long thin vertical white line running from the top of the frame down to the girl",
+    "judge verdict FAIL"
+   ],
+   "baseline_total": null,
+   "samples": [
+    {
+     "total": 24,
+     "broken": [
+      "flat brown bar used as ground along the bottom left",
+      "solid brown block on the left end of the ground bar",
+      "straight thin vertical white line from the top of the frame down to the girl"
+     ]
+    },
+    {
+     "total": 27,
+     "broken": [
+      "flat brown colour bar as ground across lower-left",
+      "solid brown box sitting on the ground bar",
+      "thin vertical line running from top of frame down to the player"
+     ]
+    },
+    {
+     "total": 27,
+     "broken": [
+      "flat brown bar used as ground along the bottom left, with a raised solid block on it",
+      "thin straight vertical line running from the top of the frame down to the girl",
+      "no wind ribbons visible"
+     ]
+    },
+    {
+     "total": 26,
+     "broken": [
+      "flat solid brown bar as ground along bottom-left, with a raised rectangular block on it",
+      "straight thin vertical white line from top of frame to the girl (reads as a stray line, not a wind ribbon)"
+     ]
+    },
+    {
+     "total": 30,
+     "broken": [
+      "flat brown bar used as ground at bottom left (placeholder platform)",
+      "thin straight vertical line running from top of frame down to the player"
+     ]
+    }
+   ]
+  }
+ }
+}

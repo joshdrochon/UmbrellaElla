@@ -143,3 +143,23 @@ Bootstrap main's baseline (checkout at main, built): `python3 tools/build/visual
 - gate.sh not touched. Lessons inbox: not found in this tree; lesson is "a single judged run is not a baseline: store
   samples, match by defect kind".
 - Residual: an item main's frame shows but no main run named (none seen in 6 runs per screen) can still false-fail.
+
+## Check defect fix (lead, artella f8d779e8): absence items main already scores near 0
+- Triage: check defect. Gate failed artella f8d779e8 (Ella texture + tools only) on play 'no wind ribbons visible
+  anywhere [no_wind]', 'no floating islands: ... [no_islands]' and dc_route 'no floating island ground anywhere;
+  platforms are solid colour bars [no_islands]'. Main ebda6e47 scores play wind_ribbons 0, floating_islands 2, dc_route
+  floating_islands 0, and lists the dc_route bars as 'flat dark brown bar platform'.
+- Fix: an absence item (no_wind -> wind_ribbons, no_islands -> floating_islands) is known when main's lowest score for
+  that criterion is at or under ABSENT_SCORE_MAX, or any main run lists the same defect as a bar. A bar item also matches
+  a main no_islands item. Not box: a placeholder cube stays its own defect.
+- Threshold measured from all 48 recorded judge answers (../gate + this tree's judge-records, ../logs/artella-judge-records):
+  the judge listed no_wind at wind_ribbons 0-1 only, no_islands at floating_islands 0-3. ABSENT_SCORE_MAX = 1 / 3.
+  Main ebda6e47's own samples kept no scores (no records here), so the stored run's score is used; noise samples now
+  store their scores and the lowest over main's runs counts.
+- Tests: tests/test_visual_qa.py GateAbsence (5, real wordings, fixtures baseline-ebda6e47.json,
+  gate-artella-f8d779e8.json); a new 'Keeper sprite on an unkeyed grey rectangle' still FAILs. 33 OK. Old code fails
+  test_artella_is_not_a_regression.
+- Replay (no re-spend, VISUAL_QA_REPLAY_ONLY=1, records ../gate/pipeline/qa/visual/judge-records, shots
+  ../gate/Saved/VisualQA/gate-f8d779e8, baseline ebda6e47): all 3 screens replayed,
+  `VISUAL_QA GATE PASS play=34/70 dc_route=26/70 keeper=26/70 broken=9 baseline=ebda6e4752b4`.
+- gate.sh not touched.
