@@ -52,6 +52,10 @@ JOURNEY = os.path.join("tools", "build", "journeys", "visual_qa.txt")
 MODEL = os.environ.get("VISUAL_QA_MODEL", "claude-opus-5-5")
 # Gameplay screens judged against the study, with the capture each one reads.
 SCREENS = {"play": "vq_play.png", "dc_route": "vq_dc_route.png", "keeper": "vq_keeper.png"}
+# Detector-only shots (no judge call, no spend): the Keeper a few seconds on, so its attacks are on screen in some of
+# them (the judged vq_keeper was taken between attacks and the salmon warning band and the grey gust cube never showed).
+# Missing ones are skipped (an older journey or a capture that ended early).
+DETECTOR_SHOTS = {"keeper": ["vq_keeper_a%d.png" % i for i in range(1, 9)]}
 # The fixed rubric: each item scored 0-10 by the judge (10 = matches the study on that point).
 RUBRIC = [
     ("dark_backdrop", "a dark, near-black atmospheric backdrop like the study (not bright paper, not cream)"),
@@ -360,7 +364,7 @@ def gate_findings(result, base_screen):
             continue
         elif alias:
             left[alias] -= 1
-        else:
+        elif detector_new_ok(b, base_screen):
             new.append((b, k))
     return total, new
 
@@ -441,6 +445,31 @@ def load_baseline(sha, walk=0):
     return None
 
 
+def detect_boxes(shots_dir, screen):
+    """'Broken to a player' items from the flat-box detector (tools/build/flat_box.py) on a screen's judged shot and its
+    detector-only shots: one item per distinct box (the same stand-in in several shots counts once). Deterministic."""
+    here = os.path.dirname(os.path.abspath(__file__))
+    if here not in sys.path:
+        sys.path.insert(0, here)
+    import flat_box  # tools/build, next to this file
+    seen = []
+    for name in [SCREENS[screen]] + DETECTOR_SHOTS.get(screen, []):
+        path = os.path.join(shots_dir, name)
+        if not os.path.exists(path):
+            continue
+        for box in flat_box.find_boxes(path):
+            if not any(flat_box.same_box(box, b) for b in seen):
+                seen.append(box)
+    return [flat_box.describe(b) for b in seen]
+
+
+def detector_new_ok(item, base_screen):
+    """True when a detector item may count as new against main: only when main's baseline was itself run with the
+    detector ("detector" key). A baseline judged before the detector existed never listed its boxes, so every lane would
+    fail on a box main already shows; such a baseline is refreshed on main's next visual change."""
+    return not item.endswith("[detector]") or "detector" in (base_screen or {})
+
+
 def judge_shots(shots_dir, caller=None, records=None, baseline=None, composites_dir=None, gate=False):
     """Judge every gameplay screen in shots_dir. Returns (exit code, summary line, per-screen results).
     gate=True: a screen fails only on a regression against baseline (decide_gate)."""
@@ -452,6 +481,8 @@ def judge_shots(shots_dir, caller=None, records=None, baseline=None, composites_
             continue
         keep = os.path.join(composites_dir, "judge_%s.png" % screen) if composites_dir else None
         res = judge_image(shot, screen, caller, records, keep)
+        res["detector"] = detect_boxes(shots_dir, screen)
+        res["broken"] = res["broken"] + res["detector"]
         base_screen = (baseline or {}).get("screens", {}).get(screen, {})
         base = base_screen.get("total")
         ok, reasons = decide_gate(res, base_screen) if gate else decide(res, base)
