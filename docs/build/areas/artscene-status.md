@@ -151,4 +151,4 @@ No `-SmokeShotDelay=` flag yet, load average 45. Context pair for skyline, paper
 - Proof: pipeline/art/proof/artscene/world-r1-{arena,route-cp1,route-start}.png (study | before | after). LFS locks held on all T_Bg*/Paper/Skyline _PH.
 - Gaps vs study: the floor is still a flat cream bar (Floor has no art slot: code, not my lane); wind zones and the refuge stand-in square
   are other lanes' visuals; islands from flash drafts have a slightly cartoon edge; ledges stretch one picture (8-15:1). Next: Pro passes for
-  skyline/land/solids, a floor slot request, then visualqa's frame check once tools/build/visual_qa.py is on main.
+  skyline/land/solids, a floor slot request, then visualqa's frame check once its visual_qa tool is on main.
