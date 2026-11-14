@@ -31,6 +31,8 @@ namespace UmbrellaPresenterConst
 	static constexpr double FramedCellHeight = 2.7;
 	/** The drawn cell height: FramedCellHeight times the figure scale (D-new-character-scale). The camera frames FramedCellHeight. */
 	static constexpr double ArtCellHeight = FramedCellHeight * UmbrellaFigureScale::Ella;
+	/** World units under which a change of the ceiling drop is ignored (no per-tick re-placing for float noise). */
+	static constexpr float FigureDropTolerance = 0.01f;
 }
 
 namespace UmbrellaEllaOverlayConst

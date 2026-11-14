@@ -477,7 +477,7 @@ float UEllaAnimPresenterComponent::KeepFigureInFrame()
 	const float UndroppedTop = static_cast<float>(StandIn->CalcBounds(StandIn->GetComponentTransform()).GetBox().Max.Z) + CurrentDrop;
 	const float ActorZ = static_cast<float>(Owner->GetActorLocation().Z);
 	const float Drop = bHasDrawTopLimit ? FigureDrop(ActorZ, UndroppedTop - ActorZ, DrawTopLimitZ) : 0.0f;
-	if (FMath::IsNearlyEqual(Drop, CurrentDrop, 0.01f))
+	if (FMath::IsNearlyEqual(Drop, CurrentDrop, UmbrellaPresenterConst::FigureDropTolerance))
 	{
 		return CurrentDrop;
 	}
