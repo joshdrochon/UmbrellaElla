@@ -82,7 +82,7 @@ def launch(png, slot):
     ue = os.environ.get("UE_ROOT", "/Users/Shared/Epic Games/UE_5.8")
     exe = os.path.join(ue, "Engine", "Binaries", "Mac", "UnrealEditor-Cmd")
     cmd = [os.path.join(ROOT, "tools", "build", "ue_slot.sh"), exe, os.path.join(ROOT, "UmbrellaElla.uproject"),
-           "-run=pythonscript", "-script=" + os.path.abspath(__file__), "-unattended", "-nullrhi", "-nosplash",
+           "-run=pythonscript", "-script=" + os.path.abspath(__file__), "-unattended", "-nullrhi", "-nosound", "-nosplash",
            "-nocrashreports"]
     env = dict(os.environ, UMB_ART_PNG=os.path.abspath(png), UMB_ART_SLOT=slot)
     return subprocess.call(cmd, env=env, cwd=ROOT)
