@@ -399,22 +399,16 @@
    "status": "best-so-far (not passed)"
   },
   "keeper:body-hover-flap": {
-   "art_ref_check": "pass",
-   "calibration": {
-    "passed": 21,
-    "sessions": 27
-   },
-   "copy": "pipeline/art/proof/standins/owl/keyed_3.png",
-   "lane": "artella",
-   "note": "",
-   "panel_pairs": {
-    "quality_bar": "reference",
-    "reference": "reference"
-   },
+   "art_ref_check": "fail",
+   "calibration": null,
+   "copy": "pipeline/art/proof/standins/owl/Keeper_idle_N24_grid.png",
+   "lane": "artkeeper",
+   "note": "24-frame idle grid from the fal Veo 3.1 Fast clip of the in-jam owl still (lead order, Nov 13 ~17:40), one fixed crop, hue clamped to the gold/rust band; art_ref_check 0.628-0.647 < 0.698 on frames, sprite_check dark_share 0.55-0.57 < 0.6; stand-in, not passed",
+   "panel_pairs": null,
    "piece": "owl",
-   "round": 1,
-   "sha256": "a54a52ccb4d0194672e46d1230fa50b1447588d4c902d61a7945a54126caa265",
-   "source": "artella/pipeline/art/proof/Keeper/owl/Keeper_R7/keyed_3.png",
+   "round": null,
+   "sha256": "8bb4d531fa58cf2cb99aab2927feb353ba1744efc5d34d42b23df4ba940ac29b",
+   "source": "artkeeper/pipeline/art/proof/artkeeper/keeper-idle/fixed/Keeper_idle_N24_grid.png",
    "status": "best-so-far (not passed)"
   },
   "keeper:clock-cover-glass-hands": {

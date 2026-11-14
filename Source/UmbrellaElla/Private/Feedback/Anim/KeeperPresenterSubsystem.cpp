@@ -249,6 +249,7 @@ void UKeeperPresenterSubsystem::Tick(float DeltaTime)
 			continue;
 		}
 		SyncPartCover(Owl);
+		PlayIdle(Owl);
 		if (bMasksShown)
 		{
 			ShowStateLayer(Keeper, UmbrellaKeeperPresenterConst::MaskVisual);
@@ -271,6 +272,36 @@ void UKeeperPresenterSubsystem::Tick(float DeltaTime)
 	{
 		SyncArenaStandIn();
 	}
+}
+
+int32 UKeeperPresenterSubsystem::IdleFrameAt(double Seconds, float Fps, int32 Cols, int32 Rows, EKeeperGridPlayback Playback)
+{
+	const int32 SafeCols = FMath::Max(1, Cols);
+	const int64 Step = FMath::Max<int64>(0, FMath::FloorToInt64(FMath::Max(0.0, Seconds) * FMath::Max(0.0f, Fps)));
+	if (Playback == EKeeperGridPlayback::AllCells)
+	{
+		return static_cast<int32>(Step % (SafeCols * FMath::Max(1, Rows)));
+	}
+	if (SafeCols == 1)
+	{
+		return 0;
+	}
+	const int64 Period = 2 * SafeCols - 2;
+	const int32 Index = static_cast<int32>(Step % Period);
+	return Index < SafeCols ? Index : static_cast<int32>(Period) - Index;
+}
+
+void UKeeperPresenterSubsystem::PlayIdle(AActor* Keeper) const
+{
+	static const FName StandInName(TEXT("KeeperStandIn"));
+	UStaticMeshComponent* Mesh = IsValid(Keeper) ? FindObjectFast<UStaticMeshComponent>(Keeper, StandInName) : nullptr;
+	const FArtSlotRow* Row = ArtSlot::Find(TEXT("keeper:body-hover-flap"));
+	if (!Mesh || !Row || !ArtSlot::HasArt(Mesh) || Row->Cols * Row->Rows <= 1 || !GetWorld())
+	{
+		return;
+	}
+	ArtSlot::SetFrame(Mesh, IdleFrameAt(GetWorld()->GetTimeSeconds(), UmbrellaKeeperPresenterConst::IdleFps, Row->Cols, Row->Rows,
+		UmbrellaKeeperPresenterConst::IdlePlayback));
 }
 
 TStatId UKeeperPresenterSubsystem::GetStatId() const
@@ -306,6 +337,14 @@ namespace
 	}
 }
 
+bool UKeeperPresenterSubsystem::PartPictureYieldsToBody(const UTexture2D* Picture, const AActor* Keeper)
+{
+	static const FName StandInName(TEXT("KeeperStandIn"));
+	const UStaticMeshComponent* Body = IsValid(Keeper) ? FindObjectFast<UStaticMeshComponent>(const_cast<AActor*>(Keeper), StandInName) : nullptr;
+	// Part stand-ins were cut for an older body; layered over the body art they hide it. A passed part still draws.
+	return IsValid(Picture) && ArtSlot::HasArt(Body) && Picture->GetName().EndsWith(UmbrellaArtSlotConst::PlaceholderSuffix);
+}
+
 UStaticMeshComponent* UKeeperPresenterSubsystem::FindPart(const AActor* Keeper, const FString& VisualId)
 {
 	UStaticMeshComponent* Part = IsValid(Keeper) ? FindObjectFast<UStaticMeshComponent>(const_cast<AActor*>(Keeper), KeeperPartName(VisualId)) : nullptr;
@@ -326,7 +365,7 @@ EArtSlotDraw UKeeperPresenterSubsystem::ShowPartArt(AActor* Keeper, const FStrin
 		return EArtSlotDraw::NoTexture;
 	}
 	UTexture2D* Picture = Texture ? Texture : ArtSlot::LoadTexture(*Row);
-	if (!Picture)
+	if (!Picture || PartPictureYieldsToBody(Picture, Keeper))
 	{
 		return EArtSlotDraw::NoTexture;
 	}

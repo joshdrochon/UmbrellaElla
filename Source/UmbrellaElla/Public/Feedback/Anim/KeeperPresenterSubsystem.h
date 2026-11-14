@@ -11,6 +11,15 @@ class UStaticMeshComponent;
 class UTexture2D;
 enum class EArtSlotDraw : uint8;
 
+/** How a grid sheet on the Keeper body plays. */
+enum class EKeeperGridPlayback : uint8
+{
+	/** The art-slot material samples only the top row: play row 0 forward and back so the loop never jumps. */
+	TopRowPingPong,
+	/** Every cell, row by row, as a loop (needs the material's row offset). */
+	AllCells
+};
+
 namespace UmbrellaKeeperPresenterConst
 {
 	/** Stand-in box scale for the Keeper: wide body, flat card. */
@@ -32,6 +41,10 @@ namespace UmbrellaKeeperPresenterConst
 		{ TEXT("keeper:part-masks-7-6-4-0"), 4.0f * PartStep },
 		{ TEXT("keeper:living-departure"), 5.0f * PartStep },
 	};
+	/** Body idle grid playback rate: the cut's sidecar fps (pipeline/art/proof/artkeeper/keeper-idle/fixed/Keeper_idle_N24_grid.sprite.json). */
+	static constexpr float IdleFps = 6.4f;
+	/** M_ArtSlot draws only the top row of a grid today (docs/build/requests/artkeeper.md Update 5); AllCells once it offsets rows. */
+	static constexpr EKeeperGridPlayback IdlePlayback = EKeeperGridPlayback::TopRowPingPong;
 	/** State layers: hidden until their state starts (a part is destroyed; the Keeper departs). */
 	static const TCHAR* const MaskVisual = TEXT("keeper:part-masks-7-6-4-0");
 	static const TCHAR* const DepartureVisual = TEXT("keeper:living-departure");
@@ -69,6 +82,9 @@ public:
 	/** Draw one part slot (a PartLayers visual) as a layer at the body's footprint (null = load its asset). Refuses a part already drawn. */
 	EArtSlotDraw ShowPartArt(AActor* Keeper, const FString& VisualId, UTexture2D* Texture);
 
+	/** True when a part picture is an unpassed _PH stand-in and the Keeper body already draws art: the part layer is skipped. Pure read. */
+	static bool PartPictureYieldsToBody(const UTexture2D* Picture, const AActor* Keeper);
+
 	/** The part layer component for a slot id on a Keeper, or null. */
 	static UStaticMeshComponent* FindPart(const AActor* Keeper, const FString& VisualId);
 
@@ -81,6 +97,9 @@ public:
 	 */
 	void SyncArenaStandIn();
 
+	/** Sheet cell shown at Seconds for a Cols x Rows body grid played at Fps. Pure. */
+	static int32 IdleFrameAt(double Seconds, float Fps, int32 Cols, int32 Rows, EKeeperGridPlayback Playback);
+
 	/** True when any tracked Keeper draws slot art. Pure read. */
 	bool HasAnyKeeperArt() const;
 
@@ -91,6 +110,8 @@ private:
 	FDelegateHandle DestroyHandle;
 	/** Set each part's art cover to what draws now (body picture, live part layers); a part whose art is gone shows its cube again. */
 	void SyncPartCover(AKeeperOfTime* Owl);
+	/** Step the body grid's frame from world time (no gameplay read). */
+	void PlayIdle(AActor* Keeper) const;
 	/** Last value written to the arenas by SyncArenaStandIn. */
 	bool bArenaArtShown = false;
 	void HandlePartDestroyed(const FUmbrellaEvent& Event);

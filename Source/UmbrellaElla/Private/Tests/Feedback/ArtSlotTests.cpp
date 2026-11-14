@@ -841,10 +841,12 @@ bool FArtSlotKeeperParts::RunTest(const FString& Parameters)
 			TestFalse(*FString::Printf(TEXT("%s names a consumer"), *Id), FString(Row->DrawnBy) == TEXT("-"));
 			TestTrue(*FString::Printf(TEXT("%s layers are ordered back to front"), *Id), Layer.DepthOffset > LastDepth);
 			LastDepth = Layer.DepthOffset;
-			// A part asset that exists is drawn when the Keeper appears; otherwise the transient picture is.
-			const bool bAssetExists = ArtSlot::LoadTexture(*Row) != nullptr;
-			TestEqual(*FString::Printf(TEXT("%s drawn at spawn iff its asset exists"), *Id), UKeeperPresenterSubsystem::FindPart(Keeper, Id) != nullptr, bAssetExists);
-			if (!bAssetExists)
+			// A part asset that exists is drawn when the Keeper appears, unless it is an unpassed _PH stand-in and the body
+			// already draws art (PartPictureYieldsToBody); otherwise the transient picture is.
+			const UTexture2D* Asset = ArtSlot::LoadTexture(*Row);
+			const bool bAssetDraws = Asset != nullptr && !UKeeperPresenterSubsystem::PartPictureYieldsToBody(Asset, Keeper);
+			TestEqual(*FString::Printf(TEXT("%s drawn at spawn iff its asset exists and does not yield to the body"), *Id), UKeeperPresenterSubsystem::FindPart(Keeper, Id) != nullptr, bAssetDraws);
+			if (!bAssetDraws)
 			{
 				TestTrue(*FString::Printf(TEXT("%s takes a picture"), *Id), Presenter->ShowPartArt(Keeper, Id, Texture) == EArtSlotDraw::Drawn);
 			}
@@ -1141,3 +1143,47 @@ bool FArtSlotKeeperPaperAlpha::RunTest(const FString& Parameters)
 }
 
 #endif
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FArtSlotKeeperPartStandInsYield, "UmbrellaElla.Feedback.World.KeeperPartStandInsYieldToBody",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+
+bool FArtSlotKeeperPartStandInsYield::RunTest(const FString& Parameters)
+{
+	UWorld* World = ArtSlotTestWorld();
+	if (!TestNotNull(TEXT("world"), World))
+	{
+		return false;
+	}
+	UKeeperPresenterSubsystem* Presenter = World->GetSubsystem<UKeeperPresenterSubsystem>();
+	AKeeperOfTime* Keeper = World->SpawnActor<AKeeperOfTime>();
+	if (TestNotNull(TEXT("keeper presenter"), Presenter) && TestNotNull(TEXT("keeper"), Keeper))
+	{
+		Presenter->ShowStandIn(Keeper);
+		UStaticMeshComponent* Body = FindObjectFast<UStaticMeshComponent>(Keeper, FName(TEXT("KeeperStandIn")));
+		if (TestNotNull(TEXT("body stand-in"), Body))
+		{
+			// Start from a body with no art, so the part stand-in may draw.
+			ArtSlotTestClearArt(Body, Keeper);
+			if (UStaticMeshComponent* Existing = UKeeperPresenterSubsystem::FindPart(Keeper, TEXT("keeper:wings-gust-wear")))
+			{
+				Existing->DestroyComponent();
+			}
+			UTexture2D* WingPh = NewObject<UTexture2D>(GetTransientPackage(), TEXT("T_Test_Wing_PH"));
+			UTexture2D* WingPassed = NewObject<UTexture2D>(GetTransientPackage(), TEXT("T_Test_Wing"));
+			WingPh->AddToRoot();
+			WingPassed->AddToRoot();
+			TestFalse(TEXT("no body art: a _PH part does not yield"), UKeeperPresenterSubsystem::PartPictureYieldsToBody(WingPh, Keeper));
+			TestTrue(TEXT("body draws art"), Presenter->ShowArt(Keeper, ArtSlotTestTexture()) == EArtSlotDraw::Drawn);
+			TestTrue(TEXT("body art: a _PH part yields"), UKeeperPresenterSubsystem::PartPictureYieldsToBody(WingPh, Keeper));
+			TestFalse(TEXT("body art: a passed part still draws"), UKeeperPresenterSubsystem::PartPictureYieldsToBody(WingPassed, Keeper));
+			TestTrue(TEXT("a _PH wing layer is refused over the body art"),
+				Presenter->ShowPartArt(Keeper, TEXT("keeper:wings-gust-wear"), WingPh) == EArtSlotDraw::NoTexture);
+			TestNull(TEXT("no wing layer drawn"), UKeeperPresenterSubsystem::FindPart(Keeper, TEXT("keeper:wings-gust-wear")));
+			WingPh->RemoveFromRoot();
+			WingPassed->RemoveFromRoot();
+		}
+		Keeper->Destroy();
+	}
+	ArtSlotTestEnd(World);
+	return true;
+}
