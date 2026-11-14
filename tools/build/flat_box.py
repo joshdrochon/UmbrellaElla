@@ -29,8 +29,26 @@ SEED_TOL = 8
 # 0.46% of the frame; a 2 px light shaft or a thin HUD rule is not a box).
 MIN_AREA = 0.0015
 MIN_SIDE = 0.02
-# The region fills at least FILL of its bounding rectangle (a rectangle, not an organic shape).
+# A smaller box counts when it is crisp: its flat core alone fills SMALL_FILL of its rectangle and its edge contrast is at
+# least SMALL_EDGE_CONTRAST (the 19x19 px lilac Keeper-head stand-in on fix-cast.png is 0.039% of a 1280x720 frame; its
+# core fill is 1.0 and its edge against the red glow about 95). Smaller than SMALL_AREA is a spark or a HUD dot.
+SMALL_AREA = 0.0003
+SMALL_FILL = 0.95
+SMALL_EDGE_CONTRAST = 36
+# The region fills at least FILL of its bounding rectangle (a rectangle, not an organic shape). Cells of the rectangle
+# reached from the flat core by smooth steps (each within NEIGHBOUR_TOL) count as the same box: lit shading on a flat
+# stand-in (the red ring's glow over the grey wing box's lower-left on fix-cast.png left its flat core at 74%).
+# The flat core itself must still fill CORE_FILL and be one flat tint (SHADE_EXACT of its cells the seed colour exactly:
+# 0.48 on the grey wing box, at most 0.05 on dark painted sky, whose grain lets smooth steps wander), so a smooth
+# gradient or a patch of sky is never a box.
 FILL = 0.9
+CORE_FILL = 0.5
+SHADE_EXACT = 0.25
+# A region on the frame edge is the backdrop or a letterbox only when it runs along most of that edge (EDGE_SPAN); the
+# salmon warning band on shot-250.png touches the top edge but spans 52% of it. It must also be one flat tint
+# (SHADE_EXACT) and touch one edge only: dark sky filling the top-right corner of a Director's Cut route shot
+# (638x109, exact share low) is backdrop.
+EDGE_SPAN = 0.8
 # Hard edge: the mean channel difference between the region's border and a ring EDGE_RING grid cells outside it.
 EDGE_CONTRAST = 18
 EDGE_RING = 2
@@ -73,12 +91,28 @@ def _edge_contrast(grid, x0, y0, x1, y1, seed):
     return total / n if n else 0.0
 
 
+def _shaded_fill(grid, cells, x0, y0, x1, y1):
+    """Share of the rectangle covered by the flat core plus the cells reached from it by smooth steps (each within
+    NEIGHBOUR_TOL of the cell it came from), staying inside the rectangle: a lit or shaded part of the same box."""
+    inside = set(cells)
+    stack = list(cells)
+    while stack:
+        x, y = stack.pop()
+        c = grid[y][x]
+        for nx, ny in ((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)):
+            if x0 <= nx <= x1 and y0 <= ny <= y1 and (nx, ny) not in inside and _close(c, grid[ny][nx], NEIGHBOUR_TOL):
+                inside.add((nx, ny))
+                stack.append((nx, ny))
+    return len(inside) / float((x1 - x0 + 1) * (y1 - y0 + 1))
+
+
 def find_boxes(path):
     """Flat filled boxes in a capture: [{x, y, w, h, rgb, fill, edge}] in frame pixels, largest first."""
     w, h, step, grid = _grid(path)
     gh, gw = len(grid), len(grid[0])
     seen = bytearray(gw * gh)
     min_cells = MIN_AREA * gw * gh
+    small_cells = SMALL_AREA * gw * gh
     min_side = MIN_SIDE * gh
     out = []
     # Seeds inside flat interiors first (a cell equal to its right and lower neighbours), so a box is grown from its own
@@ -92,13 +126,13 @@ def find_boxes(path):
             seed = grid[sy][sx]
             stack = [(sx, sy)]
             seen[sy * gw + sx] = 1
-            count = 0
+            cells = []
             exact = 0
             x0 = x1 = sx
             y0 = y1 = sy
             while stack:
                 x, y = stack.pop()
-                count += 1
+                cells.append((x, y))
                 if x < x0:
                     x0 = x
                 elif x > x1:
@@ -115,18 +149,32 @@ def find_boxes(path):
                         if _close(c, d, NEIGHBOUR_TOL) and _close(seed, d, SEED_TOL):
                             seen[ny * gw + nx] = 1
                             stack.append((nx, ny))
+            count = len(cells)
             bw, bh = x1 - x0 + 1, y1 - y0 + 1
-            if count < min_cells or bw < min_side or bh < min_side:
+            if bw < min_side or bh < min_side or count < small_cells:
                 continue
-            fill = count / float(bw * bh)
-            if fill < FILL:
+            core_fill = count / float(bw * bh)
+            if core_fill < CORE_FILL:
                 continue
-            # A region that runs along the frame edge is the backdrop or a letterbox, not a box over the play space.
-            if x0 == 0 or y0 == 0 or x1 == gw - 1 or y1 == gh - 1:
+            # Edge-touching regions: skip the ones that run along most of the edge they touch.
+            touches = (y0 == 0) + (y1 == gh - 1) + (x0 == 0) + (x1 == gw - 1)
+            if touches and (touches > 1 or exact < SHADE_EXACT * count or
+                            ((y0 == 0 or y1 == gh - 1) and bw >= EDGE_SPAN * gw) or
+                            ((x0 == 0 or x1 == gw - 1) and bh >= EDGE_SPAN * gh)):
                 continue
             edge = _edge_contrast(grid, x0, y0, x1, y1, seed)
-            if edge < (EXACT_EDGE_CONTRAST if exact >= EXACT * count else EDGE_CONTRAST):
-                continue
+            if count < min_cells:
+                if core_fill < SMALL_FILL or edge < SMALL_EDGE_CONTRAST:
+                    continue
+                fill = core_fill
+            else:
+                fill = core_fill
+                if fill < FILL and exact >= SHADE_EXACT * count:
+                    fill = _shaded_fill(grid, cells, x0, y0, x1, y1)
+                if fill < FILL:
+                    continue
+                if edge < (EXACT_EDGE_CONTRAST if exact >= EXACT * count else EDGE_CONTRAST):
+                    continue
             out.append({"x": x0 * step, "y": y0 * step, "w": bw * step, "h": bh * step, "rgb": "#%02x%02x%02x" % seed,
                         "fill": round(fill, 3), "edge": round(edge, 1)})
     out.sort(key=lambda b: -b["w"] * b["h"])

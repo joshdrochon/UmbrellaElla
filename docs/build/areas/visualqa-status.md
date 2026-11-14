@@ -313,3 +313,18 @@ IDENTIFIED C: the Keeper gust's gameplay cue cube `AKeeperOfTime::GustVisual` (S
   `-WaitMutex -NoHotReload`, build exit 0, .modules maps base names. Not reproduced with an editor open (would need
   launching one; not done).
 - Tests: tests/test_run_game.py 9 OK; against the old run_game.sh/build.sh 4 fail (suffixed layout STALE, missing -NoHotReload).
+
+## Lead order Nov 13 23:26, item 1: flat-box detector missed three real boxes
+- Causes (measured on ../logs/flatbox-samples): (a) grey wing box on fix-cast.png: its flat core filled 74% of its
+  rectangle, because the red ring's glow shades its lower-left (a smooth gradient, not the warning line); (b) the lilac
+  head square is 19x19 = 361 px, under the 0.15%-of-frame minimum; (c) the salmon band on shot-250.png touches the top
+  edge and every edge-touching region was skipped as backdrop.
+- Fix (tools/build/flat_box.py): (a) cells of the rectangle reached from a flat core by smooth steps count as the same box
+  when the core is one flat tint (exact share >= 0.25: 0.48 on the wing box, <= 0.05 on painted sky); (b) a box down to
+  0.03% of the frame counts when crisp (core fill >= 0.95, edge contrast >= 36; the head square: 1.0 and ~95);
+  (c) an edge-touching region is skipped only if it spans >= 80% of that edge, touches two edges (a corner) or is not one
+  flat tint (dark corner sky on a DC route shot, kept as a no-box fixture).
+- Tests: tests/test_flat_box.py 18 OK (fixtures flatbox-keeper-topband / -wingbox-head / -cast-good / dcroute-cornersky,
+  real 1280x720 captures). Old flat_box.py: 2 of them FAIL (band on the top edge; wing box + head square).
+- Sweep: 100 older Saved/VisualQA captures, new vs old detector: 7 differ, every new hit a real flat box or bar
+  (r06 route grey box crossed by ribbons, r09 salmon band, flat floor bars, black unpainted panels). No false hit.
