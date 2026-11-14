@@ -243,3 +243,16 @@ void AUmbrellaArena::FollowEllaX(float EllaX, int32 TravelDirection)
 	Location.X = Centre;
 	PlayCamera->SetWorldLocation(Location);
 }
+
+void AUmbrellaArena::MovePlayArea(const FVector& Origin)
+{
+	SetActorLocation(Origin);
+	const FArenaCameraTuning& T = GetDefault<UUmbrellaTuning>()->ArenaCamera;
+	PlayCamera->SetRelativeLocation(FVector(T.ArenaWidth * 0.5f, T.CameraDistance, T.ArenaHeight * 0.5f));
+}
+
+bool AUmbrellaArena::IsCameraOnArenaFrame() const
+{
+	const FArenaCameraTuning& T = GetDefault<UUmbrellaTuning>()->ArenaCamera;
+	return PlayCamera->GetRelativeLocation().Equals(FVector(T.ArenaWidth * 0.5f, T.CameraDistance, T.ArenaHeight * 0.5f));
+}

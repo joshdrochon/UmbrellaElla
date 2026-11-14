@@ -50,7 +50,8 @@ namespace LevelPlan
 	 *  (ChunkLayouts), then refuges with checkpoint markers. Same route, same list. */
 	UMBRELLAELLA_API TArray<FLevelPlacement> Build(const FRoute& Route);
 
-	/** Where Ella stands at checkpoint 1..3 (just inside the refuge, on the floor). */
+	/** Where Ella stands at checkpoint 1..3 (just inside the refuge, on the floor). Checkpoint 0 is the route start:
+	 *  there is no refuge before slot 0, so she stands the same inset into slot 0's floor, inside the first camera view (B6). */
 	UMBRELLAELLA_API FVector CheckpointStandLocation(int32 Checkpoint);
 
 	/** The checkpoint (0 = none) Ella has reached at X: the last refuge start at or before X. */
@@ -58,4 +59,9 @@ namespace LevelPlan
 
 	/** X where the Keeper handoff begins: the last refuge's far end less the vestibule. */
 	UMBRELLAELLA_API float KeeperHandoffX();
+
+	/** Bottom-left corner of the Keeper arena for the Director's Cut fight (B5): the arena moves here at the handoff, so
+	 *  Ella at the handoff line stands at the arena's own player-start fraction, as in Start Game, and the Keeper anchor
+	 *  and fixed camera frame the fight where she is. */
+	UMBRELLAELLA_API FVector KeeperArenaOrigin();
 }
