@@ -166,9 +166,19 @@ int32 UFrameCompositionSubsystem::ComposeMesh(UStaticMeshComponent* Mesh)
 	if (Original && Original->bDrawsArt != bArt)
 	{
 		// The mesh started (or stopped) drawing a picture: its material is new, so take its own state again.
+		// Undo our size and colour first (review 18:08): a 0.6x enemy stand-in that gets art draws at its own size,
+		// and is never shrunk again from the shrunk size (0.36x). What its owner set since our pass stays.
 		if (Mesh->bHiddenInGame != Original->bHiddenInGame)
 		{
 			Mesh->SetHiddenInGame(Original->bHiddenInGame);
+		}
+		if (Mesh->GetRelativeScale3D().Equals(Original->AppliedScale, KINDA_SMALL_NUMBER))
+		{
+			Mesh->SetRelativeScale3D(Original->Scale);
+		}
+		if (ArtSlot::GetTint(Mesh).Equals(Original->Applied, UmbrellaFrameConst::AppliedTolerance))
+		{
+			ArtSlot::SetTint(Mesh, Original->Tint);
 		}
 		Touched.Remove(Mesh);
 		Original = nullptr;

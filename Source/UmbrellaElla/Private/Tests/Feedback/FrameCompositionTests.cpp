@@ -481,4 +481,48 @@ bool FFrameCompositionKeeperAlwaysSeen::RunTest(const FString& Parameters)
 	return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFrameCompositionEnemyArtFullSize, "UmbrellaElla.Feedback.FrameComposition.EnemyArtFullSize",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+
+bool FFrameCompositionEnemyArtFullSize::RunTest(const FString& Parameters)
+{
+	// Review 18:08: a 0.6x enemy stand-in that gets art mid-run drew at 0.6x, and shrank to 0.36x when the art went away.
+	FUmbrellaTestWorld Test;
+	UWorld* World = Test.GetWorld();
+	UFrameCompositionSubsystem* Frame = World->GetSubsystem<UFrameCompositionSubsystem>();
+	AActor* Enemy = World->SpawnActor<AActor>();
+	if (!TestNotNull(TEXT("frame"), Frame) || !TestNotNull(TEXT("enemy"), Enemy))
+	{
+		return false;
+	}
+	FrameTestMesh(Enemy, TEXT("Root"), FVector(0.0, 0.0, 0.0), FLinearColor::Black);
+	UStaticMeshComponent* Box = FrameTestMesh(Enemy, TEXT("Placeholder"), FVector(0.0, 0.0, 0.0), UmbrellaArtSlotConst::StandInEnemyColor);
+	if (!ArtSlot::IsUnlit(Box))
+	{
+		AddWarning(TEXT("slot material missing in this build: enemy art flip not measured"));
+		return true;
+	}
+	const FVector Own = Box->GetRelativeScale3D();
+	Frame->ComposeNow();
+	TestTrue(TEXT("enemy stand-in is drawn small"), Box->GetRelativeScale3D().Equals(Own * UmbrellaFrameConst::EnemyStandInScale, 0.001));
+	// Art lands; its owner keeps the box it had (no resize of its own).
+	UTexture2D* Picture = UTexture2D::CreateTransient(4, 4);
+	Picture->AddToRoot();
+	const FArtSlotRow* Row = ArtSlot::Find(TEXT("bg-layer:Base"));
+	const FVector Shrunk = Box->GetRelativeScale3D();
+	if (TestNotNull(TEXT("art row"), Row) && ArtSlot::Apply(Box, Picture, *Row, FVector::OneVector) == EArtSlotDraw::Drawn)
+	{
+		Box->SetRelativeScale3D(Shrunk);
+		Frame->ComposeNow();
+		TestTrue(TEXT("the enemy's art draws at scale 1"), Box->GetRelativeScale3D().Equals(Own, 0.001));
+		TestEqual(TEXT("an art mesh is not tracked"), Frame->TouchedCount(), 0);
+		// Art goes away again: shrunk once from its own size, never 0.36x.
+		ArtSlot::SetFlatUnlit(Box, Enemy, UmbrellaArtSlotConst::StandInEnemyColor);
+		Frame->ComposeNow();
+		TestTrue(TEXT("back to a stand-in: 0.6x, not 0.36x"), Box->GetRelativeScale3D().Equals(Own * UmbrellaFrameConst::EnemyStandInScale, 0.001));
+	}
+	Picture->RemoveFromRoot();
+	return true;
+}
+
 #endif

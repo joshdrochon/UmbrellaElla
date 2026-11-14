@@ -36,6 +36,21 @@
   inside). Test: `UmbrellaElla.Feedback.FrameComposition.GameplayFrameFillsView` (widest margin; break check arena-sized).
 - Captured (r03, 1280x720, journey pipeline/qa/visual/r03_journey.txt): ceiling shot shows the umbrella tip inside the top edge; Keeper handoff shows one continuous backdrop. Composite: pipeline/qa/visual/r03/composite-r03-keeper_fight.png.
 
+## Done (Nov 13, 18:15, review item 2)
+- `ComposeMesh`, art flip branch: a mesh that starts or stops drawing art gets our scale and tint undone first (only
+  where its owner has not set its own since), so a 0.6x enemy stand-in that gets art draws at 1x and never compounds to
+  0.36x. Test: `UmbrellaElla.Feedback.FrameComposition.EnemyArtFullSize` (fails on 4dae3d8e, passes now).
+
+## Follow-ups (coordinator balance rule: paperwork and later work do not block)
+- Review item 1: `tools/build/visual_qa.py --gate` mode and `baseline --from-main`, with tests and the exact gate command.
+- Review item 3: a composite per screen under `pipeline/qa/visual/` for this round, and a dated line in
+  `pipeline/submission/devlog.md` under "## Frames toward the Other Realm study"; `composed-01.png`.
+- Minor: `FindArena` caches the arena for good (stale after an arena swap; re-runs the actor iterator each tick).
+- Minor: `WorldArtSubsystem.cpp` `Floor` case falls into `Solid` with only a comment: `[[fallthrough]]` or merge labels.
+- Minor: `EllaAnimPresenterComponent.h` "about 0.93x the study's figure": cite the measurement or drop it.
+- Parked (not in this commit): per-frame re-compose after the actor tick, so the Keeper's cue cubes reset by the
+  encounter director each frame are never drawn reset. Patch kept at `../logs/visualqa-wip-posttick-1808.patch`.
+
 ## Gate command (for the lead)
 `python3 tools/build/visual_qa.py run --out Saved/VisualQA/gate-<sha>` -> last line `VISUAL_QA PASS|FAIL ...`;
 exit 0 PASS, 1 FAIL, 2 could not run. Baseline for main: `python3 tools/build/visual_qa.py baseline --shots <dir> --sha <main sha>`
