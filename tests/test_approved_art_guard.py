@@ -138,6 +138,19 @@ class GuardRepo(unittest.TestCase):
                    "if (Row.Visual == TEXT(\"ella-state:Idle\"))\n{\n\tMesh->SetHiddenInGame(true);\n}\n")
         self.assertFails("ella-up-open")
 
+    def test_plain_gameplay_near_ella_passes(self):
+        # Words the old list flagged (color, visib, alpha, replace, override) next to the slot token, but no tint/hide/swap call.
+        self.write(PRESENTER, "void Draw()\n{\n\tApplyArt(TEXT(\"T_Ella_Idle\"));\n"
+                   "\tEllaVelocity = Velocity * Speed;\n\tconst bool bEllaVisibleToOwl = CanSee(Owl);\n"
+                   "\tDebugColor = FLinearColor::Green; // override alpha, replace later\n}\n")
+        self.assertEqual(self.run_check(), [])
+
+    def test_tint_of_idle_ph_fails(self):
+        self.write(PRESENTER, "void Draw()\n{\n\tApplyArt(TEXT(\"T_Ella_Idle\"));\n}\n"
+                   "void Darken(UMaterialInstanceDynamic* Mid)\n{\n\tMid->SetTextureParameterValue(TEXT(\"Tex\"), T_Ella_Idle_PH);\n"
+                   "\tMid->SetVectorParameterValue(TEXT(\"Tint\"), FLinearColor(0.1f, 0.1f, 0.1f));\n}\n")
+        self.assertFails("tint, hide or swap approved ella-up-open")
+
     def test_unrelated_code_and_art_pass(self):
         self.write("Source/UmbrellaElla/Private/Motor/Motor.cpp", "void Step() { Color = FLinearColor::Red; }\n")
         self.write("Content/UmbrellaElla/Art/Scene/T_BgBase_PH.uasset", uasset(SILHOUETTE, 5))

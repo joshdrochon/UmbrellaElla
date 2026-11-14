@@ -18,7 +18,8 @@ A merge base..head FAILS when it
      (re-importing the approved bytes passes; new bytes pass only with an approvals.json entry in head for them);
   2. points such a slot's standins.json row at bytes that are not approved, or changes / deletes an approved file;
   3. adds code (Source/, Config/) that tints, recolours, hides or swaps such a slot: an added line with a tint/hide/swap
-     word within 3 lines of the slot's texture name, visual id or piece id; unless approvals.json in head has a new
+     call or assignment (CODE_WORDS: SetVectorParameterValue, SetTexture, SetBrush*, SetVisibility, SetHiddenInGame,
+     *Tint*(...), Tint = ...) within 3 lines of the slot's texture name, visual id or piece id; unless approvals.json in head has a new
      entry for that piece.
 The uasset bytes come from the local LFS store (no download); a uasset it cannot read fails (fail closed).
 """
@@ -39,9 +40,13 @@ CONTENT_ART = "Content/UmbrellaElla/Art/"
 # Approved pieces that ship through a slot with no standins.json row (lead order, Nov 13 20:05).
 ALIASES = {"keeper-idle": ["keeper:body-hover-flap"]}
 CODE_PREFIXES = ("Source/", "Config/")
+# Only calls / assignments that tint, recolour, hide or swap a texture or its material (review round, Nov 13: the old
+# word list -- color, alpha, visib, replace, override -- tripped on ordinary gameplay code near an Ella or Keeper token).
 CODE_WORDS = re.compile(
-    r"tint|colou?r|hidden|\bhide|visib|opacity|alpha|swap|replace|override|SetMaterial|SetTexture|darken|desaturat"
-    r"|silhouette|brightness|multiply|Emissive", re.I)
+    r"\b(?:Set(?:Vector|Scalar|Texture)ParameterValue\w*|SetMaterial\w*|SetTexture\w*|SetBrush\w*|SetSprite\w*"
+    r"|SetFlipbook\w*|SetColorAndOpacity|SetRenderOpacity|SetVisibility|SetHiddenInGame|SetActorHiddenInGame"
+    r"|\w*Tint\w*)\s*\("
+    r"|\b\w*(?:Tint|ColorAndOpacity|Opacity)\w*\s*[*+-]?=(?!=)")
 CODE_WINDOW = 3
 FILE_MD5 = re.compile(rb'"FileMD5"\s*:\s*"([0-9a-f]{32})"')
 LFS_HEAD = b"version https://git-lfs"
