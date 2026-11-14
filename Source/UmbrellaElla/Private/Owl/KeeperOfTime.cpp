@@ -5,6 +5,7 @@
 #include "Core/UmbrellaDrawOrder.h"
 #include "Core/UmbrellaTuning.h"
 #include "Engine/StaticMesh.h"
+#include "Feedback/Vfx/VfxCatalog.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Harness/UmbrellaFeatureFlags.h"
 #include "Owl/KeeperLook.h"
@@ -286,15 +287,24 @@ void AKeeperOfTime::Refresh(const FKeeperFightModel& Model, float TimeSeconds)
 		const FVector2D LaneStart(GustLaneStart.X, Model.GetGustBandZ());
 		const float Progress = bGustWarning ? FMath::Clamp(1.0f - Model.GetStageRemaining() / FMath::Max(T.GustWarningSeconds, UE_SMALL_NUMBER), 0.0f, 1.0f) : 1.0f;
 		GustStrokes(LaneStart, LaneLength, T.GustBandWidth, bGust, Progress, Model.GetGustFront().X, T.GustFrontThickness, TimeSeconds, Strokes);
+		// The gust puff sprites are anchored on the gust front at the catalog's large size: keep the ribbons out from behind them.
+		const float PuffHalf = VfxCatalogData::LargeSize * 0.5f;
+		ClipStrokesOutside(Model.GetGustFront(), FVector2D(PuffHalf, PuffHalf), Strokes);
 	}
 	DrawGustRibbons(Strokes);
 	bTelegraphShown = bWarning;
 	if (bWarning && !bGustWarning)
 	{
+		// A thin shot-red line along the lane (talon reach, chain path), turned to the lane and placed here every tick: the
+		// frame pass (every 0.2 s) could not keep the old axis-aligned box thin, so most frames showed a salmon block.
 		const FVector2D Mid = (TelegraphFrom + TelegraphTo) * 0.5f;
-		const FVector2D Half(FMath::Max(FMath::Abs(TelegraphTo.X - TelegraphFrom.X) * 0.5f, T.ChainHeadWidth * 0.5f),
-			FMath::Max(FMath::Abs(TelegraphTo.Y - TelegraphFrom.Y) * 0.5f, T.ChainHeadWidth * 0.5f));
-		PlaceVisual(TelegraphVisual, Mid, Half, KeeperLook::Telegraph);
+		const FVector2D Lane = TelegraphTo - TelegraphFrom;
+		const float HalfLength = FMath::Max(static_cast<float>(Lane.Size()) * 0.5f, T.ChainHeadWidth * 0.5f);
+		PlaceVisual(TelegraphVisual, Mid, FVector2D(HalfLength, KeeperLook::TelegraphLineThickness * 0.5f), KeeperLook::Telegraph);
+		if (TelegraphVisual)
+		{
+			TelegraphVisual->SetWorldRotation(FRotator(FMath::RadiansToDegrees(FMath::Atan2(Lane.Y, Lane.X)), 0.0f, 0.0f));
+		}
 	}
 	else
 	{
@@ -418,6 +428,17 @@ void AKeeperOfTime::GustStrokes(const FVector2D& LaneStart, float LaneLength, fl
 		const float Stagger = KeeperWingGustConst::TravelLength * KeeperWingGustConst::HeadStaggerShare * static_cast<float>(Index % KeeperWingGustConst::StaggerCycle);
 		Ribbon(Lead + Stagger, Length - Stagger, Index, KeeperWingGustConst::TravelRibbons, KeeperWingGustConst::TravelThick);
 	}
+}
+
+void AKeeperOfTime::ClipStrokesOutside(const FVector2D& Centre, const FVector2D& Half, TArray<FKeeperGustStroke>& Strokes)
+{
+	Strokes.RemoveAll([&Centre, &Half](const FKeeperGustStroke& Stroke)
+	{
+		const float Pad = Stroke.Thick * 0.5f;
+		const FVector2D Min(FMath::Min(Stroke.A.X, Stroke.B.X) - Pad, FMath::Min(Stroke.A.Y, Stroke.B.Y) - Pad);
+		const FVector2D Max(FMath::Max(Stroke.A.X, Stroke.B.X) + Pad, FMath::Max(Stroke.A.Y, Stroke.B.Y) + Pad);
+		return Max.X > Centre.X - Half.X && Min.X < Centre.X + Half.X && Max.Y > Centre.Y - Half.Y && Min.Y < Centre.Y + Half.Y;
+	});
 }
 
 void AKeeperOfTime::DrawGustRibbons(const TArray<FKeeperGustStroke>& Strokes)

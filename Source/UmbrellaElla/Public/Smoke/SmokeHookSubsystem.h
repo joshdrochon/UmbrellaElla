@@ -8,6 +8,8 @@
 #include "SmokeHookSubsystem.generated.h"
 
 enum class EEnemyType : uint8;
+enum class EKeeperPhysical : uint8;
+enum class EKeeperStage : uint8;
 
 /**
  * The smoke hook (pipeline/unreal-rules.md "Smoke hook contract"). Exists only when the game is launched with
@@ -73,7 +75,16 @@ public:
 	/** SMOKE_VIEW (plain rule function): true when a projected point lies inside a ViewW x ViewH frame (projection succeeded). */
 	static bool IsPixelInFrame(bool bProjected, const FVector2D& Pixel, const FVector2D& ViewSize);
 
+	/**
+	 * -SmokeShotWhen=<Talon|Cast|GustWarning|GustTravel> (plain rule function): true when the Keeper's move is at that
+	 * moment (Talon/Cast: its warning; Cast is any mechanism cast). An empty When is always true.
+	 */
+	static bool IsKeeperShotMoment(const FString& When, EKeeperPhysical Physical, EKeeperStage Stage, bool bGustTravelling);
 	static constexpr int32 DefaultShotFrames = 60;
+	/** -SmokeHoldNearClaw holds Ella this far left of the Keeper's claw, inside the talon's reach. */
+	static constexpr double SmokeClawOffsetX = -100.0;
+	/** -SmokeKeeperBreakWings: one shot of this damage breaks the wings (the fight moves to the mechanisms). */
+	static constexpr float SmokeBreakDamage = 100000.0f;
 	/** The shot may take this long (seconds past -SmokeQuitAfter) before the run quits without it. */
 	static constexpr double ShotMaxWaitSeconds = 1200.0;
 	/** The -SmokeEnemy stand-in appears this far right of Ella (cm). */
@@ -108,6 +119,14 @@ private:
 	void LogShotDraws(class AUmbrellaPlayerController* Flow, const FVector2D& ViewSize) const;
 	/** -SmokeKeeper / -SmokeEnemy: set up the scene once, on the first gameplay frame (workbench builds only). */
 	void ApplySceneSwitches();
+	/** -SmokeShotWhen: is the Keeper at the asked moment now (true when nothing was asked). */
+	bool IsKeeperMomentNow() const;
+	/** -SmokeHoldNearClaw: keep Ella inside the talon's reach (workbench builds only). */
+	void HoldEllaNearClaw(class AUmbrellaPlayerController* Flow) const;
+	/** -SmokeKeeperBreakWings: once the opening phase transition lets damage in, break the wings (workbench builds only). */
+	void BreakKeeperWings() const;
+	/** At the shot: SMOKE_KEEPER phase, physical move and stage. */
+	void LogShotKeeper() const;
 
 	void TickInputCheck(class AUmbrellaPlayerController* Flow);
 	bool CanSendKey(class APlayerController* Controller, const FKey& Key, EInputEvent Event, float Amount) const;
@@ -140,4 +159,8 @@ private:
 	int32 FramesSinceReady = 0;
 	bool bSceneApplied = false;
 	bool bShotReadyLogged = false;
+	FString ShotWhen;
+	/** Consecutive frames the -SmokeShotWhen moment has held, and how many it must hold (-SmokeShotMomentFrames, default 1). */
+	int32 MomentFrames = 0;
+	int32 ShotMomentFrames = 1;
 };

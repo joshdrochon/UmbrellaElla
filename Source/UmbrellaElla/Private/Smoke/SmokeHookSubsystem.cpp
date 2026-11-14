@@ -25,6 +25,9 @@
 #include "UObject/UnrealType.h"
 #include "Misc/Paths.h"
 #include "Encounter/EncounterDirectorSubsystem.h"
+#include "Encounter/KeeperFightModel.h"
+#include "Owl/KeeperOfTime.h"
+#include "Owl/KeeperPartComponent.h"
 #include "Core/UmbrellaGameMode.h"
 #include "Enemy/UmbrellaEnemy.h"
 #include "Arena/UmbrellaArena.h"
@@ -75,6 +78,100 @@ void USmokeHookSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	int32 RequestedFrames = 0;
 	FParse::Value(FCommandLine::Get(), TEXT("-SmokeShotFrames="), RequestedFrames);
 	ShotFrames = ResolveShotFrames(RequestedFrames);
+	FParse::Value(FCommandLine::Get(), TEXT("-SmokeShotWhen="), ShotWhen);
+	FParse::Value(FCommandLine::Get(), TEXT("-SmokeShotMomentFrames="), ShotMomentFrames);
+	ShotMomentFrames = FMath::Max(1, ShotMomentFrames);
+}
+
+bool USmokeHookSubsystem::IsKeeperShotMoment(const FString& When, EKeeperPhysical Physical, EKeeperStage Stage, bool bGustTravelling)
+{
+	if (When.IsEmpty())
+	{
+		return true;
+	}
+	const bool bWarning = Stage == EKeeperStage::Warning;
+	if (When.Equals(TEXT("Talon"), ESearchCase::IgnoreCase))
+	{
+		return bWarning && Physical == EKeeperPhysical::Talon;
+	}
+	if (When.Equals(TEXT("Cast"), ESearchCase::IgnoreCase))
+	{
+		return bWarning && (Physical == EKeeperPhysical::FrontCast || Physical == EKeeperPhysical::MiddleCurve || Physical == EKeeperPhysical::RearTwoStage);
+	}
+	if (When.Equals(TEXT("GustWarning"), ESearchCase::IgnoreCase))
+	{
+		return bWarning && Physical == EKeeperPhysical::Gust;
+	}
+	if (When.Equals(TEXT("GustTravel"), ESearchCase::IgnoreCase))
+	{
+		return bGustTravelling;
+	}
+	return false;
+}
+
+bool USmokeHookSubsystem::IsKeeperMomentNow() const
+{
+	if (ShotWhen.IsEmpty())
+	{
+		return true;
+	}
+	const UWorld* World = GetGameInstance() ? GetGameInstance()->GetWorld() : nullptr;
+	const UEncounterDirectorSubsystem* Director = World ? World->GetSubsystem<UEncounterDirectorSubsystem>() : nullptr;
+	if (!Director || Director->GetState() != EEncounterState::Active)
+	{
+		return false;
+	}
+	const FKeeperFightModel& Model = Director->GetModel();
+	return IsKeeperShotMoment(ShotWhen, Model.GetPhysical(), Model.GetStage(), Model.IsGustTravelling());
+}
+
+void USmokeHookSubsystem::HoldEllaNearClaw(AUmbrellaPlayerController* Flow) const
+{
+#if UMBRELLAELLA_WORKBENCH
+	const UWorld* World = GetGameInstance() ? GetGameInstance()->GetWorld() : nullptr;
+	const UEncounterDirectorSubsystem* Director = World ? World->GetSubsystem<UEncounterDirectorSubsystem>() : nullptr;
+	APawn* Ella = Flow ? Flow->GetPawn() : nullptr;
+	if (!Director || !Ella || Director->GetState() != EEncounterState::Active)
+	{
+		return;
+	}
+	const FVector2D Claw = Director->GetModel().GetClaw();
+	Ella->SetActorLocation(FVector(Claw.X + SmokeClawOffsetX, Ella->GetActorLocation().Y, Claw.Y));
+#endif
+}
+
+void USmokeHookSubsystem::BreakKeeperWings() const
+{
+#if UMBRELLAELLA_WORKBENCH
+	const UWorld* World = GetGameInstance() ? GetGameInstance()->GetWorld() : nullptr;
+	const UEncounterDirectorSubsystem* Director = World ? World->GetSubsystem<UEncounterDirectorSubsystem>() : nullptr;
+	if (!Director || Director->GetState() != EEncounterState::Active || Director->GetPhase() != EKeeperPhase::Wings)
+	{
+		return;
+	}
+	// Straight to the mechanisms (their chain casts), through the part's own hit path; ignored until damage is let in.
+	if (UKeeperPartComponent* Wings = Director->GetKeeper() ? Director->GetKeeper()->GetPartComponent(EKeeperPart::Wings) : nullptr)
+	{
+		FUmbrellaShotSpec Shot;
+		Shot.Kind = EUmbrellaShotKind::PlayerBlast;
+		Shot.Damage = SmokeBreakDamage;
+		Wings->ReceiveShot(Shot, FVector::ZeroVector);
+	}
+#endif
+}
+
+void USmokeHookSubsystem::LogShotKeeper() const
+{
+	const UWorld* World = GetGameInstance() ? GetGameInstance()->GetWorld() : nullptr;
+	const UEncounterDirectorSubsystem* Director = World ? World->GetSubsystem<UEncounterDirectorSubsystem>() : nullptr;
+	if (!Director)
+	{
+		return;
+	}
+	const FKeeperFightModel& Model = Director->GetModel();
+	UE_LOG(LogUmbrellaElla, Log, TEXT("SMOKE_KEEPER active=%d phase=%d physical=%d stage=%d gust_travelling=%d when=%s"),
+		Director->GetState() == EEncounterState::Active ? 1 : 0, static_cast<int32>(Director->GetPhase()), static_cast<int32>(Model.GetPhysical()),
+		static_cast<int32>(Model.GetStage()), Model.IsGustTravelling() ? 1 : 0, ShotWhen.IsEmpty() ? TEXT("-") : *ShotWhen);
 }
 
 bool USmokeHookSubsystem::IsShotDue(bool bLevelReady, int32 FramesSinceReady, int32 RequiredFrames)
@@ -141,7 +238,8 @@ void USmokeHookSubsystem::ApplySceneSwitches()
 				Mode->BeginFight(Flow);
 			}
 		}
-		UE_LOG(LogUmbrellaElla, Log, TEXT("SMOKE_SCENE keeper=%d"), Director && Director->GetState() == EEncounterState::Active ? 1 : 0);
+		UE_LOG(LogUmbrellaElla, Log, TEXT("SMOKE_SCENE keeper=%d phase=%d"), Director && Director->GetState() == EEncounterState::Active ? 1 : 0,
+			Director ? static_cast<int32>(Director->GetPhase()) : -1);
 	}
 	FString Family;
 	if (FParse::Value(FCommandLine::Get(), TEXT("-SmokeEnemy="), Family))
@@ -367,7 +465,19 @@ void USmokeHookSubsystem::Tick(float DeltaTime)
 	}
 	const bool bShotPending = !ShotPath.IsEmpty() && !bShotChecked && Elapsed < QuitAfterSeconds + ShotMaxWaitSeconds;
 
-	if (!bShotTaken && !ShotPath.IsEmpty() && IsShotDue(true, FramesSinceReady, ShotFrames))
+	if (!bShotTaken && FParse::Param(FCommandLine::Get(), TEXT("SmokeHoldNearClaw")))
+	{
+		HoldEllaNearClaw(Flow);
+	}
+	if (!bShotTaken && FParse::Param(FCommandLine::Get(), TEXT("SmokeKeeperBreakWings")))
+	{
+		BreakKeeperWings();
+	}
+	MomentFrames = IsKeeperMomentNow() ? MomentFrames + 1 : 0;
+	// A -SmokeShotWhen moment is short (a 1 s warning) and new effects stream in as it starts, which restarts the settled
+	// count: once the scene has settled one time, the moment itself is the trigger.
+	const bool bDue = ShotWhen.IsEmpty() ? IsShotDue(true, FramesSinceReady, ShotFrames) : (bShotReadyLogged && MomentFrames >= ShotMomentFrames);
+	if (!bShotTaken && !ShotPath.IsEmpty() && bDue)
 	{
 		bShotTaken = true;
 		// Whole window (bars and UI): bShowUI=true takes the Slate window, not the bare scene render target.
@@ -376,6 +486,7 @@ void USmokeHookSubsystem::Tick(float DeltaTime)
 		const FVector2D Size = GEngine && GEngine->GameViewport ? FVector2D(GEngine->GameViewport->Viewport->GetSizeXY()) : FVector2D::ZeroVector;
 		UE_LOG(LogUmbrellaElla, Log, TEXT("SMOKE_SHOT at_s=%.1f frames=%d w=%d h=%d"), Elapsed, FramesSinceReady, static_cast<int32>(Size.X), static_cast<int32>(Size.Y));
 		LogShotView(Flow);
+		LogShotKeeper();
 	}
 
 	if (bShotTaken && !bShotChecked && FApp::GetCurrentTime() - ShotRequestedAt >= ShotWriteWaitSeconds)

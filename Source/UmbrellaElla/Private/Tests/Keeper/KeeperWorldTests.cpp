@@ -11,6 +11,9 @@
 #include "Motor/EllaMotorComponent.h"
 #include "Motor/MotorModel.h"
 #include "Owl/KeeperOfTime.h"
+#include "Owl/KeeperLook.h"
+#include "Feedback/Art/FrameCompositionSubsystem.h"
+#include "Components/StaticMeshComponent.h"
 #include "Owl/KeeperPartComponent.h"
 #include "Core/UmbrellaSourceIds.h"
 #include "Core/UmbrellaTuning.h"
@@ -461,3 +464,76 @@ bool FKeeperGustSlowScale::RunTest(const FString& Parameters)
 }
 
 #endif
+
+namespace
+{
+	/**
+	 * Steps a fight for Seconds and checks the warning marker on every tick it shows: a thin line (short side at most
+	 * a fifth of the gust band), never the full-size cube. Returns the physical kinds whose
+	 * warning showed the marker, one bit per EKeeperPhysical.
+	 */
+	uint32 CheckWarningMarkers(FAutomationTestBase& Test, FKeeperWorld& W, float Seconds)
+	{
+		uint32 Seen = 0;
+		AKeeperOfTime* Keeper = W.Director->GetKeeper();
+		UStaticMeshComponent* Marker = Keeper ? FindObjectFast<UStaticMeshComponent>(Keeper, FName(UmbrellaFrameConst::KeeperTelegraphName)) : nullptr;
+		if (!Test.TestNotNull(TEXT("telegraph marker"), Marker))
+		{
+			return Seen;
+		}
+		const FKeeperTuning& T = GetDefault<UUmbrellaTuning>()->Keeper;
+		// A line: its short side at most a fifth of the 120 cm gust band (the old cubes were 120-126 cm thick).
+		const float MaxThick = T.GustBandWidth * 0.2f;
+		bool bReported = false;
+		for (float Time = 0.0f; Time < Seconds; Time += 0.05f)
+		{
+			W.Director->AdvanceFight(0.05f);
+			const FKeeperFightModel& Model = W.Director->GetModel();
+			if (Model.GetStage() != EKeeperStage::Warning || !Marker->IsVisible())
+			{
+				continue;
+			}
+			Seen |= 1u << static_cast<uint32>(Model.GetPhysical());
+			const FVector Size = Marker->GetComponentScale() * KeeperLook::CubeEdge;
+			const bool bThin = FMath::Min(Size.X, Size.Z) <= MaxThick;
+			if (!bThin && !bReported)
+			{
+				bReported = true;
+				Test.AddError(FString::Printf(TEXT("warning marker for physical %d is %.0f x %.0f cm: a block, not a thin line"),
+					static_cast<int32>(Model.GetPhysical()), Size.X, Size.Z));
+			}
+		}
+		return Seen;
+	}
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FKeeperWorldWarningMarkerLine, "UmbrellaElla.Keeper.World.WarningMarkerIsAThinRedLineForEveryKind", WorldFlags)
+bool FKeeperWorldWarningMarkerLine::RunTest(const FString& Parameters)
+{
+	// Josh 13 Nov: a full-size salmon-pink block lay across the arena during Keeper warnings (TelegraphVisual at the
+	// lane's full size in (1,0.2,0.2); the frame pass every 0.2 s could not keep it thin against the per-tick placement).
+	// The test world has no slot material, so the colour is checked on the constant the Keeper places every tick.
+	TestTrue(TEXT("the marker colour is shot red, not salmon pink (1,0.2,0.2)"),
+		FLinearColor(KeeperLook::Telegraph).Equals(UmbrellaFrameConst::TelegraphRed, 0.0005f));
+	uint32 Seen = 0;
+	{
+		FKeeperWorld W;
+		AddExpectedError(TEXT("no arena in the world"), EAutomationExpectedErrorFlags::Contains, 0);
+		W.Director->BeginKeeperFight();
+		// Stand inside the talon's reach so it strikes (the model arms it when Ella is within TalonReach of the claw).
+		const FVector2D Near = W.Director->GetModel().GetClaw() + FVector2D(-100.0f, 0.0f);
+		W.Ella->SetActorLocation(FVector(Near.X, 0.0f, Near.Y));
+		Seen |= CheckWarningMarkers(*this, W, 20.0f);
+	}
+	{
+		FKeeperWorld W;
+		AddExpectedError(TEXT("no arena in the world"), EAutomationExpectedErrorFlags::Contains, 0);
+		W.Director->BeginKeeperFightAtPhase(EKeeperPhase::Mechanisms);
+		Seen |= CheckWarningMarkers(*this, W, 20.0f);
+	}
+	TestTrue(TEXT("a talon warning showed the marker"), (Seen & (1u << static_cast<uint32>(EKeeperPhysical::Talon))) != 0);
+	const uint32 Casts = (1u << static_cast<uint32>(EKeeperPhysical::FrontCast)) | (1u << static_cast<uint32>(EKeeperPhysical::MiddleCurve))
+		| (1u << static_cast<uint32>(EKeeperPhysical::RearTwoStage));
+	TestTrue(TEXT("a chain-cast warning showed the marker"), (Seen & Casts) != 0);
+	return true;
+}

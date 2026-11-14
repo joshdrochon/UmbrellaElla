@@ -32,14 +32,10 @@ EFrameTreatment UFrameCompositionSubsystem::TreatmentFor(const FFrameMeshFacts& 
 	{
 		return EFrameTreatment::Keep;
 	}
-	// The Keeper's cue cubes start lilac like its other stand-ins: name them first.
-	if (!F.bDrawsArt && F.ComponentName == FName(UmbrellaFrameConst::KeeperTelegraphName))
+	// The Keeper's cue cubes draw themselves every tick (thin red telegraph line, gust cube hidden): leave them alone.
+	if (F.ComponentName == FName(UmbrellaFrameConst::KeeperTelegraphName) || F.ComponentName == FName(UmbrellaFrameConst::KeeperGustName))
 	{
-		return EFrameTreatment::TelegraphLine;
-	}
-	if (!F.bDrawsArt && F.ComponentName == FName(UmbrellaFrameConst::KeeperGustName))
-	{
-		return EFrameTreatment::GustLine;
+		return EFrameTreatment::Keep;
 	}
 	const bool bKeeperStandIn = !F.bDrawsArt && (F.ComponentName == FName(UmbrellaFrameConst::KeeperStandInName)
 		|| F.Tint.Equals(UmbrellaArtSlotConst::StandInKeeperColor, UmbrellaFrameConst::RoleTolerance));
@@ -90,8 +86,6 @@ FLinearColor UFrameCompositionSubsystem::TintFor(EFrameTreatment Treatment)
 	case EFrameTreatment::TintEnemy: return UmbrellaFrameConst::EnemyShadow;
 	case EFrameTreatment::TintKeeper: return UmbrellaFrameConst::KeeperMetal;
 	case EFrameTreatment::TintElla: return UmbrellaFrameConst::EllaInk;
-	case EFrameTreatment::TelegraphLine: return UmbrellaFrameConst::TelegraphRed;
-	case EFrameTreatment::GustLine: return UmbrellaFrameConst::GustAsh;
 	default: return FLinearColor::White;
 	}
 }
@@ -101,8 +95,6 @@ FVector UFrameCompositionSubsystem::ScaleFor(EFrameTreatment Treatment)
 	switch (Treatment)
 	{
 	case EFrameTreatment::TintEnemy: return FVector(UmbrellaFrameConst::EnemyStandInScale);
-	case EFrameTreatment::TelegraphLine:
-	case EFrameTreatment::GustLine: return FVector(1.0, 1.0, UmbrellaFrameConst::CueLineShare);
 	default: return FVector::OneVector;
 	}
 }

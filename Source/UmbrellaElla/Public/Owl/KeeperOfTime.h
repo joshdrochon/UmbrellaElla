@@ -126,6 +126,13 @@ public:
 	static void GustStrokes(const FVector2D& LaneStart, float LaneLength, float BandWidth, bool bTravelling, float WarningProgress,
 		float FrontX, float FrontThickness, float Seconds, TArray<FKeeperGustStroke>& Out);
 
+	/**
+	 * Drops every stroke that reaches into the box at Centre with half-size Half (its thickness counted). The gust's white
+	 * puff sprites (VFX_GustPuff / VFX_Gust, UmbrellaVfxDirectorSubsystem) sit on the gust front: no ribbon is drawn
+	 * behind them (Josh 22:47: grey strokes behind the plume look tacky). Pure.
+	 */
+	static void ClipStrokesOutside(const FVector2D& Centre, const FVector2D& Half, TArray<FKeeperGustStroke>& Strokes);
+
 	/** Gust ribbon pieces drawn now (visible pool entries). Tests read it. */
 	int32 GetVisibleGustRibbonCount() const;
 	/** The gust ribbon pool (created on first use). Tests read it. */

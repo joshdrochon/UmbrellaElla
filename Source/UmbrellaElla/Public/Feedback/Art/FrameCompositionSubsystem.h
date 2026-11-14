@@ -41,15 +41,13 @@ namespace UmbrellaFrameConst
 	/** Enemy stand-ins are drawn at this share of their box (visual only; the hitbox is unchanged). */
 	static constexpr float EnemyStandInScale = 0.6f;
 	/**
-	 * The Keeper's attack telegraph and gust cue cubes (AKeeperOfTime): drawn as thin lines, never boxes (the 1050x120
-	 * telegraph was the pink block over Ella, lead 17:08). The telegraph is shot red #ff3658, the gust ash blue #555e60.
+	 * The Keeper's attack telegraph and gust cue cubes (AKeeperOfTime) draw themselves every tick: the telegraph as a thin
+	 * shot-red line (KeeperLook::Telegraph, #ff3658), the gust cube never (ribbons draw the gust). The frame pass leaves
+	 * both alone: it re-applied only every 0.2 s while the Keeper re-placed them every tick, so the salmon block showed.
 	 */
 	static const TCHAR* const KeeperTelegraphName = TEXT("TelegraphVisual");
 	static const TCHAR* const KeeperGustName = TEXT("GustVisual");
 	static const FLinearColor TelegraphRed(1.0f, 0.037f, 0.095f, 1.0f);
-	static const FLinearColor GustAsh(0.091f, 0.111f, 0.117f, 1.0f);
-	/** Share of its height a telegraph or gust cue keeps (120 units -> about 18: a line, still readable). */
-	static constexpr float CueLineShare = 0.15f;
 	/**
 	 * Backdrop pictures artscene ships graded to the study (bg-layer:* panels, bg:* scene panels): never dimmed again
 	 * (artscene request 5: the dim turned the graded route black, luma p50 0 against the study's 35).
@@ -108,8 +106,6 @@ enum class EFrameTreatment : uint8
 	TintEnemy,
 	TintKeeper,
 	TintElla,
-	TelegraphLine,
-	GustLine,
 	Hide
 };
 
