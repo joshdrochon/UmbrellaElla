@@ -297,3 +297,19 @@ IDENTIFIED C: the Keeper gust's gameplay cue cube `AKeeperOfTime::GustVisual` (S
   `active=0`, two more mouse clicks did nothing, Enter took (`presses=4`), 'wait Title' PASS after 0.1 s; JOURNEY_END
   passed=31 failed=0. Test UmbrellaElla.Smoke.Journey.ClickRetriesUntilItTakes (break-check: "a sent click is done" -> FAIL); build exit 0; Smoke + shaft 19/19 PASS.
 - Lead order of Nov 13 21:49 items 0-6 done (4: 958f56dd, 5: b96990b4, 6: this commit). Stopped here as ordered.
+
+## Lead order Nov 13 23:06: gate builds link hot-reload names, run_game calls them stale
+- Cause (UE 5.8.4 source): a full editor (GIsEditor, not -game) touches `Engine/Intermediate/EditorRuns/<pid>`
+  (Developer/HotReload/Private/HotReload.cpp, CreateFileThatIndicatesEditorRunIfNeeded). UBT's
+  ShouldDoHotReloadFromIDE (Programs/UnrealBuildTool/System/HotReload.cs) matches that pid's executable path to the
+  engine's UnrealEditor only; the project is never compared. So one editor open on any checkout of this engine puts
+  every worktree's build in hot-reload mode: `-NNNN.dylib`, .modules mapped to it, base dylib left old. Gate state at
+  23:05: HotReloadState.json NextSuffix 7, suffixes 0001/0003/0004/0006; .modules -> -0004. EditorRuns was empty at
+  23:08 (no process touched).
+- Fix 1: run_game.sh checks the dylib that `Binaries/Mac/UnrealEditor.modules` names (fallback: base dylib). On the
+  gate checkout now: resolves -0004, nothing newer; the old base check reports UmbrellaCueData.h.
+- Fix 2: tools/ue/build.sh passes `-NoHotReload` (TargetDescriptor.cs: HotReloadMode.Disabled; Disabled also deletes the
+  old suffixed files in HotReloadState.json). `UE_HOT_RELOAD=1` keeps UBT's default. Real build here: UBT line ends
+  `-WaitMutex -NoHotReload`, build exit 0, .modules maps base names. Not reproduced with an editor open (would need
+  launching one; not done).
+- Tests: tests/test_run_game.py 9 OK; against the old run_game.sh/build.sh 4 fail (suffixed layout STALE, missing -NoHotReload).
