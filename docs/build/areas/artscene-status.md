@@ -158,3 +158,7 @@ No `-SmokeShotDelay=` flag yet, load average 45. Context pair for skyline, paper
   the key art, so it cannot judge "match the Other Realm study". Verdict: check/target conflict, not loosened; visualqa's frame check should own it.
 - near grade keeps 85% chroma (100% put the solids' rim at off_style 0.037 > 0.02; 85% measures 0.004).
 - OpenRouter spend this session: $0.691 (10 calls). Pre-check PASS at c6ad170c.
+- Nov 13 17:25, after merging main 570ca482: visualqa's BackdropDim (x0.055 on all backdrop art) turns the graded scene black (arena p50 luma 0,
+  study 35). Request 5 in docs/build/requests/artscene.md; proof world-r1-after-dim.png. Also removed an old out-of-lane art_inventory.py
+  edit from this branch (back to main's). Pre-check PASS at 001d90e7. Next once request 5 lands: recapture, then Pro passes where the
+  frame shows the gap (route islands, refuge).

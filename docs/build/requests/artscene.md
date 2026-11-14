@@ -45,3 +45,14 @@ Why: the floor is the one flat cream stand-in left across the bottom of every ro
 the study has no ground, only floating eroded land. The slot art (T_WorldSolids_PH: a crust-topped slab with a drippy underside) already
 draws on every ledge. Visual only, collision untouched (ArtSlot::Apply never touches collision). Test: ArtSlotFamilyTests' VisualFor case
 gains Floor -> world:solids.
+
+## 5 (Nov 13 17:25, for visualqa / the lead): backdrop dim now double-darkens the study-graded scene art
+File: `Source/UmbrellaElla/Public/Feedback/Art/FrameCompositionSubsystem.h`, `UmbrellaFrameConst::BackdropDim` (0.055, 0.048, 0.042), applied
+by `EFrameTreatment::DimBackdropArt` to every art mesh behind BehindPlayY.
+Measured (luma p10/p50/p90, 1280x720 captures, same journeys): study 26 / 35 / 48. artscene world r1 before the dim (commit 0f4a4554):
+arena 9 / 21 / 48, route CP1 18 / 21 / 54. Same art after merging main 570ca482 (dim on): arena 0 / 0 / 26, route CP1 0 / 0 / 4 (black frame).
+Cause: the dim was sized for the old bright stand-ins (clouds, cream clock faces); artscene's backdrop pictures are now graded to the study's
+numbers in the texture (tools/build/assets/art_scene_world.py), so the multiply puts them about 18x under the study.
+Ask: skip DimBackdropArt for the Scene slots artscene now ships graded (bg-layer:*, bg:*), or set BackdropDim to (1,1,1) for them. Keep
+DarkenBackdropPanel for flat stand-ins. Evidence: pipeline/art/proof/artscene/world-r1-*.png (before the dim) and
+pipeline/art/proof/artscene/world-r1-after-dim.png.
