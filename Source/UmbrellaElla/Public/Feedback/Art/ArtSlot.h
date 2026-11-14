@@ -78,12 +78,12 @@ namespace ArtSlot
 	UMBRELLAELLA_API FString SlotPath(const FArtSlotRow& Row);
 
 	/** True when a picture of this size can draw (both edges 1..MaxTextureEdge). Pure. */
-	UMBRELLAELLA_API bool FitsGpu(int64 Width, int64 Height);
+	UMBRELLAELLA_API bool CanGpuDraw(int64 Width, int64 Height);
 
 	/** The picture's full size: the source size in an editor build (the platform data can still be a placeholder), else the platform size. */
 	UMBRELLAELLA_API FIntPoint PictureSize(const UTexture2D* Texture);
 
-	/** First texture that loads for the row and fits the GPU (FitsGpu), or null: an oversized picture is never drawn black. */
+	/** First texture that loads for the row and fits the GPU (CanGpuDraw), or null: an oversized picture is never drawn black. */
 	UMBRELLAELLA_API UTexture2D* LoadTexture(const FArtSlotRow& Row);
 
 	/** Plane scale that fills the same width and height as a stand-in box scale (X, Y, Z). Pure. */

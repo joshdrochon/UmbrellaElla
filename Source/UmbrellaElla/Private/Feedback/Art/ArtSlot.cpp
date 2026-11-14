@@ -87,23 +87,18 @@ UTexture2D* ArtSlot::LoadTexture(const FArtSlotRow& Row)
 		if (Cached.IsValid())
 		{
 			const FIntPoint Size = PictureSize(Cached.Get());
-			if (FitsGpu(Size.X, Size.Y))
+			if (CanGpuDraw(Size.X, Size.Y))
 			{
 				return Cached.Get();
 			}
-			static TSet<FString> Reported;
-			if (!Reported.Contains(Path))
-			{
-				Reported.Add(Path);
-				UE_LOG(LogUmbrellaElla, Warning, TEXT("ArtSlot: %s is %d x %d, over the %d px texture limit: not drawn (it would draw a black box)"),
-					*Path, Size.X, Size.Y, UmbrellaArtSlotConst::MaxTextureEdge);
-			}
+			UE_LOG(LogUmbrellaElla, Warning, TEXT("ArtSlot: %s is %d x %d, over the %d px texture limit: not drawn (it would draw a black box)"),
+				*Path, Size.X, Size.Y, UmbrellaArtSlotConst::MaxTextureEdge);
 		}
 	}
 	return nullptr;
 }
 
-bool ArtSlot::FitsGpu(int64 Width, int64 Height)
+bool ArtSlot::CanGpuDraw(int64 Width, int64 Height)
 {
 	return Width >= 1 && Height >= 1 && Width <= UmbrellaArtSlotConst::MaxTextureEdge && Height <= UmbrellaArtSlotConst::MaxTextureEdge;
 }

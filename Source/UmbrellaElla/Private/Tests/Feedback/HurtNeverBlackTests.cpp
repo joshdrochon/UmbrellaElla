@@ -16,7 +16,7 @@
  */
 namespace
 {
-	/** Metal's 2D texture edge limit, written out here so the check does not lean on ArtSlot::FitsGpu itself. */
+	/** Metal's 2D texture edge limit, written out here so the check does not lean on ArtSlot::CanGpuDraw itself. */
 	constexpr int32 GpuEdgeLimit = 16384;
 
 	bool UnderGpuLimit(const FIntPoint& Size)
@@ -38,14 +38,14 @@ namespace
 	}
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FArtSlotFitsGpu, "UmbrellaElla.Feedback.ArtSlot.FitsGpu", HurtTestFlags)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FArtSlotCanGpuDraw, "UmbrellaElla.Feedback.ArtSlot.CanGpuDraw", HurtTestFlags)
 
-bool FArtSlotFitsGpu::RunTest(const FString& Parameters)
+bool FArtSlotCanGpuDraw::RunTest(const FString& Parameters)
 {
-	TestFalse(TEXT("the old hurt strip (23688 x 565) does not fit"), ArtSlot::FitsGpu(23688, 565));
-	TestTrue(TEXT("16384 x 16384 fits"), ArtSlot::FitsGpu(16384, 16384));
-	TestFalse(TEXT("16385 tall does not fit"), ArtSlot::FitsGpu(100, 16385));
-	TestFalse(TEXT("an empty picture does not fit"), ArtSlot::FitsGpu(0, 10));
+	TestFalse(TEXT("the old hurt strip (23688 x 565) does not fit"), ArtSlot::CanGpuDraw(23688, 565));
+	TestTrue(TEXT("16384 x 16384 fits"), ArtSlot::CanGpuDraw(16384, 16384));
+	TestFalse(TEXT("16385 tall does not fit"), ArtSlot::CanGpuDraw(100, 16385));
+	TestFalse(TEXT("an empty picture does not fit"), ArtSlot::CanGpuDraw(0, 10));
 	// Every catalogue picture the game can load is one the GPU can draw.
 	for (const FArtSlotRow& Row : ArtSlot::Rows())
 	{
