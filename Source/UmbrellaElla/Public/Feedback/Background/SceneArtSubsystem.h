@@ -81,8 +81,14 @@ public:
 	/** World X a panel sits at for a camera X. Pure. */
 	static float PanelX(const FSceneArtSpec& Spec, float CameraX);
 
-	/** Move every panel for a camera X (also what Tick does). */
-	void ScrollTo(float CameraX);
+	/**
+	 * How much larger than the arena view the camera shows: OrthoWidth / ArenaWidth, 1 when not orthographic (0). The
+	 * camera margin (visualqa) widens the view, so the view-sized frame scales by this to keep reaching the screen edge. Pure.
+	 */
+	static float ViewScale(float OrthoWidth);
+
+	/** Move every panel for a camera X and size view panels to the camera's ortho width (0 = arena width; also what Tick does). */
+	void ScrollTo(float CameraX, float OrthoWidth = 0.0f);
 
 	virtual void Deinitialize() override;
 

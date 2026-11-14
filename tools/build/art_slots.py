@@ -15,14 +15,12 @@ screen) must be keyed on transparency and carry no drawn frame border. One that 
 bStandInOk = false, and the game never loads its _PH (the plain stand-in, or nothing, is drawn instead).
 """
 import csv
+import hashlib
 import json
 import os
 import re
-import shutil
 import struct
-import subprocess
 import sys
-import tempfile
 import zlib
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -41,6 +39,9 @@ FULL_FRAME_KINDS = ("bg-layer", "bg", "screen", "menu-backdrop", "ui")
 FULL_FRAME_VISUALS = {"vfx-sheet:VFX_Blackout"}
 # Measured on a copy scaled to this many pixels on its long side.
 STANDIN_PROBE_PX = 192
+# Verdicts measured by this reader, keyed "<sha256>:<cols>x<rows>" (a cache of probe_alpha; never a second reader).
+VERDICT_CACHE = os.path.join("pipeline", "art", "standin-verdicts.json")
+READER_VERSION = "py-area-1"
 # Keyed: at least this share of the picture's pixels are clear (alpha < STANDIN_CLEAR_ALPHA).
 STANDIN_MIN_CLEAR = 0.05
 STANDIN_CLEAR_ALPHA = 16
@@ -184,22 +185,49 @@ def read_png_rgba(path):
     return w, h, [[alpha(r, x) for x in range(w)] for r in rows]
 
 
+def shrink_alpha(w, h, alpha, longest=None):
+    """Area-average an alpha grid down to `longest` pixels on its long side (aspect kept). Pure, stdlib only."""
+    longest = STANDIN_PROBE_PX if longest is None else longest
+    if max(w, h) <= longest:
+        return w, h, alpha
+    scale = float(longest) / max(w, h)
+    tw, th = max(1, int(round(w * scale))), max(1, int(round(h * scale)))
+    xs = [(tx * w // tw, max(tx * w // tw + 1, (tx + 1) * w // tw)) for tx in range(tw)]
+    out = []
+    for ty in range(th):
+        y0, y1 = ty * h // th, max(ty * h // th + 1, (ty + 1) * h // th)
+        sums = [0] * w
+        for y in range(y0, y1):
+            row = alpha[y]
+            for x in range(w):
+                sums[x] += row[x]
+        n = y1 - y0
+        out.append([sum(sums[a:b]) // ((b - a) * n) for a, b in xs])
+    return tw, th, out
+
+
 def probe_alpha(path):
-    """Alpha grid of a small copy of the picture (macOS sips, else ffmpeg), so big sheets measure fast."""
-    tmp = tempfile.mkdtemp(prefix="standin_")
-    out = os.path.join(tmp, "probe.png")
+    """Alpha grid of the picture at STANDIN_PROBE_PX on its long side: one Python reader on every machine (no image
+    tool), so the generated verdicts never depend on what is installed (16:28 gate review)."""
+    w, h, alpha = read_png_rgba(path)
+    return shrink_alpha(w, h, alpha)
+
+
+def file_sha(path):
+    with open(path, "rb") as fh:
+        return hashlib.sha256(fh.read()).hexdigest()
+
+
+def load_verdict_cache():
     try:
-        if shutil.which("sips"):
-            subprocess.run(["sips", "-Z", str(STANDIN_PROBE_PX), path, "--out", out], capture_output=True, check=True)
-        elif shutil.which("ffmpeg"):
-            scale = "scale='if(gt(iw,ih),%d,-2)':'if(gt(iw,ih),-2,%d)'" % (STANDIN_PROBE_PX, STANDIN_PROBE_PX)
-            subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", path, "-vf", scale, "-pix_fmt", "rgba", out],
-                           capture_output=True, check=True)
-        else:
-            out = path
-        return read_png_rgba(out)
-    finally:
-        shutil.rmtree(tmp, ignore_errors=True)
+        with open(os.path.join(ROOT, VERDICT_CACHE), encoding="utf-8") as fh:
+            data = json.load(fh)
+    except (OSError, ValueError):
+        return {}
+    return data.get("verdicts", {}) if data.get("reader") == READER_VERSION else {}
+
+
+_CACHE = None
 
 
 def standin_verdict_alpha(w, h, alpha, full_frame=False, cols=1, rows=1):
@@ -252,8 +280,14 @@ def standin_verdict(visual):
         else:
             d = derive(visual)
             layout = sheet_layout(pic, png_size(os.path.join(ROOT, pic))) or ((d[2], 1) if d else (1, 1))
-            w, h, alpha = probe_alpha(os.path.join(ROOT, pic))
-            _VERDICTS[visual] = standin_verdict_alpha(w, h, alpha, cols=layout[0], rows=layout[1])
+            global _CACHE
+            if _CACHE is None:
+                _CACHE = load_verdict_cache()
+            key = "%s:%dx%d" % (file_sha(os.path.join(ROOT, pic)), layout[0], layout[1])
+            if key not in _CACHE:
+                w, h, alpha = probe_alpha(os.path.join(ROOT, pic))
+                _CACHE[key] = standin_verdict_alpha(w, h, alpha, cols=layout[0], rows=layout[1])
+            _VERDICTS[visual] = _CACHE[key]
     return _VERDICTS[visual]
 
 
@@ -322,6 +356,18 @@ def main(argv=None):
         for v in visuals():
             if v not in NO_SLOT and standin_picture(v):
                 print("%-36s %-8s %s" % (v, standin_verdict(v), standin_picture(v)))
+        return 0
+    if cmd == "verdicts":
+        # Measure every stand-in with the one reader and store the results by picture hash (commit the file).
+        global _CACHE
+        _CACHE = {}
+        for v in visuals():
+            if v not in NO_SLOT:
+                standin_verdict(v)
+        with open(os.path.join(ROOT, VERDICT_CACHE), "w", encoding="utf-8") as fh:
+            json.dump({"reader": READER_VERSION, "verdicts": dict(sorted(_CACHE.items()))}, fh, indent=1)
+            fh.write("\n")
+        print("art_slots: %d stand-in verdicts -> %s" % (len(_CACHE), VERDICT_CACHE))
         return 0
     if cmd == "list":
         for v in visuals():

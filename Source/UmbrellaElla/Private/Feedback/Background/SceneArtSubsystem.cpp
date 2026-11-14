@@ -180,8 +180,15 @@ UStaticMeshComponent* USceneArtSubsystem::FindPanel(const FString& Visual, int32
 	return nullptr;
 }
 
-void USceneArtSubsystem::ScrollTo(float CameraX)
+float USceneArtSubsystem::ViewScale(float OrthoWidth)
 {
+	const float ArenaWidth = GetDefault<UUmbrellaTuning>()->ArenaCamera.ArenaWidth;
+	return (OrthoWidth > 0.0f && ArenaWidth > 0.0f) ? OrthoWidth / ArenaWidth : 1.0f;
+}
+
+void USceneArtSubsystem::ScrollTo(float CameraX, float OrthoWidth)
+{
+	const float Scale = ViewScale(OrthoWidth);
 	for (const FPanel& Entry : Panels)
 	{
 		if (AActor* Actor = Entry.Actor.Get())
@@ -189,6 +196,16 @@ void USceneArtSubsystem::ScrollTo(float CameraX)
 			FVector Location = Actor->GetActorLocation();
 			Location.X = PanelX(Entry.Spec, CameraX);
 			Actor->SetActorLocation(Location);
+			if (Entry.Spec.Anchor == ESceneArtAnchor::View)
+			{
+				// Keep the panel's depth thickness; widen it with the view in X and Z (the art keeps its aspect).
+				const FVector Base(PanelSize(Entry.Spec).X / UmbrellaBackdropConst::EngineCubeSize, 0.0f, PanelSize(Entry.Spec).Y / UmbrellaBackdropConst::EngineCubeSize);
+				const FVector Wanted(Base.X * Scale, UmbrellaBackdropConst::PanelThickness, Base.Z * Scale);
+				if (!Actor->GetActorScale3D().Equals(Wanted, KINDA_SMALL_NUMBER))
+				{
+					Actor->SetActorScale3D(Wanted);
+				}
+			}
 		}
 	}
 }
@@ -199,7 +216,9 @@ void USceneArtSubsystem::Tick(float DeltaTime)
 	const APlayerController* Controller = IsValid(World) ? World->GetFirstPlayerController() : nullptr;
 	if (IsValid(Controller) && IsValid(Controller->PlayerCameraManager) && !Panels.IsEmpty())
 	{
-		ScrollTo(static_cast<float>(Controller->PlayerCameraManager->GetCameraLocation().X));
+		const FMinimalViewInfo& View = Controller->PlayerCameraManager->GetCameraCacheView();
+		const float OrthoWidth = View.ProjectionMode == ECameraProjectionMode::Orthographic ? View.OrthoWidth : 0.0f;
+		ScrollTo(static_cast<float>(Controller->PlayerCameraManager->GetCameraLocation().X), OrthoWidth);
 	}
 }
 
