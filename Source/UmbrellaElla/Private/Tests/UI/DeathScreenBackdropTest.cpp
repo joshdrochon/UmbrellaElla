@@ -11,10 +11,10 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FDeathScreenBackdropTest, "UmbrellaElla.UI.Deat
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
 bool FDeathScreenBackdropTest::RunTest(const FString& Parameters)
 {
-	TestEqual(TEXT("Defeated shows the game scene"), FlowBackdropFor(EFlowScreen::Defeat), EFlowBackdrop::Scene);
-	TestFalse(TEXT("Defeated does not paint the title picture"), FlowBackdropPaintsTitlePicture(FlowBackdropFor(EFlowScreen::Defeat)));
-	TestTrue(TEXT("the title screen keeps its picture"), FlowBackdropPaintsTitlePicture(FlowBackdropFor(EFlowScreen::Title)));
-	TestTrue(TEXT("credits keep their picture"), FlowBackdropPaintsTitlePicture(FlowBackdropFor(EFlowScreen::Credits)));
+	TestTrue(TEXT("Defeated shows the game scene, not the title picture"), ShouldFlowMenuShowGameScene(EFlowScreen::Defeat));
+	TestFalse(TEXT("the title screen keeps its picture"), ShouldFlowMenuShowGameScene(EFlowScreen::Title));
+	TestFalse(TEXT("credits keep their picture"), ShouldFlowMenuShowGameScene(EFlowScreen::Credits));
+	TestFalse(TEXT("pause keeps its picture"), ShouldFlowMenuShowGameScene(EFlowScreen::Paused));
 	TestEqual(TEXT("pause keeps its clocks"), FlowBackdropFor(EFlowScreen::Paused), EFlowBackdrop::Clocks);
 
 	// The UI art layer: no full-frame picture (the title ground, its grain, or the screen:Defeat capture) on Defeated.

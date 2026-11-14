@@ -4,8 +4,7 @@
 #include "Widgets/SCompoundWidget.h"
 #include "Widgets/SLeafWidget.h"
 #include "Flow/FlowTuning.h"
-
-enum class EFlowScreen : uint8;
+#include "Flow/FlowRules.h"
 
 /** Which shapes the moving background draws. */
 enum class EFlowBackdrop : uint8
@@ -13,16 +12,14 @@ enum class EFlowBackdrop : uint8
 	/** Start screen, ending and credits: slow drifting shapes, nobody on screen. */
 	Drift,
 	/** Pause: the same plus ticking clocks. Presentation only, it never reads or advances the simulation. */
-	Clocks,
-	/** Defeated: no title picture; the paused game (the in-game backdrop layers) shows through a dim ink veil. */
-	Scene
+	Clocks
 };
 
-/** The backdrop each flow screen's menu draws (Josh, Nov 13: the death screen shows the in-game backdrop, never the title picture). */
+/** The shapes each flow screen's menu draws: clocks on the pause screens, drift elsewhere. */
 UMBRELLAELLA_API EFlowBackdrop FlowBackdropFor(EFlowScreen Screen);
 
-/** True when this backdrop paints the opaque title picture (T_UI_Ground_PH) over the whole screen. */
-UMBRELLAELLA_API bool FlowBackdropPaintsTitlePicture(EFlowBackdrop Backdrop);
+/** True on Defeated (Josh, Nov 13 22:40): the menu shows the paused game (the in-game backdrop) under an ink veil, never the title picture. */
+UMBRELLAELLA_API bool ShouldFlowMenuShowGameScene(EFlowScreen Screen);
 
 /** The slowly moving character-free background (Start screen, pause, ending, credits). Time comes from Slate, not the game. */
 class UMBRELLAELLA_API SFlowBackground : public SLeafWidget
@@ -32,6 +29,8 @@ public:
 	{
 	}
 	SLATE_ARGUMENT_DEFAULT(EFlowBackdrop, Backdrop) = EFlowBackdrop::Drift;
+	/** True: no title picture and no shapes; the paused game shows through an ink veil (Defeated). */
+	SLATE_ARGUMENT_DEFAULT(bool, ShowsGameScene) = false;
 	SLATE_ARGUMENT(FFlowTuning, Tuning)
 	SLATE_END_ARGS()
 
@@ -43,6 +42,7 @@ public:
 
 private:
 	EFlowBackdrop Backdrop = EFlowBackdrop::Drift;
+	bool bShowsGameScene = false;
 	FFlowTuning Tuning;
 };
 
@@ -67,6 +67,8 @@ public:
 	{
 	}
 	SLATE_ARGUMENT_DEFAULT(EFlowBackdrop, Backdrop) = EFlowBackdrop::Drift;
+	/** Passed to the background: the paused game shows instead of the title picture (Defeated). */
+	SLATE_ARGUMENT_DEFAULT(bool, ShowsGameScene) = false;
 	SLATE_ARGUMENT(FFlowTuning, Tuning)
 	SLATE_ARGUMENT(FText, Heading)
 	/** Heading colour; unset = the style's cream. The Defeated screen uses the rust accent. */

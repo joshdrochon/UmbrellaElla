@@ -786,7 +786,7 @@ void AUmbrellaPlayerController::ShowScreenWidget()
 		TArray<FFlowMenuItem> Items;
 		Items.Add({ FFlowMenuText::RetryLabel(), FSimpleDelegate::CreateWeakLambda(this, [this]() { ApplyCommand(EFlowCommand::Retry); }) });
 		Items.Add({ FFlowMenuText::QuitToTitleLabel(), FSimpleDelegate::CreateUObject(this, &AUmbrellaPlayerController::ReturnToTitle) });
-		Menu = SNew(SFlowMenu).WasdNavigation(IsFeatureEnabled(EFeatureId::MOVE_09)).Backdrop(FlowBackdropFor(Screen)).Tuning(Tuning).Heading(FFlowMenuText::DefeatHeading()).HeadingColor(FUmbrellaUIStyle::Warn()).Items(Items);
+		Menu = SNew(SFlowMenu).WasdNavigation(IsFeatureEnabled(EFeatureId::MOVE_09)).Backdrop(FlowBackdropFor(Screen)).ShowsGameScene(ShouldFlowMenuShowGameScene(Screen)).Tuning(Tuning).Heading(FFlowMenuText::DefeatHeading()).HeadingColor(FUmbrellaUIStyle::Warn()).Items(Items);
 		break;
 	}
 	case EFlowScreen::Statistics:

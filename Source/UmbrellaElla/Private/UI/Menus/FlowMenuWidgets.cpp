@@ -34,8 +34,6 @@ EFlowBackdrop FlowBackdropFor(EFlowScreen Screen)
 {
 	switch (Screen)
 	{
-	case EFlowScreen::Defeat:
-		return EFlowBackdrop::Scene;
 	case EFlowScreen::Paused:
 	case EFlowScreen::Settings:
 	case EFlowScreen::TutorialPaused:
@@ -45,14 +43,15 @@ EFlowBackdrop FlowBackdropFor(EFlowScreen Screen)
 	}
 }
 
-bool FlowBackdropPaintsTitlePicture(EFlowBackdrop Backdrop)
+bool ShouldFlowMenuShowGameScene(EFlowScreen Screen)
 {
-	return Backdrop != EFlowBackdrop::Scene;
+	return Screen == EFlowScreen::Defeat;
 }
 
 void SFlowBackground::Construct(const FArguments& InArgs)
 {
 	Backdrop = InArgs._Backdrop;
+	bShowsGameScene = InArgs._ShowsGameScene;
 	Tuning = InArgs._Tuning;
 }
 
@@ -70,19 +69,16 @@ int32 SFlowBackground::OnPaint(const FPaintArgs& Args, const FGeometry& Allotted
 	const FSlateRoundedBoxBrush Round(FLinearColor::White, Size.Y);
 	const FLinearColor Gold = FUmbrellaUIStyle::Gold();
 
-	int32 Layer = LayerId;
-	if (FlowBackdropPaintsTitlePicture(Backdrop))
+	if (bShowsGameScene)
 	{
-		// The painted ground of the shared style (the title picture).
-		Layer = FUmbrellaUIStyle::PaintGround(AllottedGeometry, OutDrawElements, LayerId);
-	}
-	else
-	{
-		// The paused game scene stays visible; an ink veil keeps the text readable. No embers over the scene.
-		FSlateDrawElement::MakeBox(OutDrawElements, Layer, AllottedGeometry.ToPaintGeometry(), White, ESlateDrawEffect::None,
+		// The paused game scene stays visible; an ink veil keeps the text readable. No title picture, no shapes.
+		FSlateDrawElement::MakeBox(OutDrawElements, LayerId, AllottedGeometry.ToPaintGeometry(), White, ESlateDrawEffect::None,
 			FUmbrellaUIStyle::Ink().CopyWithNewOpacity(UmbrellaUI::SceneVeilAlpha));
-		return Layer + 1;
+		return LayerId + 1;
 	}
+
+	// The painted ground of the shared style (the title picture).
+	int32 Layer = FUmbrellaUIStyle::PaintGround(AllottedGeometry, OutDrawElements, LayerId);
 
 	++Layer;
 	// Embers falling through the scene: index decides column, size and speed, so nothing needs a random stream.
@@ -247,7 +243,7 @@ void SFlowMenu::Construct(const FArguments& InArgs)
 		SNew(SOverlay)
 		+ SOverlay::Slot()
 		[
-			SNew(SFlowBackground).Backdrop(InArgs._Backdrop).Tuning(Tuning)
+			SNew(SFlowBackground).Backdrop(InArgs._Backdrop).ShowsGameScene(InArgs._ShowsGameScene).Tuning(Tuning)
 		]
 		+ SOverlay::Slot().HAlign(HAlign_Left).VAlign(VAlign_Center).Padding(UmbrellaUI::ColumnLeft - TextInset, 0.0f, 0.0f, UmbrellaUI::ColumnBottomLift)
 		[
