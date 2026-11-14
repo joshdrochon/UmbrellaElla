@@ -30,9 +30,11 @@ PRESETS = {
     "ghost": (True, (0.200, 0.180, 0.158), (0.030, 0.026, 0.022), 0.75, False),
     # haze: an opaque painting of low ridges turned into a faint veil, fading out toward its top (the Base layer
     # sits in front of the skyline and land, so it must stay see-through)
-    "haze": (False, (0.190, 0.180, 0.172), (0.050, 0.042, 0.038), 0.45, False),
+    # (alpha 0.45 until Nov 13 gate 3dfc4e2d: with the fade inverted it drew a hard-edged dark rectangle over the land)
+    "haze": (False, (0.190, 0.180, 0.172), (0.050, 0.042, 0.038), 0.30, False),
 }
-HAZE_FADE = 0.55   # haze: share of the picture height (from the top) over which alpha ramps in
+HAZE_FADE = 0.85   # haze: share of the picture height (from the top) over which alpha ramps in
+HAZE_FADE_BOTTOM = 0.15   # haze: share of the height (from the bottom) over which alpha ramps out again
 # (KEY_LO/HI were 0.25/0.70 until the refuge lantern's yellow glow over green keyed as an opaque grey halo, Nov 13)
 KEY_LO = 0.12      # share of the ground's green excess below which a pixel is fully opaque
 KEY_HI = 0.50      # share above which it is fully transparent
@@ -147,6 +149,15 @@ def place(px, W, H, box, mode="fit"):
     return canvas
 
 
+def haze_envelope(h):
+    """Alpha factor per Blender row (row 0 = bottom): 0 at the top row, ramping in over HAZE_FADE, out over HAZE_FADE_BOTTOM.
+    (Until Nov 13 the ramp was flipped: full alpha on the top row, a hard straight edge in the frame.)"""
+    up = np.arange(h, dtype=np.float32) / max(1, h - 1)   # 0 at the bottom row, 1 at the top row
+    fade_in = np.clip((1.0 - up) / HAZE_FADE, 0.0, 1.0)
+    fade_out = np.clip(up / HAZE_FADE_BOTTOM, 0.0, 1.0)
+    return fade_in * fade_out
+
+
 def main():
     a = sys.argv[sys.argv.index("--") + 1:]
     src, dst, preset, W, H = a[0], a[1], a[2], int(a[3]), int(a[4])
@@ -158,8 +169,7 @@ def main():
         px[..., 3] = 1.0
     if preset == "haze":
         h = px.shape[0]
-        top = 1.0 - np.arange(h, dtype=np.float32) / max(1, h - 1)   # 1 at the top row (Blender rows run bottom-up)
-        px[..., 3] *= np.clip((1.0 - top) / HAZE_FADE, 0.0, 1.0)[:, None]
+        px[..., 3] *= haze_envelope(h)[:, None]
     if preset in LUMA_PRESETS:
         grade_luma(px, *LUMA_PRESETS[preset])
     else:

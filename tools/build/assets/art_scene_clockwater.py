@@ -45,7 +45,10 @@ WATER_FRAME = 0.05           # the fall draft came inside a cream frame: share c
 WATER_BANDS = (("source", 0.0, 0.19), ("middle", 0.19, 0.74), ("pool", 0.74, 0.86), ("sea", 0.86, 1.0))
 WIND_BANDS = (("entry", 0.0, 0.14), ("straight", 0.14, 0.42), ("bend", 0.42, 0.72), ("exit", 0.72, 1.0))
 FEATHER = 0.03               # share of the length over which neighbouring parts cross-fade
-EDGE_FADE = 0.15             # water: the sea landing fades out over this share of the width at each side
+EDGE_FADE = 0.25             # water: the fall fades out over this share of its (cropped) width at each side
+BOTTOM_FADE = 0.30           # water: the pool and sea landing fade out over this share of the height at the bottom
+# (Nov 13 gate 3dfc4e2d: the side fade ran before the crop, so the cropped sea kept square sides and a cut bottom and
+#  read as grey placeholder blocks in the route frame)
 HAND_LONG, HAND_SHORT = 0.44, 0.30   # hand length as a share of the dial width (pivot to tip)
 HAND_ANGLES = {"large": (-62.0, 128.0), "small": (35.0, -150.0)}   # long, short (degrees, clockwise from 12)
 
@@ -221,14 +224,22 @@ def clocks(dials_path, hands_path, out, name="clock", hand_name="hand"):
     return made
 
 
+def edge_fade(h, w):
+    """Top-down alpha factor: sides fade over EDGE_FADE of the width, the bottom over BOTTOM_FADE of the height."""
+    x = (np.arange(w, dtype=np.float32) + 0.5) / w
+    y = (np.arange(h, dtype=np.float32) + 0.5) / h
+    side = np.clip(np.minimum(x, 1 - x) / EDGE_FADE, 0, 1)[None, :]
+    bottom = np.clip((1 - y) / BOTTOM_FADE, 0, 1)[:, None]
+    return side * bottom
+
+
 def water_parts(fall_path, out, name="water"):
     px = load_td(fall_path)
     h, w = px.shape[:2]
     fy, fx = int(h * WATER_FRAME), int(w * WATER_FRAME)
     px = keyed(px[fy:h - fy, fx:w - fx].copy())
-    x = (np.arange(px.shape[1], dtype=np.float32) + 0.5) / px.shape[1]
-    px[..., 3] *= np.clip(np.minimum(x, 1 - x) / EDGE_FADE, 0, 1)[None, :]
     px = world.crop(px)
+    px[..., 3] *= edge_fade(px.shape[0], px.shape[1])
     look(px, name)
     parts = bands(px, WATER_BANDS, axis=0)
     for k, v in parts.items():
