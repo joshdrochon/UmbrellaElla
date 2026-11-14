@@ -14,6 +14,9 @@
 #include "Level/LevelPlan.h"
 #include "Arena/UmbrellaArena.h"
 #include "EngineUtils.h"
+#include "GameFramework/Pawn.h"
+#include "Misc/CommandLine.h"
+#include "Core/UmbrellaLog.h"
 
 namespace
 {
@@ -151,6 +154,49 @@ void UUmbrellaBackdropSubsystem::PostInitialize()
 {
 	Super::PostInitialize();
 	BuildLayers();
+	PostActorTickHandle = FWorldDelegates::OnWorldPostActorTick.AddUObject(this, &UUmbrellaBackdropSubsystem::HandlePostActorTick);
+}
+
+void UUmbrellaBackdropSubsystem::Deinitialize()
+{
+	FWorldDelegates::OnWorldPostActorTick.Remove(PostActorTickHandle);
+	Super::Deinitialize();
+}
+
+void UUmbrellaBackdropSubsystem::HandlePostActorTick(UWorld* InWorld, ELevelTick TickType, float DeltaSeconds)
+{
+	if (InWorld != GetWorld())
+	{
+		return;
+	}
+	const APlayerController* Controller = InWorld->GetFirstPlayerController();
+	if (!IsValid(Controller) || !IsValid(Controller->PlayerCameraManager) || Layers.IsEmpty())
+	{
+		return;
+	}
+	RenderCameraX = static_cast<float>(Controller->PlayerCameraManager->GetCameraLocation().X);
+	ScrollTo(RenderCameraX);
+#if !UE_BUILD_SHIPPING
+	static const bool bTrace = FParse::Param(FCommandLine::Get(), TEXT("BackdropTrace"));
+	if (!bTrace)
+	{
+		return;
+	}
+	// Trace (-BackdropTrace): the camera X the frame renders with, the X this subsystem scrolled to in Tick, Ella, and
+	// each layer's on-screen offset (layer X - rendered camera X). dcseamless jolt hunt, Nov 14.
+	const float CamX = static_cast<float>(Controller->PlayerCameraManager->GetCameraLocation().X);
+	const APawn* Pawn = Controller->GetPawn();
+	FString Line = FString::Printf(TEXT("BDTRACE f=%llu dt=%.4f cam=%.2f tickcam=%.2f ella=%.2f vx=%.1f"), GFrameCounter, DeltaSeconds, CamX, RenderCameraX,
+		Pawn ? Pawn->GetActorLocation().X : 0.0, Pawn ? Pawn->GetVelocity().X : 0.0);
+	for (int32 Index = 0; Index < Layers.Num(); ++Index)
+	{
+		if (IsValid(Layers[Index]))
+		{
+			Line += FString::Printf(TEXT(" %s=%.2f"), *BuiltSpecs[Index].Name.ToString(), Layers[Index]->GetActorLocation().X - CamX);
+		}
+	}
+	UE_LOG(LogUmbrellaElla, Display, TEXT("%s"), *Line);
+#endif
 }
 
 int32 UUmbrellaBackdropSubsystem::BuildLayers()
@@ -290,14 +336,10 @@ void UUmbrellaBackdropSubsystem::ScrollTo(float CameraX)
 
 void UUmbrellaBackdropSubsystem::Tick(float DeltaTime)
 {
-	const UWorld* World = GetWorld();
-	const APlayerController* Controller = IsValid(World) ? World->GetFirstPlayerController() : nullptr;
-	if (IsValid(Controller) && IsValid(Controller->PlayerCameraManager) && !Layers.IsEmpty())
-	{
-		ScrollTo(static_cast<float>(Controller->PlayerCameraManager->GetCameraLocation().X));
-	}
-	// Every tick, not once: the Keeper handoff rebuilds the arena's planes (BuildPlaceholders makes new components), and
-	// a one-shot hide left them showing as a dark rectangle behind the faded end picture (visual_qa keeper, dcs-r1).
+	// Scrolling happens in HandlePostActorTick, after this frame's camera update. Here (tickable objects run BEFORE
+	// PlayerController::UpdateCameraManager in UWorld::Tick, LevelTick.cpp) the camera is last frame's: the layers lagged
+	// one frame and stepped by the whole camera move whenever its speed changed (dcseamless jolt, Nov 14).
+	// Every tick, not once: a one-shot hide left the planes showing by the Keeper fight (visual_qa keeper, dcs-r1).
 	HideArenaStandIns();
 }
 

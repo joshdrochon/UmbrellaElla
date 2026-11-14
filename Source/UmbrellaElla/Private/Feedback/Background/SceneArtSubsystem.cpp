@@ -87,6 +87,7 @@ bool USceneArtSubsystem::ShouldCreateSubsystem(UObject* Outer) const
 void USceneArtSubsystem::PostInitialize()
 {
 	Super::PostInitialize();
+	PostActorTickHandle = FWorldDelegates::OnWorldPostActorTick.AddUObject(this, &USceneArtSubsystem::HandlePostActorTick);
 	TSet<FName> Seen;
 	for (const FSceneArtSpec& Spec : Specs())
 	{
@@ -101,6 +102,7 @@ void USceneArtSubsystem::PostInitialize()
 
 void USceneArtSubsystem::Deinitialize()
 {
+	FWorldDelegates::OnWorldPostActorTick.Remove(PostActorTickHandle);
 	Panels.Reset();
 	Super::Deinitialize();
 }
@@ -256,8 +258,13 @@ void USceneArtSubsystem::ScrollTo(float CameraX, float OrthoWidth)
 
 void USceneArtSubsystem::Tick(float DeltaTime)
 {
-	const UWorld* World = GetWorld();
-	const APlayerController* Controller = IsValid(World) ? World->GetFirstPlayerController() : nullptr;
+	// Empty on purpose: the class stays a tickable subsystem only for its interface. Scrolling happens in
+	// HandlePostActorTick, after this frame's camera update (dcseamless jolt, Nov 14).
+}
+
+void USceneArtSubsystem::HandlePostActorTick(UWorld* InWorld, ELevelTick TickType, float DeltaSeconds)
+{
+	const APlayerController* Controller = InWorld == GetWorld() && IsValid(InWorld) ? InWorld->GetFirstPlayerController() : nullptr;
 	if (IsValid(Controller) && IsValid(Controller->PlayerCameraManager) && !Panels.IsEmpty())
 	{
 		const FMinimalViewInfo& View = Controller->PlayerCameraManager->GetCameraCacheView();

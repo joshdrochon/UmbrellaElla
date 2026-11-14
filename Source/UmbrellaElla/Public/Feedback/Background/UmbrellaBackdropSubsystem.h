@@ -61,6 +61,7 @@ public:
 	/** Game and PIE worlds only: an editor world would get the panels saved into the .umap. */
 	virtual bool ShouldCreateSubsystem(UObject* Outer) const override;
 	virtual void PostInitialize() override;
+	virtual void Deinitialize() override;
 
 	/** Build the layers (safe to call twice). Returns the number of layers now present. */
 	int32 BuildLayers();
@@ -132,6 +133,12 @@ public:
 	const TArray<FBackdropLayerSpec>& GetBuiltSpecs() const { return BuiltSpecs; }
 
 private:
+	/** After the camera update (UWorld::Tick runs tickable objects before PlayerController::UpdateCameraManager). */
+	void HandlePostActorTick(UWorld* InWorld, ELevelTick TickType, float DeltaSeconds);
+	FDelegateHandle PostActorTickHandle;
+	/** Camera X the layers were last scrolled to (after the camera update; the trace prints it). */
+	float RenderCameraX = 0.0f;
+
 	UPROPERTY()
 	TArray<TObjectPtr<AActor>> Layers;
 	TArray<FBackdropLayerSpec> BuiltSpecs;

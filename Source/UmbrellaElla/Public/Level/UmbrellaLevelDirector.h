@@ -7,6 +7,37 @@
 #include "Level/LevelPlan.h"
 #include "UmbrellaLevelDirector.generated.h"
 
+namespace UmbrellaCameraFollowConst
+{
+	/**
+	 * Camera follow smoothing (critically damped spring, seconds). dcseamless, Nov 14: the camera centre was Ella's X plus a
+	 * lead of +-CameraLeadFraction x view width chosen by the SIGN of her X velocity, set instantly: every time she stopped
+	 * (a Space flap, a key release) the view jumped 480 units back, and 480 forward when she moved again (measured with
+	 * real input: per-frame camera steps -480..+960 at 30 fps). 0.25 s keeps her near the lead point while flying.
+	 */
+	static constexpr float SmoothSeconds = 0.25f;
+	/** The lead turns at most this fast (units/s): a reversal swings it 960 units, which a spring alone ran at 94 units a frame. */
+	static constexpr float LeadSpeed = 300.0f;
+	/**
+	 * Ella moving farther than this in one follow step is a cut (checkpoint place, respawn, handoff retry): the camera
+	 * snaps as before instead of gliding (review dcseamless). Flying moves her about 25 units a frame.
+	 */
+	static constexpr float SnapEllaJump = 400.0f;
+	/** A target this far from the camera (a checkpoint place, a respawn, the handoff) is a cut: the camera snaps. */
+	static constexpr float SnapDistance = 3840.0f;
+}
+
+/** Camera follow state: smoothed centre X, its rate, and the lead kept while Ella is not moving sideways. */
+struct FCameraFollowState
+{
+	float X = 0.0f;
+	float Rate = 0.0f;
+	float Lead = 0.0f;
+	float LeadTarget = 0.0f;
+	float LastEllaX = 0.0f;
+	bool bStarted = false;
+};
+
 class AUmbrellaArena;
 
 /**
@@ -34,8 +65,16 @@ public:
 	/** Move Actor to the stand position of checkpoint 1..3. Returns the checkpoint placed at, 0 when refused. */
 	int32 PlaceAtCheckpoint(AActor* Actor, int32 Checkpoint) const;
 
-	/** Follow Ella's X: scrolls the camera, notes checkpoints, fires the Keeper handoff once. Tests call this directly. */
-	void StepFollow(float EllaX, int32 TravelDirection);
+	/** Follow Ella's X: scrolls the camera, notes checkpoints, fires the Keeper handoff once. Tests call this directly.
+	 *  DeltaSeconds 0 (tests, scripted runs) places the camera at once; the game's Tick passes its frame time (smoothed). */
+	void StepFollow(float EllaX, int32 TravelDirection, float DeltaSeconds = 0.0f);
+
+	/**
+	 * Next camera centre target (before the route clamp) for Ella at EllaX moving in TravelDirection (-1, 0, +1): the lead
+	 * turns to the travel side and stays when she stops (no snap back), and the centre follows Ella + lead on a critically
+	 * damped spring, so neither position nor speed jumps. DeltaSeconds <= 0, the first call, or a cut (SnapDistance) snap. Pure.
+	 */
+	static float StepCameraFollow(FCameraFollowState& State, float EllaX, int32 TravelDirection, float DeltaSeconds, float LeadDistance);
 
 	virtual void Tick(float DeltaSeconds) override;
 
@@ -79,4 +118,5 @@ private:
 	int32 CheckpointReached = 0;
 	bool bHandedOff = false;
 	float LastCameraX = 0.0f;
+	FCameraFollowState Follow;
 };
