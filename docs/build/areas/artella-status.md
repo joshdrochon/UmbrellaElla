@@ -321,3 +321,23 @@ OK
 ```
 
 - Nov 13 21:34 (lead): gate run on dad3b703 failed at the final merge only: the main checkout held uncommitted copies of this lane's gate tooling (git refused to overwrite them). Copies removed by rename between runs (saved in the lead scratchpad); re-gating on this commit.
+
+## Lead order (Nov 13 22:20, Josh): Keeper fight music fix, carried in this lane (the free lane the lead may use). Not art.
+Causes found: (1) MusicContest/MusicDesperation had no bus event (Event Count); (2) MusicTitle was routed on ModeSelected,
+which BeginRun broadcasts after Start Game has already begun the Keeper fight, so the title re-took the music; (3) the three
+fight tracks were imported as `/Game/UmbrellaElla/Audio/<Id>/<Id>` (sndworld_import.py), not `SW_<Id>_00`, so LoadTakes found nothing.
+Fix: `pipeline/audio/build/cue_table.py` routes (regenerated `UmbrellaCueData.h`): PhaseStarted wings/mechanisms -> MusicContest,
+PhaseStarted clock -> MusicDesperation (sound-list.csv line 135 "Keeper fight music, clock"; GDD SH1.0 line 283 OWL-06 "Phase 3 clock");
+MusicTitle has no bus route (launch + Title/Credits via FFlowRules::MusicFor). Cue subsystem: music changes cross-fade over 0.5 s
+(audio-rules.json music.fade_s_max) on two reused components; looped music rows fall back to the `<Id>/<Id>` asset.
+Tests (all PASS, 117 in Audio+Feedback+Flow+SoundLabel): UmbrellaElla.Audio.FightMusicRoutes,
+.Audio.World.FightStartCrossFadesTitleToContest, .ClockPhaseSwitchesToDesperation, .CreditsAndTitleReturnToTitleMusic,
+.TitleCrossFadesBackFromFightMusic. Flow lane test ModePickKeepsTitleMusicWithoutRestart updated: Start Game begins the fight,
+so it now expects MusicContest with the title fading out (never restarted or doubled).
+Audio log (test run, LogUmbrellaElla):
+  AUDIO: music name=MusicContest from=MusicTitle take=MusicContest fade_s=0.50
+  AUDIO: music name=MusicDesperation from=MusicContest take=MusicDesperation fade_s=0.50
+  AUDIO: music name=MusicTitle from=MusicContest take=SW_MusicTitle_00 fade_s=0.50
+Open for Josh: (a) sound-list.csv names MusicIntro for the wings phase; per the lead order the fight opens on MusicContest and
+MusicIntro stays unused. (b) The three fight tracks have no record in pipeline/audio/critic (commit 161dd4c claims a pass), so
+audioimport skipped them; they play from the older sndworld import. Not run: packaged/in-game listen.
