@@ -1,7 +1,9 @@
 """Build M_ArtSlot_Unlit, the one material every art slot is drawn with (rebuildable).
 Run (through tools/build/ue_slot.sh):
   UnrealEditor-Cmd UmbrellaElla.uproject -run=pythonscript -script=tools/build/assets/art_slot_material.py -unattended -nullrhi -nosplash -nocrashreports
-Unlit, masked, two-sided. UV = ((U * TileU + Frame) / Cols, V * TileV); emissive = Art.RGB * Tint; opacity mask = Art.A.
+Unlit, masked, two-sided. UV = ((U * TileU + fmod(Frame, Cols)) / Cols, (V + floor(Frame / Cols)) * TileV): Frame walks a
+grid sheet left to right, then down a row (TileV = 1/Rows for a sheet; a tiled slot keeps Frame 0, so V * TileV as before).
+Emissive = Art.RGB * Tint; opacity mask = Art.A.
 Parameters match Source/UmbrellaElla/Private/Feedback/Art/ArtSlot.cpp: Art, Cols, Frame, TileU, TileV, Tint.
 """
 import unreal
@@ -50,6 +52,10 @@ frame = scalar("Frame", 0.0, -1000, -200)
 cols = scalar("Cols", 1.0, -800, -200)
 mul_u = node(unreal.MaterialExpressionMultiply, -1000, -60)
 mul_v = node(unreal.MaterialExpressionMultiply, -1000, 80)
+frame_col = node(unreal.MaterialExpressionFmod, -900, -260)
+frame_rows = node(unreal.MaterialExpressionDivide, -900, 260)
+frame_row = node(unreal.MaterialExpressionFloor, -800, 260)
+add_v = node(unreal.MaterialExpressionAdd, -1100, 160)
 add = node(unreal.MaterialExpressionAdd, -800, -60)
 div = node(unreal.MaterialExpressionDivide, -650, -60)
 app = node(unreal.MaterialExpressionAppendVector, -500, 0)
@@ -63,10 +69,17 @@ link(uv, "", mask_u, "")
 link(uv, "", mask_v, "")
 link(mask_u, "", mul_u, "A")
 link(tile_u, "", mul_u, "B")
-link(mask_v, "", mul_v, "A")
+link(frame, "", frame_col, "A")
+link(cols, "", frame_col, "B")
+link(frame, "", frame_rows, "A")
+link(cols, "", frame_rows, "B")
+link(frame_rows, "", frame_row, "")
+link(mask_v, "", add_v, "A")
+link(frame_row, "", add_v, "B")
+link(add_v, "", mul_v, "A")
 link(tile_v, "", mul_v, "B")
 link(mul_u, "", add, "A")
-link(frame, "", add, "B")
+link(frame_col, "", add, "B")
 link(add, "", div, "A")
 link(cols, "", div, "B")
 link(div, "", app, "A")

@@ -31,6 +31,19 @@ namespace UmbrellaPresenterConst
 	static constexpr double FramedCellHeight = 2.7;
 	/** The drawn cell height: FramedCellHeight times the figure scale (D-new-character-scale). The camera frames FramedCellHeight. */
 	static constexpr double ArtCellHeight = FramedCellHeight * UmbrellaFigureScale::Ella;
+	/**
+	 * Grid sheet playback rate (frames per second): the approved idle cut's sidecar fps
+	 * (pipeline/art/proof/artvideo/ella-idle/Ella_idle_N24_grid.sprite.json, "fps": 6.13). Every multi-cell state picture plays at it.
+	 */
+	static constexpr float GridFps = 6.13f;
+	/**
+	 * Share of a picture cell under Ella's feet that is empty, per sheet: the lowest opaque row (alpha >= 128) over all 24
+	 * cells is at 81.2% of the cell (idle, Ella_idle_N24_grid.png), 93.6% (hurt, ella-hurt_N24_grid.png) and 97.6% (down,
+	 * ella-down_N24_grid.png). The bottom-of-frame check keeps her feet, not the empty cell edge, in view.
+	 */
+	static constexpr float IdleBottomPad = 0.188f;
+	static constexpr float HurtBottomPad = 0.064f;
+	static constexpr float DownBottomPad = 0.024f;
 	/** World units under which a change of the ceiling drop is ignored (no per-tick re-placing for float noise). */
 	static constexpr float FigureDropTolerance = 0.01f;
 }
@@ -118,13 +131,37 @@ public:
 	 */
 	void SetDrawTopLimit(float WorldZ);
 
+	/**
+	 * Ella 2x (Josh, 14 Nov): the world Z the drawn figure's bottom may not pass (the frame bottom). At the floor the 2x
+	 * picture reaches under the frame; the picture is lifted (never the capsule, hurtbox or camera). Set with the top limit.
+	 */
+	void SetDrawBottomLimit(float WorldZ);
+
+	/** Lift for a drawn picture whose bottom sits at BottomZ over LimitZ: how far it must sit higher (>= 0). Pure. */
+	static float FigureLift(float BottomZ, float LimitZ);
+
 	/** Drop for a drawn picture whose half-height is DrawnHalf at ActorZ under LimitZ: how far it must sit lower (>= 0). Pure. */
 	static float FigureDrop(float ActorZ, float DrawnHalf, float LimitZ);
 
-	/** Lower the drawn pictures (never the capsule or hurtbox) just enough that the figure top stays in frame. Tick calls it. Returns the drop. */
+	/** Move the drawn pictures (never the capsule or hurtbox) just enough that the figure stays in frame: lowered under the top limit, lifted over the bottom one. Tick calls it. Returns the drop (negative = lifted). */
 	float KeepFigureInFrame();
 
 	float GetFigureDrop() const { return CurrentDrop; }
+
+	/** Cell of a Cols x Rows grid sheet shown at Seconds: walks every cell left to right, row by row, and loops. Pure. */
+	static int32 GridFrameAt(double Seconds, float Fps, int32 Cols, int32 Rows, bool bLoop = true);
+
+	/** True when a state's picture loops (Idle and the states that show the idle art); Hurt and Down play once and hold. Pure. */
+	static bool IsLoopingState(EEllaVisualState State);
+
+	/** Empty share under the feet of the picture a state draws (IdleBottomPad, HurtBottomPad, DownBottomPad). Pure. */
+	static float BottomPadFor(EEllaVisualState State);
+
+	/** Show the current picture's cell for the world time (a grid sheet animates; a single picture stays on 0). Tick calls it. */
+	int32 PlayGrid();
+
+	/** The cell the picture draws now (ArtSlot "Frame"), -1 before any picture. */
+	int32 GetDrawnFrame() const { return DrawnFrame; }
 
 	/** Box scale for a drawn picture: ArtCellHeight tall, as wide as one cell of the row's sheet. Pure. */
 	static FVector ArtBoxScaleFor(const UTexture2D* Texture, const struct FArtSlotRow& Row);
@@ -181,11 +218,17 @@ private:
 	const struct FArtSlotRow* RowForTexture(const UTexture2D* Texture) const;
 
 	EEllaVisualState VisualState = EEllaVisualState::Idle;
+	/** The grid cell the picture draws now (ArtSlot "Frame"), -1 before any picture or after a texture swap. */
+	int32 DrawnFrame = -1;
+	/** World time the current visual state began: a Hurt or Down clip plays from its own cell 0. */
+	double StateStartSeconds = 0.0;
 	float StateTimeLeft = 0.0f;
 	float TransitionLeft = 0.0f;
 	float RepairLeft = 0.0f;
 	float DrawTopLimitZ = 0.0f;
 	bool bHasDrawTopLimit = false;
+	float DrawBottomLimitZ = 0.0f;
+	bool bHasDrawBottomLimit = false;
 	float CurrentDrop = 0.0f;
 	TMap<EEllaVisualState, TObjectPtr<UPaperFlipbook>> StateFlipbooks;
 	TArray<TPair<EUmbrellaEventType, FDelegateHandle>> Handles;

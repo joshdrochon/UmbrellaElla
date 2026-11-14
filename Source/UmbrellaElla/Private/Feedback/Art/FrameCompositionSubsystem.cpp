@@ -399,6 +399,8 @@ void UFrameCompositionSubsystem::ApplyCameraMargin(AUmbrellaArena* Arena, const 
 	if (UEllaAnimPresenterComponent* Presenter = Ella->FindComponentByClass<UEllaAnimPresenterComponent>())
 	{
 		Presenter->SetDrawTopLimit(ClearTopZ(static_cast<float>(Camera->GetComponentLocation().Z), Camera->OrthoWidth, Camera->AspectRatio, TopShare));
+		// Ella 2x (Josh, 14 Nov): at the floor her picture reached under the frame bottom; it is lifted to stay whole.
+		Presenter->SetDrawBottomLimit(static_cast<float>(Camera->GetComponentLocation().Z) - Camera->OrthoWidth / FMath::Max(KINDA_SMALL_NUMBER, Camera->AspectRatio) * 0.5f);
 	}
 }
 
