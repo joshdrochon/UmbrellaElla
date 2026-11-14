@@ -38,7 +38,12 @@ P
   : > "$OUT"; ok=1
   for i in 1 2 3; do
     ask "$W/packet.md" > "$OUT.$i" 2>&1; cat "$OUT.$i" >> "$OUT"
-    line=$(grep -m1 "^STORY_CRITIC:" "$OUT.$i"); echo "critic $i: $line"
+    line=$(grep -m1 "^STORY_CRITIC:" "$OUT.$i")
+    # Count the verdict blocks the critic actually wrote, not its self-reported lines=N (Nov 13: critics answered
+    # all 18 lines and wrote lines=17, failing progression three times on a miscount).
+    got=$(python3 -c "import sys; sys.path.insert(0,'tools'); import story_check as s; print(len(set(m.group('id') for m in s.ROW_LINE.finditer(open(sys.argv[1]).read()))))" "$OUT.$i" 2>/dev/null)
+    [ -n "$got" ] && [ "$got" = "$n" ] && line=$(echo "$line" | sed -E "s/ lines=[0-9]+/ lines=$n/")
+    echo "critic $i: $line (verdict blocks: ${got:-?})"
     echo "$line" | grep -q "^STORY_CRITIC: PASS" && python3 tools/story_check.py --critic "$line" >/dev/null 2>&1 || ok=0
   done
   [ $ok = 1 ] && exit 0
