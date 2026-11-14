@@ -258,7 +258,8 @@ void USceneArtSubsystem::ScrollTo(float CameraX, float OrthoWidth)
 
 void USceneArtSubsystem::Tick(float DeltaTime)
 {
-	// Scrolling happens in HandlePostActorTick, after this frame's camera update (dcseamless jolt, Nov 14).
+	// Empty on purpose: the class stays a tickable subsystem only for its interface. Scrolling happens in
+	// HandlePostActorTick, after this frame's camera update (dcseamless jolt, Nov 14).
 }
 
 void USceneArtSubsystem::HandlePostActorTick(UWorld* InWorld, ELevelTick TickType, float DeltaSeconds)

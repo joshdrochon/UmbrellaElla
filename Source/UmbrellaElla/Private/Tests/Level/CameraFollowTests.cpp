@@ -52,6 +52,9 @@ bool FLevelCameraFollowSmooth::RunTest(const FString& Parameters)
 	AUmbrellaLevelDirector::StepCameraFollow(Stop, 0.0f, 1, 0.0f, Lead);
 	TestEqual(TEXT("a stop keeps the lead"), AUmbrellaLevelDirector::StepCameraFollow(Stop, 0.0f, 0, CamFollowTestDt, Lead), Lead);
 	TestEqual(TEXT("a cut snaps"), AUmbrellaLevelDirector::StepCameraFollow(Stop, 20000.0f, 1, CamFollowTestDt, Lead), 20000.0f + Lead);
+	// A respawn or checkpoint place closer than SnapDistance is still a cut: no glide (review dcseamless).
+	const float Respawn = 20000.0f - 1000.0f;
+	TestEqual(TEXT("a near respawn snaps"), AUmbrellaLevelDirector::StepCameraFollow(Stop, Respawn, 1, CamFollowTestDt, Lead), Respawn + Lead);
 	return true;
 }
 

@@ -18,6 +18,11 @@ namespace UmbrellaCameraFollowConst
 	static constexpr float SmoothSeconds = 0.25f;
 	/** The lead turns at most this fast (units/s): a reversal swings it 960 units, which a spring alone ran at 94 units a frame. */
 	static constexpr float LeadSpeed = 300.0f;
+	/**
+	 * Ella moving farther than this in one follow step is a cut (checkpoint place, respawn, handoff retry): the camera
+	 * snaps as before instead of gliding (review dcseamless). Flying moves her about 25 units a frame.
+	 */
+	static constexpr float SnapEllaJump = 400.0f;
 	/** A target this far from the camera (a checkpoint place, a respawn, the handoff) is a cut: the camera snaps. */
 	static constexpr float SnapDistance = 3840.0f;
 }
@@ -29,6 +34,7 @@ struct FCameraFollowState
 	float Rate = 0.0f;
 	float Lead = 0.0f;
 	float LeadTarget = 0.0f;
+	float LastEllaX = 0.0f;
 	bool bStarted = false;
 };
 

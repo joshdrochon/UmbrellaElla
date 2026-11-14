@@ -136,8 +136,8 @@ private:
 	/** After the camera update (UWorld::Tick runs tickable objects before PlayerController::UpdateCameraManager). */
 	void HandlePostActorTick(UWorld* InWorld, ELevelTick TickType, float DeltaSeconds);
 	FDelegateHandle PostActorTickHandle;
-	/** Camera X this subsystem's Tick scrolled to (trace only). */
-	float TickCameraX = 0.0f;
+	/** Camera X the layers were last scrolled to (after the camera update; the trace prints it). */
+	float RenderCameraX = 0.0f;
 
 	UPROPERTY()
 	TArray<TObjectPtr<AActor>> Layers;

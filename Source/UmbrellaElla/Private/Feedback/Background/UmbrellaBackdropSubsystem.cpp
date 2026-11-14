@@ -174,8 +174,9 @@ void UUmbrellaBackdropSubsystem::HandlePostActorTick(UWorld* InWorld, ELevelTick
 	{
 		return;
 	}
-	TickCameraX = static_cast<float>(Controller->PlayerCameraManager->GetCameraLocation().X);
-	ScrollTo(TickCameraX);
+	RenderCameraX = static_cast<float>(Controller->PlayerCameraManager->GetCameraLocation().X);
+	ScrollTo(RenderCameraX);
+#if !UE_BUILD_SHIPPING
 	static const bool bTrace = FParse::Param(FCommandLine::Get(), TEXT("BackdropTrace"));
 	if (!bTrace)
 	{
@@ -185,7 +186,7 @@ void UUmbrellaBackdropSubsystem::HandlePostActorTick(UWorld* InWorld, ELevelTick
 	// each layer's on-screen offset (layer X - rendered camera X). dcseamless jolt hunt, Nov 14.
 	const float CamX = static_cast<float>(Controller->PlayerCameraManager->GetCameraLocation().X);
 	const APawn* Pawn = Controller->GetPawn();
-	FString Line = FString::Printf(TEXT("BDTRACE f=%llu dt=%.4f cam=%.2f tickcam=%.2f ella=%.2f vx=%.1f"), GFrameCounter, DeltaSeconds, CamX, TickCameraX,
+	FString Line = FString::Printf(TEXT("BDTRACE f=%llu dt=%.4f cam=%.2f tickcam=%.2f ella=%.2f vx=%.1f"), GFrameCounter, DeltaSeconds, CamX, RenderCameraX,
 		Pawn ? Pawn->GetActorLocation().X : 0.0, Pawn ? Pawn->GetVelocity().X : 0.0);
 	for (int32 Index = 0; Index < Layers.Num(); ++Index)
 	{
@@ -195,6 +196,7 @@ void UUmbrellaBackdropSubsystem::HandlePostActorTick(UWorld* InWorld, ELevelTick
 		}
 	}
 	UE_LOG(LogUmbrellaElla, Display, TEXT("%s"), *Line);
+#endif
 }
 
 int32 UUmbrellaBackdropSubsystem::BuildLayers()

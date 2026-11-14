@@ -13,3 +13,10 @@ Lane: Source/UmbrellaElla/*/Feedback/Background/**, the edge-fade path in Feedba
 Source/UmbrellaElla/Private/Tests/Feedback/BackdropSeamTests.cpp (+ the backdrop loop test it replaces),
 tools/build/assets/art_slot_fade_material.py, tools/build/assets/art_scene_frameseam.py, tests/test_art_scene_frameseam.py,
 Content/UmbrellaElla/Materials/M_ArtSlot_EdgeFade.uasset, pipeline/art/proof/dcseamless/**.
+
+Lane extension (Nov 14, coordinator order on Josh's jolt report ~00:55: "pressing Space to move forward jolts the view";
+Josh authorized merging without him): the jolt's cause is the camera follow, so this lane also owns the camera-follow
+change in Source/UmbrellaElla/Public/Level/UmbrellaLevelDirector.h, Private/Level/UmbrellaLevelDirector.cpp
+(StepCameraFollow, FCameraFollowState, StepFollow's DeltaSeconds) and Private/Tests/Level/CameraFollowTests.cpp.
+Nothing else in the level lane is touched; cuts (checkpoint place, respawn, handoff retry: Ella moving > 400 units in one
+step) still snap the camera.

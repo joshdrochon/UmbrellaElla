@@ -39,7 +39,7 @@ tests/test_art_scene_frameseam.py (6 OK). Proof: pipeline/art/proof/dcseamless/c
 ## Nov 14 01:10: the DC route jolt (Josh played main b79af92a: "pressing Space to move forward jolts the view")
 Real input, offscreen 1280x720 at 30 fps: journey DC -> `route 9 10` (D held, Space/E tapped) -> `hold SpaceBar 2` -> `route 9 6`,
 per-frame trace with `-BackdropTrace` (BDTRACE: rendered camera X, the X the backdrop scrolled to, Ella X/vx, each layer's
-on-screen offset). Traces: pipeline/art/proof/dcseamless/jolt-before-b79af92a.trace, jolt-after.trace.
+on-screen offset). (Traces kept out of the repo; numbers below. Re-run: the journey above with -BackdropTrace, grep BDTRACE.)
 Causes:
 1. Camera lead snap (UmbrellaLevelDirector.cpp Tick -> StepFollow(X, Sign(vx)) -> LevelCatalogue ScrollCentreX): the lead
    (+-0.25 x 1920 = 480) followed the SIGN of Ella's X velocity instantly. Every stop (flap, key release; vx 0) moved the view
@@ -54,3 +54,6 @@ After: camera speed change p99 63 u/s (max 751 on a 92 ms frame hitch, machine l
 the level-load placement; backdrop gap 0.00; layer on-screen step 0..-8 (sky) to 0..-99 (nearest, at the load placement).
 Hide-per-tick: no measurable cost (hitches 3 vs 7 > 50 ms on a loaded Mac, at chunk spawns, none at a fixed period).
 Test: UmbrellaElla.Level.CameraFollowSmooth (old follow: change 480/frame; new <= 10). 142/142 Level+Feedback+Flow+Arena PASS.
+Review (gate batch 01:32, changes): lane extension recorded in docs/build/areas/dcseamless.md; cuts snap (Ella jump > 400
+units per step resets the follow; test "a near respawn snaps"); trace behind !UE_BUILD_SHIPPING; TickCameraX -> RenderCameraX;
+empty SceneArt Tick commented; trace files dropped.

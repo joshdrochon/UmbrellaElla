@@ -216,7 +216,9 @@ float AUmbrellaLevelDirector::StepCameraFollow(FCameraFollowState& State, float 
 	{
 		State.LeadTarget = FMath::Sign(static_cast<float>(TravelDirection)) * LeadDistance;
 	}
-	const bool bSnap = !State.bStarted || DeltaSeconds <= 0.0f || FMath::Abs(EllaX + State.LeadTarget - State.X) > UmbrellaCameraFollowConst::SnapDistance;
+	const bool bSnap = !State.bStarted || DeltaSeconds <= 0.0f || FMath::Abs(EllaX - State.LastEllaX) > UmbrellaCameraFollowConst::SnapEllaJump
+		|| FMath::Abs(EllaX + State.LeadTarget - State.X) > UmbrellaCameraFollowConst::SnapDistance;
+	State.LastEllaX = EllaX;
 	const float MaxTurn = UmbrellaCameraFollowConst::LeadSpeed * FMath::Max(0.0f, DeltaSeconds);
 	State.Lead = bSnap ? State.LeadTarget : State.Lead + FMath::Clamp(State.LeadTarget - State.Lead, -MaxTurn, MaxTurn);
 	const float Target = EllaX + State.Lead;
