@@ -5,7 +5,8 @@
                    style.json allowed_hue_bands_deg onto the nearest band edge (pulled 3 deg inside; a pale highlight that clips back out loses chroma until it holds), keeping L* and C*.
                    The image model paints the bronze slightly olive and the video despill leaves pink wing tips;
                    art_check off_band counts both.
-Usage: art_keeper_grade.py IN OUT [--sat 0.7] [--clamp-hue]"""
+  --chroma-floor C clamp from this C* (default chroma_min); 4 also catches the faint pink fringe the despill leaves
+Usage: art_keeper_grade.py IN OUT [--sat 0.7] [--clamp-hue [--chroma-floor 4]]"""
 import argparse, colorsys, json, math, os, sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "..", ".."))
@@ -64,6 +65,8 @@ def main(argv=None):
     ap.add_argument("inp"); ap.add_argument("out")
     ap.add_argument("--sat", type=float, default=1.0)
     ap.add_argument("--clamp-hue", action="store_true")
+    ap.add_argument("--chroma-floor", type=float, default=None,
+                    help="clamp pixels above this C* instead of hue_gate chroma_min (4: also the faint pink despill fringe)")
     a = ap.parse_args(argv)
     with open(os.path.join(ROOT, "pipeline", "art", "style.json"), encoding="utf-8") as fh:
         gate = json.load(fh)["hue_gate"]
@@ -83,7 +86,7 @@ def main(argv=None):
                         hh, ll, ss = colorsys.rgb_to_hls(r / 255, g / 255, b / 255)
                         px = tuple(max(0, min(255, round(v * 255))) for v in colorsys.hls_to_rgb(hh, ll, ss * a.sat))
                     if a.clamp_hue:
-                        px = clamp_hue(px, gate["chroma_min"], bands)
+                        px = clamp_hue(px, gate["chroma_min"] if a.chroma_floor is None else a.chroma_floor, bands)
                     hit = cache[key] = px
                 if hit != (r, g, b):
                     moved += 1

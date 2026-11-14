@@ -5,6 +5,7 @@
 #include "Core/UmbrellaEvent.h"
 #include "Core/UmbrellaEventBus.h"
 #include "Engine/StaticMesh.h"
+#include "Engine/Texture2D.h"
 #include "Engine/World.h"
 #include "Feedback/Art/ArtSlot.h"
 #include "GameFramework/Actor.h"
@@ -274,6 +275,22 @@ void UKeeperPresenterSubsystem::Tick(float DeltaTime)
 	}
 }
 
+FVector UKeeperPresenterSubsystem::BodyArtScaleFor(const UTexture2D* Texture, const FArtSlotRow& Row)
+{
+	// Keep the body width; the height follows one sheet cell's aspect, so the picture is never squashed into the square box.
+	const double Width = UmbrellaKeeperPresenterConst::StandInScale.X;
+	float Aspect = ArtSlot::CellAspect(Texture, Row);
+#if WITH_EDITORONLY_DATA
+	// An uncooked run reads the texture while it still compiles: GetSizeX/Y give the placeholder's size (square), which
+	// drew the body 600 x 900 (VQDUMP). The source keeps the picture's real size.
+	if (IsValid(Texture) && Texture->Source.IsValid() && Texture->Source.GetSizeY() > 0)
+	{
+		Aspect = (static_cast<float>(Texture->Source.GetSizeX()) / FMath::Max(1, Row.Cols)) / (static_cast<float>(Texture->Source.GetSizeY()) / FMath::Max(1, Row.Rows));
+	}
+#endif
+	return FVector(Width, UmbrellaKeeperPresenterConst::StandInScale.Y, Width / FMath::Max(0.01f, Aspect));
+}
+
 int32 UKeeperPresenterSubsystem::IdleFrameAt(double Seconds, float Fps, int32 Cols, int32 Rows, EKeeperGridPlayback Playback)
 {
 	const int32 SafeCols = FMath::Max(1, Cols);
@@ -318,7 +335,7 @@ EArtSlotDraw UKeeperPresenterSubsystem::ShowArt(AActor* Keeper, UTexture2D* Text
 	{
 		return EArtSlotDraw::NoTexture;
 	}
-	const EArtSlotDraw Result = ArtSlot::Apply(Mesh, Texture, *Row, UmbrellaKeeperPresenterConst::StandInScale);
+	const EArtSlotDraw Result = ArtSlot::Apply(Mesh, Texture, *Row, BodyArtScaleFor(Texture, *Row));
 	if (Result == EArtSlotDraw::Drawn)
 	{
 		KeeperCoverStandIns(Keeper, Row->Visual);
@@ -425,7 +442,8 @@ void UKeeperPresenterSubsystem::ShowStandIn(AActor* Keeper)
 	// Art slot keeper:body-hover-flap; the cube stays when no asset exists.
 	if (const FArtSlotRow* Row = ArtSlot::Find(TEXT("keeper:body-hover-flap")))
 	{
-		if (ArtSlot::ApplyRow(Mesh, *Row, UmbrellaKeeperPresenterConst::StandInScale) == EArtSlotDraw::Drawn)
+		UTexture2D* Body = ArtSlot::LoadTexture(*Row);
+		if (ArtSlot::Apply(Mesh, Body, *Row, BodyArtScaleFor(Body, *Row)) == EArtSlotDraw::Drawn)
 		{
 			KeeperCoverStandIns(Keeper, Row->Visual);
 		}

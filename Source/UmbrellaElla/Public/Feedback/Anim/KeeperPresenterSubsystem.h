@@ -9,6 +9,7 @@ struct FUmbrellaEvent;
 class AKeeperOfTime;
 class UStaticMeshComponent;
 class UTexture2D;
+struct FArtSlotRow;
 enum class EArtSlotDraw : uint8;
 
 /** How a grid sheet on the Keeper body plays. */
@@ -96,6 +97,9 @@ public:
 	 * Runs on a Keeper spawn, draw or destroy, and in Tick only when a part layer's loss changed the answer.
 	 */
 	void SyncArenaStandIn();
+
+	/** Box scale for the body picture: StandInScale's width, height from one sheet cell's aspect (no squash). Pure. */
+	static FVector BodyArtScaleFor(const UTexture2D* Texture, const FArtSlotRow& Row);
 
 	/** Sheet cell shown at Seconds for a Cols x Rows body grid played at Fps. Pure. */
 	static int32 IdleFrameAt(double Seconds, float Fps, int32 Cols, int32 Rows, EKeeperGridPlayback Playback);

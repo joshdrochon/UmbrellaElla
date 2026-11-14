@@ -403,11 +403,11 @@
    "calibration": null,
    "copy": "pipeline/art/proof/standins/owl/Keeper_idle_N24_grid.png",
    "lane": "artkeeper",
-   "note": "24-frame idle grid from the fal Veo 3.1 Fast clip of the in-jam owl still (lead order, Nov 13 ~17:40), one fixed crop, hue clamped to the gold/rust band; art_ref_check 0.628-0.647 < 0.698 on frames, sprite_check dark_share 0.55-0.57 < 0.6; stand-in, not passed",
+   "note": "24-frame idle grid from the fal Veo 3.1 Fast clip of the in-jam owl still (lead order, Nov 13 ~17:40), one fixed crop, hue clamped to the gold/rust band (chroma floor 4, also the pink despill fringe); art_ref_check 0.628-0.647 < 0.698 on frames, sprite_check dark_share 0.55-0.57 < 0.6; stand-in, not passed",
    "panel_pairs": null,
    "piece": "owl",
    "round": null,
-   "sha256": "8bb4d531fa58cf2cb99aab2927feb353ba1744efc5d34d42b23df4ba940ac29b",
+   "sha256": "5f61cf179bd71c3c3103ad3111b4f9162e7078886f25d9551eddf8879873aa5c",
    "source": "artkeeper/pipeline/art/proof/artkeeper/keeper-idle/fixed/Keeper_idle_N24_grid.png",
    "status": "best-so-far (not passed)"
   },

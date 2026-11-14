@@ -1187,3 +1187,43 @@ bool FArtSlotKeeperPartStandInsYield::RunTest(const FString& Parameters)
 	ArtSlotTestEnd(World);
 	return true;
 }
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FArtSlotKeeperBodyAspect, "UmbrellaElla.Feedback.World.KeeperBodyKeepsCellAspect",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+
+bool FArtSlotKeeperBodyAspect::RunTest(const FString& Parameters)
+{
+	const FArtSlotRow* Row = ArtSlot::Find(TEXT("keeper:body-hover-flap"));
+	if (!TestNotNull(TEXT("body row"), Row))
+	{
+		return false;
+	}
+	// A sheet whose cells are twice as wide as tall: the body keeps its width and halves its height.
+	UTexture2D* Wide = ArtSlotSizedTestTexture(2 * 100 * FMath::Max(1, Row->Cols), 100 * FMath::Max(1, Row->Rows));
+	const FVector Scale = UKeeperPresenterSubsystem::BodyArtScaleFor(Wide, *Row);
+	TestEqual(TEXT("body width kept"), Scale.X, UmbrellaKeeperPresenterConst::StandInScale.X);
+	TestEqual(TEXT("height from the cell aspect"), Scale.Z, UmbrellaKeeperPresenterConst::StandInScale.X / 2.0, 1.0e-4);
+
+	UWorld* World = ArtSlotTestWorld();
+	if (!TestNotNull(TEXT("world"), World))
+	{
+		return false;
+	}
+	UKeeperPresenterSubsystem* Presenter = World->GetSubsystem<UKeeperPresenterSubsystem>();
+	AKeeperOfTime* Keeper = World->SpawnActor<AKeeperOfTime>();
+	if (TestNotNull(TEXT("keeper presenter"), Presenter) && TestNotNull(TEXT("keeper"), Keeper))
+	{
+		Presenter->ShowStandIn(Keeper);
+		UStaticMeshComponent* Body = FindObjectFast<UStaticMeshComponent>(Keeper, FName(TEXT("KeeperStandIn")));
+		if (TestNotNull(TEXT("body stand-in"), Body))
+		{
+			ArtSlotTestClearArt(Body, Keeper);
+			TestTrue(TEXT("body draws the wide sheet"), Presenter->ShowArt(Keeper, Wide) == EArtSlotDraw::Drawn);
+			const FVector Plane = Body->GetRelativeScale3D();
+			TestEqual(TEXT("drawn picture is twice as wide as tall"), Plane.X / FMath::Max(1.0e-6, Plane.Y), 2.0, 1.0e-3);
+		}
+		Keeper->Destroy();
+	}
+	ArtSlotTestEnd(World);
+	return true;
+}
