@@ -284,10 +284,11 @@ bool FStoryStatsTest::RunTest(const FString& Parameters)
 	Model.SetHealthBaseline(3.0f, 3);
 	for (int32 Shot = 0; Shot < 4; ++Shot)
 	{
-		Model.OnEvent(Make(EUmbrellaEventType::ProjectileSpawned, TEXT("PlayerBlast")));
+		// The Detail the projectile service really sends (UmbrellaProjectile.cpp): the enum's own name.
+		Model.OnEvent(Make(EUmbrellaEventType::ProjectileSpawned, TEXT("EUmbrellaShotKind::PlayerBlast")));
 	}
-	Model.OnEvent(Make(EUmbrellaEventType::ProjectileSpawned, TEXT("EnemyRed")));
-	Model.OnEvent(Make(EUmbrellaEventType::ProjectileSpawned, TEXT("EnemyYellow")));
+	Model.OnEvent(Make(EUmbrellaEventType::ProjectileSpawned, TEXT("EUmbrellaShotKind::EnemyRed")));
+	Model.OnEvent(Make(EUmbrellaEventType::ProjectileSpawned, TEXT("EUmbrellaShotKind::EnemyYellow")));
 	Model.OnEvent(Make(EUmbrellaEventType::PlayerHealthChanged, TEXT(""), 3, 2.0f));
 	Model.OnEvent(Make(EUmbrellaEventType::PlayerHealthChanged, TEXT(""), 3, 2.5f));
 	Model.SampleLocation(FVector(0.0, 0.0, 0.0));

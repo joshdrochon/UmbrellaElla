@@ -92,3 +92,27 @@ Checked on origin/main: no file outside `Progression/` calls `GetRunScaling`, `S
 lanes), and `UUmbrellaHealthComponent::SetCapacity` still clamps Active (`UmbrellaHealthComponent.cpp:156`, request 4, health lane).
 The progression rule functions and their tests are done. Nothing left I can build in my lane for `ii`; the 28 `i` clauses (code there, test
 missing) were not in this brief.
+
+## Lead order (Nov 13, post-handoff leftovers 3 and 4a; merged origin/main 7857498c)
+Evidence: `build exit: 0 warnings: 0`; `TEST_FILTER=UmbrellaElla.Flow+Persistence+Progression+Story+UI` PASS tests=105 failed=0;
+module_check 0, manifest_check 0, pipeline_check 0, story_check PASS, ui_check ci PASS, affected_tests OK. Proof: `pipeline/art/proof/progression/proof.md`.
+1. **B9 Done** (purchase screen). Cause: flow adds its Done box at viewport Z+1, `AddToViewport(Z)` puts the purchase widget at Z+10
+   (engine adds 10), so Done always drew under the screen. Fix (my lane): Done is in the panel's button row (`UProgressionPurchaseWidget::Done`
+   -> flow `ApplyCommand(Continue)`), the panel scales down (never up) to fit the window. Test `World.PurchaseDoneVisibleAndClickable`
+   (640x360, 1280x720, 1920x1080 at the game's DPI scale: Done inside the window, Slate-style hit test at its centre lands on Done, click
+   leaves Purchase). Break-check: Done back under the ground -> fails at all 3 sizes. Windowed run: `PROGRESSION_DONE_CLICK ok=1` at all 3.
+   Left for flow: its own Done box is now a hidden duplicate (journey `click Done` finds it first). Request 8 has the change.
+2. **Shots fired 0**. Cause: the projectile service stamps ProjectileSpawned Detail with the enum's full name `EUmbrellaShotKind::PlayerBlast`;
+   story compared with `PlayerBlast`, so every player shot counted as "fired at you". Fix in `Story/StoryRules.cpp` (lead grant) plus
+   `Story.JourneyStatistics` now uses the real Detail. Test `World.JourneyStatsCountPlayerShots` (real `AUmbrellaProjectile::Fire`).
+   Break-check: old compare -> that test and `Story.JourneyStatistics` fail. Windowed run: 8 s of J held -> shots_fired=40 = attack_emitted=40.
+   Not fixed (not my lane, one line): audio cue and sound-label tests also use the bare `PlayerBlast` Detail; the player shot sound may never match in game.
+3. **Held review**. Fixed: Final Hour text = GDD FLOW-06 exact text again (widget, test, lines.csv id `ui-final-hour-intro`); break-check: old
+   text fails `World.FinalHourIntroBeforeExtremeRun`. story_check flagged "Final" as a non-bible name: added "Final" to
+   `pipeline/story/story.json` allow_caps with its reason (story lane file, one word; needed so story_check stays at main's level).
+   Fixed the stacked `EnemyCount` comment; request 7 now lists the ids as shipped. Not done: a lines.csv row for the review-line
+   format string (story_inventory finds no shipped source for a placeholder-only text and fails it; needs the story lane's call).
+   Follow-ups (paperwork / other lanes): story critic must re-run on the restored text (it proposed the old line; GDD wins);
+   `ApplyToHealth` -> `SetCapacity` on every kill (health sees extra config events; harmless now); status test counts were per-filter, not totals.
+Workbench-only proof console commands (in `ProgressionPurchaseWidget.cpp`, `#if UMBRELLAELLA_WORKBENCH && !UE_BUILD_SHIPPING`):
+`Umbrella.Progression.ShadowLevel levelN`, `Umbrella.Progression.ClickDone`, `Umbrella.Progression.LogRunStats`.

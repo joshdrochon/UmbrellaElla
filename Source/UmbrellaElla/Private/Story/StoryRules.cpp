@@ -2,13 +2,19 @@
 #include "Core/UmbrellaTuning.h"
 #include "Core/UmbrellaEvent.h"
 #include "Harness/UmbrellaFeatureFlags.h"
+#include "Projectile/UmbrellaShotSpec.h"
 
 namespace
 {
 	const FName DirectorsCutName(TEXT("DirectorsCut"));
 	const FName OpeningId(TEXT("OpeningMother"));
 	const FName EndingTrigger(TEXT("Ending.Story"));
-	const FName PlayerBlastName(TEXT("PlayerBlast"));
+	/** The Detail the projectile service stamps on a player shot's ProjectileSpawned (the enum's own name,
+	 *  "EUmbrellaShotKind::PlayerBlast"). A bare "PlayerBlast" never matched, so Journey Complete showed Shots fired 0. */
+	FName StoryPlayerBlastName()
+	{
+		return StaticEnum<EUmbrellaShotKind>()->GetNameByValue(static_cast<int64>(EUmbrellaShotKind::PlayerBlast));
+	}
 
 	float DurationFor(const FStoryCue& Cue)
 	{
@@ -231,7 +237,7 @@ void FStoryModel::OnEvent(const FUmbrellaEvent& Event)
 		++Stats.EnemiesDefeated;
 		break;
 	case EUmbrellaEventType::ProjectileSpawned:
-		(Event.Detail == PlayerBlastName ? Stats.ShotsFired : Stats.ShotsFiredAtYou) += 1;
+		(Event.Detail == StoryPlayerBlastName() ? Stats.ShotsFired : Stats.ShotsFiredAtYou) += 1;
 		break;
 	case EUmbrellaEventType::PlayerHealthChanged:
 		HandleHealth(Event);

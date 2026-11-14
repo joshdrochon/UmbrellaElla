@@ -74,14 +74,25 @@ dark ground, one centred line in the display font. It is the same kind of screen
 - `pipeline/art/references.json` piece `ui-story-text`, `ui.widgets`: add `"UFinalHourIntroWidget"`.
 Until then `art_inventory` and `ui_check` fail on it in precheck.
 
-## 7. Shipped text rows (story lane, `pipeline/story/lines.csv`) — added Nov 13
+## 7. Shipped text rows (story lane, `pipeline/story/lines.csv`) — added Nov 13, ids as shipped
 ```
 ui-final-hour-intro,screen,"Your borrowed time has run its course. Now, face the Final Hour.",,yes,FLOW-06 approved exact text; screen=final-hour; where=FinalHourIntroWidget.cpp
-ui-purchase-review-total,screen,Review: {0} points in total,,yes,screen=purchase; where=ProgressionPurchaseWidget.cpp
-ui-purchase-review-line,screen,{0} {1} to {2}: {3} to {4}, {5}: {6} {7},,yes,screen=purchase; where=ProgressionPurchaseWidget.cpp (track, rank from/to, value from/to, costs|reallocates, n, point|points)
+ui-purchase-review-0-points-in-total,screen,Review: {0} points in total,,yes,screen=purchase; where=ProgressionPurchaseWidget.cpp
 ui-purchase-costs,label,Cost,,yes,screen=purchase; where=ProgressionPurchaseWidget.cpp
-ui-purchase-reallocates,label,reallocates,,yes,screen=purchase; where=ProgressionPurchaseWidget.cpp; GDD FLOW-11 / FLOW-18 reallocation, run 2 onward
+ui-purchase-reallocates,label,Reallocation,,yes,"screen=purchase; where=ProgressionPurchaseWidget.cpp; GDD FLOW-11 / FLOW-18 reallocation, run 2 onward"
 ui-purchase-point,label,point,,yes,screen=purchase; where=ProgressionPurchaseWidget.cpp
 ui-purchase-points,label,points,,yes,screen=purchase; where=ProgressionPurchaseWidget.cpp
 ```
 (the review-line text contains commas; quote it in the CSV.)
+
+## 8. Flow: drop the purchase screen's separate Done box (flow lane; B9) — added Nov 13
+B9 (agentplay playthrough): `AUmbrellaPlayerController::ShowPurchaseScreen` adds `SFlowPurchaseDoneBox` at viewport Z+1, but
+`UUserWidget::AddToViewport(Z)` puts the purchase widget at Z+10 (`UMG/Private/Blueprint/GameViewportSubsystem.cpp:192`,
+"We add 10 to the zorder"), so the Done button always draws under the purchase screen's ground and panel and a click on it
+lands on the panel. Progression now draws Done in the panel's own button row (`UProgressionPurchaseWidget::Done`, which calls
+`ApplyCommand(EFlowCommand::Continue)`), test `UmbrellaElla.Progression.World.PurchaseDoneVisibleAndClickable`.
+The flow's box is now a hidden second "Done" (the journey's `click Done` finds it first, so it still misses). Exact change in
+`Source/UmbrellaElla/Private/Flow/UmbrellaPlayerController.cpp`, `ShowPurchaseScreen`: keep the Back-key holder for focus, but
+give it no visible button, e.g. replace the `SUmbrellaButton` content with `SNullWidget::NullWidget` and focus the holder
+itself (`SupportsKeyboardFocus` true), or delete the box and route Escape/F1/B/Menu through the existing Pause/Back input.
+Then the journey line `key Escape  # the mouse cannot reach Done` can become `click Done`.
