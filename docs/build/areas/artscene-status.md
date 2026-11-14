@@ -231,3 +231,5 @@ No `-SmokeShotDelay=` flag yet, load average 45. Context pair for skyline, paper
 - Whole frame: pipeline/art/proof/artscene/dials-r1e-dc_route.png (study | r1d | r1e). After: no disc; the dial is lost in the haze.
 - Merged main 294963a8 first. Gate on the working tree (through ue_slot, logs/artscene-gate-r1e.log):
   `VISUAL_QA GATE PASS play=42,45/70 dc_route=43,42/70 keeper=42,37/70 broken=10,9 baseline=294963a82c9b recheck=1`; no clock/disc item.
+
+- Nov 13 21:44 (lead): gate a1a5356e on eaf70382 FAIL was unconfirmed: the recheck capture stopped at "click Quit to Title" on Defeat (wait Title timeout 60 s), so dc_route and keeper were never recaptured (recheck=error) and the first capture's items (gold shots, player figure on the line; not artscene) stood. Re-gate on this commit.
