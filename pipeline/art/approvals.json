@@ -27,6 +27,87 @@
    "file": "pipeline/art/proof/artkeeper/wing-gust/Keeper_wing_gust_N14_strip_graded.png",
    "sha256": "3866d70db7d65ba49d5ff7021087b0db78829b0213a0cffdf412afd0ef3d79ce",
    "note": "Keeper wing-gust cue (OWL-15), 14-frame strip cut from wing-gust.mp4 (sha256 5e45fda9...) and graded like the approved idle; imported as T_Keeper_WingGust_PH; lands with area/artkeeper 97590213"
+  },
+  {
+   "piece": "scene-backdrop-architecture",
+   "approver": "Josh",
+   "date": "2026-11-13",
+   "origin": "approved by Josh 22:40, 2026-11-13, in chat",
+   "file": "pipeline/art/proof/scene/bg-architecture/world_r3_post.png",
+   "sha256": "2edbd183c6165460fbed1b2e74944f421776b0ba8ab49420c4c6b475db936ad9",
+   "note": "as on main 44a50099; in-game layered backdrop layer (artscene 991b3eb7); ships as Content/UmbrellaElla/Art/Scene/T_BgArchitecture_PH.uasset"
+  },
+  {
+   "piece": "scene-backdrop-atmosphere",
+   "approver": "Josh",
+   "date": "2026-11-13",
+   "origin": "approved by Josh 22:40, 2026-11-13, in chat",
+   "file": "pipeline/art/proof/scene/bg-atmosphere/atmosphere_r2.png",
+   "sha256": "104dbf59dd424cb840fcbf0ed1e32983be154b581db8e5c9e61aa49b65ac4103",
+   "note": "as on main 44a50099; in-game layered backdrop layer (artscene 991b3eb7); ships as Content/UmbrellaElla/Art/Scene/T_BgAtmosphere_PH.uasset"
+  },
+  {
+   "piece": "scene-backdrop-base",
+   "approver": "Josh",
+   "date": "2026-11-13",
+   "origin": "approved by Josh 22:40, 2026-11-13, in chat",
+   "file": "pipeline/art/proof/scene/bg-base/world_r1b_post.png",
+   "sha256": "17b0634054cdafc23399b457cf37909cac0171659f025483baad990175682776",
+   "note": "as on main 44a50099; in-game layered backdrop layer (artscene 991b3eb7); ships as Content/UmbrellaElla/Art/Scene/T_BgBase_PH.uasset"
+  },
+  {
+   "piece": "scene-backdrop-clockwaterwind",
+   "approver": "Josh",
+   "date": "2026-11-13",
+   "origin": "approved by Josh 22:40, 2026-11-13, in chat",
+   "file": "pipeline/art/proof/scene/bg-clock-water-wind/cww_r1c_post.png",
+   "sha256": "7d7fad9d361fb6c7de2d19eb7c6aa33d409d0de0f74e1dfe80372b822242901a",
+   "note": "as on main 44a50099; in-game layered backdrop layer (artscene 991b3eb7); ships as Content/UmbrellaElla/Art/Scene/T_BgClockWaterWind_PH.uasset"
+  },
+  {
+   "piece": "scene-backdrop-clock",
+   "approver": "Josh",
+   "date": "2026-11-13",
+   "origin": "approved by Josh 22:40, 2026-11-13, in chat",
+   "file": "pipeline/art/proof/scene/bg-clock/clock_r1e_post.png",
+   "sha256": "f9c48c389ebe8341ec98900845f9c86fce7b6576f795a3552957bbf330a7998b",
+   "note": "as on main 44a50099; in-game layered backdrop layer (artscene 991b3eb7); ships as Content/UmbrellaElla/Art/Scene/T_BgClock_PH.uasset"
+  },
+  {
+   "piece": "scene-backdrop-land",
+   "approver": "Josh",
+   "date": "2026-11-13",
+   "origin": "approved by Josh 22:40, 2026-11-13, in chat",
+   "file": "pipeline/art/proof/scene/bg-land/world_r5_post.png",
+   "sha256": "4c7e950e5923724ca2201ad5f81087295b12975edd9420749da2784c055455f2",
+   "note": "as on main 44a50099; in-game layered backdrop layer (artscene 991b3eb7); ships as Content/UmbrellaElla/Art/Scene/T_BgLand_PH.uasset"
+  },
+  {
+   "piece": "scene-backdrop-startend",
+   "approver": "Josh",
+   "date": "2026-11-13",
+   "origin": "approved by Josh 22:40, 2026-11-13, in chat",
+   "file": "pipeline/art/proof/scene/bg-start-end/world_r2d_post.png",
+   "sha256": "0ef2092b56f62c3e955ea56326970363027acc3da110919103a97758ccf0e301",
+   "note": "as on main 44a50099; in-game layered backdrop layer (artscene 991b3eb7); ships as Content/UmbrellaElla/Art/Scene/T_BgStartEnd_PH.uasset"
+  },
+  {
+   "piece": "scene-backdrop-water",
+   "approver": "Josh",
+   "date": "2026-11-13",
+   "origin": "approved by Josh 22:40, 2026-11-13, in chat",
+   "file": "pipeline/art/proof/scene/bg-water/water_r1c_post.png",
+   "sha256": "eee7a9fa5ea60a73ae04d38b0530cb6832ac7f675b57931c4d4d80ad76e63a4a",
+   "note": "as on main 44a50099; in-game layered backdrop layer (artscene 991b3eb7); ships as Content/UmbrellaElla/Art/Scene/T_BgWater_PH.uasset"
+  },
+  {
+   "piece": "title-screen",
+   "approver": "Josh",
+   "date": "2026-11-13",
+   "origin": "approved by Josh 22:40, 2026-11-13, in chat",
+   "file": "pipeline/art/proof/artui/ui-title/capture_title_r21_1568.png",
+   "sha256": "e742a618cfa4c7b22a3aeb6dfc40a4f02f23adbaa8f4109047d0d36c7a208151",
+   "note": "as on main 44a50099; title screen picture; ships as Content/UmbrellaElla/Art/UI/T_Screen_Title_PH.uasset"
   }
  ]
 }
