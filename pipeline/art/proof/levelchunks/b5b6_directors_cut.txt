@@ -1,0 +1,19 @@
+# B5/B6 proof (levelchunks): Director's Cut route start and the Keeper fight, Ella and the Keeper measured in frame.
+firstrun
+wait Title 60
+idle 1
+click Director's Cut
+skipunless Purchase 3
+key Escape
+wait Title 5
+click Director's Cut
+trywait Tutorial 5
+keyuntil Playing Enter 0.8 30
+idle 2
+shot b6_route_start
+routeassist 4
+idle 3
+shot b5_keeper_fight
+idle 2
+shot b5_keeper_fight_later
+end
