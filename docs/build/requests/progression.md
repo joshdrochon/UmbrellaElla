@@ -78,7 +78,6 @@ Until then `art_inventory` and `ui_check` fail on it in precheck.
 ```
 ui-final-hour-intro,screen,"Your borrowed time has run its course. Now, face the Final Hour.",,yes,FLOW-06 approved exact text; screen=final-hour; where=FinalHourIntroWidget.cpp
 ui-purchase-review-0-points-in-total,screen,Review: {0} points in total,,yes,screen=purchase; where=ProgressionPurchaseWidget.cpp
-ui-purchase-review-line,screen,"{0} {1} to {2}: {3} to {4}, {5}: {6} {7}",,yes,"screen=purchase; where=ProgressionPurchaseWidget.cpp (track, rank from/to, value from/to, Cost|Reallocation, n, point|points)"
 ui-purchase-costs,label,Cost,,yes,screen=purchase; where=ProgressionPurchaseWidget.cpp
 ui-purchase-reallocates,label,Reallocation,,yes,"screen=purchase; where=ProgressionPurchaseWidget.cpp; GDD FLOW-11 / FLOW-18 reallocation, run 2 onward"
 ui-purchase-point,label,point,,yes,screen=purchase; where=ProgressionPurchaseWidget.cpp

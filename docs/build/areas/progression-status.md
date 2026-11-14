@@ -110,7 +110,8 @@ module_check 0, manifest_check 0, pipeline_check 0, story_check PASS, ui_check c
 3. **Held review**. Fixed: Final Hour text = GDD FLOW-06 exact text again (widget, test, lines.csv id `ui-final-hour-intro`); break-check: old
    text fails `World.FinalHourIntroBeforeExtremeRun`. story_check flagged "Final" as a non-bible name: added "Final" to
    `pipeline/story/story.json` allow_caps with its reason (story lane file, one word; needed so story_check stays at main's level).
-   Fixed the stacked `EnemyCount` comment; added the review-line row to lines.csv; request 7 now lists the ids as shipped.
+   Fixed the stacked `EnemyCount` comment; request 7 now lists the ids as shipped. Not done: a lines.csv row for the review-line
+   format string (story_inventory finds no shipped source for a placeholder-only text and fails it; needs the story lane's call).
    Follow-ups (paperwork / other lanes): story critic must re-run on the restored text (it proposed the old line; GDD wins);
    `ApplyToHealth` -> `SetCapacity` on every kill (health sees extra config events; harmless now); status test counts were per-filter, not totals.
 Workbench-only proof console commands (in `ProgressionPurchaseWidget.cpp`, `#if UMBRELLAELLA_WORKBENCH && !UE_BUILD_SHIPPING`):
