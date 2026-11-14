@@ -135,5 +135,4 @@ private:
 	UPROPERTY()
 	TArray<TObjectPtr<AActor>> Layers;
 	TArray<FBackdropLayerSpec> BuiltSpecs;
-	bool bArenaStandInsHidden = false;
 };

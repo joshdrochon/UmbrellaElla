@@ -176,12 +176,12 @@ FVector2D USceneArtSubsystem::EdgeFades(ESceneArtAnchor Anchor)
 	}
 }
 
-bool USceneArtSubsystem::ApplyEdgeFade(UStaticMeshComponent* Panel, UTexture2D* Picture, const FVector2D& Fades)
+void USceneArtSubsystem::ApplyEdgeFade(UStaticMeshComponent* Panel, UTexture2D* Picture, const FVector2D& Fades)
 {
 	UMaterialInterface* Fade = IsValid(Panel) && IsValid(Picture) ? LoadObject<UMaterialInterface>(nullptr, UmbrellaSceneArtConst::EdgeFadeMaterialPath) : nullptr;
 	if (!Fade)
 	{
-		return false;
+		return;
 	}
 	const FLinearColor Tint = ArtSlot::GetTint(Panel);
 	UMaterialInstanceDynamic* Dynamic = UMaterialInstanceDynamic::Create(Fade, Panel);
@@ -195,7 +195,6 @@ bool USceneArtSubsystem::ApplyEdgeFade(UStaticMeshComponent* Panel, UTexture2D* 
 	Dynamic->SetScalarParameterValue(TEXT("FadeRight"), static_cast<float>(Fades.Y));
 	Panel->SetMaterial(0, Dynamic);
 	Panel->SetTranslucentSortPriority(UmbrellaSceneArtConst::EdgeFadeSortPriority);
-	return true;
 }
 
 int32 USceneArtSubsystem::PanelCount(const FString& Visual) const

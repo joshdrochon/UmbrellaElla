@@ -130,7 +130,10 @@ int32 UUmbrellaBackdropSubsystem::HideArenaStandIns()
 		{
 			if (IsValid(Plane))
 			{
-				Plane->SetHiddenInGame(true);
+				if (!Plane->bHiddenInGame)
+				{
+					Plane->SetHiddenInGame(true);
+				}
 				++Hidden;
 			}
 		}
@@ -293,10 +296,9 @@ void UUmbrellaBackdropSubsystem::Tick(float DeltaTime)
 	{
 		ScrollTo(static_cast<float>(Controller->PlayerCameraManager->GetCameraLocation().X));
 	}
-	if (!bArenaStandInsHidden)
-	{
-		bArenaStandInsHidden = HideArenaStandIns() > 0;
-	}
+	// Every tick, not once: the Keeper handoff rebuilds the arena's planes (BuildPlaceholders makes new components), and
+	// a one-shot hide left them showing as a dark rectangle behind the faded end picture (visual_qa keeper, dcs-r1).
+	HideArenaStandIns();
 }
 
 TStatId UUmbrellaBackdropSubsystem::GetStatId() const

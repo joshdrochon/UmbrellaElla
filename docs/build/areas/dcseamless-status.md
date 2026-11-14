@@ -27,3 +27,11 @@ Measured (route shots 001-034): before 14 of 34 fail, worst 7.1; after 0 of 34 f
 Keeper-fight shots score 3.0-3.3 at x 888 both before and after: the Keeper's straight hanging chains, not the backdrop.
 Tests: UmbrellaElla.Feedback.BackdropSeamless, UmbrellaElla.Feedback.World.BackdropSeamless (Feedback 65/65 PASS),
 tests/test_art_scene_frameseam.py (6 OK). Proof: pipeline/art/proof/dcseamless/composite-{005,010,033}.png.
+
+## Nov 14 00:25: round 2
+- Precheck: `ApplyEdgeFade` returned bool (naming rule) -> void.
+- visual_qa run on a93d46c3 (no baseline compare): `play=41 dc_route=44 keeper=32` (main dab58cfa baseline 43/45/42).
+  dc_route: no backdrop item (floor bar, thin platform, rope: level/Ella, not mine). keeper: "dark rectangular panel
+  top-left with hard straight edges": the arena stand-in planes showed again by the Keeper fight (hidden once, at the
+  first tick with art). Fix: HideArenaStandIns every tick. Recapture (Saved/VisualQA/dcs-r2): rectangle gone; frameseam
+  keeper 3.1 at x888 = the Keeper's hanging chains (main's frame scores the same), dc_route 1.5, play 3.1 at the owl's chains.

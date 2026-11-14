@@ -102,10 +102,10 @@ public:
 	static FVector2D EdgeFades(ESceneArtAnchor Anchor);
 
 	/**
-	 * Redraw a panel's picture with the edge-fade material (soft sides, same picture and tint). False when the material is
-	 * missing (the panel keeps the plain slot material).
+	 * Redraw a panel's picture with the edge-fade material (soft sides, same picture and tint). When the material is
+	 * missing the panel keeps the plain slot material.
 	 */
-	static bool ApplyEdgeFade(UStaticMeshComponent* Panel, UTexture2D* Picture, const FVector2D& Fades);
+	static void ApplyEdgeFade(UStaticMeshComponent* Panel, UTexture2D* Picture, const FVector2D& Fades);
 
 	/** Move every panel for a camera X and size view panels to the camera's ortho width (0 = arena width; also what Tick does). */
 	void ScrollTo(float CameraX, float OrthoWidth = 0.0f);
