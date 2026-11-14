@@ -9,8 +9,8 @@
  */
 namespace UmbrellaFigureScale
 {
-	/** Ella about 1.5x, toward ~15% of the screen height. */
-	static constexpr double Ella = 1.5;
+	/** Ella 2x her original size (Josh, 14 Nov 00:59; was 1.5x). */
+	static constexpr double Ella = 2.0;
 	/** The Keeper about 1.5x, toward 45-50% of the screen height. */
 	static constexpr double Keeper = 1.5;
 }
