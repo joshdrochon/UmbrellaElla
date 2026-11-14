@@ -231,7 +231,11 @@ void UEllaAnimPresenterComponent::SetVisualState(EEllaVisualState State)
 {
 	VisualState = State;
 	StateTimeLeft = (State == EEllaVisualState::Idle || State == EEllaVisualState::Down) ? 0.0f : GetDefault<UUmbrellaTuning>()->ArenaCamera.EllaStateHoldSeconds;
+	const UWorld* World = GetWorld();
+	StateStartSeconds = World ? World->GetTimeSeconds() : 0.0;
+	DrawnFrame = -1;
 	ApplyState();
+	PlayGrid();
 }
 
 void UEllaAnimPresenterComponent::ApplyState()
@@ -463,11 +467,26 @@ void UEllaAnimPresenterComponent::SetDrawTopLimit(float WorldZ)
 	KeepFigureInFrame();
 }
 
-int32 UEllaAnimPresenterComponent::GridFrameAt(double Seconds, float Fps, int32 Cols, int32 Rows)
+int32 UEllaAnimPresenterComponent::GridFrameAt(double Seconds, float Fps, int32 Cols, int32 Rows, bool bLoop)
 {
 	const int64 Cells = static_cast<int64>(FMath::Max(1, Cols)) * FMath::Max(1, Rows);
 	const int64 Step = FMath::Max<int64>(0, FMath::FloorToInt64(FMath::Max(0.0, Seconds) * FMath::Max(0.0f, Fps)));
-	return static_cast<int32>(Step % Cells);
+	return static_cast<int32>(bLoop ? Step % Cells : FMath::Min(Step, Cells - 1));
+}
+
+bool UEllaAnimPresenterComponent::LoopsInState(EEllaVisualState State)
+{
+	return State != EEllaVisualState::Hurt && State != EEllaVisualState::Down;
+}
+
+float UEllaAnimPresenterComponent::BottomPadFor(EEllaVisualState State)
+{
+	switch (State)
+	{
+	case EEllaVisualState::Hurt: return UmbrellaPresenterConst::HurtBottomPad;
+	case EEllaVisualState::Down: return UmbrellaPresenterConst::DownBottomPad;
+	default: return UmbrellaPresenterConst::IdleBottomPad;
+	}
 }
 
 int32 UEllaAnimPresenterComponent::PlayGrid()
@@ -480,7 +499,10 @@ int32 UEllaAnimPresenterComponent::PlayGrid()
 		return DrawnFrame;
 	}
 	const FArtSlotRow* Row = RowForTexture(TextureForState(VisualState));
-	const int32 Frame = Row ? GridFrameAt(World->GetTimeSeconds(), UmbrellaPresenterConst::GridFps, Row->Cols, Row->Rows) : 0;
+	// Idle loops on the world clock; Hurt and Down play once from their own start (review, ellaanim) and hold the last cell.
+	const bool bLoop = LoopsInState(VisualState);
+	const double Seconds = bLoop ? World->GetTimeSeconds() : World->GetTimeSeconds() - StateStartSeconds;
+	const int32 Frame = Row ? GridFrameAt(Seconds, UmbrellaPresenterConst::GridFps, Row->Cols, Row->Rows, bLoop) : 0;
 	if (Frame != DrawnFrame)
 	{
 		ArtSlot::SetFrame(StandIn, Frame);
@@ -526,7 +548,7 @@ float UEllaAnimPresenterComponent::KeepFigureInFrame()
 	// (whatever mesh and turn the art slot uses), taken back to where it would be without the current drop.
 	const FBox Cell = StandIn->CalcBounds(StandIn->GetComponentTransform()).GetBox();
 	const float UndroppedTop = static_cast<float>(Cell.Max.Z) + CurrentDrop;
-	const float UndroppedBottom = static_cast<float>(Cell.Min.Z + UmbrellaPresenterConst::FigureBottomPad * (Cell.Max.Z - Cell.Min.Z)) + CurrentDrop;
+	const float UndroppedBottom = static_cast<float>(Cell.Min.Z + BottomPadFor(VisualState) * (Cell.Max.Z - Cell.Min.Z)) + CurrentDrop;
 	const float ActorZ = static_cast<float>(Owner->GetActorLocation().Z);
 	const float Lowered = bHasDrawTopLimit ? FigureDrop(ActorZ, UndroppedTop - ActorZ, DrawTopLimitZ) : 0.0f;
 	// The bottom wins only if the figure were taller than the clear frame (never at 2x): then its feet stay in view.

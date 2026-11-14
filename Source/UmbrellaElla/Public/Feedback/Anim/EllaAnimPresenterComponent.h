@@ -37,10 +37,13 @@ namespace UmbrellaPresenterConst
 	 */
 	static constexpr float GridFps = 6.13f;
 	/**
-	 * Share of a picture cell under Ella's feet that is empty: the approved idle grid's lowest opaque row (alpha >= 128)
-	 * is at 81.2% of the cell in all 24 cells. The bottom-of-frame check keeps her feet, not the empty cell edge, in view.
+	 * Share of a picture cell under Ella's feet that is empty, per sheet: the lowest opaque row (alpha >= 128) over all 24
+	 * cells is at 81.2% of the cell (idle, Ella_idle_N24_grid.png), 93.6% (hurt, ella-hurt_N24_grid.png) and 97.6% (down,
+	 * ella-down_N24_grid.png). The bottom-of-frame check keeps her feet, not the empty cell edge, in view.
 	 */
-	static constexpr float FigureBottomPad = 0.188f;
+	static constexpr float IdleBottomPad = 0.188f;
+	static constexpr float HurtBottomPad = 0.064f;
+	static constexpr float DownBottomPad = 0.024f;
 	/** World units under which a change of the ceiling drop is ignored (no per-tick re-placing for float noise). */
 	static constexpr float FigureDropTolerance = 0.01f;
 }
@@ -146,7 +149,13 @@ public:
 	float GetFigureDrop() const { return CurrentDrop; }
 
 	/** Cell of a Cols x Rows grid sheet shown at Seconds: walks every cell left to right, row by row, and loops. Pure. */
-	static int32 GridFrameAt(double Seconds, float Fps, int32 Cols, int32 Rows);
+	static int32 GridFrameAt(double Seconds, float Fps, int32 Cols, int32 Rows, bool bLoop = true);
+
+	/** True when a state's picture loops (Idle and the states that show the idle art); Hurt and Down play once and hold. Pure. */
+	static bool LoopsInState(EEllaVisualState State);
+
+	/** Empty share under the feet of the picture a state draws (IdleBottomPad, HurtBottomPad, DownBottomPad). Pure. */
+	static float BottomPadFor(EEllaVisualState State);
 
 	/** Show the current picture's cell for the world time (a grid sheet animates; a single picture stays on 0). Tick calls it. */
 	int32 PlayGrid();
@@ -198,7 +207,6 @@ protected:
 	virtual void EndPlay(const EEndPlayReason::Type Reason) override;
 
 private:
-	int32 DrawnFrame = -1;
 	void HandleEvent(const FUmbrellaEvent& Event);
 	void LoadOverlays();
 	void ApplyState();
@@ -210,6 +218,10 @@ private:
 	const struct FArtSlotRow* RowForTexture(const UTexture2D* Texture) const;
 
 	EEllaVisualState VisualState = EEllaVisualState::Idle;
+	/** The grid cell the picture draws now (ArtSlot "Frame"), -1 before any picture or after a texture swap. */
+	int32 DrawnFrame = -1;
+	/** World time the current visual state began: a Hurt or Down clip plays from its own cell 0. */
+	double StateStartSeconds = 0.0;
 	float StateTimeLeft = 0.0f;
 	float TransitionLeft = 0.0f;
 	float RepairLeft = 0.0f;

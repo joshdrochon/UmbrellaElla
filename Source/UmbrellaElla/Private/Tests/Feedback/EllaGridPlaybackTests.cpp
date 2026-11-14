@@ -38,6 +38,11 @@ bool FEllaGridFrameRule::RunTest(const FString& Parameters)
 	TestEqual(TEXT("reaches the last cell"), UEllaAnimPresenterComponent::GridFrameAt(23.0 / 6.0 + 0.01, 6.0f, 6, 4), 23);
 	TestEqual(TEXT("loops after 24 cells"), UEllaAnimPresenterComponent::GridFrameAt(4.0 + 0.01, 6.0f, 6, 4), 0);
 	TestEqual(TEXT("a single picture stays on 0"), UEllaAnimPresenterComponent::GridFrameAt(3.3, 6.0f, 1, 1), 0);
+	TestEqual(TEXT("a play-once clip holds its last cell"), UEllaAnimPresenterComponent::GridFrameAt(9.0, 6.0f, 6, 4, false), 23);
+	TestEqual(TEXT("a play-once clip starts on 0"), UEllaAnimPresenterComponent::GridFrameAt(0.0, 6.0f, 6, 4, false), 0);
+	TestTrue(TEXT("Idle loops"), UEllaAnimPresenterComponent::LoopsInState(EEllaVisualState::Idle));
+	TestFalse(TEXT("Hurt plays once"), UEllaAnimPresenterComponent::LoopsInState(EEllaVisualState::Hurt));
+	TestFalse(TEXT("Down plays once"), UEllaAnimPresenterComponent::LoopsInState(EEllaVisualState::Down));
 	return true;
 }
 
@@ -75,6 +80,38 @@ bool FEllaIdleAnimates::RunTest(const FString& Parameters)
 	TestTrue(FString::Printf(TEXT("the idle advances over 1 s (%d distinct cells, want >= 5)"), Seen.Num()), Seen.Num() >= 5);
 	// Past the first row: the material must walk rows, not only frames 0-5. 1 s at 6.13 fps from t=0 reaches cell 6.
 	TestTrue(FString::Printf(TEXT("reaches the second row (highest cell %d >= %d)"), MaxFrame, Idle->Cols), MaxFrame >= Idle->Cols);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FEllaHurtStartsOnCellZero, "UmbrellaElla.Feedback.World.EllaHurtStartsOnCellZero", GridTestFlags)
+
+bool FEllaHurtStartsOnCellZero::RunTest(const FString& Parameters)
+{
+	FUmbrellaTestWorld Test;
+	AEllaCharacter* Ella = Test.SpawnElla(FVector(0.0, 0.0, 2000.0));
+	UEllaAnimPresenterComponent* Look = Ella ? Ella->GetAnimPresenter() : nullptr;
+	const UStaticMeshComponent* Mesh = Ella ? FindObjectFast<UStaticMeshComponent>(Ella, FName(TEXT("EllaStandIn"))) : nullptr;
+	if (!TestNotNull(TEXT("ella"), Ella) || !TestNotNull(TEXT("presenter"), Look) || !TestNotNull(TEXT("Ella's picture"), Mesh))
+	{
+		return false;
+	}
+	// Mid idle cycle (world clock past cell 0), then hit: the hurt clip starts on its own cell 0.
+	Test.TickSeconds(1.3f, 1.0f / 30.0f);
+	TestTrue(FString::Printf(TEXT("idle is mid-cycle before the hit (cell %d)"), Look->GetDrawnFrame()), Look->GetDrawnFrame() > 0);
+	Look->SetVisualState(EEllaVisualState::Hurt);
+	TestEqual(TEXT("Hurt starts on cell 0 (presenter)"), Look->GetDrawnFrame(), 0);
+	TestEqual(TEXT("Hurt starts on cell 0 (material)"), FMath::RoundToInt(MaterialFrame(Mesh)), 0);
+	Test.TickSeconds(0.2f, 1.0f / 30.0f);
+	TestTrue(FString::Printf(TEXT("Hurt advances from 0 (cell %d after 0.2 s)"), Look->GetDrawnFrame()), Look->GetDrawnFrame() >= 1 && Look->GetDrawnFrame() <= 2);
+	// Down plays once and holds its last cell.
+	Look->SetVisualState(EEllaVisualState::Down);
+	TestEqual(TEXT("Down starts on cell 0"), Look->GetDrawnFrame(), 0);
+	Test.TickSeconds(6.0f, 1.0f / 30.0f);
+	const FArtSlotRow* Down = ArtSlot::Find(TEXT("ella-state:Down"));
+	if (Down && Look->GetVisualState() == EEllaVisualState::Down)
+	{
+		TestEqual(TEXT("Down holds its last cell, no loop"), Look->GetDrawnFrame(), Down->Cols * Down->Rows - 1);
+	}
 	return true;
 }
 
