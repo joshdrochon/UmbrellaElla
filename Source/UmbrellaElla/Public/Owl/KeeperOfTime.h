@@ -233,6 +233,8 @@ private:
 	FVector2D TelegraphFrom = FVector2D::ZeroVector;
 	FVector2D TelegraphTo = FVector2D::ZeroVector;
 	bool bTelegraphShown = false;
+	/** The warning mark shows the painted streak (PaintedWarningArt); false: the flat-line fallback (no VFX material). */
+	bool bTelegraphPainted = false;
 	/** One bit per EKeeperPart whose slot art draws. */
 	uint8 ArtDrawnParts = 0;
 	float DepartureRemaining = 0.0f;

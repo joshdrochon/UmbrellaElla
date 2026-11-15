@@ -29,6 +29,7 @@
 #include "Misc/Paths.h"
 #include "Encounter/EncounterDirectorSubsystem.h"
 #include "Encounter/KeeperFightModel.h"
+#include "Health/UmbrellaHealthComponent.h"
 #include "Owl/KeeperOfTime.h"
 #include "Owl/KeeperPartComponent.h"
 #include "Core/UmbrellaGameMode.h"
@@ -82,6 +83,7 @@ void USmokeHookSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	FParse::Value(FCommandLine::Get(), TEXT("-SmokeShotFrames="), RequestedFrames);
 	ShotFrames = ResolveShotFrames(RequestedFrames);
 	FParse::Value(FCommandLine::Get(), TEXT("-SmokeShotWhen="), ShotWhen);
+	FParse::Value(FCommandLine::Get(), TEXT("-SmokeHoldEllaAt="), HoldEllaAtSpec, false);
 	FParse::Value(FCommandLine::Get(), TEXT("-SmokeShotMomentFrames="), ShotMomentFrames);
 	ShotMomentFrames = FMath::Max(1, ShotMomentFrames);
 }
@@ -143,6 +145,29 @@ void USmokeHookSubsystem::HoldEllaNearClaw(AUmbrellaPlayerController* Flow) cons
 #endif
 }
 
+void USmokeHookSubsystem::HoldEllaAt(AUmbrellaPlayerController* Flow) const
+{
+#if UMBRELLAELLA_WORKBENCH
+	FString XText;
+	FString ZText;
+	UWorld* World = GetGameInstance() ? GetGameInstance()->GetWorld() : nullptr;
+	APawn* Ella = Flow ? Flow->GetPawn() : nullptr;
+	TActorIterator<AUmbrellaArena> ArenaIt(World);
+	const AUmbrellaArena* Arena = ArenaIt ? *ArenaIt : nullptr;
+	if (!Ella || !Arena || !HoldEllaAtSpec.Split(TEXT(","), &XText, &ZText))
+	{
+		return;
+	}
+	const FVector At = Arena->LocalPoint(FCString::Atof(*XText), FCString::Atof(*ZText));
+	Ella->SetActorLocation(FVector(At.X, Ella->GetActorLocation().Y, At.Z));
+	// A held Ella cannot dodge: keep her life full so the run reaches the asked moment (smoke capture only).
+	if (UUmbrellaHealthComponent* Health = Ella->FindComponentByClass<UUmbrellaHealthComponent>())
+	{
+		Health->ResetForRetry();
+	}
+#endif
+}
+
 void USmokeHookSubsystem::BreakKeeperWings() const
 {
 #if UMBRELLAELLA_WORKBENCH
@@ -175,6 +200,19 @@ void USmokeHookSubsystem::LogShotKeeper() const
 	UE_LOG(LogUmbrellaElla, Log, TEXT("SMOKE_KEEPER active=%d phase=%d physical=%d stage=%d gust_travelling=%d when=%s"),
 		Director->GetState() == EEncounterState::Active ? 1 : 0, static_cast<int32>(Director->GetPhase()), static_cast<int32>(Model.GetPhysical()),
 		static_cast<int32>(Model.GetStage()), Model.IsGustTravelling() ? 1 : 0, ShotWhen.IsEmpty() ? TEXT("-") : *ShotWhen);
+	const APlayerController* Player = World ? World->GetFirstPlayerController() : nullptr;
+	const APawn* Ella = Player ? Player->GetPawn() : nullptr;
+	if (Ella && Model.GetStage() == EKeeperStage::Warning && Model.GetPhysical() != EKeeperPhysical::Gust)
+	{
+		// The warning's aim against Ella's centre now: start, end, Ella, and the angle between start->end and start->Ella.
+		const FVector2D Start = Model.GetLockStart();
+		const FVector2D Aim = (Model.GetLockEnd() - Start).GetSafeNormal();
+		const FVector2D EllaXZ(Ella->GetActorLocation().X, Ella->GetActorLocation().Z);
+		const FVector2D ToElla = (EllaXZ - Start).GetSafeNormal();
+		const float Degrees = FMath::RadiansToDegrees(FMath::Acos(FMath::Clamp(FVector2D::DotProduct(Aim, ToElla), -1.0f, 1.0f)));
+		UE_LOG(LogUmbrellaElla, Log, TEXT("SMOKE_AIM start=%.0f,%.0f end=%.0f,%.0f ella=%.0f,%.0f angle_deg=%.1f"),
+			Start.X, Start.Y, Model.GetLockEnd().X, Model.GetLockEnd().Y, EllaXZ.X, EllaXZ.Y, Degrees);
+	}
 }
 
 bool USmokeHookSubsystem::IsShotDue(bool bLevelReady, int32 FramesSinceReady, int32 RequiredFrames)
@@ -505,6 +543,10 @@ void USmokeHookSubsystem::Tick(float DeltaTime)
 	if (!bShotTaken && FParse::Param(FCommandLine::Get(), TEXT("SmokeHoldNearClaw")))
 	{
 		HoldEllaNearClaw(Flow);
+	}
+	if (!bShotTaken && !HoldEllaAtSpec.IsEmpty())
+	{
+		HoldEllaAt(Flow);
 	}
 	if (!bShotTaken && FParse::Param(FCommandLine::Get(), TEXT("SmokeKeeperBreakWings")))
 	{

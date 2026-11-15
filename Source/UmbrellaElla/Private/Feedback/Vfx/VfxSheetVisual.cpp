@@ -7,6 +7,7 @@
 #include "Feedback/Vfx/VfxLightPolicy.h"
 #include "GameFramework/Actor.h"
 #include "Materials/MaterialInstanceDynamic.h"
+#include "Feedback/Vfx/PaintedWarningArt.h"
 #include "Materials/MaterialInterface.h"
 
 namespace
@@ -37,6 +38,14 @@ namespace
 
 	UTexture2D* LoadVfxSheet(const FVfxArtRow& Row)
 	{
+		// The Keeper's warning ring is painted in code (Josh, Nov 14: the placeholder sheet read as a hard neon circle).
+		if (FCString::Strcmp(Row.Sheet, TEXT("VFX_KeeperWarning")) == 0)
+		{
+			if (UTexture2D* Painted = PaintedWarningArt::RingSheet())
+			{
+				return Painted;
+			}
+		}
 		for (const FString& Path : VfxCatalog::TexturePaths(Row))
 		{
 			if (UTexture2D* Sheet = LoadObject<UTexture2D>(nullptr, *Path, nullptr, LOAD_NoWarn | LOAD_Quiet))
@@ -53,6 +62,25 @@ namespace
 		Mesh->SetGenerateOverlapEvents(false);
 		Mesh->SetCastShadow(false);
 	}
+}
+
+void VfxSheetVisual::ShowTexture(UStaticMeshComponent* Mesh, UTexture2D* Texture)
+{
+	UMaterialInterface* Material = (IsValid(Mesh) && Texture) ? LoadVfxMaterial(VfxSheetMaterialPaths) : nullptr;
+	UStaticMesh* Plane = Material ? LoadObject<UStaticMesh>(nullptr, VfxPlanePath) : nullptr;
+	if (!Plane)
+	{
+		return;
+	}
+	DisableVfxCollision(Mesh);
+	Mesh->SetStaticMesh(Plane);
+	UMaterialInstanceDynamic* Dynamic = UMaterialInstanceDynamic::Create(Material, Mesh);
+	Dynamic->SetTextureParameterValue(VfxSheetParam, Texture);
+	Dynamic->SetScalarParameterValue(VfxColsParam, 1.0f);
+	Dynamic->SetScalarParameterValue(VfxFrameParam, 0.0f);
+	Dynamic->SetScalarParameterValue(VfxOpacityParam, 1.0f);
+	Mesh->SetMaterial(0, Dynamic);
+	Mesh->ComponentTags.AddUnique(VfxArtTag);
 }
 
 FRotator VfxSheetVisual::FacingCamera()

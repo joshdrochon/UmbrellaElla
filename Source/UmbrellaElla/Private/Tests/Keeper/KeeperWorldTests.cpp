@@ -12,6 +12,11 @@
 #include "Motor/MotorModel.h"
 #include "Owl/KeeperOfTime.h"
 #include "Owl/KeeperLook.h"
+#include "Defense/AbsorbReceiverComponent.h"
+#include "Health/UmbrellaHealthComponent.h"
+#include "Feedback/Vfx/VfxSheetVisual.h"
+#include "Feedback/Vfx/PaintedWarningArt.h"
+#include "Engine/Texture2D.h"
 #include "Feedback/Art/FrameCompositionSubsystem.h"
 #include "Components/StaticMeshComponent.h"
 #include "Owl/KeeperPartComponent.h"
@@ -482,9 +487,11 @@ namespace
 			return Seen;
 		}
 		const FKeeperTuning& T = GetDefault<UUmbrellaTuning>()->Keeper;
-		// A line: its short side at most a fifth of the 120 cm gust band (the old cubes were 120-126 cm thick).
-		const float MaxThick = T.GustBandWidth * 0.2f;
+		// A line or streak: its short side at most 0.6 of the 120 cm gust band (the old cubes were 120-126 cm thick; the
+		// painted streak's quad is 64 cm with a feathered edge and glow, its visible core about 20 cm).
+		const float MaxThick = T.GustBandWidth * 0.6f;
 		bool bReported = false;
+		bool bSawPainted = false;
 		for (float Time = 0.0f; Time < Seconds; Time += 0.05f)
 		{
 			W.Director->AdvanceFight(0.05f);
@@ -495,12 +502,26 @@ namespace
 			}
 			Seen |= 1u << static_cast<uint32>(Model.GetPhysical());
 			const FVector Size = Marker->GetComponentScale() * KeeperLook::CubeEdge;
-			const bool bThin = FMath::Min(Size.X, Size.Z) <= MaxThick;
+			// A painted quad (engine plane) lies in its local X/Y; the fallback cube shows its X/Z.
+			const bool bPainted = VfxSheetVisual::HasArt(Marker);
+			const bool bThin = FMath::Min(Size.X, bPainted ? Size.Y : Size.Z) <= MaxThick;
+			if (bPainted && !bSawPainted)
+			{
+				bSawPainted = true;
+			}
 			if (!bThin && !bReported)
 			{
 				bReported = true;
 				Test.AddError(FString::Printf(TEXT("warning marker for physical %d is %.0f x %.0f cm: a block, not a thin line"),
 					static_cast<int32>(Model.GetPhysical()), Size.X, Size.Z));
+			}
+		}
+		if (Seen != 0)
+		{
+			// Josh Nov 14: the warning is the painted streak (textured, feathered), never a flat uniform line.
+			if (!bSawPainted)
+			{
+				Test.AddWarning(TEXT("this test world drew the flat-line fallback (no VFX sheet material here); the painted path is checked in PaintedWarningIsFeatheredNotFlat"));
 			}
 		}
 		return Seen;
@@ -535,5 +556,173 @@ bool FKeeperWorldWarningMarkerLine::RunTest(const FString& Parameters)
 	const uint32 Casts = (1u << static_cast<uint32>(EKeeperPhysical::FrontCast)) | (1u << static_cast<uint32>(EKeeperPhysical::MiddleCurve))
 		| (1u << static_cast<uint32>(EKeeperPhysical::RearTwoStage));
 	TestTrue(TEXT("a chain-cast warning showed the marker"), (Seen & Casts) != 0);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FKeeperPaintedWarningArt, "UmbrellaElla.Keeper.PaintedWarningIsFeatheredNotFlat", EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+bool FKeeperPaintedWarningArt::RunTest(const FString& Parameters)
+{
+	// Josh Nov 14: a soft painted streak (tapered, feathered, faint tail) and a broken soft ring, never flat fills.
+	TestTrue(TEXT("streak: faint tail, strong toward the strike"), PaintedWarningArt::StreakAlpha(0.05f, 0.5f) < 0.5f * PaintedWarningArt::StreakAlpha(0.85f, 0.5f));
+	TestTrue(TEXT("streak: tail alpha is low"), PaintedWarningArt::StreakAlpha(0.02f, 0.5f) <= PaintedWarningArt::TailAlpha + 0.05f);
+	TestTrue(TEXT("streak: feathered across (edge far below the centre)"), PaintedWarningArt::StreakAlpha(0.8f, 0.97f) < 0.2f * PaintedWarningArt::StreakAlpha(0.8f, 0.5f));
+	TestTrue(TEXT("streak: soft, not a hard step (a mid value between core and edge)"),
+		PaintedWarningArt::StreakAlpha(0.8f, 0.6f) > 0.05f && PaintedWarningArt::StreakAlpha(0.8f, 0.6f) < PaintedWarningArt::StreakAlpha(0.8f, 0.5f));
+	float RingMin = 1.0f;
+	float RingMax = 0.0f;
+	for (int32 Step = 0; Step < 72; ++Step)
+	{
+		const float A = 2.0f * PI * Step / 72.0f;
+		const float V = PaintedWarningArt::RingAlpha(0.62f * FMath::Cos(A), 0.62f * FMath::Sin(A), 0);
+		RingMin = FMath::Min(RingMin, V);
+		RingMax = FMath::Max(RingMax, V);
+	}
+	TestTrue(TEXT("ring: broken (gaps far fainter than the arcs)"), RingMin < 0.35f * RingMax);
+	TestTrue(TEXT("ring: soft edge outside the band"), PaintedWarningArt::RingAlpha(0.95f, 0.0f, 0) < 0.25f * RingMax);
+	TestTrue(TEXT("ring: never a solid fill"), RingMax < 0.95f);
+	UTexture2D* StreakTexture = PaintedWarningArt::Streak();
+	UTexture2D* Ring = PaintedWarningArt::RingSheet();
+	TestNotNull(TEXT("streak texture builds"), StreakTexture);
+	TestNotNull(TEXT("ring sheet builds"), Ring);
+	if (Ring)
+	{
+		TestEqual(TEXT("ring sheet is one row of frames"), Ring->GetSizeX(), PaintedWarningArt::CellSize * PaintedWarningArt::Frames);
+	}
+	UStaticMeshComponent* Quad = NewObject<UStaticMeshComponent>(GetTransientPackage());
+	VfxSheetVisual::ShowTexture(Quad, StreakTexture);
+	TestTrue(TEXT("the streak shows on a VFX sheet quad (textured, not a flat cube)"), VfxSheetVisual::HasArt(Quad));
+	TestTrue(TEXT("ring: pulses over the loop"), !FMath::IsNearlyEqual(PaintedWarningArt::RingAlpha(0.62f, 0.0f, 0), PaintedWarningArt::RingAlpha(0.62f, 0.0f, PaintedWarningArt::Frames / 2), 0.02f));
+	return true;
+}
+
+namespace
+{
+	bool IsCastWarning(const FKeeperFightModel& Model)
+	{
+		const EKeeperPhysical P = Model.GetPhysical();
+		return Model.GetStage() == EKeeperStage::Warning
+			&& (P == EKeeperPhysical::FrontCast || P == EKeeperPhysical::MiddleCurve || P == EKeeperPhysical::RearTwoStage);
+	}
+
+	/** Steps until a chain-cast warning starts; returns false when none came in Seconds. */
+	bool StepToCastWarning(FKeeperWorld& W, float Seconds)
+	{
+		for (float Time = 0.0f; Time < Seconds; Time += 0.05f)
+		{
+			W.Director->AdvanceFight(0.05f);
+			if (IsCastWarning(W.Director->GetModel()))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/** Steps through the current cast (warning and strokes) until it is harmless again. */
+	void StepThroughCast(FKeeperWorld& W)
+	{
+		for (float Time = 0.0f; Time < 6.0f; Time += 0.05f)
+		{
+			W.Director->AdvanceFight(0.05f);
+			const EKeeperStage Stage = W.Director->GetModel().GetStage();
+			if (Stage == EKeeperStage::Recovery || Stage == EKeeperStage::Idle)
+			{
+				return;
+			}
+		}
+	}
+
+	/** A spot in the left half of the play space at mid height, inside the chain's reach of the mechanisms. */
+	FVector CastTargetSpot(const FKeeperWorld& W)
+	{
+		const FVector2D Home = W.Director->GetModel().GetLockStart();
+		const FVector2D Anchor = W.Director->GetKeeper() ? FVector2D(W.Director->GetKeeper()->GetActorLocation().X, W.Director->GetKeeper()->GetActorLocation().Z) : Home;
+		return FVector(Anchor.X - 600.0f, 0.0f, Anchor.Y - 150.0f);
+	}
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FKeeperWorldCastAimsAtElla, "UmbrellaElla.Keeper.World.ChainCastAimsAtEllaAndADodgeMisses", WorldFlags)
+bool FKeeperWorldCastAimsAtElla::RunTest(const FString& Parameters)
+{
+	// Josh, 14 Nov: the chain cast aims at Ella, locked when its warning starts; moving away during the warning dodges it.
+	const FKeeperTuning& T = GetDefault<UUmbrellaTuning>()->Keeper;
+	for (const bool bDodge : {false, true})
+	{
+		FKeeperWorld W;
+		AddExpectedError(TEXT("no arena in the world"), EAutomationExpectedErrorFlags::Contains, 0);
+		W.Director->BeginKeeperFightAtPhase(EKeeperPhase::Mechanisms);
+		W.Ella->SetActorLocation(CastTargetSpot(W));
+		TSharedRef<int32> Hits = MakeShared<int32>(0);
+		W.Director->OnDamageDelivered().AddLambda([Hits](FName Source, float)
+		{
+			*Hits += UmbrellaSourceIds::IsChainCast(Source) ? 1 : 0;
+		});
+		if (!TestTrue(TEXT("a chain-cast warning starts"), StepToCastWarning(W, 20.0f)))
+		{
+			return false;
+		}
+		const FKeeperFightModel& Model = W.Director->GetModel();
+		const FVector2D Start = Model.GetLockStart();
+		const FVector2D EllaXZ(W.Ella->GetActorLocation().X, W.Ella->GetActorLocation().Z);
+		const float Degrees = FMath::RadiansToDegrees(FMath::Acos(FMath::Clamp(FVector2D::DotProduct(
+			(Model.GetLockEnd() - Start).GetSafeNormal(), (EllaXZ - Start).GetSafeNormal()), -1.0f, 1.0f)));
+		TestTrue(*FString::Printf(TEXT("the warning aims at Ella (%.2f deg)"), Degrees), Degrees < 2.0f);
+		if (bDodge)
+		{
+			// Leave the locked line during the warning: well clear of the head's width.
+			W.Ella->SetActorLocation(W.Ella->GetActorLocation() + FVector(0.0f, 0.0f, 4.0f * (T.ChainHeadWidth + 28.0f)));
+		}
+		StepThroughCast(W);
+		const FVector2D EndNow = Model.GetLockEnd();
+		if (bDodge)
+		{
+			TestEqual(TEXT("moving away during the warning dodges the cast"), *Hits, 0);
+			TestTrue(TEXT("the cast kept its locked aim (no re-aim)"), FMath::Abs(FMath::RadiansToDegrees(FMath::Acos(FMath::Clamp(FVector2D::DotProduct(
+				(EndNow - Start).GetSafeNormal(), (EllaXZ - Start).GetSafeNormal()), -1.0f, 1.0f)))) < 2.0f);
+		}
+		else
+		{
+			TestEqual(TEXT("staying on the line is hit once"), *Hits, 1);
+		}
+	}
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FKeeperWorldAbsorbBlocksCast, "UmbrellaElla.Keeper.World.AbsorbBlocksTheChainCast", WorldFlags)
+bool FKeeperWorldAbsorbBlocksCast::RunTest(const FString& Parameters)
+{
+	// Josh, 14 Nov: Ella's other way out of a chain cast is her shield: holding Absorb when it lands takes no damage.
+	for (const bool bAbsorb : {true, false})
+	{
+		FKeeperWorld W;
+		AddExpectedError(TEXT("no arena in the world"), EAutomationExpectedErrorFlags::Contains, 0);
+		UUmbrellaHealthComponent* Health = NewObject<UUmbrellaHealthComponent>(W.Ella, TEXT("Health"));
+		UAbsorbReceiverComponent* Absorb = NewObject<UAbsorbReceiverComponent>(W.Ella, TEXT("Absorb"));
+		Health->RegisterComponent();
+		Absorb->RegisterComponent();
+		W.Director->BeginKeeperFightAtPhase(EKeeperPhase::Mechanisms);
+		W.Ella->SetActorLocation(CastTargetSpot(W));
+		if (!TestTrue(TEXT("a chain-cast warning starts"), StepToCastWarning(W, 20.0f)))
+		{
+			return false;
+		}
+		Absorb->SetPose(bAbsorb ? EAbsorbPose::AbsorbFall : EAbsorbPose::Closed);
+		const float Before = Health->GetState().Active;
+		TSharedRef<int32> Hits = MakeShared<int32>(0);
+		W.Director->OnDamageDelivered().AddLambda([Hits](FName Source, float)
+		{
+			*Hits += UmbrellaSourceIds::IsChainCast(Source) ? 1 : 0;
+		});
+		StepThroughCast(W);
+		TestEqual(TEXT("the cast reached Ella"), *Hits, 1);
+		if (bAbsorb)
+		{
+			TestEqual(TEXT("holding Absorb: no damage"), Health->GetState().Active, Before);
+		}
+		else
+		{
+			TestTrue(TEXT("without Absorb the cast hurts"), Health->GetState().Active < Before);
+		}
+	}
 	return true;
 }
