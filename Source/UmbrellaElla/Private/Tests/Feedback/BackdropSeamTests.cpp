@@ -118,50 +118,18 @@ bool FFeedbackWorldBackdropSeamless::RunTest(const FString& Parameters)
 			TestTrue(TEXT("near plane hidden"), Arena->GetBackgroundNear()->bHiddenInGame);
 		}
 	}
-	// (2) The route start and end panels draw with the edge-fade material and the right fade.
-	USceneArtSubsystem* Scene = World->GetSubsystem<USceneArtSubsystem>();
-	if (TestNotNull(TEXT("scene art"), Scene))
+	// (2) Josh, 14 Nov: the barn picture is Start Game's backdrop only: one start copy, hidden in Director's Cut.
+	if (USceneArtSubsystem* Scene = World->GetSubsystem<USceneArtSubsystem>())
 	{
 		if (Scene->PanelCount(TEXT("bg:start-end")) == 0)
 		{
 			Scene->ShowArt(TEXT("bg:start-end"), Picture);
 		}
-		const UStaticMeshComponent* Start = Scene->FindPanel(TEXT("bg:start-end"), 0);
-		const UStaticMeshComponent* End = Scene->FindPanel(TEXT("bg:start-end"), 1);
-		if (TestNotNull(TEXT("start panel"), Start) && TestNotNull(TEXT("end panel"), End))
+		TestEqual(TEXT("one barn picture (the start copy)"), Scene->PanelCount(TEXT("bg:start-end")), 1);
+		for (const FSceneArtSpec& Spec : USceneArtSubsystem::Specs())
 		{
-			for (const UStaticMeshComponent* Panel : { Start, End })
-			{
-				const UMaterialInstanceDynamic* Dynamic = Cast<UMaterialInstanceDynamic>(Panel->GetMaterial(0));
-				TestTrue(TEXT("edge-fade material"), Dynamic && Dynamic->Parent && Dynamic->Parent->GetPathName() == UmbrellaSceneArtConst::EdgeFadeMaterialPath);
-				TestEqual(TEXT("sorted behind other translucency"), Panel->TranslucencySortPriority, UmbrellaSceneArtConst::EdgeFadeSortPriority);
-			}
-			float StartRight = 0.0f, EndLeft = 0.0f;
-			if (const UMaterialInstanceDynamic* Dynamic = Cast<UMaterialInstanceDynamic>(Start->GetMaterial(0)))
-			{
-				Dynamic->GetScalarParameterValue(FName(TEXT("FadeRight")), StartRight);
-			}
-			if (const UMaterialInstanceDynamic* Dynamic = Cast<UMaterialInstanceDynamic>(End->GetMaterial(0)))
-			{
-				Dynamic->GetScalarParameterValue(FName(TEXT("FadeLeft")), EndLeft);
-			}
-			TestEqual(TEXT("start fades its right edge"), StartRight, UmbrellaSceneArtConst::RouteEndEdgeFade);
-			TestEqual(TEXT("end fades its left edge"), EndLeft, UmbrellaSceneArtConst::RouteEndEdgeFade);
-			// Josh, Nov 14: the 0.35 alpha ramp read as the barn picture dissolving into the void. The edge eases into the
-			// picture's haze tone and only the outer haze goes see-through (old: share 1, colour none -> ramp 0.35 fails).
-			for (const UStaticMeshComponent* Panel : { Start, End })
-			{
-				float Share = 1.0f;
-				FLinearColor Haze = FLinearColor::Black;
-				if (const UMaterialInstanceDynamic* Dynamic = Cast<UMaterialInstanceDynamic>(Panel->GetMaterial(0)))
-				{
-					Dynamic->GetScalarParameterValue(FName(TEXT("OpacityShare")), Share);
-					Dynamic->GetVectorParameterValue(FName(TEXT("FadeColor")), Haze);
-				}
-				TestTrue(*FString::Printf(TEXT("alpha ramp %.3f of the width <= %.2f"), UmbrellaSceneArtConst::RouteEndEdgeFade * Share, UmbrellaSceneArtConst::RouteEndMaxAlphaRamp),
-					UmbrellaSceneArtConst::RouteEndEdgeFade * Share <= UmbrellaSceneArtConst::RouteEndMaxAlphaRamp);
-				TestTrue(TEXT("the edge eases into the haze tone, not black"), Haze.R > 0.0f && Haze.G > 0.0f && Haze.B > 0.0f);
-			}
+			const bool bBarn = Spec.Visual == FName(TEXT("bg:start-end"));
+			TestEqual(*FString::Printf(TEXT("%s shows in Director's Cut"), *Spec.Visual.ToString()), USceneArtSubsystem::IsShownInDirectorsCut(Spec), !bBarn);
 		}
 	}
 	Picture->RemoveFromRoot();

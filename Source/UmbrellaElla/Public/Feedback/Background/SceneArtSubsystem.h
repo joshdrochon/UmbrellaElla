@@ -110,6 +110,8 @@ public:
 
 	/** (left, right) edge fade shares for a panel: the route start fades its right edge, the route end its left. Pure. */
 	static FVector2D EdgeFades(ESceneArtAnchor Anchor);
+	/** False for the barn picture (route start/end anchors): Start Game only (Josh, 14 Nov). */
+	static bool IsShownInDirectorsCut(const FSceneArtSpec& Spec);
 
 	/**
 	 * Redraw a panel's picture with the edge-fade material (soft sides, same picture and tint). When the material is

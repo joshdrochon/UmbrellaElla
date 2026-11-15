@@ -114,11 +114,10 @@ namespace LevelPlan
 		if (IsFeatureEnabled(EFeatureId::FLOW_27))
 		{
 			const int32 Checkpoints = LevelPlanField().RouteSlotCount / LevelPlanField().SlotsPerCheckpoint;
-			const float RefugeLength = LevelPlanField().RefugeLengthFraction * Chunk;
 			for (int32 Cp = 1; Cp <= Checkpoints; ++Cp)
 			{
-				const float X0 = LevelCatalogue::RefugeStartX(Cp);
-				Out.Add(MakePlacement(ELevelPlacementKind::Refuge, Cp, X0 + 0.5f * RefugeLength, 0.5f * FloorThick, RefugeLength, FloorThick));
+				// No refuge slab: it lay on the lethal bottom like the removed route floor and read as a dark bar Ella could
+				// never reach (Josh, 14 Nov). The refuge stays a stretch of the route (RefugeStartX); its checkpoint marker stays.
 				if (IsFeatureEnabled(EFeatureId::FLOW_28))
 				{
 					const FVector Stand = CheckpointStandLocation(Cp);

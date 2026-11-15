@@ -79,3 +79,11 @@ Lethal bottom not applied anywhere: handed to the owner (see dcseamless.md).
 Main 1d95f1fd (fallrules) made the bottom lethal (EllaMotorComponent DefeatAtBoundary): the bottom-rise guard test
 (BottomRisesWithinOneSecond) contradicted it and is dropped; with the bar gone and the bottom lethal there is no ground to be
 trapped on.
+
+## Nov 14 19:00: barn picture off the route; arch stop and arena-entry haze
+Josh (6:22 PM): remove the barn picture; the clock-arch layer stops abruptly; the arena entry reads as a haze. Both were the
+route-end barn picture: its left edge (haze fade) cut the layered backdrop (atmosphere arches, islands) off before the Keeper
+fight (arenaentry-before.png). bg:start-end is no longer in SceneArtSubsystem::Specs; the layers already span the Keeper
+fight frame (test FrameComposition.KeeperBackdropContinuous rewritten to check the layer footprints). Art bytes unchanged.
+Real-input sweep start..CP3 (45 shots): every route shot < 3.0 (w02 = tutorial card). Keeper fight shots 2.9-3.2 rows at
+y 204/343 (island tops), was 3.0-3.3 (chains) with the barn picture. Proof: arenaentry-after.png, route-after-w30.png.
