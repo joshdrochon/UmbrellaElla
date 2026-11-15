@@ -20,4 +20,7 @@
 ## Open
 - Owl owner / Dev Lead to confirm the Keeper part collider depth change (cross-area: `Public/Owl/KeeperLook.h`,
   `Private/Owl/KeeperPartComponent.cpp`); flagged by the gate review 14 Nov.
-- Next commit after this gate: the red, thinner beam (Josh 14 Nov).
+
+
+## Done after the gate (14 Nov)
+- Red, thinner beam (Josh): `AimedRibbonLook` colours = style.json shot-red (CORAL #ff7848 core, RED #ff3658, RED SHADOW #8f173c), drawn thickness `AAimedBeamActor::VisualWidthScale` 1.6 -> 0.8 of the hitbox width (hitbox unchanged); feel.json aimed_shot look. Capture `pipeline/art/proof/artella/shoot/beam_frame_red.png`, flat_box PASS.
