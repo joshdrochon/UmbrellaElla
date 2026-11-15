@@ -1,4 +1,5 @@
 #include "Flow/UmbrellaPlayerController.h"
+#include "Health/UmbrellaHealthComponent.h"
 #include "Core/UmbrellaEvent.h"
 #include "Core/UmbrellaEventBus.h"
 #include "Core/UmbrellaGameMode.h"
@@ -520,6 +521,18 @@ void AUmbrellaPlayerController::EnterScreen(EFlowScreen To, EFlowCommand Cause)
 			if (PlayMode == EUmbrellaPlayMode::DirectorsCut)
 			{
 				Mode->PlaceAtLastCheckpoint(this);
+			}
+		}
+		// A route death (lethal bottom or ceiling, D-new-ceiling-lethal) has no Keeper phase to send CheckpointRetried, so
+		// the retry restores health here; without it Ella played on with 0 lives and could not die again.
+		if (const APawn* RetryPawn = GetPawn())
+		{
+			if (UUmbrellaHealthComponent* Health = RetryPawn->FindComponentByClass<UUmbrellaHealthComponent>())
+			{
+				if (Health->GetState().IsDefeated())
+				{
+					Health->ResetForRetry();
+				}
 			}
 		}
 	}

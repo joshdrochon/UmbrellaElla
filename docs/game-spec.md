@@ -28,14 +28,14 @@ tutorial and the pause menu, read from the current bindings. Every menu works wi
 
 ## Movement modes (GDD SH1.0 MOVE-19, MOVE-21)
 Neither held = overhead rise; Shoot only = shooting fall; Absorb only = absorbing fall; both = fast free fall. Each mode is a
-speed, not gravity (`feel.json` rise_speed / fall_speed / free_fall_speed). Wind, gust push, damage and the ceiling modify motion
-separately. Lift falls with active health to `lift_min` (SURV-05). Dash invulnerability is OFF; hop protection and post-hit
+speed, not gravity (`feel.json` rise_speed / fall_speed / free_fall_speed). Wind, gust push and damage modify motion
+separately. The bottom and the ceiling top are both lethal: reaching either line is death (WIND-03, D-new-ceiling-lethal). Lift falls with active health to `lift_min` (SURV-05). Dash invulnerability is OFF; hop protection and post-hit
 protection are separate (MOVE-15).
 
 ## The Keeper arena and the level (GDD SH1.0 section 5; D-new-sh10-units, D-new-sh10-camera)
 - Keeper fight (both modes): fixed 16:9 single screen, 1920 x 1080 units (1 unit = 1 cm). Map `L_Graybox` first, then the arena map the Integrator builds from it (D23).
 - Director's Cut level: nine chunks from the 12-chunk / 24-variant catalogue, 1920 units each, three refuges with checkpoints, a side-scrolling camera that reveals the next current, hazard and exit (FLOW-24, HAZ-37, CAM-08).
-- The bottom is lethal; supports and solid land are harmless (WIND-03).
+- The bottom is lethal; supports and solid land are harmless (WIND-03). Rising past the ceiling top is death too (D-new-ceiling-lethal).
 
 ## Keeper phases (GDD SH1.0 OWL-06..OWL-35; owner: Encounter Director)
 Wings, then the three hanging mechanisms front → middle → rear, then the clock; a checkpoint at each phase start. Death retries
