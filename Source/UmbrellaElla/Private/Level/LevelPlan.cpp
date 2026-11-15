@@ -59,7 +59,8 @@ namespace LevelPlan
 			const float X0 = LevelCatalogue::SlotStartX(Slot);
 			// No route floor: the bottom is lethal and there is no ground-running (docs/game-spec.md). The per-slot
 			// placeholder floor drew a long dark bar along the bottom of the Director's Cut route that read as solid ground
-			// (Josh, Nov 14: Ella "trapped on the bottom track"). Land comes only from the chunk catalogue below.
+			// (Josh, Nov 14: Ella "trapped on the bottom track"). Land comes only from the chunk catalogue below; checkpoint
+			// stands keep their height above the bottom (Ella hovers there, she never stands on land).
 			const FChunkLayout Layout = ChunkLayouts::Get(V.Chunk, V.Variant);
 			for (const FChunkPiece& Piece : Layout.Pieces)
 			{

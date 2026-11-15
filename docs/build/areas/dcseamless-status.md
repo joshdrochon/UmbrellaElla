@@ -72,3 +72,7 @@ empty SceneArt Tick commented; trace files dropped.
 3. Vertical wind (Josh 16:02): D-new-no-vertical-wind; LevelPlan::Build skips winds with |Z| > |X| (catalogue rows kept).
    Real input start -> Keeper, no assists: reaches the Keeper (CP1 18 s, CP3 26 s). The walker stalls at x 11464, z 450 (the
    known 07A low solid, test RealInputWalkerAtZ450StopsAt07ALowSolid) with and without vertical wind (40 s / 100+ s).
+Review round (16:29): lane extension written into dcseamless.md; HAZ-25/27/34/36 set to partial in rule-status.csv
+(columns authored, not placed); fade test added to BackdropSeamTests (alpha ramp <= 0.1 of the width and a haze colour: the
+old 0.35 ramp fails it); the bottom-rise test is a guard (the trap did not reproduce; it passes on the old code too).
+Lethal bottom not applied anywhere: handed to the owner (see dcseamless.md).

@@ -25,12 +25,14 @@ namespace UmbrellaSceneArtConst
 	/**
 	 * Share of the route start/end picture's width that fades at its inner edge (start: right, end: left), so it melts into
 	 * the layered backdrop instead of showing a hard vertical cut (dcseamless, Nov 13: col-to-col jump 5-7 luma levels).
-	 * Josh, Nov 14: the first 0.35 alpha ramp read as the barn picture dissolving into the void. Now the band is 0.15 of
-	 * 2074 units (about 200 px on a 1280 frame): the painting eases into its own haze tone across it and only the outer
-	 * RouteEndOpacityShare of it (the haze, about 80 px) eases out.
+	 * Josh, Nov 14: the first 0.35 alpha ramp read as the barn picture dissolving into the void. Now the band is 0.2 of
+	 * 2074 units (about 270 px on a 1280 frame): the painting eases into its own haze tone across it and only the outer
+	 * RouteEndOpacityShare of it (the haze, about 80 px) eases out. The alpha ramp (band x share) stays at most
+	 * RouteEndMaxAlphaRamp, so the painting itself never turns see-through.
 	 */
 	static constexpr float RouteEndEdgeFade = 0.2f;
 	static constexpr float RouteEndOpacityShare = 0.3f;
+	static constexpr float RouteEndMaxAlphaRamp = 0.1f;
 	/** The start/end picture's haze tone (sRGB): mean of its outer 8% columns, pipeline/art/proof/scene/bg-start-end/world_r2d_post.png
 	 *  (right 35,29,24; left 32,27,22). */
 	static constexpr uint8 RouteEndHazeR = 34;

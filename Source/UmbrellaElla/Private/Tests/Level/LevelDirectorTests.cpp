@@ -66,6 +66,7 @@ bool FLevelPlanSeeded::RunTest(const FString& Parameters)
 		Checkpoints += P.Kind == ELevelPlacementKind::Checkpoint;
 	}
 	TestEqual(TEXT("no route floor: the bottom is lethal (game-spec)"), Floors, 0);
+	TestTrue(TEXT("the route start stands above the bottom"), LevelPlan::CheckpointStandLocation(0).Z > 0.0f);
 	TestEqual(TEXT("three refuges"), Refuges, 3);
 	TestEqual(TEXT("three checkpoints"), Checkpoints, 3);
 	return true;

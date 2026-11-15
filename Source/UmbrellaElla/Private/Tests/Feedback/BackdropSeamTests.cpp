@@ -147,6 +147,21 @@ bool FFeedbackWorldBackdropSeamless::RunTest(const FString& Parameters)
 			}
 			TestEqual(TEXT("start fades its right edge"), StartRight, UmbrellaSceneArtConst::RouteEndEdgeFade);
 			TestEqual(TEXT("end fades its left edge"), EndLeft, UmbrellaSceneArtConst::RouteEndEdgeFade);
+			// Josh, Nov 14: the 0.35 alpha ramp read as the barn picture dissolving into the void. The edge eases into the
+			// picture's haze tone and only the outer haze goes see-through (old: share 1, colour none -> ramp 0.35 fails).
+			for (const UStaticMeshComponent* Panel : { Start, End })
+			{
+				float Share = 1.0f;
+				FLinearColor Haze = FLinearColor::Black;
+				if (const UMaterialInstanceDynamic* Dynamic = Cast<UMaterialInstanceDynamic>(Panel->GetMaterial(0)))
+				{
+					Dynamic->GetScalarParameterValue(FName(TEXT("OpacityShare")), Share);
+					Dynamic->GetVectorParameterValue(FName(TEXT("FadeColor")), Haze);
+				}
+				TestTrue(*FString::Printf(TEXT("alpha ramp %.3f of the width <= %.2f"), UmbrellaSceneArtConst::RouteEndEdgeFade * Share, UmbrellaSceneArtConst::RouteEndMaxAlphaRamp),
+					UmbrellaSceneArtConst::RouteEndEdgeFade * Share <= UmbrellaSceneArtConst::RouteEndMaxAlphaRamp);
+				TestTrue(TEXT("the edge eases into the haze tone, not black"), Haze.R > 0.0f && Haze.G > 0.0f && Haze.B > 0.0f);
+			}
 		}
 	}
 	Picture->RemoveFromRoot();
