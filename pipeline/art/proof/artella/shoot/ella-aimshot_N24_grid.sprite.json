@@ -1,0 +1,16 @@
+{
+ "kind": "silhouette",
+ "frames": 24,
+ "grid": [
+  900,
+  654
+ ],
+ "fps": null,
+ "loop": false,
+ "pivot": "bottom-centre",
+ "anchor": [
+  466.0,
+  530
+ ],
+ "scale_from_source": 0.5658253751705321
+}

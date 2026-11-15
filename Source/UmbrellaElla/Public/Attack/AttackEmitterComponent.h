@@ -11,6 +11,7 @@
 class UEnhancedInputComponent;
 class UUmbrellaStateComponent;
 class AStreamBeamActor;
+class AAimedBeamActor;
 struct FAttackTuning;
 struct FMotorTuning;
 
@@ -66,6 +67,21 @@ public:
 	/** The live Streamed Blast beam actor, or null when not streaming. */
 	AStreamBeamActor* GetBeam() const { return Beam; }
 
+	/** Aimed shot (D-new-aimed-shot): seconds Shoot has been held toward the next beam (0 when not charging). */
+	float GetAimChargeSeconds() const { return AimHeldSeconds; }
+
+	/** True while a held Shoot is charging a beam (Small Blasts, shooting fall, off cooldown, none fired this hold). */
+	bool IsAimCharging() const;
+
+	/** The aimed beam on screen, or null. */
+	AAimedBeamActor* GetAimedBeam() const { return AimedBeam; }
+
+	/** Seconds the current aimed beam has been on screen (0 when none). */
+	float GetAimedBeamAge() const { return AimedBeam ? AimedBeamAge : 0.0f; }
+
+	/** Aimed beams fired so far. */
+	int32 GetAimedBeamsFired() const { return AimedBeamsFired; }
+
 	/** Burst shots still waiting to leave . */
 	int32 GetPendingBurstShots() const { return PendingBurstDelays.Num(); }
 
@@ -109,6 +125,10 @@ private:
 	void FireVolley();
 	void ShowBeam(const FAttackTuning& Tuning);
 	void HideBeam();
+	void StepAimedShot(float DeltaSeconds, bool bWantsFire, const FAttackTuning& Tuning);
+	void FireAimedBeam(const FAttackTuning& Tuning);
+	void HideAimedBeam();
+	FVector AimedMuzzle(const FAttackTuning& Tuning) const;
 	void Equip(EUmbrellaSpell Spell);
 	void OpenWheel();
 	void CloseWheel();
@@ -118,6 +138,15 @@ private:
 
 	UPROPERTY(Transient)
 	TObjectPtr<AStreamBeamActor> Beam;
+
+	UPROPERTY(Transient)
+	TObjectPtr<AAimedBeamActor> AimedBeam;
+
+	float AimHeldSeconds = 0.0f;
+	float AimedBeamAge = 0.0f;
+	float AimCooldownLeft = 0.0f;
+	int32 AimedBeamsFired = 0;
+	bool bAimFiredThisHold = false;
 
 	TArray<float> PendingBurstDelays;
 	FOnEquippedSpellChanged EquippedChanged;

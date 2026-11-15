@@ -1,0 +1,47 @@
+{
+ "provider": "openrouter",
+ "tier": "draft",
+ "tool": "OpenRouter (Google Gemini image models)",
+ "model": "gemini-2.5-flash-image",
+ "openrouter_model": "google/gemini-2.5-flash-image",
+ "fal_model": null,
+ "model_version": "google/gemini-2.5-flash-image",
+ "prompt": "Redraw the exact same Ella from the two attached images (same face mask with gold eye glints, same tall bent witch hat, same long wavy dark brown hair, same ragged pale scarf, same buttoned belted dark jacket, sawtooth layered skirt, knit stockings, laced boots, gloves; same etched ink-and-wash storybook line work and the same umber, taupe and cream palette with the thin warm apricot-cream outline). One single figure only. Pose: level side view facing right, Ella falls slowly while shooting: torso upright, legs hanging straight down, boots together pointing at the ground, hair and scarf streaming up and back. Her umbrella is CLOSED and tightly furled, held level at waist height like a lance with both gloved hands on the shaft: a long bare thin shaft runs forward from her front hand and ends in the pointed metal tip far in front of her to the right; the furled closed canopy bundle and the pierced diamond handle are at the back end, behind her body and behind her rear hand, to the left. In front of her front hand there is only the thin bare shaft and the tip. The umbrella is never open, never above her head. Nothing else in the frame: no shots, no sparks. Figure centred slightly left, the whole figure and the whole umbrella inside the frame with margin, figure about 75% of the canvas height. Flat pure chroma green #00FF00 background edge to edge, no shadow, no floor, no gradient. Wordless.\n\nStyle (required): dark, muted ink on aged paper, like an etched storybook engraving. Etched ink linework with near-black ink outlines; crosshatch and fine line hatching for every shadow and form; visible aged paper grain and fibre texture under all colour; hand-printed, slightly uneven ink. No flat fills, no vector shapes, no smooth digital gradients, no glossy 3D rendering.",
+ "seed": "none (seed not sent)",
+ "size": "1024x1024",
+ "quality": "medium",
+ "aspect_ratio": "16:9",
+ "image_size": null,
+ "input_images": [
+  "pipeline/art/proof/artvideo/ella-idle/ella-up-open-input.png",
+  "pipeline/art/proof/artella/shoot/R1/shoot_draft.png"
+ ],
+ "cost_usd": 0.038973,
+ "reply": {
+  "usage": {
+   "prompt_tokens": 910,
+   "completion_tokens": 1290,
+   "total_tokens": 2200,
+   "cost": 0.038973,
+   "is_byok": false,
+   "prompt_tokens_details": {
+    "cached_tokens": 0,
+    "cache_write_tokens": 0,
+    "audio_tokens": 0,
+    "video_tokens": 0
+   },
+   "cost_details": {
+    "upstream_inference_cost": 0.038973,
+    "upstream_inference_prompt_cost": 0.000273,
+    "upstream_inference_completions_cost": 0.0387
+   },
+   "completion_tokens_details": {
+    "reasoning_tokens": 0,
+    "image_tokens": 1290,
+    "audio_tokens": 0
+   }
+  },
+  "finish": "stop"
+ },
+ "date": "2026-11-14T23:49+00:00"
+}

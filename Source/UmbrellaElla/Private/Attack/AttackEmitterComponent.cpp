@@ -1,4 +1,5 @@
 #include "Attack/AttackEmitterComponent.h"
+#include "Attack/AimedBeamActor.h"
 #include "Attack/AttackCadence.h"
 #include "Attack/AttackTuning.h"
 #include "Attack/StreamBeamActor.h"
@@ -54,6 +55,8 @@ void UAttackEmitterComponent::StepEmitter(float DeltaSeconds)
 	{
 		PendingBurstDelays.Reset();
 		HideBeam();
+		HideAimedBeam();
+		AimHeldSeconds = 0.0f;
 		return;
 	}
 	const FAttackTuning& Tuning = ActiveTuning();
@@ -119,6 +122,90 @@ void UAttackEmitterComponent::StepEmitter(float DeltaSeconds)
 	{
 		HideBeam();
 	}
+	StepAimedShot(DeltaSeconds, bWantsFire, Tuning);
+}
+
+bool UAttackEmitterComponent::IsAimCharging() const
+{
+	return AimHeldSeconds > 0.0f && !bAimFiredThisHold && AimCooldownLeft <= 0.0f;
+}
+
+FVector UAttackEmitterComponent::AimedMuzzle(const FAttackTuning& Tuning) const
+{
+	return GetOwner()->GetActorLocation() + Tuning.AimedMuzzleOffset;
+}
+
+void UAttackEmitterComponent::StepAimedShot(float DeltaSeconds, bool bWantsFire, const FAttackTuning& Tuning)
+{
+	// D-new-aimed-shot (Josh, 14 Nov): tap Shoot = the Small Blasts above (unchanged); hold it AimedChargeSeconds and one
+	// long beam fires to the right. Ella keeps falling throughout: the beam needs the shooting fall like every shot.
+	AimCooldownLeft = FMath::Max(0.0f, AimCooldownLeft - DeltaSeconds);
+	if (AimedBeam)
+	{
+		AimedBeamAge += DeltaSeconds;
+		if (AimedBeamAge >= Tuning.AimedBeamSeconds)
+		{
+			HideAimedBeam();
+		}
+		else
+		{
+			AimedBeam->Follow(AimedMuzzle(Tuning), AimedBeamAge / FMath::Max(Tuning.AimedBeamSeconds, KINDA_SMALL_NUMBER));
+		}
+	}
+	if (!bWantsFire || Equipped != EUmbrellaSpell::SmallBlasts)
+	{
+		AimHeldSeconds = 0.0f;
+		bAimFiredThisHold = false;
+		return;
+	}
+	if (bAimFiredThisHold || AimCooldownLeft > 0.0f)
+	{
+		AimHeldSeconds = 0.0f;
+		return;
+	}
+	AimHeldSeconds += DeltaSeconds;
+	if (AimHeldSeconds + UE_KINDA_SMALL_NUMBER >= Tuning.AimedChargeSeconds)
+	{
+		FireAimedBeam(Tuning);
+	}
+}
+
+void UAttackEmitterComponent::FireAimedBeam(const FAttackTuning& Tuning)
+{
+	bAimFiredThisHold = true;
+	AimHeldSeconds = 0.0f;
+	AimCooldownLeft = Tuning.AimedBeamSeconds + Tuning.AimedCooldownSeconds;
+	HideAimedBeam();
+	if (UWorld* World = GetWorld())
+	{
+		FActorSpawnParameters Params;
+		Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		AimedBeam = World->SpawnActor<AAimedBeamActor>(AAimedBeamActor::StaticClass(), FTransform(GetOwner()->GetActorLocation()), Params);
+	}
+	if (!AimedBeam)
+	{
+		return;
+	}
+	AimedBeamAge = 0.0f;
+	AimedBeam->Place(AimedMuzzle(Tuning), Tuning.AimedBeamLength, Tuning.AimedBeamWidth);
+	FUmbrellaShotSpec Shot;
+	Shot.Kind = EUmbrellaShotKind::PlayerBlast;
+	Shot.Origin = AimedBeam->GetMuzzle();
+	Shot.Damage = Tuning.AimedDamage;
+	Shot.Radius = Tuning.AimedBeamWidth * 0.5f;
+	Shot.SourceId = UmbrellaPlayerIds::Ella;
+	AimedBeam->Fire(Shot);
+	++AimedBeamsFired;   // LastShot stays the last Small Blast: the beam is not a traveling shot
+}
+
+void UAttackEmitterComponent::HideAimedBeam()
+{
+	if (AimedBeam)
+	{
+		AimedBeam->Destroy();
+		AimedBeam = nullptr;
+	}
+	AimedBeamAge = 0.0f;
 }
 
 void UAttackEmitterComponent::HideBeam()
@@ -293,6 +380,7 @@ void UAttackEmitterComponent::CloseWheel()
 void UAttackEmitterComponent::EndPlay(const EEndPlayReason::Type Reason)
 {
 	HideBeam();
+	HideAimedBeam();
 	Super::EndPlay(Reason);
 }
 
