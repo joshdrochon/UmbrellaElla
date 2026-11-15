@@ -19,7 +19,7 @@ UKeeperPartComponent::UKeeperPartComponent()
 void UKeeperPartComponent::Configure(EKeeperPart InPart, const FVector2D& HalfExtent)
 {
 	PartId = InPart;
-	SetBoxExtent(FVector(HalfExtent.X, KeeperLook::PartDepth, HalfExtent.Y));
+	SetBoxExtent(FVector(HalfExtent.X, KeeperLook::PartShotHalfDepth, HalfExtent.Y));
 }
 
 void UKeeperPartComponent::SetHittable(bool bHittable)

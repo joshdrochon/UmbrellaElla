@@ -17,6 +17,7 @@
 #include "Input/EllaInputAdapterComponent.h"
 #include "Owl/KeeperOfTime.h"
 #include "Owl/KeeperPartComponent.h"
+#include "Projectile/UmbrellaProjectile.h"
 #include "Projectile/UmbrellaShotSpec.h"
 #include "Tests/Shared/UmbrellaTestWorld.h"
 
@@ -189,6 +190,55 @@ bool FAimedShotHitsKeeper::RunTest(const FString& Parameters)
 	}
 	GEngine->DestroyWorldContext(World);
 	World->DestroyWorld(false);
+	return bOk;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FHipFireHitsKeeper, "UmbrellaElla.Move.World.HipFireShotDamagesKeeperPart", AimFlags)
+bool FHipFireHitsKeeper::RunTest(const FString& Parameters)
+{
+	// ellashoot, 14 Nov: a real-input Keeper run fired 58 Small Blasts and hit the Keeper 0 times: the shots fly on the
+	// shot plane (Y 25) and the part boxes sat at Y -70..-30. A Small Blast flown at a live part must damage it.
+	AddExpectedError(TEXT("no arena in the world"), EAutomationExpectedErrorFlags::Contains, 0);
+	FUmbrellaTestWorld Test;   // a world whose actors tick (the shot flies)
+	UWorld* World = Test.GetWorld();
+	UEncounterDirectorSubsystem* Director = World->GetSubsystem<UEncounterDirectorSubsystem>();
+	bool bOk = TestNotNull(TEXT("director"), Director);
+	if (bOk)
+	{
+		Director->SetManualStepping(true);
+		AActor* Player = World->SpawnActor<AActor>();
+		USceneComponent* Root = NewObject<USceneComponent>(Player, TEXT("Root"));
+		Player->SetRootComponent(Root);
+		Root->RegisterComponent();
+		Player->SetActorLocation(FVector(-900.0f, 0.0f, 0.0f));
+		Director->SetPlayerActor(Player);
+		Director->BeginKeeperFight();
+		for (float T = 0.0f; T < 2.2f; T += 0.05f)
+		{
+			Director->AdvanceFight(0.05f);
+		}
+		AKeeperOfTime* Keeper = Director->GetKeeper();
+		UKeeperPartComponent* Wings = Keeper ? Keeper->GetPartComponent(EKeeperPart::Wings) : nullptr;
+		bOk = TestNotNull(TEXT("keeper wings"), Wings);
+		if (bOk)
+		{
+			const FVector Center = Wings->Bounds.GetBox().GetCenter();
+			const float Before = Director->GetModel().GetPartHp(EKeeperPart::Wings);
+			const FAttackTuning& Tuning = AimTuning();
+			FUmbrellaShotSpec Shot;
+			Shot.Kind = EUmbrellaShotKind::PlayerBlast;
+			Shot.Origin = FVector(Center.X - 400.0, 0.0, Center.Z);
+			Shot.Velocity = FVector(Tuning.SmallSpeed, 0.0, 0.0);
+			Shot.Radius = Tuning.BlastRadius;
+			Shot.Damage = Tuning.SmallDamage;
+			Shot.LifetimeSeconds = Tuning.SmallRange / Tuning.SmallSpeed;
+			AUmbrellaProjectile::Fire(World, Shot);
+			Test.TickSeconds(1.0f, 1.0f / 60.0f);
+			const float After = Director->GetModel().GetPartHp(EKeeperPart::Wings);
+			AddInfo(FString::Printf(TEXT("wings %.1f -> %.1f; part box %s"), Before, After, *Wings->Bounds.GetBox().ToString()));
+			TestEqual(TEXT("a Small Blast on the shot plane damages the Keeper's wings"), After, Before - Tuning.SmallDamage, 0.01f);
+		}
+	}
 	return bOk;
 }
 
