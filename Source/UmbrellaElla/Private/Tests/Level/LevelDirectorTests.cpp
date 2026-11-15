@@ -61,10 +61,12 @@ bool FLevelPlanSeeded::RunTest(const FString& Parameters)
 			TestTrue(TEXT("floors in route order"), P.Location.X > LastFloorX);
 			LastFloorX = P.Location.X;
 		}
+		TestFalse(TEXT("no vertical wind on the route (D-new-no-vertical-wind)"), P.Kind == ELevelPlacementKind::Wind && LevelPlan::IsVerticalWind(P.WindDirection));
 		Refuges += P.Kind == ELevelPlacementKind::Refuge;
 		Checkpoints += P.Kind == ELevelPlacementKind::Checkpoint;
 	}
-	TestEqual(TEXT("nine chunk floors"), Floors, 9);
+	TestEqual(TEXT("no route floor: the bottom is lethal (game-spec)"), Floors, 0);
+	TestTrue(TEXT("the route start stands above the bottom"), LevelPlan::CheckpointStandLocation(0).Z > 0.0f);
 	TestEqual(TEXT("three refuges"), Refuges, 3);
 	TestEqual(TEXT("three checkpoints"), Checkpoints, 3);
 	return true;
@@ -189,8 +191,9 @@ bool FLevelWorldVariantLayouts::RunTest(const FString& Parameters)
 			TestEqual(*FString::Printf(TEXT("%s traps"), *V.Label()), Traps, Layout.Of(EChunkPieceKind::Trap).Num());
 			TestEqual(*FString::Printf(TEXT("%s enemies"), *V.Label()), Enemies, Layout.Of(EChunkPieceKind::Enemy).Num());
 			TestEqual(*FString::Printf(TEXT("%s transport currents"), *V.Label()), WindsByRole[0], Layout.Winds(EWindRole::Transport).Num());
-			TestEqual(*FString::Printf(TEXT("%s descent currents"), *V.Label()), WindsByRole[1], Layout.Winds(EWindRole::Descent).Num());
-			TestEqual(*FString::Printf(TEXT("%s lift currents"), *V.Label()), WindsByRole[2], Layout.Winds(EWindRole::Lift).Num());
+			// D-new-no-vertical-wind (Josh, 14 Nov): descent and lift columns are not spawned.
+			TestEqual(*FString::Printf(TEXT("%s no descent currents"), *V.Label()), WindsByRole[1], 0);
+			TestEqual(*FString::Printf(TEXT("%s no lift currents"), *V.Label()), WindsByRole[2], 0);
 			TestEqual(*FString::Printf(TEXT("%s return currents"), *V.Label()), WindsByRole[3], Layout.Winds(EWindRole::Return).Num());
 			TestTrue(*FString::Printf(TEXT("%s has a layout"), *V.Label()), Layout.Pieces.Num() > 0);
 		}

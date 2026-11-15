@@ -46,9 +46,12 @@ struct UMBRELLAELLA_API FLevelPlacement
 
 namespace LevelPlan
 {
-	/** Placements for the whole route: per slot a floor plus the variant's authored land, currents, traps and enemies
+	/** Placements for the whole route: per slot the variant's authored land, currents, traps and enemies
 	 *  (ChunkLayouts), then refuges with checkpoint markers. Same route, same list. */
 	UMBRELLAELLA_API TArray<FLevelPlacement> Build(const FRoute& Route);
+
+	/** A mostly vertical current (|Z| > |X|). The route places none (D-new-no-vertical-wind, Josh 14 Nov). */
+	UMBRELLAELLA_API bool IsVerticalWind(const FVector2D& Direction);
 
 	/** Where Ella stands at checkpoint 1..3 (just inside the refuge, on the floor). Checkpoint 0 is the route start:
 	 *  there is no refuge before slot 0, so she stands the same inset into slot 0's floor, inside the first camera view (B6). */

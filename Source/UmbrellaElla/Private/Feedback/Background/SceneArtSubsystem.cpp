@@ -195,6 +195,9 @@ void USceneArtSubsystem::ApplyEdgeFade(UStaticMeshComponent* Panel, UTexture2D* 
 	Dynamic->SetVectorParameterValue(TEXT("Tint"), Tint);
 	Dynamic->SetScalarParameterValue(TEXT("FadeLeft"), static_cast<float>(Fades.X));
 	Dynamic->SetScalarParameterValue(TEXT("FadeRight"), static_cast<float>(Fades.Y));
+	Dynamic->SetScalarParameterValue(TEXT("OpacityShare"), UmbrellaSceneArtConst::RouteEndOpacityShare);
+	Dynamic->SetVectorParameterValue(TEXT("FadeColor"), FLinearColor::FromSRGBColor(FColor(UmbrellaSceneArtConst::RouteEndHazeR,
+		UmbrellaSceneArtConst::RouteEndHazeG, UmbrellaSceneArtConst::RouteEndHazeB)));
 	Panel->SetMaterial(0, Dynamic);
 	Panel->SetTranslucentSortPriority(UmbrellaSceneArtConst::EdgeFadeSortPriority);
 }

@@ -34,6 +34,11 @@ namespace
 
 namespace LevelPlan
 {
+	bool IsVerticalWind(const FVector2D& Direction)
+	{
+		return FMath::Abs(Direction.Y) > FMath::Abs(Direction.X);
+	}
+
 	TArray<FLevelPlacement> Build(const FRoute& Route)
 	{
 		TArray<FLevelPlacement> Out;
@@ -52,10 +57,19 @@ namespace LevelPlan
 		{
 			const FChunkVariant& V = Route.Slots[Slot];
 			const float X0 = LevelCatalogue::SlotStartX(Slot);
-			Out.Add(MakePlacement(ELevelPlacementKind::Floor, Slot, X0 + 0.5f * Chunk, 0.5f * FloorThick, Chunk, FloorThick));
+			// No route floor: the bottom is lethal and there is no ground-running (docs/game-spec.md). The per-slot
+			// placeholder floor drew a long dark bar along the bottom of the Director's Cut route that read as solid ground
+			// (Josh, Nov 14: Ella "trapped on the bottom track"). Land comes only from the chunk catalogue below; checkpoint
+			// stands keep their height above the bottom (Ella hovers there, she never stands on land).
 			const FChunkLayout Layout = ChunkLayouts::Get(V.Chunk, V.Variant);
 			for (const FChunkPiece& Piece : Layout.Pieces)
 			{
+				// D-new-no-vertical-wind (Josh, 14 Nov): no straight-up or straight-down drafts on the route; horizontal and
+				// diagonal currents stay. The catalogue keeps its descent/lift rows; they are not placed.
+				if (Piece.Kind == EChunkPieceKind::Wind && IsVerticalWind(Piece.Direction))
+				{
+					continue;
+				}
 				const FVector2D C = Piece.Centre();
 				const FVector2D Size = Piece.Rect.GetSize();
 				FLevelPlacement P = MakePlacement(ELevelPlacementKind::Solid, Slot, X0 + C.X * Chunk, C.Y * H, Size.X * Chunk, Size.Y * H);
