@@ -42,7 +42,8 @@ TArray<FSceneArtSpec> USceneArtSubsystem::Specs()
 	Out.Add({ TEXT("bg:land"), UmbrellaDrawOrder::BackgroundFarY + UmbrellaSceneArtConst::LandStep, UmbrellaBackdropConst::FarParallax, ESceneArtAnchor::Layer });
 	Out.Add({ TEXT("bg:water"), UmbrellaDrawOrder::BackgroundFarY + UmbrellaSceneArtConst::WaterStep, UmbrellaBackdropConst::FarParallax, ESceneArtAnchor::Layer });
 	Out.Add({ TEXT("bg:clocks"), UmbrellaDrawOrder::BackgroundNearY + UmbrellaSceneArtConst::ClocksStep, UmbrellaBackdropConst::NearParallax, ESceneArtAnchor::Layer });
-	Out.Add({ TEXT("bg:start-end"), UmbrellaDrawOrder::BackgroundNearY + UmbrellaSceneArtConst::StartEndStep, 1.0f, ESceneArtAnchor::RouteStart });
+	// No route-start copy (Josh, 14 Nov: the barn picture read as the Start Game screen). The route-end copy stays: it is the
+	// Keeper fight's backdrop (FrameComposition.KeeperBackdropContinuous) until the layers repeat behind the fight.
 	Out.Add({ TEXT("bg:start-end"), UmbrellaDrawOrder::BackgroundNearY + UmbrellaSceneArtConst::StartEndStep, 1.0f, ESceneArtAnchor::RouteEnd });
 	Out.Add({ TEXT("scene:gameplay-frame"), UmbrellaDrawOrder::ForegroundY + UmbrellaSceneArtConst::FrameLift, 0.0f, ESceneArtAnchor::View });
 	return Out;

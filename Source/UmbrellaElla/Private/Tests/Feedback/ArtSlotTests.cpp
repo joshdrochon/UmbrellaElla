@@ -735,7 +735,7 @@ bool FArtSlotScene::RunTest(const FString& Parameters)
 				TestTrue(*FString::Printf(TEXT("%s takes a picture"), *Id), Scene->ShowArt(Id, Texture) == EArtSlotDraw::Drawn);
 			}
 			TestTrue(*FString::Printf(TEXT("second picture for %s refused"), *Id), Scene->ShowArt(Id, Texture) != EArtSlotDraw::Drawn);
-			const int32 Expected = Id == TEXT("bg:start-end") ? 2 : 1;
+			const int32 Expected = 1;   // bg:start-end: the route-end copy only (no route-start copy, Josh 14 Nov)
 			TestEqual(*FString::Printf(TEXT("%s panel count"), *Id), Scene->PanelCount(Id), Expected);
 			const UStaticMeshComponent* Panel = Scene->FindPanel(Id);
 			if (TestNotNull(*FString::Printf(TEXT("%s panel"), *Id), Panel))
@@ -765,7 +765,7 @@ bool FArtSlotScene::RunTest(const FString& Parameters)
 		{
 			TestEqual(TEXT("frame follows the camera"), static_cast<float>(Frame->GetActorLocation().X), CameraX);
 		}
-		const AActor* End = Scene->FindPanel(TEXT("bg:start-end"), 1) ? Scene->FindPanel(TEXT("bg:start-end"), 1)->GetOwner() : nullptr;
+		const AActor* End = Scene->FindPanel(TEXT("bg:start-end"), 0) ? Scene->FindPanel(TEXT("bg:start-end"), 0)->GetOwner() : nullptr;
 		if (TestNotNull(TEXT("route end actor"), End))
 		{
 			TestTrue(TEXT("route end picture sits at the route end"), End->GetActorLocation().X > LevelCatalogue::RouteLength() - GetDefault<UUmbrellaTuning>()->ArenaCamera.ArenaWidth);

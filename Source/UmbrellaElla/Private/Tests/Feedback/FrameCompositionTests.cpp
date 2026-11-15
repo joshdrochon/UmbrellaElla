@@ -320,19 +320,13 @@ bool FFrameCompositionKeeperBackdrop::RunTest(const FString& Parameters)
 			Scene->ShowArt(TEXT("bg:start-end"), UTexture2D::CreateTransient(8, 8, PF_B8G8R8A8));
 		}
 		Scene->ScrollTo(static_cast<float>(View.X), Camera->OrthoWidth);
-		const UStaticMeshComponent* EndPanel = Scene->FindPanel(TEXT("bg:start-end"), 1);
+		const UStaticMeshComponent* EndPanel = Scene->FindPanel(TEXT("bg:start-end"), 0);
 		if (TestNotNull(TEXT("route end panel"), EndPanel))
 		{
 			TestTrue(TEXT("drawn route-end picture is wide enough"), EndPanel->Bounds.BoxExtent.X >= HalfViewW - 0.5f);
 			TestTrue(TEXT("drawn route-end picture is tall enough"), EndPanel->Bounds.BoxExtent.Z >= HalfViewH - 0.5f);
 		}
-		// r04 capture: at the route start the start picture (arena-sized) left a dark edge inside the widened view.
-		const UStaticMeshComponent* StartPanel = Scene->FindPanel(TEXT("bg:start-end"), 0);
-		if (TestNotNull(TEXT("route start panel"), StartPanel))
-		{
-			TestTrue(TEXT("drawn route-start picture is wide enough"), StartPanel->Bounds.BoxExtent.X >= HalfViewW - 0.5f);
-			TestTrue(TEXT("drawn route-start picture is tall enough"), StartPanel->Bounds.BoxExtent.Z >= HalfViewH - 0.5f);
-		}
+		// No route-start copy any more (Josh, 14 Nov): the r04 start-picture check is gone with it.
 	}
 	// Break check: the old placement (last arena width of the route) leaves the right of the fight frame uncovered.
 	const float OldRight = LevelCatalogue::RouteLength();

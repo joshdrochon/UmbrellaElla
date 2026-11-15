@@ -126,30 +126,26 @@ bool FFeedbackWorldBackdropSeamless::RunTest(const FString& Parameters)
 		{
 			Scene->ShowArt(TEXT("bg:start-end"), Picture);
 		}
-		const UStaticMeshComponent* Start = Scene->FindPanel(TEXT("bg:start-end"), 0);
-		const UStaticMeshComponent* End = Scene->FindPanel(TEXT("bg:start-end"), 1);
-		if (TestNotNull(TEXT("start panel"), Start) && TestNotNull(TEXT("end panel"), End))
+		// Josh, 14 Nov: no route-start copy of the barn picture (it read as the Start Game screen); the route end keeps one.
+		TestEqual(TEXT("only the route-end picture is drawn"), Scene->PanelCount(TEXT("bg:start-end")), 1);
+		const UStaticMeshComponent* End = Scene->FindPanel(TEXT("bg:start-end"), 0);
+		if (TestNotNull(TEXT("end panel"), End))
 		{
-			for (const UStaticMeshComponent* Panel : { Start, End })
+			for (const UStaticMeshComponent* Panel : { End })
 			{
 				const UMaterialInstanceDynamic* Dynamic = Cast<UMaterialInstanceDynamic>(Panel->GetMaterial(0));
 				TestTrue(TEXT("edge-fade material"), Dynamic && Dynamic->Parent && Dynamic->Parent->GetPathName() == UmbrellaSceneArtConst::EdgeFadeMaterialPath);
 				TestEqual(TEXT("sorted behind other translucency"), Panel->TranslucencySortPriority, UmbrellaSceneArtConst::EdgeFadeSortPriority);
 			}
-			float StartRight = 0.0f, EndLeft = 0.0f;
-			if (const UMaterialInstanceDynamic* Dynamic = Cast<UMaterialInstanceDynamic>(Start->GetMaterial(0)))
-			{
-				Dynamic->GetScalarParameterValue(FName(TEXT("FadeRight")), StartRight);
-			}
+			float EndLeft = 0.0f;
 			if (const UMaterialInstanceDynamic* Dynamic = Cast<UMaterialInstanceDynamic>(End->GetMaterial(0)))
 			{
 				Dynamic->GetScalarParameterValue(FName(TEXT("FadeLeft")), EndLeft);
 			}
-			TestEqual(TEXT("start fades its right edge"), StartRight, UmbrellaSceneArtConst::RouteEndEdgeFade);
 			TestEqual(TEXT("end fades its left edge"), EndLeft, UmbrellaSceneArtConst::RouteEndEdgeFade);
 			// Josh, Nov 14: the 0.35 alpha ramp read as the barn picture dissolving into the void. The edge eases into the
 			// picture's haze tone and only the outer haze goes see-through (old: share 1, colour none -> ramp 0.35 fails).
-			for (const UStaticMeshComponent* Panel : { Start, End })
+			for (const UStaticMeshComponent* Panel : { End })
 			{
 				float Share = 1.0f;
 				FLinearColor Haze = FLinearColor::Black;
