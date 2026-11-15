@@ -46,6 +46,12 @@ public:
 	/** One damage tick: hand Tick (damage, source) to every receiver in the box. Returns how many actors were hit. */
 	int32 ApplyTick(const FUmbrellaShotSpec& Tick);
 
+	/** Length of a beam box from Muzzle after a solid blocker (blocks the player shot channel, no receiver) ends it. Shared with the aimed beam. */
+	static float ClipToBlockers(UWorld* World, const AActor* Ignore, const FVector& Muzzle, float Length, float Width, float HalfDepth);
+
+	/** Hand Tick to every receiver inside the box from Muzzle (Length x HalfDepth x Width). Returns how many actors were hit. Shared with the aimed beam. */
+	static int32 HitBox(UWorld* World, const AActor* Ignore, const FVector& Muzzle, float Length, float Width, float HalfDepth, const FUmbrellaShotSpec& Tick);
+
 private:
 	UPROPERTY()
 	TObjectPtr<UStaticMeshComponent> Visual;

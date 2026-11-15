@@ -1,4 +1,6 @@
 #include "Feedback/Anim/EllaAnimPresenterComponent.h"
+#include "Attack/AttackEmitterComponent.h"
+#include "Attack/AttackTuning.h"
 #include "Core/UmbrellaLog.h"
 #include "Misc/CommandLine.h"
 #include "Components/StaticMeshComponent.h"
@@ -7,6 +9,7 @@
 #include "Motor/EllaMotorComponent.h"
 #include "Motor/MotorTuning.h"
 #include "Umbrella/UmbrellaStateComponent.h"
+#include "Umbrella/UmbrellaPlayerIds.h"
 #include "Arena/ArenaCameraTuning.h"
 #include "Core/UmbrellaEvent.h"
 #include "Core/UmbrellaEventBus.h"
@@ -209,6 +212,7 @@ FVector UEllaAnimPresenterComponent::StandInScaleFor(EEllaVisualState State)
 	switch (State)
 	{
 	case EEllaVisualState::Shoot:
+	case EEllaVisualState::AimShot:
 		return UmbrellaPresenterConst::StandInScale * UmbrellaPresenterConst::ShootMul;
 	case EEllaVisualState::Absorb:
 		return UmbrellaPresenterConst::StandInScale * UmbrellaPresenterConst::AbsorbMul;
@@ -230,7 +234,7 @@ void UEllaAnimPresenterComponent::SetStateFlipbook(EEllaVisualState State, UPape
 void UEllaAnimPresenterComponent::SetVisualState(EEllaVisualState State)
 {
 	VisualState = State;
-	StateTimeLeft = (State == EEllaVisualState::Idle || State == EEllaVisualState::Down) ? 0.0f : GetDefault<UUmbrellaTuning>()->ArenaCamera.EllaStateHoldSeconds;
+	StateTimeLeft = (State == EEllaVisualState::Idle || State == EEllaVisualState::Down || State == EEllaVisualState::AimShot) ? 0.0f : GetDefault<UUmbrellaTuning>()->ArenaCamera.EllaStateHoldSeconds;
 	const UWorld* World = GetWorld();
 	StateStartSeconds = World ? World->GetTimeSeconds() : 0.0;
 	DrawnFrame = -1;
@@ -278,6 +282,16 @@ void UEllaAnimPresenterComponent::TickComponent(float DeltaTime, ELevelTick Tick
 	{
 		SetVisualState(EEllaVisualState::Idle);
 	}
+	// Aimed shot: the charge and the beam drive the AimShot pose; Hurt and Down still win.
+	const bool bAim = ShouldShowAimPose();
+	if (bAim && VisualState != EEllaVisualState::AimShot && VisualState != EEllaVisualState::Hurt && VisualState != EEllaVisualState::Down)
+	{
+		SetVisualState(EEllaVisualState::AimShot);
+	}
+	else if (!bAim && VisualState == EEllaVisualState::AimShot)
+	{
+		SetVisualState(EEllaVisualState::Idle);
+	}
 	PlayGrid();
 	KeepFigureInFrame();
 	if (StateTimeLeft > 0.0f)
@@ -297,7 +311,15 @@ void UEllaAnimPresenterComponent::HandleEvent(const FUmbrellaEvent& Event)
 		RepairLeft = UmbrellaEllaOverlayConst::RepairHoldSeconds;
 	}
 	const AActor* Owner = GetOwner();
-	const EEllaVisualState State = StateForEvent(Event, IsValid(Owner) ? Owner->GetFName() : NAME_None);
+	// Ella's shots carry the player id (UmbrellaPlayerIds::Ella), not her actor's object name (EllaCharacter_0): her own
+	// presenter matches them by that id, so Shoot shows when she fires (ellashoot, 14 Nov: it never did in play).
+	const FName OwnerId = Cast<AEllaCharacter>(Owner) ? UmbrellaPlayerIds::Ella : (IsValid(Owner) ? Owner->GetFName() : NAME_None);
+	const EEllaVisualState State = StateForEvent(Event, OwnerId);
+	// Small Blasts keep firing while a held Shoot charges the aimed beam: the aim pose stays up over them.
+	if (State == EEllaVisualState::Shoot && VisualState == EEllaVisualState::AimShot)
+	{
+		return;
+	}
 	if (State != EEllaVisualState::Idle)
 	{
 		SetVisualState(State);
@@ -488,7 +510,31 @@ bool UEllaAnimPresenterComponent::IsAliveAgain(float HealthFraction)
 
 bool UEllaAnimPresenterComponent::IsLoopingState(EEllaVisualState State)
 {
-	return State != EEllaVisualState::Hurt && State != EEllaVisualState::Down;
+	return State != EEllaVisualState::Hurt && State != EEllaVisualState::Down && State != EEllaVisualState::AimShot;
+}
+
+int32 UEllaAnimPresenterComponent::AimShotFrameAt(float HeldSeconds, float ShowSeconds, float ChargeSeconds, bool bBeamFired, int32 Cells)
+{
+	const int32 Last = FMath::Max(1, Cells) - 1;
+	if (bBeamFired)
+	{
+		return Last;
+	}
+	const float Span = FMath::Max(ChargeSeconds - ShowSeconds, KINDA_SMALL_NUMBER);
+	const float Progress = FMath::Clamp((HeldSeconds - ShowSeconds) / Span, 0.0f, 1.0f);
+	return FMath::Clamp(FMath::FloorToInt(Progress * static_cast<float>(Last)), 0, Last);
+}
+
+bool UEllaAnimPresenterComponent::ShouldShowAimPose() const
+{
+	const AActor* Owner = GetOwner();
+	const UAttackEmitterComponent* Attack = IsValid(Owner) ? Owner->FindComponentByClass<UAttackEmitterComponent>() : nullptr;
+	if (!Attack)
+	{
+		return false;
+	}
+	const FAttackTuning& Tuning = GetDefault<UUmbrellaTuning>()->Attack;
+	return Attack->GetAimedBeam() != nullptr || (Attack->IsAimCharging() && Attack->GetAimChargeSeconds() >= Tuning.AimedPoseShowSeconds);
 }
 
 float UEllaAnimPresenterComponent::BottomPadFor(EEllaVisualState State)
@@ -497,6 +543,7 @@ float UEllaAnimPresenterComponent::BottomPadFor(EEllaVisualState State)
 	{
 	case EEllaVisualState::Hurt: return UmbrellaPresenterConst::HurtBottomPad;
 	case EEllaVisualState::Down: return UmbrellaPresenterConst::DownBottomPad;
+	case EEllaVisualState::AimShot: return UmbrellaPresenterConst::AimShotBottomPad;
 	default: return UmbrellaPresenterConst::IdleBottomPad;
 	}
 }
@@ -514,7 +561,16 @@ int32 UEllaAnimPresenterComponent::PlayGrid()
 	// Idle loops on the world clock; Hurt and Down play once from their own start (review, ellaanim) and hold the last cell.
 	const bool bLoop = IsLoopingState(VisualState);
 	const double Seconds = bLoop ? World->GetTimeSeconds() : World->GetTimeSeconds() - StateStartSeconds;
-	const int32 Frame = Row ? GridFrameAt(Seconds, UmbrellaPresenterConst::GridFps, Row->Cols, Row->Rows, bLoop) : 0;
+	int32 Frame = Row ? GridFrameAt(Seconds, UmbrellaPresenterConst::GridFps, Row->Cols, Row->Rows, bLoop) : 0;
+	if (Row && VisualState == EEllaVisualState::AimShot)
+	{
+		// The aim pose follows the charge, not the clock: the flash cell shows exactly when the beam fires.
+		const AActor* Owner = GetOwner();
+		const UAttackEmitterComponent* Attack = IsValid(Owner) ? Owner->FindComponentByClass<UAttackEmitterComponent>() : nullptr;
+		const FAttackTuning& Tuning = GetDefault<UUmbrellaTuning>()->Attack;
+		Frame = AimShotFrameAt(Attack ? Attack->GetAimChargeSeconds() : 0.0f, Tuning.AimedPoseShowSeconds, Tuning.AimedChargeSeconds,
+			Attack && Attack->GetAimedBeam() != nullptr, Row->Cols * Row->Rows);
+	}
 	if (Frame != DrawnFrame)
 	{
 		ArtSlot::SetFrame(StandIn, Frame);
