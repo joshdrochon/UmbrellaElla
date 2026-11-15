@@ -717,7 +717,8 @@ bool FArtSlotScene::RunTest(const FString& Parameters)
 		{
 			Visuals.Add(Spec.Visual);
 		}
-		TestEqual(TEXT("six scene slots have a consumer"), Visuals.Num(), 6);
+		TestEqual(TEXT("five scene slots have a consumer (bg:start-end not on the route, Josh 14 Nov)"), Visuals.Num(), 5);
+		TestFalse(TEXT("no barn picture on the route"), Visuals.Contains(FName(TEXT("bg:start-end"))));
 		for (const FName Visual : Visuals)
 		{
 			const FString Id = Visual.ToString();
@@ -735,7 +736,7 @@ bool FArtSlotScene::RunTest(const FString& Parameters)
 				TestTrue(*FString::Printf(TEXT("%s takes a picture"), *Id), Scene->ShowArt(Id, Texture) == EArtSlotDraw::Drawn);
 			}
 			TestTrue(*FString::Printf(TEXT("second picture for %s refused"), *Id), Scene->ShowArt(Id, Texture) != EArtSlotDraw::Drawn);
-			const int32 Expected = 1;   // bg:start-end: the route-end copy only (no route-start copy, Josh 14 Nov)
+			const int32 Expected = 1;
 			TestEqual(*FString::Printf(TEXT("%s panel count"), *Id), Scene->PanelCount(Id), Expected);
 			const UStaticMeshComponent* Panel = Scene->FindPanel(Id);
 			if (TestNotNull(*FString::Printf(TEXT("%s panel"), *Id), Panel))
@@ -764,11 +765,6 @@ bool FArtSlotScene::RunTest(const FString& Parameters)
 		if (TestNotNull(TEXT("frame actor"), Frame))
 		{
 			TestEqual(TEXT("frame follows the camera"), static_cast<float>(Frame->GetActorLocation().X), CameraX);
-		}
-		const AActor* End = Scene->FindPanel(TEXT("bg:start-end"), 0) ? Scene->FindPanel(TEXT("bg:start-end"), 0)->GetOwner() : nullptr;
-		if (TestNotNull(TEXT("route end actor"), End))
-		{
-			TestTrue(TEXT("route end picture sits at the route end"), End->GetActorLocation().X > LevelCatalogue::RouteLength() - GetDefault<UUmbrellaTuning>()->ArenaCamera.ArenaWidth);
 		}
 		const AActor* Land = Scene->FindPanel(TEXT("bg:land")) ? Scene->FindPanel(TEXT("bg:land"))->GetOwner() : nullptr;
 		if (TestNotNull(TEXT("land actor"), Land))
