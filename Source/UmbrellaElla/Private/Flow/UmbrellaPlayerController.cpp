@@ -187,6 +187,14 @@ void AUmbrellaPlayerController::BeginPlay()
 		// when there is something to spend). BeginRun broadcasts ModeSelected, so story starts the run's stats from zero.
 		StartDirectorsCut();
 	}
+	EUmbrellaPlayMode RetryMode = EUmbrellaPlayMode::StartGame;
+	int32 Retries = 0;
+	if (GameMode && FFlowRules::HasRetryStart(GameMode->OptionsString, RetryMode, Retries))
+	{
+		RetryCount = Retries;
+		bTutorialSeen = true; // she just played this run: a retry never replays the tutorial (memory only, nothing saved)
+		RetryMode == EUmbrellaPlayMode::DirectorsCut ? StartDirectorsCut() : StartGame();
+	}
 }
 
 void AUmbrellaPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -508,6 +516,16 @@ void AUmbrellaPlayerController::EnterScreen(EFlowScreen To, EFlowCommand Cause)
 		}
 	}
 
+	if (Cause == EFlowCommand::Retry && GetWorld() && GetWorld()->GetGameViewport())
+	{
+		// Retry restarts the encounter from its beginning (Josh, 14 Nov, D-new-retry-reload): a fresh world clears the
+		// Keeper, every projectile and beam (AimedBeamActor) and health; the new controller starts the same mode at once.
+		// Josh's report: the in-world reset left Start Game frozen on Defeat with a beam on screen.
+		++RetryCount;
+		SetPause(false);
+		UGameplayStatics::OpenLevel(this, FName(*UGameplayStatics::GetCurrentLevelName(this)), true, FFlowRules::RetryOption(PlayMode, RetryCount));
+		return;
+	}
 	if (Cause == EFlowCommand::Retry)
 	{
 		++RetryCount;

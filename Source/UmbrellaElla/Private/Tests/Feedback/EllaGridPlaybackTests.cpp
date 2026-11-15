@@ -163,4 +163,25 @@ bool FEllaHurtStartsOnCellZero::RunTest(const FString& Parameters)
 	return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FEllaDownOnlyWhileDefeated, "UmbrellaElla.Feedback.World.EllaDownOnlyWhileDefeated", GridTestFlags)
+
+bool FEllaDownOnlyWhileDefeated::RunTest(const FString& Parameters)
+{
+	// Josh, 14 Nov (Director's Cut): after a retry Ella stayed in Down, whose clip ends upright with the umbrella closed
+	// beside her, not in hand. Alive with health, she shows the idle (umbrella open, in hand).
+	TestFalse(TEXT("defeated (no health): Down stays"), UEllaAnimPresenterComponent::IsAliveAgain(0.0f));
+	TestTrue(TEXT("health back: Down gives way"), UEllaAnimPresenterComponent::IsAliveAgain(1.0f));
+	FUmbrellaTestWorld Test;
+	AEllaCharacter* Ella = Test.SpawnElla(FVector(0.0, 0.0, 2000.0));
+	UEllaAnimPresenterComponent* Look = Ella ? Ella->GetAnimPresenter() : nullptr;
+	if (!TestNotNull(TEXT("presenter"), Look))
+	{
+		return false;
+	}
+	Look->SetVisualState(EEllaVisualState::Down);
+	Test.TickSeconds(0.1f, 1.0f / 30.0f);
+	TestEqual(TEXT("Ella with full health does not keep the Down picture"), static_cast<int32>(Look->GetVisualState()), static_cast<int32>(EEllaVisualState::Idle));
+	return true;
+}
+
 #endif

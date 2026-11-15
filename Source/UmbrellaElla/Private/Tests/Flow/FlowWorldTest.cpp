@@ -533,3 +533,23 @@ bool FFlowWorldNoLevelUpInStartGameTest::RunTest(const FString& Parameters)
 	TestEqual(TEXT("Start Game has no level-up screen"), Test.Controller->GetScreen(), EFlowScreen::Playing);
 	return true;
 }
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFlowRetryReloadOptionTest, "UmbrellaElla.Flow.RetryReloadOptionNamesModeAndCount",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FFlowRetryReloadOptionTest::RunTest(const FString& Parameters)
+{
+	// D-new-retry-reload: Retry reloads the level; the option tells the new world which mode to start and the retry count.
+	for (const EUmbrellaPlayMode Mode : {EUmbrellaPlayMode::StartGame, EUmbrellaPlayMode::DirectorsCut})
+	{
+		EUmbrellaPlayMode Got = Mode == EUmbrellaPlayMode::StartGame ? EUmbrellaPlayMode::DirectorsCut : EUmbrellaPlayMode::StartGame;
+		int32 Count = -1;
+		TestTrue(TEXT("parses"), FFlowRules::HasRetryStart(TEXT("?Game=X?") + FFlowRules::RetryOption(Mode, 3), Got, Count));
+		TestEqual(TEXT("mode"), Got, Mode);
+		TestEqual(TEXT("count"), Count, 3);
+	}
+	EUmbrellaPlayMode Mode = EUmbrellaPlayMode::StartGame;
+	int32 Count = 0;
+	TestFalse(TEXT("a plain load is no retry"), FFlowRules::HasRetryStart(TEXT("?Game=X"), Mode, Count));
+	TestFalse(TEXT("Try Again is no retry"), FFlowRules::HasRetryStart(FString(TEXT("?")) + FFlowRules::TryAgainOption(), Mode, Count));
+	return true;
+}
