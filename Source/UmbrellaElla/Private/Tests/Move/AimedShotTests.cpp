@@ -235,6 +235,15 @@ bool FHipFireHitsKeeper::RunTest(const FString& Parameters)
 			AUmbrellaProjectile::Fire(World, Shot);
 			Test.TickSeconds(1.0f, 1.0f / 60.0f);
 			const float After = Director->GetModel().GetPartHp(EKeeperPart::Wings);
+			// The wider part box (KeeperLook::PartShotHalfDepth) must not change enemy shots: a red shot flown through the
+			// wings on the same plane is not a Keeper hit and is not stopped by the part (it has a receiver, so no wall).
+			FUmbrellaShotSpec Red = Shot;
+			Red.Kind = EUmbrellaShotKind::EnemyRed;
+			TWeakObjectPtr<AUmbrellaProjectile> RedShot = AUmbrellaProjectile::Fire(World, Red);
+			const int32 RedFrames = FMath::CeilToInt((Center.X - Red.Origin.X) / Tuning.SmallSpeed * 60.0f) + 6;
+			Test.TickFrames(RedFrames, 1.0f / 60.0f);
+			TestEqual(TEXT("an enemy shot through the wider part box does not damage the Keeper"), Director->GetModel().GetPartHp(EKeeperPart::Wings), After);
+			TestTrue(TEXT("an enemy shot passes through the part box (not a solid stop)"), RedShot.IsValid() && RedShot->GetActorLocation().X > Center.X);
 			AddInfo(FString::Printf(TEXT("wings %.1f -> %.1f; part box %s"), Before, After, *Wings->Bounds.GetBox().ToString()));
 			TestEqual(TEXT("a Small Blast on the shot plane damages the Keeper's wings"), After, Before - Tuning.SmallDamage, 0.01f);
 		}

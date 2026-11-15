@@ -82,7 +82,7 @@ public:
 	/** Hit every receiver along the beam once with Shot. Returns how many actors were hit. */
 	int32 Fire(const FUmbrellaShotSpec& Shot);
 
-	/** Move with Ella (the muzzle follows her as she falls) and thin out over the beam's life (Age01 0..1). */
+	/** Move with Ella (the muzzle follows her as she falls; the length is re-clipped at blockers) and thin out over the beam's life (Age01 0..1). */
 	void Follow(const FVector& Muzzle, float Age01);
 
 	float GetEffectiveLength() const { return EffectiveLength; }
@@ -108,6 +108,7 @@ private:
 	TObjectPtr<UTexture2D> Ribbon;
 
 	FVector BeamMuzzle = FVector::ZeroVector;
+	float RequestedLength = 0.0f;
 	float EffectiveLength = 0.0f;
 	float BeamWidth = 0.0f;
 };

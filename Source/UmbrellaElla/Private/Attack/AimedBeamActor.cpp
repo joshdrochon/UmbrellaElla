@@ -104,7 +104,8 @@ void AAimedBeamActor::Place(const FVector& Muzzle, float Length, float Width)
 	float CenterY = 0.0f;
 	float HalfDepth = 0.0f;
 	HitDepth(CenterY, HalfDepth);
-	EffectiveLength = AStreamBeamActor::ClipToBlockers(GetWorld(), this, FVector(BeamMuzzle.X, CenterY, BeamMuzzle.Z), FMath::Max(Length, 0.0f), BeamWidth, HalfDepth);
+	RequestedLength = FMath::Max(Length, 0.0f);
+	EffectiveLength = AStreamBeamActor::ClipToBlockers(GetWorld(), this, FVector(BeamMuzzle.X, CenterY, BeamMuzzle.Z), RequestedLength, BeamWidth, HalfDepth);
 	DrawRibbon(1.0f);
 }
 
@@ -120,6 +121,10 @@ void AAimedBeamActor::Follow(const FVector& Muzzle, float Age01)
 {
 	BeamMuzzle.X = Muzzle.X;
 	BeamMuzzle.Z = Muzzle.Z;
+	float CenterY = 0.0f;
+	float HalfDepth = 0.0f;
+	HitDepth(CenterY, HalfDepth);
+	EffectiveLength = AStreamBeamActor::ClipToBlockers(GetWorld(), this, FVector(BeamMuzzle.X, CenterY, BeamMuzzle.Z), RequestedLength, BeamWidth, HalfDepth);
 	// Full width for most of its life, then it thins to a hairline (looks only; damage already landed).
 	const float Age = FMath::Clamp(Age01, 0.0f, 1.0f);
 	DrawRibbon(Age < FullWidthShare ? 1.0f : FMath::Lerp(1.0f, AimedRibbonLook::EndThickness, FMath::SmoothStep(FullWidthShare, 1.0f, Age)));
