@@ -57,7 +57,7 @@ namespace LevelPlan
 		{
 			const FChunkVariant& V = Route.Slots[Slot];
 			const float X0 = LevelCatalogue::SlotStartX(Slot);
-			// No route floor: the bottom is lethal and the GDD has no ground-running (WIND-03, game-spec). The per-slot
+			// No route floor: the bottom is lethal and there is no ground-running (docs/game-spec.md). The per-slot
 			// placeholder floor drew a long dark bar along the bottom of the Director's Cut route that read as solid ground
 			// (Josh, Nov 14: Ella "trapped on the bottom track"). Land comes only from the chunk catalogue below.
 			const FChunkLayout Layout = ChunkLayouts::Get(V.Chunk, V.Variant);

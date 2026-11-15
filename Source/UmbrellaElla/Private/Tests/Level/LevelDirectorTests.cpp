@@ -65,7 +65,7 @@ bool FLevelPlanSeeded::RunTest(const FString& Parameters)
 		Refuges += P.Kind == ELevelPlacementKind::Refuge;
 		Checkpoints += P.Kind == ELevelPlacementKind::Checkpoint;
 	}
-	TestEqual(TEXT("no route floor: the bottom is lethal (WIND-03)"), Floors, 0);
+	TestEqual(TEXT("no route floor: the bottom is lethal (game-spec)"), Floors, 0);
 	TestEqual(TEXT("three refuges"), Refuges, 3);
 	TestEqual(TEXT("three checkpoints"), Checkpoints, 3);
 	return true;
