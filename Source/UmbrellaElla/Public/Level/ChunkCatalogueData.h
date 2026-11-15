@@ -74,8 +74,8 @@ namespace ChunkCatalogueData
 		{3, TEXT('B'), EChunkPieceKind::Wind, EWindRole::Return, EChunkMechanic::Column, false, EChunkShotColour::Any, false, 0.10f, 0.45f, 0.70f, 0.84f},
 		{3, TEXT('B'), EChunkPieceKind::Wind, EWindRole::Transport, EChunkMechanic::Column, true, EChunkShotColour::Any, false, 0.45f, 0.82f, 0.66f, 0.78f},
 		{3, TEXT('B'), EChunkPieceKind::Wind, EWindRole::Descent, EChunkMechanic::Column, true, EChunkShotColour::Any, false, 0.83f, 0.93f, 0.60f, 0.78f},
-		{4, TEXT('A'), EChunkPieceKind::Solid, EWindRole::Transport, EChunkMechanic::Column, false, EChunkShotColour::Any, false, 0.55f, 0.85f, 0.26f, 0.30f},
-		{4, TEXT('A'), EChunkPieceKind::Enemy, EWindRole::Transport, EChunkMechanic::Stilt, false, EChunkShotColour::Any, false, 0.70f, 0.70f, 0.50f, 0.50f},
+		{4, TEXT('A'), EChunkPieceKind::Solid, EWindRole::Transport, EChunkMechanic::Column, false, EChunkShotColour::Any, false, 0.55f, 0.85f, 0.29f, 0.33f},
+		{4, TEXT('A'), EChunkPieceKind::Enemy, EWindRole::Transport, EChunkMechanic::Stilt, false, EChunkShotColour::Any, true, 0.70f, 0.70f, 0.33f, 0.33f},	// stands on the bridge (Josh 14 Nov: no floating enemies; the art has no stilts)
 		{4, TEXT('A'), EChunkPieceKind::Wind, EWindRole::Transport, EChunkMechanic::Column, false, EChunkShotColour::Any, false, 0.00f, 0.22f, 0.40f, 0.56f},
 		{4, TEXT('A'), EChunkPieceKind::Wind, EWindRole::Descent, EChunkMechanic::Column, false, EChunkShotColour::Any, false, 0.22f, 0.30f, 0.08f, 0.56f},
 		{4, TEXT('A'), EChunkPieceKind::Wind, EWindRole::Transport, EChunkMechanic::Column, false, EChunkShotColour::Any, false, 0.30f, 0.88f, 0.08f, 0.22f},
@@ -83,7 +83,7 @@ namespace ChunkCatalogueData
 		{4, TEXT('A'), EChunkPieceKind::Wind, EWindRole::Return, EChunkMechanic::Column, false, EChunkShotColour::Any, false, 0.15f, 0.50f, 0.72f, 0.86f},
 		{4, TEXT('A'), EChunkPieceKind::Wind, EWindRole::Transport, EChunkMechanic::Column, true, EChunkShotColour::Any, false, 0.40f, 0.82f, 0.60f, 0.66f},
 		{4, TEXT('B'), EChunkPieceKind::Solid, EWindRole::Transport, EChunkMechanic::Column, false, EChunkShotColour::Any, false, 0.62f, 0.80f, 0.60f, 0.64f},
-		{4, TEXT('B'), EChunkPieceKind::Enemy, EWindRole::Transport, EChunkMechanic::Stilt, false, EChunkShotColour::Any, false, 0.71f, 0.71f, 0.76f, 0.76f},
+		{4, TEXT('B'), EChunkPieceKind::Enemy, EWindRole::Transport, EChunkMechanic::Stilt, false, EChunkShotColour::Any, true, 0.71f, 0.71f, 0.64f, 0.64f},	// stands on the offset shelf, body high
 		{4, TEXT('B'), EChunkPieceKind::Wind, EWindRole::Transport, EChunkMechanic::Column, false, EChunkShotColour::Any, false, 0.00f, 0.86f, 0.40f, 0.56f},
 		{4, TEXT('B'), EChunkPieceKind::Wind, EWindRole::Lift, EChunkMechanic::Column, false, EChunkShotColour::Any, false, 0.86f, 0.96f, 0.10f, 0.40f},
 		{4, TEXT('B'), EChunkPieceKind::Wind, EWindRole::Return, EChunkMechanic::Column, false, EChunkShotColour::Any, false, 0.30f, 0.86f, 0.10f, 0.24f},
@@ -202,7 +202,8 @@ namespace ChunkCatalogueData
 		{11, TEXT('B'), EChunkPieceKind::Wind, EWindRole::Transport, EChunkMechanic::Column, false, EChunkShotColour::Any, false, 0.64f, 1.00f, 0.54f, 0.64f},
 		{11, TEXT('B'), EChunkPieceKind::Wind, EWindRole::Transport, EChunkMechanic::Column, true, EChunkShotColour::Any, false, 0.20f, 0.82f, 0.76f, 0.86f},
 		{11, TEXT('B'), EChunkPieceKind::Wind, EWindRole::Descent, EChunkMechanic::Column, true, EChunkShotColour::Any, false, 0.82f, 0.90f, 0.65f, 0.86f},
-		{12, TEXT('A'), EChunkPieceKind::Enemy, EWindRole::Transport, EChunkMechanic::Stilt, false, EChunkShotColour::Any, false, 0.62f, 0.62f, 0.76f, 0.76f},
+		{12, TEXT('A'), EChunkPieceKind::Solid, EWindRole::Transport, EChunkMechanic::Column, false, EChunkShotColour::Any, false, 0.55f, 0.69f, 0.68f, 0.71f},	// high shelf for the stilt (Josh 14 Nov: no floating enemies)
+		{12, TEXT('A'), EChunkPieceKind::Enemy, EWindRole::Transport, EChunkMechanic::Stilt, false, EChunkShotColour::Any, true, 0.62f, 0.62f, 0.71f, 0.71f},
 		{12, TEXT('A'), EChunkPieceKind::Enemy, EWindRole::Transport, EChunkMechanic::Courier, false, EChunkShotColour::Any, false, 0.82f, 0.82f, 0.50f, 0.50f},
 		{12, TEXT('A'), EChunkPieceKind::Wind, EWindRole::Transport, EChunkMechanic::Column, false, EChunkShotColour::Any, false, 0.00f, 0.40f, 0.40f, 0.56f},
 		{12, TEXT('A'), EChunkPieceKind::Wind, EWindRole::Descent, EChunkMechanic::Column, false, EChunkShotColour::Any, false, 0.40f, 0.48f, 0.14f, 0.56f},
@@ -210,7 +211,8 @@ namespace ChunkCatalogueData
 		{12, TEXT('A'), EChunkPieceKind::Wind, EWindRole::Lift, EChunkMechanic::Column, false, EChunkShotColour::Any, false, 0.88f, 0.98f, 0.14f, 0.40f},
 		{12, TEXT('A'), EChunkPieceKind::Wind, EWindRole::Return, EChunkMechanic::Column, false, EChunkShotColour::Any, false, 0.10f, 0.40f, 0.70f, 0.84f},
 		{12, TEXT('A'), EChunkPieceKind::Wind, EWindRole::Transport, EChunkMechanic::Column, true, EChunkShotColour::Any, false, 0.42f, 0.80f, 0.60f, 0.68f},
-		{12, TEXT('B'), EChunkPieceKind::Enemy, EWindRole::Transport, EChunkMechanic::Stilt, false, EChunkShotColour::Any, false, 0.66f, 0.66f, 0.50f, 0.50f},
+		{12, TEXT('B'), EChunkPieceKind::Solid, EWindRole::Transport, EChunkMechanic::Column, false, EChunkShotColour::Any, false, 0.58f, 0.74f, 0.30f, 0.33f},	// middle shelf for the stilt
+		{12, TEXT('B'), EChunkPieceKind::Enemy, EWindRole::Transport, EChunkMechanic::Stilt, false, EChunkShotColour::Any, true, 0.66f, 0.66f, 0.33f, 0.33f},
 		{12, TEXT('B'), EChunkPieceKind::Enemy, EWindRole::Transport, EChunkMechanic::Courier, false, EChunkShotColour::Any, false, 0.84f, 0.84f, 0.80f, 0.80f},
 		{12, TEXT('B'), EChunkPieceKind::Wind, EWindRole::Lift, EChunkMechanic::Column, false, EChunkShotColour::Any, false, 0.44f, 0.52f, 0.12f, 0.60f},
 		{12, TEXT('B'), EChunkPieceKind::Wind, EWindRole::Transport, EChunkMechanic::Column, false, EChunkShotColour::Any, false, 0.00f, 0.44f, 0.40f, 0.56f},
