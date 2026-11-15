@@ -652,10 +652,10 @@ bool FKeeperWorldCastAimsAtElla::RunTest(const FString& Parameters)
 		AddExpectedError(TEXT("no arena in the world"), EAutomationExpectedErrorFlags::Contains, 0);
 		W.Director->BeginKeeperFightAtPhase(EKeeperPhase::Mechanisms);
 		W.Ella->SetActorLocation(CastTargetSpot(W));
-		int32 ChainHits = 0;
-		W.Director->OnDamageDelivered().AddLambda([&ChainHits](FName Source, float)
+		TSharedRef<int32> Hits = MakeShared<int32>(0);
+		W.Director->OnDamageDelivered().AddLambda([Hits](FName Source, float)
 		{
-			ChainHits += UmbrellaSourceIds::IsChainCast(Source) ? 1 : 0;
+			*Hits += UmbrellaSourceIds::IsChainCast(Source) ? 1 : 0;
 		});
 		if (!TestTrue(TEXT("a chain-cast warning starts"), StepToCastWarning(W, 20.0f)))
 		{
@@ -676,13 +676,13 @@ bool FKeeperWorldCastAimsAtElla::RunTest(const FString& Parameters)
 		const FVector2D EndNow = Model.GetLockEnd();
 		if (bDodge)
 		{
-			TestEqual(TEXT("moving away during the warning dodges the cast"), ChainHits, 0);
+			TestEqual(TEXT("moving away during the warning dodges the cast"), *Hits, 0);
 			TestTrue(TEXT("the cast kept its locked aim (no re-aim)"), FMath::Abs(FMath::RadiansToDegrees(FMath::Acos(FMath::Clamp(FVector2D::DotProduct(
 				(EndNow - Start).GetSafeNormal(), (EllaXZ - Start).GetSafeNormal()), -1.0f, 1.0f)))) < 2.0f);
 		}
 		else
 		{
-			TestEqual(TEXT("staying on the line is hit once"), ChainHits, 1);
+			TestEqual(TEXT("staying on the line is hit once"), *Hits, 1);
 		}
 	}
 	return true;
@@ -708,13 +708,13 @@ bool FKeeperWorldAbsorbBlocksCast::RunTest(const FString& Parameters)
 		}
 		Absorb->SetPose(bAbsorb ? EAbsorbPose::AbsorbFall : EAbsorbPose::Closed);
 		const float Before = Health->GetState().Active;
-		int32 ChainHits = 0;
-		W.Director->OnDamageDelivered().AddLambda([&ChainHits](FName Source, float)
+		TSharedRef<int32> Hits = MakeShared<int32>(0);
+		W.Director->OnDamageDelivered().AddLambda([Hits](FName Source, float)
 		{
-			ChainHits += UmbrellaSourceIds::IsChainCast(Source) ? 1 : 0;
+			*Hits += UmbrellaSourceIds::IsChainCast(Source) ? 1 : 0;
 		});
 		StepThroughCast(W);
-		TestEqual(TEXT("the cast reached Ella"), ChainHits, 1);
+		TestEqual(TEXT("the cast reached Ella"), *Hits, 1);
 		if (bAbsorb)
 		{
 			TestEqual(TEXT("holding Absorb: no damage"), Health->GetState().Active, Before);
