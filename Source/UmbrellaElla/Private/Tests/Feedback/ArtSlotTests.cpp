@@ -717,8 +717,7 @@ bool FArtSlotScene::RunTest(const FString& Parameters)
 		{
 			Visuals.Add(Spec.Visual);
 		}
-		TestEqual(TEXT("five scene slots have a consumer (bg:start-end not on the route, Josh 14 Nov)"), Visuals.Num(), 5);
-		TestFalse(TEXT("no barn picture on the route"), Visuals.Contains(FName(TEXT("bg:start-end"))));
+		TestEqual(TEXT("six scene slots have a consumer"), Visuals.Num(), 6);
 		for (const FName Visual : Visuals)
 		{
 			const FString Id = Visual.ToString();

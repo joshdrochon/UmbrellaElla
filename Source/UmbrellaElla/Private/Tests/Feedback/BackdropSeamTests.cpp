@@ -118,11 +118,19 @@ bool FFeedbackWorldBackdropSeamless::RunTest(const FString& Parameters)
 			TestTrue(TEXT("near plane hidden"), Arena->GetBackgroundNear()->bHiddenInGame);
 		}
 	}
-	// (2) Josh, 14 Nov: no barn picture (bg:start-end) on the route; it read as the Start Game screen.
+	// (2) Josh, 14 Nov: the barn picture is Start Game's backdrop only: one start copy, hidden in Director's Cut.
 	if (USceneArtSubsystem* Scene = World->GetSubsystem<USceneArtSubsystem>())
 	{
-		TestTrue(TEXT("the barn picture is refused on the route"), Scene->ShowArt(TEXT("bg:start-end"), Picture) != EArtSlotDraw::Drawn);
-		TestEqual(TEXT("no barn picture panels"), Scene->PanelCount(TEXT("bg:start-end")), 0);
+		if (Scene->PanelCount(TEXT("bg:start-end")) == 0)
+		{
+			Scene->ShowArt(TEXT("bg:start-end"), Picture);
+		}
+		TestEqual(TEXT("one barn picture (the start copy)"), Scene->PanelCount(TEXT("bg:start-end")), 1);
+		for (const FSceneArtSpec& Spec : USceneArtSubsystem::Specs())
+		{
+			const bool bBarn = Spec.Visual == FName(TEXT("bg:start-end"));
+			TestEqual(*FString::Printf(TEXT("%s shows in Director's Cut"), *Spec.Visual.ToString()), USceneArtSubsystem::IsShownInDirectorsCut(Spec), !bBarn);
+		}
 	}
 	Picture->RemoveFromRoot();
 	DcSeamEnd(World);

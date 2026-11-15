@@ -278,7 +278,8 @@ bool FFrameCompositionKeeperBackdrop::RunTest(const FString& Parameters)
 	// backdrop alone covers the widest fight frame.
 	for (const FSceneArtSpec& Spec : USceneArtSubsystem::Specs())
 	{
-		TestFalse(TEXT("no route start/end picture"), Spec.Anchor == ESceneArtAnchor::RouteEnd || Spec.Anchor == ESceneArtAnchor::RouteStart);
+		TestFalse(TEXT("no route-end picture"), Spec.Anchor == ESceneArtAnchor::RouteEnd);
+		TestTrue(TEXT("nothing anchored to the route ends shows in Director's Cut"), Spec.Anchor != ESceneArtAnchor::RouteStart || !USceneArtSubsystem::IsShownInDirectorsCut(Spec));
 	}
 	FUmbrellaTestWorld Test;
 	UFrameCompositionSubsystem* Frame = Test.GetWorld()->GetSubsystem<UFrameCompositionSubsystem>();
