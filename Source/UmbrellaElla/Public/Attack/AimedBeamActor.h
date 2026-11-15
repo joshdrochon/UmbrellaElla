@@ -34,10 +34,14 @@ namespace AimedRibbonLook
 	static constexpr float StrokeAmount = 0.08f;
 	static constexpr float StrokeFreq = 140.0f;
 	static constexpr int32 StrokeSeed = 31;
-	/** Ricky's Other Realm study light: warm ivory core (near the art bible outline #FFE6C4), brass, ash (sRGB). */
-	static const FLinearColor Core = FLinearColor(FColor(0xFF, 0xEE, 0xD2));
-	static const FLinearColor Brass = FLinearColor(FColor(0xD9, 0xA8, 0x5C));
-	static const FLinearColor Ash = FLinearColor(FColor(0x8A, 0x7A, 0x6A));
+	/**
+	 * Colours (Josh, 14 Nov: red and thinner): the game's shot red, art bible / style.json shot-red (GDD SH1.0 shared
+	 * red projectile, the Keeper's thin warning line #FF3658): CORAL core, RED, RED SHADOW toward the soft edge. The
+	 * first (approved) beam was ivory #FFEED2 / brass #D9A85C / ash #8A7A6A.
+	 */
+	static const FLinearColor Core = FLinearColor(FColor(0xFF, 0x78, 0x48));
+	static const FLinearColor Brass = FLinearColor(FColor(0xFF, 0x36, 0x58));
+	static const FLinearColor Ash = FLinearColor(FColor(0x8F, 0x17, 0x3C));
 	/** Smallest drawn length or thickness (units), so a zero-size beam never scales to zero. */
 	static constexpr float MinDrawSize = 0.01f;
 	/** Hairline share of the full width the beam thins to at the end of its life. */
@@ -65,8 +69,8 @@ public:
 	/** Soft fade-out share at the far end of the ribbon (FadeRight on the soft-edged material) and at the muzzle. */
 	static constexpr float FarFade = 0.22f;
 	static constexpr float NearFade = 0.04f;
-	/** The painted ribbon is drawn this many times the hitbox width: its soft edges fade out, so the bright core matches the box. */
-	static constexpr float VisualWidthScale = 1.6f;
+	/** Drawn ribbon thickness as a share of the hitbox width (AimedBeamWidth). Josh, 14 Nov: about half the first beam's 1.6. */
+	static constexpr float VisualWidthScale = 0.8f;
 	/** Share of the beam's life drawn at full width before it thins out. */
 	static constexpr float FullWidthShare = 0.75f;
 
