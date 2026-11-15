@@ -23,10 +23,8 @@ step) still snap the camera.
 
 Lane extension (Nov 14, coordinator orders on Josh's 15:42 and 16:02 reports; Josh authorized merging without him):
 (a) "trapped on the bottom track": the route floor bar. This lane removes the per-slot placeholder floor from
-Source/UmbrellaElla/Private/Level/LevelPlan.cpp (Build) and adds the bottom-rise guard test in
-Private/Tests/Move/MoveFloorTests.cpp. (b) "remove vertical drafts in Director's Cut": LevelPlan::IsVerticalWind
+Source/UmbrellaElla/Private/Level/LevelPlan.cpp (Build). (b) "remove vertical drafts in Director's Cut": LevelPlan::IsVerticalWind
 (Public/Level/LevelPlan.h, Private/Level/LevelPlan.cpp), the matching assertions in Private/Tests/Level/LevelDirectorTests.cpp
 and ChunkLayoutTests.cpp, the D-new-no-vertical-wind row in docs/decisions.md and the HAZ-25/27/34/36 notes in
 docs/build/rule-status.csv. The chunk catalogue (ChunkCatalogueData.h, ChunkLayouts.*) and the motor are not touched.
-Handed to the owner (not this lane): nothing applies the lethal-bottom rule (UEllaMotorComponent::IsAtPlayFloor is read by
-no gameplay code); the arena-floor clamp holds Ella at the bottom instead.
+The lethal bottom itself is the fallrules lane (main 1d95f1fd: reaching the bottom defeats Ella).

@@ -76,3 +76,6 @@ Review round (16:29): lane extension written into dcseamless.md; HAZ-25/27/34/36
 (columns authored, not placed); fade test added to BackdropSeamTests (alpha ramp <= 0.1 of the width and a haze colour: the
 old 0.35 ramp fails it); the bottom-rise test is a guard (the trap did not reproduce; it passes on the old code too).
 Lethal bottom not applied anywhere: handed to the owner (see dcseamless.md).
+Main 1d95f1fd (fallrules) made the bottom lethal (EllaMotorComponent DefeatAtBoundary): the bottom-rise guard test
+(BottomRisesWithinOneSecond) contradicted it and is dropped; with the bar gone and the bottom lethal there is no ground to be
+trapped on.
