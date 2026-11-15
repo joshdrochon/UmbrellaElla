@@ -9,30 +9,29 @@
 #include "Engine/World.h"
 #include "Feedback/Art/ArtSlot.h"
 #include "Materials/MaterialInstanceDynamic.h"
+#include "Misc/Crc.h"
 #include "Owl/KeeperLook.h"
 #include "Projectile/UmbrellaShotSpec.h"
 
 namespace
 {
 	/** Ricky's Other Realm study light: warm ivory (the art bible outline #FFE6C4), brass, ash. */
-	const FLinearColor RibbonCore = FLinearColor(FColor(0xFF, 0xEE, 0xD2));
-	const FLinearColor RibbonBrass = FLinearColor(FColor(0xD9, 0xA8, 0x5C));
-	const FLinearColor RibbonAsh = FLinearColor(FColor(0x8A, 0x7A, 0x6A));
+	FLinearColor RibbonColour(const uint8 (&RGB)[3])
+	{
+		return FLinearColor(FColor(RGB[0], RGB[1], RGB[2]));
+	}
 
 	/** Smooth value noise in 0..1 from an integer lattice (deterministic, no engine random state). */
 	float RibbonHash(int32 X, int32 Seed)
 	{
-		uint32 H = static_cast<uint32>(X) * 374761393u + static_cast<uint32>(Seed) * 668265263u;
-		H = (H ^ (H >> 13)) * 1274126177u;
-		return static_cast<float>((H ^ (H >> 16)) & 0xFFFF) / 65535.0f;
+		return static_cast<float>(FCrc::MemCrc32(&X, sizeof(X), static_cast<uint32>(Seed))) / static_cast<float>(MAX_uint32);
 	}
 
 	float RibbonNoise(float X, int32 Seed)
 	{
 		const int32 I = FMath::FloorToInt(X);
 		const float F = X - static_cast<float>(I);
-		const float S = F * F * (3.0f - 2.0f * F);
-		return FMath::Lerp(RibbonHash(I, Seed), RibbonHash(I + 1, Seed), S);
+		return FMath::Lerp(RibbonHash(I, Seed), RibbonHash(I + 1, Seed), FMath::SmoothStep(0.0f, 1.0f, F));
 	}
 }
 
@@ -48,20 +47,19 @@ AAimedBeamActor::AAimedBeamActor()
 
 FColor AAimedBeamActor::RibbonTexel(int32 X, int32 Y)
 {
-	using namespace AimedRibbonLook;
 	const float U = (static_cast<float>(X) + 0.5f) / RibbonWidth;
 	const float V = (static_cast<float>(Y) + 0.5f) / RibbonHeight;
 	// Ragged soft edge: the half-thickness wanders a little along the beam, like a dry brush.
-	const float Edge = EdgeBase + EdgeWander * RibbonNoise(U * EdgeWanderFreq, EdgeWanderSeed) - EdgeBite * RibbonNoise(U * EdgeBiteFreq, EdgeBiteSeed);
-	const float Across = FMath::Abs(V - 0.5f) * 2.0f / FMath::Max(EdgeMin, Edge);
-	const float Alpha = FMath::Clamp(1.0f - FMath::SmoothStep(AlphaSoftFrom, 1.0f, Across), 0.0f, 1.0f);
+	const float Edge = AimedRibbonLook::EdgeBase + AimedRibbonLook::EdgeWander * RibbonNoise(U * AimedRibbonLook::EdgeWanderFreq, AimedRibbonLook::EdgeWanderSeed) - AimedRibbonLook::EdgeBite * RibbonNoise(U * AimedRibbonLook::EdgeBiteFreq, AimedRibbonLook::EdgeBiteSeed);
+	const float Across = FMath::Abs(V - 0.5f) * 2.0f / FMath::Max(AimedRibbonLook::EdgeMin, Edge);
+	const float Alpha = FMath::Clamp(1.0f - FMath::SmoothStep(AimedRibbonLook::AlphaSoftFrom, 1.0f, Across), 0.0f, 1.0f);
 	// Colour: ivory core -> brass -> ash toward the edge.
-	FLinearColor Colour = Across < CoreShare ? FMath::Lerp(RibbonCore, RibbonBrass, Across / CoreShare)
-		: FMath::Lerp(RibbonBrass, RibbonAsh, FMath::Clamp((Across - CoreShare) / (1.0f - CoreShare), 0.0f, 1.0f));
+	FLinearColor Colour = Across < AimedRibbonLook::CoreShare ? FMath::Lerp(RibbonColour(AimedRibbonLook::CoreRGB), RibbonColour(AimedRibbonLook::BrassRGB), Across / AimedRibbonLook::CoreShare)
+		: FMath::Lerp(RibbonColour(AimedRibbonLook::BrassRGB), RibbonColour(AimedRibbonLook::AshRGB), FMath::Clamp((Across - AimedRibbonLook::CoreShare) / (1.0f - AimedRibbonLook::CoreShare), 0.0f, 1.0f));
 	// Painted streaks: each band of rows gets its own slow grain along the beam, plus a fine stroke texture.
-	const int32 Row = Y / StreakRows;
-	const float Grain = GrainBase + GrainAmount * RibbonNoise(U * GrainFreq + static_cast<float>(Row) * GrainRowPhase, GrainSeed + Row)
-		- StrokeAmount * RibbonNoise(U * StrokeFreq, StrokeSeed + Row);
+	const int32 Row = Y / AimedRibbonLook::StreakRows;
+	const float Grain = AimedRibbonLook::GrainBase + AimedRibbonLook::GrainAmount * RibbonNoise(U * AimedRibbonLook::GrainFreq + static_cast<float>(Row) * AimedRibbonLook::GrainRowPhase, AimedRibbonLook::GrainSeed + Row)
+		- AimedRibbonLook::StrokeAmount * RibbonNoise(U * AimedRibbonLook::StrokeFreq, AimedRibbonLook::StrokeSeed + Row);
 	Colour *= Grain;
 	Colour.A = Alpha;
 	return Colour.GetClamped().ToFColor(true);
@@ -161,6 +159,6 @@ void AAimedBeamActor::DrawRibbon(float Thickness)
 	}
 	SetActorLocation(BeamMuzzle + FVector(EffectiveLength * 0.5f, 0.0f, 0.0f));
 	const float Edge = UmbrellaArtSlotConst::PlaneEdge;
-	Visual->SetWorldScale3D(FVector(FMath::Max(EffectiveLength, 0.01f) / Edge, FMath::Max(BeamWidth * VisualWidthScale * Thickness, 0.01f) / Edge, 1.0f));
+	Visual->SetWorldScale3D(FVector(FMath::Max(EffectiveLength, AimedRibbonLook::MinDrawSize) / Edge, FMath::Max(BeamWidth * VisualWidthScale * Thickness, AimedRibbonLook::MinDrawSize) / Edge, 1.0f));
 	Visual->SetVisibility(EffectiveLength > 0.0f);
 }

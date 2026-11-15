@@ -34,6 +34,12 @@ namespace AimedRibbonLook
 	static constexpr float StrokeAmount = 0.08f;
 	static constexpr float StrokeFreq = 140.0f;
 	static constexpr int32 StrokeSeed = 31;
+	/** Ricky's Other Realm study light: warm ivory core (near the art bible outline #FFE6C4), brass, ash (sRGB). */
+	static constexpr uint8 CoreRGB[3] = { 0xFF, 0xEE, 0xD2 };
+	static constexpr uint8 BrassRGB[3] = { 0xD9, 0xA8, 0x5C };
+	static constexpr uint8 AshRGB[3] = { 0x8A, 0x7A, 0x6A };
+	/** Smallest drawn length or thickness (units), so a zero-size beam never scales to zero. */
+	static constexpr float MinDrawSize = 0.01f;
 	/** Hairline share of the full width the beam thins to at the end of its life. */
 	static constexpr float EndThickness = 0.15f;
 }
