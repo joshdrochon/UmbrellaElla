@@ -28,7 +28,7 @@
     "owner": "Game Designer proposes, game design owner accepts",
     "asset": "FEllaMovementTuning header defaults (copied from docs/feature-manifest.json approved_parameters; card 0.13 envelope proves the match)",
     "units": "GDD world units per second = Unreal cm/s (D-new-sh10-units)",
-    "gdd_note": "GDD SH1.0 MOVE-13 / MOVE-21: four states, each a speed, no gravity: rise 240 (overhead, neither trigger), fall 660 (Shoot or Absorb), free fall 1220 (both): the felt speeds, D-new-move-speeds (GDD 120 / 330 / 610). Direct horizontal steering is OFF in both modes (MOVE-07); horizontal_max_speed 290 caps current-driven travel. Lift falls with active health to lift_min (SURV-05). feel_check holds these to the manifest starts; GDD SH1.0 prints no dev ranges yet (D-new-sh10-param-ranges).",
+    "gdd_note": "GDD SH1.0 MOVE-13 / MOVE-21: four states, each a speed, no gravity: rise 240 (overhead, neither trigger), fall 660 (Shoot or Absorb), free fall 1220 (both): the felt speeds, D-new-move-speeds (GDD 120 / 330 / 610). Direct horizontal steering is OFF in both modes (MOVE-07); horizontal_max_speed 580 caps current-driven travel (D-new-move-speeds; GDD 290); wind reaches Ella at WindScale 2 (wind cap 720). Lift falls with active health to lift_min (SURV-05). feel_check holds these to the manifest starts; GDD SH1.0 prints no dev ranges yet (D-new-sh10-param-ranges).",
     "rise_speed": 240,
     "fall_speed": 660,
     "free_fall_speed": 1220,

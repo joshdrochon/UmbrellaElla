@@ -160,22 +160,27 @@ def on_step(v, start, step):
     return abs(k - round(k)) * step <= EPS
 
 
-
 DECISIONS = os.path.join(ROOT, "docs", "decisions.md")
 VALUES_RE = re.compile(r"Values:\s*([^|;]+)")
 VALUE_RE = re.compile(r"^\s*([A-Z]+-\d+\.[a-z0-9_.]+)\s*=\s*(-?\d+(?:\.\d+)?)\s*$")
+
+
+_DECIDED_CACHE = None
 
 
 def decided_values(text=None):
     """{key: value} from DECIDED rows of docs/decisions.md that carry a `Values: KEY=n, KEY=n` clause
     (D-new-move-speeds). Only these exact keys and values lift the GDD-range rule; every other key stays strict.
     Returns (values, problems): a clause entry that does not parse is a problem, never silently ignored."""
+    global _DECIDED_CACHE
     if text is None:
-        try:
-            with open(DECISIONS, encoding="utf-8") as fh:
-                text = fh.read()
-        except OSError:
-            return {}, []
+        if _DECIDED_CACHE is None:
+            try:
+                with open(DECISIONS, encoding="utf-8") as fh:
+                    _DECIDED_CACHE = decided_values(fh.read())
+            except OSError:
+                _DECIDED_CACHE = ({}, [])
+        return _DECIDED_CACHE
     out, bad = {}, []
     for ln in text.splitlines():
         if not ln.startswith("| D-") or "Values:" not in ln:
