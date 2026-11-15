@@ -561,34 +561,34 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FKeeperPaintedWarningArt, "UmbrellaElla.Keeper.
 bool FKeeperPaintedWarningArt::RunTest(const FString& Parameters)
 {
 	// Josh Nov 14: a soft painted streak (tapered, feathered, faint tail) and a broken soft ring, never flat fills.
-	using namespace PaintedWarningArt;
-	TestTrue(TEXT("streak: faint tail, strong toward the strike"), StreakAlpha(0.05f, 0.5f) < 0.5f * StreakAlpha(0.85f, 0.5f));
-	TestTrue(TEXT("streak: tail alpha is low"), StreakAlpha(0.02f, 0.5f) <= TailAlpha + 0.05f);
-	TestTrue(TEXT("streak: feathered across (edge far below the centre)"), StreakAlpha(0.8f, 0.97f) < 0.2f * StreakAlpha(0.8f, 0.5f));
+	TestTrue(TEXT("streak: faint tail, strong toward the strike"), PaintedWarningArt::StreakAlpha(0.05f, 0.5f) < 0.5f * PaintedWarningArt::StreakAlpha(0.85f, 0.5f));
+	TestTrue(TEXT("streak: tail alpha is low"), PaintedWarningArt::StreakAlpha(0.02f, 0.5f) <= PaintedWarningArt::TailAlpha + 0.05f);
+	TestTrue(TEXT("streak: feathered across (edge far below the centre)"), PaintedWarningArt::StreakAlpha(0.8f, 0.97f) < 0.2f * PaintedWarningArt::StreakAlpha(0.8f, 0.5f));
 	TestTrue(TEXT("streak: soft, not a hard step (a mid value between core and edge)"),
-		StreakAlpha(0.8f, 0.6f) > 0.05f && StreakAlpha(0.8f, 0.6f) < StreakAlpha(0.8f, 0.5f));
+		PaintedWarningArt::StreakAlpha(0.8f, 0.6f) > 0.05f && PaintedWarningArt::StreakAlpha(0.8f, 0.6f) < PaintedWarningArt::StreakAlpha(0.8f, 0.5f));
 	float RingMin = 1.0f;
 	float RingMax = 0.0f;
 	for (int32 Step = 0; Step < 72; ++Step)
 	{
 		const float A = 2.0f * PI * Step / 72.0f;
-		const float V = RingAlpha(0.62f * FMath::Cos(A), 0.62f * FMath::Sin(A), 0);
+		const float V = PaintedWarningArt::RingAlpha(0.62f * FMath::Cos(A), 0.62f * FMath::Sin(A), 0);
 		RingMin = FMath::Min(RingMin, V);
 		RingMax = FMath::Max(RingMax, V);
 	}
 	TestTrue(TEXT("ring: broken (gaps far fainter than the arcs)"), RingMin < 0.35f * RingMax);
-	TestTrue(TEXT("ring: soft edge outside the band"), RingAlpha(0.95f, 0.0f, 0) < 0.25f * RingMax);
+	TestTrue(TEXT("ring: soft edge outside the band"), PaintedWarningArt::RingAlpha(0.95f, 0.0f, 0) < 0.25f * RingMax);
 	TestTrue(TEXT("ring: never a solid fill"), RingMax < 0.95f);
-	UTexture2D* StreakTexture = Streak();
-	UTexture2D* Ring = RingSheet();
+	UTexture2D* StreakTexture = PaintedWarningArt::Streak();
+	UTexture2D* Ring = PaintedWarningArt::RingSheet();
 	TestNotNull(TEXT("streak texture builds"), StreakTexture);
 	TestNotNull(TEXT("ring sheet builds"), Ring);
 	if (Ring)
 	{
-		TestEqual(TEXT("ring sheet is one row of frames"), Ring->GetSizeX(), CellSize * Frames);
+		TestEqual(TEXT("ring sheet is one row of frames"), Ring->GetSizeX(), PaintedWarningArt::CellSize * PaintedWarningArt::Frames);
 	}
 	UStaticMeshComponent* Quad = NewObject<UStaticMeshComponent>(GetTransientPackage());
-	TestTrue(TEXT("the streak shows on a VFX sheet quad (textured, not a flat cube)"), VfxSheetVisual::ShowTexture(Quad, StreakTexture) && VfxSheetVisual::HasArt(Quad));
-	TestTrue(TEXT("ring: pulses over the loop"), !FMath::IsNearlyEqual(RingAlpha(0.62f, 0.0f, 0), RingAlpha(0.62f, 0.0f, Frames / 2), 0.02f));
+	VfxSheetVisual::ShowTexture(Quad, StreakTexture);
+	TestTrue(TEXT("the streak shows on a VFX sheet quad (textured, not a flat cube)"), VfxSheetVisual::HasArt(Quad));
+	TestTrue(TEXT("ring: pulses over the loop"), !FMath::IsNearlyEqual(PaintedWarningArt::RingAlpha(0.62f, 0.0f, 0), PaintedWarningArt::RingAlpha(0.62f, 0.0f, PaintedWarningArt::Frames / 2), 0.02f));
 	return true;
 }

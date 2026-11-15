@@ -64,13 +64,13 @@ namespace
 	}
 }
 
-bool VfxSheetVisual::ShowTexture(UStaticMeshComponent* Mesh, UTexture2D* Texture)
+void VfxSheetVisual::ShowTexture(UStaticMeshComponent* Mesh, UTexture2D* Texture)
 {
 	UMaterialInterface* Material = (IsValid(Mesh) && Texture) ? LoadVfxMaterial(VfxSheetMaterialPaths) : nullptr;
 	UStaticMesh* Plane = Material ? LoadObject<UStaticMesh>(nullptr, VfxPlanePath) : nullptr;
 	if (!Plane)
 	{
-		return false;
+		return;
 	}
 	DisableVfxCollision(Mesh);
 	Mesh->SetStaticMesh(Plane);
@@ -81,7 +81,6 @@ bool VfxSheetVisual::ShowTexture(UStaticMeshComponent* Mesh, UTexture2D* Texture
 	Dynamic->SetScalarParameterValue(VfxOpacityParam, 1.0f);
 	Mesh->SetMaterial(0, Dynamic);
 	Mesh->ComponentTags.AddUnique(VfxArtTag);
-	return true;
 }
 
 FRotator VfxSheetVisual::FacingCamera()

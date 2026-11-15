@@ -91,7 +91,8 @@ void AKeeperOfTime::BeginPlay()
 		}
 	}
 	// The warning mark is a painted streak (feathered, tapered, grained), not a flat cube (Josh, Nov 14).
-	bTelegraphPainted = VfxSheetVisual::ShowTexture(TelegraphVisual, PaintedWarningArt::Streak());
+	VfxSheetVisual::ShowTexture(TelegraphVisual, PaintedWarningArt::Streak());
+	bTelegraphPainted = VfxSheetVisual::HasArt(TelegraphVisual);
 }
 
 FVector AKeeperOfTime::ToWorld(const FVector2D& Position) const

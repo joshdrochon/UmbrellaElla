@@ -26,8 +26,8 @@ namespace VfxSheetVisual
 	/** Resize a built visual (beam length, umbra width). */
 	UMBRELLAELLA_API void Resize(UStaticMeshComponent* Visual, const FVector2D& Size);
 
-	/** Turn Mesh into a camera-facing-ready plane showing Texture (one cell) with the VFX sheet material. False when the material or plane is missing. */
-	UMBRELLAELLA_API bool ShowTexture(UStaticMeshComponent* Mesh, UTexture2D* Texture);
+	/** Turn Mesh into a plane showing Texture (one cell) with the VFX sheet material; HasArt(Mesh) tells whether it took (material or plane missing: unchanged). */
+	UMBRELLAELLA_API void ShowTexture(UStaticMeshComponent* Mesh, UTexture2D* Texture);
 
 	/** True when the visual shows the imported sheet, false for the stand-in. */
 	UMBRELLAELLA_API bool HasArt(const UStaticMeshComponent* Visual);
