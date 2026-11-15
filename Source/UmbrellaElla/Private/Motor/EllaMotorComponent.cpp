@@ -169,14 +169,14 @@ void UEllaMotorComponent::StepMotor(float DeltaSeconds)
 	Swept.X = Location.X;
 	Swept.Y = Location.Y;
 	Owner->SetActorLocation(Swept, true);
-	if (!FMath::IsNearlyEqual(Owner->GetActorLocation().X, Location.X, 0.01))
+	if (!FMath::IsNearlyEqual(Owner->GetActorLocation().X, Location.X, UE_KINDA_SMALL_NUMBER))
 	{
 		Model.Velocity.X = 0.0f; // blocked by a solid: no into-wall speed is kept
 	}
 	Swept = Owner->GetActorLocation();
 	Swept.Z = Location.Z;
 	Owner->SetActorLocation(Swept, true);
-	if (!FMath::IsNearlyEqual(Owner->GetActorLocation().Z, Location.Z, 0.01))
+	if (!FMath::IsNearlyEqual(Owner->GetActorLocation().Z, Location.Z, UE_KINDA_SMALL_NUMBER))
 	{
 		Model.Velocity.Y = 0.0f;
 	}
