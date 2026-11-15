@@ -151,6 +151,9 @@ public:
 	/** Cell of a Cols x Rows grid sheet shown at Seconds: walks every cell left to right, row by row, and loops. Pure. */
 	static int32 GridFrameAt(double Seconds, float Fps, int32 Cols, int32 Rows, bool bLoop = true);
 
+	/** True when Ella has health again (a retry or respawn after defeat): the Down picture gives way to Idle. Pure. */
+	static bool IsAliveAgain(float HealthFraction);
+
 	/** True when a state's picture loops (Idle and the states that show the idle art); Hurt and Down play once and hold. Pure. */
 	static bool IsLoopingState(EEllaVisualState State);
 

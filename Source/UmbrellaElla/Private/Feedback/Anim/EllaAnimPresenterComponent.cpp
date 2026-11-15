@@ -270,7 +270,14 @@ void UEllaAnimPresenterComponent::TickComponent(float DeltaTime, ELevelTick Tick
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	TransitionLeft = FMath::Max(0.0f, TransitionLeft - DeltaTime);
 	RepairLeft = FMath::Max(0.0f, RepairLeft - DeltaTime);
-	UpdateOverlays(ReadOverlayInput());
+	const FEllaOverlayInput Input = ReadOverlayInput();
+	UpdateOverlays(Input);
+	// Down is the defeat picture (its clip ends with the umbrella closed and set down beside her). It has no hold time,
+	// so after a checkpoint retry she kept it through the Director's Cut route (Josh, 14 Nov): alive again = Idle.
+	if (VisualState == EEllaVisualState::Down && IsAliveAgain(Input.HealthFraction))
+	{
+		SetVisualState(EEllaVisualState::Idle);
+	}
 	PlayGrid();
 	KeepFigureInFrame();
 	if (StateTimeLeft > 0.0f)
@@ -472,6 +479,11 @@ int32 UEllaAnimPresenterComponent::GridFrameAt(double Seconds, float Fps, int32 
 	const int64 Cells = static_cast<int64>(FMath::Max(1, Cols)) * FMath::Max(1, Rows);
 	const int64 Step = FMath::Max<int64>(0, FMath::FloorToInt64(FMath::Max(0.0, Seconds) * FMath::Max(0.0f, Fps)));
 	return static_cast<int32>(bLoop ? Step % Cells : FMath::Min(Step, Cells - 1));
+}
+
+bool UEllaAnimPresenterComponent::IsAliveAgain(float HealthFraction)
+{
+	return HealthFraction > 0.0f;
 }
 
 bool UEllaAnimPresenterComponent::IsLoopingState(EEllaVisualState State)
