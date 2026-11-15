@@ -265,12 +265,11 @@ void UEncounterDirectorSubsystem::DeliverDamage(FName Source, float Amount) cons
 	Spec.Damage = Amount;
 	Spec.SourceId = Source;
 	Spec.Origin = Player->GetActorLocation();
-	if (IUmbrellaShotReceiver* Receiver = Cast<IUmbrellaShotReceiver>(Player))
+	// Highest shot priority first, as projectiles do (an open umbrella's Absorb answers before health).
+	TArray<IUmbrellaShotReceiver*> Receivers;
+	if (IUmbrellaShotReceiver* OnActor = Cast<IUmbrellaShotReceiver>(Player))
 	{
-		if (Receiver->ReceiveShot(Spec, Player->GetActorLocation()) == EUmbrellaShotResult::Consumed)
-		{
-			return;
-		}
+		Receivers.Add(OnActor);
 	}
 	TArray<UActorComponent*> Components;
 	Player->GetComponents(Components);
@@ -278,10 +277,18 @@ void UEncounterDirectorSubsystem::DeliverDamage(FName Source, float Amount) cons
 	{
 		if (IUmbrellaShotReceiver* Receiver = Cast<IUmbrellaShotReceiver>(Component))
 		{
-			if (Receiver->ReceiveShot(Spec, Player->GetActorLocation()) == EUmbrellaShotResult::Consumed)
-			{
-				return;
-			}
+			Receivers.Add(Receiver);
+		}
+	}
+	Receivers.StableSort([](const IUmbrellaShotReceiver& A, const IUmbrellaShotReceiver& B)
+	{
+		return A.GetShotPriority() > B.GetShotPriority();
+	});
+	for (IUmbrellaShotReceiver* Receiver : Receivers)
+	{
+		if (Receiver->ReceiveShot(Spec, Player->GetActorLocation()) == EUmbrellaShotResult::Consumed)
+		{
+			return;
 		}
 	}
 }

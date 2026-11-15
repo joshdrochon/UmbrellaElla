@@ -12,6 +12,8 @@
 #include "Motor/MotorModel.h"
 #include "Owl/KeeperOfTime.h"
 #include "Owl/KeeperLook.h"
+#include "Defense/AbsorbReceiverComponent.h"
+#include "Health/UmbrellaHealthComponent.h"
 #include "Feedback/Vfx/VfxSheetVisual.h"
 #include "Feedback/Vfx/PaintedWarningArt.h"
 #include "Engine/Texture2D.h"
@@ -590,5 +592,137 @@ bool FKeeperPaintedWarningArt::RunTest(const FString& Parameters)
 	VfxSheetVisual::ShowTexture(Quad, StreakTexture);
 	TestTrue(TEXT("the streak shows on a VFX sheet quad (textured, not a flat cube)"), VfxSheetVisual::HasArt(Quad));
 	TestTrue(TEXT("ring: pulses over the loop"), !FMath::IsNearlyEqual(PaintedWarningArt::RingAlpha(0.62f, 0.0f, 0), PaintedWarningArt::RingAlpha(0.62f, 0.0f, PaintedWarningArt::Frames / 2), 0.02f));
+	return true;
+}
+
+namespace
+{
+	bool IsCastWarning(const FKeeperFightModel& Model)
+	{
+		const EKeeperPhysical P = Model.GetPhysical();
+		return Model.GetStage() == EKeeperStage::Warning
+			&& (P == EKeeperPhysical::FrontCast || P == EKeeperPhysical::MiddleCurve || P == EKeeperPhysical::RearTwoStage);
+	}
+
+	/** Steps until a chain-cast warning starts; returns false when none came in Seconds. */
+	bool StepToCastWarning(FKeeperWorld& W, float Seconds)
+	{
+		for (float Time = 0.0f; Time < Seconds; Time += 0.05f)
+		{
+			W.Director->AdvanceFight(0.05f);
+			if (IsCastWarning(W.Director->GetModel()))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/** Steps through the current cast (warning and strokes) until it is harmless again. */
+	void StepThroughCast(FKeeperWorld& W)
+	{
+		for (float Time = 0.0f; Time < 6.0f; Time += 0.05f)
+		{
+			W.Director->AdvanceFight(0.05f);
+			const EKeeperStage Stage = W.Director->GetModel().GetStage();
+			if (Stage == EKeeperStage::Recovery || Stage == EKeeperStage::Idle)
+			{
+				return;
+			}
+		}
+	}
+
+	/** A spot in the left half of the play space at mid height, inside the chain's reach of the mechanisms. */
+	FVector CastTargetSpot(const FKeeperWorld& W)
+	{
+		const FVector2D Home = W.Director->GetModel().GetLockStart();
+		const FVector2D Anchor = W.Director->GetKeeper() ? FVector2D(W.Director->GetKeeper()->GetActorLocation().X, W.Director->GetKeeper()->GetActorLocation().Z) : Home;
+		return FVector(Anchor.X - 600.0f, 0.0f, Anchor.Y - 150.0f);
+	}
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FKeeperWorldCastAimsAtElla, "UmbrellaElla.Keeper.World.ChainCastAimsAtEllaAndADodgeMisses", WorldFlags)
+bool FKeeperWorldCastAimsAtElla::RunTest(const FString& Parameters)
+{
+	// Josh, 14 Nov: the chain cast aims at Ella, locked when its warning starts; moving away during the warning dodges it.
+	const FKeeperTuning& T = GetDefault<UUmbrellaTuning>()->Keeper;
+	for (const bool bDodge : {false, true})
+	{
+		FKeeperWorld W;
+		AddExpectedError(TEXT("no arena in the world"), EAutomationExpectedErrorFlags::Contains, 0);
+		W.Director->BeginKeeperFightAtPhase(EKeeperPhase::Mechanisms);
+		W.Ella->SetActorLocation(CastTargetSpot(W));
+		int32 ChainHits = 0;
+		W.Director->OnDamageDelivered().AddLambda([&ChainHits](FName Source, float)
+		{
+			ChainHits += UmbrellaSourceIds::IsChainCast(Source) ? 1 : 0;
+		});
+		if (!TestTrue(TEXT("a chain-cast warning starts"), StepToCastWarning(W, 20.0f)))
+		{
+			return false;
+		}
+		const FKeeperFightModel& Model = W.Director->GetModel();
+		const FVector2D Start = Model.GetLockStart();
+		const FVector2D EllaXZ(W.Ella->GetActorLocation().X, W.Ella->GetActorLocation().Z);
+		const float Degrees = FMath::RadiansToDegrees(FMath::Acos(FMath::Clamp(FVector2D::DotProduct(
+			(Model.GetLockEnd() - Start).GetSafeNormal(), (EllaXZ - Start).GetSafeNormal()), -1.0f, 1.0f)));
+		TestTrue(*FString::Printf(TEXT("the warning aims at Ella (%.2f deg)"), Degrees), Degrees < 2.0f);
+		if (bDodge)
+		{
+			// Leave the locked line during the warning: well clear of the head's width.
+			W.Ella->SetActorLocation(W.Ella->GetActorLocation() + FVector(0.0f, 0.0f, 4.0f * (T.ChainHeadWidth + 28.0f)));
+		}
+		StepThroughCast(W);
+		const FVector2D EndNow = Model.GetLockEnd();
+		if (bDodge)
+		{
+			TestEqual(TEXT("moving away during the warning dodges the cast"), ChainHits, 0);
+			TestTrue(TEXT("the cast kept its locked aim (no re-aim)"), FMath::Abs(FMath::RadiansToDegrees(FMath::Acos(FMath::Clamp(FVector2D::DotProduct(
+				(EndNow - Start).GetSafeNormal(), (EllaXZ - Start).GetSafeNormal()), -1.0f, 1.0f)))) < 2.0f);
+		}
+		else
+		{
+			TestEqual(TEXT("staying on the line is hit once"), ChainHits, 1);
+		}
+	}
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FKeeperWorldAbsorbBlocksCast, "UmbrellaElla.Keeper.World.AbsorbBlocksTheChainCast", WorldFlags)
+bool FKeeperWorldAbsorbBlocksCast::RunTest(const FString& Parameters)
+{
+	// Josh, 14 Nov: Ella's other way out of a chain cast is her shield: holding Absorb when it lands takes no damage.
+	for (const bool bAbsorb : {true, false})
+	{
+		FKeeperWorld W;
+		AddExpectedError(TEXT("no arena in the world"), EAutomationExpectedErrorFlags::Contains, 0);
+		UUmbrellaHealthComponent* Health = NewObject<UUmbrellaHealthComponent>(W.Ella, TEXT("Health"));
+		UAbsorbReceiverComponent* Absorb = NewObject<UAbsorbReceiverComponent>(W.Ella, TEXT("Absorb"));
+		Health->RegisterComponent();
+		Absorb->RegisterComponent();
+		W.Director->BeginKeeperFightAtPhase(EKeeperPhase::Mechanisms);
+		W.Ella->SetActorLocation(CastTargetSpot(W));
+		if (!TestTrue(TEXT("a chain-cast warning starts"), StepToCastWarning(W, 20.0f)))
+		{
+			return false;
+		}
+		Absorb->SetPose(bAbsorb ? EAbsorbPose::AbsorbFall : EAbsorbPose::Closed);
+		const float Before = Health->GetState().Active;
+		int32 ChainHits = 0;
+		W.Director->OnDamageDelivered().AddLambda([&ChainHits](FName Source, float)
+		{
+			ChainHits += UmbrellaSourceIds::IsChainCast(Source) ? 1 : 0;
+		});
+		StepThroughCast(W);
+		TestEqual(TEXT("the cast reached Ella"), ChainHits, 1);
+		if (bAbsorb)
+		{
+			TestEqual(TEXT("holding Absorb: no damage"), Health->GetState().Active, Before);
+		}
+		else
+		{
+			TestTrue(TEXT("without Absorb the cast hurts"), Health->GetState().Active < Before);
+		}
+	}
 	return true;
 }

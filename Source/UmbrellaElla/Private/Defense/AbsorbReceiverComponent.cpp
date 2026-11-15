@@ -1,4 +1,5 @@
 #include "Defense/AbsorbReceiverComponent.h"
+#include "Core/UmbrellaSourceIds.h"
 #include "Core/UmbrellaEventBus.h"
 #include "GameFramework/Actor.h"
 #include "Harness/UmbrellaFeatureFlags.h"
@@ -75,6 +76,11 @@ EUmbrellaShotResult UAbsorbReceiverComponent::ReceiveShot(const FUmbrellaShotSpe
 		return EUmbrellaShotResult::Ignored;
 	}
 	Broadcast(EUmbrellaEventType::CatchAttempt, Shot.SourceId, AbsorbFallDetail, Shot.Damage);
+	if (UmbrellaSourceIds::IsChainCast(Shot.SourceId))
+	{
+		// D-new-chain-absorb (Josh, 14 Nov): the open umbrella stops a chain cast's head; no damage, no heal.
+		return EUmbrellaShotResult::Consumed;
+	}
 	if (Shot.Kind == EUmbrellaShotKind::EnemyRed)
 	{
 		Broadcast(EUmbrellaEventType::CatchFailed, Shot.SourceId, RedDetail, Shot.Damage);

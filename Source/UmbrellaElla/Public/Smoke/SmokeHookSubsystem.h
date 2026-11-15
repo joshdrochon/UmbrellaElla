@@ -123,6 +123,8 @@ private:
 	bool IsKeeperMomentNow() const;
 	/** -SmokeHoldNearClaw: keep Ella inside the talon's reach (workbench builds only). */
 	void HoldEllaNearClaw(class AUmbrellaPlayerController* Flow) const;
+	/** -SmokeHoldEllaAt=<x>,<z>: hold Ella at that arena fraction (0..1, left/bottom = 0) until the shot (workbench builds only). */
+	void HoldEllaAt(class AUmbrellaPlayerController* Flow) const;
 	/** -SmokeKeeperBreakWings: once the opening phase transition lets damage in, break the wings (workbench builds only). */
 	void BreakKeeperWings() const;
 	/** At the shot: SMOKE_KEEPER phase, physical move and stage. */
@@ -160,6 +162,7 @@ private:
 	bool bSceneApplied = false;
 	bool bShotReadyLogged = false;
 	FString ShotWhen;
+	FString HoldEllaAtSpec;
 	/** Consecutive frames the -SmokeShotWhen moment has held, and how many it must hold (-SmokeShotMomentFrames, default 1). */
 	int32 MomentFrames = 0;
 	int32 ShotMomentFrames = 1;

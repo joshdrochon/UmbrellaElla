@@ -14,3 +14,7 @@ Never: change approved art, touch Josh's game or the main checkout, add to appro
   Hit areas and timing unchanged (presentation only).
 - Feedback/Vfx (`VfxSheetVisual.cpp`): the VFX_KeeperWarning sheet loads the painted ring (`PaintedWarningArt::RingSheet`)
   in place of the placeholder; the catalog row (size, frames, fps, light) is unchanged. New `VfxSheetVisual::ShowTexture`.
+- Defense (`AbsorbReceiverComponent.cpp`) and Encounter (`EncounterDirectorSubsystem.cpp` DeliverDamage), D-new-chain-absorb:
+  holding Absorb blocks a chain cast; the Director asks Ella's shot receivers in priority order (Absorb first).
+- Smoke (`SmokeHookSubsystem`, workbench only): `-SmokeHoldEllaAt=<x>,<z>` holds Ella at an arena fraction (full life
+  kept) and the shot logs `SMOKE_AIM` (cast start, end, Ella, angle). `FKeeperFightModel::GetLockStart/GetLockEnd`.

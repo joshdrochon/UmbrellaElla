@@ -199,6 +199,9 @@ public:
 	FVector2D GetHeadPosition() const { return HeadPos; }
 	bool IsHeadHurting() const;
 	FVector2D GetGustFront() const { return GustFront; }
+	/** Where the current physical move started and where it aims (talon reach end, chain end), locked at its warning. */
+	FVector2D GetLockStart() const { return LockStart; }
+	FVector2D GetLockEnd() const { return LockEnd; }
 	float GetGustBandZ() const { return GustBandZ; }
 	bool IsGustTravelling() const { return Physical == EKeeperPhysical::Gust && Stage == EKeeperStage::Stroke; }
 	bool IsPhysicalThreatening() const;
