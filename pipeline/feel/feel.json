@@ -79,7 +79,9 @@
       39
     ],
     "hits": "every receiver along the box once, when it fires (Keeper parts, enemies); a solid blocker ends it",
-    "look": "painted soft-edged ribbon, warm ivory core to brass to ash (Ricky's Other Realm study palette), no neon; thins out over its life"
+    "look": "painted soft-edged ribbon in the game's shot red (style.json shot-red: CORAL #ff7848 core, RED #ff3658, RED SHADOW #8f173c edge), no neon; thins out over its life (Josh 14 Nov: red and thinner; the first beam was ivory/brass/ash)",
+    "visual_width_share": 0.8,
+    "look_constants": "AimedRibbonLook in Source/UmbrellaElla/Public/Attack/AimedBeamActor.h (colours) and AAimedBeamActor::VisualWidthScale (drawn thickness / hitbox width)"
   },
   "threat_spacing": {
     "owner": "Game Designer proposes, game design owner accepts",

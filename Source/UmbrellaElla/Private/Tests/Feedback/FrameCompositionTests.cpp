@@ -273,19 +273,13 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFrameCompositionKeeperBackdrop, "UmbrellaElla.
 
 bool FFrameCompositionKeeperBackdrop::RunTest(const FString& Parameters)
 {
-	// levelchunks 16:14: at the Director's Cut Keeper handoff the route-end picture stopped at the route end, so the left
-	// ~40% of the fight screen showed it and the rest a different backdrop. The picture must cover the whole fight frame.
-	FSceneArtSpec RouteEnd;
+	// levelchunks 16:14: the Keeper fight frame must show one continuous backdrop. Josh, 14 Nov: no barn picture on the DC
+	// route at all (it read as the Start Game screen, and its edge cut the layers off before the fight). The layered
+	// backdrop alone covers the widest fight frame.
 	for (const FSceneArtSpec& Spec : USceneArtSubsystem::Specs())
 	{
-		if (Spec.Anchor == ESceneArtAnchor::RouteEnd)
-		{
-			RouteEnd = Spec;
-		}
-	}
-	if (!TestTrue(TEXT("route end spec"), RouteEnd.Anchor == ESceneArtAnchor::RouteEnd))
-	{
-		return false;
+		TestFalse(TEXT("no route-end picture"), Spec.Anchor == ESceneArtAnchor::RouteEnd);
+		TestTrue(TEXT("nothing anchored to the route ends shows in Director's Cut"), Spec.Anchor != ESceneArtAnchor::RouteStart || !USceneArtSubsystem::IsShownInDirectorsCut(Spec));
 	}
 	FUmbrellaTestWorld Test;
 	UFrameCompositionSubsystem* Frame = Test.GetWorld()->GetSubsystem<UFrameCompositionSubsystem>();
@@ -297,46 +291,21 @@ bool FFrameCompositionKeeperBackdrop::RunTest(const FString& Parameters)
 	}
 	UCameraComponent* Camera = Arena->GetPlayCamera();
 	const FArenaCameraTuning& T = GetDefault<UUmbrellaTuning>()->ArenaCamera;
-	// Widest view: the largest hero with the smallest hitbox gets the biggest camera margin.
 	Ella->SetActorScale3D(Ella->GetActorScale3D() * 1.3f);
 	Ella->GetCapsuleComponent()->SetCapsuleHalfHeight(Ella->GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight() * 0.75f);
 	Arena->MovePlayArea(LevelPlan::KeeperArenaOrigin());
-	Frame->ApplyCameraMargin(Arena, Ella, EFrameTitleBand::Shown);   // Director's Cut: the title band widens the view most
+	Frame->ApplyCameraMargin(Arena, Ella, EFrameTitleBand::Shown);
 	const FVector View = Camera->GetComponentLocation();
 	const float HalfViewW = Camera->OrthoWidth * 0.5f;
 	const float HalfViewH = Camera->OrthoWidth / T.CameraAspectRatio * 0.5f;
-	const FVector2D Size = USceneArtSubsystem::PanelSize(RouteEnd) * USceneArtSubsystem::ViewScale(Camera->OrthoWidth);
-	const float PanelX = USceneArtSubsystem::PanelX(RouteEnd, static_cast<float>(View.X));
-	const float PanelZ = T.ArenaHeight * 0.5f;
-	TestTrue(TEXT("route end picture reaches the fight frame's left edge"), PanelX - Size.X * 0.5f <= View.X - HalfViewW);
-	TestTrue(TEXT("route end picture reaches the fight frame's right edge"), PanelX + Size.X * 0.5f >= View.X + HalfViewW);
-	TestTrue(TEXT("route end picture reaches the fight frame's top"), PanelZ + Size.Y * 0.5f >= View.Z + HalfViewH);
-	TestTrue(TEXT("route end picture reaches the fight frame's bottom"), PanelZ - Size.Y * 0.5f <= View.Z - HalfViewH);
-	// The drawn route-end panel (bounds of its picture plane) covers the widened fight frame too.
-	if (USceneArtSubsystem* Scene = Test.GetWorld()->GetSubsystem<USceneArtSubsystem>())
+	for (const FBackdropLayerSpec& Spec : UUmbrellaBackdropSubsystem::LayerSpecs())
 	{
-		if (Scene->PanelCount(TEXT("bg:start-end")) == 0)
-		{
-			Scene->ShowArt(TEXT("bg:start-end"), UTexture2D::CreateTransient(8, 8, PF_B8G8R8A8));
-		}
-		Scene->ScrollTo(static_cast<float>(View.X), Camera->OrthoWidth);
-		const UStaticMeshComponent* EndPanel = Scene->FindPanel(TEXT("bg:start-end"), 1);
-		if (TestNotNull(TEXT("route end panel"), EndPanel))
-		{
-			TestTrue(TEXT("drawn route-end picture is wide enough"), EndPanel->Bounds.BoxExtent.X >= HalfViewW - 0.5f);
-			TestTrue(TEXT("drawn route-end picture is tall enough"), EndPanel->Bounds.BoxExtent.Z >= HalfViewH - 0.5f);
-		}
-		// r04 capture: at the route start the start picture (arena-sized) left a dark edge inside the widened view.
-		const UStaticMeshComponent* StartPanel = Scene->FindPanel(TEXT("bg:start-end"), 0);
-		if (TestNotNull(TEXT("route start panel"), StartPanel))
-		{
-			TestTrue(TEXT("drawn route-start picture is wide enough"), StartPanel->Bounds.BoxExtent.X >= HalfViewW - 0.5f);
-			TestTrue(TEXT("drawn route-start picture is tall enough"), StartPanel->Bounds.BoxExtent.Z >= HalfViewH - 0.5f);
-		}
+		const FBox2D Box = UUmbrellaBackdropSubsystem::LayerFootprint(static_cast<float>(View.X), Spec.Parallax);
+		const FString Name = Spec.Name.ToString();
+		TestTrue(*FString::Printf(TEXT("%s covers the fight frame's left"), *Name), Box.Min.X <= View.X - HalfViewW);
+		TestTrue(*FString::Printf(TEXT("%s covers the fight frame's right"), *Name), Box.Max.X >= View.X + HalfViewW);
+		TestTrue(*FString::Printf(TEXT("%s covers the fight frame's height"), *Name), Box.GetSize().Y >= 2.0f * HalfViewH);
 	}
-	// Break check: the old placement (last arena width of the route) leaves the right of the fight frame uncovered.
-	const float OldRight = LevelCatalogue::RouteLength();
-	TestTrue(TEXT("old placement stopped inside the fight frame (break check)"), OldRight < View.X + HalfViewW);
 	return true;
 }
 

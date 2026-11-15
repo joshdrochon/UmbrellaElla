@@ -147,6 +147,7 @@ inline const TArray<FUmbrellaSoundCue>& Rows()
 		{TEXT("StoryAdvance"), EUmbrellaEventType::Count, EUmbrellaCueMatch::Any, TEXT(""), EUmbrellaCueClass::UI, TEXT("SCON_UI"), false, 1, 0.00f, TEXT("")},
 		{TEXT("SceneTransition"), EUmbrellaEventType::Count, EUmbrellaCueMatch::Any, TEXT(""), EUmbrellaCueClass::UI, TEXT("SCON_UI"), false, 1, 0.00f, TEXT("")},
 		{TEXT("MusicTitle"), EUmbrellaEventType::Count, EUmbrellaCueMatch::Any, TEXT(""), EUmbrellaCueClass::Music, TEXT(""), true, 1, 0.00f, TEXT("")},
+		{TEXT("MusicRoute"), EUmbrellaEventType::Count, EUmbrellaCueMatch::Any, TEXT(""), EUmbrellaCueClass::Music, TEXT(""), true, 1, 0.00f, TEXT("")},
 		{TEXT("MusicIntro"), EUmbrellaEventType::Count, EUmbrellaCueMatch::Any, TEXT(""), EUmbrellaCueClass::Music, TEXT(""), true, 1, 0.00f, TEXT("")},
 		{TEXT("MusicContest"), EUmbrellaEventType::PhaseStarted, EUmbrellaCueMatch::Detail, TEXT("wings"), EUmbrellaCueClass::Music, TEXT(""), true, 1, 0.00f, TEXT("")},
 		{TEXT("MusicContest"), EUmbrellaEventType::PhaseStarted, EUmbrellaCueMatch::Detail, TEXT("mechanisms"), EUmbrellaCueClass::Music, TEXT(""), true, 1, 0.00f, TEXT("")},

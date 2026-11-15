@@ -558,7 +558,9 @@ void AUmbrellaPlayerController::PlayFlowMusic(EFlowScreen To)
 	{
 		return;
 	}
-	const FName Music = FFlowRules::MusicFor(To);
+	const UEncounterDirectorSubsystem* Encounter = GetWorld()->GetSubsystem<UEncounterDirectorSubsystem>();
+	const bool bKeeperFight = Encounter && Encounter->GetState() == EEncounterState::Active;
+	const FName Music = FFlowRules::MusicFor(To, PlayMode, bKeeperFight);
 	if (To == EFlowScreen::Story && IsFeatureEnabled(EFeatureId::FLOW_04))
 	{
 		// FLOW-04: the win sting and the story text play without the run's music; credits bring it back.
