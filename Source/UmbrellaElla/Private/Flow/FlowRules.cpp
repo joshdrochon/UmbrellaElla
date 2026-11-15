@@ -195,6 +195,17 @@ FName FFlowRules::MusicFor(EFlowScreen Screen)
 	return Screen == EFlowScreen::Title || Screen == EFlowScreen::Credits ? FName(TEXT("MusicTitle")) : NAME_None;
 }
 
+FName FFlowRules::MusicFor(EFlowScreen Screen, EUmbrellaPlayMode Mode, bool bKeeperFight)
+{
+	// Josh, 14 Nov: the Director's Cut route played the title music. MusicRoute (Ricky, ElevenLabs Music) from the route
+	// start; the Keeper's phase music cross-fades in at the fight (UmbrellaCueData PhaseStarted rows).
+	if (Screen == EFlowScreen::Playing && Mode == EUmbrellaPlayMode::DirectorsCut && !bKeeperFight)
+	{
+		return FName(TEXT("MusicRoute"));
+	}
+	return MusicFor(Screen);
+}
+
 bool FFlowRules::IsTimelineDone(float Elapsed, float Duration)
 {
 	return Elapsed >= Duration;

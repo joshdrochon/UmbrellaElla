@@ -913,6 +913,39 @@
           4
         ]
       }
+    },
+    "music_route": {
+      "members": [
+        "MusicRoute"
+      ],
+      "character": "Director's Cut route, from the route start to the Keeper. In-game travelling music under play: steady, mysterious, more motion than the title, not the boss threat (supplied by Ricky, ElevenLabs Music, 14 Nov).",
+      "instruments": "as supplied (Ricky's ElevenLabs Music track)",
+      "register": "as supplied",
+      "reverb": "as supplied",
+      "prompt": "supplied file (Ricky, ElevenLabs Music API, 14 Nov): no generation prompt kept in this repo",
+      "seconds": 40,
+      "ranges": {
+        "lufs": [
+          -28,
+          -18
+        ],
+        "centroid_hz": [
+          300,
+          3000
+        ],
+        "crest_db": [
+          10,
+          26
+        ],
+        "lra_db": [
+          2,
+          16
+        ],
+        "seconds": [
+          16,
+          180
+        ]
+      }
     }
   },
   "loop": {
