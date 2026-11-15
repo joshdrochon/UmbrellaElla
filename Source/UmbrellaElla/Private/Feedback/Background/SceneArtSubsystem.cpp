@@ -13,6 +13,7 @@
 #include "Harness/UmbrellaFeatureFlags.h"
 #include "Level/LevelCatalogue.h"
 #include "Level/LevelPlan.h"
+#include "Flow/UmbrellaPlayerController.h"
 #include "Materials/MaterialInstanceDynamic.h"
 
 namespace
@@ -42,8 +43,10 @@ TArray<FSceneArtSpec> USceneArtSubsystem::Specs()
 	Out.Add({ TEXT("bg:land"), UmbrellaDrawOrder::BackgroundFarY + UmbrellaSceneArtConst::LandStep, UmbrellaBackdropConst::FarParallax, ESceneArtAnchor::Layer });
 	Out.Add({ TEXT("bg:water"), UmbrellaDrawOrder::BackgroundFarY + UmbrellaSceneArtConst::WaterStep, UmbrellaBackdropConst::FarParallax, ESceneArtAnchor::Layer });
 	Out.Add({ TEXT("bg:clocks"), UmbrellaDrawOrder::BackgroundNearY + UmbrellaSceneArtConst::ClocksStep, UmbrellaBackdropConst::NearParallax, ESceneArtAnchor::Layer });
+	// The barn picture is the Start Game screen's backdrop (the arena sits at the route start). Josh, 14 Nov: not on the
+	// Director's Cut route (it read as the Start Game screen, and its end copy cut the layers off before the Keeper fight):
+	// no route-end copy, and the start copy hides in Director's Cut (IsShownInDirectorsCut).
 	Out.Add({ TEXT("bg:start-end"), UmbrellaDrawOrder::BackgroundNearY + UmbrellaSceneArtConst::StartEndStep, 1.0f, ESceneArtAnchor::RouteStart });
-	Out.Add({ TEXT("bg:start-end"), UmbrellaDrawOrder::BackgroundNearY + UmbrellaSceneArtConst::StartEndStep, 1.0f, ESceneArtAnchor::RouteEnd });
 	Out.Add({ TEXT("scene:gameplay-frame"), UmbrellaDrawOrder::ForegroundY + UmbrellaSceneArtConst::FrameLift, 0.0f, ESceneArtAnchor::View });
 	return Out;
 }
@@ -274,6 +277,22 @@ void USceneArtSubsystem::HandlePostActorTick(UWorld* InWorld, ELevelTick TickTyp
 		const float OrthoWidth = View.ProjectionMode == ECameraProjectionMode::Orthographic ? View.OrthoWidth : 0.0f;
 		ScrollTo(static_cast<float>(Controller->PlayerCameraManager->GetCameraLocation().X), OrthoWidth);
 	}
+	const AUmbrellaPlayerController* Flow = Cast<AUmbrellaPlayerController>(Controller);
+	const bool bDirectorsCut = Flow && Flow->GetPlayMode() == EUmbrellaPlayMode::DirectorsCut;
+	for (FPanel& Entry : Panels)
+	{
+		AActor* Actor = Entry.Actor.Get();
+		const bool bHide = bDirectorsCut && !IsShownInDirectorsCut(Entry.Spec);
+		if (Actor && Actor->IsHidden() != bHide)
+		{
+			Actor->SetActorHiddenInGame(bHide);
+		}
+	}
+}
+
+bool USceneArtSubsystem::IsShownInDirectorsCut(const FSceneArtSpec& Spec)
+{
+	return Spec.Anchor != ESceneArtAnchor::RouteStart && Spec.Anchor != ESceneArtAnchor::RouteEnd;
 }
 
 TStatId USceneArtSubsystem::GetStatId() const

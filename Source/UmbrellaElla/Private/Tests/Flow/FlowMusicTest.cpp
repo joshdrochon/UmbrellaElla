@@ -8,6 +8,7 @@
 #include "Engine/Engine.h"
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
+#include "Sound/SoundWave.h"
 #include "Feedback/Audio/UmbrellaCueSubsystem.h"
 #include "Flow/FlowRules.h"
 #include "Flow/UmbrellaPlayerController.h"
@@ -121,6 +122,18 @@ bool FFlowMusicTitleTest::RunTest(const FString& Parameters)
 	TestEqual(TEXT("rule: Start and credits play the title track"), FFlowRules::MusicFor(EFlowScreen::Title), FlowMusicTitleId);
 	TestEqual(TEXT("rule: credits share it"), FFlowRules::MusicFor(EFlowScreen::Credits), FlowMusicTitleId);
 	TestTrue(TEXT("rule: gameplay leaves music as it is"), FFlowRules::MusicFor(EFlowScreen::Playing).IsNone());
+	// Josh, 14 Nov: the Director's Cut route plays MusicRoute, not MusicTitle; the Keeper fight keeps its own music.
+	TestEqual(TEXT("rule: the Director's Cut route plays MusicRoute"), FFlowRules::MusicFor(EFlowScreen::Playing, EUmbrellaPlayMode::DirectorsCut, false), FName(TEXT("MusicRoute")));
+	TestTrue(TEXT("rule: the Director's Cut route never plays MusicTitle"), FFlowRules::MusicFor(EFlowScreen::Playing, EUmbrellaPlayMode::DirectorsCut, false) != FlowMusicTitleId);
+	TestTrue(TEXT("rule: at the Keeper the fight music stays"), FFlowRules::MusicFor(EFlowScreen::Playing, EUmbrellaPlayMode::DirectorsCut, true).IsNone());
+	TestTrue(TEXT("rule: Start Game play unchanged"), FFlowRules::MusicFor(EFlowScreen::Playing, EUmbrellaPlayMode::StartGame, false).IsNone());
+	TestEqual(TEXT("rule: Title keeps MusicTitle in any mode"), FFlowRules::MusicFor(EFlowScreen::Title, EUmbrellaPlayMode::DirectorsCut, false), FlowMusicTitleId);
+	TestEqual(TEXT("rule: Credits keep MusicTitle"), FFlowRules::MusicFor(EFlowScreen::Credits, EUmbrellaPlayMode::DirectorsCut, false), FlowMusicTitleId);
+	const USoundWave* Route = LoadObject<USoundWave>(nullptr, TEXT("/Game/UmbrellaElla/Audio/MusicRoute/SW_MusicRoute_00.SW_MusicRoute_00"));
+	if (TestNotNull(TEXT("MusicRoute's take is imported"), Route))
+	{
+		TestTrue(TEXT("MusicRoute loops"), Route->bLooping != 0);
+	}
 
 	FFlowMusicWorld Test;
 	TestEqual(TEXT("the Start screen is up"), Test.Controller->GetScreen(), EFlowScreen::Title);

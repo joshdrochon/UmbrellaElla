@@ -39,8 +39,8 @@ protection are separate (MOVE-15).
 - The bottom is lethal; supports and solid land are harmless (WIND-03). Rising past the ceiling top is death too (D-new-ceiling-lethal).
 
 ## Keeper phases (GDD SH1.0 OWL-06..OWL-35; owner: Encounter Director)
-Wings, then the three hanging mechanisms front → middle → rear, then the clock; a checkpoint at each phase start. Death retries
-the current phase with full active health and exactly 3 current lives. Success happens once at the final clock hit; the Keeper
+Wings, then the three hanging mechanisms front → middle → rear, then the clock; a checkpoint at each phase start. Death and Retry restart
+the encounter from its beginning with full health and exactly 3 current lives (D-new-retry-reload). Success happens once at the final clock hit; the Keeper
 withdraws alive in about 2.5 s. Same-frame defeat versus final clock hit is OPEN: default, defeat wins (one terminal event).
 Attacks, numbers and breaks: the `GDD-SH1.0` preset in `pipeline/level/encounter.json` (`pipeline/level/encounter.md`).
 

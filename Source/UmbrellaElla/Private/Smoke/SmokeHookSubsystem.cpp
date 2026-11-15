@@ -446,6 +446,17 @@ void USmokeHookSubsystem::Tick(float DeltaTime)
 		ApplySceneSwitches();
 	}
 #if UMBRELLAELLA_WORKBENCH
+	// -SmokeDown: put Ella in Down once, alive (the Director's Cut retry case): the shot shows what she draws after it.
+	if (!bSmokeDownSet && FParse::Param(FCommandLine::Get(), TEXT("SmokeDown")))
+	{
+		const AEllaCharacter* Downed = Flow ? Cast<AEllaCharacter>(Flow->GetPawn()) : nullptr;
+		if (UEllaAnimPresenterComponent* Look = Downed ? Downed->GetAnimPresenter() : nullptr)
+		{
+			bSmokeDownSet = true;
+			Look->SetVisualState(EEllaVisualState::Down);
+			UE_LOG(LogUmbrellaElla, Log, TEXT("SMOKE_SCENE down=1"));
+		}
+	}
 	// -SmokeHurt: hold Ella in her Hurt look (what a hit shows) so the shot captures it.
 	if (FParse::Param(FCommandLine::Get(), TEXT("SmokeHurt")))
 	{
