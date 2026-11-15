@@ -61,10 +61,10 @@ bool FMoveWorldRiseTest::RunTest(const FString& Parameters)
 			return false;
 		}
 		Test.TickSeconds(1.0f, Delta);
-		TestEqual(TEXT("rises 120 in 1 s"), static_cast<float>(Ella->GetActorLocation().Z), 120.0f, 0.5f);
+		TestEqual(TEXT("rises 240 in 1 s (D-new-move-speeds)"), static_cast<float>(Ella->GetActorLocation().Z), 240.0f, 0.5f);
 		TestEqual(TEXT("no sideways drift"), static_cast<float>(Ella->GetActorLocation().X), 0.0f, 0.001f);
 		TestEqual(TEXT("overhead state"), Ella->GetUmbrellaState()->GetAction(), EUmbrellaAction::Rise);
-		TestEqual(TEXT("velocity up"), static_cast<float>(Ella->GetMotor()->GetVelocity().Z), 120.0f, 0.01f);
+		TestEqual(TEXT("velocity up"), static_cast<float>(Ella->GetMotor()->GetVelocity().Z), 240.0f, 0.01f);
 		TestEqual(TEXT("no shots while rising"), Ella->GetAttack()->GetShotsFired(), 0);
 	}
 	return true;
@@ -88,7 +88,7 @@ bool FMoveWorldShootFallTest::RunTest(const FString& Parameters)
 		Test.TickSeconds(1.0f, Delta);
 		const int32 Fired = Ella->GetAttack()->GetShotsFired();
 		TestTrue(FString::Printf(TEXT("about 5 shots in 1 s of shoot-fall at delta %f, got %d"), Delta, Fired), Fired >= 5 && Fired <= 6);
-		TestEqual(TEXT("shoot-fall velocity"), static_cast<float>(Ella->GetMotor()->GetVelocity().Z), -330.0f, 0.01f);
+		TestEqual(TEXT("shoot-fall velocity"), static_cast<float>(Ella->GetMotor()->GetVelocity().Z), -660.0f, 0.01f);
 		TestEqual(TEXT("every shot became a projectile"), Test.CountActors<AUmbrellaProjectile>(), Fired);
 		for (TActorIterator<AUmbrellaProjectile> It(Test.GetWorld()); It; ++It)
 		{
@@ -124,7 +124,7 @@ bool FMoveWorldAbsorbFallTest::RunTest(const FString& Parameters)
 		Adapter->ApplyPress(EUmbrellaInputAction::Absorb);
 		Test.TickSeconds(1.0f, Delta);
 		TestEqual(TEXT("absorb-fall state"), Ella->GetUmbrellaState()->GetAction(), EUmbrellaAction::AbsorbFall);
-		TestEqual(TEXT("absorb-fall falls 330"), static_cast<float>(Ella->GetActorLocation().Z), -330.0f, 0.5f);
+		TestEqual(TEXT("absorb-fall falls 660"), static_cast<float>(Ella->GetActorLocation().Z), -660.0f, 0.5f);
 		TestEqual(TEXT("absorb-fall does not shoot"), Ella->GetAttack()->GetShotsFired(), 0);
 
 		// Both held: fast free fall, no shooting, no absorbing.
@@ -132,7 +132,7 @@ bool FMoveWorldAbsorbFallTest::RunTest(const FString& Parameters)
 		TestEqual(TEXT("free fall state"), Ella->GetUmbrellaState()->GetAction(), EUmbrellaAction::FreeFall);
 		const double StartZ = Ella->GetActorLocation().Z;
 		Test.TickSeconds(1.0f, Delta);
-		TestEqual(TEXT("free fall falls 610"), static_cast<float>(StartZ - Ella->GetActorLocation().Z), 610.0f, 0.5f);
+		TestEqual(TEXT("free fall falls 1220"), static_cast<float>(StartZ - Ella->GetActorLocation().Z), 1220.0f, 0.5f);
 		TestEqual(TEXT("free fall does not shoot"), Ella->GetAttack()->GetShotsFired(), 0);
 		TestEqual(TEXT("no projectiles"), Test.CountActors<AUmbrellaProjectile>(), 0);
 
@@ -157,10 +157,10 @@ bool FMoveWorldHopDashTest::RunTest(const FString& Parameters)
 			}
 			Ella->GetInputAdapter()->ApplyPress(EUmbrellaInputAction::Hop);
 			Test.TickFrames(1, Delta);
-			TestEqual(TEXT("hop velocity"), static_cast<float>(Ella->GetMotor()->GetVelocity().X), 40.0f / 0.22f, 0.01f);
+			TestEqual(TEXT("hop velocity"), static_cast<float>(Ella->GetMotor()->GetVelocity().X), 80.0f / 0.22f, 0.01f);
 			TestTrue(TEXT("hop protects"), Ella->GetMotor()->IsHopProtected());
 			Test.TickSeconds(0.5f, Delta);
-			TestEqual(TEXT("hop moved 40"), static_cast<float>(Ella->GetActorLocation().X), 40.0f, 0.01f);
+			TestEqual(TEXT("hop moved 80"), static_cast<float>(Ella->GetActorLocation().X), 80.0f, 0.01f);
 			TestFalse(TEXT("protection over"), Ella->GetMotor()->IsHopProtected());
 		}
 		{
@@ -174,10 +174,10 @@ bool FMoveWorldHopDashTest::RunTest(const FString& Parameters)
 			Adapter->ApplyPress(EUmbrellaInputAction::Shoot);
 			Adapter->ApplyPress(EUmbrellaInputAction::DashForward);
 			Test.TickFrames(1, Delta);
-			TestEqual(TEXT("dash velocity"), static_cast<float>(Ella->GetMotor()->GetVelocity().X), 85.0f / 0.16f, 0.01f);
+			TestEqual(TEXT("dash velocity"), static_cast<float>(Ella->GetMotor()->GetVelocity().X), 170.0f / 0.16f, 0.01f);
 			TestFalse(TEXT("dash does not protect"), Ella->GetMotor()->IsHopProtected());
 			Test.TickSeconds(0.5f, Delta);
-			TestEqual(TEXT("dash moved 85"), static_cast<float>(Ella->GetActorLocation().X), 85.0f, 0.01f);
+			TestEqual(TEXT("dash moved 170"), static_cast<float>(Ella->GetActorLocation().X), 170.0f, 0.01f);
 			Adapter->ApplyAxis(EUmbrellaInputAction::MoveX, -1.0f);
 			Adapter->ApplyPress(EUmbrellaInputAction::Hop);
 			Test.TickSeconds(0.5f, Delta);
@@ -207,7 +207,7 @@ bool FMoveWorldWindTest::RunTest(const FString& Parameters)
 		Test.TickSeconds(2.0f, Delta);
 		TestTrue(TEXT("riding"), Ella->GetMotor()->IsRiding());
 		TestTrue(TEXT("carried right"), Ella->GetActorLocation().X > 100.0);
-		TestEqual(TEXT("wind speed"), static_cast<float>(Ella->GetMotor()->GetVelocity().X), 200.0f, 5.0f);
+		TestEqual(TEXT("wind speed"), static_cast<float>(Ella->GetMotor()->GetVelocity().X), 400.0f, 5.0f);
 
 		// Entering a fall disengages the ride.
 		Adapter->ApplyPress(EUmbrellaInputAction::Shoot);
@@ -267,7 +267,7 @@ bool FMoveWorldLiftTest::RunTest(const FString& Parameters)
 	Test.TickFrames(1, 1.0f / 60.0f);
 	TestEqual(TEXT("lift event"), Spy.SeenLift, 0.3f + 0.7f / 3.0f, 0.001f);
 	TestEqual(TEXT("lift on the motor"), Ella->GetMotor()->GetLiftMultiplier(), 0.3f + 0.7f / 3.0f, 0.001f);
-	TestEqual(TEXT("rise slowed"), static_cast<float>(Ella->GetMotor()->GetVelocity().Z), 120.0f * (0.3f + 0.7f / 3.0f), 0.01f);
+	TestEqual(TEXT("rise slowed"), static_cast<float>(Ella->GetMotor()->GetVelocity().Z), 240.0f * (0.3f + 0.7f / 3.0f), 0.01f);
 	Broadcast(Test.GetWorld(), EUmbrellaEventType::PlayerHealthChanged, FName(TEXT("Health")), FName(TEXT("Ella")), NAME_None, 3.0f, 3);
 	Test.TickFrames(1, 1.0f / 60.0f);
 	TestEqual(TEXT("repair restores lift"), Ella->GetMotor()->GetLiftMultiplier(), 1.0f, 0.001f);
@@ -331,7 +331,7 @@ bool FMoveWorldAssetsTest::RunTest(const FString& Parameters)
 	TestEqual(TEXT("mappings"), Adapter->GetMappingContext()->GetMappings().Num(), UmbrellaInputBindings::BuildDefaults().Num());
 	Adapter->ApplyAxis(EUmbrellaInputAction::Trim, 1.0f);
 	Test.TickSeconds(1.0f, 1.0f / 60.0f);
-	TestEqual(TEXT("trim up rises faster"), static_cast<float>(Ella->GetActorLocation().Z), 144.0f, 0.5f);
+	TestEqual(TEXT("trim up rises faster"), static_cast<float>(Ella->GetActorLocation().Z), 288.0f, 0.5f);
 	return true;
 }
 

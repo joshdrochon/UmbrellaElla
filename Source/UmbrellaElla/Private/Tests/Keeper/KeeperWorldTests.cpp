@@ -412,7 +412,7 @@ bool FKeeperGustForcedPush::RunTest(const FString& Parameters)
 		FMotorInput Base;
 		Base.Action = Action;
 		// The gust adds exactly Speed * Dt on top of the base, at once (no ride blend).
-		TestEqual(Case.Name, Dz, (MotorModel::BaseVerticalSpeed(Base, Tuning) + Speed) * Dt, 0.01f);
+		TestEqual(Case.Name, Dz, (MotorModel::BaseVerticalSpeed(Base, Tuning) + Speed * Tuning.WindScale) * Dt, 0.01f);
 	}
 	TestTrue(TEXT("a falling action was covered"), bSawFalling);
 	return true;

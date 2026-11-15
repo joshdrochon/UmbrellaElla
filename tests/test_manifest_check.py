@@ -198,7 +198,8 @@ class ManifestCheck(unittest.TestCase):
         self.assertIn("overrides", kinds(near["agent decides"]))
         self.assertNotIn("overrides", kinds(cut.replace("DECIDED 2026-11-15 (Rick)", "open")), "a proposal is fine")
         # the real decisions file overrides nothing today
-        self.assertEqual(mc.decided_overrides(mc.read_decisions(ROOT)), set())
+        # D-new-creative-director-feel: the only counted overrides are the feel-speed keys Josh signed.
+        self.assertEqual(mc.decided_overrides(mc.read_decisions(ROOT)), set(mc.FEEL_KEYS))
 
     def test_base_preset_changes_nothing_and_presets_enable_only_authorized(self):
         """Dry run B H6."""
