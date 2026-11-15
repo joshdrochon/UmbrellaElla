@@ -86,7 +86,7 @@ STATIC = [
 
 # ---- 2. code-derived visuals: scan -> visual id, and the piece that judges it ----
 ELLA_STATE = {"Idle": "ella-up-open", "Shoot": "ella-attack", "Absorb": "ella-shield", "Hurt": "ella-hurt",
-              "Down": "ella-down"}
+              "Down": "ella-down", "AimShot": "ella-attack"}
 SCREEN = {"Title": "ui-title", "Playing": "ui-hud-clock", "Paused": "ui-pause", "Settings": "ui-settings",
           "Resuming": "ui-pause", "Defeat": "ui-defeated", "Story": "ui-story-text", "Credits": "ui-credits",
           "Tutorial": "ui-tutorial", "TutorialPaused": "ui-tutorial", "Purchase": "ui-purchase",
@@ -130,6 +130,8 @@ FILE_RULES = [
     (r"^Content/[^/]+/Art/UI/T_Screen_(\w+?)(?:_PH)?\.uasset$", "screen:{1}"),
     (r"^Content/[^/]+/Art/Ella/T_Ella_Idle(?:_PH)?\.uasset$", "ella-state:Idle"),
     (r"^Art/Source/StandIns/ella-hurt/", "ella-state:Hurt"),   # lossless grid repack of the hurt strip (scalecheck)
+    (r"^Art/Source/StandIns/ella-attack/ella-shoot_", "ella-state:Shoot"),       # hip-fire grid (ellashoot, 14 Nov)
+    (r"^Art/Source/StandIns/ella-attack/Raw/ella-aimshot_", "ella-state:AimShot"),   # aimed-shot grid (D-new-aimed-shot)
     (r"^Art/Source/UI/Font/UmbrellaStorybook\.ttf$", "ui:font"),
     (r"^Art/Source/UI/Ground/Raw/T_UI_(Ground|Grain)_PH\.png$", "ui:ground-{1}"),
     (r"^Art/Source/UI/Ground/Raw/T_UI_ClockFace_PH\.png$", "ui:clock-face"),

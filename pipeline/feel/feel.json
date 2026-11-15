@@ -60,6 +60,27 @@
     "bound_nudge_px": 4,
     "hop_protection_s": 0.2
   },
+  "aimed_shot": {
+    "decision": "D-new-aimed-shot (Josh, 14 Nov): tap Shoot = Small Blasts hip-fire as before; hold Shoot to charge an aimed beam. Ella keeps falling while charging and firing (shooting = falling).",
+    "asset": "FAttackTuning Aimed* defaults (Source/UmbrellaElla/Public/Attack/AttackTuning.h); these numbers mirror them",
+    "status": "[proposed] starting values, change by playtest",
+    "spell": "Small Blasts only (Streamed Blast already holds to stream)",
+    "charge_s": 0.5,
+    "pose_show_s": 0.15,
+    "beam_length": 1800,
+    "beam_width": 26,
+    "beam_duration_s": 1.0,
+    "damage": 40,
+    "hip_fire_damage": 10,
+    "cooldown_s": 1.5,
+    "muzzle_offset": [
+      111,
+      0,
+      39
+    ],
+    "hits": "every receiver along the box once, when it fires (Keeper parts, enemies); a solid blocker ends it",
+    "look": "painted soft-edged ribbon, warm ivory core to brass to ash (Ricky's Other Realm study palette), no neon; thins out over its life"
+  },
   "threat_spacing": {
     "owner": "Game Designer proposes, game design owner accepts",
     "arena_map": "L_Graybox",

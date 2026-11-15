@@ -3,7 +3,9 @@
 #if WITH_AUTOMATION_TESTS
 
 #include "Components/StaticMeshComponent.h"
+#include "Attack/AttackEmitterComponent.h"
 #include "Core/EllaCharacter.h"
+#include "Input/EllaInputAdapterComponent.h"
 #include "Feedback/Anim/EllaAnimPresenterComponent.h"
 #include "Feedback/Art/ArtSlot.h"
 #include "Materials/MaterialInterface.h"
@@ -43,6 +45,52 @@ bool FEllaGridFrameRule::RunTest(const FString& Parameters)
 	TestTrue(TEXT("Idle loops"), UEllaAnimPresenterComponent::IsLoopingState(EEllaVisualState::Idle));
 	TestFalse(TEXT("Hurt plays once"), UEllaAnimPresenterComponent::IsLoopingState(EEllaVisualState::Hurt));
 	TestFalse(TEXT("Down plays once"), UEllaAnimPresenterComponent::IsLoopingState(EEllaVisualState::Down));
+	TestTrue(TEXT("Shoot loops while shooting"), UEllaAnimPresenterComponent::IsLoopingState(EEllaVisualState::Shoot));
+	TestFalse(TEXT("AimShot plays once"), UEllaAnimPresenterComponent::IsLoopingState(EEllaVisualState::AimShot));
+	TestEqual(TEXT("AimShot waits on cell 0 before the pose time"), UEllaAnimPresenterComponent::AimShotFrameAt(0.1f, 0.15f, 0.5f, false, 24), 0);
+	TestEqual(TEXT("AimShot halfway through the charge"), UEllaAnimPresenterComponent::AimShotFrameAt(0.325f, 0.15f, 0.5f, false, 24), 11);
+	TestEqual(TEXT("AimShot holds the last cell once the beam fired"), UEllaAnimPresenterComponent::AimShotFrameAt(0.0f, 0.15f, 0.5f, true, 24), 23);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FEllaShootAnimates, "UmbrellaElla.Feedback.World.EllaShootAnimatesWhileShooting", GridTestFlags)
+
+bool FEllaShootAnimates::RunTest(const FString& Parameters)
+{
+	// Josh, 14 Nov: the hip-fire picture (ella-state:Shoot, T_Ella_Shoot 6x4) loops while Shoot is held. Twin Stars here:
+	// Small Blasts would start charging the aimed beam (D-new-aimed-shot) after AimedPoseShowSeconds and show AimShot.
+	FUmbrellaTestWorld Test;
+	AEllaCharacter* Ella = Test.SpawnElla(FVector(0.0, 0.0, 2000.0));
+	UEllaAnimPresenterComponent* Look = Ella ? Ella->GetAnimPresenter() : nullptr;
+	const UStaticMeshComponent* Mesh = Ella ? FindObjectFast<UStaticMeshComponent>(Ella, FName(TEXT("EllaStandIn"))) : nullptr;
+	const FArtSlotRow* Shoot = ArtSlot::Find(TEXT("ella-state:Shoot"));
+	if (!TestNotNull(TEXT("ella"), Ella) || !TestNotNull(TEXT("presenter"), Look) || !TestNotNull(TEXT("Ella's picture"), Mesh)
+		|| !TestNotNull(TEXT("shoot row"), Shoot) || !TestTrue(TEXT("Shoot is a 6x4 grid sheet"), Shoot->Cols == 6 && Shoot->Rows == 4))
+	{
+		return false;
+	}
+	Ella->GetAttack()->SetPlayMode(EUmbrellaPlayMode::DirectorsCut);
+	Ella->GetAttack()->SetDirectorLevel(20);
+	Ella->GetAttack()->SelectSpell(EUmbrellaSpell::TwinStars);
+	Ella->GetInputAdapter()->ApplyPress(EUmbrellaInputAction::Shoot);
+	TSet<int32> Seen;
+	int32 ShootTicks = 0;
+	constexpr int32 Steps = 30;
+	for (int32 Step = 0; Step < Steps; ++Step)
+	{
+		Test.TickSeconds(1.0f / Steps, 1.0f / Steps);
+		if (Look->GetVisualState() == EEllaVisualState::Shoot)
+		{
+			++ShootTicks;
+			Seen.Add(Look->GetDrawnFrame());
+			TestEqual(TEXT("the material draws the presenter's cell"), FMath::RoundToInt(MaterialFrame(Mesh)), Look->GetDrawnFrame());
+		}
+	}
+	Ella->GetInputAdapter()->ApplyRelease(EUmbrellaInputAction::Shoot);
+	AddInfo(FString::Printf(TEXT("1 s shooting: %d ticks in Shoot, %d distinct cells"), ShootTicks, Seen.Num()));
+	TestTrue(TEXT("Ella shows Shoot while shooting"), ShootTicks >= Steps - 3);
+	TestTrue(TEXT("Ella draws the Shoot picture"), ArtSlot::HasArt(Mesh));
+	TestTrue(FString::Printf(TEXT("the hip-fire frames advance while shooting (%d distinct cells, want >= 5)"), Seen.Num()), Seen.Num() >= 5);
 	return true;
 }
 

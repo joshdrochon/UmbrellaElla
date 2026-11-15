@@ -143,4 +143,39 @@ struct UMBRELLAELLA_API FAttackTuning
 
 	UPROPERTY(Config, EditAnywhere, Category = "Attack")
 	FLinearColor StreamStrandColor = FLinearColor(0.55f, 0.85f, 1.0f);
+
+	/** Aimed shot (D-new-aimed-shot, Josh 14 Nov): tap Shoot = Small Blasts hip-fire as before; holding Shoot this long
+	 *  (Small Blasts equipped, in the shooting fall) charges and fires one long beam to the right. pipeline/feel/feel.json aimed_shot. */
+	UPROPERTY(Config, EditAnywhere, Category = "Attack|Aimed", meta = (ClampMin = "0.05"))
+	float AimedChargeSeconds = 0.5f;
+
+	/** Seconds into the hold before Ella shows the aim pose (shorter holds read as a hip-fire tap). */
+	UPROPERTY(Config, EditAnywhere, Category = "Attack|Aimed", meta = (ClampMin = "0"))
+	float AimedPoseShowSeconds = 0.15f;
+
+	/** Beam length from the muzzle, units (stops early at a solid blocker, like the Streamed Blast beam). */
+	UPROPERTY(Config, EditAnywhere, Category = "Attack|Aimed", meta = (ClampMin = "1"))
+	float AimedBeamLength = 1800.0f;
+
+	/** Beam thickness (the hitbox height), units. */
+	UPROPERTY(Config, EditAnywhere, Category = "Attack|Aimed", meta = (ClampMin = "1"))
+	float AimedBeamWidth = 26.0f;
+
+	/** Seconds the beam stays on screen after it fires (damage lands once, when it fires). */
+	UPROPERTY(Config, EditAnywhere, Category = "Attack|Aimed", meta = (ClampMin = "0.05"))
+	float AimedBeamSeconds = 1.0f;
+
+	/** Damage to every target along the beam (a Small Blast does SmallDamage = 10). */
+	UPROPERTY(Config, EditAnywhere, Category = "Attack|Aimed", meta = (ClampMin = "0"))
+	float AimedDamage = 40.0f;
+
+	/** Seconds after a beam before the next one can charge. One beam per hold. */
+	UPROPERTY(Config, EditAnywhere, Category = "Attack|Aimed", meta = (ClampMin = "0"))
+	float AimedCooldownSeconds = 1.5f;
+
+	/** Beam start relative to Ella's origin (X right, Z up): the flash at the umbrella tip in the last AimShot cell
+	 *  (ella-aimshot_N24_grid.png cell 23, flash back edge x=720 / centre y=233 of a 900x654 cell at 270 units per
+	 *  654 px, figure scale 2). Fixed data; the art is aligned to it, never read from it. */
+	UPROPERTY(Config, EditAnywhere, Category = "Attack|Aimed")
+	FVector AimedMuzzleOffset = FVector(111.0, 0.0, 39.0);
 };
