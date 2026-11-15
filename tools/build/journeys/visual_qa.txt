@@ -8,7 +8,7 @@ shot vq_title
 click Start Game
 trywait Tutorial 5
 keyuntil Playing Enter 0.8 30
-idle 3
+idle 1                            # short: with nothing held she rises into the lethal ceiling in ~4 s (D-new-ceiling-lethal)
 hold J 1.0                        # real shooting, so gold shots are on screen
 shot vq_play
 figureshot vq_figure              # Ella's normal frame + a plate with her hidden (visual_qa figure_check)
@@ -24,9 +24,9 @@ skipunless Purchase 3             # a run before this one earned points: Purchas
 key Escape
 wait Title 5
 click Director's Cut
-trywait Tutorial 5
+trywait Tutorial 2                # short waits: idle rise reaches the lethal ceiling (D-new-ceiling-lethal)
 keyuntil Playing Enter 0.8 30
-idle 2
+idle 1
 route 1 30 1                      # real keys toward CP1 (may fail; recorded)
 routeassist 1
 idle 1

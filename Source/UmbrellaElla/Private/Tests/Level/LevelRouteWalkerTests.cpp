@@ -85,9 +85,10 @@ namespace
 		/** A player who sinks under the slot-5 (07A) low solid into its bypass lane: J held above this height. */
 		constexpr float BypassTrimZ = 200.0f;
 		/** B12: where agentplay's CP0 -> CP1 step began on 7851afd0 (after 8 s untrimmed and 20 s idle: at the route
-		 *  ceiling), and where its walker then stood for 40 s. */
+		 *  ceiling), and where its walker then stood for 40 s. Z sits 6 units under the ceiling line (1 036): the line itself
+		 *  is lethal since D-new-ceiling-lethal, so the walker starts just under it. */
 		constexpr float B12StartX = 974.0f;
-		constexpr float B12StartZ = 1036.0f;
+		constexpr float B12StartZ = 1030.0f;
 		constexpr float B12StallX = 1903.0f;
 	}
 }

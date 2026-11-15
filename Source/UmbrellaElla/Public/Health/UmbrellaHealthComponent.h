@@ -45,6 +45,10 @@ public:
 	/** Sources that ignore post-hit protection and do not start or renew it (keeper gust damage). */
 	static bool ShouldBypassProtection(FName SourceId);
 
+	/** Lethal play-space edge (the lethal bottom; the ceiling top, D-new-ceiling-lethal): defeat at once, ignoring every protection.
+	 *  Nothing happens when already defeated, so PlayerDefeated still goes out once (INV-2). */
+	void DefeatAtBoundary(FName SourceId);
+
 	/** Heal one absorbed yellow at the current recovery rank. Returns what changed. */
 	FHealthHealOutcome HealFromYellow(FName SourceId);
 

@@ -12,5 +12,7 @@ namespace UmbrellaSourceIds
 	inline FName MechRearTwoStage() { static const FName Id(TEXT("MECH_Rear_TwoStage")); return Id; }
 	inline FName RedFan() { static const FName Id(TEXT("RED_Fan")); return Id; }
 	inline FName ClockDoubleBeat() { static const FName Id(TEXT("CLOCK_DoubleBeat")); return Id; }
+	inline FName LethalBottom() { static const FName Id(TEXT("LethalBottom")); return Id; }
+	inline FName LethalCeiling() { static const FName Id(TEXT("LethalCeiling")); return Id; }
 	inline FName YellowPacket() { static const FName Id(TEXT("YELLOW_Packet")); return Id; }
 }
