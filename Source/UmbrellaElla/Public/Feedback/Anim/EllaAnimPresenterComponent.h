@@ -44,6 +44,8 @@ namespace UmbrellaPresenterConst
 	static constexpr float IdleBottomPad = 0.188f;
 	static constexpr float HurtBottomPad = 0.064f;
 	static constexpr float DownBottomPad = 0.024f;
+	/** Aimed shot sheet (pipeline/art/proof/artella/shoot/ella-aimshot_N24_grid.png): lowest opaque row 527 of 654 over all cells. */
+	static constexpr float AimShotBottomPad = 0.194f;
 	/** World units under which a change of the ceiling drop is ignored (no per-tick re-placing for float noise). */
 	static constexpr float FigureDropTolerance = 0.01f;
 }
@@ -91,7 +93,9 @@ enum class EEllaVisualState : uint8
 	Shoot,
 	Absorb,
 	Hurt,
-	Down
+	Down,
+	/** Aimed shot (D-new-aimed-shot): the pose walks with the charge, then holds its last cell (the flash) while the beam shows. */
+	AimShot
 };
 
 /** Animation Presenter: state to Paper2D flipbook, placeholder fallback. Never gameplay authority. Lane e. */
@@ -150,6 +154,15 @@ public:
 
 	/** Cell of a Cols x Rows grid sheet shown at Seconds: walks every cell left to right, row by row, and loops. Pure. */
 	static int32 GridFrameAt(double Seconds, float Fps, int32 Cols, int32 Rows, bool bLoop = true);
+
+	/**
+	 * AimShot cell for the charge: cell 0 until ShowSeconds into the hold, then it walks to the last cell as the charge
+	 * reaches ChargeSeconds, and holds the last cell (the flash at the tip) once the beam fired. Pure.
+	 */
+	static int32 AimShotFrameAt(float HeldSeconds, float ShowSeconds, float ChargeSeconds, bool bBeamFired, int32 Cells);
+
+	/** True while the attack emitter is charging past the aim-pose time or its aimed beam is on screen. */
+	bool ShouldShowAimPose() const;
 
 	/** True when a state's picture loops (Idle and the states that show the idle art); Hurt and Down play once and hold. Pure. */
 	static bool IsLoopingState(EEllaVisualState State);

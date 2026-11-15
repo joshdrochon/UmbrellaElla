@@ -82,33 +82,7 @@ void AStreamBeamActor::SetBeam(const FVector& Muzzle, float Length, float Width)
 	RequestedLength = FMath::Max(Length, 0.0f);
 	BeamWidth = Width;
 
-	// A solid blocker (blocks the player shot channel, has no receiver) ends the beam early.
-	TOptional<float> StopDistance;
-	if (UWorld* World = GetWorld())
-	{
-		TArray<FOverlapResult> Overlaps;
-		const FVector Center = BeamMuzzle + FVector(RequestedLength * 0.5f, 0.0f, 0.0f);
-		const FCollisionShape Box = FCollisionShape::MakeBox(FVector(RequestedLength * 0.5f, HalfDepth, BeamWidth * 0.5f));
-		FCollisionQueryParams Params(SCENE_QUERY_STAT(UmbrellaBeam), false, this);
-		if (RequestedLength > 0.0f && World->OverlapMultiByObjectType(Overlaps, Center, FQuat::Identity, FCollisionObjectQueryParams(FCollisionObjectQueryParams::AllObjects), Box, Params))
-		{
-			for (const FOverlapResult& Overlap : Overlaps)
-			{
-				AActor* Other = Overlap.GetActor();
-				UPrimitiveComponent* Component = Overlap.GetComponent();
-				if (!Other || !ProjectileRules::CanShotTouch(EUmbrellaShotKind::PlayerBlast, Other))
-				{
-					continue;
-				}
-				if (ProjectileRules::IsSolidStop(EUmbrellaShotKind::PlayerBlast, Component, BeamGatherReceivers(Other).Num() > 0))
-				{
-					const float Distance = FMath::Max(0.0f, static_cast<float>(Component->Bounds.GetBox().Min.X - BeamMuzzle.X));
-					StopDistance = StopDistance.IsSet() ? FMath::Min(StopDistance.GetValue(), Distance) : Distance;
-				}
-			}
-		}
-	}
-	EffectiveLength = SpellRules::BeamClippedLength(RequestedLength, StopDistance);
+	EffectiveLength = ClipToBlockers(GetWorld(), this, BeamMuzzle, RequestedLength, BeamWidth, HalfDepth);
 
 	SetActorLocation(BeamMuzzle + FVector(EffectiveLength * 0.5f, 0.0f, 0.0f));
 	if (!Visual->GetStaticMesh())
@@ -124,6 +98,37 @@ void AStreamBeamActor::SetBeam(const FVector& Muzzle, float Length, float Width)
 	Visual->SetWorldScale3D(FVector(FMath::Max(EffectiveLength, MinVisualLength) / CubeSize, BeamWidth / CubeSize * VisualDepthFraction, BeamWidth / CubeSize));
 	Visual->SetVisibility(EffectiveLength > 0.0f);
 	PlaceStrands();
+}
+
+float AStreamBeamActor::ClipToBlockers(UWorld* World, const AActor* Ignore, const FVector& Muzzle, float Length, float Width, float HalfDepth)
+{
+	// A solid blocker (blocks the player shot channel, has no receiver) ends the beam early.
+	TOptional<float> StopDistance;
+	if (World && Length > 0.0f)
+	{
+		TArray<FOverlapResult> Overlaps;
+		const FVector Center = Muzzle + FVector(Length * 0.5f, 0.0f, 0.0f);
+		const FCollisionShape Box = FCollisionShape::MakeBox(FVector(Length * 0.5f, HalfDepth, Width * 0.5f));
+		FCollisionQueryParams Params(SCENE_QUERY_STAT(UmbrellaBeam), false, Ignore);
+		if (World->OverlapMultiByObjectType(Overlaps, Center, FQuat::Identity, FCollisionObjectQueryParams(FCollisionObjectQueryParams::AllObjects), Box, Params))
+		{
+			for (const FOverlapResult& Overlap : Overlaps)
+			{
+				AActor* Other = Overlap.GetActor();
+				UPrimitiveComponent* Component = Overlap.GetComponent();
+				if (!Other || !ProjectileRules::CanShotTouch(EUmbrellaShotKind::PlayerBlast, Other))
+				{
+					continue;
+				}
+				if (ProjectileRules::IsSolidStop(EUmbrellaShotKind::PlayerBlast, Component, BeamGatherReceivers(Other).Num() > 0))
+				{
+					const float Distance = FMath::Max(0.0f, static_cast<float>(Component->Bounds.GetBox().Min.X - Muzzle.X));
+					StopDistance = StopDistance.IsSet() ? FMath::Min(StopDistance.GetValue(), Distance) : Distance;
+				}
+			}
+		}
+	}
+	return SpellRules::BeamClippedLength(Length, StopDistance);
 }
 
 UStaticMeshComponent* AStreamBeamActor::MakePart(const FName& Name, const FLinearColor& Color)
@@ -179,16 +184,19 @@ void AStreamBeamActor::PlaceStrands()
 
 int32 AStreamBeamActor::ApplyTick(const FUmbrellaShotSpec& Tick)
 {
-	UWorld* World = GetWorld();
-	const float HalfDepth = GetDefault<UUmbrellaTuning>()->Attack.StreamDepthHalfExtent;
-	if (!World || EffectiveLength <= 0.0f)
+	return HitBox(GetWorld(), this, BeamMuzzle, EffectiveLength, BeamWidth, GetDefault<UUmbrellaTuning>()->Attack.StreamDepthHalfExtent, Tick);
+}
+
+int32 AStreamBeamActor::HitBox(UWorld* World, const AActor* Ignore, const FVector& Muzzle, float Length, float Width, float HalfDepth, const FUmbrellaShotSpec& Tick)
+{
+	if (!World || Length <= 0.0f)
 	{
 		return 0;
 	}
 	TArray<FOverlapResult> Overlaps;
-	const FVector Center = BeamMuzzle + FVector(EffectiveLength * 0.5f, 0.0f, 0.0f);
-	const FCollisionShape Box = FCollisionShape::MakeBox(FVector(EffectiveLength * 0.5f, HalfDepth, BeamWidth * 0.5f));
-	FCollisionQueryParams Params(SCENE_QUERY_STAT(UmbrellaBeamTick), false, this);
+	const FVector Center = Muzzle + FVector(Length * 0.5f, 0.0f, 0.0f);
+	const FCollisionShape Box = FCollisionShape::MakeBox(FVector(Length * 0.5f, HalfDepth, Width * 0.5f));
+	FCollisionQueryParams Params(SCENE_QUERY_STAT(UmbrellaBeamTick), false, Ignore);
 	World->OverlapMultiByObjectType(Overlaps, Center, FQuat::Identity, FCollisionObjectQueryParams(FCollisionObjectQueryParams::AllObjects), Box, Params);
 
 	UUmbrellaEventBus* Bus = UUmbrellaEventBus::Get(World);
@@ -208,7 +216,7 @@ int32 AStreamBeamActor::ApplyTick(const FUmbrellaShotSpec& Tick)
 		Routed.Add(Target);
 		const FBox Bounds = Overlap.GetComponent() ? Overlap.GetComponent()->Bounds.GetBox() : Target->GetComponentsBoundingBox();
 		FVector Location = Center;
-		Location.X = FMath::Clamp(Bounds.Min.X, BeamMuzzle.X, BeamMuzzle.X + EffectiveLength);
+		Location.X = FMath::Clamp(Bounds.Min.X, Muzzle.X, Muzzle.X + Length);
 		bool bConsumed = false;
 		for (IUmbrellaShotReceiver* Receiver : Receivers)
 		{
