@@ -276,7 +276,7 @@ void UEllaAnimPresenterComponent::TickComponent(float DeltaTime, ELevelTick Tick
 	RepairLeft = FMath::Max(0.0f, RepairLeft - DeltaTime);
 	UpdateOverlays(ReadOverlayInput());
 	// Aimed shot: the charge and the beam drive the AimShot pose; Hurt and Down still win.
-	const bool bAim = WantsAimPose();
+	const bool bAim = ShouldShowAimPose();
 	if (bAim && VisualState != EEllaVisualState::AimShot && VisualState != EEllaVisualState::Hurt && VisualState != EEllaVisualState::Down)
 	{
 		SetVisualState(EEllaVisualState::AimShot);
@@ -513,7 +513,7 @@ int32 UEllaAnimPresenterComponent::AimShotFrameAt(float HeldSeconds, float ShowS
 	return FMath::Clamp(FMath::FloorToInt(Progress * static_cast<float>(Last)), 0, Last);
 }
 
-bool UEllaAnimPresenterComponent::WantsAimPose() const
+bool UEllaAnimPresenterComponent::ShouldShowAimPose() const
 {
 	const AActor* Owner = GetOwner();
 	const UAttackEmitterComponent* Attack = IsValid(Owner) ? Owner->FindComponentByClass<UAttackEmitterComponent>() : nullptr;

@@ -131,7 +131,7 @@ FILE_RULES = [
     (r"^Content/[^/]+/Art/Ella/T_Ella_Idle(?:_PH)?\.uasset$", "ella-state:Idle"),
     (r"^Art/Source/StandIns/ella-hurt/", "ella-state:Hurt"),   # lossless grid repack of the hurt strip (scalecheck)
     (r"^Art/Source/StandIns/ella-attack/ella-shoot_", "ella-state:Shoot"),       # hip-fire grid (ellashoot, 14 Nov)
-    (r"^Art/Source/StandIns/ella-attack/ella-aimshot_", "ella-state:AimShot"),   # aimed-shot grid (D-new-aimed-shot)
+    (r"^Art/Source/StandIns/ella-attack/Raw/ella-aimshot_", "ella-state:AimShot"),   # aimed-shot grid (D-new-aimed-shot)
     (r"^Art/Source/UI/Font/UmbrellaStorybook\.ttf$", "ui:font"),
     (r"^Art/Source/UI/Ground/Raw/T_UI_(Ground|Grain)_PH\.png$", "ui:ground-{1}"),
     (r"^Art/Source/UI/Ground/Raw/T_UI_ClockFace_PH\.png$", "ui:clock-face"),

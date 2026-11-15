@@ -12,5 +12,7 @@
   466.0,
   530
  ],
- "scale_from_source": 0.5658253751705321
+ "scale_from_source": 0.5658253751705321,
+ "pivot_drift_max_px": 100,
+ "pivot_drift_reason": "aim pose: the legs swing back as the arm comes up (Veo clip, static camera, unregistered on purpose)"
 }

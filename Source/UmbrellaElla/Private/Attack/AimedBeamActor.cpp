@@ -11,7 +11,6 @@
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Owl/KeeperLook.h"
 #include "Projectile/UmbrellaShotSpec.h"
-#include "UObject/StrongObjectPtr.h"
 
 namespace
 {
@@ -35,12 +34,6 @@ namespace
 		const float S = F * F * (3.0f - 2.0f * F);
 		return FMath::Lerp(RibbonHash(I, Seed), RibbonHash(I + 1, Seed), S);
 	}
-
-	TStrongObjectPtr<UTexture2D>& RibbonCache()
-	{
-		static TStrongObjectPtr<UTexture2D> Cache;
-		return Cache;
-	}
 }
 
 AAimedBeamActor::AAimedBeamActor()
@@ -55,34 +48,35 @@ AAimedBeamActor::AAimedBeamActor()
 
 FColor AAimedBeamActor::RibbonTexel(int32 X, int32 Y)
 {
+	using namespace AimedRibbonLook;
 	const float U = (static_cast<float>(X) + 0.5f) / RibbonWidth;
 	const float V = (static_cast<float>(Y) + 0.5f) / RibbonHeight;
 	// Ragged soft edge: the half-thickness wanders a little along the beam, like a dry brush.
-	const float Edge = 0.86f + 0.14f * RibbonNoise(U * 18.0f, 7) - 0.06f * RibbonNoise(U * 61.0f, 11);
-	const float Across = FMath::Abs(V - 0.5f) * 2.0f / FMath::Max(0.2f, Edge);
-	const float Alpha = FMath::Clamp(1.0f - FMath::SmoothStep(0.35f, 1.0f, Across), 0.0f, 1.0f);
+	const float Edge = EdgeBase + EdgeWander * RibbonNoise(U * EdgeWanderFreq, EdgeWanderSeed) - EdgeBite * RibbonNoise(U * EdgeBiteFreq, EdgeBiteSeed);
+	const float Across = FMath::Abs(V - 0.5f) * 2.0f / FMath::Max(EdgeMin, Edge);
+	const float Alpha = FMath::Clamp(1.0f - FMath::SmoothStep(AlphaSoftFrom, 1.0f, Across), 0.0f, 1.0f);
 	// Colour: ivory core -> brass -> ash toward the edge.
-	FLinearColor Colour = Across < 0.45f ? FMath::Lerp(RibbonCore, RibbonBrass, Across / 0.45f)
-		: FMath::Lerp(RibbonBrass, RibbonAsh, FMath::Clamp((Across - 0.45f) / 0.55f, 0.0f, 1.0f));
-	// Painted streaks: each row gets its own slow grain along the beam (+-12%), plus a fine stroke texture.
-	const int32 Row = Y / 3;
-	const float Grain = 0.88f + 0.24f * RibbonNoise(U * 9.0f + static_cast<float>(Row) * 3.1f, 23 + Row)
-		- 0.08f * RibbonNoise(U * 140.0f, 31 + Row);
+	FLinearColor Colour = Across < CoreShare ? FMath::Lerp(RibbonCore, RibbonBrass, Across / CoreShare)
+		: FMath::Lerp(RibbonBrass, RibbonAsh, FMath::Clamp((Across - CoreShare) / (1.0f - CoreShare), 0.0f, 1.0f));
+	// Painted streaks: each band of rows gets its own slow grain along the beam, plus a fine stroke texture.
+	const int32 Row = Y / StreakRows;
+	const float Grain = GrainBase + GrainAmount * RibbonNoise(U * GrainFreq + static_cast<float>(Row) * GrainRowPhase, GrainSeed + Row)
+		- StrokeAmount * RibbonNoise(U * StrokeFreq, StrokeSeed + Row);
 	Colour *= Grain;
 	Colour.A = Alpha;
 	return Colour.GetClamped().ToFColor(true);
 }
 
-UTexture2D* AAimedBeamActor::RibbonTexture()
+UTexture2D* AAimedBeamActor::MakeRibbonTexture(UObject* Outer)
 {
-	if (RibbonCache().IsValid())
-	{
-		return RibbonCache().Get();
-	}
-	UTexture2D* Texture = UTexture2D::CreateTransient(RibbonWidth, RibbonHeight, PF_B8G8R8A8, TEXT("T_AimedBeamRibbon"));
+	UTexture2D* Texture = UTexture2D::CreateTransient(RibbonWidth, RibbonHeight, PF_B8G8R8A8, NAME_None);
 	if (!Texture)
 	{
 		return nullptr;
+	}
+	if (Outer)
+	{
+		Texture->Rename(nullptr, Outer, REN_DontCreateRedirectors | REN_NonTransactional);
 	}
 	Texture->SRGB = true;
 	Texture->Filter = TF_Bilinear;
@@ -99,7 +93,6 @@ UTexture2D* AAimedBeamActor::RibbonTexture()
 	}
 	Mip.BulkData.Unlock();
 	Texture->UpdateResource();
-	RibbonCache().Reset(Texture);
 	return Texture;
 }
 
@@ -137,7 +130,7 @@ void AAimedBeamActor::Follow(const FVector& Muzzle, float Age01)
 	BeamMuzzle.Z = Muzzle.Z;
 	// Full width for most of its life, then it thins to a hairline (looks only; damage already landed).
 	const float Age = FMath::Clamp(Age01, 0.0f, 1.0f);
-	DrawRibbon(Age < FullWidthShare ? 1.0f : FMath::Lerp(1.0f, 0.15f, FMath::SmoothStep(FullWidthShare, 1.0f, Age)));
+	DrawRibbon(Age < FullWidthShare ? 1.0f : FMath::Lerp(1.0f, AimedRibbonLook::EndThickness, FMath::SmoothStep(FullWidthShare, 1.0f, Age)));
 }
 
 void AAimedBeamActor::DrawRibbon(float Thickness)
@@ -145,7 +138,7 @@ void AAimedBeamActor::DrawRibbon(float Thickness)
 	if (!Visual->GetStaticMesh())
 	{
 		UStaticMesh* Plane = LoadObject<UStaticMesh>(nullptr, UmbrellaArtSlotConst::PlanePath, nullptr, LOAD_NoWarn | LOAD_Quiet);
-		Ribbon = RibbonTexture();
+		Ribbon = MakeRibbonTexture(this);
 		UMaterialInterface* Fade = LoadObject<UMaterialInterface>(nullptr, UmbrellaArtSlotConst::EdgeFadeMaterialPath, nullptr, LOAD_NoWarn | LOAD_Quiet);
 		UMaterialInterface* Base = Fade ? Fade : LoadObject<UMaterialInterface>(nullptr, UmbrellaArtSlotConst::MaterialPath, nullptr, LOAD_NoWarn | LOAD_Quiet);
 		if (!Plane || !Base || !Ribbon)

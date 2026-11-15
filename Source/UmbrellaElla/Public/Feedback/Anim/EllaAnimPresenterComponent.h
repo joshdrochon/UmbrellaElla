@@ -162,7 +162,7 @@ public:
 	static int32 AimShotFrameAt(float HeldSeconds, float ShowSeconds, float ChargeSeconds, bool bBeamFired, int32 Cells);
 
 	/** True while the attack emitter is charging past the aim-pose time or its aimed beam is on screen. */
-	bool WantsAimPose() const;
+	bool ShouldShowAimPose() const;
 
 	/** True when a state's picture loops (Idle and the states that show the idle art); Hurt and Down play once and hold. Pure. */
 	static bool IsLoopingState(EEllaVisualState State);

@@ -122,7 +122,7 @@ void UAttackEmitterComponent::StepEmitter(float DeltaSeconds)
 	{
 		HideBeam();
 	}
-	StepAimedShot(DeltaSeconds, bWantsFire, Tuning);
+	StepAimedShot(DeltaSeconds, Tuning);
 }
 
 bool UAttackEmitterComponent::IsAimCharging() const
@@ -135,8 +135,9 @@ FVector UAttackEmitterComponent::AimedMuzzle(const FAttackTuning& Tuning) const
 	return GetOwner()->GetActorLocation() + Tuning.AimedMuzzleOffset;
 }
 
-void UAttackEmitterComponent::StepAimedShot(float DeltaSeconds, bool bWantsFire, const FAttackTuning& Tuning)
+void UAttackEmitterComponent::StepAimedShot(float DeltaSeconds, const FAttackTuning& Tuning)
 {
+	const bool bShooting = UmbrellaState && UmbrellaActionRules::CanFire(UmbrellaState->GetAction());
 	// D-new-aimed-shot (Josh, 14 Nov): tap Shoot = the Small Blasts above (unchanged); hold it AimedChargeSeconds and one
 	// long beam fires to the right. Ella keeps falling throughout: the beam needs the shooting fall like every shot.
 	AimCooldownLeft = FMath::Max(0.0f, AimCooldownLeft - DeltaSeconds);
@@ -152,7 +153,7 @@ void UAttackEmitterComponent::StepAimedShot(float DeltaSeconds, bool bWantsFire,
 			AimedBeam->Follow(AimedMuzzle(Tuning), AimedBeamAge / FMath::Max(Tuning.AimedBeamSeconds, KINDA_SMALL_NUMBER));
 		}
 	}
-	if (!bWantsFire || Equipped != EUmbrellaSpell::SmallBlasts)
+	if (!bShooting || Equipped != EUmbrellaSpell::SmallBlasts)
 	{
 		AimHeldSeconds = 0.0f;
 		bAimFiredThisHold = false;

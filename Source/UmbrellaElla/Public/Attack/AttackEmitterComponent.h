@@ -125,7 +125,7 @@ private:
 	void FireVolley();
 	void ShowBeam(const FAttackTuning& Tuning);
 	void HideBeam();
-	void StepAimedShot(float DeltaSeconds, bool bWantsFire, const FAttackTuning& Tuning);
+	void StepAimedShot(float DeltaSeconds, const FAttackTuning& Tuning);
 	void FireAimedBeam(const FAttackTuning& Tuning);
 	void HideAimedBeam();
 	FVector AimedMuzzle(const FAttackTuning& Tuning) const;

@@ -174,7 +174,7 @@
   "ella-state:AimShot": {
    "art_ref_check": null,
    "calibration": null,
-   "copy": "Art/Source/StandIns/ella-attack/ella-aimshot_N24_grid.png",
+   "copy": "Art/Source/StandIns/ella-attack/Raw/ella-aimshot_N24_grid.png",
    "lane": "ellashoot",
    "note": "aimed shot: R1 Veo clip shoot/R1/ella-shoot.mp4 0-1.65 s (arm out, flash at the tip), 24 cells, same scale",
    "panel_pairs": null,
@@ -234,11 +234,11 @@
    "calibration": null,
    "copy": "Art/Source/StandIns/ella-attack/ella-shoot_N24_grid.png",
    "lane": "ellashoot",
-   "note": "hip-fire: Josh-liked R1 still (shoot/R1/shoot_draft.png), keyed, at the idle's scale and feet anchor, 24 cells with a baked recoil and 2 px bob (the second Veo clip was not made: cap)",
+   "note": "hip-fire: Josh-liked R1 still (shoot/R1/shoot_draft.png), keyed, at the idle's scale and feet anchor, 24 cells with a baked upper-body recoil (boots fixed) (the second Veo clip was not made: cap)",
    "panel_pairs": null,
    "piece": "ella-attack",
    "round": null,
-   "sha256": "c770a3b66d0c2d162593886ccbe0d4b8a105895f2a0bd0aa17d65c9de9ab364d",
+   "sha256": "d6952b17c1f6932da935c2bb2bc8c7c02247643ce505c7ba895bad4ef8c3feaa",
    "source": "ellashoot/pipeline/art/proof/artella/shoot/ella-shoot_N24_grid.png",
    "status": "best-so-far (not passed)"
   },
