@@ -2,6 +2,7 @@
 #include "Arena/UmbrellaArena.h"
 #include "Attack/AttackEmitterComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Core/UmbrellaTuning.h"
 #include "Core/EllaCharacter.h"
 #include "Engine/World.h"
 #include "Input/EllaInputAdapterComponent.h"
@@ -50,6 +51,44 @@ bool FMoveWorldArenaFloorTest::RunTest(const FString& Parameters)
 		Ella->GetInputAdapter()->ApplyRelease(EUmbrellaInputAction::Shoot);
 		Test.TickSeconds(0.5f, Delta);
 		TestTrue(TEXT("rises off the bottom") + At, Ella->GetActorLocation().Z > BottomZ + HalfHeight + 1.0f);
+		TestFalse(TEXT("left the bottom") + At, Ella->GetMotor()->IsAtPlayFloor());
+	}
+	return true;
+}
+
+// Josh, Nov 14 (Director's Cut): "trapped on the bottom track, couldn't fly back up". Ella resting on the bottom must lift
+// off it within a second, with nothing held and with Hop (Space) pressed: at least half the tuned rise speed (MOVE-21).
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMoveWorldBottomRiseTest, "UmbrellaElla.Move.World.BottomRisesWithinOneSecond", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FMoveWorldBottomRiseTest::RunTest(const FString& Parameters)
+{
+	constexpr float BottomRiseDelta = 1.0f / 30.0f;
+	const float MinRise = 0.5f * GetDefault<UUmbrellaTuning>()->Motor.RiseSpeed;
+	for (const bool bHop : { false, true })
+	{
+		FUmbrellaTestWorld Test;
+		AUmbrellaArena* Arena = Test.GetWorld()->SpawnActor<AUmbrellaArena>(FVector::ZeroVector, FRotator::ZeroRotator);
+		AEllaCharacter* Ella = Arena ? Test.SpawnElla(Arena->GetPlayerStartLocation()) : nullptr;
+		if (!TestNotNull(TEXT("Ella spawned"), Ella))
+		{
+			return false;
+		}
+		Ella->GetMotor()->ClearPlayBounds();
+		Ella->GetInputAdapter()->ApplyPress(EUmbrellaInputAction::Shoot);
+		Test.TickSeconds(6.0f, BottomRiseDelta);
+		const FString At = bHop ? TEXT(" (Hop pressed)") : TEXT(" (nothing held)");
+		if (!TestTrue(TEXT("resting on the bottom") + At, Ella->GetMotor()->IsAtPlayFloor()))
+		{
+			return false;
+		}
+		const float RestZ = static_cast<float>(Ella->GetActorLocation().Z);
+		Ella->GetInputAdapter()->ApplyRelease(EUmbrellaInputAction::Shoot);
+		if (bHop)
+		{
+			Ella->GetInputAdapter()->ApplyPress(EUmbrellaInputAction::Hop);
+		}
+		Test.TickSeconds(1.0f, BottomRiseDelta);
+		const float Rise = static_cast<float>(Ella->GetActorLocation().Z) - RestZ;
+		TestTrue(*FString::Printf(TEXT("rises %.0f >= %.0f units within 1 s%s"), Rise, MinRise, *At), Rise >= MinRise);
 		TestFalse(TEXT("left the bottom") + At, Ella->GetMotor()->IsAtPlayFloor());
 	}
 	return true;

@@ -379,8 +379,14 @@ bool FChunkPlanPlacesLayouts::RunTest(const FString& Parameters)
 			TestEqual(TEXT("gameplay pieces sit in Ella's plane"), static_cast<float>(P.Location.Y), UmbrellaDrawOrder::EllaY);
 			TestTrue(TEXT("piece inside its chunk"), P.Location.X >= LevelCatalogue::SlotStartX(Slot) && P.Location.X <= LevelCatalogue::SlotStartX(Slot) + LevelCatalogue::SlotStartX(1));
 		}
-		TestEqual(*FString::Printf(TEXT("slot %d places its variant's pieces"), Slot + 1), Pieces, L.Pieces.Num());
-		TestEqual(TEXT("slot winds match the layout"), Winds, L.Of(EChunkPieceKind::Wind).Num());
+		// D-new-no-vertical-wind: the layout's descent/lift columns are not placed.
+		int32 Vertical = 0;
+		for (const FChunkPiece* W : L.Of(EChunkPieceKind::Wind))
+		{
+			Vertical += LevelPlan::IsVerticalWind(W->Direction);
+		}
+		TestEqual(*FString::Printf(TEXT("slot %d places its variant's pieces"), Slot + 1), Pieces, L.Pieces.Num() - Vertical);
+		TestEqual(TEXT("slot winds match the layout less its vertical columns"), Winds, L.Of(EChunkPieceKind::Wind).Num() - Vertical);
 		TestTrue(TEXT("slot has a return current"), Returns >= 1);
 	}
 	int32 Yellow = 0;

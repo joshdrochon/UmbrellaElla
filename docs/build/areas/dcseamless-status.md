@@ -57,3 +57,18 @@ Test: UmbrellaElla.Level.CameraFollowSmooth (old follow: change 480/frame; new <
 Review (gate batch 01:32, changes): lane extension recorded in docs/build/areas/dcseamless.md; cuts snap (Ella jump > 400
 units per step resets the follow; test "a near respawn snaps"); trace behind !UE_BUILD_SHIPPING; TickCameraX -> RenderCameraX;
 empty SceneArt Tick commented; trace files dropped.
+
+## Nov 14 16:10: start picture edge, the floor bar, vertical wind (Josh played ffba0e20)
+1. Start picture "fades into transparency": the 0.35 alpha ramp dissolved the barn island over the void. Now
+   M_ArtSlot_EdgeFade eases the colour into the picture's own haze tone (sRGB 34,28,23, mean of its outer 8% columns) over
+   0.2 of its width and fades opacity only over the outer 0.3 of that band (the haze). Same for the end picture's left edge.
+   Seam check, real-input sweep start..CP3 (14 route shots): worst 2.2 (Keeper-fight shots 3.0-3.1 at x888 = chains, as before).
+   Proof: pipeline/art/proof/dcseamless/haze-{start-001,edge-005,end-014}.png. Approved texture bytes unchanged.
+2. "Trapped on the bottom track": the bar is LevelPlan's per-slot placeholder floor (not chunk-catalogue land; the GDD has
+   none: WIND-03 "the bottom is lethal", no ground-running). Removed (LevelPlan.cpp). Ella is held at the bottom by the
+   motor's arena-floor clamp (EllaMotorComponent.cpp:145), and nothing applies the lethal rule (IsAtPlayFloor is unread).
+   Trap not reproduced with real input: from the bottom she rose 180-290 units in 1 s at 7 route positions (release, Space).
+   Guard test UmbrellaElla.Move.World.BottomRisesWithinOneSecond. Proof: floorbar-before.png / floorbar-after.png.
+3. Vertical wind (Josh 16:02): D-new-no-vertical-wind; LevelPlan::Build skips winds with |Z| > |X| (catalogue rows kept).
+   Real input start -> Keeper, no assists: reaches the Keeper (CP1 18 s, CP3 26 s). The walker stalls at x 11464, z 450 (the
+   known 07A low solid, test RealInputWalkerAtZ450StopsAt07ALowSolid) with and without vertical wind (40 s / 100+ s).
