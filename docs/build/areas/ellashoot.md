@@ -14,3 +14,11 @@ Started by the build lead from Josh's brief (2026-11-14). It is the definition o
 3. Follow-up (Josh/lead 14 Nov): hip-fire shots must be able to hit the Keeper (measured in a real-input run); add a
    test. After the gate: a red, thinner replacement beam (shot red #ff3658 family, about half the thickness).
 Never: change approved art, touch Josh's game or the main checkout, add to approvals.json.
+
+## Cross-area change (Owl): Keeper part collider depth
+Josh's order (14 Nov, relayed by the build lead): hip-fire shots must hit the Keeper; fix the projectile plane or the part
+colliders. Measured before: a real-input offscreen Start Game run fired 58 Small Blasts and hit the Keeper 0 times (part
+boxes at Y -70..-30, shots at Y 25). Change: `KeeperLook::PartShotHalfDepth` (Keeper plane to past the shot plane,
+Y -145..45) in `Private/Owl/KeeperPartComponent.cpp`. Measured after, same run: 4 hits. The parts still block only the
+player-shot channel; an enemy shot through the box is not a hit and is not stopped
+(`UmbrellaElla.Move.World.HipFireShotDamagesKeeperPart`). Owl owner / Dev Lead confirmation is open (status file).
