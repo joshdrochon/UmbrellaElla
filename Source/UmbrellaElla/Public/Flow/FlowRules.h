@@ -99,6 +99,12 @@ struct UMBRELLAELLA_API FFlowRules
 	/** The looping sound-list row a screen starts (Start and credits share the title track), or NAME_None to leave music as is. */
 	static FName MusicFor(EFlowScreen Screen);
 
+	/**
+	 * Music for a screen in a play mode: the Director's Cut route plays MusicRoute on the play screen until the Keeper
+	 * fight (bKeeperFight: the fight's own phase music takes over); everything else as MusicFor(Screen). Pure.
+	 */
+	static FName MusicFor(EFlowScreen Screen, EUmbrellaPlayMode Mode, bool bKeeperFight);
+
 	/** Story Skip keys (opening caption, ending): Enter and the gamepad View button; no gameplay action uses them, so a skip press never reaches play. */
 	static TArray<FKey> StorySkipKeys();
 

@@ -130,6 +130,7 @@ StoryPageReveal,ui,oneshot,UI,1,1,0,GDD SH1.0 NAR-02,P2,the rest of a page appea
 StoryAdvance,ui,oneshot,UI,1,1,0,GDD SH1.0 NAR-02,P2,story advances,Audio owner,SW_StoryAdvance_00 passes --scan,none
 SceneTransition,ui,oneshot,UI,1,1,0,GDD SH1.0 NAR-07,P2,scene transition (optional),Audio owner,SW_SceneTransition_00 passes --scan,none
 MusicTitle,music,loop,Music,2,1,0,GDD SH1.0 FLOW-34 / FLOW-04 Start and End music,P0,Start screen and the credits roll (ART-04 same background),Audio owner,SW_MusicTitle_00 passes --scan,TBD
+MusicRoute,music,loop,Music,2,1,0,GDD SH1.0 FLOW-02 Director's Cut route music,P1,"Director's Cut route, from the route start to the Keeper (Josh, 14 Nov)",Audio owner,SW_MusicRoute_00 passes --scan,TBD
 MusicIntro,music,loop,Music,2,1,0,GDD SH1.0 OWL-06 wings phase music,P2,"Keeper fight music, wings (scope to confirm)",Audio owner,SW_MusicIntro_00 passes --scan,none
 MusicContest,music,loop,Music,2,1,0,GDD SH1.0 OWL-06 mechanisms phase music,P2,"Keeper fight music, mechanisms (scope to confirm)",Audio owner,SW_MusicContest_00 passes --scan,none
 MusicDesperation,music,loop,Music,2,1,0,GDD SH1.0 OWL-06 clock phase music,P2,"Keeper fight music, clock (scope to confirm)",Audio owner,SW_MusicDesperation_00 passes --scan,none
