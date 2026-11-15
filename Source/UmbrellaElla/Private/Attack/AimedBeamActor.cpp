@@ -15,12 +15,6 @@
 
 namespace
 {
-	/** Ricky's Other Realm study light: warm ivory (the art bible outline #FFE6C4), brass, ash. */
-	FLinearColor RibbonColour(const uint8 (&RGB)[3])
-	{
-		return FLinearColor(FColor(RGB[0], RGB[1], RGB[2]));
-	}
-
 	/** Smooth value noise in 0..1 from an integer lattice (deterministic, no engine random state). */
 	float RibbonHash(int32 X, int32 Seed)
 	{
@@ -54,8 +48,8 @@ FColor AAimedBeamActor::RibbonTexel(int32 X, int32 Y)
 	const float Across = FMath::Abs(V - 0.5f) * 2.0f / FMath::Max(AimedRibbonLook::EdgeMin, Edge);
 	const float Alpha = FMath::Clamp(1.0f - FMath::SmoothStep(AimedRibbonLook::AlphaSoftFrom, 1.0f, Across), 0.0f, 1.0f);
 	// Colour: ivory core -> brass -> ash toward the edge.
-	FLinearColor Colour = Across < AimedRibbonLook::CoreShare ? FMath::Lerp(RibbonColour(AimedRibbonLook::CoreRGB), RibbonColour(AimedRibbonLook::BrassRGB), Across / AimedRibbonLook::CoreShare)
-		: FMath::Lerp(RibbonColour(AimedRibbonLook::BrassRGB), RibbonColour(AimedRibbonLook::AshRGB), FMath::Clamp((Across - AimedRibbonLook::CoreShare) / (1.0f - AimedRibbonLook::CoreShare), 0.0f, 1.0f));
+	FLinearColor Colour = Across < AimedRibbonLook::CoreShare ? FMath::Lerp(AimedRibbonLook::Core, AimedRibbonLook::Brass, Across / AimedRibbonLook::CoreShare)
+		: FMath::Lerp(AimedRibbonLook::Brass, AimedRibbonLook::Ash, FMath::Clamp((Across - AimedRibbonLook::CoreShare) / (1.0f - AimedRibbonLook::CoreShare), 0.0f, 1.0f));
 	// Painted streaks: each band of rows gets its own slow grain along the beam, plus a fine stroke texture.
 	const int32 Row = Y / AimedRibbonLook::StreakRows;
 	const float Grain = AimedRibbonLook::GrainBase + AimedRibbonLook::GrainAmount * RibbonNoise(U * AimedRibbonLook::GrainFreq + static_cast<float>(Row) * AimedRibbonLook::GrainRowPhase, AimedRibbonLook::GrainSeed + Row)
