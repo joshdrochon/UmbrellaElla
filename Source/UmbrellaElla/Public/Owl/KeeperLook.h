@@ -14,7 +14,7 @@ namespace KeeperLook
 	static constexpr float PartDepth = 20.0f;
 	/**
 	 * Half depth (Y) of a part's collision box: from the Keeper's plane (KeeperY) past Ella's shot plane (ProjectileY)
-	 * by PartDepth. Play is in X/Z and depth is draw order only (GDD SH1.0 CORE-05: collision is fixed data, never the
+	 * by PartDepth. Play is in X/Z and depth is draw order only (collision is fixed data, never the
 	 * look); with PartDepth alone the boxes spanned Y -70..-30 and a Small Blast at Y 25 never touched them
 	 * (ellashoot, 14 Nov: 58 hip-fire shots in a real-input Keeper run, 0 hits).
 	 */
