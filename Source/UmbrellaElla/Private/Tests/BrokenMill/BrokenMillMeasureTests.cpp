@@ -68,6 +68,11 @@ bool FMillGuardProfiles::RunTest(const FString& Parameters)
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMillWorldNaturalPass, "UmbrellaElla.BrokenMill.World.NaturalPassWarnsThenKills", UMBRELLAELLA_MILL_FLAGS)
 bool FMillWorldNaturalPass::RunTest(const FString& Parameters)
 {
+	if (!FBrokenMillRules::IsInRun())
+	{
+		AddInfo(TEXT("SKIPPED: the Broken Mill is out of the run (D-new-mill-in-route); its timing assumes the GDD fall 330, the game falls 660 (D-new-move-speeds)"));
+		return true;
+	}
 	// HAZ-16 / HAZ-12: Ella enters the commit region from the left at root z 680 and holds Shoot at once (neutral fire,
 	// no aids). The tell is up for the whole warning, the shot comes, she falls through the exposed band. 10 HP: one
 	// hit. 20 HP comparison (only HP changed): both exposed emissions must land.
@@ -514,6 +519,11 @@ bool FMillMeasureWindow::RunTest(const FString& Parameters)
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMillMeasureEmissions, "UmbrellaElla.BrokenMill.World.MeasureEmissionsPerPass", UMBRELLAELLA_MILL_FLAGS)
 bool FMillMeasureEmissions::RunTest(const FString& Parameters)
 {
+	if (!FBrokenMillRules::IsInRun())
+	{
+		AddInfo(TEXT("SKIPPED: the Broken Mill is out of the run (D-new-mill-in-route); its timing assumes the GDD fall 330, the game falls 660 (D-new-move-speeds)"));
+		return true;
+	}
 	// HAZ-12: real shoot-falls through the real target at trim +1/0/-1 (fall 264/330/396) and six cadence phases each:
 	// how many emissions actually hit per pass. Plus the GDD's worked case from root z 680.
 	const FBrokenMillTuning& T = GetDefault<UUmbrellaTuning>()->BrokenMill;

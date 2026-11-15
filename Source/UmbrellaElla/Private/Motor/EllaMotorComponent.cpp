@@ -39,6 +39,9 @@ void UEllaMotorComponent::BeginPlay()
 		{
 			Move->GravityScale = 0.0f;
 			Move->SetMovementMode(MOVE_None);
+			// One movement path (D-new-move-speeds): possession puts the character movement back in Falling, where it moved
+			// Ella a second time with the velocity the motor copies into it. Its tick stays off; the motor sweeps instead.
+			Move->SetComponentTickEnabled(false);
 		}
 	}
 	if (Owner)
@@ -128,7 +131,7 @@ void UEllaMotorComponent::StepMotor(float DeltaSeconds)
 	Input.ForcedVelocity = SumForcedPushes();
 	for (const TPair<FName, FVector>& Field : ActiveLocalFields)
 	{
-		Input.LocalVerticalVelocity += MotorModel::LocalVerticalTerm(Field.Value.X, Field.Value.Y, Field.Value.Z, static_cast<float>(Owner->GetActorLocation().Z));
+		Input.LocalVerticalVelocity += GetDefault<UUmbrellaTuning>()->Motor.WindScale * MotorModel::LocalVerticalTerm(Field.Value.X, Field.Value.Y, Field.Value.Z, static_cast<float>(Owner->GetActorLocation().Z));
 	}
 	Input.LiftMultiplier = LiftMultiplier;
 
@@ -160,7 +163,23 @@ void UEllaMotorComponent::StepMotor(float DeltaSeconds)
 	{
 		Model.Velocity.Y = 0.0f;
 	}
-	Owner->SetActorLocation(Location);
+	// Swept move, one axis at a time, so route solids stop her and she slides along their faces (what the character
+	// movement's Falling move did before its tick was turned off).
+	FVector Swept = Owner->GetActorLocation();
+	Swept.X = Location.X;
+	Swept.Y = Location.Y;
+	Owner->SetActorLocation(Swept, true);
+	if (!FMath::IsNearlyEqual(Owner->GetActorLocation().X, Location.X, UE_KINDA_SMALL_NUMBER))
+	{
+		Model.Velocity.X = 0.0f; // blocked by a solid: no into-wall speed is kept
+	}
+	Swept = Owner->GetActorLocation();
+	Swept.Z = Location.Z;
+	Owner->SetActorLocation(Swept, true);
+	if (!FMath::IsNearlyEqual(Owner->GetActorLocation().Z, Location.Z, UE_KINDA_SMALL_NUMBER))
+	{
+		Model.Velocity.Y = 0.0f;
+	}
 	// Both edges are lethal: the bottom (WIND-03) and the top (D-new-ceiling-lethal, Josh 14 Nov). The clamps above only keep
 	// her picture in frame for the death flow; reaching either line defeats her, so the ceiling can never hold her alive.
 	if (UUmbrellaHealthComponent* Health = Owner->FindComponentByClass<UUmbrellaHealthComponent>())
@@ -296,7 +315,7 @@ void UEllaMotorComponent::OnWindEntered(const FUmbrellaEvent& Event)
 	if (IsEventForElla(Event))
 	{
 		// Current contract: force (speed, units/s) in Value, direction word or "x,z" in Detail.
-		const FVector2D Velocity = MotorModel::ParseCurrentDirection(Event.Detail) * Event.Value;
+		const FVector2D Velocity = MotorModel::ParseCurrentDirection(Event.Detail) * Event.Value * GetDefault<UUmbrellaTuning>()->Motor.WindScale;
 		if (MotorModel::IsForcedSource(Event.SourceId))
 		{
 			ForcedPushes.Add(Event.SourceId, Velocity);

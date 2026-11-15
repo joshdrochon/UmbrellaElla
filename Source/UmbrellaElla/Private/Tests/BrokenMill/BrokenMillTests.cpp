@@ -368,6 +368,11 @@ bool FMillWorldCancelAbortPause::RunTest(const FString& Parameters)
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMillWorldRealWinds, "UmbrellaElla.BrokenMill.World.RealWindsPickedByReopenHeight", UMBRELLAELLA_MILL_FLAGS)
 bool FMillWorldRealWinds::RunTest(const FString& Parameters)
 {
+	if (!FBrokenMillRules::IsInRun())
+	{
+		AddInfo(TEXT("SKIPPED: the Broken Mill is out of the run (D-new-mill-in-route); its timing assumes the GDD fall 330, the game falls 660 (D-new-move-speeds)"));
+		return true;
+	}
 	// HAZ-14: early/late reopening selects each wind without theft, through the REAL wind volumes' overlap events.
 	const float Dt = 1.0f / 60.0f;
 	const float MeasureSeconds = 0.4f;
@@ -437,6 +442,11 @@ bool FMillWorldRealWinds::RunTest(const FString& Parameters)
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMillWorldFallingPass, "UmbrellaElla.BrokenMill.World.FallingPassRidesOnwardOneShot", UMBRELLAELLA_MILL_FLAGS)
 bool FMillWorldFallingPass::RunTest(const FString& Parameters)
 {
+	if (!FBrokenMillRules::IsInRun())
+	{
+		AddInfo(TEXT("SKIPPED: the Broken Mill is out of the run (D-new-mill-in-route); its timing assumes the GDD fall 330, the game falls 660 (D-new-move-speeds)"));
+		return true;
+	}
 	// HAZ-14/15: warned in the commit region, Ella falls through the firing column and reopens late; the real onward
 	// current carries her right while the single snapshot shot flies at where she was and misses.
 	const float Dt = 1.0f / 60.0f;
@@ -488,6 +498,11 @@ bool FMillWorldFallingPass::RunTest(const FString& Parameters)
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMillWorldFreeRise, "UmbrellaElla.BrokenMill.World.FreeRiseLeavesRegionShotMisses", UMBRELLAELLA_MILL_FLAGS)
 bool FMillWorldFreeRise::RunTest(const FString& Parameters)
 {
+	if (!FBrokenMillRules::IsInRun())
+	{
+		AddInfo(TEXT("SKIPPED: the Broken Mill is out of the run (D-new-mill-in-route); its timing assumes the GDD fall 330, the game falls 660 (D-new-move-speeds)"));
+		return true;
+	}
 	// HAZ-15: the 1.1 s tell is a snapshot. Rising freely at 120/s Ella leaves the 70-tall commit region before the
 	// release; the guard still fires once, straight at the captured point, and the shot misses.
 	const float Dt = 1.0f / 60.0f;

@@ -496,6 +496,11 @@ def problems(manifest, snapshot_text, presets=None, decisions_text=""):
                                                       "row says 'Overrides: <ID>'"))
     out += approved_problems(manifest, snapshot_text)
     out += override_problems(decisions_text)
+    import tuning as _tuning  # noqa: E402  (same directory)
+    vals, bad = _tuning.decided_values(decisions_text)
+    out += [("values", k, why) for k, why in bad]
+    known = ((manifest.get("approved_parameters") or {}).get("values") or {})
+    out += [("values", k, "a DECIDED Values clause names a key the manifest approved_parameters does not have") for k in vals if k not in known]
     out += grace_problems(decisions_text)
     if presets is not None:
         out += preset_problems(presets, snapshot_text, ids, feats)
@@ -580,6 +585,11 @@ DECISIONS = "docs/decisions.md"
 # Every ID an Overrides clause can lift is an APPROVED_P0 feature or a preset, so the design owner is the only valid
 # decider (D-new-sh10-design-owner).
 DESIGN_OWNER = "Rick"
+# D-new-creative-director-feel (Josh, 14 Nov): the creative director may sign Overrides for Ella's feel speeds, these
+# MOVE-21 keys only (the ones D-new-move-speeds names). Every other key, feature or preset still needs DESIGN_OWNER.
+FEEL_DIRECTOR = "Josh"
+FEEL_KEYS = frozenset({"MOVE-21.rise_speed", "MOVE-21.fall_speed", "MOVE-21.free_fall_speed",
+                       "MOVE-21.horizontal_max_speed", "MOVE-21.hop_distance", "MOVE-21.dash_distance"})
 # The Status cell of a counted row: exactly `DECIDED <YYYY-MM-DD> (<name>)` at its start (docs/decisions.md rules).
 DECIDED_STATUS = re.compile(r"DECIDED (\d{4}-\d{2}-\d{2}) \(([A-Z][\w .'-]*)\)(?=$|[\s.;,])")
 NO_OWNER = re.compile(r"^(?:|[-\u2013\u2014]+|none|tbd|n/?a|\?+|unassigned)$", re.I)
@@ -621,6 +631,8 @@ def override_row_problem(row, line):
         return "it is SUPERSEDED"
     if NO_OWNER.match(row.get("owner", "").strip()):
         return "it has no named Owner"
+    if m.group(2).strip() == FEEL_DIRECTOR and override_ids(line) and override_ids(line) <= FEEL_KEYS:
+        return None
     if m.group(2).strip() != DESIGN_OWNER:
         return f"it was decided by {m.group(2).strip()}, not {DESIGN_OWNER} (the design owner approves P0 and presets)"
     return None

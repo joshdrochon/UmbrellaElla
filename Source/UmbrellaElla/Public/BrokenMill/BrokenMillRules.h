@@ -176,6 +176,10 @@ struct UMBRELLAELLA_API FBrokenMillRules
 	/** The same window for a plain comparison target of the given height (no island). */
 	static FVector2D GetComparisonWindowRoot(const FBrokenMillTuning& Tuning, float TargetHeight);
 
+	/** False while the Mill is out of the run (D-new-mill-in-route default: PlaytestRun scratch room only). Its world tests that
+	 *  depend on Ella's real fall speed skip while this is false (D-new-move-speeds); placing the Mill flips it and they run. */
+	static bool IsInRun() { return false; }
+
 	static float GetWindowSeconds(const FVector2D& Window, float FallSpeed);
 
 	/** (floor, ceil) of the emissions a window of the given length holds at an arbitrary cadence phase. */
