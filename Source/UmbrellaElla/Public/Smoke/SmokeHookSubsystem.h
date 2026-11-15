@@ -166,4 +166,6 @@ private:
 	/** Consecutive frames the -SmokeShotWhen moment has held, and how many it must hold (-SmokeShotMomentFrames, default 1). */
 	int32 MomentFrames = 0;
 	int32 ShotMomentFrames = 1;
+	/** -SmokeDown: Ella was put in Down once this run. */
+	bool bSmokeDownSet = false;
 };

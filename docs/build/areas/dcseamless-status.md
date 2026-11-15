@@ -79,3 +79,16 @@ Lethal bottom not applied anywhere: handed to the owner (see dcseamless.md).
 Main 1d95f1fd (fallrules) made the bottom lethal (EllaMotorComponent DefeatAtBoundary): the bottom-rise guard test
 (BottomRisesWithinOneSecond) contradicted it and is dropped; with the bar gone and the bottom lethal there is no ground to be
 trapped on.
+
+## Nov 14 19:00: barn picture off the route; arch stop and arena-entry haze
+Josh (6:22 PM): remove the barn picture; the clock-arch layer stops abruptly; the arena entry reads as a haze. Both were the
+route-end barn picture: its left edge (haze fade) cut the layered backdrop (atmosphere arches, islands) off before the Keeper
+fight (arenaentry-before.png). bg:start-end is no longer in SceneArtSubsystem::Specs; the layers already span the Keeper
+fight frame (test FrameComposition.KeeperBackdropContinuous rewritten to check the layer footprints). Art bytes unchanged.
+Real-input sweep start..CP3 (45 shots): every route shot < 3.0 (w02 = tutorial card). Keeper fight shots 2.9-3.2 rows at
+y 204/343 (island tops), was 3.0-3.3 (chains) with the barn picture. Proof: arenaentry-after.png, route-after-w30.png.
+Gate 4d0c3f99 FAIL (visual_qa play): scores rose (46/43 vs 40) but a new detector hit, "flat box" at (927,115): with the
+barn picture gone, Start Game showed the atmosphere layer where the barn picture had been. The barn picture is Start Game's
+backdrop (its arena sits at the route start), so its start copy is back and hides in Director's Cut
+(SceneArtSubsystem::IsShownInDirectorsCut, applied each post-actor tick); no route-end copy. Start Game play backdrop pixels
+match main 63266143 again; the DC Keeper capture differs from main by design (no barn picture).

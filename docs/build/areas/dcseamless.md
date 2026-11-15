@@ -28,3 +28,8 @@ Source/UmbrellaElla/Private/Level/LevelPlan.cpp (Build). (b) "remove vertical dr
 and ChunkLayoutTests.cpp, the D-new-no-vertical-wind row in docs/decisions.md and the HAZ-25/27/34/36 notes in
 docs/build/rule-status.csv. The chunk catalogue (ChunkCatalogueData.h, ChunkLayouts.*) and the motor are not touched.
 The lethal bottom itself is the fallrules lane (main 1d95f1fd: reaching the bottom defeats Ella).
+
+Lane extension (Nov 14 evening, coordinator orders on Josh's 6:22 PM play of 6458b65c): (c) the barn picture off the Director's Cut route (start copy kept for Start Game, hidden in DC)
+(SceneArtSubsystem Specs; ArtSlotTests, BackdropSeamTests, FrameCompositionTests.KeeperBackdropContinuous); (d) no refuge
+slab on the lethal bottom (LevelPlan.cpp); (e) Floodstriders stand on drawn land: the four stilt rows and two new CH12
+shelves in Source/UmbrellaElla/Public/Level/ChunkCatalogueData.h, D-new-no-floating-enemies in docs/decisions.md.

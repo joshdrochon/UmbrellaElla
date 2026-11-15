@@ -195,6 +195,17 @@ FName FFlowRules::MusicFor(EFlowScreen Screen)
 	return Screen == EFlowScreen::Title || Screen == EFlowScreen::Credits ? FName(TEXT("MusicTitle")) : NAME_None;
 }
 
+FName FFlowRules::MusicFor(EFlowScreen Screen, EUmbrellaPlayMode Mode, bool bKeeperFight)
+{
+	// Josh, 14 Nov: the Director's Cut route played the title music. MusicRoute (Ricky, ElevenLabs Music) from the route
+	// start; the Keeper's phase music cross-fades in at the fight (UmbrellaCueData PhaseStarted rows).
+	if (Screen == EFlowScreen::Playing && Mode == EUmbrellaPlayMode::DirectorsCut && !bKeeperFight)
+	{
+		return FName(TEXT("MusicRoute"));
+	}
+	return MusicFor(Screen);
+}
+
 bool FFlowRules::IsTimelineDone(float Elapsed, float Duration)
 {
 	return Elapsed >= Duration;
@@ -254,4 +265,45 @@ TArray<FKey> FFlowRules::StorySkipKeys()
 FName FFlowRules::TitleMusicId()
 {
 	return FName(TEXT("MusicTitle"));
+}
+
+FString FFlowRules::RetryOption(EUmbrellaPlayMode Mode, int32 RetryCount)
+{
+	return FString::Printf(TEXT("UmbrellaRetry=%s.%d"), Mode == EUmbrellaPlayMode::DirectorsCut ? TEXT("DirectorsCut") : TEXT("StartGame"), RetryCount);
+}
+
+bool FFlowRules::HasRetryStart(const FString& GameOptions, EUmbrellaPlayMode& OutMode, int32& OutRetryCount)
+{
+	TArray<FString> Parts;
+	GameOptions.ParseIntoArray(Parts, TEXT("?"), true);
+	for (const FString& Part : Parts)
+	{
+		FString Key;
+		FString Value;
+		if (!Part.Split(TEXT("="), &Key, &Value) || !Key.Equals(TEXT("UmbrellaRetry"), ESearchCase::IgnoreCase))
+		{
+			continue;
+		}
+		FString ModeName;
+		FString Count;
+		if (!Value.Split(TEXT("."), &ModeName, &Count))
+		{
+			ModeName = Value;
+		}
+		if (ModeName.Equals(TEXT("DirectorsCut"), ESearchCase::IgnoreCase))
+		{
+			OutMode = EUmbrellaPlayMode::DirectorsCut;
+		}
+		else if (ModeName.Equals(TEXT("StartGame"), ESearchCase::IgnoreCase))
+		{
+			OutMode = EUmbrellaPlayMode::StartGame;
+		}
+		else
+		{
+			return false;
+		}
+		OutRetryCount = FMath::Max(0, FCString::Atoi(*Count));
+		return true;
+	}
+	return false;
 }

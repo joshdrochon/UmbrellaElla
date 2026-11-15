@@ -99,6 +99,12 @@ struct UMBRELLAELLA_API FFlowRules
 	/** The looping sound-list row a screen starts (Start and credits share the title track), or NAME_None to leave music as is. */
 	static FName MusicFor(EFlowScreen Screen);
 
+	/**
+	 * Music for a screen in a play mode: the Director's Cut route plays MusicRoute on the play screen until the Keeper
+	 * fight (bKeeperFight: the fight's own phase music takes over); everything else as MusicFor(Screen). Pure.
+	 */
+	static FName MusicFor(EFlowScreen Screen, EUmbrellaPlayMode Mode, bool bKeeperFight);
+
 	/** Story Skip keys (opening caption, ending): Enter and the gamepad View button; no gameplay action uses them, so a skip press never reaches play. */
 	static TArray<FKey> StorySkipKeys();
 
@@ -107,6 +113,13 @@ struct UMBRELLAELLA_API FFlowRules
 
 	/** True when the game options of a freshly loaded world ask for the Try Again start. */
 	static bool IsTryAgainStart(const FString& GameOptions);
+
+	/** Retry after defeat (Josh, 14 Nov, D-new-retry-reload): the level reloads and the same mode starts from its beginning.
+	 *  The option names the mode and carries the retry count: "UmbrellaRetry=StartGame.2". */
+	static FString RetryOption(EUmbrellaPlayMode Mode, int32 RetryCount);
+
+	/** Parses a freshly loaded world's game options; false when no Retry reload asked for a start. */
+	static bool HasRetryStart(const FString& GameOptions, EUmbrellaPlayMode& OutMode, int32& OutRetryCount);
 
 	/** True during the ending hold on Ella: the Story screen shows the world, not the ending background. */
 	static bool IsEndingHoldAt(float StoryElapsed, float HoldSeconds);
