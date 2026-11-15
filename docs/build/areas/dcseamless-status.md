@@ -92,3 +92,8 @@ barn picture gone, Start Game showed the atmosphere layer where the barn picture
 backdrop (its arena sits at the route start), so its start copy is back and hides in Director's Cut
 (SceneArtSubsystem::IsShownInDirectorsCut, applied each post-actor tick); no route-end copy. Start Game play backdrop pixels
 match main 63266143 again; the DC Keeper capture differs from main by design (no barn picture).
+Josh 9:10 PM (main 097a8568): "a small enemy floating at the bottom centre": the CP checkpoint marker (Checkpoint placement,
+drawn with the refuge art) left hanging just above the lethal bottom once the refuge slab went. Removed (LevelPlan.cpp);
+reaching a refuge is by X. Ground check added (Level.PlanIsSeededAndOrdered, seeds 1001-1003): every Roadwarden and
+Floodstrider has a Solid top within 6 units under its feet; Couriers fly. Proof marker-before/after.png.
+Open: a Roadwarden at the CP1 view stands at the right end of its land box, past the drawn island art's edge (art vs box).

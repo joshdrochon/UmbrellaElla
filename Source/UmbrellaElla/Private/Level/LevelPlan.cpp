@@ -48,7 +48,6 @@ namespace LevelPlan
 		}
 		const float H = LevelPlanArena().ArenaHeight;
 		const float Chunk = LevelPlanField().ChunkLength;
-		const float FloorThick = LevelPlanConst::FloorThicknessFraction * H;
 		// Separate seeded stream for enemy colours, so layout and colour never share draws.
 		FRandomStream Colours(static_cast<int32>(Route.Seed & LevelPlanConst::SeedMask));
 		TArray<int32> FreeColourEnemies;
@@ -111,21 +110,10 @@ namespace LevelPlan
 			Out[FreeColourEnemies[I]].bYellowShot = Assigned[I] == EUmbrellaShotKind::EnemyYellow;
 		}
 
-		if (IsFeatureEnabled(EFeatureId::FLOW_27))
-		{
-			const int32 Checkpoints = LevelPlanField().RouteSlotCount / LevelPlanField().SlotsPerCheckpoint;
-			for (int32 Cp = 1; Cp <= Checkpoints; ++Cp)
-			{
-				// No refuge slab: it lay on the lethal bottom like the removed route floor and read as a dark bar Ella could
-				// never reach (Josh, 14 Nov). The refuge stays a stretch of the route (RefugeStartX); its checkpoint marker stays.
-				if (IsFeatureEnabled(EFeatureId::FLOW_28))
-				{
-					const FVector Stand = CheckpointStandLocation(Cp);
-					Out.Add(MakePlacement(ELevelPlacementKind::Checkpoint, Cp, Stand.X, FloorThick + 0.5f * LevelPlanConst::CheckpointSizeFraction * H,
-						LevelPlanConst::CheckpointSizeFraction * H, LevelPlanConst::CheckpointSizeFraction * H));
-				}
-			}
-		}
+		// No refuge slab and no checkpoint marker: both lay just above the lethal bottom with nothing under them (Josh, 14 Nov:
+		// "a dark bar", then "a small enemy floating at the bottom"). A refuge is a stretch of the route (RefugeStartX);
+		// reaching one is by X (CheckpointReachedAt).
+
 		return Out;
 	}
 
