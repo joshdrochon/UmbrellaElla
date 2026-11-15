@@ -17,6 +17,8 @@
 #include "Flow/FlowMenuText.h"
 #include "Styling/CoreStyle.h"
 #include "UI/Menus/FlowMenuWidgets.h"
+#include "UI/ClockHudModel.h"
+#include "UI/Progression/XpRingWidget.h"
 #include "UI/Style/UmbrellaUIStyle.h"
 #include "Widgets/Input/SButton.h"
 #include "Widgets/Layout/SBorder.h"
@@ -186,6 +188,45 @@ void UUIShotSubsystem::BuildSteps()
 	{
 		return [Value](AUmbrellaPlayerController* Controller) { Controller->ApplyCommand(Value); };
 	};
+
+	// The XP ring on the live HUD clock (ring-dc) and the same moment in Start Game (ring-sg), shot one second into play,
+	// before the idle run ends. Logs where the ring was drawn against the clock's own layout rule.
+	if (Mode == TEXT("ring-dc") || Mode == TEXT("ring-sg"))
+	{
+		const bool bDirectorsCutRing = Mode == TEXT("ring-dc");
+		Add(TEXT(""), 1.0f, [bDirectorsCutRing](AUmbrellaPlayerController* Controller)
+		{
+			Controller->KeepTutorialInMemoryOnly();
+			Controller->MarkTutorialSeen();
+			bDirectorsCutRing ? Controller->StartDirectorsCut() : Controller->StartGame();
+		});
+		Add(TEXT(""), 1.0f, [](AUmbrellaPlayerController*) {});
+		Add(*Mode, 0.05f, [](AUmbrellaPlayerController* Controller)
+		{
+			const UGameViewportClient* Client = Controller->GetWorld()->GetGameViewport();
+			FVector2D View = FVector2D::ZeroVector;
+			if (Client)
+			{
+				Client->GetViewportSize(View);
+			}
+			const FClockLayout Clock = ClockHudRules::ComputeLayout(View, GetDefault<UUmbrellaTuning>()->Hud);
+			int32 Rings = 0;
+			for (TObjectIterator<UXpRingWidget> It; It; ++It)
+			{
+				if (It->GetWorld() != Controller->GetWorld() || !It->IsInViewport())
+				{
+					continue;
+				}
+				++Rings;
+				const FXpRingCircle Drawn = It->GetLastDrawnCircle();
+				UE_LOG(LogUmbrellaElla, Log, TEXT("UI_SHOT_XPRING view=%.0fx%.0f clock=(%.2f,%.2f) clock_r=%.2f ring=(%.2f,%.2f) ring_r=%.2f clock_edge=%.2f off_px=%.3f"),
+					View.X, View.Y, Clock.Center.X, Clock.Center.Y, Clock.Radius, Drawn.Center.X, Drawn.Center.Y, Drawn.Radius, Drawn.ClockEdge,
+					FVector2D::Distance(Drawn.Center, Clock.Center));
+			}
+			UE_LOG(LogUmbrellaElla, Log, TEXT("UI_SHOT_XPRING rings_in_viewport=%d"), Rings);
+		});
+		return;
+	}
 
 	if (Mode == TEXT("dc"))
 	{

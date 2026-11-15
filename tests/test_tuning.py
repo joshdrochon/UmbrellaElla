@@ -114,7 +114,9 @@ class StolenHour(unittest.TestCase):
         self.assertIn("SURV-05.post_hit_protection_s", sim)
         for key, v in sim.items():
             with self.subTest(key):
-                self.assertAlmostEqual(v, tuning.approved(man)[key]["start"])
+                # D-new-move-speeds: a DECIDED Values clause sets these keys; every other key is its GDD start.
+                want = tuning.decided_values()[0].get(key, tuning.approved(man)[key]["start"])
+                self.assertAlmostEqual(v, want)
                 self.assertEqual(tuning.rule(man, key)["kind"], "fixed", "GDD SH1.0 prints no dev ranges yet")
         self.assertEqual(tuning.baked_vs_sim_problems(ROOT, baked=dict(sim)), [])
         got = tuning.baked_vs_sim_problems(ROOT, baked=dict(sim, **{"OWL-08.clock_hp": 300}))

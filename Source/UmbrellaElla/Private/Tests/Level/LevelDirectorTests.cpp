@@ -68,7 +68,29 @@ bool FLevelPlanSeeded::RunTest(const FString& Parameters)
 	TestEqual(TEXT("no route floor: the bottom is lethal (game-spec)"), Floors, 0);
 	TestTrue(TEXT("the route start stands above the bottom"), LevelPlan::CheckpointStandLocation(0).Z > 0.0f);
 	TestEqual(TEXT("no refuge slab on the lethal bottom"), Refuges, 0);
-	TestEqual(TEXT("three checkpoints"), Checkpoints, 3);
+	TestEqual(TEXT("no checkpoint marker floating above the lethal bottom"), Checkpoints, 0);
+	// Josh, 14 Nov: no floating enemies. Every grounded enemy (Roadwarden, Floodstrider) has drawn land right under its
+	// feet; only the Sky Courier flies.
+	for (const int64 Seed : {1001LL, 1002LL, 1003LL})
+	{
+		const TArray<FLevelPlacement> Plan = LevelPlan::Build(LevelCatalogue::Generate(Seed));
+		for (const FLevelPlacement& E : Plan)
+		{
+			if (E.Kind != ELevelPlacementKind::Enemy || E.Mechanic == EChunkMechanic::Courier)
+			{
+				continue;
+			}
+			const float Feet = static_cast<float>(E.Location.Z - 0.5 * E.Size.Z);
+			bool bGround = false;
+			for (const FLevelPlacement& L : Plan)
+			{
+				const float Top = static_cast<float>(L.Location.Z + 0.5 * L.Size.Z);
+				bGround |= L.Kind == ELevelPlacementKind::Solid && FMath::Abs(Top - Feet) <= 6.0f
+					&& FMath::Abs(L.Location.X - E.Location.X) <= 0.5 * L.Size.X;
+			}
+			TestTrue(*FString::Printf(TEXT("seed %lld slot %d enemy at (%.0f, %.0f) stands on land"), Seed, E.Slot, E.Location.X, Feet), bGround);
+		}
+	}
 	return true;
 }
 
