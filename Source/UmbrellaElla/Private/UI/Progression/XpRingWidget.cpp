@@ -1,12 +1,40 @@
 #include "UI/Progression/XpRingWidget.h"
 #include "Core/UmbrellaPlayMode.h"
+#include "Core/UmbrellaTuning.h"
 #include "GameFramework/PlayerController.h"
 #include "Harness/UmbrellaFeatureFlags.h"
 #include "Progression/ProgressionTuning.h"
 #include "Progression/ProgressionSubsystem.h"
 #include "Rendering/DrawElements.h"
+#include "UI/ClockHudModel.h"
+#include "UI/Style/UmbrellaUIStyle.h"
 #include "Widgets/SBoxPanel.h"
 #include "Widgets/Layout/SBox.h"
+
+FXpRingCircle UXpRingWidget::ComputeCircle(const FVector2D& CanvasPixels, const FHudTuning& Hud, const FProgressionTuning& Tuning)
+{
+	const FClockLayout Layout = ClockHudRules::ComputeLayout(CanvasPixels, Hud);
+	FXpRingCircle Circle;
+	Circle.Center = Layout.Center;
+	// The clock's outer edge: the dial art's edge (its gold rim sits at ClockFaceRimShare of the art's half size), or the
+	// drawn bronze rim's outer edge when the art is missing; whichever is further out.
+	Circle.ClockEdge = FMath::Max(Layout.Radius / UmbrellaUIStyleConstants::ClockFaceRimShare, Layout.Radius + Hud.RimThickness * 0.5f);
+	Circle.Radius = Circle.ClockEdge + Tuning.RingGapPixels + Tuning.RingThickness * 0.5f;
+	return Circle;
+}
+
+FXpRingColors UXpRingWidget::ComputeColors(bool bMax, float Pulse, const FProgressionTuning& Tuning)
+{
+	const FLinearColor Gold = FUmbrellaUIStyle::Gold();
+	const FLinearColor Bright = FUmbrellaUIStyle::GoldBright();
+	FXpRingColors Colors;
+	Colors.Track = FLinearColor(Gold.R * Tuning.RingTrackShade, Gold.G * Tuning.RingTrackShade, Gold.B * Tuning.RingTrackShade, Tuning.RingTrackAlpha);
+	const FLinearColor Base = bMax ? Bright : FMath::Lerp(Gold, Bright, Tuning.RingFillAlpha);
+	const FLinearColor Lit = FMath::Lerp(Base, FUmbrellaUIStyle::Cream(), FMath::Clamp(Pulse, 0.0f, 1.0f));
+	Colors.Fill = Lit.CopyWithNewOpacity(bMax ? 1.0f : Tuning.RingFillAlpha);
+	Colors.Halo = Lit.CopyWithNewOpacity(Tuning.RingHaloAlpha);
+	return Colors;
+}
 
 UXpRingWidget* UXpRingWidget::Show(APlayerController* Owner)
 {
@@ -22,9 +50,11 @@ UXpRingWidget* UXpRingWidget::Show(APlayerController* Owner)
 	UXpRingWidget* Ring = CreateWidget<UXpRingWidget>(Owner);
 	if (Ring != nullptr)
 	{
-		const FProgressionTuning& Tuning = Subsystem->GetTuning();
-		Ring->SetDesiredSizeInViewport(FVector2D(Tuning.RingSizePixels, Tuning.RingSizePixels));
-		Ring->SetPositionInViewport(Tuning.RingViewportPosition, false);
+		// Stretched over the whole viewport with no offset: the ring paints itself on the clock's centre, from the same
+		// layout rule the HUD canvas uses, so it cannot drift from the clock at any window size or DPI scale.
+		// (No position or desired size: either one turns the stretch offsets into a small box at the corner.)
+		Ring->SetAnchorsInViewport(FAnchors(0.0f, 0.0f, 1.0f, 1.0f));
+		Ring->SetVisibility(ESlateVisibility::HitTestInvisible);
 		Ring->AddToViewport();
 	}
 	return Ring;
@@ -107,18 +137,15 @@ float UXpRingWidget::GetPulse() const
 	return Length > 0.0f ? FMath::Clamp(PulseRemaining / Length, 0.0f, 1.0f) : 0.0f;
 }
 
-void UXpRingWidget::DrawArc(const FGeometry& Geometry, FSlateWindowElementList& Elements, int32 Layer, float Fraction,
-	const FLinearColor& Color, float Thickness) const
+void UXpRingWidget::DrawArc(const FGeometry& Geometry, FSlateWindowElementList& Elements, int32 Layer, const FVector2D& Center,
+	double Radius, float Fraction, const FLinearColor& Color, float Thickness) const
 {
 	const UProgressionSubsystem* Subsystem = Progression.Get();
-	if (Subsystem == nullptr || Fraction <= 0.0f)
+	if (Subsystem == nullptr || Fraction <= 0.0f || Radius <= 0.0)
 	{
 		return;
 	}
 	const FProgressionTuning& Tuning = Subsystem->GetTuning();
-	const FVector2D Size = Geometry.GetLocalSize();
-	const FVector2D Center = Size * 0.5;
-	const double Radius = FMath::Max(1.0, FMath::Min(Size.X, Size.Y) * 0.5 - static_cast<double>(Tuning.RingThickness + Tuning.RingPulseExtraThickness));
 	const int32 Steps = FMath::Max(2, FMath::CeilToInt(static_cast<float>(Tuning.RingSegments) * Fraction));
 	TArray<FVector2D> Points;
 	Points.Reserve(Steps + 1);
@@ -136,16 +163,27 @@ int32 UXpRingWidget::NativePaint(const FPaintArgs& Args, const FGeometry& Allott
 {
 	const int32 Painted = Super::NativePaint(Args, AllottedGeometry, MyCullingRect, OutDrawElements, LayerId, InWidgetStyle, bParentEnabled);
 	const UProgressionSubsystem* Subsystem = Progression.Get();
+	LastDrawn = FXpRingCircle();
 	if (Subsystem == nullptr || !bDirectorsCut)
 	{
 		return Painted;
 	}
 	const FProgressionTuning& Tuning = Subsystem->GetTuning();
+	// The widget spans the viewport; the HUD clock is laid out in canvas pixels, so convert pixels to local units.
+	const float PixelScale = AllottedGeometry.Scale > 0.0f ? AllottedGeometry.Scale : 1.0f;
+	const FXpRingCircle Circle = ComputeCircle(AllottedGeometry.GetLocalSize() * PixelScale, GetDefault<UUmbrellaTuning>()->Hud, Tuning);
+	const FVector2D Center = Circle.Center / PixelScale;
+	const double Radius = Circle.Radius / PixelScale;
+	LastDrawn.Center = AllottedGeometry.LocalToAbsolute(Center);
+	LastDrawn.Radius = Circle.Radius;
+	LastDrawn.ClockEdge = Circle.ClockEdge;
 	const float Pulse = GetPulse();
 	const float Extra = bReducedMotion ? 0.0f : Tuning.RingPulseExtraThickness * Pulse;
-	const FLinearColor Base = bMaxShown ? Tuning.RingMaxColor : Tuning.RingFillColor;
-	const FLinearColor Fillcolor = FMath::Lerp(Base, Tuning.RingLevelUpColor, Pulse);
-	DrawArc(AllottedGeometry, OutDrawElements, Painted, 1.0f, Tuning.RingTrackColor, Tuning.RingThickness);
-	DrawArc(AllottedGeometry, OutDrawElements, Painted + 1, Fill, Fillcolor, Tuning.RingThickness + Extra);
-	return Painted + 2;
+	const FXpRingColors Colors = ComputeColors(bMaxShown, Pulse, Tuning);
+	const float Thickness = (Tuning.RingThickness + Extra) / PixelScale;
+	DrawArc(AllottedGeometry, OutDrawElements, Painted, Center, Radius, 1.0f, Colors.Track, Tuning.RingThickness / PixelScale);
+	// Soft edge: a wide faint halo under the thin bright line.
+	DrawArc(AllottedGeometry, OutDrawElements, Painted + 1, Center, Radius, Fill, Colors.Halo, Thickness * Tuning.RingHaloWidthScale);
+	DrawArc(AllottedGeometry, OutDrawElements, Painted + 2, Center, Radius, Fill, Colors.Fill, Thickness);
+	return Painted + PaintLayerCount;
 }

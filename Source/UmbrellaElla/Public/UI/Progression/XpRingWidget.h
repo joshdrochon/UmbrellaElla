@@ -6,6 +6,26 @@
 
 class APlayerController;
 class UProgressionSubsystem;
+struct FHudTuning;
+struct FProgressionTuning;
+
+/** Where the ring is drawn, in canvas pixels: the HUD clock's centre and a radius just outside its gold rim. */
+struct FXpRingCircle
+{
+	FVector2D Center = FVector2D::ZeroVector;
+	/** Radius of the ring's centre line. */
+	float Radius = 0.0f;
+	/** The clock's outer rim edge the ring wraps. */
+	float ClockEdge = 0.0f;
+};
+
+/** The ring's colours, all from the shared UI gold tokens. */
+struct FXpRingColors
+{
+	FLinearColor Track = FLinearColor::Transparent;
+	FLinearColor Fill = FLinearColor::Transparent;
+	FLinearColor Halo = FLinearColor::Transparent;
+};
 
 /**
  * Director's Cut XP ring: a thin glowing ring drawn around the existing clock, never a third hand. Fills with earned XP
@@ -19,7 +39,13 @@ class UMBRELLAELLA_API UXpRingWidget final : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	/** Creates the ring and adds it to the player's viewport at the clock's corner; null in Start Game. */
+	/** Ring placement on a canvas of this pixel size: the same layout rule the HUD clock is drawn with. */
+	static FXpRingCircle ComputeCircle(const FVector2D& CanvasPixels, const FHudTuning& Hud, const FProgressionTuning& Tuning);
+
+	/** Ring colours: brass track, bright gold fill (full gold at the cap), cream at the level-up flash (Pulse 0..1). */
+	static FXpRingColors ComputeColors(bool bMax, float Pulse, const FProgressionTuning& Tuning);
+
+	/** Creates the ring over the whole viewport (it finds the clock itself); null in Start Game. */
 	static UXpRingWidget* Show(APlayerController* Owner);
 
 	void SetReducedMotion(bool bReduced);
@@ -30,6 +56,9 @@ public:
 	bool IsRingVisible() const;
 	/** 0..1, 1 at the instant of a level gain, falling to 0. */
 	float GetPulse() const;
+
+	/** The circle the last paint drew, in window pixels (zero radius before the first paint or when hidden). */
+	FXpRingCircle GetLastDrawnCircle() const { return LastDrawn; }
 
 	/** Test seam: the same call the subsystem's level-gained delegate makes. */
 	void NotifyLevelGained(int32 NewLevel);
@@ -43,7 +72,7 @@ protected:
 
 private:
 	void Refresh();
-	void DrawArc(const FGeometry& Geometry, FSlateWindowElementList& Elements, int32 Layer, float Fraction, const FLinearColor& Color, float Thickness) const;
+	void DrawArc(const FGeometry& Geometry, FSlateWindowElementList& Elements, int32 Layer, const FVector2D& Center, double Radius, float Fraction, const FLinearColor& Color, float Thickness) const;
 
 	TWeakObjectPtr<UProgressionSubsystem> Progression;
 	FDelegateHandle ChangedHandle;
@@ -53,4 +82,7 @@ private:
 	bool bMaxShown = false;
 	bool bDirectorsCut = false;
 	bool bReducedMotion = false;
+	mutable FXpRingCircle LastDrawn;
+	/** Paint layers used: track, fill halo, fill. */
+	static constexpr int32 PaintLayerCount = 3;
 };
