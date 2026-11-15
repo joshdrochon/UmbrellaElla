@@ -30,7 +30,9 @@ fi
 cd "$ROOT"; git fetch -q origin
 [ -d "$G" ] || git worktree add -q "$G" -B "$GB" main
 mkdir -p "$G/Saved/Config/MacEditor"; cp -n "$ROOT/Saved/Config/MacEditor/GameUserSettings.ini" "$G/Saved/Config/MacEditor/" 2>/dev/null
-cd "$G"; git reset -q --hard main; git clean -qfd; MAIN=$(git rev-parse HEAD)   # untracked leftovers from a killed run must not reach the checks
+# Always on branch $GB: a review session once left this worktree on a detached HEAD (Nov 14 21:13), so merges landed
+# off-branch, $GB stayed at an old tree and "GATE PASS" fast-forwarded main to that stale tree (or did nothing).
+cd "$G"; git checkout -q -f -B "$GB" main; git reset -q --hard main; git clean -qfd; MAIN=$(git rev-parse HEAD)   # untracked leftovers from a killed run must not reach the checks
 # The baseline depends only on main, so it is computed once per main SHA and reused (Nov 12: ~10 min per gate run).
 T1=$(date +%s); QB="$L/quality-base-$MAIN.txt"
 if [ -s "$QB" ]; then cp "$QB" "$L/quality-base.txt"; step "baseline (cached for $(git rev-parse --short HEAD))"
@@ -142,6 +144,10 @@ clean_state "$G"
 if [ $fail = 0 ] && [ "$STORY" = 1 ]; then chk story_critic "$ROOT/tools/build/critic.sh" story "$L/critic-$A.txt"; fi
 if [ $fail = 0 ] && [ "$ENCOUNTER" = 1 ]; then chk encounter_critic "$ROOT/tools/build/critic.sh" encounter "$L/critic-$A.txt"; fi
 if [ $fail = 1 ]; then echo "GATE FAIL: area/$A $(git rev-parse --short HEAD) (main unchanged, $(( $(date +%s) - T0 )) s)"; exit 1; fi
+# The tested tree, by SHA (reviews below run sessions in this worktree that may move HEAD or the branch).
+GH=$(git rev-parse HEAD)
+# Lane tips this run tested: the lane itself, or for a batch the merged-in side of each "into batch" merge.
+TIPS="$TIP"; [ "$A" = batch ] && TIPS=$(git log --format="%P %s" "$MAIN..$GH" | awk '/ into batch$/{print $2}')
 if [ "$A" = batch ]; then
   # Batch (Josh, Nov 12): one independent review per lane on that lane's own diff, in parallel; any lane asking for
   # changes in its first round holds the batch, and that lane's tip is recorded so it needs new commits.
@@ -169,16 +175,20 @@ echo 0 > "$ROUND"
 # Dry run (GATE_NOPUSH=1, with GATE_DIR/GATE_BRANCH for a separate checkout): every check ran; main is not touched.
 if [ -n "${GATE_NOPUSH:-}" ]; then echo "GATE DRY PASS: area/$A $(git rev-parse --short HEAD) (main untouched, $(( $(date +%s) - T0 )) s)"; exit 0; fi
 cd "$ROOT"
-if ! git merge -q --ff-only "$GB" 2>/dev/null; then
-  base=$(git merge-base main "$GB")
+if ! git merge -q --ff-only "$GH" 2>/dev/null; then
+  base=$(git merge-base main "$GH")
   if git diff --name-only "$base" main | grep -q -E '^(Source|Config|Content|Plugins)/|\.uproject$'; then
     NORECORD=1; echo "GATE FAIL: main moved with game-file changes during the gate; rerun"; exit 1
   fi
-  git -c core.hooksPath=/dev/null merge -q --no-edit -m "Merge gate result for area/$A" "$GB" || { git merge --abort; echo "GATE FAIL: merge"; exit 1; }
+  git -c core.hooksPath=/dev/null merge -q --no-edit -m "Merge gate result for area/$A" "$GH" || { git merge --abort; echo "GATE FAIL: merge"; exit 1; }
 fi
 git push -q origin main 2>/dev/null || { git fetch -q origin && git -c core.hooksPath=/dev/null merge -q --no-edit origin/main && git push -q origin main; } || { echo "GATE FAIL: push"; exit 1; }
+# Guard (Nov 14): PASS only when origin/main holds the tested tree and every lane tip it tested.
+git fetch -q origin; miss=""
+for t in $GH $TIPS; do git merge-base --is-ancestor "$t" origin/main || miss="$miss ${t:0:8}"; done
+if [ -n "$miss" ]; then NORECORD=1; echo "GATE FAIL: pushed, but origin/main $(git rev-parse --short origin/main) lacks tested commits:$miss"; exit 1; fi
 # The gate's visual run judged the tree that is now main: store it as main's baseline (judge calls replay, no spend).
 # Only when main's frame-changing files equal the gate tree (a merge with a main that moved meanwhile is not that tree).
-[ -n "$VQ_OUT" ] && git diff --quiet "$GB" HEAD -- Source Content Config Art UmbrellaElla.uproject && \
+[ -n "$VQ_OUT" ] && git diff --quiet "$GH" HEAD -- Source Content Config Art UmbrellaElla.uproject && \
   python3 "$G/tools/build/visual_qa.py" baseline --from-main --shots "$VQ_OUT" --sha "$(git rev-parse HEAD)" | tail -1
 echo "GATE PASS: main $(git rev-parse --short HEAD) pushed ($(( $(date +%s) - T0 )) s)"

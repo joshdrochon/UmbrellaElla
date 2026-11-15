@@ -266,3 +266,44 @@ FName FFlowRules::TitleMusicId()
 {
 	return FName(TEXT("MusicTitle"));
 }
+
+FString FFlowRules::RetryOption(EUmbrellaPlayMode Mode, int32 RetryCount)
+{
+	return FString::Printf(TEXT("UmbrellaRetry=%s.%d"), Mode == EUmbrellaPlayMode::DirectorsCut ? TEXT("DirectorsCut") : TEXT("StartGame"), RetryCount);
+}
+
+bool FFlowRules::HasRetryStart(const FString& GameOptions, EUmbrellaPlayMode& OutMode, int32& OutRetryCount)
+{
+	TArray<FString> Parts;
+	GameOptions.ParseIntoArray(Parts, TEXT("?"), true);
+	for (const FString& Part : Parts)
+	{
+		FString Key;
+		FString Value;
+		if (!Part.Split(TEXT("="), &Key, &Value) || !Key.Equals(TEXT("UmbrellaRetry"), ESearchCase::IgnoreCase))
+		{
+			continue;
+		}
+		FString ModeName;
+		FString Count;
+		if (!Value.Split(TEXT("."), &ModeName, &Count))
+		{
+			ModeName = Value;
+		}
+		if (ModeName.Equals(TEXT("DirectorsCut"), ESearchCase::IgnoreCase))
+		{
+			OutMode = EUmbrellaPlayMode::DirectorsCut;
+		}
+		else if (ModeName.Equals(TEXT("StartGame"), ESearchCase::IgnoreCase))
+		{
+			OutMode = EUmbrellaPlayMode::StartGame;
+		}
+		else
+		{
+			return false;
+		}
+		OutRetryCount = FMath::Max(0, FCString::Atoi(*Count));
+		return true;
+	}
+	return false;
+}

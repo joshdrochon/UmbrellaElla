@@ -155,6 +155,9 @@ public:
 	/** Cell of a Cols x Rows grid sheet shown at Seconds: walks every cell left to right, row by row, and loops. Pure. */
 	static int32 GridFrameAt(double Seconds, float Fps, int32 Cols, int32 Rows, bool bLoop = true);
 
+	/** True when Ella has health again (a retry or respawn after defeat): the Down picture gives way to Idle. Pure. */
+	static bool IsAliveAgain(float HealthFraction);
+
 	/**
 	 * AimShot cell for the charge: cell 0 until ShowSeconds into the hold, then it walks to the last cell as the charge
 	 * reaches ChargeSeconds, and holds the last cell (the flash at the tip) once the beam fired. Pure.
