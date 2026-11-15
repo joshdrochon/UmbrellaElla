@@ -7,7 +7,9 @@
 #include "EngineUtils.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Core/UmbrellaSourceIds.h"
 #include "Harness/UmbrellaFeatureFlags.h"
+#include "Health/UmbrellaHealthComponent.h"
 #include "Motor/HeroSizeRules.h"
 #include "Motor/MotorTuning.h"
 #include "Umbrella/UmbrellaFlightTuning.h"
@@ -159,6 +161,19 @@ void UEllaMotorComponent::StepMotor(float DeltaSeconds)
 		Model.Velocity.Y = 0.0f;
 	}
 	Owner->SetActorLocation(Location);
+	// Both edges are lethal: the bottom (WIND-03) and the top (D-new-ceiling-lethal, Josh 14 Nov). The clamps above only keep
+	// her picture in frame for the death flow; reaching either line defeats her, so the ceiling can never hold her alive.
+	if (UUmbrellaHealthComponent* Health = Owner->FindComponentByClass<UUmbrellaHealthComponent>())
+	{
+		if (bAtPlayFloor && IsFeatureEnabled(EFeatureId::WIND_03))
+		{
+			Health->DefeatAtBoundary(UmbrellaSourceIds::LethalBottom());
+		}
+		else if (bAtPlayCeiling)
+		{
+			Health->DefeatAtBoundary(UmbrellaSourceIds::LethalCeiling());
+		}
+	}
 	if (const ACharacter* Character = Cast<ACharacter>(Owner))
 	{
 		if (UCharacterMovementComponent* CharacterMove = Character->GetCharacterMovement())
