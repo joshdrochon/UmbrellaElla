@@ -35,4 +35,6 @@ namespace KeeperLook
 	static constexpr FLinearColor Telegraph = FLinearColor(1.0f, 0.037f, 0.095f);
 	/** The warning marker is a thin line along its lane, this thick (cm): 0.15 of the 120 cm gust band. */
 	static constexpr float TelegraphLineThickness = 18.0f;
+	/** Height (cm) of the painted warning streak quad: its feathered core reads about as thick as the line, the glow wider. */
+	static constexpr float TelegraphStreakWidth = 64.0f;
 }

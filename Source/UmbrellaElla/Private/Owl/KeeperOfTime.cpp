@@ -6,6 +6,8 @@
 #include "Core/UmbrellaTuning.h"
 #include "Engine/StaticMesh.h"
 #include "Feedback/Vfx/VfxCatalog.h"
+#include "Feedback/Vfx/PaintedWarningArt.h"
+#include "Feedback/Vfx/VfxSheetVisual.h"
 #include "Feedback/Vfx/UmbrellaVfxDirectorSubsystem.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Harness/UmbrellaFeatureFlags.h"
@@ -88,6 +90,8 @@ void AKeeperOfTime::BeginPlay()
 			Visual->SetVisibility(false);
 		}
 	}
+	// The warning mark is a painted streak (feathered, tapered, grained), not a flat cube (Josh, Nov 14).
+	bTelegraphPainted = VfxSheetVisual::ShowTexture(TelegraphVisual, PaintedWarningArt::Streak());
 }
 
 FVector AKeeperOfTime::ToWorld(const FVector2D& Position) const
@@ -281,7 +285,9 @@ void AKeeperOfTime::Refresh(const FKeeperFightModel& Model, float TimeSeconds)
 	}
 
 	// Talon tip, gust front and the warning marker.
-	const bool bTalon = Model.GetPhysical() == EKeeperPhysical::Talon && Model.GetStage() != EKeeperStage::Idle;
+	// Under the Keeper's art the talon tip cube is not drawn (a flat white square by the claw; the painted warning streak
+	// shows the reach and the strike effect plays at the claw). Without art it still shows.
+	const bool bTalon = Model.GetPhysical() == EKeeperPhysical::Talon && Model.GetStage() != EKeeperStage::Idle && !IsPartArtDrawn(EKeeperPart::Wings);
 	if (bTalon)
 	{
 		PlaceVisual(TalonVisual, Model.GetHeadPosition(), FVector2D(T.TalonTipWidth * 0.5f, T.TalonTipWidth * 0.5f), KeeperLook::Talon);
@@ -318,15 +324,26 @@ void AKeeperOfTime::Refresh(const FKeeperFightModel& Model, float TimeSeconds)
 	bTelegraphShown = bWarning;
 	if (bWarning && !bGustWarning)
 	{
-		// A thin shot-red line along the lane (talon reach, chain path), turned to the lane and placed here every tick: the
-		// frame pass (every 0.2 s) could not keep the old axis-aligned box thin, so most frames showed a salmon block.
+		// A painted shot-red streak along the lane (talon reach, chain path), faint at the Keeper and strong where the
+		// strike lands, turned to the lane and placed here every tick (the 0.2 s frame pass never races it).
 		const FVector2D Mid = (TelegraphFrom + TelegraphTo) * 0.5f;
 		const FVector2D Lane = TelegraphTo - TelegraphFrom;
-		const float HalfLength = FMath::Max(static_cast<float>(Lane.Size()) * 0.5f, T.ChainHeadWidth * 0.5f);
-		PlaceVisual(TelegraphVisual, Mid, FVector2D(HalfLength, KeeperLook::TelegraphLineThickness * 0.5f), KeeperLook::Telegraph);
-		if (TelegraphVisual)
+		const float Length = FMath::Max(static_cast<float>(Lane.Size()), T.ChainHeadWidth);
+		const FRotator Along(FMath::RadiansToDegrees(FMath::Atan2(Lane.Y, Lane.X)), 0.0f, 0.0f);
+		if (bTelegraphPainted && TelegraphVisual)
 		{
-			TelegraphVisual->SetWorldRotation(FRotator(FMath::RadiansToDegrees(FMath::Atan2(Lane.Y, Lane.X)), 0.0f, 0.0f));
+			TelegraphVisual->SetVisibility(true);
+			TelegraphVisual->SetWorldLocation(ToWorld(Mid));
+			TelegraphVisual->SetWorldRotation(Along.Quaternion() * VfxSheetVisual::FacingCamera().Quaternion());
+			TelegraphVisual->SetWorldScale3D(FVector(Length / VfxSheetVisual::ShapeEdge, KeeperLook::TelegraphStreakWidth / VfxSheetVisual::ShapeEdge, 1.0));
+		}
+		else
+		{
+			PlaceVisual(TelegraphVisual, Mid, FVector2D(Length * 0.5f, KeeperLook::TelegraphLineThickness * 0.5f), KeeperLook::Telegraph);
+			if (TelegraphVisual)
+			{
+				TelegraphVisual->SetWorldRotation(Along);
+			}
 		}
 	}
 	else

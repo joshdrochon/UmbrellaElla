@@ -12,6 +12,9 @@
 #include "Motor/MotorModel.h"
 #include "Owl/KeeperOfTime.h"
 #include "Owl/KeeperLook.h"
+#include "Feedback/Vfx/VfxSheetVisual.h"
+#include "Feedback/Vfx/PaintedWarningArt.h"
+#include "Engine/Texture2D.h"
 #include "Feedback/Art/FrameCompositionSubsystem.h"
 #include "Components/StaticMeshComponent.h"
 #include "Owl/KeeperPartComponent.h"
@@ -482,9 +485,11 @@ namespace
 			return Seen;
 		}
 		const FKeeperTuning& T = GetDefault<UUmbrellaTuning>()->Keeper;
-		// A line: its short side at most a fifth of the 120 cm gust band (the old cubes were 120-126 cm thick).
-		const float MaxThick = T.GustBandWidth * 0.2f;
+		// A line or streak: its short side at most 0.6 of the 120 cm gust band (the old cubes were 120-126 cm thick; the
+		// painted streak's quad is 64 cm with a feathered edge and glow, its visible core about 20 cm).
+		const float MaxThick = T.GustBandWidth * 0.6f;
 		bool bReported = false;
+		bool bSawPainted = false;
 		for (float Time = 0.0f; Time < Seconds; Time += 0.05f)
 		{
 			W.Director->AdvanceFight(0.05f);
@@ -495,12 +500,26 @@ namespace
 			}
 			Seen |= 1u << static_cast<uint32>(Model.GetPhysical());
 			const FVector Size = Marker->GetComponentScale() * KeeperLook::CubeEdge;
-			const bool bThin = FMath::Min(Size.X, Size.Z) <= MaxThick;
+			// A painted quad (engine plane) lies in its local X/Y; the fallback cube shows its X/Z.
+			const bool bPainted = VfxSheetVisual::HasArt(Marker);
+			const bool bThin = FMath::Min(Size.X, bPainted ? Size.Y : Size.Z) <= MaxThick;
+			if (bPainted && !bSawPainted)
+			{
+				bSawPainted = true;
+			}
 			if (!bThin && !bReported)
 			{
 				bReported = true;
 				Test.AddError(FString::Printf(TEXT("warning marker for physical %d is %.0f x %.0f cm: a block, not a thin line"),
 					static_cast<int32>(Model.GetPhysical()), Size.X, Size.Z));
+			}
+		}
+		if (Seen != 0)
+		{
+			// Josh Nov 14: the warning is the painted streak (textured, feathered), never a flat uniform line.
+			if (!bSawPainted)
+			{
+				Test.AddWarning(TEXT("this test world drew the flat-line fallback (no VFX sheet material here); the painted path is checked in PaintedWarningIsFeatheredNotFlat"));
 			}
 		}
 		return Seen;
@@ -535,5 +554,41 @@ bool FKeeperWorldWarningMarkerLine::RunTest(const FString& Parameters)
 	const uint32 Casts = (1u << static_cast<uint32>(EKeeperPhysical::FrontCast)) | (1u << static_cast<uint32>(EKeeperPhysical::MiddleCurve))
 		| (1u << static_cast<uint32>(EKeeperPhysical::RearTwoStage));
 	TestTrue(TEXT("a chain-cast warning showed the marker"), (Seen & Casts) != 0);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FKeeperPaintedWarningArt, "UmbrellaElla.Keeper.PaintedWarningIsFeatheredNotFlat", EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::EngineFilter)
+bool FKeeperPaintedWarningArt::RunTest(const FString& Parameters)
+{
+	// Josh Nov 14: a soft painted streak (tapered, feathered, faint tail) and a broken soft ring, never flat fills.
+	using namespace PaintedWarningArt;
+	TestTrue(TEXT("streak: faint tail, strong toward the strike"), StreakAlpha(0.05f, 0.5f) < 0.5f * StreakAlpha(0.85f, 0.5f));
+	TestTrue(TEXT("streak: tail alpha is low"), StreakAlpha(0.02f, 0.5f) <= TailAlpha + 0.05f);
+	TestTrue(TEXT("streak: feathered across (edge far below the centre)"), StreakAlpha(0.8f, 0.97f) < 0.2f * StreakAlpha(0.8f, 0.5f));
+	TestTrue(TEXT("streak: soft, not a hard step (a mid value between core and edge)"),
+		StreakAlpha(0.8f, 0.6f) > 0.05f && StreakAlpha(0.8f, 0.6f) < StreakAlpha(0.8f, 0.5f));
+	float RingMin = 1.0f;
+	float RingMax = 0.0f;
+	for (int32 Step = 0; Step < 72; ++Step)
+	{
+		const float A = 2.0f * PI * Step / 72.0f;
+		const float V = RingAlpha(0.62f * FMath::Cos(A), 0.62f * FMath::Sin(A), 0);
+		RingMin = FMath::Min(RingMin, V);
+		RingMax = FMath::Max(RingMax, V);
+	}
+	TestTrue(TEXT("ring: broken (gaps far fainter than the arcs)"), RingMin < 0.35f * RingMax);
+	TestTrue(TEXT("ring: soft edge outside the band"), RingAlpha(0.95f, 0.0f, 0) < 0.25f * RingMax);
+	TestTrue(TEXT("ring: never a solid fill"), RingMax < 0.95f);
+	UTexture2D* StreakTexture = Streak();
+	UTexture2D* Ring = RingSheet();
+	TestNotNull(TEXT("streak texture builds"), StreakTexture);
+	TestNotNull(TEXT("ring sheet builds"), Ring);
+	if (Ring)
+	{
+		TestEqual(TEXT("ring sheet is one row of frames"), Ring->GetSizeX(), CellSize * Frames);
+	}
+	UStaticMeshComponent* Quad = NewObject<UStaticMeshComponent>(GetTransientPackage());
+	TestTrue(TEXT("the streak shows on a VFX sheet quad (textured, not a flat cube)"), VfxSheetVisual::ShowTexture(Quad, StreakTexture) && VfxSheetVisual::HasArt(Quad));
+	TestTrue(TEXT("ring: pulses over the loop"), !FMath::IsNearlyEqual(RingAlpha(0.62f, 0.0f, 0), RingAlpha(0.62f, 0.0f, Frames / 2), 0.02f));
 	return true;
 }
