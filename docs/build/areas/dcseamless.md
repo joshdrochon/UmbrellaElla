@@ -33,3 +33,4 @@ Lane extension (Nov 14 evening, coordinator orders on Josh's 6:22 PM play of 645
 (SceneArtSubsystem Specs; ArtSlotTests, BackdropSeamTests, FrameCompositionTests.KeeperBackdropContinuous); (d) no refuge
 slab on the lethal bottom (LevelPlan.cpp); (e) Floodstriders stand on drawn land: the four stilt rows and two new CH12
 shelves in Source/UmbrellaElla/Public/Level/ChunkCatalogueData.h, D-new-no-floating-enemies in docs/decisions.md.
+(f) no checkpoint marker on the lethal bottom (LevelPlan.cpp; ArtSlotFamilyTests, LevelDirectorTests ground check).
