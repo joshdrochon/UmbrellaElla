@@ -2,6 +2,7 @@
 
 #if WITH_AUTOMATION_TESTS
 
+#include "Attack/AttackTuning.h"
 #include "Encounter/EncounterTuning.h"
 #include "Encounter/KeeperFightModel.h"
 #include "Owl/KeeperTuning.h"
@@ -107,7 +108,7 @@ bool FKeeperBaselineHp::RunTest(const FString& Parameters)
 {
 	FKeeperRig R;
 	R.Start();
-	TestEqual(TEXT("wings"), R.Model.GetPartHp(EKeeperPart::Wings), 180.0f);
+	TestEqual(TEXT("wings"), R.Model.GetPartHp(EKeeperPart::Wings), 540.0f);
 	TestEqual(TEXT("front"), R.Model.GetPartHp(EKeeperPart::Front), 100.0f);
 	TestEqual(TEXT("middle"), R.Model.GetPartHp(EKeeperPart::Middle), 110.0f);
 	TestEqual(TEXT("rear"), R.Model.GetPartHp(EKeeperPart::Rear), 120.0f);
@@ -121,7 +122,7 @@ bool FKeeperWingBreakAdvances::RunTest(const FString& Parameters)
 	FKeeperRig R;
 	R.Start();
 	R.SkipTransition();
-	R.Model.ApplyPlayerHit(EKeeperPart::Wings, 179.0f, R.Commands);
+	R.Model.ApplyPlayerHit(EKeeperPart::Wings, R.Tuning.WingsHp - 1.0f, R.Commands);
 	TestTrue(TEXT("still in wings"), R.Model.GetPhase() == EKeeperPhase::Wings);
 	const FKeeperHitResult Result = R.Model.ApplyPlayerHit(EKeeperPart::Wings, 1.0f, R.Commands);
 	TestTrue(TEXT("wings broke"), Result.bBroke);
@@ -130,6 +131,32 @@ bool FKeeperWingBreakAdvances::RunTest(const FString& Parameters)
 	TestTrue(TEXT("projectiles cleared"), R.Count(EKeeperCommandType::ClearProjectiles) >= 1);
 	const FKeeperHitResult Through = R.Model.ApplyPlayerHit(EKeeperPart::Wings, 10.0f, R.Commands);
 	TestTrue(TEXT("depleted wings are cover only, shots pass"), Through.Outcome == EKeeperHitOutcome::PassThrough);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FKeeperWingsOutlastEighteenBlasts, "UmbrellaElla.Keeper.WingsOutlastEighteenSmallBlasts", KeeperFlags)
+bool FKeeperWingsOutlastEighteenBlasts::RunTest(const FString& Parameters)
+{
+	// Josh, 14 Nov (D-new-plumefix-wings-hp): 18 Small Blast hits broke the wings in about 12 s once shots hit the Keeper,
+	// so only 2 gusts (and their plume) were ever seen. The wings now survive those 18 and break on the 54th.
+	FKeeperRig R;
+	R.Start();
+	R.SkipTransition();
+	const FAttackTuning Attack;
+	for (int32 Hit = 0; Hit < 18; ++Hit)
+	{
+		R.Model.ApplyPlayerHit(EKeeperPart::Wings, Attack.SmallDamage, R.Commands);
+	}
+	TestTrue(TEXT("wings live after 18 Small Blasts"), R.Model.GetPartHp(EKeeperPart::Wings) > 0.0f);
+	TestTrue(TEXT("still the wings (gust) phase"), R.Model.GetPhase() == EKeeperPhase::Wings);
+	bool bBroke = false;
+	int32 Hits = 18;
+	while (!bBroke && Hits < 1000)
+	{
+		bBroke = R.Model.ApplyPlayerHit(EKeeperPart::Wings, Attack.SmallDamage, R.Commands).bBroke;
+		++Hits;
+	}
+	TestEqual(TEXT("wings break on the 54th Small Blast (3x the old 18)"), Hits, 54);
 	return true;
 }
 

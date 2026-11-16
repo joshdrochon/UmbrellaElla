@@ -586,10 +586,11 @@ DECISIONS = "docs/decisions.md"
 # decider (D-new-sh10-design-owner).
 DESIGN_OWNER = "Rick"
 # D-new-creative-director-feel (Josh, 14 Nov): the creative director may sign Overrides for Ella's feel speeds, these
-# MOVE-21 keys only (the ones D-new-move-speeds names). Every other key, feature or preset still needs DESIGN_OWNER.
+# MOVE-21 keys only (the ones D-new-move-speeds names), plus OWL-08.wings_hp (Josh, 15 Nov). Every other key, feature or preset still needs DESIGN_OWNER.
 FEEL_DIRECTOR = "Josh"
 FEEL_KEYS = frozenset({"MOVE-21.rise_speed", "MOVE-21.fall_speed", "MOVE-21.free_fall_speed",
-                       "MOVE-21.horizontal_max_speed", "MOVE-21.hop_distance", "MOVE-21.dash_distance"})
+                       "MOVE-21.horizontal_max_speed", "MOVE-21.hop_distance", "MOVE-21.dash_distance",
+                       "OWL-08.wings_hp"})  # widened by Josh, 15 Nov (gust phase about 6 gusts)
 # The Status cell of a counted row: exactly `DECIDED <YYYY-MM-DD> (<name>)` at its start (docs/decisions.md rules).
 DECIDED_STATUS = re.compile(r"DECIDED (\d{4}-\d{2}-\d{2}) \(([A-Z][\w .'-]*)\)(?=$|[\s.;,])")
 NO_OWNER = re.compile(r"^(?:|[-\u2013\u2014]+|none|tbd|n/?a|\?+|unassigned)$", re.I)
