@@ -83,7 +83,7 @@ Default preset: `GDD-SH1.0`. Select another in a workbench or practice build wit
 
 GDD SH1.0 Keeper fight: wings, the three hanging mechanisms, then the clock (both modes)
 
-Entry: full_run -> wings. Target length 60-240 s; estimated 103-142 s.
+Entry: full_run -> wings. Target length 60-240 s; estimated 151-190 s.
 
 | Phase | Targets | Attacks | Ends when | Transition in | Next |
 |---|---|---|---|---|---|
@@ -93,7 +93,7 @@ Entry: full_run -> wings. Target length 60-240 s; estimated 103-142 s.
 
 | Target | HP | Hitbox | Vulnerable in | Hit share | On break |
 |---|---|---|---|---|---|
-| WINGS | 180 | keeper-wing | wings | 0.15 | cancels GUST_Band; in flight: cleared |
+| WINGS | 540 | keeper-wing | wings | 0.15 | cancels GUST_Band; in flight: cleared |
 | MECH_FRONT | 100 | keeper-mech-front | mechanisms | 0.15 | cancels MECH_Front_Cast; stun 1.2 s; exposes CLOCK; in flight: dangerous |
 | MECH_MIDDLE | 110 | keeper-mech-middle | mechanisms | 0.15 | cancels MECH_Middle_Curve; stun 1.2 s; exposes CLOCK; in flight: dangerous |
 | MECH_REAR | 120 | keeper-mech-rear | mechanisms | 0.15 | cancels MECH_Rear_TwoStage; stun 1.2 s; exposes CLOCK; in flight: dangerous |
