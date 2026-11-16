@@ -510,6 +510,18 @@ void USmokeHookSubsystem::Tick(float DeltaTime)
 	{
 		BreakKeeperWings();
 	}
+#if UMBRELLAELLA_WORKBENCH
+	// -SmokeKeeper: the edges clamp but do not kill until the shot is out, so an idle run reaches the asked moment
+	// (D-new-ceiling-lethal made idle Ella die at the ceiling before the first gust; plumefix, 14 Nov).
+	if (FParse::Param(FCommandLine::Get(), TEXT("SmokeKeeper")))
+	{
+		const AEllaCharacter* Held = Flow ? Cast<AEllaCharacter>(Flow->GetPawn()) : nullptr;
+		if (UEllaMotorComponent* Motor = Held ? Held->FindComponentByClass<UEllaMotorComponent>() : nullptr)
+		{
+			Motor->SetBoundaryDeathHeld(!bShotTaken);
+		}
+	}
+#endif
 	MomentFrames = IsKeeperMomentNow() ? MomentFrames + 1 : 0;
 	// A -SmokeShotWhen moment is short (a 1 s warning) and new effects stream in as it starts, which restarts the settled
 	// count: once the scene has settled one time, the moment itself is the trigger.

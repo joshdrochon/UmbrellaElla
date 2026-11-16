@@ -126,7 +126,7 @@
         "targets": [
           {
             "id": "WINGS",
-            "hp": 180,
+            "hp": 540,
             "regions": [
               "WING_NEAR",
               "WING_FAR"

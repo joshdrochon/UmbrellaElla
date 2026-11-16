@@ -158,4 +158,31 @@ bool FMoveWorldShootFallsToDeathTest::RunTest(const FString& Parameters)
 	return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMoveWorldSmokeHoldKeepsEllaAliveTest, "UmbrellaElla.Move.World.SmokeBoundaryHoldKeepsIdleEllaAlive", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FMoveWorldSmokeHoldKeepsEllaAliveTest::RunTest(const FString& Parameters)
+{
+	// plumefix, 14 Nov: an idle -SmokeKeeper run died at the ceiling at 4.5 s, before the first gust, so the GustTravel
+	// capture was never taken. The smoke hook holds boundary death until its shot is out; letting go restores the rule.
+	FUmbrellaTestWorld Test;
+	MoveBoundaryTest::FSetup S;
+	if (!MoveBoundaryTest::Spawn(*this, Test, MoveBoundaryTest::RouteXs[0], S))
+	{
+		return false;
+	}
+	UEllaMotorComponent* Motor = S.Ella->FindComponentByClass<UEllaMotorComponent>();
+	if (!TestNotNull(TEXT("motor"), Motor))
+	{
+		return false;
+	}
+	Motor->SetBoundaryDeathHeld(true);
+	MoveBoundaryTest::PlaceAt(S.Ella, S.TopLine - 30.0f);
+	Test.TickSeconds(8.0f, MoveBoundaryTest::Delta);
+	TestTrue(TEXT("held: idle Ella reaches the ceiling"), Motor->IsAtPlayCeiling());
+	TestFalse(TEXT("held: idle Ella lives past the first gust (8 s)"), S.Ella->GetHealth()->GetState().IsDefeated());
+	Motor->SetBoundaryDeathHeld(false);
+	Test.TickFrames(2, MoveBoundaryTest::Delta);
+	TestTrue(TEXT("released: the ceiling line defeats her again"), S.Ella->GetHealth()->GetState().IsDefeated());
+	return true;
+}
+
 #endif

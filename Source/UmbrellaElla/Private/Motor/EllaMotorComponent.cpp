@@ -163,7 +163,8 @@ void UEllaMotorComponent::StepMotor(float DeltaSeconds)
 	Owner->SetActorLocation(Location);
 	// Both edges are lethal: the bottom (WIND-03) and the top (D-new-ceiling-lethal, Josh 14 Nov). The clamps above only keep
 	// her picture in frame for the death flow; reaching either line defeats her, so the ceiling can never hold her alive.
-	if (UUmbrellaHealthComponent* Health = Owner->FindComponentByClass<UUmbrellaHealthComponent>())
+	UUmbrellaHealthComponent* Health = bBoundaryDeathHeld ? nullptr : Owner->FindComponentByClass<UUmbrellaHealthComponent>();
+	if (Health)
 	{
 		if (bAtPlayFloor && IsFeatureEnabled(EFeatureId::WIND_03))
 		{

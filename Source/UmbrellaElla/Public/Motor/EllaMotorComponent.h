@@ -52,6 +52,11 @@ public:
 	 *  stays in the picture on the Director's Cut route as in Start Game. Max() when no arena exists. */
 	float GetPlayCeilingZ() const;
 	bool IsAtPlayCeiling() const { return bAtPlayCeiling; }
+	/** Capture harness only (-SmokeKeeper): while held, reaching the floor or ceiling line clamps her but does not defeat
+	 *  her, so an idle smoke run lives to the asked Keeper moment (plumefix, 14 Nov: idle Ella died at the ceiling at
+	 *  4.5 s, before the first gust, so -SmokeShotWhen=GustTravel took no shot). Play never sets it. */
+	void SetBoundaryDeathHeld(bool bHeld) { bBoundaryDeathHeld = bHeld; }
+	bool IsBoundaryDeathHeld() const { return bBoundaryDeathHeld; }
 
 	/** Pure rule: Z held at or above FloorZ. */
 	static float ClampToPlayFloor(float Z, float FloorZ) { return Z < FloorZ ? FloorZ : Z; }
@@ -103,6 +108,7 @@ private:
 	FBox2D PlayBounds = FBox2D(ForceInit);
 	bool bAtPlayFloor = false;
 	bool bAtPlayCeiling = false;
+	bool bBoundaryDeathHeld = false;
 	float TrimAxis = 0.0f;
 	float MoveAxis = 0.0f;
 	float LiftMultiplier = 1.0f;

@@ -15,7 +15,8 @@ struct UMBRELLAELLA_API FKeeperTuning
 
 	// ---- Body and HP ----
 	UPROPERTY(EditAnywhere, Category = "Body", meta = (ClampMin = "1"))
-	float WingsHp = 180.0f; // bake: OWL-08.wings_hp
+	/** 3x the GDD start (180): the wing-gust phase now lasts about 6 gusts once shots hit (D-new-plumefix-wings-hp, Josh 14 Nov). */
+	float WingsHp = 540.0f; // bake: OWL-08.wings_hp
 	UPROPERTY(EditAnywhere, Category = "Body", meta = (ClampMin = "1"))
 	float FrontHp = 100.0f; // bake: OWL-08.front_hp
 	UPROPERTY(EditAnywhere, Category = "Body", meta = (ClampMin = "1"))
