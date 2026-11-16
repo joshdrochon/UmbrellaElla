@@ -23,6 +23,7 @@ Usage: python3 tools/tuning.py [--root PATH]   prints the baked-vs-sim result (e
 import argparse
 import json
 import os
+import re
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -159,11 +160,53 @@ def on_step(v, start, step):
     return abs(k - round(k)) * step <= EPS
 
 
+DECISIONS = os.path.join(ROOT, "docs", "decisions.md")
+VALUES_RE = re.compile(r"Values:\s*([^|;]+)")
+VALUE_RE = re.compile(r"^\s*([A-Z]+-\d+\.[a-z0-9_.]+)\s*=\s*(-?\d+(?:\.\d+)?)\s*$")
+
+
+_DECIDED_CACHE = None
+
+
+def decided_values(text=None):
+    """{key: value} from DECIDED rows of docs/decisions.md that carry a `Values: KEY=n, KEY=n` clause
+    (D-new-move-speeds). Only these exact keys and values lift the GDD-range rule; every other key stays strict.
+    Returns (values, problems): a clause entry that does not parse is a problem, never silently ignored."""
+    global _DECIDED_CACHE
+    if text is None:
+        if _DECIDED_CACHE is None:
+            try:
+                with open(DECISIONS, encoding="utf-8") as fh:
+                    _DECIDED_CACHE = decided_values(fh.read())
+            except OSError:
+                _DECIDED_CACHE = ({}, [])
+        return _DECIDED_CACHE
+    out, bad = {}, []
+    for ln in text.splitlines():
+        if not ln.startswith("| D-") or "Values:" not in ln:
+            continue
+        cells = [c.strip() for c in ln.strip().strip("|").split("|")]
+        if not cells or not cells[-1].upper().startswith("DECIDED"):
+            bad.append((cells[0] if cells else ln[:30], "has 'Values:' but is not DECIDED"))
+            continue
+        m = VALUES_RE.search(ln)
+        for part in (m.group(1).split(",") if m else []):
+            pm = VALUE_RE.match(part)
+            if not pm:
+                bad.append((cells[0], f"Values entry {part.strip()!r} is not KEY=number"))
+                continue
+            out[pm.group(1)] = float(pm.group(2))
+    return out, bad
+
 def value_problem(manifest, key, v, current=None):
     """Why v is not allowed for key, or None. current: the value already in the source, for a fixed key with no
     approved start (None = unknown, so only the approved rules apply)."""
     if not num(v):
         return f"{key}={v!r} is not a number"
+    decided = decided_values()[0]
+    if key in decided:
+        # A DECIDED Values clause names this key: exactly that value is allowed, nothing else (D-new-move-speeds).
+        return None if abs(v - decided[key]) <= EPS else f"{key}={v:g} differs from {decided[key]:g}, the DECIDED Values clause"
     r = rule(manifest, key)
     if r["kind"] == "tunable":
         # final-9 A M5: a `%` key is written in percent (100 = 100 %), never as a ratio (1.0); the code converts

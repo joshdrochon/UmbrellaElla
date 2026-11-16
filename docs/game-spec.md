@@ -28,7 +28,8 @@ tutorial and the pause menu, read from the current bindings. Every menu works wi
 
 ## Movement modes (GDD SH1.0 MOVE-19, MOVE-21)
 Neither held = overhead rise; Shoot only = shooting fall; Absorb only = absorbing fall; both = fast free fall. Each mode is a
-speed, not gravity (`feel.json` rise_speed / fall_speed / free_fall_speed). Wind, gust push and damage modify motion
+speed, not gravity (`feel.json` rise_speed / fall_speed / free_fall_speed: 240 / 660 / 1220, the felt speeds Josh kept,
+D-new-move-speeds; GDD 120 / 330 / 610). Wind, gust push and damage modify motion
 separately. The bottom and the ceiling top are both lethal: reaching either line is death (WIND-03, D-new-ceiling-lethal). Lift falls with active health to `lift_min` (SURV-05). Dash invulnerability is OFF; hop protection and post-hit
 protection are separate (MOVE-15).
 

@@ -154,7 +154,8 @@ bool FArtSlotWorldPieces::RunTest(const FString& Parameters)
 			Blocks += Visual == TEXT("world:solids-block") ? 1 : 0;
 			Refuges += Visual == TEXT("world:refuge-and-yellow-bay") ? 1 : 0;
 		}
-		TestTrue(TEXT("the route has land and refuges"), Solids > 0 && Refuges > 0);
+		TestTrue(TEXT("the route has land"), Solids > 0);
+		TestEqual(TEXT("no refuge slab or marker drawn above the lethal bottom (Josh, 14 Nov)"), Refuges, 0);
 		TestEqual(TEXT("the floor draws the island slab, never a flat bar (artscene request 4)"), UWorldArtSubsystem::VisualFor(ELevelPlacementKind::Floor), FString(TEXT("world:solids")));
 		// artscene request 6: blocks and columns get their own picture; ledges, the floor and other kinds keep theirs.
 		TestEqual(TEXT("a 192x259 column draws the block picture"), UWorldArtSubsystem::VisualFor(ELevelPlacementKind::Solid, FVector(192.0f, 100.0f, 259.0f)), FString(TEXT("world:solids-block")));

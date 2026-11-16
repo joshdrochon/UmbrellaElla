@@ -10,6 +10,8 @@ namespace UmbrellaSourceIds
 	inline FName MechFrontCast() { static const FName Id(TEXT("MECH_Front_Cast")); return Id; }
 	inline FName MechMiddleCurve() { static const FName Id(TEXT("MECH_Middle_Curve")); return Id; }
 	inline FName MechRearTwoStage() { static const FName Id(TEXT("MECH_Rear_TwoStage")); return Id; }
+	/** A mechanism chain cast (front, middle or rear): the moves Absorb blocks (D-new-chain-absorb). */
+	inline bool IsChainCast(FName Id) { return Id == MechFrontCast() || Id == MechMiddleCurve() || Id == MechRearTwoStage(); }
 	inline FName RedFan() { static const FName Id(TEXT("RED_Fan")); return Id; }
 	inline FName ClockDoubleBeat() { static const FName Id(TEXT("CLOCK_DoubleBeat")); return Id; }
 	inline FName LethalBottom() { static const FName Id(TEXT("LethalBottom")); return Id; }

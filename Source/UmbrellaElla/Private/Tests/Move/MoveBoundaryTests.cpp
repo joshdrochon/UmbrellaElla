@@ -142,12 +142,12 @@ bool FMoveWorldShootFallsToDeathTest::RunTest(const FString& Parameters)
 		}
 		MoveBoundaryTest::PlaceAt(S.Ella, S.TopLine - 100.0f);
 		S.Ella->GetInputAdapter()->ApplyPress(EUmbrellaInputAction::Shoot);
-		Test.TickSeconds(0.5f, MoveBoundaryTest::Delta);
+		Test.TickSeconds(0.2f, MoveBoundaryTest::Delta);
 		const float Z0 = static_cast<float>(S.Ella->GetActorLocation().Z);
-		Test.TickSeconds(1.0f, MoveBoundaryTest::Delta);
+		Test.TickSeconds(0.5f, MoveBoundaryTest::Delta);
 		const float Z1 = static_cast<float>(S.Ella->GetActorLocation().Z);
 		TestTrue(TEXT("shoot-held Ella descends") + At, Z1 < Z0);
-		TestEqual(TEXT("descends at feel.json fall_speed") + At, Z0 - Z1, FallSpeed, FallSpeed * 0.02f);
+		TestEqual(TEXT("descends at feel.json fall_speed") + At, (Z0 - Z1) * 2.0f, FallSpeed, FallSpeed * 0.02f);
 		TestFalse(TEXT("alive in mid-air") + At, S.Ella->GetHealth()->GetState().IsDefeated());
 		// Keep holding Shoot: she reaches the bottom and dies there.
 		Test.TickSeconds(6.0f, MoveBoundaryTest::Delta);

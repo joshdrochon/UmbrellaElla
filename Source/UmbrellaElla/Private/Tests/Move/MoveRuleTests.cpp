@@ -39,23 +39,23 @@ bool FMoveBaselineTest::RunTest(const FString& Parameters)
 {
 	// GDD SH1.0 numbers as pinned in docs/feature-manifest.json approved_parameters.
 	const FMotorTuning& M = Motor();
-	TestEqual(TEXT("rise"), M.RiseSpeed, 120.0f);
-	TestEqual(TEXT("fall"), M.FallSpeed, 330.0f);
-	TestEqual(TEXT("free fall"), M.FreeFallSpeed, 610.0f);
-	TestEqual(TEXT("horizontal max"), M.HorizontalMaxSpeed, 290.0f);
+	TestEqual(TEXT("rise"), M.RiseSpeed, 240.0f); // D-new-move-speeds (GDD 120, felt 2x)
+	TestEqual(TEXT("fall"), M.FallSpeed, 660.0f); // D-new-move-speeds (GDD 330)
+	TestEqual(TEXT("free fall"), M.FreeFallSpeed, 1220.0f);
+	TestEqual(TEXT("horizontal max"), M.HorizontalMaxSpeed, 580.0f);
 	TestEqual(TEXT("trim"), M.VerticalTrimPct, 20.0f);
-	TestEqual(TEXT("hop distance"), M.HopDistance, 40.0f);
+	TestEqual(TEXT("hop distance"), M.HopDistance, 80.0f);
 	TestEqual(TEXT("hop duration"), M.HopDurationSeconds, 0.22f);
 	TestEqual(TEXT("hop cooldown"), M.HopCooldownSeconds, 0.7f);
 	TestEqual(TEXT("hop protection"), M.HopProtectionSeconds, 0.2f);
-	TestEqual(TEXT("dash distance"), M.DashDistance, 85.0f);
+	TestEqual(TEXT("dash distance"), M.DashDistance, 170.0f); // D-new-move-speeds
 	TestEqual(TEXT("dash duration"), M.DashDurationSeconds, 0.16f);
 	TestEqual(TEXT("dash cooldown"), M.DashCooldownSeconds, 0.3f);
 	TestEqual(TEXT("free-fall dash"), M.FreeFallDashMultiplier, 0.5f);
 	TestEqual(TEXT("wind accel"), M.WindAcceleration, 3.0f);
 	TestEqual(TEXT("wind open decay"), M.WindOpenDecay, 1.5f);
 	TestEqual(TEXT("wind falling decay"), M.WindFallingDecay, 12.0f);
-	TestEqual(TEXT("wind maximum"), M.WindMaxSpeed, 360.0f);
+	TestEqual(TEXT("wind maximum"), M.WindMaxSpeed, 720.0f); // GDD 360 x WindScale 2 (D-new-move-speeds)
 	const FUmbrellaFlightTuning& U = GetDefault<UUmbrellaTuning>()->UmbrellaFlight;
 	TestEqual(TEXT("absorb range"), U.AbsorbRange, 240.0f);
 	TestEqual(TEXT("absorb cone"), U.AbsorbConeDegrees, 60.0f);
@@ -109,26 +109,26 @@ bool FMoveSpeedsTest::RunTest(const FString& Parameters)
 {
 	FMotorInput Input;
 	Input.Action = EUmbrellaAction::Rise;
-	TestEqual(TEXT("rise"), MotorModel::BaseVerticalSpeed(Input, Motor()), 120.0f);
+	TestEqual(TEXT("rise"), MotorModel::BaseVerticalSpeed(Input, Motor()), 240.0f);
 	Input.Action = EUmbrellaAction::ShootFall;
-	TestEqual(TEXT("shoot fall"), MotorModel::BaseVerticalSpeed(Input, Motor()), -330.0f);
+	TestEqual(TEXT("shoot fall"), MotorModel::BaseVerticalSpeed(Input, Motor()), -660.0f);
 	Input.Action = EUmbrellaAction::AbsorbFall;
-	TestEqual(TEXT("absorb fall"), MotorModel::BaseVerticalSpeed(Input, Motor()), -330.0f);
+	TestEqual(TEXT("absorb fall"), MotorModel::BaseVerticalSpeed(Input, Motor()), -660.0f);
 	Input.Action = EUmbrellaAction::FreeFall;
-	TestEqual(TEXT("free fall"), MotorModel::BaseVerticalSpeed(Input, Motor()), -610.0f);
+	TestEqual(TEXT("free fall"), MotorModel::BaseVerticalSpeed(Input, Motor()), -1220.0f);
 
 	// Trim: up adds 20% of ascent and takes 20% off descent; down does the reverse.
 	Input.TrimAxis = 1.0f;
 	Input.Action = EUmbrellaAction::Rise;
-	TestEqual(TEXT("rise + trim up"), MotorModel::BaseVerticalSpeed(Input, Motor()), 144.0f);
+	TestEqual(TEXT("rise + trim up"), MotorModel::BaseVerticalSpeed(Input, Motor()), 288.0f);
 	Input.Action = EUmbrellaAction::ShootFall;
-	TestEqual(TEXT("fall + trim up"), MotorModel::BaseVerticalSpeed(Input, Motor()), -264.0f);
+	TestEqual(TEXT("fall + trim up"), MotorModel::BaseVerticalSpeed(Input, Motor()), -528.0f);
 	Input.TrimAxis = -1.0f;
-	TestEqual(TEXT("fall + trim down"), MotorModel::BaseVerticalSpeed(Input, Motor()), -396.0f);
+	TestEqual(TEXT("fall + trim down"), MotorModel::BaseVerticalSpeed(Input, Motor()), -792.0f);
 	Input.Action = EUmbrellaAction::Rise;
-	TestEqual(TEXT("rise + trim down"), MotorModel::BaseVerticalSpeed(Input, Motor()), 96.0f);
+	TestEqual(TEXT("rise + trim down"), MotorModel::BaseVerticalSpeed(Input, Motor()), 192.0f);
 	Input.TrimAxis = 5.0f;
-	TestEqual(TEXT("trim clamps to full stick"), MotorModel::BaseVerticalSpeed(Input, Motor()), 144.0f);
+	TestEqual(TEXT("trim clamps to full stick"), MotorModel::BaseVerticalSpeed(Input, Motor()), 288.0f);
 
 	// Lift scales with active health, from MinLift to 1 (UMB-05 / SURV-05).
 	TestEqual(TEXT("full health"), UmbrellaActionRules::LiftMultiplier(3.0f, 3.0f, 0.3f), 1.0f);
@@ -137,9 +137,9 @@ bool FMoveSpeedsTest::RunTest(const FString& Parameters)
 	TestEqual(TEXT("over full clamps"), UmbrellaActionRules::LiftMultiplier(9.0f, 3.0f, 0.3f), 1.0f);
 	Input.LiftMultiplier = 0.3f;
 	Input.TrimAxis = 0.0f;
-	TestEqual(TEXT("rise at min lift"), MotorModel::BaseVerticalSpeed(Input, Motor()), 36.0f);
+	TestEqual(TEXT("rise at min lift"), MotorModel::BaseVerticalSpeed(Input, Motor()), 72.0f);
 	Input.Action = EUmbrellaAction::ShootFall;
-	TestEqual(TEXT("lift does not slow a fall"), MotorModel::BaseVerticalSpeed(Input, Motor()), -330.0f);
+	TestEqual(TEXT("lift does not slow a fall"), MotorModel::BaseVerticalSpeed(Input, Motor()), -660.0f);
 	return true;
 }
 
@@ -154,10 +154,10 @@ bool FMoveHopDashTest::RunTest(const FString& Parameters)
 			FMotorInput Input;
 			MotorModel::Request(State, EMotorRequest::Hop, Motor());
 			const FVector2D First = MotorModel::Step(State, Input, Motor(), Delta);
-			TestEqual(TEXT("hop speed"), static_cast<float>(State.Velocity.X), 40.0f / 0.22f, 0.01f);
+			TestEqual(TEXT("hop speed"), static_cast<float>(State.Velocity.X), 80.0f / 0.22f, 0.01f);
 			TestTrue(TEXT("hop protects"), MotorModel::IsProtected(State));
 			const FVector2D Rest = Run(State, Input, 0.5f, Delta);
-			TestEqual(TEXT("hop distance exact"), static_cast<float>(First.X + Rest.X), 40.0f, 0.01f);
+			TestEqual(TEXT("hop distance exact"), static_cast<float>(First.X + Rest.X), 80.0f, 0.01f);
 			TestFalse(TEXT("protection ended"), MotorModel::IsProtected(State));
 		}
 		// Hop cooldown 0.7 s: a second press inside it does not start (and expires with the 0.1 s buffer).
@@ -172,7 +172,7 @@ bool FMoveHopDashTest::RunTest(const FString& Parameters)
 			Run(State, Input, 0.5f, Delta);
 			MotorModel::Request(State, EMotorRequest::Hop, Motor());
 			const FVector2D Again = Run(State, Input, 0.5f, Delta);
-			TestEqual(TEXT("hop again after cooldown"), static_cast<float>(Again.X), 40.0f, 0.01f);
+			TestEqual(TEXT("hop again after cooldown"), static_cast<float>(Again.X), 80.0f, 0.01f);
 		}
 		// A press just before the cooldown ends still fires (toggle buffer 0.1 s).
 		{
@@ -182,7 +182,7 @@ bool FMoveHopDashTest::RunTest(const FString& Parameters)
 			Run(State, Input, 0.65f, Delta);
 			MotorModel::Request(State, EMotorRequest::Hop, Motor());
 			const FVector2D Buffered = Run(State, Input, 0.4f, Delta);
-			TestEqual(TEXT("buffered hop fires"), static_cast<float>(Buffered.X), 40.0f, 0.01f);
+			TestEqual(TEXT("buffered hop fires"), static_cast<float>(Buffered.X), 80.0f, 0.01f);
 		}
 		// Left input hops left.
 		{
@@ -191,7 +191,7 @@ bool FMoveHopDashTest::RunTest(const FString& Parameters)
 			Input.MoveAxis = -1.0f;
 			MotorModel::Request(State, EMotorRequest::Hop, Motor());
 			const FVector2D Total = Run(State, Input, 0.5f, Delta);
-			TestEqual(TEXT("hop left"), static_cast<float>(Total.X), -40.0f, 0.01f);
+			TestEqual(TEXT("hop left"), static_cast<float>(Total.X), -80.0f, 0.01f);
 		}
 		// Dash while falling: 85 units over 0.16 s, no protection.
 		{
@@ -200,12 +200,12 @@ bool FMoveHopDashTest::RunTest(const FString& Parameters)
 			Input.Action = EUmbrellaAction::ShootFall;
 			MotorModel::Request(State, EMotorRequest::DashForward, Motor());
 			MotorModel::Step(State, Input, Motor(), Delta);
-			TestEqual(TEXT("dash speed"), static_cast<float>(State.Velocity.X), 85.0f / 0.16f, 0.01f);
+			TestEqual(TEXT("dash speed"), static_cast<float>(State.Velocity.X), 170.0f / 0.16f, 0.01f);
 			TestFalse(TEXT("dash does not protect"), MotorModel::IsProtected(State));
 			FMotorModelState Back;
 			MotorModel::Request(Back, EMotorRequest::DashBack, Motor());
 			const FVector2D BackTotal = Run(Back, Input, 0.5f, Delta);
-			TestEqual(TEXT("dash back distance"), static_cast<float>(BackTotal.X), -85.0f, 0.01f);
+			TestEqual(TEXT("dash back distance"), static_cast<float>(BackTotal.X), -170.0f, 0.01f);
 		}
 		// Free-fall dash is half distance.
 		{
@@ -214,7 +214,7 @@ bool FMoveHopDashTest::RunTest(const FString& Parameters)
 			Input.Action = EUmbrellaAction::FreeFall;
 			MotorModel::Request(State, EMotorRequest::DashForward, Motor());
 			const FVector2D Total = Run(State, Input, 0.5f, Delta);
-			TestEqual(TEXT("free-fall dash half"), static_cast<float>(Total.X), 42.5f, 0.01f);
+			TestEqual(TEXT("free-fall dash half"), static_cast<float>(Total.X), 85.0f, 0.01f);
 		}
 		// Dash cooldown 0.3 s.
 		{
@@ -235,12 +235,12 @@ bool FMoveHopDashTest::RunTest(const FString& Parameters)
 			Input.MoveAxis = -1.0f;
 			MotorModel::Request(State, EMotorRequest::Hop, Motor());
 			const FVector2D Left = Run(State, Input, 0.5f, Delta);
-			TestEqual(TEXT("context dash left"), static_cast<float>(Left.X), -85.0f, 0.01f);
+			TestEqual(TEXT("context dash left"), static_cast<float>(Left.X), -170.0f, 0.01f);
 			FMotorModelState Fresh;
 			Input.MoveAxis = 0.0f;
 			MotorModel::Request(Fresh, EMotorRequest::Hop, Motor());
 			const FVector2D Right = Run(Fresh, Input, 0.5f, Delta);
-			TestEqual(TEXT("context dash forward"), static_cast<float>(Right.X), 85.0f, 0.01f);
+			TestEqual(TEXT("context dash forward"), static_cast<float>(Right.X), 170.0f, 0.01f);
 		}
 		// Dash needs a fall; hop needs overhead.
 		{
@@ -295,7 +295,7 @@ bool FMoveWindTest::RunTest(const FString& Parameters)
 		Input.CurrentVelocity = FVector2D(360.0f, 0.0f);
 		Run(Fast, Input, 5.0f, Delta);
 		TestEqual(TEXT("wind 360 is not cut"), static_cast<float>(Fast.Wind.X), 360.0f, 0.5f);
-		Input.CurrentVelocity = FVector2D(900.0f, 0.0f);
+		Input.CurrentVelocity = FVector2D(1800.0f, 0.0f);
 		Run(Fast, Input, 5.0f, Delta);
 		TestEqual(TEXT("capped at the wind maximum"), static_cast<float>(Fast.Wind.X), Motor().WindMaxSpeed, 0.01f);
 
@@ -330,7 +330,7 @@ bool FMoveLocalFieldTest::RunTest(const FString& Parameters)
 	TestEqual(TEXT("centre z"), Centre, 230.0f);
 	TestEqual(TEXT("compensation"), Comp, -78.0f);
 	// Vz term: Gain * (CentreZ - RootZ) + Compensation.
-	TestEqual(TEXT("term at root 257.5 balances full lift with up trim (GDD +27.5)"), MotorModel::LocalVerticalTerm(Gain, Centre, Comp, 257.5f) + Motor().RiseSpeed * (1.0f + Motor().VerticalTrimPct / 100.0f), 0.0f, 0.01f);
+	TestEqual(TEXT("term at root 257.5 balances full lift with up trim (GDD +27.5)"), Motor().WindScale * MotorModel::LocalVerticalTerm(Gain, Centre, Comp, 257.5f) + Motor().RiseSpeed * (1.0f + Motor().VerticalTrimPct / 100.0f), 0.0f, 0.01f);
 	TestEqual(TEXT("term at centre"), MotorModel::LocalVerticalTerm(Gain, Centre, Comp, 230.0f), -78.0f, 0.001f);
 	for (const float Delta : TestDeltas)
 	{

@@ -178,31 +178,35 @@ struct UMBRELLAELLA_API FProgressionTuning
 	UPROPERTY(EditAnywhere, Category = "XP ring", meta = (ClampMin = "0"))
 	float LevelUpPulseSeconds = 0.8f;
 
-	/** XP ring look (pixels and colours); the ring is a separate layer around the clock. */
+	/** XP ring look (pixels and shares); the ring is a separate layer wrapped just outside the clock's gold rim, centred on
+	 *  the clock face. Its colours are the shared UI gold tokens (FUmbrellaUIStyle), so it reads as part of the clock. */
 	UPROPERTY(EditAnywhere, Category = "XP ring", meta = (ClampMin = "1"))
-	float RingThickness = 3.0f;
+	float RingThickness = 2.5f;
 
 	UPROPERTY(EditAnywhere, Category = "XP ring", meta = (ClampMin = "0"))
-	float RingPulseExtraThickness = 4.0f;
+	float RingPulseExtraThickness = 3.0f;
 
 	UPROPERTY(EditAnywhere, Category = "XP ring", meta = (ClampMin = "8"))
-	int32 RingSegments = 64;
+	int32 RingSegments = 96;
 
-	UPROPERTY(EditAnywhere, Category = "XP ring")
-	float RingSizePixels = 140.0f;
+	/** Clear space between the clock's outer rim edge and the ring's inner edge (px). */
+	UPROPERTY(EditAnywhere, Category = "XP ring", meta = (ClampMin = "0"))
+	float RingGapPixels = 4.0f;
 
-	UPROPERTY(EditAnywhere, Category = "XP ring")
-	FVector2D RingViewportPosition = FVector2D(16.0, 16.0);
+	/** Unfilled track: the gold token darkened to brass by this share, at this opacity. */
+	UPROPERTY(EditAnywhere, Category = "XP ring", meta = (ClampMin = "0", ClampMax = "1"))
+	float RingTrackShade = 0.6f;
 
-	UPROPERTY(EditAnywhere, Category = "XP ring")
-	FLinearColor RingTrackColor = FLinearColor(0.15f, 0.15f, 0.2f, 0.45f);
+	UPROPERTY(EditAnywhere, Category = "XP ring", meta = (ClampMin = "0", ClampMax = "1"))
+	float RingTrackAlpha = 0.5f;
 
-	UPROPERTY(EditAnywhere, Category = "XP ring")
-	FLinearColor RingFillColor = FLinearColor(0.45f, 0.85f, 1.0f, 0.95f);
+	/** Fill: the bright gold token at this opacity, over a soft halo this many times its width at the halo opacity. */
+	UPROPERTY(EditAnywhere, Category = "XP ring", meta = (ClampMin = "0", ClampMax = "1"))
+	float RingFillAlpha = 0.95f;
 
-	UPROPERTY(EditAnywhere, Category = "XP ring")
-	FLinearColor RingMaxColor = FLinearColor(1.0f, 0.85f, 0.35f, 0.95f);
+	UPROPERTY(EditAnywhere, Category = "XP ring", meta = (ClampMin = "1"))
+	float RingHaloWidthScale = 3.0f;
 
-	UPROPERTY(EditAnywhere, Category = "XP ring")
-	FLinearColor RingLevelUpColor = FLinearColor(1.0f, 1.0f, 1.0f, 1.0f);
+	UPROPERTY(EditAnywhere, Category = "XP ring", meta = (ClampMin = "0", ClampMax = "1"))
+	float RingHaloAlpha = 0.25f;
 };

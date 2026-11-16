@@ -11,19 +11,19 @@ struct UMBRELLAELLA_API FMotorTuning
 
 	/** Overhead rise speed, units/s (neither Shoot nor Absorb held). */
 	UPROPERTY(Config, EditAnywhere, Category = "Motor", meta = (ClampMin = "0"))
-	float RiseSpeed = 120.0f; // bake: MOVE-21.rise_speed
+	float RiseSpeed = 240.0f; // bake: MOVE-21.rise_speed
 
 	/** Shoot-fall and absorb-fall speed, units/s. */
 	UPROPERTY(Config, EditAnywhere, Category = "Motor", meta = (ClampMin = "0"))
-	float FallSpeed = 330.0f; // bake: MOVE-21.fall_speed
+	float FallSpeed = 660.0f; // bake: MOVE-21.fall_speed
 
 	/** Fast free fall speed (both held), units/s. */
 	UPROPERTY(Config, EditAnywhere, Category = "Motor", meta = (ClampMin = "0"))
-	float FreeFallSpeed = 610.0f; // bake: MOVE-21.free_fall_speed
+	float FreeFallSpeed = 1220.0f; // bake: MOVE-21.free_fall_speed
 
 	/** Cap on current-driven horizontal (and vertical) travel, units/s. Direct steering is OFF. */
 	UPROPERTY(Config, EditAnywhere, Category = "Motor", meta = (ClampMin = "0"))
-	float HorizontalMaxSpeed = 290.0f; // bake: MOVE-21.horizontal_max_speed
+	float HorizontalMaxSpeed = 580.0f; // bake: MOVE-21.horizontal_max_speed
 
 	/** Vertical trim: percent of the state's speed added or removed by full stick/key. */
 	UPROPERTY(Config, EditAnywhere, Category = "Motor", meta = (ClampMin = "0", ClampMax = "100"))
@@ -31,7 +31,7 @@ struct UMBRELLAELLA_API FMotorTuning
 
 	/** Overhead hop distance, units. */
 	UPROPERTY(Config, EditAnywhere, Category = "Motor", meta = (ClampMin = "0"))
-	float HopDistance = 40.0f; // bake: MOVE-21.hop_distance
+	float HopDistance = 80.0f; // bake: MOVE-21.hop_distance
 
 	UPROPERTY(Config, EditAnywhere, Category = "Motor", meta = (ClampMin = "0.01"))
 	float HopDurationSeconds = 0.22f; // bake: MOVE-21.hop_duration_s
@@ -45,7 +45,7 @@ struct UMBRELLAELLA_API FMotorTuning
 
 	/** Falling dash distance, units. */
 	UPROPERTY(Config, EditAnywhere, Category = "Motor", meta = (ClampMin = "0"))
-	float DashDistance = 85.0f; // bake: MOVE-21.dash_distance
+	float DashDistance = 170.0f; // bake: MOVE-21.dash_distance
 
 	UPROPERTY(Config, EditAnywhere, Category = "Motor", meta = (ClampMin = "0.01"))
 	float DashDurationSeconds = 0.16f; // bake: MOVE-21.dash_duration_s
@@ -61,9 +61,14 @@ struct UMBRELLAELLA_API FMotorTuning
 	UPROPERTY(Config, EditAnywhere, Category = "Motor", meta = (ClampMin = "0"))
 	float WindAcceleration = 3.0f; // bake: MOVE-22.wind_acceleration
 
-	/** Largest wind velocity the Motor carries, units/s (GDD wind 360); Ella's own horizontal maximum stays 290. */
+	/** Largest wind velocity the Motor carries, units/s (GDD wind 360 x WindScale, D-new-move-speeds). */
 	UPROPERTY(Config, EditAnywhere, Category = "Motor", meta = (ClampMin = "0"))
-	float WindMaxSpeed = 360.0f;
+	float WindMaxSpeed = 720.0f;
+
+	/** Every wind current, gust push and local wind field reaches Ella at this multiple of its GDD speed (D-new-move-speeds:
+	 *  the felt speeds from the old double move, kept by Josh 14 Nov, now from one knob). */
+	UPROPERTY(Config, EditAnywhere, Category = "Motor", meta = (ClampMin = "0"))
+	float WindScale = 2.0f;
 
 	/** Wind momentum decay while overhead and not riding, 1/s. */
 	UPROPERTY(Config, EditAnywhere, Category = "Motor", meta = (ClampMin = "0"))
